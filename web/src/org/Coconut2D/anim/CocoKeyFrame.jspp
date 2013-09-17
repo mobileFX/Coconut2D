@@ -1,0 +1,118 @@
+//@compile{true}
+//@depends{CocoObject.jspp,WebGL.js}
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013 www.coconut2D.org
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.   
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                 __ __           ______                        
+//	  / ____/___  _________  / //_/__  __  __/ ____/________ _____ ___  ___ 
+//	 / /   / __ \/ ___/ __ \/ ,< / _ \/ / / / /_  / ___/ __ `/ __ `__ \/ _ \
+//	/ /___/ /_/ / /__/ /_/ / /| /  __/ /_/ / __/ / /  / /_/ / / / / / /  __/
+//	\____/\____/\___/\____/_/ |_\___/\__, /_/   /_/   \__,_/_/ /_/ /_/\___/ 
+//	                                /____/                                  
+// ==================================================================================================================================
+
+class CocoKeyFrame
+{
+	public var frameIndex:Number									= 0;
+	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM 	= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
+	public var handleEvents:Boolean									= false;
+	public var alpha:Number											= 1.0;
+	public var visible:Boolean										= true;
+	public var x:Number 											= 0.0;
+	public var y:Number 											= 0.0;
+	public var pivotX:Number 										= 0.0;
+	public var pivotY:Number 										= 0.0;
+	public var scaleX:Number 										= 1.0;
+	public var scaleY:Number 										= 1.0;
+	public var rotation:Number										= 0.0;
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		frameInterpolation 	= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
+		handleEvents 		= false;
+		visible				= true;
+		x					= 0.0;
+		y					= 0.0;
+		scaleX				= 1.0;
+		scaleY				= 1.0;
+		rotation			= 0.0;
+		pivotX				= 0.0;
+		pivotY				= 0.0;
+		alpha				= 1.0;			
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function clone() :CocoKeyFrame
+	{
+	    var c:CocoKeyFrame;
+	    c = new CocoKeyFrame();
+		c.alpha					= alpha;				
+		c.frameIndex            = frameIndex;        
+		c.frameInterpolation    = frameInterpolation;
+		c.handleEvents          = handleEvents;      
+		c.pivotX                = pivotX;            
+		c.pivotY                = pivotY;            
+		c.rotation              = rotation;          
+		c.scaleX                = scaleX;            
+		c.scaleY                = scaleY;            
+		c.visible               = visible;           
+		c.x                     = x;                 
+		c.y                     = y;                 
+	    return c;
+	}	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Number)
+	{
+	    alpha = F1.alpha + s * (F2.alpha - F1.alpha);
+	    x = F1.x + s * (F2.x - F1.x);
+	    y = F1.y + s * (F2.y - F1.y);
+	    scaleX = F1.scaleX + s * (F2.scaleX - F1.scaleX);
+	    scaleY = F1.scaleY + s * (F2.scaleY - F1.scaleY);
+	    rotation = F1.rotation + s * (F2.rotation - F1.rotation);
+	    pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
+	    pivotY = F1.pivotY + s * (F2.pivotY - F1.pivotY);    
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function combine(Frame:CocoKeyFrame)
+	{
+		if(!Frame) return;
+	    alpha = alpha * Frame.alpha;
+	    visible = visible & Frame.visible;
+	    handleEvents = handleEvents & Frame.handleEvents;
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function apply(matrix:CocoMatrix)
+	{
+		matrix.translate(x, y);
+		matrix.rotateZ(rotation * Math.PI / 180.0 );
+		matrix.scale(scaleX, scaleY);
+		matrix.translate(-pivotX, -pivotY);
+	}		
+} 
