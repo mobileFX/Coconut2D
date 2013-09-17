@@ -1,7 +1,8 @@
 ## Coconut 2D
 The basic idea of Coconut 2D is that you write your games and apps once in <B>JavaScript</B> and <B>WebGL</B>, and you get them to run on any <B>HTML5 Browser</B>, <B>iOS</B> or <B>Android</B> device.
 
-Coconut 2D consists of a set of <B>JavaScript WebGL Frameworks</B> for building animations games and applications, and a cross-platform native Common Runtime Layer for iOS and Android that emulate basic HTML5 DOM and the WebGL API. 
+Coconut 2D consists of a set of <B>JavaScript WebGL Frameworks</B> for building animations games and applications, and a cross-platform native Common Runtime Layer for iOS and Android that emulate basic HTML5 DOM and the WebGL API.
+### [Click Here for Live Demo](http://yiamiyo.no-ip.org/coconut/)
 
 Coconut 2D is partitioned to the following layers:
 
@@ -46,8 +47,6 @@ CocoScript Frameworks are written in JavaScript++, a programming language writte
 
 ## Getting Started
 When coding JavaScript and HTML5 WebGL Games you typically write a State Machine Automaton (also called Game Engine) that creates a <b>HTML5 Canvas</b> element and renders the game by calling <b>requestAnimationFrame</b>.
-
-[Live Demo](http://yiamiyo.no-ip.org/coconut/)
 
 ```javascript
 
