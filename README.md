@@ -206,7 +206,7 @@ class StateAnim :CocoEngineState
 }
 ```
 
-## Using Coconut 2D without CocoScript
+## Using Coconut 2D CRL without CocoScript
 
 It is also easy to use native WebGL without CocoScript Frameworks, using plain JavaScrpt and some HTML5 prototypes for binding JavaScript with CRL.
 
