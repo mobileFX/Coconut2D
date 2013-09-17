@@ -1,6 +1,6 @@
 ## Coconut 2D
 The basic idea of Coconut 2D is that you write your games and apps once in <B>JavaScript</B> and <B>WebGL</B>, and you get them to run on any <B>HTML5 Browser</B>, <B>iOS</B> or <B>Android</B> device.
-### [Click Here for Live Demo](http://yiamiyo.no-ip.org/coconut/)
+### [Click Here for Live Demo](http://yiamiyo.no-ip.org/coconut/demo2.html)
 
 Coconut 2D consists of a set of <B>JavaScript WebGL Frameworks</B> for building animations games and applications, and a cross-platform native Common Runtime Layer for iOS and Android that emulate basic HTML5 DOM and the WebGL API.
 
@@ -209,6 +209,10 @@ class StateAnim :CocoEngineState
 ## Using Coconut 2D CRL without CocoScript
 
 It is also easy to use native WebGL without CocoScript Frameworks, using plain JavaScrpt and some HTML5 prototypes for binding JavaScript with CRL.
+
+### [Click Here for Live Demo](http://yiamiyo.no-ip.org/coconut/demo1.html)  
+
+(The code works as is over the Coconut 2D CRL for Android and iOS with the exact same result as in your browser!)
 
 ```javascript
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
