@@ -1,0 +1,204 @@
+//@compile{false}
+/*///////////////////////////////////////////////////////////////////////////////////////////////
+        ______________  ______   _____           _       __
+       / ____/ ____/  |/  /   | / ___/__________(_)___  / /_
+      / __/ / /   / /|_/ / /| | \__ \/ ___/ ___/ / __ \/ __/
+     / /___/ /___/ /  / / ___ |___/ / /__/ /  / / /_/ / /_
+    /_____/\____/_/  /_/_/  |_/____/\___/_/  /_/ .___/\__/
+                                              /_/       
+	ECMAScript Symbols Script Library	
+	
+//////////////////////////////////////////////////////////////////////////////////////////////*/
+
+/* 
+class ECMAObject
+{
+	public function toString():String {}
+	public function toLocaleString():String {}
+	public function valueOf():Object {}
+	public function __hasOwnProperty(name:String):Boolean {}
+	public function isPrototypeOf(o:Object):Boolean {}
+	public function propertyIsEnumerable(name:String):Boolean {}
+}
+
+class ECMAString :Object
+{	
+	public var length:Number;	
+	public function fromCharCode(charCode:Number):String {}
+	public function charAt(position:Number):String {}
+	public function charCodeAt(position:Number):Number {}
+	public function concat(value:String):String {}
+	public function indexOf(searchString:String, startPosition:Number):Number {}
+	public function lastIndexOf(searchString:String, startPosition:Number):Number {}
+	public function localeCompare(otherString:String):Number {}
+	public function match(regexp:RegExp):Array {}
+	public function replace(regexp:RegExp, replaceValue:String):String {}
+	public function search(regexp:RegExp):Number {}
+	public function slice(start:Number, end:Number):String {}
+	public function split(separator:String, limit:Number):Array {}
+	public function substring(start:Number, end:Number):String {}
+	public function toLowerCase():String {}
+	public function toLocaleLowerCase():String {}
+	public function toUpperCase():String {}
+	public function toLocaleUpperCase():String {}
+}
+
+class ECMANumber :Object
+{	
+	public var MIN_VALUE:Number;
+	public var MAX_VALUE:Number;
+	public var NEGATIVE_INFINITY:Number;
+	public var POSITIVE_INFINITY:Number;
+	public function toFixed(fractionDigits:Number):String {}
+	public function toExponential(fractionDigits:Number):String {}
+	public function toPrecision(fractionDigits:Number):String {}
+}
+
+class ECMABoolean :Object
+{
+}
+
+class ECMAArray :Object
+{
+	public var length:Number;
+	public function concat(args:Array):Array {}
+	public function join(seperator:String):Array {}
+	public function pop():Array {}
+	public function push(args:Object):Object {}
+	public function reverse():Array {}
+	public function shift():Array {}
+	public function slice(start:Number, end:Number):Array {}
+	public function sort(funct:Function):Array {}
+	public function splice(start:Number, deletecount:Number, items:Number):Array {}
+	public function unshift(start:Number):Array {}
+	public function forEach(item:Object):Array {}
+} 
+
+class Float32Array :Array
+{
+}
+
+class ECMAFunction :Object
+{	                                                            
+	public var length:Number;
+	public function apply(thisArg:String, argArray:Array):Object {}
+	public function call(thisObject:Object, args:Array):Object {}	
+}
+
+class ECMADate :Object
+{
+	public function UTC(hour:Number, min:Number, sec:Number, ms:Number):Number {}
+	public function parse(string:String):Number {}
+	public function toDateString():String {}
+	public function toTimeString():String {}
+	public function toLocaleString():String {}
+	public function toLocaleDateString():String {}
+	public function toLocaleTimeString():String {}
+	public function valueOf():Object {}
+	public function getFullYear():Number {}
+	public function getTime():Number {}
+	public function getUTCFullYear():Number {}
+	public function getMonth():Number {}
+	public function getUTCMonth():Number {}
+	public function getDate():Number {}
+	public function getUTCDate():Number {}
+	public function getDay():Number {}
+	public function getUTCDay():Number {}
+	public function getHours():Number {}
+	public function getUTCHours():Number {}
+	public function getMinutes():Number {}
+	public function getUTCMinutes():Number {}
+	public function getSeconds():Number {}
+	public function getUTCSeconds():Number {}
+	public function getMilliseconds():Number {}
+	public function getUTCMilliseconds():Number {}
+	public function getTimezoneOffset():Number {}
+	public function setTime(value:Number):Number {}
+	public function setMilliseconds(value:Number):Number {}
+	public function setUTCMilliseconds(ms:Number):Number {}
+	public function setSeconds(sec:Number, ms:Number):Number {}
+	public function setUTCSeconds(sec:Number, ms:Number):Number {}
+	public function setMinutes(min:Number, sec:Number, ms:Number):Number {}
+	public function setUTCMinute(min:Number, sec:Number, ms:Number):Number {}
+	public function setHours(hour:Number, min:Number, sec:Number, ms:Number):Number {}
+	public function setUTCHours(hour:Number, min:Number, sec:Number, ms:Number):Number {}
+	public function setDate(date:Number):Number {}
+	public function setUTCDate(date:Number):Number {}
+	public function setMonth(month:Number, date:Number):Number {}
+	public function setUTCMonth(month:Number, date:Number):Number {}
+	public function setFullYear(year:Number, month:Number, date:Number):Number {}
+	public function setUTCFullYear(year:Number, month:Number, date:Number){};
+	public function toUTCString():String {}
+}
+
+class ECMAGlobal :Object
+{
+	public var __NaN:Number;
+	public var __Infinity:Number;
+	public function eval(s:String):Object {}
+	public function parseInt(s:String, radix:Number):Number {}
+	public function parseFloat(s:String):Number {}
+	public function escape(s:String):String {}
+	public function unescape(s:String):String {}
+	public function isNaN(number:Object):Boolean {}
+	public function isFinite(number:Object):Boolean {}
+	public function decodeURI(encodedURI:String):String {}
+	public function decodeURIComponent(uriComponent:String):String {}
+	public function encodeURIComponent(uriComponent:String):String {}
+	public function encodeURI(URI:String):String {}
+} 
+
+class ECMAMath :Object  
+{
+	public var E:Number;
+	public var LN10:Number;
+	public var LN2:Number;
+	public var LOG2E:Number;
+	public var LOG10E:Number;
+	public var PI:Number;
+	public var SQRT1_2:Number;
+	public var SQRT2:Number;
+	public function abs(x:Number):Number {}
+	public function acos(x:Number):Number {}
+	public function asin(x:Number):Number {}
+	public function atan(x:Number):Number {}
+	public function atan2(x:Number, y:Number):Number {}
+	public function ceil(x:Number):Number {}
+	public function cos(x:Number):Number {}
+	public function exp(x:Number):Number {}
+	public function floor(x:Number):Number {}
+	public function log(x:Number):Number {}
+	public function max(args:Array):Number {}
+	public function min(args:Array):Number {}
+	public function pow(x:Number, y:Number):Number {}
+	public function random():Number {}
+	public function round(x:Number):Number {}
+	public function sin(x:Number):Number {}
+	public function sqrt(x:Number):Number {}
+	public function tan(x:Number):Number {}
+}
+
+class ECMARegExp :Object
+{
+	public var source:String;
+	public var global:Boolean;
+	public var ignoreCase:Boolean;
+	public var multiline:Boolean;
+	public var lastIndex:Number;
+	public function exec(string:String):Array {}
+	public function test(string:String):Boolean {}
+}
+
+class ECMAError :Object
+{
+	public var name:String;
+	public var message:String
+}
+
+class ECMAEvalError :Error {}
+class ECMARangeError :Error {}
+class ECMAReferenceError :Error {}
+class ECMASyntaxError :Error {}
+class ECMATypeError :Error {}
+
+*/
