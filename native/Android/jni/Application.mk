@@ -1,6 +1,0 @@
-APP_ABI := armeabi armeabi-v7a x86
-APP_PLATFORM := android-9
-APP_STL := gnustl_static
-APP_CPPFLAGS += -DJAVASCRIPT_ENGINE_V8 -DANDROID_APPLICATION -DENABLE_FX_DEBUG -std=gnu++11 -Wfatal-errors -DENABLE_HQ_AUDIO
-APP_OPTIM := debug
-NDK_TOOLCHAIN_VERSION := 4.7
