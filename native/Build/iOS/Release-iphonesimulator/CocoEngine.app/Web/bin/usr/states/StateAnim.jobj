@@ -1,0 +1,83 @@
+//@compile{false}
+//@line 2
+function StateAnim()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS1042__ = this,
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ = {};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		var __TMP41__ = __SUPER__,
+			__TMP42__ = [];
+		for (var __TMP40__ in __TMP41__) __TMP42__.push(__TMP40__ + '=__TMP41__.' + __TMP40__);
+		__TMP42__.length && eval('var ' + __TMP42__.join() + ';');
+		__TMP41__ = __SUPER__.__PROTECTED__;
+		__TMP42__.length = 0;
+		for (var __TMP40__ in __TMP41__)
+		{
+			__TMP42__.push(__TMP40__ + '=__TMP41__.' + __TMP40__);
+			this.__PROTECTED__[__TMP40__] = __TMP41__[__TMP40__];
+		}
+		__TMP42__.length && eval('var ' + __TMP42__.join() + ';');
+		//@line 13
+		var tick = this.tick = function (engine, gl, time)
+		{
+			//@line 14
+			//@line 15
+			__SUPER__.tick(gl, time);
+			//@line 17
+			if (scene != null)
+			//@line 18
+			{
+				//@line 19
+				if (!scene.resourceImagesLoaded())
+				//@line 20
+				{
+				}
+				else
+				//@line 23
+				if (!scene.prepared())
+				//@line 24
+				{
+					//@line 26
+					scene.prepare(gl);
+				}
+				else
+				//@line 29
+				{
+					//@line 31
+					gl.clear(gl.COLOR_BUFFER_BIT);
+					//@line 32
+					scene.tick(gl, time);
+				}
+			}
+		};
+		//@line 4
+		var scene = undefined;
+		this.Constructor = function ()
+		{
+			//@line 8
+			//@line 9
+			scene = new Animation1;
+			return __CLASS1042__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call((function (o)
+	{
+		return (F.prototype = __SUPER__ = o, new F);
+
+		function F()
+		{
+		}
+	})(new CocoEngineState))).Constructor.apply(this, [].slice.call(arguments))
+}
