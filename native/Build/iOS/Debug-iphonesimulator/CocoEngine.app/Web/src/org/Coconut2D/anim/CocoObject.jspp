@@ -1,5 +1,5 @@
 //@compile{true}
-//@depends{WebGL.js}
+//@include{WebGL.js}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *

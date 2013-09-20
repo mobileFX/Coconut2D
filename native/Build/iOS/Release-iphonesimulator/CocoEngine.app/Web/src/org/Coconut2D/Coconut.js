@@ -1,5 +1,5 @@
 //@compile{true}
-//@depends{HTML5.js,CocoEngine.jspp,UIView.jspp}
+//@include{HTML5.js,CocoEngine.jspp,UIView.jspp}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
