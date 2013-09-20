@@ -35,3 +35,4 @@ function tickAndPaint(time)
 window.addEventListener("load", main);
 
 
+
