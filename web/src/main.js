@@ -1,5 +1,5 @@
 //@compile{true}
-//@depends{Coconut.js}
+//@include{Coconut.js}
 
 var engine = null;
 var gl = null;
@@ -33,3 +33,6 @@ function tickAndPaint(time)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 window.addEventListener("load", main);
+
+
+

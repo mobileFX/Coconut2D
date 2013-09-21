@@ -1,5 +1,5 @@
 //@compile{false}
-//@depends{Coconut.js}
+//@include{Coconut.js}
 
 function makeProgram(gl, vs, fs)
 {

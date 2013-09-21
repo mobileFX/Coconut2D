@@ -1,5 +1,5 @@
 //@compile{native}
-//@depends{HTMLCanvas.js}
+//@include{HTMLCanvas.js}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *

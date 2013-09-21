@@ -1,5 +1,5 @@
 //@compile{native}
-//@depends{HTML5.js}
+//@include{HTML5.js}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *

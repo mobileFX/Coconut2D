@@ -1,5 +1,5 @@
 //@compile{native}
-//@depends{Constants.js}
+//@include{Constants.js}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -35,6 +35,7 @@
 // ==================================================================================================================================
 
 var __uid_counter = 0;
+var window = this;
 
 function HTMLElement()
 {
@@ -124,7 +125,6 @@ HTMLLocation.prototype.pathname = "";
 //	                                                               
 // ==================================================================================================================================
 
-var window = this;
 window.__uid = 0; // window must have __uid = 0;
 window.document = new HTMLDocument();
 window.location - new HTMLLocation();
@@ -135,4 +135,5 @@ window.removeEventListener = function(type, listener, useCapture){ return Callba
 var top = window;
 var self = window;
 var document = window.document;
+
 

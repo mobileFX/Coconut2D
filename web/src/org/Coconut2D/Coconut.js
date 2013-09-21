@@ -1,5 +1,5 @@
 //@compile{true}
-//@depends{HTML5.js,CocoEngine.jspp,UIView.jspp}
+//@include{Constants.js}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -34,11 +34,12 @@
 //	                                                                                               /____/             
 // ==================================================================================================================================
 
-/**
- * Coconut2D Version.
- * @const
- * @type {number}
- */
+'use strict';
+
 var ___COCONUT_VERSION = 1.0;
+
+
+
+
 
 

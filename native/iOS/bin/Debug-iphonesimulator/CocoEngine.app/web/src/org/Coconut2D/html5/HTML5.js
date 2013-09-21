@@ -1,5 +1,5 @@
 //@compile{native}
-//@depends{Constants.js}
+//@include{Constants.js}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
