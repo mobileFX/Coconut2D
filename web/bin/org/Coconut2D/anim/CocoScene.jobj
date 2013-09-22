@@ -5,7 +5,7 @@ function CocoScene()
 	var __SUPER__;
 	return ((function ()
 	{
-		var __CLASS978__ = this,
+		var __CLASS539__ = this,
 			__PDEFINE__ = {}.constructor.defineProperty,
 			__NOENUM__ =
 			{
@@ -21,7 +21,7 @@ function CocoScene()
 		{
 			//@line 71
 			//@line 72
-			return __CLASS978__.__glProgram != null;
+			return __CLASS539__.__glProgram != null;
 			return false
 		};
 		//@line 76
@@ -29,14 +29,14 @@ function CocoScene()
 		{
 			//@line 77
 			//@line 78
-			__CLASS978__.__modelViewMatrix.update(gl, __CLASS978__.__glProgram.GLSLuMVMat);
+			__CLASS539__.__modelViewMatrix.update(gl, __CLASS539__.__glProgram.GLSLuMVMat);
 		};
 		//@line 82
 		var updateProjectionMatrix = this.updateProjectionMatrix = function (gl)
 		{
 			//@line 83
 			//@line 84
-			__CLASS978__.__projectionMatrix.update(gl, __CLASS978__.__glProgram.GLSLuProjMat);
+			__CLASS539__.__projectionMatrix.update(gl, __CLASS539__.__glProgram.GLSLuProjMat);
 		};
 		//@line 88
 		var resourceImagesCount = this.resourceImagesCount = function ()
@@ -46,9 +46,9 @@ function CocoScene()
 			var t = "",
 				c = 0;
 			//@line 91
-			for (t in __CLASS978__.__imageSymbols)
+			for (t in __CLASS539__.__imageSymbols)
 			//@line 92
-			if (__CLASS978__.__imageSymbols[t])
+			if (__CLASS539__.__imageSymbols[t])
 			//@line 93
 			c++; //@line 94
 			return c;
@@ -62,11 +62,11 @@ function CocoScene()
 			var t = "",
 				img;
 			//@line 101
-			for (t in __CLASS978__.__imageSymbols)
+			for (t in __CLASS539__.__imageSymbols)
 			//@line 102
 			{
 				//@line 103
-				img = __CLASS978__.__imageSymbols[t].image;
+				img = __CLASS539__.__imageSymbols[t].image;
 				//@line 104
 				if (!img.width || !img.height)
 				//@line 105
@@ -81,7 +81,7 @@ function CocoScene()
 		{
 			//@line 112
 			//@line 113
-			var img = __CLASS978__.__imageSymbols[symbolName];
+			var img = __CLASS539__.__imageSymbols[symbolName];
 			//@line 114
 			if (img)
 			//@line 115
@@ -141,21 +141,21 @@ function CocoScene()
 		{
 			//@line 132
 			//@line 133
-			return __CLASS978__.__soundSymbols[symbolName] || null;
+			return __CLASS539__.__soundSymbols[symbolName] || null;
 		};
 		//@line 137
 		var getClipSymbol = this.getClipSymbol = function (symbolName)
 		{
 			//@line 138
 			//@line 139
-			return __CLASS978__.__clipSymbols[symbolName] || null;
+			return __CLASS539__.__clipSymbols[symbolName] || null;
 		};
 		//@line 143
 		var newResourceImage = this.newResourceImage = function (symbolName, filename)
 		{
 			//@line 144
 			//@line 145
-			if (__CLASS978__.__imageSymbols[symbolName]) throw "Resource " + symbolName + " already exists.";
+			if (__CLASS539__.__imageSymbols[symbolName]) throw "Resource " + symbolName + " already exists.";
 			//@line 146
 			var img = new CocoImage;
 			//@line 147
@@ -163,7 +163,7 @@ function CocoScene()
 			//@line 148
 			img.createFromFile(filename, null);
 			//@line 149
-			__CLASS978__.__imageSymbols[symbolName] = img;
+			__CLASS539__.__imageSymbols[symbolName] = img;
 			//@line 150
 			return img;
 		};
@@ -172,7 +172,7 @@ function CocoScene()
 		{
 			//@line 155
 			//@line 156
-			if (__CLASS978__.__soundSymbols[symbolName]) throw "Resource " + symbolName + " already exists.";
+			if (__CLASS539__.__soundSymbols[symbolName]) throw "Resource " + symbolName + " already exists.";
 			//@line 157
 			var snd = new CocoSound;
 			//@line 158
@@ -180,7 +180,7 @@ function CocoScene()
 			//@line 159
 			snd.createFromFile(filename, null);
 			//@line 160
-			__CLASS978__.__soundSymbols[symbolName] = snd;
+			__CLASS539__.__soundSymbols[symbolName] = snd;
 			//@line 161
 			return snd;
 		};
@@ -189,81 +189,81 @@ function CocoScene()
 		{
 			//@line 166
 			//@line 167
-			__CLASS978__.__glProgram = glu.makeProgram(gl, __CLASS978__.__vertex_shader, __CLASS978__.__fragment_shader);
+			__CLASS539__.__glProgram = glu.makeProgram(gl, __CLASS539__.__vertex_shader, __CLASS539__.__fragment_shader);
 			//@line 169
-			gl.useProgram(__CLASS978__.__glProgram);
+			gl.useProgram(__CLASS539__.__glProgram);
 			//@line 171
-			__CLASS978__.__glProgram.GLSLiVecCoords = gl.getAttribLocation(__CLASS978__.__glProgram, "iVecCoords");
+			__CLASS539__.__glProgram.GLSLiVecCoords = gl.getAttribLocation(__CLASS539__.__glProgram, "iVecCoords");
 			//@line 172
-			__CLASS978__.__glProgram.GLSLiTexCoords = gl.getAttribLocation(__CLASS978__.__glProgram, "iTexCoords");
+			__CLASS539__.__glProgram.GLSLiTexCoords = gl.getAttribLocation(__CLASS539__.__glProgram, "iTexCoords");
 			//@line 173
-			__CLASS978__.__glProgram.GLSLuProjMat = gl.getUniformLocation(__CLASS978__.__glProgram, "uProjMat");
+			__CLASS539__.__glProgram.GLSLuProjMat = gl.getUniformLocation(__CLASS539__.__glProgram, "uProjMat");
 			//@line 174
-			__CLASS978__.__glProgram.GLSLuMVMat = gl.getUniformLocation(__CLASS978__.__glProgram, "uMVMat");
+			__CLASS539__.__glProgram.GLSLuMVMat = gl.getUniformLocation(__CLASS539__.__glProgram, "uMVMat");
 			//@line 175
-			__CLASS978__.__glProgram.GLSLuSprSize = gl.getUniformLocation(__CLASS978__.__glProgram, "uSprSize");
+			__CLASS539__.__glProgram.GLSLuSprSize = gl.getUniformLocation(__CLASS539__.__glProgram, "uSprSize");
 			//@line 176
-			__CLASS978__.__glProgram.GLSLuSprFrame = gl.getUniformLocation(__CLASS978__.__glProgram, "uSprFrame");
+			__CLASS539__.__glProgram.GLSLuSprFrame = gl.getUniformLocation(__CLASS539__.__glProgram, "uSprFrame");
 			//@line 177
-			__CLASS978__.__glProgram.GLSLuSampler = gl.getUniformLocation(__CLASS978__.__glProgram, "uSampler");
+			__CLASS539__.__glProgram.GLSLuSampler = gl.getUniformLocation(__CLASS539__.__glProgram, "uSampler");
 			//@line 178
-			__CLASS978__.__glProgram.GLSLuColor = gl.getUniformLocation(__CLASS978__.__glProgram, "uColor");
+			__CLASS539__.__glProgram.GLSLuColor = gl.getUniformLocation(__CLASS539__.__glProgram, "uColor");
 			//@line 180
-			__CLASS978__.__modelViewMatrix = new CocoMatrix;
+			__CLASS539__.__modelViewMatrix = new CocoMatrix;
 			//@line 181
-			__CLASS978__.__modelViewMatrix.update(gl, __CLASS978__.__glProgram.GLSLuMVMat);
+			__CLASS539__.__modelViewMatrix.update(gl, __CLASS539__.__glProgram.GLSLuMVMat);
 			//@line 183
-			__CLASS978__.__projectionMatrix = new CocoMatrix;
+			__CLASS539__.__projectionMatrix = new CocoMatrix;
 			//@line 184
-			__CLASS978__.__projectionMatrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
+			__CLASS539__.__projectionMatrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
 			//@line 186
-			__CLASS978__.__projectionMatrix.scale(window.devicePixelRatio, window.devicePixelRatio);
+			__CLASS539__.__projectionMatrix.scale(window.devicePixelRatio, window.devicePixelRatio);
 			//@line 187
-			__CLASS978__.__projectionMatrix.update(gl, __CLASS978__.__glProgram.GLSLuProjMat);
+			__CLASS539__.__projectionMatrix.update(gl, __CLASS539__.__glProgram.GLSLuProjMat);
 			//@line 189
 			var t = "";
 			//@line 190
-			for (t in __CLASS978__.__imageSymbols)
+			for (t in __CLASS539__.__imageSymbols)
 			//@line 191
-			__CLASS978__.__imageSymbols[t].prepare(gl);
+			__CLASS539__.__imageSymbols[t].prepare(gl);
 		};
 		//@line 195
 		var tick = this.tick = function (gl, time)
 		{
 			//@line 196
 			//@line 197
-			__CLASS978__.render(gl, time);
+			__CLASS539__.render(gl, time);
 		};
 		//@line 201
 		var render = this.render = function (gl, time)
 		{
 			//@line 202
 			//@line 203
-			gl.useProgram(__CLASS978__.__glProgram);
+			gl.useProgram(__CLASS539__.__glProgram);
 			//@line 204
 			gl.enable(gl.BLEND);
 			//@line 205
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			//@line 206
-			gl.enableVertexAttribArray(__CLASS978__.__glProgram.GLSLiTexCoords);
+			gl.enableVertexAttribArray(__CLASS539__.__glProgram.GLSLiTexCoords);
 			//@line 207
-			gl.enableVertexAttribArray(__CLASS978__.__glProgram.GLSLiVecCoords);
+			gl.enableVertexAttribArray(__CLASS539__.__glProgram.GLSLiVecCoords);
 			//@line 209
-			__CLASS978__.__modelViewMatrix.identity();
+			__CLASS539__.__modelViewMatrix.identity();
 			//@line 210
-			if (__CLASS978__.__startTime == -1) __CLASS978__.__startTime = time;
+			if (__CLASS539__.__startTime == -1) __CLASS539__.__startTime = time;
 			//@line 211
-			__CLASS978__.__elapsedTime = time - __CLASS978__.__currentTime - __CLASS978__.__startTime;
+			__CLASS539__.__elapsedTime = time - __CLASS539__.__currentTime - __CLASS539__.__startTime;
 			//@line 212
-			__CLASS978__.__currentTime = time - __CLASS978__.__startTime;
+			__CLASS539__.__currentTime = time - __CLASS539__.__startTime;
 			//@line 214
-			if (__CLASS978__.__root)
+			if (__CLASS539__.__root)
 			//@line 215
-			__CLASS978__.__root.render(gl, this, null);
+			__CLASS539__.__root.render(gl, this, null);
 			//@line 217
-			gl.disableVertexAttribArray(__CLASS978__.__glProgram.GLSLiTexCoords);
+			gl.disableVertexAttribArray(__CLASS539__.__glProgram.GLSLiTexCoords);
 			//@line 218
-			gl.disableVertexAttribArray(__CLASS978__.__glProgram.GLSLiVecCoords);
+			gl.disableVertexAttribArray(__CLASS539__.__glProgram.GLSLiVecCoords);
 			//@line 219
 			gl.disable(gl.BLEND);
 		};
@@ -298,14 +298,14 @@ function CocoScene()
 			var sceneName = arguments[0];
 			//@line 62
 			//@line 63
-			__CLASS978__.__sceneName = sceneName;
+			__CLASS539__.__sceneName = sceneName;
 			//@line 64
-			__CLASS978__.__root = new CocoClip;
+			__CLASS539__.__root = new CocoClip;
 			//@line 65
-			__CLASS978__.__modelViewMatrix = new CocoMatrix;
+			__CLASS539__.__modelViewMatrix = new CocoMatrix;
 			//@line 66
-			__CLASS978__.__projectionMatrix = new CocoMatrix;
-			return __CLASS978__
+			__CLASS539__.__projectionMatrix = new CocoMatrix;
+			return __CLASS539__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this
