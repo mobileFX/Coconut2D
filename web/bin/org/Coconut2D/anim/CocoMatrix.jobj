@@ -1,0 +1,148 @@
+//@compile{false}
+//@line 37
+function CocoMatrix()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS793__ = this,
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ = {};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 48
+		var update = this.update = function (gl, ul)
+		{
+			//@line 49
+			//@line 50
+			gl.uniformMatrix4fv(ul, false, __data);
+		};
+		//@line 54
+		var identity = this.identity = function ()
+		{
+			//@line 55
+			//@line 56
+			__data = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+		};
+		//@line 60
+		var ortho = this.ortho = function (left, right, bottom, top, near, far)
+		{
+			//@line 61
+			//@line 62
+			__data = new Float32Array([2 / (right - left), 0, 0, 0, 0, 2 / (top - bottom), 0, 0, 0, 0, -2 / (far - near), 0, -(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1]);
+		};
+		//@line 66
+		var translate = this.translate = function (tx, ty)
+		{
+			//@line 67
+			//@line 68
+			__data[12] += __data[0] * tx + __data[4] * ty;
+			//@line 69
+			__data[13] += __data[1] * tx + __data[5] * ty;
+			//@line 70
+			__data[14] += __data[2] * tx + __data[6] * ty;
+		};
+		//@line 74
+		var scale = this.scale = function (sx, sy)
+		{
+			//@line 75
+			//@line 76
+			__data[0] *= sx;
+			//@line 77
+			__data[4] *= sy;
+			//@line 79
+			__data[1] *= sx;
+			//@line 80
+			__data[5] *= sy;
+			//@line 82
+			__data[2] *= sx;
+			//@line 83
+			__data[6] *= sy;
+			//@line 85
+			__data[3] *= sx;
+			//@line 86
+			__data[7] *= sy;
+		};
+		//@line 91
+		var rotateZ = this.rotateZ = function (rz)
+		{
+			//@line 92
+			//@line 94
+			var c = Math.cos(rz);
+			//@line 95
+			var s = Math.sin(rz);
+			//@line 96
+			var t0 = 0,
+				t1 = 0;
+			//@line 98
+			t0 = __data[0];
+			//@line 99
+			t1 = __data[4];
+			//@line 100
+			__data[0] = t0 * c + t1 * s;
+			//@line 101
+			__data[4] = -t0 * s + t1 * c;
+			//@line 103
+			t0 = __data[1];
+			//@line 104
+			t1 = __data[5];
+			//@line 105
+			__data[1] = t0 * c + t1 * s;
+			//@line 106
+			__data[5] = -t0 * s + t1 * c;
+			//@line 108
+			t0 = __data[2];
+			//@line 109
+			t1 = __data[6];
+			//@line 110
+			__data[2] = t0 * c + t1 * s;
+			//@line 111
+			__data[6] = -t0 * s + t1 * c;
+			//@line 113
+			t0 = __data[3];
+			//@line 114
+			t1 = __data[7];
+			//@line 115
+			__data[3] = t0 * c + t1 * s;
+			//@line 116
+			__data[7] = -t0 * s + t1 * c;
+		};
+		//@line 120
+		var push = this.push = function ()
+		{
+			//@line 121
+			//@line 122
+			__stack.push(new Float32Array(__data));
+		};
+		//@line 126
+		var pop = this.pop = function ()
+		{
+			//@line 127
+			//@line 128
+			if (__stack.length)
+			//@line 129
+			__data = __stack.pop();
+		};
+		//@line 39
+		var __stack = [];
+		//@line 40
+		var __data = null;
+		this.Constructor = function ()
+		{
+			//@line 43
+			//@line 44
+			__CLASS793__.identity();
+			return __CLASS793__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}
