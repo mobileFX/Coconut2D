@@ -5,7 +5,7 @@ function CocoClip()
 	var __SUPER__;
 	return ((function ()
 	{
-		var __CLASS483__ = this,
+		var __CLASS922__ = this,
 			__PDEFINE__ = {}.constructor.defineProperty,
 			__NOENUM__ =
 			{
@@ -25,9 +25,9 @@ function CocoClip()
 			//@line 80
 			var vClip = "";
 			//@line 81
-			for (vClip in __CLASS483__.__children)
+			for (vClip in __CLASS922__.__children)
 			//@line 82
-			children.push(__CLASS483__.__children[vClip]); //@line 83
+			children.push(__CLASS922__.__children[vClip]); //@line 83
 			return children;
 			return []
 		};
@@ -39,11 +39,11 @@ function CocoClip()
 			var vClip = "",
 				ci, T = 0;
 			//@line 90
-			for (vClip in __CLASS483__.__children)
+			for (vClip in __CLASS922__.__children)
 			//@line 91
 			{
 				//@line 92
-				ci = __CLASS483__.__children[vClip] || null;
+				ci = __CLASS922__.__children[vClip] || null;
 				//@line 93
 				if (ci.__timeline.__lastframeIndex > T)
 				//@line 94
@@ -61,11 +61,11 @@ function CocoClip()
 			var vClip = "",
 				ci, T = 0;
 			//@line 103
-			for (vClip in __CLASS483__.__children)
+			for (vClip in __CLASS922__.__children)
 			//@line 104
 			{
 				//@line 105
-				ci = __CLASS483__.__children[vClip];
+				ci = __CLASS922__.__children[vClip];
 				//@line 106
 				if (ci.__timeline.__durationInTime > T)
 				//@line 107
@@ -84,11 +84,11 @@ function CocoClip()
 			//@line 116
 			if (!clipInstance.__instanceName) throw "Invalid instance name.";
 			//@line 117
-			if (__CLASS483__.__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " already exists.";
+			if (__CLASS922__.__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " already exists.";
 			//@line 118
-			__CLASS483__.__children[clipInstance.__instanceName] = clipInstance;
+			__CLASS922__.__children[clipInstance.__instanceName] = clipInstance;
 			//@line 119
-			__CLASS483__.__childrenCount++;
+			__CLASS922__.__childrenCount++;
 			//@line 120
 			return clipInstance;
 		};
@@ -101,11 +101,11 @@ function CocoClip()
 			//@line 127
 			if (!clipInstance.__instanceName) throw "Invalid instance name.";
 			//@line 128
-			if (!__CLASS483__.__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " does not exist in this parent.";
+			if (!__CLASS922__.__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " does not exist in this parent.";
 			//@line 129
-			__CLASS483__.__children[clipInstance.__instanceName] = null;
+			__CLASS922__.__children[clipInstance.__instanceName] = null;
 			//@line 130
-			__CLASS483__.__childrenCount--;
+			__CLASS922__.__childrenCount--;
 			//@line 131
 			return clipInstance;
 		};
@@ -114,16 +114,16 @@ function CocoClip()
 		{
 			//@line 136
 			//@line 137
-			return __CLASS483__.__children[instanceName] || null;
+			return __CLASS922__.__children[instanceName] || null;
 		};
 		//@line 141
 		var getChildByIndex = this.getChildByIndex = function (index)
 		{
 			//@line 142
 			//@line 143
-			if (!(index >= 0 && index < __CLASS483__.__childrenCount)) return null;
+			if (!(index >= 0 && index < __CLASS922__.__childrenCount)) return null;
 			//@line 144
-			var arr = __CLASS483__.children();
+			var arr = __CLASS922__.children();
 			//@line 145
 			return arr[index];
 		};
@@ -139,13 +139,13 @@ function CocoClip()
 				var vClip = "",
 					index = -1;
 				//@line 154
-				for (vClip in __CLASS483__.__children)
+				for (vClip in __CLASS922__.__children)
 				//@line 155
 				{
 					//@line 156
 					index++;
 					//@line 157
-					if (__CLASS483__.__children[vClip] == child)
+					if (__CLASS922__.__children[vClip] == child)
 					//@line 158
 					return index;
 				}
@@ -161,18 +161,18 @@ function CocoClip()
 			//@line 167
 			if (!child) return false;
 			//@line 169
-			if (__CLASS483__.__children[child.__instanceName])
+			if (__CLASS922__.__children[child.__instanceName])
 			//@line 170
 			return true;
 			//@line 172
 			var vClip = "",
 				clip;
 			//@line 173
-			for (vClip in __CLASS483__.__children)
+			for (vClip in __CLASS922__.__children)
 			//@line 174
 			{
 				//@line 175
-				clip = __CLASS483__.__children[vClip] || null;
+				clip = __CLASS922__.__children[vClip] || null;
 				//@line 176
 				if (clip && clip.isParentOf(child))
 				//@line 177
@@ -187,13 +187,13 @@ function CocoClip()
 			//@line 184
 			if (newIndex < 0) return false;
 			//@line 185
-			if (newIndex > __CLASS483__.__childrenCount) return false;
+			if (newIndex > __CLASS922__.__childrenCount) return false;
 			//@line 187
-			var oldIndex = __CLASS483__.getChildIndex(child);
+			var oldIndex = __CLASS922__.getChildIndex(child);
 			//@line 188
 			if (oldIndex = newIndex) return false;
 			//@line 190
-			var arr = __CLASS483__.children();
+			var arr = __CLASS922__.children();
 			//@line 191
 			arr.splice(oldIndex, 1);
 			//@line 193
@@ -210,7 +210,7 @@ function CocoClip()
 				arr.insertBefore(child, newIndex);
 			}
 			//@line 202
-			__CLASS483__.__children = {};
+			__CLASS922__.__children = {};
 			//@line 203
 			var clip;
 			//@line 204
@@ -222,7 +222,7 @@ function CocoClip()
 				//@line 207
 				clip = arr[i];
 				//@line 208
-				__CLASS483__.__children[clip.__instanceName] = clip;
+				__CLASS922__.__children[clip.__instanceName] = clip;
 			}
 			//@line 211
 			return true;
@@ -241,58 +241,58 @@ function CocoClip()
 				//@line 221
 				var parentClipsDuration = parentClip.childrenMaxTimelineDuration();
 				//@line 222
-				if (__CLASS483__.__firstTickTime == -1) __CLASS483__.__firstTickTime = scene.__currentTime;
+				if (__CLASS922__.__firstTickTime == -1) __CLASS922__.__firstTickTime = scene.__currentTime;
 				//@line 223
-				var loopTime = (scene.__currentTime - __CLASS483__.__firstTickTime) - Math.floor((scene.__currentTime - __CLASS483__.__firstTickTime) / parentClipsDuration) * parentClipsDuration;
+				var loopTime = (scene.__currentTime - __CLASS922__.__firstTickTime) - Math.floor((scene.__currentTime - __CLASS922__.__firstTickTime) / parentClipsDuration) * parentClipsDuration;
 				//@line 224
-				__CLASS483__.__currentFrame = __CLASS483__.__timeline.interpolateByTime(loopTime);
+				__CLASS922__.__currentFrame = __CLASS922__.__timeline.interpolateByTime(loopTime);
 				//@line 225
-				__CLASS483__.__currentFrame.combine(parentClip.__currentFrame);
+				__CLASS922__.__currentFrame.combine(parentClip.__currentFrame);
 				//@line 226
-				__CLASS483__.__currentFrame.apply(scene.__modelViewMatrix);
+				__CLASS922__.__currentFrame.apply(scene.__modelViewMatrix);
 				//@line 227
 				scene.updateModelViewMatrix(gl);
 				//@line 228
-				if (__CLASS483__.__currentFrame.alpha == 0) return;
+				if (__CLASS922__.__currentFrame.alpha == 0) return;
 				//@line 229
-				if (!__CLASS483__.__currentFrame.visible) return;
+				if (!__CLASS922__.__currentFrame.visible) return;
 			}
 			//@line 232
-			if (__CLASS483__.__image)
+			if (__CLASS922__.__image)
 			//@line 233
 			{
 				//@line 234
-				if (__CLASS483__.__image.isSpriteSheet())
+				if (__CLASS922__.__image.isSpriteSheet())
 				//@line 235
 				{
 					//@line 236
-					if (!__CLASS483__.__currentSequenceName)
+					if (!__CLASS922__.__currentSequenceName)
 					//@line 237
 					{
 						//@line 238
 						var s = "";
 						//@line 239
-						for (s in __CLASS483__.__image.sequences)
+						for (s in __CLASS922__.__image.sequences)
 						//@line 240
 						{
 							//@line 241
-							__CLASS483__.__currentSequenceName = s;
+							__CLASS922__.__currentSequenceName = s;
 							//@line 242
 							break;
 						}
 					}
 					//@line 245
-					var seq = __CLASS483__.__image.sequences[__CLASS483__.__currentSequenceName];
+					var seq = __CLASS922__.__image.sequences[__CLASS922__.__currentSequenceName];
 					//@line 246
-					__CLASS483__.__currentSequenceFrameIndex += 0.5;
+					__CLASS922__.__currentSequenceFrameIndex += 0.5;
 					//@line 247
-					if (__CLASS483__.__currentSequenceFrameIndex >= seq.frames.length) __CLASS483__.__currentSequenceFrameIndex = 0;
+					if (__CLASS922__.__currentSequenceFrameIndex >= seq.frames.length) __CLASS922__.__currentSequenceFrameIndex = 0;
 					//@line 248
-					var idx = Math.floor(__CLASS483__.__currentSequenceFrameIndex);
+					var idx = Math.floor(__CLASS922__.__currentSequenceFrameIndex);
 					//@line 249
 					var frame = seq.frames[idx];
 					//@line 250
-					__CLASS483__.__image.drawFrame(gl, scene.__glProgram, frame);
+					__CLASS922__.__image.drawFrame(gl, scene.__glProgram, frame);
 				}
 			}
 			//@line 254
@@ -300,11 +300,11 @@ function CocoClip()
 			//@line 255
 			var ci;
 			//@line 256
-			for (c in __CLASS483__.__children)
+			for (c in __CLASS922__.__children)
 			//@line 257
 			{
 				//@line 258
-				ci = __CLASS483__.__children[c];
+				ci = __CLASS922__.__children[c];
 				//@line 259
 				ci.render(gl, scene, this);
 			}
@@ -338,14 +338,14 @@ function CocoClip()
 		{
 			//@line 62
 			//@line 63
-			__CLASS483__.__instanceName = v;
+			__CLASS922__.__instanceName = v;
 		});
 		//@line 66
 		this.__defineGetter__('instanceName', function ()
 		{
 			//@line 67
 			//@line 68
-			return __CLASS483__.__instanceName;
+			return __CLASS922__.__instanceName;
 			return ""
 		});
 		//@line 71
@@ -353,7 +353,7 @@ function CocoClip()
 		{
 			//@line 72
 			//@line 73
-			return __CLASS483__.__timeline;
+			return __CLASS922__.__timeline;
 		});
 		this.Constructor = function ()
 		{
@@ -362,14 +362,14 @@ function CocoClip()
 			var sequence = arguments[2];
 			//@line 53
 			//@line 54
-			__CLASS483__.__timeline = new CocoTimeline;
+			__CLASS922__.__timeline = new CocoTimeline;
 			//@line 55
-			if (image) __CLASS483__.__image = image;
+			if (image) __CLASS922__.__image = image;
 			//@line 56
-			if (audio) __CLASS483__.__audio = audio;
+			if (audio) __CLASS922__.__audio = audio;
 			//@line 57
-			if (sequence) __CLASS483__.__currentSequenceName = sequence;
-			return __CLASS483__
+			if (sequence) __CLASS922__.__currentSequenceName = sequence;
+			return __CLASS922__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this
