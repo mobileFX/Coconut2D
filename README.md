@@ -496,8 +496,31 @@ Credits
 =======
 Special thanks to Roger Poon for his support on porting CocoScript Framework to JavaScript++.
 
+This software is based in part on the work of the Independent JPEG Group.
 
+Portions of this software are copyright (C) 2013 The FreeType
+Project (www.freetype.org).  All rights reserved.
 
+Libraries
+=========
+For the sake of convenience, we include the compiled libraries needed for each platform.
+
+Here a list of the libraries versions used (unmodified) with the link to the original source.  
+You may choose to compile them yourself would you so desire.  
+
+* jpeg-9: http://www.ijg.org/
+* libpng-1.6.1: http://www.libpng.org/
+* libcurl-7.31.0: http://curl.haxx.se/
+* freetype-2.4.12: http://www.freetype.org/
+* libogg-1.3.1: http://www.xiph.org/
+* tremor-1.0.2: http://wiki.xiph.org/Tremor
+* tremolo-0.08: http://wss.co.uk/pinknoise/tremolo/
+* JavaScriptCore-131537: https://github.com/turbulenz/javascriptcore-ios
+* openal-soft-1.15.1: http://kcat.strangesoft.net/openal.html
+* v8-3.15.1: https://code.google.com/p/v8/
+
+We tried to comply with all license terms, but we may have missed something.  
+If you hold the rights to any of this software feel free to contact us with your request.
 
 
 
