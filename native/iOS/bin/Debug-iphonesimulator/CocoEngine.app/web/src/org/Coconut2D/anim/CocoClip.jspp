@@ -1,0 +1,273 @@
+//@compile{true}
+//@include{CocoObject.jspp,CocoTimeline.jspp}
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013 www.coconut2D.org
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.   
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                 _________     
+//	  / ____/___  _________  / ____/ (_)___ 
+//	 / /   / __ \/ ___/ __ \/ /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ / /___/ / / /_/ /
+//	\____/\____/\___/\____/\____/_/_/ .___/ 
+//	                               /_/      
+// ==================================================================================================================================
+
+class CocoClip
+{           
+	public var __instanceName:String					= null;
+	public var __image:CocoImage						= null;
+	public var __audio:CocoSound						= null;
+	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM	= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
+	public var __childrenCount:Number					= 0;
+	public var __children:Object						= {};	
+	public var __currentSequenceName:String				= null;
+	public var __currentSequenceFrameIndex:Number		= 0;
+	public var __currentFrame:CocoKeyFrame				= null;
+	public var __timeline:CocoTimeline					= null;
+	public var __firstTickTime:Number					= 0.0;
+		
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String)
+	{
+		__timeline = new CocoTimeline(); 
+		if(image) __image = image;
+		if(audio) __audio = audio;
+		if(sequence) __currentSequenceName = sequence;	
+	}  
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property instanceName(v:String)
+	{
+		__instanceName = v; 
+	}
+	
+	public property instanceName:String		
+	{
+		return __instanceName; 
+	} 
+			
+	public property timeline:CocoTimeline
+	{
+		return __timeline;
+	} 
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function children() :Array
+	{		
+		var children:Array = [];
+		var vClip:String;
+		for(vClip in __children)
+			children.push(__children[vClip]);	
+	    return children;   
+	}  
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function childrenMaxFrameIndex() :Number
+	{      
+		var vClip:String, ci:CocoClip, T:Number = 0;
+	    for(vClip in __children)
+		{
+			ci = __children[vClip] || null;
+	        if(ci.__timeline.__lastframeIndex > T) 
+	            T = ci.__timeline.__lastframeIndex;
+	    }
+	    return T;	    	    
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function childrenMaxTimelineDuration() :Number
+	{
+	    var vClip:String, ci:CocoClip, T:Number = 0;
+	    for(vClip in __children)
+		{
+			ci = __children[vClip]; 			
+	        if(ci.__timeline.__durationInTime > T)
+	            T = ci.__timeline.__durationInTime;
+	    }
+	    return T;
+	}
+		
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addChild(clipInstance:CocoClip) :CocoClip
+	{
+	    if(!clipInstance) return null;
+	    if(!clipInstance.__instanceName) throw "Invalid instance name.";
+	    if(__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " already exists.";
+	    __children[clipInstance.__instanceName] = clipInstance;
+	    __childrenCount++;
+	    return clipInstance;	
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function removeChild(clipInstance:CocoClip) :CocoClip
+	{
+	    if(!clipInstance) return null;
+	    if(!clipInstance.__instanceName) throw "Invalid instance name.";
+	    if(!__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " does not exist in this parent.";
+	    __children[clipInstance.__instanceName] = null;
+	    __childrenCount--;
+	    return clipInstance;
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getChildByName(instanceName:String) :CocoClip
+	{    
+		return __children[instanceName] || null;
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getChildByIndex(index:Number) :CocoClip
+	{        
+		if(!(index >= 0 && index < __childrenCount)) return null;
+		var arr:Array = children();
+		return arr[index];
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getChildIndex(child:CocoClip) :Number
+	{
+	    if(child)
+	    {
+	    	var vClip:String, index:Number = -1;
+			for(vClip in __children)
+			{
+				index++;
+				if(__children[vClip]==child)
+					return index;
+			}
+		}
+		return -1;
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function isParentOf(child:CocoClip) :Boolean
+	{
+	    if(!child) return false;
+	    
+	    if(__children[child.__instanceName]) 
+	        return true;        
+	     
+	    var vClip:String, clip:CocoClip;
+	    for(vClip in __children)
+	    {
+	        clip = __children[vClip] || null;
+	        if(clip && clip.isParentOf(child))
+				return true;
+	    }
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moveChildToIndex(child:CocoClip, newIndex:Number) :Boolean
+	{
+	    if(newIndex < 0) return false;
+	    if(newIndex > __childrenCount) return false;
+	    
+	    var oldIndex:Number = getChildIndex(child);
+	    if(oldIndex = newIndex) return false;
+	    
+	    var arr:Array = children();    
+	    arr.splice(oldIndex, 1);
+	    
+	    if(newIndex + 1 > arr.length) 
+	    {
+	        arr.push(child);
+	    } 
+	    else 
+	    {
+	        arr.insertBefore(child, newIndex);
+	    }
+	    
+	    __children = {};    
+	    var clip:CocoClip;
+	    var i:Number;
+	    for(i=0; i<arr.legnth; i++)
+	    {
+	    	clip = arr[i];
+	        __children[clip.__instanceName] = clip;
+	    }
+	    
+	    return true;
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip)
+	{
+		scene.__modelViewMatrix.push();
+		
+		if(parentClip)
+		{
+			var parentClipsDuration:Number = parentClip.childrenMaxTimelineDuration();
+			if(__firstTickTime == -1) __firstTickTime = scene.__currentTime;						
+			var loopTime:Number = (scene.__currentTime - __firstTickTime) - Math.floor((scene.__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;					
+			__currentFrame = __timeline.interpolateByTime(loopTime);
+			__currentFrame.combine(parentClip.__currentFrame);
+			__currentFrame.apply(scene.__modelViewMatrix);
+			scene.updateModelViewMatrix(gl);
+			if(__currentFrame.alpha == 0) return;
+			if(!__currentFrame.visible) return;
+		}
+		
+		if(__image)
+		{
+			if(__image.isSpriteSheet()) 
+			{
+				if(!__currentSequenceName)
+				{    
+					var s:String;
+					for(s in __image.sequences)
+					{
+						__currentSequenceName = s;
+						break;
+					}
+				} 
+				var seq:CocoSequence = __image.sequences[__currentSequenceName];
+				__currentSequenceFrameIndex += 0.5;
+				if(__currentSequenceFrameIndex >= seq.frames.length) __currentSequenceFrameIndex = 0;				
+				var idx:Number = Math.floor(__currentSequenceFrameIndex);
+				var frame:Number = seq.frames[idx];
+				__image.drawFrame(gl, scene.__glProgram, frame); // TODO
+			}
+		}
+		    
+		var c:String;
+		var ci:CocoClip;
+		for(c in __children)
+		{			
+			ci = __children[c];
+			ci.render(gl, scene, this);			
+		}
+			
+		scene.__modelViewMatrix.pop();
+	}
+}
+
+
+
+
+
+
+
+
+
