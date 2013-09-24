@@ -31,7 +31,7 @@ public:
     
     //////////////////////////////////////////////////////////////////////////////////////////////
     inline static const fxJSClass& getJSClass() { return _Class; }
-    inline static const fxJSConstructor& getJSConstructor() { return fxJSChooseConstructor(_Class, _ConstructorObject); }
+    inline static const fxJSConstructor getJSConstructor() { return fxJSChooseConstructor(_Class, _ConstructorObject); }
     inline fxJSObject getJSObject() { return jsThis; }
     inline void clear() { memset(data, 0, byteLength); }
     inline size_t getByteLength() { return byteLength; }

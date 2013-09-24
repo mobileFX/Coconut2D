@@ -366,7 +366,7 @@ fxWrappedText.prototype.draw = function (gl)
 window.addEventListener("load", function ()
 {
 	var vs_str = "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform mat4 uSprMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ mat4 T = mat4(1.0); T[3].xyz = uSprMat[3].xyz;  mat4 R = mat4(1.0); R[0].xyz = uSprMat[0].xyz; R[1].xyz = uSprMat[1].xyz; R[2].xyz = uSprMat[2].xyz;  mat4 S = mat4(1.0); S[0].x = uSprMat[0].w; S[1].y = uSprMat[1].w; S[2].z = uSprMat[2].w; gl_Position = uProjMat * uMVMat * T * R * S * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
-	var fs_str = "precision mediump float; uniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
+	var fs_str = "/*precision mediump float; */uniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
 
 	var c = document.body.appendChild(document.createElement("canvas"));
 	c.width = innerWidth;
@@ -421,9 +421,9 @@ window.addEventListener("load", function ()
 		}
 
 		
-		var font = new fxFont(40, "blkchcry", " Helowrd!0123456789()");
-        var wt = new fxWrappedText(gl, font, innerWidth, "right");
-        wt.setText("Hello world(" + localStorage.i + ")!");
+		//var font = new fxFont(40, "blkchcry", " Helowrd!0123456789()");
+        //var wt = new fxWrappedText(gl, font, innerWidth, "right");
+        //wt.setText("Hello world(" + localStorage.i + ")!");
         /*
 		var font2 = new CocoFont(20, "calibri", " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()/.,?><';\":]|[}{\\}]`~-");
 		var wt2 = new fxWrappedText(gl, font2, innerWidth, "center");
@@ -465,7 +465,7 @@ window.addEventListener("load", function ()
 		{
 			for (var i = e.changedTouches.length; i--;)
             localStorage.i = (parseInt(localStorage.i) + 1).toString();
-			wt.setText("Hello world(" + localStorage.i + ")!");
+			//wt.setText("Hello world(" + localStorage.i + ")!");
 			//alert("touchend(" + e.touches.length + ", " + e.changedTouches.length + ")");
 		});
 		window.addEventListener("touchcancel", function (e)
@@ -491,7 +491,7 @@ window.addEventListener("load", function ()
 			for (var i = Sprites.length; i--;)
 			Sprites[i].draw(gl);
 
-			wt.draw(gl);
+			//wt.draw(gl);
 			//wt2.draw(gl);
 			requestAnimationFrame(refresh);
 		}

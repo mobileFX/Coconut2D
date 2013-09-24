@@ -110,7 +110,7 @@ public:
         {
             uint8_t t;
             uint8_t* v = reinterpret_cast<uint8_t*>(&value);
-            for(int i = 0; i < sizeof(T) / 2; i++)
+            for(size_t i = sizeof(T) / 2; i--;)
             {
                 t = *(v + i);
                 *(v + i) = *(v + sizeof(T) - 1 - i);
@@ -119,7 +119,7 @@ public:
         }
         return value;
     }
-    
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     template<typename T> T get(size_t byteOffset, bool littleEndian)
     {
