@@ -27,6 +27,7 @@ function main()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function tickAndPaint(time)
 {
+    gl.clear(gl.COLOR_BUFFER_BIT);
 	engine.tick(gl, time);
 	requestAnimationFrame(tickAndPaint);
 }

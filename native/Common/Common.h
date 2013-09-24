@@ -77,7 +77,7 @@
 ////////////////////////////////////////////////////////////////
 #ifdef ENABLE_PNG_SUPPORT
     #include <png.h>
-#else
+#elif !DISABLE_PNG_SUPPORT
     #warning "Building without PNG support!"
 #endif
 ////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@
 	#undef FALSE
 	#undef TRUE
     #include <jpeglib.h>
-#else
+#elif !DISABLE_JPEG_SUPPORT
     #warning "Building without JPEG support!"
 #endif
 ////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@
     #define AUDIO_FORMAT_MONO AL_FORMAT_MONO16
     #define AUDIO_FORMAT_STEREO AL_FORMAT_STEREO16
     #include <tremor/ivorbisfile.h>
-#else
+#elif !DISABLE_OGG_SUPPORT
     #warning "Building without Vorbis OGG support!"
 #endif
 ////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@
         #include <AL/al.h>
         #include <AL/alc.h>
     #endif
-#else
+#elif !DISABLE_OPENAL_SUPPORT
     #warning "Building without Audio support!"
 #endif
 ////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@
 #ifdef ENABLE_FREETYPE_SUPPORT
     #include <ft2build.h>
     #include FT_FREETYPE_H
-#else
+#elif !DISABLE_FREETYPE_SUPPORT
     #warning "Building without Font support!"
 #endif
 ////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@
 ////////////////////////////////////////////////////////////////
 #ifdef ENABLE_CURL_SUPPORT
     #include <curl.h>
-#else
+#elif !DISABLE_CURL_SUPPORT
     #warning "Building without XMLHttpRequest support!"
 #endif
 ////////////////////////////////////////////////////////////////
@@ -150,7 +150,7 @@
     #else
         #include <QtOpenGL/QtOpenGL>
     #endif
-#else
+#elif !DISABLE_OPENGL_SUPPORT
     #warning "Building without OpenGL support!"
 #endif
 ////////////////////////////////////////////////////////////////
@@ -504,4 +504,4 @@
 #endif
 ////////////////////////////////////////////////////////////////
 
-#endif /* _Common_h */
+#endif
