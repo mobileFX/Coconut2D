@@ -38,6 +38,7 @@ class CocoClip
 {           
 	public var __instanceName:String					= null;
 	public var __image:CocoImage						= null;
+	public var __mask:CocoImage							= null;
 	public var __audio:CocoSound						= null;
 	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM	= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
 	public var __childrenCount:Number					= 0;
@@ -47,9 +48,10 @@ class CocoClip
 	public var __currentFrame:CocoKeyFrame				= null;
 	public var __timeline:CocoTimeline					= null;
 	public var __firstTickTime:Number					= 0.0;
+	public var __parent:CocoClip						= null;
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String)
+	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String, mask:CocoImage)
 	{
 		__timeline = new CocoTimeline(); 
 		if(image) __image = image;
@@ -214,54 +216,74 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip)
 	{
-		scene.__modelViewMatrix.push();
+		this.__parent = parentClip;
 		
-		if(parentClip)
-		{
-			var parentClipsDuration:Number = parentClip.childrenMaxTimelineDuration();
-			if(__firstTickTime == -1) __firstTickTime = scene.__currentTime;						
-			var loopTime:Number = (scene.__currentTime - __firstTickTime) - Math.floor((scene.__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;					
-			__currentFrame = __timeline.interpolateByTime(loopTime);
-			__currentFrame.combine(parentClip.__currentFrame);
-			__currentFrame.apply(scene.__modelViewMatrix);
-			scene.updateModelViewMatrix(gl);
-			if(__currentFrame.alpha == 0) return;
-			if(!__currentFrame.visible) return;
-		}
+		var parentClipsDuration:Number = (parentClip ? parentClip.childrenMaxTimelineDuration() : __timeline.__durationInTime);
 		
-		if(__image)
+		if(__firstTickTime == -1) __firstTickTime = scene.__currentTime;						
+		
+		var loopTime:Number = (scene.__currentTime - __firstTickTime) - Math.floor((scene.__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;					
+		
+		__currentFrame = __timeline.interpolateByTime(loopTime);  
+		
+		__currentFrame.execute(gl, scene.__currentTime, loopTime, scene, this);		
+		
+		if(parentClip) __currentFrame.combine(parentClip.__currentFrame);
+		
+		__currentFrame.apply(scene.__modelViewMatrix);
+		
+		scene.updateModelViewMatrix(gl);
+		
+		if(__currentFrame.alpha!=0 && __currentFrame.visible)
 		{
-			if(__image.isSpriteSheet()) 
+			if(__image)
 			{
-				if(!__currentSequenceName)
-				{    
-					var s:String;
-					for(s in __image.sequences)
-					{
-						__currentSequenceName = s;
-						break;
-					}
+				if(__image.isSpriteSheet()) 
+				{
+					if(!__currentSequenceName)
+					{    
+						var s:String;
+						for(s in __image.sequences)
+						{
+							__currentSequenceName = s;
+							break;
+						}
+					} 
+					var seq:CocoSequence = __image.sequences[__currentSequenceName];
+					__currentSequenceFrameIndex += 0.5;
+					if(__currentSequenceFrameIndex >= seq.frames.length) __currentSequenceFrameIndex = 0;				
+					var idx:Number = Math.floor(__currentSequenceFrameIndex);
+					var frame:Number = seq.frames[idx];
+					__image.drawFrame(gl, scene.__glProgram, frame, __currentFrame.alpha); // TODO
 				} 
-				var seq:CocoSequence = __image.sequences[__currentSequenceName];
-				__currentSequenceFrameIndex += 0.5;
-				if(__currentSequenceFrameIndex >= seq.frames.length) __currentSequenceFrameIndex = 0;				
-				var idx:Number = Math.floor(__currentSequenceFrameIndex);
-				var frame:Number = seq.frames[idx];
-				__image.drawFrame(gl, scene.__glProgram, frame); // TODO
+				else
+				{
+					__image.drawFrame(gl, scene.__glProgram, 0,  __currentFrame.alpha);	
+				}
+				
+			}
+			    
+			var c:String;
+			var ci:CocoClip;
+			for(c in __children)
+			{	
+				scene.__modelViewMatrix.push();		
+				ci = __children[c];
+				ci.render(gl, scene, this);
+				scene.__modelViewMatrix.pop();			
 			}
 		}
-		    
-		var c:String;
-		var ci:CocoClip;
-		for(c in __children)
-		{			
-			ci = __children[c];
-			ci.render(gl, scene, this);			
-		}
 			
-		scene.__modelViewMatrix.pop();
+		this.__parent = null;
 	}
 }
+
+
+
+
+
+
+
 
 
 

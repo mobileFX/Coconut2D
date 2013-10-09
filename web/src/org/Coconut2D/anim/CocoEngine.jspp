@@ -42,7 +42,8 @@
 class CocoEngine
 {	
 	private var __currentState:CocoEngineState = null;
-	private var __nextState:CocoEngineState = null;	
+	private var __nextState:CocoEngineState = null;
+	private var __stateStart:Number = 0;	
 		    
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -85,12 +86,17 @@ class CocoEngine
 		if(__nextState!=null)
 		{
 			__currentState = __nextState;
+			__stateStart = time;
 			__nextState = null;
 		}
 		                                     
 		// Tick current engine state
-		__currentState.tick(this, gl, time);
+		__currentState.tick(this, gl, time - __stateStart);
 	} 	
 };
+
+
+
+
 
 

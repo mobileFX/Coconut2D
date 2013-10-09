@@ -1,5 +1,6 @@
 //@compile{false}
-//@include{Coconut.js}
+//@include{Coconut.js}    
+//@include{WebGL.js}
 
 function makeProgram(gl, vs, fs)
 {

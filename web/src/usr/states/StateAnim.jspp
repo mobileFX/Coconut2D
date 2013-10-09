@@ -1,7 +1,6 @@
 //@compile{true}
-
-//@include{Coconut.js}   
-//@include{Animation1.jspp}   
+//@include{Coconut.js}
+//@include{Animation1.jspp}
 
 class StateAnim :CocoEngineState
 { 
@@ -11,7 +10,7 @@ class StateAnim :CocoEngineState
 	public function Constructor()
 	{
 		scene = new Animation1();
-	}                         
+	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number)
@@ -26,18 +25,20 @@ class StateAnim :CocoEngineState
 			}
 			else if(!scene.prepared())
 			{
-				// Prepare the scene		
-				scene.prepare(gl);				
+				// Prepare the scene
+				scene.prepare(gl);
 			}
 			else
 			{
 				// Render the scene
 				gl.clear(gl.COLOR_BUFFER_BIT);
-				scene.tick(gl, time);				
+				scene.tick(gl, time);
 			}
-		}				
+		}
 	}
 }
+
+
 
 
 

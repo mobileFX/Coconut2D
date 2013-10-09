@@ -41,8 +41,8 @@ class CocoImage
 	public var texture:WebGLTexture				= null;
 	public var textureCellWidth:Number			= 0;
 	public var textureCellHeight:Number			= 0;
-	public var textureGrid:Float32Array			= null;
-	public var sequences:Object					= {};
+	public var textureGrid:Float32Array			= new Float32Array([0, 0]);
+	public var sequences:Object					= null;
 	public var color:Float32Array				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
 	public var texSize:Float32Array				= new Float32Array([1.0, 1.0]);
 	public var texData:Float32Array				= null;
@@ -58,7 +58,7 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function isSpriteSheet() :Boolean
 	{
-		return textureCellWidth>0 && textureCellHeight>0; 
+		return textureCellWidth>0 && textureCellHeight>0 && this.sequences != null; 
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,8 +107,9 @@ class CocoImage
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function drawFrame(gl:WebGLRenderingContext, glp:WebGLProgram, frame:Number)
-	{ 
+	public function drawFrame(gl:WebGLRenderingContext, glp:WebGLProgram, frame:Number, alpha:Number)
+	{                                       
+		color[3] = alpha;
 		gl.uniform2fv(glp.GLSLuSprSize, texSize);
 		gl.uniform2f(glp.GLSLuSprFrame, textureGrid[frame * 2 + 1], textureGrid[frame * 2]);
 		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -120,5 +121,9 @@ class CocoImage
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	}
 }
+
+
+
+
 
 

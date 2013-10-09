@@ -48,6 +48,11 @@ class CocoKeyFrame
 	public var scaleX:Number 										= 1.0;
 	public var scaleY:Number 										= 1.0;
 	public var rotation:Number										= 0.0;
+	public var action:Function										= null;
+	
+	private var __lastActionExecutionTime:Number					= -1;
+	private var __min:Number = 1000000;
+	private var __max:Number = 0;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -82,8 +87,25 @@ class CocoKeyFrame
 		c.visible               = visible;           
 		c.x                     = x;                 
 		c.y                     = y;                 
+		c.action				= action;
 	    return c;
 	}	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function execute(gl:WebGLRenderingContext, currentTime:Number, loopTime:Number, scene:CocoScene, clip:CocoClip)
+	{ 
+		if(!action) return;
+		
+		if(currentTime-__lastActionExecutionTime> clip.__timeline.__singleFrameDurationTime)
+		{
+			var args:Array = [gl, currentTime, loopTime, clip, this];		
+			action.apply(scene, args);	
+			__lastActionExecutionTime = currentTime; 
+			if(loopTime<__min) __min = loopTime;
+			if(loopTime>__max) __max= loopTime; 			
+			//trace("exec: " + [clip.__parent.instanceName +"."+ clip.instanceName, currentTime, clip.__timeline.__singleFrameDurationTime, loopTime, __min, __max, (__max-__min)].join(", "));
+		}
+	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Number)
@@ -116,3 +138,6 @@ class CocoKeyFrame
 		matrix.translate(-pivotX, -pivotY);
 	}		
 } 
+
+
+

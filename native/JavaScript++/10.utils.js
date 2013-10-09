@@ -248,14 +248,15 @@ function ____readSourceFiles()
 {
 	var buff = "";
 	var root = "D:/mobileFX/Projects/Software/Coconut/Coco.project/web";	
-	var files = [
-		"/src/externs/CRL_native.js",
+	var files = [ 
 		"/src/org/Coconut2D/Constants.js",
+		"/src/org/Coconut2D/Coconut.js",
+		"/src/externs/CRL_native.js",
+		"/src/externs/ECMA.jspp",
 		"/src/org/Coconut2D/html5/HTML5.js",
 		"/src/org/Coconut2D/html5/HTMLCanvas.js",
 		"/src/org/Coconut2D/html5/HTMLEvents.js",
 		"/src/org/Coconut2D/html5/WebGL.js",
-		"/src/org/Coconut2D/anim/CocoObject.jspp",
 		"/src/org/Coconut2D/anim/CocoImage.jspp",
 		"/src/org/Coconut2D/anim/CocoKeyFrame.jspp",
 		"/src/org/Coconut2D/anim/CocoMatrix.jspp",
@@ -279,10 +280,13 @@ function ____readSourceFiles()
 		"/src/org/Coconut2D/anim/CocoScene.jspp",
 		"/src/org/Coconut2D/anim/CocoEngineState.jspp",
 		"/src/org/Coconut2D/anim/CocoEngine.jspp",
-		"/src/org/Coconut2D/Coconut.js",
 		"/src/usr/GameEngine.jspp",
 		"/src/usr/animations/Animation1.jspp",
+		"/src/usr/animations/GameBoard.jspp",
+		"/src/usr/animations/SceneTitle.jspp",
 		"/src/usr/states/StateAnim.jspp",
+		"/src/usr/states/State_GameBoard.jspp",
+		"/src/usr/states/State_TitleScreen.jspp",
 		"/src/main.js"
 	];
 	

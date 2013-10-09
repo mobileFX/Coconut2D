@@ -127,7 +127,17 @@ compiler.prototype.typesys.cocoscript = function()
 			
 			// Conversions
 			if(left!=right && _this.typerules.implicit.ASSIGN[left] && _this.typerules.implicit.ASSIGN[left].hasOwnProperty(right)) 
-				return left;
+				return left; 
+				
+			// Inheritance
+			var cls = Compiler.SymbolTable.getClassSymbol(right);
+			while(cls)
+			{
+				if(cls.name==left) return left; 
+				if(!cls.bases || cls.bases.length==0) break;
+				if(cls.bases[0]==left) return left;
+				cls = Compiler.SymbolTable.getClassSymbol(cls.bases[0]); 
+			}
 			
 			if(!ErrorMessage) ErrorMessage = "Cannot convert "+right+" to "+left;
 			Compiler.NewError({type:TypeError, message:ErrorMessage}, Node);			
@@ -325,7 +335,7 @@ compiler.prototype.typesys.cocoscript = function()
 							if(!isProto)
 								Compiler.NewError({type:ReferenceError, message:"Illegal dynamic member access "+out.join(".")}, Node);
 							return _this.UNTYPED;
-						} 
+						}  
 						 
 						// Check arguments too
 						if(Node.type==jsdef.CALL && i==reduced.length-1 && member.parameters.length)
@@ -381,3 +391,6 @@ compiler.prototype.typesys.cocoscript = function()
 		}  //switch							
 	};
 };
+
+
+
