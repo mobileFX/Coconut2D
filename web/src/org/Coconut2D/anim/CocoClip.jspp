@@ -216,65 +216,73 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip)
 	{
-		this.__parent = parentClip;
-		
 		var parentClipsDuration:Number = (parentClip ? parentClip.childrenMaxTimelineDuration() : __timeline.__durationInTime);
-		
+
 		if(__firstTickTime == -1) __firstTickTime = scene.__currentTime;						
-		
-		var loopTime:Number = (scene.__currentTime - __firstTickTime) - Math.floor((scene.__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;					
-		
-		__currentFrame = __timeline.interpolateByTime(loopTime);  
-		
-		__currentFrame.execute(gl, scene.__currentTime, loopTime, scene, this);		
-		
-		if(parentClip) __currentFrame.combine(parentClip.__currentFrame);
-		
-		__currentFrame.apply(scene.__modelViewMatrix);
-		
-		scene.updateModelViewMatrix(gl);
-		
-		if(__currentFrame.alpha!=0 && __currentFrame.visible)
+
+		var clippingTime:Number = Math.floor((scene.__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;						
+
+		var loopTime:Number = (scene.__currentTime - __firstTickTime) - clippingTime;					
+
+		switch(__symbolLoop)
 		{
-			if(__image)
-			{
-				if(__image.isSpriteSheet()) 
-				{
-					if(!__currentSequenceName)
-					{    
-						var s:String;
-						for(s in __image.sequences)
-						{
-							__currentSequenceName = s;
-							break;
-						}
-					} 
-					var seq:CocoSequence = __image.sequences[__currentSequenceName];
-					__currentSequenceFrameIndex += 0.5;
-					if(__currentSequenceFrameIndex >= seq.frames.length) __currentSequenceFrameIndex = 0;				
-					var idx:Number = Math.floor(__currentSequenceFrameIndex);
-					var frame:Number = seq.frames[idx];
-					__image.drawFrame(gl, scene.__glProgram, frame, __currentFrame.alpha); // TODO
-				} 
-				else
-				{
-					__image.drawFrame(gl, scene.__glProgram, 0,  __currentFrame.alpha);	
-				}
-				
-			}
-			    
-			var c:String;
-			var ci:CocoClip;
-			for(c in __children)
-			{	
-				scene.__modelViewMatrix.push();		
-				ci = __children[c];
-				ci.render(gl, scene, this);
-				scene.__modelViewMatrix.pop();			
-			}
+			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS:
+			    __currentFrame = __timeline.interpolateByTime(loopTime);
+				break;
+			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT:
+			    __currentFrame = __timeline.interpolateByTime(loopTime); // TODO
+				break;
+			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
+			    if(clippingTime > 0) __currentFrame = __timeline.__lastKeyFrame.clone();
+			    else __currentFrame = __timeline.interpolateByTime(loopTime); 
+				break;
 		}
-			
+		if(parentClip) __currentFrame.combine(parentClip.__currentFrame);
+
+		this.__parent = parentClip;
+		__currentFrame.apply(scene.__modelViewMatrix);
 		this.__parent = null;
+
+		scene.updateModelViewMatrix(gl);
+		__currentFrame.execute(gl, scene.__currentTime, loopTime, scene, this);
+			
+		if(__currentFrame.alpha == 0) return;
+		if(!__currentFrame.visible) return;
+		
+		if(__image)
+		{
+			if(__image.isSpriteSheet()) 
+			{
+				if(!__currentSequenceName)
+				{    
+					var s:String;
+					for(s in __image.sequences)
+					{
+						__currentSequenceName = s;
+						break;
+					}
+				} 
+				var seq:CocoSequence = __image.sequences[__currentSequenceName];
+				if(__firstTickTime == -1) __firstTickTime = scene.__currentTime;
+				__currentSequenceFrameIndex = Math.floor(((scene.__currentTime - __firstTickTime) / GLOBAL_FPS)) % seq.frames.length;
+				var frame:Number = seq.frames[__currentSequenceFrameIndex];
+				__image.drawFrame(gl, scene.__glProgram, frame, __currentFrame.alpha); // TODO
+			} 
+			else
+			{
+				__image.drawFrame(gl, scene.__glProgram, 0,  __currentFrame.alpha);	
+			}			
+		}
+		    
+		var c:String;
+		var ci:CocoClip;
+		for(c in __children)
+		{	
+			scene.__modelViewMatrix.push();		
+			ci = __children[c];
+			ci.render(gl, scene, this);
+			scene.__modelViewMatrix.pop();			
+		}
 	}
 }
 

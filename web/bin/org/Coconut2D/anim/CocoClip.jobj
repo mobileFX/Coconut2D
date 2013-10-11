@@ -1,0 +1,423 @@
+//@compile{false}
+//@line 37
+function CocoClip()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS925__ = this,
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ = {};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 79
+		var children = this.children = function ()
+		{
+			//@line 80
+			//@line 81
+			var children = [];
+			//@line 82
+			var vClip = "";
+			//@line 83
+			for (vClip in __CLASS925__.__children)
+			//@line 84
+			children.push(__CLASS925__.__children[vClip]); //@line 85
+			return children;
+			return []
+		};
+		//@line 89
+		var childrenMaxFrameIndex = this.childrenMaxFrameIndex = function ()
+		{
+			//@line 90
+			//@line 91
+			var vClip = "",
+				ci, T = 0;
+			//@line 92
+			for (vClip in __CLASS925__.__children)
+			//@line 93
+			{
+				//@line 94
+				ci = __CLASS925__.__children[vClip] || null;
+				//@line 95
+				if (ci.__timeline.__lastframeIndex > T)
+				//@line 96
+				T = ci.__timeline.__lastframeIndex;
+			}
+			//@line 98
+			return T;
+			return 0
+		};
+		//@line 102
+		var childrenMaxTimelineDuration = this.childrenMaxTimelineDuration = function ()
+		{
+			//@line 103
+			//@line 104
+			var vClip = "",
+				ci, T = 0;
+			//@line 105
+			for (vClip in __CLASS925__.__children)
+			//@line 106
+			{
+				//@line 107
+				ci = __CLASS925__.__children[vClip];
+				//@line 108
+				if (ci.__timeline.__durationInTime > T)
+				//@line 109
+				T = ci.__timeline.__durationInTime;
+			}
+			//@line 111
+			return T;
+			return 0
+		};
+		//@line 115
+		var addChild = this.addChild = function (clipInstance)
+		{
+			//@line 116
+			//@line 117
+			if (!clipInstance) return null;
+			//@line 118
+			if (!clipInstance.__instanceName) throw "Invalid instance name.";
+			//@line 119
+			if (__CLASS925__.__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " already exists.";
+			//@line 120
+			__CLASS925__.__children[clipInstance.__instanceName] = clipInstance;
+			//@line 121
+			__CLASS925__.__childrenCount++;
+			//@line 122
+			return clipInstance;
+		};
+		//@line 126
+		var removeChild = this.removeChild = function (clipInstance)
+		{
+			//@line 127
+			//@line 128
+			if (!clipInstance) return null;
+			//@line 129
+			if (!clipInstance.__instanceName) throw "Invalid instance name.";
+			//@line 130
+			if (!__CLASS925__.__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " does not exist in this parent.";
+			//@line 131
+			__CLASS925__.__children[clipInstance.__instanceName] = null;
+			//@line 132
+			__CLASS925__.__childrenCount--;
+			//@line 133
+			return clipInstance;
+		};
+		//@line 137
+		var getChildByName = this.getChildByName = function (instanceName)
+		{
+			//@line 138
+			//@line 139
+			return __CLASS925__.__children[instanceName] || null;
+		};
+		//@line 143
+		var getChildByIndex = this.getChildByIndex = function (index)
+		{
+			//@line 144
+			//@line 145
+			if (!(index >= 0 && index < __CLASS925__.__childrenCount)) return null;
+			//@line 146
+			var arr = __CLASS925__.children();
+			//@line 147
+			return arr[index];
+		};
+		//@line 151
+		var getChildIndex = this.getChildIndex = function (child)
+		{
+			//@line 152
+			//@line 153
+			if (child)
+			//@line 154
+			{
+				//@line 155
+				var vClip = "",
+					index = -1;
+				//@line 156
+				for (vClip in __CLASS925__.__children)
+				//@line 157
+				{
+					//@line 158
+					index++;
+					//@line 159
+					if (__CLASS925__.__children[vClip] == child)
+					//@line 160
+					return index;
+				}
+			}
+			//@line 163
+			return -1;
+			return 0
+		};
+		//@line 167
+		var isParentOf = this.isParentOf = function (child)
+		{
+			//@line 168
+			//@line 169
+			if (!child) return false;
+			//@line 171
+			if (__CLASS925__.__children[child.__instanceName])
+			//@line 172
+			return true;
+			//@line 174
+			var vClip = "",
+				clip;
+			//@line 175
+			for (vClip in __CLASS925__.__children)
+			//@line 176
+			{
+				//@line 177
+				clip = __CLASS925__.__children[vClip] || null;
+				//@line 178
+				if (clip && clip.isParentOf(child))
+				//@line 179
+				return true;
+			}
+			return false
+		};
+		//@line 184
+		var moveChildToIndex = this.moveChildToIndex = function (child, newIndex)
+		{
+			//@line 185
+			//@line 186
+			if (newIndex < 0) return false;
+			//@line 187
+			if (newIndex > __CLASS925__.__childrenCount) return false;
+			//@line 189
+			var oldIndex = __CLASS925__.getChildIndex(child);
+			//@line 190
+			if (oldIndex = newIndex) return false;
+			//@line 192
+			var arr = __CLASS925__.children();
+			//@line 193
+			arr.splice(oldIndex, 1);
+			//@line 195
+			if (newIndex + 1 > arr.length)
+			//@line 196
+			{
+				//@line 197
+				arr.push(child);
+			}
+			else
+			//@line 200
+			{
+				//@line 201
+				arr.insertBefore(child, newIndex);
+			}
+			//@line 204
+			__CLASS925__.__children = {};
+			//@line 205
+			var clip;
+			//@line 206
+			var i = 0;
+			//@line 207
+			for (i = 0; i < arr.legnth; i++)
+			//@line 208
+			{
+				//@line 209
+				clip = arr[i];
+				//@line 210
+				__CLASS925__.__children[clip.__instanceName] = clip;
+			}
+			//@line 213
+			return true;
+			return false
+		};
+		//@line 217
+		var render = this.render = function (gl, scene, parentClip)
+		{
+			//@line 218
+			//@line 219
+			var parentClipsDuration = (parentClip ? parentClip.childrenMaxTimelineDuration() : __CLASS925__.__timeline.__durationInTime);
+			//@line 221
+			if (__CLASS925__.__firstTickTime == -1) __CLASS925__.__firstTickTime = scene.__currentTime;
+			//@line 223
+			var clippingTime = Math.floor((scene.__currentTime - __CLASS925__.__firstTickTime) / parentClipsDuration) * parentClipsDuration;
+			//@line 225
+			var loopTime = (scene.__currentTime - __CLASS925__.__firstTickTime) - clippingTime;
+			//@line 227
+			switch (__CLASS925__.__symbolLoop)
+			{
+				//@line 229
+			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS:
+				{
+					//@line 230
+					__CLASS925__.__currentFrame = __CLASS925__.__timeline.interpolateByTime(loopTime);
+					//@line 231
+					break;
+				}
+				break;
+				//@line 232
+			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT:
+				{
+					//@line 233
+					__CLASS925__.__currentFrame = __CLASS925__.__timeline.interpolateByTime(loopTime);
+					//@line 234
+					break;
+				}
+				break;
+				//@line 235
+			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
+				{
+					//@line 236
+					if (clippingTime > 0) __CLASS925__.__currentFrame = __CLASS925__.__timeline.__lastKeyFrame.clone();
+					else
+					//@line 237
+					__CLASS925__.__currentFrame = __CLASS925__.__timeline.interpolateByTime(loopTime);
+					//@line 238
+					break;
+				}
+				break;
+			}
+			//@line 240
+			if (parentClip) __CLASS925__.__currentFrame.combine(parentClip.__currentFrame);
+			//@line 242
+			__CLASS925__.__parent = parentClip;
+			//@line 243
+			__CLASS925__.__currentFrame.apply(scene.__modelViewMatrix);
+			//@line 244
+			__CLASS925__.__parent = null;
+			//@line 246
+			scene.updateModelViewMatrix(gl);
+			//@line 247
+			__CLASS925__.__currentFrame.execute(gl, scene.__currentTime, loopTime, scene, __CLASS925__);
+			//@line 249
+			if (__CLASS925__.__currentFrame.alpha == 0) return;
+			//@line 250
+			if (!__CLASS925__.__currentFrame.visible) return;
+			//@line 252
+			if (__CLASS925__.__image)
+			//@line 253
+			{
+				//@line 254
+				if (__CLASS925__.__image.isSpriteSheet())
+				//@line 255
+				{
+					//@line 256
+					if (!__CLASS925__.__currentSequenceName)
+					//@line 257
+					{
+						//@line 258
+						var s = "";
+						//@line 259
+						for (s in __CLASS925__.__image.sequences)
+						//@line 260
+						{
+							//@line 261
+							__CLASS925__.__currentSequenceName = s;
+							//@line 262
+							break;
+						}
+					}
+					//@line 265
+					var seq = __CLASS925__.__image.sequences[__CLASS925__.__currentSequenceName];
+					//@line 266
+					if (__CLASS925__.__firstTickTime == -1) __CLASS925__.__firstTickTime = scene.__currentTime;
+					//@line 267
+					__CLASS925__.__currentSequenceFrameIndex = Math.floor(((scene.__currentTime - __CLASS925__.__firstTickTime) / GLOBAL_FPS)) % seq.frames.length;
+					//@line 268
+					var frame = seq.frames[__CLASS925__.__currentSequenceFrameIndex];
+					//@line 269
+					__CLASS925__.__image.drawFrame(gl, scene.__glProgram, frame, __CLASS925__.__currentFrame.alpha);
+				}
+				else
+				//@line 272
+				{
+					//@line 273
+					__CLASS925__.__image.drawFrame(gl, scene.__glProgram, 0, __CLASS925__.__currentFrame.alpha);
+				}
+			}
+			//@line 277
+			var c = "";
+			//@line 278
+			var ci;
+			//@line 279
+			for (c in __CLASS925__.__children)
+			//@line 280
+			{
+				//@line 281
+				scene.__modelViewMatrix.push();
+				//@line 282
+				ci = __CLASS925__.__children[c];
+				//@line 283
+				ci.render(gl, scene, this);
+				//@line 284
+				scene.__modelViewMatrix.pop();
+			}
+		};
+		//@line 39
+		this.__instanceName = null;
+		//@line 40
+		this.__image = null;
+		//@line 41
+		this.__mask = null;
+		//@line 42
+		this.__audio = null;
+		//@line 43
+		this.__symbolLoop = COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
+		//@line 44
+		this.__childrenCount = 0;
+		//@line 45
+		this.__children = {};
+		//@line 46
+		this.__currentSequenceName = null;
+		//@line 47
+		this.__currentSequenceFrameIndex = 0;
+		//@line 48
+		this.__currentFrame = null;
+		//@line 49
+		this.__timeline = null;
+		//@line 50
+		this.__firstTickTime = 0;
+		//@line 51
+		this.__parent = null;
+		//@line 63
+		this.__defineSetter__('instanceName', function (v)
+		{
+			//@line 64
+			//@line 65
+			__CLASS925__.__instanceName = v;
+		});
+		//@line 68
+		this.__defineGetter__('instanceName', function ()
+		{
+			//@line 69
+			//@line 70
+			return __CLASS925__.__instanceName;
+			return ""
+		});
+		//@line 73
+		this.__defineGetter__('timeline', function ()
+		{
+			//@line 74
+			//@line 75
+			return __CLASS925__.__timeline;
+		});
+		this.Constructor = function ()
+		{
+			var image = arguments[0];
+			var audio = arguments[1];
+			var sequence = arguments[2];
+			var mask = arguments[3];
+			//@line 55
+			//@line 56
+			__CLASS925__.__timeline = new CocoTimeline;
+			//@line 57
+			if (image) __CLASS925__.__image = image;
+			//@line 58
+			if (audio) __CLASS925__.__audio = audio;
+			//@line 59
+			if (sequence) __CLASS925__.__currentSequenceName = sequence;
+			return __CLASS925__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

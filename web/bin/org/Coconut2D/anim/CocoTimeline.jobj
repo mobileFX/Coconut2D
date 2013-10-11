@@ -1,0 +1,587 @@
+//@compile{false}
+//@line 37
+function CocoTimeline()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS879__ = this,
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ = {};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 59
+		var keyFrames = this.keyFrames = function ()
+		{
+			//@line 60
+			//@line 61
+			var v = "",
+				list = [];
+			//@line 62
+			for (v in __CLASS879__.__keyFrames)
+			//@line 63
+			{
+				//@line 64
+				list.push(__CLASS879__.__keyFrames[v]);
+			}
+			//@line 66
+			return list;
+			return []
+		};
+		//@line 70
+		var clear = this.clear = function ()
+		{
+			//@line 71
+			//@line 72
+			__CLASS879__.__keyFrames = null;
+			//@line 73
+			__CLASS879__.__keyFrames = {};
+			//@line 74
+			__CLASS879__.__keyFramesCount = 0;
+			//@line 75
+			__CLASS879__.normalizetimeline();
+		};
+		//@line 79
+		var keyFrame = this.keyFrame = function (frameIndex)
+		{
+			//@line 80
+			//@line 81
+			return (__CLASS879__.__keyFrames["" + frameIndex] || null);
+		};
+		//@line 85
+		var addKeyFrame = this.addKeyFrame = function (KeyFrame)
+		{
+			//@line 86
+			//@line 87
+			if (!KeyFrame) return null;
+			//@line 88
+			KeyFrame.frameIndex = __CLASS879__.roundIndex(KeyFrame.frameIndex);
+			//@line 89
+			__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = KeyFrame;
+			//@line 90
+			__CLASS879__.normalizetimeline();
+			//@line 91
+			return KeyFrame;
+		};
+		//@line 95
+		var addKeyFrameEx = this.addKeyFrameEx = function (actionCallback, frameIndex, frameInterpolation, handleEvents, visible, x, y, scaleX, scaleY, rotation, pivotX, pivotY, alpha)
+		{
+			//@line 108
+			//@line 109
+			var KeyFrame = new CocoKeyFrame;
+			//@line 111
+			KeyFrame.action = actionCallback;
+			//@line 112
+			KeyFrame.frameIndex = frameIndex;
+			//@line 113
+			KeyFrame.frameInterpolation = frameInterpolation;
+			//@line 114
+			KeyFrame.handleEvents = handleEvents;
+			//@line 115
+			KeyFrame.visible = visible;
+			//@line 116
+			KeyFrame.x = x;
+			//@line 117
+			KeyFrame.y = y;
+			//@line 118
+			KeyFrame.scaleX = scaleX;
+			//@line 119
+			KeyFrame.scaleY = scaleY;
+			//@line 120
+			KeyFrame.rotation = rotation;
+			//@line 121
+			KeyFrame.pivotX = pivotX;
+			//@line 122
+			KeyFrame.pivotY = pivotY;
+			//@line 123
+			KeyFrame.alpha = alpha;
+			//@line 125
+			return __CLASS879__.addKeyFrame(KeyFrame);
+		};
+		//@line 129
+		var insertKeyFrame = this.insertKeyFrame = function (frameIndex)
+		{
+			//@line 130
+			//@line 131
+			frameIndex = __CLASS879__.roundIndex(frameIndex);
+			//@line 132
+			var key = frameIndex.toString();
+			//@line 133
+			var KeyFrame = (__CLASS879__.__keyFrames[key] || __CLASS879__.interpolateByFrame(frameIndex));
+			//@line 134
+			return __CLASS879__.addKeyFrame(KeyFrame);
+		};
+		//@line 138
+		var deleteKeyFrame = this.deleteKeyFrame = function (KeyFrame)
+		{
+			//@line 139
+			//@line 140
+			if (!KeyFrame) return;
+			//@line 141
+			__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = null;
+			//@line 142
+			__CLASS879__.normalizetimeline();
+		};
+		//@line 146
+		var insertFrames = this.insertFrames = function (AtTimeIndex, FramesCount)
+		{
+			//@line 147
+		};
+		//@line 151
+		var deleteFrames = this.deleteFrames = function (FromTimeIndex, ToTimeIndex)
+		{
+			//@line 152
+		};
+		//@line 156
+		var setKeyFrameIndex = this.setKeyFrameIndex = function (KeyFrame, frameIndex)
+		{
+			//@line 157
+			//@line 158
+			if (!KeyFrame || (frameIndex == KeyFrame.frameIndex)) return;
+			//@line 160
+			frameIndex = __CLASS879__.roundIndex(frameIndex);
+			//@line 161
+			KeyFrame.frameIndex = __CLASS879__.roundIndex(KeyFrame.frameIndex);
+			//@line 162
+			if (frameIndex == KeyFrame.frameIndex) return;
+			//@line 164
+			__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = null;
+			//@line 165
+			KeyFrame.frameIndex = frameIndex;
+			//@line 166
+			__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = KeyFrame;
+			//@line 168
+			__CLASS879__.normalizetimeline();
+		};
+		//@line 172
+		var findKeyFrameBeforeframeIndex = this.findKeyFrameBeforeframeIndex = function (frameIndex, inclusive, excludeListIndex)
+		{
+			//@line 173
+			//@line 174
+			var i = 0;
+			//@line 175
+			var KeyFrame;
+			//@line 176
+			var list = __CLASS879__.keyFrames();
+			//@line 178
+			for (i = list.length - 1; i >= 0; i--)
+			//@line 179
+			{
+				//@line 180
+				if (i != excludeListIndex)
+				//@line 181
+				{
+					//@line 182
+					KeyFrame = list[i];
+					//@line 183
+					if (inclusive)
+					//@line 184
+					{
+						//@line 185
+						if (KeyFrame.frameIndex <= frameIndex)
+						//@line 186
+						return KeyFrame;
+					}
+					else
+					//@line 189
+					{
+						//@line 190
+						if (KeyFrame.frameIndex < frameIndex)
+						//@line 191
+						return KeyFrame;
+					}
+				}
+			}
+		};
+		//@line 198
+		var findKeyFrameAfterframeIndex = this.findKeyFrameAfterframeIndex = function (frameIndex, inclusive, excludeListIndex)
+		{
+			//@line 199
+			//@line 200
+			var i = 0;
+			//@line 201
+			var KeyFrame;
+			//@line 202
+			var list = __CLASS879__.keyFrames();
+			//@line 204
+			for (i = 0; i < list.length; i++)
+			//@line 205
+			{
+				//@line 206
+				if (i != excludeListIndex)
+				//@line 207
+				{
+					//@line 208
+					KeyFrame = list[i];
+					//@line 209
+					if (inclusive)
+					//@line 210
+					{
+						//@line 211
+						if (KeyFrame.frameIndex >= frameIndex)
+						//@line 212
+						return KeyFrame;
+					}
+					else
+					//@line 215
+					{
+						//@line 216
+						if (KeyFrame.frameIndex > frameIndex)
+						//@line 217
+						return KeyFrame;
+					}
+				}
+			}
+		};
+		//@line 224
+		var findKeyFramesBetween = this.findKeyFramesBetween = function (startframeIndex, stopframeIndex)
+		{
+			//@line 225
+			//@line 226
+			var col = [];
+			//@line 227
+			var list = __CLASS879__.keyFrames();
+			//@line 228
+			var i = 0;
+			//@line 229
+			var KeyFrame;
+			//@line 230
+			for (i = 0; i < list.length; i++)
+			//@line 231
+			{
+				//@line 232
+				KeyFrame = list[i];
+				//@line 233
+				if (KeyFrame.frameIndex >= startframeIndex || KeyFrame.frameIndex <= stopframeIndex)
+				//@line 234
+				col.push(KeyFrame);
+			}
+			//@line 236
+			return col;
+			return []
+		};
+		//@line 240
+		var listIndexOfKeyFrame = this.listIndexOfKeyFrame = function (KeyFrame)
+		{
+			//@line 241
+			//@line 242
+			var v = "",
+				index = -1;
+			//@line 243
+			for (v in __CLASS879__.__keyFrames)
+			//@line 244
+			{
+				//@line 245
+				index++;
+				//@line 246
+				if (__CLASS879__.__keyFrames[v] === KeyFrame)
+				//@line 247
+				return index;
+			}
+			//@line 249
+			return -1;
+			return 0
+		};
+		//@line 253
+		var frameIndexToLoopTime = this.frameIndexToLoopTime = function (frameIndex)
+		{
+			//@line 254
+			//@line 255
+			return frameIndex * __CLASS879__.__singleFrameDurationTime;
+			return 0
+		};
+		//@line 259
+		var gotoAndPlay = this.gotoAndPlay = function (frameIndexOrLabelName)
+		{
+			//@line 260
+		};
+		//@line 264
+		var gotoAndStop = this.gotoAndStop = function (frameIndexOrLabelName)
+		{
+			//@line 265
+		};
+		//@line 269
+		var normalizetimeline = this.normalizetimeline = function ()
+		{
+			//@line 270
+			//@line 271
+			var KeyFrame;
+			//@line 272
+			var v = "";
+			//@line 273
+			var vArr = [];
+			//@line 274
+			var f;
+			//@line 275
+			var i = 0;
+			//@line 276
+			var L = 0;
+			//@line 278
+			__CLASS879__.__durationInFrames = 0;
+			//@line 279
+			__CLASS879__.__durationInTime = 0;
+			//@line 280
+			__CLASS879__.__singleFrameDurationTime = 0;
+			//@line 281
+			__CLASS879__.__firstframeIndex = 0;
+			//@line 282
+			__CLASS879__.__lastframeIndex = 0;
+			//@line 283
+			__CLASS879__.__firstKeyFrame = null;
+			//@line 284
+			__CLASS879__.__lastKeyFrame = null;
+			//@line 285
+			__CLASS879__.__keyFramesCount = 0;
+			//@line 288
+			for (v in __CLASS879__.__keyFrames)
+			//@line 289
+			__CLASS879__.__keyFramesCount++; //@line 291
+			if (__CLASS879__.__keyFramesCount)
+			//@line 292
+			{
+				//@line 294
+				for (v in __CLASS879__.__keyFrames)
+				//@line 295
+				{
+					//@line 296
+					if (!__CLASS879__.__firstKeyFrame)
+					//@line 297
+					__CLASS879__.__firstKeyFrame = __CLASS879__.__keyFrames[v];
+				}
+				//@line 299
+				__CLASS879__.__lastKeyFrame = __CLASS879__.__keyFrames[v];
+				//@line 302
+				if (__CLASS879__.__keyFramesCount > 1)
+				//@line 303
+				{
+					//@line 304
+					vArr = __CLASS879__.keyFrames();
+					//@line 305
+					__CLASS879__.__keyFrames = {};
+					//@line 306
+					for (i = 0; i < vArr.length; i++)
+					//@line 307
+					{
+						//@line 308
+						f = vArr[i];
+						//@line 309
+						if (f.frameIndex > L)
+						//@line 310
+						L = f.frameIndex;
+					}
+					//@line 313
+					var arr = new Array(L);
+					//@line 314
+					for (i = 0; i < vArr.length; i++)
+					//@line 315
+					arr[vArr[i].frameIndex] = i + 1; //@line 317
+					for (i = 0; i < arr.length; i++)
+					//@line 318
+					{
+						//@line 319
+						if (arr[i] > 0)
+						//@line 320
+						{
+							//@line 321
+							KeyFrame = vArr[arr[i] - 1];
+							//@line 322
+							__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = KeyFrame;
+						}
+					}
+				}
+				//@line 328
+				if (__CLASS879__.__lastKeyFrame)
+				//@line 329
+				{
+					//@line 330
+					__CLASS879__.__lastframeIndex = __CLASS879__.__lastKeyFrame.frameIndex;
+					//@line 331
+					__CLASS879__.__durationInFrames = __CLASS879__.__lastKeyFrame.frameIndex + 1;
+					//@line 332
+					__CLASS879__.__durationInTime = (__CLASS879__.__durationInFrames / GLOBAL_FPS) * 1000;
+					//@line 333
+					__CLASS879__.__singleFrameDurationTime = __CLASS879__.__durationInTime / __CLASS879__.__durationInFrames;
+					//@line 334
+					__CLASS879__.__firstframeIndex = __CLASS879__.listIndexOfKeyFrame(__CLASS879__.__firstKeyFrame);
+				}
+			}
+		};
+		//@line 340
+		var roundIndex = this.roundIndex = function (index)
+		{
+			//@line 341
+			//@line 342
+			var i = Math.floor(index);
+			//@line 343
+			if ((index - i) >= 0.5) i++;
+			//@line 344
+			return i;
+			return 0
+		};
+		//@line 348
+		var interpolateByTime = this.interpolateByTime = function (LoopTime)
+		{
+			//@line 349
+			//@line 350
+			var T = (LoopTime / __CLASS879__.__singleFrameDurationTime);
+			//@line 351
+			return __CLASS879__.interpolateByFrame(T);
+		};
+		//@line 355
+		var interpolateByFrame = this.interpolateByFrame = function (frameIndex)
+		{
+			//@line 356
+			//@line 357
+			var F = null;
+			//@line 358
+			var F1 = null;
+			//@line 359
+			var F2 = null;
+			//@line 360
+			var s = 1;
+			//@line 363
+			if (!__CLASS879__.__keyFramesCount)
+			//@line 364
+			{
+				//@line 365
+				F = new CocoKeyFrame;
+				//@line 366
+				F.frameIndex = frameIndex;
+				//@line 367
+				F.visible = false;
+				//@line 368
+				return F;
+			}
+			//@line 372
+			F1 = __CLASS879__.keyFrame(__CLASS879__.roundIndex(frameIndex));
+			//@line 373
+			if (F1) return F1;
+			//@line 376
+			F1 = __CLASS879__.findKeyFrameBeforeframeIndex(frameIndex, false);
+			//@line 378
+			if (!F1)
+			//@line 379
+			{
+				//@line 381
+				F = new CocoKeyFrame;
+				//@line 382
+				F.frameIndex = frameIndex;
+				//@line 383
+				F.visible = false;
+				//@line 384
+				return F;
+			}
+			else
+			//@line 387
+			{
+				//@line 388
+				switch (F1.frameInterpolation)
+				{
+					//@line 390
+				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
+					{
+						//@line 392
+						F = F1.clone();
+						//@line 393
+						F.frameIndex = frameIndex;
+						//@line 394
+						F.action = null;
+						//@line 395
+						return F;
+					}
+					break;
+					//@line 397
+				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
+					{
+						//@line 399
+						F = F1.clone();
+						//@line 400
+						F.frameIndex = frameIndex;
+						//@line 401
+						F.action = null;
+						//@line 402
+						F.visible = false;
+						//@line 403
+						return F;
+					}
+					break;
+					//@line 405
+				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
+					{
+						//@line 408
+						F2 = __CLASS879__.findKeyFrameAfterframeIndex(frameIndex, false);
+						//@line 410
+						if (!F2)
+						//@line 411
+						{
+							//@line 413
+							F = F1.clone();
+							//@line 414
+							F.frameIndex = frameIndex;
+							//@line 415
+							F.action = null;
+							//@line 416
+							return F;
+						}
+						else
+						//@line 420
+						{
+							//@line 422
+							F = F1.clone();
+							//@line 423
+							F.frameIndex = frameIndex;
+							//@line 424
+							F.action = null;
+							//@line 425
+							s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
+							//@line 426
+							F.interpolate(F1, F2, s);
+							//@line 427
+							return F;
+						}
+					}
+					break;
+				}
+			}
+		};
+		//@line 39
+		this.__labels = [];
+		//@line 40
+		this.__keyFramesCount = 0;
+		//@line 41
+		this.__keyFrames = {};
+		//@line 42
+		this.__firstKeyFrame = null;
+		//@line 43
+		this.__lastKeyFrame = null;
+		//@line 44
+		this.__singleFrameDurationTime = 0;
+		//@line 45
+		this.__durationInTime = 0;
+		//@line 46
+		this.__durationInFrames = 0;
+		//@line 47
+		this.__firstframeIndex = 0;
+		//@line 48
+		this.__lastframeIndex = 0;
+		//@line 50
+		this.__PROTECTED__.__paused = false;
+		this.Constructor = function ()
+		{
+			//@line 54
+			//@line 55
+			__CLASS879__.addKeyFrameEx(null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
+			return __CLASS879__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

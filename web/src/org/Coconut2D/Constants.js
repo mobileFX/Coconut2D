@@ -60,7 +60,8 @@ var SCREEN_RESOLUTION_DPI_ENUM =
 var COCO_CLIP_SYMBOL_LOOP_ENUM =
 {
     CLIP_SYMBOL_LOOP_CONTINUOUS					: 0,
-    CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT	: 1
+    CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT	: 1,
+    CLIP_SYMBOL_LOOP_ONCE						: 2
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

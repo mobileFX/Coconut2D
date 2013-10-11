@@ -1,0 +1,152 @@
+//@compile{false}
+//@line 37
+function CocoImage()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS761__ = this,
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ = {};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 59
+		var isSpriteSheet = this.isSpriteSheet = function ()
+		{
+			//@line 60
+			//@line 61
+			return __CLASS761__.textureCellWidth > 0 && __CLASS761__.textureCellHeight > 0 && __CLASS761__.sequences != null;
+			return false
+		};
+		//@line 65
+		var createFromFile = this.createFromFile = function (filename, onloadCallBack)
+		{
+			//@line 66
+			//@line 67
+			__CLASS761__.image = new Image;
+			//@line 68
+			__CLASS761__.image.onload = onloadCallBack;
+			//@line 69
+			__CLASS761__.image.src = filename;
+		};
+		//@line 73
+		var getDpiSiblingImage = this.getDpiSiblingImage = function (dpi)
+		{
+			//@line 74
+			//@line 75
+			return __CLASS761__;
+		};
+		//@line 79
+		var addSequence = this.addSequence = function (name, sequence)
+		{
+			//@line 80
+			//@line 81
+			if (__CLASS761__.sequences[name]) throw "Cannot add sequence with same name!";
+			//@line 82
+			__CLASS761__.sequences[name] = sequence;
+		};
+		//@line 86
+		var prepare = this.prepare = function (gl)
+		{
+			//@line 87
+			//@line 88
+			var w2 = __CLASS761__.textureCellWidth / 2;
+			//@line 89
+			var h2 = __CLASS761__.textureCellHeight / 2;
+			//@line 91
+			__CLASS761__.texData = new Float32Array([0, 0, -w2, -h2, 0, 1, -w2, h2, 1, 0, w2, -h2, 1, 1, w2, h2]);
+			//@line 92
+			__CLASS761__.texSize = new Float32Array([__CLASS761__.textureCellWidth / __CLASS761__.image.naturalWidth, __CLASS761__.textureCellHeight / __CLASS761__.image.naturalHeight]);
+			//@line 94
+			__CLASS761__.texture = gl.createTexture();
+			//@line 95
+			gl.bindTexture(gl.TEXTURE_2D, __CLASS761__.texture);
+			//@line 96
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, __CLASS761__.image);
+			//@line 99
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+			//@line 100
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+			//@line 101
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			//@line 102
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			//@line 103
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			//@line 105
+			__CLASS761__.buffer = gl.createBuffer();
+			//@line 106
+			gl.bindBuffer(gl.ARRAY_BUFFER, __CLASS761__.buffer);
+			//@line 107
+			gl.bufferData(gl.ARRAY_BUFFER, __CLASS761__.texData, gl.STATIC_DRAW);
+			//@line 108
+			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		};
+		//@line 112
+		var drawFrame = this.drawFrame = function (gl, glp, frame, alpha)
+		{
+			//@line 113
+			//@line 114
+			__CLASS761__.color[3] = alpha;
+			//@line 115
+			gl.uniform2fv(glp.GLSLuSprSize, __CLASS761__.texSize);
+			//@line 116
+			gl.uniform2f(glp.GLSLuSprFrame, __CLASS761__.textureGrid[frame * 2 + 1], __CLASS761__.textureGrid[frame * 2]);
+			//@line 117
+			gl.bindBuffer(gl.ARRAY_BUFFER, __CLASS761__.buffer);
+			//@line 118
+			gl.vertexAttribPointer(glp.GLSLiTexCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
+			//@line 119
+			gl.vertexAttribPointer(glp.GLSLiVecCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
+			//@line 120
+			gl.bindTexture(gl.TEXTURE_2D, __CLASS761__.texture);
+			//@line 121
+			gl.uniform1i(glp.GLSLuSampler, 0);
+			//@line 122
+			gl.uniform4fv(glp.GLSLuColor, __CLASS761__.color);
+			//@line 123
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		};
+		//@line 39
+		this.image = null;
+		//@line 40
+		this.symbolName = "";
+		//@line 41
+		this.texture = null;
+		//@line 42
+		this.textureCellWidth = 0;
+		//@line 43
+		this.textureCellHeight = 0;
+		//@line 44
+		this.textureGrid = new Float32Array([0, 0]);
+		//@line 45
+		this.sequences = null;
+		//@line 46
+		this.color = new Float32Array([1, 1, 1, 1]);
+		//@line 47
+		this.texSize = new Float32Array([1, 1]);
+		//@line 48
+		this.texData = null;
+		//@line 49
+		this.buffer = null;
+		//@line 50
+		this.dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_nodpi;
+		//@line 51
+		this.skin = null;
+		this.Constructor = function ()
+		{
+			//@line 55
+			return __CLASS761__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}
