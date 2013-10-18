@@ -40,7 +40,12 @@ class CocoScene
 	public var __sceneName:String 				= "";   	
 	public var __imageSymbols:Object 			= {};   	
 	public var __soundSymbols:Object 			= {};   	
-	public var __clipSymbols:Object 			= {};   	
+	public var __clipSymbols:Object 			= {}; 
+	
+	// Fixed View Port  	
+	public var __view_width:Number				= 0;
+	public var __view_height:Number				= 0;
+	public var __view_pixel_ratio:Number		= 0;	
 
 	// Rendering
 	public var __currentTime:Number 			= 0.0;  	
@@ -200,11 +205,7 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function render(gl:WebGLRenderingContext, time:Number)
 	{
-		gl.useProgram(__glProgram);
-		gl.enable(gl.BLEND);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
-		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
+		beginDraw(gl);
 		
 		__modelViewMatrix.identity();
 		if(__startTime == -1) __startTime = time;
@@ -214,10 +215,30 @@ class CocoScene
 	    if(__root) 
 			__root.render(gl, this, null);
 	    	
-	    gl.disableVertexAttribArray(__glProgram.GLSLiTexCoords);
+	    endDraw(gl);
+	}
+	
+	public function beginDraw(gl:WebGLRenderingContext)
+	{
+		gl.useProgram(__glProgram);
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
+		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
+	}
+	
+	public function endDraw(gl:WebGLRenderingContext)
+	{
+		gl.disableVertexAttribArray(__glProgram.GLSLiTexCoords);
 		gl.disableVertexAttribArray(__glProgram.GLSLiVecCoords);
 		gl.disable(gl.BLEND);
-	}	
+	}
 }  
+
+
+
+
+
+
 
 

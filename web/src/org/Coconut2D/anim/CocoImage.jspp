@@ -67,6 +67,19 @@ class CocoImage
 		image = new Image();
 		image.onload = onloadCallBack;
 		image.src = filename;	
+	}                  
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createWithText(font:CocoFont, text:String)
+	{
+		image = new Image();                        
+		image.__width = 512;
+		image.__height = 512;		
+		image.__imageData = new ImageData(image.width, image.height);
+		image.__imageData.__buffer.clear();
+		font.fillText(image.__imageData.__buffer, image.width, text);
+		textureCellWidth = font.measureText(text);
+		textureCellHeight = font.height;		
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,6 +136,16 @@ class CocoImage
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	}
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
