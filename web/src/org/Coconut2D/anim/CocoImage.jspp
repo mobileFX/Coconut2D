@@ -77,7 +77,7 @@ class CocoImage
 		image.__height = 512;		
 		image.__imageData = new ImageData(image.width, image.height);
 		image.__imageData.__buffer.clear();
-		font.fillText(image.__imageData.__buffer, image.width, text);
+		font.fillText(image.__imageData.__buffer, image.width, text, 0, 0);
 		textureCellWidth = font.measureText(text);
 		textureCellHeight = font.height;		
 	}
@@ -136,6 +136,7 @@ class CocoImage
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	}
 }
+
 
 
 

@@ -34,7 +34,8 @@ function SymbolTablePlugin(compiler)
 		, {"type":"CLASS","proto":true,"ecma":true,"name":"ReferenceError","bases":["Error"],"fields":[],"methods":[]}
 		, {"type":"CLASS","proto":true,"ecma":true,"name":"SyntaxError","bases":["Error"],"fields":[],"methods":[]}
 		, {"type":"CLASS","proto":true,"ecma":true,"name":"TypeError","bases":["Error"],"fields":[],"methods":[]}		
-	]; 
+		, {"type":"CLASS","proto":true,"coco":true,"name":"CocoFont","bases":["Object"],"fields":[],"methods":[{"name":"fillText","type":"FUNCTION","datatype":"null","parameters":[{"name":"buffer","type":"ARGUMENT","restParameter":false,"datatype":"ArrayBuffer"},{"name":"width","type":"ARGUMENT","restParameter":false,"datatype":"Number"},{"name":"text","type":"ARGUMENT","restParameter":false,"datatype":"String"},{"name":"x","type":"ARGUMENT","restParameter":false,"datatype":"Number"},{"name":"y","type":"ARGUMENT","restParameter":false,"datatype":"Number"}],"access":"public","static":false},{"name":"measureText","type":"FUNCTION","datatype":"Number","parameters":[{"name":"text","type":"ARGUMENT","restParameter":false,"datatype":"String"}],"access":"public","static":false}]}
+	];  
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	this.getClassSymbol = function(id)
@@ -719,6 +720,11 @@ function SymbolTablePlugin(compiler)
 		return dt;		
 	}		
 }
+
+
+
+
+
 
 
 

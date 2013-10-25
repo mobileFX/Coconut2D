@@ -5,7 +5,7 @@ function CocoTimeline()
 	var __SUPER__;
 	return ((function ()
 	{
-		var __CLASS879__ = this,
+		var __CLASS883__ = this,
 			__PDEFINE__ = {}.constructor.defineProperty,
 			__NOENUM__ =
 			{
@@ -24,11 +24,11 @@ function CocoTimeline()
 			var v = "",
 				list = [];
 			//@line 62
-			for (v in __CLASS879__.__keyFrames)
+			for (v in __CLASS883__.__keyFrames)
 			//@line 63
 			{
 				//@line 64
-				list.push(__CLASS879__.__keyFrames[v]);
+				list.push(__CLASS883__.__keyFrames[v]);
 			}
 			//@line 66
 			return list;
@@ -39,20 +39,20 @@ function CocoTimeline()
 		{
 			//@line 71
 			//@line 72
-			__CLASS879__.__keyFrames = null;
+			__CLASS883__.__keyFrames = null;
 			//@line 73
-			__CLASS879__.__keyFrames = {};
+			__CLASS883__.__keyFrames = {};
 			//@line 74
-			__CLASS879__.__keyFramesCount = 0;
+			__CLASS883__.__keyFramesCount = 0;
 			//@line 75
-			__CLASS879__.normalizetimeline();
+			__CLASS883__.normalizetimeline();
 		};
 		//@line 79
 		var keyFrame = this.keyFrame = function (frameIndex)
 		{
 			//@line 80
 			//@line 81
-			return (__CLASS879__.__keyFrames["" + frameIndex] || null);
+			return (__CLASS883__.__keyFrames["" + frameIndex] || null);
 		};
 		//@line 85
 		var addKeyFrame = this.addKeyFrame = function (KeyFrame)
@@ -61,11 +61,11 @@ function CocoTimeline()
 			//@line 87
 			if (!KeyFrame) return null;
 			//@line 88
-			KeyFrame.frameIndex = __CLASS879__.roundIndex(KeyFrame.frameIndex);
+			KeyFrame.frameIndex = __CLASS883__.roundIndex(KeyFrame.frameIndex);
 			//@line 89
-			__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = KeyFrame;
+			__CLASS883__.__keyFrames["" + KeyFrame.frameIndex] = KeyFrame;
 			//@line 90
-			__CLASS879__.normalizetimeline();
+			__CLASS883__.normalizetimeline();
 			//@line 91
 			return KeyFrame;
 		};
@@ -102,20 +102,20 @@ function CocoTimeline()
 			//@line 123
 			KeyFrame.alpha = alpha;
 			//@line 125
-			return __CLASS879__.addKeyFrame(KeyFrame);
+			return __CLASS883__.addKeyFrame(KeyFrame);
 		};
 		//@line 129
 		var insertKeyFrame = this.insertKeyFrame = function (frameIndex)
 		{
 			//@line 130
 			//@line 131
-			frameIndex = __CLASS879__.roundIndex(frameIndex);
+			frameIndex = __CLASS883__.roundIndex(frameIndex);
 			//@line 132
 			var key = frameIndex.toString();
 			//@line 133
-			var KeyFrame = (__CLASS879__.__keyFrames[key] || __CLASS879__.interpolateByFrame(frameIndex));
+			var KeyFrame = (__CLASS883__.__keyFrames[key] || __CLASS883__.interpolateByFrame(frameIndex));
 			//@line 134
-			return __CLASS879__.addKeyFrame(KeyFrame);
+			return __CLASS883__.addKeyFrame(KeyFrame);
 		};
 		//@line 138
 		var deleteKeyFrame = this.deleteKeyFrame = function (KeyFrame)
@@ -124,9 +124,9 @@ function CocoTimeline()
 			//@line 140
 			if (!KeyFrame) return;
 			//@line 141
-			__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = null;
+			__CLASS883__.__keyFrames["" + KeyFrame.frameIndex] = null;
 			//@line 142
-			__CLASS879__.normalizetimeline();
+			__CLASS883__.normalizetimeline();
 		};
 		//@line 146
 		var insertFrames = this.insertFrames = function (AtTimeIndex, FramesCount)
@@ -145,19 +145,19 @@ function CocoTimeline()
 			//@line 158
 			if (!KeyFrame || (frameIndex == KeyFrame.frameIndex)) return;
 			//@line 160
-			frameIndex = __CLASS879__.roundIndex(frameIndex);
+			frameIndex = __CLASS883__.roundIndex(frameIndex);
 			//@line 161
-			KeyFrame.frameIndex = __CLASS879__.roundIndex(KeyFrame.frameIndex);
+			KeyFrame.frameIndex = __CLASS883__.roundIndex(KeyFrame.frameIndex);
 			//@line 162
 			if (frameIndex == KeyFrame.frameIndex) return;
 			//@line 164
-			__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = null;
+			__CLASS883__.__keyFrames["" + KeyFrame.frameIndex] = null;
 			//@line 165
 			KeyFrame.frameIndex = frameIndex;
 			//@line 166
-			__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = KeyFrame;
+			__CLASS883__.__keyFrames["" + KeyFrame.frameIndex] = KeyFrame;
 			//@line 168
-			__CLASS879__.normalizetimeline();
+			__CLASS883__.normalizetimeline();
 		};
 		//@line 172
 		var findKeyFrameBeforeframeIndex = this.findKeyFrameBeforeframeIndex = function (frameIndex, inclusive, excludeListIndex)
@@ -168,7 +168,7 @@ function CocoTimeline()
 			//@line 175
 			var KeyFrame;
 			//@line 176
-			var list = __CLASS879__.keyFrames();
+			var list = __CLASS883__.keyFrames();
 			//@line 178
 			for (i = list.length - 1; i >= 0; i--)
 			//@line 179
@@ -208,7 +208,7 @@ function CocoTimeline()
 			//@line 201
 			var KeyFrame;
 			//@line 202
-			var list = __CLASS879__.keyFrames();
+			var list = __CLASS883__.keyFrames();
 			//@line 204
 			for (i = 0; i < list.length; i++)
 			//@line 205
@@ -246,7 +246,7 @@ function CocoTimeline()
 			//@line 226
 			var col = [];
 			//@line 227
-			var list = __CLASS879__.keyFrames();
+			var list = __CLASS883__.keyFrames();
 			//@line 228
 			var i = 0;
 			//@line 229
@@ -274,13 +274,13 @@ function CocoTimeline()
 			var v = "",
 				index = -1;
 			//@line 243
-			for (v in __CLASS879__.__keyFrames)
+			for (v in __CLASS883__.__keyFrames)
 			//@line 244
 			{
 				//@line 245
 				index++;
 				//@line 246
-				if (__CLASS879__.__keyFrames[v] === KeyFrame)
+				if (__CLASS883__.__keyFrames[v] === KeyFrame)
 				//@line 247
 				return index;
 			}
@@ -293,7 +293,7 @@ function CocoTimeline()
 		{
 			//@line 254
 			//@line 255
-			return frameIndex * __CLASS879__.__singleFrameDurationTime;
+			return frameIndex * __CLASS883__.__singleFrameDurationTime;
 			return 0
 		};
 		//@line 259
@@ -323,47 +323,47 @@ function CocoTimeline()
 			//@line 276
 			var L = 0;
 			//@line 278
-			__CLASS879__.__durationInFrames = 0;
+			__CLASS883__.__durationInFrames = 0;
 			//@line 279
-			__CLASS879__.__durationInTime = 0;
+			__CLASS883__.__durationInTime = 0;
 			//@line 280
-			__CLASS879__.__singleFrameDurationTime = 0;
+			__CLASS883__.__singleFrameDurationTime = 0;
 			//@line 281
-			__CLASS879__.__firstframeIndex = 0;
+			__CLASS883__.__firstframeIndex = 0;
 			//@line 282
-			__CLASS879__.__lastframeIndex = 0;
+			__CLASS883__.__lastframeIndex = 0;
 			//@line 283
-			__CLASS879__.__firstKeyFrame = null;
+			__CLASS883__.__firstKeyFrame = null;
 			//@line 284
-			__CLASS879__.__lastKeyFrame = null;
+			__CLASS883__.__lastKeyFrame = null;
 			//@line 285
-			__CLASS879__.__keyFramesCount = 0;
+			__CLASS883__.__keyFramesCount = 0;
 			//@line 288
-			for (v in __CLASS879__.__keyFrames)
+			for (v in __CLASS883__.__keyFrames)
 			//@line 289
-			__CLASS879__.__keyFramesCount++; //@line 291
-			if (__CLASS879__.__keyFramesCount)
+			__CLASS883__.__keyFramesCount++; //@line 291
+			if (__CLASS883__.__keyFramesCount)
 			//@line 292
 			{
 				//@line 294
-				for (v in __CLASS879__.__keyFrames)
+				for (v in __CLASS883__.__keyFrames)
 				//@line 295
 				{
 					//@line 296
-					if (!__CLASS879__.__firstKeyFrame)
+					if (!__CLASS883__.__firstKeyFrame)
 					//@line 297
-					__CLASS879__.__firstKeyFrame = __CLASS879__.__keyFrames[v];
+					__CLASS883__.__firstKeyFrame = __CLASS883__.__keyFrames[v];
 				}
 				//@line 299
-				__CLASS879__.__lastKeyFrame = __CLASS879__.__keyFrames[v];
+				__CLASS883__.__lastKeyFrame = __CLASS883__.__keyFrames[v];
 				//@line 302
-				if (__CLASS879__.__keyFramesCount > 1)
+				if (__CLASS883__.__keyFramesCount > 1)
 				//@line 303
 				{
 					//@line 304
-					vArr = __CLASS879__.keyFrames();
+					vArr = __CLASS883__.keyFrames();
 					//@line 305
-					__CLASS879__.__keyFrames = {};
+					__CLASS883__.__keyFrames = {};
 					//@line 306
 					for (i = 0; i < vArr.length; i++)
 					//@line 307
@@ -391,24 +391,24 @@ function CocoTimeline()
 							//@line 321
 							KeyFrame = vArr[arr[i] - 1];
 							//@line 322
-							__CLASS879__.__keyFrames["" + KeyFrame.frameIndex] = KeyFrame;
+							__CLASS883__.__keyFrames["" + KeyFrame.frameIndex] = KeyFrame;
 						}
 					}
 				}
 				//@line 328
-				if (__CLASS879__.__lastKeyFrame)
+				if (__CLASS883__.__lastKeyFrame)
 				//@line 329
 				{
 					//@line 330
-					__CLASS879__.__lastframeIndex = __CLASS879__.__lastKeyFrame.frameIndex;
+					__CLASS883__.__lastframeIndex = __CLASS883__.__lastKeyFrame.frameIndex;
 					//@line 331
-					__CLASS879__.__durationInFrames = __CLASS879__.__lastKeyFrame.frameIndex + 1;
+					__CLASS883__.__durationInFrames = __CLASS883__.__lastKeyFrame.frameIndex + 1;
 					//@line 332
-					__CLASS879__.__durationInTime = (__CLASS879__.__durationInFrames / GLOBAL_FPS) * 1000;
+					__CLASS883__.__durationInTime = (__CLASS883__.__durationInFrames / GLOBAL_FPS) * 1000;
 					//@line 333
-					__CLASS879__.__singleFrameDurationTime = __CLASS879__.__durationInTime / __CLASS879__.__durationInFrames;
+					__CLASS883__.__singleFrameDurationTime = __CLASS883__.__durationInTime / __CLASS883__.__durationInFrames;
 					//@line 334
-					__CLASS879__.__firstframeIndex = __CLASS879__.listIndexOfKeyFrame(__CLASS879__.__firstKeyFrame);
+					__CLASS883__.__firstframeIndex = __CLASS883__.listIndexOfKeyFrame(__CLASS883__.__firstKeyFrame);
 				}
 			}
 		};
@@ -429,9 +429,9 @@ function CocoTimeline()
 		{
 			//@line 349
 			//@line 350
-			var T = (LoopTime / __CLASS879__.__singleFrameDurationTime);
+			var T = (LoopTime / __CLASS883__.__singleFrameDurationTime);
 			//@line 351
-			return __CLASS879__.interpolateByFrame(T);
+			return __CLASS883__.interpolateByFrame(T);
 		};
 		//@line 355
 		var interpolateByFrame = this.interpolateByFrame = function (frameIndex)
@@ -446,7 +446,7 @@ function CocoTimeline()
 			//@line 360
 			var s = 1;
 			//@line 363
-			if (!__CLASS879__.__keyFramesCount)
+			if (!__CLASS883__.__keyFramesCount)
 			//@line 364
 			{
 				//@line 365
@@ -459,11 +459,11 @@ function CocoTimeline()
 				return F;
 			}
 			//@line 372
-			F1 = __CLASS879__.keyFrame(__CLASS879__.roundIndex(frameIndex));
+			F1 = __CLASS883__.keyFrame(__CLASS883__.roundIndex(frameIndex));
 			//@line 373
 			if (F1) return F1;
 			//@line 376
-			F1 = __CLASS879__.findKeyFrameBeforeframeIndex(frameIndex, false);
+			F1 = __CLASS883__.findKeyFrameBeforeframeIndex(frameIndex, false);
 			//@line 378
 			if (!F1)
 			//@line 379
@@ -515,7 +515,7 @@ function CocoTimeline()
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 					{
 						//@line 408
-						F2 = __CLASS879__.findKeyFrameAfterframeIndex(frameIndex, false);
+						F2 = __CLASS883__.findKeyFrameAfterframeIndex(frameIndex, false);
 						//@line 410
 						if (!F2)
 						//@line 411
@@ -576,8 +576,8 @@ function CocoTimeline()
 		{
 			//@line 54
 			//@line 55
-			__CLASS879__.addKeyFrameEx(null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
-			return __CLASS879__
+			__CLASS883__.addKeyFrameEx(null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
+			return __CLASS883__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this

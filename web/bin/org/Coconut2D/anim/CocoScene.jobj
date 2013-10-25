@@ -5,7 +5,7 @@ function CocoScene()
 	var __SUPER__;
 	return ((function ()
 	{
-		var __CLASS1013__ = this,
+		var __CLASS1021__ = this,
 			__PDEFINE__ = {}.constructor.defineProperty,
 			__NOENUM__ =
 			{
@@ -16,255 +16,269 @@ function CocoScene()
 		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
 		this.__PROTECTED__ = {};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 70
+		//@line 75
 		var prepared = this.prepared = function ()
 		{
-			//@line 71
-			//@line 72
-			return __CLASS1013__.__glProgram != null;
+			//@line 76
+			//@line 77
+			return __CLASS1021__.__glProgram != null;
 			return false
 		};
-		//@line 76
+		//@line 81
 		var updateModelViewMatrix = this.updateModelViewMatrix = function (gl)
 		{
-			//@line 77
-			//@line 78
-			__CLASS1013__.__modelViewMatrix.update(gl, __CLASS1013__.__glProgram.GLSLuMVMat);
+			//@line 82
+			//@line 83
+			__CLASS1021__.__modelViewMatrix.update(gl, __CLASS1021__.__glProgram.GLSLuMVMat);
 		};
-		//@line 82
+		//@line 87
 		var updateProjectionMatrix = this.updateProjectionMatrix = function (gl)
 		{
-			//@line 83
-			//@line 84
-			__CLASS1013__.__projectionMatrix.update(gl, __CLASS1013__.__glProgram.GLSLuProjMat);
+			//@line 88
+			//@line 89
+			__CLASS1021__.__projectionMatrix.update(gl, __CLASS1021__.__glProgram.GLSLuProjMat);
 		};
-		//@line 88
+		//@line 93
 		var resourceImagesCount = this.resourceImagesCount = function ()
 		{
-			//@line 89
-			//@line 90
+			//@line 94
+			//@line 95
 			var t = "",
 				c = 0;
-			//@line 91
-			for (t in __CLASS1013__.__imageSymbols)
-			//@line 92
-			if (__CLASS1013__.__imageSymbols[t])
-			//@line 93
-			c++; //@line 94
+			//@line 96
+			for (t in __CLASS1021__.__imageSymbols)
+			//@line 97
+			if (__CLASS1021__.__imageSymbols[t])
+			//@line 98
+			c++; //@line 99
 			return c;
 			return 0
 		};
-		//@line 98
+		//@line 103
 		var resourceImagesLoaded = this.resourceImagesLoaded = function ()
 		{
-			//@line 99
-			//@line 100
+			//@line 104
+			//@line 105
 			var t = "",
 				img;
-			//@line 101
-			for (t in __CLASS1013__.__imageSymbols)
-			//@line 102
+			//@line 106
+			for (t in __CLASS1021__.__imageSymbols)
+			//@line 107
 			{
-				//@line 103
-				img = __CLASS1013__.__imageSymbols[t].image;
-				//@line 104
+				//@line 108
+				img = __CLASS1021__.__imageSymbols[t].image;
+				//@line 109
 				if (!img.width || !img.height)
-				//@line 105
+				//@line 110
 				return false;
 			}
-			//@line 107
+			//@line 112
 			return true;
 			return false
 		};
-		//@line 111
+		//@line 116
 		var getImageSymbol = this.getImageSymbol = function (symbolName)
 		{
-			//@line 112
-			//@line 113
-			var img = __CLASS1013__.__imageSymbols[symbolName];
-			//@line 114
+			//@line 117
+			//@line 118
+			var img = __CLASS1021__.__imageSymbols[symbolName];
+			//@line 119
 			if (img)
-			//@line 115
+			//@line 120
 			{
-				//@line 116
+				//@line 121
 				var dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_nodpi;
-				//@line 117
+				//@line 122
 				switch (window.devicePixelRatio)
 				{
-					//@line 119
+					//@line 124
 				case 0.75:
 					{
 						dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_ldpi;
 						break;
 					}
 					break;
-					//@line 120
+					//@line 125
 				case 1:
 					{
 						dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi;
 						break;
 					}
 					break;
-					//@line 121
+					//@line 126
 				case 1.25:
 					{
 						dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_tvdpi;
 						break;
 					}
 					break;
-					//@line 122
+					//@line 127
 				case 1.5:
 					{
 						dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_hdpi;
 						break;
 					}
 					break;
-					//@line 123
+					//@line 128
 				case 2:
 					{
 						dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi;
 						break;
 					}
 					break;
-					//@line 124
+					//@line 129
 				default:
 					{
 						return img;
 					}
 				}
-				//@line 126
+				//@line 131
 				return img.getDpiSiblingImage(dpi);
 			}
 		};
-		//@line 131
+		//@line 136
 		var getSoundSymbol = this.getSoundSymbol = function (symbolName)
 		{
-			//@line 132
-			//@line 133
-			return __CLASS1013__.__soundSymbols[symbolName] || null;
+			//@line 137
+			//@line 138
+			return __CLASS1021__.__soundSymbols[symbolName] || null;
 		};
-		//@line 137
+		//@line 142
 		var getClipSymbol = this.getClipSymbol = function (symbolName)
 		{
-			//@line 138
-			//@line 139
-			return __CLASS1013__.__clipSymbols[symbolName] || null;
+			//@line 143
+			//@line 144
+			return __CLASS1021__.__clipSymbols[symbolName] || null;
 		};
-		//@line 143
+		//@line 148
 		var newResourceImage = this.newResourceImage = function (symbolName, filename)
 		{
-			//@line 144
-			//@line 145
-			if (__CLASS1013__.__imageSymbols[symbolName]) throw "Resource " + symbolName + " already exists.";
-			//@line 146
-			var img = new CocoImage;
-			//@line 147
-			img.symbolName = symbolName;
-			//@line 148
-			img.createFromFile(filename, null);
 			//@line 149
-			__CLASS1013__.__imageSymbols[symbolName] = img;
 			//@line 150
+			if (__CLASS1021__.__imageSymbols[symbolName]) throw "Resource " + symbolName + " already exists.";
+			//@line 151
+			var img = new CocoImage;
+			//@line 152
+			img.symbolName = symbolName;
+			//@line 153
+			img.createFromFile(filename, null);
+			//@line 154
+			__CLASS1021__.__imageSymbols[symbolName] = img;
+			//@line 155
 			return img;
 		};
-		//@line 154
+		//@line 159
 		var newResourceSound = this.newResourceSound = function (symbolName, filename)
 		{
-			//@line 155
-			//@line 156
-			if (__CLASS1013__.__soundSymbols[symbolName]) throw "Resource " + symbolName + " already exists.";
-			//@line 157
-			var snd = new CocoSound;
-			//@line 158
-			snd.symbolName = symbolName;
-			//@line 159
-			snd.createFromFile(filename, null);
 			//@line 160
-			__CLASS1013__.__soundSymbols[symbolName] = snd;
 			//@line 161
+			if (__CLASS1021__.__soundSymbols[symbolName]) throw "Resource " + symbolName + " already exists.";
+			//@line 162
+			var snd = new CocoSound;
+			//@line 163
+			snd.symbolName = symbolName;
+			//@line 164
+			snd.createFromFile(filename, null);
+			//@line 165
+			__CLASS1021__.__soundSymbols[symbolName] = snd;
+			//@line 166
 			return snd;
 		};
-		//@line 165
+		//@line 170
 		var prepare = this.prepare = function (gl)
 		{
-			//@line 166
-			//@line 167
-			__CLASS1013__.__glProgram = glu.makeProgram(gl, __CLASS1013__.__vertex_shader, __CLASS1013__.__fragment_shader);
-			//@line 169
-			gl.useProgram(__CLASS1013__.__glProgram);
 			//@line 171
-			__CLASS1013__.__glProgram.GLSLiVecCoords = gl.getAttribLocation(__CLASS1013__.__glProgram, "iVecCoords");
 			//@line 172
-			__CLASS1013__.__glProgram.GLSLiTexCoords = gl.getAttribLocation(__CLASS1013__.__glProgram, "iTexCoords");
-			//@line 173
-			__CLASS1013__.__glProgram.GLSLuProjMat = gl.getUniformLocation(__CLASS1013__.__glProgram, "uProjMat");
+			__CLASS1021__.__glProgram = glu.makeProgram(gl, __CLASS1021__.__vertex_shader, __CLASS1021__.__fragment_shader);
 			//@line 174
-			__CLASS1013__.__glProgram.GLSLuMVMat = gl.getUniformLocation(__CLASS1013__.__glProgram, "uMVMat");
-			//@line 175
-			__CLASS1013__.__glProgram.GLSLuSprSize = gl.getUniformLocation(__CLASS1013__.__glProgram, "uSprSize");
+			gl.useProgram(__CLASS1021__.__glProgram);
 			//@line 176
-			__CLASS1013__.__glProgram.GLSLuSprFrame = gl.getUniformLocation(__CLASS1013__.__glProgram, "uSprFrame");
+			__CLASS1021__.__glProgram.GLSLiVecCoords = gl.getAttribLocation(__CLASS1021__.__glProgram, "iVecCoords");
 			//@line 177
-			__CLASS1013__.__glProgram.GLSLuSampler = gl.getUniformLocation(__CLASS1013__.__glProgram, "uSampler");
+			__CLASS1021__.__glProgram.GLSLiTexCoords = gl.getAttribLocation(__CLASS1021__.__glProgram, "iTexCoords");
 			//@line 178
-			__CLASS1013__.__glProgram.GLSLuColor = gl.getUniformLocation(__CLASS1013__.__glProgram, "uColor");
+			__CLASS1021__.__glProgram.GLSLuProjMat = gl.getUniformLocation(__CLASS1021__.__glProgram, "uProjMat");
+			//@line 179
+			__CLASS1021__.__glProgram.GLSLuMVMat = gl.getUniformLocation(__CLASS1021__.__glProgram, "uMVMat");
 			//@line 180
-			__CLASS1013__.__modelViewMatrix = new CocoMatrix;
+			__CLASS1021__.__glProgram.GLSLuSprSize = gl.getUniformLocation(__CLASS1021__.__glProgram, "uSprSize");
 			//@line 181
-			__CLASS1013__.__modelViewMatrix.update(gl, __CLASS1013__.__glProgram.GLSLuMVMat);
+			__CLASS1021__.__glProgram.GLSLuSprFrame = gl.getUniformLocation(__CLASS1021__.__glProgram, "uSprFrame");
+			//@line 182
+			__CLASS1021__.__glProgram.GLSLuSampler = gl.getUniformLocation(__CLASS1021__.__glProgram, "uSampler");
 			//@line 183
-			__CLASS1013__.__projectionMatrix = new CocoMatrix;
-			//@line 184
-			__CLASS1013__.__projectionMatrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
+			__CLASS1021__.__glProgram.GLSLuColor = gl.getUniformLocation(__CLASS1021__.__glProgram, "uColor");
+			//@line 185
+			__CLASS1021__.__modelViewMatrix = new CocoMatrix;
 			//@line 186
-			__CLASS1013__.__projectionMatrix.scale(window.devicePixelRatio, window.devicePixelRatio);
-			//@line 187
-			__CLASS1013__.__projectionMatrix.update(gl, __CLASS1013__.__glProgram.GLSLuProjMat);
+			__CLASS1021__.__modelViewMatrix.update(gl, __CLASS1021__.__glProgram.GLSLuMVMat);
+			//@line 188
+			__CLASS1021__.__projectionMatrix = new CocoMatrix;
 			//@line 189
-			var t = "";
-			//@line 190
-			for (t in __CLASS1013__.__imageSymbols)
+			__CLASS1021__.__projectionMatrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
 			//@line 191
-			__CLASS1013__.__imageSymbols[t].prepare(gl);
+			__CLASS1021__.__projectionMatrix.scale(window.devicePixelRatio, window.devicePixelRatio);
+			//@line 192
+			__CLASS1021__.__projectionMatrix.update(gl, __CLASS1021__.__glProgram.GLSLuProjMat);
+			//@line 194
+			var t = "";
+			//@line 195
+			for (t in __CLASS1021__.__imageSymbols)
+			//@line 196
+			__CLASS1021__.__imageSymbols[t].prepare(gl);
 		};
-		//@line 195
+		//@line 200
 		var tick = this.tick = function (gl, time)
 		{
-			//@line 196
-			//@line 197
-			__CLASS1013__.render(gl, time);
+			//@line 201
+			//@line 202
+			__CLASS1021__.render(gl, time);
 		};
-		//@line 201
+		//@line 206
 		var render = this.render = function (gl, time)
 		{
-			//@line 202
-			//@line 203
-			gl.useProgram(__CLASS1013__.__glProgram);
-			//@line 204
-			gl.enable(gl.BLEND);
-			//@line 205
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			//@line 206
-			gl.enableVertexAttribArray(__CLASS1013__.__glProgram.GLSLiTexCoords);
 			//@line 207
-			gl.enableVertexAttribArray(__CLASS1013__.__glProgram.GLSLiVecCoords);
-			//@line 209
-			__CLASS1013__.__modelViewMatrix.identity();
+			//@line 208
+			__CLASS1021__.beginDraw(gl);
 			//@line 210
-			if (__CLASS1013__.__startTime == -1) __CLASS1013__.__startTime = time;
+			__CLASS1021__.__modelViewMatrix.identity();
 			//@line 211
-			__CLASS1013__.__elapsedTime = time - __CLASS1013__.__currentTime - __CLASS1013__.__startTime;
+			if (__CLASS1021__.__startTime == -1) __CLASS1021__.__startTime = time;
 			//@line 212
-			__CLASS1013__.__currentTime = time - __CLASS1013__.__startTime;
-			//@line 214
-			if (__CLASS1013__.__root)
+			__CLASS1021__.__elapsedTime = time - __CLASS1021__.__currentTime - __CLASS1021__.__startTime;
+			//@line 213
+			__CLASS1021__.__currentTime = time - __CLASS1021__.__startTime;
 			//@line 215
-			__CLASS1013__.__root.render(gl, this, null);
-			//@line 217
-			gl.disableVertexAttribArray(__CLASS1013__.__glProgram.GLSLiTexCoords);
+			if (__CLASS1021__.__root)
+			//@line 216
+			__CLASS1021__.__root.render(gl, this, null);
 			//@line 218
-			gl.disableVertexAttribArray(__CLASS1013__.__glProgram.GLSLiVecCoords);
-			//@line 219
+			__CLASS1021__.endDraw(gl);
+		};
+		//@line 221
+		var beginDraw = this.beginDraw = function (gl)
+		{
+			//@line 222
+			//@line 223
+			gl.useProgram(__CLASS1021__.__glProgram);
+			//@line 224
+			gl.enable(gl.BLEND);
+			//@line 225
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			//@line 226
+			gl.enableVertexAttribArray(__CLASS1021__.__glProgram.GLSLiTexCoords);
+			//@line 227
+			gl.enableVertexAttribArray(__CLASS1021__.__glProgram.GLSLiVecCoords);
+		};
+		//@line 230
+		var endDraw = this.endDraw = function (gl)
+		{
+			//@line 231
+			//@line 232
+			gl.disableVertexAttribArray(__CLASS1021__.__glProgram.GLSLiTexCoords);
+			//@line 233
+			gl.disableVertexAttribArray(__CLASS1021__.__glProgram.GLSLiVecCoords);
+			//@line 234
 			gl.disable(gl.BLEND);
 		};
 		//@line 40
@@ -276,36 +290,42 @@ function CocoScene()
 		//@line 43
 		this.__clipSymbols = {};
 		//@line 46
-		this.__currentTime = 0;
+		this.__view_width = 0;
 		//@line 47
-		this.__elapsedTime = 0;
+		this.__view_height = 0;
 		//@line 48
-		this.__startTime = -1;
-		//@line 49
-		this.__root = null;
-		//@line 50
-		this.__modelViewMatrix = null;
+		this.__view_pixel_ratio = 0;
 		//@line 51
-		this.__projectionMatrix = null;
+		this.__currentTime = 0;
 		//@line 52
-		this.__glProgram = null;
+		this.__elapsedTime = 0;
+		//@line 53
+		this.__startTime = -1;
 		//@line 54
-		this.__vertex_shader = "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
+		this.__root = null;
 		//@line 55
+		this.__modelViewMatrix = null;
+		//@line 56
+		this.__projectionMatrix = null;
+		//@line 57
+		this.__glProgram = null;
+		//@line 59
+		this.__vertex_shader = "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
+		//@line 60
 		this.__fragment_shader = "precision mediump float; uniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
 		this.Constructor = function ()
 		{
 			var sceneName = arguments[0];
-			//@line 62
-			//@line 63
-			__CLASS1013__.__sceneName = sceneName;
-			//@line 64
-			__CLASS1013__.__root = new CocoClip;
-			//@line 65
-			__CLASS1013__.__modelViewMatrix = new CocoMatrix;
-			//@line 66
-			__CLASS1013__.__projectionMatrix = new CocoMatrix;
-			return __CLASS1013__
+			//@line 67
+			//@line 68
+			__CLASS1021__.__sceneName = sceneName;
+			//@line 69
+			__CLASS1021__.__root = new CocoClip;
+			//@line 70
+			__CLASS1021__.__modelViewMatrix = new CocoMatrix;
+			//@line 71
+			__CLASS1021__.__projectionMatrix = new CocoMatrix;
+			return __CLASS1021__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this
