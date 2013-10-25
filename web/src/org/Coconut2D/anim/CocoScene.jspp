@@ -185,12 +185,11 @@ class CocoScene
 		__modelViewMatrix = new CocoMatrix();
 		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
 		
-		var s:Number = Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height);
+		// If we have a fixed view, we scale to it, otherwise we use device pixel ratio.
+		var s:Number = this.__view_width>0 && this.__view_height>0 ? Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height) : window.devicePixelRatio;
 		
 		__projectionMatrix = new CocoMatrix();
-		__projectionMatrix.ortho(-gl.canvas.width / 2.0, gl.canvas.width / 2.0, gl.canvas.height / 2.0, -gl.canvas.height / 2.0, -1.0, 1.0);
-		//__projectionMatrix.ortho(0.0, 480, 320, 0.0, -1.0, 1.0);
-		//__projectionMatrix.scale(window.devicePixelRatio, window.devicePixelRatio);
+		__projectionMatrix.ortho(-gl.canvas.width / 2.0, gl.canvas.width / 2.0, gl.canvas.height / 2.0, -gl.canvas.height / 2.0, -1.0, 1.0);				
 		__projectionMatrix.scale(s, s);
 		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat);
 			
@@ -237,6 +236,7 @@ class CocoScene
 		gl.disable(gl.BLEND);
 	}
 }  
+
 
 
 
