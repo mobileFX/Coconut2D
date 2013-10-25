@@ -57,7 +57,7 @@ class CocoScene
 	public var __glProgram:WebGLProgram			= null;
 	
 	public var __vertex_shader:String			= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
-	public var __fragment_shader:String			= "precision mediump float; uniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
+	public var __fragment_shader:String			= "/*precision mediump float; */uniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
 	
 	            
 	//public var onload = null;
@@ -185,10 +185,13 @@ class CocoScene
 		__modelViewMatrix = new CocoMatrix();
 		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
 		
+		var s:Number = Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height);
+		
 		__projectionMatrix = new CocoMatrix();
-		__projectionMatrix.ortho(0.0, gl.canvas.width, gl.canvas.height, 0.0, -1.0, 1.0);
+		__projectionMatrix.ortho(-gl.canvas.width / 2.0, gl.canvas.width / 2.0, gl.canvas.height / 2.0, -gl.canvas.height / 2.0, -1.0, 1.0);
 		//__projectionMatrix.ortho(0.0, 480, 320, 0.0, -1.0, 1.0);
-		__projectionMatrix.scale(window.devicePixelRatio, window.devicePixelRatio);
+		//__projectionMatrix.scale(window.devicePixelRatio, window.devicePixelRatio);
+		__projectionMatrix.scale(s, s);
 		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat);
 			
 		var t:String;
@@ -234,6 +237,7 @@ class CocoScene
 		gl.disable(gl.BLEND);
 	}
 }  
+
 
 
 
