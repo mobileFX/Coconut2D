@@ -50,24 +50,22 @@ class CocoKeyFrame
 	public var rotation:Number										= 0.0;
 	public var action:Function										= null;
 	
-	private var __lastActionExecutionTime:Number					= -1;
-	private var __min:Number = 1000000;
-	private var __max:Number = 0;
+	private var __lastActionExecutionTime:Number					= 0.0;	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		frameInterpolation 	= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
-		handleEvents 		= false;
-		visible				= true;
-		x					= 0.0;
-		y					= 0.0;
-		scaleX				= 1.0;
-		scaleY				= 1.0;
-		rotation			= 0.0;
-		pivotX				= 0.0;
-		pivotY				= 0.0;
-		alpha				= 1.0;			
+		frameInterpolation 		= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
+		handleEvents 			= false;
+		visible					= true;
+		x						= 0.0;
+		y						= 0.0;
+		scaleX					= 1.0;
+		scaleY					= 1.0;
+		rotation				= 0.0;
+		pivotX					= 0.0;
+		pivotY					= 0.0;
+		alpha					= 1.0;		
 	} 
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,35 +73,31 @@ class CocoKeyFrame
 	{
 	    var c:CocoKeyFrame;
 	    c = new CocoKeyFrame();
-		c.alpha					= alpha;				
-		c.frameIndex            = frameIndex;        
-		c.frameInterpolation    = frameInterpolation;
-		c.handleEvents          = handleEvents;      
-		c.pivotX                = pivotX;            
-		c.pivotY                = pivotY;            
-		c.rotation              = rotation;          
-		c.scaleX                = scaleX;            
-		c.scaleY                = scaleY;            
-		c.visible               = visible;           
-		c.x                     = x;                 
-		c.y                     = y;                 
-		c.action				= action;
+		c.alpha						= alpha;				
+		c.frameIndex            	= frameIndex;        
+		c.frameInterpolation    	= frameInterpolation;
+		c.handleEvents          	= handleEvents;      
+		c.pivotX                	= pivotX;            
+		c.pivotY                	= pivotY;            
+		c.rotation              	= rotation;          
+		c.scaleX                	= scaleX;            
+		c.scaleY                	= scaleY;            
+		c.visible               	= visible;           
+		c.x                     	= x;                 
+		c.y                     	= y;                 
+		c.action					= action;                                   		
 	    return c;
 	}	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function execute(gl:WebGLRenderingContext, currentTime:Number, loopTime:Number, scene:CocoScene, clip:CocoClip)
 	{ 
-		if(!action) return;
-		
-		if(currentTime-__lastActionExecutionTime> clip.__timeline.__singleFrameDurationTime)
+		if(!action) return;                    		
+		if(currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime)
 		{
+			__lastActionExecutionTime = currentTime;			
 			var args:Array = [gl, currentTime, loopTime, clip, this];		
-			action.apply(scene, args);	
-			__lastActionExecutionTime = currentTime; 
-			if(loopTime<__min) __min = loopTime;
-			if(loopTime>__max) __max= loopTime; 			
-			//trace("exec: " + [clip.__parent.instanceName +"."+ clip.instanceName, currentTime, clip.__timeline.__singleFrameDurationTime, loopTime, __min, __max, (__max-__min)].join(", "));
+			action.apply(scene, args);			
 		}
 	}
 	
@@ -138,6 +132,11 @@ class CocoKeyFrame
 		matrix.translate(-pivotX, -pivotY);
 	}		
 } 
+
+
+
+
+
 
 
 

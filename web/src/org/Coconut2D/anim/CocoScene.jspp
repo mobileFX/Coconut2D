@@ -55,13 +55,11 @@ class CocoScene
 	public var __modelViewMatrix:CocoMatrix		= null;
 	public var __projectionMatrix:CocoMatrix 	= null;
 	public var __glProgram:WebGLProgram			= null;
+	public var __levelParents:Array				= [];
 	
 	public var __vertex_shader:String			= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
 	public var __fragment_shader:String			= "/*precision mediump float; */uniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
-	
-	            
-	//public var onload = null;
-	
+			            
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(sceneName:String)
 	{ 
@@ -214,12 +212,17 @@ class CocoScene
 	    __elapsedTime = time - __currentTime - __startTime;
 	    __currentTime = time - __startTime;
 	    
-	    if(__root) 
+	    if(__root)    
+	    {
+	    	__levelParents = [__root];
 			__root.render(gl, this, null);
+			__levelParents = [];
+	    }
 	    	
 	    endDraw(gl);
 	}
 	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function beginDraw(gl:WebGLRenderingContext)
 	{
 		gl.useProgram(__glProgram);
@@ -229,20 +232,33 @@ class CocoScene
 		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
 	}
 	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function endDraw(gl:WebGLRenderingContext)
 	{
 		gl.disableVertexAttribArray(__glProgram.GLSLiTexCoords);
 		gl.disableVertexAttribArray(__glProgram.GLSLiVecCoords);
 		gl.disable(gl.BLEND);
 	}
-}  
+		
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function gotoAndPlay(LabelNameOrFrameIndex, deep:Boolean) :Boolean
+	{  
+		var scope:CocoClip = __levelParents[__levelParents.length-1];
+		return scope.gotoFrame(LabelNameOrFrameIndex, false, deep);
+	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function gotoAndStop(LabelNameOrFrameIndex, deep:Boolean) :Boolean
+	{  	 
+		var scope:CocoClip = __levelParents[__levelParents.length-1];
+		return scope.gotoFrame(LabelNameOrFrameIndex, true, deep);
+	}
 
-
-
-
-
-
-
-
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function stop(deep:Boolean) :Boolean
+	{
+		var scope:CocoClip = __levelParents[__levelParents.length-1];		
+		return scope.gotoFrame(-1, true, deep);
+	}	
+}
 

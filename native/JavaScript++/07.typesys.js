@@ -110,6 +110,9 @@ compiler.prototype.typesys.cocoscript = function()
 		//=============================================================================================================================
 		function TYPE_CHECK(Node, left, right, ErrorMessage)
 		{
+			if(!left) left = _this.UNTYPED;
+			if(!right) right = _this.UNTYPED;
+			
 			// Nasty-hacks
 			if(left=="HTMLImageElement" && right=="Image") return "HTMLImageElement";			
 			if(left=="Image" && right=="HTMLImageElement") return "HTMLImageElement";			
@@ -180,9 +183,10 @@ compiler.prototype.typesys.cocoscript = function()
 		case jsdef.THIS:			return Compiler.currentClass || "Function";
 		
 		//=============================================================================================================================
-		case jsdef.ASSIGN:
+		case jsdef.ASSIGN:			
+		    //if(Node.source == "s = new State_GameBoard()") debugger;
 		    var type1 = _this.typesys(Node[0],Compiler); 
-		    var type2 = _this.typesys(Node[1],Compiler);
+		    var type2 = _this.typesys(Node[1],Compiler);		    
 		    return TYPE_CHECK(Node, type1, type2);		    
 
 		//=============================================================================================================================
@@ -391,6 +395,9 @@ compiler.prototype.typesys.cocoscript = function()
 		}  //switch							
 	};
 };
+
+
+
 
 
 

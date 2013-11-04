@@ -105,8 +105,6 @@ function compileJSPP(file, code, _debug, _nowrap, _warnings, _xml)
 		cs = [].concat(c.SymbolTable.codeSymbols);
 		c = null;
 		
-		trace("");		
-		
 		// Second pass      
 		c = new compiler(ast, options);
 		c.preprocess(ast, true);		
@@ -247,52 +245,65 @@ function RxReplace(buff, patt, opts, repl)
 function ____readSourceFiles()
 {
 	var buff = "";
-	var root = "D:/mobileFX/Projects/Software/Coconut/Coco.project/web";	
-	var files = [ 
-		"/src/org/Coconut2D/Constants.js",
-		"/src/org/Coconut2D/Coconut.js",
-		"/src/externs/CRL_native.js",
-		"/src/externs/ECMA.jspp",
-		"/src/org/Coconut2D/html5/HTML5.js",
-		"/src/org/Coconut2D/html5/HTMLCanvas.js",
-		"/src/org/Coconut2D/html5/HTMLEvents.js",
-		"/src/org/Coconut2D/html5/WebGL.js",
-		"/src/org/Coconut2D/anim/CocoImage.jspp",
-		"/src/org/Coconut2D/anim/CocoKeyFrame.jspp",
-		"/src/org/Coconut2D/anim/CocoMatrix.jspp",
-		"/src/org/Coconut2D/anim/CocoSequence.jspp",
-		"/src/org/Coconut2D/anim/CocoSound.jspp",
-		"/src/org/Coconut2D/anim/CocoTimeLabel.jspp",
-		"/src/org/Coconut2D/anim/CocoTimeline.jspp",
-		"/src/org/Coconut2D/anim/CocoClip.jspp",
-		"/src/org/Coconut2D/ui/UIView.jspp",
-		"/src/org/Coconut2D/ui/UIControlView.jspp",
-		"/src/org/Coconut2D/ui/UIButtonView.jspp",
-		"/src/org/Coconut2D/ui/UICheckboxView.jspp",
-		"/src/org/Coconut2D/ui/UILabelView.jspp",
-		"/src/org/Coconut2D/ui/UINavbarView.jspp",
-		"/src/org/Coconut2D/ui/UIPageView.jspp",
-		"/src/org/Coconut2D/ui/UIPickerView.jspp",
-		"/src/org/Coconut2D/ui/UIScrollView.jspp",
-		"/src/org/Coconut2D/ui/UITabView.jspp",
-		"/src/org/Coconut2D/ui/UITextView.jspp",
-		"/src/org/Coconut2D/util/glu.js",
-		"/src/org/Coconut2D/anim/CocoScene.jspp",
-		"/src/org/Coconut2D/anim/CocoEngineState.jspp",
-		"/src/org/Coconut2D/anim/CocoEngine.jspp",
-		"/src/usr/GameEngine.jspp",
-		"/src/usr/animations/Animation1.jspp",
-		"/src/usr/animations/GameBoard.jspp",
-		"/src/usr/animations/SceneTitle.jspp",
-		"/src/usr/states/StateAnim.jspp",
-		"/src/usr/states/State_GameBoard.jspp",
-		"/src/usr/states/State_TitleScreen.jspp",
-		"/src/main.js"
-	];
-	
-	for(var i=0;i<files.length;i++)
+	var root = "D:/mobileFX/Projects/Software/Coconut/Projects/Leonidas.project/web";	
+	//var list = files(root, ".*?(js|jspp)$");	
+	//list = eval(list);
+	var list =
+	["/src/externs/CRL_native.js",
+	"/src/externs/ECMA.jspp",
+	"/src/org/Coconut2D/Constants.js",
+	"/src/org/Coconut2D/Coconut.js",
+	"/src/org/Coconut2D/html5/HTML5.js",
+	"/src/org/Coconut2D/html5/HTMLCanvas.js",
+	"/src/org/Coconut2D/html5/HTMLEvents.js",
+	"/src/org/Coconut2D/html5/WebGL.js",
+	"/src/org/Coconut2D/anim/CocoImage.jspp",
+	"/src/org/Coconut2D/anim/CocoKeyFrame.jspp",
+	"/src/org/Coconut2D/anim/CocoMatrix.jspp",
+	"/src/org/Coconut2D/anim/CocoSequence.jspp",
+	"/src/org/Coconut2D/anim/CocoSound.jspp",
+	"/src/org/Coconut2D/anim/CocoTimeLabel.jspp",
+	"/src/org/Coconut2D/anim/CocoTimeline.jspp",
+	"/src/org/Coconut2D/anim/CocoClip.jspp",
+	"/src/org/Coconut2D/game/CocoSprite.jspp",
+	"/src/org/Coconut2D/game/CocoSpriteActor.jspp",
+	"/src/org/Coconut2D/game/CocoSpriteBonus.jspp",
+	"/src/org/Coconut2D/game/CocoSpriteBullet.jspp",
+	"/src/org/Coconut2D/game/CocoSpriteEnemy.jspp",
+	"/src/org/Coconut2D/game/CocoSpritePlayer.jspp",
+	"/src/org/Coconut2D/game/CocoSpriteVisual.jspp",
+	"/src/org/Coconut2D/game/CocoTiledLayer.jspp",
+	"/src/org/Coconut2D/ui/UIView.jspp",
+	"/src/org/Coconut2D/ui/UIControlView.jspp",
+	"/src/org/Coconut2D/ui/UIButtonView.jspp",
+	"/src/org/Coconut2D/ui/UICheckboxView.jspp",
+	"/src/org/Coconut2D/ui/UILabelView.jspp",
+	"/src/org/Coconut2D/ui/UINavbarView.jspp",
+	"/src/org/Coconut2D/ui/UIPageView.jspp",
+	"/src/org/Coconut2D/ui/UIPickerView.jspp",
+	"/src/org/Coconut2D/ui/UIScrollView.jspp",
+	"/src/org/Coconut2D/ui/UITabView.jspp",
+	"/src/org/Coconut2D/ui/UITextView.jspp",
+	"/src/org/Coconut2D/util/glu.js",
+	"/src/org/Coconut2D/anim/CocoScene.jspp",
+	"/src/org/Coconut2D/anim/CocoEngineState.jspp",
+	"/src/org/Coconut2D/anim/CocoEngine.jspp",
+	"/src/usr/GameEngine.jspp",
+	"/src/usr/animations/AnamiationClip_Avatar_Spartan.jspp",
+	"/src/usr/animations/AnimationClip_Avatar_Leonidas.jspp",
+	"/src/usr/animations/AnimationClip_Avatar_Swords.jspp",
+	"/src/usr/animations/AnimationClip_Avatar_Xerxes.jspp",
+	"/src/usr/animations/AnimationSheet_Avatar_Leonidas.jspp",
+	"/src/usr/animations/Animation_Avatar_Persian.jspp",
+	"/src/usr/animations/SceneGameBoard.jspp",
+	"/src/usr/animations/SceneTitle.jspp",
+	"/src/usr/states/State_GameBoard.jspp",
+	"/src/usr/states/State_TitleScreen.jspp",
+	"/src/main.js"];
+
+	for(var i=0;i<list.length;i++)
 	{
-		var f = root + files[i];
+		var f = root+list[i];
 		var code = read(f);
 		f = f.substr(f.lastIndexOf("/")+1);
 		buff += "\"script_begin:///" + f + "\";\n" + code + "\n\"script_end:///" + f + "\";\n\n";
@@ -311,3 +322,7 @@ function ____readSourceFiles()
 //trace(gen);
 //trace( "\n\n"+do_js_beautify(gen, 1, true, true, true) );
 //write("C:/Users/Admin/Desktop/output.js", gen);
+
+
+
+

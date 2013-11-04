@@ -36,7 +36,7 @@
 
 class CocoTimeline
 { 
-	public var __labels:Array 					= [];
+	public var __labels:CocoTimeLabel			= {};
 	public var __keyFramesCount:Number 			= 0;
 	public var __keyFrames:CocoKeyFrame			= {};
 	public var __firstKeyFrame:CocoKeyFrame		= null;
@@ -46,8 +46,9 @@ class CocoTimeline
 	public var __durationInFrames:Number		= 0;
 	public var __firstframeIndex:Number			= 0;
 	public var __lastframeIndex:Number			= 0;
-	
-	protected var __paused:Boolean				= false;	
+	public var __skipTime:Number				= 0;	
+	public var __paused:Boolean					= false;
+	public var __lastFrame:CocoKeyFrame			= null;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -72,15 +73,45 @@ class CocoTimeline
 	    __keyFrames = null;
 	    __keyFrames = {};
 	    __keyFramesCount = 0;
+	    __labels = {};
 	    normalizetimeline();
 	}
+		
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addLabel(Label:CocoTimeLabel) :CocoTimeLabel
+	{
+		if(!Label) return null;
+	    __labels[""+Label.frameIndex] = Label;	    
+	    return Label;
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addLabelEx(FrameIndex:Number, LabelName:String) :CocoTimeLabel
+	{
+		var Label:CocoTimeLabel = new CocoTimeLabel(FrameIndex, LabelName);
+	    return addLabel(Label);	    
+	}  
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function findLabelByName(LabelName:String) :CocoTimeLabel
+	{
+		var Label:CocoTimeLabel;		
+		var key:String;
+		for(key in __labels)
+		{
+			Label = __labels[key];
+			if(Label.name == LabelName)
+				return Label;
+		}
+		return null;
+	}	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function keyFrame(frameIndex:Number) :CocoKeyFrame
 	{		
 		return (__keyFrames[""+frameIndex] || null);    
-	}
-	
+	}	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame
 	{
@@ -248,23 +279,7 @@ class CocoTimeline
 	    }
 	    return -1;
 	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function frameIndexToLoopTime(frameIndex:Number) :Number
-	{
-		return frameIndex * __singleFrameDurationTime;
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndPlay(frameIndexOrLabelName)
-	{
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndStop(frameIndexOrLabelName)
-	{    
-	}     
-		
+				
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function normalizetimeline()
 	{    
@@ -342,8 +357,25 @@ class CocoTimeline
 	    var i:Number = Math.floor(index);
 	    if((index - i) >= 0.5) i++;
 	    return i;
-	}
+	} 
 	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function frameIndexToLoopTime(frameIndex:Number) :Number
+	{
+		return frameIndex * __singleFrameDurationTime;
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function jumpBy(frames:Number, paused:Boolean)
+	{
+		__paused = paused;	
+		if(frames!=0)
+		{
+			__skipTime += (frames * __singleFrameDurationTime);	
+			__lastFrame = null;		
+		}
+	}
+		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolateByTime(LoopTime:Number) :CocoKeyFrame
 	{
@@ -353,35 +385,39 @@ class CocoTimeline
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolateByFrame(frameIndex:Number) :CocoKeyFrame
-	{ 
+	{ 	              
+		if(__paused && __lastFrame) 
+			return __lastFrame;
+		
 	    var F:CocoKeyFrame = null;
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
 	    var s:Number = 1;
+	    var FrameIndex = roundIndex(frameIndex);	    
 	    
 	    // Timeline is empty?
 	    if(!__keyFramesCount) 
 	    {
 	        F = new CocoKeyFrame();
-	        F.frameIndex = frameIndex;
+	        F.frameIndex = FrameIndex;
 	        F.visible = false;
-	        return F;
+	        return __lastFrame = F;
 	    }
 	        
 	    // Exact KeyFrame exists?
-	    F1 = keyFrame(roundIndex(frameIndex));
-	    if(F1) return F1.clone();
+	    F1 = keyFrame(FrameIndex);
+	    if(F1) return (__lastFrame = F1);
 	    
 	    // Seek previous KeyFrame
-	    F1 = findKeyFrameBeforeframeIndex(frameIndex, false);
+	    F1 = findKeyFrameBeforeframeIndex(FrameIndex, false);
 	    
 	    if(!F1) 
 	    {    
 	        // No previous KeyFrame
 	        F = new CocoKeyFrame();
-	        F.frameIndex = frameIndex;
+	        F.frameIndex = FrameIndex;
 	        F.visible = false;
-	        return F;        
+	        return (__lastFrame = F);        
 	    } 
 	    else 
 	    {        
@@ -390,41 +426,41 @@ class CocoTimeline
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
 	        
 	            F = F1.clone(); 
-	            F.frameIndex = frameIndex;
+	            F.frameIndex = FrameIndex;
 	            F.action=null;
-	            return F;
+	            return (__lastFrame = F);
 	        
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 	        
 	            F = F1.clone();
-	            F.frameIndex = frameIndex;
+	            F.frameIndex = FrameIndex;
 	            F.action=null;
 	            F.visible = false;
-	            return F;
+	            return (__lastFrame = F);
 	            
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 	            
 	            // We need the next KeyFrame now
-	            F2 = findKeyFrameAfterframeIndex(frameIndex, false);
+	            F2 = findKeyFrameAfterframeIndex(FrameIndex, false);
 	            
 	            if(!F2) 
 	            {                
 	                // Fallback to echo
 	                F = F1.clone();
-	                F.frameIndex = frameIndex;
+	                F.frameIndex = FrameIndex;
 	                F.action=null;
-	                return F;
+	                return (__lastFrame = F);
 	                
 	            } 
 	            else 
 	            {            
 	                // Interpolate between frames
 	                F = F1.clone();	                
-	                F.frameIndex = frameIndex;
+	                F.frameIndex = FrameIndex;
 	                F.action=null;
 	                s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
 	                F.interpolate(F1, F2, s);
-	                return F;                
+	                return (__lastFrame = F);                
 	            }        
 	        }        
 	    }
