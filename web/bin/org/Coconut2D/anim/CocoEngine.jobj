@@ -1,0 +1,98 @@
+//@compile{false}
+//@line 42
+function CocoEngine()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS1080__ = this,
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ = {};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 60
+		var __touchstart = function (e)
+		{
+			//@line 61
+			//@line 62
+			__CLASS1080__.__touch.setEvent(e);
+		};
+		//@line 65
+		var __touchmove = function (e)
+		{
+			//@line 66
+			//@line 67
+			__CLASS1080__.__touch.setEvent(e);
+		};
+		//@line 70
+		var __touchend = function (e)
+		{
+			//@line 71
+			//@line 72
+			__CLASS1080__.__touch.setEvent(e);
+		};
+		//@line 76
+		var currentState = this.currentState = function ()
+		{
+			//@line 77
+			//@line 78
+			return __currentState;
+		};
+		//@line 82
+		var setState = this.setState = function (state)
+		{
+			//@line 83
+			//@line 84
+			__nextState = state;
+		};
+		//@line 88
+		var tick = this.tick = function (gl, time)
+		{
+			//@line 89
+			//@line 91
+			if (__nextState != null)
+			//@line 92
+			{
+				//@line 93
+				__currentState = __nextState;
+				//@line 94
+				__stateStart = time;
+				//@line 95
+				__nextState = null;
+			}
+			//@line 99
+			__currentState.tick(__CLASS1080__, gl, time - __stateStart);
+		};
+		//@line 44
+		var __currentState = null;
+		//@line 45
+		var __nextState = null;
+		//@line 46
+		var __stateStart = 0;
+		//@line 48
+		this.__touch = new CocoTouchEvent;
+		this.Constructor = function ()
+		{
+			//@line 52
+			//@line 54
+			window.addEventListener("touchstart", __touchstart);
+			//@line 55
+			window.addEventListener("touchmove", __touchmove);
+			//@line 56
+			window.addEventListener("touchend", __touchend);
+			return __CLASS1080__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}
+//@line 101
+;
