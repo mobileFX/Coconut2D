@@ -1,5 +1,5 @@
 //@compile{true}
-//@include{WebGL.js,CocoScene.jspp,CocoEngineState.jspp}
+//@include{WebGL.js,CocoScene.jspp,CocoEngineState.jspp,CocoTouchEvent.jspp}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -43,8 +43,10 @@ class CocoEngine
 {	
 	private var __currentState:CocoEngineState = null;
 	private var __nextState:CocoEngineState = null;
-	private var __stateStart:Number = 0;	
-		    
+	private var __stateStart:Number = 0;
+	
+	public var __touch :CocoTouchEvent = new CocoTouchEvent();
+	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{ 
@@ -57,14 +59,17 @@ class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function __touchstart(e:HTMLEvent)
 	{
+		__touch.setEvent(e);
 	}
 	
 	private function __touchmove(e:HTMLEvent)
-	{
+	{  
+		__touch.setEvent(e);
 	}
 	
 	private function __touchend(e:HTMLEvent)
 	{
+		__touch.setEvent(e);
 	} 
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,6 +99,10 @@ class CocoEngine
 		__currentState.tick(this, gl, time - __stateStart);
 	} 	
 };
+
+
+
+
 
 
 

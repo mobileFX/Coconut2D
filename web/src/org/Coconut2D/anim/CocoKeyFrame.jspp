@@ -87,7 +87,13 @@ class CocoKeyFrame
 		c.y                     	= y;                 
 		c.action					= action;                                   		
 	    return c;
-	}	
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function reset()
+	{
+		__lastActionExecutionTime = 0.0;
+	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function execute(gl:WebGLRenderingContext, currentTime:Number, loopTime:Number, scene:CocoScene, clip:CocoClip)
@@ -132,6 +138,7 @@ class CocoKeyFrame
 		matrix.translate(-pivotX, -pivotY);
 	}		
 } 
+
 
 
 

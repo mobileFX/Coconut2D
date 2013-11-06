@@ -46,6 +46,7 @@ class CocoTimeline
 	public var __durationInFrames:Number		= 0;
 	public var __firstframeIndex:Number			= 0;
 	public var __lastframeIndex:Number			= 0;
+	
 	public var __skipTime:Number				= 0;	
 	public var __paused:Boolean					= false;
 	public var __lastFrame:CocoKeyFrame			= null;
@@ -75,6 +76,18 @@ class CocoTimeline
 	    __keyFramesCount = 0;
 	    __labels = {};
 	    normalizetimeline();
+	}   
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function reset()
+	{
+	    __skipTime = 0;
+	    __paused = false;
+	    __lastFrame = null;
+
+		var v:String;
+	    for(v in __keyFrames) 
+	    	__keyFrames[v].reset();
 	}
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -466,7 +479,3 @@ class CocoTimeline
 	    }
 	}
 }
-
-
-
-

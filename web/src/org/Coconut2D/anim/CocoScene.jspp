@@ -70,12 +70,6 @@ class CocoScene
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function prepared() :Boolean		
-	{  
-		return __glProgram!=null; 
-	}
-		
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function updateModelViewMatrix(gl:WebGLRenderingContext) 
 	{
 		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat); 
@@ -165,6 +159,12 @@ class CocoScene
 	}
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepared() :Boolean		
+	{  
+		return (__glProgram!=null); 
+	}
+		
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(gl:WebGLRenderingContext)
 	{ 
 		__glProgram = glu.makeProgram(gl, __vertex_shader, __fragment_shader);
@@ -214,12 +214,27 @@ class CocoScene
 	    
 	    if(__root)    
 	    {
+	    	// Render the scene's root symbol
 	    	__levelParents = [__root];
 			__root.render(gl, this, null);
 			__levelParents = [];
+			
+			// Did we reach the end of the main timeline?
+			var max = __root.childWithMaxTimelineDuration();
+			if(max && max.__currentFrame == max.__timeline.__lastKeyFrame)
+			{ 
+				__root.reset();			
+				__startTime = -1;	
+			}
 	    }
-	    	
+	    
 	    endDraw(gl);
+	}  
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function hitTest(MouseX:Number, MouseY:Number) :Array
+	{
+		
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,7 +252,7 @@ class CocoScene
 	{
 		gl.disableVertexAttribArray(__glProgram.GLSLiTexCoords);
 		gl.disableVertexAttribArray(__glProgram.GLSLiVecCoords);
-		gl.disable(gl.BLEND);
+		gl.disable(gl.BLEND);		
 	}
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,8 +272,14 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function stop(deep:Boolean) :Boolean
 	{
+		deep = (deep=="true");
 		var scope:CocoClip = __levelParents[__levelParents.length-1];		
 		return scope.gotoFrame(-1, true, deep);
 	}	
 }
+
+
+
+
+
 

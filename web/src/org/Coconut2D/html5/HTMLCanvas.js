@@ -120,6 +120,3 @@ HTMLCanvasElement.prototype.getContext = function(contextId, args)
 {	
 	return new WebGLRenderingContext(this);
 };
-
-
-

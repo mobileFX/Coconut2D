@@ -45,10 +45,11 @@ class CocoClip
 	public var __children:Object						= {};	
 	public var __currentSequenceName:String				= null;
 	public var __currentSequenceFrameIndex:Number		= 0;
-	public var __currentFrame:CocoKeyFrame				= null;
 	public var __timeline:CocoTimeline					= null;
-	public var __firstTickTime:Number					= 0.0;
 	public var __parent:CocoClip						= null;
+
+	public var __firstTickTime:Number					= 0.0;
+	public var __currentFrame:CocoKeyFrame				= null;
 			
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String, mask:CocoImage)
@@ -83,18 +84,34 @@ class CocoClip
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function childrenMaxTimelineDuration() :Number
+	public function childWithMaxTimelineDuration() :CocoClip
 	{
-	    var vClip:String, ci:CocoClip, T:Number = 0;
+	    var vClip:String, ci:CocoClip, T:CocoClip;
 	    for(vClip in __children)
 		{
 			ci = __children[vClip]; 			
-	        if(ci.__timeline.__durationInTime > T)
-	            T = ci.__timeline.__durationInTime;
+			if(!T) { T = ci; continue; }
+	        if(ci.__timeline.__durationInTime > T.__timeline.__durationInTime) 
+				T = ci;
 	    }
 	    return T;
 	}
 		
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function reset() :CocoClip
+	{
+		__currentFrame = null;
+	    __firstTickTime = -1;
+	    __timeline.reset();
+	    
+	    var vClip:String, ci:CocoClip;
+	    for(vClip in __children)
+		{
+			ci = __children[vClip]; 			
+			if(ci) ci.reset();
+	    }	    
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addChild(clipInstance:CocoClip) :CocoClip
 	{
@@ -244,6 +261,8 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip)
 	{        
+		var touch:CocoTouchEvent = engine.__touch;
+		
 		// Get scene current time and add timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )		                                    
 		var currentTime:Number = scene.__currentTime + __timeline.__skipTime;
 
@@ -251,9 +270,9 @@ class CocoClip
 		if(__firstTickTime == -1) __firstTickTime = currentTime;		
 		
 		// Calculate the parent timeline duraction in time from its children.
-		// Note: the parent timeline might have only one KeyFrame but the actual length is defined by the max timeline size of each children.
-		var parentClipsDuration:Number = (parentClip ? parentClip.childrenMaxTimelineDuration() : __timeline.__durationInTime);
-
+		// Note: the parent timeline might have only one KeyFrame but the actual length is defined by the max timeline size of each children.		
+		var parentClipsDuration:Number = (parentClip ? parentClip.childWithMaxTimelineDuration().__timeline.__durationInTime : __timeline.__durationInTime);
+		
 		// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
 		var clippingTime:Number = Math.floor((currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;
 		
@@ -330,20 +349,31 @@ class CocoClip
 					scene.__modelViewMatrix.pop();			
 				} 
 				scene.__levelParents.pop();
-			}
+			} 
+			
+			// Calc bounding box
+			
+		}
+		else
+		{
+			//
 		}
 		
 		// Execute KeyFrame action callback.
 		this.__parent = parentClip;
 		__currentFrame.execute(gl, currentTime, loopTime, scene, this);
 		this.__parent = null;		
+		
+		// Did we reach the end of the main timeline?
+		if(this==scene.__root)
+		{
+			var max = scene.__root.childWithMaxTimelineDuration();
+			if(max.__currentFrame == max.__timeline.__lastKeyFrame)
+			{
+			}
+		} 
 	}
 }
-
-
-
-
-
 
 
 
