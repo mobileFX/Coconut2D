@@ -1,6 +1,11 @@
-//@compile{true}
-//@include{WebGL.js,CocoTimeline.jspp}
+//@compile{true} 
 
+//@include{WebGL.js}
+//@include{CocoMatrix.jspp}
+//@include{CocoImage.jspp}
+//@include{CocoSound.jspp}
+//@include{CocoTimeline.jspp}
+                     
 /* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013 www.coconut2D.org
@@ -49,7 +54,12 @@ class CocoClip
 	public var __parent:CocoClip						= null;
 
 	public var __firstTickTime:Number					= 0.0;
-	public var __currentFrame:CocoKeyFrame				= null;
+	public var __currentFrame:CocoKeyFrame				= null;	
+		
+	public var __vTOP_LEFT:CocoVector					= null;
+	public var __vTOP_RIGHT:CocoVector					= null;
+	public var __vBOTTOM_LEFT:CocoVector				= null;
+	public var __vBOTTOM_RIGHT:CocoVector				= null;
 			
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String, mask:CocoImage)
@@ -57,7 +67,11 @@ class CocoClip
 		__timeline = new CocoTimeline(); 
 		if(image) __image = image;
 		if(audio) __audio = audio;
-		if(sequence) __currentSequenceName = sequence;	
+		if(sequence) __currentSequenceName = sequence;	 
+		__vTOP_LEFT = new CocoVector()
+		__vTOP_RIGHT = new CocoVector()
+		__vBOTTOM_LEFT = new CocoVector()
+		__vBOTTOM_RIGHT = new CocoVector();		
 	}  
 				
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -300,13 +314,20 @@ class CocoClip
 		}
 		
 		// Combine parent clip currentframe values with this clip's interpolated frame values.
-		if(parentClip)
+		if(parentClip)                                      
+		{
 			 __currentFrame.combine(parentClip.__currentFrame);
+			
+			// If a child handles events and requires a bounding box calculation 
+			// then the entire parent-child chain needs to calculate bounding box.
+			if(__currentFrame.calcBoundingBox) 
+				parentClip.__currentFrame.calcBoundingBox = true;
+		}
 	
 		// Apply this clip's current frame values to modelview matrix.
-		__currentFrame.apply(scene.__modelViewMatrix);
-		scene.updateModelViewMatrix(gl);
-
+		__currentFrame.apply(scene.__modelViewMatrix);		
+		scene.updateModelViewMatrix(gl);		
+		
 		// If we are visible, render this clip and its children.
 		if(__currentFrame.alpha != 0 && __currentFrame.visible)
 		{			
@@ -328,7 +349,7 @@ class CocoClip
 					var seq:CocoSequence = __image.sequences[__currentSequenceName];				
 					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(((currentTime - __firstTickTime) / GLOBAL_FPS)) % seq.frames.length;
 					var frame:Number = seq.frames[__currentSequenceFrameIndex];
-					__image.drawFrame(gl, scene.__glProgram, frame, __currentFrame.alpha);
+					__image.drawFrame(gl, scene.__glProgram, frame, __currentFrame.alpha);					
 				} 
 				else
 				{
@@ -351,15 +372,24 @@ class CocoClip
 				} 
 				scene.__levelParents.pop();
 			} 
-			
-			// Calc bounding box
-			
 		}
-		else
+		 		
+		// Handle touch event if no-one else has		
+		if(__currentFrame.calcBoundingBox)
 		{
-			//
+			// Calculate bounding box vertices
+			if(__image)		                                               
+				initBoundingBoxFromTexture(scene, __image.textureCellWidth / 2, __image.textureCellHeight / 2);
+			else		
+				initBoundingBoxFromChildren(scene);			
+				
+			// Point in quad?
+   	        if(hitTest(touch.wx, touch.wy))
+   	        {
+   	        	touch.targets.push(this);
+   	        }			
 		}
-		
+
 		// Execute KeyFrame action callback.
 		this.__parent = parentClip;
 		__currentFrame.execute(gl, currentTime, loopTime, scene, this);
@@ -373,9 +403,113 @@ class CocoClip
 			{
 			}
 		} 
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function hitTest(wx:Number, wy:Number) :Boolean
+	{
+		
+		var i:Number;
+		var j:Number;
+		var result:Boolean;
+		var v:CocoVector;		
+		var points = [__vTOP_LEFT, __vTOP_RIGHT, __vBOTTOM_RIGHT, __vBOTTOM_LEFT];
+
+		for(i=0, j=3; i<4; j=i++)
+		{
+			if((points[i].y > wy) != (points[j].y > wy) && (wx < (points[j].x - points[i].x) * (wy - points[i].y) / (points[j].y-points[i].y) + points[i].x))
+			{
+				result = !result;
+			}
+		}
+		
+		return result;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Number, H2:Number)
+	{	
+	    // Reset vectors
+	    __vTOP_LEFT.set(-W2, -H2, 0, 1);	    
+	    __vTOP_RIGHT.set(-W2, H2, 0, 1);
+	    __vBOTTOM_LEFT.set(W2, H2, 0, 1);
+	    __vBOTTOM_RIGHT.set(W2, -H2, 0, 1);
+	    	    
+	    // Multiply vectors with the current modelview matrix
+	    __vTOP_LEFT 	= scene.__modelViewMatrix.multiplyByVector(__vTOP_LEFT);
+	    __vTOP_RIGHT 	= scene.__modelViewMatrix.multiplyByVector(__vTOP_RIGHT);
+	    __vBOTTOM_LEFT 	= scene.__modelViewMatrix.multiplyByVector(__vBOTTOM_LEFT);
+	    __vBOTTOM_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vBOTTOM_RIGHT);
+	}	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function initBoundingBoxFromChildren(scene:CocoScene)
+	{	    
+	    // This function calculates the bounding box of all our children.
+	        
+	    var MI :CocoMatrix;
+	    var Child :CocoClip
+	    var Rc :CocoRect;
+	    var i :Number;
+	    var v1 :CocoVector;
+	    var v2 :CocoVector;
+		var vClip :String;		
+		var v:Array;
+	     
+	    // Define an invalid rectangle.
+	    Rc = new CocoRect();
+	    Rc.left = 100000;
+	    Rc.right = -Rc.left - 1;
+	    Rc.top = 100000;
+	    Rc.bottom = -Rc.top - 1;
+	    	            
+	    // Invert parent matrix.
+	    MI = new CocoMatrix(scene.__modelViewMatrix.__data);
+	    MI.invert();
+	            
+        for(vClip in __children)
+	    {	   
+	        Child = (__children[vClip] || null);	        
+	        if(Child)
+	        {
+	            // For every child, multiply the inverse parent matrix with child's
+	            // vertex vectors in order to unproject child coordinates.
+	            	            
+	            v[0] = MI.multiplyByVector(Child.__vTOP_LEFT);
+	            v[1] = MI.multiplyByVector(Child.__vTOP_RIGHT);
+	            v[2] = MI.multiplyByVector(Child.__vBOTTOM_LEFT);
+	            v[3] = MI.multiplyByVector(Child.__vBOTTOM_RIGHT);
+	            
+	            // Loop verticies to expand our bounding box from the current child.
+	            for(i=0; i<4; i++)
+	            {
+	                if(v[i].X < Rc.left) Rc.left = v[i].X;
+	                if(v[i].X > Rc.right) Rc.right = v[i].X;
+	                if(v[i].Y < Rc.top) Rc.top = v[i].Y;
+	                if(v[i].Y > Rc.bottom) Rc.bottom = v[i].Y;
+	            }
+	            
+	            // Ok, combine resulting bounding box with next child...
+	        }	       
+	    }
+	        	    
+	    __vTOP_LEFT.X = Rc.left;
+	    __vTOP_LEFT.Y = Rc.top;
+	    __vTOP_RIGHT.X = Rc.right;
+	    __vTOP_RIGHT.Y = Rc.top;
+	    __vBOTTOM_LEFT.X = Rc.left;
+	    __vBOTTOM_LEFT.Y = Rc.bottom;
+	    __vBOTTOM_RIGHT.X = Rc.right;
+	    __vBOTTOM_RIGHT.Y = Rc.bottom;
+	        
+	    // Re-multiply our bounding box vertex vectors with the rotated matrix
+	    MI = scene.__modelViewMatrix;
+	    __vTOP_LEFT = MI.multiplyByVector(__vTOP_LEFT);
+	    __vTOP_RIGHT = MI.multiplyByVector(__vTOP_RIGHT);
+	    __vBOTTOM_LEFT = MI.multiplyByVector(__vBOTTOM_LEFT);
+	    __vBOTTOM_RIGHT = MI.multiplyByVector(__vBOTTOM_RIGHT);	        
 	}
 }
-
 
 
 

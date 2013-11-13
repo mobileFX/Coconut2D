@@ -257,12 +257,14 @@ function ____readSourceFiles()
 	"/src/org/Coconut2D/html5/HTMLCanvas.js",
 	"/src/org/Coconut2D/html5/HTMLEvents.js",
 	"/src/org/Coconut2D/html5/WebGL.js",
-	"/src/org/Coconut2D/anim/CocoImage.jspp",
-	"/src/org/Coconut2D/anim/CocoKeyFrame.jspp",
-	"/src/org/Coconut2D/anim/CocoMatrix.jspp",
 	"/src/org/Coconut2D/anim/CocoSequence.jspp",
+	"/src/org/Coconut2D/anim/CocoImage.jspp",
 	"/src/org/Coconut2D/anim/CocoSound.jspp",
 	"/src/org/Coconut2D/anim/CocoTimeLabel.jspp",
+	"/src/org/Coconut2D/anim/CocoTouchEvent.jspp",
+	"/src/org/Coconut2D/anim/CocoVector.jspp",
+	"/src/org/Coconut2D/anim/CocoMatrix.jspp",
+	"/src/org/Coconut2D/anim/CocoKeyFrame.jspp",
 	"/src/org/Coconut2D/anim/CocoTimeline.jspp",
 	"/src/org/Coconut2D/anim/CocoClip.jspp",
 	"/src/org/Coconut2D/game/CocoSprite.jspp",
@@ -288,16 +290,11 @@ function ____readSourceFiles()
 	"/src/org/Coconut2D/anim/CocoScene.jspp",
 	"/src/org/Coconut2D/anim/CocoEngineState.jspp",
 	"/src/org/Coconut2D/anim/CocoEngine.jspp",
-	"/src/usr/GameEngine.jspp",
-	"/src/usr/animations/AnamiationClip_Avatar_Spartan.jspp",
-	"/src/usr/animations/AnimationClip_Avatar_Leonidas.jspp",
-	"/src/usr/animations/AnimationClip_Avatar_Swords.jspp",
-	"/src/usr/animations/AnimationClip_Avatar_Xerxes.jspp",
-	"/src/usr/animations/AnimationSheet_Avatar_Leonidas.jspp",
-	"/src/usr/animations/Animation_Avatar_Persian.jspp",
+	"/src/usr/animations/NewAnimation.jspp",
 	"/src/usr/animations/SceneGameBoard.jspp",
 	"/src/usr/animations/SceneTitle.jspp",
 	"/src/usr/states/State_GameBoard.jspp",
+	"/src/usr/GameEngine.jspp",
 	"/src/usr/states/State_TitleScreen.jspp",
 	"/src/main.js"];
 
@@ -311,18 +308,5 @@ function ____readSourceFiles()
 	return buff;	
 }
 
-//var code = read("C:/Users/Admin/Desktop/src.js");
 //var code = ____readSourceFiles();
-//var code = read("D:\\mobileFX\\Users\\Elias\\Dropbox\\Share\\Coconut\\Coco.project\\native\\internal\\JavaScript++\\ECMA.jspp");
-//var code = "\"script_begin:///test.js\";\n" + "var a:Number = 'test';" +"\n\"script_end:///test.js\";\n\n";
-//code = "\"script_begin:///foo.js\";\n" + code + "\n\"script_end:///foo.js\";\n";
-//write("C:/Users/Admin/Desktop/all.js", code);
-//trace(code);
 //var gen = compileJSPP("",code, true, true, true, false);
-//trace(gen);
-//trace( "\n\n"+do_js_beautify(gen, 1, true, true, true) );
-//write("C:/Users/Admin/Desktop/output.js", gen);
-
-
-
-

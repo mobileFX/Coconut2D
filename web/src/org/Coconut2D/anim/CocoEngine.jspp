@@ -1,5 +1,9 @@
 //@compile{true}
-//@include{WebGL.js,CocoScene.jspp,CocoEngineState.jspp,CocoTouchEvent.jspp}
+
+//@include{WebGL.js}
+//@include{CocoEngineState.jspp}
+//@include{CocoTouchEvent.jspp}
+//@include{CocoScene.jspp}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -57,20 +61,9 @@ class CocoEngine
 	} 
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	private function __touchstart(e:HTMLEvent)
-	{
-		__touch.setEvent(e);
-	}
-	
-	private function __touchmove(e:HTMLEvent)
-	{  
-		__touch.setEvent(e);
-	}
-	
-	private function __touchend(e:HTMLEvent)
-	{
-		__touch.setEvent(e);
-	} 
+	private function __touchstart(e:HTMLEvent)	{ __touch.setEvent(e); }
+	private function __touchmove(e:HTMLEvent)	{ __touch.setEvent(e); }
+	private function __touchend(e:HTMLEvent)	{ __touch.setEvent(e); } 
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function currentState():CocoEngineState
@@ -99,6 +92,10 @@ class CocoEngine
 		__currentState.tick(this, gl, time - __stateStart);
 	} 	
 };
+
+
+
+
 
 
 

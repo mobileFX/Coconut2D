@@ -1,5 +1,7 @@
 //@compile{true}
+
 //@include{WebGL.js}
+//@include{CocoMatrix.jspp}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -39,6 +41,7 @@ class CocoKeyFrame
 	public var frameIndex:Number									= 0;
 	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM 	= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 	public var handleEvents:Boolean									= false;
+	public var calcBoundingBox:Boolean								= true;
 	public var alpha:Number											= 1.0;
 	public var visible:Boolean										= true;
 	public var x:Number 											= 0.0;
@@ -50,7 +53,7 @@ class CocoKeyFrame
 	public var rotation:Number										= 0.0;
 	public var action:Function										= null;
 	
-	private var __lastActionExecutionTime:Number					= 0.0;	
+	private var __lastActionExecutionTime:Number					= 0.0;		
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -86,6 +89,7 @@ class CocoKeyFrame
 		c.x                     	= x;                 
 		c.y                     	= y;                 
 		c.action					= action;                                   		
+		c.calcBoundingBox			= calcBoundingBox;
 	    return c;
 	}
 	
@@ -127,6 +131,7 @@ class CocoKeyFrame
 	    alpha = alpha * Frame.alpha;
 	    visible = visible & Frame.visible;
 	    handleEvents = handleEvents & Frame.handleEvents;
+	    calcBoundingBox = calcBoundingBox & Frame.calcBoundingBox;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,15 +140,7 @@ class CocoKeyFrame
 		matrix.translate(x, y);
 		matrix.rotateZ(rotation * Math.PI / 180.0 );
 		matrix.scale(scaleX, scaleY);
-		matrix.translate(-pivotX, -pivotY);
+		matrix.translate(-pivotX, -pivotY);	
 	}		
 } 
-
-
-
-
-
-
-
-
 

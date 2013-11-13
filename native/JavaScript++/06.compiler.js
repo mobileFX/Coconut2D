@@ -348,6 +348,7 @@ function compiler(ast, options)
 	{
 		var found = false, isBlockVariable = false, isClassMember = false, data;
 		var currentScope = _this.scopeChain[currentScopeId] || _this.scopeChain[0];
+		var varDecls = currentScope.varDecls;
 		var Variables = currentScope.Variables, classScopeId = -1;
 		var Functions = currentScope.Functions, isFunDecl = false;
 		
@@ -363,8 +364,8 @@ function compiler(ast, options)
 			}
 		}
 
-		//Search variable declarations after function declarations
-		for(var i=0, len=Variables.length; i < len; i++) 
+		//Search variable declarations after function declarations	
+		if(!found) for(var i=0, len=Variables.length; i < len; i++) 
 		{
 			if(findIdentifier==Variables[i].identifier 
 			   || "__set_"+findIdentifier==Variables[i].identifier 
@@ -380,9 +381,29 @@ function compiler(ast, options)
 				break;
 			}
 		}
+		
+		// Global scope has varDecls 
+		if(!found && varDecls) for(var i=0, len=varDecls.length; i < len; i++) 
+		{ 
+			for(var v in varDecls[i])
+			{
+				if(!isFinite(v)) continue;
+				if(findIdentifier==varDecls[i][v].name 
+				   || "__set_"+findIdentifier==varDecls[i][v].name
+				   || "__get_"+findIdentifier==varDecls[i][v].name)
+				{				
+					found = true;
+					data = varDecls[i][v];
+					if(!data.datatype) 
+						data.datatype = data.vartype;
+					break;
+				}				
+			}  
+			if(found) break;
+		}		
 
 		//Finally, check if this is a block scoped variable
-		if(currentScope.map_BlockVars.hasOwnProperty(findIdentifier)) 
+		if(!found && currentScope.map_BlockVars.hasOwnProperty(findIdentifier)) 
 		{
 			found = true;
 			isBlockVariable = true;
@@ -391,7 +412,7 @@ function compiler(ast, options)
 		}   
 		
 		// Lookup in base class		
-		if(deep && currentScope.type==jsdef.CLASS && currentScope.extends && currentScope.extends.value)
+		if(!found && deep && currentScope.type==jsdef.CLASS && currentScope.extends && currentScope.extends.value)
 		{
 			var cls = _this.SymbolTable.getClassSymbol(currentScope.extends.value);
 			if(cls)
@@ -709,7 +730,7 @@ compiler.prototype.compile = function (ast)
 
 	if(this.options.debug && ast.lineno != this.lineno) 
 	{
-		this.lineno != -1 && out.push("\n");
+		this.lineno != -1 && out.push("\n");		
 		out.push("\/\/@line " + (ast.lineno-this.currFileStartLine) + "\n");
 		this.lineno = ast.lineno;
 	} 
@@ -1741,6 +1762,7 @@ compiler.prototype.compile = function (ast)
 			//Default parameters
 			var defParams = [];
 			for(var i=0, len=ast.paramsList.length; i<len; i++) {
+				
 				if(ast.paramsList[i].initializer) {
 					defParams.push(ast.paramsList[i].value + "=");
 					defParams.push(ast.paramsList[i].value + "==null?");
@@ -2114,6 +2136,8 @@ compiler.prototype.compile = function (ast)
 		//Variable declarations
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.VAR:
+			
+			//if(ast.source=="var FrameIndex") debugger;
 				
 			this.TypeCheck(ast);
 			var prefix = "", insideClass = this.InsideClass();
@@ -2624,7 +2648,7 @@ compiler.prototype.compile = function (ast)
 				if(scope.static || this.InsideStaticMember()) {
 					skipLookup = true;
 				}
-
+				
 				skipLookup && out.push(findIdentifier);
 
 				!skipLookup && this.LookupScopeChain(findIdentifier, this.scopeChain.length-1,
@@ -2743,12 +2767,7 @@ compiler.prototype.compile = function (ast)
                                    
                                    !_this.CurrentScope().isFunction) )
                             {
-								!_this.isObjProperty && _this.NewWarning({
-									type: ReferenceError,
-									message: "Variable '" + findIdentifier +
-												"' has not been declared"
-								}, ast);
-
+								!_this.isObjProperty && _this.NewWarning({ type: ReferenceError, message: "Variable '" + findIdentifier + "' has not been declared" }, ast);
 								out.push(findIdentifier);
 							}
 						}
@@ -3894,6 +3913,14 @@ compiler.prototype.preprocess = function(ast, useTypeSys)
 	var GLOBAL = this;
 	GLOBAL.compiler = compiler;
 }).call();
+
+
+
+
+
+
+
+
 
 
 

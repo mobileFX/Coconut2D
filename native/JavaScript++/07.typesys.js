@@ -55,6 +55,7 @@ compiler.prototype.typesys.cocoscript = function()
 				case jsdef.GROUP:
 				case jsdef.DOT:
 				case jsdef.INDEX:
+				case jsdef.CALL:
 					out = out.concat(reduceProps(node[0]));
 					break;					
 					
@@ -92,8 +93,9 @@ compiler.prototype.typesys.cocoscript = function()
 			Compiler.LookupScopeChain(identifier, Compiler.scopeChain.length-1, function(find) 
 			{
 				if(!find)
-				{ 
-					Compiler.NewError({type:ReferenceError, message:"Variable "+identifier+" has not been declared"}, Node);
+				{  
+					//Handled by compiler as warning
+					//Compiler.NewError({type:ReferenceError, message:"Variable "+identifier+" has not been declared"}, Node);
 				}
 				else
 				{
@@ -183,8 +185,7 @@ compiler.prototype.typesys.cocoscript = function()
 		case jsdef.THIS:			return Compiler.currentClass || "Function";
 		
 		//=============================================================================================================================
-		case jsdef.ASSIGN:			
-		    //if(Node.source == "s = new State_GameBoard()") debugger;
+		case jsdef.ASSIGN:		    
 		    var type1 = _this.typesys(Node[0],Compiler); 
 		    var type2 = _this.typesys(Node[1],Compiler);		    
 		    return TYPE_CHECK(Node, type1, type2);		    
@@ -309,12 +310,25 @@ compiler.prototype.typesys.cocoscript = function()
 		case jsdef.CALL:				
 		case jsdef.DOT:   		
 		case jsdef.INDEX:	
+		
+		    //if(Node.source=="scene.__modelViewMatrix.multiplyByVector(__vTOP_LEFT)") debugger;
 					
 			var type = _this.UNTYPED;
 			var reduced = reduceProps(Node);
 		    if(reduced && reduced.length)
 		    {
 			    type = getIdentifierDataType(reduced[0]);
+			                     
+			    // eg. parseInt()
+			    if(reduced.length==1 && type=="Function")
+			    {                			    	
+			    	type = "Global";  
+			    	var cls = Compiler.SymbolTable.getClassSymbol(type);
+			    	if(!cls) return Compiler.NewError({type:ReferenceError, message:"Function "+reduced[0]+" has not been declared"}, Node);
+			    	var mbr =  Compiler.SymbolTable.getMemberSymbol(cls, reduced[0]);
+			    	return mbr.datatype;
+			    }
+			    
 			    if(type!=_this.UNTYPED)
 			    {
 				    var cls = Compiler.SymbolTable.getClassSymbol(type);
@@ -347,34 +361,30 @@ compiler.prototype.typesys.cocoscript = function()
 							var list = JSPath.apply(".*{.type === " + jsdef.LIST + "}", Node);													
 							
 							var count = 0;
-							for(i in list[0])
+							for(var j in list[0])
 							{
-								if(!isFinite(i)) continue;
+								if(!isFinite(j)) break;
 								count++;
 							}
 							
-							for(var i=0; i<member.parameters.length; i++)
+							for(var j=0; j<member.parameters.length; j++)
 							{														
-								var type1 = member.parameters[i].datatype;
+								var type1 = member.parameters[j].datatype;
 								if(type1)
 								{
-									var param = list[0][i];
+									var param = list[0][j];
 									if(param)
 									{
 										var type2 = _this.typesys(param, Compiler);
 										TYPE_CHECK(Node, type1, type2);									
 									}
 								} 
-								else if(!isProto)
-								{
-									Compiler.NewError({type:ReferenceError, message:"Missing type declaration for "+member.parameters[i].name}, Node);
-								}
 							}
 							
 							if(count>member.parameters.length)
 								Compiler.NewError({type:ReferenceError, message:"Function " + member.name + " does not take "+count+" arguments"}, Node);							
-							else if(count<member.parameters.length)
-								Compiler.NewWarning({type:ReferenceError, message:"Function " + member.name + " does not take only "+count+" arguments"}, Node);							
+							//else if(count<member.parameters.length)
+							//	Compiler.NewWarning({type:ReferenceError, message:"Function " + member.name + " does not take only "+count+" arguments"}, Node);							
 						}
 						
 						type = member.datatype || _this.UNTYPED;
@@ -395,6 +405,16 @@ compiler.prototype.typesys.cocoscript = function()
 		}  //switch							
 	};
 };
+
+
+
+
+
+
+
+
+
+
 
 
 
