@@ -1,11 +1,11 @@
 //@compile{false}
-//@line 4
+//@line 29
 function CocoTouchEvent()
 {
 	var __SUPER__;
 	return ((function ()
 	{
-		var __CLASS312__ = this,
+		var __CLASS787__ = this,
 			__PDEFINE__ = {}.constructor.defineProperty,
 			__NOENUM__ =
 			{
@@ -16,34 +16,44 @@ function CocoTouchEvent()
 		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
 		this.__PROTECTED__ = {};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 12
+		//@line 40
 		var setEvent = this.setEvent = function (e)
 		{
-			//@line 13
-			//@line 14
-			__CLASS312__.x = e.clientX;
-			//@line 15
-			__CLASS312__.y = e.clientY;
-			//@line 16
-			__CLASS312__.type = 0;
-			//@line 17
-			__CLASS312__.time = (new Date).getTime();
-			//@line 18
-			__CLASS312__.handled = false;
+			//@line 41
+			//@line 42
+			__CLASS787__.x = e.changedTouches[0].clientX;
+			//@line 43
+			__CLASS787__.y = e.changedTouches[0].clientY;
+			//@line 44
+			__CLASS787__.type = 0;
+			//@line 45
+			__CLASS787__.handled = false;
+			//@line 46
+			var d = new Date;
+			//@line 47
+			__CLASS787__.time = d.getTime();
+			//@line 48
+			__CLASS787__.targets = [];
 		};
-		//@line 6
+		//@line 31
 		this.x = 0;
-		//@line 7
+		//@line 32
 		this.y = 0;
-		//@line 8
+		//@line 33
+		this.wx = 0;
+		//@line 34
+		this.wy = 0;
+		//@line 35
 		this.type = 0;
-		//@line 9
+		//@line 36
 		this.time = 0;
-		//@line 10
+		//@line 37
 		this.handled = false;
+		//@line 38
+		this.targets = [];
 		this.Constructor = function ()
 		{
-			return __CLASS312__
+			return __CLASS787__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this

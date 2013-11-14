@@ -36,39 +36,41 @@
 
 function HTMLEvent(){}
 HTMLEvent.prototype = new Object();
+HTMLEvent.prototype.type = "";
 HTMLEvent.prototype.bubbles = false;
-HTMLEvent.prototype.button = 0;
-HTMLEvent.prototype.buttons = 0;
 HTMLEvent.prototype.cancelable = false;
-HTMLEvent.prototype.changedTouches = new TouchList(5);
-HTMLEvent.prototype.clientX = 0;
+HTMLEvent.prototype.stopPropagation = function(){};
+HTMLEvent.prototype.clientX = 0; 
 HTMLEvent.prototype.clientY = 0;
-HTMLEvent.prototype.ctrlKey = false;
-HTMLEvent.prototype.currentTarget = new HTMLElement();
-HTMLEvent.prototype.defaultPrevented = false;
-HTMLEvent.prototype.eventPhase = 0;
-HTMLEvent.prototype.getModifierState = function(keyArg){};
-HTMLEvent.prototype.identifier;
-HTMLEvent.prototype.initEvent = function(eventTypeArg, canBubbleArg, cancelableArg){};
-HTMLEvent.prototype.initMouseEvent = function(typeArg, canBubbleArg, cancelableArg, viewArg, detailArg, screenXArg, screenYArg, clientXArg, clientYArg, ctrlKeyArg, altKeyArg, shiftKeyArg, metaKeyArg, buttonArg, relatedTargetArg){};
-HTMLEvent.prototype.initTouchEvent = function(type, canBubble, cancelable,view, detail, screenX, screenY, clientX, clientY, ctrlKey, altKey, shiftKey, metaKey, touches, targetTouches, changedTouches, scale, rotation) {};
-HTMLEvent.prototype.inputMethod = 0;
-HTMLEvent.prototype.metaKey = false;
 HTMLEvent.prototype.pageX;
 HTMLEvent.prototype.pageY;
-HTMLEvent.prototype.preventDefault = function(type, bubbles, cancelable){};
-HTMLEvent.prototype.relatedTarget = new HTMLElement();
-HTMLEvent.prototype.rotation;
-HTMLEvent.prototype.scale;
 HTMLEvent.prototype.screenX = 0;
 HTMLEvent.prototype.screenY = 0;
-HTMLEvent.prototype.shiftKey = false;
-HTMLEvent.prototype.stopPropagation = function(){};
-HTMLEvent.prototype.target = new HTMLElement();
-HTMLEvent.prototype.targetTouches;
+HTMLEvent.prototype.preventDefault = function(type, bubbles, cancelable){};
+HTMLEvent.prototype.defaultPrevented = false;
 HTMLEvent.prototype.timeStamp = new Object();
+HTMLEvent.prototype.changedTouches = new TouchList(5);
 HTMLEvent.prototype.touches = new TouchList(5);
-HTMLEvent.prototype.type = "";
+HTMLEvent.prototype.targets = [];
+
+//HTMLEvent.prototype.button = 0;
+//HTMLEvent.prototype.buttons = 0;
+//HTMLEvent.prototype.ctrlKey = false;
+//HTMLEvent.prototype.currentTarget = new HTMLElement();
+//HTMLEvent.prototype.eventPhase = 0;
+//HTMLEvent.prototype.getModifierState = function(keyArg){};
+//HTMLEvent.prototype.identifier;
+//HTMLEvent.prototype.initEvent = function(eventTypeArg, canBubbleArg, cancelableArg){};
+//HTMLEvent.prototype.initMouseEvent = function(typeArg, canBubbleArg, cancelableArg, viewArg, detailArg, screenXArg, screenYArg, clientXArg, clientYArg, ctrlKeyArg, altKeyArg, shiftKeyArg, metaKeyArg, buttonArg, relatedTargetArg){};
+//HTMLEvent.prototype.initTouchEvent = function(type, canBubble, cancelable,view, detail, screenX, screenY, clientX, clientY, ctrlKey, altKey, shiftKey, metaKey, touches, targetTouches, changedTouches, scale, rotation) {};
+//HTMLEvent.prototype.inputMethod = 0;
+//HTMLEvent.prototype.metaKey = false;
+//HTMLEvent.prototype.relatedTarget = new HTMLElement();
+//HTMLEvent.prototype.rotation;
+//HTMLEvent.prototype.scale;
+//HTMLEvent.prototype.shiftKey = false;
+//HTMLEvent.prototype.targetTouches;
+//HTMLEvent.prototype.target = new HTMLElement();
 
 // ==================================================================================================================================
 //	  ______                 __    __    _      __ 
@@ -144,4 +146,5 @@ CallbackManager.prototype.dispatchEvent = function(uid, type)
 };
 
 var CallbackManager = new CallbackManager();
+
 

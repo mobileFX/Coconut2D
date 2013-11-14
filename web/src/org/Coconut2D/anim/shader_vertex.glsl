@@ -25,3 +25,11 @@ void main(void)
 	gl_Position = uProjMat * uMVMat * T * R * S * vec4(iVecCoords, 0.0, 1.0);
 	pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));
 } 
+
+attribute vec2 iVecCoords;
+uniform mat4 uProjMat;
+
+void main(void) {
+	gl_Position = uProjMat * vec4(iVecCoords, 0.0, 1.0);
+}                                    
+

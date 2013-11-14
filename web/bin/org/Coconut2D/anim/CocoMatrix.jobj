@@ -1,11 +1,11 @@
 //@compile{false}
-//@line 37
+//@line 39
 function CocoMatrix()
 {
 	var __SUPER__;
 	return ((function ()
 	{
-		var __CLASS806__ = this,
+		var __CLASS809__ = this,
 			__PDEFINE__ = {}.constructor.defineProperty,
 			__NOENUM__ =
 			{
@@ -16,129 +16,489 @@ function CocoMatrix()
 		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
 		this.__PROTECTED__ = {};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 48
-		var update = this.update = function (gl, ul)
-		{
-			//@line 49
-			//@line 50
-			gl.uniformMatrix4fv(ul, false, __data);
-		};
-		//@line 54
+		//@line 98
 		var identity = this.identity = function ()
 		{
-			//@line 55
-			//@line 56
-			__data = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+			//@line 99
+			//@line 100
+			__CLASS809__.rc11 = 1;
+			__CLASS809__.rc12 = 0;
+			__CLASS809__.rc13 = 0;
+			__CLASS809__.rc14 = 0;
+			//@line 101
+			__CLASS809__.rc21 = 0;
+			__CLASS809__.rc22 = 1;
+			__CLASS809__.rc23 = 0;
+			__CLASS809__.rc24 = 0;
+			//@line 102
+			__CLASS809__.rc31 = 0;
+			__CLASS809__.rc32 = 0;
+			__CLASS809__.rc33 = 1;
+			__CLASS809__.rc34 = 0;
+			//@line 103
+			__CLASS809__.rc41 = 0;
+			__CLASS809__.rc42 = 0;
+			__CLASS809__.rc43 = 0;
+			__CLASS809__.rc44 = 1;
 		};
-		//@line 60
+		//@line 107
 		var ortho = this.ortho = function (left, right, bottom, top, near, far)
 		{
-			//@line 61
-			//@line 62
-			__data = new Float32Array([2 / (right - left), 0, 0, 0, 0, 2 / (top - bottom), 0, 0, 0, 0, -2 / (far - near), 0, -(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1]);
+			//@line 108
+			//@line 109
+			__CLASS809__.rc11 = 2 / (right - left);
+			//@line 110
+			__CLASS809__.rc12 = 0;
+			//@line 111
+			__CLASS809__.rc13 = 0;
+			//@line 112
+			__CLASS809__.rc14 = 0;
+			//@line 113
+			__CLASS809__.rc21 = 0;
+			//@line 114
+			__CLASS809__.rc22 = 2 / (top - bottom);
+			//@line 115
+			__CLASS809__.rc23 = 0;
+			//@line 116
+			__CLASS809__.rc24 = 0;
+			//@line 117
+			__CLASS809__.rc31 = 0;
+			//@line 118
+			__CLASS809__.rc32 = 0;
+			//@line 119
+			__CLASS809__.rc33 = -2 / (far - near);
+			//@line 120
+			__CLASS809__.rc34 = 0;
+			//@line 121
+			__CLASS809__.rc41 = -(right + left) / (right - left);
+			//@line 122
+			__CLASS809__.rc42 = -(top + bottom) / (top - bottom);
+			//@line 123
+			__CLASS809__.rc43 = -(far + near) / (far - near);
+			//@line 124
+			__CLASS809__.rc44 = 1;
 		};
-		//@line 66
+		//@line 128
+		var transpose = this.transpose = function ()
+		{
+			//@line 129
+			//@line 130
+			var t = 0;
+			//@line 131
+			t = __CLASS809__.rc12;
+			__CLASS809__.rc12 = __CLASS809__.rc21;
+			__CLASS809__.rc21 = t;
+			//@line 132
+			t = __CLASS809__.rc13;
+			__CLASS809__.rc13 = __CLASS809__.rc31;
+			__CLASS809__.rc31 = t;
+			//@line 133
+			t = __CLASS809__.rc14;
+			__CLASS809__.rc14 = __CLASS809__.rc41;
+			__CLASS809__.rc41 = t;
+			//@line 134
+			t = __CLASS809__.rc21;
+			__CLASS809__.rc21 = __CLASS809__.rc12;
+			__CLASS809__.rc12 = t;
+			//@line 135
+			t = __CLASS809__.rc23;
+			__CLASS809__.rc23 = __CLASS809__.rc32;
+			__CLASS809__.rc32 = t;
+			//@line 136
+			t = __CLASS809__.rc24;
+			__CLASS809__.rc24 = __CLASS809__.rc42;
+			__CLASS809__.rc42 = t;
+			//@line 137
+			t = __CLASS809__.rc31;
+			__CLASS809__.rc31 = __CLASS809__.rc13;
+			__CLASS809__.rc13 = t;
+			//@line 138
+			t = __CLASS809__.rc32;
+			__CLASS809__.rc32 = __CLASS809__.rc23;
+			__CLASS809__.rc23 = t;
+			//@line 139
+			t = __CLASS809__.rc34;
+			__CLASS809__.rc34 = __CLASS809__.rc43;
+			__CLASS809__.rc43 = t;
+			//@line 140
+			t = __CLASS809__.rc41;
+			__CLASS809__.rc41 = __CLASS809__.rc14;
+			__CLASS809__.rc14 = t;
+			//@line 141
+			t = __CLASS809__.rc42;
+			__CLASS809__.rc42 = __CLASS809__.rc24;
+			__CLASS809__.rc24 = t;
+			//@line 142
+			t = __CLASS809__.rc43;
+			__CLASS809__.rc43 = __CLASS809__.rc34;
+			__CLASS809__.rc34 = t;
+		};
+		//@line 146
+		var determinant = this.determinant = function ()
+		{
+			//@line 147
+			//@line 148
+			var D =
+			//@line 153
+			//@line 152
+			//@line 151
+			//@line 150
+			//@line 149
+			//@line 148
+			(__CLASS809__.rc14 * __CLASS809__.rc23 * __CLASS809__.rc32 * __CLASS809__.rc41) - (__CLASS809__.rc13 * __CLASS809__.rc24 * __CLASS809__.rc32 * __CLASS809__.rc41) - (__CLASS809__.rc14 * __CLASS809__.rc22 * __CLASS809__.rc33 * __CLASS809__.rc41) + (__CLASS809__.rc12 * __CLASS809__.rc24 * __CLASS809__.rc33 * __CLASS809__.rc41) +
+			//@line 149
+			(__CLASS809__.rc13 * __CLASS809__.rc22 * __CLASS809__.rc34 * __CLASS809__.rc41) - (__CLASS809__.rc12 * __CLASS809__.rc23 * __CLASS809__.rc34 * __CLASS809__.rc41) - (__CLASS809__.rc14 * __CLASS809__.rc23 * __CLASS809__.rc31 * __CLASS809__.rc42) + (__CLASS809__.rc13 * __CLASS809__.rc24 * __CLASS809__.rc31 * __CLASS809__.rc42) +
+			//@line 150
+			(__CLASS809__.rc14 * __CLASS809__.rc21 * __CLASS809__.rc33 * __CLASS809__.rc42) - (__CLASS809__.rc11 * __CLASS809__.rc24 * __CLASS809__.rc33 * __CLASS809__.rc42) - (__CLASS809__.rc13 * __CLASS809__.rc21 * __CLASS809__.rc34 * __CLASS809__.rc42) + (__CLASS809__.rc11 * __CLASS809__.rc23 * __CLASS809__.rc34 * __CLASS809__.rc42) +
+			//@line 151
+			(__CLASS809__.rc14 * __CLASS809__.rc22 * __CLASS809__.rc31 * __CLASS809__.rc43) - (__CLASS809__.rc12 * __CLASS809__.rc24 * __CLASS809__.rc31 * __CLASS809__.rc43) - (__CLASS809__.rc14 * __CLASS809__.rc21 * __CLASS809__.rc32 * __CLASS809__.rc43) + (__CLASS809__.rc11 * __CLASS809__.rc24 * __CLASS809__.rc32 * __CLASS809__.rc43) +
+			//@line 152
+			(__CLASS809__.rc12 * __CLASS809__.rc21 * __CLASS809__.rc34 * __CLASS809__.rc43) - (__CLASS809__.rc11 * __CLASS809__.rc22 * __CLASS809__.rc34 * __CLASS809__.rc43) - (__CLASS809__.rc13 * __CLASS809__.rc22 * __CLASS809__.rc31 * __CLASS809__.rc44) + (__CLASS809__.rc12 * __CLASS809__.rc23 * __CLASS809__.rc31 * __CLASS809__.rc44) +
+			//@line 153
+			(__CLASS809__.rc13 * __CLASS809__.rc21 * __CLASS809__.rc32 * __CLASS809__.rc44) - (__CLASS809__.rc11 * __CLASS809__.rc23 * __CLASS809__.rc32 * __CLASS809__.rc44) - (__CLASS809__.rc12 * __CLASS809__.rc21 * __CLASS809__.rc33 * __CLASS809__.rc44) + (__CLASS809__.rc11 * __CLASS809__.rc22 * __CLASS809__.rc33 * __CLASS809__.rc44);
+			//@line 155
+			return D;
+			return 0
+		};
+		//@line 159
+		var invert = this.invert = function ()
+		{
+			//@line 160
+			//@line 161
+			var D = __CLASS809__.determinant();
+			//@line 162
+			if (D == 0) return;
+			//@line 164
+			var invRC11 = (__CLASS809__.rc23 * __CLASS809__.rc34 * __CLASS809__.rc42) - (__CLASS809__.rc24 * __CLASS809__.rc33 * __CLASS809__.rc42) + (__CLASS809__.rc24 * __CLASS809__.rc32 * __CLASS809__.rc43) - (__CLASS809__.rc22 * __CLASS809__.rc34 * __CLASS809__.rc43) - (__CLASS809__.rc23 * __CLASS809__.rc32 * __CLASS809__.rc44) + (__CLASS809__.rc22 * __CLASS809__.rc33 * __CLASS809__.rc44);
+			//@line 165
+			var invRC12 = (__CLASS809__.rc14 * __CLASS809__.rc33 * __CLASS809__.rc42) - (__CLASS809__.rc13 * __CLASS809__.rc34 * __CLASS809__.rc42) - (__CLASS809__.rc14 * __CLASS809__.rc32 * __CLASS809__.rc43) + (__CLASS809__.rc12 * __CLASS809__.rc34 * __CLASS809__.rc43) + (__CLASS809__.rc13 * __CLASS809__.rc32 * __CLASS809__.rc44) - (__CLASS809__.rc12 * __CLASS809__.rc33 * __CLASS809__.rc44);
+			//@line 166
+			var invRC13 = (__CLASS809__.rc13 * __CLASS809__.rc24 * __CLASS809__.rc42) - (__CLASS809__.rc14 * __CLASS809__.rc23 * __CLASS809__.rc42) + (__CLASS809__.rc14 * __CLASS809__.rc22 * __CLASS809__.rc43) - (__CLASS809__.rc12 * __CLASS809__.rc24 * __CLASS809__.rc43) - (__CLASS809__.rc13 * __CLASS809__.rc22 * __CLASS809__.rc44) + (__CLASS809__.rc12 * __CLASS809__.rc23 * __CLASS809__.rc44);
+			//@line 167
+			var invRC14 = (__CLASS809__.rc14 * __CLASS809__.rc23 * __CLASS809__.rc32) - (__CLASS809__.rc13 * __CLASS809__.rc24 * __CLASS809__.rc32) - (__CLASS809__.rc14 * __CLASS809__.rc22 * __CLASS809__.rc33) + (__CLASS809__.rc12 * __CLASS809__.rc24 * __CLASS809__.rc33) + (__CLASS809__.rc13 * __CLASS809__.rc22 * __CLASS809__.rc34) - (__CLASS809__.rc12 * __CLASS809__.rc23 * __CLASS809__.rc34);
+			//@line 169
+			var invRC21 = (__CLASS809__.rc24 * __CLASS809__.rc33 * __CLASS809__.rc41) - (__CLASS809__.rc23 * __CLASS809__.rc34 * __CLASS809__.rc41) - (__CLASS809__.rc24 * __CLASS809__.rc31 * __CLASS809__.rc43) + (__CLASS809__.rc21 * __CLASS809__.rc34 * __CLASS809__.rc43) + (__CLASS809__.rc23 * __CLASS809__.rc31 * __CLASS809__.rc44) - (__CLASS809__.rc21 * __CLASS809__.rc33 * __CLASS809__.rc44);
+			//@line 170
+			var invRC22 = (__CLASS809__.rc13 * __CLASS809__.rc34 * __CLASS809__.rc41) - (__CLASS809__.rc14 * __CLASS809__.rc33 * __CLASS809__.rc41) + (__CLASS809__.rc14 * __CLASS809__.rc31 * __CLASS809__.rc43) - (__CLASS809__.rc11 * __CLASS809__.rc34 * __CLASS809__.rc43) - (__CLASS809__.rc13 * __CLASS809__.rc31 * __CLASS809__.rc44) + (__CLASS809__.rc11 * __CLASS809__.rc33 * __CLASS809__.rc44);
+			//@line 171
+			var invRC23 = (__CLASS809__.rc14 * __CLASS809__.rc23 * __CLASS809__.rc41) - (__CLASS809__.rc13 * __CLASS809__.rc24 * __CLASS809__.rc41) - (__CLASS809__.rc14 * __CLASS809__.rc21 * __CLASS809__.rc43) + (__CLASS809__.rc11 * __CLASS809__.rc24 * __CLASS809__.rc43) + (__CLASS809__.rc13 * __CLASS809__.rc21 * __CLASS809__.rc44) - (__CLASS809__.rc11 * __CLASS809__.rc23 * __CLASS809__.rc44);
+			//@line 172
+			var invRC24 = (__CLASS809__.rc13 * __CLASS809__.rc24 * __CLASS809__.rc31) - (__CLASS809__.rc14 * __CLASS809__.rc23 * __CLASS809__.rc31) + (__CLASS809__.rc14 * __CLASS809__.rc21 * __CLASS809__.rc33) - (__CLASS809__.rc11 * __CLASS809__.rc24 * __CLASS809__.rc33) - (__CLASS809__.rc13 * __CLASS809__.rc21 * __CLASS809__.rc34) + (__CLASS809__.rc11 * __CLASS809__.rc23 * __CLASS809__.rc34);
+			//@line 174
+			var invRC31 = (__CLASS809__.rc22 * __CLASS809__.rc34 * __CLASS809__.rc41) - (__CLASS809__.rc24 * __CLASS809__.rc32 * __CLASS809__.rc41) + (__CLASS809__.rc24 * __CLASS809__.rc31 * __CLASS809__.rc42) - (__CLASS809__.rc21 * __CLASS809__.rc34 * __CLASS809__.rc42) - (__CLASS809__.rc22 * __CLASS809__.rc31 * __CLASS809__.rc44) + (__CLASS809__.rc21 * __CLASS809__.rc32 * __CLASS809__.rc44);
+			//@line 175
+			var invRC32 = (__CLASS809__.rc14 * __CLASS809__.rc32 * __CLASS809__.rc41) - (__CLASS809__.rc12 * __CLASS809__.rc34 * __CLASS809__.rc41) - (__CLASS809__.rc14 * __CLASS809__.rc31 * __CLASS809__.rc42) + (__CLASS809__.rc11 * __CLASS809__.rc34 * __CLASS809__.rc42) + (__CLASS809__.rc12 * __CLASS809__.rc31 * __CLASS809__.rc44) - (__CLASS809__.rc11 * __CLASS809__.rc32 * __CLASS809__.rc44);
+			//@line 176
+			var invRC33 = (__CLASS809__.rc12 * __CLASS809__.rc24 * __CLASS809__.rc41) - (__CLASS809__.rc14 * __CLASS809__.rc22 * __CLASS809__.rc41) + (__CLASS809__.rc14 * __CLASS809__.rc21 * __CLASS809__.rc42) - (__CLASS809__.rc11 * __CLASS809__.rc24 * __CLASS809__.rc42) - (__CLASS809__.rc12 * __CLASS809__.rc21 * __CLASS809__.rc44) + (__CLASS809__.rc11 * __CLASS809__.rc22 * __CLASS809__.rc44);
+			//@line 177
+			var invRC34 = (__CLASS809__.rc14 * __CLASS809__.rc22 * __CLASS809__.rc31) - (__CLASS809__.rc12 * __CLASS809__.rc24 * __CLASS809__.rc31) - (__CLASS809__.rc14 * __CLASS809__.rc21 * __CLASS809__.rc32) + (__CLASS809__.rc11 * __CLASS809__.rc24 * __CLASS809__.rc32) + (__CLASS809__.rc12 * __CLASS809__.rc21 * __CLASS809__.rc34) - (__CLASS809__.rc11 * __CLASS809__.rc22 * __CLASS809__.rc34);
+			//@line 179
+			var invRC41 = (__CLASS809__.rc23 * __CLASS809__.rc32 * __CLASS809__.rc41) - (__CLASS809__.rc22 * __CLASS809__.rc33 * __CLASS809__.rc41) - (__CLASS809__.rc23 * __CLASS809__.rc31 * __CLASS809__.rc42) + (__CLASS809__.rc21 * __CLASS809__.rc33 * __CLASS809__.rc42) + (__CLASS809__.rc22 * __CLASS809__.rc31 * __CLASS809__.rc43) - (__CLASS809__.rc21 * __CLASS809__.rc32 * __CLASS809__.rc43);
+			//@line 180
+			var invRC42 = (__CLASS809__.rc12 * __CLASS809__.rc33 * __CLASS809__.rc41) - (__CLASS809__.rc13 * __CLASS809__.rc32 * __CLASS809__.rc41) + (__CLASS809__.rc13 * __CLASS809__.rc31 * __CLASS809__.rc42) - (__CLASS809__.rc11 * __CLASS809__.rc33 * __CLASS809__.rc42) - (__CLASS809__.rc12 * __CLASS809__.rc31 * __CLASS809__.rc43) + (__CLASS809__.rc11 * __CLASS809__.rc32 * __CLASS809__.rc43);
+			//@line 181
+			var invRC43 = (__CLASS809__.rc13 * __CLASS809__.rc22 * __CLASS809__.rc41) - (__CLASS809__.rc12 * __CLASS809__.rc23 * __CLASS809__.rc41) - (__CLASS809__.rc13 * __CLASS809__.rc21 * __CLASS809__.rc42) + (__CLASS809__.rc11 * __CLASS809__.rc23 * __CLASS809__.rc42) + (__CLASS809__.rc12 * __CLASS809__.rc21 * __CLASS809__.rc43) - (__CLASS809__.rc11 * __CLASS809__.rc22 * __CLASS809__.rc43);
+			//@line 182
+			var invRC44 = (__CLASS809__.rc12 * __CLASS809__.rc23 * __CLASS809__.rc31) - (__CLASS809__.rc13 * __CLASS809__.rc22 * __CLASS809__.rc31) + (__CLASS809__.rc13 * __CLASS809__.rc21 * __CLASS809__.rc32) - (__CLASS809__.rc11 * __CLASS809__.rc23 * __CLASS809__.rc32) - (__CLASS809__.rc12 * __CLASS809__.rc21 * __CLASS809__.rc33) + (__CLASS809__.rc11 * __CLASS809__.rc22 * __CLASS809__.rc33);
+			//@line 184
+			__CLASS809__.rc11 = invRC11 / D;
+			//@line 185
+			__CLASS809__.rc12 = invRC12 / D;
+			//@line 186
+			__CLASS809__.rc13 = invRC13 / D;
+			//@line 187
+			__CLASS809__.rc14 = invRC14 / D;
+			//@line 189
+			__CLASS809__.rc21 = invRC21 / D;
+			//@line 190
+			__CLASS809__.rc22 = invRC22 / D;
+			//@line 191
+			__CLASS809__.rc23 = invRC23 / D;
+			//@line 192
+			__CLASS809__.rc24 = invRC24 / D;
+			//@line 194
+			__CLASS809__.rc31 = invRC31 / D;
+			//@line 195
+			__CLASS809__.rc32 = invRC32 / D;
+			//@line 196
+			__CLASS809__.rc33 = invRC33 / D;
+			//@line 197
+			__CLASS809__.rc34 = invRC34 / D;
+			//@line 199
+			__CLASS809__.rc41 = invRC41 / D;
+			//@line 200
+			__CLASS809__.rc42 = invRC42 / D;
+			//@line 201
+			__CLASS809__.rc43 = invRC43 / D;
+			//@line 202
+			__CLASS809__.rc44 = invRC44 / D;
+		};
+		//@line 206
+		var multiplyByVector = this.multiplyByVector = function (v)
+		{
+			//@line 207
+			//@line 208
+			var out = new CocoVector;
+			//@line 209
+			out.X = (v.X * __CLASS809__.rc11) + (v.Y * __CLASS809__.rc21) + (v.Z * __CLASS809__.rc31) + (v.W * __CLASS809__.rc41);
+			//@line 210
+			out.Y = (v.X * __CLASS809__.rc12) + (v.Y * __CLASS809__.rc22) + (v.Z * __CLASS809__.rc32) + (v.W * __CLASS809__.rc42);
+			//@line 211
+			out.Z = (v.X * __CLASS809__.rc13) + (v.Y * __CLASS809__.rc23) + (v.Z * __CLASS809__.rc33) + (v.W * __CLASS809__.rc43);
+			//@line 212
+			out.W = (v.X * __CLASS809__.rc14) + (v.Y * __CLASS809__.rc24) + (v.Z * __CLASS809__.rc34) + (v.W * __CLASS809__.rc44);
+			//@line 213
+			return out;
+		};
+		//@line 225
 		var translate = this.translate = function (tx, ty)
 		{
-			//@line 67
-			//@line 68
-			__data[12] += __data[0] * tx + __data[4] * ty;
-			//@line 69
-			__data[13] += __data[1] * tx + __data[5] * ty;
-			//@line 70
-			__data[14] += __data[2] * tx + __data[6] * ty;
+			//@line 226
+			//@line 227
+			__CLASS809__.rc41 += __CLASS809__.rc11 * tx + __CLASS809__.rc21 * ty;
+			//@line 228
+			__CLASS809__.rc42 += __CLASS809__.rc12 * tx + __CLASS809__.rc22 * ty;
+			//@line 229
+			__CLASS809__.rc43 += __CLASS809__.rc13 * tx + __CLASS809__.rc23 * ty;
 		};
-		//@line 74
+		//@line 233
 		var scale = this.scale = function (sx, sy)
 		{
-			//@line 75
-			//@line 76
-			__data[0] *= sx;
-			//@line 77
-			__data[4] *= sy;
-			//@line 79
-			__data[1] *= sx;
-			//@line 80
-			__data[5] *= sy;
-			//@line 82
-			__data[2] *= sx;
-			//@line 83
-			__data[6] *= sy;
-			//@line 85
-			__data[3] *= sx;
-			//@line 86
-			__data[7] *= sy;
+			//@line 234
+			//@line 235
+			__CLASS809__.rc11 *= sx;
+			//@line 236
+			__CLASS809__.rc21 *= sy;
+			//@line 237
+			__CLASS809__.rc12 *= sx;
+			//@line 238
+			__CLASS809__.rc22 *= sy;
+			//@line 239
+			__CLASS809__.rc13 *= sx;
+			//@line 240
+			__CLASS809__.rc23 *= sy;
+			//@line 241
+			__CLASS809__.rc14 *= sx;
+			//@line 242
+			__CLASS809__.rc24 *= sy;
 		};
-		//@line 91
+		//@line 246
 		var rotateZ = this.rotateZ = function (rz)
 		{
-			//@line 92
-			//@line 94
+			//@line 247
+			//@line 249
 			var c = Math.cos(rz);
-			//@line 95
+			//@line 250
 			var s = Math.sin(rz);
-			//@line 96
+			//@line 251
 			var t0 = 0,
 				t1 = 0;
-			//@line 98
-			t0 = __data[0];
-			//@line 99
-			t1 = __data[4];
-			//@line 100
-			__data[0] = t0 * c + t1 * s;
-			//@line 101
-			__data[4] = -t0 * s + t1 * c;
-			//@line 103
-			t0 = __data[1];
-			//@line 104
-			t1 = __data[5];
-			//@line 105
-			__data[1] = t0 * c + t1 * s;
-			//@line 106
-			__data[5] = -t0 * s + t1 * c;
-			//@line 108
-			t0 = __data[2];
-			//@line 109
-			t1 = __data[6];
-			//@line 110
-			__data[2] = t0 * c + t1 * s;
-			//@line 111
-			__data[6] = -t0 * s + t1 * c;
-			//@line 113
-			t0 = __data[3];
-			//@line 114
-			t1 = __data[7];
-			//@line 115
-			__data[3] = t0 * c + t1 * s;
-			//@line 116
-			__data[7] = -t0 * s + t1 * c;
+			//@line 253
+			t0 = __CLASS809__.rc11;
+			//@line 254
+			t1 = __CLASS809__.rc21;
+			//@line 255
+			__CLASS809__.rc11 = t0 * c + t1 * s;
+			//@line 256
+			__CLASS809__.rc21 = -t0 * s + t1 * c;
+			//@line 258
+			t0 = __CLASS809__.rc12;
+			//@line 259
+			t1 = __CLASS809__.rc22;
+			//@line 260
+			__CLASS809__.rc12 = t0 * c + t1 * s;
+			//@line 261
+			__CLASS809__.rc22 = -t0 * s + t1 * c;
+			//@line 263
+			t0 = __CLASS809__.rc13;
+			//@line 264
+			t1 = __CLASS809__.rc23;
+			//@line 265
+			__CLASS809__.rc13 = t0 * c + t1 * s;
+			//@line 266
+			__CLASS809__.rc23 = -t0 * s + t1 * c;
+			//@line 268
+			t0 = __CLASS809__.rc14;
+			//@line 269
+			t1 = __CLASS809__.rc24;
+			//@line 270
+			__CLASS809__.rc14 = t0 * c + t1 * s;
+			//@line 271
+			__CLASS809__.rc24 = -t0 * s + t1 * c;
 		};
-		//@line 120
+		//@line 284
+		var update = this.update = function (gl, ul)
+		{
+			//@line 285
+			//@line 286
+			__CLASS809__.__data[0] = __CLASS809__.rc11;
+			//@line 287
+			__CLASS809__.__data[1] = __CLASS809__.rc12;
+			//@line 288
+			__CLASS809__.__data[2] = __CLASS809__.rc13;
+			//@line 289
+			__CLASS809__.__data[3] = __CLASS809__.rc14;
+			//@line 290
+			__CLASS809__.__data[4] = __CLASS809__.rc21;
+			//@line 291
+			__CLASS809__.__data[5] = __CLASS809__.rc22;
+			//@line 292
+			__CLASS809__.__data[6] = __CLASS809__.rc23;
+			//@line 293
+			__CLASS809__.__data[7] = __CLASS809__.rc24;
+			//@line 294
+			__CLASS809__.__data[8] = __CLASS809__.rc31;
+			//@line 295
+			__CLASS809__.__data[9] = __CLASS809__.rc32;
+			//@line 296
+			__CLASS809__.__data[10] = __CLASS809__.rc33;
+			//@line 297
+			__CLASS809__.__data[11] = __CLASS809__.rc34;
+			//@line 298
+			__CLASS809__.__data[12] = __CLASS809__.rc41;
+			//@line 299
+			__CLASS809__.__data[13] = __CLASS809__.rc42;
+			//@line 300
+			__CLASS809__.__data[14] = __CLASS809__.rc43;
+			//@line 301
+			__CLASS809__.__data[15] = __CLASS809__.rc44;
+			//@line 302
+			gl.uniformMatrix4fv(ul, false, __CLASS809__.__data);
+		};
+		//@line 315
 		var push = this.push = function ()
 		{
-			//@line 121
-			//@line 122
-			__stack.push(new Float32Array(__data));
+			//@line 316
+			//@line 317
+			__CLASS809__.__stack.push([__CLASS809__.rc11, __CLASS809__.rc12, __CLASS809__.rc13, __CLASS809__.rc14, __CLASS809__.rc21, __CLASS809__.rc22, __CLASS809__.rc23, __CLASS809__.rc24, __CLASS809__.rc31, __CLASS809__.rc32, __CLASS809__.rc33, __CLASS809__.rc34, __CLASS809__.rc41, __CLASS809__.rc42, __CLASS809__.rc43, __CLASS809__.rc44]);
 		};
-		//@line 126
+		//@line 321
 		var pop = this.pop = function ()
 		{
-			//@line 127
-			//@line 128
-			if (__stack.length)
-			//@line 129
-			__data = __stack.pop();
+			//@line 322
+			//@line 323
+			if (__CLASS809__.__stack.length)
+			//@line 324
+			{
+				//@line 325
+				var data = __CLASS809__.__stack.pop();
+				//@line 326
+				__CLASS809__.rc11 = data[0];
+				//@line 327
+				__CLASS809__.rc12 = data[1];
+				//@line 328
+				__CLASS809__.rc13 = data[2];
+				//@line 329
+				__CLASS809__.rc14 = data[3];
+				//@line 330
+				__CLASS809__.rc21 = data[4];
+				//@line 331
+				__CLASS809__.rc22 = data[5];
+				//@line 332
+				__CLASS809__.rc23 = data[6];
+				//@line 333
+				__CLASS809__.rc24 = data[7];
+				//@line 334
+				__CLASS809__.rc31 = data[8];
+				//@line 335
+				__CLASS809__.rc32 = data[9];
+				//@line 336
+				__CLASS809__.rc33 = data[10];
+				//@line 337
+				__CLASS809__.rc34 = data[11];
+				//@line 338
+				__CLASS809__.rc41 = data[12];
+				//@line 339
+				__CLASS809__.rc42 = data[13];
+				//@line 340
+				__CLASS809__.rc43 = data[14];
+				//@line 341
+				__CLASS809__.rc44 = data[15];
+			}
 		};
-		//@line 39
-		var __stack = [];
-		//@line 40
-		var __data = null;
+		//@line 41
+		this.rc11 = 0;
+		//@line 42
+		this.rc12 = 0;
+		//@line 43
+		this.rc13 = 0;
+		//@line 44
+		this.rc14 = 0;
+		//@line 45
+		this.rc21 = 0;
+		//@line 46
+		this.rc22 = 0;
+		//@line 47
+		this.rc23 = 0;
+		//@line 48
+		this.rc24 = 0;
+		//@line 49
+		this.rc31 = 0;
+		//@line 50
+		this.rc32 = 0;
+		//@line 51
+		this.rc33 = 0;
+		//@line 52
+		this.rc34 = 0;
+		//@line 53
+		this.rc41 = 0;
+		//@line 54
+		this.rc42 = 0;
+		//@line 55
+		this.rc43 = 0;
+		//@line 56
+		this.rc44 = 0;
+		//@line 58
+		this.__stack = [];
+		//@line 59
+		this.__data = null;
 		this.Constructor = function ()
 		{
-			//@line 43
-			//@line 44
-			__CLASS806__.identity();
-			return __CLASS806__
+			var data = arguments[0];
+			//@line 63
+			//@line 64
+			if (data)
+			//@line 65
+			{
+				//@line 66
+				__CLASS809__.rc11 = data[0];
+				//@line 67
+				__CLASS809__.rc12 = data[1];
+				//@line 68
+				__CLASS809__.rc13 = data[2];
+				//@line 69
+				__CLASS809__.rc14 = data[3];
+				//@line 70
+				__CLASS809__.rc21 = data[4];
+				//@line 71
+				__CLASS809__.rc22 = data[5];
+				//@line 72
+				__CLASS809__.rc23 = data[6];
+				//@line 73
+				__CLASS809__.rc24 = data[7];
+				//@line 74
+				__CLASS809__.rc31 = data[8];
+				//@line 75
+				__CLASS809__.rc32 = data[9];
+				//@line 76
+				__CLASS809__.rc33 = data[10];
+				//@line 77
+				__CLASS809__.rc34 = data[11];
+				//@line 78
+				__CLASS809__.rc41 = data[12];
+				//@line 79
+				__CLASS809__.rc42 = data[13];
+				//@line 80
+				__CLASS809__.rc43 = data[14];
+				//@line 81
+				__CLASS809__.rc44 = data[15];
+			}
+			else
+			//@line 84
+			__CLASS809__.identity();
+			//@line 86
+			__CLASS809__.__data = new Float32Array([__CLASS809__.rc11, __CLASS809__.rc12, __CLASS809__.rc13, __CLASS809__.rc14, __CLASS809__.rc21, __CLASS809__.rc22, __CLASS809__.rc23, __CLASS809__.rc24, __CLASS809__.rc31, __CLASS809__.rc32, __CLASS809__.rc33, __CLASS809__.rc34, __CLASS809__.rc41, __CLASS809__.rc42, __CLASS809__.rc43, __CLASS809__.rc44]);
+			return __CLASS809__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this

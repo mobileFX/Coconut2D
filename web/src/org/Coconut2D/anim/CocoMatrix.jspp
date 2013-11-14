@@ -59,26 +59,26 @@ class CocoMatrix
 	public var __data:Float32Array = null;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(data:Float32Array)
+	public function Constructor(M:CocoMatrix)
 	{           		
-		if(data)   
+		if(M)   
 		{
-			rc11 = data[0];
-			rc12 = data[1];
-			rc13 = data[2];
-			rc14 = data[3];
-			rc21 = data[4];
-			rc22 = data[5];
-			rc23 = data[6];
-			rc24 = data[7];
-			rc31 = data[8];
-			rc32 = data[9];
-			rc33 = data[10];
-			rc34 = data[11];
-			rc41 = data[12];
-			rc42 = data[13];
-			rc43 = data[14];
-			rc44 = data[15];			
+			rc11 = M.rc11;
+			rc12 = M.rc12;
+			rc13 = M.rc13;
+			rc14 = M.rc14;
+			rc21 = M.rc21;
+			rc22 = M.rc22;
+			rc23 = M.rc23;
+			rc24 = M.rc24;
+			rc31 = M.rc31;
+			rc32 = M.rc32;
+			rc33 = M.rc33;
+			rc34 = M.rc34;
+			rc41 = M.rc41;
+			rc42 = M.rc42;
+			rc43 = M.rc43;
+			rc44 = M.rc44;		
 		}
 		else
 			identity();
@@ -342,4 +342,5 @@ class CocoMatrix
 		}
 	}
 }
+
 

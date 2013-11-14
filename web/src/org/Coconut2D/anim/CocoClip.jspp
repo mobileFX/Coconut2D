@@ -68,9 +68,9 @@ class CocoClip
 		if(image) __image = image;
 		if(audio) __audio = audio;
 		if(sequence) __currentSequenceName = sequence;	 
-		__vTOP_LEFT = new CocoVector()
-		__vTOP_RIGHT = new CocoVector()
-		__vBOTTOM_LEFT = new CocoVector()
+		__vTOP_LEFT = new CocoVector();
+		__vTOP_RIGHT = new CocoVector();
+		__vBOTTOM_LEFT = new CocoVector();
 		__vBOTTOM_RIGHT = new CocoVector();		
 	}  
 				
@@ -275,9 +275,6 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip)
 	{        
-		// Get touch event from engine.
-		var touch:CocoTouchEvent = engine.__touch;
-		
 		// Get scene current time and add timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )		                                    
 		var currentTime:Number = scene.__currentTime + __timeline.__skipTime;
 
@@ -375,19 +372,28 @@ class CocoClip
 		}
 		 		
 		// Handle touch event if no-one else has		
-		if(__currentFrame.calcBoundingBox)
 		{
 			// Calculate bounding box vertices
 			if(__image)		                                               
 				initBoundingBoxFromTexture(scene, __image.textureCellWidth / 2, __image.textureCellHeight / 2);
-			else		
+			else if(__childrenCount>0)		
 				initBoundingBoxFromChildren(scene);			
+			else
+				debugger;
 				
-			// Point in quad?
-   	        if(hitTest(touch.wx, touch.wy))
-   	        {
-   	        	touch.targets.push(this);
-   	        }			
+			// Draw bounds (debug)
+			if(__currentFrame.alpha != 0 && __currentFrame.visible)   
+			{
+				drawBoundingBox(scene, gl);  
+			}
+				
+			// Point in quad?	
+			//var x = (engine.__touchEvent.clientX - gl.canvas.width / 2.0) / scene.__view_scale;
+			//var y = (engine.__touchEvent.clientY - gl.canvas.height / 2.0) / scene.__view_scale; 			
+   	        //if(engine.__touchEvent && hitTest(x, y))
+   	        //{
+   	        //	engine.__touchEvent.targets.push(this);
+   	        //}			
 		}
 
 		// Execute KeyFrame action callback.
@@ -428,12 +434,12 @@ class CocoClip
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Number, H2:Number)
-	{	
+	{    
 	    // Reset vectors
 	    __vTOP_LEFT.set(-W2, -H2, 0, 1);	    
-	    __vTOP_RIGHT.set(-W2, H2, 0, 1);
-	    __vBOTTOM_LEFT.set(W2, H2, 0, 1);
-	    __vBOTTOM_RIGHT.set(W2, -H2, 0, 1);
+	    __vTOP_RIGHT.set(W2, -H2, 0, 1);
+	    __vBOTTOM_LEFT.set(-W2, H2, 0, 1);
+	    __vBOTTOM_RIGHT.set(W2, H2, 0, 1);
 	    	    
 	    // Multiply vectors with the current modelview matrix
 	    __vTOP_LEFT 	= scene.__modelViewMatrix.multiplyByVector(__vTOP_LEFT);
@@ -459,12 +465,12 @@ class CocoClip
 	    // Define an invalid rectangle.
 	    Rc = new CocoRect();
 	    Rc.left = 100000;
-	    Rc.right = -Rc.left - 1;
+	    Rc.right = -100000;
 	    Rc.top = 100000;
-	    Rc.bottom = -Rc.top - 1;
+	    Rc.bottom = -100000;
 	    	            
 	    // Invert parent matrix.
-	    MI = new CocoMatrix(scene.__modelViewMatrix.__data);
+	    MI = new CocoMatrix(scene.__modelViewMatrix);
 	    MI.invert();
 	            
         for(vClip in __children)
@@ -490,7 +496,7 @@ class CocoClip
 	            }
 	            
 	            // Ok, combine resulting bounding box with next child...
-	        }	       
+	        }
 	    }
 	        	    
 	    __vTOP_LEFT.X = Rc.left;
@@ -508,12 +514,28 @@ class CocoClip
 	    __vTOP_RIGHT = MI.multiplyByVector(__vTOP_RIGHT);
 	    __vBOTTOM_LEFT = MI.multiplyByVector(__vBOTTOM_LEFT);
 	    __vBOTTOM_RIGHT = MI.multiplyByVector(__vBOTTOM_RIGHT);	        
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext)
+	{
+		gl.disableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
+		gl.disableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);                         
+		
+		gl.useProgram(scene.__boundingBoxProgram);
+		gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);        
+		gl.enableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);                      
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, scene.__boundingBoxBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([__vTOP_LEFT.X, __vTOP_LEFT.Y, __vTOP_RIGHT.X, __vTOP_RIGHT.Y, __vBOTTOM_RIGHT.X,  __vBOTTOM_RIGHT.Y, __vBOTTOM_LEFT.X,  __vBOTTOM_LEFT.Y]), gl.DYNAMIC_DRAW);
+		scene.__projectionMatrix.update(gl, scene.__boundingBoxProgram.GLSLuProjMat);			
+
+		gl.drawArrays(gl.LINE_LOOP, 0, 4); 
+		               
+		gl.disableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
+		gl.useProgram(scene.__glProgram);   
+		
+		gl.enableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
+		gl.enableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
 	}
 }
-
-
-
-
-
-
-

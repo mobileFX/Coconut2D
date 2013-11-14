@@ -2,7 +2,6 @@
 
 //@include{WebGL.js}
 //@include{CocoEngineState.jspp}
-//@include{CocoTouchEvent.jspp}
 //@include{CocoScene.jspp}
 
 /* ***** BEGIN LICENSE BLOCK *****
@@ -49,21 +48,24 @@ class CocoEngine
 	private var __nextState:CocoEngineState = null;
 	private var __stateStart:Number = 0;
 	
-	public var __touch :CocoTouchEvent = new CocoTouchEvent();
+	public var __touchEvent :HTMLEvent;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{ 
 		// Set event handlers
-		window.addEventListener("touchstart", __touchstart);
-		window.addEventListener("touchmove", __touchmove);
-		window.addEventListener("touchend", __touchend);		
+		window.addEventListener("touchstart", __setTouchEvent);
+		window.addEventListener("touchmove", __setTouchEvent);
+		window.addEventListener("touchend", __setTouchEvent);		
 	} 
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	private function __touchstart(e:HTMLEvent)	{ __touch.setEvent(e); }
-	private function __touchmove(e:HTMLEvent)	{ __touch.setEvent(e); }
-	private function __touchend(e:HTMLEvent)	{ __touch.setEvent(e); } 
+	private function __setTouchEvent(e:HTMLEvent)	
+	{
+		__touchEvent = e;
+		__touchEvent.clientX = e.changedTouches[0].clientX;
+		__touchEvent.clientY = e.changedTouches[0].clientY;
+	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function currentState():CocoEngineState
@@ -90,8 +92,11 @@ class CocoEngine
 		                                     
 		// Tick current engine state
 		__currentState.tick(this, gl, time - __stateStart);
+		__touchEvent = null;
 	} 	
 };
+
+
 
 
 

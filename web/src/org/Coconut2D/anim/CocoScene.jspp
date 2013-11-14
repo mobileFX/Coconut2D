@@ -49,6 +49,7 @@ class CocoScene
 	public var __view_width:Number				= 0;
 	public var __view_height:Number				= 0;
 	public var __view_pixel_ratio:Number		= 0;	
+	public var __view_scale:Number				= 1;
 
 	// Rendering
 	public var __currentTime:Number 			= 0.0;  	
@@ -61,7 +62,13 @@ class CocoScene
 	public var __levelParents:Array				= [];
 	
 	public var __vertex_shader:String			= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
-	public var __fragment_shader:String			= "precision mediump float;uniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
+	public var __fragment_shader:String			= "#ifdef GL_ES\nprecision mediump float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
+	
+	public var __boundingBoxVertexShader:String = "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
+	public var __boundingBoxFragmentShader:String	= "#ifdef GL_ES\nprecision mediump float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
+	public var __boundingBoxProgram:WebGLProgram	= null;
+	public var __boundingBoxBuffer:WebGLBuffer	= null;
+
 			            
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(sceneName:String)
@@ -167,7 +174,17 @@ class CocoScene
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(gl:WebGLRenderingContext)
-	{ 
+	{                                                                         
+		
+		__boundingBoxProgram = glu.makeProgram(gl, __boundingBoxVertexShader, __boundingBoxFragmentShader); 
+		
+		gl.useProgram(__boundingBoxProgram);
+		__boundingBoxProgram.GLSLiVec2Coords	= gl.getAttribLocation(__boundingBoxProgram, "iVec2Coords");
+		__boundingBoxProgram.GLSLuProjMat		= gl.getUniformLocation(__boundingBoxProgram, "uProjMat");
+		__boundingBoxBuffer	= gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, __boundingBoxBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);
+		
 		__glProgram = glu.makeProgram(gl, __vertex_shader, __fragment_shader);
 		
 		gl.useProgram(__glProgram);
@@ -180,16 +197,18 @@ class CocoScene
 		__glProgram.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram, "uSprFrame");
 		__glProgram.GLSLuSampler 	= gl.getUniformLocation(__glProgram, "uSampler");
 		__glProgram.GLSLuColor 		= gl.getUniformLocation(__glProgram, "uColor");
+	
 		
 		__modelViewMatrix = new CocoMatrix();
 		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
 		
+		
 		// If we have a fixed view, we scale to it, otherwise we use device pixel ratio.
-		var s:Number = this.__view_width>0 && this.__view_height>0 ? Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height) : window.devicePixelRatio;
+		__view_scale = this.__view_width>0 && this.__view_height>0 ? Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height) : window.devicePixelRatio;
 		
 		__projectionMatrix = new CocoMatrix();
 		__projectionMatrix.ortho(-gl.canvas.width / 2.0, gl.canvas.width / 2.0, gl.canvas.height / 2.0, -gl.canvas.height / 2.0, -1.0, 1.0);				
-		__projectionMatrix.scale(s, s);
+		__projectionMatrix.scale(__view_scale, __view_scale);
 		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat);
 			
 		var t:String;
@@ -278,8 +297,3 @@ class CocoScene
 		return scope.gotoFrame(-1, true, deep);
 	}	
 }
-
-
-
-
-

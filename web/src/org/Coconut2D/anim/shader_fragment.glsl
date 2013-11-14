@@ -11,3 +11,10 @@ void main(void)
 	float A = texture2D(uSampler, pTexCoord).a * uColor.a;
 	gl_FragColor = vec4(R, G, B, A);
 }
+
+                                                    
+precision mediump float;
+
+void main(void) {
+	gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+}
