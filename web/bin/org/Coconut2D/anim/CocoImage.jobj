@@ -77,62 +77,25 @@ function CocoImage()
 		{
 			//@line 102
 			//@line 103
-			var w2 = __CLASS765__.textureCellWidth / 2;
+			__CLASS765__.vecSize = [__CLASS765__.textureCellWidth / 2, __CLASS765__.textureCellHeight / 2];
 			//@line 104
-			var h2 = __CLASS765__.textureCellHeight / 2;
+			__CLASS765__.texSize = [__CLASS765__.textureCellWidth / __CLASS765__.image.naturalWidth, __CLASS765__.textureCellHeight / __CLASS765__.image.naturalHeight];
 			//@line 106
-			__CLASS765__.texData = new Float32Array([0, 0, -w2, -h2, 0, 1, -w2, h2, 1, 0, w2, -h2, 1, 1, w2, h2]);
-			//@line 107
-			__CLASS765__.texSize = new Float32Array([__CLASS765__.textureCellWidth / __CLASS765__.image.naturalWidth, __CLASS765__.textureCellHeight / __CLASS765__.image.naturalHeight]);
-			//@line 109
 			__CLASS765__.texture = gl.createTexture();
-			//@line 110
+			//@line 107
 			gl.bindTexture(gl.TEXTURE_2D, __CLASS765__.texture);
-			//@line 111
+			//@line 108
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, __CLASS765__.image);
-			//@line 112
+			//@line 109
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			//@line 113
+			//@line 110
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			//@line 114
+			//@line 111
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			//@line 115
+			//@line 112
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			//@line 116
+			//@line 113
 			gl.bindTexture(gl.TEXTURE_2D, null);
-			//@line 118
-			__CLASS765__.buffer = gl.createBuffer();
-			//@line 119
-			gl.bindBuffer(gl.ARRAY_BUFFER, __CLASS765__.buffer);
-			//@line 120
-			gl.bufferData(gl.ARRAY_BUFFER, __CLASS765__.texData, gl.STATIC_DRAW);
-			//@line 121
-			gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		};
-		//@line 125
-		var drawFrame = this.drawFrame = function (gl, glp, frame, alpha)
-		{
-			//@line 126
-			//@line 127
-			__CLASS765__.color[3] = alpha;
-			//@line 128
-			gl.uniform2fv(glp.GLSLuSprSize, __CLASS765__.texSize);
-			//@line 129
-			gl.uniform2f(glp.GLSLuSprFrame, __CLASS765__.textureGrid[frame * 2 + 1], __CLASS765__.textureGrid[frame * 2]);
-			//@line 130
-			gl.bindBuffer(gl.ARRAY_BUFFER, __CLASS765__.buffer);
-			//@line 131
-			gl.vertexAttribPointer(glp.GLSLiTexCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
-			//@line 132
-			gl.vertexAttribPointer(glp.GLSLiVecCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-			//@line 133
-			gl.bindTexture(gl.TEXTURE_2D, __CLASS765__.texture);
-			//@line 134
-			gl.uniform1i(glp.GLSLuSampler, 0);
-			//@line 135
-			gl.uniform4fv(glp.GLSLuColor, __CLASS765__.color);
-			//@line 136
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		};
 		//@line 41
 		this.image = null;
@@ -145,15 +108,15 @@ function CocoImage()
 		//@line 45
 		this.textureCellHeight = 0;
 		//@line 46
-		this.textureGrid = new Float32Array([0, 0]);
+		this.textureGrid = [0, 0];
 		//@line 47
 		this.sequences = null;
 		//@line 48
 		this.color = new Float32Array([1, 1, 1, 1]);
 		//@line 49
-		this.texSize = new Float32Array([1, 1]);
+		this.texSize = [1, 1];
 		//@line 50
-		this.texData = null;
+		this.vecSize = [0, 0];
 		//@line 51
 		this.buffer = null;
 		//@line 52

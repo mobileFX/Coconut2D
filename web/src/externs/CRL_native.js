@@ -3,6 +3,7 @@ function ArrayBuffer(){};
 function ArrayBufferView(){};
 function Float32Array(){};
 function Int32Array(){};
+function Uint8Array(){};
 function HTMLVideoElement(){};
 function CocoFont(){};
 
@@ -161,4 +162,5 @@ var __WebGLRenderingContext_vertexAttrib4f = function(uid, indx, x, y, z, w){};
 var __WebGLRenderingContext_vertexAttrib4fv = function(uid, indx, value__buffer_uid, value_byteOffset, value_length){};
 var __WebGLRenderingContext_vertexAttribPointer = function(uid, indx, size, type, normalized, stride, offset){};
 var __WebGLRenderingContext_viewport = function(uid, x, y, width, height){};
+
 

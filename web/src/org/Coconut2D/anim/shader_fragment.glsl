@@ -12,9 +12,25 @@ void main(void)
 	gl_FragColor = vec4(R, G, B, A);
 }
 
-                                                    
+///////////////////////////////////////////////////////////////////
+precision mediump float;
+uniform sampler2D uSampler[8];
+varying uint pID;             
+varying float pAlpha;
+varying vec2 pTexCoord;
+
+void main(void) {
+    gl_FragColor = texture2D(uSampler[pID], pTexCoord) * vec4(1.0, 1.0, 1.0, uAlpha);
+}
+
+
+
+/////////////////////////////////////////////////////////////////////                                                    
 precision mediump float;
 
 void main(void) {
 	gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
 }
+
+
+

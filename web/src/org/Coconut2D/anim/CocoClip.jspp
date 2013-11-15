@@ -322,8 +322,7 @@ class CocoClip
 		}
 	
 		// Apply this clip's current frame values to modelview matrix.
-		__currentFrame.apply(scene.__modelViewMatrix);		
-		scene.updateModelViewMatrix(gl);		
+		__currentFrame.apply(scene.__modelViewMatrix);				
 		
 		// If we are visible, render this clip and its children.
 		if(__currentFrame.alpha != 0 && __currentFrame.visible)
@@ -346,12 +345,12 @@ class CocoClip
 					var seq:CocoSequence = __image.sequences[__currentSequenceName];				
 					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(((currentTime - __firstTickTime) / GLOBAL_FPS)) % seq.frames.length;
 					var frame:Number = seq.frames[__currentSequenceFrameIndex];
-					__image.drawFrame(gl, scene.__glProgram, frame, __currentFrame.alpha);					
+					scene.drawFrame(gl, __image, frame, __currentFrame.alpha);					
 				} 
 				else
 				{
 					// Render a standard image.					
-					__image.drawFrame(gl, scene.__glProgram, 0,  __currentFrame.alpha);	
+					scene.drawFrame(gl, __image, 0,  __currentFrame.alpha);	
 				}			
 			} 
 			else
@@ -372,14 +371,12 @@ class CocoClip
 		}
 		 		
 		// Handle touch event if no-one else has		
-		{
+/*		{
 			// Calculate bounding box vertices
 			if(__image)		                                               
 				initBoundingBoxFromTexture(scene, __image.textureCellWidth / 2, __image.textureCellHeight / 2);
 			else if(__childrenCount>0)		
 				initBoundingBoxFromChildren(scene);			
-			else
-				debugger;
 				
 			// Draw bounds (debug)
 			if(__currentFrame.alpha != 0 && __currentFrame.visible)   
@@ -387,49 +384,37 @@ class CocoClip
 				drawBoundingBox(scene, gl);  
 			}
 				
-			// Point in quad?	
-			//var x = (engine.__touchEvent.clientX - gl.canvas.width / 2.0) / scene.__view_scale;
-			//var y = (engine.__touchEvent.clientY - gl.canvas.height / 2.0) / scene.__view_scale; 			
-   	        //if(engine.__touchEvent && hitTest(x, y))
-   	        //{
-   	        //	engine.__touchEvent.targets.push(this);
-   	        //}			
+			// Point in quad?
+			if(engine.__touchEvent) {	
+				var x = (engine.__touchEvent.clientX - gl.canvas.width / 2.0) / scene.__view_scale;
+				var y = (engine.__touchEvent.clientY - gl.canvas.height / 2.0) / scene.__view_scale; 			
+	   	        if(hitTest(x, y))
+	   	        {
+	   	        	engine.__touchEvent.targets.push(this);
+	   	        }
+			}
 		}
-
+*/
 		// Execute KeyFrame action callback.
 		this.__parent = parentClip;
 		__currentFrame.execute(gl, currentTime, loopTime, scene, this);
 		this.__parent = null;		
 		
 		// Did we reach the end of the main timeline?
-		if(this==scene.__root)
+/*		if(this==scene.__root)
 		{
 			var max = scene.__root.childWithMaxTimelineDuration();
 			if(max.__currentFrame == max.__timeline.__lastKeyFrame)
 			{
 			}
 		} 
-	} 
+*/	} 
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function hitTest(wx:Number, wy:Number) :Boolean
-	{
-		
-		var i:Number;
-		var j:Number;
-		var result:Boolean;
-		var v:CocoVector;		
-		var points = [__vTOP_LEFT, __vTOP_RIGHT, __vBOTTOM_RIGHT, __vBOTTOM_LEFT];
-
-		for(i=0, j=3; i<4; j=i++)
-		{
-			if((points[i].y > wy) != (points[j].y > wy) && (wx < (points[j].x - points[i].x) * (wy - points[i].y) / (points[j].y-points[i].y) + points[i].x))
-			{
-				result = !result;
-			}
-		}
-		
-		return result;
+	{		
+		return ((((wx - __vTOP_LEFT.X) * (__vTOP_RIGHT.Y - __vTOP_LEFT.Y) - (__vTOP_RIGHT.X - __vTOP_LEFT.X) * (wy - __vTOP_LEFT.Y)) * ((wx - __vBOTTOM_RIGHT.X) * (__vBOTTOM_LEFT.Y - __vBOTTOM_RIGHT.Y) - (__vBOTTOM_LEFT.X - __vBOTTOM_RIGHT.X) * (wy - __vBOTTOM_RIGHT.Y))) > 0
+		&& (((wx - __vTOP_RIGHT.X) * (__vBOTTOM_RIGHT.Y - __vTOP_RIGHT.Y) - (__vBOTTOM_RIGHT.X - __vTOP_RIGHT.X) * (wy - __vTOP_RIGHT.Y)) * ((wx - __vBOTTOM_LEFT.X) * (__vTOP_LEFT.Y - __vBOTTOM_LEFT.Y) - (__vTOP_LEFT.X - __vBOTTOM_LEFT.X) * (wy - __vBOTTOM_LEFT.Y))) > 0);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -522,14 +507,13 @@ class CocoClip
 		gl.disableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
 		gl.disableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);                         
 		
-		gl.useProgram(scene.__boundingBoxProgram);
-		gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);        
+		gl.useProgram(scene.__boundingBoxProgram);        
 		gl.enableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);                      
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, scene.__boundingBoxBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([__vTOP_LEFT.X, __vTOP_LEFT.Y, __vTOP_RIGHT.X, __vTOP_RIGHT.Y, __vBOTTOM_RIGHT.X,  __vBOTTOM_RIGHT.Y, __vBOTTOM_LEFT.X,  __vBOTTOM_LEFT.Y]), gl.DYNAMIC_DRAW);
-		scene.__projectionMatrix.update(gl, scene.__boundingBoxProgram.GLSLuProjMat);			
-
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([__vTOP_LEFT.X, __vTOP_LEFT.Y, __vTOP_RIGHT.X, __vTOP_RIGHT.Y, __vBOTTOM_RIGHT.X,  __vBOTTOM_RIGHT.Y, __vBOTTOM_LEFT.X,  __vBOTTOM_LEFT.Y]));			
+  
+  		gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);
 		gl.drawArrays(gl.LINE_LOOP, 0, 4); 
 		               
 		gl.disableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
@@ -539,3 +523,13 @@ class CocoClip
 		gl.enableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
 	}
 }
+
+
+
+
+
+
+
+
+
+

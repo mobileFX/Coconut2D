@@ -43,11 +43,11 @@ class CocoImage
 	public var texture:WebGLTexture				= null;
 	public var textureCellWidth:Number			= 0;
 	public var textureCellHeight:Number			= 0;
-	public var textureGrid:Float32Array			= new Float32Array([0, 0]);
+	public var textureGrid:Array				= [0, 0];
 	public var sequences:Object					= null;
 	public var color:Float32Array				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
-	public var texSize:Float32Array				= new Float32Array([1.0, 1.0]);
-	public var texData:Float32Array				= null;
+	public var texSize:Array					= [1.0, 1.0];
+	public var vecSize:Array					= [0.0, 0.0];
 	public var buffer:WebGLBuffer				= null;
 	public var dpi:SCREEN_RESOLUTION_DPI_ENUM 	= SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_nodpi;
 	public var skin:Object						= null;
@@ -99,12 +99,9 @@ class CocoImage
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(gl:WebGLRenderingContext)
-	{
-		var w2:Number = textureCellWidth / 2;
-		var h2:Number = textureCellHeight / 2;
-		
-		texData = new Float32Array([ 0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2 ]);
-		texSize = new Float32Array([textureCellWidth / image.naturalWidth, textureCellHeight / image.naturalHeight]);
+	{                   
+		vecSize = [textureCellWidth / 2,  textureCellHeight / 2];
+		texSize = [textureCellWidth / image.naturalWidth, textureCellHeight / image.naturalHeight];
 			
 		texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -114,25 +111,47 @@ class CocoImage
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		gl.bindTexture(gl.TEXTURE_2D, null);
-		
-		buffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-		gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function drawFrame(gl:WebGLRenderingContext, glp:WebGLProgram, frame:Number, alpha:Number)
-	{                                       
-		color[3] = alpha;
-		gl.uniform2fv(glp.GLSLuSprSize, texSize);
-		gl.uniform2f(glp.GLSLuSprFrame, textureGrid[frame * 2 + 1], textureGrid[frame * 2]);
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-		gl.vertexAttribPointer(glp.GLSLiTexCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
-		gl.vertexAttribPointer(glp.GLSLiVecCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
+/*	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawFrame(gl:WebGLRenderingContext, scene:CocoScene, frame:Number, alpha:Number)
+	{   
+		if(scene.__imageCurrentID == MAX_TEXTURES) {
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, scene.__imageIndexBuffer);
+			gl.bindBuffer(gl.ARRAY_BUFFER, scene.__imageArrayBuffer);
+			gl.vertexAttribPointer(glp.GLSLiD, 1, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 0);
+			gl.vertexAttribPointer(glp.GLSLiAlpha, 1, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 1 * Float32Array.BYTES_PER_ELEMENT);
+			gl.vertexAttribPointer(glp.GLSLiTexCoords, 2, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
+			gl.vertexAttribPointer(glp.GLSLiVecCoords, 2, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 4 * Float32Array.BYTES_PER_ELEMENT);
+		    gl.drawElements(gl.TRIANGLES, MAX_TEXTURES, gl.UNSIGNED_BYTE, 0);
+			scene.__imageCurrentID = 0;
+		}       
+		var i:Number = scene.__imageCurrentID++;
+		gl.activeTexture(gl.TEXTURE0 + i);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.uniform1i(glp.GLSLuSampler, 0);
-		gl.uniform4fv(glp.GLSLuColor, color);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	}
+		scene.__imageArrayData[i * MAX_TEXTURES + 2] = scene.__imageArrayData[i * MAX_TEXTURES + 8] = textureGrid[frame * 2 + 1] * texSize[0];
+		scene.__imageArrayData[i * MAX_TEXTURES + 14] = scene.__imageArrayData[i * MAX_TEXTURES + 20] = (textureGrid[frame * 2 + 1] + 1) * texSize[0];
+		scene.__imageArrayData[i * MAX_TEXTURES + 3] = scene.__imageArrayData[i * MAX_TEXTURES + 15] = textureGrid[frame * 2] * texSize[1];
+		scene.__imageArrayData[i * MAX_TEXTURES + 9] = scene.__imageArrayData[i * MAX_TEXTURES + 21] = (textureGrid[frame * 2] + 1) * texSize[1];
+		scene.__imageArrayData[i * MAX_TEXTURES + 4] = -vecSize[0] * scene.__modelViewMatrix.rc11 - vecSize[1] * scene.__modelViewMatrix.rc21 + scene.__modelViewMatrix.rc41;
+		scene.__imageArrayData[i * MAX_TEXTURES + 5] = -vecSize[0] * scene.__modelViewMatrix.rc12 - vecSize[1] * scene.__modelViewMatrix.rc22 + scene.__modelViewMatrix.rc42;
+		scene.__imageArrayData[i * MAX_TEXTURES + 10] = -vecSize[0] * scene.__modelViewMatrix.rc11 + vecSize[1] * scene.__modelViewMatrix.rc21 + scene.__modelViewMatrix.rc41;
+		scene.__imageArrayData[i * MAX_TEXTURES + 11] = -vecSize[0] * scene.__modelViewMatrix.rc12 + vecSize[1] * scene.__modelViewMatrix.rc22 + scene.__modelViewMatrix.rc42;
+		scene.__imageArrayData[i * MAX_TEXTURES + 16] = vecSize[0] * scene.__modelViewMatrix.rc11 - vecSize[1] * scene.__modelViewMatrix.rc21 + scene.__modelViewMatrix.rc41;
+		scene.__imageArrayData[i * MAX_TEXTURES + 17] = vecSize[0] * scene.__modelViewMatrix.rc12 - vecSize[1] * scene.__modelViewMatrix.rc22 + scene.__modelViewMatrix.rc42;
+		scene.__imageArrayData[i * MAX_TEXTURES + 22] = vecSize[0] * scene.__modelViewMatrix.rc11 + vecSize[1] * scene.__modelViewMatrix.rc21 + scene.__modelViewMatrix.rc41;
+		scene.__imageArrayData[i * MAX_TEXTURES + 23] = vecSize[0] * scene.__modelViewMatrix.rc12 + vecSize[1] * scene.__modelViewMatrix.rc22 + scene.__modelViewMatrix.rc42;
+	} */
 }
+
+
+
+
+
+
+
+
+
+
+
+
