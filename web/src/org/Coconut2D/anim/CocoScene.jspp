@@ -63,7 +63,30 @@ class CocoScene
 	public var __levelParents:Array					= [];
 	                                            	
 	public var __vertex_shader:String				= "uniform mat4 uProjMat;attribute float iID;attribute float iAlpha;attribute vec2 iVecCoords;attribute vec2 iTexCoords;varying vec2 pTexCoords;varying float pID;varying float pAlpha;void main(void) { gl_Position = uProjMat * vec4(iVecCoords, 0.0, 1.0);    pTexCoords = iTexCoords; pID = iID; pAlpha = iAlpha;}";
-	public var __fragment_shader:String				= "#ifdef GL_ES\nprecision mediump float;\n#endif\nuniform sampler2D uSampler[8];varying float pID; varying float pAlpha;varying vec2 pTexCoords;void main(void) { gl_FragColor = texture2D(uSampler[int(pID)], pTexCoords) * vec4(1.0, 1.0, 1.0, 1.0);}";
+	public var __fragment_shader:String				=	"#ifdef GL_ES\nprecision mediump float;\n#endif\n" +
+														"uniform sampler2D uSampler[8];" +
+														"varying float pID;" +
+														"varying float pAlpha;" +
+														"varying vec2 pTexCoords;" + 
+														"void main(void) {" +
+															"if(pID < 0.5)" +
+																"gl_FragColor = texture2D(uSampler[0], pTexCoords);" + 
+															"else if(pID < 1.5)" +
+																"gl_FragColor = texture2D(uSampler[1], pTexCoords);" +
+															"else if(pID < 2.5)" +
+																"gl_FragColor = texture2D(uSampler[2], pTexCoords);" +
+															"else if(pID < 3.5)" +
+																"gl_FragColor = texture2D(uSampler[3], pTexCoords);" +
+															"else if(pID < 4.5)" +
+																"gl_FragColor = texture2D(uSampler[4], pTexCoords);" +
+															"else if(pID < 5.5)" +
+																"gl_FragColor = texture2D(uSampler[5], pTexCoords);" +
+															"else if(pID < 6.5)" +
+																"gl_FragColor = texture2D(uSampler[6], pTexCoords);" +
+															"else " +
+																"gl_FragColor = texture2D(uSampler[7], pTexCoords);" + 
+															"gl_FragColor.a *= pAlpha;" +
+														"}";
 	
 	public var __boundingBoxVertexShader:String		= "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
 	public var __boundingBoxFragmentShader:String	= "#ifdef GL_ES\nprecision mediump float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
@@ -219,7 +242,10 @@ class CocoScene
 		__glProgram.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram, "iTexCoords");
 		__glProgram.GLSLuSampler	= [];
 		for(var i = 0; i < MAX_TEXTURES; i++)
+		{
 			__glProgram.GLSLuSampler[i] = gl.getUniformLocation(__glProgram, "uSampler[" + i + "]");
+			gl.uniform1i(__glProgram.GLSLuSampler[i], i);
+		}
 	
 		__modelViewMatrix = new CocoMatrix();
 		
@@ -254,16 +280,7 @@ class CocoScene
 	    	__levelParents = [__root];
 	    	__imageCurrentID = 0;
 			__root.render(gl, this, null);
-			gl.bindBuffer(gl.ARRAY_BUFFER, __imageArrayBuffer);
-			gl.bufferSubData(gl.ARRAY_BUFFER, 0, __imageArrayData);
-			gl.vertexAttribPointer(__glProgram.GLSLiID, 1, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 0);
-			gl.vertexAttribPointer(__glProgram.GLSLiAlpha, 1, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 1 * Float32Array.BYTES_PER_ELEMENT);
-			gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-			gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 4 * Float32Array.BYTES_PER_ELEMENT);
-		    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, __imageIndexBuffer);
-		    gl.drawElements(gl.TRIANGLES, __imageCurrentID * 6 , gl.UNSIGNED_BYTE, 0);
-		    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
-		    gl.bindBuffer(gl.ARRAY_BUFFER, 0);		    
+			flush();		    
 			__levelParents = [];
 			
 			// Did we reach the end of the main timeline?
@@ -281,23 +298,11 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Number, alpha:Number)
 	{   
-		if(__imageCurrentID == MAX_TEXTURES) {
-			gl.bindBuffer(gl.ARRAY_BUFFER, __imageArrayBuffer);        
-			gl.bufferSubData(gl.ARRAY_BUFFER, 0, __imageArrayData);
-			gl.vertexAttribPointer(__glProgram.GLSLiID, 1, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 0);
-			gl.vertexAttribPointer(__glProgram.GLSLiAlpha, 1, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 1 * Float32Array.BYTES_PER_ELEMENT);
-			gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-			gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 4 * Float32Array.BYTES_PER_ELEMENT);
-		    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, __imageIndexBuffer);
-		    gl.drawElements(gl.TRIANGLES, __imageCurrentID * 6, gl.UNSIGNED_BYTE, 0);
-		    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
-		    gl.bindBuffer(gl.ARRAY_BUFFER, 0);
-			__imageCurrentID = 0;
-		}       
+		if(__imageCurrentID == MAX_TEXTURES) flush();      
 		var i:Number = __imageCurrentID++;
 		gl.activeTexture(gl.TEXTURE0 + i);
 		gl.bindTexture(gl.TEXTURE_2D, image.texture);
-		gl.uniform1i(__glProgram.GLSLuSampler[i], i);
+		__imageArrayData[i * 24 + 1] = __imageArrayData[i * 24 + 7] = __imageArrayData[i * 24 + 13] = __imageArrayData[i * 24 + 19] = alpha;
 		__imageArrayData[i * 24 + 2] = __imageArrayData[i * 24 + 8] = image.textureGrid[frame * 2 + 1] * image.texSize[0];
 		__imageArrayData[i * 24 + 14] = __imageArrayData[i * 24 + 20] = (image.textureGrid[frame * 2 + 1] + 1) * image.texSize[0];
 		__imageArrayData[i * 24 + 3] = __imageArrayData[i * 24 + 15] = image.textureGrid[frame * 2] * image.texSize[1];
@@ -310,6 +315,22 @@ class CocoScene
 		__imageArrayData[i * 24 + 17] = image.vecSize[0] * __modelViewMatrix.rc12 - image.vecSize[1] * __modelViewMatrix.rc22 + __modelViewMatrix.rc42;
 		__imageArrayData[i * 24 + 22] = image.vecSize[0] * __modelViewMatrix.rc11 + image.vecSize[1] * __modelViewMatrix.rc21 + __modelViewMatrix.rc41;
 		__imageArrayData[i * 24 + 23] = image.vecSize[0] * __modelViewMatrix.rc12 + image.vecSize[1] * __modelViewMatrix.rc22 + __modelViewMatrix.rc42;
+	}
+	
+	public function flush()
+	{       
+		if(!__imageCurrentID) return;
+		gl.bindBuffer(gl.ARRAY_BUFFER, __imageArrayBuffer);        
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, __imageArrayData);
+		gl.vertexAttribPointer(__glProgram.GLSLiID, 1, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 0);
+		gl.vertexAttribPointer(__glProgram.GLSLiAlpha, 1, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 1 * Float32Array.BYTES_PER_ELEMENT);
+		gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
+		gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 4 * Float32Array.BYTES_PER_ELEMENT);
+	    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, __imageIndexBuffer);
+	    gl.drawElements(gl.TRIANGLES, __imageCurrentID * 6, gl.UNSIGNED_BYTE, 0);
+	    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
+	    gl.bindBuffer(gl.ARRAY_BUFFER, 0);
+		__imageCurrentID = 0;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -359,6 +380,7 @@ class CocoScene
 		return scope.gotoFrame(-1, true, deep);
 	}	
 }
+
 
 
 
