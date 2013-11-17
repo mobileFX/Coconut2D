@@ -224,12 +224,28 @@ class CocoScene
 		__projectionMatrix.scale(__view_scale, __view_scale);
 		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat);
 					
-		var t:String;
-	    for(t in __imageSymbols) 
-	    	__imageSymbols[t].prepare(gl);
-	    	
 		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
 		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);		    
+
+		var t:String;
+	    for(t in __imageSymbols)    
+	    {
+	    	try 
+	    	{
+	    		__imageSymbols[t].prepare(gl);
+	    	}
+	    	catch(e)
+	    	{
+	    		alert("Image " + t + " failed to prepare texture");
+	    	}
+	    }
+	    	
+	    if(gl.getError())  
+	    {
+	    	alert("WebGL Error " + gl.getError());
+	    } 
+	    
+	    trace("Scene [" + this.__sceneName + "] loaded and prepared.");
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,6 +268,7 @@ class CocoScene
 	    	__levelParents = [__root];
 	    	{
 				// Offscreen rendering
+				
 				//if(picking)
 				//{
 				//	gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
@@ -262,9 +279,17 @@ class CocoScene
 				//// On screen rendering
 				//gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 				//gl.uniform1i(__glProgram.uOffscreen, false);
-                __glPayload = [];
-				__root.render(gl, this, null, false);
-                //__WebGLRenderingContext_execute(__glPayload);
+				
+				if(global.__Coconut2DPlayer)
+				{
+                	__glPayload = [];
+					__root.render(gl, this, null, false);	                
+                	__WebGLRenderingContext_execute(__glPayload);
+				}
+				else
+				{
+					__root.render(gl, this, null, false);	
+				}
 	    	}				
 			__levelParents = [];
 			
@@ -308,7 +333,7 @@ class CocoScene
 			gl.uniform4fv(__glProgram.GLSLuColor, image.color);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);                 
 			gl.bindBuffer(gl.ARRAY_BUFFER, null); 			
-		}
+		} 		
  	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////

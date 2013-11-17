@@ -20,6 +20,8 @@ function main()
 	// Create a new Engine
 	engine = new GameEngine();
 	
+	global.__Coconut2DPlayer = true;
+	
 	// Run
 	requestAnimationFrame(tickAndPaint);
 }
@@ -33,3 +35,4 @@ function tickAndPaint(time)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 window.addEventListener("load", main);
+

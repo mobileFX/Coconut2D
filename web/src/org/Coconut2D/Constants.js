@@ -100,15 +100,5 @@ var COCO_WEBGL_PAYLOAD_OP =
 	VERTEXATTRIBPOINTER			: 0x6	
 };
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
-
-
-
-
-
-
-
-
-
-
