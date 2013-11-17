@@ -287,8 +287,6 @@ function CocoScene()
 					__CLASS1079__.__glPayload = [];
 					//@line 266
 					__CLASS1079__.__root.render(gl, this, null, false);
-					//@line 267
-					__WebGLRenderingContext_execute(__CLASS1079__.__glPayload);
 				}
 				//@line 269
 				__CLASS1079__.__levelParents = [];
@@ -318,9 +316,9 @@ function CocoScene()
 				//@line 290
 				__CLASS1079__.__glPayload = __CLASS1079__.__glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDBUFFER, gl.ARRAY_BUFFER, image.buffer.__uid]);
 				//@line 291
-				__CLASS1079__.__glPayload = __CLASS1079__.__glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __CLASS1079__.__glProgram.GLSLiTexCoords.__uid, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0]);
+				__CLASS1079__.__glPayload = __CLASS1079__.__glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __CLASS1079__.__glProgram.GLSLiTexCoords.__uid, 2, gl.FLOAT, false, 4 * 4, 0]);
 				//@line 292
-				__CLASS1079__.__glPayload = __CLASS1079__.__glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __CLASS1079__.__glProgram.GLSLiVecCoords.__uid, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT]);
+				__CLASS1079__.__glPayload = __CLASS1079__.__glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __CLASS1079__.__glProgram.GLSLiVecCoords.__uid, 2, gl.FLOAT, false, 4 * 4, 2 * 4]);
 				//@line 293
 				__CLASS1079__.__glPayload = __CLASS1079__.__glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDTEXTURE, gl.TEXTURE_2D, image.texture.__uid]);
 				//@line 294
@@ -331,65 +329,65 @@ function CocoScene()
 				__CLASS1079__.__glPayload = __CLASS1079__.__glPayload.concat([COCO_WEBGL_PAYLOAD_OP.DRAWARRAYS, gl.TRIANGLE_STRIP, 0, 4]);
 			}
 			else
-			//@line 309
+			//@line 299
 			{
-				//@line 310
+				//@line 300
 				gl.uniform2fv(__CLASS1079__.__glProgram.GLSLuSprSize, image.texSize);
-				//@line 311
+				//@line 301
 				gl.uniform2f(__CLASS1079__.__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
-				//@line 312
+				//@line 302
 				gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);
-				//@line 313
-				gl.vertexAttribPointer(__CLASS1079__.__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
-				//@line 314
-				gl.vertexAttribPointer(__CLASS1079__.__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-				//@line 315
+				//@line 303
+				gl.vertexAttribPointer(__CLASS1079__.__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 4 * 4, 0);
+				//@line 304
+				gl.vertexAttribPointer(__CLASS1079__.__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
+				//@line 305
 				gl.bindTexture(gl.TEXTURE_2D, image.texture);
-				//@line 316
+				//@line 306
 				gl.uniform1i(__CLASS1079__.__glProgram.GLSLuSampler, 0);
-				//@line 317
+				//@line 307
 				gl.uniform4fv(__CLASS1079__.__glProgram.GLSLuColor, image.color);
-				//@line 318
+				//@line 308
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-				//@line 319
+				//@line 309
 				gl.bindBuffer(gl.ARRAY_BUFFER, null);
 			}
 		};
-		//@line 324
+		//@line 314
 		var hitTest = this.hitTest = function (MouseX, MouseY)
 		{
-			//@line 325
+			//@line 315
 			return []
 		};
-		//@line 330
+		//@line 320
 		var gotoAndPlay = this.gotoAndPlay = function (LabelNameOrFrameIndex, deep)
 		{
-			//@line 331
-			//@line 332
+			//@line 321
+			//@line 322
 			var scope = __CLASS1079__.__levelParents[__CLASS1079__.__levelParents.length - 1];
-			//@line 333
+			//@line 323
 			return scope.gotoFrame(LabelNameOrFrameIndex, false, deep);
 			return false
 		};
-		//@line 337
+		//@line 327
 		var gotoAndStop = this.gotoAndStop = function (LabelNameOrFrameIndex, deep)
 		{
-			//@line 338
-			//@line 339
+			//@line 328
+			//@line 329
 			var scope = __CLASS1079__.__levelParents[__CLASS1079__.__levelParents.length - 1];
-			//@line 340
+			//@line 330
 			return scope.gotoFrame(LabelNameOrFrameIndex, true, deep);
 			return false
 		};
-		//@line 344
+		//@line 334
 		var stop = this.stop = function (deep)
 		{
-			//@line 345
-			//@line 346
+			//@line 335
+			//@line 336
 			deep = (deep == "true");
-			//@line 347
+			//@line 337
 			var scope = __CLASS1079__.__levelParents[__CLASS1079__.__levelParents.length - 1];
-			//@line 348
+			//@line 338
 			return scope.gotoFrame(-1, true, deep);
 			return false
 		};
