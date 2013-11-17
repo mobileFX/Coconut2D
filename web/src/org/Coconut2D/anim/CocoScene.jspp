@@ -68,6 +68,8 @@ class CocoScene
 	public var __boundingBoxFragmentShader:String	= "#ifdef GL_ES\nprecision mediump float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
 	public var __boundingBoxProgram:WebGLProgram	= null;
 	public var __boundingBoxBuffer:WebGLBuffer	= null;
+	
+	public var __glPayload:Array = [];
 
 			            
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +176,16 @@ class CocoScene
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(gl:WebGLRenderingContext)
-	{                                                                         
+	{                                                                         		                    
+		// Disable depth testing since we render using scene's clips order.		                    
+		gl.disable(gl.DEPTH_TEST);
+		
+		// Enable alpha blending.
+		gl.enable(gl.BLEND);     
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		
+		// Disable culling.
+		gl.disable(gl.CULL_FACE);
 		
 		__boundingBoxProgram = glu.makeProgram(gl, __boundingBoxVertexShader, __boundingBoxFragmentShader); 
 		
@@ -201,19 +212,24 @@ class CocoScene
 		
 		__modelViewMatrix = new CocoMatrix();
 		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
-		
-		
+			
 		// If we have a fixed view, we scale to it, otherwise we use device pixel ratio.
 		__view_scale = this.__view_width>0 && this.__view_height>0 ? Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height) : window.devicePixelRatio;
 		
 		__projectionMatrix = new CocoMatrix();
 		__projectionMatrix.ortho(-gl.canvas.width / 2.0, gl.canvas.width / 2.0, gl.canvas.height / 2.0, -gl.canvas.height / 2.0, -1.0, 1.0);				
+		
+		if(window.deviceRotation) __projectionMatrix.rotateZ(-window.deviceRotation);
+		
 		__projectionMatrix.scale(__view_scale, __view_scale);
 		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat);
-			
+					
 		var t:String;
 	    for(t in __imageSymbols) 
 	    	__imageSymbols[t].prepare(gl);
+	    	
+		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
+		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);		    
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,67 +239,77 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function render(gl:WebGLRenderingContext, time:Number)
+	public function render(gl:WebGLRenderingContext, time:Number, picking:Boolean)
 	{
-		beginDraw(gl);
-		
 		__modelViewMatrix.identity();
 		if(__startTime == -1) __startTime = time;
 	    __elapsedTime = time - __currentTime - __startTime;
 	    __currentTime = time - __startTime;
-	    
+					    
 	    if(__root)    
 	    {
 	    	// Render the scene's root symbol
 	    	__levelParents = [__root];
-			__root.render(gl, this, null);
+	    	{
+				// Offscreen rendering
+				//if(picking)
+				//{
+				//	gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+				//	gl.uniform1i(__glProgram.uOffscreen, true);
+				//	__root.render(gl, this, null, true);
+				//}
+				//
+				//// On screen rendering
+				//gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				//gl.uniform1i(__glProgram.uOffscreen, false);
+				__root.render(gl, this, null, false);
+	    	}				
 			__levelParents = [];
 			
 			// Did we reach the end of the main timeline?
 			var max = __root.childWithMaxTimelineDuration();
 			if(max && max.__currentFrame == max.__timeline.__lastKeyFrame)
 			{ 
-				__root.reset();			
-				__startTime = -1;	
-			}
-	    }
-	    
-	    endDraw(gl);
-	}  
+				//__root.reset();			
+				//__startTime = -1;	
+			} 
+	    }	    
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Number, alpha:Number)
+	{
+		image.color[3] = alpha;		
+		
+		
+		
+		gl.uniform2fv(__glProgram.GLSLuSprSize, image.texSize);
+		gl.uniform2f(__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);		
+		gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);		
+		gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);		
+		gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);		                          
+		gl.bindTexture(gl.TEXTURE_2D, image.texture);		
+		gl.uniform1i(__glProgram.GLSLuSampler, 0);		
+		gl.uniform4fv(__glProgram.GLSLuColor, image.color);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); 		
+		//gl.bindBuffer(gl.ARRAY_BUFFER, null); 
+	}	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function hitTest(MouseX:Number, MouseY:Number) :Array
 	{
 		
 	}
-	
+			
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function beginDraw(gl:WebGLRenderingContext)
-	{
-		gl.useProgram(__glProgram);
-		gl.enable(gl.BLEND);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
-		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function endDraw(gl:WebGLRenderingContext)
-	{
-		gl.disableVertexAttribArray(__glProgram.GLSLiTexCoords);
-		gl.disableVertexAttribArray(__glProgram.GLSLiVecCoords);
-		gl.disable(gl.BLEND);		
-	}
-		
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndPlay(LabelNameOrFrameIndex, deep:Boolean) :Boolean
+	public function gotoAndPlay(LabelNameOrFrameIndex:Object, deep:Boolean) :Boolean
 	{  
 		var scope:CocoClip = __levelParents[__levelParents.length-1];
 		return scope.gotoFrame(LabelNameOrFrameIndex, false, deep);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndStop(LabelNameOrFrameIndex, deep:Boolean) :Boolean
+	public function gotoAndStop(LabelNameOrFrameIndex:Object, deep:Boolean) :Boolean
 	{  	 
 		var scope:CocoClip = __levelParents[__levelParents.length-1];
 		return scope.gotoFrame(LabelNameOrFrameIndex, true, deep);
@@ -297,3 +323,8 @@ class CocoScene
 		return scope.gotoFrame(-1, true, deep);
 	}	
 }
+
+
+
+
+

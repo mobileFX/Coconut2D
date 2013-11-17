@@ -89,7 +89,7 @@ class CocoKeyFrame
 		c.x                     	= x;                 
 		c.y                     	= y;                 
 		c.action					= action;                                   		
-		c.calcBoundingBox			= calcBoundingBox;
+		c.calcBoundingBox			= calcBoundingBox;		
 	    return c;
 	}
 	
@@ -101,13 +101,15 @@ class CocoKeyFrame
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function execute(gl:WebGLRenderingContext, currentTime:Number, loopTime:Number, scene:CocoScene, clip:CocoClip)
-	{ 
-		if(!action) return;                    		
+	{		
 		if(currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime)
 		{
-			__lastActionExecutionTime = currentTime;			
-			var args:Array = [gl, currentTime, loopTime, clip, this];		
-			action.apply(scene, args);			
+			__lastActionExecutionTime = currentTime;						
+			if(action)
+			{
+				var args:Array = [gl, currentTime, loopTime, clip, this];
+				action.apply(scene, args);			                            
+			}
 		}
 	}
 	
@@ -143,4 +145,7 @@ class CocoKeyFrame
 		matrix.translate(-pivotX, -pivotY);	
 	}		
 } 
+
+
+
 

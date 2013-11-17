@@ -24,7 +24,7 @@
  * THE SOFTWARE.   
  *
  * ***** END LICENSE BLOCK ***** */
-
+ 
 // ==================================================================================================================================
 //	 _       __     __    ________    ____  __      _           __ 
 //	| |     / /__  / /_  / ____/ /   / __ \/ /_    (_)__  _____/ /_
@@ -775,7 +775,7 @@ WebGLRenderingContext.prototype.bufferData = function(target, data, usage)
  */
 WebGLRenderingContext.prototype.bufferSubData = function(target, offset, data)
 {
-	return __WebGLRenderingContext_bufferSubData(this.__uid, target, offset, data.buffer.__uid, data.byteOffset, data.length);
+	return __WebGLRenderingContext_bufferSubData(this.__uid, target, offset, data.buffer.__uid, data.byteOffset, data.length * data.BYTES_PER_ELEMENT);
 };
 
 /** ================================================================================
@@ -2555,4 +2555,5 @@ WebGLRenderingContext.prototype.viewport = function(x, y, width, height)
 {
 	return __WebGLRenderingContext_viewport(this.__uid, x, y, width, height);
 };
+
 

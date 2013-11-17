@@ -3,6 +3,7 @@ function ArrayBuffer(){};
 function ArrayBufferView(){};
 function Float32Array(){};
 function Int32Array(){};
+function Uint8Array(){};
 function HTMLVideoElement(){};
 function CocoFont(){};
 

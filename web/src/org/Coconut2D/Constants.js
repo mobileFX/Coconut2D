@@ -34,6 +34,7 @@
 // ==================================================================================================================================
 
 var GLOBAL_FPS = 24;
+var MAX_TEXTURES = 8;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -85,9 +86,23 @@ var COCO_KEYFRAME_INTERPOLATION_ENUM =
 var COCO_ENGINE_STATES_ENUM = 
 { 
 	STATE_NONE: 0
-}; 
+};
+
+
+var COCO_WEBGL_PAYLOAD_OP = 
+{ 
+	BINDBUFFER					: 0x0,
+	BINDTEXTURE					: 0x1,
+	DRAWARRAYS					: 0x2,
+	UNIFORM1I					: 0x3,
+	UNIFORM2F					: 0x4,
+	UNIFORM4F					: 0x5,
+	VERTEXATTRIBPOINTER			: 0x6	
+};
+
 
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
+
 
 
 
