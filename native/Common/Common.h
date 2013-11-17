@@ -9,6 +9,7 @@
 #include <atomic>
 #include <mutex>
 #include <thread>
+#include <cmath>
 #include <vector>
 
 #include "Structs.h"

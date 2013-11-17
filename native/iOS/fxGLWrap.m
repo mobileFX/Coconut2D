@@ -19,23 +19,23 @@
             case UIInterfaceOrientationLandscapeLeft: screen.rotation = fxScreen::Rotation::RCW; break;
             case UIInterfaceOrientationLandscapeRight: screen.rotation = fxScreen::Rotation::RCCW; break;
         }
-        if(screen.rotation == fxScreen::Rotation::NONE || screen.rotation == fxScreen::Rotation::FULL)
+        //if(screen.rotation == fxScreen::Rotation::NONE || screen.rotation == fxScreen::Rotation::FULL)
         {
             screen.top = [UIApplication sharedApplication].statusBarFrame.size.height;
             screen.isPortrait = true;
             screen.width = rect.size.width;
             screen.height = rect.size.height - screen.top;
         }
-        else
+        /*else
         {
             screen.top = [UIApplication sharedApplication].statusBarFrame.size.width;
             screen.isPortrait = false;
             screen.width = rect.size.height;
             screen.height = rect.size.width - screen.top;
-        }
+        }*/
         screen.pixelRatio = scale;
-        screen.width *= screen.pixelRatio;
-        screen.height *= screen.pixelRatio;
+        //screen.width *= screen.pixelRatio;
+        //screen.height *= screen.pixelRatio;
         
         ((CAEAGLLayer*)self.layer).opaque = YES;
         ((CAEAGLLayer*)self.layer).contentsScale = scale;
@@ -57,13 +57,14 @@
 {
     context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
     [EAGLContext setCurrentContext:context];
-    switch(screen.rotation)
+	glViewport(0, 0, screen.width * screen.pixelRatio, screen.height * screen.pixelRatio);
+    /*switch(screen.rotation)
     {
         case fxScreen::Rotation::NONE: glViewport(0, 0, screen.width, screen.height); break;
         case fxScreen::Rotation::FULL: glViewport(0, screen.top, screen.width, screen.height + screen.top); break;
         case fxScreen::Rotation::RCW: glViewport(screen.top, 0, screen.height + screen.top, screen.width); break;
         case fxScreen::Rotation::RCCW: glViewport(0, 0, screen.height, screen.width); break;
-    }
+    }*/
     
     glGenFramebuffers(1, &fbuff);
     glGenRenderbuffers(1, &rbuff);

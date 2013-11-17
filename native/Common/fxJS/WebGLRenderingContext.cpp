@@ -1112,7 +1112,7 @@ fxJSBindFunction(WebGLRenderingContext::_drawElements)
     offset = fxJSCastNumber(fxJSGetArg(4));
     
     /* OpenGL Method Call */
-    //glDrawElements(mode, count, type, offset);
+    glDrawElements(mode, count, type, (GLvoid*)offset);
     
     /* Deallocations */
     

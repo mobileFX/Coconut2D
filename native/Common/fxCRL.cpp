@@ -74,6 +74,7 @@ void fxCRL::quit()
     Audio::quit();
     fxFont::quit();
     TypedArray<int32_t>::quit();
+	TypedArray<uint8_t>::quit();
     TypedArray<float>::quit();
     DataView::quit();
     ArrayBufferView::quit();
@@ -400,6 +401,7 @@ void fxCRL::init(int argc, char *argv[], const fxScreen& scr, fxDeviceWrapper* d
     DataView::init();
     TypedArray<float>::init("Float32Array");
     TypedArray<int32_t>::init("Int32Array");
+	TypedArray<uint8_t>::init("Uint8Array");
     fxFont::init();
     Audio::init();
     XMLHttpRequest::init();
@@ -417,6 +419,7 @@ void fxCRL::init(int argc, char *argv[], const fxScreen& scr, fxDeviceWrapper* d
     jstr = fxJSAllocString("DataView"); fxJSSetProperty(js_global, jstr, DataView::getJSConstructor(), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
     jstr = fxJSAllocString("Float32Array"); fxJSSetProperty(js_global, jstr, TypedArray<float>::getJSConstructor(), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
     jstr = fxJSAllocString("Int32Array"); fxJSSetProperty(js_global, jstr, TypedArray<int32_t>::getJSConstructor(), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
+	jstr = fxJSAllocString("Uint8Array"); fxJSSetProperty(js_global, jstr, TypedArray<uint8_t>::getJSConstructor(), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
     jstr = fxJSAllocString("fxFont"); fxJSSetProperty(js_global, jstr, fxFont::getJSConstructor(), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
     jstr = fxJSAllocString("Audio"); fxJSSetProperty(js_global, jstr, Audio::getJSConstructor(), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
     jstr = fxJSAllocString("XMLHttpRequest"); fxJSSetProperty(js_global, jstr, XMLHttpRequest::getJSConstructor(), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
@@ -425,6 +428,15 @@ void fxCRL::init(int argc, char *argv[], const fxScreen& scr, fxDeviceWrapper* d
     jstr = fxJSAllocString("innerHeight"); fxJSSetProperty(js_global, jstr, fxJSMakeNumber(screen.height), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
     jstr = fxJSAllocString("devicePixelRatio"); fxJSSetProperty(js_global, jstr, fxJSMakeNumber(screen.pixelRatio), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
     
+	float rot = 0.0f;
+	switch(screen.rotation) {
+		case fxScreen::Rotation::NONE: rot = 0.0f; break;
+		case fxScreen::Rotation::RCW: rot = M_PI_2; break;
+		case fxScreen::Rotation::RCCW: rot = -M_PI_2; break;
+		case fxScreen::Rotation::FULL: rot = M_PI; break;
+	}
+	jstr = fxJSAllocString("deviceRotation"); fxJSSetProperty(js_global, jstr, fxJSMakeNumber(rot), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
+	
     loadStorage();
     
     // Load script from file
