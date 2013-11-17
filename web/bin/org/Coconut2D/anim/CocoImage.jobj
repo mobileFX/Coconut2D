@@ -77,7 +77,6 @@ function CocoImage()
 		{
 			//@line 101
 			//@line 103
-<<<<<<< HEAD
 			var w2 = __CLASS767__.textureCellWidth / 2;
 			//@line 104
 			var h2 = __CLASS767__.textureCellHeight / 2;
@@ -118,27 +117,6 @@ function CocoImage()
 			//@line 137
 			//@line 138
 			gl.deleteTexture(__CLASS767__.texture);
-=======
-			__CLASS765__.vecSize = [__CLASS765__.textureCellWidth / 2, __CLASS765__.textureCellHeight / 2];
-			//@line 104
-			__CLASS765__.texSize = [__CLASS765__.textureCellWidth / __CLASS765__.image.naturalWidth, __CLASS765__.textureCellHeight / __CLASS765__.image.naturalHeight];
-			//@line 106
-			__CLASS765__.texture = gl.createTexture();
-			//@line 107
-			gl.bindTexture(gl.TEXTURE_2D, __CLASS765__.texture);
-			//@line 108
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, __CLASS765__.image);
-			//@line 109
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			//@line 110
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			//@line 111
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			//@line 112
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			//@line 113
-			gl.bindTexture(gl.TEXTURE_2D, null);
->>>>>>> 3ea3d4ceb7a1b4df5d98bbd5957f4588976f8fbb
 		};
 		//@line 41
 		this.image = null;
@@ -151,19 +129,14 @@ function CocoImage()
 		//@line 45
 		this.textureCellHeight = 0;
 		//@line 46
-		this.textureGrid = [0, 0];
+		this.textureGrid = new Float32Array([0, 0]);
 		//@line 47
 		this.sequences = null;
 		//@line 48
 		this.color = new Float32Array([1, 1, 1, 1]);
 		//@line 49
-		this.texSize = [1, 1];
+		this.texSize = new Float32Array([1, 1]);
 		//@line 50
-<<<<<<< HEAD
-=======
-		this.vecSize = [0, 0];
-		//@line 51
->>>>>>> 3ea3d4ceb7a1b4df5d98bbd5957f4588976f8fbb
 		this.buffer = null;
 		//@line 51
 		this.dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_nodpi;
