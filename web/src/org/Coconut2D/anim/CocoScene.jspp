@@ -294,6 +294,7 @@ class CocoScene
 	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM1I, __glProgram.GLSLuSampler.__uid, 0]);
 	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM4F, __glProgram.GLSLuColor.__uid, image.color[0], image.color[1], image.color[2], image.color[3]]);
 	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.DRAWARRAYS, gl.TRIANGLE_STRIP, 0, 4]);
+	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDBUFFER, gl.ARRAY_BUFFER, 0, 0]);	        
 		}
 		else
 		{  
