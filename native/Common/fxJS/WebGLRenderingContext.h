@@ -7,6 +7,17 @@
 class WebGLRenderingContext
 {
 public:
+	enum COCO_WEBGL_PAYLOAD_OP {
+		BINDBUFFER					= 0x0,
+		BINDTEXTURE					= 0x1,
+		DRAWARRAYS					= 0x2,
+		UNIFORM1I					= 0x3,
+		UNIFORM2F					= 0x4,
+		UNIFORM4F					= 0x5,
+		VERTEXATTRIBPOINTER			= 0x6,
+		length
+	};
+	static fxJSBindFunction(_execute);
 	static fxJSBindFunction(_getContextAttributes);
 	static fxJSBindFunction(_isContextLost);
 	static fxJSBindFunction(_getSupportedExtensions);

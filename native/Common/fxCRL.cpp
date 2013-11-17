@@ -169,6 +169,7 @@ void fxCRL::init(int argc, char *argv[], const fxScreen& scr, fxDeviceWrapper* d
         {"__ImageData_loadImage", __ImageData_loadImage, fxJSPropertyAttributeNone},
         {"__registerManager", __registerManager, fxJSPropertyAttributeNone},
         {"__registerCallback", __registerCallback, fxJSPropertyAttributeNone},
+		{"__WebGLRenderingContext_execute", WebGLRenderingContext::_execute, fxJSPropertyAttributeNone},
         {"__WebGLRenderingContext_getContextAttributes", WebGLRenderingContext::_getContextAttributes, fxJSPropertyAttributeNone},
         {"__WebGLRenderingContext_isContextLost", WebGLRenderingContext::_isContextLost, fxJSPropertyAttributeNone},
         {"__WebGLRenderingContext_getSupportedExtensions", WebGLRenderingContext::_getSupportedExtensions, fxJSPropertyAttributeNone},

@@ -262,7 +262,9 @@ class CocoScene
 				//// On screen rendering
 				//gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 				//gl.uniform1i(__glProgram.uOffscreen, false);
+                __glPayload = [];
 				__root.render(gl, this, null, false);
+                __WebGLRenderingContext_execute(__glPayload);
 	    	}				
 			__levelParents = [];
 			
@@ -280,20 +282,28 @@ class CocoScene
 	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Number, alpha:Number)
 	{
 		image.color[3] = alpha;		
+		__glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, __glProgram.GLSLuSprSize.__uid, image.texSize[0], image.texSize[1]]);
+        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, __glProgram.GLSLuSprFrame.__uid, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]]);
+        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDBUFFER, gl.ARRAY_BUFFER, image.buffer.__uid]);
+        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiTexCoords.__uid, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
+        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiVecCoords.__uid, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT]);
+        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDTEXTURE, gl.TEXTURE_2D, image.texture.__uid]);
+        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM1I, __glProgram.GLSLuSampler.__uid, 0);
+        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM4F, __glProgram.GLSLuColor.__uid, image.color[0], image.color[1], image.color[2], image.color[3]);
+        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.DRAWARRAYS, gl.TRIANGLE_STRIP, 0, 4);
 		
 		
-		
-		gl.uniform2fv(__glProgram.GLSLuSprSize, image.texSize);
-		gl.uniform2f(__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);		
-		gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);		
-		gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);		
-		gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);		                          
-		gl.bindTexture(gl.TEXTURE_2D, image.texture);		
-		gl.uniform1i(__glProgram.GLSLuSampler, 0);		
-		gl.uniform4fv(__glProgram.GLSLuColor, image.color);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); 		
+		//gl.uniform2fv(__glProgram.GLSLuSprSize, image.texSize);
+		//gl.uniform2f(__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
+		//gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);
+		//gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
+		//gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
+		//gl.bindTexture(gl.TEXTURE_2D, image.texture);
+		//gl.uniform1i(__glProgram.GLSLuSampler, 0);
+		//gl.uniform4fv(__glProgram.GLSLuColor, image.color);
+		//gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		//gl.bindBuffer(gl.ARRAY_BUFFER, null); 
-	}	
+	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function hitTest(MouseX:Number, MouseY:Number) :Array

@@ -1,6 +1,57 @@
 #include "WebGLRenderingContext.h"
 
 /** ================================================================================
+ */
+fxJSBindFunction(WebGLRenderingContext::_execute)
+{
+	if(fxJSIsObject(fxJSGetArg(0)))
+	{
+		fxJSObject obj = fxJSCastObject(fxJSGetArg(0));
+		if(fxJSHasProperty(obj, fxCRL::jsStr_length))
+		{
+			size_t s = fxJSCastNumber(fxJSGetProperty(obj, fxCRL::jsStr_length));
+			COCO_WEBGL_PAYLOAD_OP opcode;
+			for(size_t i = 0; i < s;)
+			{
+				opcode = (COCO_WEBGL_PAYLOAD_OP)fxJSCastNumber(fxJSGetPropertyAt(obj, i));
+				switch(opcode)
+				{
+					case COCO_WEBGL_PAYLOAD_OP::BINDBUFFER:
+						glBindBuffer((GLenum)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 1))), (GLuint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 2))));
+						i += 3;
+						break;
+					case COCO_WEBGL_PAYLOAD_OP::BINDTEXTURE:
+						glBindTexture((GLenum)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 1))), (GLuint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 2))));
+						i += 3;
+						break;
+					case COCO_WEBGL_PAYLOAD_OP::DRAWARRAYS:
+						glDrawArrays((GLenum)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 1))), (GLint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 2))), (GLsizei)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 3))));
+						i += 4;
+						break;
+					case COCO_WEBGL_PAYLOAD_OP::UNIFORM1I:
+						glUniform1i((GLint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 1))), (GLint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 2))));
+						i += 3;
+						break;
+					case COCO_WEBGL_PAYLOAD_OP::UNIFORM2F:
+						glUniform2f((GLint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 1))), (GLfloat)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 2))), (GLfloat)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 3))));
+						i += 4;
+						break;
+					case COCO_WEBGL_PAYLOAD_OP::UNIFORM4F:
+						glUniform4f((GLint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 1))), (GLfloat)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 2))), (GLfloat)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 3))), (GLfloat)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 4))), (GLfloat)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 5))));
+						i += 6;
+						break;
+					case COCO_WEBGL_PAYLOAD_OP::VERTEXATTRIBPOINTER:
+						glVertexAttribPointer((GLuint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 1))), (GLint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 2))), (GLenum)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 3))), (GLboolean)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 4))), (GLsizei)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 5))), (GLvoid*)(GLuint)(fxJSCastNumber(fxJSGetPropertyAt(obj, i + 6))));
+						i += 7;
+						break;
+					default: break;
+				}
+			}
+		}
+    return fxJSMakeUndefined();
+}
+
+/** ================================================================================
  * JavaScript: getContextAttributes()
  * Status: NOT-CHECKED
  * Description:
