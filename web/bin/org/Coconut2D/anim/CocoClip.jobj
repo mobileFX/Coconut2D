@@ -1,0 +1,738 @@
+//@compile{false}
+//@line 42
+function CocoClip()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS976__ = this,
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ = {};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 79
+		var children = this.children = function ()
+		{
+			//@line 80
+			//@line 81
+			var children = [];
+			//@line 82
+			var vClip = "";
+			//@line 83
+			for (vClip in __CLASS976__.__children)
+			//@line 84
+			children.push(__CLASS976__.__children[vClip]); //@line 85
+			return children;
+			return []
+		};
+		//@line 89
+		var childrenMaxFrameIndex = this.childrenMaxFrameIndex = function ()
+		{
+			//@line 90
+			//@line 91
+			var vClip = "",
+				ci, T = 0;
+			//@line 92
+			for (vClip in __CLASS976__.__children)
+			//@line 93
+			{
+				//@line 94
+				ci = __CLASS976__.__children[vClip] || null;
+				//@line 95
+				if (ci.__timeline.__lastframeIndex > T)
+				//@line 96
+				T = ci.__timeline.__lastframeIndex;
+			}
+			//@line 98
+			return T;
+			return 0
+		};
+		//@line 102
+		var childWithMaxTimelineDuration = this.childWithMaxTimelineDuration = function ()
+		{
+			//@line 103
+			//@line 104
+			var vClip = "",
+				ci, T;
+			//@line 105
+			for (vClip in __CLASS976__.__children)
+			//@line 106
+			{
+				//@line 107
+				ci = __CLASS976__.__children[vClip];
+				//@line 108
+				if (!T)
+				{
+					T = ci;
+					continue;
+				}
+				//@line 109
+				if (ci.__timeline.__durationInTime > T.__timeline.__durationInTime)
+				//@line 110
+				T = ci;
+			}
+			//@line 112
+			return T;
+		};
+		//@line 116
+		var reset = this.reset = function ()
+		{
+			//@line 117
+			//@line 118
+			__CLASS976__.__currentFrame = null;
+			//@line 119
+			__CLASS976__.__firstTickTime = -1;
+			//@line 120
+			__CLASS976__.__timeline.reset();
+			//@line 122
+			var vClip = "",
+				ci;
+			//@line 123
+			for (vClip in __CLASS976__.__children)
+			//@line 124
+			{
+				//@line 125
+				ci = __CLASS976__.__children[vClip];
+				//@line 126
+				if (ci) ci.reset();
+			}
+		};
+		//@line 131
+		var addChild = this.addChild = function (clipInstance)
+		{
+			//@line 132
+			//@line 133
+			if (!clipInstance) return null;
+			//@line 134
+			if (!clipInstance.__instanceName) throw "Invalid instance name.";
+			//@line 135
+			if (__CLASS976__.__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " already exists.";
+			//@line 136
+			__CLASS976__.__children[clipInstance.__instanceName] = clipInstance;
+			//@line 137
+			__CLASS976__.__childrenCount++;
+			//@line 138
+			return clipInstance;
+		};
+		//@line 142
+		var removeChild = this.removeChild = function (clipInstance)
+		{
+			//@line 143
+			//@line 144
+			if (!clipInstance) return null;
+			//@line 145
+			if (!clipInstance.__instanceName) throw "Invalid instance name.";
+			//@line 146
+			if (!__CLASS976__.__children[clipInstance.__instanceName]) throw "Instance " + clipInstance.__instanceName + " does not exist in this parent.";
+			//@line 147
+			__CLASS976__.__children[clipInstance.__instanceName] = null;
+			//@line 148
+			__CLASS976__.__childrenCount--;
+			//@line 149
+			return clipInstance;
+		};
+		//@line 153
+		var getChildByName = this.getChildByName = function (instanceName)
+		{
+			//@line 154
+			//@line 155
+			return __CLASS976__.__children[instanceName] || null;
+		};
+		//@line 159
+		var getChildByIndex = this.getChildByIndex = function (index)
+		{
+			//@line 160
+			//@line 161
+			if (!(index >= 0 && index < __CLASS976__.__childrenCount)) return null;
+			//@line 162
+			var arr = __CLASS976__.children();
+			//@line 163
+			return arr[index];
+		};
+		//@line 167
+		var getChildIndex = this.getChildIndex = function (child)
+		{
+			//@line 168
+			//@line 169
+			if (child)
+			//@line 170
+			{
+				//@line 171
+				var vClip = "",
+					index = -1;
+				//@line 172
+				for (vClip in __CLASS976__.__children)
+				//@line 173
+				{
+					//@line 174
+					index++;
+					//@line 175
+					if (__CLASS976__.__children[vClip] == child)
+					//@line 176
+					return index;
+				}
+			}
+			//@line 179
+			return -1;
+			return 0
+		};
+		//@line 183
+		var isParentOf = this.isParentOf = function (child)
+		{
+			//@line 184
+			//@line 185
+			if (!child) return false;
+			//@line 187
+			if (__CLASS976__.__children[child.__instanceName])
+			//@line 188
+			return true;
+			//@line 190
+			var vClip = "",
+				clip;
+			//@line 191
+			for (vClip in __CLASS976__.__children)
+			//@line 192
+			{
+				//@line 193
+				clip = __CLASS976__.__children[vClip] || null;
+				//@line 194
+				if (clip && clip.isParentOf(child))
+				//@line 195
+				return true;
+			}
+			return false
+		};
+		//@line 200
+		var moveChildToIndex = this.moveChildToIndex = function (child, newIndex)
+		{
+			//@line 201
+			//@line 202
+			var a = 5;
+			//@line 204
+			if (newIndex < 0) return false;
+			//@line 205
+			if (newIndex > __CLASS976__.__childrenCount) return false;
+			//@line 207
+			var oldIndex = __CLASS976__.getChildIndex(child);
+			//@line 208
+			if (oldIndex = newIndex) return false;
+			//@line 210
+			var arr = __CLASS976__.children();
+			//@line 211
+			arr.splice(oldIndex, 1);
+			//@line 213
+			if (newIndex + 1 > arr.length)
+			//@line 214
+			{
+				//@line 215
+				arr.push(child);
+			}
+			else
+			//@line 218
+			{
+				//@line 219
+				arr.insertBefore(child, newIndex);
+			}
+			//@line 222
+			__CLASS976__.__children = {};
+			//@line 223
+			var clip;
+			//@line 224
+			var i = 0;
+			//@line 225
+			for (i = 0; i < arr.legnth; i++)
+			//@line 226
+			{
+				//@line 227
+				clip = arr[i];
+				//@line 228
+				__CLASS976__.__children[clip.__instanceName] = clip;
+			}
+			//@line 231
+			return true;
+			return false
+		};
+		//@line 235
+		var gotoFrame = this.gotoFrame = function (LabelNameOrFrameIndex, pause, deep)
+		{
+			//@line 236
+			//@line 238
+			var FrameIndex = parseInt(LabelNameOrFrameIndex);
+			//@line 239
+			if (isNaN(FrameIndex))
+			//@line 240
+			{
+				//@line 241
+				var Label = __CLASS976__.__timeline.findLabelByName(LabelNameOrFrameIndex);
+				//@line 242
+				if (!Label) return false;
+				//@line 243
+				FrameIndex = Label.frameIndex;
+			}
+			//@line 247
+			var vClip = "";
+			//@line 248
+			var clip;
+			//@line 249
+			for (vClip in __CLASS976__.__children)
+			//@line 250
+			{
+				//@line 251
+				clip = __CLASS976__.__children[vClip];
+				//@line 253
+				if (FrameIndex == COCO_STOP_ON_CURRENT_FRAME)
+				//@line 254
+				{
+					//@line 256
+					clip.__timeline.jumpBy(0, pause);
+				}
+				else
+				//@line 259
+				{
+					//@line 261
+					var frames = (FrameIndex - clip.__currentFrame.frameIndex);
+					//@line 262
+					clip.__timeline.jumpBy(frames, pause);
+				}
+				//@line 267
+				if (deep)
+				//@line 268
+				{
+					//@line 269
+					clip.gotoFrame(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
+				}
+			}
+			//@line 273
+			return true;
+			return false
+		};
+		//@line 277
+		var render = this.render = function (gl, scene, parentClip, picking)
+		{
+			//@line 278
+			//@line 280
+			var currentTime = scene.__currentTime + __CLASS976__.__timeline.__skipTime;
+			//@line 283
+			if (__CLASS976__.__firstTickTime == -1) __CLASS976__.__firstTickTime = currentTime;
+			//@line 287
+			var parentClipsDuration = (parentClip ? parentClip.childWithMaxTimelineDuration().__timeline.__durationInTime : __CLASS976__.__timeline.__durationInTime);
+			//@line 290
+			var clippingTime = Math.floor((currentTime - __CLASS976__.__firstTickTime) / parentClipsDuration) * parentClipsDuration;
+			//@line 293
+			var loopTime = (currentTime - __CLASS976__.__firstTickTime) - clippingTime;
+			//@line 296
+			switch (__CLASS976__.__symbolLoop)
+			{
+				//@line 298
+			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS:
+				{
+					//@line 299
+					__CLASS976__.__currentFrame = __CLASS976__.__timeline.interpolateByTime(loopTime);
+					//@line 300
+					break;
+				}
+				break;
+				//@line 302
+			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT:
+				{
+					//@line 303
+					__CLASS976__.__currentFrame = __CLASS976__.__timeline.interpolateByTime(loopTime);
+					//@line 304
+					break;
+				}
+				break;
+				//@line 306
+			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
+				{
+					//@line 307
+					if (clippingTime > 0)
+					//@line 308
+					__CLASS976__.__currentFrame = __CLASS976__.__timeline.__lastKeyFrame.clone();
+					else
+					//@line 310
+					__CLASS976__.__currentFrame = __CLASS976__.__timeline.interpolateByTime(loopTime);
+					//@line 311
+					break;
+				}
+				break;
+			}
+			//@line 315
+			if (parentClip)
+			//@line 316
+			{
+				//@line 317
+				__CLASS976__.__currentFrame.combine(parentClip.__currentFrame);
+				//@line 321
+				if (__CLASS976__.__currentFrame.calcBoundingBox)
+				//@line 322
+				parentClip.__currentFrame.calcBoundingBox = true;
+			}
+			//@line 326
+			if (__CLASS976__.__currentFrame.alpha != 0 && __CLASS976__.__currentFrame.visible)
+			//@line 327
+			{
+				//@line 329
+				__CLASS976__.__currentFrame.apply(scene.__modelViewMatrix);
+				//@line 330
+				scene.updateModelViewMatrix(gl);
+				//@line 332
+				if (__CLASS976__.__image)
+				//@line 333
+				{
+					//@line 335
+					if (__CLASS976__.__image.isSpriteSheet())
+					//@line 336
+					{
+						//@line 338
+						if (!__CLASS976__.__currentSequenceName)
+						//@line 339
+						{
+							//@line 340
+							var s = "";
+							//@line 341
+							for (s in __CLASS976__.__image.sequences)
+							//@line 342
+							{
+								//@line 343
+								__CLASS976__.__currentSequenceName = s;
+								//@line 344
+								break;
+							}
+						}
+						//@line 347
+						var seq = __CLASS976__.__image.sequences[__CLASS976__.__currentSequenceName];
+						//@line 348
+						__CLASS976__.__currentSequenceFrameIndex = __CLASS976__.__timeline.__paused ? 0 : Math.floor(((currentTime - __CLASS976__.__firstTickTime) / GLOBAL_FPS)) % seq.frames.length;
+						//@line 349
+						var frame = seq.frames[__CLASS976__.__currentSequenceFrameIndex];
+						//@line 350
+						scene.drawFrame(gl, __CLASS976__.__image, frame, __CLASS976__.__currentFrame.alpha);
+					}
+					else
+					//@line 353
+					{
+						//@line 355
+						scene.drawFrame(gl, __CLASS976__.__image, 0, __CLASS976__.__currentFrame.alpha);
+					}
+				}
+				else
+				//@line 359
+				{
+					//@line 361
+					var c = "";
+					//@line 362
+					var ci;
+					//@line 363
+					scene.__levelParents.push(this);
+					//@line 364
+					for (c in __CLASS976__.__children)
+					//@line 365
+					{
+						//@line 366
+						scene.__modelViewMatrix.push();
+						//@line 367
+						ci = __CLASS976__.__children[c];
+						//@line 368
+						ci.render(gl, scene, this, picking);
+						//@line 369
+						scene.__modelViewMatrix.pop();
+					}
+					//@line 371
+					scene.__levelParents.pop();
+				}
+				//@line 375
+				if (engine.__touchEvent && this != scene.__root && __CLASS976__.__currentFrame.calcBoundingBox)
+				//@line 376
+				{
+					//@line 378
+					if (__CLASS976__.__image)
+					//@line 379
+					__CLASS976__.initBoundingBoxFromTexture(scene, __CLASS976__.__image.textureCellWidth / 2, __CLASS976__.__image.textureCellHeight / 2);
+					else
+					//@line 380
+					if (__CLASS976__.__childrenCount > 0)
+					//@line 381
+					__CLASS976__.initBoundingBoxFromChildren(scene);
+					//@line 384
+					if (!__CLASS976__.__image)
+					//@line 385
+					{
+						//@line 386
+						__CLASS976__.drawBoundingBox(scene, gl);
+					}
+					//@line 390
+					if (engine.__touchEvent)
+					//@line 391
+					{
+						//@line 392
+						var x = (engine.__touchEvent.clientX - gl.canvas.width / 2) / scene.__view_scale;
+						//@line 393
+						var y = (engine.__touchEvent.clientY - gl.canvas.height / 2) / scene.__view_scale;
+						//@line 394
+						if (engine.__touchEvent && __CLASS976__.hitTest(x, y))
+						//@line 395
+						{
+							//@line 396
+							engine.__touchEvent.targets.push(this);
+						}
+					}
+				}
+			}
+			//@line 403
+			if (!__CLASS976__.__timeline.__paused && __CLASS976__.__currentFrame.action)
+			//@line 404
+			{
+				//@line 405
+				this.__parent = parentClip;
+				//@line 406
+				__CLASS976__.__currentFrame.execute(gl, currentTime, loopTime, scene, this);
+				//@line 407
+				this.__parent = null;
+			}
+		};
+		//@line 412
+		var hitTest = this.hitTest = function (wx, wy)
+		{
+			//@line 413
+			//@line 414
+			return (
+			//@line 415
+			//@line 414
+			(((wx - __CLASS976__.__vTOP_LEFT.X) * (__CLASS976__.__vTOP_RIGHT.Y - __CLASS976__.__vTOP_LEFT.Y) - (__CLASS976__.__vTOP_RIGHT.X - __CLASS976__.__vTOP_LEFT.X) * (wy - __CLASS976__.__vTOP_LEFT.Y)) * ((wx - __CLASS976__.__vBOTTOM_RIGHT.X) * (__CLASS976__.__vBOTTOM_LEFT.Y - __CLASS976__.__vBOTTOM_RIGHT.Y) - (__CLASS976__.__vBOTTOM_LEFT.X - __CLASS976__.__vBOTTOM_RIGHT.X) * (wy - __CLASS976__.__vBOTTOM_RIGHT.Y))) > 0 &&
+			//@line 415
+			(((wx - __CLASS976__.__vTOP_RIGHT.X) * (__CLASS976__.__vBOTTOM_RIGHT.Y - __CLASS976__.__vTOP_RIGHT.Y) - (__CLASS976__.__vBOTTOM_RIGHT.X - __CLASS976__.__vTOP_RIGHT.X) * (wy - __CLASS976__.__vTOP_RIGHT.Y)) * ((wx - __CLASS976__.__vBOTTOM_LEFT.X) * (__CLASS976__.__vTOP_LEFT.Y - __CLASS976__.__vBOTTOM_LEFT.Y) - (__CLASS976__.__vTOP_LEFT.X - __CLASS976__.__vBOTTOM_LEFT.X) * (wy - __CLASS976__.__vBOTTOM_LEFT.Y))) > 0);
+			return false
+		};
+		//@line 419
+		var initBoundingBoxFromTexture = this.initBoundingBoxFromTexture = function (scene, W2, H2)
+		{
+			//@line 420
+			//@line 422
+			__CLASS976__.__vTOP_LEFT.set(-W2, -H2, 0, 1);
+			//@line 423
+			__CLASS976__.__vTOP_RIGHT.set(W2, -H2, 0, 1);
+			//@line 424
+			__CLASS976__.__vBOTTOM_LEFT.set(-W2, H2, 0, 1);
+			//@line 425
+			__CLASS976__.__vBOTTOM_RIGHT.set(W2, H2, 0, 1);
+			//@line 428
+			__CLASS976__.__vTOP_LEFT = scene.__modelViewMatrix.multiplyByVector(__CLASS976__.__vTOP_LEFT);
+			//@line 429
+			__CLASS976__.__vTOP_RIGHT = scene.__modelViewMatrix.multiplyByVector(__CLASS976__.__vTOP_RIGHT);
+			//@line 430
+			__CLASS976__.__vBOTTOM_LEFT = scene.__modelViewMatrix.multiplyByVector(__CLASS976__.__vBOTTOM_LEFT);
+			//@line 431
+			__CLASS976__.__vBOTTOM_RIGHT = scene.__modelViewMatrix.multiplyByVector(__CLASS976__.__vBOTTOM_RIGHT);
+			//@line 433
+			__CLASS976__.__hasBoundingBox = true;
+		};
+		//@line 437
+		var initBoundingBoxFromChildren = this.initBoundingBoxFromChildren = function (scene)
+		{
+			//@line 438
+			//@line 441
+			__CLASS976__.__hasBoundingBox = false;
+			//@line 443
+			if (__CLASS976__.__childrenCount == 0)
+			//@line 444
+			return;
+			//@line 446
+			var MI;
+			//@line 447
+			var Child;
+			//@line 448
+			var Rc;
+			//@line 449
+			var i = 0;
+			//@line 450
+			var v1;
+			//@line 451
+			var v2;
+			//@line 452
+			var vClip = "";
+			//@line 453
+			var v = [];
+			//@line 456
+			Rc = new CocoRect;
+			//@line 457
+			Rc.left = 100000;
+			//@line 458
+			Rc.right = -100000;
+			//@line 459
+			Rc.top = 100000;
+			//@line 460
+			Rc.bottom = -100000;
+			//@line 463
+			MI = new CocoMatrix(scene.__modelViewMatrix);
+			//@line 464
+			MI.invert();
+			//@line 466
+			for (vClip in __CLASS976__.__children)
+			//@line 467
+			{
+				//@line 471
+				Child = __CLASS976__.__children[vClip];
+				//@line 472
+				if (Child.__hasBoundingBox)
+				//@line 473
+				{
+					//@line 474
+					v[0] = MI.multiplyByVector(Child.__vTOP_LEFT);
+					//@line 475
+					v[1] = MI.multiplyByVector(Child.__vTOP_RIGHT);
+					//@line 476
+					v[2] = MI.multiplyByVector(Child.__vBOTTOM_LEFT);
+					//@line 477
+					v[3] = MI.multiplyByVector(Child.__vBOTTOM_RIGHT);
+					//@line 480
+					for (i = 0; i < 4; i++)
+					//@line 481
+					{
+						//@line 482
+						if (v[i].X < Rc.left) Rc.left = v[i].X;
+						//@line 483
+						if (v[i].X > Rc.right) Rc.right = v[i].X;
+						//@line 484
+						if (v[i].Y < Rc.top) Rc.top = v[i].Y;
+						//@line 485
+						if (v[i].Y > Rc.bottom) Rc.bottom = v[i].Y;
+					}
+				}
+			}
+			//@line 492
+			__CLASS976__.__vTOP_LEFT.X = Rc.left;
+			//@line 493
+			__CLASS976__.__vTOP_LEFT.Y = Rc.top;
+			//@line 494
+			__CLASS976__.__vTOP_RIGHT.X = Rc.right;
+			//@line 495
+			__CLASS976__.__vTOP_RIGHT.Y = Rc.top;
+			//@line 496
+			__CLASS976__.__vBOTTOM_LEFT.X = Rc.left;
+			//@line 497
+			__CLASS976__.__vBOTTOM_LEFT.Y = Rc.bottom;
+			//@line 498
+			__CLASS976__.__vBOTTOM_RIGHT.X = Rc.right;
+			//@line 499
+			__CLASS976__.__vBOTTOM_RIGHT.Y = Rc.bottom;
+			//@line 502
+			MI = scene.__modelViewMatrix;
+			//@line 503
+			__CLASS976__.__vTOP_LEFT = MI.multiplyByVector(__CLASS976__.__vTOP_LEFT);
+			//@line 504
+			__CLASS976__.__vTOP_RIGHT = MI.multiplyByVector(__CLASS976__.__vTOP_RIGHT);
+			//@line 505
+			__CLASS976__.__vBOTTOM_LEFT = MI.multiplyByVector(__CLASS976__.__vBOTTOM_LEFT);
+			//@line 506
+			__CLASS976__.__vBOTTOM_RIGHT = MI.multiplyByVector(__CLASS976__.__vBOTTOM_RIGHT);
+			//@line 508
+			__CLASS976__.__hasBoundingBox = true;
+		};
+		//@line 512
+		var drawBoundingBox = this.drawBoundingBox = function (scene, gl)
+		{
+			//@line 513
+			//@line 514
+			if (!__CLASS976__.__hasBoundingBox) return;
+			//@line 516
+			gl.disableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
+			//@line 517
+			gl.disableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
+			//@line 519
+			gl.useProgram(scene.__boundingBoxProgram);
+			//@line 520
+			gl.enableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
+			//@line 522
+			gl.bindBuffer(gl.ARRAY_BUFFER, scene.__boundingBoxBuffer);
+			//@line 523
+			gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([__CLASS976__.__vTOP_LEFT.X, __CLASS976__.__vTOP_LEFT.Y, __CLASS976__.__vTOP_RIGHT.X, __CLASS976__.__vTOP_RIGHT.Y, __CLASS976__.__vBOTTOM_RIGHT.X, __CLASS976__.__vBOTTOM_RIGHT.Y, __CLASS976__.__vBOTTOM_LEFT.X, __CLASS976__.__vBOTTOM_LEFT.Y]));
+			//@line 524
+			gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);
+			//@line 525
+			scene.__projectionMatrix.update(gl, scene.__boundingBoxProgram.GLSLuProjMat);
+			//@line 526
+			gl.drawArrays(gl.LINE_LOOP, 0, 4);
+			//@line 527
+			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			//@line 529
+			gl.disableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
+			//@line 530
+			gl.useProgram(scene.__glProgram);
+			//@line 532
+			gl.enableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
+			//@line 533
+			gl.enableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
+		};
+		//@line 44
+		this.__instanceName = null;
+		//@line 45
+		this.__image = null;
+		//@line 46
+		this.__mask = null;
+		//@line 47
+		this.__audio = null;
+		//@line 48
+		this.__symbolLoop = COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
+		//@line 49
+		this.__childrenCount = 0;
+		//@line 50
+		this.__children = {};
+		//@line 51
+		this.__currentSequenceName = null;
+		//@line 52
+		this.__currentSequenceFrameIndex = 0;
+		//@line 53
+		this.__timeline = null;
+		//@line 54
+		this.__parent = null;
+		//@line 56
+		this.__firstTickTime = -1;
+		//@line 57
+		this.__currentFrame = null;
+		//@line 59
+		this.__hasBoundingBox = false;
+		//@line 60
+		this.__vTOP_LEFT = null;
+		//@line 61
+		this.__vTOP_RIGHT = null;
+		//@line 62
+		this.__vBOTTOM_LEFT = null;
+		//@line 63
+		this.__vBOTTOM_RIGHT = null;
+		this.Constructor = function ()
+		{
+			var image = arguments[0];
+			var audio = arguments[1];
+			var sequence = arguments[2];
+			var mask = arguments[3];
+			//@line 67
+			//@line 68
+			__CLASS976__.__timeline = new CocoTimeline;
+			//@line 69
+			if (image) __CLASS976__.__image = image;
+			//@line 70
+			if (audio) __CLASS976__.__audio = audio;
+			//@line 71
+			if (sequence) __CLASS976__.__currentSequenceName = sequence;
+			//@line 72
+			__CLASS976__.__vTOP_LEFT = new CocoVector;
+			//@line 73
+			__CLASS976__.__vTOP_RIGHT = new CocoVector;
+			//@line 74
+			__CLASS976__.__vBOTTOM_LEFT = new CocoVector;
+			//@line 75
+			__CLASS976__.__vBOTTOM_RIGHT = new CocoVector;
+			return __CLASS976__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}
