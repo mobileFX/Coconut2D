@@ -277,7 +277,7 @@ class CocoClip
 	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean)
 	{        
 		// Get scene current time and add timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )		                                    
-		var currentTime:Number = scene.__currentTime + __timeline.__skipTime;
+		var currentTime:Number = scene.__currentTime + __timeline.__skipTime; 
 
 		// Keep track of first tick time.		
 		if(__firstTickTime == -1) __firstTickTime = currentTime;//scene.__currentTime;		
@@ -326,8 +326,7 @@ class CocoClip
 		if(__currentFrame.alpha != 0 && __currentFrame.visible)
 		{			
 			// Apply this clip's current frame values to modelview matrix.
-			__currentFrame.apply(scene.__modelViewMatrix);		
-			scene.updateModelViewMatrix(gl);		
+			__currentFrame.apply(scene.__modelViewMatrix);			
 
 			if(__image)
 			{								
@@ -346,7 +345,7 @@ class CocoClip
 					} 
 					var seq:CocoSequence = __image.sequences[__currentSequenceName];				
 					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(((currentTime - __firstTickTime) / GLOBAL_FPS)) % seq.frames.length;
-					var frame:Number = seq.frames[__currentSequenceFrameIndex];
+					var frame:Number = seq.frames[__currentSequenceFrameIndex];					
 					scene.drawFrame(gl, __image, frame, __currentFrame.alpha);					
 				} 
 				else
@@ -533,4 +532,6 @@ class CocoClip
 		gl.enableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
 	}
 }
+
+
 

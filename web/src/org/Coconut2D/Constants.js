@@ -91,14 +91,19 @@ var COCO_ENGINE_STATES_ENUM =
 
 var COCO_WEBGL_PAYLOAD_OP = 
 { 
-	BINDBUFFER					: 0x0,
-	BINDTEXTURE					: 0x1,
-	DRAWARRAYS					: 0x2,
-	UNIFORM1I					: 0x3,
-	UNIFORM2F					: 0x4,
-	UNIFORM4F					: 0x5,
-	VERTEXATTRIBPOINTER			: 0x6	
+	BINDBUFFER					: 0,
+	BINDTEXTURE					: 1,
+	DRAWARRAYS					: 2,
+	UNIFORM1I					: 3,
+	UNIFORM2F					: 4,
+	UNIFORM4F					: 5,
+	UNIFORMMATRIX4FV			: 6,
+	VERTEXATTRIBPOINTER			: 7
+	
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
+
+
+

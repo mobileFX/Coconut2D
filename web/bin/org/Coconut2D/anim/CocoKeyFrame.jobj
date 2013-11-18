@@ -5,7 +5,7 @@ function CocoKeyFrame()
 	var __SUPER__;
 	return ((function ()
 	{
-		var __CLASS829__ = this,
+		var __CLASS833__ = this,
 			__PDEFINE__ = {}.constructor.defineProperty,
 			__NOENUM__ =
 			{
@@ -25,33 +25,33 @@ function CocoKeyFrame()
 			//@line 78
 			c = new CocoKeyFrame;
 			//@line 79
-			c.alpha = __CLASS829__.alpha;
+			c.alpha = __CLASS833__.alpha;
 			//@line 80
-			c.frameIndex = __CLASS829__.frameIndex;
+			c.frameIndex = __CLASS833__.frameIndex;
 			//@line 81
-			c.frameInterpolation = __CLASS829__.frameInterpolation;
+			c.frameInterpolation = __CLASS833__.frameInterpolation;
 			//@line 82
-			c.handleEvents = __CLASS829__.handleEvents;
+			c.handleEvents = __CLASS833__.handleEvents;
 			//@line 83
-			c.pivotX = __CLASS829__.pivotX;
+			c.pivotX = __CLASS833__.pivotX;
 			//@line 84
-			c.pivotY = __CLASS829__.pivotY;
+			c.pivotY = __CLASS833__.pivotY;
 			//@line 85
-			c.rotation = __CLASS829__.rotation;
+			c.rotation = __CLASS833__.rotation;
 			//@line 86
-			c.scaleX = __CLASS829__.scaleX;
+			c.scaleX = __CLASS833__.scaleX;
 			//@line 87
-			c.scaleY = __CLASS829__.scaleY;
+			c.scaleY = __CLASS833__.scaleY;
 			//@line 88
-			c.visible = __CLASS829__.visible;
+			c.visible = __CLASS833__.visible;
 			//@line 89
-			c.x = __CLASS829__.x;
+			c.x = __CLASS833__.x;
 			//@line 90
-			c.y = __CLASS829__.y;
+			c.y = __CLASS833__.y;
 			//@line 91
-			c.action = __CLASS829__.action;
+			c.action = __CLASS833__.action;
 			//@line 92
-			c.calcBoundingBox = __CLASS829__.calcBoundingBox;
+			c.calcBoundingBox = __CLASS833__.calcBoundingBox;
 			//@line 93
 			return c;
 		};
@@ -74,13 +74,13 @@ function CocoKeyFrame()
 				//@line 107
 				__lastActionExecutionTime = currentTime;
 				//@line 108
-				if (__CLASS829__.action)
+				if (__CLASS833__.action)
 				//@line 109
 				{
 					//@line 110
 					var args = [gl, currentTime, loopTime, clip, this];
 					//@line 111
-					__CLASS829__.action.apply(scene, args);
+					__CLASS833__.action.apply(scene, args);
 				}
 			}
 		};
@@ -89,21 +89,21 @@ function CocoKeyFrame()
 		{
 			//@line 118
 			//@line 119
-			__CLASS829__.alpha = F1.alpha + s * (F2.alpha - F1.alpha);
+			__CLASS833__.alpha = F1.alpha + s * (F2.alpha - F1.alpha);
 			//@line 120
-			__CLASS829__.x = F1.x + s * (F2.x - F1.x);
+			__CLASS833__.x = F1.x + s * (F2.x - F1.x);
 			//@line 121
-			__CLASS829__.y = F1.y + s * (F2.y - F1.y);
+			__CLASS833__.y = F1.y + s * (F2.y - F1.y);
 			//@line 122
-			__CLASS829__.scaleX = F1.scaleX + s * (F2.scaleX - F1.scaleX);
+			__CLASS833__.scaleX = F1.scaleX + s * (F2.scaleX - F1.scaleX);
 			//@line 123
-			__CLASS829__.scaleY = F1.scaleY + s * (F2.scaleY - F1.scaleY);
+			__CLASS833__.scaleY = F1.scaleY + s * (F2.scaleY - F1.scaleY);
 			//@line 124
-			__CLASS829__.rotation = F1.rotation + s * (F2.rotation - F1.rotation);
+			__CLASS833__.rotation = F1.rotation + s * (F2.rotation - F1.rotation);
 			//@line 125
-			__CLASS829__.pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
+			__CLASS833__.pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
 			//@line 126
-			__CLASS829__.pivotY = F1.pivotY + s * (F2.pivotY - F1.pivotY);
+			__CLASS833__.pivotY = F1.pivotY + s * (F2.pivotY - F1.pivotY);
 		};
 		//@line 130
 		var combine = this.combine = function (Frame)
@@ -112,26 +112,26 @@ function CocoKeyFrame()
 			//@line 132
 			if (!Frame) return;
 			//@line 133
-			__CLASS829__.alpha = __CLASS829__.alpha * Frame.alpha;
+			__CLASS833__.alpha = __CLASS833__.alpha * Frame.alpha;
 			//@line 134
-			__CLASS829__.visible = __CLASS829__.visible & Frame.visible;
+			__CLASS833__.visible = __CLASS833__.visible & Frame.visible;
 			//@line 135
-			__CLASS829__.handleEvents = __CLASS829__.handleEvents & Frame.handleEvents;
+			__CLASS833__.handleEvents = __CLASS833__.handleEvents & Frame.handleEvents;
 			//@line 136
-			__CLASS829__.calcBoundingBox = __CLASS829__.calcBoundingBox & Frame.calcBoundingBox;
+			__CLASS833__.calcBoundingBox = __CLASS833__.calcBoundingBox & Frame.calcBoundingBox;
 		};
 		//@line 140
 		var apply = this.apply = function (matrix)
 		{
 			//@line 141
 			//@line 142
-			matrix.translate(__CLASS829__.x, __CLASS829__.y);
+			matrix.translate(__CLASS833__.x, __CLASS833__.y);
 			//@line 143
-			matrix.rotateZ(__CLASS829__.rotation * Math.PI / 180);
+			matrix.rotateZ(__CLASS833__.rotation * Math.PI / 180);
 			//@line 144
-			matrix.scale(__CLASS829__.scaleX, __CLASS829__.scaleY);
+			matrix.scale(__CLASS833__.scaleX, __CLASS833__.scaleY);
 			//@line 145
-			matrix.translate(-__CLASS829__.pivotX, -__CLASS829__.pivotY);
+			matrix.translate(-__CLASS833__.pivotX, -__CLASS833__.pivotY);
 		};
 		//@line 41
 		this.frameIndex = 0;
@@ -167,28 +167,28 @@ function CocoKeyFrame()
 		{
 			//@line 60
 			//@line 61
-			__CLASS829__.frameInterpolation = COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
+			__CLASS833__.frameInterpolation = COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 			//@line 62
-			__CLASS829__.handleEvents = false;
+			__CLASS833__.handleEvents = false;
 			//@line 63
-			__CLASS829__.visible = true;
+			__CLASS833__.visible = true;
 			//@line 64
-			__CLASS829__.x = 0;
+			__CLASS833__.x = 0;
 			//@line 65
-			__CLASS829__.y = 0;
+			__CLASS833__.y = 0;
 			//@line 66
-			__CLASS829__.scaleX = 1;
+			__CLASS833__.scaleX = 1;
 			//@line 67
-			__CLASS829__.scaleY = 1;
+			__CLASS833__.scaleY = 1;
 			//@line 68
-			__CLASS829__.rotation = 0;
+			__CLASS833__.rotation = 0;
 			//@line 69
-			__CLASS829__.pivotX = 0;
+			__CLASS833__.pivotX = 0;
 			//@line 70
-			__CLASS829__.pivotY = 0;
+			__CLASS833__.pivotY = 0;
 			//@line 71
-			__CLASS829__.alpha = 1;
-			return __CLASS829__
+			__CLASS833__.alpha = 1;
+			return __CLASS833__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this

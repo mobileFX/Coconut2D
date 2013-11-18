@@ -299,7 +299,9 @@ class CocoMatrix
 		__data[13] = rc42;
 		__data[14] = rc43;
 		__data[15] = rc44;
-		gl.uniformMatrix4fv(ul, false, __data);		
+		
+		if(gl && ul)
+			gl.uniformMatrix4fv(ul, false, __data);		
 	}	
 
 	// ==================================================================================================================================
@@ -342,5 +344,6 @@ class CocoMatrix
 		}
 	}
 }
+
 
 

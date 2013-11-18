@@ -78,19 +78,7 @@ class CocoScene
 		__sceneName			= sceneName;
 		__root 				= new CocoClip();
 	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function updateModelViewMatrix(gl:WebGLRenderingContext) 
-	{
-		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat); 
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function updateProjectionMatrix(gl:WebGLRenderingContext) 
-	{
-		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat); 
-	}
-	
+			
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function resourceImagesCount() :Number
 	{
@@ -284,7 +272,7 @@ class CocoScene
 				{
                 	__glPayload = [];
 					__root.render(gl, this, null, false);	                
-                	__WebGLRenderingContext_execute(__glPayload);
+                	gl.execute(__glPayload);
 				}
 				else
 				{
@@ -309,25 +297,27 @@ class CocoScene
 		image.color[3] = alpha;		
 		
 		if(global.__Coconut2DPlayer)
-		{			
-			__glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, __glProgram.GLSLuSprSize.__uid, image.texSize[0], image.texSize[1]]);	        
+		{
+			var M = __modelViewMatrix; 
+			__glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORMMATRIX4FV, __glProgram.GLSLuMVMat.__uid, false, M.rc11, M.rc12, M.rc13, M.rc14, M.rc21, M.rc22, M.rc23, M.rc24, M.rc31, M.rc32, M.rc33, M.rc34, M.rc41, M.rc42, M.rc43, M.rc44]);
+			__glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, __glProgram.GLSLuSprSize.__uid, image.texSize[0], image.texSize[1]]);
 	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, __glProgram.GLSLuSprFrame.__uid, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]]);
 	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDBUFFER, gl.ARRAY_BUFFER, image.buffer.__uid]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiTexCoords.__uid, 2, gl.FLOAT, false, 4 * 4, 0]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiVecCoords.__uid, 2, gl.FLOAT, false, 4 * 4, 2 * 4]);
+	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0]);
+	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8]);
 	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDTEXTURE, gl.TEXTURE_2D, image.texture.__uid]);
 	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM1I, __glProgram.GLSLuSampler.__uid, 0]);
 	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM4F, __glProgram.GLSLuColor.__uid, image.color[0], image.color[1], image.color[2], image.color[3]]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.DRAWARRAYS, gl.TRIANGLE_STRIP, 0, 4]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDBUFFER, gl.ARRAY_BUFFER, 0, 0]);	        
+	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.DRAWARRAYS, gl.TRIANGLE_STRIP, 0, 4]);	        
 		}
 		else
-		{  
+		{			
+			__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat); 			  
 			gl.uniform2fv(__glProgram.GLSLuSprSize, image.texSize);
 			gl.uniform2f(__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);                
 			gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);                
-			gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 4 * 4, 0);                
-			gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
+			gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0);			
+			gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8);
 			gl.bindTexture(gl.TEXTURE_2D, image.texture);                
 			gl.uniform1i(__glProgram.GLSLuSampler, 0);                
 			gl.uniform4fv(__glProgram.GLSLuColor, image.color);
@@ -364,9 +354,3 @@ class CocoScene
 		return scope.gotoFrame(-1, true, deep);
 	}	
 }
-
-
-
-
-
-

@@ -5,7 +5,7 @@ function CocoImage()
 	var __SUPER__;
 	return ((function ()
 	{
-		var __CLASS767__ = this,
+		var __CLASS771__ = this,
 			__PDEFINE__ = {}.constructor.defineProperty,
 			__NOENUM__ =
 			{
@@ -21,7 +21,7 @@ function CocoImage()
 		{
 			//@line 61
 			//@line 62
-			return __CLASS767__.textureCellWidth > 0 && __CLASS767__.textureCellHeight > 0 && __CLASS767__.sequences != null;
+			return __CLASS771__.textureCellWidth > 0 && __CLASS771__.textureCellHeight > 0 && __CLASS771__.sequences != null;
 			return false
 		};
 		//@line 66
@@ -29,65 +29,65 @@ function CocoImage()
 		{
 			//@line 67
 			//@line 68
-			__CLASS767__.image = new Image;
+			__CLASS771__.image = new Image;
 			//@line 69
-			__CLASS767__.image.onload = onloadCallBack;
+			__CLASS771__.image.onload = onloadCallBack;
 			//@line 70
-			__CLASS767__.image.src = filename;
+			__CLASS771__.image.src = filename;
 		};
 		//@line 74
 		var createWithText = this.createWithText = function (font, text)
 		{
 			//@line 75
 			//@line 76
-			__CLASS767__.image = new Image;
+			__CLASS771__.image = new Image;
 			//@line 77
-			__CLASS767__.image.__width = 512;
+			__CLASS771__.image.__width = 512;
 			//@line 78
-			__CLASS767__.image.__height = 512;
+			__CLASS771__.image.__height = 512;
 			//@line 79
-			__CLASS767__.image.__imageData = new ImageData(__CLASS767__.image.width, __CLASS767__.image.height);
+			__CLASS771__.image.__imageData = new ImageData(__CLASS771__.image.width, __CLASS771__.image.height);
 			//@line 80
-			__CLASS767__.image.__imageData.__buffer.clear();
+			__CLASS771__.image.__imageData.__buffer.clear();
 			//@line 81
-			font.fillText(__CLASS767__.image.__imageData.__buffer, __CLASS767__.image.width, text, 0, 0);
+			font.fillText(__CLASS771__.image.__imageData.__buffer, __CLASS771__.image.width, text, 0, 0);
 			//@line 82
-			__CLASS767__.textureCellWidth = font.measureText(text);
+			__CLASS771__.textureCellWidth = font.measureText(text);
 			//@line 83
-			__CLASS767__.textureCellHeight = font.height;
+			__CLASS771__.textureCellHeight = font.height;
 		};
 		//@line 87
 		var getDpiSiblingImage = this.getDpiSiblingImage = function (dpi)
 		{
 			//@line 88
 			//@line 89
-			return __CLASS767__;
+			return __CLASS771__;
 		};
 		//@line 93
 		var addSequence = this.addSequence = function (name, sequence)
 		{
 			//@line 94
 			//@line 95
-			if (__CLASS767__.sequences[name]) throw "Cannot add sequence with same name!";
+			if (__CLASS771__.sequences[name]) throw "Cannot add sequence with same name!";
 			//@line 96
-			__CLASS767__.sequences[name] = sequence;
+			__CLASS771__.sequences[name] = sequence;
 		};
 		//@line 100
 		var prepare = this.prepare = function (gl)
 		{
 			//@line 101
 			//@line 103
-			var w2 = __CLASS767__.textureCellWidth / 2;
+			var w2 = __CLASS771__.textureCellWidth / 2;
 			//@line 104
-			var h2 = __CLASS767__.textureCellHeight / 2;
+			var h2 = __CLASS771__.textureCellHeight / 2;
 			//@line 105
-			__CLASS767__.texSize = new Float32Array([__CLASS767__.textureCellWidth / __CLASS767__.image.naturalWidth, __CLASS767__.textureCellHeight / __CLASS767__.image.naturalHeight]);
+			__CLASS771__.texSize = new Float32Array([__CLASS771__.textureCellWidth / __CLASS771__.image.naturalWidth, __CLASS771__.textureCellHeight / __CLASS771__.image.naturalHeight]);
 			//@line 108
-			__CLASS767__.texture = gl.createTexture();
+			__CLASS771__.texture = gl.createTexture();
 			//@line 109
-			gl.bindTexture(gl.TEXTURE_2D, __CLASS767__.texture);
+			gl.bindTexture(gl.TEXTURE_2D, __CLASS771__.texture);
 			//@line 112
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, __CLASS767__.image);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, __CLASS771__.image);
 			//@line 115
 			gl.generateMipmap(gl.TEXTURE_2D);
 			//@line 118
@@ -103,9 +103,9 @@ function CocoImage()
 			//@line 128
 			var texData = new Float32Array([0, 0, -w2, -h2, 0, 1, -w2, h2, 1, 0, w2, -h2, 1, 1, w2, h2]);
 			//@line 129
-			__CLASS767__.buffer = gl.createBuffer();
+			__CLASS771__.buffer = gl.createBuffer();
 			//@line 130
-			gl.bindBuffer(gl.ARRAY_BUFFER, __CLASS767__.buffer);
+			gl.bindBuffer(gl.ARRAY_BUFFER, __CLASS771__.buffer);
 			//@line 131
 			gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
 			//@line 132
@@ -116,7 +116,7 @@ function CocoImage()
 		{
 			//@line 137
 			//@line 138
-			gl.deleteTexture(__CLASS767__.texture);
+			gl.deleteTexture(__CLASS771__.texture);
 		};
 		//@line 41
 		this.image = null;
@@ -145,7 +145,7 @@ function CocoImage()
 		this.Constructor = function ()
 		{
 			//@line 56
-			return __CLASS767__
+			return __CLASS771__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this

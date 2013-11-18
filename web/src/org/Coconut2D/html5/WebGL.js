@@ -2556,4 +2556,20 @@ WebGLRenderingContext.prototype.viewport = function(x, y, width, height)
 	return __WebGLRenderingContext_viewport(this.__uid, x, y, width, height);
 };
 
+/** ================================================================================
+ * Method: viewport(x, y, width, height)
+ * Status: NOT-CHECKED
+ * Description: 
+ * @expose
+ * @this {WebGLRenderingContext}
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} width
+ * @param {Number} height
+ */
+WebGLRenderingContext.prototype.execute = function(payload)
+{
+	return __WebGLRenderingContext_execute(this.__uid, payload);
+};
+
 
