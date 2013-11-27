@@ -53,6 +53,9 @@ class CocoKeyFrame
 	public var rotation:Number										= 0.0;
 	public var action:Function										= null;
 	
+	public var nextKeyFrame:CocoKeyFrame							= null;
+	public var prevKeyFrame:CocoKeyFrame							= null;
+	
 	private var __lastActionExecutionTime:Number					= 0.0;		
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,13 +92,15 @@ class CocoKeyFrame
 		c.x                     	= x;                 
 		c.y                     	= y;                 
 		c.action					= action;                                   		
-		c.calcBoundingBox			= calcBoundingBox;		
+		c.calcBoundingBox			= calcBoundingBox;
 	    return c;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
-	{
+	{       
+		nextKeyFrame = null;
+		prevKeyFrame = null;
 		__lastActionExecutionTime = 0.0;
 	}
 	
@@ -134,14 +139,22 @@ class CocoKeyFrame
 	    visible = visible & Frame.visible;
 	    handleEvents = handleEvents & Frame.handleEvents;
 	    calcBoundingBox = calcBoundingBox & Frame.calcBoundingBox;
-	}
+	} 
 	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function apply(matrix:CocoMatrix)
 	{
-		matrix.translate(x, y);
-		matrix.rotateZ(rotation * Math.PI / 180.0 );
-		matrix.scale(scaleX, scaleY);
-		matrix.translate(-pivotX, -pivotY);	
-	}		
+		if(x!=0 || y!=0) matrix.translate(x, y);
+		if(rotation!=0) matrix.rotateZ(rotation * RADIANS);
+		if(scaleX!=1 ||scaleY!=1) matrix.scale(scaleX, scaleY);
+		if(pivotX!=0 || pivotY!=0) matrix.translate(-pivotX, -pivotY);	
+	}
 } 
+
+
+
+
+
+
+
+
+

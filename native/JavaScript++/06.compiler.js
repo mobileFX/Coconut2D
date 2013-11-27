@@ -1880,29 +1880,31 @@ compiler.prototype.compile = function (ast)
 			this.inCase = true;
 
 			//Comma separated cases
-			if(ast.caseLabel.type == jsdef.COMMA) {
-				for(var _case in ast.caseLabel) {
+			if(ast.caseLabel.type == jsdef.COMMA)
+			{
+				for(var _case in ast.caseLabel) 
+				{
 					if(!isFinite(_case)) continue;
-
 					out.push("case " + generate(ast.caseLabel[_case]) + ":");
 				}
 			}
 			//Regular case statements
-			else {
+			else 
+			{
 				out.push("case " + generate(ast.caseLabel) + ":");
 			}
 
-			ast.statements.scopeId = "Stmt" + (++this.StatementBlocks);
-			this.NewScope(ast.statements.scopeId, ast);
+			//ast.statements.scopeId = "Stmt" + (++this.StatementBlocks);
+			//this.NewScope(ast.statements.scopeId, ast);
 
-			if(ast.statements && ast.statements[0] &&
-				ast.statements[0].value && ast.statements[0].value != ":") {
+			if(ast.statements && ast.statements[0] && ast.statements[0].value && ast.statements[0].value != ":") 
+			{
 				out.push(generate(ast.statements));
-			}
+			} 
+			
 			this.inCase = false;
 			out.push("break;");
-
-			this.ExitScope();
+			//this.ExitScope();
 
 			break;    
 			
@@ -1911,15 +1913,16 @@ compiler.prototype.compile = function (ast)
 			this.inCase = true;
 			out.push("default:");
 
-			ast.statements.scopeId = "Stmt" + (++this.StatementBlocks);
-			this.NewScope(ast.statements.scopeId, ast);
+			//ast.statements.scopeId = "Stmt" + (++this.StatementBlocks);
+			//this.NewScope(ast.statements.scopeId, ast);
 
-			if(ast.statements && ast.statements[0] &&
-				ast.statements[0].value && ast.statements[0].value != ":") {
+			if(ast.statements && ast.statements[0] && ast.statements[0].value && ast.statements[0].value != ":")
+			{
 				out.push(generate(ast.statements));
 			}
 			this.inCase = false;
-			this.ExitScope();
+			
+			//this.ExitScope();
 
 			break;
 
@@ -3913,16 +3916,3 @@ compiler.prototype.preprocess = function(ast, useTypeSys)
 	var GLOBAL = this;
 	GLOBAL.compiler = compiler;
 }).call();
-
-
-
-
-
-
-
-
-
-
-
-
-

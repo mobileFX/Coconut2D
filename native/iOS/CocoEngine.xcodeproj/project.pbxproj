@@ -41,6 +41,7 @@
 		2C449C4617E9F1A3007A63EF /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C449C4517E9F1A3007A63EF /* libfreetype.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		2C449C4817E9F1B7007A63EF /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C449C4717E9F1B7007A63EF /* libbz2.dylib */; settings = {ATTRIBUTES = (Weak, ); }; };
 		2CA5658B17ED4C0E00013969 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 2CA5658A17ED4C0E00013969 /* web */; };
+		C323C814183C9490005CDC05 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C323C813183C9490005CDC05 /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -90,7 +91,6 @@
 		2C35E78117E9CA4B00E177E6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		2C35E78F17E9D14100E177E6 /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = ../../Libraries/iOS/libJavaScriptCore.a; sourceTree = "<group>"; };
 		2C35E79117E9D18200E177E6 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/usr/lib/libicucore.dylib; sourceTree = DEVELOPER_DIR; };
-		2C449C3617E9EBC9007A63EF /* CocoEngine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = CocoEngine.app; path = "/Volumes/Heaven/Dev/mobileFX/Coconut2D/native/iOS/bin/Debug-iphoneos/CocoEngine.app"; sourceTree = "<absolute>"; };
 		2C449C3917E9EDF5007A63EF /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../../Libraries/iOS/libpng.a; sourceTree = "<group>"; };
 		2C449C3B17E9EE1C007A63EF /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/usr/lib/libz.dylib; sourceTree = DEVELOPER_DIR; };
 		2C449C3D17E9EFF2007A63EF /* libjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjpeg.a; path = ../../Libraries/iOS/libjpeg.a; sourceTree = "<group>"; };
@@ -100,6 +100,8 @@
 		2C449C4517E9F1A3007A63EF /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = ../../Libraries/iOS/libfreetype.a; sourceTree = "<group>"; };
 		2C449C4717E9F1B7007A63EF /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/usr/lib/libbz2.dylib; sourceTree = DEVELOPER_DIR; };
 		2CA5658A17ED4C0E00013969 /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; name = web; path = ../../web; sourceTree = "<group>"; };
+		C31C141518391AC300E1D55B /* CocoEngine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CocoEngine.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C323C813183C9490005CDC05 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +109,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C323C814183C9490005CDC05 /* CoreGraphics.framework in Frameworks */,
 				2C449C4817E9F1B7007A63EF /* libbz2.dylib in Frameworks */,
 				2C449C4617E9F1A3007A63EF /* libfreetype.a in Frameworks */,
 				2C449C4417E9F172007A63EF /* libTremolo.a in Frameworks */,
@@ -134,9 +137,11 @@
 				2C35E74017E9C47300E177E6 /* iOS */,
 				2C35E70217E9C3C700E177E6 /* Common */,
 				2C35E72417E9C41200E177E6 /* Frameworks */,
+				C31C141518391AC300E1D55B /* CocoEngine.app */,
 			);
 			sourceTree = "<group>";
 			usesTabs = 1;
+			wrapsLines = 0;
 		};
 		2C35E70217E9C3C700E177E6 /* Common */ = {
 			isa = PBXGroup;
@@ -182,6 +187,7 @@
 		2C35E72417E9C41200E177E6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C323C813183C9490005CDC05 /* CoreGraphics.framework */,
 				2C449C4517E9F1A3007A63EF /* libfreetype.a */,
 				2C449C4317E9F172007A63EF /* libTremolo.a */,
 				2C449C3F17E9F0D9007A63EF /* libcurl.a */,
@@ -247,7 +253,7 @@
 			);
 			name = CocoEngine;
 			productName = CocoEngine;
-			productReference = 2C449C3617E9EBC9007A63EF /* CocoEngine.app */;
+			productReference = C31C141518391AC300E1D55B /* CocoEngine.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -256,7 +262,12 @@
 		2C35E6F017E9C39100E177E6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0460;
+				LastUpgradeCheck = 0500;
+				TargetAttributes = {
+					2C35E72117E9C41200E177E6 = {
+						DevelopmentTeam = ST9XP4938Z;
+					};
+				};
 			};
 			buildConfigurationList = 2C35E6F317E9C39100E177E6 /* Build configuration list for PBXProject "CocoEngine" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -330,12 +341,24 @@
 		2C35E6F417E9C39100E177E6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				VALID_ARCHS = armv7;
 			};
 			name = Debug;
 		};
 		2C35E6F517E9C39100E177E6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				VALID_ARCHS = armv7;
 			};
 			name = Release;
 		};
@@ -343,6 +366,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -350,7 +374,9 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COMPRESS_PNG_FILES = NO;
 				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/bin/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				CONFIGURATION_TEMP_DIR = "$(CONFIGURATION_TEMP_DIR)";
 				COPY_PHASE_STRIP = NO;
@@ -375,13 +401,13 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = ../Include;
 				INFOPLIST_FILE = "CocoEngine/CocoEngine-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					../Libraries/iOS,
 				);
 				OBJROOT = /tmp;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DENABLE_FX_DEBUG",
@@ -389,8 +415,10 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 				SYMROOT = "$(SRCROOT)";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = armv7;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -399,6 +427,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -406,7 +435,9 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COMPRESS_PNG_FILES = NO;
 				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/bin/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				CONFIGURATION_TEMP_DIR = "$(CONFIGURATION_TEMP_DIR)";
 				COPY_PHASE_STRIP = YES;
@@ -416,7 +447,9 @@
 					"\"$(SYSTEM_APPS_DIR)/Xcode.app/Contents/Developer/Library/Frameworks\"",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
+				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "CocoEngine/CocoEngine-Prefix.pch";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -424,12 +457,14 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = ../Include;
 				INFOPLIST_FILE = "CocoEngine/CocoEngine-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					../Libraries/iOS,
 				);
+				LLVM_LTO = YES;
 				OBJROOT = /tmp;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DNS_BLOCK_ASSERTIONS=1",
@@ -437,9 +472,11 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 				SYMROOT = "$(SRCROOT)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
+				VALID_ARCHS = armv7;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

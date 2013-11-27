@@ -40,86 +40,52 @@
 class CocoScene
 {
 	// Resources 
-	public var __sceneName:String 				= "";   	
-	public var __imageSymbols:Object 			= {};   	
-	public var __soundSymbols:Object 			= {};   	
-	public var __clipSymbols:Object 			= {}; 
+	public var __sceneName:String 					= "";   	
+	public var __imageSymbols:Object 				= {};   	
+	public var __soundSymbols:Object 				= {};   	
+	public var __clipSymbols:Object 				= {}; 
+	                                            	
+	// Fixed View Port  	                    	
+	public var __view_width:Number					= 0;
+	public var __view_height:Number					= 0;
+	public var __view_pixel_ratio:Number			= 0;	
+	public var __view_scale:Number					= 1;
+                                                	
+	// Rendering                                	
+	public var __currentTime:Number 				= 0.0;  	
+	public var __elapsedTime:Number 				= 0.0;  	
+	public var __startTime:Number 					= -1;   	
+	public var __root:CocoClip 						= null;
+	public var __modelViewMatrix:CocoMatrix			= null;
+	public var __projectionMatrix:CocoMatrix 		= null;
+	public var __glProgram:WebGLProgram				= null;
+	public var __levelParents:Array					= [];
+	                                            	
+	public var __vertex_shader:String				= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
+	public var __fragment_shader:String				= "#ifdef GL_ES\nprecision mediump float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
 	
-	// Fixed View Port  	
-	public var __view_width:Number				= 0;
-	public var __view_height:Number				= 0;
-	public var __view_pixel_ratio:Number		= 0;	
-	public var __view_scale:Number				= 1;
-
-	// Rendering
-	public var __currentTime:Number 			= 0.0;  	
-	public var __elapsedTime:Number 			= 0.0;  	
-	public var __startTime:Number 				= -1;   	
-	public var __root:CocoClip 					= null;
-	public var __modelViewMatrix:CocoMatrix		= null;
-	public var __projectionMatrix:CocoMatrix 	= null;
-	public var __glProgram:WebGLProgram			= null;
-	public var __levelParents:Array				= [];
-	
-	public var __vertex_shader:String			= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
-	public var __fragment_shader:String			= "#ifdef GL_ES\nprecision mediump float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
-	
-	public var __boundingBoxVertexShader:String = "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
+	public var __boundingBoxVertexShader:String 	= "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
 	public var __boundingBoxFragmentShader:String	= "#ifdef GL_ES\nprecision mediump float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
 	public var __boundingBoxProgram:WebGLProgram	= null;
-	public var __boundingBoxBuffer:WebGLBuffer	= null;
+	public var __boundingBoxBuffer:WebGLBuffer		= null;
 	
 	public var __glPayload:Array = [];
+	public var __ready:Boolean						= false;
+	
+	private var __last_UNIFORM:Array				= [];
 
 			            
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(sceneName:String)
 	{ 
-		__sceneName			= sceneName;
-		__root 				= new CocoClip();
+		__sceneName	= sceneName;
+		__root 		= new CocoClip();
 	}
-			
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function resourceImagesCount() :Number
-	{
-		var t:String, c:Number = 0;
-	    for(t in __imageSymbols) 
-			if(__imageSymbols[t])
-				c++;
-	    return c;
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function resourceImagesLoaded() :Boolean
-	{
-	    var t:String, img:CocoImage;	    
-	    for(t in __imageSymbols) 
-	    {
-	    	img = __imageSymbols[t].image;
-	    	if(!img.width || !img.height) 
-	    		return false;
-	    }
-	    return true;
-	} 
-	
+				
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getImageSymbol(symbolName:String) :CocoImage
 	{
-	    var img:CocoImage = __imageSymbols[symbolName];
-	    if(img) 
-	    {
-	        var dpi:SCREEN_RESOLUTION_DPI_ENUM = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_nodpi;
-	        switch(window.devicePixelRatio)
-	        {
-	        case 0.75: dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_ldpi; break;
-	        case 1.00: dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi; break;
-	        case 1.25: dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_tvdpi; break;
-	        case 1.50: dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_hdpi; break;
-	        case 2.00: dpi = SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi; break;
-	        default: return img;
-	        }
-	        return img.getDpiSiblingImage(dpi);
-	    }
+	    return __imageSymbols[symbolName];
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,12 +101,12 @@ class CocoScene
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function newResourceImage(symbolName:String, filename:String) :CocoImage
+	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage
 	{
 	    if(__imageSymbols[symbolName]) throw "Resource " + symbolName + " already exists.";
-		var img:CocoImage = new CocoImage();
-		img.symbolName = symbolName;
-		img.createFromFile(filename, null);		
+		var img:CocoImage = new CocoImage();		
+		img.symbolName = symbolName;	
+		img.baseUrl = baseUrl;
 		__imageSymbols[symbolName] = img;
 		return img;
 	}
@@ -155,15 +121,9 @@ class CocoScene
 	    __soundSymbols[symbolName] = snd;
 	    return snd;
 	}
-		
+				
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function prepared() :Boolean		
-	{  
-		return (__glProgram!=null); 
-	}
-		
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function prepare(gl:WebGLRenderingContext)
+	private function prepare(gl:WebGLRenderingContext)
 	{                                                                         		                    
 		// Disable depth testing since we render using scene's clips order.		                    
 		gl.disable(gl.DEPTH_TEST);
@@ -197,7 +157,6 @@ class CocoScene
 		__glProgram.GLSLuSampler 	= gl.getUniformLocation(__glProgram, "uSampler");
 		__glProgram.GLSLuColor 		= gl.getUniformLocation(__glProgram, "uColor");
 	
-		
 		__modelViewMatrix = new CocoMatrix();
 		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
 			
@@ -213,61 +172,110 @@ class CocoScene
 		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat);
 					
 		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
-		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);		    
-
-		var t:String;
-	    for(t in __imageSymbols)    
-	    {
-	    	try 
-	    	{
-	    		__imageSymbols[t].prepare(gl);
-	    	}
-	    	catch(e)
-	    	{
-	    		alert("Image " + t + " failed to prepare texture");
-	    	}
-	    }
+		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);				
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function loadResources()
+	{
+		var t:String;		
+		var img:CocoImage;
+		var sibling:Object; 
+		
+		
+		// Load images depending on screen resolution and available image sizes.
+	    for(t in __imageSymbols)    	    
+	    { 
+	    	img = __imageSymbols[t];
 	    	
-	    if(gl.getError())  
-	    {
-	    	alert("WebGL Error " + gl.getError());
-	    } 
-	    
-	    trace("Scene [" + this.__sceneName + "] loaded and prepared.");
+			if(__view_width && __view_height)
+			{				
+				var w:Number = img.viewOptimalWidth * __view_scale * window.devicePixelRatio;
+				var h:Number = img.viewOptimalHeight * __view_scale * window.devicePixelRatio;
+				var i:Number;
+				for(i=0;i<img.viewSiblings.length; i++)
+				{ 
+					sibling = img.viewSiblings[i];
+					if(sibling.textureWidth>=w && sibling.textureHeight>=h)
+					{
+						img.image = new Image();
+						img.image.src = img.baseUrl + sibling.url;
+						img.textureCellWidth = sibling.textureWidth;
+						img.textureCellHeight = sibling.textureHeight;
+						img.pixelRatio = sibling.pixelRatio;
+						break; 
+					}
+				}			
+			}
+			if(!img.image)
+			{  
+				sibling = img.viewSiblings[img.viewSiblings.length-1];
+				img.image = new Image();
+				img.image.src = img.baseUrl + sibling.url;
+				img.textureCellWidth = sibling.textureWidth; 
+				img.textureCellHeight = sibling.textureHeight;
+				img.pixelRatio = sibling.pixelRatio;				
+			}
+			
+			if(img.image)
+			{
+				//trace("Loaded image: " + img.image.src);
+			}
+	    }
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function resourcesLoaded(gl:WebGLRenderingContext)
+	{
+		if(!__ready)
+		{
+			var t:String;
+			var img:CocoImage;
+			
+		    for(t in __imageSymbols)    
+		    {
+		    	img = __imageSymbols[t];
+		    	if(!img.image.width || !img.image.height)
+		    	{
+		    		return false;
+		    	}  
+		    	else if(!img.texture)
+		    	{
+		    		img.prepare(gl);		    				    	
+		    	}
+		    }
+		} 
+		
+	    return (__ready = true);	    
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function tick(gl:WebGLRenderingContext, time:Number)
-	{
-		render(gl, time);		
-	}
+	{        
+		if(!__glProgram)
+		{			
+			prepare(gl);
+			loadResources(this);
+			return;
+		}
+		
+		if(!resourcesLoaded(gl))
+			return;
+			
+		gl.clearColor(1.0, 1.0, 1.0, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function render(gl:WebGLRenderingContext, time:Number, picking:Boolean)
-	{
 		__modelViewMatrix.identity();
 		if(__startTime == -1) __startTime = time;
 	    __elapsedTime = time - __currentTime - __startTime;
 	    __currentTime = time - __startTime;
-					    
+		
 	    if(__root)    
-	    {
+	    {     
 	    	// Render the scene's root symbol
 	    	__levelParents = [__root];
 	    	{
 				// Offscreen rendering
-				
-				//if(picking)
-				//{
-				//	gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-				//	gl.uniform1i(__glProgram.uOffscreen, true);
-				//	__root.render(gl, this, null, true);
-				//}
-				//
-				//// On screen rendering
-				//gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-				//gl.uniform1i(__glProgram.uOffscreen, false);
-				
 				if(global.__Coconut2DPlayer)
 				{
                 	__glPayload = [];
@@ -277,12 +285,12 @@ class CocoScene
 				else
 				{
 					__root.render(gl, this, null, false);	
-				}
+				} 
 	    	}				
 			__levelParents = [];
 			
 			// Did we reach the end of the main timeline?
-			var max = __root.childWithMaxTimelineDuration();
+			var max:CocoClip = __root.__childWithMaxTimelineDuration;
 			if(max && max.__currentFrame == max.__timeline.__lastKeyFrame)
 			{ 
 				//__root.reset();			
@@ -296,23 +304,26 @@ class CocoScene
 	{
 		image.color[3] = alpha;		
 		
+		//__modelViewMatrix.push();
+		//__modelViewMatrix.scale(this.__view_pixel_ratio / image.pixelRatio, this.__view_pixel_ratio / image.pixelRatio);
+		
 		if(global.__Coconut2DPlayer)
 		{
 			var M = __modelViewMatrix; 
-			__glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORMMATRIX4FV, __glProgram.GLSLuMVMat.__uid, false, M.rc11, M.rc12, M.rc13, M.rc14, M.rc21, M.rc22, M.rc23, M.rc24, M.rc31, M.rc32, M.rc33, M.rc34, M.rc41, M.rc42, M.rc43, M.rc44]);
-			__glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, __glProgram.GLSLuSprSize.__uid, image.texSize[0], image.texSize[1]]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, __glProgram.GLSLuSprFrame.__uid, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDBUFFER, gl.ARRAY_BUFFER, image.buffer.__uid]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.BINDTEXTURE, gl.TEXTURE_2D, image.texture.__uid]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM1I, __glProgram.GLSLuSampler.__uid, 0]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.UNIFORM4F, __glProgram.GLSLuColor.__uid, image.color[0], image.color[1], image.color[2], image.color[3]]);
-	        __glPayload = __glPayload.concat([COCO_WEBGL_PAYLOAD_OP.DRAWARRAYS, gl.TRIANGLE_STRIP, 0, 4]);	        
+			__addPayload([COCO_WEBGL_PAYLOAD_OP.UNIFORMMATRIX4FV, __glProgram.GLSLuMVMat.__uid, false, M.rc11, M.rc12, M.rc13, M.rc14, M.rc21, M.rc22, M.rc23, M.rc24, M.rc31, M.rc32, M.rc33, M.rc34, M.rc41, M.rc42, M.rc43, M.rc44]);
+			__addPayload([COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, __glProgram.GLSLuSprSize.__uid, image.texSize[0], image.texSize[1]]);
+	        __addPayload([COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, __glProgram.GLSLuSprFrame.__uid, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]]);
+	        __addPayload([COCO_WEBGL_PAYLOAD_OP.BINDBUFFER, gl.ARRAY_BUFFER, image.buffer.__uid]);
+	        __addPayload([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0]);
+	        __addPayload([COCO_WEBGL_PAYLOAD_OP.VERTEXATTRIBPOINTER, __glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8]);
+	        __addPayload([COCO_WEBGL_PAYLOAD_OP.BINDTEXTURE, gl.TEXTURE_2D, image.texture.__uid]);
+	        __addPayload([COCO_WEBGL_PAYLOAD_OP.UNIFORM1I, __glProgram.GLSLuSampler.__uid, 0]);
+	        __addPayload([COCO_WEBGL_PAYLOAD_OP.UNIFORM4F, __glProgram.GLSLuColor.__uid, image.color[0], image.color[1], image.color[2], image.color[3]]);
+	        __addPayload([COCO_WEBGL_PAYLOAD_OP.DRAWARRAYS, gl.TRIANGLE_STRIP, 0, 4]);	        
 		}
 		else
-		{			
-			__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat); 			  
+		{
+			__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat); 			  		
 			gl.uniform2fv(__glProgram.GLSLuSprSize, image.texSize);
 			gl.uniform2f(__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);                
 			gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);                
@@ -323,9 +334,39 @@ class CocoScene
 			gl.uniform4fv(__glProgram.GLSLuColor, image.color);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);                 
 			gl.bindBuffer(gl.ARRAY_BUFFER, null); 			
-		} 		
- 	}
+			
+		} 
+		
+		//__modelViewMatrix.pop();
+	} 
 	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __addPayload(v:Array)
+	{      
+		var s:String;
+		var op:COCO_WEBGL_PAYLOAD_OP = v[0];
+		
+		switch(op)
+		{
+		case COCO_WEBGL_PAYLOAD_OP.UNIFORMMATRIX4FV, 
+			 COCO_WEBGL_PAYLOAD_OP.UNIFORM2F, 
+			 COCO_WEBGL_PAYLOAD_OP.UNIFORM1I, 
+			 COCO_WEBGL_PAYLOAD_OP.UNIFORM4F:
+            
+			s = v.join("|"); 
+			if(s!=__last_UNIFORM[op])
+			{     
+				__glPayload = __glPayload.concat(v);
+				__last_UNIFORM[op] = s;						
+			}
+			break;		          
+			
+		default:
+			__glPayload = __glPayload.concat(v);
+			break;
+		}  
+	}
+			
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function hitTest(MouseX:Number, MouseY:Number) :Array
 	{
@@ -354,3 +395,12 @@ class CocoScene
 		return scope.gotoFrame(-1, true, deep);
 	}	
 }
+
+
+
+
+
+
+
+
+

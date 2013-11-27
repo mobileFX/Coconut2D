@@ -1782,10 +1782,3 @@ var _install = function () {
 }; 
 
 _install();
-
-
-
-
-
-
-

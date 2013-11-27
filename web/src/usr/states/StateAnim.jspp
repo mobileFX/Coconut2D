@@ -15,28 +15,11 @@ class StateAnim :CocoEngineState
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number)
 	{
-		super.tick(gl, time); 
-		
-		if(scene!=null)
-		{
-			if(!scene.resourceImagesLoaded())
-			{
-				// Wait images to load
-			}
-			else if(!scene.prepared())
-			{
-				// Prepare the scene
-				scene.prepare(gl);
-			}
-			else
-			{
-				// Render the scene
-				gl.clear(gl.COLOR_BUFFER_BIT);
-				scene.tick(gl, time);
-			}
-		}
+		super.tick(gl, time); 		
+		scene && scene.tick(gl, time);
 	}
 }
+
 
 
 

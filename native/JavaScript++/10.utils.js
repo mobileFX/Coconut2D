@@ -126,8 +126,8 @@ function compileJSPP(file, code, _debug, _nowrap, _warnings, _xml)
 			module = module[3];
 			
 			// Beutify and further clean-up modules.			
-			module = RxReplace(module, ";[\\s\\t]+//@line ", "mg", ";\n//@line ");
 			module = do_js_beautify(module, 1, true, true, true);						
+			module = RxReplace(module, "(.)[\\s\\t]+//@line ", "mg", "$1\n//@line ");
            	module = RxReplace(module, "//@line undefined[\\s\\n\\r]+;[\\s\\n\\r]+", "mg", "");
             module = RxReplace(module, "^([\\t]*)\\{\\x20+//@line", "mg", "$1{\n$1\t//@line");
             module = RxReplace(module, "^([\\t]*)\\}\\x20+//@line", "mg", "$1}\n$1//@line");
@@ -202,7 +202,16 @@ function compileJSPP(file, code, _debug, _nowrap, _warnings, _xml)
 	{
 		trace("ERROR: " +e);
 	}
-} 
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function cocompile(file, code, _debug, _nowrap, _warnings, _xml)
+{
+	var ast = narcissus.jsparse(code, file);
+	var c = new Compiler(ast);
+	c.preprocess(ast, false);		
+	return c.compile();	
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function TRACE(n)
@@ -245,7 +254,7 @@ function RxReplace(buff, patt, opts, repl)
 function ____readSourceFiles()
 {
 	var buff = "";
-	var root = "D:/mobileFX/Projects/Software/Coconut/Projects/Leonidas.project/web";	
+	var root = "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web";	
 	//var list = files(root, ".*?(js|jspp)$");	
 	//list = eval(list);
 	var list =
@@ -257,11 +266,11 @@ function ____readSourceFiles()
 	"/src/org/Coconut2D/html5/HTMLCanvas.js",
 	"/src/org/Coconut2D/html5/HTMLEvents.js",
 	"/src/org/Coconut2D/html5/WebGL.js",
+	"/src/org/Coconut2D/anim/CocoRect.jspp",
 	"/src/org/Coconut2D/anim/CocoSequence.jspp",
 	"/src/org/Coconut2D/anim/CocoImage.jspp",
 	"/src/org/Coconut2D/anim/CocoSound.jspp",
 	"/src/org/Coconut2D/anim/CocoTimeLabel.jspp",
-	"/src/org/Coconut2D/anim/CocoTouchEvent.jspp",
 	"/src/org/Coconut2D/anim/CocoVector.jspp",
 	"/src/org/Coconut2D/anim/CocoMatrix.jspp",
 	"/src/org/Coconut2D/anim/CocoKeyFrame.jspp",
@@ -290,12 +299,9 @@ function ____readSourceFiles()
 	"/src/org/Coconut2D/anim/CocoScene.jspp",
 	"/src/org/Coconut2D/anim/CocoEngineState.jspp",
 	"/src/org/Coconut2D/anim/CocoEngine.jspp",
-	"/src/usr/animations/NewAnimation.jspp",
-	"/src/usr/animations/SceneGameBoard.jspp",
-	"/src/usr/animations/SceneTitle.jspp",
-	"/src/usr/states/State_GameBoard.jspp",
 	"/src/usr/GameEngine.jspp",
-	"/src/usr/states/State_TitleScreen.jspp",
+	"/src/usr/animations/Animation1.jspp",
+	"/src/usr/states/StateAnim.jspp",
 	"/src/main.js"];
 
 	for(var i=0;i<list.length;i++)
@@ -308,5 +314,11 @@ function ____readSourceFiles()
 	return buff;	
 }
 
-//var code = ____readSourceFiles();
+var code = ____readSourceFiles();
 //var gen = compileJSPP("",code, true, true, true, false);
+var gen = cocompile("",code, true, true, true, false);
+write("C:/Users/Admin/Desktop/gen.js",gen);
+
+
+
+

@@ -60,19 +60,23 @@ class CocoTimeline
 	} 
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function keyFrames() :Array
-	{
-		var v:String, list:Array = [];
-		for(v in __keyFrames)
-		{			
-			list.push(__keyFrames[v]);
+	public function __enumerate(fn:Function)
+	{	                        
+		if(!fn) return false;
+		var KeyFrame:CocoKeyFrame = this.__firstKeyFrame;		
+		while(KeyFrame)
+		{
+			if(fn(KeyFrame)===false)
+				return false;
+			KeyFrame = KeyFrame.nextKeyFrame;
 		}
-		return list;
+		return true;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function clear()
 	{
+		reset();
 	    __keyFrames = null;
 	    __keyFrames = {};
 	    __keyFramesCount = 0;
@@ -86,10 +90,7 @@ class CocoTimeline
 	    __skipTime = 0;
 	    __paused = false;
 	    __lastFrame = null;
-
-		var v:String;
-	    for(v in __keyFrames) 
-	    	__keyFrames[v].reset();
+        __enumerate( function(f) { f.reset(); } );
 	}
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +132,7 @@ class CocoTimeline
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame
 	{
 		if(!KeyFrame) return null;
-	    KeyFrame.frameIndex = roundIndex(KeyFrame.frameIndex);
+	    KeyFrame.frameIndex = Math.floor(KeyFrame.frameIndex);
 	    __keyFrames[""+KeyFrame.frameIndex] = KeyFrame;
 	    normalizetimeline();
 	    return KeyFrame;
@@ -174,7 +175,7 @@ class CocoTimeline
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function insertKeyFrame(frameIndex:Number) :CocoKeyFrame
 	{
-	    frameIndex = roundIndex(frameIndex);	       
+	    frameIndex = Math.floor(frameIndex);	       
 	    var key:String = frameIndex.toString();
 	    var KeyFrame:CocoKeyFrame = (__keyFrames[key] || interpolateByFrame(frameIndex));
 	    return addKeyFrame(KeyFrame);
@@ -187,124 +188,20 @@ class CocoTimeline
 	    __keyFrames[""+KeyFrame.frameIndex] = null;
 		normalizetimeline();
 	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function insertFrames(AtTimeIndex:Number, FramesCount:Number)
-	{      
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function deleteFrames(FromTimeIndex:Number, ToTimeIndex:Number)
-	{
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function setKeyFrameIndex(KeyFrame:CocoKeyFrame, frameIndex:Number)
-	{
-		if(!KeyFrame || (frameIndex == KeyFrame.frameIndex)) return;    
-	    
-	    frameIndex = roundIndex(frameIndex);
-	    KeyFrame.frameIndex = roundIndex(KeyFrame.frameIndex);
-	    if(frameIndex == KeyFrame.frameIndex) return;
-	    
-	    __keyFrames[""+KeyFrame.frameIndex] = null;    
-	    KeyFrame.frameIndex = frameIndex;
-	    __keyFrames[""+KeyFrame.frameIndex] = KeyFrame;
-	    
-	    normalizetimeline();
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function findKeyFrameBeforeframeIndex(frameIndex:Number, inclusive:Boolean, excludeListIndex:Number) :CocoKeyFrame
-	{
-		var i:Number;
-		var KeyFrame:CocoKeyFrame;
-	    var list:Array = keyFrames();
-	    
-	    for(i=list.length-1; i>=0; i--)
-	    {
-	        if(i!=excludeListIndex)         
-	        {
-	            KeyFrame = list[i];
-	            if(inclusive) 
-	            {
-	                if(KeyFrame.frameIndex <= frameIndex) 
-	                    return KeyFrame;
-	            } 
-	            else 
-	            {
-	                if(KeyFrame.frameIndex < frameIndex) 
-	                    return KeyFrame;                    
-	            }
-	        }
-	    }
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function findKeyFrameAfterframeIndex(frameIndex:Number, inclusive:Boolean, excludeListIndex:Number) :CocoKeyFrame
-	{               
-		var i:Number;
-	    var KeyFrame:CocoKeyFrame;
-	    var list:Array = keyFrames();
-	    
-	    for(i=0; i<list.length; i++) 
-	    {
-	        if(i!=excludeListIndex)
-	        {
-	            KeyFrame = list[i];
-	            if(inclusive) 
-	            {
-	                if(KeyFrame.frameIndex >= frameIndex) 
-	                    return KeyFrame;
-	            } 
-	            else 
-	            {
-	                if(KeyFrame.frameIndex > frameIndex) 
-	                    return KeyFrame;
-	            }
-	        }
-	    }
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function findKeyFramesBetween(startframeIndex:Number, stopframeIndex:Number) :Array
-	{
-	    var col:Array = [];
-	    var list:Array = keyFrames();
-	    var i:Number; 
-	    var KeyFrame:CocoKeyFrame;
-	    for(i=0; i<list.length; i++) 
-	    {
-	        KeyFrame = list[i];
-	        if(KeyFrame.frameIndex >= startframeIndex || KeyFrame.frameIndex <= stopframeIndex) 
-	            col.push(KeyFrame);
-	    }
-	    return col;
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function listIndexOfKeyFrame(KeyFrame:CocoKeyFrame) :Number
-	{
-		var v:String, index:Number = -1;
-	    for(v in __keyFrames) 
-	    {
-	        index++;
-	        if(__keyFrames[v] === KeyFrame) 
-	            return index;
-	    }
-	    return -1;
-	}
-				
+			
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function normalizetimeline()
-	{    
+	{		   
 	    var KeyFrame:CocoKeyFrame;
+	    var p:CocoKeyFrame;
 	    var v:String;
 	    var vArr:Array;
 	    var f:CocoKeyFrame;
 	    var i:Number;
 	    var L:Number=0;  
-	    
+	                     
+		reset();	                     
+	                     
 	    __durationInFrames = 0;
 	    __durationInTime = 0;
 	    __singleFrameDurationTime = 0;
@@ -319,19 +216,13 @@ class CocoTimeline
 	    	__keyFramesCount++;
 	    
 	    if(__keyFramesCount) 
-	    { 
-	    	// First and Last KeyFrames
-	    	for(v in __keyFrames)
-	    	{
-	    		if(!__firstKeyFrame)
-	    			__firstKeyFrame = __keyFrames[v];	    		
-	    	}
-	    	__lastKeyFrame = __keyFrames[v];
-	    		
+	    { 	    		
 	        // Sort KeyFrames
 	        if(__keyFramesCount > 1) 
-	        {
-	            vArr = keyFrames();
+	        {	
+		    	for(v in __keyFrames)
+		       		vArr.push(__keyFrames[v]);
+
 	            __keyFrames = {};
 	            for(i=0;i<vArr.length;i++)
 	            {
@@ -344,36 +235,63 @@ class CocoTimeline
 	            for(i = 0; i < vArr.length; i++) 
 	                arr[vArr[i].frameIndex] = i + 1;
 	
-	            for(i = 0; i < arr.length; i++) 
+	            for(i=0; i<arr.length; i++) 
 	            {
-	                if(arr[i] > 0) 
+	                if(arr[i]>0) 
 	                {
 	                    KeyFrame = vArr[arr[i] - 1];
+				    	if(p)
+				    	{
+				    		KeyFrame.prevKeyFrame=p;				    	
+				    		p.nextKeyFrame = KeyFrame;
+				    	}				    	
 	                    __keyFrames[""+KeyFrame.frameIndex] = KeyFrame;
+	                    p = KeyFrame;
 	                }
 	            }
+	            p=null;
 	        }
-	                
+	        
+	    	// Get first and last KeyFrames
+	    	for(v in __keyFrames)
+	    		if(!__firstKeyFrame)
+	    			__firstKeyFrame = __keyFrames[v];	    		    		
+	    	__lastKeyFrame = __keyFrames[v];
+	        
+            // Set keyframes double linked list
+            if(__keyFramesCount==1) 
+	        {
+				__firstKeyFrame.nextKeyFrame = __lastKeyFrame;	        	
+				__lastKeyFrame.prevKeyFrame = __firstKeyFrame;
+	        }	                
+		    __firstKeyFrame.prevKeyFrame = null; 
+		    __lastKeyFrame.nextKeyFrame = null;
+
 	        // Calc expensive time/index variables                        
 	        if(__lastKeyFrame)
 	        {
 		        __lastframeIndex = __lastKeyFrame.frameIndex;
 		        __durationInFrames = __lastKeyFrame.frameIndex + 1;
-		        __durationInTime = (__durationInFrames / GLOBAL_FPS) * 1000;		        
+		        __durationInTime = (__durationInFrames / GLOBAL_FPS) * 1000.0;		        
 		        __singleFrameDurationTime = __durationInTime / __durationInFrames;
 		        __firstframeIndex = listIndexOfKeyFrame(__firstKeyFrame);
-	        } 
+	        }	        
 	    }
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function roundIndex(index:Number) :Number
+	public function listIndexOfKeyFrame(KeyFrame:CocoKeyFrame) :Number
 	{
-	    var i:Number = Math.floor(index);
-	    //if((index - i) >= 0.5) i++;
-	    return i;
-	} 
-	
+		var v:String, index:Number = -1;
+		for(v in __keyFrames) 
+		{
+			index++;
+			if(__keyFrames[v] === KeyFrame) 
+			return index;
+		}
+		return -1;
+	}
+		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function frameIndexToLoopTime(frameIndex:Number) :Number
 	{
@@ -392,6 +310,38 @@ class CocoTimeline
 	}
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function findKeyFrameBeforeframeIndex(frameIndex:Number, inclusive:Boolean, excludeListIndex:Number) :CocoKeyFrame
+	{
+		var KeyFrame:CocoKeyFrame = this.keyFrame(frameIndex) || this.__lastKeyFrame;
+		if(KeyFrame)
+		{
+			if(inclusive && KeyFrame.frameIndex == frameIndex) return KeyFrame;				
+			for(;KeyFrame!=null;KeyFrame=KeyFrame.prevKeyFrame)
+			{
+				if(excludeListIndex!=null && excludeListIndex==KeyFrame.frameIndex) continue;			
+				if(KeyFrame.frameIndex<frameIndex) return KeyFrame;
+			}  
+		}
+		return null;
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function findKeyFrameAfterframeIndex(frameIndex:Number, inclusive:Boolean, excludeListIndex:Number) :CocoKeyFrame
+	{               
+		var KeyFrame:CocoKeyFrame = this.keyFrame(frameIndex) || this.__firstKeyFrame;
+		if(KeyFrame)
+		{
+			if(inclusive && KeyFrame.frameIndex == frameIndex) return KeyFrame;				
+			for(;KeyFrame!=null;KeyFrame=KeyFrame.nextKeyFrame)
+			{
+				if(excludeListIndex!=null && excludeListIndex==KeyFrame.frameIndex) continue;			
+				if(KeyFrame.frameIndex>frameIndex) return KeyFrame;
+			}  
+		}
+		return null;
+	}
+				
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolateByTime(LoopTime:Number) :CocoKeyFrame
 	{
 	    var T:Number = (LoopTime / __singleFrameDurationTime);
@@ -400,15 +350,15 @@ class CocoTimeline
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolateByFrame(frameIndex:Number) :CocoKeyFrame
-	{ 	              
+	{              
 		if(__paused && __lastFrame) 
 			return __lastFrame;
-		
+			
 	    var F:CocoKeyFrame = null;
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
-	    var s:Number = 1;
-	    var FrameIndex = roundIndex(frameIndex);	    
+	    var s:Number = 1.0;
+	    var FrameIndex = Math.floor(frameIndex);	    
 	    
 	    // Timeline is empty?
 	    if(!__keyFramesCount) 
@@ -481,7 +431,4 @@ class CocoTimeline
 	    }
 	}
 }
-
-
-
 

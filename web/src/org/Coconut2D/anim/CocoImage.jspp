@@ -37,39 +37,44 @@
 // ==================================================================================================================================
 
 class CocoImage
-{
+{ 
 	public var image:HTMLImageElement			= null;
 	public var symbolName:String				= "";
+
+	// Texture
 	public var texture:WebGLTexture				= null;
 	public var textureCellWidth:Number			= 0;
 	public var textureCellHeight:Number			= 0;
-	public var textureGrid:Float32Array			= new Float32Array([0, 0]);
-	public var sequences:Object					= null;
+	public var textureGrid:Float32Array			= new Float32Array([0.0, 0.0]);
 	public var color:Float32Array				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
 	public var texSize:Float32Array				= new Float32Array([1.0, 1.0]);
 	public var buffer:WebGLBuffer				= null;
-	public var dpi:SCREEN_RESOLUTION_DPI_ENUM 	= SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_nodpi;
-	public var skin:Object						= null;
 	
+	// Sprite
+	public var sequences:Object					= null;
+	
+	// Skin
+	public var skin:Object						= null;	           
+	
+	// Resolution Siblings
+	public var baseUrl:String					= null;
+	public var viewOptimalWidth:Number			= 0;
+	public var viewOptimalHeight:Number			= 0;
+	public var viewSiblings:Array				= [];
+	public var pixelRatio:Number				= 1.0;
+	            
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{							
 	} 
-		
+			
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function isSpriteSheet() :Boolean
 	{
 		return textureCellWidth>0 && textureCellHeight>0 && this.sequences != null; 
 	}
 	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function createFromFile(filename:String, onloadCallBack:Function)
-	{	
-		image = new Image();
-		image.onload = onloadCallBack;
-		image.src = filename;	
-	}                  
-	
+	/*			
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function createWithText(font:CocoFont, text:String)
 	{
@@ -81,13 +86,8 @@ class CocoImage
 		font.fillText(image.__imageData.__buffer, image.width, text, 0, 0);
 		textureCellWidth = font.measureText(text);
 		textureCellHeight = font.height;		
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function getDpiSiblingImage(dpi) :CocoImage
-	{
-		return this;
 	} 
+	*/
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addSequence(name:String, sequence:CocoSequence)
@@ -100,8 +100,8 @@ class CocoImage
 	public function prepare(gl:WebGLRenderingContext)
 	{
 		// Calc texture data and size.
-		var w2:Number = textureCellWidth / 2;
-		var h2:Number = textureCellHeight / 2;		
+		var w2:Number = textureCellWidth / 2.0;
+		var h2:Number = textureCellHeight / 2.0;		
 		texSize = new Float32Array([textureCellWidth / image.naturalWidth, textureCellHeight / image.naturalHeight]);
 		
 		// Create a texture and bind it.	
@@ -109,11 +109,8 @@ class CocoImage
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		
 		// Load image data to texture.		
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image); 		
-		
-		// Generate mipmaps.
-		gl.generateMipmap(gl.TEXTURE_2D);
-
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+				
 		// Instruct WebGL how to wrap the texture.
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -121,6 +118,9 @@ class CocoImage
 		// Instruct WebGL how to filter the texture when rendering.
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		
+		// Generate mipmaps.
+		gl.generateMipmap(gl.TEXTURE_2D);		
 
 		// Done		                                      
 		gl.bindTexture(gl.TEXTURE_2D, null);  		
@@ -138,4 +138,28 @@ class CocoImage
 		gl.deleteTexture(texture);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

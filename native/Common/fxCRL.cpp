@@ -1,3 +1,27 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013 www.coconut2D.org
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.   
+ *
+ * ***** END LICENSE BLOCK ***** */
+
 #include "fxCRL.h"
 
 #include "ArrayBuffer.h"
@@ -430,13 +454,16 @@ void fxCRL::init(int argc, char *argv[], const fxScreen& scr, fxDeviceWrapper* d
     jstr = fxJSAllocString("devicePixelRatio"); fxJSSetProperty(js_global, jstr, fxJSMakeNumber(screen.pixelRatio), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
     
 	float rot = 0.0f;
-	switch(screen.rotation) {
+	switch(screen.rotation)
+	{
 		case fxScreen::Rotation::NONE: rot = 0.0f; break;
 		case fxScreen::Rotation::RCW: rot = M_PI_2; break;
 		case fxScreen::Rotation::RCCW: rot = -M_PI_2; break;
 		case fxScreen::Rotation::FULL: rot = M_PI; break;
 	}
-	jstr = fxJSAllocString("deviceRotation"); fxJSSetProperty(js_global, jstr, fxJSMakeNumber(rot), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
+	
+	jstr = fxJSAllocString("deviceRotation");
+	fxJSSetProperty(js_global, jstr, fxJSMakeNumber(rot), fxJSPropertyAttributeReadOnly); fxJSFreeString(jstr);
 	
     loadStorage();
     
@@ -524,13 +551,13 @@ void fxCRL::tick()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void fxCRL::paint()
 {
-    V8_SCOPE();
     if(fxJSIsEmpty(js_requestAnimationFrameCallback)) return;
+    V8_SCOPE();
     std::chrono::duration<double, std::milli> running_duration = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(std::chrono::steady_clock::now()-start_time);
     fxJSFunction fCB = js_requestAnimationFrameCallback;
     js_requestAnimationFrameCallback = fxJSEmptyFunction();
-    fxJSValue vale = fxJSMakeNumber(running_duration.count());
-    fxJSCallFunction(fCB, fxJSGetGlobalObject(js_context), 1, &vale);
+    fxJSValue time = fxJSMakeNumber(running_duration.count());
+    fxJSCallFunction(fCB, fxJSGetGlobalObject(js_context), 1, &time);
     fxJSRelease(fCB);
 }
 
@@ -1031,4 +1058,5 @@ fxJSBindFunction(fxCRL::__registerCallback)
     // TODO
     return fxJSMakeUndefined();
 }
+
 

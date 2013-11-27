@@ -81,8 +81,8 @@ compiler.prototype.typesys.cocoscript = function()
 		} 
 		
 		//=============================================================================================================================
-		function getIdentifierDataType(identifier)
-		{ 
+		function getIdentifierDataType(identifier, NodeType)
+		{			
 			var type = _this.UNTYPED;  
 			
 			//Is it a class?
@@ -99,10 +99,17 @@ compiler.prototype.typesys.cocoscript = function()
 				}
 				else
 				{
-					if(find.data.type == jsdef.FUNCTION) 
-						type = "Function";
+					if(find.data.type == jsdef.FUNCTION || find.data.type=="FUNCTION") 
+					{
+						if(NodeType ==jsdef.CALL)
+							type = find.data.returntype
+						else
+							type = "Function";
+					}
 					else
+					{
 						type = find.data.datatype || find.data["[[Type]]"];
+					}
 				}
 			},null, true);	
 			
@@ -162,7 +169,7 @@ compiler.prototype.typesys.cocoscript = function()
 		case jsdef.GE:              return "Boolean";
 		case jsdef.GROUP: 			return _this.typesys(Node[0], Compiler);
 		case jsdef.GT:              return "Boolean";
-		case jsdef.IDENTIFIER:		return getIdentifierDataType(Node.value);
+		case jsdef.IDENTIFIER:		return getIdentifierDataType(Node.value, Node.type);
 		case jsdef.IN:              return "Boolean";
 		case jsdef.INSIDE:          return "Boolean";
 		case jsdef.INSTANCEOF:      return "Boolean";
@@ -311,24 +318,12 @@ compiler.prototype.typesys.cocoscript = function()
 		case jsdef.DOT:   		
 		case jsdef.INDEX:	
 		
-		    //if(Node.source=="scene.__modelViewMatrix.multiplyByVector(__vTOP_LEFT)") debugger;
-					
 			var type = _this.UNTYPED;
 			var reduced = reduceProps(Node);
 		    if(reduced && reduced.length)
 		    {
-			    type = getIdentifierDataType(reduced[0]);
-			                     
-			    // eg. parseInt()
-			    if(reduced.length==1 && type=="Function")
-			    {                			    	
-			    	type = "Global";  
-			    	var cls = Compiler.SymbolTable.getClassSymbol(type);
-			    	if(!cls) return Compiler.NewError({type:ReferenceError, message:"Function "+reduced[0]+" has not been declared"}, Node);
-			    	var mbr =  Compiler.SymbolTable.getMemberSymbol(cls, reduced[0]);
-			    	return mbr.datatype;
-			    }
-			    
+			    type = getIdentifierDataType(reduced[0], Node.type);
+			                     			    
 			    if(type!=_this.UNTYPED)
 			    {
 				    var cls = Compiler.SymbolTable.getClassSymbol(type);
@@ -405,19 +400,3 @@ compiler.prototype.typesys.cocoscript = function()
 		}  //switch							
 	};
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
