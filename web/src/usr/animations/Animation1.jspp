@@ -21,44 +21,12 @@ class Animation1 : CocoScene
 		{
 			SpriteSymbol_metal_slug.viewOptimalWidth = 36;
 			SpriteSymbol_metal_slug.viewOptimalHeight = 42;
-			SpriteSymbol_metal_slug.viewSiblings =
-			[
-				{ url: 'metal_slug_mdpi.png', pixelRatio: 1, textureWidth: 36, textureHeight: 42 },
-				{ url: 'metal_slug_xhdpi.png', pixelRatio: 2, textureWidth: 72, textureHeight: 84 },
-			];
+			SpriteSymbol_metal_slug.addSibling(new CocoImageSibling('metal_slug_mdpi.png', 1, 36, 42));
+			SpriteSymbol_metal_slug.addSibling(new CocoImageSibling('metal_slug_xhdpi.png', 2, 72, 84));
 			SpriteSymbol_metal_slug.textureCellWidth = 36;
 			SpriteSymbol_metal_slug.textureCellHeight = 42;
 			SpriteSymbol_metal_slug.textureGrid = new Float32Array([0,0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8]);
-			SpriteSymbol_metal_slug.sequences = {
-				"Walk": new CocoSequence([0,1,2,3,4,5,6,7,8])
-			};
-		}
-
-		// Symbol Image: SpriteSymbol_Sparrow
-		//====================================================================================================
-		var SpriteSymbol_Sparrow:CocoImage = newResourceImage('SpriteSymbol_Sparrow', './assets/images/');
-		{
-			SpriteSymbol_Sparrow.viewOptimalWidth = 48;
-			SpriteSymbol_Sparrow.viewOptimalHeight = 48;
-			SpriteSymbol_Sparrow.viewSiblings =
-			[
-				{ url: 'Sparrow.png', pixelRatio: 1, textureWidth: 48, textureHeight: 48 },
-			];
-			SpriteSymbol_Sparrow.textureCellWidth = 48;
-			SpriteSymbol_Sparrow.textureCellHeight = 48;
-			SpriteSymbol_Sparrow.textureGrid = new Float32Array([0,0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,0,1,1,1,2,1,3,1,4,1,5,1,6,1,7,2,0,2,1,2,2,2,3,2,4,2,5,2,6,2,7,3,0,3,1,3,2,3,3,3,4,3,5,3,6,3,7,4,0,4,1,4,2,4,3,4,4,4,5,4,6,4,7,5,0,5,1,5,2,5,3,5,4,5,5,5,6,5,7,6,0,6,1,6,2,6,3]);
-			SpriteSymbol_Sparrow.sequences = {
-				"Fly": new CocoSequence([22,23,24]),
-				"Fire": new CocoSequence([25,26,27,28,29,30,31,32,33,34,35]),
-				"Die": new CocoSequence([37,38,39,40,41,42,41,42,41,42]),
-				"Eat": new CocoSequence([0,44,44,45,45,46,46,47,47]),
-				"Burb": new CocoSequence([0,48,48,48,49,49,49,48,48,48,49,49,49,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51]),
-				"Borred": new CocoSequence([0,1,2,1,0]),
-				"Jump": new CocoSequence([10,11,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13]),
-				"Walk": new CocoSequence([3,4,5,6,7,8,9]),
-				"Fall": new CocoSequence([14,15]),
-				"Happy": new CocoSequence([16,17,18,19,20,21])
-			};
+			SpriteSymbol_metal_slug.addSequence(new CocoSequence('Walk', [0,1,2,3,4,5,6,7,8]));
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,88 +46,13 @@ class Animation1 : CocoScene
 			inst1.__instanceName = 'metal_slug1';
 			__root.addChild(inst1);
 			inst1.__timeline.clear();
-			inst1.__timeline.addKeyFrameEx(null, 0, 1, false, true, -191.5, -101.5, 1, 1, 0, 0, 0, 1);
+			inst1.__timeline.addKeyFrameEx(null, 0, 1, false, true, -179.5, -111, 1, 1, 0, 0, 0, 1);
 			{
-				var inst2:CocoClip = new  CocoClip(SpriteSymbol_metal_slug, null, null);
+				var inst2:CocoClip = new  CocoClip(SpriteSymbol_metal_slug, null, 'Walk');
 				inst2.__instanceName = ':: SpriteSymbol_metal_slug';
 				inst1.addChild(inst2);
 				inst2.__timeline.clear();
 				inst2.__timeline.addKeyFrameEx(null, 0, 1, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
-			}
-			var inst3:CocoClip = new  CocoClip();
-			inst3.__instanceName = 'Sparrow1';
-			__root.addChild(inst3);
-			inst3.__timeline.clear();
-			inst3.__timeline.addKeyFrameEx(null, 0, 1, false, true, -195.5, 110.5, 1, 1, 0, 0, 0, 1);
-			{
-				var inst4:CocoClip = new  CocoClip(SpriteSymbol_Sparrow, null, null);
-				inst4.__instanceName = ':: SpriteSymbol_Sparrow';
-				inst3.addChild(inst4);
-				inst4.__timeline.clear();
-				inst4.__timeline.addKeyFrameEx(null, 0, 1, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
-			}
-			var inst5:CocoClip = new  CocoClip();
-			inst5.__instanceName = 'ClipSymbol1';
-			__root.addChild(inst5);
-			inst5.__timeline.clear();
-			inst5.__timeline.addKeyFrameEx(null, 0, 1, false, true, 168, -79, 1, 1, 0, 0, 0, 1);
-			{
-				var inst6:CocoClip = new  CocoClip();
-				inst6.__instanceName = 'metal_slug2';
-				inst5.addChild(inst6);
-				inst6.__timeline.clear();
-				inst6.__timeline.addKeyFrameEx(null, 0, 1, false, true, 1.5, -42.50002, 1, 1, 0, 0, 0, 1);
-				{
-					var inst7:CocoClip = new  CocoClip(SpriteSymbol_metal_slug, null, null);
-					inst7.__instanceName = ':: SpriteSymbol_metal_slug';
-					inst6.addChild(inst7);
-					inst7.__timeline.clear();
-					inst7.__timeline.addKeyFrameEx(null, 0, 1, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
-				}
-				var inst8:CocoClip = new  CocoClip();
-				inst8.__instanceName = 'Sparrow2';
-				inst5.addChild(inst8);
-				inst8.__timeline.clear();
-				inst8.__timeline.addKeyFrameEx(null, 0, 1, false, true, -0.5, 36.49999, 1, 1, 0, 0, 0, 1);
-				{
-					var inst9:CocoClip = new  CocoClip(SpriteSymbol_Sparrow, null, null);
-					inst9.__instanceName = ':: SpriteSymbol_Sparrow';
-					inst8.addChild(inst9);
-					inst9.__timeline.clear();
-					inst9.__timeline.addKeyFrameEx(null, 0, 1, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
-				}
-			}
-			var inst10:CocoClip = new  CocoClip();
-			inst10.__instanceName = 'ClipSymbol2';
-			__root.addChild(inst10);
-			inst10.__timeline.clear();
-			inst10.__timeline.addKeyFrameEx(null, 0, 1, false, true, 72.5, -77.50002, 1, 1, 0, 0, 0, 1);
-			inst10.__timeline.addKeyFrameEx(null, 45, 1, false, true, 69.5, 73.49998, 1, 1, 0, 0, 0, 1);
-			{
-				var inst11:CocoClip = new  CocoClip();
-				inst11.__instanceName = 'metal_slug2';
-				inst10.addChild(inst11);
-				inst11.__timeline.clear();
-				inst11.__timeline.addKeyFrameEx(null, 0, 1, false, true, 1.5, -42.50002, 1, 1, 0, 0, 0, 1);
-				{
-					var inst12:CocoClip = new  CocoClip(SpriteSymbol_metal_slug, null, null);
-					inst12.__instanceName = ':: SpriteSymbol_metal_slug';
-					inst11.addChild(inst12);
-					inst12.__timeline.clear();
-					inst12.__timeline.addKeyFrameEx(null, 0, 1, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
-				}
-				var inst13:CocoClip = new  CocoClip();
-				inst13.__instanceName = 'Sparrow2';
-				inst10.addChild(inst13);
-				inst13.__timeline.clear();
-				inst13.__timeline.addKeyFrameEx(null, 0, 1, false, true, -0.5, 36.49999, 1, 1, -35.81843, 0, 0, 1);
-				{
-					var inst14:CocoClip = new  CocoClip(SpriteSymbol_Sparrow, null, null);
-					inst14.__instanceName = ':: SpriteSymbol_Sparrow';
-					inst13.addChild(inst14);
-					inst14.__timeline.clear();
-					inst14.__timeline.addKeyFrameEx(null, 0, 1, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
-				}
 			}
 		}
 

@@ -114,8 +114,8 @@ function js_beautify(js_source_text, options) {
     // Some interpreters have unexpected results with foo = baz || bar;
     options = options ? options : {};
     var opt_braces_on_own_line = options.braces_on_own_line ? options.braces_on_own_line : false;
-    var opt_indent_size = options.indent_size ? options.indent_size : 4;
-    var opt_indent_char = options.indent_char ? options.indent_char : ' ';
+    var opt_indent_size = options.indent_size ? options.indent_size : 1;
+    var opt_indent_char = options.indent_char ? options.indent_char : '\t';
     var opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
     var opt_indent_level = options.indent_level ? options.indent_level : 0; // starting indentation
     var opt_space_after_anon_function = options.space_after_anon_function === 'undefined' ? false : options.space_after_anon_function;

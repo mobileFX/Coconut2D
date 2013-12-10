@@ -1,7 +1,9 @@
 //@compile{true}
 
-//@include{WebGL.js}
 //@include{CocoSequence.jspp}
+//@include{WebGLTexture.jspp}
+//@include{WebGLBuffer.jspp}  
+//@include{CocoImageSibling.jspp}  
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -38,40 +40,76 @@
 
 class CocoImage
 { 
-	public var image:HTMLImageElement			= null;
-	public var symbolName:String				= "";
-
-	// Texture
-	public var texture:WebGLTexture				= null;
-	public var textureCellWidth:Number			= 0;
-	public var textureCellHeight:Number			= 0;
-	public var textureGrid:Float32Array			= new Float32Array([0.0, 0.0]);
-	public var color:Float32Array				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
-	public var texSize:Float32Array				= new Float32Array([1.0, 1.0]);
-	public var buffer:WebGLBuffer				= null;
-	
-	// Sprite
-	public var sequences:Object					= null;
-	
-	// Skin
-	public var skin:Object						= null;	           
-	
-	// Resolution Siblings
-	public var baseUrl:String					= null;
-	public var viewOptimalWidth:Number			= 0;
-	public var viewOptimalHeight:Number			= 0;
-	public var viewSiblings:Array				= [];
-	public var pixelRatio:Number				= 1.0;
+	public var symbolName:String;						
+	public var image:HTMLImageElement;					
+                                                		
+	// Texture                                  		
+	public var texture:WebGLTexture;						
+	public var textureCellWidth:Float;					
+	public var textureCellHeight:Float;					
+	public var textureGrid:Float32Array;					
+	public var color:Float32Array;						
+	public var texSize:Float32Array;						
+	public var buffer:WebGLBuffer;						
+	public var isSpriteSheet:Boolean;
+	                                                	
+	// Sprite                                       	
+	public var sequences:Array<CocoSequence>; 		
+	                                                	
+	// Resolution Siblings                      		
+	public var baseUrl:String;							
+	public var viewOptimalWidth:Integer;					
+	public var viewOptimalHeight:Integer;				
+	public var viewSiblings:Array<CocoImageSibling>;		
+	public var pixelRatio:Float;							
 	            
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{							
-	} 
-			
+		image				= null;
+		symbolName			= "";
+		texture				= null;
+		textureCellWidth	= 0;
+		textureCellHeight	= 0;
+		textureGrid			= new Float32Array([0.0, 0.0]);
+		color				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		texSize				= new Float32Array([1.0, 1.0]);
+		buffer				= null;
+		isSpriteSheet		= false;
+		sequences 			= [];
+		baseUrl				= null;
+		viewOptimalWidth	= 0;
+		viewOptimalHeight	= 0;
+		viewSiblings		= [];
+		pixelRatio			= 1.0;		
+	}			
+		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function isSpriteSheet() :Boolean
+	public function addSibling(sibling:CocoImageSibling) :CocoImageSibling
 	{
-		return textureCellWidth>0 && textureCellHeight>0 && this.sequences != null; 
+		viewSiblings.push(sibling);
+		return sibling; 
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addSequence(sequence:CocoSequence) :CocoSequence
+	{
+		if(!sequence) return null;
+		if(getSequence(sequence.name)) throw "Sequence " + sequence.name + " already exists.";
+		sequences.push(sequence);
+		isSpriteSheet = true;
+		return sequence;
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getSequence(name:String) :CocoSequence
+	{
+		for (var i = sequences.size() - 1; i >= 0; i--)
+		{
+			if(sequences[i].name == name)
+				return sequences[i];
+		}
+		return null;
 	}
 	
 	/*			
@@ -88,20 +126,13 @@ class CocoImage
 		textureCellHeight = font.height;		
 	} 
 	*/
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function addSequence(name:String, sequence:CocoSequence)
-	{
-		if(sequences[name]) throw "Cannot add sequence with same name!";
-		sequences[name] = sequence;
-	}
-	
+		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(gl:WebGLRenderingContext)
 	{
 		// Calc texture data and size.
-		var w2:Number = textureCellWidth / 2.0;
-		var h2:Number = textureCellHeight / 2.0;		
+		var w2:Float = textureCellWidth / 2.0;
+		var h2:Float = textureCellHeight / 2.0;		
 		texSize = new Float32Array([textureCellWidth / image.naturalWidth, textureCellHeight / image.naturalHeight]);
 		
 		// Create a texture and bind it.	
@@ -130,36 +161,6 @@ class CocoImage
 		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function dispose()
-	{
-		gl.deleteTexture(texture);
-	}
+	}	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

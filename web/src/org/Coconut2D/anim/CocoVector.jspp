@@ -1,6 +1,6 @@
 //@compile{true}
 
-//@include{WebGL.js}
+//@include{WebGLRenderingContext.jspp}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -28,12 +28,20 @@
 
 class CocoVector
 {
-	public var X: Number = 0.0;
-	public var Y: Number = 0.0;
-	public var Z: Number = 0.0;
-	public var W: Number = 1.0;
+	public var X: Float;
+	public var Y: Float;
+	public var Z: Float;
+	public var W: Float;
 	
-	public function set(x:Number, y:Number, z:Number, w:Number)
+	public function Constructor()
+	{
+		X = 0.0;
+		Y = 0.0;
+		Z = 0.0;
+		W = 1.0;
+	}
+	
+	public function set(x:Float, y:Float, z:Float, w:Float)
 	{
 		X = x;
 		Y = y;
@@ -41,6 +49,9 @@ class CocoVector
 		W = w;
 	}
 }
+
+
+
 
 
 

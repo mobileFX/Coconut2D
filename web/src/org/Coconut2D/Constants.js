@@ -33,9 +33,19 @@
 //	                                                  
 // ==================================================================================================================================
 
+var global = this;
+var engine = null;
+var gl = null;
 var GLOBAL_FPS = 24;
-var MAX_TEXTURES = 8;
 var RADIANS = Math.PI / 180.0;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Extensions of JavaScript Array and Object classes to match C++ Vector and Map.   
+
+Object.defineProperty(Array.prototype, "size", { value: function() 
+{ 
+	return this.length; 
+}});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -80,32 +90,7 @@ var COCO_KEYFRAME_INTERPOLATION_ENUM =
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Enum for engine states.
- * @enum {number}
- */
-var COCO_ENGINE_STATES_ENUM = 
-{ 
-	STATE_NONE: 0
-};
-
-
-var COCO_WEBGL_PAYLOAD_OP = 
-{ 
-	BINDBUFFER					: 0,
-	BINDTEXTURE					: 1,
-	DRAWARRAYS					: 2,
-	UNIFORM1I					: 3,
-	UNIFORM2F					: 4,
-	UNIFORM4F					: 5,
-	UNIFORMMATRIX4FV			: 6,
-	VERTEXATTRIBPOINTER			: 7
-	
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
-
 
 
 

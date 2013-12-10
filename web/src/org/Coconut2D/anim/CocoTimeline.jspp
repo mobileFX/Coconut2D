@@ -38,120 +38,126 @@
 
 class CocoTimeline
 { 
-	public var __labels:CocoTimeLabel			= {};
-	public var __keyFramesCount:Number 			= 0;
-	public var __keyFrames:CocoKeyFrame			= {};
-	public var __firstKeyFrame:CocoKeyFrame		= null;
-	public var __lastKeyFrame:CocoKeyFrame		= null;
-	public var __singleFrameDurationTime:Number	= 0;
-	public var __durationInTime:Number			= 0;
-	public var __durationInFrames:Number		= 0;
-	public var __firstframeIndex:Number			= 0;
-	public var __lastframeIndex:Number			= 0;
-	
-	public var __skipTime:Number				= 0;	
-	public var __paused:Boolean					= false;
-	public var __lastFrame:CocoKeyFrame			= null;
+	public var __labels:Array<CocoTimeLabel>;			
+	public var __keyFrames:Array<CocoKeyFrame>;				
+	public var __singleFrameDurationTime:Float;	
+	public var __durationInTime:Float;			
+	public var __durationInFrames:Integer;		
+	public var __skipTime:Float;					
+	public var __paused:Boolean;					
+	public var __pausedKeyFrame:CocoKeyFrame;				
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
-	{ 
+	{
+		__singleFrameDurationTime	= 0.0;
+		__durationInTime			= 0.0;
+		__durationInFrames			= 0;
+		__skipTime					= 0.0;	
+		__paused					= false;
+		__pausedKeyFrame			= null;
+				 
 		addKeyFrameEx(null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);	
 	} 
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function __enumerate(fn:Function)
-	{	                        
-		if(!fn) return false;
-		var KeyFrame:CocoKeyFrame = this.__firstKeyFrame;		
-		while(KeyFrame)
-		{
-			if(fn(KeyFrame)===false)
-				return false;
-			KeyFrame = KeyFrame.nextKeyFrame;
-		}
-		return true;
-	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function clear()
 	{
 		reset();
-	    __keyFrames = null;
-	    __keyFrames = {};
-	    __keyFramesCount = 0;
-	    __labels = {};
-	    normalizetimeline();
+		__keyFrames = [];
+		__labels = [];
+		normalizetimeline();
 	}   
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
-	    __skipTime = 0;
-	    __paused = false;
-	    __lastFrame = null;
-        __enumerate( function(f) { f.reset(); } );
+		__skipTime = 0;
+		__paused = false;
+		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
+		{
+			__keyFrames[i].reset();
+		}
 	}
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addLabel(Label:CocoTimeLabel) :CocoTimeLabel
 	{
-		if(!Label) return null;
-	    __labels[""+Label.frameIndex] = Label;	    
-	    return Label;
+		if (Label) __labels.push(Label);
+		return Label;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function addLabelEx(FrameIndex:Number, LabelName:String) :CocoTimeLabel
+	public function addLabelEx(FrameIndex:Integer, LabelName:String) :CocoTimeLabel
 	{
 		var Label:CocoTimeLabel = new CocoTimeLabel(FrameIndex, LabelName);
-	    return addLabel(Label);	    
+		return addLabel(Label);
 	}  
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function findLabelByName(LabelName:String) :CocoTimeLabel
 	{
-		var Label:CocoTimeLabel;		
-		var key:String;
-		for(key in __labels)
+		for(var i:Integer = __labels.size() - 1; i >= 0; i--)
 		{
-			Label = __labels[key];
-			if(Label.name == LabelName)
-				return Label;
+			if(__labels[i].name == LabelName)
+			{
+				return __labels[i];
+			}
 		}
 		return null;
 	}	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function keyFrame(frameIndex:Number) :CocoKeyFrame
+	public function keyFrame(frameIndex:Integer) :CocoKeyFrame
 	{		
-		return (__keyFrames[""+frameIndex] || null);    
+		for(var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
+		{
+			if(__keyFrames[i].frameIndex == frameIndex)
+			{
+				return __keyFrames[i];
+			}
+		}
+		return null;
 	}	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function firstKeyFrame()
+	{
+		return __keyFrames[0];
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function lastKeyFrame()
+	{
+		return __keyFrames[__keyFrames.size() - 1];
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame
 	{
-		if(!KeyFrame) return null;
-	    KeyFrame.frameIndex = Math.floor(KeyFrame.frameIndex);
-	    __keyFrames[""+KeyFrame.frameIndex] = KeyFrame;
-	    normalizetimeline();
-	    return KeyFrame;
+		if(KeyFrame)
+		{
+			KeyFrame.frameIndex = Math.floor(KeyFrame.frameIndex);
+			__keyFrames.push(KeyFrame);
+			normalizetimeline();
+		}
+		return KeyFrame;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addKeyFrameEx(actionCallback:Function,
-								  frameIndex:Number, 
+								  frameIndex:Integer, 
 								  frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, 
 								  handleEvents:Boolean, 
 								  visible:Boolean, 
-								  x:Number, 
-								  y:Number,
-								  scaleX:Number,
-								  scaleY:Number,
-								  rotation:Number,
-								  pivotX:Number,
-								  pivotY:Number,
-								  alpha:Number) :CocoKeyFrame
+								  x:Float, 
+								  y:Float,
+								  scaleX:Float,
+								  scaleY:Float,
+								  rotation:Float,
+								  pivotX:Float,
+								  pivotY:Float,
+								  alpha:Float) :CocoKeyFrame
 	{    
 	    var KeyFrame:CocoKeyFrame = new CocoKeyFrame();
 	            
@@ -171,207 +177,112 @@ class CocoTimeline
 	    
 	    return addKeyFrame(KeyFrame);    
 	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function insertKeyFrame(frameIndex:Number) :CocoKeyFrame
-	{
-	    frameIndex = Math.floor(frameIndex);	       
-	    var key:String = frameIndex.toString();
-	    var KeyFrame:CocoKeyFrame = (__keyFrames[key] || interpolateByFrame(frameIndex));
-	    return addKeyFrame(KeyFrame);
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function deleteKeyFrame(KeyFrame:CocoKeyFrame)
-	{
-		if(!KeyFrame) return;    
-	    __keyFrames[""+KeyFrame.frameIndex] = null;
-		normalizetimeline();
-	}
-			
+				
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function normalizetimeline()
 	{		   
-	    var KeyFrame:CocoKeyFrame;
-	    var p:CocoKeyFrame;
-	    var v:String;
-	    var vArr:Array;
-	    var f:CocoKeyFrame;
-	    var i:Number;
-	    var L:Number=0;  
-	                     
-		reset();	                     
-	                     
-	    __durationInFrames = 0;
-	    __durationInTime = 0;
-	    __singleFrameDurationTime = 0;
-	    __firstframeIndex = 0;
-	    __lastframeIndex = 0;
-	    __firstKeyFrame = null;
-	    __lastKeyFrame = null;
-	    __keyFramesCount = 0;
-	    
-	    // Count KeyFrames
-	    for(v in __keyFrames)
-	    	__keyFramesCount++;
-	    
-	    if(__keyFramesCount) 
-	    { 	    		
-	        // Sort KeyFrames
-	        if(__keyFramesCount > 1) 
-	        {	
-		    	for(v in __keyFrames)
-		       		vArr.push(__keyFrames[v]);
-
-	            __keyFrames = {};
-	            for(i=0;i<vArr.length;i++)
-	            {
-	            	f = vArr[i];
-	                if(f.frameIndex > L) 
-	                    L = f.frameIndex;
-	            }
-	
-	            var arr:Array = new Array(L);
-	            for(i = 0; i < vArr.length; i++) 
-	                arr[vArr[i].frameIndex] = i + 1;
-	
-	            for(i=0; i<arr.length; i++) 
-	            {
-	                if(arr[i]>0) 
-	                {
-	                    KeyFrame = vArr[arr[i] - 1];
-				    	if(p)
-				    	{
-				    		KeyFrame.prevKeyFrame=p;				    	
-				    		p.nextKeyFrame = KeyFrame;
-				    	}				    	
-	                    __keyFrames[""+KeyFrame.frameIndex] = KeyFrame;
-	                    p = KeyFrame;
-	                }
-	            }
-	            p=null;
-	        }
-	        
-	    	// Get first and last KeyFrames
-	    	for(v in __keyFrames)
-	    		if(!__firstKeyFrame)
-	    			__firstKeyFrame = __keyFrames[v];	    		    		
-	    	__lastKeyFrame = __keyFrames[v];
-	        
-            // Set keyframes double linked list
-            if(__keyFramesCount==1) 
-	        {
-				__firstKeyFrame.nextKeyFrame = __lastKeyFrame;	        	
-				__lastKeyFrame.prevKeyFrame = __firstKeyFrame;
-	        }	                
-		    __firstKeyFrame.prevKeyFrame = null; 
-		    __lastKeyFrame.nextKeyFrame = null;
-
-	        // Calc expensive time/index variables                        
-	        if(__lastKeyFrame)
-	        {
-		        __lastframeIndex = __lastKeyFrame.frameIndex;
-		        __durationInFrames = __lastKeyFrame.frameIndex + 1;
-		        __durationInTime = (__durationInFrames / GLOBAL_FPS) * 1000.0;		        
-		        __singleFrameDurationTime = __durationInTime / __durationInFrames;
-		        __firstframeIndex = listIndexOfKeyFrame(__firstKeyFrame);
-	        }	        
-	    }
-	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function listIndexOfKeyFrame(KeyFrame:CocoKeyFrame) :Number
-	{
-		var v:String, index:Number = -1;
-		for(v in __keyFrames) 
+		reset();
+		__durationInFrames = 0;
+		__durationInTime = 0;
+		__singleFrameDurationTime = 0;
+		if (__keyFrames.size() > 0)
 		{
-			index++;
-			if(__keyFrames[v] === KeyFrame) 
-			return index;
+			__durationInFrames = __keyFrames[__keyFrames.size() - 1].frameIndex + 1;
+			__durationInTime = (__durationInFrames / GLOBAL_FPS) * 1000;
+			__singleFrameDurationTime = __durationInTime / __durationInFrames;
 		}
-		return -1;
 	}
-		
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function frameIndexToLoopTime(frameIndex:Number) :Number
-	{
-		return frameIndex * __singleFrameDurationTime;
-	} 
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function jumpBy(frames:Number, paused:Boolean)
+	public function jumpBy(frames:Float, paused:Boolean)
 	{
 		__paused = paused;	
 		if(frames!=0)
 		{
 			__skipTime += (frames * __singleFrameDurationTime);	
-			__lastFrame = null;		
+			__pausedKeyFrame = null;		
 		}
 	}
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function findKeyFrameBeforeframeIndex(frameIndex:Number, inclusive:Boolean, excludeListIndex:Number) :CocoKeyFrame
+	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
 	{
-		var KeyFrame:CocoKeyFrame = this.keyFrame(frameIndex) || this.__lastKeyFrame;
-		if(KeyFrame)
+		var KeyFrame:CocoKeyFrame;
+		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
 		{
-			if(inclusive && KeyFrame.frameIndex == frameIndex) return KeyFrame;				
-			for(;KeyFrame!=null;KeyFrame=KeyFrame.prevKeyFrame)
+			if (i != excludeListIndex)
 			{
-				if(excludeListIndex!=null && excludeListIndex==KeyFrame.frameIndex) continue;			
-				if(KeyFrame.frameIndex<frameIndex) return KeyFrame;
-			}  
+				KeyFrame = __keyFrames[i];
+				if (inclusive)
+				{
+					if (KeyFrame.frameIndex <= frameIndex)
+					return KeyFrame;
+				}
+				else
+				{
+					if (KeyFrame.frameIndex < frameIndex)
+					return KeyFrame;
+				}
+			}
 		}
 		return null;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function findKeyFrameAfterframeIndex(frameIndex:Number, inclusive:Boolean, excludeListIndex:Number) :CocoKeyFrame
+	public function findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
 	{               
-		var KeyFrame:CocoKeyFrame = this.keyFrame(frameIndex) || this.__firstKeyFrame;
-		if(KeyFrame)
+		var KeyFrame:CocoKeyFrame;
+		for(var i:Integer = 0, L:Integer = __keyFrames.size(); i < L; i++)
 		{
-			if(inclusive && KeyFrame.frameIndex == frameIndex) return KeyFrame;				
-			for(;KeyFrame!=null;KeyFrame=KeyFrame.nextKeyFrame)
+			if (i != excludeListIndex)
 			{
-				if(excludeListIndex!=null && excludeListIndex==KeyFrame.frameIndex) continue;			
-				if(KeyFrame.frameIndex>frameIndex) return KeyFrame;
-			}  
+				KeyFrame = __keyFrames[i];
+				if (inclusive)
+				{
+					if (KeyFrame.frameIndex >= frameIndex)
+					return KeyFrame;
+				}
+				else
+				{
+					if (KeyFrame.frameIndex > frameIndex)
+					return KeyFrame;
+				}
+			}
 		}
 		return null;
 	}
 				
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function interpolateByTime(LoopTime:Number) :CocoKeyFrame
+	public function interpolateByTime(LoopTime:Float) :CocoKeyFrame
 	{
-	    var T:Number = (LoopTime / __singleFrameDurationTime);
+	    var T:Float = (LoopTime / __singleFrameDurationTime);
 	    return interpolateByFrame(T);
 	}     
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function interpolateByFrame(frameIndex:Number) :CocoKeyFrame
+	public function interpolateByFrame(frameIndex:Float) :CocoKeyFrame
 	{              
-		if(__paused && __lastFrame) 
-			return __lastFrame;
+		if(__paused && __pausedKeyFrame) 
+			return __pausedKeyFrame;
 			
 	    var F:CocoKeyFrame = null;
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
-	    var s:Number = 1.0;
+	    var s:Float = 1.0;
 	    var FrameIndex = Math.floor(frameIndex);	    
 	    
 	    // Timeline is empty?
-	    if(!__keyFramesCount) 
+	    if(__keyFrames.size()==0) 
 	    {
 	        F = new CocoKeyFrame();
 	        F.frameIndex = FrameIndex;
 	        F.visible = false;
-	        return __lastFrame = F;
+	        return (__pausedKeyFrame = F);
 	    }
 	        
 	    // Exact KeyFrame exists?
 	    F1 = keyFrame(FrameIndex);
-	    if(F1) return (__lastFrame = F1);
+	    if(F1) return (__pausedKeyFrame = F1);
 	    
 	    // Seek previous KeyFrame
 	    F1 = findKeyFrameBeforeframeIndex(FrameIndex, false);
@@ -382,7 +293,7 @@ class CocoTimeline
 	        F = new CocoKeyFrame();
 	        F.frameIndex = FrameIndex;
 	        F.visible = false;
-	        return (__lastFrame = F);        
+	        return (__pausedKeyFrame = F);        
 	    } 
 	    else 
 	    {        
@@ -393,7 +304,7 @@ class CocoTimeline
 	            F = F1.clone(); 
 	            F.frameIndex = FrameIndex;
 	            F.action=null;
-	            return (__lastFrame = F);
+	            return (__pausedKeyFrame = F);
 	        
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 	        
@@ -401,7 +312,7 @@ class CocoTimeline
 	            F.frameIndex = FrameIndex;
 	            F.action=null;
 	            F.visible = false;
-	            return (__lastFrame = F);
+	            return (__pausedKeyFrame = F);
 	            
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 	            
@@ -414,7 +325,7 @@ class CocoTimeline
 	                F = F1.clone();
 	                F.frameIndex = FrameIndex;
 	                F.action=null;
-	                return (__lastFrame = F);
+	                return (__pausedKeyFrame = F);
 	                
 	            } 
 	            else 
@@ -425,10 +336,24 @@ class CocoTimeline
 	                F.action=null;
 	                s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
 	                F.interpolate(F1, F2, s);
-	                return (__lastFrame = F);                
+	                return (__pausedKeyFrame = F);                
 	            }        
 	        }        
 	    }
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

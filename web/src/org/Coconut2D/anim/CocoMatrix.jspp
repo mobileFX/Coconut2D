@@ -1,6 +1,6 @@
 //@compile{true}
 
-//@include{WebGL.js}
+//@include{WebGLRenderingContext.jspp}
 //@include{CocoVector.jspp}
 
 /* ***** BEGIN LICENSE BLOCK *****
@@ -38,24 +38,24 @@
    
 class CocoMatrix
 {
-	public var rc11:Number;
-	public var rc12:Number;
-	public var rc13:Number;
-	public var rc14:Number;
-	public var rc21:Number;
-	public var rc22:Number;
-	public var rc23:Number;
-	public var rc24:Number;
-	public var rc31:Number;
-	public var rc32:Number;
-	public var rc33:Number;
-	public var rc34:Number;
-	public var rc41:Number;
-	public var rc42:Number;
-	public var rc43:Number;
-	public var rc44:Number;
+	public var rc11:Float;
+	public var rc12:Float;
+	public var rc13:Float;
+	public var rc14:Float;
+	public var rc21:Float;
+	public var rc22:Float;
+	public var rc23:Float;
+	public var rc24:Float;
+	public var rc31:Float;
+	public var rc32:Float;
+	public var rc33:Float;
+	public var rc34:Float;
+	public var rc41:Float;
+	public var rc42:Float;
+	public var rc43:Float;
+	public var rc44:Float;
 		 
-	public var __stack:Array = [];	
+	public var __stack:Array<Float> = [];	
 	public var __data:Float32Array = null;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ class CocoMatrix
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function ortho(left:Number, right:Number, bottom:Number, top:Number, near:Number, far:Number) 
+	public function ortho(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float) 
 	{
 		rc11 = 2 / (right - left);
 		rc12 = 0.0;
@@ -127,7 +127,7 @@ class CocoMatrix
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function transpose()
 	{
-	    var t:Number;
+	    var t:Float;
 	    t = rc12; rc12 = rc21; rc21 = t;
 	    t = rc13; rc13 = rc31; rc31 = t;
 	    t = rc14; rc14 = rc41; rc41 = t;
@@ -143,7 +143,7 @@ class CocoMatrix
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function determinant() :Number
+	public function determinant() :Float
 	{
 	    var D = (rc14 * rc23 * rc32 * rc41) - (rc13 * rc24 * rc32 * rc41) - (rc14 * rc22 * rc33 * rc41) + (rc12 * rc24 * rc33 * rc41) + 
 		        (rc13 * rc22 * rc34 * rc41) - (rc12 * rc23 * rc34 * rc41) - (rc14 * rc23 * rc31 * rc42) + (rc13 * rc24 * rc31 * rc42) + 
@@ -158,7 +158,7 @@ class CocoMatrix
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function invert()
 	{    
-	    var D:Number = determinant();
+	    var D:Float = determinant();
 	    if(D == 0) return;	    
 	        
 	    var invRC11 = (rc23 * rc34 * rc42) - (rc24 * rc33 * rc42) + (rc24 * rc32 * rc43) - (rc22 * rc34 * rc43) - (rc23 * rc32 * rc44) + (rc22 * rc33 * rc44);
@@ -222,7 +222,7 @@ class CocoMatrix
 	//	                                                                                   
 	// ==================================================================================================================================	
 		
-	public function translate(tx:Number, ty:Number) 
+	public function translate(tx:Float, ty:Float) 
 	{
 		rc41 += rc11 * tx + rc21 * ty;
 		rc42 += rc12 * tx + rc22 * ty;
@@ -230,7 +230,7 @@ class CocoMatrix
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function scale(sx:Number, sy:Number)
+	public function scale(sx:Float, sy:Float)
 	{
 		rc11 *= sx;
 		rc21 *= sy;		
@@ -243,12 +243,12 @@ class CocoMatrix
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function rotateZ(rz:Number)
+	public function rotateZ(rz:Float)
 	{
 		// counter-clockwise rotation around Z-axis (perpendicular to the screen)
-		var c:Number = Math.cos(rz);
-		var s:Number = Math.sin(rz);
-		var t0:Number, t1:Number;
+		var c:Float = Math.cos(rz);
+		var s:Float = Math.sin(rz);
+		var t0:Float, t1:Float;
 	
 		t0 = rc11;
 		t1 = rc21;
@@ -322,7 +322,7 @@ class CocoMatrix
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function pop()
 	{
-		if(__stack.length) 
+		if(__stack.size()) 
 		{
 			var data = __stack.pop();
 			rc11 = data[0];
@@ -344,6 +344,4 @@ class CocoMatrix
 		}
 	}
 }
-
-
 

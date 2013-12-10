@@ -1,6 +1,6 @@
 //@compile{true}
 
-//@include{WebGL.js}
+//@include{WebGLRenderingContext.jspp}
 //@include{CocoMatrix.jspp}
 
 /* ***** BEGIN LICENSE BLOCK *****
@@ -38,25 +38,25 @@
 
 class CocoKeyFrame
 {
-	public var frameIndex:Number									= 0;
+	public var frameIndex:Integer									= 0;
 	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM 	= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 	public var handleEvents:Boolean									= false;
 	public var calcBoundingBox:Boolean								= true;
-	public var alpha:Number											= 1.0;
+	public var alpha:Float											= 1.0;
 	public var visible:Boolean										= true;
-	public var x:Number 											= 0.0;
-	public var y:Number 											= 0.0;
-	public var pivotX:Number 										= 0.0;
-	public var pivotY:Number 										= 0.0;
-	public var scaleX:Number 										= 1.0;
-	public var scaleY:Number 										= 1.0;
-	public var rotation:Number										= 0.0;
+	public var x:Float 												= 0.0;
+	public var y:Float 												= 0.0;
+	public var pivotX:Float 										= 0.0;
+	public var pivotY:Float 										= 0.0;
+	public var scaleX:Float 										= 1.0;
+	public var scaleY:Float 										= 1.0;
+	public var rotation:Float										= 0.0;
 	public var action:Function										= null;
 	
 	public var nextKeyFrame:CocoKeyFrame							= null;
 	public var prevKeyFrame:CocoKeyFrame							= null;
 	
-	private var __lastActionExecutionTime:Number					= 0.0;		
+	private var __lastActionExecutionTime:Float						= 0.0;		
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -105,7 +105,7 @@ class CocoKeyFrame
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function execute(gl:WebGLRenderingContext, currentTime:Number, loopTime:Number, scene:CocoScene, clip:CocoClip)
+	public function execute(gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, scene:CocoScene, clip:CocoClip)
 	{		
 		if(currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime)
 		{
@@ -119,7 +119,7 @@ class CocoKeyFrame
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Number)
+	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float)
 	{
 	    alpha = F1.alpha + s * (F2.alpha - F1.alpha);
 	    x = F1.x + s * (F2.x - F1.x);
@@ -149,6 +149,9 @@ class CocoKeyFrame
 		if(pivotX!=0 || pivotY!=0) matrix.translate(-pivotX, -pivotY);	
 	}
 } 
+
+
+
 
 
 

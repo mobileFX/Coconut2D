@@ -1,6 +1,6 @@
 //@compile{true}
 
-//@include{WebGL.js}
+//@include{WebGLRenderingContext.jspp}
 //@include{CocoEngineState.jspp}
 //@include{CocoScene.jspp}
 
@@ -37,34 +37,33 @@
 //	                                  /____/               
 // ================================================================================================================================== 
  
-/* 
-	A CocoEngine is a state machine that consists of an array of CocoEngineStates.
-*/ 
- 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoEngine
 {	
-	private var __currentState:CocoEngineState = null;
-	private var __nextState:CocoEngineState = null;
-	private var __stateStart:Number = 0;
-	
-	public var __touchEvent :HTMLEvent;
+	public var __currentState:CocoEngineState;
+	public var __nextState:CocoEngineState;
+	public var __stateStart:Float;	
+	public var __touchEvent:HTMLEvent;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{ 
+		__currentState = null;
+		__nextState = null;
+		__stateStart = 0.0;		
+		__touchEvent = null;
+
 		// Set event handlers
-		window.addEventListener("touchstart", __setTouchEvent);
-		window.addEventListener("touchmove", __setTouchEvent);
-		window.addEventListener("touchend", __setTouchEvent);		
+		//window.addEventListener("touchstart", __setTouchEvent);
+		//window.addEventListener("touchmove", __setTouchEvent);
+		//window.addEventListener("touchend", __setTouchEvent);		
 	} 
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function __setTouchEvent(e:HTMLEvent)	
 	{
-		__touchEvent = e;
-		__touchEvent.clientX = e.changedTouches[0].clientX;
-		__touchEvent.clientY = e.changedTouches[0].clientY;
+		//__touchEvent = e;
+		//__touchEvent.clientX = e.changedTouches[0].clientX;
+		//__touchEvent.clientY = e.changedTouches[0].clientY;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +79,7 @@ class CocoEngine
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function tick(gl:WebGLRenderingContext, time:Number)
+	public function tick(gl:WebGLRenderingContext, time:Float)
 	{
 		// Change state
 		if(__nextState!=null)
@@ -95,6 +94,11 @@ class CocoEngine
 		__touchEvent = null;
 	} 	
 };
+
+
+
+
+
 
 
 

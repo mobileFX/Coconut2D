@@ -1,11 +1,11 @@
 //@compile{true}
-function ArrayBuffer(){};
-function ArrayBufferView(){};
-function Float32Array(){};
-function Int32Array(){};
-function Uint8Array(){};
-function HTMLVideoElement(){};
-function CocoFont(){};
+function ArrayBuffer(){}
+function ArrayBufferView(){}
+function Float32Array(){}
+function Int32Array(){}
+function Uint8Array(){}
+function HTMLVideoElement(){}
+function CocoFont(){}
 
 var devicePixelRatio;
 var innerHeight;

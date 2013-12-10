@@ -73,127 +73,63 @@ function ____JSONtoXML(json, rootNode)
 	}
 	
 	return xml;
+} 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function TRACE(n)
+{
+	trace(JSON.stringify( stripNodeFromCyclicReferences(n)));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function RxReplace(buff, patt, opts, repl)
+{
+	var rx = new RegExp(patt, opts);
+	var res = buff.replace(rx, repl);
+	return res;
+} 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function formatCPP(buff)
+{  
+	buff = RxReplace(buff, "[\s\t\n\r]+\\{[\s\t\n\r]+\\};", "mg", "{};");		
+	buff = RxReplace(buff, "Array\\s*\\<\\s*([\\w\\*]+)\\s*\\>\\s*", "mg", "Array<$1> ");			 
+	buff = RxReplace(buff, "Dictionary \\< (\\w+) \\> ", "mg", "Dictionary<$1> ");
+	buff = RxReplace(buff, "\\bFloat\\b", "mg", "float");			 			 
+	buff = RxReplace(buff, "\\bInteger\\b", "mg", "int");
+	buff = RxReplace(buff, "\\bBoolean\\b", "mg", "bool");
+	buff = RxReplace(buff, "\\bString\\b", "mg", "std::string");
+	buff = RxReplace(buff, "\\s*//<<(.*)>>//", "mg", "$1");
+	buff = RxReplace(buff, "\\bMath.floor\\(", "mg", "std::floor(");
+	buff = RxReplace(buff, "\\bMath.min\\(", "mg", "std::min(");
+	buff = RxReplace(buff, "\\bMath.max\\(", "mg", "std::max(");
+	buff = RxReplace(buff, "_ENUM\\.(\\w+)", "mg", "_ENUM::$1");		
+	return buff;
 }
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function compileJSPP(file, code, _debug, _nowrap, _warnings, _xml)
+function compileJSPP(code)
 {
 	try
 	{				
-		if (file == null) file = "(no-file)";
-
-		if (_xml == null) _xml = true;
-		if (_debug == null) _debug = true;
-		if (_nowrap == null) _nowrap = true;
-		if (_warnings == null) _warnings = true;
+		var ast = narcissus.jsparse(code);	
 		
-		var options =
-		{
-			debug: _debug,
-			nowrap: _nowrap,
-			warnings: _warnings,
-			symbols: true
-		};
+		var compiler = new Compiler(ast);		
+		compiler.preprocess(ast, 1);		
+		compiler.compile();			
+		var classes = compiler.classes;
 		
-		var ast, c, gen, cs;
-                
-        // First pass
-		ast = narcissus.jsparse(code, file);
-		c = new compiler(ast, options);
-		c.preprocess(ast, false);		
-		gen = c.compile();         
-		cs = [].concat(c.SymbolTable.codeSymbols);
-		c = null;
-		
-		// Second pass      
-		c = new compiler(ast, options);
-		c.preprocess(ast, true);		
-		c.SymbolTable.codeSymbols = cs;
-		gen = c.compile();
-				
-		// Cleanup generated code of empty scopes.
-		gen = RxReplace(gen, "var _bScope\\d+\\=\\{\\};[\\s\\n\\r]*", "mg", "");
-		gen = RxReplace(gen, "_bScope\\d+\\=null;[\\s\\n\\r]*", "mg", "");
-		gen = RxReplace(gen, "var _bScopeStmt\\d+\\=\\{\\};[\\s\\n\\r]*", "mg", "");
-		gen = RxReplace(gen, "_bScopeStmt\\d+\\=null;[\\s\\n\\r]*", "mg", "");
-		
-		// Split generated code into modules.
-		var module, rx_modules = new RegExp("//@line (\\d+)\n+\\x22script_begin\\:///([^\\x22]+)\\x22;([.\\W\\w\\n\\N]*?)//@line (\\d+)\n+\\x22script_end\\:///([^\\x22]+)\\x22;", "mg");
-		while((module = rx_modules.exec(gen)) !== null) 
-		{
-			// Get filename.
-			var file = module[2];
-			module = module[3];
+		compiler = new Compiler(ast);
+		compiler.classes = classes;
+		compiler.preprocess(ast, 2);	
+		var gen = compiler.compile();			
+				 		
+		//jsppCallback("errors", 			____JSONtoXML(c.errors));
+		//jsppCallback("warnings", 		____JSONtoXML(c.warnings));				
+		//jsppCallback("debugSymbols", 	____JSONtoXML(c.debugSymbols));				
+		//jsppCallback("codeSymbols", 	____JSONtoXML(c.codeSymbols));
+		//jsppCallback("codeScopes", 		____JSONtoXML(c.codeScopes));		
 			
-			// Beutify and further clean-up modules.			
-			module = do_js_beautify(module, 1, true, true, true);						
-			module = RxReplace(module, "(.)[\\s\\t]+//@line ", "mg", "$1\n//@line ");
-           	module = RxReplace(module, "//@line undefined[\\s\\n\\r]+;[\\s\\n\\r]+", "mg", "");
-            module = RxReplace(module, "^([\\t]*)\\{\\x20+//@line", "mg", "$1{\n$1\t//@line");
-            module = RxReplace(module, "^([\\t]*)\\}\\x20+//@line", "mg", "$1}\n$1//@line");
-            module = RxReplace(module, "([:=])\\s*\\{[\\s\\t\\r\\n]*\\}", "mg", "$1 {}");
-            module = RxReplace(module, "return[\\s\\n\\r]+//@line NaN[\\s\\n\\r]+;", "mg", "return;");			
-            module = RxReplace(module, "\\n\\n", "m", "");
-            
-            // Output module.						
-		    jsppCallback("module", file, module);		    		   
-		}
-		
-		stripNodeFromCyclicReferences(c.errors);			
-		stripNodeFromCyclicReferences(c.warnings);			
-		stripNodeFromCyclicReferences(c.SymbolTable.debugSymbols);			
-		stripNodeFromCyclicReferences(c.SymbolTable.codeSymbols);
-		stripNodeFromCyclicReferences(c.SymbolTable.scopeTable);		
-		 
-		/*
-		function CleanSymbol(n)
-		{ 
-			//if(!n) return;
-			for(i in n)
-			{ 
-				switch(i)
-				{
-				case "start":
-				case "end":
-				case "lineno":
-				case "scopeId":
-				case "classId":
-					n[i]=undefined;				
-					break;
-				}               
-				if(n[i] instanceof Object)
-				  CleanSymbol(n[i]);
-			}
-		} 
-		for(i in c.SymbolTable.codeSymbols)
-		{ 
-			if(!isFinite(i))continue;
-			var item = c.SymbolTable.codeSymbols[i];
-			if(item.type=="CLASS")
-			{
-				CleanSymbol(item);
-				var json = JSON.stringify(item);
-				json = RxReplace(json, "ECMA", "mg", "");
-				json = RxReplace(json, "__", "mg", "");
-				trace(json);
-			}
-		}
-		*/		
-		
-		c.SymbolTable.debugSymbols = JSON.stringify(c.SymbolTable.debugSymbols);
-		c.SymbolTable.codeSymbols = JSON.stringify(c.SymbolTable.codeSymbols);
-		c.SymbolTable.scopeTable = JSON.stringify(c.SymbolTable.scopeTable);
-		
-		jsppCallback("errors", _xml ? ____JSONtoXML(c.errors) : JSON.stringify(c.errors) );
-		jsppCallback("warnings", _xml ? ____JSONtoXML(c.warnings) : JSON.stringify(c.warnings) );				
-		jsppCallback("debugSymbols", _xml ? ____JSONtoXML(c.SymbolTable.debugSymbols) : c.SymbolTable.debugSymbols );				
-		jsppCallback("codeSymbols", _xml ? ____JSONtoXML(c.SymbolTable.codeSymbols) : c.SymbolTable.codeSymbols );
-		jsppCallback("codeScopes", _xml ? ____JSONtoXML(c.SymbolTable.scopeTable) : c.SymbolTable.scopeTable );		
-		
-		//trace( "=== DEBUG SYMBOLS ===\n" + c.SymbolTable.debugSymbols.replace(/\},\{/mg, "}\n{") + "\n\n" );		
-		//trace( "=== CODE SYMBOLS ===\n" + c.SymbolTable.codeSymbols.replace(/\},\{/mg, "}\n{") + "\n\n" );				
-		//trace( "=== SCOPE TABLE ===\n" + JSON.stringify(c.SymbolTable.scopeTable).replace(/\},\{/mg, "}\n{") + "\n\n" );
-		
 		trace("Code generation Done.");
 		
 		return gen;		
@@ -205,67 +141,31 @@ function compileJSPP(file, code, _debug, _nowrap, _warnings, _xml)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function cocompile(file, code, _debug, _nowrap, _warnings, _xml)
-{
-	var ast = narcissus.jsparse(code, file);
-	var c = new Compiler(ast);
-	c.preprocess(ast, false);		
-	return c.compile();	
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function TRACE(n)
-{
-	trace(JSON.stringify( stripNodeFromCyclicReferences(n)));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function stripNodeFromCyclicReferences(node)
-{
-	for(key in node)
-	{
-		switch(key)
-		{
-			case "tokenizer":				
-			case "parent":
-			case "target":
-			case "parentObject":
-				node[key] = null;
-				continue;
-				break;
-		}
-		
-		var item = node[key];	
-		if(item instanceof Object)
-			stripNodeFromCyclicReferences(item);
-	}			
-	return node;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function RxReplace(buff, patt, opts, repl)
-{
-	var rx = new RegExp(patt, opts);
-	var res = buff.replace(rx, repl);
-	return res;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function ____readSourceFiles()
 {
 	var buff = "";
 	var root = "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web";	
-	//var list = files(root, ".*?(js|jspp)$");	
-	//list = eval(list);
 	var list =
 	["/src/externs/CRL_native.js",
 	"/src/externs/ECMA.jspp",
 	"/src/org/Coconut2D/Constants.js",
 	"/src/org/Coconut2D/Coconut.js",
-	"/src/org/Coconut2D/html5/HTML5.js",
-	"/src/org/Coconut2D/html5/HTMLCanvas.js",
+	"/src/org/Coconut2D/html5/HTMLElement.jspp",
 	"/src/org/Coconut2D/html5/HTMLEvents.js",
-	"/src/org/Coconut2D/html5/WebGL.js",
+	"/src/org/Coconut2D/html5/ImageData.jspp",
+	"/src/org/Coconut2D/html5/HTMLImageElement.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLActiveInfo.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLBuffer.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLContextAttributes.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLFramebuffer.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLProgram.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLRenderbuffer.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLShader.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLShaderPrecisionFormat.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLTexture.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLUniformLocation.jspp",
+	"/src/org/Coconut2D/WebGL/WebGLRenderingContext.jspp",
+	"/src/org/Coconut2D/anim/CocoImageSibling.jspp",
 	"/src/org/Coconut2D/anim/CocoRect.jspp",
 	"/src/org/Coconut2D/anim/CocoSequence.jspp",
 	"/src/org/Coconut2D/anim/CocoImage.jspp",
@@ -276,6 +176,9 @@ function ____readSourceFiles()
 	"/src/org/Coconut2D/anim/CocoKeyFrame.jspp",
 	"/src/org/Coconut2D/anim/CocoTimeline.jspp",
 	"/src/org/Coconut2D/anim/CocoClip.jspp",
+	"/src/org/Coconut2D/anim/CocoScene.jspp",
+	"/src/org/Coconut2D/anim/CocoEngineState.jspp",
+	"/src/org/Coconut2D/anim/CocoEngine.jspp",
 	"/src/org/Coconut2D/game/CocoSprite.jspp",
 	"/src/org/Coconut2D/game/CocoSpriteActor.jspp",
 	"/src/org/Coconut2D/game/CocoSpriteBonus.jspp",
@@ -284,6 +187,9 @@ function ____readSourceFiles()
 	"/src/org/Coconut2D/game/CocoSpritePlayer.jspp",
 	"/src/org/Coconut2D/game/CocoSpriteVisual.jspp",
 	"/src/org/Coconut2D/game/CocoTiledLayer.jspp",
+	"/src/org/Coconut2D/html5/HTMLCanvasElement.jspp",
+	"/src/org/Coconut2D/html5/HTMLDocument.jspp",
+	"/src/org/Coconut2D/html5/HTMLWindow.jspp",
 	"/src/org/Coconut2D/ui/UIView.jspp",
 	"/src/org/Coconut2D/ui/UIControlView.jspp",
 	"/src/org/Coconut2D/ui/UIButtonView.jspp",
@@ -295,10 +201,6 @@ function ____readSourceFiles()
 	"/src/org/Coconut2D/ui/UIScrollView.jspp",
 	"/src/org/Coconut2D/ui/UITabView.jspp",
 	"/src/org/Coconut2D/ui/UITextView.jspp",
-	"/src/org/Coconut2D/util/glu.js",
-	"/src/org/Coconut2D/anim/CocoScene.jspp",
-	"/src/org/Coconut2D/anim/CocoEngineState.jspp",
-	"/src/org/Coconut2D/anim/CocoEngine.jspp",
 	"/src/usr/GameEngine.jspp",
 	"/src/usr/animations/Animation1.jspp",
 	"/src/usr/states/StateAnim.jspp",
@@ -308,16 +210,32 @@ function ____readSourceFiles()
 	{
 		var f = root+list[i];
 		var code = read(f);
-		f = f.substr(f.lastIndexOf("/")+1);
 		buff += "\"script_begin:///" + f + "\";\n" + code + "\n\"script_end:///" + f + "\";\n\n";
 	}	
 	return buff;	
 }
 
 var code = ____readSourceFiles();
-//var gen = compileJSPP("",code, true, true, true, false);
-var gen = cocompile("",code, true, true, true, false);
-write("C:/Users/Admin/Desktop/gen.js",gen);
+var gen = compileJSPP(code);
+//write("C:/Users/Admin/Desktop/coco.js", do_js_beautify(gen, 1, false, false, true));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

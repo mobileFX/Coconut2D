@@ -1,5 +1,4 @@
 //@compile{native}
-//@include{HTML5.js}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -52,25 +51,6 @@ HTMLEvent.prototype.timeStamp = new Object();
 HTMLEvent.prototype.changedTouches = new TouchList(5);
 HTMLEvent.prototype.touches = new TouchList(5);
 HTMLEvent.prototype.targets = [];
-
-//HTMLEvent.prototype.button = 0;
-//HTMLEvent.prototype.buttons = 0;
-//HTMLEvent.prototype.ctrlKey = false;
-//HTMLEvent.prototype.currentTarget = new HTMLElement();
-//HTMLEvent.prototype.eventPhase = 0;
-//HTMLEvent.prototype.getModifierState = function(keyArg){};
-//HTMLEvent.prototype.identifier;
-//HTMLEvent.prototype.initEvent = function(eventTypeArg, canBubbleArg, cancelableArg){};
-//HTMLEvent.prototype.initMouseEvent = function(typeArg, canBubbleArg, cancelableArg, viewArg, detailArg, screenXArg, screenYArg, clientXArg, clientYArg, ctrlKeyArg, altKeyArg, shiftKeyArg, metaKeyArg, buttonArg, relatedTargetArg){};
-//HTMLEvent.prototype.initTouchEvent = function(type, canBubble, cancelable,view, detail, screenX, screenY, clientX, clientY, ctrlKey, altKey, shiftKey, metaKey, touches, targetTouches, changedTouches, scale, rotation) {};
-//HTMLEvent.prototype.inputMethod = 0;
-//HTMLEvent.prototype.metaKey = false;
-//HTMLEvent.prototype.relatedTarget = new HTMLElement();
-//HTMLEvent.prototype.rotation;
-//HTMLEvent.prototype.scale;
-//HTMLEvent.prototype.shiftKey = false;
-//HTMLEvent.prototype.targetTouches;
-//HTMLEvent.prototype.target = new HTMLElement();
 
 // ==================================================================================================================================
 //	  ______                 __    __    _      __ 
@@ -146,5 +126,3 @@ CallbackManager.prototype.dispatchEvent = function(uid, type)
 };
 
 var CallbackManager = new CallbackManager();
-
-
