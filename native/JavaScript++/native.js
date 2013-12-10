@@ -1,4 +1,3 @@
-
 /* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013 www.coconut2D.org
@@ -20,27 +19,23 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.   
- * 
- * This compiler is based on Roger Poon's JavaScript++ work and it is a rather
- * simplified version of Roger's work in order to make it easier to integrate
- * with Coconut2D IDE. 
  *
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	   ______                _____           _       __     ______                      _ __         
-//	  / ____/___  _________ / ___/__________(_)___  / /_   / ____/___  ____ ___  ____  (_) /__  _____
-//	 / /   / __ \/ ___/ __ \\__ \/ ___/ ___/ / __ \/ __/  / /   / __ \/ __ `__ \/ __ \/ / / _ \/ ___/
-//	/ /___/ /_/ / /__/ /_/ /__/ / /__/ /  / / /_/ / /_   / /___/ /_/ / / / / / / /_/ / / /  __/ /    
-//	\____/\____/\___/\____/____/\___/_/  /_/ .___/\__/   \____/\____/_/ /_/ /_/ .___/_/_/\___/_/     
-//	                                      /_/                                /_/                     
+//	       _______                __           ______         
+//	      / / ___/  __    __     / /_____     / ____/__    __ 
+//	 __  / /\__ \__/ /___/ /_   / __/ __ \   / /  __/ /___/ /_
+//	/ /_/ /___/ /_  __/_  __/  / /_/ /_/ /  / /__/_  __/_  __/
+//	\____//____/ /_/   /_/     \__/\____/   \____//_/   /_/   
+//	                                                          
 // ==================================================================================================================================
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function Compiler(ast, options) 
+function CPPCompiler(ast, options) 
 {
 	var _this = this;
-       
+    
 	_this.ast = ast;
 	_this.errors = [];
 	_this.warnings = [];             
@@ -48,32 +43,35 @@ function Compiler(ast, options)
 	_this.currClassName = null;
 	_this.classes = {};	
 	_this.lineno = -1;
+    _this.HPP = [];
+
+	_this.currFile = "";
+	_this.currFileStartLine = 0;
+	_this.currFileOffset = 0;
+	_this.FILE_DELIM = "script_begin:///";	
 	
 	_this.types = {
-		"Array"		: { "default": "[]" },
 		"Boolean"	: { "default": "false" },
-		"Date"		: {	"default": "new Date" },
-		"Function"	: {	"default": "function(){}" },
-		"Null"		: { "default": "null" },
+		"Function"	: {	"default": "NULL" },
+		"Null"		: { "default": "NULL" },
 		"Number"	: {	"default": "0" },
-		"Float"		: { "default": "0" },
+		"Float"		: { "default": "0.0" },
 		"Integer"	: { "default": "0" },
-		"Object"	: { "default": "{}" },
-		"RegExp"	: { "default": "/(?:)/" },
+		"Object"	: { "default": "NULL" },
 		"String"	: { "default": '""' }
 	};	
 			
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewWarning = function (e, node) 
 	{
-		//trace("@@ WARNING: " + e + " in file " + node.file + " at line " + node.fileLine);
+		trace("@@ WARNING: " + e + " in file " + node.file + " at line " + node.fileLine);
 		_this.warnings.push(e);
 	};
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewError = function (e, node)
 	{
-		//trace("@@ ERROR: " + e + " in file " + node.file + " at line " + node.fileLine);
+		trace("@@ ERROR: " + e + " in file " + node.file + " at line " + node.fileLine);
 		_this.errors.push(e);
 	}; 
 		
@@ -95,7 +93,7 @@ function Compiler(ast, options)
 			scope = node.__scope;
 		}
 		else
-		{
+		{		
 			scope = 
 			{         
 				name			: _this.scopes.length==0 ? "GLOBAL_SCOPE" : node.name,
@@ -113,11 +111,10 @@ function Compiler(ast, options)
 				scopeId			: node.scopeId,
 				vars			: {},
 				methods			: {}			
-			};			 			
+			};
 			node.__scope = scope;
 		}
-		
-		_this.scopes.push(scope);		
+		_this.scopes.push(scope);
 		return scope;
 	};
 
@@ -232,8 +229,8 @@ function Compiler(ast, options)
 
 		if(deep && scope.parent)		
 			return _this.LookupScopeChain(findIdentifier, scope.parent, callback, deep);		
-	}; 
-	
+	};
+
 	// ==================================================================================================================================
 	//	    __  ___                          
 	//	   /  |/  /___ _______________  _____
@@ -245,7 +242,7 @@ function Compiler(ast, options)
 	
 	_this.getCurrentClass = function()	{ return _this.classes[_this.currClassName]; };
 	_this.CurrentScope = function() 	{ return _this.scopes[_this.scopes.length-1];};
-	
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.ClassScope = function()
 	{
@@ -277,25 +274,27 @@ function Compiler(ast, options)
 			}
 		}
 		return false;				
-	};
+	};	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Compiler.prototype.compile = function (ast) 
+CPPCompiler.prototype.compile = function (ast) 
 {
-	var _this = this, out = [], ast = ast || _this.ast, scope;	
+	var _this = this, out = [], HPP = _this.HPP, ast = ast || _this.ast, scope;	
 	
 	var generate = function()
 	{
 		return _this.compile.apply(_this, Array.prototype.slice.call(arguments,0));
-	}; 
+	};
 	
+	/*
 	if(_this.lineno != ast.lineno) 
 	{
 		_this.lineno != -1 && out.push("\n");		
 		out.push("\/\/@line " + ast.fileLine + "\n");
 		_this.lineno = ast.lineno;
 	} 
+	*/   
 
 	switch(ast.type) 
 	{
@@ -310,11 +309,11 @@ Compiler.prototype.compile = function (ast)
 	// ==================================================================================================================================
 	
 	case jsdef.CLASS:
-	 
+
 	 	_this.currClassName = ast.name;
 	 	
 		var constructor = null;
-		var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
+		var classId = "__CLASS" + ast.body.scopeId + "__"; // "__CLASS__" + ast.name.toUpperCase() + "__",
 		var baseClass = ast.extends ? ast.extends.value : undefined;
 		var baseClassId = baseClass ? _this.classes[baseClass].ast.symbol.classId : null;
 		var scope = _this.NewScope(ast);		
@@ -339,104 +338,42 @@ Compiler.prototype.compile = function (ast)
 		}		
 		_this.classes[ast.name] = classSymbol;		
 		ast.symbol = classSymbol;		
-				
-		// Roger Poon JavaScript++ class definition
-		out.push("function " + ast.name + "(){");		
-		out.push("var __SUPER__" + (baseClassId ? "," + baseClassId : "") + ";");
-		out.push("return ((function(){");			
-		out.push("var " + classId + "=this,");
-		out.push("__PDEFINE__={}.constructor.defineProperty,");
-		out.push("__NOENUM__={enumerable:false};");
-		out.push("if(typeof __PDEFINE__!='function')__PDEFINE__=null;");
-		out.push("/*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/");
-		out.push("this.__SUPER__=__SUPER__;");
-		out.push("__PDEFINE__&&__PDEFINE__(this,'__SUPER__',__NOENUM__);");
-		out.push("this.__PROTECTED__={};");
-		out.push("__PDEFINE__&&__PDEFINE__(this,'__PROTECTED__',__NOENUM__);");
-
-		//Inherit public and protected members
-		if(baseClass) 
-		{
-			var prop = "__TMP_MEMBER__", superClassTmp = "__TMP_SUPER__", varArray = "__TMP_ARRAY__";
-
-			//Public members
-			out.push("var " + superClassTmp + "=__SUPER__," + varArray + "=[];");
-			out.push("for(var " + prop + " in " + superClassTmp + ")");
-			out.push(varArray + ".push(" + prop + "+'=" + superClassTmp + ".'+" + prop + ");");
-			out.push(varArray + ".length&&eval('var '+" + varArray + ".join()+';');");
-
-			//Protected members
-			out.push(superClassTmp + "=__SUPER__.__PROTECTED__;" + varArray + ".length=0;");
-			out.push("for(var " + prop + " in " + superClassTmp + "){");
-			out.push(varArray + ".push(" + prop + "+'=" + superClassTmp + ".'+" + prop + ");");
-			out.push("this.__PROTECTED__[" + prop + "]=" + superClassTmp + "[" + prop +"];}");
-			out.push(varArray + ".length&&eval('var '+" + varArray + ".join()+';');");
-		}
+			
+		HPP.push("#ifndef __" + ast.name.toUpperCase() + "_HPP__\n");
+		HPP.push("#define __" + ast.name.toUpperCase() + "_HPP__\n");		
+		HPP.push("\n\nclass " + ast.name + (superClass ? " : public " + superClass : "") + "\n{\npublic:\n");
+		out.push('#include "' + ast.name + '.hpp"\n');		
 		
-		// Class Methods
 		for(var item in ast.body) 
 		{
 			if(!isFinite(item)) continue;
-			var member = ast.body[item];			
-			switch(member.type)
+			currentItem = ast.body[item];			
+			switch(currentItem.type)
 			{
 				case jsdef.FUNCTION:
-					if(member.name=="Constructor") { member.isConstructor=true; constructor = member; continue; }
-					out.push(generate(member));
+					if(currentItem.name == "Constructor")
+					{
+						currentItem.name = ast.name;
+						currentItem.isConstructor = true;						
+					}					
+					else if(currentItem.name == "dispose")
+					{
+						currentItem.name = "~"+ast.name;
+						currentItem.isConstructor = true;						
+					}
+					out.push(generate(currentItem));
 					break;
-			} 			
-		} 
-		
-		// Class Fields
-		for(var item in ast.body) 
-		{
-			if(!isFinite(item)) continue;
-			var member = ast.body[item];			
-			switch(member.type)
-			{
+					
 				case jsdef.VAR:
-					out.push(generate(member));
+					HPP.push(generate(currentItem));
 					break;
-			} 			
-		} 
+			}
+		}
 		
-		// Constructor
-		out.push(constructor ? generate(constructor) : "this.Constructor=function(){return " + classId + "};");							
-		out.push("__PDEFINE__&&__PDEFINE__(this,'Constructor',__NOENUM__);");                                      
-		
-		out.push("return this");
-		out.push("}).call(");
-   
-   		// Class initialization   		
-		if(baseClass) 
-			out.push("(function(o){return (F.prototype=__SUPER__=" + baseClassId + "__=o,new F);function F(){}})(new " + baseClass + ")");
-		else
-			out.push("{}");
-		out.push("))");
-		out.push(".Constructor.apply(this,[].slice.call(arguments))}");		
+		HPP.push("};\n\n#endif\n");		
 		
 		_this.currClassName = null;
-		_this.ExitScope();
-		
-		// Save compiled object code.  
-		if(_this.pass==2)
-		{
-			var file = ast.file;
-			file = file.replace("/web/src/", "/web/bin/").replace(".jspp", ".jobj");			
-			
-			// Beutify JavaScript
-			var buff = do_js_beautify(out.join("\n"), 1, false, false, true);
-			
-			// Remove empty debug lines
-			buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1");		
-			
-			// Remove debug lines on scope begin "{"
-			buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+\\{", "mg", "{");		
-			
-			// Save module.
-			jsppCallback("module", file, buff);		
-			trace("Generated file: " + file);				
-		}
+		_this.ExitScope();		
 		break;  
 				
 	// ==================================================================================================================================
@@ -490,16 +427,16 @@ Compiler.prototype.compile = function (ast)
 			paramsList	: ast.paramsList
 		};		
 		methodScope.parent.methods[ast.name] = functionSymbol;
-		 
+		
 		// Arguments List
 		var paramsList = "(";	
 		for(var i=0; i<ast.paramsList.length; i++)
 		{
 			var param = ast.paramsList[i];
 			param.isPointer = __isPointer(param.vartype);
-			paramsList += param.name;
+			paramsList += param.vartype + (param.isPointer? "*" : "") + " " + param.name;
 			if(i!=ast.paramsList.length-1) paramsList +=", ";			
-            
+
             // Argument Symbol
 			var varSymbol =
 			{
@@ -526,80 +463,15 @@ Compiler.prototype.compile = function (ast)
 		}
 		paramsList += ")";
         
-        // Global scope function
-        if(isGlobal)
-        {
-  			out.push("function " + fnName + paramsList + "{");
-			out.push(generate(ast.body));
-			out.push("}");
-        } 
-        
-        // Class member function
-        else if(isClass)
-        {             
-  			// Function definition  			
-  			if(ast.isConstructor)
-  			{
-  			 	out.push("this.Constructor=function(){");
-				for(var i=0; i<ast.paramsList.length; i++)
-				{
-					var param = ast.paramsList[i];
-					out.push("var " + param.name + "=arguments[" + i + "];");
-				}  			
-  			}  			 
-  			else  		
-  			{
-  				if(ast.public)
-  				{
-  					out.push("var " + fnName + " = this." + fnName + "=function" + paramsList + "{"); 
-  				}
-  				else if(ast.private)
-  				{
-  					out.push("var " + fnName + "=function" + paramsList + "{"); 
-  				}
-  				else if(ast.protected)
-  				{
-  					out.push("this.__PROTECTED__." + fnName + "=function" + paramsList + "{");
-  				}
-  			}  				
-
-			//Convert "arguments" object to array ONLY if it's used in function body
-			if(ast.body.usesArgs) {
-				out.push("var args=[].slice.call(arguments);");
-			} 
-			
-			// Class function members need a this.
-			//out.push("var this = " + classId + ";");
-
-			// Function Body			
-			out.push(generate(ast.body));
-				
-			// Default return value		
-			if(ast.isConstructor)
-			{
-				out.push("return " + classId);
-			}
-			else
-			{
-				var vartype = ast.returntype;
-				if(vartype && vartype.indexOf("<")!=-1) 
-					vartype = vartype.substr(0, vartype.indexOf("<"));
-				
-				if(_this.types.hasOwnProperty(vartype))
-					out.push("return " + _this.types[vartype].default);
-			}
-			
-			out.push("};");
-        }
-        
-        // Anonymous function
-        else
-        {        	
-  			out.push("function " + fnName + paramsList + "{");
-			out.push(generate(ast.body));
-			out.push("}");
-        }
-				
+		FN = (ast.isConstructor ? "" : ast.returntype + (ast.isPointer?"*":"") + " ") + ast.name + paramsList + ";\n";
+		HPP.push(FN);
+		
+		out.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+		out.push( (ast.isConstructor ? "" : ast.returntype +(ast.isPointer?"*":"") + " ") + _this.currClassName+"::" + ast.name + paramsList);
+        out.push("\n{\n");
+		out.push(generate(ast.body));
+		out.push("}\n"); 
+		
 		_this.ExitScope();		
 		break;   
 		
@@ -614,30 +486,10 @@ Compiler.prototype.compile = function (ast)
 	
 	case jsdef.VAR:				
 	case jsdef.CONST:
-				
-		var scope = _this.CurrentScope();
+		
+		var scope = _this.CurrentScope();			
 		var classSymbol = scope.isClass ? scope.ast : null;
 		var firstItem = true;
-		
-		if(scope.isClass)
-		{
-			if(ast.public)
-			{ 
-				out.push("this.");
-			}
-			else if(ast.private)
-			{
-				out.push("var ");
-			}
-			else if(ast.protected)
-			{
-				out.push("this.__PROTECTED__.");
-			}			
-		}
-		else
-		{
-			out.push("var ");
-		}
 		
 		for(var item in ast) 
 		{
@@ -668,13 +520,16 @@ Compiler.prototype.compile = function (ast)
 			};			
 			scope.vars[ast[item].name] = varSymbol;
 
-			if(!firstItem) out.push(", ");
-			out.push(ast[item].name);			
-						
+			if(firstItem) out.push(ast[item].vartype); 
+			if(!firstItem) out.push(", ");							
+			if(ast[item].isPointer) out.push("*");
+			out.push(" ");			
+			out.push(ast[item].name);
+			
 			if(ast[item].initializer)
-			{				                    
+			{				
 				// Generate initializer
-				out.push("=");
+				out.push(" = ");
 				out.push(generate(ast[item].initializer));
 			} 
 			else 
@@ -705,54 +560,20 @@ Compiler.prototype.compile = function (ast)
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.SUPER:
-		out.push("__SUPER__");
+		out.push("super");
 		break; 
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.THIS:
-		if(_this.isInside(ast, jsdef.FUNCTION) && _this.isInside(ast, jsdef.CLASS))
-		{
-			var scope = _this.ClassScope();
-			out.push(scope.ast.symbol.classId);
-		}
-		else
-			out.push("this");
+		out.push("this");
 		break;
-		
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	case jsdef.IDENTIFIER:          
-		
-		if(_this.pass==2)
-		{			
-			// Link identifier with symbol.
-			if(!ast.symbol) 
-				ast.symbol = _this.LookupSymbol(_this.CurrentScope(), ast.value, ast);
-			
-			// If the identifier is class member then produce a DOT with the classId.
-			if(ast.symbol && !ast.symbol.private && ast.symbol.classId && ast.symbol.type!=jsdef.CLASS)
-			{
-				var isDot = false;				
-				var p = ast.parent;
-				while(p)
-				{					
-					if(p.type==jsdef.DOT && p.dotStack[0]!=ast.value)
-					{
-						isDot = true;
-						break;
-					} 
-					p = p.parent;
-				}
-				if(!isDot) 
-				{
-					if(ast.symbol.file!=ast.file)
-						out.push(_this.getCurrentClass().classId + ".__SUPER__.");
-					else
-						out.push(ast.symbol.classId+".");
-				}
-			}
-		} 
-		
-		out.push(ast.value);
+	case jsdef.IDENTIFIER:
+		// Link identifier with symbol.
+		if(!ast.symbol) 
+			ast.symbol = _this.LookupSymbol(_this.CurrentScope(), ast.value, ast);
+		out.push(ast.value); 
 		break;		
 
 	// ==================================================================================================================================
@@ -764,18 +585,17 @@ Compiler.prototype.compile = function (ast)
 	//	                       
 	// ==================================================================================================================================
 
-	case jsdef.SCRIPT:
+	case jsdef.SCRIPT:          
 		ast.name = "SCRIPT" + ast.scopeId;
 		var body = [];
-		if(_this.scopes.length==0) body.push("var global=(function(){return this}).call();");
-		var scope = _this.NewScope(ast);			
+		var scope = _this.NewScope(ast);		
 		for(var item in ast) 
 		{
 			if(!isFinite(item)) continue;
 			body.push(generate(ast[item]));
-		}		
-		_this.ExitScope();	
-		out = out.concat(body);
+		}
+		_this.ExitScope();
+		out = out.concat(body);		
 		break;            
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -826,8 +646,8 @@ Compiler.prototype.compile = function (ast)
 		break;
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	case jsdef.ARRAY_INIT:		
-		out.push("[");
+	case jsdef.ARRAY_INIT:
+		out.push("//<<{");
 		var firstItem = true;
 		for(var item in ast) 
 		{
@@ -836,12 +656,12 @@ Compiler.prototype.compile = function (ast)
 			out.push(generate(ast[item]));
 			firstItem = false;
 		}
-		out.push("]");
+		out.push("}>>//");
 		break; 
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.OBJECT_INIT:
-		out.push("{");
+		out.push("{ ");
 		var firstItem = true;
 		for(var item in ast) 
 		{
@@ -861,8 +681,23 @@ Compiler.prototype.compile = function (ast)
 		break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	case jsdef.ASSIGN:
-					
+	case jsdef.ASSIGN:				
+		if(ast[1].type==jsdef.ARRAY_INIT)
+		{ 
+			var isEmpty = true;
+			for(var i in ast[1])
+			{
+				if(!isFinite(i)) continue;
+				isEmpty=false;
+				break;				
+			}
+			if(isEmpty)
+			{
+				// Skip statement generation.				
+				return null;
+			}
+		}
+		
 		if(ast[0].type==jsdef.THIS) 
 		{
 			_this.NewError({type:ReferenceError, message:"Cannot assign to '_this'"},ast);
@@ -931,8 +766,8 @@ Compiler.prototype.compile = function (ast)
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.FOR_IN:
-		out.push("for(" + (ast.iterator.type == jsdef.VAR ?	"var " + ast.iterator[0].value : ast.iterator.value));
-		out.push(" in " + (ast.object ? generate(ast.object) : "") + ")");
+		out.push("for(" + (ast.iterator.type == jsdef.VAR ?	"auto " + ast.iterator[0].value : ast.iterator.value));
+		out.push(" : " + (ast.object ? generate(ast.object) : "") + ")");
 		out.push(generate(ast.body));
 		break;  
 				
@@ -971,20 +806,99 @@ Compiler.prototype.compile = function (ast)
 			out.push(generate(ast.catchClauses[catchClause].block));
 			ast.finallyBlock && out.push("finally" + generate(ast.finallyBlock));
 		}
-		break;
+		break;		
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	case jsdef.DOT:
-		out.push(generate(ast[0])); 
-		out.push("."); 
-		out.push(generate(ast[1])); 
+	case jsdef.DOT:						
+		// Dots are special case because we need to decide when to use dot "." or pointer "->"
+		
+		out.push(generate(ast[0]));		
+		
+		if(_this.pass==1)
+		{
+			out.push(".");
+		}              
+		else
+		{ 
+			if(out.join("")=="this")
+				out.push("->");
+			else				
+			
+			switch(ast[0].type)
+			{
+			case jsdef.DOT:				
+				if(ast[0][1].symbol && ast[0][1].symbol.pointer)
+					out.push("->");					
+				else				
+					out.push(".");
+				break;			
+				
+			case jsdef.INDEX:
+				if(__isPointer(ast[0][0].symbol.subtype))
+					out.push("->");					
+				else				
+					out.push(".");
+				break;
+				
+			case jsdef.IDENTIFIER:
+				
+				if(!ast[0].symbol)                                         
+				{					
+					out.push(".");
+					break;
+				}
+				
+				if(ast[0].symbol.pointer)
+					out.push("->");					
+				else				
+					out.push(".");
+				break; 
+				
+			case jsdef.CALL:
+				switch(ast[0][0].type)
+				{
+				case jsdef.DOT:
+					if(ast[0][0][1].symbol.pointer)
+						out.push("->");					
+					else				
+						out.push(".");
+					break;			
+					
+				case jsdef.INDEX:
+					if(__isPointer(ast[0][0][0].symbol.subtype))
+						out.push("->");					
+					else				
+						out.push(".");
+					break;
+					
+				case jsdef.IDENTIFIER:
+					if(ast[0][0].symbol.pointer)
+						out.push("->");					
+					else				
+						out.push(".");
+					break; 
+					   
+				default:
+					out.push(".");
+					break;
+				}
+				break;
+							
+			default:
+				out.push(".");					
+				break;			
+			}
+		}
+			
+		out.push(generate(ast[1]));		
 		break;
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	  
-	case jsdef.DEBUGGER:			out.push("debugger;"); break; 
-	case jsdef.EXPONENT:			out.push("Math.pow(" + generate(ast[0]) + "," + generate(ast[1]) + ")");break;
-	case jsdef.MOD:					out.push(generate(ast[0])); out.push("%"); out.push(generate(ast[1])); break;
-	case jsdef.NEW: 				out.push("new "); out.push(generate(ast[0])); break;
-	case jsdef.THROW:				out.push("throw "); out.push(generate(ast.exception)); out.push(";"); break;
+	case jsdef.DEBUGGER:			out.push("assert(false);"); break; 
+	case jsdef.EXPONENT:			out.push("std::pow(" + generate(ast[0]) + "," + generate(ast[1]) + ")");break;
+	case jsdef.MOD:					out.push("(int)" + generate(ast[0])); out.push("%"); out.push("(int)" + generate(ast[1])); break;
+	case jsdef.NEW: 				out.push("new "); out.push(generate(ast[0]) +"()"); break;
+	case jsdef.THROW:				out.push("throw CocoException("); out.push(generate(ast.exception)); out.push(");"); break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	  
 	case jsdef.AND:					out.push(generate(ast[0])); out.push("&&"); out.push(generate(ast[1])); break;
@@ -1017,7 +931,7 @@ Compiler.prototype.compile = function (ast)
 	case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	 out.push(generate(ast[1])); break; 		
 	case jsdef.NEW_WITH_ARGS:		out.push("new "); out.push(generate(ast[0])); out.push("("); out.push(generate(ast[1])); out.push(")"); break;
 	case jsdef.NOT:					out.push("!"); out.push(generate(ast[0])); break;
-	case jsdef.NULL:				out.push("null"); break;	
+	case jsdef.NULL:				out.push("NULL"); break;	
 	case jsdef.NUMBER:				out.push(ast.value); break; 
 	case jsdef.OR:					out.push(generate(ast[0])); out.push("||"); out.push(generate(ast[1]));	break;
 	case jsdef.PLUS: 				out.push(generate(ast[0])); out.push("+"); out.push(generate(ast[1])); break;	
@@ -1043,11 +957,10 @@ Compiler.prototype.compile = function (ast)
 }; 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Compiler.prototype.pass = 0;
-Compiler.prototype.TYPESYS = null;
+CPPCompiler.prototype.pass = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Compiler.prototype.reduceDotProps = function(ast) 
+CPPCompiler.prototype.reduceDotProps = function(ast) 
 {
 	var out = [];
 	
@@ -1088,7 +1001,7 @@ Compiler.prototype.reduceDotProps = function(ast)
 }; 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Compiler.prototype.preprocess = function(ast, pass) 
+CPPCompiler.prototype.preprocess = function(ast, pass) 
 {
 	var _this = this;
 	_this.pass = pass;
@@ -1099,7 +1012,7 @@ Compiler.prototype.preprocess = function(ast, pass)
 	function descend(node)
 	{                               
 		node.__visited=true;
-				
+		
 		if(node.type==jsdef.DOT)
 			node.dotStack = _this.reduceDotProps(node);			
 		
@@ -1114,11 +1027,6 @@ Compiler.prototype.preprocess = function(ast, pass)
 	} 
 	
 	descend(ast);	
+	
 	return ast;
 };
-
-
-
-
-
-

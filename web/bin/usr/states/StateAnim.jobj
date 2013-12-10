@@ -1,0 +1,64 @@
+//@compile{false}
+//@line 5
+
+function StateAnim()
+{
+	var __SUPER__, __CLASS__COCOENGINESTATE__;
+	return ((function ()
+	{
+		var __CLASS__STATEANIM__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		var __TMP_SUPER__ = __SUPER__,
+			__TMP_ARRAY__ = [];
+		for (var __TMP_MEMBER__ in __TMP_SUPER__)
+		__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
+		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
+		__TMP_SUPER__ = __SUPER__.__PROTECTED__;
+		__TMP_ARRAY__.length = 0;
+		for (var __TMP_MEMBER__ in __TMP_SUPER__)
+		{
+			__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
+			this.__PROTECTED__[__TMP_MEMBER__] = __TMP_SUPER__[__TMP_MEMBER__];
+		}
+		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
+		//@line 16
+		var tick = this.tick = function (engine, gl, time)
+		{
+			//@line 18
+			__SUPER__.tick(gl, time);
+			//@line 19
+			scene && scene.tick(gl, time);
+		};
+		//@line 7
+		var scene = null;
+		//@line 10
+		this.Constructor = function ()
+		{
+			//@line 12
+			scene = new Animation1;
+			return __CLASS__STATEANIM__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call((function (o)
+	{
+		return (F.prototype = __SUPER__ = __CLASS__COCOENGINESTATE____ = o, new F);
+
+		function F()
+		{
+		}
+	})(new CocoEngineState))).Constructor.apply(this, [].slice.call(arguments))
+}

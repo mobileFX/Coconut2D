@@ -1,0 +1,89 @@
+//@compile{false}
+//@line 29
+
+function ImageData()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS__IMAGEDATA__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 31
+		this.buffer = null;
+		//@line 32
+		this.data =
+		{
+		};
+		//@line 33
+		this.src = "";
+		//@line 34
+		this.width = 0;
+		//@line 35
+		this.height = 0;
+		//@line 37
+		this.Constructor = function ()
+		{
+			var a0 = arguments[0];
+			var a1 = arguments[1];
+			//@line 39
+			__CLASS__IMAGEDATA__.buffer = null;
+			//@line 40
+			__CLASS__IMAGEDATA__.data = null;
+			//@line 41
+			__CLASS__IMAGEDATA__.width = 0;
+			//@line 42
+			__CLASS__IMAGEDATA__.height = 0;
+			//@line 43
+			__CLASS__IMAGEDATA__.src = "";
+			//@line 45
+			if (isNaN(a0))
+			{
+				//@line 47
+				var data = __ImageData_loadImage(a0);
+				//@line 48
+				if (data)
+				{
+					//@line 50
+					__CLASS__IMAGEDATA__.src = a0;
+					//@line 51
+					__CLASS__IMAGEDATA__.buffer = data.buffer;
+					//@line 52
+					__CLASS__IMAGEDATA__.width = data.width;
+					//@line 53
+					__CLASS__IMAGEDATA__.height = data.height;
+				}
+			}
+			else
+			//@line 56
+			if (!isNaN(a0) && !isNaN(a1))
+			{
+				//@line 58
+				__CLASS__IMAGEDATA__.width = parseInt(a0);
+				//@line 59
+				__CLASS__IMAGEDATA__.height = parseInt(a1);
+				//@line 60
+				__CLASS__IMAGEDATA__.data = new Int32Array(__CLASS__IMAGEDATA__.width * __CLASS__IMAGEDATA__.height);
+				//@line 61
+				__CLASS__IMAGEDATA__.buffer = __CLASS__IMAGEDATA__.data.buffer;
+			}
+			return __CLASS__IMAGEDATA__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

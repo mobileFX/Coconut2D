@@ -1,0 +1,62 @@
+//@compile{false}
+//@line 31
+
+function HTMLWindow()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS__HTMLWINDOW__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 46
+		var addEventListener = this.addEventListener = function (type, listener, useCapture)
+		{
+			//@line 48
+			return CallbackManager.addEventListener(__CLASS__HTMLWINDOW__, type, listener, useCapture);
+		};
+		//@line 51
+		var removeEventListener = this.removeEventListener = function (type, listener, useCapture)
+		{
+			//@line 53
+			return CallbackManager.removeEventListener(__CLASS__HTMLWINDOW__, type, listener, useCapture);
+		};
+		//@line 33
+		this.__uid = 0;
+		//@line 34
+		this.document = null;
+		//@line 35
+		this.innerHeight = 0;
+		//@line 36
+		this.innerWidth = 0;
+		//@line 38
+		this.Constructor = function ()
+		{
+			//@line 40
+			__CLASS__HTMLWINDOW__.__uid = 0;
+			//@line 41
+			__CLASS__HTMLWINDOW__.document = new HTMLDocument;
+			//@line 42
+			__CLASS__HTMLWINDOW__.innerHeight = global.innerHeight;
+			//@line 43
+			__CLASS__HTMLWINDOW__.innerWidth = global.innerWidth;
+			return __CLASS__HTMLWINDOW__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

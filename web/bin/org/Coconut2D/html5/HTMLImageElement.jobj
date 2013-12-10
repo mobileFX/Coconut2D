@@ -1,0 +1,80 @@
+//@compile{false}
+//@line 30
+
+function Image()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS__IMAGE__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 51
+		var load = this.load = function (src)
+		{
+			//@line 53
+			__CLASS__IMAGE__.__imageData = new ImageData(src);
+			//@line 54
+			__CLASS__IMAGE__.src = __CLASS__IMAGE__.__imageData.src;
+			//@line 55
+			__CLASS__IMAGE__.width = __CLASS__IMAGE__.__imageData.width;
+			//@line 56
+			__CLASS__IMAGE__.height = __CLASS__IMAGE__.__imageData.height;
+			//@line 57
+			__CLASS__IMAGE__.naturalWidth = __CLASS__IMAGE__.__imageData.width;
+			//@line 58
+			__CLASS__IMAGE__.naturalHeight = __CLASS__IMAGE__.__imageData.height;
+			//@line 59
+			__CLASS__IMAGE__.complete = true;
+		};
+		//@line 32
+		this.__imageData = null;
+		//@line 33
+		this.src = "";
+		//@line 34
+		this.width = 0;
+		//@line 35
+		this.height = 0;
+		//@line 36
+		this.naturalWidth = 0;
+		//@line 37
+		this.naturalHeight = 0;
+		//@line 38
+		this.complete = false;
+		//@line 40
+		this.Constructor = function ()
+		{
+			//@line 42
+			__CLASS__IMAGE__.__imageData = null;
+			//@line 43
+			__CLASS__IMAGE__.src = "";
+			//@line 44
+			__CLASS__IMAGE__.width = 0;
+			//@line 45
+			__CLASS__IMAGE__.height = 0;
+			//@line 46
+			__CLASS__IMAGE__.naturalWidth = 0;
+			//@line 47
+			__CLASS__IMAGE__.naturalHeight = 0;
+			//@line 48
+			__CLASS__IMAGE__.complete = false;
+			return __CLASS__IMAGE__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

@@ -108,18 +108,18 @@ function formatCPP(buff)
 }
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function compileJSPP(code)
+function compile_jspp(code, infolder, outfolder)
 {
 	try
 	{				
 		var ast = narcissus.jsparse(code);	
 		
-		var compiler = new Compiler(ast);		
+		var compiler = new Compiler(ast, infolder, outfolder);		
 		compiler.preprocess(ast, 1);		
 		compiler.compile();			
 		var classes = compiler.classes;
 		
-		compiler = new Compiler(ast);
+		compiler = new Compiler(ast, infolder, outfolder);
 		compiler.classes = classes;
 		compiler.preprocess(ast, 2);	
 		var gen = compiler.compile();			
@@ -139,104 +139,3 @@ function compileJSPP(code)
 		trace("ERROR: " +e);
 	}
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function ____readSourceFiles()
-{
-	var buff = "";
-	var root = "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web";	
-	var list =
-	["/src/externs/CRL_native.js",
-	"/src/externs/ECMA.jspp",
-	"/src/org/Coconut2D/Constants.js",
-	"/src/org/Coconut2D/Coconut.js",
-	"/src/org/Coconut2D/html5/HTMLElement.jspp",
-	"/src/org/Coconut2D/html5/HTMLEvents.js",
-	"/src/org/Coconut2D/html5/ImageData.jspp",
-	"/src/org/Coconut2D/html5/HTMLImageElement.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLActiveInfo.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLBuffer.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLContextAttributes.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLFramebuffer.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLProgram.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLRenderbuffer.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLShader.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLShaderPrecisionFormat.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLTexture.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLUniformLocation.jspp",
-	"/src/org/Coconut2D/WebGL/WebGLRenderingContext.jspp",
-	"/src/org/Coconut2D/anim/CocoImageSibling.jspp",
-	"/src/org/Coconut2D/anim/CocoRect.jspp",
-	"/src/org/Coconut2D/anim/CocoSequence.jspp",
-	"/src/org/Coconut2D/anim/CocoImage.jspp",
-	"/src/org/Coconut2D/anim/CocoSound.jspp",
-	"/src/org/Coconut2D/anim/CocoTimeLabel.jspp",
-	"/src/org/Coconut2D/anim/CocoVector.jspp",
-	"/src/org/Coconut2D/anim/CocoMatrix.jspp",
-	"/src/org/Coconut2D/anim/CocoKeyFrame.jspp",
-	"/src/org/Coconut2D/anim/CocoTimeline.jspp",
-	"/src/org/Coconut2D/anim/CocoClip.jspp",
-	"/src/org/Coconut2D/anim/CocoScene.jspp",
-	"/src/org/Coconut2D/anim/CocoEngineState.jspp",
-	"/src/org/Coconut2D/anim/CocoEngine.jspp",
-	"/src/org/Coconut2D/game/CocoSprite.jspp",
-	"/src/org/Coconut2D/game/CocoSpriteActor.jspp",
-	"/src/org/Coconut2D/game/CocoSpriteBonus.jspp",
-	"/src/org/Coconut2D/game/CocoSpriteBullet.jspp",
-	"/src/org/Coconut2D/game/CocoSpriteEnemy.jspp",
-	"/src/org/Coconut2D/game/CocoSpritePlayer.jspp",
-	"/src/org/Coconut2D/game/CocoSpriteVisual.jspp",
-	"/src/org/Coconut2D/game/CocoTiledLayer.jspp",
-	"/src/org/Coconut2D/html5/HTMLCanvasElement.jspp",
-	"/src/org/Coconut2D/html5/HTMLDocument.jspp",
-	"/src/org/Coconut2D/html5/HTMLWindow.jspp",
-	"/src/org/Coconut2D/ui/UIView.jspp",
-	"/src/org/Coconut2D/ui/UIControlView.jspp",
-	"/src/org/Coconut2D/ui/UIButtonView.jspp",
-	"/src/org/Coconut2D/ui/UICheckboxView.jspp",
-	"/src/org/Coconut2D/ui/UILabelView.jspp",
-	"/src/org/Coconut2D/ui/UINavbarView.jspp",
-	"/src/org/Coconut2D/ui/UIPageView.jspp",
-	"/src/org/Coconut2D/ui/UIPickerView.jspp",
-	"/src/org/Coconut2D/ui/UIScrollView.jspp",
-	"/src/org/Coconut2D/ui/UITabView.jspp",
-	"/src/org/Coconut2D/ui/UITextView.jspp",
-	"/src/usr/GameEngine.jspp",
-	"/src/usr/animations/Animation1.jspp",
-	"/src/usr/states/StateAnim.jspp",
-	"/src/main.js"];
-
-	for(var i=0;i<list.length;i++)
-	{
-		var f = root+list[i];
-		var code = read(f);
-		buff += "\"script_begin:///" + f + "\";\n" + code + "\n\"script_end:///" + f + "\";\n\n";
-	}	
-	return buff;	
-}
-
-var code = ____readSourceFiles();
-var gen = compileJSPP(code);
-//write("C:/Users/Admin/Desktop/coco.js", do_js_beautify(gen, 1, false, false, true));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
