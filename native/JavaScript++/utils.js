@@ -111,7 +111,13 @@ function formatCPP(buff)
 function compile_jspp(code, infolder, outfolder)
 {
 	try
-	{				
+	{              		
+		if(infolder)
+		{
+			var externs = read(infolder+"/../../native/JavaScript++/ECMA.jspp");	
+			code = "\"script_begin:///externs.jspp\";\n" + externs + "\n\"script_end:///externs.jspp\";\n\n" + code;			
+		}
+						
 		var ast = narcissus.jsparse(code);	
 		
 		var compiler = new Compiler(ast, infolder, outfolder);		
@@ -139,3 +145,4 @@ function compile_jspp(code, infolder, outfolder)
 		trace("ERROR: " +e);
 	}
 }
+

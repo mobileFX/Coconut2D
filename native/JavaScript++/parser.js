@@ -304,30 +304,37 @@ var GLOBAL = this;
 			this.scanOperand = true;
 			this.filename = f || "";
 			this.lineno = l || 1;
-		}
-		Tokenizer.prototype = {
+		}  
+		
+		Tokenizer.prototype = 
+		{
 			input: function ()
 			{
 				return this.source.substring(this.cursor);
-			},
+			}, 
+			
 			done: function ()
 			{
 				return this.peek() == jsdef.END;
-			},
+			}, 
+			
 			token: function ()
-			{
+			{				
 				return this.tokens[this.tokenIndex];
 			},
+			
 			match: function (tt)
 			{
 				return this.get() == tt || this.unget();
-			},
+			}, 
+			
 			mustMatch: function (tt)
 			{
 				if(!this.match(tt))
 					throw this.newSyntaxError("Missing " + jsdef.tokens[tt].toLowerCase());
 				return this.token();
-			},
+			}, 
+			
 			peek: function ()
 			{
 				var tt, next;
@@ -345,7 +352,8 @@ var GLOBAL = this;
 					this.unget();
 				}
 				return tt;
-			},
+			}, 
+			
 			peekOnSameLine: function ()
 			{
 				this.scanNewlines = true;
@@ -353,6 +361,7 @@ var GLOBAL = this;
 				this.scanNewlines = false;
 				return tt;
 			},
+			
 			get: function ()
 			{
 				var token;
@@ -408,8 +417,12 @@ var GLOBAL = this;
 				else if((match = /^[$\w]+/.exec(input)) && !reRegExp.test(input))
 				{
 					var id = match[0];
+					if(id.indexOf("ECMA")==0)
+					{
+						id = id.substr(4);
+					}
 					token.type = jsdef.keywords(id) || jsdef.IDENTIFIER;
-					token.value = id;					
+					token.value = id;									
 				}
 				else if((match = RegExp("^\\x22(?!\\x22)(?:\\\\.|[^\\x22])*\\x22|^\\x27(?!\\x27)(?:\\\\.|[^\\x27])*\\x27|^([\\x27\\x22]{3})((?:(?!\\1)[\\s\\S])*)\\1|^\\x22\\x22|^\\x27\\x27", "").exec(input)))
 				{
@@ -485,11 +498,13 @@ var GLOBAL = this;
 				token.filelineno = this.lineno - this.currFileStartLine;
 				return token.type;
 			},
+			
 			unget: function ()
 			{
 				if(++this.lookahead == 4) throw "PANIC: too much lookahead!";
 				this.tokenIndex = (this.tokenIndex - 1) & 3;
-			},
+			}, 
+			
 			newSyntaxError: function (m)
 			{
 				var e = new SyntaxError(m + ', filename:' + this.filename + ', lineno:' + (this.lineno - this.currFileStartLine));
@@ -542,13 +557,15 @@ var GLOBAL = this;
 				return !this.tokenizer ? "" : this.tokenizer.source.slice(this.start, this.end);
 			});
 			if(token)
-			{
+			{  
+				var p = t.filename.lastIndexOf("/");
 				this.type = type || token.type;
 				this.value = token.value;
 				this.lineno = token.lineno;
 				this.start = token.start;
 				this.end = token.end;
-				this.file = t.filename;
+				this.path = t.filename;
+				this.file = p!=-1 ? t.filename.substr(p+1) : t.filename;
 				this.fileOffset = t.currFileOffset;
 				this.fileLine = token.lineno - t.currFileStartLine;
 			}
@@ -584,6 +601,7 @@ var GLOBAL = this;
 			var t = jsdef.tokens[tt];
 			return /^\W/.test(t) ? jsdef.opTypeNames[t] : t.toUpperCase();
 		}
+		
 		Np.toString = function ()
 		{
 			var a = [];
@@ -616,7 +634,8 @@ var GLOBAL = this;
 		Np.filename = function ()
 		{
 			return this.tokenizer.filename;
-		};
+		}; 
+		
 		String.prototype.repeat = function (n)
 		{
 			var s = "",
@@ -2079,3 +2098,6 @@ var GLOBAL = this;
 	})();
 	
 })(this);	
+
+
+

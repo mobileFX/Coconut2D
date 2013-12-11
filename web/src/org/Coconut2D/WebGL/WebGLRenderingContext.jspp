@@ -432,7 +432,7 @@ class WebGLRenderingContext
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function bufferSubData(target:Integer, offset:Integer, data:ArrayBufferView)
+	public function bufferSubData(target:Integer, offset:Integer, data:Float32Array)
 	{
 		return __WebGLRenderingContext_bufferSubData(this.__uid, target, offset, data.buffer.__uid, data.byteOffset, data.length);
 	}
@@ -480,13 +480,13 @@ class WebGLRenderingContext
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function compressedTexImage2D(target:Integer, level:Integer, internalformat:Integer, width:Integer, height:Integer, border:Integer, data:ArrayBufferView)
+	public function compressedTexImage2D(target:Integer, level:Integer, internalformat:Integer, width:Integer, height:Integer, border:Integer, data:Float32Array)
 	{
 		return __WebGLRenderingContext_compressedTexImage2D(this.__uid, target, level, internalformat, width, height, border, data.buffer.__uid, data.byteOffset, data.length);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function compressedTexSubImage2D(target:Integer, level:Integer, xoffset:Integer, yoffset:Integer, width:Integer, height:Integer, format:Integer, data:ArrayBufferView)
+	public function compressedTexSubImage2D(target:Integer, level:Integer, xoffset:Integer, yoffset:Integer, width:Integer, height:Integer, format:Integer, data:Float32Array)
 	{
 		return __WebGLRenderingContext_compressedTexSubImage2D(this.__uid, target, level, xoffset, yoffset, width, height, format, data.buffer.__uid, data.byteOffset, data.length);
 	}
@@ -894,7 +894,7 @@ class WebGLRenderingContext
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function readPixels(x:Integer, y:Integer, width:Integer, height:Integer, format:Integer, type:Integer, pixels:ArrayBufferView)
+	public function readPixels(x:Integer, y:Integer, width:Integer, height:Integer, format:Integer, type:Integer, pixels:Float32Array)
 	{
 		return __WebGLRenderingContext_readPixels(this.__uid, x, y, width, height, format, type, pixels.buffer.__uid, pixels.byteOffset, pixels.length);
 	}
@@ -978,7 +978,7 @@ class WebGLRenderingContext
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function texSubImage2D(target:Integer, level:Integer, xoffset:Integer, yoffset:Integer, width:Integer, height:Integer, format:Integer, type:Integer, pixels:ArrayBufferView)
+	public function texSubImage2D(target:Integer, level:Integer, xoffset:Integer, yoffset:Integer, width:Integer, height:Integer, format:Integer, type:Integer, pixels:Float32Array)
 	{
 		return __WebGLRenderingContext_texSubImage2D(this.__uid, target, level, xoffset, yoffset, width, height, format, type, pixels.buffer.__uid, pixels.byteOffset, pixels.length);
 	}
@@ -1169,3 +1169,4 @@ class WebGLRenderingContext
 		return __WebGLRenderingContext_viewport(this.__uid, x, y, width, height);
 	}
 }
+

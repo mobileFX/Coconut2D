@@ -121,13 +121,13 @@ class CocoTimeline
 	}	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function firstKeyFrame()
+	public function firstKeyFrame() :CocoKeyFrame
 	{
 		return __keyFrames[0];
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function lastKeyFrame()
+	public function lastKeyFrame() :CocoKeyFrame
 	{
 		return __keyFrames[__keyFrames.size() - 1];
 	}
@@ -269,7 +269,7 @@ class CocoTimeline
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
 	    var s:Float = 1.0;
-	    var FrameIndex = Math.floor(frameIndex);	    
+	    var FrameIndex:Integer = Math.floor(frameIndex);	    
 	    
 	    // Timeline is empty?
 	    if(__keyFrames.size()==0) 
@@ -342,6 +342,7 @@ class CocoTimeline
 	    }
 	}
 }
+
 
 
 

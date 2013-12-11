@@ -97,7 +97,7 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getImageSymbol(symbolName:String) :CocoImage
 	{
-		for(var i = __imageSymbols.size() - 1; i >= 0; i--)
+		for(var i:Integer = __imageSymbols.size() - 1; i >= 0; i--)
 		{
 			if(__imageSymbols[i].symbolName == symbolName)
 				return __imageSymbols[i];
@@ -108,7 +108,7 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getSoundSymbol(symbolName:String) :CocoSound
 	{
-		for(var i = __soundSymbols.size() - 1; i >= 0; i--)
+		for(var i:Integer = __soundSymbols.size() - 1; i >= 0; i--)
 		{
 			if(__soundSymbols[i].symbolName == symbolName)
 				return __soundSymbols[i];
@@ -157,7 +157,7 @@ class CocoScene
 		__glProgram = makeProgram(gl, __vertex_shader, __fragment_shader);		
 		gl.useProgram(__glProgram);		
 		__glProgram.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram, "iVecCoords");
-		__glProgram.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram, "iTexCoords");
+		__glProgram.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram, "iTexCoords");	
 		__glProgram.GLSLuProjMat 	= gl.getUniformLocation(__glProgram, "uProjMat");
 		__glProgram.GLSLuMVMat 		= gl.getUniformLocation(__glProgram, "uMVMat");
 		__glProgram.GLSLuSprSize 	= gl.getUniformLocation(__glProgram, "uSprSize");
@@ -287,7 +287,7 @@ class CocoScene
 				__root.render(gl, this, null, false);	
 				__levelParents = [];			
 				var max:CocoClip = __root.__childWithMaxTimelineDuration;
-				if(max && max.__currentFrame == max.__timeline.__lastKeyFrame)
+				if(max && max.__currentFrame == max.__timeline.lastKeyFrame())
 				{ 
 					//__root.reset();			
 					//__startTime = -1;	
@@ -330,14 +330,14 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoAndPlayByIndex(FrameIndex:Integer, deep:Boolean)
 	{
-		var scope = __levelParents[__levelParents.size() - 1];
+		var scope:CocoClip = __levelParents[__levelParents.size() - 1];
 		return scope.gotoFrameByIndex(FrameIndex, false, deep);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoAndStopyByIndex(FrameIndex:Integer, deep:Boolean)
 	{
-		var scope = __levelParents[__levelParents.size() - 1];
+		var scope:CocoClip = __levelParents[__levelParents.size() - 1];
 		return scope.gotoFrameByIndex(FrameIndex, true, deep);
 	}
 
@@ -345,10 +345,12 @@ class CocoScene
 	public function stop(deep:Boolean)
 	{
 		deep = (deep == "true");
-		var scope = __levelParents[__levelParents.size() - 1];
+		var scope:CocoClip = __levelParents[__levelParents.size() - 1];
 		return scope.gotoFrameByIndex(-1, true, deep);
 	}
 }
+
+
 
 
 

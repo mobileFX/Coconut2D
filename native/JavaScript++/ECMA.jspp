@@ -10,9 +10,9 @@
 	
 //////////////////////////////////////////////////////////////////////////////////////////////*/
 
-/* 
 class ECMAObject
 {
+	public var prototype:Object;
 	public function toString():String {}
 	public function toLocaleString():String {}
 	public function valueOf():Object {}
@@ -21,7 +21,7 @@ class ECMAObject
 	public function propertyIsEnumerable(name:String):Boolean {}
 }
 
-class ECMAString :Object
+class ECMAString : Object
 {	
 	public var length:Number;	
 	public function fromCharCode(charCode:Number):String {}
@@ -43,7 +43,7 @@ class ECMAString :Object
 	public function toLocaleUpperCase():String {}
 }
 
-class ECMANumber :Object
+class ECMANumber : Object
 {	
 	public var MIN_VALUE:Number;
 	public var MAX_VALUE:Number;
@@ -54,11 +54,11 @@ class ECMANumber :Object
 	public function toPrecision(fractionDigits:Number):String {}
 }
 
-class ECMABoolean :Object
+class ECMABoolean : Object
 {
 }
 
-class ECMAArray :Object
+class ECMAArray : Object
 {
 	public var length:Number;
 	public function concat(args:Array):Array {}
@@ -72,20 +72,50 @@ class ECMAArray :Object
 	public function splice(start:Number, deletecount:Number, items:Number):Array {}
 	public function unshift(start:Number):Array {}
 	public function forEach(item:Object):Array {}
+	public function size():Number {}
 } 
 
-class Float32Array :Array
-{
+class ArrayBuffer
+{       
+	public var byteLength:Number;
+    public function slice(begin:Number, end:Number): ArrayBuffer {}
 }
 
-class ECMAFunction :Object
+class ArrayBufferView
+{  
+	public var buffer:ArrayBuffer	
+	public var byteLength:Number;	
+}
+
+class Float32Array : ArrayBufferView
+{	
+	public var length:Number;
+	public var byteOffset:Number;
+	public var BYTES_PER_ELEMENT:Number;	
+}
+
+class Int32Array : ArrayBufferView
+{	
+	public var length:Number;
+	public var byteOffset:Number;
+	public var BYTES_PER_ELEMENT:Number;	
+}
+
+class Uint8Array : ArrayBufferView
+{	
+	public var length:Number;
+	public var byteOffset:Number;
+	public var BYTES_PER_ELEMENT:Number;	
+}
+
+class ECMAFunction : Object
 {	                                                            
 	public var length:Number;
 	public function apply(thisArg:String, argArray:Array):Object {}
 	public function call(thisObject:Object, args:Array):Object {}	
 }
 
-class ECMADate :Object
+class ECMADate : Object
 {
 	public function UTC(hour:Number, min:Number, sec:Number, ms:Number):Number {}
 	public function parse(string:String):Number {}
@@ -131,10 +161,10 @@ class ECMADate :Object
 	public function toUTCString():String {}
 }
 
-class ECMAGlobal :Object
+class ECMAGlobal : Object
 {
-	public var __NaN:Number;
-	public var __Infinity:Number;
+	public var NaN:Number;
+	public var Infinity:Number;
 	public function eval(s:String):Object {}
 	public function parseInt(s:String, radix:Number):Number {}
 	public function parseFloat(s:String):Number {}
@@ -146,9 +176,11 @@ class ECMAGlobal :Object
 	public function decodeURIComponent(uriComponent:String):String {}
 	public function encodeURIComponent(uriComponent:String):String {}
 	public function encodeURI(URI:String):String {}
+	public var deviceRotation:Integer;
+	public function trace(message) {}
 } 
 
-class ECMAMath :Object  
+class ECMAMath : Object  
 {
 	public var E:Number;
 	public var LN10:Number;
@@ -178,7 +210,7 @@ class ECMAMath :Object
 	public function tan(x:Number):Number {}
 }
 
-class ECMARegExp :Object
+class ECMARegExp : Object
 {
 	public var source:String;
 	public var global:Boolean;
@@ -189,7 +221,7 @@ class ECMARegExp :Object
 	public function test(string:String):Boolean {}
 }
 
-class ECMAError :Object
+class ECMAError : Object
 {
 	public var name:String;
 	public var message:String
@@ -201,4 +233,3 @@ class ECMAReferenceError :Error {}
 class ECMASyntaxError :Error {}
 class ECMATypeError :Error {}
 
-*/

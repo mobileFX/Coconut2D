@@ -154,256 +154,256 @@ function CocoMatrix()
 			(__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc44) + (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc44) +
 			//@line 153
 			(__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc44) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc44) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc44) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc44);
-			//@line 155
+			//@line 154
 			return D;
 			return 0
 		};
-		//@line 159
+		//@line 158
 		var invert = this.invert = function ()
 		{
-			//@line 161
+			//@line 160
 			var D = __CLASS__COCOMATRIX__.determinant();
-			//@line 162
+			//@line 161
 			if (D == 0) return;
-			//@line 164
+			//@line 163
 			var invRC11 = (__CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc42) + (__CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc44) + (__CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc44);
-			//@line 165
+			//@line 164
 			var invRC12 = (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc43) + (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc43) + (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc44) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc44);
-			//@line 166
+			//@line 165
 			var invRC13 = (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc42) + (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc44) + (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc44);
-			//@line 167
+			//@line 166
 			var invRC14 = (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc32) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc32) - (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc33) + (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc33) + (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc34) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc34);
-			//@line 169
+			//@line 168
 			var invRC21 = (__CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc43) + (__CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc43) + (__CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc44) - (__CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc44);
-			//@line 170
+			//@line 169
 			var invRC22 = (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc41) + (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc44) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc44);
-			//@line 171
+			//@line 170
 			var invRC23 = (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc43) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc43) + (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc44) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc44);
-			//@line 172
+			//@line 171
 			var invRC24 = (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc31) - (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc31) + (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc33) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc33) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc34) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc34);
-			//@line 174
+			//@line 173
 			var invRC31 = (__CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc41) + (__CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc44) + (__CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc44);
-			//@line 175
+			//@line 174
 			var invRC32 = (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc42) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc34 * __CLASS__COCOMATRIX__.rc42) + (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc44) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc44);
-			//@line 176
+			//@line 175
 			var invRC33 = (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc41) + (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc44) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc44);
-			//@line 177
+			//@line 176
 			var invRC34 = (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc31) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc31) - (__CLASS__COCOMATRIX__.rc14 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc32) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc24 * __CLASS__COCOMATRIX__.rc32) + (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc34) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc34);
-			//@line 179
+			//@line 178
 			var invRC41 = (__CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc42) + (__CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc42) + (__CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc43);
-			//@line 180
+			//@line 179
 			var invRC42 = (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc41) + (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc33 * __CLASS__COCOMATRIX__.rc42) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc31 * __CLASS__COCOMATRIX__.rc43) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc32 * __CLASS__COCOMATRIX__.rc43);
-			//@line 181
+			//@line 180
 			var invRC43 = (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc41) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc42) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc42) + (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc43) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc43);
-			//@line 182
+			//@line 181
 			var invRC44 = (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc31) - (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc31) + (__CLASS__COCOMATRIX__.rc13 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc32) - (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc23 * __CLASS__COCOMATRIX__.rc32) - (__CLASS__COCOMATRIX__.rc12 * __CLASS__COCOMATRIX__.rc21 * __CLASS__COCOMATRIX__.rc33) + (__CLASS__COCOMATRIX__.rc11 * __CLASS__COCOMATRIX__.rc22 * __CLASS__COCOMATRIX__.rc33);
-			//@line 184
+			//@line 183
 			__CLASS__COCOMATRIX__.rc11 = invRC11 / D;
-			//@line 185
+			//@line 184
 			__CLASS__COCOMATRIX__.rc12 = invRC12 / D;
-			//@line 186
+			//@line 185
 			__CLASS__COCOMATRIX__.rc13 = invRC13 / D;
-			//@line 187
+			//@line 186
 			__CLASS__COCOMATRIX__.rc14 = invRC14 / D;
-			//@line 189
+			//@line 188
 			__CLASS__COCOMATRIX__.rc21 = invRC21 / D;
-			//@line 190
+			//@line 189
 			__CLASS__COCOMATRIX__.rc22 = invRC22 / D;
-			//@line 191
+			//@line 190
 			__CLASS__COCOMATRIX__.rc23 = invRC23 / D;
-			//@line 192
+			//@line 191
 			__CLASS__COCOMATRIX__.rc24 = invRC24 / D;
-			//@line 194
+			//@line 193
 			__CLASS__COCOMATRIX__.rc31 = invRC31 / D;
-			//@line 195
+			//@line 194
 			__CLASS__COCOMATRIX__.rc32 = invRC32 / D;
-			//@line 196
+			//@line 195
 			__CLASS__COCOMATRIX__.rc33 = invRC33 / D;
-			//@line 197
+			//@line 196
 			__CLASS__COCOMATRIX__.rc34 = invRC34 / D;
-			//@line 199
+			//@line 198
 			__CLASS__COCOMATRIX__.rc41 = invRC41 / D;
-			//@line 200
+			//@line 199
 			__CLASS__COCOMATRIX__.rc42 = invRC42 / D;
-			//@line 201
+			//@line 200
 			__CLASS__COCOMATRIX__.rc43 = invRC43 / D;
-			//@line 202
+			//@line 201
 			__CLASS__COCOMATRIX__.rc44 = invRC44 / D;
 		};
-		//@line 206
+		//@line 205
 		var multiplyByVector = this.multiplyByVector = function (v)
 		{
-			//@line 208
+			//@line 207
 			var out = new CocoVector;
-			//@line 209
+			//@line 208
 			out.X = (v.X * __CLASS__COCOMATRIX__.rc11) + (v.Y * __CLASS__COCOMATRIX__.rc21) + (v.Z * __CLASS__COCOMATRIX__.rc31) + (v.W * __CLASS__COCOMATRIX__.rc41);
-			//@line 210
+			//@line 209
 			out.Y = (v.X * __CLASS__COCOMATRIX__.rc12) + (v.Y * __CLASS__COCOMATRIX__.rc22) + (v.Z * __CLASS__COCOMATRIX__.rc32) + (v.W * __CLASS__COCOMATRIX__.rc42);
-			//@line 211
+			//@line 210
 			out.Z = (v.X * __CLASS__COCOMATRIX__.rc13) + (v.Y * __CLASS__COCOMATRIX__.rc23) + (v.Z * __CLASS__COCOMATRIX__.rc33) + (v.W * __CLASS__COCOMATRIX__.rc43);
-			//@line 212
+			//@line 211
 			out.W = (v.X * __CLASS__COCOMATRIX__.rc14) + (v.Y * __CLASS__COCOMATRIX__.rc24) + (v.Z * __CLASS__COCOMATRIX__.rc34) + (v.W * __CLASS__COCOMATRIX__.rc44);
-			//@line 213
+			//@line 212
 			return out;
 		};
-		//@line 225
+		//@line 224
 		var translate = this.translate = function (tx, ty)
 		{
-			//@line 227
+			//@line 226
 			__CLASS__COCOMATRIX__.rc41 += __CLASS__COCOMATRIX__.rc11 * tx + __CLASS__COCOMATRIX__.rc21 * ty;
-			//@line 228
+			//@line 227
 			__CLASS__COCOMATRIX__.rc42 += __CLASS__COCOMATRIX__.rc12 * tx + __CLASS__COCOMATRIX__.rc22 * ty;
-			//@line 229
+			//@line 228
 			__CLASS__COCOMATRIX__.rc43 += __CLASS__COCOMATRIX__.rc13 * tx + __CLASS__COCOMATRIX__.rc23 * ty;
 		};
-		//@line 233
+		//@line 232
 		var scale = this.scale = function (sx, sy)
 		{
-			//@line 235
+			//@line 234
 			__CLASS__COCOMATRIX__.rc11 *= sx;
-			//@line 236
+			//@line 235
 			__CLASS__COCOMATRIX__.rc21 *= sy;
-			//@line 237
+			//@line 236
 			__CLASS__COCOMATRIX__.rc12 *= sx;
-			//@line 238
+			//@line 237
 			__CLASS__COCOMATRIX__.rc22 *= sy;
-			//@line 239
+			//@line 238
 			__CLASS__COCOMATRIX__.rc13 *= sx;
-			//@line 240
+			//@line 239
 			__CLASS__COCOMATRIX__.rc23 *= sy;
-			//@line 241
+			//@line 240
 			__CLASS__COCOMATRIX__.rc14 *= sx;
-			//@line 242
+			//@line 241
 			__CLASS__COCOMATRIX__.rc24 *= sy;
 		};
-		//@line 246
+		//@line 245
 		var rotateZ = this.rotateZ = function (rz)
 		{
-			//@line 249
+			//@line 248
 			var c = Math.cos(rz);
-			//@line 250
+			//@line 249
 			var s = Math.sin(rz);
-			//@line 251
+			//@line 250
 			var t0 = 0,
 				t1 = 0;
-			//@line 253
+			//@line 252
 			t0 = __CLASS__COCOMATRIX__.rc11;
-			//@line 254
+			//@line 253
 			t1 = __CLASS__COCOMATRIX__.rc21;
-			//@line 255
+			//@line 254
 			__CLASS__COCOMATRIX__.rc11 = t0 * c + t1 * s;
-			//@line 256
+			//@line 255
 			__CLASS__COCOMATRIX__.rc21 = -t0 * s + t1 * c;
-			//@line 258
+			//@line 257
 			t0 = __CLASS__COCOMATRIX__.rc12;
-			//@line 259
+			//@line 258
 			t1 = __CLASS__COCOMATRIX__.rc22;
-			//@line 260
+			//@line 259
 			__CLASS__COCOMATRIX__.rc12 = t0 * c + t1 * s;
-			//@line 261
+			//@line 260
 			__CLASS__COCOMATRIX__.rc22 = -t0 * s + t1 * c;
-			//@line 263
+			//@line 262
 			t0 = __CLASS__COCOMATRIX__.rc13;
-			//@line 264
+			//@line 263
 			t1 = __CLASS__COCOMATRIX__.rc23;
-			//@line 265
+			//@line 264
 			__CLASS__COCOMATRIX__.rc13 = t0 * c + t1 * s;
-			//@line 266
+			//@line 265
 			__CLASS__COCOMATRIX__.rc23 = -t0 * s + t1 * c;
-			//@line 268
+			//@line 267
 			t0 = __CLASS__COCOMATRIX__.rc14;
-			//@line 269
+			//@line 268
 			t1 = __CLASS__COCOMATRIX__.rc24;
-			//@line 270
+			//@line 269
 			__CLASS__COCOMATRIX__.rc14 = t0 * c + t1 * s;
-			//@line 271
+			//@line 270
 			__CLASS__COCOMATRIX__.rc24 = -t0 * s + t1 * c;
 		};
-		//@line 284
+		//@line 283
 		var update = this.update = function (gl, ul)
 		{
-			//@line 286
+			//@line 285
 			__CLASS__COCOMATRIX__.__data[0] = __CLASS__COCOMATRIX__.rc11;
-			//@line 287
+			//@line 286
 			__CLASS__COCOMATRIX__.__data[1] = __CLASS__COCOMATRIX__.rc12;
-			//@line 288
+			//@line 287
 			__CLASS__COCOMATRIX__.__data[2] = __CLASS__COCOMATRIX__.rc13;
-			//@line 289
+			//@line 288
 			__CLASS__COCOMATRIX__.__data[3] = __CLASS__COCOMATRIX__.rc14;
-			//@line 290
+			//@line 289
 			__CLASS__COCOMATRIX__.__data[4] = __CLASS__COCOMATRIX__.rc21;
-			//@line 291
+			//@line 290
 			__CLASS__COCOMATRIX__.__data[5] = __CLASS__COCOMATRIX__.rc22;
-			//@line 292
+			//@line 291
 			__CLASS__COCOMATRIX__.__data[6] = __CLASS__COCOMATRIX__.rc23;
-			//@line 293
+			//@line 292
 			__CLASS__COCOMATRIX__.__data[7] = __CLASS__COCOMATRIX__.rc24;
-			//@line 294
+			//@line 293
 			__CLASS__COCOMATRIX__.__data[8] = __CLASS__COCOMATRIX__.rc31;
-			//@line 295
+			//@line 294
 			__CLASS__COCOMATRIX__.__data[9] = __CLASS__COCOMATRIX__.rc32;
-			//@line 296
+			//@line 295
 			__CLASS__COCOMATRIX__.__data[10] = __CLASS__COCOMATRIX__.rc33;
-			//@line 297
+			//@line 296
 			__CLASS__COCOMATRIX__.__data[11] = __CLASS__COCOMATRIX__.rc34;
-			//@line 298
+			//@line 297
 			__CLASS__COCOMATRIX__.__data[12] = __CLASS__COCOMATRIX__.rc41;
-			//@line 299
+			//@line 298
 			__CLASS__COCOMATRIX__.__data[13] = __CLASS__COCOMATRIX__.rc42;
-			//@line 300
+			//@line 299
 			__CLASS__COCOMATRIX__.__data[14] = __CLASS__COCOMATRIX__.rc43;
-			//@line 301
+			//@line 300
 			__CLASS__COCOMATRIX__.__data[15] = __CLASS__COCOMATRIX__.rc44;
-			//@line 303
+			//@line 302
 			if (gl && ul)
-			//@line 304
+			//@line 303
 			gl.uniformMatrix4fv(ul, false, __CLASS__COCOMATRIX__.__data);
 		};
-		//@line 317
+		//@line 316
 		var push = this.push = function ()
 		{
-			//@line 319
+			//@line 318
 			__CLASS__COCOMATRIX__.__stack.push([__CLASS__COCOMATRIX__.rc11, __CLASS__COCOMATRIX__.rc12, __CLASS__COCOMATRIX__.rc13, __CLASS__COCOMATRIX__.rc14, __CLASS__COCOMATRIX__.rc21, __CLASS__COCOMATRIX__.rc22, __CLASS__COCOMATRIX__.rc23, __CLASS__COCOMATRIX__.rc24, __CLASS__COCOMATRIX__.rc31, __CLASS__COCOMATRIX__.rc32, __CLASS__COCOMATRIX__.rc33, __CLASS__COCOMATRIX__.rc34, __CLASS__COCOMATRIX__.rc41, __CLASS__COCOMATRIX__.rc42, __CLASS__COCOMATRIX__.rc43, __CLASS__COCOMATRIX__.rc44]);
 		};
-		//@line 323
+		//@line 322
 		var pop = this.pop = function ()
 		{
-			//@line 325
+			//@line 324
 			if (__CLASS__COCOMATRIX__.__stack.size())
 			{
-				//@line 327
+				//@line 326
 				var data = __CLASS__COCOMATRIX__.__stack.pop();
-				//@line 328
+				//@line 327
 				__CLASS__COCOMATRIX__.rc11 = data[0];
-				//@line 329
+				//@line 328
 				__CLASS__COCOMATRIX__.rc12 = data[1];
-				//@line 330
+				//@line 329
 				__CLASS__COCOMATRIX__.rc13 = data[2];
-				//@line 331
+				//@line 330
 				__CLASS__COCOMATRIX__.rc14 = data[3];
-				//@line 332
+				//@line 331
 				__CLASS__COCOMATRIX__.rc21 = data[4];
-				//@line 333
+				//@line 332
 				__CLASS__COCOMATRIX__.rc22 = data[5];
-				//@line 334
+				//@line 333
 				__CLASS__COCOMATRIX__.rc23 = data[6];
-				//@line 335
+				//@line 334
 				__CLASS__COCOMATRIX__.rc24 = data[7];
-				//@line 336
+				//@line 335
 				__CLASS__COCOMATRIX__.rc31 = data[8];
-				//@line 337
+				//@line 336
 				__CLASS__COCOMATRIX__.rc32 = data[9];
-				//@line 338
+				//@line 337
 				__CLASS__COCOMATRIX__.rc33 = data[10];
-				//@line 339
+				//@line 338
 				__CLASS__COCOMATRIX__.rc34 = data[11];
-				//@line 340
+				//@line 339
 				__CLASS__COCOMATRIX__.rc41 = data[12];
-				//@line 341
+				//@line 340
 				__CLASS__COCOMATRIX__.rc42 = data[13];
-				//@line 342
+				//@line 341
 				__CLASS__COCOMATRIX__.rc43 = data[14];
-				//@line 343
+				//@line 342
 				__CLASS__COCOMATRIX__.rc44 = data[15];
 			}
 		};

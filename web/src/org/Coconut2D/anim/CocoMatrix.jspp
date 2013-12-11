@@ -145,13 +145,12 @@ class CocoMatrix
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function determinant() :Float
 	{
-	    var D = (rc14 * rc23 * rc32 * rc41) - (rc13 * rc24 * rc32 * rc41) - (rc14 * rc22 * rc33 * rc41) + (rc12 * rc24 * rc33 * rc41) + 
-		        (rc13 * rc22 * rc34 * rc41) - (rc12 * rc23 * rc34 * rc41) - (rc14 * rc23 * rc31 * rc42) + (rc13 * rc24 * rc31 * rc42) + 
-		        (rc14 * rc21 * rc33 * rc42) - (rc11 * rc24 * rc33 * rc42) - (rc13 * rc21 * rc34 * rc42) + (rc11 * rc23 * rc34 * rc42) + 
-		        (rc14 * rc22 * rc31 * rc43) - (rc12 * rc24 * rc31 * rc43) - (rc14 * rc21 * rc32 * rc43) + (rc11 * rc24 * rc32 * rc43) + 
-		        (rc12 * rc21 * rc34 * rc43) - (rc11 * rc22 * rc34 * rc43) - (rc13 * rc22 * rc31 * rc44) + (rc12 * rc23 * rc31 * rc44) + 
-		        (rc13 * rc21 * rc32 * rc44) - (rc11 * rc23 * rc32 * rc44) - (rc12 * rc21 * rc33 * rc44) + (rc11 * rc22 * rc33 * rc44);
-		        
+	    var D:Float = 	(rc14 * rc23 * rc32 * rc41) - (rc13 * rc24 * rc32 * rc41) - (rc14 * rc22 * rc33 * rc41) + (rc12 * rc24 * rc33 * rc41) + 
+				        (rc13 * rc22 * rc34 * rc41) - (rc12 * rc23 * rc34 * rc41) - (rc14 * rc23 * rc31 * rc42) + (rc13 * rc24 * rc31 * rc42) + 
+				        (rc14 * rc21 * rc33 * rc42) - (rc11 * rc24 * rc33 * rc42) - (rc13 * rc21 * rc34 * rc42) + (rc11 * rc23 * rc34 * rc42) + 
+				        (rc14 * rc22 * rc31 * rc43) - (rc12 * rc24 * rc31 * rc43) - (rc14 * rc21 * rc32 * rc43) + (rc11 * rc24 * rc32 * rc43) + 
+				        (rc12 * rc21 * rc34 * rc43) - (rc11 * rc22 * rc34 * rc43) - (rc13 * rc22 * rc31 * rc44) + (rc12 * rc23 * rc31 * rc44) + 
+				        (rc13 * rc21 * rc32 * rc44) - (rc11 * rc23 * rc32 * rc44) - (rc12 * rc21 * rc33 * rc44) + (rc11 * rc22 * rc33 * rc44);		        
 		return D;
 	}		
 
@@ -161,25 +160,25 @@ class CocoMatrix
 	    var D:Float = determinant();
 	    if(D == 0) return;	    
 	        
-	    var invRC11 = (rc23 * rc34 * rc42) - (rc24 * rc33 * rc42) + (rc24 * rc32 * rc43) - (rc22 * rc34 * rc43) - (rc23 * rc32 * rc44) + (rc22 * rc33 * rc44);
-	    var invRC12 = (rc14 * rc33 * rc42) - (rc13 * rc34 * rc42) - (rc14 * rc32 * rc43) + (rc12 * rc34 * rc43) + (rc13 * rc32 * rc44) - (rc12 * rc33 * rc44);
-	    var invRC13 = (rc13 * rc24 * rc42) - (rc14 * rc23 * rc42) + (rc14 * rc22 * rc43) - (rc12 * rc24 * rc43) - (rc13 * rc22 * rc44) + (rc12 * rc23 * rc44);
-	    var invRC14 = (rc14 * rc23 * rc32) - (rc13 * rc24 * rc32) - (rc14 * rc22 * rc33) + (rc12 * rc24 * rc33) + (rc13 * rc22 * rc34) - (rc12 * rc23 * rc34);
-               
-	    var invRC21 = (rc24 * rc33 * rc41) - (rc23 * rc34 * rc41) - (rc24 * rc31 * rc43) + (rc21 * rc34 * rc43) + (rc23 * rc31 * rc44) - (rc21 * rc33 * rc44);
-	    var invRC22 = (rc13 * rc34 * rc41) - (rc14 * rc33 * rc41) + (rc14 * rc31 * rc43) - (rc11 * rc34 * rc43) - (rc13 * rc31 * rc44) + (rc11 * rc33 * rc44);
-	    var invRC23 = (rc14 * rc23 * rc41) - (rc13 * rc24 * rc41) - (rc14 * rc21 * rc43) + (rc11 * rc24 * rc43) + (rc13 * rc21 * rc44) - (rc11 * rc23 * rc44);
-	    var invRC24 = (rc13 * rc24 * rc31) - (rc14 * rc23 * rc31) + (rc14 * rc21 * rc33) - (rc11 * rc24 * rc33) - (rc13 * rc21 * rc34) + (rc11 * rc23 * rc34);
-               
-	    var invRC31 = (rc22 * rc34 * rc41) - (rc24 * rc32 * rc41) + (rc24 * rc31 * rc42) - (rc21 * rc34 * rc42) - (rc22 * rc31 * rc44) + (rc21 * rc32 * rc44);
-	    var invRC32 = (rc14 * rc32 * rc41) - (rc12 * rc34 * rc41) - (rc14 * rc31 * rc42) + (rc11 * rc34 * rc42) + (rc12 * rc31 * rc44) - (rc11 * rc32 * rc44);
-	    var invRC33 = (rc12 * rc24 * rc41) - (rc14 * rc22 * rc41) + (rc14 * rc21 * rc42) - (rc11 * rc24 * rc42) - (rc12 * rc21 * rc44) + (rc11 * rc22 * rc44);
-	    var invRC34 = (rc14 * rc22 * rc31) - (rc12 * rc24 * rc31) - (rc14 * rc21 * rc32) + (rc11 * rc24 * rc32) + (rc12 * rc21 * rc34) - (rc11 * rc22 * rc34);
-               
-	    var invRC41 = (rc23 * rc32 * rc41) - (rc22 * rc33 * rc41) - (rc23 * rc31 * rc42) + (rc21 * rc33 * rc42) + (rc22 * rc31 * rc43) - (rc21 * rc32 * rc43);
-	    var invRC42 = (rc12 * rc33 * rc41) - (rc13 * rc32 * rc41) + (rc13 * rc31 * rc42) - (rc11 * rc33 * rc42) - (rc12 * rc31 * rc43) + (rc11 * rc32 * rc43);
-	    var invRC43 = (rc13 * rc22 * rc41) - (rc12 * rc23 * rc41) - (rc13 * rc21 * rc42) + (rc11 * rc23 * rc42) + (rc12 * rc21 * rc43) - (rc11 * rc22 * rc43);
-	    var invRC44 = (rc12 * rc23 * rc31) - (rc13 * rc22 * rc31) + (rc13 * rc21 * rc32) - (rc11 * rc23 * rc32) - (rc12 * rc21 * rc33) + (rc11 * rc22 * rc33);
+	    var invRC11:Float = (rc23 * rc34 * rc42) - (rc24 * rc33 * rc42) + (rc24 * rc32 * rc43) - (rc22 * rc34 * rc43) - (rc23 * rc32 * rc44) + (rc22 * rc33 * rc44);
+	    var invRC12:Float = (rc14 * rc33 * rc42) - (rc13 * rc34 * rc42) - (rc14 * rc32 * rc43) + (rc12 * rc34 * rc43) + (rc13 * rc32 * rc44) - (rc12 * rc33 * rc44);
+	    var invRC13:Float = (rc13 * rc24 * rc42) - (rc14 * rc23 * rc42) + (rc14 * rc22 * rc43) - (rc12 * rc24 * rc43) - (rc13 * rc22 * rc44) + (rc12 * rc23 * rc44);
+	    var invRC14:Float = (rc14 * rc23 * rc32) - (rc13 * rc24 * rc32) - (rc14 * rc22 * rc33) + (rc12 * rc24 * rc33) + (rc13 * rc22 * rc34) - (rc12 * rc23 * rc34);
+
+	    var invRC21:Float = (rc24 * rc33 * rc41) - (rc23 * rc34 * rc41) - (rc24 * rc31 * rc43) + (rc21 * rc34 * rc43) + (rc23 * rc31 * rc44) - (rc21 * rc33 * rc44);
+	    var invRC22:Float = (rc13 * rc34 * rc41) - (rc14 * rc33 * rc41) + (rc14 * rc31 * rc43) - (rc11 * rc34 * rc43) - (rc13 * rc31 * rc44) + (rc11 * rc33 * rc44);
+	    var invRC23:Float = (rc14 * rc23 * rc41) - (rc13 * rc24 * rc41) - (rc14 * rc21 * rc43) + (rc11 * rc24 * rc43) + (rc13 * rc21 * rc44) - (rc11 * rc23 * rc44);
+	    var invRC24:Float = (rc13 * rc24 * rc31) - (rc14 * rc23 * rc31) + (rc14 * rc21 * rc33) - (rc11 * rc24 * rc33) - (rc13 * rc21 * rc34) + (rc11 * rc23 * rc34);
+
+	    var invRC31:Float = (rc22 * rc34 * rc41) - (rc24 * rc32 * rc41) + (rc24 * rc31 * rc42) - (rc21 * rc34 * rc42) - (rc22 * rc31 * rc44) + (rc21 * rc32 * rc44);
+	    var invRC32:Float = (rc14 * rc32 * rc41) - (rc12 * rc34 * rc41) - (rc14 * rc31 * rc42) + (rc11 * rc34 * rc42) + (rc12 * rc31 * rc44) - (rc11 * rc32 * rc44);
+	    var invRC33:Float = (rc12 * rc24 * rc41) - (rc14 * rc22 * rc41) + (rc14 * rc21 * rc42) - (rc11 * rc24 * rc42) - (rc12 * rc21 * rc44) + (rc11 * rc22 * rc44);
+	    var invRC34:Float = (rc14 * rc22 * rc31) - (rc12 * rc24 * rc31) - (rc14 * rc21 * rc32) + (rc11 * rc24 * rc32) + (rc12 * rc21 * rc34) - (rc11 * rc22 * rc34);
+
+	    var invRC41:Float = (rc23 * rc32 * rc41) - (rc22 * rc33 * rc41) - (rc23 * rc31 * rc42) + (rc21 * rc33 * rc42) + (rc22 * rc31 * rc43) - (rc21 * rc32 * rc43);
+	    var invRC42:Float = (rc12 * rc33 * rc41) - (rc13 * rc32 * rc41) + (rc13 * rc31 * rc42) - (rc11 * rc33 * rc42) - (rc12 * rc31 * rc43) + (rc11 * rc32 * rc43);
+	    var invRC43:Float = (rc13 * rc22 * rc41) - (rc12 * rc23 * rc41) - (rc13 * rc21 * rc42) + (rc11 * rc23 * rc42) + (rc12 * rc21 * rc43) - (rc11 * rc22 * rc43);
+	    var invRC44:Float = (rc12 * rc23 * rc31) - (rc13 * rc22 * rc31) + (rc13 * rc21 * rc32) - (rc11 * rc23 * rc32) - (rc12 * rc21 * rc33) + (rc11 * rc22 * rc33);
 	    	    
 	    rc11 = invRC11 / D;
 	    rc12 = invRC12 / D;
@@ -324,7 +323,7 @@ class CocoMatrix
 	{
 		if(__stack.size()) 
 		{
-			var data = __stack.pop();
+			var data:Array = __stack.pop();
 			rc11 = data[0];
 			rc12 = data[1];
 			rc13 = data[2];
@@ -344,4 +343,5 @@ class CocoMatrix
 		}
 	}
 }
+
 

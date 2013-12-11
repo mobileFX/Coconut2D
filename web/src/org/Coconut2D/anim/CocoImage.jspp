@@ -41,7 +41,7 @@
 class CocoImage
 { 
 	public var symbolName:String;						
-	public var image:HTMLImageElement;					
+	public var image:Image;					
                                                 		
 	// Texture                                  		
 	public var texture:WebGLTexture;						
@@ -104,7 +104,7 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getSequence(name:String) :CocoSequence
 	{
-		for (var i = sequences.size() - 1; i >= 0; i--)
+		for (var i:Integer = sequences.size() - 1; i >= 0; i--)
 		{
 			if(sequences[i].name == name)
 				return sequences[i];
@@ -163,4 +163,5 @@ class CocoImage
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}	
 }
+
 

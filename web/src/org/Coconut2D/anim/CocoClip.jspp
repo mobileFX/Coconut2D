@@ -209,7 +209,7 @@ class CocoClip
 				
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
 			    if(clippingTime > 0) 
-			    	__currentFrame = __timeline.__lastKeyFrame.clone();
+			    	__currentFrame = __timeline.lastKeyFrame().clone();
 			    else
 			    	__currentFrame = __timeline.interpolateByTime(loopTime); 
 				break;
@@ -231,7 +231,7 @@ class CocoClip
 		{			
 			if(__image)
 			{                                         
-				var c = scene.__view_pixel_ratio / __image.pixelRatio;
+				var c:Float = scene.__view_pixel_ratio / __image.pixelRatio;
 				__currentFrame.scaleX *= c;
 				__currentFrame.scaleY *= c;
 				__currentFrame.apply(scene.__modelViewMatrix);											
@@ -242,7 +242,7 @@ class CocoClip
 				{
 					// Render animation sequence.
 					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor((currentTime - __firstTickTime) / GLOBAL_FPS) % __currentSequence.frames.size();
-					var frame = __currentSequence.frames[__currentSequenceFrameIndex];
+					var frame:Integer = __currentSequence.frames[__currentSequenceFrameIndex];
 					scene.drawFrame(gl, __image, frame, __currentFrame.alpha);
 				}
 				else
@@ -256,7 +256,7 @@ class CocoClip
 				// Render Children				
 				scene.__levelParents.push(this);				
 				__currentFrame.apply(scene.__modelViewMatrix);
-				for (var i = 0, L = __children.size(); i < L; i++)
+				for (var i:Integer = 0, L:Integer = __children.size(); i < L; i++)
 				{
 					scene.__modelViewMatrix.push();
 					__children[i].render(gl, scene, this, picking);
@@ -275,6 +275,7 @@ class CocoClip
 		}		
 	} 
 }
+
 
 
 

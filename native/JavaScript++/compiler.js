@@ -67,14 +67,18 @@ function Compiler(ast, infolder, outfolder)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewWarning = function (e, node) 
 	{
-		//trace("@@ WARNING: " + e + " in file " + node.file + " at line " + node.fileLine);
+		if(_this.pass!=2) return;	
+		trace("@@ WARNING: " + e + " in file " + node.path + " at line " + node.fileLine);
+		jsppCallback("warning", node.path, node.fileLine, e);
 		_this.warnings.push(e);
 	};
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewError = function (e, node)
-	{
-		//trace("@@ ERROR: " + e + " in file " + node.file + " at line " + node.fileLine);
+	{                        
+		if(_this.pass!=2) return;
+		trace("@@ ERROR: " + e + " in file " + node.path + " at line " + node.fileLine);
+		jsppCallback("error", node.path, node.fileLine, e);
 		_this.errors.push(e);
 	}; 
 		
@@ -100,7 +104,7 @@ function Compiler(ast, infolder, outfolder)
 			scope = 
 			{         
 				name			: _this.scopes.length==0 ? "GLOBAL_SCOPE" : node.name,
-				parent			: _this.scopes.length ? _this.scopes[_this.scopes.length-1] : null,
+				parentScope		: _this.scopes.length ? _this.scopes[_this.scopes.length-1] : null,
 				ast				: node,
 				type			: node.type,
 				nodeType		: node.nodeType,			            	
@@ -108,6 +112,7 @@ function Compiler(ast, infolder, outfolder)
 				isClass			: node.type==jsdef.CLASS,
 				isMethod		: node.type==jsdef.FUNCTION,			            	
 				file			: node.file,
+				path			: node.path,
 				start			: node.start-node.fileOffset,
 				end				: node.end-node.fileOffset,
 				lineno			: node.fileLine,			
@@ -138,53 +143,97 @@ function Compiler(ast, infolder, outfolder)
 	// ==================================================================================================================================	
 	
 	// We link an identifier with a Symbol to get access to its datatype, scope, etc.
-	_this.LookupSymbol = function(scope, identifier, node)
+	_this.LookupSymbol = function(scope, identifier, node, noWarning)
 	{		
-		if(!identifier || !scope) return;
-		
-		var symbol = null;                                                       
-		
-		// Is this identifier a class?
-		if(_this.classes[identifier])
-			return _this.classes[identifier]; 
-		 
-		// Lookup scope chain
-		_this.LookupScopeChain(identifier, scope, function(data)
-		{ 
-			symbol = data;						
-		}, true); 
-		         
-		// Lookup DOT chain.
-		if(!symbol && node && this.pass==2)
-		{
-			// Find a dot stack in our parent chain.
-			var parent = node.parent;
-			while(parent && !parent.dotStack) { parent = parent.parent; }
-			if(parent && parent.dotStack)
-			{				
-				// Start descending dot chain.
-				for(var i=0; i<parent.dotStack.length;i++)
-				{
-					var parentSymbol = _this.LookupSymbol(scope, parent.dotStack[i], null);
-					if(!parentSymbol) break;
-					if(parent.dotStack[i]==identifier)
-					{                                
-						symbol = parentSymbol;
-						break;						
-					}
-					var cls = _this.classes[ parentSymbol.vartype ];
-					if(!cls) break;	
-					scope = cls.scope;					
-				}
-			}			
-		} 
-		
-		if(this.pass==2 && !symbol)
-		{
-			_this.NewWarning("Symbol not found: " + identifier, node || scope);
+		function doLookupSymbol(scope, identifier, node)
+		{					
+			if(!identifier || !scope) return;		
+			var symbol = null;
+			
+			// Is this identifier a class?
+			if(_this.classes[identifier])
+				return _this.classes[identifier]; 
+			 
+			// Lookup scope chain
+			_this.LookupScopeChain(identifier, scope, function(data)
+			{ 
+				symbol = data;						
+			}, true); 
+			         
+			// Lookup DOT chain.
+			if(!symbol && node && _this.pass==2)
+			{
+				// Find a dot stack in our parent chain.
+				var parent = node.parent;
+
+				while(parent && !parent.dotStack) 
+					{ parent = parent.parent; }
+					
+				if(parent && parent.dotStack) 
+					symbol = _this.LookupDotSymbol(parent, scope);
+			}
+			return symbol;
 		}
 		
+		var symbol = null;		
+		if(identifier=="@@THIS@@")
+		{
+			symbol = _this.getCurrentClass();
+		} 
+		else
+		{
+			symbol = doLookupSymbol(scope, identifier, node);		
+		}
+		if(!noWarning && _this.pass==2 && !symbol)
+		{			
+			_this.NewWarning("Symbol not found: " + identifier, node || scope);
+		}		
 		return symbol;		
+	};
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.LookupDotSymbol = function(node, scope)
+	{
+		if(!node || !scope || !node.dotStack) return null;
+		
+		var dot = node.source;
+		var identifier = node.dotStack[node.dotStack.length-1];
+		var symbol = null;
+		 
+		// Start descending dot chain.
+		for(var i=0; i<node.dotStack.length;i++)
+		{
+			var vartype = null;
+			var nodeSymbol = _this.LookupSymbol(scope, node.dotStack[i], null, true);
+			if(!nodeSymbol) break;
+			if(node.dotStack[i]==identifier)
+			{                                
+				symbol = nodeSymbol;
+				break;						
+			} 
+			if(nodeSymbol.type==jsdef.CLASS)
+			{ 
+				// Reached a class, can't go deeper.
+				symbol = _this.LookupSymbol(nodeSymbol.scope, identifier, null, true);	
+				break;
+			}
+			else if(i<node.dotStack.length-1 && node.dotStack[i+1]=="@@INDEX@@")
+			{
+				vartype = nodeSymbol.subtype;	
+				i++;
+			}
+			else
+			{
+				vartype = nodeSymbol.vartype;				
+				if(vartype && vartype.indexOf("<")!=-1) 
+					vartype = vartype.substr(0, vartype.indexOf("<"));
+			}										
+			if(!vartype) break;										
+			var cls = _this.classes[vartype];
+			if(!cls) break;	
+			scope = cls.scope;					
+		} 
+		return symbol;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +250,7 @@ function Compiler(ast, infolder, outfolder)
 				found = true;  
 				data = scope.methods[name];
 				break;
-			}			
+			}
 		}
 		
 		if(!found) for(var name in scope.vars)
@@ -211,7 +260,21 @@ function Compiler(ast, infolder, outfolder)
 				found = true;  
 				data = scope.vars[name];
 				break;
-			}			
+			}
+			
+			if(scope.vars[name].enum)
+			{
+				for(var item in scope.vars[name].enum)
+				{
+					if(scope.vars[name].enum[item].name==findIdentifier)
+					{
+						found = true;  
+						data = scope.vars[name].enum[item];
+						break;
+					}	
+				}
+			}
+			if(data) break;			
 		}
 
 		if(!found && scope.isMethod && scope.ast.symbol && scope.ast.symbol.baseSymbol) 
@@ -231,8 +294,8 @@ function Compiler(ast, infolder, outfolder)
 			return data;
 		}
 
-		if(deep && scope.parent)		
-			return _this.LookupScopeChain(findIdentifier, scope.parent, callback, deep);		
+		if(deep && scope.parentScope)		
+			return _this.LookupScopeChain(findIdentifier, scope.parentScope, callback, deep);		
 	}; 
 	
 	// ==================================================================================================================================
@@ -245,17 +308,17 @@ function Compiler(ast, infolder, outfolder)
 	// ==================================================================================================================================	
 	
 	_this.getCurrentClass = function()	{ return _this.classes[_this.currClassName]; };
-	_this.CurrentScope = function() 	{ return _this.scopes[_this.scopes.length-1];};
+	_this.getCurrentScope = function() 	{ return _this.scopes[_this.scopes.length-1];};
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.ClassScope = function()
 	{
-		var scope = _this.CurrentScope(); 
+		var scope = _this.getCurrentScope(); 
 		while(scope)
 		{
 			if(scope.isClass)
 				return scope;
-			scope = scope.parent;
+			scope = scope.parentScope;
 		}
 	};
 		
@@ -285,7 +348,7 @@ function Compiler(ast, infolder, outfolder)
 Compiler.prototype.compile = function (ast) 
 {
 	var _this = this, out = [], ast = ast || _this.ast, scope;	
-	
+		
 	var generate = function()
 	{
 		return _this.compile.apply(_this, Array.prototype.slice.call(arguments,0));
@@ -318,7 +381,8 @@ Compiler.prototype.compile = function (ast)
 		var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
 		var baseClass = ast.extends ? ast.extends.value : undefined;
 		var baseClassId = baseClass ? _this.classes[baseClass].ast.symbol.classId : null;
-		var scope = _this.NewScope(ast);		
+		var isGlobalClass = (ast.name=="Global");
+		var scope = (isGlobalClass ? _this.scopes[0] : _this.NewScope(ast));
 		
 		var classSymbol =
 		{
@@ -331,6 +395,7 @@ Compiler.prototype.compile = function (ast)
 			ast				: ast,
 			scope			: scope,			
 			file			: ast.file,
+			path			: ast.path,
 			start			: ast.start-ast.fileOffset,
 			end				: ast.end-ast.fileOffset,
 			lineno			: ast.fileLine,			
@@ -417,12 +482,17 @@ Compiler.prototype.compile = function (ast)
 		out.push(".Constructor.apply(this,[].slice.call(arguments))}");		
 		
 		_this.currClassName = null;
-		_this.ExitScope();
 		
+		if(!isGlobalClass)
+			_this.ExitScope();
+				 
+		///////////////////////////////////////////////
 		// Save compiled object JavaScript code.  
-		if(_this.pass==2 && _this.infolder && _this.outfolder)
+		///////////////////////////////////////////////
+
+		if(_this.pass==2 && ast.path && ast.file!="externs.jspp" && _this.infolder && _this.outfolder)
 		{
-			var file = ast.file;
+			var file = ast.path;
 			file = file.replace(_this.infolder, _this.outfolder).replace(".jspp", ".jobj");			
 			
 			// Beutify JavaScript
@@ -455,7 +525,7 @@ Compiler.prototype.compile = function (ast)
 		ast.isPointer = __isPointer(ast.returntype);
 		
 		var methodScope = _this.NewScope(ast);		 
-		var parentScope = methodScope.parent;
+		var parentScope = methodScope.parentScope;
 		var isClass = parentScope.isClass; 
 		var classId = isClass ? parentScope.ast.symbol.classId : null;
 		var isGlobal = !isClass && parentScope.isGlobal;
@@ -464,7 +534,7 @@ Compiler.prototype.compile = function (ast)
 
 		// Link method symbol with base class method symbol for speed.
 		if(isClass && parentScope.ast.symbol.baseSymbol)
-			baseMethodSymbol = _this.LookupSymbol(parentScope.ast.symbol.baseSymbol.scope, ast.name, ast);
+			baseMethodSymbol = _this.LookupSymbol(parentScope.ast.symbol.baseSymbol.scope, ast.name, ast, true);
 				
 		// Function Symbol
 		var functionSymbol = 		
@@ -482,6 +552,7 @@ Compiler.prototype.compile = function (ast)
 			scope		: methodScope,
 			baseSymbol	: baseMethodSymbol,			
 			file		: ast.file,
+			path		: ast.path,
 			start		: ast.start-ast.fileOffset,
 			end			: ast.end-ast.fileOffset,
 			lineno		: ast.fileLine,			
@@ -490,7 +561,7 @@ Compiler.prototype.compile = function (ast)
 			subtype		: ast.subtype,    
 			paramsList	: ast.paramsList
 		};		
-		methodScope.parent.methods[ast.name] = functionSymbol;
+		methodScope.parentScope.methods[ast.name] = functionSymbol;
 		 
 		// Arguments List
 		var paramsList = "(";	
@@ -515,6 +586,7 @@ Compiler.prototype.compile = function (ast)
 				ast			: param,              
 				scope		: methodScope,			
 				file		: param.file,
+				path		: param.path,
 				start		: param.start-param.fileOffset,
 				end			: param.end-param.fileOffset,
 				lineno		: param.fileLine,			
@@ -616,9 +688,9 @@ Compiler.prototype.compile = function (ast)
 	case jsdef.VAR:				
 	case jsdef.CONST:
 				
-		var scope = _this.CurrentScope();
+		var scope = _this.getCurrentScope();
 		var classSymbol = scope.isClass ? scope.ast : null;
-		var firstItem = true;
+		var firstItem = true;		
 		
 		if(scope.isClass)
 		{
@@ -644,6 +716,9 @@ Compiler.prototype.compile = function (ast)
 		{
 			if(!isFinite(item)) continue;
 			
+			if(!ast[item].vartype && _this.currClassName)
+				_this.NewError("Type declaration missing", ast);
+			
 			ast[item].isPointer = __isPointer(ast[item].vartype);
 			
 			var varSymbol =
@@ -659,6 +734,7 @@ Compiler.prototype.compile = function (ast)
 				ast			: ast[item],              
 				scope		: scope,			
 				file		: ast[item].file,
+				path		: ast[item].path,
 				start		: ast[item].start-ast[item].fileOffset,
 				end			: ast[item].end-ast[item].fileOffset,
 				lineno		: ast[item].fileLine,			
@@ -688,8 +764,8 @@ Compiler.prototype.compile = function (ast)
 					out.push("="+_this.types[vartype].default);
 				else if(scope.isClass)
 					out.push("=null");
-			}
-						
+			} 
+			
 			firstItem = false;
 		} 
 		out.push(";");
@@ -727,7 +803,7 @@ Compiler.prototype.compile = function (ast)
 		{			
 			// Link identifier with symbol.
 			if(!ast.symbol) 
-				ast.symbol = _this.LookupSymbol(_this.CurrentScope(), ast.value, ast);
+				ast.symbol = _this.LookupSymbol(_this.getCurrentScope(), ast.value, ast);
 			
 			// If the identifier is class member then produce a DOT with the classId.
 			if(ast.symbol && !ast.symbol.private && ast.symbol.classId && ast.symbol.type!=jsdef.CLASS)
@@ -745,7 +821,8 @@ Compiler.prototype.compile = function (ast)
 				}
 				if(!isDot) 
 				{
-					if(ast.symbol.file!=ast.file)
+					// Nasty Hack for base class
+					if(ast.symbol.path!=ast.path)
 						out.push(_this.getCurrentClass().classId + ".__SUPER__.");
 					else
 						out.push(ast.symbol.classId+".");
@@ -842,6 +919,57 @@ Compiler.prototype.compile = function (ast)
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.OBJECT_INIT:
+		
+		// Define ENUM
+		if(_this.pass==2 && ast.parent.type==jsdef.IDENTIFIER)
+		{
+			var scope = _this.getCurrentScope();
+			var symbol = _this.LookupSymbol(scope, ast.parent.value, ast.parent, true);      
+			if(symbol)
+			{
+				// Sanity check for enum				
+				var isEnum = true;
+				for(var item in ast) 
+				{
+					if(!isFinite(item)) continue;					
+				    if(ast[item][1].type==jsdef.NUMBER || ast[item][1].type==jsdef.STRING) continue;
+				    isEnum=false;
+				    break;
+				}
+				if(isEnum)
+				{
+					symbol.enum = {}
+					for(var item in ast) 
+					{
+						if(!isFinite(item)) continue;					
+						var varSymbol =
+						{
+							name		: ast[item][0].value,
+							value		: ast[item][1].value,
+							type		: jsdef.IDENTIFIER,
+							nodeType	: "ENUM",			
+							classId		: null,
+							public		: false,
+							private		: false,
+							protected	: false,
+							static		: false,
+							ast			: ast[item],              
+							scope		: scope,			
+							file		: ast[item],
+							start		: ast[item].start-ast[item].fileOffset,
+							end			: ast[item].end-ast[item].fileOffset,
+							lineno		: ast[item].fileLine,			
+							scopeId		: ast[item].scopeId,			
+							vartype		: ast[item].vartype,
+							subtype		: ast[item].subtype,    
+							pointer		: ast[item].isPointer			
+						};
+						symbol.enum[varSymbol.name] = varSymbol;
+					}				
+				}
+			}
+		}
+		
 		out.push("{");
 		var firstItem = true;
 		for(var item in ast) 
@@ -858,7 +986,7 @@ Compiler.prototype.compile = function (ast)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.PROPERTY_INIT:		
 		out.push(generate(ast[0]) + ":");
-		out.push(generate(ast[1]));
+		out.push(generate(ast[1]));  
 		break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -866,17 +994,61 @@ Compiler.prototype.compile = function (ast)
 					
 		if(ast[0].type==jsdef.THIS) 
 		{
-			_this.NewError({type:ReferenceError, message:"Cannot assign to '_this'"},ast);
+			_this.NewError({type:ReferenceError, message:"Cannot assign to 'this'"},ast);
 		}
 		else if(ast[0].type != jsdef.IDENTIFIER && ast[0].type != jsdef.DOT && ast[0].type != jsdef.INDEX) 
 		{
 			_this.NewError({type:ReferenceError, message:"Invalid left-hand assignment"},ast);
-		}  
+		} 
+		                            
+		// Make sure the DOT property exists		                            
+		if(ast[0].type==jsdef.DOT)
+		{ 
+			var scope = _this.getCurrentScope();
+			var symbol = _this.LookupDotSymbol(ast[0], scope);						
+			if(!symbol)
+			{
+				// Nasty Hack: we define a new symbol to "global".
+				if(ast[0][0].value=="global")
+				{
+					var node = ast[0][1];
+					var varSymbol =
+					{
+						name		: node.value,
+						type		: node.type,
+						nodeType	: node.nodeType,			
+						classId		: null,
+						public		: false,
+						private		: false,
+						protected	: false,
+						static		: false,
+						ast			: node,              
+						scope		: _this.scopes[0],			
+						file		: node.file,
+						path		: node.path,
+						start		: node.start-node.fileOffset,
+						end			: node.end-node.fileOffset,
+						lineno		: node.fileLine,			
+						scopeId		: node.scopeId,			
+						vartype		: node.vartype,
+						subtype		: node.subtype,    
+						pointer		: node.isPointer			
+					};
+					_this.scopes[0].vars[node.value] = varSymbol;				
+				}
+				else if(ast.source.indexOf(".prototype")!=-1)
+				{
+				}
+				else
+				{			
+				}
+			}
+		}
 		
 		out.push(generate(ast[0])); 		 
 		out.push(ast.value);
 		if(ast.value != "=") out.push("=");
-		out.push(generate(ast[1]));		
+		out.push(generate(ast[1]));			
 		break; 
 		
 	// ==================================================================================================================================
@@ -1050,6 +1222,7 @@ Compiler.prototype.TYPESYS = null;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Compiler.prototype.reduceDotProps = function(ast) 
 {
+	var _this = this;
 	var out = [];
 	
 	switch (ast[0].type) 
@@ -1065,7 +1238,7 @@ Compiler.prototype.reduceDotProps = function(ast)
 		case jsdef.GROUP:
 		case jsdef.DOT:
 		case jsdef.CALL:
-			out = out.concat(this.reduceDotProps(ast[0]));
+			out = out.concat(_this.reduceDotProps(ast[0]));
 			break;					
 			
 		case jsdef.THIS:
@@ -1093,7 +1266,7 @@ Compiler.prototype.preprocess = function(ast, pass)
 {
 	var _this = this;
 	_this.pass = pass;
-	 	 
+	
     // Descent the ast to redeuce properties for 
     // DOTs and set parent node to all ast nodes. 
     
@@ -1106,7 +1279,8 @@ Compiler.prototype.preprocess = function(ast, pass)
 		
 		for(var item in node) 
 		{
-			if(node[item] instanceof Node && !node[item].__visited)
+			//if(node[item] instanceof Node && !node[item].__visited)
+			if(typeof node[item] === 'object'  && !node[item].__visited)
 			{			
 				descend(node[item]);  								
 				node[item].parent = node;
@@ -1117,5 +1291,9 @@ Compiler.prototype.preprocess = function(ast, pass)
 	descend(ast);	
 	return ast;
 };
+
+
+
+
 
 
