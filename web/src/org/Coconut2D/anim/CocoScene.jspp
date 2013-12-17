@@ -179,7 +179,7 @@ class CocoScene
 	} 
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function  makeProgram(gl:WebGLRenderingContext, vs:String, fs:String)
+	private function makeProgram(gl:WebGLRenderingContext, vs:String, fs:String) :WebGLProgram
 	{
 		var vshader:WebGLShader = gl.createShader(gl.VERTEX_SHADER);
 		var fshader:WebGLShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -277,9 +277,16 @@ class CocoScene
 		{
 			gl.clearColor(1.0, 1.0, 1.0, 1.0);
 			gl.clear(gl.COLOR_BUFFER_BIT);	
-			if(__startTime == -1) __startTime = time;
-		    __elapsedTime = time - __currentTime - __startTime;
-		    __currentTime = time - __startTime;			
+			if(__startTime == -1) 
+			{
+				__startTime = time;
+				__elapsedTime = 0;				
+			}                     
+			else
+			{
+		    	__elapsedTime = (time-__startTime) - (__currentTime);		    	
+			}     
+			__currentTime = time - __startTime;			
 		    if(__root)    
 		    {     
 				__modelViewMatrix.identity();
@@ -349,6 +356,8 @@ class CocoScene
 		return scope.gotoFrameByIndex(-1, true, deep);
 	}
 }
+
+
 
 
 

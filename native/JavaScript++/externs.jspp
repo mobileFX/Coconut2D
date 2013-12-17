@@ -1,24 +1,8 @@
-//@compile{true}
-function HTMLVideoElement(){}
-function CocoFont(){}
-
-var devicePixelRatio;
-var innerHeight;
-var innerWidth;
-
-var alert = function(message){};
-var confirm = function(message){};
-var prompt = function(message, def){};
-var requestAnimationFrame = function(callBack){};
-var setInterval = function(handler, timeout){};
-var clearInterval = function(handle){};
-var setTimeout = function(handler, timeout){};
-var clearTimeout = function(handle){};
-
+//@compile{false}
+      
 var __registerManager = function(manager){};
 var __registerCallback = function(uid, type){};
-var __unRegisterCallback = function(uid, type){};
-      
+var __unRegisterCallback = function(uid, type){};    
 var __ImageData_loadImage = function(data){};
 
 var __WebGLRenderingContext_getContextAttributes = function(uid){};
@@ -158,5 +142,267 @@ var __WebGLRenderingContext_vertexAttrib4fv = function(uid, indx, value__buffer_
 var __WebGLRenderingContext_vertexAttribPointer = function(uid, indx, size, type, normalized, stride, offset){};
 var __WebGLRenderingContext_viewport = function(uid, x, y, width, height){};
 var __WebGLRenderingContext_execute = function(uid, payload){};
+
+/*///////////////////////////////////////////////////////////////////////////////////////////////
+        ______________  ______   _____           _       __
+       / ____/ ____/  |/  /   | / ___/__________(_)___  / /_
+      / __/ / /   / /|_/ / /| | \__ \/ ___/ ___/ / __ \/ __/
+     / /___/ /___/ /  / / ___ |___/ / /__/ /  / / /_/ / /_
+    /_____/\____/_/  /_/_/  |_/____/\___/_/  /_/ .___/\__/
+                                              /_/       
+	ECMAScript Symbols Script Library	
+	
+//////////////////////////////////////////////////////////////////////////////////////////////*/
+      
+class ECMAObject
+{
+	public var prototype:Object;
+	public function toString():String {}
+	public function toLocaleString():String {}
+	public function valueOf():Object {}
+	public function hasOwnProperty(name:String):Boolean {}
+	public function isPrototypeOf(o:Object):Boolean {}
+	public function propertyIsEnumerable(name:String):Boolean {}	
+	public function defineProperty(object:Object, name:String, params:Object){}
+} 
+
+class ECMAGlobal : Object
+{
+	public var NaN:Number;
+	public var Infinity:Number;
+	public var innerWidth:Integer;
+	public var innerHeight:Integer;
+	public var deviceRotation:Integer; 
+	public var devicePixelRatio:Float;
+	public function eval(s:String):Object {}
+	public function parseInt(s:String, radix:Number):Integer {}
+	public function parseFloat(s:String):Float {}
+	public function escape(s:String):String {}
+	public function unescape(s:String):String {}
+	public function isNaN(number:Object):Boolean {}
+	public function isFinite(number:Object):Boolean {}
+	public function decodeURI(encodedURI:String):String {}
+	public function decodeURIComponent(uriComponent:String):String {}
+	public function encodeURIComponent(uriComponent:String):String {}
+	public function encodeURI(URI:String):String {}
+	public function trace(message:String) {} 	
+	public function alert(message:String) {}
+} 
+
+class ECMAString : Object
+{	
+	public var length:Number;	
+	public function fromCharCode(charCode:Number):String {}
+	public function charAt(position:Number):String {}
+	public function charCodeAt(position:Number):Number {}
+	public function concat(value:String):String {}
+	public function indexOf(searchString:String, startPosition:Number):Number {}
+	public function lastIndexOf(searchString:String, startPosition:Number):Number {}
+	public function localeCompare(otherString:String):Number {}
+	public function match(regexp:RegExp):Array {}
+	public function replace(regexp:RegExp, replaceValue:String):String {}
+	public function search(regexp:RegExp):Number {}
+	public function slice(start:Number, end:Number):String {}
+	public function split(separator:String, limit:Number):Array {}
+	public function substring(start:Number, end:Number):String {}
+	public function toLowerCase():String {}
+	public function toLocaleLowerCase():String {}
+	public function toUpperCase():String {}
+	public function toLocaleUpperCase():String {}	
+}
+
+class ECMANumber : Object
+{	
+	public var MIN_VALUE:Number;
+	public var MAX_VALUE:Number;
+	public var NEGATIVE_INFINITY:Number;
+	public var POSITIVE_INFINITY:Number;
+	public function toFixed(fractionDigits:Number):String {}
+	public function toExponential(fractionDigits:Number):String {}
+	public function toPrecision(fractionDigits:Number):String {}
+} 
+
+class ECMABoolean : Object
+{
+}
+
+class ECMAArray : Object
+{
+	public var length:Number;
+	public function concat(args:Array):Array {}
+	public function join(seperator:String):Array {}
+	public function pop():Array {}
+	public function push(args:Object):Object {}
+	public function reverse():Array {}
+	public function shift():Array {}
+	public function slice(start:Number, end:Number):Array {}
+	public function sort(funct:Function):Array {}
+	public function splice(start:Number, deletecount:Number, items:Number):Array {}
+	public function unshift(start:Number):Array {}
+	public function forEach(item:Object):Array {}
+	public function size():Number {}
+}  
+
+class ECMAFunction : Object
+{	                                                            
+	public var length:Number;
+	public function apply(thisArg:String, argArray:Array):Object {}
+	public function call(thisObject:Object, args:Array):Object {}	
+}
+
+class ECMADate : Object
+{
+	public function UTC(hour:Number, min:Number, sec:Number, ms:Number):Number {}
+	public function parse(string:String):Number {}
+	public function toDateString():String {}
+	public function toTimeString():String {}
+	public function toLocaleString():String {}
+	public function toLocaleDateString():String {}
+	public function toLocaleTimeString():String {}
+	public function valueOf():Object {}
+	public function getFullYear():Number {}
+	public function getTime():Number {}
+	public function getUTCFullYear():Number {}
+	public function getMonth():Number {}
+	public function getUTCMonth():Number {}
+	public function getDate():Number {}
+	public function getUTCDate():Number {}
+	public function getDay():Number {}
+	public function getUTCDay():Number {}
+	public function getHours():Number {}
+	public function getUTCHours():Number {}
+	public function getMinutes():Number {}
+	public function getUTCMinutes():Number {}
+	public function getSeconds():Number {}
+	public function getUTCSeconds():Number {}
+	public function getMilliseconds():Number {}
+	public function getUTCMilliseconds():Number {}
+	public function getTimezoneOffset():Number {}
+	public function setTime(value:Number):Number {}
+	public function setMilliseconds(value:Number):Number {}
+	public function setUTCMilliseconds(ms:Number):Number {}
+	public function setSeconds(sec:Number, ms:Number):Number {}
+	public function setUTCSeconds(sec:Number, ms:Number):Number {}
+	public function setMinutes(min:Number, sec:Number, ms:Number):Number {}
+	public function setUTCMinute(min:Number, sec:Number, ms:Number):Number {}
+	public function setHours(hour:Number, min:Number, sec:Number, ms:Number):Number {}
+	public function setUTCHours(hour:Number, min:Number, sec:Number, ms:Number):Number {}
+	public function setDate(date:Number):Number {}
+	public function setUTCDate(date:Number):Number {}
+	public function setMonth(month:Number, date:Number):Number {}
+	public function setUTCMonth(month:Number, date:Number):Number {}
+	public function setFullYear(year:Number, month:Number, date:Number):Number {}
+	public function setUTCFullYear(year:Number, month:Number, date:Number){};
+	public function toUTCString():String {}
+}
+        
+class Integer : Number 
+{
+}
+
+class Float : Number 
+{
+}
+
+class ArrayBuffer
+{       
+	public var byteLength:Number;
+    public function slice(begin:Number, end:Number): ArrayBuffer {}
+    public var __uid:Integer;
+}
+
+class ArrayBufferView
+{  
+	public var buffer:ArrayBuffer	
+	public var byteLength:Number;	
+	public var __uid:Integer;
+}
+
+class Float32Array : ArrayBufferView
+{	
+	public var length:Number;
+	public var byteOffset:Number;
+	public var BYTES_PER_ELEMENT:Number;	
+	public var __uid:Integer;
+}
+
+class Int32Array : ArrayBufferView
+{	
+	public var length:Number;
+	public var byteOffset:Number;
+	public var BYTES_PER_ELEMENT:Number;	
+	public var __uid:Integer;
+}
+
+class Uint8Array : ArrayBufferView
+{	
+	public var length:Number;
+	public var byteOffset:Number;
+	public var BYTES_PER_ELEMENT:Number;	
+	public var __uid:Integer;
+}  
+
+class ECMAMath : Object  
+{
+	public var E:Float;
+	public var LN10:Float;
+	public var LN2:Float;
+	public var LOG2E:Float;
+	public var LOG10E:Float;
+	public var PI:Float;
+	public var SQRT1_2:Float;
+	public var SQRT2:Float;
+	public function abs(x:Number):Number {}
+	public function acos(x:Number):Float {}
+	public function asin(x:Number):Float {}
+	public function atan(x:Number):Float {}
+	public function atan2(x:Number, y:Number):Float {}
+	public function ceil(x:Number):Number {}
+	public function cos(x:Number):Float {}
+	public function exp(x:Number):Float {}
+	public function floor(x:Number):Integer {}
+	public function log(x:Number):Float {}
+	public function max(args:Array):Number {}
+	public function min(args:Array):Number {}
+	public function pow(x:Number, y:Number):Float {}
+	public function random():Float {}
+	public function round(x:Number):Number {}
+	public function sin(x:Number):Float {}
+	public function sqrt(x:Number):Float {}
+	public function tan(x:Number):Float {}
+}
+
+class ECMARegExp : Object
+{
+	public var source:String;
+	public var global:Boolean;
+	public var ignoreCase:Boolean;
+	public var multiline:Boolean;
+	public var lastIndex:Number;
+	public function exec(string:String):Array {}
+	public function test(string:String):Boolean {}
+}
+
+class ECMAError : Object
+{
+	public var name:String;
+	public var message:String
+}
+
+class ECMAEvalError :Error {}
+class ECMARangeError :Error {}
+class ECMAReferenceError :Error {}
+class ECMASyntaxError :Error {}
+class ECMATypeError :Error {}
+
+
+
+
+
+
+
+
+
+
 
 

@@ -41,8 +41,8 @@ HTMLEvent.prototype.cancelable = false;
 HTMLEvent.prototype.stopPropagation = function(){};
 HTMLEvent.prototype.clientX = 0; 
 HTMLEvent.prototype.clientY = 0;
-HTMLEvent.prototype.pageX;
-HTMLEvent.prototype.pageY;
+HTMLEvent.prototype.pageX = 0;
+HTMLEvent.prototype.pageY = 0;
 HTMLEvent.prototype.screenX = 0;
 HTMLEvent.prototype.screenY = 0;
 HTMLEvent.prototype.preventDefault = function(type, bubbles, cancelable){};
@@ -72,7 +72,7 @@ function TouchList(num)
 }
 TouchList.prototype = new Array();
 TouchList.prototype.item = function(index) { return this[index]; };
-TouchList.prototype.length;
+TouchList.prototype.length = 0;
 
 
 // ==================================================================================================================================
@@ -83,6 +83,7 @@ TouchList.prototype.length;
 //    \____/\__,_/_/_/_.___/\__,_/\___/_/|_/____/  /_/  /_/\__,_/_/ /_/\__,_/\__, /\___/_/
 //                                                                          /____/
 // ==================================================================================================================================
+
 function CallbackManager()
 {	
 	__registerManager(this, this.dispatchEvent, this.data);

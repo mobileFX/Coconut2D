@@ -1,6 +1,7 @@
 //@compile{true}
 
-//@include{Constants.js}
+//@include{Constants.js}  
+//@include{HTMLEvents.js}
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -26,10 +27,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-class ImageData
+class ImageData : Object
 {
 	public var buffer:ArrayBuffer;
-	public var data:Object;
+	public var data:Int32Array;
 	public var src:String;
 	public var width:Integer;
 	public var height:Integer;
@@ -44,7 +45,7 @@ class ImageData
 		
 		if(isNaN(a0))
 		{
-			var data:Object = __ImageData_loadImage(a0);
+			var data:ImageDataBuffer = __ImageData_loadImage(a0);
 			if(data)
 			{
 				src = a0;
@@ -62,5 +63,10 @@ class ImageData
 		}			
 	}
 }
+
+
+
+
+
 
 

@@ -1,9 +1,9 @@
 //@compile{false}
-//@line 29
+//@line 30
 
 function ImageData()
 {
-	var __SUPER__;
+	var __SUPER__, __CLASS__OBJECT__;
 	return ((function ()
 	{
 		var __CLASS__IMAGEDATA__ = this,
@@ -21,69 +21,85 @@ function ImageData()
 		{
 		};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 31
-		this.buffer = null;
-		//@line 32
-		this.data =
+		var __TMP_SUPER__ = __SUPER__,
+			__TMP_ARRAY__ = [];
+		for (var __TMP_MEMBER__ in __TMP_SUPER__)
+		__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
+		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
+		__TMP_SUPER__ = __SUPER__.__PROTECTED__;
+		__TMP_ARRAY__.length = 0;
+		for (var __TMP_MEMBER__ in __TMP_SUPER__)
 		{
-		};
+			__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
+			this.__PROTECTED__[__TMP_MEMBER__] = __TMP_SUPER__[__TMP_MEMBER__];
+		}
+		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
+		//@line 32
+		this.buffer = null;
 		//@line 33
-		this.src = "";
+		this.data = null;
 		//@line 34
-		this.width = 0;
+		this.src = "";
 		//@line 35
+		this.width = 0;
+		//@line 36
 		this.height = 0;
-		//@line 37
+		//@line 38
 		this.Constructor = function ()
 		{
 			var a0 = arguments[0];
 			var a1 = arguments[1];
-			//@line 39
-			__CLASS__IMAGEDATA__.buffer = null;
 			//@line 40
-			__CLASS__IMAGEDATA__.data = null;
+			__CLASS__IMAGEDATA__.buffer = null;
 			//@line 41
-			__CLASS__IMAGEDATA__.width = 0;
+			__CLASS__IMAGEDATA__.data = null;
 			//@line 42
-			__CLASS__IMAGEDATA__.height = 0;
+			__CLASS__IMAGEDATA__.width = 0;
 			//@line 43
+			__CLASS__IMAGEDATA__.height = 0;
+			//@line 44
 			__CLASS__IMAGEDATA__.src = "";
-			//@line 45
+			//@line 46
 			if (isNaN(a0))
 			{
-				//@line 47
-				var data = __ImageData_loadImage(a0);
 				//@line 48
+				var data = __ImageData_loadImage(a0);
+				//@line 49
 				if (data)
 				{
-					//@line 50
-					__CLASS__IMAGEDATA__.src = a0;
 					//@line 51
-					__CLASS__IMAGEDATA__.buffer = data.buffer;
+					__CLASS__IMAGEDATA__.src = a0;
 					//@line 52
-					__CLASS__IMAGEDATA__.width = data.width;
+					__CLASS__IMAGEDATA__.buffer = data.buffer;
 					//@line 53
+					__CLASS__IMAGEDATA__.width = data.width;
+					//@line 54
 					__CLASS__IMAGEDATA__.height = data.height;
 				}
 			}
 			else
-			//@line 56
+			//@line 57
 			if (!isNaN(a0) && !isNaN(a1))
 			{
-				//@line 58
-				__CLASS__IMAGEDATA__.width = parseInt(a0);
 				//@line 59
-				__CLASS__IMAGEDATA__.height = parseInt(a1);
+				__CLASS__IMAGEDATA__.width = parseInt(a0);
 				//@line 60
-				__CLASS__IMAGEDATA__.data = new Int32Array(__CLASS__IMAGEDATA__.width * __CLASS__IMAGEDATA__.height);
+				__CLASS__IMAGEDATA__.height = parseInt(a1);
 				//@line 61
+				__CLASS__IMAGEDATA__.data = new Int32Array(__CLASS__IMAGEDATA__.width * __CLASS__IMAGEDATA__.height);
+				//@line 62
 				__CLASS__IMAGEDATA__.buffer = __CLASS__IMAGEDATA__.data.buffer;
 			}
 			return __CLASS__IMAGEDATA__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this
-	}).call(
+	}).call((function (o)
 	{
-	})).Constructor.apply(this, [].slice.call(arguments))
+		return (F.prototype = __SUPER__ = __CLASS__OBJECT____ = o, new F);
+
+		function F()
+		{
+		}
+	})(new Object))).Constructor.apply(this, [].slice.call(arguments))
 }

@@ -38,47 +38,48 @@
 
 class CocoKeyFrame
 {
-	public var frameIndex:Integer									= 0;
-	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM 	= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
-	public var handleEvents:Boolean									= false;
-	public var calcBoundingBox:Boolean								= true;
-	public var alpha:Float											= 1.0;
-	public var visible:Boolean										= true;
-	public var x:Float 												= 0.0;
-	public var y:Float 												= 0.0;
-	public var pivotX:Float 										= 0.0;
-	public var pivotY:Float 										= 0.0;
-	public var scaleX:Float 										= 1.0;
-	public var scaleY:Float 										= 1.0;
-	public var rotation:Float										= 0.0;
-	public var action:Function										= null;
+	public var frameIndex:Integer;
+	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM;
+	public var handleEvents:Boolean;
+	public var calcBoundingBox:Boolean;
+	public var visible:Boolean;
+	public var alpha:Float;
+	public var x:Float;
+	public var y:Float;
+	public var pivotX:Float;
+	public var pivotY:Float;
+	public var scaleX:Float;
+	public var scaleY:Float;
+	public var rotation:Float;
+	public var action:Function;	
 	
-	public var nextKeyFrame:CocoKeyFrame							= null;
-	public var prevKeyFrame:CocoKeyFrame							= null;
-	
-	private var __lastActionExecutionTime:Float						= 0.0;		
+	private var __lastActionExecutionTime:Float;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		frameInterpolation 		= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
-		handleEvents 			= false;
-		visible					= true;
-		x						= 0.0;
-		y						= 0.0;
-		scaleX					= 1.0;
-		scaleY					= 1.0;
-		rotation				= 0.0;
-		pivotX					= 0.0;
-		pivotY					= 0.0;
-		alpha					= 1.0;		
+		frameIndex					= 0;
+		frameInterpolation 			= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
+		handleEvents 				= false;
+		calcBoundingBox				= false;
+		visible						= true;
+		x							= 0.0;
+		y							= 0.0;
+		scaleX						= 1.0;
+		scaleY						= 1.0;
+		rotation					= 0.0;
+		pivotX						= 0.0;
+		pivotY						= 0.0;
+		alpha						= 1.0;		
+		action						= null;
+		__lastActionExecutionTime 	= 0.0;
 	} 
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function clone() :CocoKeyFrame
 	{
-	    var c:CocoKeyFrame;
-	    c = new CocoKeyFrame();
+	    var c:CocoKeyFrame = new CocoKeyFrame();
+	    
 		c.alpha						= alpha;				
 		c.frameIndex            	= frameIndex;        
 		c.frameInterpolation    	= frameInterpolation;
@@ -93,20 +94,21 @@ class CocoKeyFrame
 		c.y                     	= y;                 
 		c.action					= action;                                   		
 		c.calcBoundingBox			= calcBoundingBox;
+		
 	    return c;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{       
-		nextKeyFrame = null;
-		prevKeyFrame = null;
 		__lastActionExecutionTime = 0.0;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function execute(gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, scene:CocoScene, clip:CocoClip)
 	{		
+		//gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, clip:CocoClip, keyFrame:CocoKeyFrame
+		
 		if(currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime)
 		{
 			__lastActionExecutionTime = currentTime;						
@@ -136,9 +138,9 @@ class CocoKeyFrame
 	{
 		if(!Frame) return;
 	    alpha = alpha * Frame.alpha;
-	    visible = visible & Frame.visible;
-	    handleEvents = handleEvents & Frame.handleEvents;
-	    calcBoundingBox = calcBoundingBox & Frame.calcBoundingBox;
+	    visible = visible && Frame.visible;
+	    handleEvents = handleEvents && Frame.handleEvents;
+	    calcBoundingBox = calcBoundingBox && Frame.calcBoundingBox;
 	} 
 	
 	public function apply(matrix:CocoMatrix)
@@ -149,6 +151,10 @@ class CocoKeyFrame
 		if(pivotX!=0 || pivotY!=0) matrix.translate(-pivotX, -pivotY);	
 	}
 } 
+
+
+
+
 
 
 

@@ -21,16 +21,16 @@ function HTMLWindow()
 		{
 		};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 46
+		//@line 48
 		var addEventListener = this.addEventListener = function (type, listener, useCapture)
 		{
-			//@line 48
+			//@line 50
 			return CallbackManager.addEventListener(__CLASS__HTMLWINDOW__, type, listener, useCapture);
 		};
-		//@line 51
+		//@line 53
 		var removeEventListener = this.removeEventListener = function (type, listener, useCapture)
 		{
-			//@line 53
+			//@line 55
 			return CallbackManager.removeEventListener(__CLASS__HTMLWINDOW__, type, listener, useCapture);
 		};
 		//@line 33
@@ -41,17 +41,21 @@ function HTMLWindow()
 		this.innerHeight = 0;
 		//@line 36
 		this.innerWidth = 0;
-		//@line 38
+		//@line 37
+		this.devicePixelRatio = 0;
+		//@line 39
 		this.Constructor = function ()
 		{
-			//@line 40
-			__CLASS__HTMLWINDOW__.__uid = 0;
 			//@line 41
-			__CLASS__HTMLWINDOW__.document = new HTMLDocument;
+			__CLASS__HTMLWINDOW__.__uid = 0;
 			//@line 42
-			__CLASS__HTMLWINDOW__.innerHeight = global.innerHeight;
+			__CLASS__HTMLWINDOW__.document = new HTMLDocument;
 			//@line 43
+			__CLASS__HTMLWINDOW__.innerHeight = global.innerHeight;
+			//@line 44
 			__CLASS__HTMLWINDOW__.innerWidth = global.innerWidth;
+			//@line 45
+			__CLASS__HTMLWINDOW__.devicePixelRatio = global.devicePixelRatio;
 			return __CLASS__HTMLWINDOW__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);

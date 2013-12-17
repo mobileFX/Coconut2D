@@ -1,9 +1,9 @@
-//@compile{true}                      
+//@compile{true}
 
 //@include{Constants.js}
 //@include{HTMLEvents.js}
-//@include{WebGLRenderingContext.jspp}
-                                      
+//@include{HTMLDocument.jspp}
+
 /* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013 www.coconut2D.org
@@ -27,21 +27,15 @@
  * THE SOFTWARE.   
  *
  * ***** END LICENSE BLOCK ***** */
-
-class HTMLCanvasElement
+ 
+class ImageDataBuffer
 {
+	public var buffer:ArrayBuffer;
 	public var width:Integer;
 	public var height:Integer;
 	
 	public function Constructor()
-	{ 
-		width = 0; 
-		height = 0;
-	}
-
-	public function getContext(contextId:String)
 	{
-		return new WebGLRenderingContext(this);
 	}
 }
 

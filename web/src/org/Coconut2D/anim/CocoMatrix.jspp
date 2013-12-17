@@ -280,7 +280,7 @@ class CocoMatrix
 	// ==================================================================================================================================
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function update(gl:WebGLRenderingContext, ul)	
+	public function update(gl:WebGLRenderingContext, ul:WebGLUniformLocation)	
 	{
 		__data[0]  = rc11;
 		__data[1]  = rc12;
@@ -315,7 +315,7 @@ class CocoMatrix
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function push()
 	{		
-		__stack.push( [rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44 ] );
+		__stack.push( new Float32Array([rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44 ]) );
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -323,7 +323,7 @@ class CocoMatrix
 	{
 		if(__stack.size()) 
 		{
-			var data:Array = __stack.pop();
+			var data:Float32Array = __stack.pop();
 			rc11 = data[0];
 			rc12 = data[1];
 			rc13 = data[2];
@@ -343,5 +343,7 @@ class CocoMatrix
 		}
 	}
 }
+
+
 
 

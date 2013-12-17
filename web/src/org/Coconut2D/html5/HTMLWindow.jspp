@@ -34,13 +34,15 @@ class HTMLWindow
 	public var document:HTMLDocument;
 	public var innerHeight:Integer;
 	public var innerWidth:Integer;
+	public var devicePixelRatio:Integer;
 
 	public function Constructor()
-	{ 
+	{
 		this.__uid = 0;
 		this.document = new HTMLDocument();
 		this.innerHeight = global.innerHeight;
 		this.innerWidth = global.innerWidth;
+		this.devicePixelRatio = global.devicePixelRatio;
 	}
 
 	public function addEventListener(type:String, listener:Function, useCapture:Boolean)
@@ -53,6 +55,10 @@ class HTMLWindow
 		return CallbackManager.removeEventListener(this, type, listener, useCapture);
 	}
 }
+
+
+
+
 
 
 

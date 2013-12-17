@@ -73,14 +73,8 @@ function ____JSONtoXML(json, rootNode)
 	}
 	
 	return xml;
-} 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function TRACE(n)
-{
-	trace(JSON.stringify( stripNodeFromCyclicReferences(n)));
-}
-
+}  
+     
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function RxReplace(buff, patt, opts, repl)
 {
@@ -112,37 +106,27 @@ function compile_jspp(code, infolder, outfolder)
 {
 	try
 	{              		
+		// Append externs and ECMA classes
 		if(infolder)
-		{
-			var externs = read(infolder+"/../../native/JavaScript++/ECMA.jspp");	
-			code = "\"script_begin:///externs.jspp\";\n" + externs + "\n\"script_end:///externs.jspp\";\n\n" + code;			
-		}
-						
-		var ast = narcissus.jsparse(code);	
+		{			
+			var file = infolder.split("/");
+			file.splice(file.length-2,2);			
+			file = file.join("/") + "/native/JavaScript++/externs.jspp"; 
+			var externs = read(file);	
+			code = "\"script_begin:///" + file + "\";\n" + externs + "\n\"script_end:///" + file + "\";\n" + code;			
+		}	
 		
-		var compiler = new Compiler(ast, infolder, outfolder);		
-		compiler.preprocess(ast, 1);		
-		compiler.compile();			
-		var classes = compiler.classes;
+		// Parse source code
+		var ast = narcissus.jsparse(code);						
 		
-		compiler = new Compiler(ast, infolder, outfolder);
-		compiler.classes = classes;
-		compiler.preprocess(ast, 2);	
-		var gen = compiler.compile();			
-				 		
-		//jsppCallback("errors", 			____JSONtoXML(c.errors));
-		//jsppCallback("warnings", 		____JSONtoXML(c.warnings));				
-		//jsppCallback("debugSymbols", 	____JSONtoXML(c.debugSymbols));				
-		//jsppCallback("codeSymbols", 	____JSONtoXML(c.codeSymbols));
-		//jsppCallback("codeScopes", 		____JSONtoXML(c.codeScopes));		
-			
+		// Compile ast
+		var compiler = new Compiler(ast, infolder, outfolder);
+		compiler.compile();				
+
 		trace("Code generation Done.");
-		
-		return gen;		
 	}
 	catch(e)
 	{
 		trace("ERROR: " +e);
 	}
 }
-
