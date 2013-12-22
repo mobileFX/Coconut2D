@@ -60,7 +60,7 @@ class CocoClip
 	public var __childWithMaxTimelineDuration:CocoClip;	
 			
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String, mask:CocoImage)
+	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String)
 	{
 		__symbolLoop					= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
 		__currentSequenceFrameIndex		= 0;
@@ -82,16 +82,16 @@ class CocoClip
 	}  
 							
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function reset()
-	{
+	public function reset() 
+	{ 
 		__currentFrame = null;
 	    __firstTickTime = -1;
-	    __timeline.reset();
-
+	    __timeline.reset(); 
+	    
 	    for(var i:Integer =__children.size()-1; i>=0; i--)
-		{
+		{		
 			__children[i].reset();
-	    }	    
+		} 
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,16 +101,16 @@ class CocoClip
 	    if(!clipInstance.__instanceName) throw "Invalid instance name.";
         __children.push(clipInstance);	    
 	    normalize();
-	    return clipInstance;	
+	    return clipInstance;	    
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function removeChild(clipInstance:CocoClip) :CocoClip
-	{
+	{		
 	    if(!clipInstance) return null;
 	    __children.splice( getChildIndex(clipInstance), 1);
 	    normalize();
-	    return clipInstance;
+	    return clipInstance; 
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +123,7 @@ class CocoClip
 	    	if(!__childWithMaxTimelineDuration) { __childWithMaxTimelineDuration = __children[i]; continue; }
 	        if(__children[i].__timeline.__durationInTime > __childWithMaxTimelineDuration.__timeline.__durationInTime) 
 				__childWithMaxTimelineDuration = __children[i];
-	    }	
+	    }	    
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,12 +150,12 @@ class CocoClip
 	{
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
-		return gotoFrameByIndex(Label.frameIndex);
+		return gotoFrameByIndex(Label.frameIndex);  
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean, deep:Boolean) :Boolean
-	{
+	{ 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
 		{
@@ -179,7 +179,7 @@ class CocoClip
 				
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean)
-	{        
+	{
 		// Get scene current time and add timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )		                                    
 		var currentTime:Float = scene.__currentTime + __timeline.__skipTime; 
 
@@ -275,6 +275,7 @@ class CocoClip
 		}		
 	} 
 }
+
 
 
 

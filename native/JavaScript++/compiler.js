@@ -75,10 +75,12 @@
 	
 */
 
-function Compiler(ast, infolder, outfolder)
+function Compiler(ast, infolder, outfolder, selectedClass)
 {
 	var _this = this; 
-	
+	 
+	_this.symbolId = -1;
+	_this.scopeId = -1;
 	_this.secondPass = false;	
 	_this.ast = ast;
     _this.infolder = infolder;
@@ -93,13 +95,28 @@ function Compiler(ast, infolder, outfolder)
 	_this.classes = {};
 	_this.line_start = -1;
 	_this.UNTYPED = "untyped";
+	_this.selectedClass = selectedClass;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Object constructors
+	// Symbol constructors
 	function Scope() {}
 	function ClassSymbol() {}
 	function FunctionSymbol() {}	
 	function VarSymbol() {}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.hashCode = function(str)
+	{	
+		var hash = 0;	
+		if (str.length == 0) return hash;		
+		for(i=0; i<str.length; i++) 
+		{
+		    char = str.charCodeAt(i);		
+		    hash = ((hash<<5)-hash)+char;	
+		    hash = hash & hash; // Convert to 32bit integer		
+		}		
+		return hash.toString(16);	
+	};
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.types = 
@@ -145,8 +162,94 @@ function Compiler(ast, infolder, outfolder)
 			ASSIGN: { "Number":	 { "Boolean": "Number",	"Number": "Number" }, "Boolean": { "Boolean": "Number", "Number": "Number" }
 			}
 		}
-	};	
+	};
 	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.CODE_SYMBOLS_ENUM = 
+	{
+	    SYMBOL_ARGUMENT					   : 0,
+	    SYMBOL_ARRAY                       : 1,
+	    SYMBOL_BASE_CLASS                  : 2,
+	    SYMBOL_BASE_CONSTANT               : 3,
+	    SYMBOL_BASE_EVENT                  : 4,
+	    SYMBOL_BASE_PRIVATE_FIELD          : 5,
+	    SYMBOL_BASE_PRIVATE_FUNCTION       : 6,
+	    SYMBOL_BASE_PROTECTED_FIELD        : 7,
+	    SYMBOL_BASE_PROTECTED_FUNCTION     : 8,
+	    SYMBOL_BASE_PUBLIC_FIELD           : 9,
+	    SYMBOL_BASE_PUBLIC_FUNCTION        : 10,
+	    SYMBOL_CLASS                       : 11,
+	    SYMBOL_CONDITIONAL_BLOCK           : 12,
+	    SYMBOL_CONSTANT                    : 13,
+	    SYMBOL_CONSTRUCTOR                 : 14,
+	    SYMBOL_ENUM                        : 15,
+	    SYMBOL_ENUM_ITEM                   : 16,
+	    SYMBOL_ERROR                       : 17,
+	    SYMBOL_EVENT                       : 18,
+	    SYMBOL_FOLDER                      : 19,
+	    SYMBOL_HTML                        : 20,
+	    SYMBOL_HTML_STYLE                  : 21,
+	    SYMBOL_HTML_STYLE_CLASS            : 22,
+	    SYMBOL_HTML_STYLE_ID               : 23,
+	    SYMBOL_HTML_STYLE_RULE             : 24,
+	    SYMBOL_INTERFACE                   : 25,
+	    SYMBOL_LOCALS                      : 26,
+	    SYMBOL_OBJECT                      : 27,
+	    SYMBOL_PACKAGE                     : 28,
+	    SYMBOL_PRIVATE_FIELD               : 29,
+	    SYMBOL_PRIVATE_FUNCTION            : 30,
+	    SYMBOL_PROPERTY                    : 31,
+	    SYMBOL_PROTECTED_FIELD             : 32,
+	    SYMBOL_PROTECTED_FUNCTION          : 33,
+	    SYMBOL_PUBLIC_FIELD                : 34,
+	    SYMBOL_PUBLIC_FUNCTION             : 35,
+	    SYMBOL_SCRIPT_LIBRARY              : 36,
+	    SYMBOL_SYMBOLS                     : 37,
+	    SYMBOL_VARIABLE                    : 38,
+	    SYMBOL_WAIT                        : 39,
+	    SYMBOL_WARNING                     : 40,
+	    SYMBOL_WATCH                       : 41
+	};		
+	
+	// ==================================================================================================================================
+	//	   ______                      _ __   
+	//	  / ____/___  ____ ___  ____  (_) /__ 
+	//	 / /   / __ \/ __ `__ \/ __ \/ / / _ \
+	//	/ /___/ /_/ / / / / / / /_/ / / /  __/
+	//	\____/\____/_/ /_/ /_/ .___/_/_/\___/ 
+	//	                    /_/               
+	// ==================================================================================================================================	
+		
+	_this.compile = function()
+	{	 		
+		// Pre-preocess ast
+		_this.preprocess(ast);		
+
+		// First pass to record symbols		
+		_this.generate(ast);
+		
+		if(!_this.selectedClass)
+		{
+			// Reset for second pass		
+			_this.symbolId = -1;
+			_this.scopeId = -1;
+			_this.secondPass = true;  
+			_this.errors = [];
+			_this.warnings = [];             
+			_this.scopesStack = [];
+			_this.scopesTable = [];
+			_this.debugSymbolsTable = [];	
+			_this.currClassName = null;
+			_this.line_start = -1;
+		
+			// Second pass to generate actual code		
+			_this.generate(ast);			
+		}
+		                     
+		// Post-process to extract code and debug symbols
+		_this.exportCoconutIDESymbols();
+	};	
+
 	// ==================================================================================================================================
 	//	    ____                                                
 	//	   / __ \________  ____  _________  ________  __________
@@ -197,6 +300,8 @@ function Compiler(ast, infolder, outfolder)
 				{
 					case "tokenizer":
 					case "identifiers_list":				
+					case "identifier_first":
+					case "identifier_last":					
 						break;
 						
 					default:
@@ -266,15 +371,8 @@ function Compiler(ast, infolder, outfolder)
 			out.push({ast:ast, value:"@@INDEX@@"} );				
 		
 		return out;
-	}; 
-	    	    
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.postProcess = function()
-	{
-		 var _this = this;
-		 jsppCallback("debugSymbols", "", 0, "<SYMBOLS>" + _this.debugSymbolsTable.join("") + "</SYMBOLS>");	 
-	};
-				
+	};	
+	  
 	// ==================================================================================================================================
 	//	   _____                          __  ___                          
 	//	  / ___/_________  ____  ___     /  |/  /___ _______________  _____
@@ -294,11 +392,16 @@ function Compiler(ast, infolder, outfolder)
 		}
 		else
 		{			
-			scope = new Scope(); 
+			var parentScope = _this.scopesStack.length ? _this.scopesStack[_this.scopesStack.length-1] : null;
 			
+			scope = new Scope();
+			
+			scope.scopeId		= (++_this.scopeId);			
 			scope.name			= _this.scopesStack.length==0 ? "GLOBAL_SCOPE" : ast.name;
-			scope.parentScope	= _this.scopesStack.length ? _this.scopesStack[_this.scopesStack.length-1] : null;
+			scope.parentScope	= parentScope;
+			scope.childScopes	= [];
 			scope.ast			= ast;
+			scope.className		= _this.currClassName;
 			scope.type			= ast.type;
 			scope.nodeType		= ast.nodeType;
 			scope.isGlobal		= _this.scopesStack.length==0;
@@ -309,11 +412,12 @@ function Compiler(ast, infolder, outfolder)
 			scope.start			= ast.start;
 			scope.end			= ast.end;
 			scope.line_start	= ast.line_start;
-			scope.line_end		= ast.line_end;
-			scope.scopeId		= ast.scopeId;
+			scope.line_end		= ast.line_end;			
 			scope.vars			= new Object();
 			scope.methods		= new Object();			
 			
+			if(parentScope) parentScope.childScopes.push(scope);
+						
 			ast.scope = scope;
 		}
 		
@@ -492,55 +596,7 @@ function Compiler(ast, infolder, outfolder)
 		if(deep && scope.parentScope)		
 			return _this.LookupScopeChain(identifier, scope.parentScope, deep);		
 	};		
-	
-	// ==================================================================================================================================
-	//	    ____       __                   _____                 __          __    
-	//	   / __ \___  / /_  __  ______ _   / ___/__  ______ ___  / /_  ____  / /____
-	//	  / / / / _ \/ __ \/ / / / __ `/   \__ \/ / / / __ `__ \/ __ \/ __ \/ / ___/
-	//	 / /_/ /  __/ /_/ / /_/ / /_/ /   ___/ / /_/ / / / / / / /_/ / /_/ / (__  ) 
-	//	/_____/\___/_.___/\__,_/\__, /   /____/\__, /_/ /_/ /_/_.___/\____/_/____/  
-	//	                       /____/         /____/                                
-	// ==================================================================================================================================	
-	
-	_this.addDebugSymbol = function(ast, runtime)
-	{   
-		if(!_this.secondPass) return;		
-		var identifier = "";
-		
-		if(ast.type==jsdef.IDENTIFIER && !_this.isInside(ast,jsdef.DOT))
-		{ 
-			identifier = ast.value;
-			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");						
-		}
-		else if(ast.type==jsdef.DOT && _this.currClassName && !_this.isInside(ast, jsdef.DOT)) // Process top-level DOTs only, skip inner DOTs.
-		{
-			var v_identifiers = [], v_runtime = [], buff = [];
-			for(var i=0;i<ast.identifiers_list.length;i++)
-			{
-				var f = ast.identifiers_list[i].ast;				
-				var value = ast.identifiers_list[i].value.replace("@@THIS@@", "this");
-				if(i==0)  
-				{
-					v_identifiers.push(value);
-					v_runtime.push(f.symbol.runtime);					
-				}
-				else if(f.type==jsdef.INDEX)
-				{					
-					v_identifiers[v_identifiers.length-1] += f.generated_index;
-					v_runtime[v_runtime.length-1] += f.generated_index;
-				}
-				else
-				{
-					v_identifiers.push(value);
-					v_runtime.push(value);					
-				} 				
-				buff.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + f.start + "' end='" + f.end + "' line='" + f.line_start + "' identifier='" + v_identifiers.join(".") + "' runtime='" + v_runtime.join(".") +"'/>\n");
-			}
-			// Reverse debug symbols for faster search and append them to debug symbols table.
-			_this.debugSymbolsTable = _this.debugSymbolsTable.concat(buff.reverse());
-		}
-	};     
-	
+	  
 	// ==================================================================================================================================
 	//	    __  ___                          
 	//	   /  |/  /___ _______________  _____
@@ -551,7 +607,8 @@ function Compiler(ast, infolder, outfolder)
 	// ==================================================================================================================================	
 	
 	_this.NewWarning = function (e, node) 
-	{		
+	{
+		if(_this.selectedClass) return;
 		trace("@@ WARNING: " + e + " in file " + node.path + " at line " + node.line_start);
 		jsppCallback("warning", node.path, node.line_start, e);
 		_this.warnings.push(e);
@@ -560,6 +617,7 @@ function Compiler(ast, infolder, outfolder)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewError = function (e, node)
 	{                        		
+		if(_this.selectedClass) return;
 		trace("@@ ERROR: " + e + " in file " + node.path + " at line " + node.line_start);
 		jsppCallback("error", node.path, node.line_start, e);
 		_this.errors.push(e);
@@ -626,40 +684,6 @@ function Compiler(ast, infolder, outfolder)
 	};
 	
 	// ==================================================================================================================================
-	//	   ______                      _ __   
-	//	  / ____/___  ____ ___  ____  (_) /__ 
-	//	 / /   / __ \/ __ `__ \/ __ \/ / / _ \
-	//	/ /___/ /_/ / / / / / / /_/ / / /  __/
-	//	\____/\____/_/ /_/ /_/ .___/_/_/\___/ 
-	//	                    /_/               
-	// ==================================================================================================================================	
-		
-	_this.compile = function()
-	{	 		
-		// Pre-preocess ast
-		_this.preprocess(ast);		
-
-		// First pass to record symbols		
-		_this.generate(ast);
-
-		// Reset for second pass		
-		_this.secondPass = true;  
-		_this.errors = [];
-		_this.warnings = [];             
-		_this.scopesStack = [];
-		_this.scopesTable = [];
-		_this.debugSymbolsTable = [];	
-		_this.currClassName = null;
-		_this.line_start = -1;
-
-		// Second pass to generate code		
-		_this.generate(ast);           
-		
-		// Post-process to extract code and debug symbols
-		_this.postProcess();				 		
-	};	
-	
-	// ==================================================================================================================================
 	//	   ______          __        ______                           __            
 	//	  / ____/___  ____/ /__     / ____/__  ____  ___  _________ _/ /_____  _____
 	//	 / /   / __ \/ __  / _ \   / / __/ _ \/ __ \/ _ \/ ___/ __ `/ __/ __ \/ ___/
@@ -711,6 +735,7 @@ function Compiler(ast, infolder, outfolder)
 			
 			var classSymbol = new ClassSymbol();
 			{
+				classSymbol.symbolId	= (++_this.symbolId);
 				classSymbol.name		= ast.name;
 				classSymbol.vartype		= ast.name;
 				classSymbol.classId		= classId;
@@ -719,6 +744,7 @@ function Compiler(ast, infolder, outfolder)
 				classSymbol.type		= ast.type;
 				classSymbol.nodeType	= ast.nodeType;
 				classSymbol.isPrototype = false;
+				classSymbol.isEnum		= false;
 				classSymbol.ast			= ast;
 				classSymbol.scope		= scope;			
 				classSymbol.file		= ast.file;
@@ -727,7 +753,7 @@ function Compiler(ast, infolder, outfolder)
 				classSymbol.end			= ast.end;
 				classSymbol.line_start	= ast.line_start;			
 				classSymbol.line_end	= ast.line_end;			
-				classSymbol.scopeId		= ast.scopeId;
+				classSymbol.scopeId		= scope.scopeId;
 				classSymbol.vars		= scope.vars;
 				classSymbol.methods	 	= scope.methods;	
 			}		
@@ -765,8 +791,7 @@ function Compiler(ast, infolder, outfolder)
 				//Protected members
 				out.push(superClassTmp + "=__SUPER__.__PROTECTED__;" + varArray + ".length=0;");
 				out.push("for(var " + prop + " in " + superClassTmp + "){");
-				out.push(varArray + ".push(" + prop + "+'=" + superClassTmp + ".'+" + prop + ");");
-				//out.push("trace(" + varArray + ".join());" );
+				out.push(varArray + ".push(" + prop + "+'=" + superClassTmp + ".'+" + prop + ");");				
 				out.push("this.__PROTECTED__[" + prop + "]=" + superClassTmp + "[" + prop +"];}");
 				out.push(varArray + ".length&&eval('var '+" + varArray + ".join()+';');");
 			}
@@ -792,6 +817,7 @@ function Compiler(ast, infolder, outfolder)
 				var member = ast.body[item];			
 				switch(member.type)
 				{
+					case jsdef.CONST:
 					case jsdef.VAR:
 						out.push(generate(member));
 						break;
@@ -821,7 +847,7 @@ function Compiler(ast, infolder, outfolder)
 			///////////////////////////////////////////////
 			// Save compiled object JavaScript code.  
 			///////////////////////////////////////////////		
-			if(_this.secondPass && ast.path && ast.file!="externs.jspp" && _this.infolder && _this.outfolder)
+			if(!_this.selectedClass && _this.secondPass && ast.path && ast.file!="externs.jspp" && _this.infolder && _this.outfolder)
 			{
 				var file = ast.path;
 				file = file.replace(_this.infolder, _this.outfolder).replace(".jspp", ".jobj");			
@@ -852,11 +878,11 @@ function Compiler(ast, infolder, outfolder)
 			var className = isClass ? parentScope.name : null;
 			var classId = isClass ? parentScope.ast.symbol.classId : null;
 			var isGlobal = !isClass && parentScope.isGlobal;
-			var isAnonymous = (ast.name==null);		
+			var isAnonymous = (ast.name==null || ast.name.length==0);		
 			var fnName = (ast.name ? ast.name : "");
 			var baseMethodSymbol = null;
 			
-			if(_this.currClassName) _this.debugSymbolsTable.push("<!-- " + className + "::" + fnName + " -->\n");
+			if(_this.currClassName) _this.debugSymbolsTable.push("<!-- " + className + " :: " + fnName + " -->\n");
 		        				
 			// Link method symbol with base class method symbol for speed.
 			if(isClass && parentScope.ast.symbol.baseSymbol)
@@ -868,6 +894,7 @@ function Compiler(ast, infolder, outfolder)
 			// Function Symbol
 			var functionSymbol = new FunctionSymbol();		 		
 			{
+				functionSymbol.symbolId		= (++_this.symbolId);
 				functionSymbol.name			= fnName;
 				functionSymbol.type			= ast.type;
 				functionSymbol.nodeType		= ast.nodeType;
@@ -886,13 +913,13 @@ function Compiler(ast, infolder, outfolder)
 				functionSymbol.end			= ast.end;
 				functionSymbol.line_start	= ast.line_start;			
 				functionSymbol.line_end		= ast.line_end;
-				functionSymbol.scopeId		= ast.scopeId;			
+				functionSymbol.scopeId		= methodScope.scopeId;			
 				functionSymbol.vartype		= ast.returntype;
 				functionSymbol.subtype		= ast.subtype ? ast.subtype : _this.getSubType(ast.returntype);
 				functionSymbol.paramsList	= ast.paramsList;
 				functionSymbol.arguments	= {};
 			}   
-			
+			 
 			ast.symbol = functionSymbol; 
 			methodScope.parentScope.methods[ast.name] = functionSymbol;
 			 
@@ -916,6 +943,7 @@ function Compiler(ast, infolder, outfolder)
 	            // Argument Symbol
 				var varSymbol = new VarSymbol();
 				{
+					varSymbol.symbolId		= (++_this.symbolId);
 					varSymbol.name			= param.name;
 					varSymbol.value			= null;
 					varSymbol.type			= param.type;
@@ -925,6 +953,7 @@ function Compiler(ast, infolder, outfolder)
 					varSymbol.private		= false;
 					varSymbol.protected		= false;
 					varSymbol.static		= false;
+					varSymbol.constant		= false;
 					varSymbol.ast			= param;              
 					varSymbol.scope			= methodScope;			
 					varSymbol.baseSymbol	= null;
@@ -934,7 +963,7 @@ function Compiler(ast, infolder, outfolder)
 					varSymbol.end			= param.end;
 					varSymbol.line_start	= param.line_start;			
 					varSymbol.line_end		= param.line_end;
-					varSymbol.scopeId		= param.scopeId;			
+					varSymbol.scopeId		= methodScope.scopeId;			
 					varSymbol.vartype		= param.vartype;
 					varSymbol.subtype		= param.subtype ? param.subtype : _this.getSubType(param.vartype);
 					varSymbol.pointer		= param.isPointer;
@@ -1076,6 +1105,7 @@ function Compiler(ast, infolder, outfolder)
 				
 				var varSymbol = new VarSymbol();
 				{
+					varSymbol.symbolId		= (++_this.symbolId);
 					varSymbol.name			= ast[item].name;
 					varSymbol.value			= null;
 					varSymbol.type			= ast[item].type;
@@ -1085,6 +1115,7 @@ function Compiler(ast, infolder, outfolder)
 					varSymbol.private		= ast.private;
 					varSymbol.protected		= ast.protected;
 					varSymbol.static		= ast.static;				
+					varSymbol.constant		= ast.type==jsdef.CONST;
 					varSymbol.ast			= ast[item];              
 					varSymbol.scope			= scope;			
 					varSymbol.baseSymbol	= null;
@@ -1094,20 +1125,24 @@ function Compiler(ast, infolder, outfolder)
 					varSymbol.end			= ast[item].end;
 					varSymbol.line_start	= ast[item].line_start;			
 					varSymbol.line_end		= ast[item].line_end;
-					varSymbol.scopeId		= ast[item].scopeId;			
+					varSymbol.scopeId		= scope.scopeId;
 					varSymbol.vartype		= ast[item].vartype;
 					varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(ast[item].vartype);
 					varSymbol.pointer		= ast[item].isPointer;			
 				};	
+				
 				ast[item].symbol = varSymbol;
-				scope.vars[ast[item].name] = varSymbol;
-	
+				scope.vars[ast[item].name] = varSymbol;				
+					
 				if(!firstItem) out.push(", ");
 				out.push(ast[item].name);			
 							
 				if(ast[item].initializer)
 				{				                    
 					// Generate initializer
+					if(_this.currClassName && ast.type!=jsdef.CONST && scope.isClass)
+						_this.NewError("Invalid member class initializer, should be in constructor: " + ast[item].name, ast[item]);
+					
 					out.push("=");
 					out.push(generate(ast[item].initializer));
 				} 
@@ -1198,12 +1233,13 @@ function Compiler(ast, infolder, outfolder)
 				}
 			} 		
 			out.push(ast.value);
-			
+						
+			// Debug Symbol
 			if(ast.symbol)
 			{
 				ast.symbol.runtime = out.join(""); 
-				_this.addDebugSymbol(ast, ast.symbol.runtime);  		
-			}
+				_this.addDebugSymbol(ast, ast.symbol.runtime);				
+			}						
 			break; 
 	
 		// ==================================================================================================================================
@@ -1319,6 +1355,7 @@ function Compiler(ast, infolder, outfolder)
 			out.push(ast.value);
 			if(ast.value != "=") out.push("=");
 			out.push(generate(ast[1]));			
+			
 			if(ast[0][0] && ast[0][0][1] && ast[0][0][1].value=="prototype")
 				_this.processPrototype(ast);				    
 	
@@ -1577,12 +1614,13 @@ function Compiler(ast, infolder, outfolder)
 		scope.end			= ast.end;
 		scope.line_start	= ast.line_start;			
 		scope.line_end		= ast.line_end;
-		scope.scopeId		= ast.scopeId;
+		scope.scopeId		= scope.scopeId;
 		scope.vars			= {};
 		scope.methods		= {};
 		
 		var classSymbol = new ClassSymbol();
 		{
+			classSymbol.symbolId	= (++_this.symbolId);
 			classSymbol.name		= className;
 			classSymbol.vartype		= className;
 			classSymbol.classId		= classId;
@@ -1590,7 +1628,8 @@ function Compiler(ast, infolder, outfolder)
 			classSymbol.baseSymbol	= null;
 			classSymbol.type		= jsdef.CLASS;
 			classSymbol.nodeType	= "CLASS";			
-			classSymbol.isPrototype = true;
+			classSymbol.isPrototype = false;
+			classSymbol.isEnum		= true;
 			classSymbol.ast			= ast;
 			classSymbol.scope		= scope;			
 			classSymbol.file		= ast.file;
@@ -1599,9 +1638,9 @@ function Compiler(ast, infolder, outfolder)
 			classSymbol.end			= ast.end;
 			classSymbol.line_start	= ast.line_start;			
 			classSymbol.line_end	= ast.line_end;
-			classSymbol.scopeId		= ast.scopeId;
+			classSymbol.scopeId		= scope.scopeId;
 			classSymbol.vars		= scope.vars;
-			classSymbol.methods	 	= scope.methods;	
+			classSymbol.methods	 	= scope.methods;				
 		}		
 		ast.symbol = classSymbol;
 		_this.classes[className] = classSymbol;
@@ -1611,6 +1650,7 @@ function Compiler(ast, infolder, outfolder)
 			if(!isFinite(item)) continue;					
 			var varSymbol = new VarSymbol()
 			{
+				varSymbol.symbolId		= (++_this.symbolId);
 				varSymbol.name			= ast[item][0].value;
 				varSymbol.value			= ast[item][1].value;
 				varSymbol.type			= jsdef.IDENTIFIER;
@@ -1620,6 +1660,7 @@ function Compiler(ast, infolder, outfolder)
 				varSymbol.private		= false;
 				varSymbol.protected		= false;
 				varSymbol.static		= true;
+				varSymbol.constant		= true;
 				varSymbol.ast			= ast[item];              
 				varSymbol.scope			= scope;			
 				varSymbol.baseSymbol	= null;
@@ -1628,7 +1669,7 @@ function Compiler(ast, infolder, outfolder)
 				varSymbol.end			= ast[item].end;
 				varSymbol.line_start	= ast[item].line_start;			
 				varSymbol.line_end		= ast[item].line_end;
-				varSymbol.scopeId		= ast[item].scopeId;			
+				varSymbol.scopeId		= scope.scopeId;			
 				varSymbol.vartype		= className;
 				varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(vartype);
 				varSymbol.pointer		= false;			
@@ -1663,7 +1704,7 @@ function Compiler(ast, infolder, outfolder)
 			if(!constructor) return _this.NewError("Constructor function not found: " + className, ast);
 			
 			constructor.classId = classId;
-			constructor.className = className;
+			constructor.className = className;			
 			
 			trace("Converting prototype symbol to class symbol: " + className);
 			
@@ -1684,12 +1725,13 @@ function Compiler(ast, infolder, outfolder)
 			scope.end			= constructor.end;
 			scope.line_start	= constructor.line_start;			
 			scope.line_end		= constructor.line_end;
-			scope.scopeId		= constructor.scopeId;
+			scope.scopeId		= scope.scopeId;
 			scope.vars			= {};
 			scope.methods		= {};
 	
 			var classSymbol = new ClassSymbol();
 			{
+				classSymbol.symbolId	= (++_this.symbolId);
 				classSymbol.name		= className;    
 				classSymbol.vartype		= className; 
 				classSymbol.classId		= classId;
@@ -1698,6 +1740,7 @@ function Compiler(ast, infolder, outfolder)
 				classSymbol.type		= jsdef.CLASS;
 				classSymbol.nodeType	= "CLASS";			
 				classSymbol.isPrototype = true;
+				classSymbol.isEnum		= false;
 				classSymbol.ast			= constructor;
 				classSymbol.scope		= scope;			
 				classSymbol.file		= constructor.file;
@@ -1706,7 +1749,7 @@ function Compiler(ast, infolder, outfolder)
 				classSymbol.end			= constructor.end;
 				classSymbol.line_start	= constructor.line_start;			
 				classSymbol.line_end	= constructor.line_end;
-				classSymbol.scopeId		= constructor.scopeId;
+				classSymbol.scopeId		= scope.scopeId;
 				classSymbol.vars		= scope.vars;
 				classSymbol.methods	 	= scope.methods;	
 			}		
@@ -1738,6 +1781,7 @@ function Compiler(ast, infolder, outfolder)
 		{
 			var varSymbol = new VarSymbol();
 			
+			varSymbol.symbolId		= (++_this.symbolId);
 			varSymbol.name			= ast[0][1].value;			
 			varSymbol.type			= ast[0][1].type;
 			varSymbol.nodeType		= ast[0][1].nodeType;
@@ -1746,6 +1790,7 @@ function Compiler(ast, infolder, outfolder)
 			varSymbol.private		= false;
 			varSymbol.protected		= false;
 			varSymbol.static		= false;
+			varSymbol.constant		= false;
 			varSymbol.ast			= ast[0];              
 			varSymbol.scope			= classSymbol.scope;			
 			varSymbol.baseSymbol	= null;
@@ -1755,7 +1800,7 @@ function Compiler(ast, infolder, outfolder)
 			varSymbol.end			= ast[0].end;
 			varSymbol.line_start	= ast[0].line_start;			
 			varSymbol.line_end		= ast[0].line_end;
-			varSymbol.scopeId		= ast[0].scopeId;			
+			varSymbol.scopeId		= classSymbol.scopeId;			
 			varSymbol.vartype		= null;
 			varSymbol.subtype		= null;
 			varSymbol.pointer		= ast[0].isPointer;	
@@ -2036,5 +2081,213 @@ function Compiler(ast, infolder, outfolder)
 		
 		_this.NewError("Type mismatch: "+type1+" and "+type2, ast);		     
 		return type1;
-	};	    
+	};
+	
+	// ==================================================================================================================================
+	//	   ______          __                        __   ____       __                   _____                 __          __    
+	//	  / ____/___  ____/ /__     ____ _____  ____/ /  / __ \___  / /_  __  ______ _   / ___/__  ______ ___  / /_  ____  / /____
+	//	 / /   / __ \/ __  / _ \   / __ `/ __ \/ __  /  / / / / _ \/ __ \/ / / / __ `/   \__ \/ / / / __ `__ \/ __ \/ __ \/ / ___/
+	//	/ /___/ /_/ / /_/ /  __/  / /_/ / / / / /_/ /  / /_/ /  __/ /_/ / /_/ / /_/ /   ___/ / /_/ / / / / / / /_/ / /_/ / (__  ) 
+	//	\____/\____/\__,_/\___/   \__,_/_/ /_/\__,_/  /_____/\___/_.___/\__,_/\__, /   /____/\__, /_/ /_/ /_/_.___/\____/_/____/  
+	//	                                                                     /____/         /____/                                
+	// ==================================================================================================================================	
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Export identifier symbols that are used during debugging.	
+	_this.addDebugSymbol = function(ast, runtime)
+	{   
+		if(!_this.secondPass) return;
+		var identifier = "";
+		
+		if(ast.type==jsdef.IDENTIFIER && !_this.isInside(ast,jsdef.DOT))
+		{ 
+			identifier = ast.value;
+			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");						
+		}
+		else if(ast.type==jsdef.DOT && _this.currClassName && !_this.isInside(ast, jsdef.DOT)) // Process top-level DOTs only, skip inner DOTs.
+		{
+			var v_identifiers = [], v_runtime = [], buff = [];
+			for(var i=0;i<ast.identifiers_list.length;i++)
+			{
+				var f = ast.identifiers_list[i].ast;				
+				var value = ast.identifiers_list[i].value.replace("@@THIS@@", "this");
+				if(i==0)  
+				{
+					v_identifiers.push(value);
+					v_runtime.push(f.symbol.runtime);					
+				}
+				else if(f.type==jsdef.INDEX)
+				{					
+					v_identifiers[v_identifiers.length-1] += f.generated_index;
+					v_runtime[v_runtime.length-1] += f.generated_index;
+				}
+				else
+				{
+					v_identifiers.push(value);
+					v_runtime.push(value);					
+				} 				
+				buff.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + f.start + "' end='" + f.end + "' line='" + f.line_start + "' identifier='" + v_identifiers.join(".") + "' runtime='" + v_runtime.join(".") +"'/>\n");
+			}
+			// Reverse debug symbols for faster search and append them to debug symbols table.
+			_this.debugSymbolsTable = _this.debugSymbolsTable.concat(buff.reverse());
+		}
+	};	
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Export class, function and identifier symbols that are used during code editing by intelliSence.	
+	_this.exportCoconutIDESymbols = function()
+	{
+		var xml, cls, item, arg, args, argsList, xmlArgsList, hasArgs, scope, icon, sig, mbrList, mbrLists, scopeVars, 
+			classSymbol, methodSymbol, argumentSymbol, varSymbol, externs, modifier, codeSymbols,
+			debugSymbols = "<DEBUG_SYMBOLS>" + _this.debugSymbolsTable.join("") + "</DEBUG_SYMBOLS>";			
+		
+		// ======================================================================================
+		// Export Code Symbols, CodeMax MemberLists and Externs
+		// ======================================================================================
+		externs = ["//@compile{false}\n// Autogenerated Project Externs\n\n"];
+		mbrLists = [];
+		xml = []; 
+		xml.push("<CODE_SYMBOLS>\n");
+		for(cls in _this.classes)
+		{
+			//if(selectedClass && selectedClass!=cls) continue;
+			
+			classSymbol = _this.classes[cls];
+			externs.push("class "+ classSymbol.name + (classSymbol.base ? " : " + classSymbol.base : "") + "\n{\n");
+			
+			mbrList = [];			
+			mbrList.push("<memberlist name='Class " + classSymbol.name + "'>");						
+			xml.push(_this.objectToXML(classSymbol, classSymbol.name, false));		
+			{				
+				xml.push("<METHODS>\n");
+				for(item in classSymbol.methods)
+				{
+					methodSymbol = classSymbol.methods[item];					
+					if(methodSymbol.name)
+					{
+						args = [];
+						argsList = []; 
+						xmlArgsList = [];
+						for(arg in methodSymbol.arguments)
+						{
+							argumentSymbol = methodSymbol.arguments[arg];							
+							args.push(_this.objectToXML(argumentSymbol, arg, true));
+							argsList.push(argumentSymbol.name + (argumentSymbol.vartype ? ":" + argumentSymbol.vartype : ""));
+							xmlArgsList.push(argumentSymbol.name + argumentSymbol.ast.xmlvartype);							
+						}
+						hasArgs = (args.length>0);						
+						xml.push(_this.objectToXML(methodSymbol, methodSymbol.name, !hasArgs));			
+						if(hasArgs)
+						{
+							xml.push("<ARGUMENTS>\n");
+							xml.push(args.join(""));
+							xml.push("</ARGUMENTS>\n");
+							xml.push("</" + methodSymbol.name +">\n");
+						} 						
+						sig = methodSymbol.name + "(" + xmlArgsList.join(", ") + ")" + methodSymbol.ast.xmlvartype;
+						modifier = "public";
+						icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+						if(methodSymbol.private) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FUNCTION; modifier = "private"; }
+						if(methodSymbol.protected) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FUNCTION; modifier = "protected"; }
+						if(methodSymbol.name=="Constructor") icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTRUCTOR;
+						mbrList.push('\t<member name="' + methodSymbol.name + '" proto="' + sig + '" help="' +  classSymbol.name + " :: " + sig + '" image="' + icon + '"/>');
+						
+						sig = methodSymbol.name + "(" + argsList.join(", ") + ")" + (methodSymbol.vartype ? " :" + methodSymbol.vartype : "");
+						externs.push("\t" + modifier + " function "+ sig + " {}\n");
+					}
+				}
+				xml.push("</METHODS>\n");
+				
+				xml.push("<VARS>\n");
+				for(item in classSymbol.vars)
+				{
+					varSymbol = classSymbol.vars[item];
+					xml.push(_this.objectToXML(varSymbol, item, true));			
+					icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
+					modifier = "public";
+					if(varSymbol.private) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD; modifier = "private"; }
+					if(varSymbol.protected) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD; modifier = "protected"; }
+					if(varSymbol.constant) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT; 										
+					sig = varSymbol.name + varSymbol.ast.xmlvartype;
+					mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + sig + '" help="' + classSymbol.name + " :: " + sig + '" image="' + icon + '"/>');
+					externs.push("\t" + modifier + " var " + varSymbol.name + (varSymbol.vartype ? " :"+ varSymbol.vartype : "") + ";\n");
+					
+				}
+				xml.push("</VARS>\n");
+			}			
+			xml.push("</" + classSymbol.name + ">\n");			
+			mbrList.push("</memberlist>");			 
+			mbrLists.push(mbrList.join("\n"));
+			externs.push("} //" + classSymbol.name + "\n\n");			
+		} 
+		xml.push("</CODE_SYMBOLS>\n");
+		codeSymbols = xml.join("");	
+		externs = externs.join("");		
+		mbrLists = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n<MEMBER_LISTS>\n" + mbrLists.join("\n") + "</MEMBER_LISTS>";
+							
+		// ======================================================================================
+		// Scopes
+		// ======================================================================================
+		xml = [];
+		xml.push("<SCOPES>\n");
+		for(scope in _this.scopesTable)
+		{
+			scope = _this.scopesTable[scope]; 
+			xml.push(_this.objectToXML(scope, "SCOPE", false, (!scope.parentScope ? "" : " parent='"+scope.parentScope.scopeId+"'") ));			
+			for(item in scope.vars)
+			{
+				varSymbol = scope.vars[item];
+				if(varSymbol.vartype)
+				{
+					icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
+					if(varSymbol.private) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD;
+					if(varSymbol.protected) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD;
+					if(varSymbol.constant) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT; 										
+					xml.push("\t<SYMBOL symbolId='"+varSymbol.symbolId + "' name='" + varSymbol.name + "' type='" + varSymbol.type + "' vartype='" + varSymbol.vartype.replace('<','&lt;').replace('>','&gt;') + "' subtype='" + varSymbol.subtype + "'/>\n");				
+				}
+			}
+			xml.push("</SCOPE>\n");			
+		}  
+		xml.push("</SCOPES>\n");
+		scopeVars = xml.join("");				
+
+		// ======================================================================================
+		// Export to IDE
+		// ======================================================================================		
+
+		jsppCallback("setCodeSymbols", "", 0, codeSymbols);		
+		jsppCallback("setScopes", "", 0, scopeVars);
+		jsppCallback("setMemberLists", "", 0, mbrLists);
+		
+ 		if(!_this.selectedClass) 
+		{									
+			jsppCallback("setExterns", "", 0, externs);				
+			jsppCallback("setDebugSymbols", "", 0, debugSymbols);
+		}		
+	};
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.objectToXML = function(obj, tag, close, more)
+	{
+		var v, xml = [];
+		xml.push("<"+tag);
+		for(var item in obj)
+		{  
+			if(typeof obj[item]=="object") continue;			
+			v = obj[item];
+			if(v==null || v==undefined) continue;
+			if(typeof v == "string" && v.charAt(v.length-1)=='>')
+			{
+				v = v.replace("<", "&lt;");
+				v = v.replace(">", "&gt;");					
+			}
+			xml.push(item + "='" + v + "'");
+		}  
+		if(more) xml.push(more);
+		xml.push(close ? "/>\n" : ">\n");
+		return xml.join(" ");
+	};	
 }
+
+
+

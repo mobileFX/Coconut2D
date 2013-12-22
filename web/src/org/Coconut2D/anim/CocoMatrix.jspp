@@ -55,12 +55,15 @@ class CocoMatrix
 	public var rc43:Float;
 	public var rc44:Float;
 		 
-	public var __stack:Array<Float> = [];	
-	public var __data:Float32Array = null;
+	public var __stack:Array<Float>;	
+	public var __data:Float32Array;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(M:CocoMatrix)
 	{           		
+		__stack = [];	
+		__data = null;
+
 		if(M)   
 		{
 			rc11 = M.rc11;
@@ -343,6 +346,7 @@ class CocoMatrix
 		}
 	}
 }
+
 
 
 

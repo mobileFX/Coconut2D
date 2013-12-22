@@ -117,10 +117,12 @@ function compile_jspp(code, infolder, outfolder)
 		}	
 		
 		// Parse source code
+		narcissus.__messages = true;
+		narcissus.__cpp = false;
 		var ast = narcissus.jsparse(code);						
 		
 		// Compile ast
-		var compiler = new Compiler(ast, infolder, outfolder);
+		var compiler = new Compiler(ast, infolder, outfolder, null);
 		compiler.compile();				
 
 		trace("Code generation Done.");
@@ -130,3 +132,27 @@ function compile_jspp(code, infolder, outfolder)
 		trace("ERROR: " +e);
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function parse_jspp(code, className)
+{
+	try
+	{
+		// Parse source code
+		narcissus.__messages = false;
+		narcissus.__cpp = false;
+		var ast = narcissus.jsparse(code);						
+		
+		// Compile ast
+		var compiler = new Compiler(ast, null, null, className);
+		compiler.compile();				
+	}
+	catch(e)
+	{
+		trace("ERROR: " +e);
+	}
+}
+
+
+
+

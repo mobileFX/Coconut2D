@@ -313,7 +313,6 @@ function __init_narcissus(GLOBAL)
 	var fpRegExp = /^\d+\.(?!\.)\d*(?:[eE][-+]?\d+)?|^\d+(?:\.\d*)?[eE][-+]?\d+|^\.\d+(?:[eE][-+]?\d+)?/;
 	var reRegExp = /^(?:m(x)?|(?=\/))([^\w\s\\])((?:\\.|(?!\2)[^\\])*)\2([a-z]*)/;
 	var scopeId = 0;
-	var ArrayTypes = ["ArrayArray", "BooleanArray", "DateArray", "FunctionArray", "NumberArray", "ObjectArray", "RegExpArray", "StringArray"];	
 	
 	function Tokenizer(s, f, l)
 	{
@@ -325,6 +324,8 @@ function __init_narcissus(GLOBAL)
 		this.scanNewlines = false;
 		this.scanOperand = true;
 		this.line_start = l || 1;
+		this.__fileLineOffset = 0;
+		this.__filePosOffset = 0;		
 	}  
 	
 	Tokenizer.prototype = 
@@ -468,7 +469,7 @@ function __init_narcissus(GLOBAL)
 					this.__file = v[v.length-1]; 
 					this.__fileLineOffset = this.line_start;					
 					this.__filePosOffset = this.cursor + token.value.length + 4;
-					trace("Parsing file: " + this.__path);
+					if(narcissus.__messages) trace("Parsing file: " + this.__path);
 				}  
 				///////////////////////////////////////////////////////////////////					
 			}
@@ -531,8 +532,8 @@ function __init_narcissus(GLOBAL)
 		newSyntaxError: function(m)
 		{
 			var f = this.__file; 
-			var l = (this.line_start - this.fileLineOffset);
-			var e = new SyntaxError(m + ', filename:' + f + ', line_start:' + l);
+			var l = (this.line_start - this.__fileLineOffset);
+			var e = new SyntaxError(m + ', filename:' + f + ', line:' + l);
 			e.cursor = this.cursor;
 			trace("@@ ERROR: " + m + " in file " + f  + " at line " + l);
 			jsppCallback("error", f, l, m);			
@@ -580,6 +581,7 @@ function __init_narcissus(GLOBAL)
 	{
 		var token = t.token();
 		this.scopeId = scopeId;	
+		this.xmlvartype="";		
 		
 		if(token)
 		{  			
@@ -768,7 +770,7 @@ function __init_narcissus(GLOBAL)
 			if((tt = t.peek()) != jsdef.SEMICOLON)
 			{
 				x.inForLoopInit = true;
-				if(tt == jsdef.VAR || tt == jsdef.CONST || tt == jsdef.LET)
+				if(tt == jsdef.VAR || tt == jsdef.LET)
 				{
 					t.get();
 					n2 = Variables(t, x);
@@ -932,7 +934,7 @@ function __init_narcissus(GLOBAL)
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.VAR:
 		case jsdef.CONST:
-			n = Variables(t, x);
+			n = Variables(t, x);			
 			break;
 		
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1063,10 +1065,17 @@ function __init_narcissus(GLOBAL)
 				if(t.token().type == jsdef.PRIVATE)
 				{
 					t.private = true;
-					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VAR && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					
+					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
+						
 					if(t.match(jsdef.STATIC)) t.static = true;
-					if(t.match(jsdef.VAR))
+					
+					if(t.match(jsdef.CONST))
+					{
+						n.push(Variables(t, x));
+					}
+					else if(t.match(jsdef.VAR))
 					{
 						n.push(Variables(t, x));
 					}
@@ -1082,10 +1091,17 @@ function __init_narcissus(GLOBAL)
 				else if(t.token().type == jsdef.PUBLIC)
 				{
 					t.public = true;
-					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VAR && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					
+					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
-					if(t.match(jsdef.STATIC)) t.static = true;
-					if(t.match(jsdef.VAR))
+						
+					if(t.match(jsdef.STATIC)) t.static = true; 
+					
+					if(t.match(jsdef.CONST))
+					{
+						n.push(Variables(t, x));
+					}
+					else if(t.match(jsdef.VAR))
 					{
 						n.push(Variables(t, x));
 					}
@@ -1101,10 +1117,17 @@ function __init_narcissus(GLOBAL)
 				else if(t.token().type == jsdef.PROTECTED)
 				{
 					t.protected = true;
-					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VAR && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					
+					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
+						
 					if(t.match(jsdef.STATIC)) t.static = true;
-					if(t.match(jsdef.VAR))
+
+					if(t.match(jsdef.CONST))
+					{
+						n.push(Variables(t, x));						
+					}					
+					else if(t.match(jsdef.VAR))
 					{
 						n.push(Variables(t, x));
 					}
@@ -1120,9 +1143,14 @@ function __init_narcissus(GLOBAL)
 				else if(t.token().type == jsdef.STATIC)
 				{
 					t.static = true;
-					if((peek = t.peek()) != jsdef.VAR && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					if((peek = t.peek()) != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
-					if(t.match(jsdef.VAR))
+					
+					if(t.match(jsdef.CONST))
+					{
+						n.push(Variables(t, x));
+					}
+					else if(t.match(jsdef.VAR))
 					{
 						n.push(Variables(t, x));
 					}
@@ -1214,30 +1242,8 @@ function __init_narcissus(GLOBAL)
 				n2.scopeId = scopeId;
 				if(t.match(jsdef.COLON))
 				{
-					if(t.token().assignOp)
-						throw t.newSyntaxError("Invalid parameter initialization");
-					t.mustMatch(jsdef.IDENTIFIER);
-					vartype = new Node(t).value;
-					n2.vartype = vartype;
-					if(t.match(jsdef.LT))
-					{
-						t.mustMatch(jsdef.IDENTIFIER);
-						n2.subtype = new Node(t).value;
-						t.mustMatch(jsdef.GT);
-						n2.vartype += "<" + n2.subtype + (__isPointer(n2.subtype) ? "*" : "") + ">";
-					}
-					else if(t.match(jsdef.LEFT_BRACKET))
-					{
-						t.mustMatch(jsdef.RIGHT_BRACKET);
-						n2.vartype += "[]";
-					}
-					else
-					{
-						n2.vartype = vartype;
-						//Convert StringArray to String[], NumberArray to Number[], etc.
-						n2.vartype = ~ArrayTypes.indexOf(n2.vartype) ? n2.vartype.replace(/Array$/, "[]") : n2.vartype;
-					}
-					if(t.match(jsdef.NOT)) n2.vartype += "!";
+					if(t.token().assignOp) throw t.newSyntaxError("Invalid parameter initialization");
+					matchVartype(t, n2, "vartype");					
 				}
 				if(t.match(jsdef.ASSIGN))
 				{
@@ -1267,28 +1273,10 @@ function __init_narcissus(GLOBAL)
 			}
 			while ((tt = t.get()) != jsdef.RIGHT_PAREN);
 		}
-		//EGP//Function return value datatype
-		if((t.match(jsdef.COLON)) && t.mustMatch(jsdef.IDENTIFIER))
-		{
-			f.returntype = t.token().value;
-			if(t.match(jsdef.LT))
-			{
-				t.mustMatch(jsdef.IDENTIFIER);
-				f.subtype = new Node(t).value;
-				t.mustMatch(jsdef.GT);
-				f.returntype += "<" + f.subtype + (__isPointer(f.subtype) ? "*" : "") + ">";
-			}
-			else if(t.match(jsdef.LEFT_BRACKET))
-			{
-				t.mustMatch(jsdef.RIGHT_BRACKET);
-				f.returntype += "[]";
-			}
-			else
-			{
-				f.returntype = new Node(t).value;
-				//Convert StringArray to String[], NumberArray to Number[], etc.
-				f.returntype = ~ArrayTypes.indexOf(f.returntype) ? f.returntype.replace(/Array$/, "[]") : f.returntype;
-			}
+		
+		if(t.match(jsdef.COLON))		
+		{                                  
+			matchVartype(t, f, "returntype");
 			if(t.match(jsdef.NOT)) f.returntype += "!";
 		}
 		f.static = t.static;
@@ -1403,25 +1391,14 @@ function __init_narcissus(GLOBAL)
 					break;
 			}
 			t.mustMatch(jsdef.RIGHT_BRACKET);
+			
 			if(t.match(jsdef.COLON))
 			{
-				if(t.token().assignOp)
-					throw t.newSyntaxError("Invalid variable initialization");
-				t.mustMatch(jsdef.IDENTIFIER);
-				vartype = t.token().value;
-				if(t.match(jsdef.LEFT_BRACKET))
-				{
-					t.mustMatch(jsdef.RIGHT_BRACKET);
-					n2.vartype = vartype + "[]";
-				}
-				else
-				{
-					n2.vartype = new Node(t).value;
-					//Convert StringArray to String[], NumberArray to Number[], etc.
-					n2.vartype = ~ArrayTypes.indexOf(n2.vartype) ? n2.vartype.replace(/Array$/, "[]") : n2.vartype;
-				}
+				if(t.token().assignOp) throw t.newSyntaxError("Invalid variable initialization");
+				matchVartype(t, n2, "vartype");
 				if(t.match(jsdef.NOT)) n2.vartype += "!";
 			}
+			
 			if(t.match(jsdef.ASSIGN))
 			{
 				if(t.token().assignOp)
@@ -1442,56 +1419,58 @@ function __init_narcissus(GLOBAL)
 				n.protected = t.protected;
 				n.static = t.static;
 				t.mustMatch(jsdef.IDENTIFIER);
-				var n2 = new Node(t),
-					vartype = "";
+				var n2 = new Node(t), vartype = "";
 				n2.name = n2.value;
 				if(t.match(jsdef.COLON))
 				{
-					if(t.token().assignOp)
-						throw t.newSyntaxError("Invalid variable initialization");
-					t.mustMatch(jsdef.IDENTIFIER);
-					vartype = t.token().value;
-					n2.vartype = vartype;
-					if(t.match(jsdef.LT))
-					{
-						// Template Match for Dictionary/Array subtype
-						t.mustMatch(jsdef.IDENTIFIER);
-						n2.subtype = t.token().value;
-						t.mustMatch(jsdef.GT);
-						n2.vartype += "<" + n2.subtype + (__isPointer(n2.subtype) ? "*" : "") + ">";
-					}
-					else if(t.match(jsdef.LEFT_BRACKET))
-					{
-						t.mustMatch(jsdef.RIGHT_BRACKET);
-						n2.vartype = vartype + "[]";
-					}
-					else
-					{
-						n2.vartype = new Node(t).value;
-						//Convert StringArray to String[], NumberArray to Number[], etc.
-						n2.vartype = ~ArrayTypes.indexOf(n2.vartype) ? n2.vartype.replace(/Array$/, "[]") : n2.vartype;
-					}
+					if(t.token().assignOp) throw t.newSyntaxError("Invalid variable initialization");
+                    matchVartype(t, n2, "vartype");
 					if(t.match(jsdef.NOT)) n2.vartype += "!";
 				}
 				if(t.match(jsdef.ASSIGN))
 				{
-					if(t.token().assignOp)
-						throw t.newSyntaxError("Invalid variable initialization");
+					if(t.token().assignOp) throw t.newSyntaxError("Invalid variable initialization");
 					n2.initializer = Expression(t, x, jsdef.COMMA);
-					
-					// Attempt to detect vartype from initializer.
-					if(!n2.vartype)
-					{						
-						n2.vartype = detectDataType(n2.initializer);
-					}
+					if(!n2.vartype) n2.vartype = detectDataType(n2.initializer);
 				}
 				n2.readOnly = (n.type == jsdef.CONST);
-				n.push(n2);
+				n.push(n2);        
 				x.varDecls.push(n);
 			}
 			while (t.match(jsdef.COMMA));
 		}
 		return n;
+	}  
+	
+	function matchVartype(t, node, typeProp)
+	{ 
+		node[typeProp] = null;
+		node["subtype"] = null;
+		
+		t.mustMatch(jsdef.IDENTIFIER);
+		var vartype = t.token().value;
+		var subtype = "";
+		node[typeProp] = vartype;
+
+		// Typed Array
+		if(t.match(jsdef.LT))
+		{
+			t.mustMatch(jsdef.IDENTIFIER);
+			subtype = new Node(t).value;
+			node.subtype = subtype;
+			t.mustMatch(jsdef.GT);               
+			
+			if(narcissus.__cpp)                 
+			{
+				node[typeProp] = vartype + "<" + subtype + (__isPointer(subtype) ? "*" : "") + ">";
+			}
+			else
+			{
+				node[typeProp] = vartype + "<" + subtype + ">";
+			}
+		}			
+		
+		node.xmlvartype = (!vartype ? "" : " :" + vartype + (subtype ? "&lt;" + subtype + "&gt;" : ""));		
 	}
 		
 	// ==================================================================================================================================
@@ -2275,5 +2254,4 @@ function __init_narcissus(GLOBAL)
 	
 }
 __init_narcissus(this);
-
 
