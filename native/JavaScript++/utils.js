@@ -152,7 +152,3 @@ function parse_jspp(code, className)
 		trace("ERROR: " +e);
 	}
 }
-
-
-
-

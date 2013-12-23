@@ -74,7 +74,7 @@ function __isPointer(vartype)
 		if(vartype.indexOf("<")!=-1) return false;
 		return true; 
 	}
-}	
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function __init_narcissus(GLOBAL)
@@ -312,8 +312,8 @@ function __init_narcissus(GLOBAL)
 	var opRegExp = new RegExp(opRegExpSrc);		
 	var fpRegExp = /^\d+\.(?!\.)\d*(?:[eE][-+]?\d+)?|^\d+(?:\.\d*)?[eE][-+]?\d+|^\.\d+(?:[eE][-+]?\d+)?/;
 	var reRegExp = /^(?:m(x)?|(?=\/))([^\w\s\\])((?:\\.|(?!\2)[^\\])*)\2([a-z]*)/;
-	var scopeId = 0;
-	
+	var scopeId = 1;
+		
 	function Tokenizer(s, f, l)
 	{
 		this.cursor = 0;
@@ -464,6 +464,7 @@ function __init_narcissus(GLOBAL)
 				// File				
 				if(token.value && token.value.indexOf(this.__FILE_DELIM) != -1)
 				{
+					scopeId = 1;
 					this.__path = token.value.substr(this.__FILE_DELIM.length);
 					var v = this.__path.split("/");					
 					this.__file = v[v.length-1]; 
@@ -541,12 +542,22 @@ function __init_narcissus(GLOBAL)
 		}
 	};
 	
-	Tokenizer.prototype.__FILE_DELIM = "script_begin:///";
+	Tokenizer.prototype.__FILE_DELIM = "script_begin:///";	
 	Tokenizer.prototype.__file = "";
 	Tokenizer.prototype.__path = "";
 	Tokenizer.prototype.__fileLineOffset = 0;
 	Tokenizer.prototype.__filePosOffset = 0;
-		
+	
+	Tokenizer.prototype.NewScopeId = function()
+	{
+		return (++scopeId);
+	} 
+	
+	Tokenizer.prototype.ScopeId = function()
+	{		
+		return (scopeId);
+	} 
+				
 	function CompilerContext(inFunction)
 	{
 		this.inFunction = inFunction;
@@ -567,7 +578,7 @@ function __init_narcissus(GLOBAL)
 		n.funDecls = x.funDecls;
 		n.varDecls = x.varDecls;
 		n.contextId = ++contextId;
-		n.scopeId = ++scopeId; 
+		n.scopeId = t.NewScopeId();
 		return n;
 	}
 	
@@ -580,7 +591,8 @@ function __init_narcissus(GLOBAL)
 	function Node(t, type)
 	{
 		var token = t.token();
-		this.scopeId = scopeId;	
+		
+		this.scopeId = t.ScopeId();	
 		this.xmlvartype="";		
 		
 		if(token)
@@ -649,7 +661,7 @@ function __init_narcissus(GLOBAL)
 			n.push(Statement(t, x));
 		x.stmtStack.pop();
 		n.blockId = ++blockId;
-		n.scopeId = ++scopeId;
+		n.scopeId = t.NewScopeId();
 		
 		n.end = t.cursor;   
 		n.line_end = t.line_start;
@@ -744,7 +756,7 @@ function __init_narcissus(GLOBAL)
 					// FALL THROUGH
 				case jsdef.CASE:
 					n2 = new Node(t);
-					n2.scopeId = scopeId;
+					n2.scopeId = t.ScopeId();
 					if(tt == jsdef.DEFAULT)
 						n.defaultIndex = n.cases.length;
 					else
@@ -1021,7 +1033,7 @@ function __init_narcissus(GLOBAL)
 	function ClassDefinition(t, x, requireName, classForm)
 	{
 		var f = new Node(t);
-		f.scopeId = scopeId;
+		f.scopeId = t.ScopeId();
 		if(f.type != jsdef.CLASS)
 			f.type = (f.value == "get") ? jsdef.GETTER : jsdef.SETTER;
 		if(t.match(jsdef.IDENTIFIER))
@@ -1175,12 +1187,12 @@ function __init_narcissus(GLOBAL)
 			}
 			while (t.get() != jsdef.RIGHT_CURLY);
 			n.blockId = ++blockId;
-			n.scopeId = ++scopeId;
+			n.scopeId = t.NewScopeId();
 			n.type = jsdef.SCRIPT;
 			n.funDecls = x.funDecls;
 			n.varDecls = x.varDecls;
 			n.contextId = ++contextId;
-			n.scopeId = ++scopeId;
+			n.scopeId = t.NewScopeId();
 			return n;
 		})(t, x2); 
 		
@@ -1214,10 +1226,14 @@ function __init_narcissus(GLOBAL)
 			f.name = t.token().value;
 		else if(requireName)
 			throw t.newSyntaxError(jsparse.MISSING_FUNCTION_IDENTIFIER);
+			
+		f.__start = t.token().start;
+		f.__end = t.token().end;
+		
 		t.mustMatch(jsdef.LEFT_PAREN);
 		f.params = [];
 		f.paramsList = [];
-		f.scopeId = scopeId;
+		f.scopeId = t.ScopeId();
 		var n2;
 		if(t.peek() == jsdef.RIGHT_PAREN)
 		{
@@ -1239,7 +1255,7 @@ function __init_narcissus(GLOBAL)
 				}
 				n2 = new Node(t);
 				n2.name = n2.value;
-				n2.scopeId = scopeId;
+				n2.scopeId = t.ScopeId();
 				if(t.match(jsdef.COLON))
 				{
 					if(t.token().assignOp) throw t.newSyntaxError("Invalid parameter initialization");
@@ -1303,7 +1319,7 @@ function __init_narcissus(GLOBAL)
 			n3.funDecls = x2.funDecls;
 			n3.varDecls = x2.varDecls;
 			n3.contextId = ++contextId;
-			n3.scopeId = ++scopeId;
+			n3.scopeId = t.NewScopeId();
 			t.expClosure = true;
 			n3[0] = Expression(t, x2);
 			if(n3[0].type != jsdef.RETURN)
@@ -2254,4 +2270,8 @@ function __init_narcissus(GLOBAL)
 	
 }
 __init_narcissus(this);
+
+
+
+
 

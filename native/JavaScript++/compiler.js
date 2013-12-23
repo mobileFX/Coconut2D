@@ -81,6 +81,7 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 	 
 	_this.symbolId = -1;
 	_this.scopeId = -1;
+	_this.currFile = null;
 	_this.secondPass = false;	
 	_this.ast = ast;
     _this.infolder = infolder;
@@ -103,20 +104,6 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 	function ClassSymbol() {}
 	function FunctionSymbol() {}	
 	function VarSymbol() {}
-	
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.hashCode = function(str)
-	{	
-		var hash = 0;	
-		if (str.length == 0) return hash;		
-		for(i=0; i<str.length; i++) 
-		{
-		    char = str.charCodeAt(i);		
-		    hash = ((hash<<5)-hash)+char;	
-		    hash = hash & hash; // Convert to 32bit integer		
-		}		
-		return hash.toString(16);	
-	};
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.types = 
@@ -318,8 +305,12 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 					
 			node.nodeType = GLOBAL.narcissus.jsdefNames[node.type];					
 			node.source = _this.tokenizer.source.slice(node.start, node.end);				
-			node.start -= (node.__filePosOffset - (node.line_start - node.__fileLineOffset)+1);
-			node.end -= (node.__filePosOffset - (node.line_end - node.__fileLineOffset)+1);	
+			var o_start = (node.__filePosOffset - (node.line_start - node.__fileLineOffset)+1);
+			var o_end = (node.__filePosOffset - (node.line_end - node.__fileLineOffset)+1);
+			node.start -= o_start;			
+			node.end -= o_end;	
+			node.__start -= o_start;
+			node.__end -= o_start;	
 			node.line_start -= node.__fileLineOffset;
 			node.line_end -= node.__fileLineOffset;
 			node.tokenizer = null;
@@ -394,10 +385,14 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 		{			
 			var parentScope = _this.scopesStack.length ? _this.scopesStack[_this.scopesStack.length-1] : null;
 			
-			scope = new Scope();
+			scope = new Scope(); 
 			
-			scope.scopeId		= (++_this.scopeId);			
-			scope.name			= _this.scopesStack.length==0 ? "GLOBAL_SCOPE" : ast.name;
+			var name = _this.scopesStack.length==0 ? "GLOBAL_SCOPE" : ast.name;			
+			if(!name) name = ast.parent.value;	
+			if(_this.currClassName) name = _this.currClassName + ":" + name;
+			
+			scope.scopeId		= (++_this.scopeId);
+			scope.name			= _this.scopesStack.length==0 ? "GLOBAL_SCOPE" : name;
 			scope.parentScope	= parentScope;
 			scope.childScopes	= [];
 			scope.ast			= ast;
@@ -417,7 +412,6 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 			scope.methods		= new Object();			
 			
 			if(parentScope) parentScope.childScopes.push(scope);
-						
 			ast.scope = scope;
 		}
 		
@@ -888,7 +882,7 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 			if(isClass && parentScope.ast.symbol.baseSymbol)
 				baseMethodSymbol = _this.LookupIdentifier(parentScope.ast.symbol.baseSymbol.scope, ast.name, ast, true);
 				
-			if(!_this.secondPass && !isAnonymous && Object.prototype.hasOwnProperty.call(methodScope.parentScope.methods,fnName))
+			if(!_this.secondPass && !isAnonymous && Object.prototype.hasOwnProperty.call(parentScope.methods,fnName))
 				_this.NewError("Redeclaration of function " + fnName, ast);			
 					
 			// Function Symbol
@@ -909,8 +903,8 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 				functionSymbol.baseSymbol	= baseMethodSymbol;			
 				functionSymbol.file			= ast.file;
 				functionSymbol.path			= ast.path;
-				functionSymbol.start		= ast.start;
-				functionSymbol.end			= ast.end;
+				functionSymbol.start		= isClass && !isAnonymous ? ast.__start : ast.start;
+				functionSymbol.end			= isClass && !isAnonymous ? ast.__end : ast.end;
 				functionSymbol.line_start	= ast.line_start;			
 				functionSymbol.line_end		= ast.line_end;
 				functionSymbol.scopeId		= methodScope.scopeId;			
@@ -921,8 +915,8 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 			}   
 			 
 			ast.symbol = functionSymbol; 
-			methodScope.parentScope.methods[ast.name] = functionSymbol;
-			 
+			parentScope.methods[ast.name] = functionSymbol;
+						
 			// Arguments List
 			var paramsList = "(";	
 			for(var i=0; i<ast.paramsList.length; i++)
@@ -1252,7 +1246,7 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 		// ==================================================================================================================================
 	
 		case jsdef.SCRIPT:
-			ast.name = "SCRIPT" + ast.scopeId;
+			ast.name = "SCRIPT";
 			var body = [];
 			if(_this.scopesStack.length==0) body.push("var global=(function(){return this}).call();");
 			var scope = _this.NewScope(ast);			
@@ -1267,7 +1261,7 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 			
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.BLOCK:
-			ast.name = "BLOCK" + ast.scopeId;
+			ast.name = "BLOCK";
 			_this.NewScope(ast);
 			out.push("{\n");
 			for(var item in ast) 
@@ -1440,8 +1434,14 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 	
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.STRING:
-		
 			out.push('"' + ast.value + '"');
+			
+			// When file changes we must reset the scopeId counter.
+			if(_this.currFile!=ast.path)
+			{
+				_this.scopeId=-1;
+				_this.currFile=ast.path;
+			}			
 			break;	
 	
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2138,18 +2138,20 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 	_this.exportCoconutIDESymbols = function()
 	{
 		var xml, cls, item, arg, args, argsList, xmlArgsList, hasArgs, scope, icon, sig, mbrList, mbrLists, scopeVars, 
-			classSymbol, methodSymbol, argumentSymbol, varSymbol, externs, modifier, codeSymbols,
+			classSymbol, methodSymbol, argumentSymbol, varSymbol, externs, modifier, codeSymbols, varsxml,
 			debugSymbols = "<DEBUG_SYMBOLS>" + _this.debugSymbolsTable.join("") + "</DEBUG_SYMBOLS>";			
 		
 		// ======================================================================================
 		// Export Code Symbols, CodeMax MemberLists and Externs
 		// ======================================================================================
+		
 		externs = ["//@compile{false}\n// Auto-generated Project Externs used by IDE and intelliSyntax\n\n"];
 		mbrLists = [];
 		xml = []; 
 		xml.push("<CODE_SYMBOLS" + (_this.selectedClass ? " update='" + _this.selectedClass + "'" : "") + ">\n");
+		
 		for(cls in _this.classes)
-		{
+		{			
 			if(_this.selectedClass && _this.selectedClass!=cls) continue;
 			
 			classSymbol = _this.classes[cls];
@@ -2223,7 +2225,7 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 		xml.push("</CODE_SYMBOLS>\n");
 		codeSymbols = xml.join("");	
 		externs = externs.join("");		
-		mbrLists = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n<MEMBER_LISTS>\n" + mbrLists.join("\n") + "</MEMBER_LISTS>";
+		mbrLists = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n<MEMBER_LISTS" + (_this.selectedClass ? " update='" + _this.selectedClass + "'" : "") +">\n" + mbrLists.join("\n") + "</MEMBER_LISTS>";
 							
 		// ======================================================================================
 		// Export Scopes and Scope Vars
@@ -2233,7 +2235,11 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 		for(scope in _this.scopesTable)
 		{
 			scope = _this.scopesTable[scope]; 
-			xml.push(_this.objectToXML(scope, "SCOPE", false, (!scope.parentScope ? "" : " parent='"+scope.parentScope.scopeId+"'") ));			
+			
+			if(!scope.path) continue;
+			if(_this.selectedClass && _this.selectedClass!=scope.className) continue;
+			
+			varsxml = [];
 			for(item in scope.vars)
 			{
 				varSymbol = scope.vars[item];
@@ -2243,14 +2249,29 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 					if(varSymbol.private) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD;
 					if(varSymbol.protected) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD;
 					if(varSymbol.constant) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT; 										
-					xml.push("\t<SYMBOL symbolId='"+varSymbol.symbolId + "' name='" + varSymbol.name + "' type='" + varSymbol.type + "' vartype='" + varSymbol.vartype.replace('<','&lt;').replace('>','&gt;') + "' subtype='" + varSymbol.subtype + "'/>\n");				
+					varsxml.push("\t<SYMBOL symbolId='"+varSymbol.symbolId + "' name='" + varSymbol.name + "' type='" + varSymbol.type + "' vartype='" + varSymbol.vartype.replace('<','&lt;').replace('>','&gt;') + "' subtype='" + varSymbol.subtype + "'/>\n");
 				}
+			} 
+			
+			for(item in scope.methods)
+			{
+				methodSymbol = scope.methods[item];
+				icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
+				if(methodSymbol.private) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD;
+				if(methodSymbol.protected) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD;
+				if(methodSymbol.constant) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT; 										
+				varsxml.push("\t<SYMBOL symbolId='"+methodSymbol.symbolId + "' name='" + methodSymbol.name + "' type='" + methodSymbol.type + "' vartype='" + (!methodSymbol.vartype ? "" : methodSymbol.vartype.replace('<','&lt;').replace('>','&gt;')) + "' subtype='" + methodSymbol.subtype + "'/>\n");
+			} 
+			xml.push(_this.objectToXML(scope, "SCOPE", varsxml.length==0, (!scope.parentScope ? "" : "parent='"+scope.parentScope.scopeId+"'")));
+			if(varsxml.length)
+			{
+				xml.push(varsxml.join(""));			
+				xml.push("</SCOPE>\n");			
 			}
-			xml.push("</SCOPE>\n");			
 		}  
 		xml.push("</SCOPES>\n");
-		scopeVars = xml.join("");				
-
+		scopeVars = xml.join("");		
+			
 		// ======================================================================================
 		// Export to IDE
 		// ======================================================================================		
@@ -2278,7 +2299,7 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 		{  
 			if(typeof obj[item]=="object") continue;			
 			v = obj[item];
-			if(v==null || v==undefined) continue;
+			if(v==null || v==undefined || v==NaN) continue;
 			if(typeof v == "string" && v.charAt(v.length-1)=='>')
 			{
 				v = v.replace("<", "&lt;");
@@ -2291,7 +2312,5 @@ function Compiler(ast, infolder, outfolder, selectedClass)
 		return xml.join(" ");
 	};	
 }
-
-
 
 
