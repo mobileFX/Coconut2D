@@ -16,14 +16,27 @@ CocoClip::CocoClip(CocoImage* image, CocoSound* audio, std::string sequence)
 	__vBOTTOM_RIGHT = new CocoVector();
 	__childWithMaxTimelineDuration = NULL;
 	__currentSequence = NULL;
-	__image = image;
-	__audio = audio;
-	if(__image) { __currentSequence = __image->getSequence(sequence); }
+	if(image)
+	{
+		__image = image;
+	}
+	if(audio)
+	{
+		__audio = audio;
+	}
+	if(image && sequence)
+	{
+		__currentSequence = image->getSequence(sequence);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoClip::reset()
 {
+	if(__currentFrame)
+	{
+		delete __currentFrame;
+	}
 	__currentFrame = NULL;
 	__firstTickTime = -1;
 	__timeline->reset();
@@ -36,8 +49,14 @@ void CocoClip::reset()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoClip* CocoClip::addChild(CocoClip* clipInstance)
 {
-	if(!clipInstance) { return NULL; }
-	if(!clipInstance->__instanceName) { throw CocoException("Invalid instance name."); }
+	if(!clipInstance)
+	{
+		return NULL;
+	}
+	if(!clipInstance->__instanceName)
+	{
+		throw CocoException("Invalid instance name.");
+	}
 	__children.push(clipInstance);
 	normalize();
 	return clipInstance;
@@ -46,7 +65,10 @@ CocoClip* CocoClip::addChild(CocoClip* clipInstance)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoClip* CocoClip::removeChild(CocoClip* clipInstance)
 {
-	if(!clipInstance) { return NULL; }
+	if(!clipInstance)
+	{
+		return NULL;
+	}
 	__children.splice(getChildIndex(clipInstance), 1);
 	normalize();
 	return clipInstance;
@@ -100,15 +122,19 @@ int CocoClip::getChildIndex(CocoClip* child)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CocoClip::gotoFrame(undefined LabelNameOrFrameIndex, bool pause, bool deep)
+bool CocoClip::gotoFrameByName(std::string LabelName, bool pause, bool deep)
 {
-	int FrameIndex = parseInt(LabelNameOrFrameIndex);
-	if(isNaN(FrameIndex))
+	CocoTimeLabel* Label = __timeline->findLabelByName(LabelName);
+	if(!Label)
 	{
-		CocoTimeLabel* Label = __timeline->findLabelByName(LabelNameOrFrameIndex);
-		if(!Label) { return false; }
-		FrameIndex = Label->frameIndex;
+		return false;
 	}
+	return gotoFrameByIndex(Label->frameIndex, pause, deep);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+bool CocoClip::gotoFrameByIndex(int FrameIndex, bool pause, bool deep)
+{
 	CocoClip* clip;
 	for(int i = __children.size() - 1; i >= 0; i--)
 	{
@@ -124,7 +150,7 @@ bool CocoClip::gotoFrame(undefined LabelNameOrFrameIndex, bool pause, bool deep)
 		}
 		if(deep)
 		{
-			clip->gotoFrame(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
+			clip->gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
 		}
 	}
 	return true;
@@ -133,34 +159,53 @@ bool CocoClip::gotoFrame(undefined LabelNameOrFrameIndex, bool pause, bool deep)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking)
 {
-	float currentTime = scene->__currentTime + __timeline->__skipTime;
-	if(__firstTickTime == -1) { __firstTickTime = currentTime; }
+	float __currentTime = scene->__currentTime + __timeline->__skipTime;
+	if(__firstTickTime == -1)
+	{
+		__firstTickTime = __currentTime;
+	}
 	float parentClipsDuration = (parentClip ? parentClip->__childWithMaxTimelineDuration->__timeline->__durationInTime : __timeline->__durationInTime);
-	float clippingTime = std::floor((currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;
-	float loopTime = (currentTime - __firstTickTime) - clippingTime;
+	float clippingTime = std::floor((__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;
+	float __loopTime = (__currentTime - __firstTickTime) - clippingTime;
+	if(!__timeline->__paused && __currentFrame)
+	{
+		delete __currentFrame;
+	}
 	switch(__symbolLoop)
 	{
 		case COCO_CLIP_SYMBOL_LOOP_ENUM::CLIP_SYMBOL_LOOP_CONTINUOUS:
 		{
-			__currentFrame = __timeline->interpolateByTime(loopTime);
+			__currentFrame = __timeline->interpolateByTime(__loopTime);
 			break;
 		}
+		break;
 		case COCO_CLIP_SYMBOL_LOOP_ENUM::CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT:
 		{
-			__currentFrame = __timeline->interpolateByTime(loopTime);
+			__currentFrame = __timeline->interpolateByTime(__loopTime);
 			break;
 		}
+		break;
 		case COCO_CLIP_SYMBOL_LOOP_ENUM::CLIP_SYMBOL_LOOP_ONCE:
 		{
-			if(clippingTime > 0) { __currentFrame = __timeline->lastKeyFrame()->clone(); }
-			else { __currentFrame = __timeline->interpolateByTime(loopTime); }
+			if(clippingTime > 0)
+			{
+				__currentFrame = __timeline->lastKeyFrame().clone();
+			}
+			else
+			{
+				__currentFrame = __timeline->interpolateByTime(__loopTime);
+			}
 			break;
 		}
+		break;
 	}
 	if(parentClip)
 	{
 		__currentFrame->combine(parentClip->__currentFrame);
-		if(__currentFrame->calcBoundingBox) { parentClip->__currentFrame->calcBoundingBox = true; }
+		if(__currentFrame->calcBoundingBox)
+		{
+			parentClip->__currentFrame->calcBoundingBox = true;
+		}
 	}
 	if(__currentFrame->alpha != 0 && __currentFrame->visible)
 	{
@@ -174,7 +219,7 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 			__currentFrame->scaleY /= c;
 			if(__image->isSpriteSheet && __currentSequence)
 			{
-				__currentSequenceFrameIndex = __timeline->__paused ? 0 : (int)std::floor((currentTime - __firstTickTime) / GLOBAL_FPS) % (int)__currentSequence->frames.size();
+				__currentSequenceFrameIndex = __timeline->__paused ? 0 : (int)std::floor((__currentTime - __firstTickTime) / GLOBAL_FPS) % (int)__currentSequence->frames.size();
 				int frame = __currentSequence->frames[__currentSequenceFrameIndex];
 				scene->drawFrame(gl, __image, frame, __currentFrame->alpha);
 			}
@@ -187,7 +232,7 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 		{
 			scene->__levelParents.push(this);
 			__currentFrame->apply(scene->__modelViewMatrix);
-			for(int i = 0, L = __children.size(); i < L; i++)
+			for(int i = 0,  L = __children.size(); i < L; i++)
 			{
 				scene->__modelViewMatrix->push();
 				__children[i]->render(gl, scene, this, picking);
@@ -199,7 +244,7 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 	if(!__timeline->__paused && __currentFrame->action)
 	{
 		this->__parent = parentClip;
-		__currentFrame->execute(gl, currentTime, loopTime, scene, this);
+		__currentFrame->execute(gl, __currentTime, __loopTime, scene, this);
 		this->__parent = NULL;
 	}
 }

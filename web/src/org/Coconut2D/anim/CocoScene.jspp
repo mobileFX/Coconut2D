@@ -1,7 +1,7 @@
 //@compile{true} 
 
-//@include{CocoClip.jspp}
-//@include{WebGLRenderingContext.jspp}
+#include "CocoClip.jspp"
+#include "WebGLRenderingContext.jspp"
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -86,9 +86,9 @@ class CocoScene
 		__projectionMatrix 			= null;
 		__glProgram					= null;		
 		__vertex_shader				= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
-		__fragment_shader			= "#ifdef GL_ES\nprecision mediump float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";		                                                	
+		__fragment_shader			= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";		                                                	
 		__boundingBoxVertexShader 	= "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
-		__boundingBoxFragmentShader	= "#ifdef GL_ES\nprecision mediump float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
+		__boundingBoxFragmentShader	= "#ifdef GL_ES\nprecision lowp float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
 		__boundingBoxProgram		= null;
 		__boundingBoxBuffer			= null;		                                     	
 		__ready 					= false;	                                                	
@@ -155,9 +155,12 @@ class CocoScene
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);		
 		
 		__glProgram = makeProgram(gl, __vertex_shader, __fragment_shader);		
-		gl.useProgram(__glProgram);		
-		__glProgram.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram, "iVecCoords");
-		__glProgram.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram, "iTexCoords");	
+		gl.useProgram(__glProgram);	
+
+		__glProgram.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram, "iVecCoords");		
+		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
+		__glProgram.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram, "iTexCoords");			
+		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);		
 		__glProgram.GLSLuProjMat 	= gl.getUniformLocation(__glProgram, "uProjMat");
 		__glProgram.GLSLuMVMat 		= gl.getUniformLocation(__glProgram, "uMVMat");
 		__glProgram.GLSLuSprSize 	= gl.getUniformLocation(__glProgram, "uSprSize");
@@ -169,13 +172,23 @@ class CocoScene
 		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);			
 		__view_scale = this.__view_width>0 && this.__view_height>0 ? Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height) : window.devicePixelRatio;		
 		__projectionMatrix = new CocoMatrix();
-		__projectionMatrix.ortho(-gl.canvas.width / 2.0, gl.canvas.width / 2.0, gl.canvas.height / 2.0, -gl.canvas.height / 2.0, -1.0, 1.0);						
-		if(window.deviceRotation) __projectionMatrix.rotateZ(-window.deviceRotation);		
+				
+		if(window.deviceRotation)
+		{
+			var c:Float = Math.cos(window.deviceRotation);
+			var s:Float = Math.sin(window.deviceRotation);
+			var orthoWidth:Float = Math.abs(c * gl.canvas.width + s * gl.canvas.height);
+			var orthoHeight:Float = Math.abs(-s * gl.canvas.width + c * gl.canvas.height);
+			__projectionMatrix.ortho(-orthoWidth / 2.0, orthoWidth / 2.0, orthoHeight / 2.0,  -orthoHeight / 2.0, -1.0, 1.0);
+			__projectionMatrix.rotateZ(-window.deviceRotation);
+		}
+		else
+		{
+			__projectionMatrix.ortho( -(gl.canvas.width / 2.0), gl.canvas.width / 2.0, gl.canvas.height / 2.0,  -(gl.canvas.height / 2.0), -1.0, 1.0);			
+		}	
+		
 		__projectionMatrix.scale(__view_scale, __view_scale);
 		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat);					
-		
-		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
-		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);				
 	} 
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,38 +334,39 @@ class CocoScene
 	} 
 				
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndPlayByName(LabelName:String, deep:Boolean)
+	public function gotoAndPlayByName(LabelName:String, optional deep:Boolean)
 	{
 		var scope:CocoClip = __levelParents[__levelParents.size() - 1];
 		return scope.gotoFrameByName(LabelName, false, deep);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndStopByName(LabelName:String, deep:Boolean)
+	public function gotoAndStopByName(LabelName:String, optional deep:Boolean)
 	{
 		var scope:CocoClip = __levelParents[__levelParents.size() - 1];
 		return scope.gotoFrameByName(LabelName, true, deep);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndPlayByIndex(FrameIndex:Integer, deep:Boolean)
+	public function gotoAndPlayByIndex(FrameIndex:Integer, optional deep:Boolean)
 	{
 		var scope:CocoClip = __levelParents[__levelParents.size() - 1];
 		return scope.gotoFrameByIndex(FrameIndex, false, deep);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndStopyByIndex(FrameIndex:Integer, deep:Boolean)
+	public function gotoAndStopyByIndex(FrameIndex:Integer, optional deep:Boolean)
 	{
 		var scope:CocoClip = __levelParents[__levelParents.size() - 1];
 		return scope.gotoFrameByIndex(FrameIndex, true, deep);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function stop(deep:Boolean)
+	public function stop(optional deep:Boolean)
 	{
 		deep = (deep == "true");
 		var scope:CocoClip = __levelParents[__levelParents.size() - 1];
 		return scope.gotoFrameByIndex(-1, true, deep);
 	}
 }
+

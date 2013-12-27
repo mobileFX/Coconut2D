@@ -81,9 +81,9 @@ function RxReplace(buff, patt, opts, repl)
 	var rx = new RegExp(patt, opts);
 	var res = buff.replace(rx, repl);
 	return res;
-} 
+}
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function formatCPP(buff)
 {  
 	buff = RxReplace(buff, "[\s\t\n\r]+\\{[\s\t\n\r]+\\};", "mg", "{};");		
@@ -97,9 +97,12 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bMath.floor\\(", "mg", "std::floor(");
 	buff = RxReplace(buff, "\\bMath.min\\(", "mg", "std::min(");
 	buff = RxReplace(buff, "\\bMath.max\\(", "mg", "std::max(");
+	buff = RxReplace(buff, "\\bMath.sin\\(", "mg", "std::sinf(");
+	buff = RxReplace(buff, "\\bMath.cos\\(", "mg", "std::cosf(");
+	buff = RxReplace(buff, "\\bMath.abs\\(", "mg", "std::abs(");
 	buff = RxReplace(buff, "_ENUM\\.(\\w+)", "mg", "_ENUM::$1");		
 	return buff;
-}
+}		
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function compile_jspp(code, infolder, outfolder)
@@ -122,10 +125,49 @@ function compile_jspp(code, infolder, outfolder)
 		var ast = narcissus.jsparse(code);						
 		
 		// Compile ast
-		var compiler = new Compiler(ast, infolder, outfolder, null);
+		var compiler = new Compiler(ast, infolder, outfolder, true, null);
 		compiler.compile();				
 
-		trace("Code generation Done.");
+		trace("JavaScript Code generation Done.");
+	}
+	catch(e)
+	{
+		trace("ERROR: " +e);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function compile_cpp(code, infolder, outfolder)
+{
+	try
+	{              		
+		// Append externs and ECMA classes
+		if(infolder)
+		{			
+			var file = infolder.split("/");
+			file.splice(file.length-2,2);			
+			file = file.join("/") + "/native/JavaScript++/externs.jspp"; 
+			var externs = read(file);	
+			code = "\"script_begin:///" + file + "\";\n" + externs + "\n\"script_end:///" + file + "\";\n" + code;			
+		}	
+		
+		// Parse source code
+		narcissus.__messages = true;
+		narcissus.__cpp = true;
+		var ast = narcissus.jsparse(code);						
+		
+		// Compile ast to JavaScript to build symbol tables
+		var compiler = new Compiler(ast, infolder, null, false, null);
+		compiler.compile();				
+		
+		// Compile ast to C++ 
+		var compiler = new CPPCompiler(ast, infolder, outfolder);
+		compiler.compile();				
+		
+		// Update Coconut2D.hpp
+		jsppCallback("coconut2d.hpp", "", 0, compiler.getClassList());    
+
+		trace("C++ Code generation Done.");
 	}
 	catch(e)
 	{
@@ -144,7 +186,7 @@ function parse_jspp(code, className)
 		var ast = narcissus.jsparse(code);						
 		
 		// Compile ast
-		var compiler = new Compiler(ast, null, null, className);
+		var compiler = new Compiler(ast, null, null, true, className);
 		compiler.compile();				
 	}
 	catch(e)
@@ -152,3 +194,9 @@ function parse_jspp(code, className)
 		trace("ERROR: " +e);
 	}
 }
+
+
+
+
+
+

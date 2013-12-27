@@ -1,7 +1,7 @@
 //@compile{true}
 
-//@include{WebGLRenderingContext.jspp}
-//@include{CocoMatrix.jspp}
+#include "WebGLRenderingContext.jspp"
+#include "CocoMatrix.jspp"
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -94,6 +94,7 @@ class CocoKeyFrame
 		c.y                     	= y;                 
 		c.action					= action;                                   		
 		c.calcBoundingBox			= calcBoundingBox;
+		c.__lastActionExecutionTime	= __lastActionExecutionTime;
 		
 	    return c;
 	}
@@ -109,7 +110,7 @@ class CocoKeyFrame
 	{		
 		//gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, clip:CocoClip, keyFrame:CocoKeyFrame
 		
-		if(currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime)
+		if((currentTime==0) || (currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
 		{
 			__lastActionExecutionTime = currentTime;						
 			if(action)
@@ -151,19 +152,5 @@ class CocoKeyFrame
 		if(pivotX!=0 || pivotY!=0) matrix.translate(-pivotX, -pivotY);	
 	}
 } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

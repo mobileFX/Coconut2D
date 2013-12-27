@@ -1,6 +1,17 @@
 #ifndef __COCOCLIP_HPP__
 #define __COCOCLIP_HPP__
 
+#include "Coconut2D.hpp"
+#include "CocoClip.hpp"
+#include "WebGLRenderingContext.hpp"
+#include "CocoScene.hpp"
+#include "CocoImage.hpp"
+#include "CocoSound.hpp"
+#include "CocoSequence.hpp"
+#include "CocoTimeline.hpp"
+#include "CocoKeyFrame.hpp"
+#include "CocoVector.hpp"
+
 class CocoClip
 {
 public:
@@ -28,7 +39,8 @@ public:
 	void normalize();
 	CocoClip* getChildByName(std::string instanceName);
 	int getChildIndex(CocoClip* child);
-	bool gotoFrame(undefined LabelNameOrFrameIndex, bool pause, bool deep);
+	bool gotoFrameByName(std::string LabelName, bool pause, bool deep);
+	bool gotoFrameByIndex(int FrameIndex, bool pause, bool deep);
 	void render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking);
 };
 

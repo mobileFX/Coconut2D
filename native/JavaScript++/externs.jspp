@@ -175,7 +175,7 @@ class ECMAGlobal : Object
 	public var deviceRotation:Integer; 
 	public var devicePixelRatio:Float;
 	public function eval(s:String):Object {}
-	public function parseInt(s:String, radix:Number):Integer {}
+	public function parseInt(s:String, optional radix:Number):Integer {}
 	public function parseFloat(s:String):Float {}
 	public function escape(s:String):String {}
 	public function unescape(s:String):String {}
@@ -237,7 +237,7 @@ class ECMAArray : Object
 	public function shift():Array {}
 	public function slice(start:Number, end:Number):Array {}
 	public function sort(funct:Function):Array {}
-	public function splice(start:Number, deletecount:Number, items:Number):Array {}
+	public function splice(start:Number, deletecount:Number, optional items:Number):Array {}
 	public function unshift(start:Number):Array {}
 	public function forEach(item:Object):Array {}
 	public function size():Number {}
@@ -246,8 +246,8 @@ class ECMAArray : Object
 class ECMAFunction : Object
 {	                                                            
 	public var length:Number;
-	public function apply(thisArg:String, argArray:Array):Object {}
-	public function call(thisObject:Object, args:Array):Object {}	
+	public function apply(thisObject:Object, args:Object):Object {}
+	public function call(thisObject:Object, args:Object):Object {}	
 }
 
 class ECMADate : Object
@@ -362,8 +362,8 @@ class ECMAMath : Object
 	public function exp(x:Number):Float {}
 	public function floor(x:Number):Integer {}
 	public function log(x:Number):Float {}
-	public function max(args:Array):Number {}
-	public function min(args:Array):Number {}
+	public function max(a:Number, b:Number):Number {}
+	public function min(a:Number, b:Number):Number {}
 	public function pow(x:Number, y:Number):Float {}
 	public function random():Float {}
 	public function round(x:Number):Number {}

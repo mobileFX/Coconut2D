@@ -8,6 +8,7 @@ CocoTimeline::CocoTimeline()
 	__durationInFrames = 0;
 	__skipTime = 0;
 	__paused = false;
+	__pausedKeyFrame = NULL;
 	addKeyFrameEx(NULL, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
 }
 
@@ -32,7 +33,10 @@ void CocoTimeline::reset()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoTimeLabel* CocoTimeline::addLabel(CocoTimeLabel* Label)
 {
-	if(Label) { __labels.push(Label); }
+	if(Label)
+	{
+		__labels.push(Label);
+	}
 	return Label;
 }
 
@@ -150,11 +154,17 @@ CocoKeyFrame* CocoTimeline::findKeyFrameBeforeframeIndex(float frameIndex, bool 
 			KeyFrame = __keyFrames[i];
 			if(inclusive)
 			{
-				if(KeyFrame->frameIndex <= frameIndex) { return KeyFrame; }
+				if(KeyFrame->frameIndex <= frameIndex)
+				{
+					return KeyFrame;
+				}
 			}
 			else
 			{
-				if(KeyFrame->frameIndex < frameIndex) { return KeyFrame; }
+				if(KeyFrame->frameIndex < frameIndex)
+				{
+					return KeyFrame;
+				}
 			}
 		}
 	}
@@ -165,18 +175,24 @@ CocoKeyFrame* CocoTimeline::findKeyFrameBeforeframeIndex(float frameIndex, bool 
 CocoKeyFrame* CocoTimeline::findKeyFrameAfterframeIndex(float frameIndex, bool inclusive, float excludeListIndex)
 {
 	CocoKeyFrame* KeyFrame;
-	for(int i = 0, L = __keyFrames.size(); i < L; i++)
+	for(int i = 0,  L = __keyFrames.size(); i < L; i++)
 	{
 		if(i != excludeListIndex)
 		{
 			KeyFrame = __keyFrames[i];
 			if(inclusive)
 			{
-				if(KeyFrame->frameIndex >= frameIndex) { return KeyFrame; }
+				if(KeyFrame->frameIndex >= frameIndex)
+				{
+					return KeyFrame;
+				}
 			}
 			else
 			{
-				if(KeyFrame->frameIndex > frameIndex) { return KeyFrame; }
+				if(KeyFrame->frameIndex > frameIndex)
+				{
+					return KeyFrame;
+				}
 			}
 		}
 	}
@@ -193,12 +209,15 @@ CocoKeyFrame* CocoTimeline::interpolateByTime(float LoopTime)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 {
-	if(__paused && __pausedKeyFrame) { return __pausedKeyFrame; }
+	if(__paused && __pausedKeyFrame)
+	{
+		return __pausedKeyFrame;
+	}
 	CocoKeyFrame* F = NULL;
 	CocoKeyFrame* F1 = NULL;
 	CocoKeyFrame* F2 = NULL;
 	float s = 1;
-	int FrameIndex = std::floor(frameIndex);
+	float FrameIndex = std::floor(frameIndex);
 	if(__keyFrames.size() == 0)
 	{
 		F = new CocoKeyFrame();
@@ -207,7 +226,10 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 		return (__pausedKeyFrame = F);
 	}
 	F1 = keyFrame(FrameIndex);
-	if(F1) { return (__pausedKeyFrame = F1); }
+	if(F1)
+	{
+		return (__pausedKeyFrame = F1->clone());
+	}
 	F1 = findKeyFrameBeforeframeIndex(FrameIndex, false,  -1);
 	if(!F1)
 	{
@@ -227,6 +249,7 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 				F->action = NULL;
 				return (__pausedKeyFrame = F);
 			}
+			break;
 			case COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_NONE:
 			{
 				F = F1->clone();
@@ -235,6 +258,7 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 				F->visible = false;
 				return (__pausedKeyFrame = F);
 			}
+			break;
 			case COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 			{
 				F2 = findKeyFrameAfterframeIndex(FrameIndex, false,  -1);
@@ -255,6 +279,7 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 					return (__pausedKeyFrame = F);
 				}
 			}
+			break;
 		}
 	}
 	return NULL;

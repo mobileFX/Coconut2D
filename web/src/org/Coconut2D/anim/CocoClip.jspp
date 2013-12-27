@@ -1,10 +1,10 @@
 //@compile{true} 
 
-//@include{WebGLRenderingContext.jspp}
-//@include{CocoMatrix.jspp}
-//@include{CocoImage.jspp}
-//@include{CocoSound.jspp}
-//@include{CocoTimeline.jspp}
+#include "WebGLRenderingContext.jspp"
+#include "CocoMatrix.jspp"
+#include "CocoImage.jspp"
+#include "CocoSound.jspp"
+#include "CocoTimeline.jspp"
                      
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -83,7 +83,8 @@ class CocoClip
 							
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset() 
-	{ 
+	{
+		if(__currentFrame) delete __currentFrame; 
 		__currentFrame = null;
 	    __firstTickTime = -1;
 	    __timeline.reset(); 
@@ -91,7 +92,7 @@ class CocoClip
 	    for(var i:Integer =__children.size()-1; i>=0; i--)
 		{		
 			__children[i].reset();
-		}
+		}		
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,9 +121,15 @@ class CocoClip
 	    __childWithMaxTimelineDuration = null;
 	    for(var i:Integer =__children.size()-1; i>=0; i--)
 	    {
-	    	if(!__childWithMaxTimelineDuration) { __childWithMaxTimelineDuration = __children[i]; continue; }
+	    	if(!__childWithMaxTimelineDuration)
+	    	{
+	    		__childWithMaxTimelineDuration = __children[i];
+	    		continue; 
+	    	}
 	        if(__children[i].__timeline.__durationInTime > __childWithMaxTimelineDuration.__timeline.__durationInTime) 
+	        {
 				__childWithMaxTimelineDuration = __children[i];
+	        }
 	    }	    
 	}
 	
@@ -130,8 +137,12 @@ class CocoClip
 	public function getChildByName(instanceName:String) :CocoClip
 	{    
 	    for(var i:Integer =__children.size()-1; i>=0; i--)
+	    {
 			if(__children[i].__instanceName==instanceName)
+			{
 				return __children[i];
+			}
+	    }
 		return null;
 	}
 		
@@ -139,9 +150,15 @@ class CocoClip
 	public function getChildIndex(child:CocoClip) :Integer
 	{
 	    if(child)
+	    {
 		    for(var i:Integer =__children.size()-1; i>=0; i--)
+		    {
 				if(__children[i]==child)
+				{
 					return i;
+				}
+		    }
+	    }
 		return -1;
 	} 
 	
@@ -150,7 +167,7 @@ class CocoClip
 	{
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
-		return gotoFrameByIndex(Label.frameIndex);		
+		return gotoFrameByIndex(Label.frameIndex, pause, deep);		
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,38 +197,41 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean)
 	{
-		// Get scene current time and add timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )		                                    
-		var currentTime:Float = scene.__currentTime + __timeline.__skipTime; 
+		// Get scene current time + timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )		                                    
+		var __currentTime:Float = scene.__currentTime + __timeline.__skipTime; 
 
 		// Keep track of first tick time.		
-		if(__firstTickTime == -1) __firstTickTime = currentTime;//scene.__currentTime
+		if(__firstTickTime == -1) __firstTickTime = __currentTime;
 		
 		// Calculate the parent timeline duraction in time from its children.
 		// Note: the parent timeline might have only one KeyFrame but the actual length is defined by the max timeline size of each children.		
 		var parentClipsDuration:Float = (parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__durationInTime);
 		
 		// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
-		var clippingTime:Float = Math.floor((currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;
+		var clippingTime:Float = Math.floor((__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;
 		
 		// Adjust LoopTime start.
-		var loopTime:Float = (currentTime - __firstTickTime) - clippingTime;					
+		var __loopTime:Float = (__currentTime - __firstTickTime) - clippingTime;					
+
+		// Delete previous __currentFrame if not paused. 		
+		if(!__timeline.__paused && __currentFrame) delete __currentFrame;
 		
         // Take into account time sync between this clip and its parent.
 		switch(__symbolLoop)
 		{
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS:
-			    __currentFrame = __timeline.interpolateByTime(loopTime);
+			    __currentFrame = __timeline.interpolateByTime(__loopTime);
 				break;     
 				
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT:
-			    __currentFrame = __timeline.interpolateByTime(loopTime); // TODO
+			    __currentFrame = __timeline.interpolateByTime(__loopTime); // TODO
 				break; 
 				
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
 			    if(clippingTime > 0) 
 			    	__currentFrame = __timeline.lastKeyFrame().clone();
 			    else
-			    	__currentFrame = __timeline.interpolateByTime(loopTime); 
+			    	__currentFrame = __timeline.interpolateByTime(__loopTime); 
 				break;
 		}
 		
@@ -241,7 +261,7 @@ class CocoClip
 				if(__image.isSpriteSheet && __currentSequence)
 				{
 					// Render animation sequence.
-					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor((currentTime - __firstTickTime) / GLOBAL_FPS) % __currentSequence.frames.size();
+					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor((__currentTime - __firstTickTime) / GLOBAL_FPS) % __currentSequence.frames.size();
 					var frame:Integer = __currentSequence.frames[__currentSequenceFrameIndex];
 					scene.drawFrame(gl, __image, frame, __currentFrame.alpha);
 				}
@@ -270,9 +290,18 @@ class CocoClip
 		if(!__timeline.__paused && __currentFrame.action)
 		{			
 			this.__parent = parentClip;
-			__currentFrame.execute(gl, currentTime, loopTime, scene, this);
+			__currentFrame.execute(gl, __currentTime, __loopTime, scene, this);
 			this.__parent = null;		
 		}		
 	} 
 }
+
+
+
+
+
+
+
+
+
 

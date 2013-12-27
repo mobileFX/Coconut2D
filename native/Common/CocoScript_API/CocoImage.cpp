@@ -13,22 +13,30 @@ CocoImage::CocoImage()
 	texSize = new Float32Array({1, 1});
 	buffer = NULL;
 	isSpriteSheet = false;
+	baseUrl = "";
 	viewOptimalWidth = 0;
 	viewOptimalHeight = 0;
 	pixelRatio = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoImage::addSibling(CocoImageSibling* sibling)
+CocoImageSibling* CocoImage::addSibling(CocoImageSibling* sibling)
 {
 	viewSiblings.push(sibling);
+	return sibling;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoSequence* CocoImage::addSequence(CocoSequence* sequence)
 {
-	if(!sequence) { return NULL; }
-	if(getSequence(sequence->name)) { throw CocoException("Cannot add sequence with same name!"); }
+	if(!sequence)
+	{
+		return NULL;
+	}
+	if(getSequence(sequence->name))
+	{
+		throw CocoException("Sequence " + sequence->name + " already exists.");
+	}
 	sequences.push(sequence);
 	isSpriteSheet = true;
 	return sequence;
@@ -39,7 +47,10 @@ CocoSequence* CocoImage::getSequence(std::string name)
 {
 	for(int i = sequences.size() - 1; i >= 0; i--)
 	{
-		if(sequences[i]->name == name) { return sequences[i]; }
+		if(sequences[i]->name == name)
+		{
+			return sequences[i];
+		}
 	}
 	return NULL;
 }
@@ -56,7 +67,7 @@ void CocoImage::prepare(WebGLRenderingContext* gl)
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_WRAP_S, gl->CLAMP_TO_EDGE);
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_WRAP_T, gl->CLAMP_TO_EDGE);
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_MAG_FILTER, gl->LINEAR);
-	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_MIN_FILTER, gl->LINEAR);
+	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_MIN_FILTER, gl->LINEAR_MIPMAP_NEAREST);
 	gl->generateMipmap(gl->TEXTURE_2D);
 	gl->bindTexture(gl->TEXTURE_2D, NULL);
 	Float32Array* texData = new Float32Array({0, 0, -w2, -h2, 0, 1, -w2, h2, 1, 0, w2, -h2, 1, 1, w2, h2});

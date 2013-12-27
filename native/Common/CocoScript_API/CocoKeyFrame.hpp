@@ -1,24 +1,31 @@
 #ifndef __COCOKEYFRAME_HPP__
 #define __COCOKEYFRAME_HPP__
 
+#include "Coconut2D.hpp"
+#include "CocoKeyFrame.hpp"
+#include "WebGLRenderingContext.hpp"
+#include "CocoScene.hpp"
+#include "CocoClip.hpp"
+#include "CocoMatrix.hpp"
+
 class CocoKeyFrame
 {
 public:
-	int frameIndex = 0;
-	COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation = COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN;
-	bool handleEvents = false;
-	bool calcBoundingBox = true;
-	float alpha = 1;
-	bool visible = true;
-	float x = 0;
-	float y = 0;
-	float pivotX = 0;
-	float pivotY = 0;
-	float scaleX = 1;
-	float scaleY = 1;
-	float rotation = 0;
-	Function* action = NULL;
-	float __lastActionExecutionTime = 0;
+	int frameIndex;
+	COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation;
+	bool handleEvents;
+	bool calcBoundingBox;
+	bool visible;
+	float alpha;
+	float x;
+	float y;
+	float pivotX;
+	float pivotY;
+	float scaleX;
+	float scaleY;
+	float rotation;
+	Function* action;
+	float __lastActionExecutionTime;
 	CocoKeyFrame();
 	CocoKeyFrame* clone();
 	void reset();

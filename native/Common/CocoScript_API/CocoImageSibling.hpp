@@ -1,6 +1,8 @@
 #ifndef __COCOIMAGESIBLING_HPP__
 #define __COCOIMAGESIBLING_HPP__
 
+#include "Coconut2D.hpp"
+
 class CocoImageSibling
 {
 public:

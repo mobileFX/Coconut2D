@@ -17,21 +17,34 @@ function HTMLWindow()
 		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
 		this.__SUPER__ = __SUPER__;
 		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__CLASS__ = 'HTMLWindow';
 		this.__PROTECTED__ =
 		{
 		};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 48
-		var addEventListener = this.addEventListener = function (type, listener, useCapture)
+		//@line 55
+		var addEventListener = this.addEventListener = function (event, listener, useCapture)
 		{
-			//@line 50
-			return CallbackManager.addEventListener(__CLASS__HTMLWINDOW__, type, listener, useCapture);
+			//@line 57
+			__registerCallback(__CLASS__HTMLWINDOW__.__uid, event);
+			//@line 58
+			__CLASS__HTMLWINDOW__.__elements[event] = listener;
 		};
-		//@line 53
-		var removeEventListener = this.removeEventListener = function (type, listener, useCapture)
+		//@line 62
+		var removeEventListener = this.removeEventListener = function (event, listener, useCapture)
 		{
-			//@line 55
-			return CallbackManager.removeEventListener(__CLASS__HTMLWINDOW__, type, listener, useCapture);
+			//@line 64
+			__CLASS__HTMLWINDOW__.__elements[event] = null;
+			//@line 65
+			__unRegisterCallback(__CLASS__HTMLWINDOW__.__uid, event);
+		};
+		//@line 69
+		var dispatchEvent = this.dispatchEvent = function (uid, event)
+		{
+			//@line 71
+			var callback = __CLASS__HTMLWINDOW__.__elements[event];
+			//@line 72
+			if (callback) callback.apply(__CLASS__HTMLWINDOW__, __CLASS__HTMLWINDOW__.__data);
 		};
 		//@line 33
 		this.__uid = 0;
@@ -44,18 +57,26 @@ function HTMLWindow()
 		//@line 37
 		this.devicePixelRatio = 0;
 		//@line 39
+		this.__data = null;
+		//@line 40
+		this.__elements = [];
+		//@line 43
 		this.Constructor = function ()
 		{
-			//@line 41
-			__CLASS__HTMLWINDOW__.__uid = 0;
-			//@line 42
-			__CLASS__HTMLWINDOW__.document = new HTMLDocument;
-			//@line 43
-			__CLASS__HTMLWINDOW__.innerHeight = global.innerHeight;
-			//@line 44
-			__CLASS__HTMLWINDOW__.innerWidth = global.innerWidth;
 			//@line 45
+			__CLASS__HTMLWINDOW__.__uid = 0;
+			//@line 46
+			__CLASS__HTMLWINDOW__.document = new HTMLDocument;
+			//@line 47
+			__CLASS__HTMLWINDOW__.innerHeight = global.innerHeight;
+			//@line 48
+			__CLASS__HTMLWINDOW__.innerWidth = global.innerWidth;
+			//@line 49
 			__CLASS__HTMLWINDOW__.devicePixelRatio = global.devicePixelRatio;
+			//@line 50
+			__CLASS__HTMLWINDOW__.__data = new HTMLEvent;
+			//@line 51
+			__registerManager(__CLASS__HTMLWINDOW__, __CLASS__HTMLWINDOW__.dispatchEvent, __CLASS__HTMLWINDOW__.__data);
 			return __CLASS__HTMLWINDOW__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);

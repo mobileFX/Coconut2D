@@ -1,7 +1,8 @@
 //@compile{true}
 
-//@include{WebGLRenderingContext.jspp}
-//@include{CocoVector.jspp}
+#include "WebGLRenderingContext.jspp"
+#include "WebGLUniformLocation.jspp"
+#include "CocoVector.jspp"
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -57,13 +58,11 @@ class CocoMatrix
 		 
 	public var __stack:Array<Float>;	
 	public var __data:Float32Array;
+	public var __dirty:Boolean;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(M:CocoMatrix)
-	{           		
-		__stack = [];	
-		__data = null;
-
+	public function Constructor(optional M:CocoMatrix)
+	{
 		if(M)   
 		{
 			rc11 = M.rc11;
@@ -87,6 +86,7 @@ class CocoMatrix
 			identity();
 
 		__data = new Float32Array( [rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44 ]);
+		__dirty = false;
 	} 	
 
 	// ==================================================================================================================================
@@ -103,7 +103,8 @@ class CocoMatrix
 	    rc11 = 1; rc12 = 0; rc13 = 0; rc14 = 0;
 	    rc21 = 0; rc22 = 1; rc23 = 0; rc24 = 0;
 	    rc31 = 0; rc32 = 0; rc33 = 1; rc34 = 0;
-	    rc41 = 0; rc42 = 0; rc43 = 0; rc44 = 1;		
+	    rc41 = 0; rc42 = 0; rc43 = 0; rc44 = 1;	
+	    __dirty = true;	    
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +126,7 @@ class CocoMatrix
 		rc42 = -(top + bottom) / (top - bottom);
 		rc43 = -(far + near) / (far - near);
 		rc44 = 1.0;		
+		__dirty = true;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,6 +145,7 @@ class CocoMatrix
 	    t = rc41; rc41 = rc14; rc14 = t;
 	    t = rc42; rc42 = rc24; rc24 = t;
 	    t = rc43; rc43 = rc34; rc34 = t;	    
+	    __dirty = true;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,6 +205,8 @@ class CocoMatrix
 	    rc42 = invRC42 / D;
 	    rc43 = invRC43 / D;
 	    rc44 = invRC44 / D;
+	    
+	    __dirty = true;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -213,6 +218,35 @@ class CocoMatrix
         out.Z = (v.X * rc13) + (v.Y * rc23) + (v.Z * rc33) + (v.W * rc43);
         out.W = (v.X * rc14) + (v.Y * rc24) + (v.Z * rc34) + (v.W * rc44);
         return out;
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function multiplyByMatrix(v:CocoMatrix) :CocoMatrix
+	{
+		var out:CocoMatrix = new CocoMatrix();
+		
+		out.rc11 = (rc11 * v.rc11) + (rc21 * v.rc12) + (rc31 * v.rc13) + (rc41 * v.rc14);
+		out.rc12 = (rc12 * v.rc11) + (rc22 * v.rc12) + (rc32 * v.rc13) + (rc42 * v.rc14);
+		out.rc13 = (rc13 * v.rc11) + (rc23 * v.rc12) + (rc33 * v.rc13) + (rc43 * v.rc14);
+		out.rc14 = (rc14 * v.rc11) + (rc24 * v.rc12) + (rc34 * v.rc13) + (rc44 * v.rc14);
+		
+		out.rc21 = (rc11 * v.rc21) + (rc21 * v.rc22) + (rc31 * v.rc23) + (rc41 * v.rc24);
+		out.rc22 = (rc12 * v.rc21) + (rc22 * v.rc22) + (rc32 * v.rc23) + (rc42 * v.rc24);
+		out.rc23 = (rc13 * v.rc21) + (rc23 * v.rc22) + (rc33 * v.rc23) + (rc43 * v.rc24);
+		out.rc24 = (rc14 * v.rc21) + (rc24 * v.rc22) + (rc34 * v.rc23) + (rc44 * v.rc24);
+		
+		out.rc31 = (rc11 * v.rc31) + (rc21 * v.rc32) + (rc31 * v.rc33) + (rc41 * v.rc34);
+		out.rc32 = (rc12 * v.rc31) + (rc22 * v.rc32) + (rc32 * v.rc33) + (rc42 * v.rc34);
+		out.rc33 = (rc13 * v.rc31) + (rc23 * v.rc32) + (rc33 * v.rc33) + (rc43 * v.rc34);
+		out.rc34 = (rc14 * v.rc31) + (rc24 * v.rc32) + (rc34 * v.rc33) + (rc44 * v.rc34);
+		
+		out.rc41 = (rc11 * v.rc41) + (rc21 * v.rc42) + (rc31 * v.rc43) + (rc41 * v.rc44);
+		out.rc42 = (rc12 * v.rc41) + (rc22 * v.rc42) + (rc32 * v.rc43) + (rc42 * v.rc44);
+		out.rc43 = (rc13 * v.rc41) + (rc23 * v.rc42) + (rc33 * v.rc43) + (rc43 * v.rc44);
+		out.rc44 = (rc14 * v.rc41) + (rc24 * v.rc42) + (rc34 * v.rc43) + (rc44 * v.rc44);
+		
+		out.__dirty = true;
+		return out;
 	}
 				
 	// ==================================================================================================================================
@@ -229,6 +263,7 @@ class CocoMatrix
 		rc41 += rc11 * tx + rc21 * ty;
 		rc42 += rc12 * tx + rc22 * ty;
 		rc43 += rc13 * tx + rc23 * ty;
+		__dirty = true;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,7 +276,8 @@ class CocoMatrix
 		rc13 *= sx;
 		rc23 *= sy;		
 		rc14 *= sx;
-		rc24 *= sy;		
+		rc24 *= sy;
+		__dirty = true;		
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -271,6 +307,8 @@ class CocoMatrix
 		t1 = rc24;
 		rc14 =  t0 * c + t1 * s;
 		rc24 = -t0 * s + t1 * c;
+		
+		__dirty = true;
 	}
 
 	// ==================================================================================================================================
@@ -283,7 +321,7 @@ class CocoMatrix
 	// ==================================================================================================================================
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function update(gl:WebGLRenderingContext, ul:WebGLUniformLocation)	
+	public function refresh()
 	{
 		__data[0]  = rc11;
 		__data[1]  = rc12;
@@ -300,10 +338,18 @@ class CocoMatrix
 		__data[12] = rc41;
 		__data[13] = rc42;
 		__data[14] = rc43;
-		__data[15] = rc44;
-		
+		__data[15] = rc44; 
+		__dirty = false;
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function update(gl:WebGLRenderingContext, ul:WebGLUniformLocation)	
+	{		
 		if(gl && ul)
+		{
+			if(__dirty)	refresh();			
 			gl.uniformMatrix4fv(ul, false, __data);		
+		}
 	}	
 
 	// ==================================================================================================================================
@@ -342,12 +388,9 @@ class CocoMatrix
 			rc41 = data[12];
 			rc42 = data[13];
 			rc43 = data[14];
-			rc44 = data[15];			
+			rc44 = data[15];
+			__dirty = true;
+			delete data;
 		}
 	}
 }
-
-
-
-
-

@@ -1,6 +1,10 @@
 #ifndef __COCOENGINE_HPP__
 #define __COCOENGINE_HPP__
 
+#include "Coconut2D.hpp"
+#include "CocoEngineState.hpp"
+#include "WebGLRenderingContext.hpp"
+
 class CocoEngine
 {
 public:

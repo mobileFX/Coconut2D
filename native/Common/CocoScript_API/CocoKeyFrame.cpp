@@ -3,8 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoKeyFrame::CocoKeyFrame()
 {
+	frameIndex = 0;
 	frameInterpolation = COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 	handleEvents = false;
+	calcBoundingBox = false;
 	visible = true;
 	x = 0;
 	y = 0;
@@ -14,13 +16,14 @@ CocoKeyFrame::CocoKeyFrame()
 	pivotX = 0;
 	pivotY = 0;
 	alpha = 1;
+	action = NULL;
+	__lastActionExecutionTime = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoKeyFrame* CocoKeyFrame::clone()
 {
-	CocoKeyFrame* c;
-	c = new CocoKeyFrame();
+	CocoKeyFrame* c = new CocoKeyFrame();
 	c->alpha = alpha;
 	c->frameIndex = frameIndex;
 	c->frameInterpolation = frameInterpolation;
@@ -35,6 +38,7 @@ CocoKeyFrame* CocoKeyFrame::clone()
 	c->y = y;
 	c->action = action;
 	c->calcBoundingBox = calcBoundingBox;
+	c->__lastActionExecutionTime = __lastActionExecutionTime;
 	return c;
 }
 
@@ -47,7 +51,7 @@ void CocoKeyFrame::reset()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoKeyFrame::execute(WebGLRenderingContext* gl, float currentTime, float loopTime, CocoScene* scene, CocoClip* clip)
 {
-	if(currentTime - __lastActionExecutionTime > clip->__timeline->__singleFrameDurationTime)
+	if((currentTime == 0) || (currentTime - __lastActionExecutionTime > clip->__timeline->__singleFrameDurationTime))
 	{
 		__lastActionExecutionTime = currentTime;
 		if(action)
@@ -74,18 +78,33 @@ void CocoKeyFrame::interpolate(CocoKeyFrame* F1, CocoKeyFrame* F2, float s)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoKeyFrame::combine(CocoKeyFrame* Frame)
 {
-	if(!Frame) { return; }
+	if(!Frame)
+	{
+		return;
+	}
 	alpha = alpha * Frame->alpha;
-	visible = visible & Frame->visible;
-	handleEvents = handleEvents & Frame->handleEvents;
-	calcBoundingBox = calcBoundingBox & Frame->calcBoundingBox;
+	visible = visible && Frame->visible;
+	handleEvents = handleEvents && Frame->handleEvents;
+	calcBoundingBox = calcBoundingBox && Frame->calcBoundingBox;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoKeyFrame::apply(CocoMatrix* matrix)
 {
-	if(x != 0 || y != 0) { matrix->translate(x, y); }
-	if(rotation != 0) { matrix->rotateZ(rotation * RADIANS); }
-	if(scaleX != 1 || scaleY != 1) { matrix->scale(scaleX, scaleY); }
-	if(pivotX != 0 || pivotY != 0) { matrix->translate( -pivotX,  -pivotY); }
+	if(x != 0 || y != 0)
+	{
+		matrix->translate(x, y);
+	}
+	if(rotation != 0)
+	{
+		matrix->rotateZ(rotation * RADIANS);
+	}
+	if(scaleX != 1 || scaleY != 1)
+	{
+		matrix->scale(scaleX, scaleY);
+	}
+	if(pivotX != 0 || pivotY != 0)
+	{
+		matrix->translate(-pivotX,  -pivotY);
+	}
 }

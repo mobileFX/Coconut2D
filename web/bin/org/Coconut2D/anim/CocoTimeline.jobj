@@ -17,6 +17,7 @@ function CocoTimeline()
 		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
 		this.__SUPER__ = __SUPER__;
 		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__CLASS__ = 'CocoTimeline';
 		this.__PROTECTED__ =
 		{
 		};
@@ -299,9 +300,9 @@ function CocoTimeline()
 			//@line 284
 			F1 = __CLASS__COCOTIMELINE__.keyFrame(FrameIndex);
 			//@line 285
-			if (F1) return (__CLASS__COCOTIMELINE__.__pausedKeyFrame = F1);
+			if (F1) return (__CLASS__COCOTIMELINE__.__pausedKeyFrame = F1.clone());
 			//@line 288
-			F1 = __CLASS__COCOTIMELINE__.findKeyFrameBeforeframeIndex(FrameIndex, false);
+			F1 = __CLASS__COCOTIMELINE__.findKeyFrameBeforeframeIndex(FrameIndex, false, -1);
 			//@line 290
 			if (!F1)
 			{
@@ -351,7 +352,7 @@ function CocoTimeline()
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 					{
 						//@line 320
-						F2 = __CLASS__COCOTIMELINE__.findKeyFrameAfterframeIndex(FrameIndex, false);
+						F2 = __CLASS__COCOTIMELINE__.findKeyFrameAfterframeIndex(FrameIndex, false, -1);
 						//@line 322
 						if (!F2)
 						{
@@ -383,6 +384,8 @@ function CocoTimeline()
 					break;
 				}
 			}
+			//@line 343
+			return null;
 		};
 		//@line 41
 		this.__labels = [];

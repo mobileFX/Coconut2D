@@ -30,15 +30,11 @@ class Global : Object
 	public function alert(message:String) {}
 	public function HTMLEvent() {}
 	public function TouchList(num) {}
-	public function CallbackManager() {}
 	public function main() {}
 	public function tickAndPaint(time) {}
 	public function stopPropagation() {}
 	public function preventDefault(type, bubbles, cancelable) {}
 	public function item(index) {}
-	public function addEventListener(object, type, listener, useCapture) {}
-	public function removeEventListener(object, type, listener, useCapture) {}
-	public function dispatchEvent(uid, type) {}
 	public var __registerManager;
 	public var __registerCallback;
 	public var __unRegisterCallback;
@@ -193,7 +189,6 @@ class Global : Object
 	public var RADIANS :Number;
 	public var COCO_STOP_ON_CURRENT_FRAME :Number;
 	public var ___COCONUT_VERSION :Number;
-	public var CallbackManager :CallbackManager;
 } //Global
 
 class String : Object
@@ -252,8 +247,8 @@ class Array : Object
 
 class Function : Object
 {
-	public function apply(thisArg:String, argArray:Array) :Object {}
-	public function call(thisObject:Object, args:Array) :Object {}
+	public function apply(thisObject:Object, args:Object) :Object {}
+	public function call(thisObject:Object, args:Object) :Object {}
 	public var length :Number;
 } //Function
 
@@ -361,8 +356,8 @@ class Math : Object
 	public function exp(x:Number) :Float {}
 	public function floor(x:Number) :Integer {}
 	public function log(x:Number) :Float {}
-	public function max(args:Array) :Number {}
-	public function min(args:Array) :Number {}
+	public function max(a:Number, b:Number) :Number {}
+	public function min(a:Number, b:Number) :Number {}
 	public function pow(x:Number, y:Number) :Float {}
 	public function random() :Float {}
 	public function round(x:Number) :Number {}
@@ -466,11 +461,13 @@ class TouchList
 	public var length :Number;
 } //TouchList
 
-class CallbackManager
+class HTMLCanvasElement
 {
-	public var data :HTMLEvent;
-	public var elements;
-} //CallbackManager
+	public function getContext(contextId:String) {}
+	public function Constructor() {}
+	public var width :Integer;
+	public var height :Integer;
+} //HTMLCanvasElement
 
 class HTMLElement
 {
@@ -478,7 +475,29 @@ class HTMLElement
 	public function Constructor() {}
 } //HTMLElement
 
-class ImageData : Object
+class HTMLDocument
+{
+	public function createElement(tagName:String) {}
+	public function Constructor() {}
+	public var body :HTMLElement;
+} //HTMLDocument
+
+class HTMLWindow
+{
+	public function addEventListener(event:String, listener:Function, useCapture:Boolean) {}
+	public function removeEventListener(event:String, listener:Function, useCapture:Boolean) {}
+	public function dispatchEvent(uid:Integer, event:String) {}
+	public function Constructor() {}
+	public var __uid :Integer;
+	public var document :HTMLDocument;
+	public var innerHeight :Integer;
+	public var innerWidth :Integer;
+	public var devicePixelRatio :Integer;
+	public var __data :HTMLEvent;
+	public var __elements :Array<Function>;
+} //HTMLWindow
+
+class ImageData
 {
 	public function Constructor(a0:String, a1:String) {}
 	public var buffer :ArrayBuffer;
@@ -501,6 +520,14 @@ class Image
 	public var complete :Boolean;
 } //Image
 
+class ImageDataBuffer
+{
+	public function Constructor() {}
+	public var buffer :ArrayBuffer;
+	public var width :Integer;
+	public var height :Integer;
+} //ImageDataBuffer
+
 class WebGLActiveInfo
 {
 	public function Constructor() {}
@@ -522,21 +549,6 @@ class WebGLFramebuffer
 	public function Constructor(uid:Integer) {}
 	public var __uid :Integer;
 } //WebGLFramebuffer
-
-class WebGLProgram
-{
-	public function Constructor(uid:Integer) {}
-	public var __uid :Integer;
-	public var GLSLiTexCoords :Integer;
-	public var GLSLiVec2Coords :Integer;
-	public var GLSLiVecCoords :Integer;
-	public var GLSLuColor :WebGLUniformLocation;
-	public var GLSLuMVMat :WebGLUniformLocation;
-	public var GLSLuProjMat :WebGLUniformLocation;
-	public var GLSLuSampler :WebGLUniformLocation;
-	public var GLSLuSprFrame :WebGLUniformLocation;
-	public var GLSLuSprSize :WebGLUniformLocation;
-} //WebGLProgram
 
 class WebGLRenderbuffer
 {
@@ -567,6 +579,21 @@ class WebGLUniformLocation
 	public function Constructor(uid:Integer) {}
 	public var __uid :Integer;
 } //WebGLUniformLocation
+
+class WebGLProgram
+{
+	public function Constructor(uid:Integer) {}
+	public var __uid :Integer;
+	public var GLSLiTexCoords :Integer;
+	public var GLSLiVec2Coords :Integer;
+	public var GLSLiVecCoords :Integer;
+	public var GLSLuColor :WebGLUniformLocation;
+	public var GLSLuMVMat :WebGLUniformLocation;
+	public var GLSLuProjMat :WebGLUniformLocation;
+	public var GLSLuSampler :WebGLUniformLocation;
+	public var GLSLuSprFrame :WebGLUniformLocation;
+	public var GLSLuSprSize :WebGLUniformLocation;
+} //WebGLProgram
 
 class WebGLRenderingContext
 {
@@ -1087,9 +1114,11 @@ class CocoMatrix
 	public function determinant() :Float {}
 	public function invert() {}
 	public function multiplyByVector(v:CocoVector) :CocoVector {}
+	public function multiplyByMatrix(v:CocoMatrix) :CocoMatrix {}
 	public function translate(tx:Float, ty:Float) {}
 	public function scale(sx:Float, sy:Float) {}
 	public function rotateZ(rz:Float) {}
+	public function refresh() {}
 	public function update(gl:WebGLRenderingContext, ul:WebGLUniformLocation) {}
 	public function push() {}
 	public function pop() {}
@@ -1112,6 +1141,7 @@ class CocoMatrix
 	public var rc44 :Float;
 	public var __stack :Array<Float>;
 	public var __data :Float32Array;
+	public var __dirty :Boolean;
 } //CocoMatrix
 
 class CocoKeyFrame
@@ -1301,41 +1331,6 @@ class CocoTiledLayer : CocoClip
 {
 	public function Constructor() {}
 } //CocoTiledLayer
-
-class HTMLCanvasElement
-{
-	public function getContext(contextId:String) {}
-	public function Constructor() {}
-	public var width :Integer;
-	public var height :Integer;
-} //HTMLCanvasElement
-
-class HTMLDocument
-{
-	public function createElement(tagName:String) {}
-	public function Constructor() {}
-	public var body :HTMLElement;
-} //HTMLDocument
-
-class HTMLWindow
-{
-	public function addEventListener(type:String, listener:Function, useCapture:Boolean) {}
-	public function removeEventListener(type:String, listener:Function, useCapture:Boolean) {}
-	public function Constructor() {}
-	public var __uid :Integer;
-	public var document :HTMLDocument;
-	public var innerHeight :Integer;
-	public var innerWidth :Integer;
-	public var devicePixelRatio :Integer;
-} //HTMLWindow
-
-class ImageDataBuffer
-{
-	public function Constructor() {}
-	public var buffer :ArrayBuffer;
-	public var width :Integer;
-	public var height :Integer;
-} //ImageDataBuffer
 
 class UIView : CocoClip
 {

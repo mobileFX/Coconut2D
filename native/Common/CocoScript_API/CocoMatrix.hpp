@@ -1,6 +1,12 @@
 #ifndef __COCOMATRIX_HPP__
 #define __COCOMATRIX_HPP__
 
+#include "Coconut2D.hpp"
+#include "CocoVector.hpp"
+#include "CocoMatrix.hpp"
+#include "WebGLRenderingContext.hpp"
+#include "WebGLUniformLocation.hpp"
+
 class CocoMatrix
 {
 public:
@@ -20,19 +26,22 @@ public:
 	float rc42;
 	float rc43;
 	float rc44;
-	Array<Float32Array*> __stack = {};
-	Float32Array* __data = NULL;
-	CocoMatrix(CocoMatrix* M);
+	Array<float> __stack;
+	Float32Array* __data;
+	bool __dirty;
+	CocoMatrix(CocoMatrix* M = NULL);
 	void identity();
 	void ortho(float left, float right, float bottom, float top, float near, float far);
 	void transpose();
 	float determinant();
 	void invert();
 	CocoVector* multiplyByVector(CocoVector* v);
+	CocoMatrix* multiplyByMatrix(CocoMatrix* v);
 	void translate(float tx, float ty);
 	void scale(float sx, float sy);
 	void rotateZ(float rz);
-	void update(WebGLRenderingContext* gl, undefined ul);
+	void refresh();
+	void update(WebGLRenderingContext* gl, WebGLUniformLocation* ul);
 	void push();
 	void pop();
 };

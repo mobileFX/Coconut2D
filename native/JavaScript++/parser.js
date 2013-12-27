@@ -67,13 +67,21 @@ function __isPointer(vartype)
 	case "String": 
 	case "Integer":
 	case "Float":
-	case "void":	
+	case "void":
+	case "undefined":
+	case "null":	
 		return false;
 	default:
 		if(vartype.indexOf("_ENUM")!=-1) return false;
 		if(vartype.indexOf("<")!=-1) return false;
 		return true; 
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function __isVector(vartype)
+{
+	return vartype && vartype.indexOf("<")!=-1 ? true : false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +116,7 @@ function __init_narcissus(GLOBAL)
         "[", "]",
         "{", "}",
         "(", ")",
-        "**",
+        "**",               
 
         // Nonterminal tree node type codes.
 		"SCRIPT", 
@@ -127,7 +135,7 @@ function __init_narcissus(GLOBAL)
 		"LIST", 
 		"FOR_INSIDE", 
 		"ARRAY_COMP",
-
+		                      
         // Terminals.
         "IDENTIFIER",
         "NUMBER",
@@ -135,6 +143,7 @@ function __init_narcissus(GLOBAL)
         "REGEXP",
 
         // Keywords.
+		"#include", 
 		"break",
 		"case", 
 		"catch", 
@@ -159,6 +168,7 @@ function __init_narcissus(GLOBAL)
 		"namespace", 
 		"new",
 		"null",
+		"optional",
 		"private",		
 		"protected",
 		"public",
@@ -172,7 +182,8 @@ function __init_narcissus(GLOBAL)
 		"try",
 		"typeof",         
 		"var",
-		"void",
+		"virtual",
+		"void", 
 		"while", 
 		"with"
 	];  
@@ -223,7 +234,7 @@ function __init_narcissus(GLOBAL)
         ['}', "RIGHT_CURLY"],
         ['(', "LEFT_PAREN"],
         [')', "RIGHT_PAREN"],
-        ['#typesys', "TYPESYS"]
+        ['#include', "INCLUDE"]
 	]; 
 	
 	var opTypeNames = jsdef.opTypeNames = (function ()
@@ -470,7 +481,7 @@ function __init_narcissus(GLOBAL)
 					this.__file = v[v.length-1]; 
 					this.__fileLineOffset = this.line_start;					
 					this.__filePosOffset = this.cursor + token.value.length + 4;
-					if(narcissus.__messages) trace("Parsing file: " + this.__path);
+					if(narcissus.__messages) trace("Parsing file: " + this.__path);					
 				}  
 				///////////////////////////////////////////////////////////////////					
 			}
@@ -532,7 +543,7 @@ function __init_narcissus(GLOBAL)
 		
 		newSyntaxError: function(m)
 		{
-			var f = this.__file; 
+			var f = this.__path; 
 			var l = (this.line_start - this.__fileLineOffset);
 			var e = new SyntaxError(m + ', filename:' + f + ', line:' + l);
 			e.cursor = this.cursor;
@@ -708,7 +719,7 @@ function __init_narcissus(GLOBAL)
 		// avoiding the common semicolon insertion magic after this switch.
 		
 		switch(tt)
-		{			
+		{
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.FUNCTION:
 			return FunctionDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
@@ -958,7 +969,13 @@ function __init_narcissus(GLOBAL)
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DEBUGGER:
 			n = new Node(t);
-			break;
+			break;  
+			
+		case jsdef.INCLUDE:			
+			n = new Node(t);
+			t.mustMatch(jsdef.STRING);
+			n.include = t.token().value;
+			return n;
 		
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NEWLINE:
@@ -1031,7 +1048,7 @@ function __init_narcissus(GLOBAL)
 	// ==================================================================================================================================		
 
 	function ClassDefinition(t, x, requireName, classForm)
-	{
+	{                       
 		var f = new Node(t);
 		f.scopeId = t.ScopeId();
 		if(f.type != jsdef.CLASS)
@@ -1040,6 +1057,7 @@ function __init_narcissus(GLOBAL)
 			f.name = t.token().value;
 		else if(requireName)
 			throw t.newSyntaxError(jsparse.MISSING_FUNCTION_IDENTIFIER);
+			
 		if(t.match(jsdef.COLON))
 		{
 			t.mustMatch(jsdef.IDENTIFIER);
@@ -1057,11 +1075,13 @@ function __init_narcissus(GLOBAL)
 		f.private = t.private;
 		f.public = t.public;
 		f.protected = t.protected;
+		f.virtual = t.virtual;	
 		//Set all access modifiers to false so the class body is unaffected
 		t.static = false;
 		t.private = false;
 		t.public = false;
 		t.protected = false;
+		t.virtual = false;
 		t.mustMatch(jsdef.LEFT_CURLY);
 		var x2 = new CompilerContext(true);
 		f.body = (function (t, x)
@@ -1074,14 +1094,16 @@ function __init_narcissus(GLOBAL)
 				t.private = false;
 				t.public = false;
 				t.protected = false;
+				t.virtual = false;
 				if(t.token().type == jsdef.PRIVATE)
 				{
 					t.private = true;
 					
-					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VIRTUAL && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
 						
-					if(t.match(jsdef.STATIC)) t.static = true;
+					if(t.match(jsdef.STATIC)) t.static = true;					
+					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
 					
 					if(t.match(jsdef.CONST))
 					{
@@ -1104,10 +1126,11 @@ function __init_narcissus(GLOBAL)
 				{
 					t.public = true;
 					
-					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VIRTUAL && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
 						
-					if(t.match(jsdef.STATIC)) t.static = true; 
+					if(t.match(jsdef.STATIC)) t.static = true; 					
+					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
 					
 					if(t.match(jsdef.CONST))
 					{
@@ -1130,10 +1153,11 @@ function __init_narcissus(GLOBAL)
 				{
 					t.protected = true;
 					
-					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VIRTUAL && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
 						
 					if(t.match(jsdef.STATIC)) t.static = true;
+					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
 
 					if(t.match(jsdef.CONST))
 					{
@@ -1154,7 +1178,9 @@ function __init_narcissus(GLOBAL)
 				}
 				else if(t.token().type == jsdef.STATIC)
 				{
+					t.protected = true;
 					t.static = true;
+					
 					if((peek = t.peek()) != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
 					
@@ -1220,10 +1246,13 @@ function __init_narcissus(GLOBAL)
 	function FunctionDefinition(t, x, requireName, functionForm)
 	{
 		var f = new Node(t);
+		
 		if(f.type != jsdef.FUNCTION)
 			f.type = (f.value == "get") ? jsdef.GETTER : jsdef.SETTER;
+			
 		if(t.match(jsdef.IDENTIFIER))
 			f.name = t.token().value;
+			
 		else if(requireName)
 			throw t.newSyntaxError(jsparse.MISSING_FUNCTION_IDENTIFIER);
 			
@@ -1243,11 +1272,18 @@ function __init_narcissus(GLOBAL)
 		{
 			var tt, restParam = false;
 			tt = t.get();
-			do {
+			do 
+			{
+				var _optional = false;
 				if(tt == jsdef.RANGE)
 				{
 					t.get();
 					restParam = true;
+				}
+				else if(tt == jsdef.OPTIONAL)
+				{
+					_optional = true;
+					tt = t.get();
 				}
 				else if(tt != jsdef.IDENTIFIER)
 				{
@@ -1255,6 +1291,7 @@ function __init_narcissus(GLOBAL)
 				}
 				n2 = new Node(t);
 				n2.name = n2.value;
+				n2.optional = _optional;
 				n2.scopeId = t.ScopeId();
 				if(t.match(jsdef.COLON))
 				{
@@ -1283,8 +1320,12 @@ function __init_narcissus(GLOBAL)
 						t.mustMatch(jsdef.RANGE);
 						restParam = true;
 					}
-					else if(t.peek() != jsdef.IDENTIFIER)
-						throw t.newSyntaxError("Missing formal parameter");
+					else 
+					{
+						var p = t.peek();
+						if(p!=jsdef.IDENTIFIER && p!=jsdef.OPTIONAL)
+							throw t.newSyntaxError("Missing formal parameter");
+					}
 				}
 			}
 			while ((tt = t.get()) != jsdef.RIGHT_PAREN);
@@ -1299,11 +1340,13 @@ function __init_narcissus(GLOBAL)
 		f.private = t.private;
 		f.public = t.public;
 		f.protected = t.protected;
+		f.virtual = t.virtual;
 		//Set all access modifiers to false so the function body is unaffected
 		t.static = false;
 		t.private = false;
 		t.public = false;
 		t.protected = false;
+		t.virtual = false;
 		var x2;
 		if(t.match(jsdef.LEFT_CURLY))
 		{
@@ -1434,6 +1477,7 @@ function __init_narcissus(GLOBAL)
 				n.private = t.private;
 				n.protected = t.protected;
 				n.static = t.static;
+				n.virtual = t.virtual;				
 				t.mustMatch(jsdef.IDENTIFIER);
 				var n2 = new Node(t), vartype = "";
 				n2.name = n2.value;
@@ -1640,7 +1684,7 @@ function __init_narcissus(GLOBAL)
 	{
 		SEMICOLON: 0,
 		COMMA: 1,
-		TYPESYS: 1,
+		INCLUDE: 1,
 		ASSIGN: 2,
 		HOOK: 2,
 		COLON: 2,
@@ -1729,7 +1773,8 @@ function __init_narcissus(GLOBAL)
 		DELETE: 1,
 		VOID: 1,
 		TYPEOF: 1,
-		TYPESYS: 1, // PRE_INCREMENT: 1, PRE_DECREMENT: 1,
+		INCLUDE: 1,
+		// PRE_INCREMENT: 1, PRE_DECREMENT: 1,
 		NOT: 1,
 		BITWISE_NOT: 1,
 		UNARY_PLUS: 1,
@@ -1909,6 +1954,7 @@ function __init_narcissus(GLOBAL)
 				operators.push(n);
 				break;
 
+			case jsdef.INCLUDE:
 			case jsdef.DELETE:
 			case jsdef.VOID:
 			case jsdef.TYPEOF:
@@ -1917,7 +1963,7 @@ function __init_narcissus(GLOBAL)
 			case jsdef.UNARY_PLUS:
 			case jsdef.UNARY_MINUS:
 			case jsdef.REGEXP_MATCH:
-			case jsdef.UNARY_EXISTS:
+			case jsdef.UNARY_EXISTS:			
 				if(!t.scanOperand)
 					break loop;
 				operators.push(new Node(t));
@@ -1932,8 +1978,7 @@ function __init_narcissus(GLOBAL)
 				else
 				{
 					// Don't cross a line boundary for postfix {in,de}crement.
-					if(t.tokens[(t.tokenIndex + t.lookahead - 1) & 3].line_start !=
-						t.line_start)
+					if(t.tokens[(t.tokenIndex + t.lookahead - 1) & 3].line_start !=t.line_start)
 					{
 						break loop;
 					}
@@ -2270,6 +2315,14 @@ function __init_narcissus(GLOBAL)
 	
 }
 __init_narcissus(this);
+
+
+
+
+
+
+
+
 
 
 

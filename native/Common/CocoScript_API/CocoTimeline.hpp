@@ -1,6 +1,10 @@
 #ifndef __COCOTIMELINE_HPP__
 #define __COCOTIMELINE_HPP__
 
+#include "Coconut2D.hpp"
+#include "CocoTimeLabel.hpp"
+#include "CocoKeyFrame.hpp"
+
 class CocoTimeline
 {
 public:

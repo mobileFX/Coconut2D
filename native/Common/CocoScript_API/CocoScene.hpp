@@ -1,12 +1,22 @@
 #ifndef __COCOSCENE_HPP__
 #define __COCOSCENE_HPP__
 
+#include "Coconut2D.hpp"
+#include "CocoImage.hpp"
+#include "CocoSound.hpp"
+#include "WebGLRenderingContext.hpp"
+#include "WebGLProgram.hpp"
+#include "CocoClip.hpp"
+#include "CocoMatrix.hpp"
+#include "WebGLBuffer.hpp"
+
 class CocoScene
 {
 public:
 	std::string __sceneName;
 	Array<CocoImage*> __imageSymbols;
 	Array<CocoSound*> __soundSymbols;
+	Array<CocoClip*> __clipSymbols;
 	float __view_width;
 	float __view_height;
 	float __view_pixel_ratio;
@@ -32,13 +42,16 @@ public:
 	CocoImage* newResourceImage(std::string symbolName, std::string baseUrl);
 	CocoSound* newResourceSound(std::string symbolName, std::string filename);
 	void prepare(WebGLRenderingContext* gl);
+	WebGLProgram* makeProgram(WebGLRenderingContext* gl, std::string vs, std::string fs);
 	void loadResources();
 	bool resourcesLoaded(WebGLRenderingContext* gl);
 	void tick(WebGLRenderingContext* gl, float time);
 	void drawFrame(WebGLRenderingContext* gl, CocoImage* image, float frame, float alpha);
-	bool gotoAndPlay(Object* LabelNameOrFrameIndex, bool deep);
-	bool gotoAndStop(Object* LabelNameOrFrameIndex, bool deep);
-	bool stop(bool deep);
+	void gotoAndPlayByName(std::string LabelName, bool deep = false);
+	void gotoAndStopByName(std::string LabelName, bool deep = false);
+	void gotoAndPlayByIndex(int FrameIndex, bool deep = false);
+	void gotoAndStopyByIndex(int FrameIndex, bool deep = false);
+	void stop(bool deep = false);
 };
 
 #endif

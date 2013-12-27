@@ -1,6 +1,8 @@
 #ifndef __COCOVECTOR_HPP__
 #define __COCOVECTOR_HPP__
 
+#include "Coconut2D.hpp"
+
 class CocoVector
 {
 public:

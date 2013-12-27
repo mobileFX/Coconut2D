@@ -1,8 +1,8 @@
 //@compile{true}
 
-//@include{Constants.js}
-//@include{HTMLEvents.js}
-//@include{HTMLDocument.jspp}
+#include "Constants.js"
+#include "HTMLEvents.js"
+#include "HTMLDocument.jspp"
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -27,7 +27,7 @@
  * THE SOFTWARE.   
  *
  * ***** END LICENSE BLOCK ***** */
-
+ 
 class HTMLWindow
 {
 	public var __uid:Integer;
@@ -35,7 +35,11 @@ class HTMLWindow
 	public var innerHeight:Integer;
 	public var innerWidth:Integer;
 	public var devicePixelRatio:Integer;
+	
+	public var __data:HTMLEvent;
+	public var __elements:Array<Function>;	
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
 		this.__uid = 0;
@@ -43,22 +47,29 @@ class HTMLWindow
 		this.innerHeight = global.innerHeight;
 		this.innerWidth = global.innerWidth;
 		this.devicePixelRatio = global.devicePixelRatio;
+		this.__data = new HTMLEvent();
+		__registerManager(this, this.dispatchEvent, this.__data);
 	}
 
-	public function addEventListener(type:String, listener:Function, useCapture:Boolean)
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addEventListener(event:String, listener:Function, useCapture:Boolean)
 	{
-		return CallbackManager.addEventListener(this, type, listener, useCapture);
+		__registerCallback(__uid, event);			
+		__elements[event] = listener;		
 	}
 	
-	public function removeEventListener(type:String, listener:Function, useCapture:Boolean)
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function removeEventListener(event:String, listener:Function, useCapture:Boolean)
 	{
-		return CallbackManager.removeEventListener(this, type, listener, useCapture);
+		__elements[event] = null;
+		__unRegisterCallback(__uid, event);		
+	} 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function dispatchEvent(uid:Integer, event:String)
+	{
+		var callback:Function = __elements[event];
+		if(callback) callback.apply(this, this.__data);  
 	}
 }
-
-
-
-
-
-
 

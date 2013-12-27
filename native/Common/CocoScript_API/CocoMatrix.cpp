@@ -22,8 +22,12 @@ CocoMatrix::CocoMatrix(CocoMatrix* M)
 		rc43 = M->rc43;
 		rc44 = M->rc44;
 	}
-	else { identity(); }
+	else
+	{
+		identity();
+	}
 	__data = new Float32Array({rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44});
+	__dirty = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +49,7 @@ void CocoMatrix::identity()
 	rc42 = 0;
 	rc43 = 0;
 	rc44 = 1;
+	__dirty = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,12 +71,13 @@ void CocoMatrix::ortho(float left, float right, float bottom, float top, float n
 	rc42 = -(top + bottom) / (top - bottom);
 	rc43 = -(far + near) / (far - near);
 	rc44 = 1;
+	__dirty = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoMatrix::transpose()
 {
-	float t;
+	float t = 0.0;
 	t = rc12;
 	rc12 = rc21;
 	rc21 = t;
@@ -108,12 +114,13 @@ void CocoMatrix::transpose()
 	t = rc43;
 	rc43 = rc34;
 	rc34 = t;
+	__dirty = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 float CocoMatrix::determinant()
 {
-	D = (rc14 * rc23 * rc32 * rc41) - (rc13 * rc24 * rc32 * rc41) - (rc14 * rc22 * rc33 * rc41) + (rc12 * rc24 * rc33 * rc41) + (rc13 * rc22 * rc34 * rc41) - (rc12 * rc23 * rc34 * rc41) - (rc14 * rc23 * rc31 * rc42) + (rc13 * rc24 * rc31 * rc42) + (rc14 * rc21 * rc33 * rc42) - (rc11 * rc24 * rc33 * rc42) - (rc13 * rc21 * rc34 * rc42) + (rc11 * rc23 * rc34 * rc42) + (rc14 * rc22 * rc31 * rc43) - (rc12 * rc24 * rc31 * rc43) - (rc14 * rc21 * rc32 * rc43) + (rc11 * rc24 * rc32 * rc43) + (rc12 * rc21 * rc34 * rc43) - (rc11 * rc22 * rc34 * rc43) - (rc13 * rc22 * rc31 * rc44) + (rc12 * rc23 * rc31 * rc44) + (rc13 * rc21 * rc32 * rc44) - (rc11 * rc23 * rc32 * rc44) - (rc12 * rc21 * rc33 * rc44) + (rc11 * rc22 * rc33 * rc44);
+	float D = (rc14 * rc23 * rc32 * rc41) - (rc13 * rc24 * rc32 * rc41) - (rc14 * rc22 * rc33 * rc41) + (rc12 * rc24 * rc33 * rc41) + (rc13 * rc22 * rc34 * rc41) - (rc12 * rc23 * rc34 * rc41) - (rc14 * rc23 * rc31 * rc42) + (rc13 * rc24 * rc31 * rc42) + (rc14 * rc21 * rc33 * rc42) - (rc11 * rc24 * rc33 * rc42) - (rc13 * rc21 * rc34 * rc42) + (rc11 * rc23 * rc34 * rc42) + (rc14 * rc22 * rc31 * rc43) - (rc12 * rc24 * rc31 * rc43) - (rc14 * rc21 * rc32 * rc43) + (rc11 * rc24 * rc32 * rc43) + (rc12 * rc21 * rc34 * rc43) - (rc11 * rc22 * rc34 * rc43) - (rc13 * rc22 * rc31 * rc44) + (rc12 * rc23 * rc31 * rc44) + (rc13 * rc21 * rc32 * rc44) - (rc11 * rc23 * rc32 * rc44) - (rc12 * rc21 * rc33 * rc44) + (rc11 * rc22 * rc33 * rc44);
 	return D;
 }
 
@@ -121,23 +128,26 @@ float CocoMatrix::determinant()
 void CocoMatrix::invert()
 {
 	float D = determinant();
-	if(D == 0) { return; }
-	invRC11 = (rc23 * rc34 * rc42) - (rc24 * rc33 * rc42) + (rc24 * rc32 * rc43) - (rc22 * rc34 * rc43) - (rc23 * rc32 * rc44) + (rc22 * rc33 * rc44);
-	invRC12 = (rc14 * rc33 * rc42) - (rc13 * rc34 * rc42) - (rc14 * rc32 * rc43) + (rc12 * rc34 * rc43) + (rc13 * rc32 * rc44) - (rc12 * rc33 * rc44);
-	invRC13 = (rc13 * rc24 * rc42) - (rc14 * rc23 * rc42) + (rc14 * rc22 * rc43) - (rc12 * rc24 * rc43) - (rc13 * rc22 * rc44) + (rc12 * rc23 * rc44);
-	invRC14 = (rc14 * rc23 * rc32) - (rc13 * rc24 * rc32) - (rc14 * rc22 * rc33) + (rc12 * rc24 * rc33) + (rc13 * rc22 * rc34) - (rc12 * rc23 * rc34);
-	invRC21 = (rc24 * rc33 * rc41) - (rc23 * rc34 * rc41) - (rc24 * rc31 * rc43) + (rc21 * rc34 * rc43) + (rc23 * rc31 * rc44) - (rc21 * rc33 * rc44);
-	invRC22 = (rc13 * rc34 * rc41) - (rc14 * rc33 * rc41) + (rc14 * rc31 * rc43) - (rc11 * rc34 * rc43) - (rc13 * rc31 * rc44) + (rc11 * rc33 * rc44);
-	invRC23 = (rc14 * rc23 * rc41) - (rc13 * rc24 * rc41) - (rc14 * rc21 * rc43) + (rc11 * rc24 * rc43) + (rc13 * rc21 * rc44) - (rc11 * rc23 * rc44);
-	invRC24 = (rc13 * rc24 * rc31) - (rc14 * rc23 * rc31) + (rc14 * rc21 * rc33) - (rc11 * rc24 * rc33) - (rc13 * rc21 * rc34) + (rc11 * rc23 * rc34);
-	invRC31 = (rc22 * rc34 * rc41) - (rc24 * rc32 * rc41) + (rc24 * rc31 * rc42) - (rc21 * rc34 * rc42) - (rc22 * rc31 * rc44) + (rc21 * rc32 * rc44);
-	invRC32 = (rc14 * rc32 * rc41) - (rc12 * rc34 * rc41) - (rc14 * rc31 * rc42) + (rc11 * rc34 * rc42) + (rc12 * rc31 * rc44) - (rc11 * rc32 * rc44);
-	invRC33 = (rc12 * rc24 * rc41) - (rc14 * rc22 * rc41) + (rc14 * rc21 * rc42) - (rc11 * rc24 * rc42) - (rc12 * rc21 * rc44) + (rc11 * rc22 * rc44);
-	invRC34 = (rc14 * rc22 * rc31) - (rc12 * rc24 * rc31) - (rc14 * rc21 * rc32) + (rc11 * rc24 * rc32) + (rc12 * rc21 * rc34) - (rc11 * rc22 * rc34);
-	invRC41 = (rc23 * rc32 * rc41) - (rc22 * rc33 * rc41) - (rc23 * rc31 * rc42) + (rc21 * rc33 * rc42) + (rc22 * rc31 * rc43) - (rc21 * rc32 * rc43);
-	invRC42 = (rc12 * rc33 * rc41) - (rc13 * rc32 * rc41) + (rc13 * rc31 * rc42) - (rc11 * rc33 * rc42) - (rc12 * rc31 * rc43) + (rc11 * rc32 * rc43);
-	invRC43 = (rc13 * rc22 * rc41) - (rc12 * rc23 * rc41) - (rc13 * rc21 * rc42) + (rc11 * rc23 * rc42) + (rc12 * rc21 * rc43) - (rc11 * rc22 * rc43);
-	invRC44 = (rc12 * rc23 * rc31) - (rc13 * rc22 * rc31) + (rc13 * rc21 * rc32) - (rc11 * rc23 * rc32) - (rc12 * rc21 * rc33) + (rc11 * rc22 * rc33);
+	if(D == 0)
+	{
+		return;
+	}
+	float invRC11 = (rc23 * rc34 * rc42) - (rc24 * rc33 * rc42) + (rc24 * rc32 * rc43) - (rc22 * rc34 * rc43) - (rc23 * rc32 * rc44) + (rc22 * rc33 * rc44);
+	float invRC12 = (rc14 * rc33 * rc42) - (rc13 * rc34 * rc42) - (rc14 * rc32 * rc43) + (rc12 * rc34 * rc43) + (rc13 * rc32 * rc44) - (rc12 * rc33 * rc44);
+	float invRC13 = (rc13 * rc24 * rc42) - (rc14 * rc23 * rc42) + (rc14 * rc22 * rc43) - (rc12 * rc24 * rc43) - (rc13 * rc22 * rc44) + (rc12 * rc23 * rc44);
+	float invRC14 = (rc14 * rc23 * rc32) - (rc13 * rc24 * rc32) - (rc14 * rc22 * rc33) + (rc12 * rc24 * rc33) + (rc13 * rc22 * rc34) - (rc12 * rc23 * rc34);
+	float invRC21 = (rc24 * rc33 * rc41) - (rc23 * rc34 * rc41) - (rc24 * rc31 * rc43) + (rc21 * rc34 * rc43) + (rc23 * rc31 * rc44) - (rc21 * rc33 * rc44);
+	float invRC22 = (rc13 * rc34 * rc41) - (rc14 * rc33 * rc41) + (rc14 * rc31 * rc43) - (rc11 * rc34 * rc43) - (rc13 * rc31 * rc44) + (rc11 * rc33 * rc44);
+	float invRC23 = (rc14 * rc23 * rc41) - (rc13 * rc24 * rc41) - (rc14 * rc21 * rc43) + (rc11 * rc24 * rc43) + (rc13 * rc21 * rc44) - (rc11 * rc23 * rc44);
+	float invRC24 = (rc13 * rc24 * rc31) - (rc14 * rc23 * rc31) + (rc14 * rc21 * rc33) - (rc11 * rc24 * rc33) - (rc13 * rc21 * rc34) + (rc11 * rc23 * rc34);
+	float invRC31 = (rc22 * rc34 * rc41) - (rc24 * rc32 * rc41) + (rc24 * rc31 * rc42) - (rc21 * rc34 * rc42) - (rc22 * rc31 * rc44) + (rc21 * rc32 * rc44);
+	float invRC32 = (rc14 * rc32 * rc41) - (rc12 * rc34 * rc41) - (rc14 * rc31 * rc42) + (rc11 * rc34 * rc42) + (rc12 * rc31 * rc44) - (rc11 * rc32 * rc44);
+	float invRC33 = (rc12 * rc24 * rc41) - (rc14 * rc22 * rc41) + (rc14 * rc21 * rc42) - (rc11 * rc24 * rc42) - (rc12 * rc21 * rc44) + (rc11 * rc22 * rc44);
+	float invRC34 = (rc14 * rc22 * rc31) - (rc12 * rc24 * rc31) - (rc14 * rc21 * rc32) + (rc11 * rc24 * rc32) + (rc12 * rc21 * rc34) - (rc11 * rc22 * rc34);
+	float invRC41 = (rc23 * rc32 * rc41) - (rc22 * rc33 * rc41) - (rc23 * rc31 * rc42) + (rc21 * rc33 * rc42) + (rc22 * rc31 * rc43) - (rc21 * rc32 * rc43);
+	float invRC42 = (rc12 * rc33 * rc41) - (rc13 * rc32 * rc41) + (rc13 * rc31 * rc42) - (rc11 * rc33 * rc42) - (rc12 * rc31 * rc43) + (rc11 * rc32 * rc43);
+	float invRC43 = (rc13 * rc22 * rc41) - (rc12 * rc23 * rc41) - (rc13 * rc21 * rc42) + (rc11 * rc23 * rc42) + (rc12 * rc21 * rc43) - (rc11 * rc22 * rc43);
+	float invRC44 = (rc12 * rc23 * rc31) - (rc13 * rc22 * rc31) + (rc13 * rc21 * rc32) - (rc11 * rc23 * rc32) - (rc12 * rc21 * rc33) + (rc11 * rc22 * rc33);
 	rc11 = invRC11 / D;
 	rc12 = invRC12 / D;
 	rc13 = invRC13 / D;
@@ -154,6 +164,7 @@ void CocoMatrix::invert()
 	rc42 = invRC42 / D;
 	rc43 = invRC43 / D;
 	rc44 = invRC44 / D;
+	__dirty = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,11 +179,36 @@ CocoVector* CocoMatrix::multiplyByVector(CocoVector* v)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+CocoMatrix* CocoMatrix::multiplyByMatrix(CocoMatrix* v)
+{
+	CocoMatrix* out = new CocoMatrix();
+	out->rc11 = (rc11 * v->rc11) + (rc21 * v->rc12) + (rc31 * v->rc13) + (rc41 * v->rc14);
+	out->rc12 = (rc12 * v->rc11) + (rc22 * v->rc12) + (rc32 * v->rc13) + (rc42 * v->rc14);
+	out->rc13 = (rc13 * v->rc11) + (rc23 * v->rc12) + (rc33 * v->rc13) + (rc43 * v->rc14);
+	out->rc14 = (rc14 * v->rc11) + (rc24 * v->rc12) + (rc34 * v->rc13) + (rc44 * v->rc14);
+	out->rc21 = (rc11 * v->rc21) + (rc21 * v->rc22) + (rc31 * v->rc23) + (rc41 * v->rc24);
+	out->rc22 = (rc12 * v->rc21) + (rc22 * v->rc22) + (rc32 * v->rc23) + (rc42 * v->rc24);
+	out->rc23 = (rc13 * v->rc21) + (rc23 * v->rc22) + (rc33 * v->rc23) + (rc43 * v->rc24);
+	out->rc24 = (rc14 * v->rc21) + (rc24 * v->rc22) + (rc34 * v->rc23) + (rc44 * v->rc24);
+	out->rc31 = (rc11 * v->rc31) + (rc21 * v->rc32) + (rc31 * v->rc33) + (rc41 * v->rc34);
+	out->rc32 = (rc12 * v->rc31) + (rc22 * v->rc32) + (rc32 * v->rc33) + (rc42 * v->rc34);
+	out->rc33 = (rc13 * v->rc31) + (rc23 * v->rc32) + (rc33 * v->rc33) + (rc43 * v->rc34);
+	out->rc34 = (rc14 * v->rc31) + (rc24 * v->rc32) + (rc34 * v->rc33) + (rc44 * v->rc34);
+	out->rc41 = (rc11 * v->rc41) + (rc21 * v->rc42) + (rc31 * v->rc43) + (rc41 * v->rc44);
+	out->rc42 = (rc12 * v->rc41) + (rc22 * v->rc42) + (rc32 * v->rc43) + (rc42 * v->rc44);
+	out->rc43 = (rc13 * v->rc41) + (rc23 * v->rc42) + (rc33 * v->rc43) + (rc43 * v->rc44);
+	out->rc44 = (rc14 * v->rc41) + (rc24 * v->rc42) + (rc34 * v->rc43) + (rc44 * v->rc44);
+	out->__dirty = true;
+	return out;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoMatrix::translate(float tx, float ty)
 {
 	rc41 += rc11 * tx + rc21 * ty;
 	rc42 += rc12 * tx + rc22 * ty;
 	rc43 += rc13 * tx + rc23 * ty;
+	__dirty = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,14 +222,15 @@ void CocoMatrix::scale(float sx, float sy)
 	rc23 *= sy;
 	rc14 *= sx;
 	rc24 *= sy;
+	__dirty = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoMatrix::rotateZ(float rz)
 {
-	float c = Math.cos(rz);
-	float s = Math.sin(rz);
-	float t0, t1;
+	float c = std::cosf(rz);
+	float s = std::sinf(rz);
+	float t0 = 0.0,  t1 = 0.0;
 	t0 = rc11;
 	t1 = rc21;
 	rc11 = t0 * c + t1 * s;
@@ -210,28 +247,42 @@ void CocoMatrix::rotateZ(float rz)
 	t1 = rc24;
 	rc14 = t0 * c + t1 * s;
 	rc24 = -t0 * s + t1 * c;
+	__dirty = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoMatrix::update(WebGLRenderingContext* gl, undefined ul)
+void CocoMatrix::refresh()
 {
-	__data[0] = rc11;
-	__data[1] = rc12;
-	__data[2] = rc13;
-	__data[3] = rc14;
-	__data[4] = rc21;
-	__data[5] = rc22;
-	__data[6] = rc23;
-	__data[7] = rc24;
-	__data[8] = rc31;
-	__data[9] = rc32;
-	__data[10] = rc33;
-	__data[11] = rc34;
-	__data[12] = rc41;
-	__data[13] = rc42;
-	__data[14] = rc43;
-	__data[15] = rc44;
-	if(gl && ul) { gl->uniformMatrix4fv(ul, false, __data); }
+	(*__data)[0] = rc11;
+	(*__data)[1] = rc12;
+	(*__data)[2] = rc13;
+	(*__data)[3] = rc14;
+	(*__data)[4] = rc21;
+	(*__data)[5] = rc22;
+	(*__data)[6] = rc23;
+	(*__data)[7] = rc24;
+	(*__data)[8] = rc31;
+	(*__data)[9] = rc32;
+	(*__data)[10] = rc33;
+	(*__data)[11] = rc34;
+	(*__data)[12] = rc41;
+	(*__data)[13] = rc42;
+	(*__data)[14] = rc43;
+	(*__data)[15] = rc44;
+	__dirty = false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoMatrix::update(WebGLRenderingContext* gl, WebGLUniformLocation* ul)
+{
+	if(gl && ul)
+	{
+		if(__dirty)
+		{
+			refresh();
+		}
+		gl->uniformMatrix4fv(ul, false, __data);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,21 +297,23 @@ void CocoMatrix::pop()
 	if(__stack.size())
 	{
 		Float32Array* data = __stack.pop();
-		rc11 = data[0];
-		rc12 = data[1];
-		rc13 = data[2];
-		rc14 = data[3];
-		rc21 = data[4];
-		rc22 = data[5];
-		rc23 = data[6];
-		rc24 = data[7];
-		rc31 = data[8];
-		rc32 = data[9];
-		rc33 = data[10];
-		rc34 = data[11];
-		rc41 = data[12];
-		rc42 = data[13];
-		rc43 = data[14];
-		rc44 = data[15];
+		rc11 = (*data)[0];
+		rc12 = (*data)[1];
+		rc13 = (*data)[2];
+		rc14 = (*data)[3];
+		rc21 = (*data)[4];
+		rc22 = (*data)[5];
+		rc23 = (*data)[6];
+		rc24 = (*data)[7];
+		rc31 = (*data)[8];
+		rc32 = (*data)[9];
+		rc33 = (*data)[10];
+		rc34 = (*data)[11];
+		rc41 = (*data)[12];
+		rc42 = (*data)[13];
+		rc43 = (*data)[14];
+		rc44 = (*data)[15];
+		__dirty = true;
+		delete data;
 	}
 }
