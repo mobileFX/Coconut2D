@@ -509,7 +509,7 @@ class ImageData
 
 class Image
 {
-	public function load(src:String) {}
+	public function load(url:String) {}
 	public function Constructor() {}
 	public var __imageData :ImageData;
 	public var src :String;
@@ -1139,7 +1139,7 @@ class CocoMatrix
 	public var rc42 :Float;
 	public var rc43 :Float;
 	public var rc44 :Float;
-	public var __stack :Array<Float>;
+	public var __stack :Array<Float32Array>;
 	public var __data :Float32Array;
 	public var __dirty :Boolean;
 } //CocoMatrix
@@ -1281,7 +1281,6 @@ class CocoEngineState
 
 class CocoEngine
 {
-	private function __setTouchEvent(e:HTMLEvent) {}
 	public function currentState() :CocoEngineState {}
 	public function setState(state:CocoEngineState) {}
 	public function tick(gl:WebGLRenderingContext, time:Float) {}
@@ -1289,7 +1288,6 @@ class CocoEngine
 	public var __currentState :CocoEngineState;
 	public var __nextState :CocoEngineState;
 	public var __stateStart :Float;
-	public var __touchEvent :HTMLEvent;
 } //CocoEngine
 
 class CocoSprite : CocoClip
@@ -1381,15 +1379,29 @@ class GameEngine : CocoEngine
 	public function Constructor() {}
 } //GameEngine
 
-class Animation1 : CocoScene
+class SceneGameBoard : CocoScene
 {
+	public function waitForAction() {}
+	public function hint() {}
 	public function Constructor() {}
-} //Animation1
+} //SceneGameBoard
 
-class StateAnim : CocoEngineState
+class State_GameBoard : CocoEngineState
 {
-	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Float) {}
+	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number) {}
 	public function Constructor() {}
-	private var scene :Animation1;
-} //StateAnim
+	private var scene :SceneGameBoard;
+} //State_GameBoard
+
+class SceneTitle : CocoScene
+{
+	public function Constructor() {}
+} //SceneTitle
+
+class State_TitleScreen : CocoEngineState
+{
+	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number) {}
+	public function Constructor() {}
+	private var scene :SceneTitle;
+} //State_TitleScreen
 

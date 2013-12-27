@@ -26,7 +26,7 @@ public:
 	float rc42;
 	float rc43;
 	float rc44;
-	Array<float> __stack;
+	Array<Float32Array*> __stack;
 	Float32Array* __data;
 	bool __dirty;
 	CocoMatrix(CocoMatrix* M = NULL);

@@ -5,13 +5,7 @@ CocoEngine::CocoEngine()
 {
 	__currentState = NULL;
 	__nextState = NULL;
-	__stateStart = 0;
-	__touchEvent = NULL;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEngine::__setTouchEvent(HTMLEvent* e)
-{
+	__stateStart = 0.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,5 +30,4 @@ void CocoEngine::tick(WebGLRenderingContext* gl, float time)
 		__nextState = NULL;
 	}
 	__currentState->tick(this, gl, time - __stateStart);
-	__touchEvent = NULL;
 }

@@ -540,8 +540,9 @@ CPPCompiler.prototype.compile = function (ast)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.INDEX:
-		var out = [];       
-		var pointerAccess = ast[0].symbol ? !__isVector(ast[0].symbol.vartype) : false;
+		var out = []; 
+		var type = ast[0].vartype;
+		var pointerAccess = !__isVector(type);
 		if(pointerAccess) out.push("(*");
 		out.push(generate(ast[0]).CPP);
 		if(pointerAccess) out.push(")");
@@ -566,7 +567,7 @@ CPPCompiler.prototype.compile = function (ast)
 			switch(CPP.join(""))
 			{
 			case "this":
-			case "window":
+			case "window":			
 				CPP.push("->");
 				break;
 				
@@ -661,7 +662,7 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.DECREMENT:			if(ast.postfix) { CPP.push(generate(ast[0]).CPP); CPP.push("--"); } else { CPP.push("--"); CPP.push(generate(ast[0]).CPP); } break;
 	case jsdef.DEFAULT:				CPP.push("default:"); CPP.push(generate(ast.statements).CPP); break; 
 	case jsdef.DELETE: 				CPP.push("delete "); CPP.push(generate(ast[0]).CPP); break;
-	case jsdef.DIV:					CPP.push(generate(ast[0]).CPP); CPP.push("/"); CPP.push(generate(ast[1]).CPP); break;  
+	case jsdef.DIV:					CPP.push( "(float)(" + generate(ast[0]).CPP + ")"); CPP.push("/"); CPP.push( "(float)(" + generate(ast[1]).CPP + ")"); break;  
 	case jsdef.DO: 					ast.body.isLoop = true; CPP.push("do"); CPP.push(generate(ast.body).CPP); CPP.push("while(" + generate(ast.condition).CPP + ");"); break;
 	case jsdef.EQ: 					CPP.push(generate(ast[0]).CPP); CPP.push("==");	 CPP.push(generate(ast[1]).CPP); break; 		
 	case jsdef.FALSE:				CPP.push("false"); break;    
@@ -703,6 +704,7 @@ CPPCompiler.prototype.compile = function (ast)
 		
 	return {CPP:CPP.join(""), HPP:HPP.join("")};
 }; 
+
 
 
 

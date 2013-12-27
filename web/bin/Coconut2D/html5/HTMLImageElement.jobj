@@ -1,0 +1,80 @@
+//@line 29
+
+function Image()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS__IMAGE__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__CLASS__ = 'Image';
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 50
+		var load = this.load = function (url)
+		{
+			//@line 52
+			__CLASS__IMAGE__.__imageData = new ImageData(url);
+			//@line 53
+			__CLASS__IMAGE__.src = __CLASS__IMAGE__.__imageData.src;
+			//@line 54
+			__CLASS__IMAGE__.width = __CLASS__IMAGE__.__imageData.width;
+			//@line 55
+			__CLASS__IMAGE__.height = __CLASS__IMAGE__.__imageData.height;
+			//@line 56
+			__CLASS__IMAGE__.naturalWidth = __CLASS__IMAGE__.__imageData.width;
+			//@line 57
+			__CLASS__IMAGE__.naturalHeight = __CLASS__IMAGE__.__imageData.height;
+			//@line 58
+			__CLASS__IMAGE__.complete = true;
+		};
+		//@line 31
+		this.__imageData = null;
+		//@line 32
+		this.src = "";
+		//@line 33
+		this.width = 0;
+		//@line 34
+		this.height = 0;
+		//@line 35
+		this.naturalWidth = 0;
+		//@line 36
+		this.naturalHeight = 0;
+		//@line 37
+		this.complete = false;
+		//@line 39
+		this.Constructor = function ()
+		{
+			//@line 41
+			__CLASS__IMAGE__.__imageData = null;
+			//@line 42
+			__CLASS__IMAGE__.src = "";
+			//@line 43
+			__CLASS__IMAGE__.width = 0;
+			//@line 44
+			__CLASS__IMAGE__.height = 0;
+			//@line 45
+			__CLASS__IMAGE__.naturalWidth = 0;
+			//@line 46
+			__CLASS__IMAGE__.naturalHeight = 0;
+			//@line 47
+			__CLASS__IMAGE__.complete = false;
+			return __CLASS__IMAGE__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

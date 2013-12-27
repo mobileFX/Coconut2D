@@ -8,8 +8,8 @@ CocoScene::CocoScene(std::string sceneName)
 	__view_height = 0;
 	__view_pixel_ratio = 0;
 	__view_scale = 1;
-	__currentTime = 0;
-	__elapsedTime = 0;
+	__currentTime = 0.0;
+	__elapsedTime = 0.0;
 	__startTime = -1;
 	__root = NULL;
 	__modelViewMatrix = NULL;
@@ -91,7 +91,7 @@ void CocoScene::prepare(WebGLRenderingContext* gl)
 	__boundingBoxProgram->GLSLuProjMat = gl->getUniformLocation(__boundingBoxProgram, "uProjMat");
 	__boundingBoxBuffer = gl->createBuffer();
 	gl->bindBuffer(gl->ARRAY_BUFFER, __boundingBoxBuffer);
-	gl->bufferData(gl->ARRAY_BUFFER, new Float32Array({0, 0, 0, 0, 0, 0, 0, 0}), gl->DYNAMIC_DRAW);
+	gl->bufferData(gl->ARRAY_BUFFER, new Float32Array({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}), gl->DYNAMIC_DRAW);
 	__glProgram = makeProgram(gl, __vertex_shader, __fragment_shader);
 	gl->useProgram(__glProgram);
 	__glProgram->GLSLiVecCoords = gl->getAttribLocation(__glProgram, "iVecCoords");
@@ -106,7 +106,7 @@ void CocoScene::prepare(WebGLRenderingContext* gl)
 	__glProgram->GLSLuColor = gl->getUniformLocation(__glProgram, "uColor");
 	__modelViewMatrix = new CocoMatrix();
 	__modelViewMatrix->update(gl, __glProgram->GLSLuMVMat);
-	__view_scale = this->__view_width > 0 && this->__view_height > 0 ? std::min(gl->canvas.width / this->__view_width, gl->canvas.height / this->__view_height) : window->devicePixelRatio;
+	__view_scale = this->__view_width > 0 && this->__view_height > 0 ? std::min((float)(gl->canvas.width) / (float)(this->__view_width), (float)(gl->canvas.height) / (float)(this->__view_height)) : window->devicePixelRatio;
 	__projectionMatrix = new CocoMatrix();
 	if(window->deviceRotation)
 	{
@@ -114,12 +114,12 @@ void CocoScene::prepare(WebGLRenderingContext* gl)
 		float s = std::sinf(window->deviceRotation);
 		float orthoWidth = std::abs(c * gl->canvas.width + s * gl->canvas.height);
 		float orthoHeight = std::abs(-s * gl->canvas.width + c * gl->canvas.height);
-		__projectionMatrix->ortho(-orthoWidth / 2, orthoWidth / 2, orthoHeight / 2,  -orthoHeight / 2,  -1, 1);
+		__projectionMatrix->ortho((float)(-orthoWidth) / (float)(2.0), (float)(orthoWidth) / (float)(2.0), (float)(orthoHeight) / (float)(2.0), (float)(-orthoHeight) / (float)(2.0),  -1.0, 1.0);
 		__projectionMatrix->rotateZ(-window->deviceRotation);
 	}
 	else
 	{
-		__projectionMatrix->ortho(-(gl->canvas.width / 2), gl->canvas.width / 2, gl->canvas.height / 2,  -(gl->canvas.height / 2),  -1, 1);
+		__projectionMatrix->ortho(-((float)(gl->canvas.width) / (float)(2.0)), (float)(gl->canvas.width) / (float)(2.0), (float)(gl->canvas.height) / (float)(2.0),  -((float)(gl->canvas.height) / (float)(2.0)),  -1.0, 1.0);
 	}
 	__projectionMatrix->scale(__view_scale, __view_scale);
 	__projectionMatrix->update(gl, __glProgram->GLSLuProjMat);
@@ -170,8 +170,7 @@ void CocoScene::loadResources()
 				sibling = img->viewSiblings[j];
 				if(sibling->textureWidth >= w && sibling->textureHeight >= h)
 				{
-					img->image = new Image();
-					img->image->load(img->baseUrl + sibling->url);
+					img->image = new Image(img->baseUrl + sibling->url);
 					img->textureCellWidth = sibling->textureWidth;
 					img->textureCellHeight = sibling->textureHeight;
 					img->pixelRatio = sibling->pixelRatio;
@@ -182,8 +181,7 @@ void CocoScene::loadResources()
 		if(!img->image)
 		{
 			sibling = img->viewSiblings[img->viewSiblings.size() - 1];
-			img->image = new Image();
-			img->image->load(img->baseUrl + sibling->url);
+			img->image = new Image(img->baseUrl + sibling->url);
 			img->textureCellWidth = sibling->textureWidth;
 			img->textureCellHeight = sibling->textureHeight;
 			img->pixelRatio = sibling->pixelRatio;
@@ -224,11 +222,11 @@ void CocoScene::tick(WebGLRenderingContext* gl, float time)
 	if(!__glProgram)
 	{
 		prepare(gl);
-		loadResources(this);
+		loadResources();
 	}
 	else if(resourcesLoaded(gl))
 	{
-		gl->clearColor(1, 1, 1, 1);
+		gl->clearColor(1.0, 1.0, 1.0, 1.0);
 		gl->clear(gl->COLOR_BUFFER_BIT);
 		if(__startTime == -1)
 		{
@@ -256,10 +254,13 @@ void CocoScene::tick(WebGLRenderingContext* gl, float time)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoScene::drawFrame(WebGLRenderingContext* gl, CocoImage* image, float frame, float alpha)
 {
-	image->color[3] = alpha;
-	__modelViewMatrix->update(gl, __glProgram->GLSLuMVMat);
-	gl->uniform2fv(__glProgram->GLSLuSprSize, image->texSize);
-	gl->uniform2f(__glProgram->GLSLuSprFrame, image->textureGrid[frame * 2 + 1], image->textureGrid[frame * 2]);
+	(*image->color)[3] = alpha;
+	if(__modelViewMatrix->__dirty)
+	{
+		__modelViewMatrix->update(gl, __glProgram->GLSLuMVMat);
+	}
+	gl->uniform2f(__glProgram->GLSLuSprSize, (*image->texSize)[0], (*image->texSize)[1]);
+	gl->uniform2f(__glProgram->GLSLuSprFrame, (*image->textureGrid)[frame * 2 + 1], (*image->textureGrid)[frame * 2]);
 	gl->bindBuffer(gl->ARRAY_BUFFER, image->buffer);
 	gl->vertexAttribPointer(__glProgram->GLSLiTexCoords, 2, gl->FLOAT, false, 16, 0);
 	gl->vertexAttribPointer(__glProgram->GLSLiVecCoords, 2, gl->FLOAT, false, 16, 8);
@@ -274,28 +275,28 @@ void CocoScene::drawFrame(WebGLRenderingContext* gl, CocoImage* image, float fra
 void CocoScene::gotoAndPlayByName(std::string LabelName, bool deep)
 {
 	CocoClip* scope = __levelParents[__levelParents.size() - 1];
-	return scope->gotoFrameByName(LabelName, false, deep);
+	scope->gotoFrameByName(LabelName, false, deep);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoScene::gotoAndStopByName(std::string LabelName, bool deep)
 {
 	CocoClip* scope = __levelParents[__levelParents.size() - 1];
-	return scope->gotoFrameByName(LabelName, true, deep);
+	scope->gotoFrameByName(LabelName, true, deep);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoScene::gotoAndPlayByIndex(int FrameIndex, bool deep)
 {
 	CocoClip* scope = __levelParents[__levelParents.size() - 1];
-	return scope->gotoFrameByIndex(FrameIndex, false, deep);
+	scope->gotoFrameByIndex(FrameIndex, false, deep);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoScene::gotoAndStopyByIndex(int FrameIndex, bool deep)
 {
 	CocoClip* scope = __levelParents[__levelParents.size() - 1];
-	return scope->gotoFrameByIndex(FrameIndex, true, deep);
+	scope->gotoFrameByIndex(FrameIndex, true, deep);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -303,5 +304,5 @@ void CocoScene::stop(bool deep)
 {
 	deep = (deep == "true");
 	CocoClip* scope = __levelParents[__levelParents.size() - 1];
-	return scope->gotoFrameByIndex(-1, true, deep);
+	scope->gotoFrameByIndex(-1, true, deep);
 }

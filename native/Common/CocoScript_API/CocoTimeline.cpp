@@ -3,10 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoTimeline::CocoTimeline()
 {
-	__singleFrameDurationTime = 0;
-	__durationInTime = 0;
+	__singleFrameDurationTime = 0.0;
+	__durationInTime = 0.0;
 	__durationInFrames = 0;
-	__skipTime = 0;
+	__skipTime = 0.0;
 	__paused = false;
 	__pausedKeyFrame = NULL;
 	addKeyFrameEx(NULL, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
@@ -127,8 +127,8 @@ void CocoTimeline::normalizetimeline()
 	if(__keyFrames.size() > 0)
 	{
 		__durationInFrames = __keyFrames[__keyFrames.size() - 1]->frameIndex + 1;
-		__durationInTime = (__durationInFrames / GLOBAL_FPS) * 1000;
-		__singleFrameDurationTime = __durationInTime / __durationInFrames;
+		__durationInTime = ((float)(__durationInFrames) / (float)(GLOBAL_FPS)) * 1000;
+		__singleFrameDurationTime = (float)(__durationInTime) / (float)(__durationInFrames);
 	}
 }
 
@@ -202,7 +202,7 @@ CocoKeyFrame* CocoTimeline::findKeyFrameAfterframeIndex(float frameIndex, bool i
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoKeyFrame* CocoTimeline::interpolateByTime(float LoopTime)
 {
-	float T = (LoopTime / __singleFrameDurationTime);
+	float T = ((float)(LoopTime) / (float)(__singleFrameDurationTime));
 	return interpolateByFrame(T);
 }
 
@@ -216,7 +216,7 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 	CocoKeyFrame* F = NULL;
 	CocoKeyFrame* F1 = NULL;
 	CocoKeyFrame* F2 = NULL;
-	float s = 1;
+	float s = 1.0;
 	float FrameIndex = std::floor(frameIndex);
 	if(__keyFrames.size() == 0)
 	{
@@ -274,7 +274,7 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 					F = F1->clone();
 					F->frameIndex = FrameIndex;
 					F->action = NULL;
-					s = (frameIndex - F1->frameIndex) / (F2->frameIndex - F1->frameIndex);
+					s = (float)((frameIndex - F1->frameIndex)) / (float)((F2->frameIndex - F1->frameIndex));
 					F->interpolate(F1, F2, s);
 					return (__pausedKeyFrame = F);
 				}

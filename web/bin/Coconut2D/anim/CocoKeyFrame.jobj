@@ -1,0 +1,205 @@
+//@export_web
+//@line 40
+
+function CocoKeyFrame()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS__COCOKEYFRAME__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__CLASS__ = 'CocoKeyFrame';
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 80
+		var clone = this.clone = function ()
+		{
+			//@line 82
+			var c = new CocoKeyFrame;
+			//@line 84
+			c.alpha = __CLASS__COCOKEYFRAME__.alpha;
+			//@line 85
+			c.frameIndex = __CLASS__COCOKEYFRAME__.frameIndex;
+			//@line 86
+			c.frameInterpolation = __CLASS__COCOKEYFRAME__.frameInterpolation;
+			//@line 87
+			c.handleEvents = __CLASS__COCOKEYFRAME__.handleEvents;
+			//@line 88
+			c.pivotX = __CLASS__COCOKEYFRAME__.pivotX;
+			//@line 89
+			c.pivotY = __CLASS__COCOKEYFRAME__.pivotY;
+			//@line 90
+			c.rotation = __CLASS__COCOKEYFRAME__.rotation;
+			//@line 91
+			c.scaleX = __CLASS__COCOKEYFRAME__.scaleX;
+			//@line 92
+			c.scaleY = __CLASS__COCOKEYFRAME__.scaleY;
+			//@line 93
+			c.visible = __CLASS__COCOKEYFRAME__.visible;
+			//@line 94
+			c.x = __CLASS__COCOKEYFRAME__.x;
+			//@line 95
+			c.y = __CLASS__COCOKEYFRAME__.y;
+			//@line 96
+			c.action = __CLASS__COCOKEYFRAME__.action;
+			//@line 97
+			c.calcBoundingBox = __CLASS__COCOKEYFRAME__.calcBoundingBox;
+			//@line 98
+			c.__lastActionExecutionTime = __lastActionExecutionTime;
+			//@line 100
+			return c;
+		};
+		//@line 104
+		var reset = this.reset = function ()
+		{
+			//@line 106
+			__lastActionExecutionTime = 0.0;
+		};
+		//@line 110
+		var execute = this.execute = function (gl, currentTime, loopTime, scene, clip)
+		{
+			//@line 114
+			if ((currentTime == 0) || (currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
+			{
+				//@line 116
+				__lastActionExecutionTime = currentTime;
+				//@line 117
+				if (__CLASS__COCOKEYFRAME__.action)
+				{
+					//@line 119
+					var args = [gl, currentTime, loopTime, clip, __CLASS__COCOKEYFRAME__];
+					//@line 120
+					__CLASS__COCOKEYFRAME__.action.apply(scene, args);
+				}
+			}
+		};
+		//@line 126
+		var interpolate = this.interpolate = function (F1, F2, s)
+		{
+			//@line 128
+			__CLASS__COCOKEYFRAME__.alpha = F1.alpha + s * (F2.alpha - F1.alpha);
+			//@line 129
+			__CLASS__COCOKEYFRAME__.x = F1.x + s * (F2.x - F1.x);
+			//@line 130
+			__CLASS__COCOKEYFRAME__.y = F1.y + s * (F2.y - F1.y);
+			//@line 131
+			__CLASS__COCOKEYFRAME__.scaleX = F1.scaleX + s * (F2.scaleX - F1.scaleX);
+			//@line 132
+			__CLASS__COCOKEYFRAME__.scaleY = F1.scaleY + s * (F2.scaleY - F1.scaleY);
+			//@line 133
+			__CLASS__COCOKEYFRAME__.rotation = F1.rotation + s * (F2.rotation - F1.rotation);
+			//@line 134
+			__CLASS__COCOKEYFRAME__.pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
+			//@line 135
+			__CLASS__COCOKEYFRAME__.pivotY = F1.pivotY + s * (F2.pivotY - F1.pivotY);
+		};
+		//@line 139
+		var combine = this.combine = function (Frame)
+		{
+			//@line 141
+			if (!Frame) return;
+			//@line 142
+			__CLASS__COCOKEYFRAME__.alpha = __CLASS__COCOKEYFRAME__.alpha * Frame.alpha;
+			//@line 143
+			__CLASS__COCOKEYFRAME__.visible = __CLASS__COCOKEYFRAME__.visible && Frame.visible;
+			//@line 144
+			__CLASS__COCOKEYFRAME__.handleEvents = __CLASS__COCOKEYFRAME__.handleEvents && Frame.handleEvents;
+			//@line 145
+			__CLASS__COCOKEYFRAME__.calcBoundingBox = __CLASS__COCOKEYFRAME__.calcBoundingBox && Frame.calcBoundingBox;
+		};
+		//@line 148
+		var apply = this.apply = function (matrix)
+		{
+			//@line 150
+			if (__CLASS__COCOKEYFRAME__.x != 0 || __CLASS__COCOKEYFRAME__.y != 0) matrix.translate(__CLASS__COCOKEYFRAME__.x, __CLASS__COCOKEYFRAME__.y);
+			//@line 151
+			if (__CLASS__COCOKEYFRAME__.rotation != 0) matrix.rotateZ(__CLASS__COCOKEYFRAME__.rotation * RADIANS);
+			//@line 152
+			if (__CLASS__COCOKEYFRAME__.scaleX != 1 || __CLASS__COCOKEYFRAME__.scaleY != 1) matrix.scale(__CLASS__COCOKEYFRAME__.scaleX, __CLASS__COCOKEYFRAME__.scaleY);
+			//@line 153
+			if (__CLASS__COCOKEYFRAME__.pivotX != 0 || __CLASS__COCOKEYFRAME__.pivotY != 0) matrix.translate(-__CLASS__COCOKEYFRAME__.pivotX, -__CLASS__COCOKEYFRAME__.pivotY);
+		};
+		//@line 42
+		this.frameIndex = 0;
+		//@line 43
+		this.frameInterpolation = null;
+		//@line 44
+		this.handleEvents = false;
+		//@line 45
+		this.calcBoundingBox = false;
+		//@line 46
+		this.visible = false;
+		//@line 47
+		this.alpha = 0;
+		//@line 48
+		this.x = 0;
+		//@line 49
+		this.y = 0;
+		//@line 50
+		this.pivotX = 0;
+		//@line 51
+		this.pivotY = 0;
+		//@line 52
+		this.scaleX = 0;
+		//@line 53
+		this.scaleY = 0;
+		//@line 54
+		this.rotation = 0;
+		//@line 55
+		this.action = function ()
+		{
+		};
+		//@line 57
+		var __lastActionExecutionTime = 0;
+		//@line 60
+		this.Constructor = function ()
+		{
+			//@line 62
+			__CLASS__COCOKEYFRAME__.frameIndex = 0;
+			//@line 63
+			__CLASS__COCOKEYFRAME__.frameInterpolation = COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
+			//@line 64
+			__CLASS__COCOKEYFRAME__.handleEvents = false;
+			//@line 65
+			__CLASS__COCOKEYFRAME__.calcBoundingBox = false;
+			//@line 66
+			__CLASS__COCOKEYFRAME__.visible = true;
+			//@line 67
+			__CLASS__COCOKEYFRAME__.x = 0.0;
+			//@line 68
+			__CLASS__COCOKEYFRAME__.y = 0.0;
+			//@line 69
+			__CLASS__COCOKEYFRAME__.scaleX = 1.0;
+			//@line 70
+			__CLASS__COCOKEYFRAME__.scaleY = 1.0;
+			//@line 71
+			__CLASS__COCOKEYFRAME__.rotation = 0.0;
+			//@line 72
+			__CLASS__COCOKEYFRAME__.pivotX = 0.0;
+			//@line 73
+			__CLASS__COCOKEYFRAME__.pivotY = 0.0;
+			//@line 74
+			__CLASS__COCOKEYFRAME__.alpha = 1.0;
+			//@line 75
+			__CLASS__COCOKEYFRAME__.action = null;
+			//@line 76
+			__lastActionExecutionTime = 0.0;
+			return __CLASS__COCOKEYFRAME__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

@@ -8,15 +8,15 @@ CocoImage::CocoImage()
 	texture = NULL;
 	textureCellWidth = 0;
 	textureCellHeight = 0;
-	textureGrid = new Float32Array({0, 0});
-	color = new Float32Array({1, 1, 1, 1});
-	texSize = new Float32Array({1, 1});
+	textureGrid = new Float32Array({0.0, 0.0});
+	color = new Float32Array({1.0, 1.0, 1.0, 1.0});
+	texSize = new Float32Array({1.0, 1.0});
 	buffer = NULL;
 	isSpriteSheet = false;
 	baseUrl = "";
 	viewOptimalWidth = 0;
 	viewOptimalHeight = 0;
-	pixelRatio = 1;
+	pixelRatio = 1.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,9 +58,9 @@ CocoSequence* CocoImage::getSequence(std::string name)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoImage::prepare(WebGLRenderingContext* gl)
 {
-	float w2 = textureCellWidth / 2;
-	float h2 = textureCellHeight / 2;
-	texSize = new Float32Array({textureCellWidth / image->naturalWidth, textureCellHeight / image->naturalHeight});
+	float w2 = (float)(textureCellWidth) / (float)(2.0);
+	float h2 = (float)(textureCellHeight) / (float)(2.0);
+	texSize = new Float32Array({(float)(textureCellWidth) / (float)(image->naturalWidth), (float)(textureCellHeight) / (float)(image->naturalHeight)});
 	texture = gl->createTexture();
 	gl->bindTexture(gl->TEXTURE_2D, texture);
 	gl->texImage2D(gl->TEXTURE_2D, 0, gl->RGBA, gl->RGBA, gl->UNSIGNED_BYTE, image);
@@ -70,7 +70,7 @@ void CocoImage::prepare(WebGLRenderingContext* gl)
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_MIN_FILTER, gl->LINEAR_MIPMAP_NEAREST);
 	gl->generateMipmap(gl->TEXTURE_2D);
 	gl->bindTexture(gl->TEXTURE_2D, NULL);
-	Float32Array* texData = new Float32Array({0, 0, -w2, -h2, 0, 1, -w2, h2, 1, 0, w2, -h2, 1, 1, w2, h2});
+	Float32Array* texData = new Float32Array({0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2});
 	buffer = gl->createBuffer();
 	gl->bindBuffer(gl->ARRAY_BUFFER, buffer);
 	gl->bufferData(gl->ARRAY_BUFFER, texData, gl->STATIC_DRAW);

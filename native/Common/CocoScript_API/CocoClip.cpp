@@ -7,7 +7,7 @@ CocoClip::CocoClip(CocoImage* image, CocoSound* audio, std::string sequence)
 	__currentSequenceFrameIndex = 0;
 	__timeline = new CocoTimeline();
 	__parent = NULL;
-	__firstTickTime = -1;
+	__firstTickTime = -1.0;
 	__currentFrame = NULL;
 	__hasBoundingBox = false;
 	__vTOP_LEFT = new CocoVector();
@@ -165,7 +165,7 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 		__firstTickTime = __currentTime;
 	}
 	float parentClipsDuration = (parentClip ? parentClip->__childWithMaxTimelineDuration->__timeline->__durationInTime : __timeline->__durationInTime);
-	float clippingTime = std::floor((__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;
+	float clippingTime = std::floor((float)((__currentTime - __firstTickTime)) / (float)(parentClipsDuration)) * parentClipsDuration;
 	float __loopTime = (__currentTime - __firstTickTime) - clippingTime;
 	if(!__timeline->__paused && __currentFrame)
 	{
@@ -211,7 +211,7 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 	{
 		if(__image)
 		{
-			float c = scene->__view_pixel_ratio / __image->pixelRatio;
+			float c = (float)(scene->__view_pixel_ratio) / (float)(__image->pixelRatio);
 			__currentFrame->scaleX *= c;
 			__currentFrame->scaleY *= c;
 			__currentFrame->apply(scene->__modelViewMatrix);
@@ -219,7 +219,7 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 			__currentFrame->scaleY /= c;
 			if(__image->isSpriteSheet && __currentSequence)
 			{
-				__currentSequenceFrameIndex = __timeline->__paused ? 0 : (int)std::floor((__currentTime - __firstTickTime) / GLOBAL_FPS) % (int)__currentSequence->frames.size();
+				__currentSequenceFrameIndex = __timeline->__paused ? 0 : (int)std::floor((float)((__currentTime - __firstTickTime)) / (float)(GLOBAL_FPS)) % (int)__currentSequence->frames.size();
 				int frame = __currentSequence->frames[__currentSequenceFrameIndex];
 				scene->drawFrame(gl, __image, frame, __currentFrame->alpha);
 			}

@@ -55,22 +55,22 @@ void CocoMatrix::identity()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoMatrix::ortho(float left, float right, float bottom, float top, float near, float far)
 {
-	rc11 = 2 / (right - left);
-	rc12 = 0;
-	rc13 = 0;
-	rc14 = 0;
-	rc21 = 0;
-	rc22 = 2 / (top - bottom);
-	rc23 = 0;
-	rc24 = 0;
-	rc31 = 0;
-	rc32 = 0;
-	rc33 = -2 / (far - near);
-	rc34 = 0;
-	rc41 = -(right + left) / (right - left);
-	rc42 = -(top + bottom) / (top - bottom);
-	rc43 = -(far + near) / (far - near);
-	rc44 = 1;
+	rc11 = (float)(2) / (float)((right - left));
+	rc12 = 0.0;
+	rc13 = 0.0;
+	rc14 = 0.0;
+	rc21 = 0.0;
+	rc22 = (float)(2) / (float)((top - bottom));
+	rc23 = 0.0;
+	rc24 = 0.0;
+	rc31 = 0.0;
+	rc32 = 0.0;
+	rc33 = (float)(-2) / (float)((far - near));
+	rc34 = 0.0;
+	rc41 = (float)(-(right + left)) / (float)((right - left));
+	rc42 = (float)(-(top + bottom)) / (float)((top - bottom));
+	rc43 = (float)(-(far + near)) / (float)((far - near));
+	rc44 = 1.0;
 	__dirty = true;
 }
 
@@ -148,22 +148,22 @@ void CocoMatrix::invert()
 	float invRC42 = (rc12 * rc33 * rc41) - (rc13 * rc32 * rc41) + (rc13 * rc31 * rc42) - (rc11 * rc33 * rc42) - (rc12 * rc31 * rc43) + (rc11 * rc32 * rc43);
 	float invRC43 = (rc13 * rc22 * rc41) - (rc12 * rc23 * rc41) - (rc13 * rc21 * rc42) + (rc11 * rc23 * rc42) + (rc12 * rc21 * rc43) - (rc11 * rc22 * rc43);
 	float invRC44 = (rc12 * rc23 * rc31) - (rc13 * rc22 * rc31) + (rc13 * rc21 * rc32) - (rc11 * rc23 * rc32) - (rc12 * rc21 * rc33) + (rc11 * rc22 * rc33);
-	rc11 = invRC11 / D;
-	rc12 = invRC12 / D;
-	rc13 = invRC13 / D;
-	rc14 = invRC14 / D;
-	rc21 = invRC21 / D;
-	rc22 = invRC22 / D;
-	rc23 = invRC23 / D;
-	rc24 = invRC24 / D;
-	rc31 = invRC31 / D;
-	rc32 = invRC32 / D;
-	rc33 = invRC33 / D;
-	rc34 = invRC34 / D;
-	rc41 = invRC41 / D;
-	rc42 = invRC42 / D;
-	rc43 = invRC43 / D;
-	rc44 = invRC44 / D;
+	rc11 = (float)(invRC11) / (float)(D);
+	rc12 = (float)(invRC12) / (float)(D);
+	rc13 = (float)(invRC13) / (float)(D);
+	rc14 = (float)(invRC14) / (float)(D);
+	rc21 = (float)(invRC21) / (float)(D);
+	rc22 = (float)(invRC22) / (float)(D);
+	rc23 = (float)(invRC23) / (float)(D);
+	rc24 = (float)(invRC24) / (float)(D);
+	rc31 = (float)(invRC31) / (float)(D);
+	rc32 = (float)(invRC32) / (float)(D);
+	rc33 = (float)(invRC33) / (float)(D);
+	rc34 = (float)(invRC34) / (float)(D);
+	rc41 = (float)(invRC41) / (float)(D);
+	rc42 = (float)(invRC42) / (float)(D);
+	rc43 = (float)(invRC43) / (float)(D);
+	rc44 = (float)(invRC44) / (float)(D);
 	__dirty = true;
 }
 

@@ -1,0 +1,75 @@
+//@export_web
+//@line 41
+
+function CocoEngine()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS__COCOENGINE__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__CLASS__ = 'CocoEngine';
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 73
+		var currentState = this.currentState = function ()
+		{
+			//@line 75
+			return __CLASS__COCOENGINE__.__currentState;
+		};
+		//@line 79
+		var setState = this.setState = function (state)
+		{
+			//@line 81
+			__CLASS__COCOENGINE__.__nextState = state;
+		};
+		//@line 85
+		var tick = this.tick = function (gl, time)
+		{
+			//@line 88
+			if (__CLASS__COCOENGINE__.__nextState != null)
+			{
+				//@line 90
+				__CLASS__COCOENGINE__.__currentState = __CLASS__COCOENGINE__.__nextState;
+				//@line 91
+				__CLASS__COCOENGINE__.__stateStart = time;
+				//@line 92
+				__CLASS__COCOENGINE__.__nextState = null;
+			}
+			//@line 96
+			__CLASS__COCOENGINE__.__currentState.tick(__CLASS__COCOENGINE__, gl, time - __CLASS__COCOENGINE__.__stateStart);
+		};
+		//@line 43
+		this.__currentState = null;
+		//@line 44
+		this.__nextState = null;
+		//@line 45
+		this.__stateStart = 0;
+		//@line 49
+		this.Constructor = function ()
+		{
+			//@line 51
+			__CLASS__COCOENGINE__.__currentState = null;
+			//@line 52
+			__CLASS__COCOENGINE__.__nextState = null;
+			//@line 53
+			__CLASS__COCOENGINE__.__stateStart = 0.0;
+			return __CLASS__COCOENGINE__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

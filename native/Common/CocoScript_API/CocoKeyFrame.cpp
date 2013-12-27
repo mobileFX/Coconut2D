@@ -8,16 +8,16 @@ CocoKeyFrame::CocoKeyFrame()
 	handleEvents = false;
 	calcBoundingBox = false;
 	visible = true;
-	x = 0;
-	y = 0;
-	scaleX = 1;
-	scaleY = 1;
-	rotation = 0;
-	pivotX = 0;
-	pivotY = 0;
-	alpha = 1;
+	x = 0.0;
+	y = 0.0;
+	scaleX = 1.0;
+	scaleY = 1.0;
+	rotation = 0.0;
+	pivotX = 0.0;
+	pivotY = 0.0;
+	alpha = 1.0;
 	action = NULL;
-	__lastActionExecutionTime = 0;
+	__lastActionExecutionTime = 0.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ CocoKeyFrame* CocoKeyFrame::clone()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoKeyFrame::reset()
 {
-	__lastActionExecutionTime = 0;
+	__lastActionExecutionTime = 0.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

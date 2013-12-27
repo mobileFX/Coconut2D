@@ -1574,7 +1574,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		case jsdef.GT:					out.push(generate(ast[0])); out.push(">");   out.push(generate(ast[1])); break; 		
 		case jsdef.HOOK:				out.push(generate(ast[0])); out.push("?"); out.push(generate(ast[1])); out.push(":"); out.push(generate(ast[2])); break;
 		case jsdef.INCREMENT:			if(ast.postfix) { out.push(generate(ast[0])); out.push("++"); } else { out.push("++"); out.push(generate(ast[0])); } break;
-		case jsdef.INDEX: 				out.push(generate(ast[0])); ast.generated_index = "[" + generate(ast[1]) + "]"; out.push(ast.generated_index); break;
+		case jsdef.INDEX: 				out.push(generate(ast[0])); ast.generated_index = "[" + generate(ast[1]) + "]"; out.push(ast.generated_index); ast[0].vartype = _this.getTypeName(ast[0]); break;
 		case jsdef.INSTANCEOF: 			out.push(generate(ast[0])); out.push(" instanceof "); out.push(generate(ast[1])); break;
 		case jsdef.LABEL:				out.push(ast.label + ":"); out.push(generate(ast.statement)); break;			
 		case jsdef.LE:					out.push(generate(ast[0])); out.push("<=");  out.push(generate(ast[1])); break;
@@ -2420,6 +2420,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};	
 }
+
 
 
 

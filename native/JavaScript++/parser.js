@@ -440,7 +440,7 @@ function __init_narcissus(GLOBAL)
 			if((match = fpRegExp.exec(input)))
 			{
 				token.type = jsdef.NUMBER;
-				token.value = parseFloat(match[0]);
+				token.value = match[0];//parseFloat(match[0]);
 			}
 			else if((match = /^0[xX][\da-fA-F]+|^0[0-7]*|^\d+/.exec(input)))
 			{
@@ -2315,6 +2315,8 @@ function __init_narcissus(GLOBAL)
 	
 }
 __init_narcissus(this);
+
+
 
 
 
