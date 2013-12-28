@@ -1,179 +1,189 @@
-//@export_native
-//@export_web
+"#export native"
+"#export web"
 
-#include "WebGLRenderingContext.jspp"
-#include "CocoMatrix.jspp"
-#include "CocoImage.jspp"
-#include "CocoSound.jspp"
-#include "CocoTimeline.jspp"
-                     
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013 www.coconut2D.org
- * 
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.   
+ * THE SOFTWARE.
  *
  * ***** END LICENSE BLOCK ***** */
 
+"#include WebGLRenderingContext.jspp"
+"#include CocoMatrix.jspp"
+"#include CocoImage.jspp"
+"#include CocoSound.jspp"
+"#include CocoTimeline.jspp"
+
 // ==================================================================================================================================
-//	   ______                 _________     
-//	  / ____/___  _________  / ____/ (_)___ 
+//	   ______				  _________
+//	  / ____/___  _________  / ____/ (_)___
 //	 / /   / __ \/ ___/ __ \/ /   / / / __ \
 //	/ /___/ /_/ / /__/ /_/ / /___/ / / /_/ /
-//	\____/\____/\___/\____/\____/_/_/ .___/ 
-//	                               /_/      
+//	\____/\____/\___/\____/\____/_/_/ .___/
+//								   /_/
 // ==================================================================================================================================
 
 class CocoClip
-{           
-	public var __instanceName:String;					
-	public var __image:CocoImage;						
-	public var __audio:CocoSound;						
-	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM;	
-	public var __children:Array<CocoClip>;				
+{
+	public var __instanceName:String;
+	public var __image:CocoImage;
+	public var __audio:CocoSound;
+	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM;
+	public var __children:Array<CocoClip>;
 	public var __currentSequence:CocoSequence;
-	public var __currentSequenceFrameIndex:Integer;		
-	public var __timeline:CocoTimeline;					
-	public var __parent:CocoClip;						
-	public var __firstTickTime:Float;					
-	public var __currentFrame:CocoKeyFrame;				
-	public var __hasBoundingBox:Boolean;					
-	public var __vTOP_LEFT:CocoVector;					
-	public var __vTOP_RIGHT:CocoVector;					
-	public var __vBOTTOM_LEFT:CocoVector;				
-	public var __vBOTTOM_RIGHT:CocoVector;					
-	public var __childWithMaxTimelineDuration:CocoClip;	
-			
+	public var __currentSequenceFrameIndex:Integer;
+	public var __timeline:CocoTimeline;
+	public var __parent:CocoClip;
+	public var __firstTickTime:Float;
+	public var __currentFrame:CocoKeyFrame;
+	public var __hasBoundingBox:Boolean;
+	public var __vTOP_LEFT:CocoVector;
+	public var __vTOP_RIGHT:CocoVector;
+	public var __vBOTTOM_LEFT:CocoVector;
+	public var __vBOTTOM_RIGHT:CocoVector;
+	public var __childWithMaxTimelineDuration:CocoClip;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String)
 	{
 		__symbolLoop					= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
 		__currentSequenceFrameIndex		= 0;
 		__timeline						= new CocoTimeline();
-		__parent						= null;    	                                        	
+		__parent						= null;
 		__firstTickTime					= -1.0;
-		__currentFrame					= null;				                                        	
-		__hasBoundingBox				= false;	
+		__currentFrame					= null;
+		__hasBoundingBox				= false;
 		__vTOP_LEFT						= new CocoVector();
 		__vTOP_RIGHT					= new CocoVector();
 		__vBOTTOM_LEFT					= new CocoVector();
-		__vBOTTOM_RIGHT					= new CocoVector();  		
+		__vBOTTOM_RIGHT					= new CocoVector();
 		__childWithMaxTimelineDuration	= null;
 		__currentSequence				= null;
-		
+
 		if(image) __image = image;
 		if(audio) __audio = audio;
-		if(image && sequence) __currentSequence = image.getSequence(sequence);		
-	}  
-							
+		if(image && sequence) __currentSequence = image.getSequence(sequence);
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function reset() 
+	public function prepare(scene:CocoScene)
 	{
-		if(__currentFrame) delete __currentFrame; 
+		__timeline.prepare(scene, this);
+		for(var i:Integer =__children.size()-1; i>=0; i--)
+		{
+			__children[i].prepare(scene);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function reset()
+	{
+		if(__currentFrame) delete __currentFrame;
 		__currentFrame = null;
-	    __firstTickTime = -1;
-	    __timeline.reset(); 
-	    
-	    for(var i:Integer =__children.size()-1; i>=0; i--)
-		{		
+		__firstTickTime = -1;
+		__timeline.reset();
+
+		for(var i:Integer =__children.size()-1; i>=0; i--)
+		{
 			__children[i].reset();
-		}		
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addChild(clipInstance:CocoClip) :CocoClip
 	{
-	    if(!clipInstance) return null;
-	    if(!clipInstance.__instanceName) throw "Invalid instance name.";
-        __children.push(clipInstance);	    
-	    normalize();
-	    return clipInstance;	    
+		if(!clipInstance) return null;
+		if(!clipInstance.__instanceName) throw "Invalid instance name.";
+		__children.push(clipInstance);
+		normalize();
+		return clipInstance;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function removeChild(clipInstance:CocoClip) :CocoClip
-	{		
-	    if(!clipInstance) return null;
-	    __children.splice( getChildIndex(clipInstance), 1);
-	    normalize();
-	    return clipInstance; 
+	{
+		if(!clipInstance) return null;
+		__children.splice( getChildIndex(clipInstance), 1);
+		normalize();
+		return clipInstance;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	private function normalize()
 	{
-		// Find clip with max timeline duration.		
-	    __childWithMaxTimelineDuration = null;
-	    for(var i:Integer =__children.size()-1; i>=0; i--)
-	    {
-	    	if(!__childWithMaxTimelineDuration)
-	    	{
-	    		__childWithMaxTimelineDuration = __children[i];
-	    		continue; 
-	    	}
-	        if(__children[i].__timeline.__durationInTime > __childWithMaxTimelineDuration.__timeline.__durationInTime) 
-	        {
+		// Find clip with max timeline duration.
+		__childWithMaxTimelineDuration = null;
+		for(var i:Integer =__children.size()-1; i>=0; i--)
+		{
+			if(!__childWithMaxTimelineDuration)
+			{
 				__childWithMaxTimelineDuration = __children[i];
-	        }
-	    }	    
+				continue;
+			}
+			if(__children[i].__timeline.__durationInTime > __childWithMaxTimelineDuration.__timeline.__durationInTime)
+			{
+				__childWithMaxTimelineDuration = __children[i];
+			}
+		}
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getChildByName(instanceName:String) :CocoClip
-	{    
-	    for(var i:Integer =__children.size()-1; i>=0; i--)
-	    {
+	{
+		for(var i:Integer =__children.size()-1; i>=0; i--)
+		{
 			if(__children[i].__instanceName==instanceName)
 			{
 				return __children[i];
 			}
-	    }
+		}
 		return null;
 	}
-		
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getChildIndex(child:CocoClip) :Integer
 	{
-	    if(child)
-	    {
-		    for(var i:Integer =__children.size()-1; i>=0; i--)
-		    {
+		if(child)
+		{
+			for(var i:Integer =__children.size()-1; i>=0; i--)
+			{
 				if(__children[i]==child)
 				{
 					return i;
 				}
-		    }
-	    }
+			}
+		}
 		return -1;
-	} 
-	
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByName(LabelName:String, pause:Boolean, deep:Boolean) :Boolean
 	{
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
-		return gotoFrameByIndex(Label.frameIndex, pause, deep);		
+		return gotoFrameByIndex(Label.frameIndex, pause, deep);
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean, deep:Boolean) :Boolean
-	{ 
+	{
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
 		{
@@ -194,88 +204,88 @@ class CocoClip
 		}
 		return true;
 	};
-				
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean)
 	{
-		// Get scene current time + timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )		                                    
-		var __currentTime:Float = scene.__currentTime + __timeline.__skipTime; 
+		// Get scene current time + timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )
+		var __currentTime:Float = scene.__currentTime + __timeline.__skipTime;
 
-		// Keep track of first tick time.		
+		// Keep track of first tick time.
 		if(__firstTickTime == -1) __firstTickTime = __currentTime;
-		
+
 		// Calculate the parent timeline duraction in time from its children.
-		// Note: the parent timeline might have only one KeyFrame but the actual length is defined by the max timeline size of each children.		
+		// Note: the parent timeline might have only one KeyFrame but the actual length is defined by the max timeline size of each children.
 		var parentClipsDuration:Float = (parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__durationInTime);
-		
+
 		// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
 		var clippingTime:Float = Math.floor((__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;
-		
-		// Adjust LoopTime start.
-		var __loopTime:Float = (__currentTime - __firstTickTime) - clippingTime;					
 
-		// Delete previous __currentFrame if not paused. 		
+		// Adjust LoopTime start.
+		var __loopTime:Float = (__currentTime - __firstTickTime) - clippingTime;
+
+		// Delete previous __currentFrame if not paused.
 		if(!__timeline.__paused && __currentFrame) delete __currentFrame;
-		
-        // Take into account time sync between this clip and its parent.
+
+		// Take into account time sync between this clip and its parent.
 		switch(__symbolLoop)
 		{
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS:
-			    __currentFrame = __timeline.interpolateByTime(__loopTime);
-				break;     
-				
+				__currentFrame = __timeline.interpolateByTime(__loopTime);
+				break;
+
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT:
-			    __currentFrame = __timeline.interpolateByTime(__loopTime); // TODO
-				break; 
-				
+				__currentFrame = __timeline.interpolateByTime(__loopTime); // TODO
+				break;
+
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
-			    if(clippingTime > 0) 
-			    	__currentFrame = __timeline.lastKeyFrame().clone();
-			    else
-			    	__currentFrame = __timeline.interpolateByTime(__loopTime); 
+				if(clippingTime > 0)
+					__currentFrame = __timeline.lastKeyFrame().clone();
+				else
+					__currentFrame = __timeline.interpolateByTime(__loopTime);
 				break;
 		}
-		
+
 		// Combine parent clip currentframe values with this clip's interpolated frame values.
-		if(parentClip)                                      
+		if(parentClip)
 		{
 			 __currentFrame.combine(parentClip.__currentFrame);
-			
-			// If a child handles events and requires a bounding box calculation 
+
+			// If a child handles events and requires a bounding box calculation
 			// then the entire parent-child chain needs to calculate bounding box.
-			if(__currentFrame.calcBoundingBox) 
+			if(__currentFrame.calcBoundingBox)
 				parentClip.__currentFrame.calcBoundingBox = true;
 		}
-			
+
 		// If current frame is visible, render this clip and its children.
 		if(__currentFrame.alpha != 0 && __currentFrame.visible)
-		{			
+		{
 			if(__image)
-			{                                         
+			{
 				var c:Float = scene.__view_pixel_ratio / __image.pixelRatio;
 				__currentFrame.scaleX *= c;
 				__currentFrame.scaleY *= c;
-				__currentFrame.apply(scene.__modelViewMatrix);											
+				__currentFrame.apply(scene.__modelViewMatrix);
 				__currentFrame.scaleX /= c;
 				__currentFrame.scaleY /= c;
-				
+
 				if(__image.isSpriteSheet && __currentSequence)
 				{
 					// Render animation sequence.
-					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor((__currentTime - __firstTickTime) / GLOBAL_FPS) % __currentSequence.frames.size();
+					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor((__currentTime - __firstTickTime) / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
 					var frame:Integer = __currentSequence.frames[__currentSequenceFrameIndex];
 					scene.drawFrame(gl, __image, frame, __currentFrame.alpha);
 				}
 				else
 				{
-					// Render a standard image.					
-					scene.drawFrame(gl, __image, 0,  __currentFrame.alpha);	
-				}			
-			} 
+					// Render a standard image.
+					scene.drawFrame(gl, __image, 0,  __currentFrame.alpha);
+				}
+			}
 			else
-			{			
-				// Render Children				
-				scene.__levelParents.push(this);				
+			{
+				// Render Children
+				scene.__levelParents.push(this);
 				__currentFrame.apply(scene.__modelViewMatrix);
 				for (var i:Integer = 0, L:Integer = __children.size(); i < L; i++)
 				{
@@ -284,25 +294,15 @@ class CocoClip
 					scene.__modelViewMatrix.pop();
 				}
 				scene.__levelParents.pop();
-			}			
+			}
 		}
-		 		
-		// Execute KeyFrame action callback.  
+
+		// Execute KeyFrame action callback.
 		if(!__timeline.__paused && __currentFrame.action)
-		{			
+		{
 			this.__parent = parentClip;
 			__currentFrame.execute(gl, __currentTime, __loopTime, scene, this);
-			this.__parent = null;		
-		}		
-	} 
+			this.__parent = null;
+		}
+	}
 }
-
-
-
-
-
-
-
-
-
-

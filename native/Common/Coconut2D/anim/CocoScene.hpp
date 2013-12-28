@@ -17,6 +17,7 @@ public:
 	Array<CocoImage*> __imageSymbols;
 	Array<CocoSound*> __soundSymbols;
 	Array<CocoClip*> __clipSymbols;
+	float __fps;
 	float __view_width;
 	float __view_height;
 	float __view_pixel_ratio;

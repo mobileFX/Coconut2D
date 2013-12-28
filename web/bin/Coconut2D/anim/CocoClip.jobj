@@ -1,4 +1,4 @@
-//@export_web
+"#export web"
 //@line 43
 
 function CocoClip()
@@ -23,278 +23,290 @@ function CocoClip()
 		};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		//@line 86
-		var reset = this.reset = function ()
+		var prepare = this.prepare = function (scene)
 		{
 			//@line 88
-			if (__CLASS__COCOCLIP__.__currentFrame) delete __CLASS__COCOCLIP__.__currentFrame;
+			__CLASS__COCOCLIP__.__timeline.prepare(scene, __CLASS__COCOCLIP__);
 			//@line 89
-			__CLASS__COCOCLIP__.__currentFrame = null;
-			//@line 90
-			__CLASS__COCOCLIP__.__firstTickTime = -1;
-			//@line 91
-			__CLASS__COCOCLIP__.__timeline.reset();
-			//@line 93
 			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
 			{
-				//@line 95
+				//@line 91
+				__CLASS__COCOCLIP__.__children[i].prepare(scene);
+			}
+		};
+		//@line 96
+		var reset = this.reset = function ()
+		{
+			//@line 98
+			if (__CLASS__COCOCLIP__.__currentFrame) delete __CLASS__COCOCLIP__.__currentFrame;
+			//@line 99
+			__CLASS__COCOCLIP__.__currentFrame = null;
+			//@line 100
+			__CLASS__COCOCLIP__.__firstTickTime = -1;
+			//@line 101
+			__CLASS__COCOCLIP__.__timeline.reset();
+			//@line 103
+			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
+			{
+				//@line 105
 				__CLASS__COCOCLIP__.__children[i].reset();
 			}
 		};
-		//@line 100
-		var addChild = this.addChild = function (clipInstance)
-		{
-			//@line 102
-			if (!clipInstance) return null;
-			//@line 103
-			if (!clipInstance.__instanceName) throw "Invalid instance name.";
-			//@line 104
-			__CLASS__COCOCLIP__.__children.push(clipInstance);
-			//@line 105
-			normalize();
-			//@line 106
-			return clipInstance;
-		};
 		//@line 110
-		var removeChild = this.removeChild = function (clipInstance)
+		var addChild = this.addChild = function (clipInstance)
 		{
 			//@line 112
 			if (!clipInstance) return null;
 			//@line 113
-			__CLASS__COCOCLIP__.__children.splice(__CLASS__COCOCLIP__.getChildIndex(clipInstance), 1);
+			if (!clipInstance.__instanceName) throw "Invalid instance name.";
 			//@line 114
-			normalize();
+			__CLASS__COCOCLIP__.__children.push(clipInstance);
 			//@line 115
+			normalize();
+			//@line 116
 			return clipInstance;
 		};
-		//@line 119
-		var normalize = function ()
+		//@line 120
+		var removeChild = this.removeChild = function (clipInstance)
 		{
 			//@line 122
-			__CLASS__COCOCLIP__.__childWithMaxTimelineDuration = null;
+			if (!clipInstance) return null;
 			//@line 123
+			__CLASS__COCOCLIP__.__children.splice(__CLASS__COCOCLIP__.getChildIndex(clipInstance), 1);
+			//@line 124
+			normalize();
+			//@line 125
+			return clipInstance;
+		};
+		//@line 129
+		var normalize = function ()
+		{
+			//@line 132
+			__CLASS__COCOCLIP__.__childWithMaxTimelineDuration = null;
+			//@line 133
 			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
 			{
-				//@line 125
+				//@line 135
 				if (!__CLASS__COCOCLIP__.__childWithMaxTimelineDuration)
 				{
-					//@line 127
+					//@line 137
 					__CLASS__COCOCLIP__.__childWithMaxTimelineDuration = __CLASS__COCOCLIP__.__children[i];
-					//@line 128
+					//@line 138
 					continue;
 				}
-				//@line 130
+				//@line 140
 				if (__CLASS__COCOCLIP__.__children[i].__timeline.__durationInTime > __CLASS__COCOCLIP__.__childWithMaxTimelineDuration.__timeline.__durationInTime)
 				{
-					//@line 132
+					//@line 142
 					__CLASS__COCOCLIP__.__childWithMaxTimelineDuration = __CLASS__COCOCLIP__.__children[i];
 				}
 			}
 		};
-		//@line 138
+		//@line 148
 		var getChildByName = this.getChildByName = function (instanceName)
 		{
-			//@line 140
+			//@line 150
 			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
 			{
-				//@line 142
+				//@line 152
 				if (__CLASS__COCOCLIP__.__children[i].__instanceName == instanceName)
 				{
-					//@line 144
+					//@line 154
 					return __CLASS__COCOCLIP__.__children[i];
 				}
 			}
-			//@line 147
+			//@line 157
 			return null;
 		};
-		//@line 151
+		//@line 161
 		var getChildIndex = this.getChildIndex = function (child)
 		{
-			//@line 153
+			//@line 163
 			if (child)
 			{
-				//@line 155
+				//@line 165
 				for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
 				{
-					//@line 157
+					//@line 167
 					if (__CLASS__COCOCLIP__.__children[i] == child)
 					{
-						//@line 159
+						//@line 169
 						return i;
 					}
 				}
 			}
-			//@line 163
+			//@line 173
 			return -1;
 			return 0
 		};
-		//@line 167
+		//@line 177
 		var gotoFrameByName = this.gotoFrameByName = function (LabelName, pause, deep)
 		{
-			//@line 169
+			//@line 179
 			var Label = __CLASS__COCOCLIP__.__timeline.findLabelByName(LabelName);
-			//@line 170
+			//@line 180
 			if (!Label) return false;
-			//@line 171
+			//@line 181
 			return __CLASS__COCOCLIP__.gotoFrameByIndex(Label.frameIndex, pause, deep);
 			return false
 		};
-		//@line 175
+		//@line 185
 		var gotoFrameByIndex = this.gotoFrameByIndex = function (FrameIndex, pause, deep)
 		{
-			//@line 177
+			//@line 187
 			var clip;
-			//@line 178
+			//@line 188
 			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
 			{
-				//@line 180
+				//@line 190
 				clip = __CLASS__COCOCLIP__.__children[i];
-				//@line 181
+				//@line 191
 				if (FrameIndex == COCO_STOP_ON_CURRENT_FRAME)
 				{
-					//@line 183
+					//@line 193
 					clip.__timeline.jumpBy(0, pause);
 				}
 				else
 				{
-					//@line 187
+					//@line 197
 					var frames = (FrameIndex - clip.__currentFrame.frameIndex);
-					//@line 188
+					//@line 198
 					clip.__timeline.jumpBy(frames, pause);
 				}
-				//@line 190
+				//@line 200
 				if (deep)
 				{
-					//@line 192
+					//@line 202
 					clip.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
 				}
 			}
-			//@line 195
+			//@line 205
 			return true;
 			return false
 		};
-		//@line 199
+		//@line 209
 		var render = this.render = function (gl, scene, parentClip, picking)
 		{
-			//@line 202
-			var __currentTime = scene.__currentTime + __CLASS__COCOCLIP__.__timeline.__skipTime;
-			//@line 205
-			if (__CLASS__COCOCLIP__.__firstTickTime == -1) __CLASS__COCOCLIP__.__firstTickTime = __currentTime;
-			//@line 209
-			var parentClipsDuration = (parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __CLASS__COCOCLIP__.__timeline.__durationInTime);
 			//@line 212
-			var clippingTime = Math.floor((__currentTime - __CLASS__COCOCLIP__.__firstTickTime) / parentClipsDuration) * parentClipsDuration;
+			var __currentTime = scene.__currentTime + __CLASS__COCOCLIP__.__timeline.__skipTime;
 			//@line 215
+			if (__CLASS__COCOCLIP__.__firstTickTime == -1) __CLASS__COCOCLIP__.__firstTickTime = __currentTime;
+			//@line 219
+			var parentClipsDuration = (parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __CLASS__COCOCLIP__.__timeline.__durationInTime);
+			//@line 222
+			var clippingTime = Math.floor((__currentTime - __CLASS__COCOCLIP__.__firstTickTime) / parentClipsDuration) * parentClipsDuration;
+			//@line 225
 			var __loopTime = (__currentTime - __CLASS__COCOCLIP__.__firstTickTime) - clippingTime;
-			//@line 218
+			//@line 228
 			if (!__CLASS__COCOCLIP__.__timeline.__paused && __CLASS__COCOCLIP__.__currentFrame) delete __CLASS__COCOCLIP__.__currentFrame;
-			//@line 221
+			//@line 231
 			switch (__CLASS__COCOCLIP__.__symbolLoop)
 			{
-				//@line 223
+				//@line 233
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS:
 				{
-					//@line 224
+					//@line 234
 					__CLASS__COCOCLIP__.__currentFrame = __CLASS__COCOCLIP__.__timeline.interpolateByTime(__loopTime);
-					//@line 225
+					//@line 235
 					break;
 				}
 				break;
-				//@line 227
+				//@line 237
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT:
 				{
-					//@line 228
+					//@line 238
 					__CLASS__COCOCLIP__.__currentFrame = __CLASS__COCOCLIP__.__timeline.interpolateByTime(__loopTime);
-					//@line 229
+					//@line 239
 					break;
 				}
 				break;
-				//@line 231
+				//@line 241
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
 				{
-					//@line 232
+					//@line 242
 					if (clippingTime > 0)
-					//@line 233
+					//@line 243
 					__CLASS__COCOCLIP__.__currentFrame = __CLASS__COCOCLIP__.__timeline.lastKeyFrame().clone();
 					else
-					//@line 235
+					//@line 245
 					__CLASS__COCOCLIP__.__currentFrame = __CLASS__COCOCLIP__.__timeline.interpolateByTime(__loopTime);
-					//@line 236
+					//@line 246
 					break;
 				}
 				break;
 			}
-			//@line 240
+			//@line 250
 			if (parentClip)
 			{
-				//@line 242
+				//@line 252
 				__CLASS__COCOCLIP__.__currentFrame.combine(parentClip.__currentFrame);
-				//@line 246
+				//@line 256
 				if (__CLASS__COCOCLIP__.__currentFrame.calcBoundingBox)
-				//@line 247
+				//@line 257
 				parentClip.__currentFrame.calcBoundingBox = true;
 			}
-			//@line 251
+			//@line 261
 			if (__CLASS__COCOCLIP__.__currentFrame.alpha != 0 && __CLASS__COCOCLIP__.__currentFrame.visible)
 			{
-				//@line 253
+				//@line 263
 				if (__CLASS__COCOCLIP__.__image)
 				{
-					//@line 255
+					//@line 265
 					var c = scene.__view_pixel_ratio / __CLASS__COCOCLIP__.__image.pixelRatio;
-					//@line 256
+					//@line 266
 					__CLASS__COCOCLIP__.__currentFrame.scaleX *= c;
-					//@line 257
+					//@line 267
 					__CLASS__COCOCLIP__.__currentFrame.scaleY *= c;
-					//@line 258
+					//@line 268
 					__CLASS__COCOCLIP__.__currentFrame.apply(scene.__modelViewMatrix);
-					//@line 259
+					//@line 269
 					__CLASS__COCOCLIP__.__currentFrame.scaleX /= c;
-					//@line 260
+					//@line 270
 					__CLASS__COCOCLIP__.__currentFrame.scaleY /= c;
-					//@line 262
+					//@line 272
 					if (__CLASS__COCOCLIP__.__image.isSpriteSheet && __CLASS__COCOCLIP__.__currentSequence)
 					{
-						//@line 265
-						__CLASS__COCOCLIP__.__currentSequenceFrameIndex = __CLASS__COCOCLIP__.__timeline.__paused ? 0 : Math.floor((__currentTime - __CLASS__COCOCLIP__.__firstTickTime) / GLOBAL_FPS) % __CLASS__COCOCLIP__.__currentSequence.frames.size();
-						//@line 266
+						//@line 275
+						__CLASS__COCOCLIP__.__currentSequenceFrameIndex = __CLASS__COCOCLIP__.__timeline.__paused ? 0 : Math.floor((__currentTime - __CLASS__COCOCLIP__.__firstTickTime) / (1000.0 / scene.__fps)) % __CLASS__COCOCLIP__.__currentSequence.frames.size();
+						//@line 276
 						var frame = __CLASS__COCOCLIP__.__currentSequence.frames[__CLASS__COCOCLIP__.__currentSequenceFrameIndex];
-						//@line 267
+						//@line 277
 						scene.drawFrame(gl, __CLASS__COCOCLIP__.__image, frame, __CLASS__COCOCLIP__.__currentFrame.alpha);
 					}
 					else
 					{
-						//@line 272
+						//@line 282
 						scene.drawFrame(gl, __CLASS__COCOCLIP__.__image, 0, __CLASS__COCOCLIP__.__currentFrame.alpha);
 					}
 				}
 				else
 				{
-					//@line 278
+					//@line 288
 					scene.__levelParents.push(__CLASS__COCOCLIP__);
-					//@line 279
+					//@line 289
 					__CLASS__COCOCLIP__.__currentFrame.apply(scene.__modelViewMatrix);
-					//@line 280
+					//@line 290
 					for (var i = 0, L = __CLASS__COCOCLIP__.__children.size(); i < L; i++)
 					{
-						//@line 282
+						//@line 292
 						scene.__modelViewMatrix.push();
-						//@line 283
+						//@line 293
 						__CLASS__COCOCLIP__.__children[i].render(gl, scene, __CLASS__COCOCLIP__, picking);
-						//@line 284
+						//@line 294
 						scene.__modelViewMatrix.pop();
 					}
-					//@line 286
+					//@line 296
 					scene.__levelParents.pop();
 				}
 			}
-			//@line 291
+			//@line 301
 			if (!__CLASS__COCOCLIP__.__timeline.__paused && __CLASS__COCOCLIP__.__currentFrame.action)
 			{
-				//@line 293
+				//@line 303
 				__CLASS__COCOCLIP__.__parent = parentClip;
-				//@line 294
+				//@line 304
 				__CLASS__COCOCLIP__.__currentFrame.execute(gl, __currentTime, __loopTime, scene, __CLASS__COCOCLIP__);
-				//@line 295
+				//@line 305
 				__CLASS__COCOCLIP__.__parent = null;
 			}
 		};

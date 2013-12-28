@@ -1,66 +1,68 @@
-//@export_native
-//@export_web
-
-#include "CocoKeyFrame.jspp"
-#include "CocoTimeLabel.jspp"
+"#export native"
+"#export web"
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013 www.coconut2D.org
- * 
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.   
+ * THE SOFTWARE.
  *
  * ***** END LICENSE BLOCK ***** */
 
+"#include CocoKeyFrame.jspp"
+"#include CocoTimeLabel.jspp"
+
 // ==================================================================================================================================
-//	   ______               _______                ___          
-//	  / ____/___  _________/_  __(_)___ ___  ___  / (_)___  ___ 
+//	   ______               _______                ___
+//	  / ____/___  _________/_  __(_)___ ___  ___  / (_)___  ___
 //	 / /   / __ \/ ___/ __ \/ / / / __ `__ \/ _ \/ / / __ \/ _ \
 //	/ /___/ /_/ / /__/ /_/ / / / / / / / / /  __/ / / / / /  __/
-//	\____/\____/\___/\____/_/ /_/_/ /_/ /_/\___/_/_/_/ /_/\___/ 
-//	                                                            
+//	\____/\____/\___/\____/_/ /_/_/ /_/ /_/\___/_/_/_/ /_/\___/
+//
 // ==================================================================================================================================
 
 class CocoTimeline
-{ 
-	public var __labels:Array<CocoTimeLabel>;			
-	public var __keyFrames:Array<CocoKeyFrame>;				
-	public var __singleFrameDurationTime:Float;	
-	public var __durationInTime:Float;			
-	public var __durationInFrames:Integer;		
-	public var __skipTime:Float;					
-	public var __paused:Boolean;					
-	public var __pausedKeyFrame:CocoKeyFrame;				
-	
+{
+	public var __labels:Array<CocoTimeLabel>;
+	public var __keyFrames:Array<CocoKeyFrame>;
+	public var __singleFrameDurationTime:Float;
+	public var __durationInTime:Float;
+	public var __durationInFrames:Integer;
+	public var __skipTime:Float;
+	public var __paused:Boolean;
+	public var __pausedKeyFrame:CocoKeyFrame;
+	public var __fps:Float;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
 		__singleFrameDurationTime	= 0.0;
 		__durationInTime			= 0.0;
 		__durationInFrames			= 0;
-		__skipTime					= 0.0;	
+		__skipTime					= 0.0;
 		__paused					= false;
 		__pausedKeyFrame			= null;
-				 
-		addKeyFrameEx(null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);	
-	} 
-	
+		__fps						= 30;
+
+		addKeyFrameEx(null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function clear()
 	{
@@ -68,8 +70,8 @@ class CocoTimeline
 		__keyFrames = [];
 		__labels = [];
 		normalizetimeline();
-	}   
-	
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
@@ -80,21 +82,21 @@ class CocoTimeline
 			__keyFrames[i].reset();
 		}
 	}
-		
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addLabel(Label:CocoTimeLabel) :CocoTimeLabel
 	{
 		if (Label) __labels.push(Label);
 		return Label;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addLabelEx(FrameIndex:Integer, LabelName:String) :CocoTimeLabel
 	{
 		var Label:CocoTimeLabel = new CocoTimeLabel(FrameIndex, LabelName);
 		return addLabel(Label);
-	}  
-	
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function findLabelByName(LabelName:String) :CocoTimeLabel
 	{
@@ -106,11 +108,11 @@ class CocoTimeline
 			}
 		}
 		return null;
-	}	
-	
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function keyFrame(frameIndex:Integer) :CocoKeyFrame
-	{		
+	{
 		for(var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
 		{
 			if(__keyFrames[i].frameIndex == frameIndex)
@@ -119,8 +121,8 @@ class CocoTimeline
 			}
 		}
 		return null;
-	}	
-	
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function firstKeyFrame() :CocoKeyFrame
 	{
@@ -144,14 +146,14 @@ class CocoTimeline
 		}
 		return KeyFrame;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addKeyFrameEx(actionCallback:Function,
-								  frameIndex:Integer, 
-								  frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, 
-								  handleEvents:Boolean, 
-								  visible:Boolean, 
-								  x:Float, 
+								  frameIndex:Integer,
+								  frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM,
+								  handleEvents:Boolean,
+								  visible:Boolean,
+								  x:Float,
 								  y:Float,
 								  scaleX:Float,
 								  scaleY:Float,
@@ -159,10 +161,10 @@ class CocoTimeline
 								  pivotX:Float,
 								  pivotY:Float,
 								  alpha:Float) :CocoKeyFrame
-	{    
+	{
 	    var KeyFrame:CocoKeyFrame = new CocoKeyFrame();
-	            
-	    KeyFrame.action				= actionCallback;        
+
+	    KeyFrame.action				= actionCallback;
 	    KeyFrame.frameIndex 		= frameIndex;
 	    KeyFrame.frameInterpolation = frameInterpolation;
 	    KeyFrame.handleEvents 		= handleEvents;
@@ -175,13 +177,20 @@ class CocoTimeline
 	    KeyFrame.pivotX 			= pivotX;
 	    KeyFrame.pivotY 			= pivotY;
 	    KeyFrame.alpha 				= alpha;
-	    
-	    return addKeyFrame(KeyFrame);    
+
+	    return addKeyFrame(KeyFrame);
 	}
-				
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepare(scene:CocoScene, clip:CocoClip)
+	{
+		__fps = scene.__fps;
+		normalizetimeline();
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function normalizetimeline()
-	{		   
+	{
 		reset();
 		__durationInFrames = 0;
 		__durationInTime = 0;
@@ -189,22 +198,22 @@ class CocoTimeline
 		if (__keyFrames.size() > 0)
 		{
 			__durationInFrames = __keyFrames[__keyFrames.size() - 1].frameIndex + 1;
-			__durationInTime = (__durationInFrames / GLOBAL_FPS) * 1000;
+			__durationInTime = (__durationInFrames / __fps) * 1000;
 			__singleFrameDurationTime = __durationInTime / __durationInFrames;
 		}
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function jumpBy(frames:Float, paused:Boolean)
 	{
-		__paused = paused;	
+		__paused = paused;
 		if(frames!=0)
 		{
-			__skipTime += (frames * __singleFrameDurationTime);	
-			__pausedKeyFrame = null;		
+			__skipTime += (frames * __singleFrameDurationTime);
+			__pausedKeyFrame = null;
 		}
 	}
-		
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
 	{
@@ -228,10 +237,10 @@ class CocoTimeline
 		}
 		return null;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
-	{               
+	{
 		var KeyFrame:CocoKeyFrame;
 		for(var i:Integer = 0, L:Integer = __keyFrames.size(); i < L; i++)
 		{
@@ -252,94 +261,94 @@ class CocoTimeline
 		}
 		return null;
 	}
-				
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolateByTime(LoopTime:Float) :CocoKeyFrame
 	{
 	    var T:Float = (LoopTime / __singleFrameDurationTime);
 	    return interpolateByFrame(T);
-	}     
-	
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolateByFrame(frameIndex:Float) :CocoKeyFrame
-	{              
-		if(__paused && __pausedKeyFrame) 
+	{
+		if(__paused && __pausedKeyFrame)
 			return __pausedKeyFrame;
-			
+
 	    var F:CocoKeyFrame = null;
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
 	    var s:Float = 1.0;
-	    var FrameIndex:Float = Math.floor(frameIndex);	    
-	    
+	    var FrameIndex:Float = Math.floor(frameIndex);
+
 	    // Timeline is empty?
-	    if(__keyFrames.size()==0) 
+	    if(__keyFrames.size()==0)
 	    {
 	        F = new CocoKeyFrame();
 	        F.frameIndex = FrameIndex;
 	        F.visible = false;
 	        return (__pausedKeyFrame = F);
 	    }
-	        
+
 	    // Exact KeyFrame exists?
 	    F1 = keyFrame(FrameIndex);
 	    if(F1) return (__pausedKeyFrame = F1.clone());
-	    
+
 	    // Seek previous KeyFrame
 	    F1 = findKeyFrameBeforeframeIndex(FrameIndex, false, -1);
-	    
-	    if(!F1) 
-	    {    
+
+	    if(!F1)
+	    {
 	        // No previous KeyFrame
 	        F = new CocoKeyFrame();
 	        F.frameIndex = FrameIndex;
 	        F.visible = false;
-	        return (__pausedKeyFrame = F);        
-	    } 
-	    else 
-	    {        
+	        return (__pausedKeyFrame = F);
+	    }
+	    else
+	    {
 	        switch(F1.frameInterpolation)
-	        {        
+	        {
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
-	        
-	            F = F1.clone(); 
+
+	            F = F1.clone();
 	            F.frameIndex = FrameIndex;
 	            F.action=null;
 	            return (__pausedKeyFrame = F);
-	        
+
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
-	        
+
 	            F = F1.clone();
 	            F.frameIndex = FrameIndex;
 	            F.action=null;
 	            F.visible = false;
 	            return (__pausedKeyFrame = F);
-	            
+
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
-	            
+
 	            // We need the next KeyFrame now
 	            F2 = findKeyFrameAfterframeIndex(FrameIndex, false, -1);
-	            
-	            if(!F2) 
-	            {                
+
+	            if(!F2)
+	            {
 	                // Fallback to echo
 	                F = F1.clone();
 	                F.frameIndex = FrameIndex;
 	                F.action=null;
 	                return (__pausedKeyFrame = F);
-	                
-	            } 
-	            else 
-	            {            
+
+	            }
+	            else
+	            {
 	                // Interpolate between frames
-	                F = F1.clone();	                
+	                F = F1.clone();
 	                F.frameIndex = FrameIndex;
 	                F.action=null;
 	                s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
 	                F.interpolate(F1, F2, s);
-	                return (__pausedKeyFrame = F);                
-	            }        
-	        }        
+	                return (__pausedKeyFrame = F);
+	            }
+	        }
 	    }
 	    return null;
 	}

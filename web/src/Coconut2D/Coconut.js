@@ -1,9 +1,8 @@
-//@export_web
-//#include "Constants.js"
+"#export web"
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013 www.coconut2D.org
+ * Copyright (C) 2013-2014 www.coconut2D.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,16 +33,9 @@
 //	                                                                                               /____/             
 // ==================================================================================================================================
 
-'use strict';
+"use strict";
+
+"#include Constants.js"
 
 var ___COCONUT_VERSION = 1.0;
-
-
-
-
-
-
-
-
-
 

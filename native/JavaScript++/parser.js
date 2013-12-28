@@ -1,42 +1,42 @@
 // ==================================================================================================================================
-//	    _   __                _                         ____                           
+//	    _   __                _                         ____
 //	   / | / /___ ___________(_)___________  _______   / __ \____ ______________  _____
 //	  /  |/ / __ `/ ___/ ___/ / ___/ ___/ / / / ___/  / /_/ / __ `/ ___/ ___/ _ \/ ___/
-//	 / /|  / /_/ / /  / /__/ (__  |__  ) /_/ (__  )  / ____/ /_/ / /  (__  )  __/ /    
-//	/_/ |_/\__,_/_/   \___/_/____/____/\__,_/____/  /_/    \__,_/_/  /____/\___/_/     
-//	                                                                                   
+//	 / /|  / /_/ / /  / /__/ (__  |__  ) /_/ (__  )  / ____/ /_/ / /  (__  )  __/ /
+//	/_/ |_/\__,_/_/   \___/_/____/____/\__,_/____/  /_/    \__,_/_/  /____/\___/_/
+//
 // ==================================================================================================================================
 //
-//	The following parser is based on JavaScript++ Parser created by Roger Poon 
+//	The following parser is based on JavaScript++ Parser created by Roger Poon
 //	which in turn was based on the Narcissus parser.
-//	
+//
 //	Cross-engine port of the SpiderMonkey Narcissus parser.
 //	* Original: http://mxr.mozilla.org/mozilla/source/js/narcissus/ as of 2010-02-09
 //	* Modifications: Copyright (c) 2010 Guillaume Lathoud, MIT License.
-//	
+//
 //	**** BEGIN ORIGINAL LICENSE BLOCK *****
-//	
+//
 //	Version: MPL 1.1/GPL 2.0/LGPL 2.1
-//	
+//
 //	The contents of this file are subject to the Mozilla Public License Version
 //	1.1 (the "License"); you may not use this file except in compliance with
 //	the License. You may obtain a copy of the License at
 //	http://www.mozilla.org/MPL/
-//	
+//
 //	Software distributed under the License is distributed on an "AS IS" basis,
 //	WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
 //	for the specific language governing rights and limitations under the
 //	License.
-//	
+//
 //	The Original Code is the Narcissus JavaScript engine.
-//	
+//
 //	The Initial Developer of the Original Code is
 //	Brendan Eich <brendan@mozilla.org>.
 //	Portions created by the Initial Developer are Copyright (C) 2004
 //	the Initial Developer. All Rights Reserved.
-//	
+//
 //	Contributor(s):
-//	
+//
 //	Alternatively, the contents of this file may be used under the terms of
 //	either the GNU General Public License Version 2 or later (the "GPL"), or
 //	the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -49,32 +49,33 @@
 //	the provisions above, a recipient may use your version of this file under
 //	the terms of any one of the MPL, the GPL or the LGPL.
 //
-//	***** END ORIGINAL LICENSE BLOCK ***** 
+//	***** END ORIGINAL LICENSE BLOCK *****
 
 var GLOBAL = this;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function __isPointer(vartype)
 {
-	if(!vartype) 
-		return false;		
-		
+	if(!vartype)
+		return false;
+
 	switch(vartype)
 	{
-	case "Boolean": 
-	case "Date": 	
-	case "Number": 	
-	case "String": 
+	case "Class":
+	case "Boolean":
+	case "Date":
+	case "Number":
+	case "String":
 	case "Integer":
 	case "Float":
 	case "void":
 	case "undefined":
-	case "null":	
+	case "null":
 		return false;
 	default:
 		if(vartype.indexOf("_ENUM")!=-1) return false;
 		if(vartype.indexOf("<")!=-1) return false;
-		return true; 
+		return true;
 	}
 }
 
@@ -89,8 +90,8 @@ function __init_narcissus(GLOBAL)
 {
 	GLOBAL.narcissus = {};
 	var jsdef = GLOBAL.jsdef = GLOBAL.narcissus.jsdef = {};
-	
-	var tokens = jsdef.tokens = 
+
+	var tokens = jsdef.tokens =
 	[
         // End of source.
         "END",
@@ -116,26 +117,26 @@ function __init_narcissus(GLOBAL)
         "[", "]",
         "{", "}",
         "(", ")",
-        "**",               
+        "**",
 
         // Nonterminal tree node type codes.
-		"SCRIPT", 
-		"BLOCK", 
+		"SCRIPT",
+		"BLOCK",
 		"LABEL",
 		"FOR_IN",
-		"CALL", 
-		"NEW_WITH_ARGS", 
+		"CALL",
+		"NEW_WITH_ARGS",
 		"INDEX",
 		"ARRAY_INIT",
-		"OBJECT_INIT", 
+		"OBJECT_INIT",
 		"PROPERTY_INIT",
 		"GETTER",
 		"SETTER",
-		"GROUP", 
-		"LIST", 
-		"FOR_INSIDE", 
+		"GROUP",
+		"LIST",
+		"FOR_INSIDE",
 		"ARRAY_COMP",
-		                      
+
         // Terminals.
         "IDENTIFIER",
         "NUMBER",
@@ -143,56 +144,56 @@ function __init_narcissus(GLOBAL)
         "REGEXP",
 
         // Keywords.
-		"#include", 
+		"#include",
 		"break",
-		"case", 
-		"catch", 
-		"class", 
-		"const", 
+		"case",
+		"catch",
+		"class",
+		"const",
 		"continue",
 		"debugger",
 		"default",
-		"delete", 
+		"delete",
 		"do",
 		"else",
 		"enum",
 		"false",
 		"finally",
-		"for", 
+		"for",
 		"function",
-		"if", 
+		"if",
 		"in",
-		"instanceof", 
+		"instanceof",
 		"is",
 		"let",
-		"namespace", 
+		"namespace",
 		"new",
 		"null",
 		"optional",
-		"private",		
+		"private",
 		"protected",
 		"public",
 		"return",
-		"static", 
+		"static",
 		"super",
 		"switch",
-		"this", 
-		"throw", 
-		"true", 
+		"this",
+		"throw",
+		"true",
 		"try",
-		"typeof",         
+		"typeof",
 		"var",
 		"virtual",
-		"void", 
-		"while", 
+		"void",
+		"while",
 		"with"
-	];  
-	
+	];
+
 	// Operator and punctuator mapping from token to tree node type name.
 	// NB: superstring tokens (e.g., ++) must come before their substring token
 	// counterparts (+ in the example), so that the opRegExp regular expression
 	// synthesized from this list makes the longest possible match.
-	
+
 	var opTypeNamesArr = jsdef.opTypeNamesArr = [
         ['\n', "NEWLINE"],
         [';', "SEMICOLON"],
@@ -235,8 +236,8 @@ function __init_narcissus(GLOBAL)
         ['(', "LEFT_PAREN"],
         [')', "RIGHT_PAREN"],
         ['#include', "INCLUDE"]
-	]; 
-	
+	];
+
 	var opTypeNames = jsdef.opTypeNames = (function ()
 	{
 		var ret = {}, x;
@@ -247,9 +248,9 @@ function __init_narcissus(GLOBAL)
 		}
 		return ret;
 	})();
-	
+
 	// Define const END, etc., based on the token names.  Also map name to index.
-	
+
 	var keywords = jsdef.keywords = (function ()
 	{
 		// Hash of keyword identifier to tokens index.  NB: we must null __proto__ to
@@ -282,8 +283,8 @@ function __init_narcissus(GLOBAL)
 		{
 			return _keywords.hasOwnProperty(id) && _keywords[id];
 		};
-	})(); 
-	
+	})();
+
 	// Map assignment operators to their indexes in the tokens array.
 	var assignOps = jsdef.assignOps = ['|', '^', '&', '<<', '>>', '>>>', '+', '-', '*', '/', '%', '&&', '||', '**', '?'];
 	for(var i = 0, j = assignOps.length; i < j; i++)
@@ -293,16 +294,16 @@ function __init_narcissus(GLOBAL)
 	}
 
 	// ==================================================================================================================================
-	//	    _   __                _                     
+	//	    _   __                _
 	//	   / | / /___ ___________(_)___________  _______
 	//	  /  |/ / __ `/ ___/ ___/ / ___/ ___/ / / / ___/
-	//	 / /|  / /_/ / /  / /__/ (__  |__  ) /_/ (__  ) 
-	//	/_/ |_/\__,_/_/   \___/_/____/____/\__,_/____/  
-	//	                                                
+	//	 / /|  / /_/ / /  / /__/ (__  |__  ) /_/ (__  )
+	//	/_/ |_/\__,_/_/   \___/_/____/____/\__,_/____/
+	//
 	// ==================================================================================================================================
 
 	var jsdef = GLOBAL.narcissus.jsdef;
-	
+
 	// Build a regexp that recognizes operators and punctuators (except newline).
 	var opRegExpSrc = (function ()
 	{
@@ -318,13 +319,13 @@ function __init_narcissus(GLOBAL)
 			ret += i.replace(/[?|^&(){}\[\]+\-*\/\.]/g, "\\$&");
 		}
 		return ret;
-	})(); 
-	
-	var opRegExp = new RegExp(opRegExpSrc);		
+	})();
+
+	var opRegExp = new RegExp(opRegExpSrc);
 	var fpRegExp = /^\d+\.(?!\.)\d*(?:[eE][-+]?\d+)?|^\d+(?:\.\d*)?[eE][-+]?\d+|^\.\d+(?:[eE][-+]?\d+)?/;
 	var reRegExp = /^(?:m(x)?|(?=\/))([^\w\s\\])((?:\\.|(?!\2)[^\\])*)\2([a-z]*)/;
 	var scopeId = 1;
-		
+
 	function Tokenizer(s, f, l)
 	{
 		this.cursor = 0;
@@ -336,38 +337,38 @@ function __init_narcissus(GLOBAL)
 		this.scanOperand = true;
 		this.line_start = l || 1;
 		this.__fileLineOffset = 0;
-		this.__filePosOffset = 0;		
-	}  
-	
-	Tokenizer.prototype = 
-	{ 
+		this.__filePosOffset = 0;
+	}
+
+	Tokenizer.prototype =
+	{
 		input: function ()
 		{
 			return this.source.substring(this.cursor);
-		}, 
-		
+		},
+
 		done: function ()
 		{
 			return this.peek() == jsdef.END;
-		}, 
-		
+		},
+
 		token: function ()
-		{				
+		{
 			return this.tokens[this.tokenIndex];
 		},
-		
+
 		match: function (tt)
 		{
 			return this.get() == tt || this.unget();
-		}, 
-		
+		},
+
 		mustMatch: function (tt)
 		{
 			if(!this.match(tt))
 				throw this.newSyntaxError("Missing " + jsdef.tokens[tt].toLowerCase());
 			return this.token();
-		}, 
-		
+		},
+
 		peek: function ()
 		{
 			var tt, next;
@@ -385,8 +386,8 @@ function __init_narcissus(GLOBAL)
 				this.unget();
 			}
 			return tt;
-		}, 
-		
+		},
+
 		peekOnSameLine: function ()
 		{
 			this.scanNewlines = true;
@@ -394,7 +395,7 @@ function __init_narcissus(GLOBAL)
 			this.scanNewlines = false;
 			return tt;
 		},
-		
+
 		get: function ()
 		{
 			var token;
@@ -455,7 +456,7 @@ function __init_narcissus(GLOBAL)
 					id = id.substr(4);
 				}
 				token.type = jsdef.keywords(id) || jsdef.IDENTIFIER;
-				token.value = id;									
+				token.value = id;
 			}
 			else if((match = RegExp("^\\x22(?!\\x22)(?:\\\\.|[^\\x22])*\\x22|^\\x27(?!\\x27)(?:\\\\.|[^\\x27])*\\x27|^([\\x27\\x22]{3})((?:(?!\\1)[\\s\\S])*)\\1|^\\x22\\x22|^\\x27\\x27", "").exec(input)))
 			{
@@ -467,23 +468,23 @@ function __init_narcissus(GLOBAL)
 				}
 				else
 				{
-					this.line_start += match[0].split(/\r?\n/gm).length - 1;						
+					this.line_start += match[0].split(/\r?\n/gm).length - 1;
 					token.value = match[0].replace(RegExp("^['\\x22]|['\\x22]$", "gm"), "");
 				}
-				
+
 				///////////////////////////////////////////////////////////////////
-				// File				
+				// File
 				if(token.value && token.value.indexOf(this.__FILE_DELIM) != -1)
 				{
 					scopeId = 1;
 					this.__path = token.value.substr(this.__FILE_DELIM.length);
-					var v = this.__path.split("/");					
-					this.__file = v[v.length-1]; 
-					this.__fileLineOffset = this.line_start;					
+					var v = this.__path.split("/");
+					this.__file = v[v.length-1];
+					this.__fileLineOffset = this.line_start;
 					this.__filePosOffset = this.cursor + token.value.length + 4;
-					if(narcissus.__messages) trace("Parsing file: " + this.__path);					
-				}  
-				///////////////////////////////////////////////////////////////////					
+					if(narcissus.__messages) trace("Parsing file: " + this.__path);
+				}
+				///////////////////////////////////////////////////////////////////
 			}
 			else if(this.scanOperand && (match = reRegExp.exec(input)))
 			{
@@ -526,57 +527,57 @@ function __init_narcissus(GLOBAL)
 				throw this.newSyntaxError("Illegal token");
 			}
 			token.start = this.cursor;
-			this.cursor += match[0].length;			
-			token.end = this.cursor;			    
-			
+			this.cursor += match[0].length;
+			token.end = this.cursor;
+
 			token.line_start = this.line_start;
-			token.line_end = this.line_start;			
-			
+			token.line_end = this.line_start;
+
 			return token.type;
 		},
-		
+
 		unget: function ()
 		{
 			if(++this.lookahead == 4) throw "PANIC: too much lookahead!";
 			this.tokenIndex = (this.tokenIndex - 1) & 3;
-		}, 
-		
+		},
+
 		newSyntaxError: function(m)
 		{
-			var f = this.__path; 
+			var f = this.__path;
 			var l = (this.line_start - this.__fileLineOffset);
 			var e = new SyntaxError(m + ', filename:' + f + ', line:' + l);
 			e.cursor = this.cursor;
 			trace("@@ ERROR: " + m + " in file " + f  + " at line " + l);
-			jsppCallback("error", f, l, m);			
+			jsppCallback("error", f, l, m);
 			return e;
 		}
 	};
-	
-	Tokenizer.prototype.__FILE_DELIM = "script_begin:///";	
+
+	Tokenizer.prototype.__FILE_DELIM = "script_begin:///";
 	Tokenizer.prototype.__file = "";
 	Tokenizer.prototype.__path = "";
 	Tokenizer.prototype.__fileLineOffset = 0;
 	Tokenizer.prototype.__filePosOffset = 0;
-	
+
 	Tokenizer.prototype.NewScopeId = function()
 	{
 		return (++scopeId);
-	} 
-	
+	}
+
 	Tokenizer.prototype.ScopeId = function()
-	{		
+	{
 		return (scopeId);
-	} 
-				
+	}
+
 	function CompilerContext(inFunction)
 	{
 		this.inFunction = inFunction;
 		this.stmtStack = [];
 		this.funDecls = [];
 		this.varDecls = [];
-	}  
-	
+	}
+
 	var CCp = CompilerContext.prototype;
 	CCp.bracketLevel = CCp.curlyLevel = CCp.parenLevel = CCp.hookLevel = 0;
 	CCp.ecmaStrictMode = CCp.inForLoopInit = false;
@@ -592,33 +593,33 @@ function __init_narcissus(GLOBAL)
 		n.scopeId = t.NewScopeId();
 		return n;
 	}
-	
+
 	// Node extends Array, which we extend slightly with a top-of-stack method.
 	Array.prototype.top = function ()
 	{
 		return this.length && this[this.length - 1];
 	};
-		
+
 	function Node(t, type)
 	{
 		var token = t.token();
-		
-		this.scopeId = t.ScopeId();	
-		this.xmlvartype="";		
-		
+
+		this.scopeId = t.ScopeId();
+		this.xmlvartype="";
+
 		if(token)
-		{  			
+		{
 			this.type = type || token.type;
 			this.value = token.value;
 
 			this.start = token.start;
 			this.end = token.end;
-			
+
 			this.line_start = token.line_start;
 			this.line_end = token.line_start;
-			
+
 			this.file = t.__file;
-			this.path = t.__path;						
+			this.path = t.__path;
 			this.__fileLineOffset = t.__fileLineOffset;
 			this.__filePosOffset = t.__filePosOffset;
 		}
@@ -626,33 +627,33 @@ function __init_narcissus(GLOBAL)
 		{
 			this.type = type;
 			this.line_start = t.line_start;
-		} 
-		
-		this.tokenizer = t;		
-				
+		}
+
+		this.tokenizer = t;
+
 		for(var i = 2; i < arguments.length; i++)
 			this.push(arguments[i]);
 	}
-	
-	GLOBAL.Node = Node; 
-	
+
+	GLOBAL.Node = Node;
+
 	var Np = Node.prototype = new Array;
 	Np.constructor = Node;
-	
+
 	Np.push = function (kid)
 	{
 		if(!kid)
 			throw this.tokenizer.newSyntaxError('Empty child expression!');
 		if(kid.start < this.start)
 			this.start = kid.start;
-		if(this.end < kid.end)  
+		if(this.end < kid.end)
 		{
 			this.end = kid.end;
 			this.line_end = kid.line;
 		}
 		return Array.prototype.push.call(this, kid);
-	};	
-	
+	};
+
 	function nest(t, x, node, func, end)
 	{
 		x.stmtStack.push(node);
@@ -673,40 +674,40 @@ function __init_narcissus(GLOBAL)
 		x.stmtStack.pop();
 		n.blockId = ++blockId;
 		n.scopeId = t.NewScopeId();
-		
-		n.end = t.cursor;   
+
+		n.end = t.cursor;
 		n.line_end = t.line_start;
-		
+
 		return n;
-	} 
-	
+	}
+
 	function Block(t, x)
 	{
 		var start = t.start;
 		var line_start = t.line_start;
-		
+
 		t.mustMatch(jsdef.LEFT_CURLY);
 		var n = Statements(t, x);
-		t.mustMatch(jsdef.RIGHT_CURLY);		
-		
+		t.mustMatch(jsdef.RIGHT_CURLY);
+
 		n.start = start;
 		n.line_start = line_start;
-		
+
 		n.end = t.end;
-		n.line_end = t.line_start;		
-		
+		n.line_end = t.line_start;
+
 		return n;
-	}		
-	
+	}
+
 	// ==================================================================================================================================
-	//	   _____ __        __                            __      
+	//	   _____ __        __                            __
 	//	  / ___// /_____ _/ /____  ____ ___  ___  ____  / /______
 	//	  \__ \/ __/ __ `/ __/ _ \/ __ `__ \/ _ \/ __ \/ __/ ___/
-	//	 ___/ / /_/ /_/ / /_/  __/ / / / / /  __/ / / / /_(__  ) 
-	//	/____/\__/\__,_/\__/\___/_/ /_/ /_/\___/_/ /_/\__/____/  
-	//	                                                         
-	// ==================================================================================================================================		
-	
+	//	 ___/ / /_/ /_/ / /_/  __/ / / / / /  __/ / / / /_(__  )
+	//	/____/\__/\__,_/\__/\___/_/ /_/ /_/\___/_/ /_/\__/____/
+	//
+	// ==================================================================================================================================
+
 	var DECLARED_FORM = 0,
 		EXPRESSED_FORM = 1,
 		STATEMENT_FORM = 2;
@@ -714,30 +715,30 @@ function __init_narcissus(GLOBAL)
 	function Statement(t, x)
 	{
 		var i, label, n, n2, ss, tt = t.get();
-		
-		// Cases for statements ending in a right curly return early, 
+
+		// Cases for statements ending in a right curly return early,
 		// avoiding the common semicolon insertion magic after this switch.
-		
+
 		switch(tt)
 		{
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.FUNCTION:
 			return FunctionDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CLASS:
 			return ClassDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NAMESPACE:
 			return NamespaceDefinition(t, x);
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.LEFT_CURLY:
-			n = Statements(t, x);			
+			n = Statements(t, x);
 			t.mustMatch(jsdef.RIGHT_CURLY);
 			return n;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.IF:
 			n = new Node(t);
@@ -747,7 +748,7 @@ function __init_narcissus(GLOBAL)
 			n.elsePart = t.match(jsdef.ELSE) ? Statement(t, x) : null;
 			x.stmtStack.pop();
 			return n;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.SWITCH:
 			n = new Node(t);
@@ -784,7 +785,7 @@ function __init_narcissus(GLOBAL)
 			}
 			x.stmtStack.pop();
 			return n;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.FOR:
 			n = new Node(t);
@@ -834,7 +835,7 @@ function __init_narcissus(GLOBAL)
 			t.mustMatch(jsdef.RIGHT_PAREN);
 			n.body = nest(t, x, n, Statement);
 			return n;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.WHILE:
 			n = new Node(t);
@@ -842,7 +843,7 @@ function __init_narcissus(GLOBAL)
 			n.condition = ParenExpression(t, x);
 			n.body = nest(t, x, n, Statement);
 			return n;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DO:
 			n = new Node(t);
@@ -858,7 +859,7 @@ function __init_narcissus(GLOBAL)
 				return n;
 			}
 			break;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.BREAK:
 		case jsdef.CONTINUE:
@@ -873,7 +874,7 @@ function __init_narcissus(GLOBAL)
 			label = n.label;
 			if(label)
 			{
-				do 
+				do
 				{
 					if(--i < 0)
 						throw t.newSyntaxError("Label not found");
@@ -893,7 +894,7 @@ function __init_narcissus(GLOBAL)
 			}
 			n.target = ss[i];
 			break;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.TRY:
 			n = new Node(t);
@@ -925,18 +926,18 @@ function __init_narcissus(GLOBAL)
 			if(!n.catchClauses.length && !n.finallyBlock)
 				throw t.newSyntaxError("Invalid try statement");
 			return n;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CATCH:
 		case jsdef.FINALLY:
 			throw t.newSyntaxError(jsdef.tokens[tt] + " without preceding try");
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.THROW:
 			n = new Node(t);
 			n.exception = Expression(t, x);
 			break;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.RETURN:
 			if(!x.inFunction)
@@ -946,44 +947,44 @@ function __init_narcissus(GLOBAL)
 			if(tt != jsdef.END && tt != jsdef.NEWLINE && tt != jsdef.SEMICOLON && tt != jsdef.RIGHT_CURLY)
 				n.value = Expression(t, x);
 			break;
-					
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.WITH:
 			n = new Node(t);
 			n.object = ParenExpression(t, x);
 			n.body = nest(t, x, n, Statement);
 			return n;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.VAR:
 		case jsdef.CONST:
-			n = Variables(t, x);			
+			n = Variables(t, x);
 			break;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.LET:
 			n = Variables(t, x);
 			n.block = true;
 			break;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DEBUGGER:
 			n = new Node(t);
-			break;  
-			
-		case jsdef.INCLUDE:			
+			break;
+
+		case jsdef.INCLUDE:
 			n = new Node(t);
 			t.mustMatch(jsdef.STRING);
 			n.include = t.token().value;
 			return n;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NEWLINE:
 		case jsdef.SEMICOLON:
 			n = new Node(t, jsdef.SEMICOLON);
 			n.expression = null;
 			return n;
-		
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		default:
 			if(tt == jsdef.IDENTIFIER)
@@ -1010,18 +1011,18 @@ function __init_narcissus(GLOBAL)
 			n = new Node(t, jsdef.SEMICOLON);
 			t.unget();
 			n.expression = Expression(t, x);
-			
-			n.end = n.expression.end; 
+
+			n.end = n.expression.end;
 			n.line_end = n.expression.line_end;
-			
+
 			// Heuristics to detect vartype from jsdef.NEW operator in expression
-			
+
 			// Case 1: Assuming a DOT
 			if(n.expression && n.expression[0] && n.expression[0][1] && n.expression[0][1].type==jsdef.IDENTIFIER && !n.expression[0][1].vartype && n.expression[1] && n.expression[1].type==jsdef.NEW)
 			{
-				n.expression[0][1].vartype = n.expression[1][0].value;				
+				n.expression[0][1].vartype = n.expression[1][0].value;
 			}
-			
+
 			break;
 		}
 		if(t.line_start == t.token().line_start)
@@ -1031,24 +1032,24 @@ function __init_narcissus(GLOBAL)
 				throw t.newSyntaxError("Missing ; before statement");
 		}
 		t.match(jsdef.SEMICOLON);
-		
-		n.end = t.cursor;  
+
+		n.end = t.cursor;
 		n.line_end = t.line_start;
-		
+
 		return n;
-	}		
-	
+	}
+
 	// ==================================================================================================================================
-	//	   ________                ____       _____       _ __  _           
-	//	  / ____/ /___ ___________/ __ \___  / __(_)___  (_) /_(_)___  ____ 
+	//	   ________                ____       _____       _ __  _
+	//	  / ____/ /___ ___________/ __ \___  / __(_)___  (_) /_(_)___  ____
 	//	 / /   / / __ `/ ___/ ___/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
 	//	/ /___/ / /_/ (__  |__  ) /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
-	//	\____/_/\__,_/____/____/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/ 
-	//	                                                                    
-	// ==================================================================================================================================		
+	//	\____/_/\__,_/____/____/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+	//
+	// ==================================================================================================================================
 
 	function ClassDefinition(t, x, requireName, classForm)
-	{                       
+	{
 		var f = new Node(t);
 		f.scopeId = t.ScopeId();
 		if(f.type != jsdef.CLASS)
@@ -1057,7 +1058,7 @@ function __init_narcissus(GLOBAL)
 			f.name = t.token().value;
 		else if(requireName)
 			throw t.newSyntaxError(jsparse.MISSING_FUNCTION_IDENTIFIER);
-			
+
 		if(t.match(jsdef.COLON))
 		{
 			t.mustMatch(jsdef.IDENTIFIER);
@@ -1075,7 +1076,7 @@ function __init_narcissus(GLOBAL)
 		f.private = t.private;
 		f.public = t.public;
 		f.protected = t.protected;
-		f.virtual = t.virtual;	
+		f.virtual = t.virtual;
 		//Set all access modifiers to false so the class body is unaffected
 		t.static = false;
 		t.private = false;
@@ -1098,13 +1099,13 @@ function __init_narcissus(GLOBAL)
 				if(t.token().type == jsdef.PRIVATE)
 				{
 					t.private = true;
-					
+
 					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VIRTUAL && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
-						
-					if(t.match(jsdef.STATIC)) t.static = true;					
+
+					if(t.match(jsdef.STATIC)) t.static = true;
 					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
-					
+
 					if(t.match(jsdef.CONST))
 					{
 						n.push(Variables(t, x));
@@ -1125,13 +1126,13 @@ function __init_narcissus(GLOBAL)
 				else if(t.token().type == jsdef.PUBLIC)
 				{
 					t.public = true;
-					
+
 					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VIRTUAL && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
-						
-					if(t.match(jsdef.STATIC)) t.static = true; 					
+
+					if(t.match(jsdef.STATIC)) t.static = true;
 					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
-					
+
 					if(t.match(jsdef.CONST))
 					{
 						n.push(Variables(t, x));
@@ -1152,17 +1153,17 @@ function __init_narcissus(GLOBAL)
 				else if(t.token().type == jsdef.PROTECTED)
 				{
 					t.protected = true;
-					
+
 					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VIRTUAL && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
-						
+
 					if(t.match(jsdef.STATIC)) t.static = true;
 					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
 
 					if(t.match(jsdef.CONST))
 					{
-						n.push(Variables(t, x));						
-					}					
+						n.push(Variables(t, x));
+					}
 					else if(t.match(jsdef.VAR))
 					{
 						n.push(Variables(t, x));
@@ -1180,10 +1181,10 @@ function __init_narcissus(GLOBAL)
 				{
 					t.protected = true;
 					t.static = true;
-					
+
 					if((peek = t.peek()) != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
 						throw t.newSyntaxError("Invalid class initialization");
-					
+
 					if(t.match(jsdef.CONST))
 					{
 						n.push(Variables(t, x));
@@ -1220,45 +1221,45 @@ function __init_narcissus(GLOBAL)
 			n.contextId = ++contextId;
 			n.scopeId = t.NewScopeId();
 			return n;
-		})(t, x2); 
-		
-		f.end = t.cursor;		
-		f.body.end = t.cursor; 
-		
+		})(t, x2);
+
+		f.end = t.cursor;
+		f.body.end = t.cursor;
+
 		f.line_end = t.line_start;
 		f.body.line_end = t.line_start;
-		
+
 		f.classForm = classForm;
 		if(classForm == DECLARED_FORM)
 			x.funDecls.push(f);
 		return f;
-	}		
-	
+	}
+
 	// ==================================================================================================================================
-	//	    ______                 __  _             ____       _____       _ __  _           
-	//	   / ____/_  ______  _____/ /_(_)___  ____  / __ \___  / __(_)___  (_) /_(_)___  ____ 
+	//	    ______                 __  _             ____       _____       _ __  _
+	//	   / ____/_  ______  _____/ /_(_)___  ____  / __ \___  / __(_)___  (_) /_(_)___  ____
 	//	  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
 	//	 / __/ / /_/ / / / / /__/ /_/ / /_/ / / / / /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
-	//	/_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/ 
-	//	                                                                                      
-	// ==================================================================================================================================		
+	//	/_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+	//
+	// ==================================================================================================================================
 
 	function FunctionDefinition(t, x, requireName, functionForm)
 	{
 		var f = new Node(t);
-		
+
 		if(f.type != jsdef.FUNCTION)
 			f.type = (f.value == "get") ? jsdef.GETTER : jsdef.SETTER;
-			
+
 		if(t.match(jsdef.IDENTIFIER))
 			f.name = t.token().value;
-			
+
 		else if(requireName)
 			throw t.newSyntaxError(jsparse.MISSING_FUNCTION_IDENTIFIER);
-			
+
 		f.__start = t.token().start;
 		f.__end = t.token().end;
-		
+
 		t.mustMatch(jsdef.LEFT_PAREN);
 		f.params = [];
 		f.paramsList = [];
@@ -1272,7 +1273,7 @@ function __init_narcissus(GLOBAL)
 		{
 			var tt, restParam = false;
 			tt = t.get();
-			do 
+			do
 			{
 				var _optional = false;
 				if(tt == jsdef.RANGE)
@@ -1296,7 +1297,7 @@ function __init_narcissus(GLOBAL)
 				if(t.match(jsdef.COLON))
 				{
 					if(t.token().assignOp) throw t.newSyntaxError("Invalid parameter initialization");
-					matchVartype(t, n2, "vartype");					
+					matchVartype(t, n2, "vartype");
 				}
 				if(t.match(jsdef.ASSIGN))
 				{
@@ -1320,7 +1321,7 @@ function __init_narcissus(GLOBAL)
 						t.mustMatch(jsdef.RANGE);
 						restParam = true;
 					}
-					else 
+					else
 					{
 						var p = t.peek();
 						if(p!=jsdef.IDENTIFIER && p!=jsdef.OPTIONAL)
@@ -1330,9 +1331,9 @@ function __init_narcissus(GLOBAL)
 			}
 			while ((tt = t.get()) != jsdef.RIGHT_PAREN);
 		}
-		
-		if(t.match(jsdef.COLON))		
-		{                                  
+
+		if(t.match(jsdef.COLON))
+		{
 			matchVartype(t, f, "returntype");
 			if(t.match(jsdef.NOT)) f.returntype += "!";
 		}
@@ -1370,30 +1371,30 @@ function __init_narcissus(GLOBAL)
 				throw t.newSyntaxError("Missing return in expression closure");
 			}
 			f.body = n3;
-		} 
-		
+		}
+
 		f.end = t.cursor;
 		f.body.end = t.cursor;
-		
+
 		f.line_end = t.line_start;
 		f.body.line_end = t.line_start;
-		 								 		
+
 		f.functionForm = functionForm;
 		if(functionForm == DECLARED_FORM)
 			x.funDecls.push(f);
-			
+
 		return f;
-	}				
-	
+	}
+
 	// ==================================================================================================================================
-	//	    _   __                                                ____       _____       _ __  _           
-	//	   / | / /___ _____ ___  ___  _________  ____ _________  / __ \___  / __(_)___  (_) /_(_)___  ____ 
+	//	    _   __                                                ____       _____       _ __  _
+	//	   / | / /___ _____ ___  ___  _________  ____ _________  / __ \___  / __(_)___  (_) /_(_)___  ____
 	//	  /  |/ / __ `/ __ `__ \/ _ \/ ___/ __ \/ __ `/ ___/ _ \/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
 	//	 / /|  / /_/ / / / / / /  __(__  ) /_/ / /_/ / /__/  __/ /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
-	//	/_/ |_/\__,_/_/ /_/ /_/\___/____/ .___/\__,_/\___/\___/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/ 
-	//	                               /_/                                                                 
-	// ==================================================================================================================================		
-	
+	//	/_/ |_/\__,_/_/ /_/ /_/\___/____/ .___/\__,_/\___/\___/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+	//	                               /_/
+	// ==================================================================================================================================
+
 	function NamespaceDefinition(t, x)
 	{
 		var f = new Node(t);
@@ -1403,21 +1404,21 @@ function __init_narcissus(GLOBAL)
 		var x2 = new CompilerContext(false);
 		f.body = Script(t, x2);
 		t.mustMatch(jsdef.RIGHT_CURLY);
-		
+
 		f.end = t.cursor;
 		f.line_end = t.line_start;
-		
+
 		return f;
-	}		
-	
+	}
+
 	// ==================================================================================================================================
-	//	 _    __           _       __    __         
+	//	 _    __           _       __    __
 	//	| |  / /___ ______(_)___ _/ /_  / /__  _____
 	//	| | / / __ `/ ___/ / __ `/ __ \/ / _ \/ ___/
-	//	| |/ / /_/ / /  / / /_/ / /_/ / /  __(__  ) 
-	//	|___/\__,_/_/  /_/\__,_/_.___/_/\___/____/  
-	//	                                            
-	// ==================================================================================================================================		
+	//	| |/ / /_/ / /  / / /_/ / /_/ / /  __(__  )
+	//	|___/\__,_/_/  /_/\__,_/_.___/_/\___/____/
+	//
+	// ==================================================================================================================================
 
 	function Variables(t, x)
 	{
@@ -1450,34 +1451,34 @@ function __init_narcissus(GLOBAL)
 					break;
 			}
 			t.mustMatch(jsdef.RIGHT_BRACKET);
-			
+
 			if(t.match(jsdef.COLON))
 			{
 				if(t.token().assignOp) throw t.newSyntaxError("Invalid variable initialization");
 				matchVartype(t, n2, "vartype");
 				if(t.match(jsdef.NOT)) n2.vartype += "!";
 			}
-			
+
 			if(t.match(jsdef.ASSIGN))
 			{
 				if(t.token().assignOp)
 					throw t.newSyntaxError("Invalid variable initialization");
-				n2.initializer = Expression(t, x, jsdef.COMMA);				
+				n2.initializer = Expression(t, x, jsdef.COMMA);
 			}
 			n.push(n2);
 			x.varDecls.push(n2);
 		}
-		
+
 		//Regular variable declarations
 		else
 		{
-			do 
+			do
 			{
 				n.public = t.public;
 				n.private = t.private;
 				n.protected = t.protected;
 				n.static = t.static;
-				n.virtual = t.virtual;				
+				n.virtual = t.virtual;
 				t.mustMatch(jsdef.IDENTIFIER);
 				var n2 = new Node(t), vartype = "";
 				n2.name = n2.value;
@@ -1494,19 +1495,19 @@ function __init_narcissus(GLOBAL)
 					if(!n2.vartype) n2.vartype = detectDataType(n2.initializer);
 				}
 				n2.readOnly = (n.type == jsdef.CONST);
-				n.push(n2);        
+				n.push(n2);
 				x.varDecls.push(n);
 			}
 			while (t.match(jsdef.COMMA));
 		}
 		return n;
-	}  
-	
+	}
+
 	function matchVartype(t, node, typeProp)
-	{ 
+	{
 		node[typeProp] = null;
 		node["subtype"] = null;
-		
+
 		t.mustMatch(jsdef.IDENTIFIER);
 		var vartype = t.token().value;
 		var subtype = "";
@@ -1518,9 +1519,9 @@ function __init_narcissus(GLOBAL)
 			t.mustMatch(jsdef.IDENTIFIER);
 			subtype = new Node(t).value;
 			node.subtype = subtype;
-			t.mustMatch(jsdef.GT);               
-			
-			if(narcissus.__cpp)                 
+			t.mustMatch(jsdef.GT);
+
+			if(narcissus.__cpp)
 			{
 				node[typeProp] = vartype + "<" + subtype + (__isPointer(subtype) ? "*" : "") + ">";
 			}
@@ -1528,57 +1529,57 @@ function __init_narcissus(GLOBAL)
 			{
 				node[typeProp] = vartype + "<" + subtype + ">";
 			}
-		}			
-		
-		node.xmlvartype = (!vartype ? "" : " :" + vartype + (subtype ? "&lt;" + subtype + "&gt;" : ""));		
+		}
+
+		node.xmlvartype = (!vartype ? "" : " :" + vartype + (subtype ? "&lt;" + subtype + "&gt;" : ""));
 	}
-		
+
 	// ==================================================================================================================================
-	//	    ____        __        __                      ____       __            __  _           
-	//	   / __ \____ _/ /_____ _/ /___  ______  ___     / __ \___  / /____  _____/ /_(_)___  ____ 
+	//	    ____        __        __                      ____       __            __  _
+	//	   / __ \____ _/ /_____ _/ /___  ______  ___     / __ \___  / /____  _____/ /_(_)___  ____
 	//	  / / / / __ `/ __/ __ `/ __/ / / / __ \/ _ \   / / / / _ \/ __/ _ \/ ___/ __/ / __ \/ __ \
 	//	 / /_/ / /_/ / /_/ /_/ / /_/ /_/ / /_/ /  __/  / /_/ /  __/ /_/  __/ /__/ /_/ / /_/ / / / /
-	//	/_____/\__,_/\__/\__,_/\__/\__, / .___/\___/  /_____/\___/\__/\___/\___/\__/_/\____/_/ /_/ 
-	//	                          /____/_/                                                         
-	// ==================================================================================================================================		
-		
+	//	/_____/\__,_/\__/\__,_/\__/\__, / .___/\___/  /_____/\___/\__/\___/\___/\__/_/\____/_/ /_/
+	//	                          /____/_/
+	// ==================================================================================================================================
+
     // Experimental: heuristics based variable datatype detection when not pluggable type system is used.
     function detectDataType(varItem)
-    {                
+    {
         if(!varItem.value) return;
-        
+
         switch(varItem.type)
         {
         	case jsdef.CALL:
         		return;
         }
-        
+
         var dt = undefined;
-        
+
         switch(varItem.type)
         {
         case jsdef.NEW_WITH_ARGS:
-        case jsdef.NEW: 
-                dt = varItem[0].value;                
+        case jsdef.NEW:
+                dt = varItem[0].value;
                 break;
-                
+
         case jsdef.ARRAY_INIT:
                 dt = "Array";
                 break;
-                
+
         case jsdef.OBJECT_INIT:
                 dt = "Object";
                 break;
-                
+
         case jsdef.NULL:
-        case jsdef.OR: // a = a || null;                                                
+        case jsdef.OR: // a = a || null;
                 dt = "Object";
                 break;
-                
+
         case jsdef.STRING:
                 dt = "String";
                 break;
-                
+
         case jsdef.DATE:
                 dt = "Date";
                 break;
@@ -1586,27 +1587,27 @@ function __init_narcissus(GLOBAL)
         case jsdef.REGEXP:
                 dt = "RegExp";
                 break;
-        
+
         // Numbers and numeric operators result in Number!
         case jsdef.NUMBER:
-        case jsdef.ADD:        
+        case jsdef.ADD:
         case jsdef.DECREMENT:
-        case jsdef.DIV:        
+        case jsdef.DIV:
         case jsdef.EXPONENT:
         case jsdef.INCREMENT:
         case jsdef.LSH:
         case jsdef.MINUS:
         case jsdef.MOD:
-        case jsdef.MUL:        
+        case jsdef.MUL:
         case jsdef.PLUS:
         case jsdef.RSH:
-        case jsdef.SUB:        
+        case jsdef.SUB:
         case jsdef.URSH:
         case jsdef.UNARY_PLUS:
-        case jsdef.UNARY_MINUS:                                                
+        case jsdef.UNARY_MINUS:
                 dt = "Number";
                 break;
-                                        
+
         // Booleans and logic operators result in Boolean!
         case jsdef.FALSE:
         case jsdef.TRUE:
@@ -1623,16 +1624,16 @@ function __init_narcissus(GLOBAL)
         case jsdef.GT:
                 dt = "Boolean";
                 break;
-                                
+
         // ======== DATATYPE HEURISTICS ======== //
-                
-        // a = Math.cos(x)        
-        case jsdef.CALL:            
+
+        // a = Math.cos(x)
+        case jsdef.CALL:
             if(varItem.value[0] && varItem.value[0][0] && varItem.value[0][0].value=="Math") dt = "Number";
-            break;                                                                                                                
-                
+            break;
+
         // a.b
-        case jsdef.DOT:                                                        
+        case jsdef.DOT:
                 // Enum Heuristics
                 if(varItem.value.length==2 && varItem.value[0].value.indexOf("_ENUM")==0)
                         dt = varItem.value[0].value;
@@ -1642,36 +1643,36 @@ function __init_narcissus(GLOBAL)
         case jsdef.INDEX:
                 //TODO: Detect array type.
                 break;
-                
-        // a = b;                                
+
+        // a = b;
         case jsdef.IDENTIFIER:
                 //TODO: Detect identifier type.
                 break;
-                
+
         case jsdef.FUNCTION:
                 //TODO: Detect function return type.
                 break;
-                
+
         case jsdef.GROUP:
                 //TODO: Detect group return type.
                 break;
-                                                                
+
         default:
                 break;
-        }                                                
-        
-        return dt;                
-    }		
-	
+        }
+
+        return dt;
+    }
+
 	// ==================================================================================================================================
-	//	    ______                               _                 
+	//	    ______                               _
 	//	   / ____/  ______  ________  __________(_)___  ____  _____
 	//	  / __/ | |/_/ __ \/ ___/ _ \/ ___/ ___/ / __ \/ __ \/ ___/
-	//	 / /____>  </ /_/ / /  /  __(__  |__  ) / /_/ / / / (__  ) 
-	//	/_____/_/|_/ .___/_/   \___/____/____/_/\____/_/ /_/____/  
-	//	          /_/                                              
-	// ==================================================================================================================================		
-			
+	//	 / /____>  </ /_/ / /  /  __(__  |__  ) / /_/ / / / (__  )
+	//	/_____/_/|_/ .___/_/   \___/____/____/_/\____/_/ /_/____/
+	//	          /_/
+	// ==================================================================================================================================
+
 	function ParenExpression(t, x)
 	{
 		t.mustMatch(jsdef.LEFT_PAREN);
@@ -1679,8 +1680,8 @@ function __init_narcissus(GLOBAL)
 		t.mustMatch(jsdef.RIGHT_PAREN);
 		return n;
 	}
-	
-	var opPrecedence = 
+
+	var opPrecedence =
 	{
 		SEMICOLON: 0,
 		COMMA: 1,
@@ -1734,12 +1735,12 @@ function __init_narcissus(GLOBAL)
 		NEW: 17,
 		DOT: 18
 	};
-	
+
 	// Map operator type code to precedence.
 	for(var i in opPrecedence)
 		if(jsdef[i]) opPrecedence[jsdef[i]] = opPrecedence[i];
-		
-	var opArity = 
+
+	var opArity =
 	{
 		COMMA: -2,
 		ASSIGN: 2,
@@ -1797,7 +1798,7 @@ function __init_narcissus(GLOBAL)
 		PROTECTED: 1,
 		STATIC: 1
 	};
-	
+
 	// Map operator type code to arity.
 	for(var i in opArity)
 		if(jsdef[i]) opArity[jsdef[i]] = opArity[i];
@@ -1832,12 +1833,12 @@ function __init_narcissus(GLOBAL)
 			var a = operands.splice(operands.length - arity, arity);
 			for(var i = 0; i < arity; i++)
 				n.push(a[i]);
-			
+
 			// Include closing bracket or postfix operator in [start,end).
 			if(n.end < t.token().end)
-			{				
+			{
 				n.end = t.token().end;
-				n.line_end = t.line_start;				
+				n.line_end = t.line_start;
 			}
 			operands.push(n);
 			return n;
@@ -1857,7 +1858,7 @@ function __init_narcissus(GLOBAL)
 			case jsdef.SEMICOLON:
 				// NB: cannot be empty, Statement handled that.
 				break loop;
-				
+
 			case jsdef.ASSIGN:
 			case jsdef.HOOK:
 			case jsdef.COLON:
@@ -1884,8 +1885,8 @@ function __init_narcissus(GLOBAL)
 					else ++x.hookLevel; // tt == jsdef.HOOK
 				}
 				t.scanOperand = true;
-				break; 
-				
+				break;
+
 			case jsdef.IN:
 				// An in operator should not be parsed if we're parsing the head of
 				// a for (...) loop, unless it is in the then part of a conditional
@@ -1895,12 +1896,12 @@ function __init_narcissus(GLOBAL)
 					break loop;
 				}
 				// FALL THROUGH
-				
+
 			case jsdef.COMMA:
 				// Treat comma as left-associative so reduce can fold left-heavy
 				// jsdef.COMMA trees into a single array.
 				// FALL THROUGH
-				
+
 			case jsdef.OR:
 			case jsdef.AND:
 			case jsdef.BITWISE_OR:
@@ -1945,11 +1946,11 @@ function __init_narcissus(GLOBAL)
 					operators.push(new Node(t));
 					t.scanOperand = true;
 				}
-				break; 
-				
+				break;
+
 			case jsdef.NEW:
 				if(!t.scanOperand)
-					break loop; 
+					break loop;
 				var n = new Node(t);
 				operators.push(n);
 				break;
@@ -1963,12 +1964,12 @@ function __init_narcissus(GLOBAL)
 			case jsdef.UNARY_PLUS:
 			case jsdef.UNARY_MINUS:
 			case jsdef.REGEXP_MATCH:
-			case jsdef.UNARY_EXISTS:			
+			case jsdef.UNARY_EXISTS:
 				if(!t.scanOperand)
 					break loop;
 				operators.push(new Node(t));
 				break;
-				
+
 			case jsdef.INCREMENT:
 			case jsdef.DECREMENT:
 				if(t.scanOperand)
@@ -1990,21 +1991,21 @@ function __init_narcissus(GLOBAL)
 					operands.push(n);
 				}
 				break;
-				
+
 			case jsdef.FUNCTION:
 				if(!t.scanOperand)
 					break loop;
 				operands.push(FunctionDefinition(t, x, false, EXPRESSED_FORM));
 				t.scanOperand = false;
 				break;
-								
+
 			case jsdef.CLASS:
 				if(!t.scanOperand)
 					break loop;
 				operands.push(ClassDefinition(t, x, false, EXPRESSED_FORM));
 				t.scanOperand = false;
 				break;
-				
+
 			case jsdef.NULL:
 			case jsdef.THIS:
 			case jsdef.TRUE:
@@ -2018,8 +2019,8 @@ function __init_narcissus(GLOBAL)
 					break loop;
 				operands.push(new Node(t));
 				t.scanOperand = false;
-				break; 
-				
+				break;
+
 			//"return" as an expression for expression closures
 			//e.g. [1,2,3].map(function() return 1 + 1)
 			case jsdef.RETURN:
@@ -2032,7 +2033,7 @@ function __init_narcissus(GLOBAL)
 				operands.push(n);
 				t.scanOperand = false;
 				break;
-				
+
 			case jsdef.LEFT_BRACKET:
 				if(t.scanOperand)
 				{
@@ -2156,8 +2157,8 @@ function __init_narcissus(GLOBAL)
 					t.scanOperand = true;
 					++x.bracketLevel;
 				}
-				break; 
-				
+				break;
+
 			case jsdef.RIGHT_BRACKET:
 				if(t.scanOperand || x.bracketLevel == bl)
 					break loop;
@@ -2165,7 +2166,7 @@ function __init_narcissus(GLOBAL)
 					continue;
 				--x.bracketLevel;
 				break;
-				
+
 			case jsdef.LEFT_CURLY:
 				if(!t.scanOperand)
 					break loop;
@@ -2211,12 +2212,12 @@ function __init_narcissus(GLOBAL)
 				t.scanOperand = false;
 				--x.curlyLevel;
 				break;
-				
+
 			case jsdef.RIGHT_CURLY:
 				if(!t.scanOperand && x.curlyLevel != cl)
 					throw "PANIC: right curly botch";
 				break loop;
-				
+
 			case jsdef.LEFT_PAREN:
 				if(t.scanOperand)
 				{
@@ -2251,14 +2252,14 @@ function __init_narcissus(GLOBAL)
 						t.scanOperand = false;
 						break;
 					}
-					if(n.type == jsdef.NEW) 					
+					if(n.type == jsdef.NEW)
 						n.type = jsdef.NEW_WITH_ARGS;
 					else
 						operators.push(new Node(t, jsdef.CALL));
 				}
 				++x.parenLevel;
 				break;
-				
+
 			case jsdef.RIGHT_PAREN:
 				if(t.scanOperand || x.parenLevel == pl)
 					break loop;
@@ -2277,7 +2278,7 @@ function __init_narcissus(GLOBAL)
 				}
 				--x.parenLevel;
 				break;
-				
+
 			// Automatic semicolon insertion means we may scan across a newline
 			// and into the beginning of another statement.  If so, break out of
 			// the while loop and let the t.scanOperand logic handle errors.
@@ -2285,21 +2286,21 @@ function __init_narcissus(GLOBAL)
 				break loop;
 			}
 		}
-		
+
 		if(x.hookLevel != hl) throw t.newSyntaxError("Missing : after ?");
 		if(x.parenLevel != pl) throw t.newSyntaxError("Missing ) in parenthetical");
 		if(x.bracketLevel != bl) throw t.newSyntaxError("Missing ] in index expression");
 		if(t.scanOperand) throw t.newSyntaxError("Missing operand");
-		
+
 		// Resume default mode, scanning for operands, not operators.
 		t.scanOperand = true;
 		t.unget();
 		while(operators.length)
 			reduce();
-			
+
 		return operands.pop();
 	}
-	
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	function jsparse(s, f, l)
 	{
@@ -2308,13 +2309,14 @@ function __init_narcissus(GLOBAL)
 		var n = Script(t, x);
 		if(!t.done()) throw t.newSyntaxError("Syntax error");
 		return n;
-	} 
-	
+	}
+
 	jsparse.MISSING_FUNCTION_IDENTIFIER = "Missing function identifier";
 	GLOBAL.narcissus.jsparse = jsparse;
-	
+
 }
 __init_narcissus(this);
+
 
 
 

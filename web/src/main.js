@@ -1,5 +1,6 @@
-//@export_web
-//@include{Coconut.js}
+"#export web"
+
+"#nclude Coconut.js"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Simulate HTML5 DOM.
@@ -20,7 +21,7 @@ function main()
 	// Get WebGL context
 	gl = canvas.getContext("webgl");
 	gl.clearColor(1.0, 1.0, 1.0, 1.0);
-	
+
 	// Create a new Engine
 	engine = new GameEngine();
 

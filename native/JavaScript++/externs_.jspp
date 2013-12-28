@@ -1,5 +1,4 @@
-//@compile{false}
-// Auto-generated Project Externs used by IDE and intelliSyntax
+// Auto-generated Project Externs (used by IDE intelliSence)
 
 class Object
 {
@@ -185,7 +184,6 @@ class Global : Object
 	public var global;
 	public var engine :Object;
 	public var gl :Object;
-	public var GLOBAL_FPS :Number;
 	public var RADIANS :Number;
 	public var COCO_STOP_ON_CURRENT_FRAME :Number;
 	public var ___COCONUT_VERSION :Number;
@@ -1182,6 +1180,7 @@ class CocoTimeline
 	public function lastKeyFrame() :CocoKeyFrame {}
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame {}
 	public function addKeyFrameEx(actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, alpha:Float) :CocoKeyFrame {}
+	public function prepare(scene:CocoScene, clip:CocoClip) {}
 	public function normalizetimeline() {}
 	public function jumpBy(frames:Float, paused:Boolean) {}
 	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
@@ -1197,10 +1196,12 @@ class CocoTimeline
 	public var __skipTime :Float;
 	public var __paused :Boolean;
 	public var __pausedKeyFrame :CocoKeyFrame;
+	public var __fps :Float;
 } //CocoTimeline
 
 class CocoClip
 {
+	public function prepare(scene:CocoScene) {}
 	public function reset() {}
 	public function addChild(clipInstance:CocoClip) :CocoClip {}
 	public function removeChild(clipInstance:CocoClip) :CocoClip {}
@@ -1252,6 +1253,7 @@ class CocoScene
 	public var __imageSymbols :Array<CocoImage>;
 	public var __soundSymbols :Array<CocoSound>;
 	public var __clipSymbols :Array<CocoClip>;
+	public var __fps :Float;
 	public var __view_width :Float;
 	public var __view_height :Float;
 	public var __view_pixel_ratio :Float;
@@ -1379,29 +1381,15 @@ class GameEngine : CocoEngine
 	public function Constructor() {}
 } //GameEngine
 
-class SceneGameBoard : CocoScene
+class Animation1 : CocoScene
 {
-	public function waitForAction() {}
-	public function hint() {}
 	public function Constructor() {}
-} //SceneGameBoard
+} //Animation1
 
-class State_GameBoard : CocoEngineState
+class StateAnim : CocoEngineState
 {
-	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number) {}
+	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Float) {}
 	public function Constructor() {}
-	private var scene :SceneGameBoard;
-} //State_GameBoard
-
-class SceneTitle : CocoScene
-{
-	public function Constructor() {}
-} //SceneTitle
-
-class State_TitleScreen : CocoEngineState
-{
-	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number) {}
-	public function Constructor() {}
-	private var scene :SceneTitle;
-} //State_TitleScreen
+	private var scene :Animation1;
+} //StateAnim
 

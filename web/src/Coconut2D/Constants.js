@@ -1,7 +1,8 @@
-//@export_web
+"#export web"
+
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013 www.coconut2D.org
+ * Copyright (C) 2013-2014 www.coconut2D.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,15 +36,15 @@
 var global = this;
 var engine = null;
 var gl = null;
-var GLOBAL_FPS = 24;
 var RADIANS = Math.PI / 180.0;
 
 if(!global["trace"])
 {
 	global.trace = function(msg) { console.log(msg); }; 
-	//#ignore_errors_begin
+	
+	"#ignore_errors_begin";
 	Image.prototype.load = function(src) { this.src = src; };
-	//#ignore_errors_end
+	"#ignore_errors_end";	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +99,9 @@ var COCO_KEYFRAME_INTERPOLATION_ENUM =
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
+
+
+
 
 
 

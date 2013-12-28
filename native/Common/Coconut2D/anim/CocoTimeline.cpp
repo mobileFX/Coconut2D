@@ -9,6 +9,7 @@ CocoTimeline::CocoTimeline()
 	__skipTime = 0.0;
 	__paused = false;
 	__pausedKeyFrame = NULL;
+	__fps = 30;
 	addKeyFrameEx(NULL, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
 }
 
@@ -118,6 +119,13 @@ CocoKeyFrame* CocoTimeline::addKeyFrameEx(Function* actionCallback, int frameInd
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoTimeline::prepare(CocoScene* scene, CocoClip* clip)
+{
+	__fps = scene->__fps;
+	normalizetimeline();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoTimeline::normalizetimeline()
 {
 	reset();
@@ -127,7 +135,7 @@ void CocoTimeline::normalizetimeline()
 	if(__keyFrames.size() > 0)
 	{
 		__durationInFrames = __keyFrames[__keyFrames.size() - 1]->frameIndex + 1;
-		__durationInTime = ((float)(__durationInFrames) / (float)(GLOBAL_FPS)) * 1000;
+		__durationInTime = ((float)(__durationInFrames) / (float)(__fps)) * 1000;
 		__singleFrameDurationTime = (float)(__durationInTime) / (float)(__durationInFrames);
 	}
 }

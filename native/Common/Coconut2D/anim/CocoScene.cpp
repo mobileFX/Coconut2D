@@ -106,23 +106,24 @@ void CocoScene::prepare(WebGLRenderingContext* gl)
 	__glProgram->GLSLuColor = gl->getUniformLocation(__glProgram, "uColor");
 	__modelViewMatrix = new CocoMatrix();
 	__modelViewMatrix->update(gl, __glProgram->GLSLuMVMat);
-	__view_scale = this->__view_width > 0 && this->__view_height > 0 ? std::min((float)(gl->canvas.width) / (float)(this->__view_width), (float)(gl->canvas.height) / (float)(this->__view_height)) : window->devicePixelRatio;
+	__view_scale = this->__view_width > 0 && this->__view_height > 0 ? std::min((float)(gl->canvas->width) / (float)(this->__view_width), (float)(gl->canvas->height) / (float)(this->__view_height)) : window->devicePixelRatio;
 	__projectionMatrix = new CocoMatrix();
 	if(window->deviceRotation)
 	{
 		float c = std::cosf(window->deviceRotation);
 		float s = std::sinf(window->deviceRotation);
-		float orthoWidth = std::abs(c * gl->canvas.width + s * gl->canvas.height);
-		float orthoHeight = std::abs(-s * gl->canvas.width + c * gl->canvas.height);
+		float orthoWidth = std::abs(c * gl->canvas->width + s * gl->canvas->height);
+		float orthoHeight = std::abs(-s * gl->canvas->width + c * gl->canvas->height);
 		__projectionMatrix->ortho((float)(-orthoWidth) / (float)(2.0), (float)(orthoWidth) / (float)(2.0), (float)(orthoHeight) / (float)(2.0), (float)(-orthoHeight) / (float)(2.0),  -1.0, 1.0);
 		__projectionMatrix->rotateZ(-window->deviceRotation);
 	}
 	else
 	{
-		__projectionMatrix->ortho(-((float)(gl->canvas.width) / (float)(2.0)), (float)(gl->canvas.width) / (float)(2.0), (float)(gl->canvas.height) / (float)(2.0),  -((float)(gl->canvas.height) / (float)(2.0)),  -1.0, 1.0);
+		__projectionMatrix->ortho(-((float)(gl->canvas->width) / (float)(2.0)), (float)(gl->canvas->width) / (float)(2.0), (float)(gl->canvas->height) / (float)(2.0),  -((float)(gl->canvas->height) / (float)(2.0)),  -1.0, 1.0);
 	}
 	__projectionMatrix->scale(__view_scale, __view_scale);
 	__projectionMatrix->update(gl, __glProgram->GLSLuProjMat);
+	__root->prepare(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,7 +171,8 @@ void CocoScene::loadResources()
 				sibling = img->viewSiblings[j];
 				if(sibling->textureWidth >= w && sibling->textureHeight >= h)
 				{
-					img->image = new Image(img->baseUrl + sibling->url);
+					img->image = new Image();
+					img->image->load(img->baseUrl + sibling->url);
 					img->textureCellWidth = sibling->textureWidth;
 					img->textureCellHeight = sibling->textureHeight;
 					img->pixelRatio = sibling->pixelRatio;
@@ -181,7 +183,8 @@ void CocoScene::loadResources()
 		if(!img->image)
 		{
 			sibling = img->viewSiblings[img->viewSiblings.size() - 1];
-			img->image = new Image(img->baseUrl + sibling->url);
+			img->image = new Image();
+			img->image->load(img->baseUrl + sibling->url);
 			img->textureCellWidth = sibling->textureWidth;
 			img->textureCellHeight = sibling->textureHeight;
 			img->pixelRatio = sibling->pixelRatio;

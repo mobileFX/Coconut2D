@@ -1,100 +1,101 @@
-//@export_native
-//@export_web
-
-#include "CocoClip.jspp"
-#include "WebGLRenderingContext.jspp"
+"#export native"
+"#export web"
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013 www.coconut2D.org
- * 
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.   
+ * THE SOFTWARE.
  *
  * ***** END LICENSE BLOCK ***** */
 
+"#include CocoClip.jspp"
+"#include WebGLRenderingContext.jspp"
+
 // ==================================================================================================================================
-//	   ______                _____                    
-//	  / ____/___  _________ / ___/________  ____  ___ 
+//	   ______                _____
+//	  / ____/___  _________ / ___/________  ____  ___
 //	 / /   / __ \/ ___/ __ \\__ \/ ___/ _ \/ __ \/ _ \
 //	/ /___/ /_/ / /__/ /_/ /__/ / /__/  __/ / / /  __/
-//	\____/\____/\___/\____/____/\___/\___/_/ /_/\___/ 
-//	                                                  
+//	\____/\____/\___/\____/____/\___/\___/_/ /_/\___/
+//
 // ==================================================================================================================================
-  
+
 class CocoScene
 {
-	// Resources 
-	public var __sceneName:String; 						
+	// Resources
+	public var __sceneName:String;
 	public var __imageSymbols:Array<CocoImage>;
-	public var __soundSymbols:Array<CocoSound>;		
-	public var __clipSymbols:Array<CocoClip>;		
-	                                            	
-	// Fixed View Port  	                    	
-	public var __view_width:Float;						
-	public var __view_height:Float;						
-	public var __view_pixel_ratio:Float;					
-	public var __view_scale:Float;						
-                                                		
-	// Rendering                                		
-	public var __currentTime:Float; 						
-	public var __elapsedTime:Float;	 					
-	public var __startTime:Float; 						
-	public var __root:CocoClip; 							
-	public var __modelViewMatrix:CocoMatrix;				
-	public var __projectionMatrix:CocoMatrix; 			
-	public var __glProgram:WebGLProgram;					
-	public var __levelParents:Array<CocoClip>;			
-	                                            	
-	public var __vertex_shader:String;					
-	public var __fragment_shader:String;					
-	                                                	
-	public var __boundingBoxVertexShader:String; 		
-	public var __boundingBoxFragmentShader:String;		
-	public var __boundingBoxProgram:WebGLProgram;		
-	public var __boundingBoxBuffer:WebGLBuffer;			
-	                                                	
-	public var __ready:Boolean;							
-			            
+	public var __soundSymbols:Array<CocoSound>;
+	public var __clipSymbols:Array<CocoClip>;
+
+	// Fixed View Port
+	public var __fps:Float;
+	public var __view_width:Float;
+	public var __view_height:Float;
+	public var __view_pixel_ratio:Float;
+	public var __view_scale:Float;
+
+	// Rendering
+	public var __currentTime:Float;
+	public var __elapsedTime:Float;
+	public var __startTime:Float;
+	public var __root:CocoClip;
+	public var __modelViewMatrix:CocoMatrix;
+	public var __projectionMatrix:CocoMatrix;
+	public var __glProgram:WebGLProgram;
+	public var __levelParents:Array<CocoClip>;
+
+	public var __vertex_shader:String;
+	public var __fragment_shader:String;
+
+	public var __boundingBoxVertexShader:String;
+	public var __boundingBoxFragmentShader:String;
+	public var __boundingBoxProgram:WebGLProgram;
+	public var __boundingBoxBuffer:WebGLBuffer;
+
+	public var __ready:Boolean;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(sceneName:String)
 	{
 		__sceneName 				= sceneName;
 		__view_width				= 0;
 		__view_height				= 0;
-		__view_pixel_ratio			= 0;	
+		__view_pixel_ratio			= 0;
 		__view_scale				= 1;
-		__currentTime 				= 0.0;  	
-		__elapsedTime	 			= 0.0;  	
-		__startTime 				= -1;   	
+		__currentTime 				= 0.0;
+		__elapsedTime	 			= 0.0;
+		__startTime 				= -1;
 		__root 						= null;
 		__modelViewMatrix			= null;
 		__projectionMatrix 			= null;
-		__glProgram					= null;		
+		__glProgram					= null;
 		__vertex_shader				= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
-		__fragment_shader			= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";		                                                	
+		__fragment_shader			= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
 		__boundingBoxVertexShader 	= "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
 		__boundingBoxFragmentShader	= "#ifdef GL_ES\nprecision lowp float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
 		__boundingBoxProgram		= null;
-		__boundingBoxBuffer			= null;		                                     	
-		__ready 					= false;	                                                	
+		__boundingBoxBuffer			= null;
+		__ready 					= false;
 	}
-				
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getImageSymbol(symbolName:String) :CocoImage
 	{
@@ -105,7 +106,7 @@ class CocoScene
 		}
 		return null;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getSoundSymbol(symbolName:String) :CocoSound
 	{
@@ -116,7 +117,7 @@ class CocoScene
 		}
 		return null;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage
 	{
@@ -127,7 +128,7 @@ class CocoScene
 		__imageSymbols.push(img);
 		return img;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function newResourceSound(symbolName:String, filename:String) :CocoSound
 	{
@@ -138,42 +139,42 @@ class CocoScene
 		__soundSymbols.push(snd);
 		return snd;
 	}
-				
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	private function prepare(gl:WebGLRenderingContext)
-	{                                                                         		                    
+	{
 		gl.disable(gl.DEPTH_TEST);
-		gl.enable(gl.BLEND);     
+		gl.enable(gl.BLEND);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.disable(gl.CULL_FACE);		
-		
-		__boundingBoxProgram = makeProgram(gl, __boundingBoxVertexShader, __boundingBoxFragmentShader); 		
+		gl.disable(gl.CULL_FACE);
+
+		__boundingBoxProgram = makeProgram(gl, __boundingBoxVertexShader, __boundingBoxFragmentShader);
 		gl.useProgram(__boundingBoxProgram);
 		__boundingBoxProgram.GLSLiVec2Coords	= gl.getAttribLocation(__boundingBoxProgram, "iVec2Coords");
 		__boundingBoxProgram.GLSLuProjMat		= gl.getUniformLocation(__boundingBoxProgram, "uProjMat");
 		__boundingBoxBuffer	= gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, __boundingBoxBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);		
-		
-		__glProgram = makeProgram(gl, __vertex_shader, __fragment_shader);		
-		gl.useProgram(__glProgram);	
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);
 
-		__glProgram.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram, "iVecCoords");		
+		__glProgram = makeProgram(gl, __vertex_shader, __fragment_shader);
+		gl.useProgram(__glProgram);
+
+		__glProgram.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram, "iVecCoords");
 		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
-		__glProgram.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram, "iTexCoords");			
-		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);		
+		__glProgram.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram, "iTexCoords");
+		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
 		__glProgram.GLSLuProjMat 	= gl.getUniformLocation(__glProgram, "uProjMat");
 		__glProgram.GLSLuMVMat 		= gl.getUniformLocation(__glProgram, "uMVMat");
 		__glProgram.GLSLuSprSize 	= gl.getUniformLocation(__glProgram, "uSprSize");
 		__glProgram.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram, "uSprFrame");
 		__glProgram.GLSLuSampler 	= gl.getUniformLocation(__glProgram, "uSampler");
-		__glProgram.GLSLuColor 		= gl.getUniformLocation(__glProgram, "uColor");	
-		
+		__glProgram.GLSLuColor 		= gl.getUniformLocation(__glProgram, "uColor");
+
 		__modelViewMatrix = new CocoMatrix();
-		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);			
-		__view_scale = this.__view_width>0 && this.__view_height>0 ? Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height) : window.devicePixelRatio;		
+		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
+		__view_scale = this.__view_width>0 && this.__view_height>0 ? Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height) : window.devicePixelRatio;
 		__projectionMatrix = new CocoMatrix();
-				
+
 		if(window.deviceRotation)
 		{
 			var c:Float = Math.cos(window.deviceRotation);
@@ -185,16 +186,18 @@ class CocoScene
 		}
 		else
 		{
-			__projectionMatrix.ortho( -(gl.canvas.width / 2.0), gl.canvas.width / 2.0, gl.canvas.height / 2.0,  -(gl.canvas.height / 2.0), -1.0, 1.0);			
-		}	
-		
+			__projectionMatrix.ortho( -(gl.canvas.width / 2.0), gl.canvas.width / 2.0, gl.canvas.height / 2.0,  -(gl.canvas.height / 2.0), -1.0, 1.0);
+		}
+
 		__projectionMatrix.scale(__view_scale, __view_scale);
-		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat);					
-	} 
-	
+		__projectionMatrix.update(gl, __glProgram.GLSLuProjMat);
+
+		__root.prepare(this);
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	private function makeProgram(gl:WebGLRenderingContext, vs:String, fs:String) :WebGLProgram
-	{ 
+	{
 		var vshader:WebGLShader = gl.createShader(gl.VERTEX_SHADER);
 		var fshader:WebGLShader = gl.createShader(gl.FRAGMENT_SHADER);
 		gl.shaderSource(vshader, vs);
@@ -210,52 +213,52 @@ class CocoScene
 		if(!gl.getProgramParameter(program, gl.LINK_STATUS)) throw gl.getProgramInfoLog(program);
 		return program;
 	}
-		
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	private function loadResources()
 	{
 		var img:CocoImage;
-		var sibling:CocoImageSibling;  
-		
+		var sibling:CocoImageSibling;
+
 		// Load images depending on screen resolution and available image sizes.
 		for(var i:Integer = 0, L:Integer = __imageSymbols.size(); i < L ; i++)
-	    { 
-	    	img = __imageSymbols[i];	    	
+	    {
+	    	img = __imageSymbols[i];
 			if(__view_width && __view_height)
-			{				
+			{
 				var w:Float = img.viewOptimalWidth * __view_scale * window.devicePixelRatio;
 				var h:Float = img.viewOptimalHeight * __view_scale * window.devicePixelRatio;
 				for(var j:Integer = 0; j < img.viewSiblings.size(); j++)
-				{ 
+				{
 					sibling = img.viewSiblings[j];
 					if(sibling.textureWidth>=w && sibling.textureHeight>=h)
 					{
-						img.image = new Image();						
-						img.image.load(img.baseUrl + sibling.url);						
+						img.image = new Image();
+						img.image.load(img.baseUrl + sibling.url);
 						img.textureCellWidth = sibling.textureWidth;
 						img.textureCellHeight = sibling.textureHeight;
 						img.pixelRatio = sibling.pixelRatio;
-						break; 
+						break;
 					}
-				}			
+				}
 			}
 			if(!img.image)
-			{  
-				sibling = img.viewSiblings[img.viewSiblings.size()-1];				
+			{
+				sibling = img.viewSiblings[img.viewSiblings.size()-1];
 				img.image = new Image();
-				img.image.load(img.baseUrl + sibling.url);				
-				img.textureCellWidth = sibling.textureWidth; 
+				img.image.load(img.baseUrl + sibling.url);
+				img.textureCellWidth = sibling.textureWidth;
 				img.textureCellHeight = sibling.textureHeight;
-				img.pixelRatio = sibling.pixelRatio;				
+				img.pixelRatio = sibling.pixelRatio;
 			}
-			
+
 			if(img.image)
 			{
 				trace("Loaded image: " + img.image.src);
 			}
 	    }
-	} 
-	
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	private function resourcesLoaded(gl:WebGLRenderingContext) :Boolean
 	{
@@ -278,62 +281,62 @@ class CocoScene
 		}
 		return (__ready = true);
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function tick(gl:WebGLRenderingContext, time:Float)
-	{        
+	{
 		if(!__glProgram)
-		{			
+		{
 			prepare(gl);
-			loadResources();			
-		}		
+			loadResources();
+		}
 		else if(resourcesLoaded(gl))
 		{
 			gl.clearColor(1.0, 1.0, 1.0, 1.0);
-			gl.clear(gl.COLOR_BUFFER_BIT);	
-			if(__startTime == -1) 
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			if(__startTime == -1)
 			{
 				__startTime = time;
-				__elapsedTime = 0;				
-			}                     
+				__elapsedTime = 0;
+			}
 			else
 			{
-		    	__elapsedTime = (time-__startTime) - (__currentTime);		    	
-			}     
-			__currentTime = time - __startTime;			
-		    if(__root)    
-		    {     
+		    	__elapsedTime = (time-__startTime) - (__currentTime);
+			}
+			__currentTime = time - __startTime;
+		    if(__root)
+		    {
 				__modelViewMatrix.identity();
 		    	__levelParents = [__root];
-				__root.render(gl, this, null, false);	
-				__levelParents = [];			
+				__root.render(gl, this, null, false);
+				__levelParents = [];
 				var max:CocoClip = __root.__childWithMaxTimelineDuration;
 				if(max && max.__currentFrame == max.__timeline.lastKeyFrame())
-				{ 
-					//__root.reset();			
-					//__startTime = -1;	
-				} 
-		    }	    
+				{
+					//__root.reset();
+					//__startTime = -1;
+				}
+		    }
 		}
-	} 
-	
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Float, alpha:Float)
 	{
-		image.color[3] = alpha;		
-		if(__modelViewMatrix.__dirty) __modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);		
+		image.color[3] = alpha;
+		if(__modelViewMatrix.__dirty) __modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
 		gl.uniform2f(__glProgram.GLSLuSprSize, image.texSize[0], image.texSize[1]);
-		gl.uniform2f(__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);                
-		gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);                
-		gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0);			
+		gl.uniform2f(__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
+		gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);
+		gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0);
 		gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8);
-		gl.bindTexture(gl.TEXTURE_2D, image.texture);                
-		gl.uniform1i(__glProgram.GLSLuSampler, 0);                
+		gl.bindTexture(gl.TEXTURE_2D, image.texture);
+		gl.uniform1i(__glProgram.GLSLuSampler, 0);
 		gl.uniform4fv(__glProgram.GLSLuColor, image.color);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);                 
-		gl.bindBuffer(gl.ARRAY_BUFFER, null); 			
-	} 
-				
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoAndPlayByName(LabelName:String, optional deep:Boolean)
 	{

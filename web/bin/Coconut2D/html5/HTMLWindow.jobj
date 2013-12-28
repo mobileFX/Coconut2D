@@ -1,4 +1,4 @@
-//@line 29
+//@line 38
 
 function HTMLWindow()
 {
@@ -21,60 +21,60 @@ function HTMLWindow()
 		{
 		};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 53
+		//@line 62
 		var addEventListener = this.addEventListener = function (event, listener, useCapture)
 		{
-			//@line 55
+			//@line 64
 			__registerCallback(__CLASS__HTMLWINDOW__.__uid, event);
-			//@line 56
+			//@line 65
 			__CLASS__HTMLWINDOW__.__elements[event] = listener;
 		};
-		//@line 60
+		//@line 69
 		var removeEventListener = this.removeEventListener = function (event, listener, useCapture)
 		{
-			//@line 62
+			//@line 71
 			__CLASS__HTMLWINDOW__.__elements[event] = null;
-			//@line 63
+			//@line 72
 			__unRegisterCallback(__CLASS__HTMLWINDOW__.__uid, event);
 		};
-		//@line 67
+		//@line 76
 		var dispatchEvent = this.dispatchEvent = function (uid, event)
 		{
-			//@line 69
+			//@line 78
 			var callback = __CLASS__HTMLWINDOW__.__elements[event];
-			//@line 70
+			//@line 79
 			if (callback) callback.apply(__CLASS__HTMLWINDOW__, __CLASS__HTMLWINDOW__.__data);
 		};
-		//@line 31
+		//@line 40
 		this.__uid = 0;
-		//@line 32
-		this.document = null;
-		//@line 33
-		this.innerHeight = 0;
-		//@line 34
-		this.innerWidth = 0;
-		//@line 35
-		this.devicePixelRatio = 0;
-		//@line 37
-		this.__data = null;
-		//@line 38
-		this.__elements = [];
 		//@line 41
+		this.document = null;
+		//@line 42
+		this.innerHeight = 0;
+		//@line 43
+		this.innerWidth = 0;
+		//@line 44
+		this.devicePixelRatio = 0;
+		//@line 46
+		this.__data = null;
+		//@line 47
+		this.__elements = [];
+		//@line 50
 		this.Constructor = function ()
 		{
-			//@line 43
+			//@line 52
 			__CLASS__HTMLWINDOW__.__uid = 0;
-			//@line 44
+			//@line 53
 			__CLASS__HTMLWINDOW__.document = new HTMLDocument;
-			//@line 45
+			//@line 54
 			__CLASS__HTMLWINDOW__.innerHeight = global.innerHeight;
-			//@line 46
+			//@line 55
 			__CLASS__HTMLWINDOW__.innerWidth = global.innerWidth;
-			//@line 47
+			//@line 56
 			__CLASS__HTMLWINDOW__.devicePixelRatio = global.devicePixelRatio;
-			//@line 48
+			//@line 57
 			__CLASS__HTMLWINDOW__.__data = new HTMLEvent;
-			//@line 49
+			//@line 58
 			__registerManager(__CLASS__HTMLWINDOW__, __CLASS__HTMLWINDOW__.dispatchEvent, __CLASS__HTMLWINDOW__.__data);
 			return __CLASS__HTMLWINDOW__
 		};

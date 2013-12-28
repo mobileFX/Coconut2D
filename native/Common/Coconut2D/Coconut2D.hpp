@@ -1,10 +1,10 @@
 // ==================================================================================================================================
 //	   ______                             __     ___   ____     ___    ____  ____
 //	  / ____/___  _________  ____  __  __/ /_   |__ \ / __ \   /   |  / __ \/  _/
-//	 / /   / __ \/ ___/ __ \/ __ \/ / / / __/   __/ // / / /  / /| | / /_/ // /  
-//	/ /___/ /_/ / /__/ /_/ / / / / /_/ / /_    / __// /_/ /  / ___ |/ ____// /   
-//	\____/\____/\___/\____/_/ /_/\__,_/\__/   /____/_____/  /_/  |_/_/   /___/   
-//	                                                                             
+//	 / /   / __ \/ ___/ __ \/ __ \/ / / / __/   __/ // / / /  / /| | / /_/ // /
+//	/ /___/ /_/ / /__/ /_/ / / / / /_/ / /_    / __// /_/ /  / ___ |/ ____// /
+//	\____/\____/\___/\____/_/ /_/\__,_/\__/   /____/_____/  /_/  |_/_/   /___/
+//
 // ==================================================================================================================================
 
 #ifndef __COCONUT2D_HPP__
@@ -22,8 +22,48 @@
 #include <string>
 #include <vector>
 #include <map>
-     
+
 //# DO NOT EDIT BEGIN #//
+class Object;
+class String;
+class Number;
+class Boolean;
+class Array;
+class Function;
+class Date;
+class Integer;
+class Float;
+class ArrayBuffer;
+class ArrayBufferView;
+class Float32Array;
+class Int32Array;
+class Uint8Array;
+class Math;
+class RegExp;
+class Error;
+class EvalError;
+class RangeError;
+class ReferenceError;
+class SyntaxError;
+class TypeError;
+class HTMLCanvasElement;
+class HTMLElement;
+class HTMLDocument;
+class HTMLWindow;
+class ImageData;
+class Image;
+class ImageDataBuffer;
+class WebGLActiveInfo;
+class WebGLBuffer;
+class WebGLContextAttributes;
+class WebGLFramebuffer;
+class WebGLRenderbuffer;
+class WebGLShader;
+class WebGLShaderPrecisionFormat;
+class WebGLTexture;
+class WebGLUniformLocation;
+class WebGLProgram;
+class WebGLRenderingContext;
 class CocoImageSibling;
 class CocoRect;
 class CocoSequence;
@@ -38,6 +78,28 @@ class CocoClip;
 class CocoScene;
 class CocoEngineState;
 class CocoEngine;
+class CocoSprite;
+class CocoSpriteActor;
+class CocoSpriteBonus;
+class CocoSpriteBullet;
+class CocoSpriteEnemy;
+class CocoSpritePlayer;
+class CocoSpriteVisual;
+class CocoTiledLayer;
+class UIView;
+class UIControlView;
+class UIButtonView;
+class UICheckboxView;
+class UILabelView;
+class UINavbarView;
+class UIPageView;
+class UIPickerView;
+class UIScrollView;
+class UITabView;
+class UITextView;
+class GameEngine;
+class Animation1;
+class StateAnim;
 //# DO NOT EDIT END #//
 
 #define CocoException	std::string

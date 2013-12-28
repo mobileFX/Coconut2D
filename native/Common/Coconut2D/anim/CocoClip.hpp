@@ -2,9 +2,9 @@
 #define __COCOCLIP_HPP__
 
 #include "Coconut2D.hpp"
+#include "CocoScene.hpp"
 #include "CocoClip.hpp"
 #include "WebGLRenderingContext.hpp"
-#include "CocoScene.hpp"
 #include "CocoImage.hpp"
 #include "CocoSound.hpp"
 #include "CocoSequence.hpp"
@@ -33,6 +33,7 @@ public:
 	CocoVector* __vBOTTOM_RIGHT;
 	CocoClip* __childWithMaxTimelineDuration;
 	CocoClip(CocoImage* image, CocoSound* audio, std::string sequence);
+	void prepare(CocoScene* scene);
 	void reset();
 	CocoClip* addChild(CocoClip* clipInstance);
 	CocoClip* removeChild(CocoClip* clipInstance);

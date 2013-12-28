@@ -4,6 +4,8 @@
 #include "Coconut2D.hpp"
 #include "CocoTimeLabel.hpp"
 #include "CocoKeyFrame.hpp"
+#include "CocoScene.hpp"
+#include "CocoClip.hpp"
 
 class CocoTimeline
 {
@@ -16,6 +18,7 @@ public:
 	float __skipTime;
 	bool __paused;
 	CocoKeyFrame* __pausedKeyFrame;
+	float __fps;
 	CocoTimeline();
 	void clear();
 	void reset();
@@ -27,6 +30,7 @@ public:
 	CocoKeyFrame* lastKeyFrame();
 	CocoKeyFrame* addKeyFrame(CocoKeyFrame* KeyFrame);
 	CocoKeyFrame* addKeyFrameEx(Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha);
+	void prepare(CocoScene* scene, CocoClip* clip);
 	void normalizetimeline();
 	void jumpBy(float frames, bool paused);
 	CocoKeyFrame* findKeyFrameBeforeframeIndex(float frameIndex, bool inclusive, float excludeListIndex);

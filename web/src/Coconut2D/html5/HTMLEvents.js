@@ -1,6 +1,6 @@
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013 www.coconut2D.org
+ * Copyright (C) 2013-2014 www.coconut2D.org
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -71,4 +71,3 @@ function TouchList(num)
 TouchList.prototype = new Array();
 TouchList.prototype.item = function(index) { return this[index]; };
 TouchList.prototype.length = 0;
-

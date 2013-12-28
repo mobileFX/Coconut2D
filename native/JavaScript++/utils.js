@@ -8,11 +8,11 @@ if(!this['console']) console = { log:function(m){/*trace("@@"+m)*/} }
 function ____JSONtoXML(json, rootNode)
 {
 	if(!rootNode) rootNode = "XML";
-	
+
 	var ____isArray 	= function(obj) {return (Object.prototype.toString.apply(obj) === '[object Array]');}
 	var ____isObject	= function(obj) {return (Object.prototype.toString.apply(obj) === '[object Object]');}
 	var ____isFunction	= function(obj) {return (Object.prototype.toString.apply(obj) === '[object Function]');}
-	
+
 	var obj = (typeof json == 'string') ? JSON.parse(json) : json;
 
 	var xml = "<" + rootNode + ">" +
@@ -27,16 +27,16 @@ function ____JSONtoXML(json, rootNode)
 			x= "<" + k + ">null</" + k + ">";
 		else
 		{
-			switch(typeof v)			
+			switch(typeof v)
 			{
-				case 'object':								
+				case 'object':
 					x= "<" + k + ">" + __JSONtoXML(v) + "</" + k + ">";
 					break;
-					
+
 				case 'string':
 					x= "<" + k + "><![CDATA[" + v + "]]></" + k + ">";
 					break;
-						
+
 				default:
 					x= "<" + k + ">" + v + "</" + k + ">";
 					break;
@@ -45,17 +45,17 @@ function ____JSONtoXML(json, rootNode)
 
 		return x;
 	}
-			  
+
 	function __JSONtoXML(obj)
-	{			  
+	{
 		var x = '';
-		
+
 		if(____isArray(obj))
 		{
 			for(var i=0;i<obj.length;i++)
 			{
-				var v = obj[i];				
-				var k = '_' + i;				
+				var v = obj[i];
+				var k = '_' + i;
 				x+= __addItem(v,k);
 			}
 		}
@@ -63,18 +63,18 @@ function ____JSONtoXML(json, rootNode)
 		{
 			for(var k in obj)
 			{
-				var v = obj[k];				
+				var v = obj[k];
 				if(!isNaN(k)) k = '_' + k;
 				x+= __addItem(v,k);
 			}
-		}			
-				
+		}
+
 		return x;
 	}
-	
+
 	return xml;
-}  
-     
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function RxReplace(buff, patt, opts, repl)
 {
@@ -85,11 +85,11 @@ function RxReplace(buff, patt, opts, repl)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function formatCPP(buff)
-{  
-	buff = RxReplace(buff, "[\s\t\n\r]+\\{[\s\t\n\r]+\\};", "mg", "{};");		
-	buff = RxReplace(buff, "Array\\s*\\<\\s*([\\w\\*]+)\\s*\\>\\s*", "mg", "Array<$1> ");			 
+{
+	buff = RxReplace(buff, "[\s\t\n\r]+\\{[\s\t\n\r]+\\};", "mg", "{};");
+	buff = RxReplace(buff, "Array\\s*\\<\\s*([\\w\\*]+)\\s*\\>\\s*", "mg", "Array<$1> ");
 	buff = RxReplace(buff, "Dictionary \\< (\\w+) \\> ", "mg", "Dictionary<$1> ");
-	buff = RxReplace(buff, "\\bFloat\\b", "mg", "float");			 			 
+	buff = RxReplace(buff, "\\bFloat\\b", "mg", "float");
 	buff = RxReplace(buff, "\\bInteger\\b", "mg", "int");
 	buff = RxReplace(buff, "\\bBoolean\\b", "mg", "bool");
 	buff = RxReplace(buff, "\\bString\\b", "mg", "std::string");
@@ -100,33 +100,34 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bMath.sin\\(", "mg", "std::sinf(");
 	buff = RxReplace(buff, "\\bMath.cos\\(", "mg", "std::cosf(");
 	buff = RxReplace(buff, "\\bMath.abs\\(", "mg", "std::abs(");
-	buff = RxReplace(buff, "_ENUM\\.(\\w+)", "mg", "_ENUM::$1");		
+	buff = RxReplace(buff, "_ENUM\\.(\\w+)", "mg", "_ENUM::$1");
 	return buff;
-}		
- 
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function compile_jspp(code, infolder, outfolder)
 {
 	try
-	{              		
+	{
 		// Append externs and ECMA classes
 		if(infolder)
-		{			
+		{
 			var file = infolder.split("/");
-			file.splice(file.length-2,2);			
-			file = file.join("/") + "/native/JavaScript++/externs.jspp"; 
-			var externs = read(file);	
-			code = "\"script_begin:///" + file + "\";\n" + externs + "\n\"script_end:///" + file + "\";\n" + code;			
-		}	
-		
+			file.splice(file.length-2,2);
+			file = file.join("/") + "/native/JavaScript++/externs.jspp";
+			var externs = read(file);
+			file = infolder + "/ECMA/externs.jspp";
+			code = "\"script_begin:///" + file + "\";\n" + externs + "\n\"script_end:///" + file + "\";\n" + code;
+		}
+
 		// Parse source code
 		narcissus.__messages = true;
 		narcissus.__cpp = false;
-		var ast = narcissus.jsparse(code);						
-		
+		var ast = narcissus.jsparse(code);
+
 		// Compile ast
 		var compiler = new Compiler(ast, infolder, outfolder, true, null);
-		compiler.compile();				
+		compiler.compile();
 
 		trace("JavaScript Code generation Done.");
 	}
@@ -140,32 +141,35 @@ function compile_jspp(code, infolder, outfolder)
 function compile_cpp(code, infolder, outfolder)
 {
 	try
-	{              		
+	{
 		// Append externs and ECMA classes
 		if(infolder)
-		{			
+		{
 			var file = infolder.split("/");
-			file.splice(file.length-2,2);			
-			file = file.join("/") + "/native/JavaScript++/externs.jspp"; 
-			var externs = read(file);	
-			code = "\"script_begin:///" + file + "\";\n" + externs + "\n\"script_end:///" + file + "\";\n" + code;			
-		}	
-		
+			file.splice(file.length-2,2);
+			file = file.join("/") + "/native/JavaScript++/externs.jspp";
+			var externs = read(file);
+			file = infolder + "/ECMA/externs.jspp";
+			code = "\"script_begin:///" + file + "\";\n" + externs + "\n\"script_end:///" + file + "\";\n" + code;
+		}
+
 		// Parse source code
 		narcissus.__messages = true;
 		narcissus.__cpp = true;
-		var ast = narcissus.jsparse(code);						
-		
+		var ast = narcissus.jsparse(code);
+
 		// Compile ast to JavaScript to build symbol tables
+
+
 		var compiler = new Compiler(ast, infolder, null, false, null);
-		compiler.compile();				
-		
-		// Compile ast to C++ 
+		compiler.compile();
+
+		// Compile ast to C++
 		var compiler = new CPPCompiler(ast, infolder, outfolder);
-		compiler.compile();				
-		
+		compiler.compile();
+
 		// Update Coconut2D.hpp
-		jsppCallback("coconut2d.hpp", "", 0, compiler.getClassList());    
+		jsppCallback("coconut2d.hpp", "", "", 0, 0, compiler.getClassList());
 
 		trace("C++ Code generation Done.");
 	}
@@ -183,17 +187,20 @@ function parse_jspp(code, className)
 		// Parse source code
 		narcissus.__messages = false;
 		narcissus.__cpp = false;
-		var ast = narcissus.jsparse(code);						
-		
+		var ast = narcissus.jsparse(code);
+
 		// Compile ast
 		var compiler = new Compiler(ast, null, null, true, className);
-		compiler.compile();				
+		compiler.compile();
 	}
 	catch(e)
 	{
 		trace("ERROR: " +e);
 	}
 }
+
+
+
 
 
 

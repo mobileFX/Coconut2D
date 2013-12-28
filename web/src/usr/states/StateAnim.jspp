@@ -1,24 +1,24 @@
-//@export_native
-//@export_web
+"#export native"
+"#export web"
 
-//#include "Coconut.js"
-#include "Animation1.jspp"
+"#include Coconut.js"
+"#include Animation1.jspp"
 
 class StateAnim :CocoEngineState
-{ 
+{
 	private var scene:Animation1;
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
 		scene = new Animation1();
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Float)
 	{
-		super.tick(engine, gl, time); 		
-		scene && scene.tick(gl, time);
+		super.tick(engine, gl, time);
+		if(scene) scene.tick(gl, time);
 	}
 }
 

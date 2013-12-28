@@ -31,6 +31,16 @@ CocoClip::CocoClip(CocoImage* image, CocoSound* audio, std::string sequence)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoClip::prepare(CocoScene* scene)
+{
+	__timeline->prepare(scene, this);
+	for(int i = __children.size() - 1; i >= 0; i--)
+	{
+		__children[i]->prepare(scene);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoClip::reset()
 {
 	if(__currentFrame)
@@ -189,7 +199,7 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 		{
 			if(clippingTime > 0)
 			{
-				__currentFrame = __timeline->lastKeyFrame().clone();
+				__currentFrame = __timeline->lastKeyFrame()->clone();
 			}
 			else
 			{
@@ -219,7 +229,7 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 			__currentFrame->scaleY /= c;
 			if(__image->isSpriteSheet && __currentSequence)
 			{
-				__currentSequenceFrameIndex = __timeline->__paused ? 0 : (int)std::floor((float)((__currentTime - __firstTickTime)) / (float)(GLOBAL_FPS)) % (int)__currentSequence->frames.size();
+				__currentSequenceFrameIndex = __timeline->__paused ? 0 : (int)std::floor((float)((__currentTime - __firstTickTime)) / (float)(((float)(1000.0) / (float)(scene->__fps)))) % (int)__currentSequence->frames.size();
 				int frame = __currentSequence->frames[__currentSequenceFrameIndex];
 				scene->drawFrame(gl, __image, frame, __currentFrame->alpha);
 			}
