@@ -1,4 +1,4 @@
-//@line 37
+//@line 36
 
 function ImageData()
 {
@@ -21,60 +21,60 @@ function ImageData()
 		{
 		};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 39
+		//@line 38
 		this.buffer = null;
-		//@line 40
+		//@line 39
 		this.data = null;
-		//@line 41
+		//@line 40
 		this.src = "";
-		//@line 42
+		//@line 41
 		this.width = 0;
-		//@line 43
+		//@line 42
 		this.height = 0;
-		//@line 45
+		//@line 44
 		this.Constructor = function ()
 		{
 			var a0 = arguments[0];
 			var a1 = arguments[1];
-			//@line 47
+			//@line 46
 			__CLASS__IMAGEDATA__.buffer = null;
-			//@line 48
+			//@line 47
 			__CLASS__IMAGEDATA__.data = null;
-			//@line 49
+			//@line 48
 			__CLASS__IMAGEDATA__.width = 0;
-			//@line 50
+			//@line 49
 			__CLASS__IMAGEDATA__.height = 0;
-			//@line 51
+			//@line 50
 			__CLASS__IMAGEDATA__.src = "";
-			//@line 53
+			//@line 52
 			if (isNaN(a0))
 			{
-				//@line 55
+				//@line 54
 				var data = __ImageData_loadImage(a0);
-				//@line 56
+				//@line 55
 				if (data)
 				{
-					//@line 58
+					//@line 57
 					__CLASS__IMAGEDATA__.src = a0;
-					//@line 59
+					//@line 58
 					__CLASS__IMAGEDATA__.buffer = data.buffer;
-					//@line 60
+					//@line 59
 					__CLASS__IMAGEDATA__.width = data.width;
-					//@line 61
+					//@line 60
 					__CLASS__IMAGEDATA__.height = data.height;
 				}
 			}
 			else
-			//@line 64
+			//@line 63
 			if (!isNaN(a0) && !isNaN(a1))
 			{
-				//@line 66
+				//@line 65
 				__CLASS__IMAGEDATA__.width = parseInt(a0);
-				//@line 67
+				//@line 66
 				__CLASS__IMAGEDATA__.height = parseInt(a1);
-				//@line 68
+				//@line 67
 				__CLASS__IMAGEDATA__.data = new Int32Array(__CLASS__IMAGEDATA__.width * __CLASS__IMAGEDATA__.height);
-				//@line 69
+				//@line 68
 				__CLASS__IMAGEDATA__.buffer = __CLASS__IMAGEDATA__.data.buffer;
 			}
 			return __CLASS__IMAGEDATA__

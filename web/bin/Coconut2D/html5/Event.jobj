@@ -1,0 +1,112 @@
+//@line 36
+
+function Event()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS__EVENT__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__CLASS__ = 'Event';
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 68
+		var stopPropagation = this.stopPropagation = function ()
+		{
+			//@line 70
+			__CLASS__EVENT__.bubbles = false;
+		};
+		//@line 74
+		var preventDefault = this.preventDefault = function ()
+		{
+			//@line 76
+			__CLASS__EVENT__.defaultPrevented = true;
+		};
+		//@line 80
+		var initEvent = this.initEvent = function (type, canBubble, cancelable)
+		{
+			//@line 82
+			__CLASS__EVENT__.eventPhase = __CLASS__EVENT__.CAPTURING_PHASE;
+			//@line 83
+			__CLASS__EVENT__.type = type;
+			//@line 84
+			__CLASS__EVENT__.bubbles = canBubble;
+			//@line 85
+			__CLASS__EVENT__.cancelable = cancelable;
+			//@line 86
+			__CLASS__EVENT__.timeStamp = (new Date).getTime();
+		};
+		//@line 90
+		var initUIEvent = this.initUIEvent = function (type, canBubble, cancelable, view, detail)
+		{
+			//@line 92
+			__CLASS__EVENT__.initEvent(type, canBubble, cancelable);
+			//@line 93
+			__CLASS__EVENT__.view = view;
+			//@line 94
+			__CLASS__EVENT__.detail = detail;
+		};
+		//@line 38
+		this.CAPTURING_PHASE = 1;
+		//@line 39
+		this.AT_TARGET = 2;
+		//@line 40
+		this.BUBBLING_PHASE = 3;
+		//@line 42
+		this.type = "";
+		//@line 43
+		this.target = null;
+		//@line 44
+		this.currentTarget = null;
+		//@line 45
+		this.eventPhase = 0;
+		//@line 46
+		this.bubbles = false;
+		//@line 47
+		this.cancelable = false;
+		//@line 48
+		this.timeStamp = 0;
+		//@line 49
+		this.defaultPrevented = false;
+		//@line 51
+		this.view = null;
+		//@line 52
+		this.detail = 0;
+		//@line 55
+		this.Constructor = function ()
+		{
+			//@line 57
+			__CLASS__EVENT__.type = "";
+			//@line 58
+			__CLASS__EVENT__.target = null;
+			//@line 59
+			__CLASS__EVENT__.currentTarget = null;
+			//@line 60
+			__CLASS__EVENT__.eventPhase = __CLASS__EVENT__.CAPTURING_PHASE;
+			//@line 61
+			__CLASS__EVENT__.bubbles = true;
+			//@line 62
+			__CLASS__EVENT__.cancelable = true;
+			//@line 63
+			__CLASS__EVENT__.timeStamp = 0;
+			//@line 64
+			__CLASS__EVENT__.defaultPrevented = false;
+			return __CLASS__EVENT__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

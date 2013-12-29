@@ -1,5 +1,9 @@
 // Auto-generated Project Externs (used by IDE intelliSence)
 
+class Null
+{
+} //Null
+
 class Object
 {
 	public function toString() :String {}
@@ -12,7 +16,32 @@ class Object
 	public var prototype :Object;
 } //Object
 
-class Global : Object
+class Array
+{
+	public function concat(args:Array) :Array {}
+	public function join(seperator:String) :Array {}
+	public function pop() :Array {}
+	public function push(args:Object) :Object {}
+	public function reverse() :Array {}
+	public function shift() :Array {}
+	public function slice(start:Number, end:Number) :Array {}
+	public function sort(funct:Function) :Array {}
+	public function splice(start:Number, deletecount:Number, items:Number) :Array {}
+	public function unshift(start:Number) :Array {}
+	public function forEach(item:Object) :Array {}
+	public function size() :Number {}
+	public function clear() {}
+	public var length :Number;
+} //Array
+
+class Function
+{
+	public function apply(thisObject:Object, args:Object) :Object {}
+	public function call(thisObject:Object, args:Object) :Object {}
+	public var length :Number;
+} //Function
+
+class Global
 {
 	public function eval(s:String) :Object {}
 	public function parseInt(s:String, radix:Number) :Integer {}
@@ -27,18 +56,13 @@ class Global : Object
 	public function encodeURI(URI:String) :String {}
 	public function trace(message:String) {}
 	public function alert(message:String) {}
-	public function HTMLEvent() {}
-	public function TouchList(num) {}
 	public function main() {}
 	public function tickAndPaint(time) {}
-	public function stopPropagation() {}
-	public function preventDefault(type, bubbles, cancelable) {}
-	public function item(index) {}
 	public var __registerManager;
 	public var __registerCallback;
 	public var __unRegisterCallback;
 	public var __ImageData_loadImage;
-	public var __WebGLRenderingContext_getContextAttributes;
+	public var __WebGLRenderingContext_getContextAttributes :Integer;
 	public var __WebGLRenderingContext_isContextLost;
 	public var __WebGLRenderingContext_getSupportedExtensions;
 	public var __WebGLRenderingContext_getExtension;
@@ -67,12 +91,12 @@ class Global : Object
 	public var __WebGLRenderingContext_compressedTexSubImage2D;
 	public var __WebGLRenderingContext_copyTexImage2D;
 	public var __WebGLRenderingContext_copyTexSubImage2D;
-	public var __WebGLRenderingContext_createBuffer;
-	public var __WebGLRenderingContext_createFramebuffer;
-	public var __WebGLRenderingContext_createProgram;
-	public var __WebGLRenderingContext_createRenderbuffer;
-	public var __WebGLRenderingContext_createShader;
-	public var __WebGLRenderingContext_createTexture;
+	public var __WebGLRenderingContext_createBuffer :Integer;
+	public var __WebGLRenderingContext_createFramebuffer :Integer;
+	public var __WebGLRenderingContext_createProgram :Integer;
+	public var __WebGLRenderingContext_createRenderbuffer :Integer;
+	public var __WebGLRenderingContext_createShader :Integer;
+	public var __WebGLRenderingContext_createTexture :Integer;
 	public var __WebGLRenderingContext_cullFace;
 	public var __WebGLRenderingContext_deleteBuffer;
 	public var __WebGLRenderingContext_deleteFramebuffer;
@@ -96,8 +120,8 @@ class Global : Object
 	public var __WebGLRenderingContext_framebufferTexture2D;
 	public var __WebGLRenderingContext_frontFace;
 	public var __WebGLRenderingContext_generateMipmap;
-	public var __WebGLRenderingContext_getActiveAttrib;
-	public var __WebGLRenderingContext_getActiveUniform;
+	public var __WebGLRenderingContext_getActiveAttrib :Integer;
+	public var __WebGLRenderingContext_getActiveUniform :Integer;
 	public var __WebGLRenderingContext_getAttachedShaders;
 	public var __WebGLRenderingContext_getAttribLocation;
 	public var __WebGLRenderingContext_getBufferParameter;
@@ -108,12 +132,12 @@ class Global : Object
 	public var __WebGLRenderingContext_getProgramInfoLog;
 	public var __WebGLRenderingContext_getRenderbufferParameter;
 	public var __WebGLRenderingContext_getShaderParameter;
-	public var __WebGLRenderingContext_getShaderPrecisionFormat;
+	public var __WebGLRenderingContext_getShaderPrecisionFormat :Integer;
 	public var __WebGLRenderingContext_getShaderInfoLog;
 	public var __WebGLRenderingContext_getShaderSource;
 	public var __WebGLRenderingContext_getTexParameter;
 	public var __WebGLRenderingContext_getUniform;
-	public var __WebGLRenderingContext_getUniformLocation;
+	public var __WebGLRenderingContext_getUniformLocation :Integer;
 	public var __WebGLRenderingContext_getVertexAttrib;
 	public var __WebGLRenderingContext_getVertexAttribOffset;
 	public var __WebGLRenderingContext_hint;
@@ -181,15 +205,18 @@ class Global : Object
 	public var innerHeight :Integer;
 	public var deviceRotation :Integer;
 	public var devicePixelRatio :Float;
-	public var global;
-	public var engine :Object;
-	public var gl :Object;
+	public var global :Global;
+	public var engine :CocoEngine;
+	public var window :HTMLWindow;
+	public var document :HTMLDocument;
+	public var gl :WebGLRenderingContext;
+	public var canvas :HTMLCanvasElement;
 	public var RADIANS :Number;
 	public var COCO_STOP_ON_CURRENT_FRAME :Number;
 	public var ___COCONUT_VERSION :Number;
 } //Global
 
-class String : Object
+class String
 {
 	public function fromCharCode(charCode:Number) :String {}
 	public function charAt(position:Number) :String {}
@@ -211,7 +238,7 @@ class String : Object
 	public var length :Number;
 } //String
 
-class Number : Object
+class Number
 {
 	public function toFixed(fractionDigits:Number) :String {}
 	public function toExponential(fractionDigits:Number) :String {}
@@ -222,35 +249,19 @@ class Number : Object
 	public var POSITIVE_INFINITY :Number;
 } //Number
 
-class Boolean : Object
+class Integer : Number
+{
+} //Integer
+
+class Float : Number
+{
+} //Float
+
+class Boolean
 {
 } //Boolean
 
-class Array : Object
-{
-	public function concat(args:Array) :Array {}
-	public function join(seperator:String) :Array {}
-	public function pop() :Array {}
-	public function push(args:Object) :Object {}
-	public function reverse() :Array {}
-	public function shift() :Array {}
-	public function slice(start:Number, end:Number) :Array {}
-	public function sort(funct:Function) :Array {}
-	public function splice(start:Number, deletecount:Number, items:Number) :Array {}
-	public function unshift(start:Number) :Array {}
-	public function forEach(item:Object) :Array {}
-	public function size() :Number {}
-	public var length :Number;
-} //Array
-
-class Function : Object
-{
-	public function apply(thisObject:Object, args:Object) :Object {}
-	public function call(thisObject:Object, args:Object) :Object {}
-	public var length :Number;
-} //Function
-
-class Date : Object
+class Date
 {
 	public function UTC(hour:Number, min:Number, sec:Number, ms:Number) :Number {}
 	public function parse(string:String) :Number {}
@@ -296,13 +307,46 @@ class Date : Object
 	public function toUTCString() :String {}
 } //Date
 
-class Integer : Number
+class Math
 {
-} //Integer
+	public function abs(x:Number) :Number {}
+	public function acos(x:Number) :Float {}
+	public function asin(x:Number) :Float {}
+	public function atan(x:Number) :Float {}
+	public function atan2(x:Number, y:Number) :Float {}
+	public function ceil(x:Number) :Number {}
+	public function cos(x:Number) :Float {}
+	public function exp(x:Number) :Float {}
+	public function floor(x:Number) :Integer {}
+	public function log(x:Number) :Float {}
+	public function max(a:Number, b:Number) :Number {}
+	public function min(a:Number, b:Number) :Number {}
+	public function pow(x:Number, y:Number) :Float {}
+	public function random() :Float {}
+	public function round(x:Number) :Number {}
+	public function sin(x:Number) :Float {}
+	public function sqrt(x:Number) :Float {}
+	public function tan(x:Number) :Float {}
+	public var E :Float;
+	public var LN10 :Float;
+	public var LN2 :Float;
+	public var LOG2E :Float;
+	public var LOG10E :Float;
+	public var PI :Float;
+	public var SQRT1_2 :Float;
+	public var SQRT2 :Float;
+} //Math
 
-class Float : Number
+class RegExp
 {
-} //Float
+	public function exec(string:String) :Array {}
+	public function test(string:String) :Boolean {}
+	public var source :String;
+	public var global :Boolean;
+	public var ignoreCase :Boolean;
+	public var multiline :Boolean;
+	public var lastIndex :Number;
+} //RegExp
 
 class ArrayBuffer
 {
@@ -342,48 +386,7 @@ class Uint8Array : ArrayBufferView
 	public var __uid :Integer;
 } //Uint8Array
 
-class Math : Object
-{
-	public function abs(x:Number) :Number {}
-	public function acos(x:Number) :Float {}
-	public function asin(x:Number) :Float {}
-	public function atan(x:Number) :Float {}
-	public function atan2(x:Number, y:Number) :Float {}
-	public function ceil(x:Number) :Number {}
-	public function cos(x:Number) :Float {}
-	public function exp(x:Number) :Float {}
-	public function floor(x:Number) :Integer {}
-	public function log(x:Number) :Float {}
-	public function max(a:Number, b:Number) :Number {}
-	public function min(a:Number, b:Number) :Number {}
-	public function pow(x:Number, y:Number) :Float {}
-	public function random() :Float {}
-	public function round(x:Number) :Number {}
-	public function sin(x:Number) :Float {}
-	public function sqrt(x:Number) :Float {}
-	public function tan(x:Number) :Float {}
-	public var E :Float;
-	public var LN10 :Float;
-	public var LN2 :Float;
-	public var LOG2E :Float;
-	public var LOG10E :Float;
-	public var PI :Float;
-	public var SQRT1_2 :Float;
-	public var SQRT2 :Float;
-} //Math
-
-class RegExp : Object
-{
-	public function exec(string:String) :Array {}
-	public function test(string:String) :Boolean {}
-	public var source :String;
-	public var global :Boolean;
-	public var ignoreCase :Boolean;
-	public var multiline :Boolean;
-	public var lastIndex :Number;
-} //RegExp
-
-class Error : Object
+class Error
 {
 	public var name :String;
 	public var message :String;
@@ -436,28 +439,32 @@ class COCO_KEYFRAME_INTERPOLATION_ENUM
 	public var KEYFRAME_INTERPOLATION_PHYSICS :COCO_KEYFRAME_INTERPOLATION_ENUM;
 } //COCO_KEYFRAME_INTERPOLATION_ENUM
 
-class HTMLEvent
+class EventTarget
 {
+	public function Constructor() {}
+} //EventTarget
+
+class Event
+{
+	public function stopPropagation() {}
+	public function preventDefault() {}
+	public function initEvent(type:String, canBubble:Boolean, cancelable:Boolean) {}
+	public function initUIEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer) {}
+	public function Constructor() {}
+	public var CAPTURING_PHASE :Integer;
+	public var AT_TARGET :Integer;
+	public var BUBBLING_PHASE :Integer;
 	public var type :String;
+	public var target :EventTarget;
+	public var currentTarget :EventTarget;
+	public var eventPhase :Integer;
 	public var bubbles :Boolean;
 	public var cancelable :Boolean;
-	public var clientX :Number;
-	public var clientY :Number;
-	public var pageX :Number;
-	public var pageY :Number;
-	public var screenX :Number;
-	public var screenY :Number;
+	public var timeStamp :Integer;
 	public var defaultPrevented :Boolean;
-	public var timeStamp :Object;
-	public var changedTouches :TouchList;
-	public var touches :TouchList;
-	public var targets :Array;
-} //HTMLEvent
-
-class TouchList
-{
-	public var length :Number;
-} //TouchList
+	public var view :HTMLWindow;
+	public var detail :Integer;
+} //Event
 
 class HTMLCanvasElement
 {
@@ -479,21 +486,6 @@ class HTMLDocument
 	public function Constructor() {}
 	public var body :HTMLElement;
 } //HTMLDocument
-
-class HTMLWindow
-{
-	public function addEventListener(event:String, listener:Function, useCapture:Boolean) {}
-	public function removeEventListener(event:String, listener:Function, useCapture:Boolean) {}
-	public function dispatchEvent(uid:Integer, event:String) {}
-	public function Constructor() {}
-	public var __uid :Integer;
-	public var document :HTMLDocument;
-	public var innerHeight :Integer;
-	public var innerWidth :Integer;
-	public var devicePixelRatio :Integer;
-	public var __data :HTMLEvent;
-	public var __elements :Array<Function>;
-} //HTMLWindow
 
 class ImageData
 {
@@ -526,9 +518,59 @@ class ImageDataBuffer
 	public var height :Integer;
 } //ImageDataBuffer
 
+class Touch
+{
+	public function initTouch(identifier:Integer, target:EventTarget, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, pageX:Integer, pageY:Integer) {}
+	public function Constructor() {}
+	public var identifier :Integer;
+	public var screenX :Integer;
+	public var screenY :Integer;
+	public var clientX :Integer;
+	public var clientY :Integer;
+	public var pageX :Integer;
+	public var pageY :Integer;
+	public var target :EventTarget;
+} //Touch
+
+class TouchEvent : Event
+{
+	public function initTouchEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, ctrlKey:Boolean, altKey:Boolean, shiftKey:Boolean, metaKey:Boolean, touches:TouchList, targetTouches:TouchList, changedTouches:TouchList, scale:Float, rotation:Float) {}
+	public function Constructor() {}
+	public var touches :TouchList;
+	public var targetTouches :TouchList;
+	public var changedTouches :TouchList;
+	public var scale :Float;
+	public var rotation :Float;
+	public var __clientX :Integer;
+	public var __clientY :Integer;
+	public var __targets :Array<CocoClip>;
+} //TouchEvent
+
+class HTMLWindow
+{
+	public function addEventListener(event:String, listener:Function, useCapture:Boolean) {}
+	public function removeEventListener(event:String, listener:Function, useCapture:Boolean) {}
+	public function dispatchEvent(uid:Integer, event:String) {}
+	public function Constructor() {}
+	public var __uid :Integer;
+	public var document :HTMLDocument;
+	public var innerHeight :Integer;
+	public var innerWidth :Integer;
+	public var devicePixelRatio :Integer;
+	public var __event :TouchEvent;
+	public var __elements :Array<Function>;
+} //HTMLWindow
+
+class TouchList : Array
+{
+	public function item(index:Integer) :Touch {}
+	public function Constructor() {}
+	public var length :Integer;
+} //TouchList
+
 class WebGLActiveInfo
 {
-	public function Constructor() {}
+	public function Constructor(uid:Integer, program_uid:Integer, index:Integer) {}
 } //WebGLActiveInfo
 
 class WebGLBuffer
@@ -539,7 +581,7 @@ class WebGLBuffer
 
 class WebGLContextAttributes
 {
-	public function Constructor() {}
+	public function Constructor(uid:Integer) {}
 } //WebGLContextAttributes
 
 class WebGLFramebuffer
@@ -563,7 +605,7 @@ class WebGLShader
 
 class WebGLShaderPrecisionFormat
 {
-	public function Constructor() {}
+	public function Constructor(uid:Integer, shadertype:Integer, precisiontype:Integer) {}
 } //WebGLShaderPrecisionFormat
 
 class WebGLTexture
@@ -574,7 +616,7 @@ class WebGLTexture
 
 class WebGLUniformLocation
 {
-	public function Constructor(uid:Integer) {}
+	public function Constructor(uid:Integer, program_uid:Integer, name:String) {}
 	public var __uid :Integer;
 } //WebGLUniformLocation
 
@@ -1199,7 +1241,7 @@ class CocoTimeline
 	public var __fps :Float;
 } //CocoTimeline
 
-class CocoClip
+class CocoClip : EventTarget
 {
 	public function prepare(scene:CocoScene) {}
 	public function reset() {}
@@ -1211,6 +1253,10 @@ class CocoClip
 	public function gotoFrameByName(LabelName:String, pause:Boolean, deep:Boolean) :Boolean {}
 	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean, deep:Boolean) :Boolean {}
 	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean) {}
+	public function hitTest(wx:Float, wy:Float) :Boolean {}
+	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
+	public function initBoundingBoxFromChildren(scene:CocoScene) {}
+	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
 	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String) {}
 	public var __instanceName :String;
 	public var __image :CocoImage;
@@ -1283,6 +1329,7 @@ class CocoEngineState
 
 class CocoEngine
 {
+	private function __setTouchEvent(e:TouchEvent) {}
 	public function currentState() :CocoEngineState {}
 	public function setState(state:CocoEngineState) {}
 	public function tick(gl:WebGLRenderingContext, time:Float) {}
@@ -1290,6 +1337,7 @@ class CocoEngine
 	public var __currentState :CocoEngineState;
 	public var __nextState :CocoEngineState;
 	public var __stateStart :Float;
+	public var __touchEvent :TouchEvent;
 } //CocoEngine
 
 class CocoSprite : CocoClip

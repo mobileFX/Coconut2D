@@ -25,21 +25,21 @@
 
 //# DO NOT EDIT BEGIN #//
 class Object;
-class String;
-class Number;
-class Boolean;
 class Array;
 class Function;
-class Date;
+class String;
+class Number;
 class Integer;
 class Float;
+class Boolean;
+class Date;
+class Math;
+class RegExp;
 class ArrayBuffer;
 class ArrayBufferView;
 class Float32Array;
 class Int32Array;
 class Uint8Array;
-class Math;
-class RegExp;
 class Error;
 class EvalError;
 class RangeError;
@@ -97,9 +97,11 @@ class UIPickerView;
 class UIScrollView;
 class UITabView;
 class UITextView;
+class SceneGameBoard;
+class SceneTitle;
+class State_GameBoard;
+class State_TitleScreen;
 class GameEngine;
-class Animation1;
-class StateAnim;
 //# DO NOT EDIT END #//
 
 #define CocoException	std::string

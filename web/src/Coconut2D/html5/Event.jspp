@@ -1,6 +1,3 @@
-"#export native"
-"#export web"
-
 /* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
@@ -25,97 +22,75 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include WebGLRenderingContext.jspp"
-"#include CocoEngineState.jspp"
-"#include CocoScene.jspp"
-"#include TouchEvent.jspp"
-
 // ==================================================================================================================================
-//	   ______                 ______            _
-//	  / ____/___  _________  / ____/___  ____ _(_)___  ___
-//	 / /   / __ \/ ___/ __ \/ __/ / __ \/ __ `/ / __ \/ _ \
-//	/ /___/ /_/ / /__/ /_/ / /___/ / / / /_/ / / / / /  __/
-//	\____/\____/\___/\____/_____/_/ /_/\__, /_/_/ /_/\___/
-//	                                  /____/
+//	    ______                 __
+//	   / ____/   _____  ____  / /_
+//	  / __/ | | / / _ \/ __ \/ __/
+//	 / /___ | |/ /  __/ / / / /_
+//	/_____/ |___/\___/_/ /_/\__/
+//
 // ==================================================================================================================================
 
-class CocoEngine
+"#include EventTarget.jspp"
+
+class Event
 {
-	public var __currentState:CocoEngineState;
-	public var __nextState:CocoEngineState;
-	public var __stateStart:Float;
-	public var __touchEvent:TouchEvent;
+	public const CAPTURING_PHASE:Integer 	= 1;
+	public const AT_TARGET:Integer 			= 2;
+	public const BUBBLING_PHASE:Integer 	= 3;
+
+	public var type:String;
+	public var target:EventTarget;
+	public var currentTarget:EventTarget;
+	public var eventPhase:Integer;
+	public var bubbles:Boolean;
+	public var cancelable:Boolean;
+	public var timeStamp:Integer;
+	public var defaultPrevented:Boolean;
+
+	public var view:HTMLWindow;
+	public var detail:Integer;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		__currentState = null;
-		__nextState = null;
-		__stateStart = 0.0;
-
-		// Set event handlers
-		__touchEvent = null;
-		window.addEventListener("touchstart", __setTouchEvent);
-		window.addEventListener("touchmove", __setTouchEvent);
-		window.addEventListener("touchend", __setTouchEvent);
+		type="";
+		target=null;
+		currentTarget=null;
+		eventPhase=CAPTURING_PHASE;
+		bubbles=true;
+		cancelable=true;
+		timeStamp=0;
+		defaultPrevented=false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	private function __setTouchEvent(e:TouchEvent)
+	public function stopPropagation()
 	{
-		__touchEvent = e; 		
-		__touchEvent.__clientX = e.touches[0].clientX;
-		__touchEvent.__clientY = e.touches[0].clientY;
+		bubbles = false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function currentState():CocoEngineState
+	public function preventDefault()
 	{
-		return __currentState;
+		defaultPrevented = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function setState(state:CocoEngineState)
+	public function initEvent(type:String, canBubble:Boolean, cancelable:Boolean)
 	{
-		__nextState = state;
+		eventPhase = CAPTURING_PHASE;
+		this.type = type;
+		this.bubbles = canBubble;
+		this.cancelable = cancelable;
+		this.timeStamp = (new Date()).getTime();
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function tick(gl:WebGLRenderingContext, time:Float)
+	public function initUIEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer)
 	{
-		// Change state
-		if(__nextState!=null)
-		{
-			__currentState = __nextState;
-			__stateStart = time;
-			__nextState = null;
-		}
-
-		// Tick current engine state
-		__currentState.tick(this, gl, time - __stateStart);
-		__touchEvent = null;
+		this.initEvent(type, canBubble, cancelable);
+		this.view = view;
+		this.detail = detail;
 	}
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}

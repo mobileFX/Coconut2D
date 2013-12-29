@@ -22,22 +22,52 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include Constants.js"
-
 // ==================================================================================================================================
-//	 _       __     __    ________   _____ __              __          ____                 _      _             ______                           __
-//	| |     / /__  / /_  / ____/ /  / ___// /_  ____ _____/ /__  _____/ __ \________  _____(_)____(_)___  ____  / ____/___  _________ ___  ____ _/ /_
-//	| | /| / / _ \/ __ \/ / __/ /   \__ \/ __ \/ __ `/ __  / _ \/ ___/ /_/ / ___/ _ \/ ___/ / ___/ / __ \/ __ \/ /_  / __ \/ ___/ __ `__ \/ __ `/ __/
-//	| |/ |/ /  __/ /_/ / /_/ / /______/ / / / / /_/ / /_/ /  __/ /  / ____/ /  /  __/ /__/ (__  ) / /_/ / / / / __/ / /_/ / /  / / / / / / /_/ / /_
-//	|__/|__/\___/_.___/\____/_____/____/_/ /_/\__,_/\__,_/\___/_/  /_/   /_/   \___/\___/_/____/_/\____/_/ /_/_/    \____/_/  /_/ /_/ /_/\__,_/\__/
+//	  ______                 __
+//	 /_  __/___  __  _______/ /_
+//	  / / / __ \/ / / / ___/ __ \
+//	 / / / /_/ / /_/ / /__/ / / /
+//	/_/  \____/\__,_/\___/_/ /_/
 //
 // ==================================================================================================================================
 
-class WebGLShaderPrecisionFormat
+"#include EventTarget.jspp"
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+class Touch
 {
-	public function Constructor(uid:Integer, shadertype:Integer, precisiontype:Integer)
+    public var identifier:Integer;
+    public var screenX:Integer;
+    public var screenY:Integer;
+    public var clientX:Integer;
+    public var clientY:Integer;
+    public var pageX:Integer;
+    public var pageY:Integer;
+    public var target:EventTarget;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
 	{
+		identifier	= 0;
+		target		= null;
+		screenX		= 0;
+		screenY		= 0;
+		clientX		= 0;
+		clientY		= 0;
+		pageX		= 0;
+		pageY		= 0;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function initTouch(identifier:Integer, target:EventTarget, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, pageX:Integer, pageY:Integer)
+	{
+		this.identifier	= identifier;
+		this.target		= target;
+		this.screenX	= screenX;
+		this.screenY	= screenY;
+		this.clientX	= clientX;
+		this.clientY	= clientY;
+		this.pageX		= pageX;
+		this.pageY		= pageY;
 	}
 }
-
-

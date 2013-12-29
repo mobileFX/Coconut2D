@@ -115,97 +115,21 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	function VarSymbol() {}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.types =
+	_this.NewWarning = function (e, node)
 	{
-		"Array"		: { "default": "[]" },
-		"Boolean"	: { "default": "false" },
-		"Date"		: {	"default": "new Date" },
-		"Function"	: {	"default": "function(){}" },
-		"Null"		: { "default": "null" },
-		"Number"	: {	"default": "0" },
-		"Float"		: { "default": "0" },
-		"Integer"	: { "default": "0" },
-		"Object"	: { "default": "{}" },
-		"RegExp"	: { "default": "/(?:)/" },
-		"String"	: { "default": '""' }
+		if(_this.selectedClass || _this.no_errors>0) return;
+		trace("@@ WARNING: " + e + " in file " + node.path + " at line " + node.line_start);
+		jsppCallback("warning", node.path, "", node.line_start, 0, e);
+		_this.warnings.push(e);
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typerules =
+	_this.NewError = function (e, node)
 	{
-		explicit:
-		{
-			"__UNARY__"		: ["Boolean", "Number", "String"],
-			"Array"			: [],
-			"Boolean"		: ["Number", "String"],
-			"Date"			: ["Number", "String"],
-			"Function"		: ["String"],
-			"null"			: [],
-			"Number"		: ["Boolean", "String"],
-			"Object"		: [],
-			"RegExp"		: ["Boolean", "Date", "Number", "String"],
-			"String"		: ["Boolean", "Date", "Function", "Number", "RegExp"]
-		},
-
-		implicit:
-		{
-			PLUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" }, "String": { "String": "String" } },
-			MINUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			MUL: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			DIV: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			MOD:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			BIT: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			ASSIGN: { "Number":	 { "Boolean": "Number",	"Number": "Number" }, "Boolean": { "Boolean": "Number", "Number": "Number" }
-			}
-		}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// IDE icons that can be set to exported memberlist items in exportCoconutIDESymbols()
-	_this.CODE_SYMBOLS_ENUM =
-	{
-	    SYMBOL_ARGUMENT					   : 0,
-	    SYMBOL_ARRAY                       : 1,
-	    SYMBOL_BASE_CLASS                  : 2,
-	    SYMBOL_BASE_CONSTANT               : 3,
-	    SYMBOL_BASE_EVENT                  : 4,
-	    SYMBOL_BASE_PRIVATE_FIELD          : 5,
-	    SYMBOL_BASE_PRIVATE_FUNCTION       : 6,
-	    SYMBOL_BASE_PROTECTED_FIELD        : 7,
-	    SYMBOL_BASE_PROTECTED_FUNCTION     : 8,
-	    SYMBOL_BASE_PUBLIC_FIELD           : 9,
-	    SYMBOL_BASE_PUBLIC_FUNCTION        : 10,
-	    SYMBOL_CLASS                       : 11,
-	    SYMBOL_CONDITIONAL_BLOCK           : 12,
-	    SYMBOL_CONSTANT                    : 13,
-	    SYMBOL_CONSTRUCTOR                 : 14,
-	    SYMBOL_ENUM                        : 15,
-	    SYMBOL_ENUM_ITEM                   : 16,
-	    SYMBOL_ERROR                       : 17,
-	    SYMBOL_EVENT                       : 18,
-	    SYMBOL_FOLDER                      : 19,
-	    SYMBOL_HTML                        : 20,
-	    SYMBOL_HTML_STYLE                  : 21,
-	    SYMBOL_HTML_STYLE_CLASS            : 22,
-	    SYMBOL_HTML_STYLE_ID               : 23,
-	    SYMBOL_HTML_STYLE_RULE             : 24,
-	    SYMBOL_INTERFACE                   : 25,
-	    SYMBOL_LOCALS                      : 26,
-	    SYMBOL_OBJECT                      : 27,
-	    SYMBOL_PACKAGE                     : 28,
-	    SYMBOL_PRIVATE_FIELD               : 29,
-	    SYMBOL_PRIVATE_FUNCTION            : 30,
-	    SYMBOL_PROPERTY                    : 31,
-	    SYMBOL_PROTECTED_FIELD             : 32,
-	    SYMBOL_PROTECTED_FUNCTION          : 33,
-	    SYMBOL_PUBLIC_FIELD                : 34,
-	    SYMBOL_PUBLIC_FUNCTION             : 35,
-	    SYMBOL_SCRIPT_LIBRARY              : 36,
-	    SYMBOL_SYMBOLS                     : 37,
-	    SYMBOL_VARIABLE                    : 38,
-	    SYMBOL_WAIT                        : 39,
-	    SYMBOL_WARNING                     : 40,
-	    SYMBOL_WATCH                       : 41
+		if(_this.selectedClass || _this.no_errors>0) return;
+		trace("@@ ERROR: " + e + " in file " + node.path + " at line " + node.line_start);
+		jsppCallback("error", node.path, "", node.line_start, 0, e);
+		_this.errors.push(e);
 	};
 
 	// ==================================================================================================================================
@@ -345,6 +269,11 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 		switch (ast[0].type)
 		{
+			case jsdef.NEW:
+			case jsdef.NEW_WITH_ARGS:
+				out.push({ast:ast[0], value:ast[0][0].value});
+				break;
+
 			case jsdef.IDENTIFIER:
 			case jsdef.TRUE:
 			case jsdef.FALSE:
@@ -456,7 +385,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	_this.LookupIdentifier = function(scope, identifier, ast, noWarning)
 	{
 		if(!identifier || !scope) return;
-
+		
 		function __doLookupSymbol(scope, identifier, ast)
 		{
 			var symbol = null;
@@ -487,13 +416,6 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			case "prototype":		symbol = _this.getClass("Prototype"); break;
 			case "@@THIS@@": 		symbol = _this.getCurrentClass(); break;
 			case "@@SUPER@@":		symbol = _this.getCurrentClass().baseSymbol; break;
-			case "window":			symbol = _this.getClass("HTMLWindow"); break;
-			case "document":		symbol = _this.getClass("HTMLDocument"); break;
-			case "canvas":			symbol = _this.getClass("HTMLCanvasElement"); break;
-			case "global":			symbol = _this.getClass("Global"); break;
-			case "engine":			symbol = _this.getClass("CocoEngine"); break;
-
-			case "CallbackManager":	symbol = _this.getClass("CallbackManager");
 
 			default:
 				symbol = _this.getClass(identifier) || __doLookupSymbol(scope, identifier, ast);
@@ -522,7 +444,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		var dot = ast.source;
 		var identifier = ast.identifiers_list[ast.identifiers_list.length-1].value;
 		var symbol = null;
-
+		
 		// Start descending dot chain.
 		for(var i=0; i<ast.identifiers_list.length;i++)
 		{
@@ -534,13 +456,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				symbol = nodeSymbol;
 				break;
 			}
-			if(nodeSymbol.type==jsdef.CLASS)
-			{
-				// Reached a class, can't go deeper.
-				symbol = _this.LookupIdentifier(nodeSymbol.scope, identifier, null, true);
-				break;
-			}
-			else if(i<ast.identifiers_list.length-1 && ast.identifiers_list[i+1].value=="@@INDEX@@")
+			else if(ast.identifiers_list[i+1].value=="@@INDEX@@")
 			{
 				vartype = nodeSymbol.subtype;
 				i++;
@@ -616,23 +532,6 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	//	/_/  /_/\__,_/\___/_/   \____/____/
 	//
 	// ==================================================================================================================================
-
-	_this.NewWarning = function (e, node)
-	{
-		if(_this.selectedClass || _this.no_errors>0) return;
-		trace("@@ WARNING: " + e + " in file " + node.path + " at line " + node.line_start);
-		jsppCallback("warning", node.path, "", node.line_start, 0, e);
-		_this.warnings.push(e);
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.NewError = function (e, node)
-	{
-		if(_this.selectedClass || _this.no_errors>0) return;
-		trace("@@ ERROR: " + e + " in file " + node.path + " at line " + node.line_start);
-		jsppCallback("error", node.path, "", node.line_start, 0, e);
-		_this.errors.push(e);
-	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getCurrentClass = function()
@@ -752,17 +651,18 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 			var constructor = null;
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
-			var baseClass = ast.extends ? ast.extends.value : undefined;
+			var baseClass = ast.extends ? ast.extends : undefined;
 			var baseClassSymbol = _this.getClass(baseClass);
 			var baseClassId = baseClassSymbol ? baseClassSymbol.ast.symbol.classId : null;
 			var isGlobalClass = (ast.name=="Global");
 			var scope = (isGlobalClass ? _this.scopesStack[0] : _this.NewScope(ast));
-
+			
 			var classSymbol = new ClassSymbol();
 			{
 				classSymbol.symbolId	= (++_this.symbolId);
 				classSymbol.name		= ast.name;
 				classSymbol.vartype		= ast.name;
+				classSymbol.subtype		= ast.subtype;				
 				classSymbol.classId		= classId;
 				classSymbol.base		= baseClass;
 				classSymbol.baseSymbol	= baseClassSymbol;
@@ -782,11 +682,16 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				classSymbol.vars		= scope.vars;
 				classSymbol.methods	 	= scope.methods;
 			}
+			
+			// Save symbol
 			ast.symbol = classSymbol;
 			_this.classes[ast.name] = classSymbol;
+			_this.scopesStack[0].vars[classSymbol.name] = classSymbol;
+
+			// Record vartype usage in class level (used to check #includes)
 			if(baseClass) scope.vartypes[baseClass] = true;
 
-			// Roger Poon JavaScript++ class definition
+			// Roger Poon's JavaScript++ class definition
 			out.push("function " + ast.name + "(){");
 			out.push("var __SUPER__" + (baseClassId ? "," + baseClassId : "") + ";");
 			out.push("return ((function(){");
@@ -826,7 +731,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			// Class Methods
 			for(var item in ast.body)
 			{
-				if(!isFinite(item)) continue;
+				if(!isFinite(item)) break;
 				var member = ast.body[item];
 				switch(member.type)
 				{
@@ -840,7 +745,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			// Class Fields
 			for(var item in ast.body)
 			{
-				if(!isFinite(item)) continue;
+				if(!isFinite(item)) break;
 				var member = ast.body[item];
 				switch(member.type)
 				{
@@ -872,7 +777,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				_this.ExitScope();
 
 			///////////////////////////////////////////////
-			// Save compiled object JavaScript code.
+			// Save compiled JavaScript object code.
 			///////////////////////////////////////////////
 			if(!_this.selectedClass && _this.secondPass && ast.path && ast.file!="externs.jspp" && _this.infolder && _this.outfolder)
 			{
@@ -946,10 +851,12 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				functionSymbol.paramsList	= ast.paramsList;
 				functionSymbol.arguments	= {};
 			}
-
+           
+           	// Save symbol
 			ast.symbol = functionSymbol;
 			parentScope.methods[ast.name] = functionSymbol;
 
+			// Record vartype usage in class level (used to check #includes)
 			if(functionSymbol.subtype)
 				parentScope.vartypes[functionSymbol.subtype] = true;
 			else if(functionSymbol.vartype)
@@ -1001,10 +908,21 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 					varSymbol.subtype		= param.subtype ? param.subtype : _this.getSubType(param.vartype);
 					varSymbol.pointer		= param.isPointer;
 				}
+				
+				// Detect if identifier vartype is a typed array and get subtype.
+				if(!varSymbol.subtype && varSymbol.vartype)
+				{
+					var vtcls = _this.getClass(varSymbol.vartype);
+					if(vtcls && vtcls.subtype)
+						varSymbol.subtype = vtcls.subtype; 
+				}
+				
+				// Save symbol
 				param.symbol = varSymbol;
 				methodScope.vars[param.name] = varSymbol;
 				functionSymbol.arguments[varSymbol.name] = varSymbol;
-
+    
+    			// Record vartype usage in class level (used to check #includes)
 				if(varSymbol.subtype)
 					parentScope.vartypes[varSymbol.subtype] = true;
 				else if(varSymbol.vartype)
@@ -1097,6 +1015,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			ast.scope = _this.getCurrentScope();
 			var classSymbol = ast.scope.isClass ? ast.scope.ast : null;
 			var firstItem = true;
+			var extern_symbol = null;
 
 			if(ast.scope.isClass)
 			{
@@ -1123,7 +1042,9 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			// Process var items to record symbols and generate code
 			for(var item in ast)
 			{
-				if(!isFinite(item)) continue;
+				if(!isFinite(item)) break;
+
+				var extern_symbol = null;
 
 				if(!ast[item].vartype && _this.currClassName)
 					_this.NewError("Type declaration missing " + ast[item].name, ast);
@@ -1131,11 +1052,19 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				if(_this.secondPass && _this.currClassName && !_this.getClass(ast[item].vartype))
 					_this.NewError("Class not found: " + ast[item].vartype, ast[item]);
 
-				if(!_this.secondPass)
+				if(Object.prototype.hasOwnProperty.call(ast.scope.vars, ast[item].name))
 				{
-					if(Object.prototype.hasOwnProperty.call(ast.scope.vars,ast[item].name))
-						_this.NewError("Redeclaration of variable " + ast[item].name + " in current scope", ast[item]);
+					// Variables might be declared in externs for getting a vartype.
+					// If a var is wrapped inside "#ignore_errors" directive we do not redeclare not complain.
+					if(_this.no_errors)
+						extern_symbol = ast.scope.vars[ast[item].name];//.ast.symbol;
 
+					else if(!_this.secondPass)
+						_this.NewError("Redeclaration of variable " + ast[item].name + " in current scope", ast[item]);
+				}
+
+				if(!_this.secondPass)
+			 	{
 	       			var classScope = _this.getClassScope();
 					if(classScope && !_this.isInside(ast[item], jsdef.BLOCK) && Object.prototype.hasOwnProperty.call(classScope.vars, ast[item].name))
 					{
@@ -1172,10 +1101,29 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 					varSymbol.vartype		= ast[item].vartype;
 					varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(ast[item].vartype);
 					varSymbol.pointer		= ast[item].isPointer;
-				};
+				}
 
+				// Update vartype from extern
+				if(extern_symbol)
+				{
+					varSymbol.vartype = extern_symbol.vartype;
+					varSymbol.subtype = extern_symbol.subtype;
+					varSymbol.isPointer = __isPointer(varSymbol.vartype);
+				} 
+				
+				// Detect if identifier vartype is a typed array and get subtype.
+				if(!varSymbol.subtype && varSymbol.vartype)
+				{
+					var vtcls = _this.getClass(varSymbol.vartype);
+					if(vtcls && vtcls.subtype)
+						varSymbol.subtype = vtcls.subtype; 
+				}				
+
+                // Save var in scopes
 				ast[item].symbol = varSymbol;
 				ast.scope.vars[ast[item].name] = varSymbol;
+
+				// Record vartype usage in class level (used to check #includes)
 				if(classSymbol)
 				{
 					if(varSymbol.subtype)
@@ -1317,7 +1265,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			var scope = _this.NewScope(ast);
 			for(var item in ast)
 			{
-				if(!isFinite(item)) continue;
+				if(!isFinite(item)) break;
 				body.push(generate(ast[item]));
 			}
 			_this.ExitScope();
@@ -1331,7 +1279,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			out.push("{\n");
 			for(var item in ast)
 			{
-				if(!isFinite(item)) continue;
+				if(!isFinite(item)) break;
 				out.push(generate(ast[item]));
 			}
 			out.push("}\n");
@@ -1345,10 +1293,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			out.push("(");
 			out.push(generate(ast[1]));
 			out.push(")");
-
-			if(_this.secondPass && _this.currClassName)
-				_this.checkFunctionCall(ast);
-
+			_this.checkFunctionCall(ast);
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1357,7 +1302,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			var firstItem = true;
 			for(var item in ast)
 			{
-				if(!isFinite(item)) continue;
+				if(!isFinite(item)) break;
 				if(!firstItem) out.push(", ");
 				out.push(generate(ast[item]));
 				firstItem = false;
@@ -1369,19 +1314,19 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			out.push("(");
 			for(var item in ast)
 			{
-				if(!isFinite(item)) continue;
+				if(!isFinite(item)) break;
 				out.push(generate(ast[item]));
 			}
 			out.push(")");
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.ARRAY_INIT:
+		case jsdef.ARRAY_INIT:			
 			out.push("[");
 			var firstItem = true;
 			for(var item in ast)
 			{
-				if(!isFinite(item)) continue;
+				if(!isFinite(item)) break;
 				if(!firstItem) out.push(",");
 				out.push(generate(ast[item]));
 				firstItem = false;
@@ -1397,7 +1342,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			var firstItem = true;
 			for(var item in ast)
 			{
-				if(!isFinite(item)) continue;
+				if(!isFinite(item)) break;
 				if(!firstItem) out.push(", ");
 				ast[item].parent = ast;
 				out.push(generate(ast[item]));
@@ -1424,11 +1369,11 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 			if(ast[0].type==jsdef.THIS)
 			{
-				_this.NewError({type:ReferenceError, message:"Cannot assign to 'this'"},ast);
+				_this.NewError("Cannot assign to 'this'", ast);
 			}
 			else if(ast[0].type != jsdef.IDENTIFIER && ast[0].type != jsdef.DOT && ast[0].type != jsdef.INDEX)
 			{
-				_this.NewError({type:ReferenceError, message:"Invalid left-hand assignment"},ast);
+				_this.NewError("Invalid left-hand assignment", ast);
 			}
 		    _this.typeCheck(ast, _this.getTypeName(ast[0]), _this.getTypeName(ast[1]));
 
@@ -1460,7 +1405,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			out.push("switch(" + generate(ast.discriminant) + "){");
 			for(var _case in ast.cases)
 			{
-				if(!isFinite(_case)) continue;
+				if(!isFinite(_case)) break;
 				out.push(generate(ast.cases[_case]));
 				out.push("break;");
 			}
@@ -1521,7 +1466,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			// When file changes we must reset the scopeId counter.
 			if(_this.currFile!=ast.path)
 			{
-				_this.scopeId = -1;
+				_this.scopeId = _this.scopesStack.length-1;
 				_this.currFile = ast.path;
 				_this.includes = [];
 			}
@@ -1538,8 +1483,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				}
 				catch(e)
 				{
-					//Catch malformed regex patterns, etc.
-					this.NewError({type: e.constructor, message: e.message}, ast);
+					this.NewError(e.message, ast);
 				}
 			}
 			else
@@ -1552,7 +1496,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				}
 				catch(e)
 				{
-					this.NewError({type: e.constructor, message: e.message }, ast);
+					this.NewError(e.message, ast);
 				}
 			}
 			break;
@@ -1563,7 +1507,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			out.push(generate(ast.tryBlock));
 			for(var catchClause in ast.catchClauses)
 			{
-				if(!isFinite(catchClause)) continue;
+				if(!isFinite(catchClause)) break;
 				out.push("catch(" + ast.catchClauses[catchClause].varName + ")");
 				out.push(generate(ast.catchClauses[catchClause].block));
 				ast.finallyBlock && out.push("finally" + generate(ast.finallyBlock));
@@ -1605,7 +1549,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		case jsdef.MINUS: 				out.push(generate(ast[0])); out.push("-"); out.push(generate(ast[1])); break;
 		case jsdef.MUL: 				out.push(generate(ast[0])); out.push("*"); out.push(generate(ast[1])); break;
 		case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	 out.push(generate(ast[1])); break;
-		case jsdef.NEW_WITH_ARGS:		out.push("new "); out.push(generate(ast[0])); out.push("("); out.push(generate(ast[1])); out.push(")"); break;
+		case jsdef.NEW_WITH_ARGS:		out.push("new "); out.push(generate(ast[0])); out.push("("); out.push(generate(ast[1])); out.push(")"); _this.checkFunctionCall(ast); break;
 		case jsdef.NOT:					out.push("!"); out.push(generate(ast[0])); break;
 		case jsdef.NULL:				out.push("null"); break;
 		case jsdef.NUMBER:				out.push(ast.value); break;
@@ -1653,7 +1597,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		var vartype = null;
 		for(var item in ast)
 		{
-			if(!isFinite(item)) continue;
+			if(!isFinite(item)) break;
 		    if(ast[item][1].type==jsdef.NUMBER)
 		    {
 		    	if(!vartype) vartype = "Number";
@@ -1729,7 +1673,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 		for(var item in ast)
 		{
-			if(!isFinite(item)) continue;
+			if(!isFinite(item)) break;
 			var varSymbol = new VarSymbol()
 			{
 				varSymbol.symbolId		= (++_this.symbolId);
@@ -1935,6 +1879,101 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	//	    /____/_/                  /____/
 	// ==================================================================================================================================
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.types =
+	{
+		"Array"		: { "default": "[]" },
+		"Boolean"	: { "default": "false" },
+		"Date"		: {	"default": "new Date" },
+		"Function"	: {	"default": "function(){}" },
+		"Null"		: { "default": "null" },
+		"Number"	: {	"default": "0" },
+		"Float"		: { "default": "0" },
+		"Integer"	: { "default": "0" },
+		"Object"	: { "default": "{}" },
+		"RegExp"	: { "default": "/(?:)/" },
+		"String"	: { "default": '""' }
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.typerules =
+	{
+		explicit:
+		{
+			"__UNARY__"		: ["Boolean", "Number", "String"],
+			"Array"			: [],
+			"Boolean"		: ["Number", "String"],
+			"Date"			: ["Number", "String"],
+			"Function"		: ["String"],
+			"null"			: [],
+			"Number"		: ["Boolean", "String"],
+			"Object"		: [],
+			"RegExp"		: ["Boolean", "Date", "Number", "String"],
+			"String"		: ["Boolean", "Date", "Function", "Number", "RegExp"]
+		},
+
+		implicit:
+		{
+			PLUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" }, "String": { "String": "String" } },
+			MINUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
+			MUL: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
+			DIV: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
+			MOD:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
+			BIT: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
+			ASSIGN: { "Number":	 { "Boolean": "Number",	"Number": "Number" }, "Boolean": { "Boolean": "Number", "Number": "Number" }
+			}
+		}
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// IDE icons that can be set to exported memberlist items in exportCoconutIDESymbols()
+	_this.CODE_SYMBOLS_ENUM =
+	{
+	    SYMBOL_ARGUMENT					   : 0,
+	    SYMBOL_ARRAY                       : 1,
+	    SYMBOL_BASE_CLASS                  : 2,
+	    SYMBOL_BASE_CONSTANT               : 3,
+	    SYMBOL_BASE_EVENT                  : 4,
+	    SYMBOL_BASE_PRIVATE_FIELD          : 5,
+	    SYMBOL_BASE_PRIVATE_FUNCTION       : 6,
+	    SYMBOL_BASE_PROTECTED_FIELD        : 7,
+	    SYMBOL_BASE_PROTECTED_FUNCTION     : 8,
+	    SYMBOL_BASE_PUBLIC_FIELD           : 9,
+	    SYMBOL_BASE_PUBLIC_FUNCTION        : 10,
+	    SYMBOL_CLASS                       : 11,
+	    SYMBOL_CONDITIONAL_BLOCK           : 12,
+	    SYMBOL_CONSTANT                    : 13,
+	    SYMBOL_CONSTRUCTOR                 : 14,
+	    SYMBOL_ENUM                        : 15,
+	    SYMBOL_ENUM_ITEM                   : 16,
+	    SYMBOL_ERROR                       : 17,
+	    SYMBOL_EVENT                       : 18,
+	    SYMBOL_FOLDER                      : 19,
+	    SYMBOL_HTML                        : 20,
+	    SYMBOL_HTML_STYLE                  : 21,
+	    SYMBOL_HTML_STYLE_CLASS            : 22,
+	    SYMBOL_HTML_STYLE_ID               : 23,
+	    SYMBOL_HTML_STYLE_RULE             : 24,
+	    SYMBOL_INTERFACE                   : 25,
+	    SYMBOL_LOCALS                      : 26,
+	    SYMBOL_OBJECT                      : 27,
+	    SYMBOL_PACKAGE                     : 28,
+	    SYMBOL_PRIVATE_FIELD               : 29,
+	    SYMBOL_PRIVATE_FUNCTION            : 30,
+	    SYMBOL_PROPERTY                    : 31,
+	    SYMBOL_PROTECTED_FIELD             : 32,
+	    SYMBOL_PROTECTED_FUNCTION          : 33,
+	    SYMBOL_PUBLIC_FIELD                : 34,
+	    SYMBOL_PUBLIC_FUNCTION             : 35,
+	    SYMBOL_SCRIPT_LIBRARY              : 36,
+	    SYMBOL_SYMBOLS                     : 37,
+	    SYMBOL_VARIABLE                    : 38,
+	    SYMBOL_WAIT                        : 39,
+	    SYMBOL_WARNING                     : 40,
+	    SYMBOL_WATCH                       : 41
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getVarType = function(vartype)
 	{
 		if(!vartype) return null;
@@ -2044,9 +2083,9 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			{
 				var op = "";
 				if (ast.type == jsdef.INCREMENT)
-					_this.NewError({type:TypeError, message:"Illegal operation INCREMENT on: "+type}, ast);
+					_this.NewError("Illegal operation INCREMENT on: "+type, ast);
 				else if (ast.type == jsdef.DECREMENT)
-					_this.NewError({type:TypeError, message:"Illegal operation DECREMENT on: "+type}, ast);
+					_this.NewError("Illegal operation DECREMENT on: "+type, ast);
 				else _this.typeCheck(ast, type, "Number");
 			}
 			return type;
@@ -2100,7 +2139,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			if(ast[0].type==jsdef.DOT)
 			{
 				var symbol = _this.LookupLastDotIdentifier(ast[0], _this.getCurrentScope());
-				if(!symbol) { _this.NewError("Symbol not found: " + ast[0].identifier_last, nodeType, ast[0]); return null; }
+				if(!symbol) { _this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]); return null; }
 				return symbol.vartype;
 			}
 			return ast[0].symbol.vartype;
@@ -2110,7 +2149,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			if(ast[0].type==jsdef.DOT)
 			{
 				var symbol = _this.LookupLastDotIdentifier(ast[0], _this.getCurrentScope());
-				if(!symbol) { _this.NewError("Symbol not found: " + ast[0].identifier_last, nodeType, ast[0]); return null; }
+				if(!symbol) { _this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]); return null; }
 				return symbol.subtype;
 			}
 			return ast[0].symbol.subtype;
@@ -2119,7 +2158,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		//=============================================================================================================================
 		case jsdef.DOT:
 			var symbol = _this.LookupLastDotIdentifier(ast, _this.getCurrentScope());
-			if(!symbol) { _this.NewError("Symbol not found: " + ast.identifier_last, nodeType, ast); return null; }
+			if(!symbol) { _this.NewError("Symbol not found: " + ast.source, ast); return null; }
 			return symbol.vartype;
 
 		//=============================================================================================================================
@@ -2131,19 +2170,17 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.checkFunctionCall = function(ast)
 	{
-		var fnSymbol = null;
+		if(!_this.secondPass || !_this.currClassName) return;
 
-		if(ast[0].type==jsdef.IDENTIFIER)
-		{
-			fnSymbol = ast[0].symbol;
-		}
-		else
-		{
-			fnSymbol = ast[0].identifier_last.symbol;
-		}
+		var fnSymbol = (ast.type==jsdef.NEW_WITH_ARGS ? ast[0].symbol.methods['Constructor'] :
+					   (fnSymbol = ast[0].type==jsdef.IDENTIFIER ? ast[0].symbol : ast[0].identifier_last.symbol));
+
 		if(fnSymbol  && fnSymbol instanceof FunctionSymbol)
 		{
 			var i=0, item, arg, param, type1, type2;
+
+			if(ast[1].length>fnSymbol.paramsList.length)
+				_this.NewError("Too many arguments: " + ast.source, ast);
 
 			for(item in fnSymbol.arguments)
 			{
@@ -2171,39 +2208,71 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 		var _this = this;
 		if(!_this.currClassName) return;
+
+		// Fast type checking
 		if(type1==type2) return type1;
+
+		// Resolve vartype and retry
 		type1=_this.getVarType(type1);
 		type2=_this.getVarType(type2);
 		if(type1==type2) return type1;
 
-		if(!type1 || type1=="null")  { _this.NewError("Invalid left type", ast); return type1; }
-		if(!type2 || type2=="null")  { _this.NewError("Invalid right type", ast); return type2; }
+		// Invalid left/right type
+		if(!type1 || type1=="null")  { _this.NewError("Invalid left type: " + (ast[0] ? ast[0] : ast).source, ast); return type1; }
+		if(!type2 || type2=="null")  { _this.NewError("Invalid right type: " + (ast[1] ? ast[1] : ast).source, ast); return type2; }
 
+        // Null
 		if(__isPointer(type1) && type2=="Null") return type1;
 
+  		// Object
 		if(type1=="Object") return type1;
+
+		// Integer
 		if(type1=="Integer" && type2=="Number") return type1;
+		if(type1=="Integer" && type2=="Float") return type1;
+		if(type1=="Integer" && type2=="Float") { _this.NewWarning("Precision loss converting Float to Integer", ast); return type1; }
+		if(type1=="Integer" && type2=="Object") { _this.NewError("Invalid Object to Integer convertion", ast); return type1; }
+
+		// Number
 		if(type1=="Number" && type2=="Integer") return type1;
 		if(type1=="Number" && type2=="Float") return type1;
-		if(type1=="Integer" && type2=="Float") return type1;
-		if(type1=="Float" && type2=="Number") return type1;
-		if(type1=="Float" && type2=="Integer") return type1;
-		if(type1=="Integer" && type2=="Float") { _this.NewWarning("Precision loss converting Float to Integer", ast); return type1; }
-		if(type1=="String" && type2=="Null") { _this.NewWarning("String set to null, set to empty string instead", ast); return type1; }
-		if(type1=="Integer" && type2=="Object") { _this.NewError("Invalid Object to Integer convertion", ast); return type1; }
-		if(type1=="Float" && type2=="Object") { _this.NewError("Invalid Object to Float convertion", ast); return type1; }
 		if(type1=="Number" && type2=="Object") { _this.NewError("Invalid Object to Number convertion", ast); return type1; }
 
+		// Float
+		if(type1=="Float" && type2=="Number") return type1;
+		if(type1=="Float" && type2=="Integer") return type1;
+		if(type1=="Float" && type2=="Object") { _this.NewError("Invalid Object to Float convertion", ast); return type1; }
+
+		// Date
+		if(type1=="Date" && type2=="Null") return type1;
+
+        // String
+		if(type1=="String" && type2=="Null")
+		{
+			if(ast.type==jsdef.NEW_WITH_ARGS) return type1;
+			_this.NewWarning("String set to null, set to empty string instead", ast); return type1;
+		}
+
+    	// Boolean
 		if(type1=="Boolean" && type2=="Number")
 		{
 			_this.NewError("Invalid Number to Boolean convertion", ast); return type1;
 		}
 
+        // UDT
 		var cls1 = _this.getClass(type1);
-		if(!cls1) { _this.NewError("Class not found: " + type1, ast); return type1; }
+		if(!cls1)
+		{
+			_this.NewError("Class not found: " + type1, ast);
+			return type1;
+		}
 
 		var cls2 = _this.getClass(type2);
-		if(!cls2) { _this.NewError("Class not found: " + type2, ast); return type1; }
+		if(!cls2)
+		{
+			_this.NewError("Class not found: " + type2, ast);
+			return type1;
+		}
 
 		// Inheritance
 		while(cls2)
@@ -2212,7 +2281,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			cls2 = cls2.baseSymbol;
 		}
 
-		_this.NewError("Type mismatch: "+type1+" and "+type2, ast);
+		_this.NewError("Type mismatch: " + type1 + " and " + type2, ast);
 		return type1;
 	};
 
@@ -2244,7 +2313,12 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			{
 				var f = ast.identifiers_list[i].ast;
 				var value = ast.identifiers_list[i].value.replace("@@THIS@@", "this");
-				if(i==0)
+				if(f.type==jsdef.NEW || f.type==jsdef.NEW_WITH_ARGS)
+				{
+					v_identifiers.push(value);
+					v_runtime.push(value);
+				}
+				else if(i==0)
 				{
 					v_identifiers.push(value);
 					v_runtime.push(f.symbol.runtime);
@@ -2272,7 +2346,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	{
 		if(!_this.exportSymbols) return;
 
-		var xml, cls, item, arg, args, argsList, xmlArgsList, hasArgs, scope, icon, sig, mbrList, mbrLists, scopeVars,
+		var i, xml, cls, item, arg, args, argsList, xmlArgsList, hasArgs, scope, icon, sig, mbrList, mbrLists, scopeVars,
 			classSymbol, methodSymbol, argumentSymbol, varSymbol, externs, modifier, codeSymbols, varsxml,
 			debugSymbols = "<DEBUG_SYMBOLS>" + _this.debugSymbolsTable.join("") + "</DEBUG_SYMBOLS>";
 
@@ -2340,14 +2414,24 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				{
 					varSymbol = classSymbol.vars[item];
 					xml.push(_this.objectToXML(varSymbol, item, true));
-					icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
-					modifier = "public";
-					if(varSymbol.private) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD; modifier = "private"; }
-					if(varSymbol.protected) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD; modifier = "protected"; }
-					if(varSymbol.constant) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT;
-					sig = varSymbol.name + varSymbol.ast.xmlvartype;
-					mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + sig + '" help="' + classSymbol.name + " :: " + sig + '" image="' + icon + '"/>');
-					externs.push("\t" + modifier + " var " + varSymbol.name + (varSymbol.vartype ? " :"+ varSymbol.vartype : "") + ";\n");
+					if(varSymbol.type==jsdef.CLASS)
+					{
+						icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
+						modifier = "public";
+						sig = varSymbol.name + varSymbol.ast.xmlvartype;
+						mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + sig + '" help="' + classSymbol.name + " :: " + sig + '" image="' + icon + '"/>');
+					}
+					else
+					{
+						icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
+						modifier = "public";
+						if(varSymbol.private) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD; modifier = "private"; }
+						if(varSymbol.protected) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD; modifier = "protected"; }
+						if(varSymbol.constant) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT;
+						sig = varSymbol.name + varSymbol.ast.xmlvartype;
+						mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + sig + '" help="' + classSymbol.name + " :: " + sig + '" image="' + icon + '"/>');
+						externs.push("\t" + modifier + " var " + varSymbol.name + (varSymbol.vartype ? " :"+ varSymbol.vartype : "") + ";\n");
+					}
 
 				}
 				xml.push("</VARS>\n");
@@ -2367,37 +2451,32 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		// ======================================================================================
 		xml = [];
 		xml.push("<SCOPES" + (_this.selectedClass ? " update='" + _this.selectedClass + "'" : "") + ">\n");
-		for(scope in _this.scopesTable)
+		for(i=0;i<_this.scopesTable.length;i++)
 		{
-			scope = _this.scopesTable[scope];
-
-			if(!scope.path) continue;
+			scope = _this.scopesTable[i];
 			if(_this.selectedClass && _this.selectedClass!=scope.className) continue;
 
 			varsxml = [];
 			for(item in scope.vars)
 			{
 				varSymbol = scope.vars[item];
-				if(varSymbol.vartype)
-				{
-					icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
-					if(varSymbol.private) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD;
-					if(varSymbol.protected) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD;
-					if(varSymbol.constant) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT;
-					varsxml.push("\t<SYMBOL symbolId='"+varSymbol.symbolId + "' name='" + varSymbol.name + "' type='" + varSymbol.type + "' vartype='" + varSymbol.vartype.replace('<','&lt;').replace('>','&gt;') + "' subtype='" + varSymbol.subtype + "'/>\n");
-				}
+				if(!varSymbol.name || !varSymbol.vartype) continue;
+				varsxml.push("\t<SYMBOL symbolId='"+varSymbol.symbolId + "' name='" + varSymbol.name +
+							 "' type='" + varSymbol.nodeType + "' vartype='" + varSymbol.vartype.replace('<','&lt;').replace('>','&gt;') +
+							 "' subtype='" + (varSymbol.subtype ? varSymbol.subtype : "") + "'/>\n");
 			}
 
 			for(item in scope.methods)
 			{
 				methodSymbol = scope.methods[item];
-				icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
-				if(methodSymbol.private) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD;
-				if(methodSymbol.protected) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD;
-				if(methodSymbol.constant) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT;
-				varsxml.push("\t<SYMBOL symbolId='"+methodSymbol.symbolId + "' name='" + methodSymbol.name + "' type='" + methodSymbol.type + "' vartype='" + (!methodSymbol.vartype ? "" : methodSymbol.vartype.replace('<','&lt;').replace('>','&gt;')) + "' subtype='" + methodSymbol.subtype + "'/>\n");
+				if(!methodSymbol.name) continue;
+				varsxml.push("\t<SYMBOL symbolId='"+methodSymbol.symbolId + "' name='" + methodSymbol.name + "' type='" + methodSymbol.nodeType +
+							 "' vartype='" + (!methodSymbol.vartype ? "" : methodSymbol.vartype.replace('<','&lt;').replace('>','&gt;')) +
+							 "' subtype='" + (methodSymbol.subtype ? methodSymbol.subtype : "") + "'/>\n");
 			}
+
 			xml.push(_this.objectToXML(scope, "SCOPE", varsxml.length==0, (!scope.parentScope ? "" : "parent='"+scope.parentScope.scopeId+"'")));
+
 			if(varsxml.length)
 			{
 				xml.push(varsxml.join(""));
@@ -2434,7 +2513,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		{
 			if(typeof obj[item]=="object") continue;
 			v = obj[item];
-			if(v==null || v==undefined || v==NaN) continue;
+			if(v==null || v==undefined || v==NaN || v=="NaN") continue;
 			if(typeof v == "string" && v.charAt(v.length-1)=='>')
 			{
 				v = v.replace("<", "&lt;");
@@ -2447,11 +2526,6 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};
 }
-
-
-
-
-
 
 
 

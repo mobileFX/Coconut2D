@@ -41,9 +41,11 @@ function HTMLWindow()
 		var dispatchEvent = this.dispatchEvent = function (uid, event)
 		{
 			//@line 78
-			var callback = __CLASS__HTMLWINDOW__.__elements[event];
+			__CLASS__HTMLWINDOW__.__event.__targets.clear();
 			//@line 79
-			if (callback) callback.apply(__CLASS__HTMLWINDOW__, __CLASS__HTMLWINDOW__.__data);
+			var callback = __CLASS__HTMLWINDOW__.__elements[event];
+			//@line 80
+			if (callback) callback(__CLASS__HTMLWINDOW__.__event);
 		};
 		//@line 40
 		this.__uid = 0;
@@ -56,7 +58,7 @@ function HTMLWindow()
 		//@line 44
 		this.devicePixelRatio = 0;
 		//@line 46
-		this.__data = null;
+		this.__event = null;
 		//@line 47
 		this.__elements = [];
 		//@line 50
@@ -73,9 +75,9 @@ function HTMLWindow()
 			//@line 56
 			__CLASS__HTMLWINDOW__.devicePixelRatio = global.devicePixelRatio;
 			//@line 57
-			__CLASS__HTMLWINDOW__.__data = new HTMLEvent;
+			__CLASS__HTMLWINDOW__.__event = new TouchEvent;
 			//@line 58
-			__registerManager(__CLASS__HTMLWINDOW__, __CLASS__HTMLWINDOW__.dispatchEvent, __CLASS__HTMLWINDOW__.__data);
+			__registerManager(__CLASS__HTMLWINDOW__, __CLASS__HTMLWINDOW__.dispatchEvent, __CLASS__HTMLWINDOW__.__event);
 			return __CLASS__HTMLWINDOW__
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);

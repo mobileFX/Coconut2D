@@ -3,57 +3,74 @@
 /* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.   
+ * THE SOFTWARE.
  *
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	   ______                 __              __      
+//	   ______                 __              __
 //	  / ____/___  ____  _____/ /_____ _____  / /______
 //	 / /   / __ \/ __ \/ ___/ __/ __ `/ __ \/ __/ ___/
-//	/ /___/ /_/ / / / (__  ) /_/ /_/ / / / / /_(__  ) 
-//	\____/\____/_/ /_/____/\__/\__,_/_/ /_/\__/____/  
-//	                                                  
+//	/ /___/ /_/ / / / (__  ) /_/ /_/ / / / / /_(__  )
+//	\____/\____/_/ /_/____/\__/\__,_/_/ /_/\__/____/
+//
 // ==================================================================================================================================
 
+"#ignore_errors_begin";
 var global = this;
 var engine = null;
-var gl = null;
+var gl = null;    
+
+if(global["EventTarget"])
+{
+	// Replace EventTarget native object with JavaScript object
+	global.EventTarget = function() {};
+}
+
+"#ignore_errors_end";
+
 var RADIANS = Math.PI / 180.0;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 if(!global["trace"])
 {
-	global.trace = function(msg) { console.log(msg); }; 
-	
+	global.trace = function(msg) { console.log(msg); };
+
 	"#ignore_errors_begin";
 	Image.prototype.load = function(src) { this.src = src; };
-	"#ignore_errors_end";	
+	"#ignore_errors_end";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Extensions of JavaScript Array and Object classes to match C++ Vector and Map.   
+// Extensions of JavaScript Array and Object classes to match C++ Vector and Map.
 
-Object.defineProperty(Array.prototype, "size", { value: function() 
-{ 
-	return this.length; 
+Object.defineProperty(Array.prototype, "size", { value: function()
+{
+	return this.length;
 }});
+
+Object.defineProperty(Array.prototype, "clear", { value: function()
+{
+	while(this.length) { this.pop(); }
+}});
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -89,7 +106,7 @@ var COCO_CLIP_SYMBOL_LOOP_ENUM =
  * Enum for keyframe interpolation calculation.
  * @enum {number}
  */
-var COCO_KEYFRAME_INTERPOLATION_ENUM = 
+var COCO_KEYFRAME_INTERPOLATION_ENUM =
 {
     KEYFRAME_INTERPOLATION_NONE					: 0,
     KEYFRAME_INTERPOLATION_MOTION_TWEEN			: 1,
@@ -99,6 +116,10 @@ var COCO_KEYFRAME_INTERPOLATION_ENUM =
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
+
+
+
+
 
 
 

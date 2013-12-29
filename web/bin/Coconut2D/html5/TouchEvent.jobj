@@ -1,0 +1,98 @@
+//@line 36
+
+function TouchEvent()
+{
+	var __SUPER__, __CLASS__EVENT__;
+	return ((function ()
+	{
+		var __CLASS__TOUCHEVENT__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__CLASS__ = 'TouchEvent';
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		var __TMP_SUPER__ = __SUPER__,
+			__TMP_ARRAY__ = [];
+		for (var __TMP_MEMBER__ in __TMP_SUPER__)
+		__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
+		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
+		__TMP_SUPER__ = __SUPER__.__PROTECTED__;
+		__TMP_ARRAY__.length = 0;
+		for (var __TMP_MEMBER__ in __TMP_SUPER__)
+		{
+			__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
+			this.__PROTECTED__[__TMP_MEMBER__] = __TMP_SUPER__[__TMP_MEMBER__];
+		}
+		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
+		//@line 61
+		var initTouchEvent = this.initTouchEvent = function (type, canBubble, cancelable, view, detail, screenX, screenY, clientX, clientY, ctrlKey, altKey, shiftKey, metaKey, touches, targetTouches, changedTouches, scale, rotation)
+		{
+			//@line 63
+			__CLASS__TOUCHEVENT__.initUIEvent(type, canBubble, cancelable, view, detail);
+			//@line 64
+			__CLASS__TOUCHEVENT__.scale = scale;
+			//@line 65
+			__CLASS__TOUCHEVENT__.rotation = rotation;
+			//@line 66
+			__CLASS__TOUCHEVENT__.touches = touches;
+			//@line 67
+			__CLASS__TOUCHEVENT__.targetTouches = targetTouches;
+			//@line 68
+			__CLASS__TOUCHEVENT__.changedTouches = changedTouches;
+		};
+		//@line 38
+		this.touches = null;
+		//@line 39
+		this.targetTouches = null;
+		//@line 40
+		this.changedTouches = null;
+		//@line 41
+		this.scale = 0;
+		//@line 42
+		this.rotation = 0;
+		//@line 44
+		this.__clientX = 0;
+		//@line 45
+		this.__clientY = 0;
+		//@line 46
+		this.__targets = [];
+		//@line 49
+		this.Constructor = function ()
+		{
+			//@line 51
+			__CLASS__TOUCHEVENT__.scale = 0.0;
+			//@line 52
+			__CLASS__TOUCHEVENT__.rotation = 0.0;
+			//@line 53
+			__CLASS__TOUCHEVENT__.__clientX = 0;
+			//@line 54
+			__CLASS__TOUCHEVENT__.__clientY = 0;
+			//@line 55
+			__CLASS__TOUCHEVENT__.touches = new TouchList;
+			//@line 56
+			__CLASS__TOUCHEVENT__.targetTouches = new TouchList;
+			//@line 57
+			__CLASS__TOUCHEVENT__.changedTouches = new TouchList;
+			return __CLASS__TOUCHEVENT__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call((function (o)
+	{
+		return (F.prototype = __SUPER__ = __CLASS__EVENT____ = o, new F);
+
+		function F()
+		{
+		}
+	})(new Event))).Constructor.apply(this, [].slice.call(arguments))
+}

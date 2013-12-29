@@ -212,11 +212,14 @@ bool CocoScene::resourcesLoaded(WebGLRenderingContext* gl)
 			else if(!img->texture)
 			{
 				img->prepare(gl);
+				return false;
 			}
 		}
+		__ready = true;
 		trace("Resources loaded.");
+		return false;
 	}
-	return (__ready = true);
+	return __ready;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
