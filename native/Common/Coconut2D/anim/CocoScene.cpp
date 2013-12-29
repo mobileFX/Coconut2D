@@ -1,9 +1,9 @@
 #include "CocoScene.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoScene::CocoScene(std::string sceneName)
+CocoScene::CocoScene()
 {
-	__sceneName = sceneName;
+	__sceneName = "";
 	__view_width = 0;
 	__view_height = 0;
 	__view_pixel_ratio = 0;

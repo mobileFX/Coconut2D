@@ -37,7 +37,7 @@ public:
 	WebGLProgram* __boundingBoxProgram;
 	WebGLBuffer* __boundingBoxBuffer;
 	bool __ready;
-	CocoScene(std::string sceneName);
+	CocoScene();
 	CocoImage* getImageSymbol(std::string symbolName);
 	CocoSound* getSoundSymbol(std::string symbolName);
 	CocoImage* newResourceImage(std::string symbolName, std::string baseUrl);

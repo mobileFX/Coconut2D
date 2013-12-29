@@ -2,9 +2,8 @@
 #define __COCOTILEDLAYER_HPP__
 
 #include "Coconut2D.hpp"
-#include "CocoClip.hpp"
 
-class CocoTiledLayer : public CocoClip
+class CocoTiledLayer
 {
 public:
 	CocoTiledLayer();

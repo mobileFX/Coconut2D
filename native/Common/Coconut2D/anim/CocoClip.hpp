@@ -2,6 +2,7 @@
 #define __COCOCLIP_HPP__
 
 #include "Coconut2D.hpp"
+#include "EventTarget.hpp"
 #include "CocoScene.hpp"
 #include "CocoClip.hpp"
 #include "WebGLRenderingContext.hpp"
@@ -12,7 +13,7 @@
 #include "CocoKeyFrame.hpp"
 #include "CocoVector.hpp"
 
-class CocoClip
+class CocoClip : public EventTarget
 {
 public:
 	std::string __instanceName;
@@ -43,6 +44,10 @@ public:
 	bool gotoFrameByName(std::string LabelName, bool pause, bool deep);
 	bool gotoFrameByIndex(int FrameIndex, bool pause, bool deep);
 	void render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking);
+	bool hitTest(float wx, float wy);
+	void initBoundingBoxFromTexture(CocoScene* scene, float W2, float H2);
+	void initBoundingBoxFromChildren(CocoScene* scene);
+	void drawBoundingBox(CocoScene* scene, WebGLRenderingContext* gl);
 };
 
 #endif

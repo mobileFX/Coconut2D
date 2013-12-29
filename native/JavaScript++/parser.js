@@ -1060,18 +1060,18 @@ function __init_narcissus(GLOBAL)
 			throw t.newSyntaxError(jsparse.MISSING_FUNCTION_IDENTIFIER);
 
 		if(t.match(jsdef.COLON))
-		{  
-			
+		{
+
 			matchVartype(t, f, "extends");
 			if(f.extends.indexOf("<")!=-1)
 			{
 				f.extends = f.extends.substr(0, f.extends.indexOf("<"));
 			}
-			
+
 			/*
 			t.mustMatch(jsdef.IDENTIFIER);
 			var root = new Node(t), dots = [root];
-			do 
+			do
 			{
 				if(!t.match(jsdef.DOT)) break;
 				t.mustMatch(jsdef.IDENTIFIER);
@@ -1080,9 +1080,9 @@ function __init_narcissus(GLOBAL)
 			while (t.peek() != jsdef.LEFT_CURLY);
 			f.extends = dots.pop();
 			*/
-		} 
-		
-		
+		}
+
+
 		f.static = t.static;
 		f.private = t.private;
 		f.public = t.public;

@@ -2,7 +2,7 @@
 
 function WebGLActiveInfo()
 {
-	var __SUPER__;
+	var __SUPER__, __CLASS__WEBGLOBJECT__;
 	return ((function ()
 	{
 		var __CLASS__WEBGLACTIVEINFO__ = this,
@@ -21,6 +21,19 @@ function WebGLActiveInfo()
 		{
 		};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		var __TMP_SUPER__ = __SUPER__,
+			__TMP_ARRAY__ = [];
+		for (var __TMP_MEMBER__ in __TMP_SUPER__)
+		__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
+		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
+		__TMP_SUPER__ = __SUPER__.__PROTECTED__;
+		__TMP_ARRAY__.length = 0;
+		for (var __TMP_MEMBER__ in __TMP_SUPER__)
+		{
+			__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
+			this.__PROTECTED__[__TMP_MEMBER__] = __TMP_SUPER__[__TMP_MEMBER__];
+		}
+		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
 		//@line 38
 		this.Constructor = function ()
 		{
@@ -32,7 +45,14 @@ function WebGLActiveInfo()
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this
-	}).call(
+	}).call((function (o)
 	{
-	})).Constructor.apply(this, [].slice.call(arguments))
+		return (F.prototype = __SUPER__ = __CLASS__WEBGLOBJECT____ = o, new F);
+
+		function F()
+		{
+		}
+	})(
+	new WebGLObject(
+	arguments[0])))).Constructor.apply(this, [].slice.call(arguments))
 }

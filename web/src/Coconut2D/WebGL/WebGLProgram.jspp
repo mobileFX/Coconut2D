@@ -22,9 +22,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include Constants.js"
-"#include WebGLUniformLocation.jspp"
-
 // ==================================================================================================================================
 //	 _       __     __    ________    ____
 //	| |     / /__  / /_  / ____/ /   / __ \_________  ____ __________ _____ ___
@@ -34,10 +31,11 @@
 //	                                               /____/
 // ==================================================================================================================================
 
-class WebGLProgram
-{
-	public var __uid:Integer;
+"#include Constants.js"
+"#include WebGLUniformLocation.jspp"
 
+class WebGLProgram : WebGLObject
+{
 	public var GLSLiTexCoords:Integer;
 	public var GLSLiVec2Coords:Integer;
 	public var GLSLiVecCoords:Integer;
@@ -60,7 +58,6 @@ class WebGLProgram
 		this.GLSLuSampler = null;
 		this.GLSLuSprFrame = null;
 		this.GLSLuSprSize = null;
-		this.__uid = uid;
 	}
 }
 

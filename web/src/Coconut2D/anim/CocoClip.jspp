@@ -25,12 +25,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include WebGLRenderingContext.jspp"
-"#include CocoMatrix.jspp"
-"#include CocoImage.jspp"
-"#include CocoSound.jspp"
-"#include CocoTimeline.jspp"
-
 // ==================================================================================================================================
 //	   ______				  _________
 //	  / ____/___  _________  / ____/ (_)___
@@ -39,6 +33,12 @@
 //	\____/\____/\___/\____/\____/_/_/ .___/
 //								   /_/
 // ==================================================================================================================================
+
+"#include WebGLRenderingContext.jspp"
+"#include CocoMatrix.jspp"
+"#include CocoImage.jspp"
+"#include CocoSound.jspp"
+"#include CocoTimeline.jspp"
 
 class CocoClip : EventTarget
 {
@@ -294,8 +294,8 @@ class CocoClip : EventTarget
 					scene.__modelViewMatrix.pop();
 				}
 				scene.__levelParents.pop();
-			} 
-			
+			}
+
 			// Handle touch event
 			if(engine.__touchEvent && this!=scene.__root)// && __currentFrame.calcBoundingBox)
 			{

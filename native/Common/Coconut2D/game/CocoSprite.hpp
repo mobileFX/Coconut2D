@@ -2,9 +2,8 @@
 #define __COCOSPRITE_HPP__
 
 #include "Coconut2D.hpp"
-#include "CocoClip.hpp"
 
-class CocoSprite : public CocoClip
+class CocoSprite
 {
 public:
 	CocoSprite();

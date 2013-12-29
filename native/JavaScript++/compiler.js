@@ -385,7 +385,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	_this.LookupIdentifier = function(scope, identifier, ast, noWarning)
 	{
 		if(!identifier || !scope) return;
-		
+
 		function __doLookupSymbol(scope, identifier, ast)
 		{
 			var symbol = null;
@@ -444,7 +444,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		var dot = ast.source;
 		var identifier = ast.identifiers_list[ast.identifiers_list.length-1].value;
 		var symbol = null;
-		
+
 		// Start descending dot chain.
 		for(var i=0; i<ast.identifiers_list.length;i++)
 		{
@@ -652,17 +652,24 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			var constructor = null;
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
 			var baseClass = ast.extends ? ast.extends : undefined;
-			var baseClassSymbol = _this.getClass(baseClass);
+			var baseClassSymbol = _this.getClass(baseClass);			
 			var baseClassId = baseClassSymbol ? baseClassSymbol.ast.symbol.classId : null;
+			var baseConstructor = baseClassSymbol ? baseClassSymbol.methods["Constructor"] : null;
 			var isGlobalClass = (ast.name=="Global");
 			var scope = (isGlobalClass ? _this.scopesStack[0] : _this.NewScope(ast));
 			
+			if(baseClass && baseClass==ast.name)
+			{
+				_this.NewError("Illegal base class: " + baseClass, ast);
+				return;
+			}
+
 			var classSymbol = new ClassSymbol();
 			{
 				classSymbol.symbolId	= (++_this.symbolId);
 				classSymbol.name		= ast.name;
 				classSymbol.vartype		= ast.name;
-				classSymbol.subtype		= ast.subtype;				
+				classSymbol.subtype		= ast.subtype;
 				classSymbol.classId		= classId;
 				classSymbol.base		= baseClass;
 				classSymbol.baseSymbol	= baseClassSymbol;
@@ -682,7 +689,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				classSymbol.vars		= scope.vars;
 				classSymbol.methods	 	= scope.methods;
 			}
-			
+
 			// Save symbol
 			ast.symbol = classSymbol;
 			_this.classes[ast.name] = classSymbol;
@@ -765,7 +772,28 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 	   		// Class initialization
 			if(baseClass)
-				out.push("(function(o){return (F.prototype=__SUPER__=" + baseClassId + "__=o,new F);function F(){}})(new " + baseClass + ")");
+			{
+				out.push("(function(o){return (F.prototype=__SUPER__=" + baseClassId + "__=o,new F);function F(){}})(");
+				if(constructor && baseConstructor && baseConstructor.paramsList.length) 
+				{
+					// Check base class constructor arguments
+					if(baseConstructor.paramsList.length > constructor.paramsList.length)
+						_this.NewError("Constructor arguments missmatch: " + ast.name, ast);
+					
+					out.push("new " + baseClass + "(");
+					for(var i=0;i<baseConstructor.paramsList.length;i++)
+					{
+						if(i>0) out.push(",");
+						out.push("arguments[" + i + "]");						
+					}
+					out.push(")");
+				}
+				else
+				{ 
+					out.push("new " + baseClass);
+				}
+				out.push(")");
+			}				
 			else
 				out.push("{}");
 			out.push("))");
@@ -851,7 +879,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				functionSymbol.paramsList	= ast.paramsList;
 				functionSymbol.arguments	= {};
 			}
-           
+
            	// Save symbol
 			ast.symbol = functionSymbol;
 			parentScope.methods[ast.name] = functionSymbol;
@@ -908,20 +936,20 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 					varSymbol.subtype		= param.subtype ? param.subtype : _this.getSubType(param.vartype);
 					varSymbol.pointer		= param.isPointer;
 				}
-				
+
 				// Detect if identifier vartype is a typed array and get subtype.
 				if(!varSymbol.subtype && varSymbol.vartype)
 				{
 					var vtcls = _this.getClass(varSymbol.vartype);
 					if(vtcls && vtcls.subtype)
-						varSymbol.subtype = vtcls.subtype; 
+						varSymbol.subtype = vtcls.subtype;
 				}
-				
+
 				// Save symbol
 				param.symbol = varSymbol;
 				methodScope.vars[param.name] = varSymbol;
 				functionSymbol.arguments[varSymbol.name] = varSymbol;
-    
+
     			// Record vartype usage in class level (used to check #includes)
 				if(varSymbol.subtype)
 					parentScope.vartypes[varSymbol.subtype] = true;
@@ -1109,15 +1137,15 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 					varSymbol.vartype = extern_symbol.vartype;
 					varSymbol.subtype = extern_symbol.subtype;
 					varSymbol.isPointer = __isPointer(varSymbol.vartype);
-				} 
-				
+				}
+
 				// Detect if identifier vartype is a typed array and get subtype.
 				if(!varSymbol.subtype && varSymbol.vartype)
 				{
 					var vtcls = _this.getClass(varSymbol.vartype);
 					if(vtcls && vtcls.subtype)
-						varSymbol.subtype = vtcls.subtype; 
-				}				
+						varSymbol.subtype = vtcls.subtype;
+				}
 
                 // Save var in scopes
 				ast[item].symbol = varSymbol;
@@ -1171,8 +1199,11 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.SUPER:
 			out.push("__SUPER__");
-			ast.symbol = _this.getCurrentClass().baseSymbol;
-			ast.runtime = "__SUPER__." + ast.symbol.classId;
+			if(_this.secondPass)
+			{
+				ast.symbol = _this.getCurrentClass().baseSymbol;
+				ast.runtime = "__SUPER__." + ast.symbol.classId;
+			}
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1321,7 +1352,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.ARRAY_INIT:			
+		case jsdef.ARRAY_INIT:
 			out.push("[");
 			var firstItem = true;
 			for(var item in ast)
@@ -2171,9 +2202,31 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	_this.checkFunctionCall = function(ast)
 	{
 		if(!_this.secondPass || !_this.currClassName) return;
-
-		var fnSymbol = (ast.type==jsdef.NEW_WITH_ARGS ? ast[0].symbol.methods['Constructor'] :
-					   (fnSymbol = ast[0].type==jsdef.IDENTIFIER ? ast[0].symbol : ast[0].identifier_last.symbol));
+		
+		var fnSymbol;
+		
+		switch(ast[0].type)
+		{                        
+		case jsdef.NEW:
+		case jsdef.NEW_WITH_ARGS:		
+			fnSymbol = ast[0].symbol.methods['Constructor'];
+			break;
+			
+		case jsdef.DOT:
+			fnSymbol = ast[0].identifier_last.symbol;
+			break;
+			
+		case jsdef.IDENTIFIER:
+			fnSymbol = ast[0].symbol;
+			break;  
+			
+		case jsdef.SUPER:
+			fnSymbol = ast[0].symbol.methods['Constructor'];
+			break;
+		
+		default:
+			//debugger;
+		}		
 
 		if(fnSymbol  && fnSymbol instanceof FunctionSymbol)
 		{
@@ -2526,6 +2579,3 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};
 }
-
-
-

@@ -24,6 +24,7 @@
 #include <map>
 
 //# DO NOT EDIT BEGIN #//
+class Null;
 class Object;
 class Array;
 class Function;
@@ -46,17 +47,23 @@ class RangeError;
 class ReferenceError;
 class SyntaxError;
 class TypeError;
+class EventTarget;
+class Event;
 class HTMLCanvasElement;
 class HTMLElement;
 class HTMLDocument;
-class HTMLWindow;
 class ImageData;
 class Image;
 class ImageDataBuffer;
+class Touch;
+class TouchEvent;
+class HTMLWindow;
+class TouchList;
 class WebGLActiveInfo;
 class WebGLBuffer;
 class WebGLContextAttributes;
 class WebGLFramebuffer;
+class WebGLObject;
 class WebGLRenderbuffer;
 class WebGLShader;
 class WebGLShaderPrecisionFormat;
@@ -97,11 +104,9 @@ class UIPickerView;
 class UIScrollView;
 class UITabView;
 class UITextView;
-class SceneGameBoard;
-class SceneTitle;
-class State_GameBoard;
-class State_TitleScreen;
 class GameEngine;
+class Animation1;
+class StateAnim;
 //# DO NOT EDIT END #//
 
 #define CocoException	std::string

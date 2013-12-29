@@ -25,11 +25,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include WebGLRenderingContext.jspp"
-"#include CocoEngineState.jspp"
-"#include CocoScene.jspp"
-"#include TouchEvent.jspp"
-
 // ==================================================================================================================================
 //	   ______                 ______            _
 //	  / ____/___  _________  / ____/___  ____ _(_)___  ___
@@ -38,6 +33,11 @@
 //	\____/\____/\___/\____/_____/_/ /_/\__, /_/_/ /_/\___/
 //	                                  /____/
 // ==================================================================================================================================
+
+"#include WebGLRenderingContext.jspp"
+"#include CocoEngineState.jspp"
+"#include CocoScene.jspp"
+"#include TouchEvent.jspp"
 
 class CocoEngine
 {
@@ -63,7 +63,7 @@ class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function __setTouchEvent(e:TouchEvent)
 	{
-		__touchEvent = e; 		
+		__touchEvent = e;
 		__touchEvent.__clientX = e.touches[0].clientX;
 		__touchEvent.__clientY = e.touches[0].clientY;
 	}

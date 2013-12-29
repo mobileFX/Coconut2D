@@ -568,62 +568,61 @@ class TouchList : Array
 	public var length :Integer;
 } //TouchList
 
-class WebGLActiveInfo
+class WebGLActiveInfo : WebGLObject
 {
 	public function Constructor(uid:Integer, program_uid:Integer, index:Integer) {}
 } //WebGLActiveInfo
 
-class WebGLBuffer
+class WebGLBuffer : WebGLObject
 {
 	public function Constructor(uid:Integer) {}
-	public var __uid :Integer;
 } //WebGLBuffer
 
-class WebGLContextAttributes
+class WebGLContextAttributes : WebGLObject
 {
 	public function Constructor(uid:Integer) {}
 } //WebGLContextAttributes
 
-class WebGLFramebuffer
+class WebGLFramebuffer : WebGLObject
 {
 	public function Constructor(uid:Integer) {}
-	public var __uid :Integer;
 } //WebGLFramebuffer
 
-class WebGLRenderbuffer
+class WebGLObject
 {
 	public function Constructor(uid:Integer) {}
 	public var __uid :Integer;
+} //WebGLObject
+
+class WebGLRenderbuffer : WebGLObject
+{
+	public function Constructor(uid:Integer) {}
 } //WebGLRenderbuffer
 
-class WebGLShader
+class WebGLShader : WebGLObject
 {
 	public function Constructor(uid:Integer, type:Integer) {}
-	public var __uid :Integer;
 	public var type :Integer;
 } //WebGLShader
 
-class WebGLShaderPrecisionFormat
+class WebGLShaderPrecisionFormat : WebGLObject
 {
 	public function Constructor(uid:Integer, shadertype:Integer, precisiontype:Integer) {}
 } //WebGLShaderPrecisionFormat
 
-class WebGLTexture
+class WebGLTexture : WebGLObject
 {
 	public function Constructor(uid:Integer) {}
-	public var __uid :Integer;
 } //WebGLTexture
 
-class WebGLUniformLocation
+class WebGLUniformLocation : WebGLObject
 {
 	public function Constructor(uid:Integer, program_uid:Integer, name:String) {}
-	public var __uid :Integer;
 } //WebGLUniformLocation
 
-class WebGLProgram
+class WebGLProgram : WebGLObject
 {
 	public function Constructor(uid:Integer) {}
-	public var __uid :Integer;
 	public var GLSLiTexCoords :Integer;
 	public var GLSLiVec2Coords :Integer;
 	public var GLSLiVecCoords :Integer;
@@ -1294,7 +1293,7 @@ class CocoScene
 	public function gotoAndPlayByIndex(FrameIndex:Integer, deep:Boolean) {}
 	public function gotoAndStopyByIndex(FrameIndex:Integer, deep:Boolean) {}
 	public function stop(deep:Boolean) {}
-	public function Constructor(sceneName:String) {}
+	public function Constructor() {}
 	public var __sceneName :String;
 	public var __imageSymbols :Array<CocoImage>;
 	public var __soundSymbols :Array<CocoSound>;
@@ -1340,7 +1339,7 @@ class CocoEngine
 	public var __touchEvent :TouchEvent;
 } //CocoEngine
 
-class CocoSprite : CocoClip
+class CocoSprite
 {
 	public function Constructor() {}
 } //CocoSprite
@@ -1375,7 +1374,7 @@ class CocoSpriteVisual : CocoSprite
 	public function Constructor() {}
 } //CocoSpriteVisual
 
-class CocoTiledLayer : CocoClip
+class CocoTiledLayer
 {
 	public function Constructor() {}
 } //CocoTiledLayer
