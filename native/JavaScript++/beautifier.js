@@ -1,10 +1,10 @@
 // ==================================================================================================================================
-//	       _______    ____                   __  _ ____     
+//	       _______    ____                   __  _ ____
 //	      / / ___/   / __ )___  ____ ___  __/ /_(_) __/_  __
 //	 __  / /\__ \   / __  / _ \/ __ `/ / / / __/ / /_/ / / /
-//	/ /_/ /___/ /  / /_/ /  __/ /_/ / /_/ / /_/ / __/ /_/ / 
-//	\____//____/  /_____/\___/\__,_/\__,_/\__/_/_/  \__, /  
-//	                                               /____/   
+//	/ /_/ /___/ /  / /_/ /  __/ /_/ / /_/ / /_/ / __/ /_/ /
+//	\____//____/  /_____/\___/\__,_/\__,_/\__/_/_/  \__, /
+//	                                               /____/
 // ==================================================================================================================================
 //
 //  Written by Einar Lielmanis, <einar@jsbeautifier.org>
@@ -35,9 +35,9 @@ function js_beautify(js_source_text, options)
 	var whitespace, wordchar, punct, parser_pos, line_starters, digits;
 	var prefix, token_type, do_block_just_closed;
 	var wanted_newline, just_added_newline, n_newlines;
-	
+
 	options = options ? options : {};
-	
+
 	var opt_braces_on_own_line = options.braces_on_own_line ? options.braces_on_own_line : false;
 	var opt_indent_size = options.indent_size ? options.indent_size : 1;
 	var opt_indent_char = options.indent_char ? options.indent_char : '\t';
@@ -47,7 +47,7 @@ function js_beautify(js_source_text, options)
 	var opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation;
 	var input_length = js_source_text.length;
 
-	just_added_newline = false;	
+	just_added_newline = false;
 
 	function trim_output()
 	{
@@ -177,7 +177,7 @@ function js_beautify(js_source_text, options)
 		}
 		return false;
 	}
-	
+
 	function is_ternary_op()
 	{
 		var level = 0,
@@ -502,7 +502,7 @@ function js_beautify(js_source_text, options)
 					parser_pos += 1;
 				} while (parser_pos < input_length && c !== '#' && c !== '=');
 				if(c === '#')
-				{					
+				{
 				}
 				else if(input.charAt(parser_pos) === '[' && input.charAt(parser_pos + 1) === ']')
 				{
@@ -568,13 +568,13 @@ function js_beautify(js_source_text, options)
 	last_word = '';
 	last_type = 'TK_START_EXPR';
 	last_text = '';
-	last_last_text = ''; 
+	last_last_text = '';
 	output = [];
 	do_block_just_closed = false;
 	whitespace = "\n\r\t ".split('');
 	wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
 	digits = '0123456789'.split('');
-	punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'.split(' ');	
+	punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'.split(' ');
 	line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',');
 	flag_store = [];
 	set_mode('BLOCK');
@@ -903,7 +903,7 @@ function js_beautify(js_source_text, options)
 			}
 			else if(is_array(flags.mode) && last_text === ',' && last_last_text === '}')
 			{
-				print_newline(); 
+				print_newline();
 			}
 			else if(prefix === 'SPACE')
 			{
@@ -940,7 +940,7 @@ function js_beautify(js_source_text, options)
 			break;
 		case 'TK_EQUALS':
 			if(flags.var_line)
-			{				
+			{
 				flags.var_line_tainted = true;
 			}
 			print_single_space();
@@ -980,7 +980,7 @@ function js_beautify(js_source_text, options)
 			}
 			if(token_text === ':' && flags.in_case)
 			{
-				print_token(); 
+				print_token();
 				print_newline();
 				flags.in_case = false;
 				break;
@@ -1026,15 +1026,15 @@ function js_beautify(js_source_text, options)
 						print_newline();
 					}
 					else
-					{						
+					{
 						print_token();
 						print_single_space();
 					}
 				}
-				break;				
+				break;
 			}
 			else if(in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters))))
-			{				
+			{
 				space_before = false;
 				space_after = false;
 				if(last_text === ';' && is_expression(flags.mode))

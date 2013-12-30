@@ -1,6 +1,6 @@
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013 www.coconut2D.org
+ * Copyright (C) 2013-2014 www.coconut2D.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,10 @@
 //	\____//____/ /_/   /_/     \__/\____/   \____//_/   /_/
 //
 // ==================================================================================================================================
+
+// This code transforms a JS++ ast to C++ .hpp and .cpp files.
+// Used by Coconut2D IDE in conjunction with the Coconut2D Native SDK for porting JavaScript++ to iOS and Android devices.
+// Please send bugs/suggestions to elias.politakis@mobilefx.com
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function CPPCompiler(ast, infolder, outfolder)
@@ -619,7 +623,7 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.NUMBER:				CPP.push(ast.value); break;
 	case jsdef.OR:					CPP.push(generate(ast[0]).CPP); CPP.push("||"); CPP.push(generate(ast[1]).CPP);	break;
 	case jsdef.PLUS: 				CPP.push(generate(ast[0]).CPP); CPP.push("+"); CPP.push(generate(ast[1]).CPP); break;
-	case jsdef.RETURN:				CPP.push("return"); if(ast.value.type) CPP.push(" " + generate(ast.value).CPP); CPP.push(";\n"); break;
+	case jsdef.RETURN:				CPP.push("return"); if(ast.value) CPP.push(" " + generate(ast.value).CPP); CPP.push(";\n"); break;
 	case jsdef.RSH:					CPP.push(generate(ast[0]).CPP); CPP.push(">>"); CPP.push(generate(ast[1]).CPP); break;
 	case jsdef.SEMICOLON:			var expr = (ast.expression ? generate(ast.expression).CPP : ""); if(expr) CPP.push(expr + ";\n"); break;
 	case jsdef.STRICT_EQ:			CPP.push(generate(ast[0]).CPP); CPP.push("=="); CPP.push(generate(ast[1]).CPP); break;
@@ -639,22 +643,4 @@ CPPCompiler.prototype.compile = function (ast)
 
 	return {CPP:CPP.join(""), HPP:HPP.join("")};
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

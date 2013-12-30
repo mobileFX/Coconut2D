@@ -36,7 +36,7 @@
 "#ignore_errors_begin";
 var global = this;
 var engine = null;
-var gl = null;    
+var gl = null;
 
 if(global["EventTarget"])
 {
@@ -44,7 +44,7 @@ if(global["EventTarget"])
 	global.EventTarget = function() {};
 }
 
-"#ignore_errors_end";
+"#ignore_errors_end"; 
 
 var RADIANS = Math.PI / 180.0;
 
@@ -116,6 +116,7 @@ var COCO_KEYFRAME_INTERPOLATION_ENUM =
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
+
 
 
 

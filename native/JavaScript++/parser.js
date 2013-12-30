@@ -946,6 +946,8 @@ function __init_narcissus(GLOBAL)
 			tt = t.peekOnSameLine();
 			if(tt != jsdef.END && tt != jsdef.NEWLINE && tt != jsdef.SEMICOLON && tt != jsdef.RIGHT_CURLY)
 				n.value = Expression(t, x);
+			if(!(n.value instanceof Node))
+				n.value = null;
 			break;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2327,6 +2329,7 @@ function __init_narcissus(GLOBAL)
 
 }
 __init_narcissus(this);
+
 
 
 

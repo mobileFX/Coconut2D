@@ -266,6 +266,7 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 				Number y = (float)((engine->__touchEvent->__clientY - (float)(gl->canvas->height) / (float)(2.0))) / (float)(scene->__view_scale);
 				if(engine->__touchEvent && hitTest(x, y))
 				{
+					drawBoundingBox(scene, gl);
 					engine->__touchEvent->currentTarget = this;
 					engine->__touchEvent->target = this;
 					engine->__touchEvent->__targets.push(this);

@@ -304,7 +304,7 @@ class CocoClip : EventTarget
 					initBoundingBoxFromTexture(scene, __image.textureCellWidth / 2, __image.textureCellHeight / 2);
 				else if(__children.size()>0)
 					initBoundingBoxFromChildren(scene);
-
+               
 				// Point in quad?
 				if(engine.__touchEvent && !__image)
 				{
@@ -312,11 +312,13 @@ class CocoClip : EventTarget
 					var y = (engine.__touchEvent.__clientY - gl.canvas.height / 2.0) / scene.__view_scale;
 					if(engine.__touchEvent && hitTest(x,y))
 		   	        {
+		   	        	drawBoundingBox(scene, gl);
+
 		   	        	engine.__touchEvent.currentTarget = this;
 		   	        	engine.__touchEvent.target = this;
 		   	        	engine.__touchEvent.__targets.push(this);
 		   	        }
-				}
+				}      
 			}
 		}
 
@@ -439,7 +441,7 @@ class CocoClip : EventTarget
 
 		gl.useProgram(scene.__boundingBoxProgram);
 		gl.enableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
-
+                                       
 		gl.bindBuffer(gl.ARRAY_BUFFER, scene.__boundingBoxBuffer);
 		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([__vTOP_LEFT.X, __vTOP_LEFT.Y, __vTOP_RIGHT.X, __vTOP_RIGHT.Y, __vBOTTOM_RIGHT.X, __vBOTTOM_RIGHT.Y, __vBOTTOM_LEFT.X, __vBOTTOM_LEFT.Y]));
 		gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);

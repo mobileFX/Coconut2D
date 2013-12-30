@@ -62,10 +62,6 @@ class Global
 	public var __registerCallback;
 	public var __unRegisterCallback;
 	public var __ImageData_loadImage;
-	public var __WebGLRenderingContext_getContextAttributes :Integer;
-	public var __WebGLRenderingContext_isContextLost;
-	public var __WebGLRenderingContext_getSupportedExtensions;
-	public var __WebGLRenderingContext_getExtension;
 	public var __WebGLRenderingContext_activeTexture;
 	public var __WebGLRenderingContext_attachShader;
 	public var __WebGLRenderingContext_bindAttribLocation;
@@ -80,7 +76,7 @@ class Global
 	public var __WebGLRenderingContext_blendFuncSeparate;
 	public var __WebGLRenderingContext_bufferData;
 	public var __WebGLRenderingContext_bufferSubData;
-	public var __WebGLRenderingContext_checkFramebufferStatus;
+	public var __WebGLRenderingContext_checkFramebufferStatus :Integer;
 	public var __WebGLRenderingContext_clear;
 	public var __WebGLRenderingContext_clearColor;
 	public var __WebGLRenderingContext_clearDepth;
@@ -114,6 +110,7 @@ class Global
 	public var __WebGLRenderingContext_drawElements;
 	public var __WebGLRenderingContext_enable;
 	public var __WebGLRenderingContext_enableVertexAttribArray;
+	public var __WebGLRenderingContext_execute;
 	public var __WebGLRenderingContext_finish;
 	public var __WebGLRenderingContext_flush;
 	public var __WebGLRenderingContext_framebufferRenderbuffer;
@@ -122,32 +119,36 @@ class Global
 	public var __WebGLRenderingContext_generateMipmap;
 	public var __WebGLRenderingContext_getActiveAttrib :Integer;
 	public var __WebGLRenderingContext_getActiveUniform :Integer;
-	public var __WebGLRenderingContext_getAttachedShaders;
-	public var __WebGLRenderingContext_getAttribLocation;
-	public var __WebGLRenderingContext_getBufferParameter;
-	public var __WebGLRenderingContext_getParameter;
-	public var __WebGLRenderingContext_getError;
-	public var __WebGLRenderingContext_getFramebufferAttachmentParameter;
-	public var __WebGLRenderingContext_getProgramParameter;
-	public var __WebGLRenderingContext_getProgramInfoLog;
-	public var __WebGLRenderingContext_getRenderbufferParameter;
-	public var __WebGLRenderingContext_getShaderParameter;
+	public var __WebGLRenderingContext_getAttachedShaders :Array<WebGLShader>;
+	public var __WebGLRenderingContext_getAttribLocation :Integer;
+	public var __WebGLRenderingContext_getBufferParameter :String;
+	public var __WebGLRenderingContext_getContextAttributes :Integer;
+	public var __WebGLRenderingContext_getError :Integer;
+	public var __WebGLRenderingContext_getExtension :Object;
+	public var __WebGLRenderingContext_getFramebufferAttachmentParameter :String;
+	public var __WebGLRenderingContext_getParameter :String;
+	public var __WebGLRenderingContext_getProgramInfoLog :String;
+	public var __WebGLRenderingContext_getProgramParameter :Boolean;
+	public var __WebGLRenderingContext_getRenderbufferParameter :String;
+	public var __WebGLRenderingContext_getShaderInfoLog :String;
+	public var __WebGLRenderingContext_getShaderParameter :Boolean;
 	public var __WebGLRenderingContext_getShaderPrecisionFormat :Integer;
-	public var __WebGLRenderingContext_getShaderInfoLog;
-	public var __WebGLRenderingContext_getShaderSource;
-	public var __WebGLRenderingContext_getTexParameter;
-	public var __WebGLRenderingContext_getUniform;
+	public var __WebGLRenderingContext_getShaderSource :String;
+	public var __WebGLRenderingContext_getSupportedExtensions :Array<String>;
+	public var __WebGLRenderingContext_getTexParameter :String;
+	public var __WebGLRenderingContext_getUniform :String;
 	public var __WebGLRenderingContext_getUniformLocation :Integer;
-	public var __WebGLRenderingContext_getVertexAttrib;
-	public var __WebGLRenderingContext_getVertexAttribOffset;
+	public var __WebGLRenderingContext_getVertexAttrib :String;
+	public var __WebGLRenderingContext_getVertexAttribOffset :Integer;
 	public var __WebGLRenderingContext_hint;
-	public var __WebGLRenderingContext_isBuffer;
-	public var __WebGLRenderingContext_isEnabled;
-	public var __WebGLRenderingContext_isFramebuffer;
-	public var __WebGLRenderingContext_isProgram;
-	public var __WebGLRenderingContext_isRenderbuffer;
-	public var __WebGLRenderingContext_isShader;
-	public var __WebGLRenderingContext_isTexture;
+	public var __WebGLRenderingContext_isBuffer :Boolean;
+	public var __WebGLRenderingContext_isContextLost :Boolean;
+	public var __WebGLRenderingContext_isEnabled :Boolean;
+	public var __WebGLRenderingContext_isFramebuffer :Boolean;
+	public var __WebGLRenderingContext_isProgram :Boolean;
+	public var __WebGLRenderingContext_isRenderbuffer :Boolean;
+	public var __WebGLRenderingContext_isShader :Boolean;
+	public var __WebGLRenderingContext_isTexture :Boolean;
 	public var __WebGLRenderingContext_lineWidth;
 	public var __WebGLRenderingContext_linkProgram;
 	public var __WebGLRenderingContext_pixelStorei;
@@ -198,7 +199,6 @@ class Global
 	public var __WebGLRenderingContext_vertexAttrib4fv;
 	public var __WebGLRenderingContext_vertexAttribPointer;
 	public var __WebGLRenderingContext_viewport;
-	public var __WebGLRenderingContext_execute;
 	public var NaN :Number;
 	public var Infinity :Number;
 	public var innerWidth :Integer;
@@ -468,7 +468,7 @@ class Event
 
 class HTMLCanvasElement
 {
-	public function getContext(contextId:String) {}
+	public function getContext(contextId:String) :WebGLRenderingContext {}
 	public function Constructor() {}
 	public var width :Integer;
 	public var height :Integer;
@@ -482,7 +482,7 @@ class HTMLElement
 
 class HTMLDocument
 {
-	public function createElement(tagName:String) {}
+	public function createElement(tagName:String) :HTMLCanvasElement {}
 	public function Constructor() {}
 	public var body :HTMLElement;
 } //HTMLDocument
@@ -1423,20 +1423,35 @@ class UITextView : UIControlView
 {
 } //UITextView
 
+class SceneGameBoard : CocoScene
+{
+	public function tick(gl:WebGLRenderingContext, time:Float) {}
+	public function waitForAction() {}
+	public function hint() {}
+	public function Constructor() {}
+} //SceneGameBoard
+
+class SceneTitle : CocoScene
+{
+	public function Constructor() {}
+} //SceneTitle
+
+class State_GameBoard : CocoEngineState
+{
+	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number) {}
+	public function Constructor() {}
+	private var scene :SceneGameBoard;
+} //State_GameBoard
+
+class State_TitleScreen : CocoEngineState
+{
+	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number) {}
+	public function Constructor() {}
+	private var scene :SceneTitle;
+} //State_TitleScreen
+
 class GameEngine : CocoEngine
 {
 	public function Constructor() {}
 } //GameEngine
-
-class Animation1 : CocoScene
-{
-	public function Constructor() {}
-} //Animation1
-
-class StateAnim : CocoEngineState
-{
-	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Float) {}
-	public function Constructor() {}
-	private var scene :Animation1;
-} //StateAnim
 

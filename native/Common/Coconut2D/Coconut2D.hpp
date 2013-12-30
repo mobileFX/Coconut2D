@@ -104,9 +104,11 @@ class UIPickerView;
 class UIScrollView;
 class UITabView;
 class UITextView;
+class SceneGameBoard;
+class SceneTitle;
+class State_GameBoard;
+class State_TitleScreen;
 class GameEngine;
-class Animation1;
-class StateAnim;
 //# DO NOT EDIT END #//
 
 #define CocoException	std::string
