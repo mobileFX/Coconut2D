@@ -46,7 +46,7 @@ public:
 	WebGLProgram* makeProgram(WebGLRenderingContext* gl, std::string vs, std::string fs);
 	void loadResources();
 	bool resourcesLoaded(WebGLRenderingContext* gl);
-	void tick(WebGLRenderingContext* gl, float time);
+	virtual void tick(WebGLRenderingContext* gl, float time);
 	void drawFrame(WebGLRenderingContext* gl, CocoImage* image, float frame, float alpha);
 	void gotoAndPlayByName(std::string LabelName, bool deep = false);
 	void gotoAndStopByName(std::string LabelName, bool deep = false);

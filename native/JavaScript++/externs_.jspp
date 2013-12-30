@@ -1423,35 +1423,20 @@ class UITextView : UIControlView
 {
 } //UITextView
 
-class SceneGameBoard : CocoScene
-{
-	public function tick(gl:WebGLRenderingContext, time:Float) {}
-	public function waitForAction() {}
-	public function hint() {}
-	public function Constructor() {}
-} //SceneGameBoard
-
-class SceneTitle : CocoScene
-{
-	public function Constructor() {}
-} //SceneTitle
-
-class State_GameBoard : CocoEngineState
-{
-	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number) {}
-	public function Constructor() {}
-	private var scene :SceneGameBoard;
-} //State_GameBoard
-
-class State_TitleScreen : CocoEngineState
-{
-	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Number) {}
-	public function Constructor() {}
-	private var scene :SceneTitle;
-} //State_TitleScreen
-
 class GameEngine : CocoEngine
 {
 	public function Constructor() {}
 } //GameEngine
+
+class Animation1 : CocoScene
+{
+	public function Constructor() {}
+} //Animation1
+
+class StateAnim : CocoEngineState
+{
+	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Float) {}
+	public function Constructor() {}
+	private var scene :Animation1;
+} //StateAnim
 

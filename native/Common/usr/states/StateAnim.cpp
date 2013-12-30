@@ -9,7 +9,7 @@ StateAnim::StateAnim()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void StateAnim::tick(CocoEngine* engine, WebGLRenderingContext* gl, float time)
 {
-	super.tick(engine, gl, time);
+	super->tick(engine, gl, time);
 	if(scene)
 	{
 		scene->tick(gl, time);
