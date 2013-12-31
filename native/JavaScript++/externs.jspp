@@ -441,6 +441,28 @@ class ReferenceError :Error {}
 class SyntaxError :Error {}
 class TypeError :Error {}
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class State
+{
+	public var params:Object;
+
+	public virtual function enter()
+	{
+	}
+
+	public virtual function exit()
+	{
+	}
+
+	public abstract function tick(time:Float)
+	{
+	}
+
+	public virtual function paint(gl:WebGLRenderingContext, time:Float)
+	{
+	}
+}
+
 // ==================================================================================================================================
 //	   ________      __          __   _    __           _       __    __
 //	  / ____/ /___  / /_  ____ _/ /  | |  / /___ ______(_)___ _/ /_  / /__  _____
@@ -456,3 +478,4 @@ var window:HTMLWindow;
 var document:HTMLDocument;
 var gl:WebGLRenderingContext;
 var canvas:HTMLCanvasElement;
+

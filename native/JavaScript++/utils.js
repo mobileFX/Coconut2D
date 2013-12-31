@@ -133,7 +133,7 @@ function compile_jspp(code, infolder, outfolder)
 	}
 	catch(e)
 	{
-		trace("ERROR: " +e);
+		//trace("ERROR: " +e);
 	}
 }
 
@@ -198,6 +198,7 @@ function parse_jspp(code, className)
 		trace("ERROR: " +e);
 	}
 }
+
 
 
 

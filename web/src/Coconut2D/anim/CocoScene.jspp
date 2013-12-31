@@ -71,6 +71,7 @@ class CocoScene
 	public var __boundingBoxBuffer:WebGLBuffer;
 
 	public var __ready:Boolean;
+	public var __finished:Boolean;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -94,6 +95,7 @@ class CocoScene
 		__boundingBoxProgram		= null;
 		__boundingBoxBuffer			= null;
 		__ready 					= false;
+		__finished					= false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -286,7 +288,7 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function tick(gl:WebGLRenderingContext, time:Float)
+	public virtual function paint(gl:WebGLRenderingContext, time:Float)
 	{
 		if(!__glProgram)
 		{
@@ -295,8 +297,6 @@ class CocoScene
 		}
 		else if(resourcesLoaded(gl))
 		{
-			gl.clearColor(1.0, 1.0, 1.0, 1.0);
-			gl.clear(gl.COLOR_BUFFER_BIT);
 			if(__startTime == -1)
 			{
 				__startTime = time;
@@ -311,11 +311,12 @@ class CocoScene
 		    {
 				__modelViewMatrix.identity();
 		    	__levelParents = [__root];
-				__root.render(gl, this, null, false);
+				__root.paint(gl, this, null, false);
 				__levelParents = [];
 				var max:CocoClip = __root.__childWithMaxTimelineDuration;
-				if(max && max.__currentFrame == max.__timeline.lastKeyFrame())
-				{
+				if(max && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
+				{   
+					__finished=true;
 					//__root.reset();
 					//__startTime = -1;
 				}

@@ -53,6 +53,15 @@
 
 var GLOBAL = this;
 
+Object.defineProperty(Array.prototype, "switch", { value: function(v)
+{
+	for(var i=this.length;i--;)
+	{
+		if(this[i]==v) return i;
+	}
+	return -1;
+}});
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function __isPointer(vartype)
 {
@@ -130,8 +139,6 @@ function __init_narcissus(GLOBAL)
 		"ARRAY_INIT",
 		"OBJECT_INIT",
 		"PROPERTY_INIT",
-		"GETTER",
-		"SETTER",
 		"GROUP",
 		"LIST",
 		"FOR_INSIDE",
@@ -143,12 +150,34 @@ function __init_narcissus(GLOBAL)
         "STRING",
         "REGEXP",
 
+        // OOP
+		"class",
+		"optional",
+		"private",
+		"protected",
+		"public",
+		"static",
+		"super",
+		"virtual",
+		"abstract",
+
+		// Functions
+		"function",
+		"state",
+		//"property",
+		//"get",
+		//"set",
+		//"event",
+		//"state",
+
+		// State Machine
+		//"init",
+		//"tick",
+
         // Keywords.
-		"#include",
 		"break",
 		"case",
 		"catch",
-		"class",
 		"const",
 		"continue",
 		"debugger",
@@ -160,7 +189,6 @@ function __init_narcissus(GLOBAL)
 		"false",
 		"finally",
 		"for",
-		"function",
 		"if",
 		"in",
 		"instanceof",
@@ -169,13 +197,7 @@ function __init_narcissus(GLOBAL)
 		"namespace",
 		"new",
 		"null",
-		"optional",
-		"private",
-		"protected",
-		"public",
 		"return",
-		"static",
-		"super",
 		"switch",
 		"this",
 		"throw",
@@ -183,7 +205,6 @@ function __init_narcissus(GLOBAL)
 		"try",
 		"typeof",
 		"var",
-		"virtual",
 		"void",
 		"while",
 		"with"
@@ -234,8 +255,7 @@ function __init_narcissus(GLOBAL)
         ['{', "LEFT_CURLY"],
         ['}', "RIGHT_CURLY"],
         ['(', "LEFT_PAREN"],
-        [')', "RIGHT_PAREN"],
-        ['#include', "INCLUDE"]
+        [')', "RIGHT_PAREN"]
 	];
 
 	var opTypeNames = jsdef.opTypeNames = (function ()
@@ -549,7 +569,7 @@ function __init_narcissus(GLOBAL)
 			var e = new SyntaxError(m + ', filename:' + f + ', line:' + l);
 			e.cursor = this.cursor;
 			trace("@@ ERROR: " + m + " in file " + f  + " at line " + l);
-			jsppCallback("error", f, l, m);
+			jsppCallback("error", f, "", l, 0, m);
 			return e;
 		}
 	};
@@ -606,6 +626,8 @@ function __init_narcissus(GLOBAL)
 
 		this.scopeId = t.ScopeId();
 		this.xmlvartype="";
+		this.__errors = {};
+		this.__warnings = {};
 
 		if(token)
 		{
@@ -721,6 +743,16 @@ function __init_narcissus(GLOBAL)
 
 		switch(tt)
 		{
+		case jsdef.STATE:
+			if(t.peek() == jsdef.CLASS)
+			{
+				t.get();
+				var n = ClassDefinition(t, x, true);
+				n.state = true;
+				return n;
+			}
+			return StateDefinition(t, x);
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.FUNCTION:
 			return FunctionDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
@@ -974,12 +1006,6 @@ function __init_narcissus(GLOBAL)
 			n = new Node(t);
 			break;
 
-		case jsdef.INCLUDE:
-			n = new Node(t);
-			t.mustMatch(jsdef.STRING);
-			n.include = t.token().value;
-			return n;
-
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NEWLINE:
 		case jsdef.SEMICOLON:
@@ -1054,10 +1080,10 @@ function __init_narcissus(GLOBAL)
 	{
 		var f = new Node(t);
 		f.scopeId = t.ScopeId();
-		if(f.type != jsdef.CLASS)
-			f.type = (f.value == "get") ? jsdef.GETTER : jsdef.SETTER;
+
 		if(t.match(jsdef.IDENTIFIER))
 			f.name = t.token().value;
+
 		else if(requireName)
 			throw t.newSyntaxError(jsparse.MISSING_FUNCTION_IDENTIFIER);
 
@@ -1069,33 +1095,23 @@ function __init_narcissus(GLOBAL)
 			{
 				f.extends = f.extends.substr(0, f.extends.indexOf("<"));
 			}
-
-			/*
-			t.mustMatch(jsdef.IDENTIFIER);
-			var root = new Node(t), dots = [root];
-			do
-			{
-				if(!t.match(jsdef.DOT)) break;
-				t.mustMatch(jsdef.IDENTIFIER);
-				dots.push(new Node(t, jsdef.DOT, dots[dots.length - 1], new Node(t)));
-			}
-			while (t.peek() != jsdef.LEFT_CURLY);
-			f.extends = dots.pop();
-			*/
 		}
-
 
 		f.static = t.static;
 		f.private = t.private;
 		f.public = t.public;
 		f.protected = t.protected;
 		f.virtual = t.virtual;
+		f.abstract = t.abstract;
+
 		//Set all access modifiers to false so the class body is unaffected
 		t.static = false;
 		t.private = false;
 		t.public = false;
 		t.protected = false;
 		t.virtual = false;
+		t.abstract = false;
+
 		t.mustMatch(jsdef.LEFT_CURLY);
 		var x2 = new CompilerContext(true);
 		f.body = (function (t, x)
@@ -1109,15 +1125,27 @@ function __init_narcissus(GLOBAL)
 				t.public = false;
 				t.protected = false;
 				t.virtual = false;
+				t.abstract = false;
+
+				var mods = [jsdef.CLASS,
+							jsdef.STATE,
+							jsdef.FUNCTION,
+							jsdef.STATIC,
+							jsdef.VIRTUAL,
+							jsdef.ABSTRACT,
+							jsdef.VAR,
+							jsdef.CONST];
+
 				if(t.token().type == jsdef.PRIVATE)
 				{
 					t.private = true;
 
-					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VIRTUAL && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					if(mods.switch(t.peek())==-1)
 						throw t.newSyntaxError("Invalid class initialization");
 
 					if(t.match(jsdef.STATIC)) t.static = true;
 					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
+					if(t.match(jsdef.ABSTRACT)) t.abstract = true;
 
 					if(t.match(jsdef.CONST))
 					{
@@ -1130,6 +1158,10 @@ function __init_narcissus(GLOBAL)
 					else if(t.match(jsdef.FUNCTION))
 					{
 						n.push(FunctionDefinition(t, x, false, DECLARED_FORM));
+					}
+					else if(t.match(jsdef.STATE))
+					{
+						n.push(StateDefinition(t, x));
 					}
 					else if(t.match(jsdef.CLASS))
 					{
@@ -1140,11 +1172,12 @@ function __init_narcissus(GLOBAL)
 				{
 					t.public = true;
 
-					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VIRTUAL && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					if(mods.switch(t.peek())==-1)
 						throw t.newSyntaxError("Invalid class initialization");
 
 					if(t.match(jsdef.STATIC)) t.static = true;
 					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
+					if(t.match(jsdef.ABSTRACT)) t.abstract = true;
 
 					if(t.match(jsdef.CONST))
 					{
@@ -1157,6 +1190,10 @@ function __init_narcissus(GLOBAL)
 					else if(t.match(jsdef.FUNCTION))
 					{
 						n.push(FunctionDefinition(t, x, false, DECLARED_FORM));
+					}
+					else if(t.match(jsdef.STATE))
+					{
+						n.push(StateDefinition(t, x));
 					}
 					else if(t.match(jsdef.CLASS))
 					{
@@ -1167,11 +1204,12 @@ function __init_narcissus(GLOBAL)
 				{
 					t.protected = true;
 
-					if((peek = t.peek()) != jsdef.STATIC && peek != jsdef.VIRTUAL && peek != jsdef.VAR && peek != jsdef.CONST && peek != jsdef.FUNCTION && peek != jsdef.CLASS)
+					if(mods.switch(t.peek())==-1)
 						throw t.newSyntaxError("Invalid class initialization");
 
 					if(t.match(jsdef.STATIC)) t.static = true;
 					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
+					if(t.match(jsdef.ABSTRACT)) t.abstract = true;
 
 					if(t.match(jsdef.CONST))
 					{
@@ -1184,6 +1222,10 @@ function __init_narcissus(GLOBAL)
 					else if(t.match(jsdef.FUNCTION))
 					{
 						n.push(FunctionDefinition(t, x, false, DECLARED_FORM));
+					}
+					else if(t.match(jsdef.STATE))
+					{
+						n.push(StateDefinition(t, x));
 					}
 					else if(t.match(jsdef.CLASS))
 					{
@@ -1249,6 +1291,76 @@ function __init_narcissus(GLOBAL)
 	}
 
 	// ==================================================================================================================================
+	//	   _____ __        __       ____       _____       _ __  _
+	//	  / ___// /_____ _/ /____  / __ \___  / __(_)___  (_) /_(_)___  ____
+	//	  \__ \/ __/ __ `/ __/ _ \/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
+	//	 ___/ / /_/ /_/ / /_/  __/ /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
+	//	/____/\__/\__,_/\__/\___/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+	//
+	// ==================================================================================================================================
+
+	function StateDefinition(t, x)
+	{
+		var f = new Node(t, jsdef.STATE);
+		f.paramsList = [];
+		f.returnPaths = [];
+		f.vartype = "State";
+
+		f.static = t.static;
+		f.private = t.private;
+		f.public = t.public;
+		f.protected = t.protected;
+		f.virtual = t.virtual;
+		f.abstract = t.abstract;
+
+		t.static = false;
+		t.private = false;
+		t.public = false;
+		t.protected = false;
+		t.virtual = false;
+		t.abstract = false;
+
+		t.mustMatch(jsdef.IDENTIFIER);
+		f.name = t.token().value;
+		f.__start = t.token().start;
+		f.__end = t.token().end;
+		t.mustMatch(jsdef.LEFT_CURLY)
+
+		var x2 = new CompilerContext(true);
+		f.body = Script(t, x2);
+
+		for(item in f.body)
+		{
+			if(!isFinite(item)) break;
+			switch(f.body[item].type)
+			{
+			case jsdef.FUNCTION:
+				switch(f.body[item].name)
+				{
+				case "enter": f.enter = f.body[item]; break;
+				case "exit": f.exit = f.body[item]; break;
+				case "tick": f.tick = f.body[item]; break;
+				case "paint": f.paint = f.body[item]; break;
+				}
+				break;
+
+			case jsdef.VAR:
+				break;
+
+			default:
+				throw t.newSyntaxError("Invalid statement inside State");
+			}
+		}
+		t.mustMatch(jsdef.RIGHT_CURLY);
+		f.end = t.cursor;
+		f.body.end = t.cursor;
+		f.line_end = t.line_start;
+		f.body.line_end = t.line_start;
+
+		return f;
+	}
+
+	// ==================================================================================================================================
 	//	    ______                 __  _             ____       _____       _ __  _
 	//	   / ____/_  ______  _____/ /_(_)___  ____  / __ \___  / __(_)___  (_) /_(_)___  ____
 	//	  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
@@ -1260,9 +1372,6 @@ function __init_narcissus(GLOBAL)
 	function FunctionDefinition(t, x, requireName, functionForm)
 	{
 		var f = new Node(t);
-
-		if(f.type != jsdef.FUNCTION)
-			f.type = (f.value == "get") ? jsdef.GETTER : jsdef.SETTER;
 
 		if(t.match(jsdef.IDENTIFIER))
 			f.name = t.token().value;
@@ -1355,12 +1464,16 @@ function __init_narcissus(GLOBAL)
 		f.public = t.public;
 		f.protected = t.protected;
 		f.virtual = t.virtual;
+		f.abstract = t.abstract;
+
 		//Set all access modifiers to false so the function body is unaffected
 		t.static = false;
 		t.private = false;
 		t.public = false;
 		t.protected = false;
 		t.virtual = false;
+		t.abstract = false;
+
 		var x2;
 		if(t.match(jsdef.LEFT_CURLY))
 		{
@@ -1492,6 +1605,8 @@ function __init_narcissus(GLOBAL)
 				n.protected = t.protected;
 				n.static = t.static;
 				n.virtual = t.virtual;
+				n.abstract = t.abstract;
+
 				t.mustMatch(jsdef.IDENTIFIER);
 				var n2 = new Node(t), vartype = "";
 				n2.name = n2.value;
@@ -1698,7 +1813,6 @@ function __init_narcissus(GLOBAL)
 	{
 		SEMICOLON: 0,
 		COMMA: 1,
-		INCLUDE: 1,
 		ASSIGN: 2,
 		HOOK: 2,
 		COLON: 2,
@@ -1787,7 +1901,6 @@ function __init_narcissus(GLOBAL)
 		DELETE: 1,
 		VOID: 1,
 		TYPEOF: 1,
-		INCLUDE: 1,
 		// PRE_INCREMENT: 1, PRE_DECREMENT: 1,
 		NOT: 1,
 		BITWISE_NOT: 1,
@@ -1968,7 +2081,6 @@ function __init_narcissus(GLOBAL)
 				operators.push(n);
 				break;
 
-			case jsdef.INCLUDE:
 			case jsdef.DELETE:
 			case jsdef.VOID:
 			case jsdef.TYPEOF:
@@ -2329,14 +2441,6 @@ function __init_narcissus(GLOBAL)
 
 }
 __init_narcissus(this);
-
-
-
-
-
-
-
-
 
 
 

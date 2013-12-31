@@ -44,7 +44,7 @@ if(global["EventTarget"])
 	global.EventTarget = function() {};
 }
 
-"#ignore_errors_end"; 
+"#ignore_errors_end";
 
 var RADIANS = Math.PI / 180.0;
 
@@ -56,6 +56,8 @@ if(!global["trace"])
 	"#ignore_errors_begin";
 	Image.prototype.load = function(src) { this.src = src; };
 	"#ignore_errors_end";
+	
+	function State(){};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +118,7 @@ var COCO_KEYFRAME_INTERPOLATION_ENUM =
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
+
 
 
 

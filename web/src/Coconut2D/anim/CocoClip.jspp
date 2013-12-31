@@ -206,7 +206,7 @@ class CocoClip : EventTarget
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean)
+	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean)
 	{
 		// Get scene current time + timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )
 		var __currentTime:Float = scene.__currentTime + __timeline.__skipTime;
@@ -290,35 +290,33 @@ class CocoClip : EventTarget
 				for (var i:Integer = 0, L:Integer = __children.size(); i < L; i++)
 				{
 					scene.__modelViewMatrix.push();
-					__children[i].render(gl, scene, this, picking);
+					__children[i].paint(gl, scene, this, picking);
 					scene.__modelViewMatrix.pop();
 				}
 				scene.__levelParents.pop();
 			}
 
 			// Handle touch event
-			if(engine.__touchEvent && this!=scene.__root)// && __currentFrame.calcBoundingBox)
+			if(engine.__deviceEvent && this!=scene.__root)// && __currentFrame.calcBoundingBox)
 			{
 				// Calculate bounding box vertices
 				if(__image)
 					initBoundingBoxFromTexture(scene, __image.textureCellWidth / 2, __image.textureCellHeight / 2);
 				else if(__children.size()>0)
 					initBoundingBoxFromChildren(scene);
-               
-				// Point in quad?
-				if(engine.__touchEvent && !__image)
-				{
-		   	        var x = (engine.__touchEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;
-					var y = (engine.__touchEvent.__clientY - gl.canvas.height / 2.0) / scene.__view_scale;
-					if(engine.__touchEvent && hitTest(x,y))
-		   	        {
-		   	        	drawBoundingBox(scene, gl);
 
-		   	        	engine.__touchEvent.currentTarget = this;
-		   	        	engine.__touchEvent.target = this;
-		   	        	engine.__touchEvent.__targets.push(this);
+				// Point in quad?
+				if(!__image)
+				{
+		   	        var x = (engine.__deviceEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;
+					var y = (engine.__deviceEvent.__clientY - gl.canvas.height / 2.0) / scene.__view_scale;
+
+					if(hitTest(x,y))
+		   	        {
+		   	        	//enigne.signalEvent(this, new CocoTouchEvent(engine.__deviceEvent.type, x, y) );
+		   	        	drawBoundingBox(scene, gl);
 		   	        }
-				}      
+				}
 			}
 		}
 
@@ -342,10 +340,10 @@ class CocoClip : EventTarget
 	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float)
 	{
 	    // Reset vectors
-	    __vTOP_LEFT.set(-W2, -H2, 0, 1);
-	    __vTOP_RIGHT.set(W2, -H2, 0, 1);
-	    __vBOTTOM_LEFT.set(-W2, H2, 0, 1);
-	    __vBOTTOM_RIGHT.set(W2, H2, 0, 1);
+	    __vTOP_LEFT.reset(-W2, -H2, 0, 1);
+	    __vTOP_RIGHT.reset(W2, -H2, 0, 1);
+	    __vBOTTOM_LEFT.reset(-W2, H2, 0, 1);
+	    __vBOTTOM_RIGHT.reset(W2, H2, 0, 1);
 
 	    // Multiply vectors with the current modelview matrix
 	    __vTOP_LEFT 	= scene.__modelViewMatrix.multiplyByVector(__vTOP_LEFT);
@@ -441,7 +439,7 @@ class CocoClip : EventTarget
 
 		gl.useProgram(scene.__boundingBoxProgram);
 		gl.enableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
-                                       
+
 		gl.bindBuffer(gl.ARRAY_BUFFER, scene.__boundingBoxBuffer);
 		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([__vTOP_LEFT.X, __vTOP_LEFT.Y, __vTOP_RIGHT.X, __vTOP_RIGHT.Y, __vBOTTOM_RIGHT.X, __vBOTTOM_RIGHT.Y, __vBOTTOM_LEFT.X, __vBOTTOM_LEFT.Y]));
 		gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);

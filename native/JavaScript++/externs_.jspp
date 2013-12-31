@@ -412,6 +412,15 @@ class TypeError : Error
 {
 } //TypeError
 
+class State
+{
+	public function enter() {}
+	public function exit() {}
+	public function tick(time:Float) {}
+	public function paint(gl:WebGLRenderingContext, time:Float) {}
+	public var params :Object;
+} //State
+
 class SCREEN_RESOLUTION_DPI_ENUM
 {
 	public var RESOLUTION_nodpi :SCREEN_RESOLUTION_DPI_ENUM;
@@ -444,12 +453,13 @@ class EventTarget
 	public function Constructor() {}
 } //EventTarget
 
-class Event
+class DeviceEvent
 {
 	public function stopPropagation() {}
 	public function preventDefault() {}
 	public function initEvent(type:String, canBubble:Boolean, cancelable:Boolean) {}
 	public function initUIEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer) {}
+	public function initTouchEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, ctrlKey:Boolean, altKey:Boolean, shiftKey:Boolean, metaKey:Boolean, touches:TouchList, targetTouches:TouchList, changedTouches:TouchList, scale:Float, rotation:Float) {}
 	public function Constructor() {}
 	public var CAPTURING_PHASE :Integer;
 	public var AT_TARGET :Integer;
@@ -464,7 +474,15 @@ class Event
 	public var defaultPrevented :Boolean;
 	public var view :HTMLWindow;
 	public var detail :Integer;
-} //Event
+	public var touches :TouchList;
+	public var targetTouches :TouchList;
+	public var changedTouches :TouchList;
+	public var scale :Float;
+	public var rotation :Float;
+	public var __clientX :Integer;
+	public var __clientY :Integer;
+	public var __targets :Array<CocoClip>;
+} //DeviceEvent
 
 class HTMLCanvasElement
 {
@@ -486,6 +504,21 @@ class HTMLDocument
 	public function Constructor() {}
 	public var body :HTMLElement;
 } //HTMLDocument
+
+class HTMLWindow
+{
+	public function addEventListener(eventType:String, listener:Function, useCapture:Boolean) {}
+	public function removeEventListener(eventType:String, listener:Function, useCapture:Boolean) {}
+	public function dispatchEvent(uid:Integer, eventType:String) {}
+	public function Constructor() {}
+	public var __uid :Integer;
+	public var document :HTMLDocument;
+	public var innerHeight :Integer;
+	public var innerWidth :Integer;
+	public var devicePixelRatio :Integer;
+	public var __deviceEvent :DeviceEvent;
+	public var __elements :Array<Function>;
+} //HTMLWindow
 
 class ImageData
 {
@@ -531,35 +564,6 @@ class Touch
 	public var pageY :Integer;
 	public var target :EventTarget;
 } //Touch
-
-class TouchEvent : Event
-{
-	public function initTouchEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, ctrlKey:Boolean, altKey:Boolean, shiftKey:Boolean, metaKey:Boolean, touches:TouchList, targetTouches:TouchList, changedTouches:TouchList, scale:Float, rotation:Float) {}
-	public function Constructor() {}
-	public var touches :TouchList;
-	public var targetTouches :TouchList;
-	public var changedTouches :TouchList;
-	public var scale :Float;
-	public var rotation :Float;
-	public var __clientX :Integer;
-	public var __clientY :Integer;
-	public var __targets :Array<CocoClip>;
-} //TouchEvent
-
-class HTMLWindow
-{
-	public function addEventListener(event:String, listener:Function, useCapture:Boolean) {}
-	public function removeEventListener(event:String, listener:Function, useCapture:Boolean) {}
-	public function dispatchEvent(uid:Integer, event:String) {}
-	public function Constructor() {}
-	public var __uid :Integer;
-	public var document :HTMLDocument;
-	public var innerHeight :Integer;
-	public var innerWidth :Integer;
-	public var devicePixelRatio :Integer;
-	public var __event :TouchEvent;
-	public var __elements :Array<Function>;
-} //HTMLWindow
 
 class TouchList : Array
 {
@@ -1137,7 +1141,7 @@ class CocoTimeLabel
 
 class CocoVector
 {
-	public function set(x:Float, y:Float, z:Float, w:Float) {}
+	public function reset(x:Float, y:Float, z:Float, w:Float) {}
 	public function Constructor() {}
 	public var X :Float;
 	public var Y :Float;
@@ -1251,7 +1255,7 @@ class CocoClip : EventTarget
 	public function getChildIndex(child:CocoClip) :Integer {}
 	public function gotoFrameByName(LabelName:String, pause:Boolean, deep:Boolean) :Boolean {}
 	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean, deep:Boolean) :Boolean {}
-	public function render(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean) {}
+	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean) {}
 	public function hitTest(wx:Float, wy:Float) :Boolean {}
 	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
 	public function initBoundingBoxFromChildren(scene:CocoScene) {}
@@ -1286,7 +1290,7 @@ class CocoScene
 	private function makeProgram(gl:WebGLRenderingContext, vs:String, fs:String) :WebGLProgram {}
 	private function loadResources() {}
 	private function resourcesLoaded(gl:WebGLRenderingContext) :Boolean {}
-	public function tick(gl:WebGLRenderingContext, time:Float) {}
+	public function paint(gl:WebGLRenderingContext, time:Float) {}
 	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Float, alpha:Float) {}
 	public function gotoAndPlayByName(LabelName:String, deep:Boolean) {}
 	public function gotoAndStopByName(LabelName:String, deep:Boolean) {}
@@ -1318,25 +1322,20 @@ class CocoScene
 	public var __boundingBoxProgram :WebGLProgram;
 	public var __boundingBoxBuffer :WebGLBuffer;
 	public var __ready :Boolean;
+	public var __finished :Boolean;
 } //CocoScene
-
-class CocoEngineState
-{
-	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Float) {}
-	public function Constructor() {}
-} //CocoEngineState
 
 class CocoEngine
 {
-	private function __setTouchEvent(e:TouchEvent) {}
-	public function currentState() :CocoEngineState {}
-	public function setState(state:CocoEngineState) {}
-	public function tick(gl:WebGLRenderingContext, time:Float) {}
+	private function __setTouchEvent(e:DeviceEvent) {}
+	public function run(gl:WebGLRenderingContext, time:Float) {}
+	public function setNextState(s:State) {}
 	public function Constructor() {}
-	public var __currentState :CocoEngineState;
-	public var __nextState :CocoEngineState;
+	public var STATE_NULL :State;
+	public var __currentState :State;
+	public var __nextState :State;
 	public var __stateStart :Float;
-	public var __touchEvent :TouchEvent;
+	public var __deviceEvent :DeviceEvent;
 } //CocoEngine
 
 class CocoSprite
@@ -1426,17 +1425,20 @@ class UITextView : UIControlView
 class GameEngine : CocoEngine
 {
 	public function Constructor() {}
+	public var STATE_TITLE_SCREEN :State;
+	public var STATE_GAME_BOARD :State;
+	public var scene :CocoScene;
 } //GameEngine
 
-class Animation1 : CocoScene
+class SceneGameBoard : CocoScene
 {
+	public function waitForAction() {}
+	public function hint() {}
 	public function Constructor() {}
-} //Animation1
+} //SceneGameBoard
 
-class StateAnim : CocoEngineState
+class SceneTitle : CocoScene
 {
-	public function tick(engine:CocoEngine, gl:WebGLRenderingContext, time:Float) {}
 	public function Constructor() {}
-	private var scene :Animation1;
-} //StateAnim
+} //SceneTitle
 

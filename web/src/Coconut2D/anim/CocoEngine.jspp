@@ -35,87 +35,74 @@
 // ==================================================================================================================================
 
 "#include WebGLRenderingContext.jspp"
-"#include CocoEngineState.jspp"
 "#include CocoScene.jspp"
-"#include TouchEvent.jspp"
+"#include DeviceEvent.jspp"
 
-class CocoEngine
+state class CocoEngine
 {
-	public var __currentState:CocoEngineState;
-	public var __nextState:CocoEngineState;
+	public var __currentState:State;
+	public var __nextState:State;
 	public var __stateStart:Float;
-	public var __touchEvent:TouchEvent;
+	public var __deviceEvent:DeviceEvent;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		__currentState = null;
-		__nextState = null;
 		__stateStart = 0.0;
 
 		// Set event handlers
-		__touchEvent = null;
+		__deviceEvent = null;
 		window.addEventListener("touchstart", __setTouchEvent);
 		window.addEventListener("touchmove", __setTouchEvent);
 		window.addEventListener("touchend", __setTouchEvent);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	private function __setTouchEvent(e:TouchEvent)
+	private function __setTouchEvent(e:DeviceEvent)
 	{
-		__touchEvent = e;
-		__touchEvent.__clientX = e.touches[0].clientX;
-		__touchEvent.__clientY = e.touches[0].clientY;
+		__deviceEvent = e;
+		__deviceEvent.__clientX = e.touches[0].clientX;
+		__deviceEvent.__clientY = e.touches[0].clientY;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function currentState():CocoEngineState
+	public function run(gl:WebGLRenderingContext, time:Float)
 	{
-		return __currentState;
-	}
+		gl.clearColor(0,0,0,1);
+		gl.clear(gl.COLOR_BUFFER_BIT);		
+		
+		if(!__currentState && !__nextState)
+			__nextState=STATE_NULL;
 
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function setState(state:CocoEngineState)
-	{
-		__nextState = state;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function tick(gl:WebGLRenderingContext, time:Float)
-	{
-		// Change state
 		if(__nextState!=null)
 		{
+			if(__currentState) __currentState.exit();
 			__currentState = __nextState;
+			__currentState.enter();
 			__stateStart = time;
 			__nextState = null;
+			return;
 		}
 
-		// Tick current engine state
-		__currentState.tick(this, gl, time - __stateStart);
-		__touchEvent = null;
+		__currentState.tick(time-__stateStart);
+
+		if(__nextState==null)  
+			__currentState.paint(gl, time-__stateStart);
+
+		__deviceEvent = null;
 	}
-};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function setNextState(s:State)
+	{
+		__nextState = s;
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public state STATE_NULL
+	{
+		function tick()
+		{
+		}
+	}
+}

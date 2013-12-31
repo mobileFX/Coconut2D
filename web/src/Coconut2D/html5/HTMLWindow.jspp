@@ -33,7 +33,7 @@
 
 "#include Constants.js"
 "#include HTMLDocument.jspp"
-"#include TouchEvent.jspp"
+"#include DeviceEvent.jspp"
 
 class HTMLWindow
 {
@@ -43,41 +43,42 @@ class HTMLWindow
 	public var innerWidth:Integer;
 	public var devicePixelRatio:Integer;
 
-	public var __event:TouchEvent;
+	public var __deviceEvent:DeviceEvent;
 	public var __elements:Array<Function>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		this.__uid = 0;
-		this.document = new HTMLDocument();
-		this.innerHeight = global.innerHeight;
-		this.innerWidth = global.innerWidth;
-		this.devicePixelRatio = global.devicePixelRatio;
-		this.__event = new TouchEvent();
-		__registerManager(this, this.dispatchEvent, this.__event);
+		__uid = 0;
+		document = new HTMLDocument();
+		innerHeight = global.innerHeight;
+		innerWidth = global.innerWidth;
+		devicePixelRatio = global.devicePixelRatio;
+		__deviceEvent = new DeviceEvent();
+		__registerManager(this, dispatchEvent, __deviceEvent);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function addEventListener(event:String, listener:Function, optional useCapture:Boolean)
+	public function addEventListener(eventType:String, listener:Function, optional useCapture:Boolean)
 	{
-		__registerCallback(__uid, event);
-		__elements[event] = listener;
+		__registerCallback(__uid, eventType);
+		__elements[eventType] = listener;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function removeEventListener(event:String, listener:Function, optional useCapture:Boolean)
+	public function removeEventListener(eventType:String, listener:Function, optional useCapture:Boolean)
 	{
-		__elements[event] = null;
-		__unRegisterCallback(__uid, event);
+		__elements[eventType] = null;
+		__unRegisterCallback(__uid, eventType);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function dispatchEvent(uid:Integer, event:String)
+	public function dispatchEvent(uid:Integer, eventType:String)
 	{
-		this.__event.__targets.clear();
-		var callback:Function = __elements[event];
-		if(callback) callback(this.__event);
+		__deviceEvent.type = eventType;
+		__deviceEvent.__targets.clear();
+		var callback:Function = __elements[eventType];
+		if(callback) callback(this.__deviceEvent);
 	}
 }
 

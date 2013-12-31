@@ -33,7 +33,7 @@
 
 "#include EventTarget.jspp"
 
-class Event
+class DeviceEvent
 {
 	public const CAPTURING_PHASE:Integer 	= 1;
 	public const AT_TARGET:Integer 			= 2;
@@ -51,6 +51,16 @@ class Event
 	public var view:HTMLWindow;
 	public var detail:Integer;
 
+	public var touches:TouchList;           // all touches
+	public var targetTouches:TouchList;     // all touches in this TouchEvent Target
+	public var changedTouches:TouchList;    // all touches changed in the current event
+	public var scale:Float;     			// distance (since event start) between fingers as multiplier of initial value. Initially 1.0, zoom out (pinch) < 1.0, zoom in > 1.0.
+	public var rotation:Float;  			// rotation delta (since event start) in degrees (clockwise is positive). Initially 0.0.
+
+	public var __clientX:Integer;
+	public var __clientY:Integer;
+	public var __targets:Array<CocoClip>;
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
@@ -62,6 +72,13 @@ class Event
 		cancelable=true;
 		timeStamp=0;
 		defaultPrevented=false;
+		scale = 0.0;
+		rotation = 0.0;
+		__clientX = 0;
+		__clientY = 0;
+		touches = new TouchList();
+		targetTouches = new TouchList();
+		changedTouches = new TouchList();
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,4 +110,15 @@ class Event
 		this.view = view;
 		this.detail = detail;
 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function initTouchEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, ctrlKey:Boolean, altKey:Boolean, shiftKey:Boolean, metaKey:Boolean, touches:TouchList, targetTouches:TouchList, changedTouches:TouchList, scale:Float, rotation:Float)
+     {
+     	this.initUIEvent(type, canBubble, cancelable, view, detail);
+     	this.scale = scale;
+     	this.rotation = rotation;
+     	this.touches = touches;
+     	this.targetTouches = targetTouches;
+     	this.changedTouches = changedTouches;
+     }
 }
