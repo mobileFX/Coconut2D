@@ -4,6 +4,10 @@ class Null
 {
 } //Null
 
+class Untyped
+{
+} //Untyped
+
 class Object
 {
 	public function toString() :String {}
@@ -412,15 +416,6 @@ class TypeError : Error
 {
 } //TypeError
 
-class State
-{
-	public function enter() {}
-	public function exit() {}
-	public function tick(time:Float) {}
-	public function paint(gl:WebGLRenderingContext, time:Float) {}
-	public var params :Object;
-} //State
-
 class SCREEN_RESOLUTION_DPI_ENUM
 {
 	public var RESOLUTION_nodpi :SCREEN_RESOLUTION_DPI_ENUM;
@@ -447,6 +442,15 @@ class COCO_KEYFRAME_INTERPOLATION_ENUM
 	public var KEYFRAME_INTERPOLATION_ECHO :COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var KEYFRAME_INTERPOLATION_PHYSICS :COCO_KEYFRAME_INTERPOLATION_ENUM;
 } //COCO_KEYFRAME_INTERPOLATION_ENUM
+
+class State
+{
+	public function enter() {}
+	public function exit() {}
+	public function tick(time:Float) {}
+	public function paint(gl:WebGLRenderingContext, time:Float) {}
+	public var params :Object;
+} //State
 
 class EventTarget
 {
@@ -481,7 +485,6 @@ class DeviceEvent
 	public var rotation :Float;
 	public var __clientX :Integer;
 	public var __clientY :Integer;
-	public var __targets :Array<CocoClip>;
 } //DeviceEvent
 
 class HTMLCanvasElement
@@ -1331,11 +1334,11 @@ class CocoEngine
 	public function run(gl:WebGLRenderingContext, time:Float) {}
 	public function setNextState(s:State) {}
 	public function Constructor() {}
-	public var STATE_NULL :State;
 	public var __currentState :State;
 	public var __nextState :State;
 	public var __stateStart :Float;
 	public var __deviceEvent :DeviceEvent;
+	public var STATE_NULL :State;
 } //CocoEngine
 
 class CocoSprite
@@ -1425,9 +1428,9 @@ class UITextView : UIControlView
 class GameEngine : CocoEngine
 {
 	public function Constructor() {}
+	public var scene :CocoScene;
 	public var STATE_TITLE_SCREEN :State;
 	public var STATE_GAME_BOARD :State;
-	public var scene :CocoScene;
 } //GameEngine
 
 class SceneGameBoard : CocoScene

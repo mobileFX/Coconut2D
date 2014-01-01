@@ -61,7 +61,14 @@ class CocoTimeline
 		__fps						= 30;
 
 		addKeyFrameEx(null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
-	}
+	} 
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor() 
+	{
+		delete __labels;
+		delete __keyFrames;		
+	}	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function clear()

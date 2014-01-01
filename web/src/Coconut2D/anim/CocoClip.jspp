@@ -83,6 +83,19 @@ class CocoClip : EventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete __image
+		delete __audio
+		delete __children
+		delete __timeline
+		delete __vTOP_LEFT
+		delete __vTOP_RIGHT
+		delete __vBOTTOM_LEFT
+		delete __vBOTTOM_RIGHT
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(scene:CocoScene)
 	{
 		__timeline.prepare(scene, this);

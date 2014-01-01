@@ -81,10 +81,9 @@
 function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 {
 	// ast				: The abstract syntax tree root node as produced by the parser
-	//					  (you are STRONGLY ADVICED to read about AST structure here: http://mxr.mozilla.org/mozilla/source/js/narcissus/)
 	// infoder			: The root input folder containing the source files
 	// outfolder		: The root output folder where generated files will be placed
-	// selectedClass	: Used if we want to parse-only a single class for intelliSence use.
+	// selectedClass	: Used if we want to parse-only a single class for intelliSence use
 
 	var _this = this;
 
@@ -105,24 +104,23 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	_this.currClassName = null;             // The current class being processed (also indicates whether a JS++ class is being processed or just plain JavaScript code)
 	_this.classes = {};                     // Map of class symbols
 	_this.line_start = -1;                  // Souce Line counter: source code lines "//@line xxx" are emitted in generated code for IDE debugger
-	_this.UNTYPED = "untyped";              // Untyped identifier vartype, used in Type Check System
+	_this.UNTYPED = "Untyped";              // Untyped identifier vartype, used in Type Check System
 	_this.exportSymbols = exportSymbols;    // Flag that indicates whether symbols should be exported or not
 	_this.selectedClass = selectedClass;    // If set it indicates that we only need to process a single class (used by IDE intelliSence for parsing classes as you type them)
 	_this.in_state = false;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Symbol constructors
-	function Scope() {}
-	function ClassSymbol() {}
-	function FunctionSymbol() {}
-	function VarSymbol() {}
-	function StateSymbol() {}
+	function Scope() {}              //   \
+	function ClassSymbol() {}        //   |
+	function FunctionSymbol() {}     //    > For symbols we try to have same metadata format.
+	function VarSymbol() {}          //   |
+	function StateSymbol() {}        //   /
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewWarning = function (e, ast)
 	{
-		if(!ast.__warnings)
-		return;
+		if(!ast.__warnings) ast.__warnings = {};
 		if(!ast.__warnings[e]) ast.__warnings[e] = 0;
 		ast.__warnings[e]++;
 		if(ast.__warnings[e]>1) return;
@@ -134,11 +132,11 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewError = function (e, ast)
 	{
+		if(!ast.__errors) ast.__errors = {};
 		if(!ast.__errors[e]) ast.__errors[e] = 0;
 		ast.__errors[e]++;
 		if(ast.__errors[e]>1) return;
 		if(_this.selectedClass || _this.no_errors>0) return;
-		if(!ast.path) debugger;
 		trace("@@ ERROR: " + e + " in file " + ast.path + " at line " + ast.line_start);
 		jsppCallback("error", ast.path, "", ast.line_start, 0, e);
 	};
@@ -428,7 +426,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			// Otherwise, we perform a dot symbol Lookup.
 
 			var parent = ast ? ast.parent : null;
-			while(parent && !parent.identifiers_list) { parent = parent.parent; }
+			while(parent && !parent.identifiers_list && parent.type!=jsdef.LEFT_CURLY ) { parent = parent.parent; }
 			var searchScope = (!parent || (parent && parent.identifiers_list && parent.identifiers_list[0].value==identifier));
 
 			// Lookup scope chain (classes, base clasees, methods, base class methods, variables, etc.)
@@ -516,7 +514,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	{
 		if(!scope) return;
 		var symbol = null;
-		
+
         // Search scope methods
 		if(!symbol) for(var name in scope.methods)
 		{
@@ -683,6 +681,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		 	ast.fileClasses = _this.fileClasses;
 
 			var constructor = null;
+			var destructor = null;
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
 			var baseClass = ast.extends ? ast.extends : undefined;
 			var baseClassSymbol = _this.getClass(baseClass);
@@ -777,9 +776,19 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				var member = ast.body[item];
 				switch(member.type)
 				{
-					case jsdef.STATE:
 					case jsdef.FUNCTION:
-						if(member.name=="Constructor") { member.isConstructor=true; constructor = member; continue; }
+						if(member.name=="Constructor")
+						{
+							member.isConstructor=true;
+							constructor = member;
+							continue;
+						}
+						if(member.name=="Destructor")
+						{
+							member.isDestructor=true;
+							destructor = member;
+							continue;
+						}
 						out.push(generate(member));
 						break;
 				}
@@ -792,12 +801,27 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				var member = ast.body[item];
 				switch(member.type)
 				{
+					case jsdef.STATE:
 					case jsdef.CONST:
 					case jsdef.VAR:
 						out.push(generate(member));
 						break;
 				}
 			}
+
+			// Generate Destructor
+			// (the idea is to call the destructor of any object class member variables and set them to null)
+			out.push("var Destructor = this.Destructor = function(){");
+			if(destructor) out.push(generate(destructor.body));
+			out.push("\n\n/*Auto generated destructor code*/\n");
+			for(item in classSymbol.vars)
+			{
+				if(classSymbol.vars[item].state)
+					out.push(classId+"."+item+".Destructor();");
+				out.push(classId+"."+item+"=null;");
+			}
+			if(baseClass) out.push("__SUPER__ && ((__SUPER__.hasOwnProperty('Destructor') && __SUPER__.Destructor()) || !__SUPER__.hasOwnProperty('Destructor')) && (delete __SUPER__);");
+			out.push("return true};");
 
 			// Generate Constructor
 			out.push(constructor ? generate(constructor) : "this.Constructor=function(){return " + classId + "};");
@@ -837,15 +861,32 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			out.push("))");
 			out.push(".Constructor.apply(this,[].slice.call(arguments))}");
 
-			// Check abstract methods are implemented
-			if(_this.secondPass && baseClass && baseClassSymbol)
+			// Type Checks
+			if(_this.secondPass)
 			{
-				for(item in baseClassSymbol.methods)
+				// Check that abstract methods are implemented
+				if(baseClass && baseClassSymbol)
 				{
-					var baseMethodSymbol = baseClassSymbol.methods[item];
-					if(baseMethodSymbol.abstract && !classSymbol.methods.hasOwnProperty(baseMethodSymbol.name))
-						_this.NewError("Missing abstract method: " + baseMethodSymbol.name, ast);
+					for(item in baseClassSymbol.methods)
+					{
+						var baseMethodSymbol = baseClassSymbol.methods[item];
+						if(baseMethodSymbol.abstract && !classSymbol.methods.hasOwnProperty(baseMethodSymbol.name))
+							_this.NewError("Missing abstract method: " + baseMethodSymbol.name, ast);
+					}
 				}
+
+				// If this class has object members we need a Destructor
+				var hasObjectMembers = false;
+				for(item in classSymbol.vars)
+				{
+					if(classSymbol.vars[item].pointer)
+					{
+						hasObjectMembers = true;
+						break;
+					}
+				}
+				if(hasObjectMembers && !destructor)
+					_this.NewError("Missing Destructor: " + ast.name, ast);
 			}
 
             // Done!
@@ -862,8 +903,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				var file = ast.path;
 				file = file.replace(_this.infolder, _this.outfolder).replace(".jspp", ".jobj");
 				var buff = do_js_beautify(out.join("\n"), 1, false, false, true);
-				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1");
-				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+\\{", "mg", "{");
+				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1"); 	// Empty Lines
+				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+\\{", "mg", "{");						// Closure Exits
 				jsppCallback("module", ast.path, file, 0, 0, buff);
 				trace("Generated file: " + file);
 			}
@@ -883,11 +924,11 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			ast.isPointer = __isPointer(ast.returntype);
 
 			var methodScope = _this.NewScope(ast);
-			var parentScope = methodScope.parentScope;
-			var isClass = parentScope.isClass;
-			var className = isClass ? parentScope.name : null;
-			var classId = isClass ? parentScope.ast.symbol.classId : null;
-			var isGlobal = !isClass && parentScope.isGlobal;
+			var parentScope = methodScope.parentScope;	// Could be State scope or Class scope
+			var classScope = _this.getClassScope();		// Class scope
+			var className = classScope ? classScope.ast.name : null;
+			var classId = classScope ? classScope.ast.symbol.classId : null;
+			var isGlobal = !classScope && parentScope.isGlobal;
 			var isAnonymous = (ast.name==null || ast.name.length==0);
 			var fnName = (ast.name ? ast.name : "");
 			var baseMethodSymbol = null;
@@ -895,7 +936,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			if(_this.currClassName) _this.debugSymbolsTable.push("<!-- " + className + " :: " + fnName + " -->\n");
 
 			// Link method symbol with base class method symbol for speed.
-			if(isClass && parentScope.ast.symbol.baseSymbol)
+			if(parentScope.isClass && parentScope.ast.symbol.baseSymbol)
 				baseMethodSymbol = _this.LookupIdentifier(parentScope.ast.symbol.baseSymbol.scope, ast.name, ast, true);
 
             // Check for redeclaration (overloads are not supported yet)
@@ -909,8 +950,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				functionSymbol.name			= fnName;
 				functionSymbol.type			= ast.type;
 				functionSymbol.nodeType		= ast.nodeType;
-				functionSymbol.className	= isClass ? className : null;
-				functionSymbol.classId		= isClass ? classId : null;
+				functionSymbol.className	= parentScope ? className : null;
+				functionSymbol.classId		= classScope ? classId : null;
 				functionSymbol.public		= ast.public==true;
 				functionSymbol.private		= ast.private==true;
 				functionSymbol.protected	= ast.protected==true;
@@ -923,8 +964,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				functionSymbol.baseSymbol	= baseMethodSymbol;
 				functionSymbol.file			= ast.file;
 				functionSymbol.path			= ast.path;
-				functionSymbol.start		= isClass && !isAnonymous ? ast.__start : ast.start;
-				functionSymbol.end			= isClass && !isAnonymous ? ast.__end : ast.end;
+				functionSymbol.start		= classScope && !isAnonymous ? ast.__start : ast.start;
+				functionSymbol.end			= classScope && !isAnonymous ? ast.__end : ast.end;
 				functionSymbol.line_start	= ast.line_start;
 				functionSymbol.line_end		= ast.line_end;
 				functionSymbol.scopeId		= methodScope.scopeId;
@@ -945,7 +986,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				parentScope.vartypes[functionSymbol.vartype] = true;
 
 			// Process the Arguments List
-			var paramsList = "(";
+			var paramsList = "";
 			for(var i=0; i<ast.paramsList.length; i++)
 			{
 				var param = ast.paramsList[i];
@@ -953,6 +994,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				paramsList += param.name;
 				if(i!=ast.paramsList.length-1) paramsList +=", ";
 
+                // Type Checks
 				if(_this.secondPass && _this.currClassName)
 				{
 					if(!param.vartype)
@@ -1013,9 +1055,9 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 						parentScope.vartypes[varSymbol.vartype] = true;
 
 			}
-			paramsList += ")";
+			paramsList = "(" + paramsList + ")";
 
-	        // Global scope function (plain JavaScript function)
+	        // Generate Global scope function (plain JavaScript function)
 	        if(isGlobal)
 	        {
 	  			out.push("function " + fnName + paramsList + "{");
@@ -1023,8 +1065,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				out.push("}");
 	        }
 
-	        // Class member function
-	        else if(isClass)
+	        // Generate Class member function
+	        else if(classScope)
 	        {
 	  			// Function definition
 	  			if(ast.isConstructor)
@@ -1040,6 +1082,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	  				if(ast.public)			out.push("var " + fnName + " = this." + fnName + "=function" + paramsList + "{");
 	  				else if(ast.private)	out.push("var " + fnName + "=function" + paramsList + "{");
 	  				else if(ast.protected)	out.push("this.__PROTECTED__." + fnName + "=function" + paramsList + "{");
+	  				else if(!_this.in_state) _this.NewError("No access modifier defined for function: " + ast.name, ast);
 	  			}
 
 				// Generate Function Body
@@ -1059,7 +1102,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 				out.push("};");
 
-				// Check all return paths
+				// Check function return paths
 				if(_this.secondPass && ast.file && ast.file!="externs.jspp")
 				{
 					if(!ast.isConstructor && baseMethodSymbol && !baseMethodSymbol.virtual)
@@ -1088,7 +1131,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				}
 	        }
 
-	        // Anonymous function
+	        // Generate Anonymous function
 	        else if(isAnonymous)
 	        {
 	  			out.push("function " + fnName + paramsList + "{");
@@ -1134,8 +1177,12 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			{
 				if(!isFinite(item)) break;
 
+				// Variables defined in JavaScript global scope such as plain JavaScript files are untyped.
+				// Such variables are window, document, canvas, gl, engine, etc. You can define their type
+				// inside externs.jspp and the compiler will automatically link the extern_symbol.
 				var extern_symbol = null;
 
+                // Type Checks
 				if(!ast[item].vartype && _this.currClassName)
 					_this.NewError("Type declaration missing " + ast[item].name, ast);
 
@@ -1144,10 +1191,9 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 				if(Object.prototype.hasOwnProperty.call(ast.scope.vars, ast[item].name))
 				{
-					// Variables might be declared in externs for getting a vartype.
-					// If a var is wrapped inside "#ignore_errors" directive we do not redeclare not complain.
+					// If a var is wrapped inside "#ignore_errors" directive we do not complain for redeclaration.
 					if(_this.no_errors)
-						extern_symbol = ast.scope.vars[ast[item].name];//.ast.symbol;
+						extern_symbol = ast.scope.vars[ast[item].name];
 
 					else if(!_this.secondPass)
 						_this.NewError("Redeclaration of variable " + ast[item].name + " in current scope", ast[item]);
@@ -1270,12 +1316,15 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			if(!_this.currClassName)
 				_this.NewError("Invalid state outside class", ast);
 
-			_this.in_state = true;
+			var hasTick = false;
 			var classSymbol = _this.getCurrentScope().ast.symbol;
+			_this.in_state = true;
+
 			ast.scope = _this.NewScope(ast);
 
+            // A state must be defined inside a state machine class.
 			if(!classSymbol.ast.state)
-				_this.NewError("Invalid state context", ast);
+				_this.NewError("Invalid state context, missing state class modifier", ast);
 
 			// State Symbol
 			var stateSymbol = new StateSymbol()
@@ -1286,6 +1335,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				stateSymbol.type			= jsdef.STATE;
 				stateSymbol.nodeType		= ast.nodeType;
 				stateSymbol.classId			= classSymbol.classId;
+				stateSymbol.state			= true;
 				stateSymbol.public			= ast.public==true;
 				stateSymbol.private			= ast.private==true;
 				stateSymbol.protected		= ast.protected==true;
@@ -1315,9 +1365,9 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			else if(ast.private)	out.push("var ");
 			else if(ast.protected)	out.push("this.__PROTECTED__.");
 
-			out.push(ast.name + " = (function() {");
+            //TODO: The following code does not hit breakpoints for the first function of the State in v8/Chrome.
 
-			var hasTick = false;
+			out.push(ast.name + " = (function(o){");
 
 			for(item in ast.body)
 			{
@@ -1330,26 +1380,18 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 					break;
 
 				case jsdef.FUNCTION:
-					out.push("var " + ast.body[item].name + " = this." + ast.body[item].name + "= function(");
-					var first = false;
-					for(var i=0;i<ast.body[item].paramsList.length;i++)
-					{
-						if(i>0) out.push(",");
-						out.push(ast.body[item].paramsList[i].name);						
-					}					
-					out.push(") {");
-					out.push(generate(ast.body[item].body));
-					out.push("};\n");
 					if(ast.body[item].name=="tick") hasTick = true;
-					break;
+					out.push(generate(ast.body[item]));
+ 					break;
 				}
 			}
-			out.push("return this; }).call({});");
-			_this.in_state = false;
+			out.push("return this}).call(new State);");
 
+            // Tick function must be implemented.
 			if(!hasTick)
 				_this.NewError("Missing state tick function: " + ast.name, ast);
 
+			_this.in_state = false;
 			_this.ExitScope();
 			break;
 
@@ -1415,15 +1457,14 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				// If the identifier is class member then produce a DOT with the classId.
 				if(_this.currClassName && ast.symbol && !ast.symbol.private && ast.symbol.classId && ast.symbol.type!=jsdef.CLASS)
 				{
-
 					var p = ast.parent;
-					while(p)
+					while(p && p.type!=jsdef.LEFT_CURLY)
 					{
 						if(p.type==jsdef.DOT && p.identifiers_list[0].value!=ast.value)
 						{
 							isDot = true;
 							break;
-						} 						
+						}
 						p = p.parent;
 					}
 					if(!isDot)
@@ -1712,11 +1753,19 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.DEBUGGER:			out.push("debugger;"); break;
-		case jsdef.EXPONENT:			out.push("Math.pow(" + generate(ast[0]) + "," + generate(ast[1]) + ")");break;
-		case jsdef.MOD:					out.push(generate(ast[0])); out.push("%"); out.push(generate(ast[1])); break;
-		case jsdef.NEW: 				out.push("new "); out.push(generate(ast[0])); break;
-		case jsdef.THROW:				out.push("throw "); out.push(generate(ast.exception)); out.push(";"); break;
+		case jsdef.DELETE:
+			var expr = generate(ast[0]);
+			if(_this.currClassName && _this.secondPass && ast[0].symbol)
+			{
+				if(ast[0].symbol.subtype && __isPointer(ast[0].symbol.subtype))
+				{
+					out.push("(function(o){for(var i=o.length;i--;){o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);o[i]=null;}})(" + expr + ");");
+				}
+				out.push("$ && (($.hasOwnProperty('Destructor') && $.Destructor()) || !$.hasOwnProperty('Destructor')) && (delete $);$=null;".replace(new RegExp("\\$", "g"), expr));
+			}
+			else
+				out.push("delete " + expr);
+			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.AND:					out.push(generate(ast[0])); out.push("&&"); out.push(generate(ast[1])); break;
@@ -1727,12 +1776,13 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		case jsdef.BREAK:				out.push("break;"); break;
 		case jsdef.CASE:				out.push("case " + generate(ast.caseLabel) + ":"); out.push(generate(ast.statements)); break;
 		case jsdef.CONTINUE:			out.push("continue;"); break;
+		case jsdef.DEBUGGER:			out.push("debugger;"); break;
 		case jsdef.DECREMENT:			if(ast.postfix) { out.push(generate(ast[0])); out.push("--"); } else { out.push("--"); out.push(generate(ast[0])); } break;
 		case jsdef.DEFAULT:				out.push("default:"); out.push(generate(ast.statements)); break;
-		case jsdef.DELETE: 				out.push("delete "); out.push(generate(ast[0])); break;
 		case jsdef.DIV:					out.push(generate(ast[0])); out.push("/"); out.push(generate(ast[1])); break;
 		case jsdef.DO: 					ast.body.isLoop = true; out.push("do"); out.push(generate(ast.body)); out.push("while(" + generate(ast.condition) + ");"); break;
 		case jsdef.EQ: 					out.push(generate(ast[0])); out.push("==");	 out.push(generate(ast[1])); break;
+		case jsdef.EXPONENT:			out.push("Math.pow(" + generate(ast[0]) + "," + generate(ast[1]) + ")");break;
 		case jsdef.FALSE:				out.push("false"); break;
 		case jsdef.GE:					out.push(generate(ast[0])); out.push(">=");  out.push(generate(ast[1])); break;
 		case jsdef.GT:					out.push(generate(ast[0])); out.push(">");   out.push(generate(ast[1])); break;
@@ -1744,8 +1794,10 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		case jsdef.LSH:					out.push(generate(ast[0])); out.push("<<"); out.push(generate(ast[1])); break;
 		case jsdef.LT:					out.push(generate(ast[0])); out.push("<");   out.push(generate(ast[1])); break;
 		case jsdef.MINUS: 				out.push(generate(ast[0])); out.push("-"); out.push(generate(ast[1])); break;
+		case jsdef.MOD:					out.push(generate(ast[0])); out.push("%"); out.push(generate(ast[1])); break;
 		case jsdef.MUL: 				out.push(generate(ast[0])); out.push("*"); out.push(generate(ast[1])); break;
 		case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	 out.push(generate(ast[1])); break;
+		case jsdef.NEW: 				out.push("new "); out.push(generate(ast[0])); break;
 		case jsdef.NEW_WITH_ARGS:		out.push("new "); out.push(generate(ast[0])); out.push("("); out.push(generate(ast[1])); out.push(")"); _this.checkFunctionCall(ast); break;
 		case jsdef.NOT:					out.push("!"); out.push(generate(ast[0])); break;
 		case jsdef.NULL:				out.push("null"); break;
@@ -1757,6 +1809,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		case jsdef.SEMICOLON:			var expr = (ast.expression ? generate(ast.expression) : ""); if(expr) out.push(expr + ";\n"); break;
 		case jsdef.STRICT_EQ:			out.push(generate(ast[0])); out.push("=="); out.push(generate(ast[1])); break;
 		case jsdef.STRICT_NE:			out.push(generate(ast[0]));	out.push("!="); out.push(generate(ast[1])); break;
+		case jsdef.THROW:				out.push("throw "); out.push(generate(ast.exception)); out.push(";"); break;
 		case jsdef.TRUE:				out.push("true"); break;
 		case jsdef.TYPEOF:				out.push("typeof "); out.push(generate(ast[0])); break;
 		case jsdef.UNARY_MINUS:			out.push(" -"); out.push(generate(ast[0])); break;
@@ -1764,7 +1817,6 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		case jsdef.URSH:				out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
 		case jsdef.VOID:				out.push("void "); out.push(generate(ast[0])); break;
 		case jsdef.WHILE:				ast.body.isLoop=true; out.push("while(" + generate(ast.condition) + ")"); out.push(generate(ast.body)); break;
-
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		default:
 			//debugger;
@@ -2220,11 +2272,14 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		{
 		//=============================================================================================================================
 		case jsdef.ARRAY_INIT:		return "Array"
+		case jsdef.ASSIGN:   		return _this.getTypeName(ast[0]);
 		case jsdef.BITWISE_NOT:		return "Number";
+		case jsdef.COMMA: 			return _this.getTypeName(ast[+ast.length-1]);
 		case jsdef.DELETE:          return "Boolean";
 		case jsdef.EQ:              return "Boolean";
 		case jsdef.FALSE:           return "Boolean";
 		case jsdef.GE:              return "Boolean";
+		case jsdef.GROUP: 			return _this.getTypeName(ast[0]);
 		case jsdef.GT:              return "Boolean";
 		case jsdef.IN:              return "Boolean";
 		case jsdef.INSIDE:          return "Boolean";
@@ -2232,21 +2287,22 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		case jsdef.LE:              return "Boolean";
 		case jsdef.LT:              return "Boolean";
 		case jsdef.NE:              return "Boolean";
+		case jsdef.NEW:           	return ast[0].symbol.name;
+		case jsdef.NEW_WITH_ARGS:	return ast[0].symbol.name;
 		case jsdef.NOT:             return "Boolean";
 		case jsdef.NULL:			return "Null";
 		case jsdef.NUMBER:			return "Number";
 		case jsdef.OBJECT_INIT:		return "Object";
 		case jsdef.REGEXP:			return "RegExp";
+		case jsdef.STATE:			return "State";
 		case jsdef.STRICT_EQ:       return "Boolean";
 		case jsdef.STRICT_NE:       return "Boolean";
 		case jsdef.STRING:			return "String";
+		case jsdef.SUPER:			return ast.symbol.vartype;
+		case jsdef.THIS:			return _this.currClassName || "Function";
 		case jsdef.TRUE:			return "Boolean";
 		case jsdef.TYPEOF:			return "String";
-		case jsdef.ASSIGN:   		return _this.getTypeName(ast[0]);
-		case jsdef.GROUP: 			return _this.getTypeName(ast[0]);
-		case jsdef.COMMA: 			return _this.getTypeName(ast[+ast.length-1]);
 		case jsdef.VOID:			return _this.UNTYPED;
-		case jsdef.THIS:			return _this.currClassName || "Function";
 
 		//=============================================================================================================================
 		case jsdef.PLUS:
@@ -2335,10 +2391,6 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			return ast.symbol.vartype;
 
 		//=============================================================================================================================
-		case jsdef.NEW:           	return ast[0].symbol.name;
-		case jsdef.NEW_WITH_ARGS:	return ast[0].symbol.name;
-
-		//=============================================================================================================================
 		case jsdef.CALL:
 			if(ast[0].type==jsdef.DOT)
 			{
@@ -2356,7 +2408,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				if(!symbol) { _this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]); return null; }
 				return symbol.subtype;
 			}
-			return ast[0].symbol.subtype;
+			return ast[0].symbol ? ast[0].symbol.subtype : _this.UNTUPED;
 			break;
 
 		//=============================================================================================================================
@@ -2364,13 +2416,6 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			var symbol = _this.LookupLastDotIdentifier(ast, _this.getCurrentScope());
 			if(!symbol) { _this.NewError("Symbol not found: " + ast.source, ast); return null; }
 			return symbol.vartype;
-
-		//=============================================================================================================================
-		case jsdef.SUPER:
-			return ast.symbol.vartype;
-
-		case jsdef.STATE:
-			debugger;
 
 		//=============================================================================================================================
 		default:
@@ -2423,11 +2468,11 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				if(i<ast[1].length)
 				{
 					type2 = _this.getTypeName(ast[1][i]);
-					_this.typeCheck(ast, type1, type2, "Argument type mismatch: "+type1+" and "+type2);
+					_this.typeCheck(arg, type1, type2, "Argument type mismatch: "+type1+" and "+type2);
 				}
 				else if(!arg.optional)
 				{
-					_this.NewError("Argument not optional: " + ast.source, ast);
+					_this.NewError("Argument not optional: " + ast.source, arg);
 				}
 				i++;
 			}
@@ -2437,7 +2482,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.typeCheck = function(ast, type1, type2, customError)
 	{
-		//** Need to rewrite using convertion tables
+		//** Need to rewrite using Roger's convertion tables
 
 		var _this = this;
 		if(!_this.currClassName) return;
@@ -2451,8 +2496,17 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		if(type1==type2) return type1;
 
 		// Invalid left/right type
-		if(!type1 || type1=="null")  { _this.NewError("Invalid left type: " + (ast[0] ? ast[0] : ast).source, ast); return type1; }
-		if(!type2 || type2=="null")  { _this.NewError("Invalid right type: " + (ast[1] ? ast[1] : ast).source, ast); return type2; }
+		if(!type1 || type1=="null" || type1==this.UNTYPED)
+		{
+			_this.NewError(customError || "Invalid left type: " + (ast[0] ? ast[0] : ast).source, ast);
+			return type1;
+		}
+
+		if(!type2 || type2=="null" || type2==_this.UNTYPED)
+		{
+			_this.NewError(customError || "Invalid right type: " + (ast[1] ? ast[1] : ast).source, ast);
+			return type2;
+		}
 
         // Null
 		if(__isPointer(type1) && type2=="Null") return type1;
@@ -2463,18 +2517,18 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		// Integer
 		if(type1=="Integer" && type2=="Number") return type1;
 		if(type1=="Integer" && type2=="Float") return type1;
-		if(type1=="Integer" && type2=="Float") { _this.NewWarning("Precision loss converting Float to Integer", ast); return type1; }
-		if(type1=="Integer" && type2=="Object") { _this.NewError("Invalid Object to Integer convertion", ast); return type1; }
+		if(type1=="Integer" && type2=="Float") 	{ _this.NewWarning(customError || "Precision loss converting Float to Integer", ast); return type1; }
+		if(type1=="Integer" && type2=="Object") { _this.NewError(customError || "Invalid Object to Integer convertion", ast); return type1; }
 
 		// Number
 		if(type1=="Number" && type2=="Integer") return type1;
 		if(type1=="Number" && type2=="Float") return type1;
-		if(type1=="Number" && type2=="Object") { _this.NewError("Invalid Object to Number convertion", ast); return type1; }
+		if(type1=="Number" && type2=="Object") { _this.NewError(customError || "Invalid Object to Number convertion", ast); return type1; }
 
 		// Float
 		if(type1=="Float" && type2=="Number") return type1;
 		if(type1=="Float" && type2=="Integer") return type1;
-		if(type1=="Float" && type2=="Object") { _this.NewError("Invalid Object to Float convertion", ast); return type1; }
+		if(type1=="Float" && type2=="Object") { _this.NewError(customError || "Invalid Object to Float convertion", ast); return type1; }
 
 		// Date
 		if(type1=="Date" && type2=="Null") return type1;
@@ -2483,27 +2537,27 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		if(type1=="String" && type2=="Null")
 		{
 			if(ast.type==jsdef.NEW_WITH_ARGS) return type1;
-			_this.NewWarning("String set to null, set to empty string instead", ast); return type1;
+			_this.NewWarning(customError || "String set to null, set to empty string instead", ast); return type1;
 		}
 
     	// Boolean
 		if(type1=="Boolean" && type2=="Number")
 		{
-			_this.NewError("Invalid Number to Boolean convertion", ast); return type1;
+			_this.NewError(customError || "Invalid Number to Boolean convertion", ast); return type1;
 		}
 
         // UDT
 		var cls1 = _this.getClass(type1);
 		if(!cls1)
 		{
-			_this.NewError("Class not found: " + type1, ast);
+			_this.NewError(customError || "Class not found: " + type1, ast);
 			return type1;
 		}
 
 		var cls2 = _this.getClass(type2);
 		if(!cls2)
 		{
-			_this.NewError("Class not found: " + type2, ast);
+			_this.NewError(customError || "Class not found: " + type2, ast);
 			return type1;
 		}
 
@@ -2514,7 +2568,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			cls2 = cls2.baseSymbol;
 		}
 
-		_this.NewError("Type mismatch: " + type1 + " and " + type2, ast);
+		_this.NewError(customError || "Type mismatch: " + type1 + " and " + type2, ast);
 		return type1;
 	};
 
@@ -2759,17 +2813,3 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

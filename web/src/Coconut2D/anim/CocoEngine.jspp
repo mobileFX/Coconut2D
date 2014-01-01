@@ -58,6 +58,11 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function __setTouchEvent(e:DeviceEvent)
 	{
 		__deviceEvent = e;
@@ -69,8 +74,8 @@ state class CocoEngine
 	public function run(gl:WebGLRenderingContext, time:Float)
 	{
 		gl.clearColor(0,0,0,1);
-		gl.clear(gl.COLOR_BUFFER_BIT);		
-		
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
 		if(!__currentState && !__nextState)
 			__nextState=STATE_NULL;
 
@@ -86,7 +91,7 @@ state class CocoEngine
 
 		__currentState.tick(time-__stateStart);
 
-		if(__nextState==null)  
+		if(__nextState==null)
 			__currentState.paint(gl, time-__stateStart);
 
 		__deviceEvent = null;
@@ -105,4 +110,5 @@ state class CocoEngine
 		{
 		}
 	}
+
 }

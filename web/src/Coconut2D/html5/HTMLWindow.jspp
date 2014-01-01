@@ -56,6 +56,14 @@ class HTMLWindow
 		devicePixelRatio = global.devicePixelRatio;
 		__deviceEvent = new DeviceEvent();
 		__registerManager(this, dispatchEvent, __deviceEvent);
+	}  
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor() 
+	{
+		delete document;
+		delete __deviceEvent;
+		delete __elements;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +84,6 @@ class HTMLWindow
 	public function dispatchEvent(uid:Integer, eventType:String)
 	{
 		__deviceEvent.type = eventType;
-		__deviceEvent.__targets.clear();
 		var callback:Function = __elements[eventType];
 		if(callback) callback(this.__deviceEvent);
 	}

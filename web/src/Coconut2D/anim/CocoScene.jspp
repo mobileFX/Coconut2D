@@ -99,6 +99,28 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete __root;
+		delete __modelViewMatrix;
+		delete __projectionMatrix;
+		delete __glProgram;
+		delete __boundingBoxProgram;
+		delete __boundingBoxBuffer;
+
+		var i:Integer;
+		for(i = __imageSymbols.size() - 1; i >= 0; i--)
+		{
+			delete __imageSymbols[i];
+		}
+
+		for(i = __soundSymbols.size() - 1; i >= 0; i--)
+		{
+			delete __soundSymbols[i];
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getImageSymbol(symbolName:String) :CocoImage
 	{
 		for(var i:Integer = __imageSymbols.size() - 1; i >= 0; i--)
@@ -315,7 +337,7 @@ class CocoScene
 				__levelParents = [];
 				var max:CocoClip = __root.__childWithMaxTimelineDuration;
 				if(max && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
-				{   
+				{
 					__finished=true;
 					//__root.reset();
 					//__startTime = -1;

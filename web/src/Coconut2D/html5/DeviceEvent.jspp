@@ -58,8 +58,7 @@ class DeviceEvent
 	public var rotation:Float;  			// rotation delta (since event start) in degrees (clockwise is positive). Initially 0.0.
 
 	public var __clientX:Integer;
-	public var __clientY:Integer;
-	public var __targets:Array<CocoClip>;
+	public var __clientY:Integer;	
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -79,7 +78,15 @@ class DeviceEvent
 		touches = new TouchList();
 		targetTouches = new TouchList();
 		changedTouches = new TouchList();
-	}
+	} 
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor() 
+	{
+		delete touches; 
+		delete targetTouches; 
+		delete changedTouches;		
+	}	
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function stopPropagation()
