@@ -1429,9 +1429,37 @@ class GameEngine : CocoEngine
 {
 	public function Constructor() {}
 	public var scene :CocoScene;
+	public var balance :Number;
+	public var winnings :Number;
+	public var avatars :Array<CocoClip>;
+	public var avatar_leo :CocoClip;
+	public var avatar_xerxes :CocoClip;
+	public var avatar_spartan :CocoClip;
+	public var avatar_persian :CocoClip;
+	public var avatar_swords :CocoClip;
+	public var avatar_armor :CocoClip;
+	public var btnOpenAll :CocoClip;
+	public var btnBuyTicket :CocoClip;
+	public var selectedAvatar :Number;
 	public var STATE_TITLE_SCREEN :State;
 	public var STATE_GAME_BOARD :State;
+	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
+	public var STATE_GAME_BOARD_BUY_TICKET :State;
+	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_WIN :State;
+	public var STATE_GAME_BOARD_LOSE :State;
 } //GameEngine
+
+class NewAnimation : CocoScene
+{
+	public function Constructor() {}
+} //NewAnimation
+
+class NewAnimation1 : CocoScene
+{
+	public function Constructor() {}
+} //NewAnimation1
 
 class SceneGameBoard : CocoScene
 {

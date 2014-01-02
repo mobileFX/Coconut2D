@@ -8,7 +8,7 @@ class CocoTimeLabel
 public:
 	int frameIndex;
 	std::string name;
-	CocoTimeLabel(int FrameIndex, std::string LabelName);
+	virtual CocoTimeLabel(int FrameIndex, std::string LabelName);
 };
 
 #endif

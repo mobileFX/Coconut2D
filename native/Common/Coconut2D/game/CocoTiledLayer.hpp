@@ -6,7 +6,7 @@
 class CocoTiledLayer
 {
 public:
-	CocoTiledLayer();
+	virtual CocoTiledLayer();
 };
 
 #endif

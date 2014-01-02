@@ -3,44 +3,57 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoEngine::CocoEngine()
 {
-	__currentState = NULL;
-	__nextState = NULL;
 	__stateStart = 0.0;
-	__touchEvent = NULL;
+	__deviceEvent = NULL;
 	window->addEventListener("touchstart", __setTouchEvent);
 	window->addEventListener("touchmove", __setTouchEvent);
 	window->addEventListener("touchend", __setTouchEvent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEngine::__setTouchEvent(TouchEvent* e)
+CocoEngine::~CocoEngine()
 {
-	__touchEvent = e;
-	__touchEvent->__clientX = (*e->touches)[0]->clientX;
-	__touchEvent->__clientY = (*e->touches)[0]->clientY;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoEngineState* CocoEngine::currentState()
+void CocoEngine::__setTouchEvent(DeviceEvent* e)
 {
-	return __currentState;
+	__deviceEvent = e;
+	__deviceEvent->__clientX = (*e->touches)[0]->clientX;
+	__deviceEvent->__clientY = (*e->touches)[0]->clientY;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEngine::setState(CocoEngineState* state)
+void CocoEngine::run(WebGLRenderingContext* gl, float time)
 {
-	__nextState = state;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEngine::tick(WebGLRenderingContext* gl, float time)
-{
+	gl->clearColor(0, 0, 0, 1);
+	gl->clear(gl->COLOR_BUFFER_BIT);
+	if(!__currentState && !__nextState)
+	{
+		__nextState = STATE_NULL;
+	}
 	if(__nextState != NULL)
 	{
+		if(__currentState)
+		{
+			__currentState->exit();
+		}
 		__currentState = __nextState;
+		__currentState->enter();
 		__stateStart = time;
 		__nextState = NULL;
+		return;
 	}
-	__currentState->tick(this, gl, time - __stateStart);
-	__touchEvent = NULL;
+	__currentState->tick(time - __stateStart);
+	if(__nextState == NULL)
+	{
+		__currentState->paint(gl, time - __stateStart);
+	}
+	__deviceEvent = NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoEngine::setNextState(State* s)
+{
+	__nextState = s;
 }

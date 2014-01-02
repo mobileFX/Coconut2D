@@ -37,7 +37,9 @@ public:
 	WebGLProgram* __boundingBoxProgram;
 	WebGLBuffer* __boundingBoxBuffer;
 	bool __ready;
-	CocoScene();
+	bool __finished;
+	virtual CocoScene();
+	virtual ~CocoScene();
 	CocoImage* getImageSymbol(std::string symbolName);
 	CocoSound* getSoundSymbol(std::string symbolName);
 	CocoImage* newResourceImage(std::string symbolName, std::string baseUrl);
@@ -46,7 +48,7 @@ public:
 	WebGLProgram* makeProgram(WebGLRenderingContext* gl, std::string vs, std::string fs);
 	void loadResources();
 	bool resourcesLoaded(WebGLRenderingContext* gl);
-	virtual void tick(WebGLRenderingContext* gl, float time);
+	virtual void paint(WebGLRenderingContext* gl, float time);
 	void drawFrame(WebGLRenderingContext* gl, CocoImage* image, float frame, float alpha);
 	void gotoAndPlayByName(std::string LabelName, bool deep = false);
 	void gotoAndStopByName(std::string LabelName, bool deep = false);

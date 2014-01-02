@@ -33,7 +33,8 @@ public:
 	CocoVector* __vBOTTOM_LEFT;
 	CocoVector* __vBOTTOM_RIGHT;
 	CocoClip* __childWithMaxTimelineDuration;
-	CocoClip(CocoImage* image, CocoSound* audio, std::string sequence);
+	virtual CocoClip(CocoImage* image, CocoSound* audio, std::string sequence);
+	virtual ~CocoClip();
 	void prepare(CocoScene* scene);
 	void reset();
 	CocoClip* addChild(CocoClip* clipInstance);
@@ -43,7 +44,7 @@ public:
 	int getChildIndex(CocoClip* child);
 	bool gotoFrameByName(std::string LabelName, bool pause, bool deep);
 	bool gotoFrameByIndex(int FrameIndex, bool pause, bool deep);
-	void render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking);
+	void paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking);
 	bool hitTest(float wx, float wy);
 	void initBoundingBoxFromTexture(CocoScene* scene, float W2, float H2);
 	void initBoundingBoxFromChildren(CocoScene* scene);

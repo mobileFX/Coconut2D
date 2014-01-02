@@ -7,7 +7,7 @@
 class CocoSpriteVisual : public CocoSprite
 {
 public:
-	CocoSpriteVisual();
+	virtual CocoSpriteVisual();
 };
 
 #endif

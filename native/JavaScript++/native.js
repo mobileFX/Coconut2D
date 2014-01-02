@@ -47,6 +47,7 @@ function CPPCompiler(ast, infolder, outfolder)
 	_this.includes = [];
 	_this.errors = [];
 	_this.warnings = [];
+	_this.in_state = false;
 	_this.currFileName = null;
 	_this.currClassName = null;
 	_this.NULL_GEN = { CPP:"", HPP:"" };
@@ -194,6 +195,7 @@ CPPCompiler.prototype.compile = function (ast)
 			if(!isFinite(item)) continue;
 			switch(ast.body[item].type)
 			{
+			case jsdef.STATE:
 			case jsdef.FUNCTION:
 				result = generate(ast.body[item]);
 				CPP.push(result.CPP);
@@ -231,7 +233,7 @@ CPPCompiler.prototype.compile = function (ast)
 		if(!_this.currClassName) return _this.NULL_GEN;
 
 		if(!ast.returntype) ast.returntype = "void";
-		var name = (ast.isConstructor ? _this.currClassName : ast.name);
+		var name = (ast.isConstructor ? _this.currClassName : (ast.isDestructor ? "~" + _this.currClassName : ast.name));
 		var param, cppParamsList = "(", hppParamList = "(";
 
 		for(var i=0; i<ast.paramsList.length; i++)
@@ -249,14 +251,73 @@ CPPCompiler.prototype.compile = function (ast)
 		cppParamsList += ")";
 		hppParamList += ")";
 
-		var fn = (ast.virtual ? "virtual " : "") + (ast.isConstructor ? "" : ast.returntype + (ast.isPointer ? "*" : "") + " ") + name + hppParamList + ";\n";
+		var fn = (ast.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : ast.returntype + (ast.isPointer ? "*" : "") + " ") + name + hppParamList;
 		HPP.push(fn);
 
-		CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-		CPP.push( (ast.isConstructor ? "" : ast.returntype +(ast.isPointer?"*":"") + " ") + _this.currClassName+"::" + name + cppParamsList);
-        CPP.push("\n{\n");
-		CPP.push(generate(ast.body).CPP);
-		CPP.push("}\n");
+        if(_this.in_state)
+        {
+        	HPP.push("{");
+        	HPP.push(generate(ast.body).CPP);
+        	HPP.push("}\n");
+        }
+        else
+        {
+        	HPP.push(";");
+			CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+			CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.isPointer?"*":"") + " ") + _this.currClassName+"::" + name + cppParamsList);
+	        CPP.push("\n{\n");
+			CPP.push(generate(ast.body).CPP);
+			CPP.push("}\n");
+        }
+		break;
+
+
+	// ==================================================================================================================================
+	//	   _____ __        __
+	//	  / ___// /_____ _/ /____  _____
+	//	  \__ \/ __/ __ `/ __/ _ \/ ___/
+	//	 ___/ / /_/ /_/ / /_/  __(__  )
+	//	/____/\__/\__,_/\__/\___/____/
+	//
+	// ==================================================================================================================================
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	case jsdef.STATE:
+
+	    if(!_this.currClassName || !ast.scope) return _this.NULL_GEN;
+
+	    _this.in_state = true;
+
+		HPP.push("struct " + ast.name + " : State {");
+		HPP.push(_this.currClassName + "* self;");
+		var result;
+		for(var item in ast.body)
+		{
+			if(!isFinite(item)) continue;
+			switch(ast.body[item].type)
+			{
+			case jsdef.VAR:
+				result = generate(ast.body[item]);
+				HPP.push(result.HPP);
+				break;
+			}
+		}
+		HPP.push(ast.name + "(" + _this.currClassName + "* self) : self(self) {}\n");
+		for(var item in ast.body)
+		{
+			if(!isFinite(item)) continue;
+			switch(ast.body[item].type)
+			{
+			case jsdef.FUNCTION:
+				result = generate(ast.body[item]);
+				HPP.push(result.HPP);
+				break;
+			}
+		}
+		HPP.push("} *" + ast.name + " = new struct " + ast.name + "(this);");
+
+        _this.in_state = false;
+
 		break;
 
 	// ==================================================================================================================================
@@ -276,7 +337,7 @@ CPPCompiler.prototype.compile = function (ast)
 		var _HPP = [];
 		var firstItem = true;
 
-		if(ast.scope.isClass)
+		if(ast.scope.isClass || _this.in_state)
 		{
 			for(var item in ast)
 			{
@@ -313,7 +374,7 @@ CPPCompiler.prototype.compile = function (ast)
 			_CPP.push(";");
 		}
 
-		if(ast.scope.isClass)
+		if(ast.scope.isClass || _this.in_state)
 			HPP.push(_HPP.join(""));
 		else
 			CPP.push(_CPP.join(""));
@@ -335,11 +396,19 @@ CPPCompiler.prototype.compile = function (ast)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.THIS:
-		CPP.push("this");
+		CPP.push(_this.in_state ? "self" : "this");
 		break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.IDENTIFIER:
+		if(_this.in_state && ast.symbol.ast.parent.scope && ast.symbol.ast.parent.scope.isClass)
+		{
+			if(ast.parent.type == jsdef.DOT)
+			{
+				if(ast.parent[0] == ast) CPP.push("self->");
+			}
+			else CPP.push("self->");
+		}
 		CPP.push(ast.value);
 		break;
 

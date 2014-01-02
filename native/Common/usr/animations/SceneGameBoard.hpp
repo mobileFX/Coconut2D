@@ -3,13 +3,11 @@
 
 #include "Coconut2D.hpp"
 #include "CocoScene.hpp"
-#include "WebGLRenderingContext.hpp"
 
 class SceneGameBoard : public CocoScene
 {
 public:
-	SceneGameBoard();
-	void tick(WebGLRenderingContext* gl, float time);
+	virtual SceneGameBoard();
 	void waitForAction();
 	void hint();
 };

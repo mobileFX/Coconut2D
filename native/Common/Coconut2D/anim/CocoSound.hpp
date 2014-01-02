@@ -7,7 +7,7 @@ class CocoSound
 {
 public:
 	std::string symbolName;
-	CocoSound();
+	virtual CocoSound();
 	void createFromFile(std::string filename, Function* onloadCallBack);
 };
 

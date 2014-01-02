@@ -1,0 +1,477 @@
+"#export web"
+//@line 40
+
+function CocoTimeline()
+{
+	var __SUPER__;
+	return ((function ()
+	{
+		var __CLASS__COCOTIMELINE__ = this,
+			__PDEFINE__ =
+			{
+			}.constructor.defineProperty,
+			__NOENUM__ =
+			{
+				enumerable: false
+			};
+		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
+		this.__SUPER__ = __SUPER__;
+		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
+		this.__CLASS__ = 'CocoTimeline';
+		this.__PROTECTED__ =
+		{
+		};
+		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 74
+		var clear = this.clear = function ()
+		{
+			//@line 76
+			__CLASS__COCOTIMELINE__.reset();
+			//@line 77
+			__CLASS__COCOTIMELINE__.__keyFrames = [];
+			//@line 78
+			__CLASS__COCOTIMELINE__.__labels = [];
+			//@line 79
+			__CLASS__COCOTIMELINE__.normalizetimeline();
+		};
+		//@line 83
+		var reset = this.reset = function ()
+		{
+			//@line 85
+			__CLASS__COCOTIMELINE__.__skipTime = 0;
+			//@line 86
+			__CLASS__COCOTIMELINE__.__paused = false;
+			//@line 87
+			for (var i = __CLASS__COCOTIMELINE__.__keyFrames.size() - 1; i >= 0; i--)
+			{
+				//@line 89
+				__CLASS__COCOTIMELINE__.__keyFrames[i].reset();
+			}
+		};
+		//@line 94
+		var addLabel = this.addLabel = function (Label)
+		{
+			//@line 96
+			if (Label) __CLASS__COCOTIMELINE__.__labels.push(Label);
+			//@line 97
+			return Label;
+		};
+		//@line 101
+		var addLabelEx = this.addLabelEx = function (FrameIndex, LabelName)
+		{
+			//@line 103
+			var Label = new CocoTimeLabel(FrameIndex, LabelName);
+			//@line 104
+			return __CLASS__COCOTIMELINE__.addLabel(Label);
+		};
+		//@line 108
+		var findLabelByName = this.findLabelByName = function (LabelName)
+		{
+			//@line 110
+			for (var i = __CLASS__COCOTIMELINE__.__labels.size() - 1; i >= 0; i--)
+			{
+				//@line 112
+				if (__CLASS__COCOTIMELINE__.__labels[i].name == LabelName)
+				{
+					//@line 114
+					return __CLASS__COCOTIMELINE__.__labels[i];
+				}
+			}
+			//@line 117
+			return null;
+		};
+		//@line 121
+		var keyFrame = this.keyFrame = function (frameIndex)
+		{
+			//@line 123
+			for (var i = __CLASS__COCOTIMELINE__.__keyFrames.size() - 1; i >= 0; i--)
+			{
+				//@line 125
+				if (__CLASS__COCOTIMELINE__.__keyFrames[i].frameIndex == frameIndex)
+				{
+					//@line 127
+					return __CLASS__COCOTIMELINE__.__keyFrames[i];
+				}
+			}
+			//@line 130
+			return null;
+		};
+		//@line 134
+		var firstKeyFrame = this.firstKeyFrame = function ()
+		{
+			//@line 136
+			return __CLASS__COCOTIMELINE__.__keyFrames[0];
+		};
+		//@line 140
+		var lastKeyFrame = this.lastKeyFrame = function ()
+		{
+			//@line 142
+			return __CLASS__COCOTIMELINE__.__keyFrames[__CLASS__COCOTIMELINE__.__keyFrames.size() - 1];
+		};
+		//@line 146
+		var addKeyFrame = this.addKeyFrame = function (KeyFrame)
+		{
+			//@line 148
+			if (KeyFrame)
+			{
+				//@line 150
+				KeyFrame.frameIndex = Math.floor(KeyFrame.frameIndex);
+				//@line 151
+				__CLASS__COCOTIMELINE__.__keyFrames.push(KeyFrame);
+				//@line 152
+				__CLASS__COCOTIMELINE__.normalizetimeline();
+			}
+			//@line 154
+			return KeyFrame;
+		};
+		//@line 158
+		var addKeyFrameEx = this.addKeyFrameEx = function (actionCallback, frameIndex, frameInterpolation, handleEvents, visible, x, y, scaleX, scaleY, rotation, pivotX, pivotY, alpha)
+		{
+			//@line 172
+			var KeyFrame = new CocoKeyFrame;
+			//@line 174
+			KeyFrame.action = actionCallback;
+			//@line 175
+			KeyFrame.frameIndex = frameIndex;
+			//@line 176
+			KeyFrame.frameInterpolation = frameInterpolation;
+			//@line 177
+			KeyFrame.handleEvents = handleEvents;
+			//@line 178
+			KeyFrame.visible = visible;
+			//@line 179
+			KeyFrame.x = x;
+			//@line 180
+			KeyFrame.y = y;
+			//@line 181
+			KeyFrame.scaleX = scaleX;
+			//@line 182
+			KeyFrame.scaleY = scaleY;
+			//@line 183
+			KeyFrame.rotation = rotation;
+			//@line 184
+			KeyFrame.pivotX = pivotX;
+			//@line 185
+			KeyFrame.pivotY = pivotY;
+			//@line 186
+			KeyFrame.alpha = alpha;
+			//@line 188
+			return __CLASS__COCOTIMELINE__.addKeyFrame(KeyFrame);
+		};
+		//@line 192
+		var prepare = this.prepare = function (scene, clip)
+		{
+			//@line 194
+			__CLASS__COCOTIMELINE__.__fps = scene.__fps;
+			//@line 195
+			__CLASS__COCOTIMELINE__.normalizetimeline();
+		};
+		//@line 199
+		var normalizetimeline = this.normalizetimeline = function ()
+		{
+			//@line 201
+			__CLASS__COCOTIMELINE__.reset();
+			//@line 202
+			__CLASS__COCOTIMELINE__.__durationInFrames = 0;
+			//@line 203
+			__CLASS__COCOTIMELINE__.__durationInTime = 0;
+			//@line 204
+			__CLASS__COCOTIMELINE__.__singleFrameDurationTime = 0;
+			//@line 205
+			if (__CLASS__COCOTIMELINE__.__keyFrames.size() > 0)
+			{
+				//@line 207
+				__CLASS__COCOTIMELINE__.__durationInFrames = __CLASS__COCOTIMELINE__.__keyFrames[__CLASS__COCOTIMELINE__.__keyFrames.size() - 1].frameIndex + 1;
+				//@line 208
+				__CLASS__COCOTIMELINE__.__durationInTime = (__CLASS__COCOTIMELINE__.__durationInFrames / __CLASS__COCOTIMELINE__.__fps) * 1000;
+				//@line 209
+				__CLASS__COCOTIMELINE__.__singleFrameDurationTime = __CLASS__COCOTIMELINE__.__durationInTime / __CLASS__COCOTIMELINE__.__durationInFrames;
+			}
+		};
+		//@line 214
+		var jumpBy = this.jumpBy = function (frames, paused)
+		{
+			//@line 216
+			__CLASS__COCOTIMELINE__.__paused = paused;
+			//@line 217
+			if (frames != 0)
+			{
+				//@line 219
+				__CLASS__COCOTIMELINE__.__skipTime += (frames * __CLASS__COCOTIMELINE__.__singleFrameDurationTime);
+				//@line 220
+				__CLASS__COCOTIMELINE__.__pausedKeyFrame = null;
+			}
+		};
+		//@line 225
+		var findKeyFrameBeforeframeIndex = this.findKeyFrameBeforeframeIndex = function (frameIndex, inclusive, excludeListIndex)
+		{
+			//@line 227
+			var KeyFrame;
+			//@line 228
+			for (var i = __CLASS__COCOTIMELINE__.__keyFrames.size() - 1; i >= 0; i--)
+			{
+				//@line 230
+				if (i != excludeListIndex)
+				{
+					//@line 232
+					KeyFrame = __CLASS__COCOTIMELINE__.__keyFrames[i];
+					//@line 233
+					if (inclusive)
+					{
+						//@line 235
+						if (KeyFrame.frameIndex <= frameIndex)
+						//@line 236
+						return KeyFrame;
+					}
+					else
+					{
+						//@line 240
+						if (KeyFrame.frameIndex < frameIndex)
+						//@line 241
+						return KeyFrame;
+					}
+				}
+			}
+			//@line 245
+			return null;
+		};
+		//@line 249
+		var findKeyFrameAfterframeIndex = this.findKeyFrameAfterframeIndex = function (frameIndex, inclusive, excludeListIndex)
+		{
+			//@line 251
+			var KeyFrame;
+			//@line 252
+			for (var i = 0, L = __CLASS__COCOTIMELINE__.__keyFrames.size(); i < L; i++)
+			{
+				//@line 254
+				if (i != excludeListIndex)
+				{
+					//@line 256
+					KeyFrame = __CLASS__COCOTIMELINE__.__keyFrames[i];
+					//@line 257
+					if (inclusive)
+					{
+						//@line 259
+						if (KeyFrame.frameIndex >= frameIndex)
+						//@line 260
+						return KeyFrame;
+					}
+					else
+					{
+						//@line 264
+						if (KeyFrame.frameIndex > frameIndex)
+						//@line 265
+						return KeyFrame;
+					}
+				}
+			}
+			//@line 269
+			return null;
+		};
+		//@line 273
+		var interpolateByTime = this.interpolateByTime = function (LoopTime)
+		{
+			//@line 275
+			var T = (LoopTime / __CLASS__COCOTIMELINE__.__singleFrameDurationTime);
+			//@line 276
+			return __CLASS__COCOTIMELINE__.interpolateByFrame(T);
+		};
+		//@line 280
+		var interpolateByFrame = this.interpolateByFrame = function (frameIndex)
+		{
+			//@line 282
+			if (__CLASS__COCOTIMELINE__.__paused && __CLASS__COCOTIMELINE__.__pausedKeyFrame)
+			//@line 283
+			return __CLASS__COCOTIMELINE__.__pausedKeyFrame;
+			//@line 285
+			var F = null;
+			//@line 286
+			var F1 = null;
+			//@line 287
+			var F2 = null;
+			//@line 288
+			var s = 1.0;
+			//@line 289
+			var FrameIndex = Math.floor(frameIndex);
+			//@line 292
+			if (__CLASS__COCOTIMELINE__.__keyFrames.size() == 0)
+			{
+				//@line 294
+				F = new CocoKeyFrame;
+				//@line 295
+				F.frameIndex = FrameIndex;
+				//@line 296
+				F.visible = false;
+				//@line 297
+				return (__CLASS__COCOTIMELINE__.__pausedKeyFrame = F);
+			}
+			//@line 301
+			F1 = __CLASS__COCOTIMELINE__.keyFrame(FrameIndex);
+			//@line 302
+			if (F1) return (__CLASS__COCOTIMELINE__.__pausedKeyFrame = F1.clone());
+			//@line 305
+			F1 = __CLASS__COCOTIMELINE__.findKeyFrameBeforeframeIndex(FrameIndex, false, -1);
+			//@line 307
+			if (!F1)
+			{
+				//@line 310
+				F = new CocoKeyFrame;
+				//@line 311
+				F.frameIndex = FrameIndex;
+				//@line 312
+				F.visible = false;
+				//@line 313
+				return (__CLASS__COCOTIMELINE__.__pausedKeyFrame = F);
+			}
+			else
+			{
+				//@line 317
+				switch (F1.frameInterpolation)
+				{
+					//@line 319
+				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
+					{
+						//@line 321
+						F = F1.clone();
+						//@line 322
+						F.frameIndex = FrameIndex;
+						//@line 323
+						F.action = null;
+						//@line 324
+						return (__CLASS__COCOTIMELINE__.__pausedKeyFrame = F);
+					}
+					break;
+					//@line 326
+				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
+					{
+						//@line 328
+						F = F1.clone();
+						//@line 329
+						F.frameIndex = FrameIndex;
+						//@line 330
+						F.action = null;
+						//@line 331
+						F.visible = false;
+						//@line 332
+						return (__CLASS__COCOTIMELINE__.__pausedKeyFrame = F);
+					}
+					break;
+					//@line 334
+				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
+					{
+						//@line 337
+						F2 = __CLASS__COCOTIMELINE__.findKeyFrameAfterframeIndex(FrameIndex, false, -1);
+						//@line 339
+						if (!F2)
+						{
+							//@line 342
+							F = F1.clone();
+							//@line 343
+							F.frameIndex = FrameIndex;
+							//@line 344
+							F.action = null;
+							//@line 345
+							return (__CLASS__COCOTIMELINE__.__pausedKeyFrame = F);
+						}
+						else
+						{
+							//@line 351
+							F = F1.clone();
+							//@line 352
+							F.frameIndex = FrameIndex;
+							//@line 353
+							F.action = null;
+							//@line 354
+							s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
+							//@line 355
+							F.interpolate(F1, F2, s);
+							//@line 356
+							return (__CLASS__COCOTIMELINE__.__pausedKeyFrame = F);
+						}
+					}
+					break;
+				}
+			}
+			//@line 360
+			return null;
+		};
+		//@line 42
+		this.__labels = [];
+		//@line 43
+		this.__keyFrames = [];
+		//@line 44
+		this.__singleFrameDurationTime = 0;
+		//@line 45
+		this.__durationInTime = 0;
+		//@line 46
+		this.__durationInFrames = 0;
+		//@line 47
+		this.__skipTime = 0;
+		//@line 48
+		this.__paused = false;
+		//@line 49
+		this.__pausedKeyFrame = null;
+		//@line 50
+		this.__fps = 0;
+		var Destructor = this.Destructor = function ()
+		{
+			//@line 69
+			(function (o)
+			{
+				for (var i = o.length; i--;)
+				{
+					o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);
+					o[i] = null;
+				}
+			})(__CLASS__COCOTIMELINE__.__labels);
+			__CLASS__COCOTIMELINE__.__labels && ((__CLASS__COCOTIMELINE__.__labels.hasOwnProperty('Destructor') && __CLASS__COCOTIMELINE__.__labels.Destructor()) || !__CLASS__COCOTIMELINE__.__labels.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTIMELINE__.__labels);
+			__CLASS__COCOTIMELINE__.__labels = null;;
+			//@line 70
+			(function (o)
+			{
+				for (var i = o.length; i--;)
+				{
+					o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);
+					o[i] = null;
+				}
+			})(__CLASS__COCOTIMELINE__.__keyFrames);
+			__CLASS__COCOTIMELINE__.__keyFrames && ((__CLASS__COCOTIMELINE__.__keyFrames.hasOwnProperty('Destructor') && __CLASS__COCOTIMELINE__.__keyFrames.Destructor()) || !__CLASS__COCOTIMELINE__.__keyFrames.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTIMELINE__.__keyFrames);
+			__CLASS__COCOTIMELINE__.__keyFrames = null;; /*Auto generated destructor code*/
+			__CLASS__COCOTIMELINE__.__labels = null;
+			__CLASS__COCOTIMELINE__.__keyFrames = null;
+			__CLASS__COCOTIMELINE__.__singleFrameDurationTime = null;
+			__CLASS__COCOTIMELINE__.__durationInTime = null;
+			__CLASS__COCOTIMELINE__.__durationInFrames = null;
+			__CLASS__COCOTIMELINE__.__skipTime = null;
+			__CLASS__COCOTIMELINE__.__paused = null;
+			__CLASS__COCOTIMELINE__.__pausedKeyFrame = null;
+			__CLASS__COCOTIMELINE__.__fps = null;
+			return true
+		};
+		//@line 53
+		this.Constructor = function ()
+		{
+			//@line 55
+			__CLASS__COCOTIMELINE__.__singleFrameDurationTime = 0.0;
+			//@line 56
+			__CLASS__COCOTIMELINE__.__durationInTime = 0.0;
+			//@line 57
+			__CLASS__COCOTIMELINE__.__durationInFrames = 0;
+			//@line 58
+			__CLASS__COCOTIMELINE__.__skipTime = 0.0;
+			//@line 59
+			__CLASS__COCOTIMELINE__.__paused = false;
+			//@line 60
+			__CLASS__COCOTIMELINE__.__pausedKeyFrame = null;
+			//@line 61
+			__CLASS__COCOTIMELINE__.__fps = 30;
+			//@line 63
+			__CLASS__COCOTIMELINE__.addKeyFrameEx(null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
+			return __CLASS__COCOTIMELINE__
+		};
+		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
+		return this
+	}).call(
+	{
+	})).Constructor.apply(this, [].slice.call(arguments))
+}

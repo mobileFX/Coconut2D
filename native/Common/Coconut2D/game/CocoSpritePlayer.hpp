@@ -7,7 +7,7 @@
 class CocoSpritePlayer : public CocoSpriteActor
 {
 public:
-	CocoSpritePlayer();
+	virtual CocoSpritePlayer();
 };
 
 #endif

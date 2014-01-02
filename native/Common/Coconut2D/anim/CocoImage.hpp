@@ -28,7 +28,8 @@ public:
 	int viewOptimalHeight;
 	Array<CocoImageSibling*> viewSiblings;
 	float pixelRatio;
-	CocoImage();
+	virtual CocoImage();
+	virtual ~CocoImage();
 	CocoImageSibling* addSibling(CocoImageSibling* sibling);
 	CocoSequence* addSequence(CocoSequence* sequence);
 	CocoSequence* getSequence(std::string name);

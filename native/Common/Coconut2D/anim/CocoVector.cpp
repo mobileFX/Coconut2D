@@ -10,7 +10,7 @@ CocoVector::CocoVector()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoVector::set(float x, float y, float z, float w)
+void CocoVector::reset(float x, float y, float z, float w)
 {
 	X = x;
 	Y = y;

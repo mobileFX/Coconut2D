@@ -25,6 +25,7 @@
 
 //# DO NOT EDIT BEGIN #//
 class Null;
+class Untyped;
 class Object;
 class Array;
 class Function;
@@ -47,17 +48,17 @@ class RangeError;
 class ReferenceError;
 class SyntaxError;
 class TypeError;
+class State;
 class EventTarget;
-class Event;
+class DeviceEvent;
 class HTMLCanvasElement;
 class HTMLElement;
 class HTMLDocument;
+class HTMLWindow;
 class ImageData;
 class Image;
 class ImageDataBuffer;
 class Touch;
-class TouchEvent;
-class HTMLWindow;
 class TouchList;
 class WebGLActiveInfo;
 class WebGLBuffer;
@@ -83,7 +84,6 @@ class CocoKeyFrame;
 class CocoTimeline;
 class CocoClip;
 class CocoScene;
-class CocoEngineState;
 class CocoEngine;
 class CocoSprite;
 class CocoSpriteActor;
@@ -105,8 +105,10 @@ class UIScrollView;
 class UITabView;
 class UITextView;
 class GameEngine;
-class Animation1;
-class StateAnim;
+class NewAnimation;
+class NewAnimation1;
+class SceneGameBoard;
+class SceneTitle;
 //# DO NOT EDIT END #//
 
 #define CocoException	std::string

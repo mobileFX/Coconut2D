@@ -31,6 +31,19 @@ CocoClip::CocoClip(CocoImage* image, CocoSound* audio, std::string sequence)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+CocoClip::~CocoClip()
+{
+	delete __image;
+	delete __audio;
+	delete __children;
+	delete __timeline;
+	delete __vTOP_LEFT;
+	delete __vTOP_RIGHT;
+	delete __vBOTTOM_LEFT;
+	delete __vBOTTOM_RIGHT;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoClip::prepare(CocoScene* scene)
 {
 	__timeline->prepare(scene, this);
@@ -167,7 +180,7 @@ bool CocoClip::gotoFrameByIndex(int FrameIndex, bool pause, bool deep)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking)
+void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking)
 {
 	float __currentTime = scene->__currentTime + __timeline->__skipTime;
 	if(__firstTickTime == -1)
@@ -245,12 +258,12 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 			for(int i = 0,  L = __children.size(); i < L; i++)
 			{
 				scene->__modelViewMatrix->push();
-				__children[i]->render(gl, scene, this, picking);
+				__children[i]->paint(gl, scene, this, picking);
 				scene->__modelViewMatrix->pop();
 			}
 			scene->__levelParents.pop();
 		}
-		if(engine->__touchEvent && this != scene->__root)
+		if(engine->__deviceEvent && this != scene->__root)
 		{
 			if(__image)
 			{
@@ -260,16 +273,13 @@ void CocoClip::render(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* par
 			{
 				initBoundingBoxFromChildren(scene);
 			}
-			if(engine->__touchEvent && !__image)
+			if(!__image)
 			{
-				Number x = (float)((engine->__touchEvent->__clientX - (float)(gl->canvas->width) / (float)(2.0))) / (float)(scene->__view_scale);
-				Number y = (float)((engine->__touchEvent->__clientY - (float)(gl->canvas->height) / (float)(2.0))) / (float)(scene->__view_scale);
-				if(engine->__touchEvent && hitTest(x, y))
+				Number x = (float)((engine->__deviceEvent->__clientX - (float)(gl->canvas->width) / (float)(2.0))) / (float)(scene->__view_scale);
+				Number y = (float)((engine->__deviceEvent->__clientY - (float)(gl->canvas->height) / (float)(2.0))) / (float)(scene->__view_scale);
+				if(hitTest(x, y))
 				{
 					drawBoundingBox(scene, gl);
-					engine->__touchEvent->currentTarget = this;
-					engine->__touchEvent->target = this;
-					engine->__touchEvent->__targets.push(this);
 				}
 			}
 		}
@@ -291,10 +301,10 @@ bool CocoClip::hitTest(float wx, float wy)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoClip::initBoundingBoxFromTexture(CocoScene* scene, float W2, float H2)
 {
-	__vTOP_LEFT->set(-W2,  -H2, 0, 1);
-	__vTOP_RIGHT->set(W2,  -H2, 0, 1);
-	__vBOTTOM_LEFT->set(-W2, H2, 0, 1);
-	__vBOTTOM_RIGHT->set(W2, H2, 0, 1);
+	__vTOP_LEFT->reset(-W2,  -H2, 0, 1);
+	__vTOP_RIGHT->reset(W2,  -H2, 0, 1);
+	__vBOTTOM_LEFT->reset(-W2, H2, 0, 1);
+	__vBOTTOM_RIGHT->reset(W2, H2, 0, 1);
 	__vTOP_LEFT = scene->__modelViewMatrix->multiplyByVector(__vTOP_LEFT);
 	__vTOP_RIGHT = scene->__modelViewMatrix->multiplyByVector(__vTOP_RIGHT);
 	__vBOTTOM_LEFT = scene->__modelViewMatrix->multiplyByVector(__vBOTTOM_LEFT);

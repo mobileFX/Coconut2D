@@ -107,7 +107,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	_this.UNTYPED = "Untyped";              // Untyped identifier vartype, used in Type Check System
 	_this.exportSymbols = exportSymbols;    // Flag that indicates whether symbols should be exported or not
 	_this.selectedClass = selectedClass;    // If set it indicates that we only need to process a single class (used by IDE intelliSence for parsing classes as you type them)
-	_this.in_state = false;
+	_this.in_state = false;    				// Flag that indicates we are processing a state
+	_this.states = {};						// Map of states
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Symbol constructors
@@ -169,6 +170,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			_this.debugSymbolsTable = [];
 			_this.currClassName = null;
 			_this.line_start = -1;
+			_this.states = {};
 
 			// Second pass to generate actual code
 			_this.generate(ast);
@@ -372,6 +374,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			scope.isGlobal		= _this.scopesStack.length==0;
 			scope.isClass		= ast.type==jsdef.CLASS;
 			scope.isMethod		= ast.type==jsdef.FUNCTION;
+			scope.isState		= ast.type==jsdef.STATE;
 			scope.file			= ast.file;
 			scope.path			= ast.path;
 			scope.start			= ast.start;
@@ -813,7 +816,6 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			// (the idea is to call the destructor of any object class member variables and set them to null)
 			out.push("var Destructor = this.Destructor = function(){");
 			if(destructor) out.push(generate(destructor.body));
-			out.push("\n\n/*Auto generated destructor code*/\n");
 			for(item in classSymbol.vars)
 			{
 				if(classSymbol.vars[item].state)
@@ -902,9 +904,14 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			{
 				var file = ast.path;
 				file = file.replace(_this.infolder, _this.outfolder).replace(".jspp", ".jobj");
+				buff = out.join("\n");
 				var buff = do_js_beautify(out.join("\n"), 1, false, false, true);
-				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1"); 	// Empty Lines
-				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+\\{", "mg", "{");						// Closure Exits
+				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1");
+				//buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+\\{", "mg", "{");
+				buff = RxReplace(buff, "(__PDEFINE__|__PROTECTED__) \=[\\s\\t\\n\\r]+\{[\\s\\t\\n\\r]+\}", "mg", "$1 = {}");
+				buff = RxReplace(buff, "__NOENUM__ \=[\\s\\t\\n\\r]+\{[^}]+\}", "mg", "__NOENUM__ = {enumerable:false}");
+				buff = RxReplace(buff, ";[\\s\\t\\n\\r]*function F\\(\\)[\\s\\t\\n\\r]*\{[\\s\\t\\n\\r]*\}", "mg", "; function F(){}");
+				buff = RxReplace(buff, "\\([\\s\\t\\n\\r]+", "mg", "(");
 				jsppCallback("module", ast.path, file, 0, 0, buff);
 				trace("Generated file: " + file);
 			}
@@ -1159,7 +1166,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			var firstItem = true;
 			var extern_symbol = null;
 
-			if(ast.scope.isClass && !_this.in_state)
+			if(ast.scope.isClass)
 			{
 				// Declare class variable depending on its modifier
 				if(ast.public)			out.push("this.");
@@ -1259,7 +1266,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
                 // Save var in scopes
 				ast[item].symbol = varSymbol;
-				if(!_this.in_state) ast.scope.vars[ast[item].name] = varSymbol;
+				ast.scope.vars[ast[item].name] = varSymbol;
 
 				// Record vartype usage in class level (used to check #includes)
 				if(classSymbol)
@@ -1272,11 +1279,12 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 				if(!firstItem) out.push(", ");
 				out.push(ast[item].name);
+				if(ast.scope.isState) out.push(" = this." + ast[item].name);
 
 				if(ast[item].initializer)
 				{
 					// Generate initializer
-					if(_this.currClassName && ast.type!=jsdef.CONST && ast.scope.isClass)
+					if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.isState))
 					{
 						if(_this.in_state)
 							_this.NewError("Invalid state variable initializer, should be in state enter() function : " + ast[item].name, ast[item]);
@@ -1292,7 +1300,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 					var vartype = _this.getVarType(ast[item].vartype);
 					if(_this.types.hasOwnProperty(vartype))
 						out.push("="+_this.types[vartype].default);
-					else if(ast.scope.isClass)
+					else if(ast.scope.isClass || ast.scope.isState)
 						out.push("=null");
 				}
 
@@ -1315,6 +1323,9 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 			if(!_this.currClassName)
 				_this.NewError("Invalid state outside class", ast);
+
+			if(_this.states.hasOwnProperty(ast.name))
+				_this.NewError("Duplicate state name: " + ast.name, ast);
 
 			var hasTick = false;
 			var classSymbol = _this.getCurrentScope().ast.symbol;
@@ -1360,6 +1371,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			}
 			ast.symbol = stateSymbol;
 			classSymbol.scope.vars[ast.name] = stateSymbol;
+			_this.states[ast.name] = stateSymbol;
 
 			if(ast.public)			out.push("this.");
 			else if(ast.private)	out.push("var ");
@@ -1367,7 +1379,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
             //TODO: The following code does not hit breakpoints for the first function of the State in v8/Chrome.
 
-			out.push(ast.name + " = (function(o){");
+			out.push(ast.name + " = (function(){");
 
 			for(item in ast.body)
 			{
@@ -1761,7 +1773,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				{
 					out.push("(function(o){for(var i=o.length;i--;){o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);o[i]=null;}})(" + expr + ");");
 				}
-				out.push("$ && (($.hasOwnProperty('Destructor') && $.Destructor()) || !$.hasOwnProperty('Destructor')) && (delete $);$=null;".replace(new RegExp("\\$", "g"), expr));
+				out.push("$ && (($.hasOwnProperty('Destructor') && $.Destructor()) || !$.hasOwnProperty('Destructor')) && (delete $);$=null".replace(new RegExp("\\$", "g"), expr));
 			}
 			else
 				out.push("delete " + expr);
@@ -2634,7 +2646,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		if(!_this.exportSymbols) return;
 
 		var i, xml, cls, item, arg, args, argsList, xmlArgsList, hasArgs, scope, icon, sig, mbrList, mbrLists, scopeVars,
-			classSymbol, methodSymbol, argumentSymbol, varSymbol, externs, modifier, codeSymbols, varsxml,
+			classSymbol, methodSymbol, argumentSymbol, varSymbol, externs, modifier, codeSymbols, varsxml, states,
 			debugSymbols = "<DEBUG_SYMBOLS>" + _this.debugSymbolsTable.join("") + "</DEBUG_SYMBOLS>";
 
 		// ======================================================================================
@@ -2736,6 +2748,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		// ======================================================================================
 		// Export Scopes and Scope Vars
 		// ======================================================================================
+
 		xml = [];
 		xml.push("<SCOPES" + (_this.selectedClass ? " update='" + _this.selectedClass + "'" : "") + ">\n");
 		for(i=0;i<_this.scopesTable.length;i++)
@@ -2774,6 +2787,16 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		scopeVars = xml.join("");
 
 		// ======================================================================================
+		// Export States
+		// ======================================================================================
+		states = [];
+		for(var item in _this.states)
+		{
+			states.push(item);
+		}
+		states = states.join(";");
+
+		// ======================================================================================
 		// Export to IDE
 		// ======================================================================================
 
@@ -2783,6 +2806,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		jsppCallback("setCodeSymbols", "", "", 0, 0, codeSymbols);
 		jsppCallback("setScopes", "", "", 0, 0, scopeVars);
 		jsppCallback("setMemberLists", "", "", 0, 0, mbrLists);
+		jsppCallback("setStates", "", "", 0, 0, states);
 
  		if(!_this.selectedClass)
 		{

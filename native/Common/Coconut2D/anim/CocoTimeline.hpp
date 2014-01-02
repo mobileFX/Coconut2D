@@ -19,7 +19,8 @@ public:
 	bool __paused;
 	CocoKeyFrame* __pausedKeyFrame;
 	float __fps;
-	CocoTimeline();
+	virtual CocoTimeline();
+	virtual ~CocoTimeline();
 	void clear();
 	void reset();
 	CocoTimeLabel* addLabel(CocoTimeLabel* Label);

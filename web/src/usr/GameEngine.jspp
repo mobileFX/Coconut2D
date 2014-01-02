@@ -12,18 +12,47 @@
 //	                                      /____/
 // ==================================================================================================================================
 
-class GameEngine : CocoEngine
+state class GameEngine : CocoEngine
 {
-	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var scene:CocoScene;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		setState( new StateAnim() );
+		setNextState(STATE_GAME);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete scene;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public state STATE_GAME
+	{
+		var foo:CocoClip;
+
+		function enter()
+		{
+			scene = new BitmapSymbolsTest();
+		}
+
+		function exit()
+		{
+			delete scene;
+		}
+
+		function tick(time:Float)
+		{
+		}
+
+		function paint(gl:WebGLRenderingContext, time:Float)
+		{
+			scene.paint(gl, time);
+		}
 	}
 }
-
-
-
-
 
 
 

@@ -2,22 +2,28 @@
 #define __COCOENGINE_HPP__
 
 #include "Coconut2D.hpp"
-#include "TouchEvent.hpp"
-#include "CocoEngineState.hpp"
+#include "DeviceEvent.hpp"
 #include "WebGLRenderingContext.hpp"
+#include "CocoState.hpp"
 
 class CocoEngine
 {
 public:
-	CocoEngineState* __currentState;
-	CocoEngineState* __nextState;
+	State* __currentState;
+	State* __nextState;
 	float __stateStart;
-	TouchEvent* __touchEvent;
-	CocoEngine();
-	void __setTouchEvent(TouchEvent* e);
-	CocoEngineState* currentState();
-	void setState(CocoEngineState* state);
-	void tick(WebGLRenderingContext* gl, float time);
+	DeviceEvent* __deviceEvent;
+	virtual CocoEngine();
+	virtual ~CocoEngine();
+	void __setTouchEvent(DeviceEvent* e);
+	void run(WebGLRenderingContext* gl, float time);
+	void setNextState(State* s);
+	struct STATE_NULL : State
+	{
+		CocoEngine* self;
+		STATE_NULL(CocoEngine* self) : self(self) {}
+		void tick() {}
+	}* STATE_NULL = new struct STATE_NULL(this);
 };
 
 #endif

@@ -26,7 +26,8 @@ public:
 	float rotation;
 	Function* action;
 	float __lastActionExecutionTime;
-	CocoKeyFrame();
+	virtual CocoKeyFrame();
+	virtual ~CocoKeyFrame();
 	CocoKeyFrame* clone();
 	void reset();
 	void execute(WebGLRenderingContext* gl, float currentTime, float loopTime, CocoScene* scene, CocoClip* clip);

@@ -10,8 +10,8 @@ public:
 	float Y;
 	float Z;
 	float W;
-	CocoVector();
-	void set(float x, float y, float z, float w);
+	virtual CocoVector();
+	void reset(float x, float y, float z, float w);
 };
 
 #endif

@@ -22,6 +22,27 @@ CocoScene::CocoScene()
 	__boundingBoxProgram = NULL;
 	__boundingBoxBuffer = NULL;
 	__ready = false;
+	__finished = false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+CocoScene::~CocoScene()
+{
+	delete __root;
+	delete __modelViewMatrix;
+	delete __projectionMatrix;
+	delete __glProgram;
+	delete __boundingBoxProgram;
+	delete __boundingBoxBuffer;
+	int i = 0;
+	for(i = __imageSymbols.size() - 1; i >= 0; i--)
+	{
+		delete __imageSymbols[i];
+	}
+	for(i = __soundSymbols.size() - 1; i >= 0; i--)
+	{
+		delete __soundSymbols[i];
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,7 +244,7 @@ bool CocoScene::resourcesLoaded(WebGLRenderingContext* gl)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoScene::tick(WebGLRenderingContext* gl, float time)
+void CocoScene::paint(WebGLRenderingContext* gl, float time)
 {
 	if(!__glProgram)
 	{
@@ -232,8 +253,6 @@ void CocoScene::tick(WebGLRenderingContext* gl, float time)
 	}
 	else if(resourcesLoaded(gl))
 	{
-		gl->clearColor(1.0, 1.0, 1.0, 1.0);
-		gl->clear(gl->COLOR_BUFFER_BIT);
 		if(__startTime == -1)
 		{
 			__startTime = time;
@@ -248,10 +267,11 @@ void CocoScene::tick(WebGLRenderingContext* gl, float time)
 		{
 			__modelViewMatrix->identity();
 			__levelParents = {__root};
-			__root->render(gl, this, NULL, false);
+			__root->paint(gl, this, NULL, false);
 			CocoClip* max = __root->__childWithMaxTimelineDuration;
-			if(max && max->__currentFrame == max->__timeline->lastKeyFrame())
+			if(max && max->__currentFrame->frameIndex == max->__timeline->lastKeyFrame()->frameIndex)
 			{
+				__finished = true;
 			}
 		}
 	}

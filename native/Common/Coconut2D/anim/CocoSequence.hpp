@@ -8,7 +8,7 @@ class CocoSequence
 public:
 	std::string name;
 	Array<int> frames;
-	CocoSequence(std::string name, Array<int> framesArray);
+	virtual CocoSequence(std::string name, Array<int> framesArray);
 };
 
 #endif
