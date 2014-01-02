@@ -1428,8 +1428,8 @@ function __init_narcissus(GLOBAL)
 		if(functionForm == DECLARED_FORM)
 			x.funDecls.push(f);
 
-		if(f.name=="Constructor") f.virtual = true;
-		if(f.name=="Destructor") f.virtual = true;
+		//if(f.name=="Constructor") f.virtual = true;
+		//if(f.name=="Destructor") f.virtual = true;
 
 		return f;
 	}
@@ -2363,6 +2363,7 @@ function __init_narcissus(GLOBAL)
 
 }
 __init_narcissus(this);
+
 
 
 

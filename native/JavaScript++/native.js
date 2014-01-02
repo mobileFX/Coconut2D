@@ -251,24 +251,15 @@ CPPCompiler.prototype.compile = function (ast)
 		cppParamsList += ")";
 		hppParamList += ")";
 
-		var fn = (ast.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : ast.returntype + (ast.isPointer ? "*" : "") + " ") + name + hppParamList;
+		var fn = (ast.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : ast.returntype + (ast.isPointer ? "*" : "") + " ") + name + hppParamList + ";";
 		HPP.push(fn);
 
-        if(_this.in_state)
-        {
-        	HPP.push("{");
-        	HPP.push(generate(ast.body).CPP);
-        	HPP.push("}\n");
-        }
-        else
-        {
-        	HPP.push(";");
-			CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-			CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.isPointer?"*":"") + " ") + _this.currClassName+"::" + name + cppParamsList);
-	        CPP.push("\n{\n");
-			CPP.push(generate(ast.body).CPP);
-			CPP.push("}\n");
-        }
+        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+		CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.isPointer?"*":"") + " ") + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
+        CPP.push("\n{\n");
+		CPP.push(generate(ast.body).CPP);
+		CPP.push("}\n");
+
 		break;
 
 
@@ -290,6 +281,9 @@ CPPCompiler.prototype.compile = function (ast)
 
 		HPP.push("struct " + ast.name + " : State {");
 		HPP.push(_this.currClassName + "* self;");
+		CPP.push("\n\n//=======================================================\n");
+		CPP.push("// State: " + ast.name + "\n");
+		CPP.push("//=======================================================\n");
 		var result;
 		for(var item in ast.body)
 		{
@@ -311,6 +305,7 @@ CPPCompiler.prototype.compile = function (ast)
 			case jsdef.FUNCTION:
 				result = generate(ast.body[item]);
 				HPP.push(result.HPP);
+				CPP.push(result.CPP);
 				break;
 			}
 		}
@@ -401,13 +396,12 @@ CPPCompiler.prototype.compile = function (ast)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.IDENTIFIER:
-		if(_this.in_state && ast.symbol.ast.parent.scope && ast.symbol.ast.parent.scope.isClass)
+		if(_this.in_state)
 		{
-			if(ast.parent.type == jsdef.DOT)
-			{
-				if(ast.parent[0] == ast) CPP.push("self->");
-			}
-			else CPP.push("self->");
+			if(ast.symbol.ast.parent.scope && ast.symbol.ast.parent.scope.isClass && (ast.parent.type != jsdef.DOT || (ast.parent[0] == ast)))
+				CPP.push("self->");
+			else if(ast.symbol.ast.parent.parent && ast.symbol.ast.parent.parent.scope && ast.symbol.ast.parent.parent.scope.isClass && (ast.parent.type != jsdef.DOT || (ast.parent[0] == ast)))
+				CPP.push("self->");
 		}
 		CPP.push(ast.value);
 		break;
@@ -652,6 +646,15 @@ CPPCompiler.prototype.compile = function (ast)
 		break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	case jsdef.DELETE:
+		if(ast[0].symbol && ast[0].symbol.pointer)
+		{
+			var id = generate(ast[0]).CPP;
+			CPP.push("if(" + id + ") " + id + " = (delete " + id + ", NULL)");
+		}
+		break;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.DEBUGGER:			CPP.push("assert(false);"); break;
 	case jsdef.EXPONENT:			CPP.push("std::pow(" + generate(ast[0]).CPP + "," + generate(ast[1]).CPP + ")");break;
 	case jsdef.MOD:					CPP.push("(int)" + generate(ast[0]).CPP); CPP.push("%"); CPP.push("(int)" + generate(ast[1]).CPP); break;
@@ -669,7 +672,6 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.CONTINUE:			CPP.push("continue;"); break;
 	case jsdef.DECREMENT:			if(ast.postfix) { CPP.push(generate(ast[0]).CPP); CPP.push("--"); } else { CPP.push("--"); CPP.push(generate(ast[0]).CPP); } break;
 	case jsdef.DEFAULT:				CPP.push("default:"); CPP.push(generate(ast.statements).CPP); break;
-	case jsdef.DELETE: 				CPP.push("delete "); CPP.push(generate(ast[0]).CPP); break;
 	case jsdef.DIV:					CPP.push( "(float)(" + generate(ast[0]).CPP + ")"); CPP.push("/"); CPP.push( "(float)(" + generate(ast[1]).CPP + ")"); break;
 	case jsdef.DO: 					ast.body.isLoop = true; CPP.push("do"); CPP.push(generate(ast.body).CPP); CPP.push("while(" + generate(ast.condition).CPP + ");"); break;
 	case jsdef.EQ: 					CPP.push(generate(ast[0]).CPP); CPP.push("==");	 CPP.push(generate(ast[1]).CPP); break;
@@ -712,4 +714,10 @@ CPPCompiler.prototype.compile = function (ast)
 
 	return {CPP:CPP.join(""), HPP:HPP.join("")};
 };
+
+
+
+
+
+
 

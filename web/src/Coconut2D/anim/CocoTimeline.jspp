@@ -60,15 +60,15 @@ class CocoTimeline
 		__pausedKeyFrame			= null;
 		__fps						= 30;
 
-		addKeyFrameEx(null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
-	} 
-	
+		addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor() 
+	public function Destructor()
 	{
 		delete __labels;
-		delete __keyFrames;		
-	}	
+		delete __keyFrames;
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function clear()
@@ -155,7 +155,8 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function addKeyFrameEx(actionCallback:Function,
+	public function addKeyFrameEx(nextState:State,
+								  actionCallback:Function,
 								  frameIndex:Integer,
 								  frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM,
 								  handleEvents:Boolean,
@@ -171,6 +172,7 @@ class CocoTimeline
 	{
 	    var KeyFrame:CocoKeyFrame = new CocoKeyFrame();
 
+	    KeyFrame.nextState			= nextState;
 	    KeyFrame.action				= actionCallback;
 	    KeyFrame.frameIndex 		= frameIndex;
 	    KeyFrame.frameInterpolation = frameInterpolation;

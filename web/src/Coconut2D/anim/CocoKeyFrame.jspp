@@ -53,6 +53,7 @@ class CocoKeyFrame
 	public var scaleY:Float;
 	public var rotation:Float;
 	public var action:Function;
+	public var nextState:State;
 
 	private var __lastActionExecutionTime:Float;
 
@@ -73,13 +74,14 @@ class CocoKeyFrame
 		pivotY						= 0.0;
 		alpha						= 1.0;
 		action						= null;
+		nextState					= null;
 		__lastActionExecutionTime 	= 0.0;
-	} 
-	
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor() 
+	public function Destructor()
 	{
-	}	
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function clone() :CocoKeyFrame
@@ -99,6 +101,7 @@ class CocoKeyFrame
 		c.x                     	= x;
 		c.y                     	= y;
 		c.action					= action;
+		c.nextState					= nextState;
 		c.calcBoundingBox			= calcBoundingBox;
 		c.__lastActionExecutionTime	= __lastActionExecutionTime;
 
@@ -123,6 +126,10 @@ class CocoKeyFrame
 			{
 				var args:Array = [gl, currentTime, loopTime, clip, this];
 				action.apply(scene, args);
+			}
+			if(nextState)
+			{
+				engine.setNextState(nextState);
 			}
 		}
 	}

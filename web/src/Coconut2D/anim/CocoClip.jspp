@@ -61,7 +61,7 @@ class CocoClip : EventTarget
 	public var __childWithMaxTimelineDuration:CocoClip;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String)
+	public function Constructor(optional image:CocoImage, optional audio:CocoSound, optional sequence:String)
 	{
 		__symbolLoop					= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
 		__currentSequenceFrameIndex		= 0;
@@ -77,8 +77,9 @@ class CocoClip : EventTarget
 		__childWithMaxTimelineDuration	= null;
 		__currentSequence				= null;
 
-		if(image) __image = image;
-		if(audio) __audio = audio;
+		__image = image;
+		__audio = audio;
+
 		if(image && sequence) __currentSequence = image.getSequence(sequence);
 	}
 
@@ -334,7 +335,7 @@ class CocoClip : EventTarget
 		}
 
 		// Execute KeyFrame action callback.
-		if(!__timeline.__paused && __currentFrame.action)
+		if(!__timeline.__paused && (__currentFrame.action || __currentFrame.nextState))
 		{
 			this.__parent = parentClip;
 			__currentFrame.execute(gl, __currentTime, __loopTime, scene, this);

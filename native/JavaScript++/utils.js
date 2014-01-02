@@ -92,7 +92,6 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bFloat\\b", "mg", "float");
 	buff = RxReplace(buff, "\\bInteger\\b", "mg", "int");
 	buff = RxReplace(buff, "\\bBoolean\\b", "mg", "bool");
-	buff = RxReplace(buff, "\\bString\\b", "mg", "std::string");
 	buff = RxReplace(buff, "\\s*//<<(.*)>>//", "mg", "$1");
 	buff = RxReplace(buff, "\\bMath.floor\\(", "mg", "std::floor(");
 	buff = RxReplace(buff, "\\bMath.min\\(", "mg", "std::min(");

@@ -251,7 +251,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 					default:
 
-						if(typeof node[item] === 'object'  && !node[item].__visited)
+						if(typeof node[item] == 'object'  && node[item] && !node[item].__visited)
 						{
 							descend(node[item]);
 							node[item].parent = node;
@@ -906,12 +906,13 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				file = file.replace(_this.infolder, _this.outfolder).replace(".jspp", ".jobj");
 				buff = out.join("\n");
 				var buff = do_js_beautify(out.join("\n"), 1, false, false, true);
-				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1");
+				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1"); 	// Empty Lines
 				//buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+\\{", "mg", "{");
 				buff = RxReplace(buff, "(__PDEFINE__|__PROTECTED__) \=[\\s\\t\\n\\r]+\{[\\s\\t\\n\\r]+\}", "mg", "$1 = {}");
 				buff = RxReplace(buff, "__NOENUM__ \=[\\s\\t\\n\\r]+\{[^}]+\}", "mg", "__NOENUM__ = {enumerable:false}");
 				buff = RxReplace(buff, ";[\\s\\t\\n\\r]*function F\\(\\)[\\s\\t\\n\\r]*\{[\\s\\t\\n\\r]*\}", "mg", "; function F(){}");
 				buff = RxReplace(buff, "\\([\\s\\t\\n\\r]+", "mg", "(");
+				buff = RxReplace(buff, "\\{[\\s\\t\\n\\r]*\\}", "mg", "{}");
 				jsppCallback("module", ast.path, file, 0, 0, buff);
 				trace("Generated file: " + file);
 			}
@@ -1329,7 +1330,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 			var hasTick = false;
 			var classSymbol = _this.getCurrentScope().ast.symbol;
-			_this.in_state = true;
+			_this.in_state = ast.name;
 
 			ast.scope = _this.NewScope(ast);
 
@@ -1371,6 +1372,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			}
 			ast.symbol = stateSymbol;
 			classSymbol.scope.vars[ast.name] = stateSymbol;
+			if(classSymbol.baseSymbol) classSymbol.baseSymbol.vars[ast.name] = stateSymbol;
 			_this.states[ast.name] = stateSymbol;
 
 			if(ast.public)			out.push("this.");
@@ -1380,6 +1382,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
             //TODO: The following code does not hit breakpoints for the first function of the State in v8/Chrome.
 
 			out.push(ast.name + " = (function(){");
+
+			out.push("this.__name = '" + ast.name + "';");
 
 			for(item in ast.body)
 			{
@@ -2442,34 +2446,36 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 		var fnSymbol;
 
-		switch(ast[0].type)
+		if(ast.type==jsdef.NEW || ast.type==jsdef.NEW_WITH_ARGS)
 		{
-		case jsdef.NEW:
-		case jsdef.NEW_WITH_ARGS:
 			fnSymbol = ast[0].symbol.methods['Constructor'];
-			break;
+		}
+		else
+		{
+			switch(ast[0].type)
+			{
+			case jsdef.DOT:
+				fnSymbol = ast[0].identifier_last.symbol;
+				break;
 
-		case jsdef.DOT:
-			fnSymbol = ast[0].identifier_last.symbol;
-			break;
+			case jsdef.IDENTIFIER:
+				fnSymbol = ast[0].symbol;
+				break;
 
-		case jsdef.IDENTIFIER:
-			fnSymbol = ast[0].symbol;
-			break;
+			case jsdef.SUPER:
+				fnSymbol = ast[0].symbol.methods['Constructor'];
+				break;
 
-		case jsdef.SUPER:
-			fnSymbol = ast[0].symbol.methods['Constructor'];
-			break;
-
-		default:
-			//debugger;
+			default:
+				//debugger;
+			}
 		}
 
 		if(fnSymbol  && fnSymbol instanceof FunctionSymbol)
 		{
 			var i=0, item, arg, param, type1, type2;
 
-			if(ast[1].length>fnSymbol.paramsList.length)
+			if(ast[1] && ast[1].length>fnSymbol.paramsList.length)
 				_this.NewError("Too many arguments: " + ast.source, ast);
 
 			for(item in fnSymbol.arguments)
@@ -2477,10 +2483,10 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				arg = fnSymbol.arguments[item];
 				type1 = arg.vartype;
 
-				if(i<ast[1].length)
+				if(ast[1] && i<ast[1].length)
 				{
 					type2 = _this.getTypeName(ast[1][i]);
-					_this.typeCheck(arg, type1, type2, "Argument type mismatch: "+type1+" and "+type2);
+					_this.typeCheck(ast[1][i], type1, type2, "Argument type mismatch: "+type1+" and "+type2);
 				}
 				else if(!arg.optional)
 				{
@@ -2557,6 +2563,9 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		{
 			_this.NewError(customError || "Invalid Number to Boolean convertion", ast); return type1;
 		}
+
+		// State
+		if(type1=="State" && type2=="Null") return type1;
 
         // UDT
 		var cls1 = _this.getClass(type1);
@@ -2837,3 +2846,23 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -449,6 +449,7 @@ class State
 	public function exit() {}
 	public function tick(time:Float) {}
 	public function paint(gl:WebGLRenderingContext, time:Float) {}
+	public var __name :String;
 	public var params :Object;
 } //State
 
@@ -1213,6 +1214,7 @@ class CocoKeyFrame
 	public var scaleY :Float;
 	public var rotation :Float;
 	public var action :Function;
+	public var nextState :State;
 	private var __lastActionExecutionTime :Float;
 } //CocoKeyFrame
 
@@ -1227,7 +1229,7 @@ class CocoTimeline
 	public function firstKeyFrame() :CocoKeyFrame {}
 	public function lastKeyFrame() :CocoKeyFrame {}
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame {}
-	public function addKeyFrameEx(actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, alpha:Float) :CocoKeyFrame {}
+	public function addKeyFrameEx(nextState:State, actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, alpha:Float) :CocoKeyFrame {}
 	public function prepare(scene:CocoScene, clip:CocoClip) {}
 	public function normalizetimeline() {}
 	public function jumpBy(frames:Float, paused:Boolean) {}
@@ -1339,6 +1341,14 @@ class CocoEngine
 	public var __stateStart :Float;
 	public var __deviceEvent :DeviceEvent;
 	public var STATE_NULL :State;
+	public var STATE_TITLE_SCREEN :State;
+	public var STATE_GAME_BOARD :State;
+	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
+	public var STATE_GAME_BOARD_BUY_TICKET :State;
+	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_WIN :State;
+	public var STATE_GAME_BOARD_LOSE :State;
 } //CocoEngine
 
 class CocoSprite
@@ -1451,20 +1461,8 @@ class GameEngine : CocoEngine
 	public var STATE_GAME_BOARD_LOSE :State;
 } //GameEngine
 
-class NewAnimation : CocoScene
-{
-	public function Constructor() {}
-} //NewAnimation
-
-class NewAnimation1 : CocoScene
-{
-	public function Constructor() {}
-} //NewAnimation1
-
 class SceneGameBoard : CocoScene
 {
-	public function waitForAction() {}
-	public function hint() {}
 	public function Constructor() {}
 } //SceneGameBoard
 
