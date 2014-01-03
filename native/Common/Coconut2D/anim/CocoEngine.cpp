@@ -3,11 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoEngine::CocoEngine()
 {
-	__stateStart = 0.0;
 	__deviceEvent = NULL;
-	window->addEventListener("touchstart", __setTouchEvent);
-	window->addEventListener("touchmove", __setTouchEvent);
-	window->addEventListener("touchend", __setTouchEvent);
+	window->addEventListener("touchstart", (CocoAction)&CocoEngine::__setTouchEvent);
+	window->addEventListener("touchmove", (CocoAction)&CocoEngine::__setTouchEvent);
+	window->addEventListener("touchend", (CocoAction)&CocoEngine::__setTouchEvent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,28 +25,28 @@ void CocoEngine::__setTouchEvent(DeviceEvent* e)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoEngine::run(WebGLRenderingContext* gl, float time)
 {
-	gl->clearColor(0, 0, 0, 1);
-	gl->clear(gl->COLOR_BUFFER_BIT);
 	if(!__currentState && !__nextState)
 	{
 		__nextState = STATE_NULL;
 	}
 	if(__nextState != NULL)
 	{
-		if(__currentState)
+		if(__currentState && __currentState->exit)
 		{
 			__currentState->exit();
 		}
 		__currentState = __nextState;
 		__currentState->enter();
-		__stateStart = time;
 		__nextState = NULL;
+		trace("@@STATE " + __currentState->__name);
 		return;
 	}
-	__currentState->tick(time - __stateStart);
+	__currentState->tick(time);
 	if(__nextState == NULL)
 	{
-		__currentState->paint(gl, time - __stateStart);
+		gl->clearColor(0, 0, 0, 1);
+		gl->clear(gl->COLOR_BUFFER_BIT);
+		__currentState->paint(gl, time);
 	}
 	__deviceEvent = NULL;
 }
@@ -56,4 +55,13 @@ void CocoEngine::run(WebGLRenderingContext* gl, float time)
 void CocoEngine::setNextState(State* s)
 {
 	__nextState = s;
+}
+
+//=======================================================
+// State: STATE_NULL
+//=======================================================
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoEngine::STATE_NULL::tick()
+{
 }

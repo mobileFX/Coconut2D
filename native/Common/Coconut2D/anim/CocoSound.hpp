@@ -6,9 +6,9 @@
 class CocoSound
 {
 public:
-	std::string symbolName;
-	virtual CocoSound();
-	void createFromFile(std::string filename, Function* onloadCallBack);
+	String symbolName;
+	CocoSound();
+	void createFromFile(String filename, Function* onloadCallBack);
 };
 
 #endif

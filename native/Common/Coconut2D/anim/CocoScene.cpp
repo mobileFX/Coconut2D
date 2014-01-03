@@ -28,25 +28,41 @@ CocoScene::CocoScene()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoScene::~CocoScene()
 {
-	delete __root;
-	delete __modelViewMatrix;
-	delete __projectionMatrix;
-	delete __glProgram;
-	delete __boundingBoxProgram;
-	delete __boundingBoxBuffer;
+	if(__root)
+	{
+		__root = (delete __root, NULL);
+	}
+	if(__modelViewMatrix)
+	{
+		__modelViewMatrix = (delete __modelViewMatrix, NULL);
+	}
+	if(__projectionMatrix)
+	{
+		__projectionMatrix = (delete __projectionMatrix, NULL);
+	}
+	if(__glProgram)
+	{
+		__glProgram = (delete __glProgram, NULL);
+	}
+	if(__boundingBoxProgram)
+	{
+		__boundingBoxProgram = (delete __boundingBoxProgram, NULL);
+	}
+	if(__boundingBoxBuffer)
+	{
+		__boundingBoxBuffer = (delete __boundingBoxBuffer, NULL);
+	}
 	int i = 0;
 	for(i = __imageSymbols.size() - 1; i >= 0; i--)
 	{
-		delete __imageSymbols[i];
 	}
 	for(i = __soundSymbols.size() - 1; i >= 0; i--)
 	{
-		delete __soundSymbols[i];
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoImage* CocoScene::getImageSymbol(std::string symbolName)
+CocoImage* CocoScene::getImageSymbol(String symbolName)
 {
 	for(int i = __imageSymbols.size() - 1; i >= 0; i--)
 	{
@@ -59,7 +75,7 @@ CocoImage* CocoScene::getImageSymbol(std::string symbolName)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoSound* CocoScene::getSoundSymbol(std::string symbolName)
+CocoSound* CocoScene::getSoundSymbol(String symbolName)
 {
 	for(int i = __soundSymbols.size() - 1; i >= 0; i--)
 	{
@@ -72,7 +88,7 @@ CocoSound* CocoScene::getSoundSymbol(std::string symbolName)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoImage* CocoScene::newResourceImage(std::string symbolName, std::string baseUrl)
+CocoImage* CocoScene::newResourceImage(String symbolName, String baseUrl)
 {
 	if(getImageSymbol(symbolName))
 	{
@@ -86,7 +102,7 @@ CocoImage* CocoScene::newResourceImage(std::string symbolName, std::string baseU
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoSound* CocoScene::newResourceSound(std::string symbolName, std::string filename)
+CocoSound* CocoScene::newResourceSound(String symbolName, String filename)
 {
 	if(getSoundSymbol(symbolName))
 	{
@@ -148,7 +164,7 @@ void CocoScene::prepare(WebGLRenderingContext* gl)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-WebGLProgram* CocoScene::makeProgram(WebGLRenderingContext* gl, std::string vs, std::string fs)
+WebGLProgram* CocoScene::makeProgram(WebGLRenderingContext* gl, String vs, String fs)
 {
 	WebGLShader* vshader = gl->createShader(gl->VERTEX_SHADER);
 	WebGLShader* fshader = gl->createShader(gl->FRAGMENT_SHADER);
@@ -232,7 +248,7 @@ bool CocoScene::resourcesLoaded(WebGLRenderingContext* gl)
 			}
 			else if(!img->texture)
 			{
-				img->prepare(gl);
+				img->prepare(this, gl);
 				return false;
 			}
 		}
@@ -298,30 +314,30 @@ void CocoScene::drawFrame(WebGLRenderingContext* gl, CocoImage* image, float fra
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoScene::gotoAndPlayByName(std::string LabelName, bool deep)
+void CocoScene::gotoAndPlayByName(String LabelName, bool deep)
 {
 	CocoClip* scope = __levelParents[__levelParents.size() - 1];
 	scope->gotoFrameByName(LabelName, false, deep);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoScene::gotoAndStopByName(std::string LabelName, bool deep)
+void CocoScene::gotoAndStopByName(String LabelName, bool deep)
 {
-	CocoClip* scope = __levelParents[__levelParents.size() - 1];
+	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];
 	scope->gotoFrameByName(LabelName, true, deep);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoScene::gotoAndPlayByIndex(int FrameIndex, bool deep)
 {
-	CocoClip* scope = __levelParents[__levelParents.size() - 1];
+	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];
 	scope->gotoFrameByIndex(FrameIndex, false, deep);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoScene::gotoAndStopyByIndex(int FrameIndex, bool deep)
 {
-	CocoClip* scope = __levelParents[__levelParents.size() - 1];
+	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];
 	scope->gotoFrameByIndex(FrameIndex, true, deep);
 }
 
@@ -329,6 +345,6 @@ void CocoScene::gotoAndStopyByIndex(int FrameIndex, bool deep)
 void CocoScene::stop(bool deep)
 {
 	deep = (deep == "true");
-	CocoClip* scope = __levelParents[__levelParents.size() - 1];
+	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];
 	scope->gotoFrameByIndex(-1, true, deep);
 }

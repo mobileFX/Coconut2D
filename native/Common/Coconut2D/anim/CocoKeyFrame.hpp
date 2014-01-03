@@ -7,6 +7,7 @@
 #include "CocoScene.hpp"
 #include "CocoClip.hpp"
 #include "CocoMatrix.hpp"
+#include "CocoState.hpp"
 
 class CocoKeyFrame
 {
@@ -25,9 +26,10 @@ public:
 	float scaleY;
 	float rotation;
 	Function* action;
+	State* nextState;
 	float __lastActionExecutionTime;
-	virtual CocoKeyFrame();
-	virtual ~CocoKeyFrame();
+	CocoKeyFrame();
+	~CocoKeyFrame();
 	CocoKeyFrame* clone();
 	void reset();
 	void execute(WebGLRenderingContext* gl, float currentTime, float loopTime, CocoScene* scene, CocoClip* clip);

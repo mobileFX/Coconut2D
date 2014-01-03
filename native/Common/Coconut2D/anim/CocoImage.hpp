@@ -4,6 +4,7 @@
 #include "Coconut2D.hpp"
 #include "CocoImageSibling.hpp"
 #include "CocoSequence.hpp"
+#include "CocoScene.hpp"
 #include "WebGLRenderingContext.hpp"
 #include "HTMLImageElement.hpp"
 #include "WebGLTexture.hpp"
@@ -12,7 +13,7 @@
 class CocoImage
 {
 public:
-	std::string symbolName;
+	String symbolName;
 	Image* image;
 	WebGLTexture* texture;
 	float textureCellWidth;
@@ -22,18 +23,19 @@ public:
 	Float32Array* texSize;
 	WebGLBuffer* buffer;
 	bool isSpriteSheet;
+	float __pixelRatioScale;
 	Array<CocoSequence*> sequences;
-	std::string baseUrl;
+	String baseUrl;
 	int viewOptimalWidth;
 	int viewOptimalHeight;
 	Array<CocoImageSibling*> viewSiblings;
 	float pixelRatio;
-	virtual CocoImage();
-	virtual ~CocoImage();
+	CocoImage();
+	~CocoImage();
 	CocoImageSibling* addSibling(CocoImageSibling* sibling);
 	CocoSequence* addSequence(CocoSequence* sequence);
-	CocoSequence* getSequence(std::string name);
-	void prepare(WebGLRenderingContext* gl);
+	CocoSequence* getSequence(String name);
+	void prepare(CocoScene* scene, WebGLRenderingContext* gl);
 };
 
 #endif

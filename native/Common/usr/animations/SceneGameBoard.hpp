@@ -7,9 +7,7 @@
 class SceneGameBoard : public CocoScene
 {
 public:
-	virtual SceneGameBoard();
-	void waitForAction();
-	void hint();
+	SceneGameBoard();
 };
 
 #endif

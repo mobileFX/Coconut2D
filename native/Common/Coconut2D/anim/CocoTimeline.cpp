@@ -10,14 +10,12 @@ CocoTimeline::CocoTimeline()
 	__paused = false;
 	__pausedKeyFrame = NULL;
 	__fps = 30;
-	addKeyFrameEx(NULL, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
+	addKeyFrameEx(NULL, NULL, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoTimeline::~CocoTimeline()
 {
-	delete __labels;
-	delete __keyFrames;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,14 +47,14 @@ CocoTimeLabel* CocoTimeline::addLabel(CocoTimeLabel* Label)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoTimeLabel* CocoTimeline::addLabelEx(int FrameIndex, std::string LabelName)
+CocoTimeLabel* CocoTimeline::addLabelEx(int FrameIndex, String LabelName)
 {
 	CocoTimeLabel* Label = new CocoTimeLabel(FrameIndex, LabelName);
 	return addLabel(Label);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoTimeLabel* CocoTimeline::findLabelByName(std::string LabelName)
+CocoTimeLabel* CocoTimeline::findLabelByName(String LabelName)
 {
 	for(int i = __labels.size() - 1; i >= 0; i--)
 	{
@@ -106,9 +104,10 @@ CocoKeyFrame* CocoTimeline::addKeyFrame(CocoKeyFrame* KeyFrame)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoTimeline::addKeyFrameEx(Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha)
+CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha)
 {
 	CocoKeyFrame* KeyFrame = new CocoKeyFrame();
+	KeyFrame->nextState = nextState;
 	KeyFrame->action = actionCallback;
 	KeyFrame->frameIndex = frameIndex;
 	KeyFrame->frameInterpolation = frameInterpolation;

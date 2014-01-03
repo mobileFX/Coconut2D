@@ -142,7 +142,9 @@ CPPCompiler.prototype.compile = function (ast)
 		//if(ast.file=="externs.jspp") return _this.NULL_GEN;
 
 	 	_this.currClassName = ast.name;
-	 	_this.classList[ast.name] = ast;
+
+	 	if(ast.file!="externs.jspp")
+	 		_this.classList[ast.name] = ast;
 
 		HPP.push("#ifndef __" + ast.name.toUpperCase() + "_HPP__\n");
 		HPP.push("#define __" + ast.name.toUpperCase() + "_HPP__\n\n");
@@ -396,7 +398,12 @@ CPPCompiler.prototype.compile = function (ast)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.IDENTIFIER:
-		if(_this.in_state)
+		if(ast.symbol && ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST)
+		{
+			CPP.push("(CocoAction)&" + ast.symbol.ast.scope.className + "::" + ast.value);
+			break;
+		}
+		else if(_this.in_state)
 		{
 			if(ast.symbol.ast.parent.scope && ast.symbol.ast.parent.scope.isClass && (ast.parent.type != jsdef.DOT || (ast.parent[0] == ast)))
 				CPP.push("self->");
@@ -714,6 +721,8 @@ CPPCompiler.prototype.compile = function (ast)
 
 	return {CPP:CPP.join(""), HPP:HPP.join("")};
 };
+
+
 
 
 

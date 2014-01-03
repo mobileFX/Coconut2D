@@ -24,30 +24,6 @@
 #include <map>
 
 //# DO NOT EDIT BEGIN #//
-class Null;
-class Untyped;
-class Object;
-class Array;
-class Function;
-class String;
-class Number;
-class Integer;
-class Float;
-class Boolean;
-class Date;
-class Math;
-class RegExp;
-class ArrayBuffer;
-class ArrayBufferView;
-class Float32Array;
-class Int32Array;
-class Uint8Array;
-class Error;
-class EvalError;
-class RangeError;
-class ReferenceError;
-class SyntaxError;
-class TypeError;
 class State;
 class EventTarget;
 class DeviceEvent;
@@ -105,8 +81,6 @@ class UIScrollView;
 class UITabView;
 class UITextView;
 class GameEngine;
-class NewAnimation;
-class NewAnimation1;
 class SceneGameBoard;
 class SceneTitle;
 //# DO NOT EDIT END #//

@@ -22,11 +22,26 @@ CocoImage::CocoImage()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoImage::~CocoImage()
 {
-	delete texture;
-	delete textureGrid;
-	delete color;
-	delete texSize;
-	delete buffer;
+	if(texture)
+	{
+		texture = (delete texture, NULL);
+	}
+	if(textureGrid)
+	{
+		textureGrid = (delete textureGrid, NULL);
+	}
+	if(color)
+	{
+		color = (delete color, NULL);
+	}
+	if(texSize)
+	{
+		texSize = (delete texSize, NULL);
+	}
+	if(buffer)
+	{
+		buffer = (delete buffer, NULL);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +68,7 @@ CocoSequence* CocoImage::addSequence(CocoSequence* sequence)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoSequence* CocoImage::getSequence(std::string name)
+CocoSequence* CocoImage::getSequence(String name)
 {
 	for(int i = sequences.size() - 1; i >= 0; i--)
 	{
@@ -66,8 +81,9 @@ CocoSequence* CocoImage::getSequence(std::string name)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoImage::prepare(WebGLRenderingContext* gl)
+void CocoImage::prepare(CocoScene* scene, WebGLRenderingContext* gl)
 {
+	__pixelRatioScale = (float)(scene->__view_pixel_ratio) / (float)(pixelRatio);
 	float w2 = (float)(textureCellWidth) / (float)(2.0);
 	float h2 = (float)(textureCellHeight) / (float)(2.0);
 	texSize = new Float32Array({(float)(textureCellWidth) / (float)(image->naturalWidth), (float)(textureCellHeight) / (float)(image->naturalHeight)});

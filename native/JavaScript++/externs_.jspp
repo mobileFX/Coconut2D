@@ -1109,7 +1109,7 @@ class CocoImage
 	public function addSibling(sibling:CocoImageSibling) :CocoImageSibling {}
 	public function addSequence(sequence:CocoSequence) :CocoSequence {}
 	public function getSequence(name:String) :CocoSequence {}
-	public function prepare(gl:WebGLRenderingContext) {}
+	public function prepare(scene:CocoScene, gl:WebGLRenderingContext) {}
 	public function Constructor() {}
 	public var symbolName :String;
 	public var image :Image;
@@ -1121,6 +1121,7 @@ class CocoImage
 	public var texSize :Float32Array;
 	public var buffer :WebGLBuffer;
 	public var isSpriteSheet :Boolean;
+	public var __pixelRatioScale :Float;
 	public var sequences :Array<CocoSequence>;
 	public var baseUrl :String;
 	public var viewOptimalWidth :Integer;
@@ -1278,10 +1279,16 @@ class CocoClip : EventTarget
 	public var __firstTickTime :Float;
 	public var __currentFrame :CocoKeyFrame;
 	public var __hasBoundingBox :Boolean;
-	public var __vTOP_LEFT :CocoVector;
-	public var __vTOP_RIGHT :CocoVector;
-	public var __vBOTTOM_LEFT :CocoVector;
-	public var __vBOTTOM_RIGHT :CocoVector;
+	public var __vABS_TOP_LEFT :CocoVector;
+	public var __vABS_TOP_RIGHT :CocoVector;
+	public var __vABS_BOTTOM_LEFT :CocoVector;
+	public var __vABS_BOTTOM_RIGHT :CocoVector;
+	public var __vREL_TOP_LEFT :CocoVector;
+	public var __vREL_TOP_RIGHT :CocoVector;
+	public var __vREL_BOTTOM_LEFT :CocoVector;
+	public var __vREL_BOTTOM_RIGHT :CocoVector;
+	public var __vTemp :CocoVector;
+	public var __mTemp :CocoMatrix;
 	public var __childWithMaxTimelineDuration :CocoClip;
 } //CocoClip
 
@@ -1338,7 +1345,6 @@ class CocoEngine
 	public function Constructor() {}
 	public var __currentState :State;
 	public var __nextState :State;
-	public var __stateStart :Float;
 	public var __deviceEvent :DeviceEvent;
 	public var STATE_NULL :State;
 	public var STATE_TITLE_SCREEN :State;

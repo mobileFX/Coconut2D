@@ -1,7 +1,7 @@
 #include "CocoImageSibling.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoImageSibling::CocoImageSibling(std::string url, float pixelRatio, float textureWidth, float textureHeight)
+CocoImageSibling::CocoImageSibling(String url, float pixelRatio, float textureWidth, float textureHeight)
 {
 	this->url = url;
 	this->pixelRatio = pixelRatio;

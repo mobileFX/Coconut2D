@@ -12,11 +12,12 @@
 #include "CocoTimeline.hpp"
 #include "CocoKeyFrame.hpp"
 #include "CocoVector.hpp"
+#include "CocoMatrix.hpp"
 
 class CocoClip : public EventTarget
 {
 public:
-	std::string __instanceName;
+	String __instanceName;
 	CocoImage* __image;
 	CocoSound* __audio;
 	COCO_CLIP_SYMBOL_LOOP_ENUM __symbolLoop;
@@ -28,21 +29,27 @@ public:
 	float __firstTickTime;
 	CocoKeyFrame* __currentFrame;
 	bool __hasBoundingBox;
-	CocoVector* __vTOP_LEFT;
-	CocoVector* __vTOP_RIGHT;
-	CocoVector* __vBOTTOM_LEFT;
-	CocoVector* __vBOTTOM_RIGHT;
+	CocoVector* __vABS_TOP_LEFT;
+	CocoVector* __vABS_TOP_RIGHT;
+	CocoVector* __vABS_BOTTOM_LEFT;
+	CocoVector* __vABS_BOTTOM_RIGHT;
+	CocoVector* __vREL_TOP_LEFT;
+	CocoVector* __vREL_TOP_RIGHT;
+	CocoVector* __vREL_BOTTOM_LEFT;
+	CocoVector* __vREL_BOTTOM_RIGHT;
+	CocoVector* __vTemp;
+	CocoMatrix* __mTemp;
 	CocoClip* __childWithMaxTimelineDuration;
-	virtual CocoClip(CocoImage* image, CocoSound* audio, std::string sequence);
-	virtual ~CocoClip();
+	CocoClip(CocoImage* image = NULL, CocoSound* audio = NULL, String sequence = "");
+	~CocoClip();
 	void prepare(CocoScene* scene);
 	void reset();
 	CocoClip* addChild(CocoClip* clipInstance);
 	CocoClip* removeChild(CocoClip* clipInstance);
 	void normalize();
-	CocoClip* getChildByName(std::string instanceName);
+	CocoClip* getChildByName(String instanceName);
 	int getChildIndex(CocoClip* child);
-	bool gotoFrameByName(std::string LabelName, bool pause, bool deep);
+	bool gotoFrameByName(String LabelName, bool pause, bool deep);
 	bool gotoFrameByIndex(int FrameIndex, bool pause, bool deep);
 	void paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking);
 	bool hitTest(float wx, float wy);

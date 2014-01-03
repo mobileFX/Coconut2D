@@ -7,7 +7,7 @@
 class SceneTitle : public CocoScene
 {
 public:
-	virtual SceneTitle();
+	SceneTitle();
 };
 
 #endif

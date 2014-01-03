@@ -1,7 +1,7 @@
 #include "CocoClip.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoClip::CocoClip(CocoImage* image, CocoSound* audio, std::string sequence)
+CocoClip::CocoClip(CocoImage* image, CocoSound* audio, String sequence)
 {
 	__symbolLoop = COCO_CLIP_SYMBOL_LOOP_ENUM::CLIP_SYMBOL_LOOP_CONTINUOUS;
 	__currentSequenceFrameIndex = 0;
@@ -10,20 +10,20 @@ CocoClip::CocoClip(CocoImage* image, CocoSound* audio, std::string sequence)
 	__firstTickTime = -1.0;
 	__currentFrame = NULL;
 	__hasBoundingBox = false;
-	__vTOP_LEFT = new CocoVector();
-	__vTOP_RIGHT = new CocoVector();
-	__vBOTTOM_LEFT = new CocoVector();
-	__vBOTTOM_RIGHT = new CocoVector();
+	__vABS_TOP_LEFT = new CocoVector();
+	__vABS_TOP_RIGHT = new CocoVector();
+	__vABS_BOTTOM_LEFT = new CocoVector();
+	__vABS_BOTTOM_RIGHT = new CocoVector();
+	__vREL_TOP_LEFT = new CocoVector();
+	__vREL_TOP_RIGHT = new CocoVector();
+	__vREL_BOTTOM_LEFT = new CocoVector();
+	__vREL_BOTTOM_RIGHT = new CocoVector();
+	__vTemp = new CocoVector();
+	__mTemp = new CocoMatrix();
 	__childWithMaxTimelineDuration = NULL;
 	__currentSequence = NULL;
-	if(image)
-	{
-		__image = image;
-	}
-	if(audio)
-	{
-		__audio = audio;
-	}
+	__image = image;
+	__audio = audio;
 	if(image && sequence)
 	{
 		__currentSequence = image->getSequence(sequence);
@@ -33,14 +33,58 @@ CocoClip::CocoClip(CocoImage* image, CocoSound* audio, std::string sequence)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoClip::~CocoClip()
 {
-	delete __image;
-	delete __audio;
-	delete __children;
-	delete __timeline;
-	delete __vTOP_LEFT;
-	delete __vTOP_RIGHT;
-	delete __vBOTTOM_LEFT;
-	delete __vBOTTOM_RIGHT;
+	if(__image)
+	{
+		__image = (delete __image, NULL);
+	}
+	if(__audio)
+	{
+		__audio = (delete __audio, NULL);
+	}
+	if(__timeline)
+	{
+		__timeline = (delete __timeline, NULL);
+	}
+	if(__vABS_TOP_LEFT)
+	{
+		__vABS_TOP_LEFT = (delete __vABS_TOP_LEFT, NULL);
+	}
+	if(__vABS_TOP_RIGHT)
+	{
+		__vABS_TOP_RIGHT = (delete __vABS_TOP_RIGHT, NULL);
+	}
+	if(__vABS_BOTTOM_LEFT)
+	{
+		__vABS_BOTTOM_LEFT = (delete __vABS_BOTTOM_LEFT, NULL);
+	}
+	if(__vABS_BOTTOM_RIGHT)
+	{
+		__vABS_BOTTOM_RIGHT = (delete __vABS_BOTTOM_RIGHT, NULL);
+	}
+	if(__vREL_TOP_LEFT)
+	{
+		__vREL_TOP_LEFT = (delete __vREL_TOP_LEFT, NULL);
+	}
+	if(__vREL_TOP_RIGHT)
+	{
+		__vREL_TOP_RIGHT = (delete __vREL_TOP_RIGHT, NULL);
+	}
+	if(__vREL_BOTTOM_LEFT)
+	{
+		__vREL_BOTTOM_LEFT = (delete __vREL_BOTTOM_LEFT, NULL);
+	}
+	if(__vREL_BOTTOM_RIGHT)
+	{
+		__vREL_BOTTOM_RIGHT = (delete __vREL_BOTTOM_RIGHT, NULL);
+	}
+	if(__vTemp)
+	{
+		__vTemp = (delete __vTemp, NULL);
+	}
+	if(__mTemp)
+	{
+		__mTemp = (delete __mTemp, NULL);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,9 +101,10 @@ void CocoClip::prepare(CocoScene* scene)
 void CocoClip::reset()
 {
 	if(__currentFrame)
-	{
-		delete __currentFrame;
-	}
+		if(__currentFrame)
+		{
+			__currentFrame = (delete __currentFrame, NULL);
+		}
 	__currentFrame = NULL;
 	__firstTickTime = -1;
 	__timeline->reset();
@@ -116,7 +161,7 @@ void CocoClip::normalize()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoClip* CocoClip::getChildByName(std::string instanceName)
+CocoClip* CocoClip::getChildByName(String instanceName)
 {
 	for(int i = __children.size() - 1; i >= 0; i--)
 	{
@@ -145,7 +190,7 @@ int CocoClip::getChildIndex(CocoClip* child)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CocoClip::gotoFrameByName(std::string LabelName, bool pause, bool deep)
+bool CocoClip::gotoFrameByName(String LabelName, bool pause, bool deep)
 {
 	CocoTimeLabel* Label = __timeline->findLabelByName(LabelName);
 	if(!Label)
@@ -191,9 +236,10 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 	float clippingTime = std::floor((float)((__currentTime - __firstTickTime)) / (float)(parentClipsDuration)) * parentClipsDuration;
 	float __loopTime = (__currentTime - __firstTickTime) - clippingTime;
 	if(!__timeline->__paused && __currentFrame)
-	{
-		delete __currentFrame;
-	}
+		if(__currentFrame)
+		{
+			__currentFrame = (delete __currentFrame, NULL);
+		}
 	switch(__symbolLoop)
 	{
 		case COCO_CLIP_SYMBOL_LOOP_ENUM::CLIP_SYMBOL_LOOP_CONTINUOUS:
@@ -234,12 +280,11 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 	{
 		if(__image)
 		{
-			float c = (float)(scene->__view_pixel_ratio) / (float)(__image->pixelRatio);
-			__currentFrame->scaleX *= c;
-			__currentFrame->scaleY *= c;
+			__currentFrame->scaleX *= __image->__pixelRatioScale;
+			__currentFrame->scaleY *= __image->__pixelRatioScale;
 			__currentFrame->apply(scene->__modelViewMatrix);
-			__currentFrame->scaleX /= c;
-			__currentFrame->scaleY /= c;
+			__currentFrame->scaleX /= __image->__pixelRatioScale;
+			__currentFrame->scaleY /= __image->__pixelRatioScale;
 			if(__image->isSpriteSheet && __currentSequence)
 			{
 				__currentSequenceFrameIndex = __timeline->__paused ? 0 : (int)std::floor((float)((__currentTime - __firstTickTime)) / (float)(((float)(1000.0) / (float)(scene->__fps)))) % (int)__currentSequence->frames.size();
@@ -263,7 +308,7 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 			}
 			scene->__levelParents.pop();
 		}
-		if(engine->__deviceEvent && this != scene->__root)
+		if(__currentFrame->alpha != 0 && __currentFrame->visible && engine->__deviceEvent && this != scene->__root)
 		{
 			if(__image)
 			{
@@ -284,7 +329,7 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 			}
 		}
 	}
-	if(!__timeline->__paused && __currentFrame->action)
+	if(!__timeline->__paused && (__currentFrame->action || __currentFrame->nextState))
 	{
 		this->__parent = parentClip;
 		__currentFrame->execute(gl, __currentTime, __loopTime, scene, this);
@@ -295,20 +340,30 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool CocoClip::hitTest(float wx, float wy)
 {
-	return ((((wx - __vTOP_LEFT->X) * (__vTOP_RIGHT->Y - __vTOP_LEFT->Y) - (__vTOP_RIGHT->X - __vTOP_LEFT->X) * (wy - __vTOP_LEFT->Y)) * ((wx - __vBOTTOM_RIGHT->X) * (__vBOTTOM_LEFT->Y - __vBOTTOM_RIGHT->Y) - (__vBOTTOM_LEFT->X - __vBOTTOM_RIGHT->X) * (wy - __vBOTTOM_RIGHT->Y))) > 0 && (((wx - __vTOP_RIGHT->X) * (__vBOTTOM_RIGHT->Y - __vTOP_RIGHT->Y) - (__vBOTTOM_RIGHT->X - __vTOP_RIGHT->X) * (wy - __vTOP_RIGHT->Y)) * ((wx - __vBOTTOM_LEFT->X) * (__vTOP_LEFT->Y - __vBOTTOM_LEFT->Y) - (__vTOP_LEFT->X - __vBOTTOM_LEFT->X) * (wy - __vBOTTOM_LEFT->Y))) > 0);
+	return ((((wx - __vABS_TOP_LEFT->X) * (__vABS_TOP_RIGHT->Y - __vABS_TOP_LEFT->Y) - (__vABS_TOP_RIGHT->X - __vABS_TOP_LEFT->X) * (wy - __vABS_TOP_LEFT->Y)) * ((wx - __vABS_BOTTOM_RIGHT->X) * (__vABS_BOTTOM_LEFT->Y - __vABS_BOTTOM_RIGHT->Y) - (__vABS_BOTTOM_LEFT->X - __vABS_BOTTOM_RIGHT->X) * (wy - __vABS_BOTTOM_RIGHT->Y))) > 0 && (((wx - __vABS_TOP_RIGHT->X) * (__vABS_BOTTOM_RIGHT->Y - __vABS_TOP_RIGHT->Y) - (__vABS_BOTTOM_RIGHT->X - __vABS_TOP_RIGHT->X) * (wy - __vABS_TOP_RIGHT->Y)) * ((wx - __vABS_BOTTOM_LEFT->X) * (__vABS_TOP_LEFT->Y - __vABS_BOTTOM_LEFT->Y) - (__vABS_TOP_LEFT->X - __vABS_BOTTOM_LEFT->X) * (wy - __vABS_BOTTOM_LEFT->Y))) > 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoClip::initBoundingBoxFromTexture(CocoScene* scene, float W2, float H2)
 {
-	__vTOP_LEFT->reset(-W2,  -H2, 0, 1);
-	__vTOP_RIGHT->reset(W2,  -H2, 0, 1);
-	__vBOTTOM_LEFT->reset(-W2, H2, 0, 1);
-	__vBOTTOM_RIGHT->reset(W2, H2, 0, 1);
-	__vTOP_LEFT = scene->__modelViewMatrix->multiplyByVector(__vTOP_LEFT);
-	__vTOP_RIGHT = scene->__modelViewMatrix->multiplyByVector(__vTOP_RIGHT);
-	__vBOTTOM_LEFT = scene->__modelViewMatrix->multiplyByVector(__vBOTTOM_LEFT);
-	__vBOTTOM_RIGHT = scene->__modelViewMatrix->multiplyByVector(__vBOTTOM_RIGHT);
+	__mTemp->identity();
+	__currentFrame->scaleX *= __image->__pixelRatioScale;
+	__currentFrame->scaleY *= __image->__pixelRatioScale;
+	__currentFrame->apply(__mTemp);
+	__currentFrame->scaleX /= __image->__pixelRatioScale;
+	__currentFrame->scaleY /= __image->__pixelRatioScale;
+	__vTemp->reset(-W2,  -H2, 0, 1);
+	__vREL_TOP_LEFT = __mTemp->multiplyByVector(__vTemp);
+	__vABS_TOP_LEFT = scene->__modelViewMatrix->multiplyByVector(__vTemp);
+	__vTemp->reset(W2,  -H2, 0, 1);
+	__vREL_TOP_RIGHT = __mTemp->multiplyByVector(__vTemp);
+	__vABS_TOP_RIGHT = scene->__modelViewMatrix->multiplyByVector(__vTemp);
+	__vTemp->reset(-W2, H2, 0, 1);
+	__vREL_BOTTOM_LEFT = __mTemp->multiplyByVector(__vTemp);
+	__vABS_BOTTOM_LEFT = scene->__modelViewMatrix->multiplyByVector(__vTemp);
+	__vTemp->reset(W2, H2, 0, 1);
+	__vREL_BOTTOM_RIGHT = __mTemp->multiplyByVector(__vTemp);
+	__vABS_BOTTOM_RIGHT = scene->__modelViewMatrix->multiplyByVector(__vTemp);
 	__hasBoundingBox = true;
 }
 
@@ -320,64 +375,98 @@ void CocoClip::initBoundingBoxFromChildren(CocoScene* scene)
 	{
 		return;
 	}
-	CocoMatrix* MI;
 	CocoClip* Child;
-	CocoRect* Rc;
 	int i = 0;
-	CocoVector* v1;
-	CocoVector* v2;
-	std::string vClip = "";
-	Array<CocoVector*> v;
-	Rc = new CocoRect();
-	Rc->left = 100000;
-	Rc->right = -100000;
-	Rc->top = 100000;
-	Rc->bottom = -100000;
-	MI = new CocoMatrix(scene->__modelViewMatrix);
-	MI->invert();
+	String vClip = "";
+	__vREL_TOP_LEFT->X = 100000;
+	__vREL_TOP_RIGHT->X = -100000;
+	__vREL_TOP_LEFT->Y = 100000;
+	__vREL_BOTTOM_LEFT->Y = -100000;
 	for(vClip : __children)
 	{
 		Child = __children[vClip];
 		if(Child->__hasBoundingBox)
 		{
-			v[0] = MI->multiplyByVector(Child->__vTOP_LEFT);
-			v[1] = MI->multiplyByVector(Child->__vTOP_RIGHT);
-			v[2] = MI->multiplyByVector(Child->__vBOTTOM_LEFT);
-			v[3] = MI->multiplyByVector(Child->__vBOTTOM_RIGHT);
-			for(int i = 0; i < 4; i++)
+			if(Child->__vREL_TOP_LEFT->X < __vREL_TOP_LEFT->X)
 			{
-				if(v[i]->X < Rc->left)
-				{
-					Rc->left = v[i]->X;
-				}
-				if(v[i]->X > Rc->right)
-				{
-					Rc->right = v[i]->X;
-				}
-				if(v[i]->Y < Rc->top)
-				{
-					Rc->top = v[i]->Y;
-				}
-				if(v[i]->Y > Rc->bottom)
-				{
-					Rc->bottom = v[i]->Y;
-				}
+				__vREL_TOP_LEFT->X = Child->__vREL_TOP_LEFT->X;
+			}
+			if(Child->__vREL_TOP_LEFT->X > __vREL_TOP_RIGHT->X)
+			{
+				__vREL_TOP_RIGHT->X = Child->__vREL_TOP_LEFT->X;
+			}
+			if(Child->__vREL_TOP_LEFT->Y < __vREL_TOP_LEFT->Y)
+			{
+				__vREL_TOP_LEFT->Y = Child->__vREL_TOP_LEFT->Y;
+			}
+			if(Child->__vREL_TOP_LEFT->Y > __vREL_BOTTOM_LEFT->Y)
+			{
+				__vREL_BOTTOM_LEFT->Y = Child->__vREL_TOP_LEFT->Y;
+			}
+			if(Child->__vREL_TOP_RIGHT->X < __vREL_TOP_LEFT->X)
+			{
+				__vREL_TOP_LEFT->X = Child->__vREL_TOP_RIGHT->X;
+			}
+			if(Child->__vREL_TOP_RIGHT->X > __vREL_TOP_RIGHT->X)
+			{
+				__vREL_TOP_RIGHT->X = Child->__vREL_TOP_RIGHT->X;
+			}
+			if(Child->__vREL_TOP_RIGHT->Y < __vREL_TOP_LEFT->Y)
+			{
+				__vREL_TOP_LEFT->Y = Child->__vREL_TOP_RIGHT->Y;
+			}
+			if(Child->__vREL_TOP_RIGHT->Y > __vREL_BOTTOM_LEFT->Y)
+			{
+				__vREL_BOTTOM_LEFT->Y = Child->__vREL_TOP_RIGHT->Y;
+			}
+			if(Child->__vREL_BOTTOM_LEFT->X < __vREL_TOP_LEFT->X)
+			{
+				__vREL_TOP_LEFT->X = Child->__vREL_BOTTOM_LEFT->X;
+			}
+			if(Child->__vREL_BOTTOM_LEFT->X > __vREL_TOP_RIGHT->X)
+			{
+				__vREL_TOP_RIGHT->X = Child->__vREL_BOTTOM_LEFT->X;
+			}
+			if(Child->__vREL_BOTTOM_LEFT->Y < __vREL_TOP_LEFT->Y)
+			{
+				__vREL_TOP_LEFT->Y = Child->__vREL_BOTTOM_LEFT->Y;
+			}
+			if(Child->__vREL_BOTTOM_LEFT->Y > __vREL_BOTTOM_LEFT->Y)
+			{
+				__vREL_BOTTOM_LEFT->Y = Child->__vREL_BOTTOM_LEFT->Y;
+			}
+			if(Child->__vREL_BOTTOM_RIGHT->X < __vREL_TOP_LEFT->X)
+			{
+				__vREL_TOP_LEFT->X = Child->__vREL_BOTTOM_RIGHT->X;
+			}
+			if(Child->__vREL_BOTTOM_RIGHT->X > __vREL_TOP_RIGHT->X)
+			{
+				__vREL_TOP_RIGHT->X = Child->__vREL_BOTTOM_RIGHT->X;
+			}
+			if(Child->__vREL_BOTTOM_RIGHT->Y < __vREL_TOP_LEFT->Y)
+			{
+				__vREL_TOP_LEFT->Y = Child->__vREL_BOTTOM_RIGHT->Y;
+			}
+			if(Child->__vREL_BOTTOM_RIGHT->Y > __vREL_BOTTOM_LEFT->Y)
+			{
+				__vREL_BOTTOM_LEFT->Y = Child->__vREL_BOTTOM_RIGHT->Y;
 			}
 		}
 	}
-	__vTOP_LEFT->X = Rc->left;
-	__vTOP_LEFT->Y = Rc->top;
-	__vTOP_RIGHT->X = Rc->right;
-	__vTOP_RIGHT->Y = Rc->top;
-	__vBOTTOM_LEFT->X = Rc->left;
-	__vBOTTOM_LEFT->Y = Rc->bottom;
-	__vBOTTOM_RIGHT->X = Rc->right;
-	__vBOTTOM_RIGHT->Y = Rc->bottom;
-	MI = scene->__modelViewMatrix;
-	__vTOP_LEFT = MI->multiplyByVector(__vTOP_LEFT);
-	__vTOP_RIGHT = MI->multiplyByVector(__vTOP_RIGHT);
-	__vBOTTOM_LEFT = MI->multiplyByVector(__vBOTTOM_LEFT);
-	__vBOTTOM_RIGHT = MI->multiplyByVector(__vBOTTOM_RIGHT);
+	__vREL_TOP_RIGHT->Y = __vREL_TOP_LEFT->Y;
+	__vREL_BOTTOM_LEFT->X = __vREL_TOP_LEFT->X;
+	__vREL_BOTTOM_RIGHT->X = __vREL_TOP_RIGHT->X;
+	__vREL_BOTTOM_RIGHT->Y = __vREL_BOTTOM_LEFT->Y;
+	__vABS_TOP_LEFT = scene->__modelViewMatrix->multiplyByVector(__vREL_TOP_LEFT);
+	__vABS_TOP_RIGHT = scene->__modelViewMatrix->multiplyByVector(__vREL_TOP_RIGHT);
+	__vABS_BOTTOM_LEFT = scene->__modelViewMatrix->multiplyByVector(__vREL_BOTTOM_LEFT);
+	__vABS_BOTTOM_RIGHT = scene->__modelViewMatrix->multiplyByVector(__vREL_BOTTOM_RIGHT);
+	__mTemp->identity();
+	__currentFrame->apply(__mTemp);
+	__vREL_TOP_LEFT = __mTemp->multiplyByVector(__vREL_TOP_LEFT);
+	__vREL_TOP_RIGHT = __mTemp->multiplyByVector(__vREL_TOP_RIGHT);
+	__vREL_BOTTOM_LEFT = __mTemp->multiplyByVector(__vREL_BOTTOM_LEFT);
+	__vREL_BOTTOM_RIGHT = __mTemp->multiplyByVector(__vREL_BOTTOM_RIGHT);
 	__hasBoundingBox = true;
 }
 
@@ -393,7 +482,7 @@ void CocoClip::drawBoundingBox(CocoScene* scene, WebGLRenderingContext* gl)
 	gl->useProgram(scene->__boundingBoxProgram);
 	gl->enableVertexAttribArray(scene->__boundingBoxProgram->GLSLiVec2Coords);
 	gl->bindBuffer(gl->ARRAY_BUFFER, scene->__boundingBoxBuffer);
-	gl->bufferSubData(gl->ARRAY_BUFFER, 0, new Float32Array({__vTOP_LEFT->X, __vTOP_LEFT->Y, __vTOP_RIGHT->X, __vTOP_RIGHT->Y, __vBOTTOM_RIGHT->X, __vBOTTOM_RIGHT->Y, __vBOTTOM_LEFT->X, __vBOTTOM_LEFT->Y}));
+	gl->bufferSubData(gl->ARRAY_BUFFER, 0, new Float32Array({__vABS_TOP_LEFT->X, __vABS_TOP_LEFT->Y, __vABS_TOP_RIGHT->X, __vABS_TOP_RIGHT->Y, __vABS_BOTTOM_RIGHT->X, __vABS_BOTTOM_RIGHT->Y, __vABS_BOTTOM_LEFT->X, __vABS_BOTTOM_LEFT->Y}));
 	gl->vertexAttribPointer(scene->__boundingBoxProgram->GLSLiVec2Coords, 2, gl->FLOAT, false, 0, 0);
 	scene->__projectionMatrix->update(gl, scene->__boundingBoxProgram->GLSLuProjMat);
 	gl->drawArrays(gl->LINE_LOOP, 0, 4);

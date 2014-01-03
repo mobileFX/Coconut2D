@@ -7,20 +7,13 @@ function GameEngine()
 	return ((function ()
 	{
 		var __CLASS__GAMEENGINE__ = this,
-			__PDEFINE__ =
-			{
-			}.constructor.defineProperty,
-			__NOENUM__ =
-			{
-				enumerable: false
-			};
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ = {enumerable:false};
 		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
 		this.__SUPER__ = __SUPER__;
 		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
 		this.__CLASS__ = 'GameEngine';
-		this.__PROTECTED__ =
-		{
-		};
+		this.__PROTECTED__ = {};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		var __TMP_SUPER__ = __SUPER__,
 			__TMP_ARRAY__ = [];
@@ -38,10 +31,11 @@ function GameEngine()
 		//@line 17
 		this.scene = null;
 		//@line 32
-		this.STATE_GAME = (function (o)
+		this.STATE_GAME = (function ()
 		{
+			this.__name = 'STATE_GAME';
 			//@line 34
-			var foo;
+			var foo = this.foo = null;
 			//@line 36
 			var enter = this.enter = function ()
 			{
@@ -53,7 +47,7 @@ function GameEngine()
 			{
 				//@line 43
 				__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
-				__CLASS__GAMEENGINE__.scene = null;;
+				__CLASS__GAMEENGINE__.scene = null;
 			};
 			//@line 46
 			var tick = this.tick = function (time)
@@ -72,7 +66,7 @@ function GameEngine()
 		{
 			//@line 28
 			__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
-			__CLASS__GAMEENGINE__.scene = null;; /*Auto generated destructor code*/
+			__CLASS__GAMEENGINE__.scene = null;
 			__CLASS__GAMEENGINE__.scene = null;
 			__CLASS__GAMEENGINE__.STATE_GAME.Destructor();
 			__CLASS__GAMEENGINE__.STATE_GAME = null;
@@ -90,11 +84,6 @@ function GameEngine()
 		return this
 	}).call((function (o)
 	{
-		return (F.prototype = __SUPER__ = __CLASS__COCOENGINE____ = o, new F);
-
-		function F()
-		{
-		}
-	})(
-	new CocoEngine))).Constructor.apply(this, [].slice.call(arguments))
+		return (F.prototype = __SUPER__ = __CLASS__COCOENGINE____ = o, new F); function F(){}
+	})(new CocoEngine))).Constructor.apply(this, [].slice.call(arguments))
 }

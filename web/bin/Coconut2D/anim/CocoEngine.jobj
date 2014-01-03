@@ -7,20 +7,13 @@ function CocoEngine()
 	return ((function ()
 	{
 		var __CLASS__COCOENGINE__ = this,
-			__PDEFINE__ =
-			{
-			}.constructor.defineProperty,
-			__NOENUM__ =
-			{
-				enumerable: false
-			};
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ = {enumerable:false};
 		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
 		this.__SUPER__ = __SUPER__;
 		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
 		this.__CLASS__ = 'CocoEngine';
-		this.__PROTECTED__ =
-		{
-		};
+		this.__PROTECTED__ = {};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		//@line 66
 		var __setTouchEvent = function (e)
@@ -36,42 +29,48 @@ function CocoEngine()
 		var run = this.run = function (gl, time)
 		{
 			//@line 76
-			gl.clearColor(0, 0, 0, 1);
-			//@line 77
-			gl.clear(gl.COLOR_BUFFER_BIT);
-			//@line 79
 			if (!__CLASS__COCOENGINE__.__currentState && !__CLASS__COCOENGINE__.__nextState)
-			//@line 80
+			//@line 77
 			__CLASS__COCOENGINE__.__nextState = __CLASS__COCOENGINE__.STATE_NULL;
-			//@line 82
+			//@line 79
 			if (__CLASS__COCOENGINE__.__nextState != null)
+			//@line 80
 			{
-				//@line 84
-				if (__CLASS__COCOENGINE__.__currentState) __CLASS__COCOENGINE__.__currentState.exit();
-				//@line 85
+				//@line 81
+				if (__CLASS__COCOENGINE__.__currentState && __CLASS__COCOENGINE__.__currentState.exit) __CLASS__COCOENGINE__.__currentState.exit();
+				//@line 82
 				__CLASS__COCOENGINE__.__currentState = __CLASS__COCOENGINE__.__nextState;
-				//@line 86
+				//@line 83
 				__CLASS__COCOENGINE__.__currentState.enter();
-				//@line 87
+				//@line 84
 				__CLASS__COCOENGINE__.__stateStart = time;
-				//@line 88
+				//@line 85
 				__CLASS__COCOENGINE__.__nextState = null;
-				//@line 89
+				//@line 86
+				trace("@@STATE " + __CLASS__COCOENGINE__.__currentState.__name);
+				//@line 87
 				return;
 			}
-			//@line 92
+			//@line 90
 			__CLASS__COCOENGINE__.__currentState.tick(time - __CLASS__COCOENGINE__.__stateStart);
-			//@line 94
+			//@line 92
 			if (__CLASS__COCOENGINE__.__nextState == null)
-			//@line 95
-			__CLASS__COCOENGINE__.__currentState.paint(gl, time - __CLASS__COCOENGINE__.__stateStart);
-			//@line 97
+			//@line 93
+			{
+				//@line 94
+				gl.clearColor(0, 0, 0, 1);
+				//@line 95
+				gl.clear(gl.COLOR_BUFFER_BIT);
+				//@line 96
+				__CLASS__COCOENGINE__.__currentState.paint(gl, time - __CLASS__COCOENGINE__.__stateStart);
+			}
+			//@line 99
 			__CLASS__COCOENGINE__.__deviceEvent = null;
 		};
-		//@line 101
+		//@line 103
 		var setNextState = this.setNextState = function (s)
 		{
-			//@line 103
+			//@line 105
 			__CLASS__COCOENGINE__.__nextState = s;
 		};
 		//@line 43
@@ -82,26 +81,28 @@ function CocoEngine()
 		this.__stateStart = 0;
 		//@line 46
 		this.__deviceEvent = null;
-		//@line 107
-		this.STATE_NULL = (function (o)
+		//@line 109
+		this.STATE_NULL = (function ()
 		{
-			//@line 109
+			this.__name = 'STATE_NULL';
+			//@line 111
 			var tick = this.tick = function ()
 			{
-				//@line 110
+				//@line 112
 			};
 			return this
 		}).call(new State);
 		var Destructor = this.Destructor = function ()
 		{
 			//@line 62
-			/*Auto generated destructor code*/
 			__CLASS__COCOENGINE__.__currentState = null;
 			__CLASS__COCOENGINE__.__nextState = null;
 			__CLASS__COCOENGINE__.__stateStart = null;
 			__CLASS__COCOENGINE__.__deviceEvent = null;
 			__CLASS__COCOENGINE__.STATE_NULL.Destructor();
 			__CLASS__COCOENGINE__.STATE_NULL = null;
+			__CLASS__COCOENGINE__.STATE_GAME.Destructor();
+			__CLASS__COCOENGINE__.STATE_GAME = null;
 			return true
 		};
 		//@line 49
@@ -121,7 +122,5 @@ function CocoEngine()
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this
-	}).call(
-	{
-	})).Constructor.apply(this, [].slice.call(arguments))
+	}).call({})).Constructor.apply(this, [].slice.call(arguments))
 }

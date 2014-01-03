@@ -29,8 +29,8 @@ public:
 	Array<Float32Array*> __stack;
 	Float32Array* __data;
 	bool __dirty;
-	virtual CocoMatrix(CocoMatrix* M = NULL);
-	virtual ~CocoMatrix();
+	CocoMatrix(CocoMatrix* M = NULL);
+	~CocoMatrix();
 	void identity();
 	void ortho(float left, float right, float bottom, float top, float near, float far);
 	void transpose();

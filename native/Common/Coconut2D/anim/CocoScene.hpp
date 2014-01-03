@@ -13,7 +13,7 @@
 class CocoScene
 {
 public:
-	std::string __sceneName;
+	String __sceneName;
 	Array<CocoImage*> __imageSymbols;
 	Array<CocoSound*> __soundSymbols;
 	Array<CocoClip*> __clipSymbols;
@@ -30,28 +30,28 @@ public:
 	CocoMatrix* __projectionMatrix;
 	WebGLProgram* __glProgram;
 	Array<CocoClip*> __levelParents;
-	std::string __vertex_shader;
-	std::string __fragment_shader;
-	std::string __boundingBoxVertexShader;
-	std::string __boundingBoxFragmentShader;
+	String __vertex_shader;
+	String __fragment_shader;
+	String __boundingBoxVertexShader;
+	String __boundingBoxFragmentShader;
 	WebGLProgram* __boundingBoxProgram;
 	WebGLBuffer* __boundingBoxBuffer;
 	bool __ready;
 	bool __finished;
-	virtual CocoScene();
-	virtual ~CocoScene();
-	CocoImage* getImageSymbol(std::string symbolName);
-	CocoSound* getSoundSymbol(std::string symbolName);
-	CocoImage* newResourceImage(std::string symbolName, std::string baseUrl);
-	CocoSound* newResourceSound(std::string symbolName, std::string filename);
+	CocoScene();
+	~CocoScene();
+	CocoImage* getImageSymbol(String symbolName);
+	CocoSound* getSoundSymbol(String symbolName);
+	CocoImage* newResourceImage(String symbolName, String baseUrl);
+	CocoSound* newResourceSound(String symbolName, String filename);
 	void prepare(WebGLRenderingContext* gl);
-	WebGLProgram* makeProgram(WebGLRenderingContext* gl, std::string vs, std::string fs);
+	WebGLProgram* makeProgram(WebGLRenderingContext* gl, String vs, String fs);
 	void loadResources();
 	bool resourcesLoaded(WebGLRenderingContext* gl);
 	virtual void paint(WebGLRenderingContext* gl, float time);
 	void drawFrame(WebGLRenderingContext* gl, CocoImage* image, float frame, float alpha);
-	void gotoAndPlayByName(std::string LabelName, bool deep = false);
-	void gotoAndStopByName(std::string LabelName, bool deep = false);
+	void gotoAndPlayByName(String LabelName, bool deep = false);
+	void gotoAndStopByName(String LabelName, bool deep = false);
 	void gotoAndPlayByIndex(int FrameIndex, bool deep = false);
 	void gotoAndStopyByIndex(int FrameIndex, bool deep = false);
 	void stop(bool deep = false);

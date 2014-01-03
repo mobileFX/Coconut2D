@@ -6,6 +6,6 @@ CocoSound::CocoSound()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoSound::createFromFile(std::string filename, Function* onloadCallBack)
+void CocoSound::createFromFile(String filename, Function* onloadCallBack)
 {
 }

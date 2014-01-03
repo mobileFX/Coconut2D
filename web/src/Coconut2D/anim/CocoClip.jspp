@@ -54,10 +54,16 @@ class CocoClip : EventTarget
 	public var __firstTickTime:Float;
 	public var __currentFrame:CocoKeyFrame;
 	public var __hasBoundingBox:Boolean;
-	public var __vTOP_LEFT:CocoVector;
-	public var __vTOP_RIGHT:CocoVector;
-	public var __vBOTTOM_LEFT:CocoVector;
-	public var __vBOTTOM_RIGHT:CocoVector;
+	public var __vABS_TOP_LEFT:CocoVector;
+	public var __vABS_TOP_RIGHT:CocoVector;
+	public var __vABS_BOTTOM_LEFT:CocoVector;
+	public var __vABS_BOTTOM_RIGHT:CocoVector;
+	public var __vREL_TOP_LEFT:CocoVector;
+	public var __vREL_TOP_RIGHT:CocoVector;
+	public var __vREL_BOTTOM_LEFT:CocoVector;
+	public var __vREL_BOTTOM_RIGHT:CocoVector;
+	public var __vTemp:CocoVector;
+	public var __mTemp:CocoMatrix;
 	public var __childWithMaxTimelineDuration:CocoClip;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,10 +76,16 @@ class CocoClip : EventTarget
 		__firstTickTime					= -1.0;
 		__currentFrame					= null;
 		__hasBoundingBox				= false;
-		__vTOP_LEFT						= new CocoVector();
-		__vTOP_RIGHT					= new CocoVector();
-		__vBOTTOM_LEFT					= new CocoVector();
-		__vBOTTOM_RIGHT					= new CocoVector();
+		__vABS_TOP_LEFT					= new CocoVector();
+		__vABS_TOP_RIGHT				= new CocoVector();
+		__vABS_BOTTOM_LEFT				= new CocoVector();
+		__vABS_BOTTOM_RIGHT				= new CocoVector();
+		__vREL_TOP_LEFT					= new CocoVector();
+		__vREL_TOP_RIGHT				= new CocoVector();
+		__vREL_BOTTOM_LEFT				= new CocoVector();
+		__vREL_BOTTOM_RIGHT				= new CocoVector();
+		__vTemp							= new CocoVector();
+		__mTemp							= new CocoMatrix();
 		__childWithMaxTimelineDuration	= null;
 		__currentSequence				= null;
 
@@ -86,14 +98,20 @@ class CocoClip : EventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete __image
-		delete __audio
-		delete __children
-		delete __timeline
-		delete __vTOP_LEFT
-		delete __vTOP_RIGHT
-		delete __vBOTTOM_LEFT
-		delete __vBOTTOM_RIGHT
+		delete __image;
+		delete __audio;
+		delete __children;
+		delete __timeline;
+		delete __vABS_TOP_LEFT;
+		delete __vABS_TOP_RIGHT;
+		delete __vABS_BOTTOM_LEFT;
+		delete __vABS_BOTTOM_RIGHT;
+		delete __vREL_TOP_LEFT;
+		delete __vREL_TOP_RIGHT;
+		delete __vREL_BOTTOM_LEFT;
+		delete __vREL_BOTTOM_RIGHT;
+		delete __vTemp;
+		delete __mTemp;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,12 +294,11 @@ class CocoClip : EventTarget
 		{
 			if(__image)
 			{
-				var c:Float = scene.__view_pixel_ratio / __image.pixelRatio;
-				__currentFrame.scaleX *= c;
-				__currentFrame.scaleY *= c;
+				__currentFrame.scaleX *= __image.__pixelRatioScale;
+				__currentFrame.scaleY *= __image.__pixelRatioScale;
 				__currentFrame.apply(scene.__modelViewMatrix);
-				__currentFrame.scaleX /= c;
-				__currentFrame.scaleY /= c;
+				__currentFrame.scaleX /= __image.__pixelRatioScale;
+				__currentFrame.scaleY /= __image.__pixelRatioScale;
 
 				if(__image.isSpriteSheet && __currentSequence)
 				{
@@ -311,7 +328,7 @@ class CocoClip : EventTarget
 			}
 
 			// Handle touch event
-			if(engine.__deviceEvent && this!=scene.__root)// && __currentFrame.calcBoundingBox)
+			if(__currentFrame.alpha != 0 && __currentFrame.visible && engine.__deviceEvent && this!=scene.__root)// && __currentFrame.calcBoundingBox)
 			{
 				// Calculate bounding box vertices
 				if(__image)
@@ -346,24 +363,38 @@ class CocoClip : EventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function hitTest(wx:Float, wy:Float) :Boolean
 	{
-		return ((((wx - __vTOP_LEFT.X) * (__vTOP_RIGHT.Y - __vTOP_LEFT.Y) - (__vTOP_RIGHT.X - __vTOP_LEFT.X) * (wy - __vTOP_LEFT.Y)) * ((wx - __vBOTTOM_RIGHT.X) * (__vBOTTOM_LEFT.Y - __vBOTTOM_RIGHT.Y) - (__vBOTTOM_LEFT.X - __vBOTTOM_RIGHT.X) * (wy - __vBOTTOM_RIGHT.Y))) > 0
-			&& (((wx - __vTOP_RIGHT.X) * (__vBOTTOM_RIGHT.Y - __vTOP_RIGHT.Y) - (__vBOTTOM_RIGHT.X - __vTOP_RIGHT.X) * (wy - __vTOP_RIGHT.Y)) * ((wx - __vBOTTOM_LEFT.X) * (__vTOP_LEFT.Y - __vBOTTOM_LEFT.Y) - (__vTOP_LEFT.X - __vBOTTOM_LEFT.X) * (wy - __vBOTTOM_LEFT.Y))) > 0);
+		return ((((wx - __vABS_TOP_LEFT.X) * (__vABS_TOP_RIGHT.Y - __vABS_TOP_LEFT.Y) - (__vABS_TOP_RIGHT.X - __vABS_TOP_LEFT.X) * (wy - __vABS_TOP_LEFT.Y)) * ((wx - __vABS_BOTTOM_RIGHT.X) * (__vABS_BOTTOM_LEFT.Y - __vABS_BOTTOM_RIGHT.Y) - (__vABS_BOTTOM_LEFT.X - __vABS_BOTTOM_RIGHT.X) * (wy - __vABS_BOTTOM_RIGHT.Y))) > 0
+			&& (((wx - __vABS_TOP_RIGHT.X) * (__vABS_BOTTOM_RIGHT.Y - __vABS_TOP_RIGHT.Y) - (__vABS_BOTTOM_RIGHT.X - __vABS_TOP_RIGHT.X) * (wy - __vABS_TOP_RIGHT.Y)) * ((wx - __vABS_BOTTOM_LEFT.X) * (__vABS_TOP_LEFT.Y - __vABS_BOTTOM_LEFT.Y) - (__vABS_TOP_LEFT.X - __vABS_BOTTOM_LEFT.X) * (wy - __vABS_BOTTOM_LEFT.Y))) > 0);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float)
 	{
-	    // Reset vectors
-	    __vTOP_LEFT.reset(-W2, -H2, 0, 1);
-	    __vTOP_RIGHT.reset(W2, -H2, 0, 1);
-	    __vBOTTOM_LEFT.reset(-W2, H2, 0, 1);
-	    __vBOTTOM_RIGHT.reset(W2, H2, 0, 1);
+		__mTemp.identity();
 
-	    // Multiply vectors with the current modelview matrix
-	    __vTOP_LEFT 	= scene.__modelViewMatrix.multiplyByVector(__vTOP_LEFT);
-	    __vTOP_RIGHT 	= scene.__modelViewMatrix.multiplyByVector(__vTOP_RIGHT);
-	    __vBOTTOM_LEFT 	= scene.__modelViewMatrix.multiplyByVector(__vBOTTOM_LEFT);
-	    __vBOTTOM_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vBOTTOM_RIGHT);
+		__currentFrame.scaleX *= __image.__pixelRatioScale;
+		__currentFrame.scaleY *= __image.__pixelRatioScale;
+		__currentFrame.apply(__mTemp);
+		__currentFrame.scaleX /= __image.__pixelRatioScale;
+		__currentFrame.scaleY /= __image.__pixelRatioScale;
+
+		//__currentFrame.apply(__mTemp);
+
+		__vTemp.reset(-W2, -H2, 0, 1);
+		__vREL_TOP_LEFT	= __mTemp.multiplyByVector(__vTemp);
+		__vABS_TOP_LEFT	= scene.__modelViewMatrix.multiplyByVector(__vTemp);
+
+		__vTemp.reset(W2, -H2, 0, 1);
+		__vREL_TOP_RIGHT = __mTemp.multiplyByVector(__vTemp);
+		__vABS_TOP_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vTemp);
+
+		__vTemp.reset(-W2, H2, 0, 1);
+		__vREL_BOTTOM_LEFT = __mTemp.multiplyByVector(__vTemp);
+		__vABS_BOTTOM_LEFT = scene.__modelViewMatrix.multiplyByVector(__vTemp);
+
+		__vTemp.reset(W2, H2, 0, 1);
+		__vREL_BOTTOM_RIGHT	= __mTemp.multiplyByVector(__vTemp);
+		__vABS_BOTTOM_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vTemp);
 
 	    __hasBoundingBox = true;
 	}
@@ -378,67 +409,60 @@ class CocoClip : EventTarget
 	    if(__children.size()==0)
 	    	return;
 
-	    var MI :CocoMatrix;
 	    var Child :CocoClip
-	    var Rc :CocoRect;
 	    var i :Integer;
-	    var v1 :CocoVector;
-	    var v2 :CocoVector;
 		var vClip :String;
-		var v:Array<CocoVector>;
 
-	    // Define an invalid rectangle.
-	    Rc = new CocoRect();
-	    Rc.left = 100000;
-	    Rc.right = -100000;
-	    Rc.top = 100000;
-	    Rc.bottom = -100000;
-
-	    // Invert parent matrix.
-	    MI = new CocoMatrix(scene.__modelViewMatrix);
-	    MI.invert();
+	    __vREL_TOP_LEFT.X = 100000;
+		__vREL_TOP_RIGHT.X = -100000;
+	    __vREL_TOP_LEFT.Y = 100000;
+	    __vREL_BOTTOM_LEFT.Y = -100000;
 
         for(vClip in __children)
 	    {
-            // For every child, multiply the inverse parent matrix with child's
-            // vertex vectors in order to unproject child coordinates.
-
             Child = __children[vClip];
             if(Child.__hasBoundingBox)
             {
-	            v[0] = MI.multiplyByVector(Child.__vTOP_LEFT);
-	            v[1] = MI.multiplyByVector(Child.__vTOP_RIGHT);
-	            v[2] = MI.multiplyByVector(Child.__vBOTTOM_LEFT);
-	            v[3] = MI.multiplyByVector(Child.__vBOTTOM_RIGHT);
+				if(Child.__vREL_TOP_LEFT.X < __vREL_TOP_LEFT.X) __vREL_TOP_LEFT.X = Child.__vREL_TOP_LEFT.X;
+				if(Child.__vREL_TOP_LEFT.X > __vREL_TOP_RIGHT.X) __vREL_TOP_RIGHT.X = Child.__vREL_TOP_LEFT.X;
+				if(Child.__vREL_TOP_LEFT.Y < __vREL_TOP_LEFT.Y) __vREL_TOP_LEFT.Y = Child.__vREL_TOP_LEFT.Y;
+				if(Child.__vREL_TOP_LEFT.Y > __vREL_BOTTOM_LEFT.Y) __vREL_BOTTOM_LEFT.Y = Child.__vREL_TOP_LEFT.Y;
 
-	            // Loop verticies to expand our bounding box from the current child.
-	            for(var i:Integer=0; i<4; i++)
-	            {
-	                if(v[i].X < Rc.left) Rc.left = v[i].X;
-	                if(v[i].X > Rc.right) Rc.right = v[i].X;
-	                if(v[i].Y < Rc.top) Rc.top = v[i].Y;
-	                if(v[i].Y > Rc.bottom) Rc.bottom = v[i].Y;
-	            }
+				if(Child.__vREL_TOP_RIGHT.X < __vREL_TOP_LEFT.X) __vREL_TOP_LEFT.X = Child.__vREL_TOP_RIGHT.X;
+				if(Child.__vREL_TOP_RIGHT.X > __vREL_TOP_RIGHT.X) __vREL_TOP_RIGHT.X = Child.__vREL_TOP_RIGHT.X;
+				if(Child.__vREL_TOP_RIGHT.Y < __vREL_TOP_LEFT.Y) __vREL_TOP_LEFT.Y = Child.__vREL_TOP_RIGHT.Y;
+				if(Child.__vREL_TOP_RIGHT.Y > __vREL_BOTTOM_LEFT.Y) __vREL_BOTTOM_LEFT.Y = Child.__vREL_TOP_RIGHT.Y;
+
+				if(Child.__vREL_BOTTOM_LEFT.X < __vREL_TOP_LEFT.X) __vREL_TOP_LEFT.X = Child.__vREL_BOTTOM_LEFT.X;
+				if(Child.__vREL_BOTTOM_LEFT.X > __vREL_TOP_RIGHT.X) __vREL_TOP_RIGHT.X = Child.__vREL_BOTTOM_LEFT.X;
+				if(Child.__vREL_BOTTOM_LEFT.Y < __vREL_TOP_LEFT.Y) __vREL_TOP_LEFT.Y = Child.__vREL_BOTTOM_LEFT.Y;
+				if(Child.__vREL_BOTTOM_LEFT.Y > __vREL_BOTTOM_LEFT.Y) __vREL_BOTTOM_LEFT.Y = Child.__vREL_BOTTOM_LEFT.Y;
+
+				if(Child.__vREL_BOTTOM_RIGHT.X < __vREL_TOP_LEFT.X) __vREL_TOP_LEFT.X = Child.__vREL_BOTTOM_RIGHT.X;
+				if(Child.__vREL_BOTTOM_RIGHT.X > __vREL_TOP_RIGHT.X) __vREL_TOP_RIGHT.X = Child.__vREL_BOTTOM_RIGHT.X;
+				if(Child.__vREL_BOTTOM_RIGHT.Y < __vREL_TOP_LEFT.Y) __vREL_TOP_LEFT.Y = Child.__vREL_BOTTOM_RIGHT.Y;
+				if(Child.__vREL_BOTTOM_RIGHT.Y > __vREL_BOTTOM_LEFT.Y) __vREL_BOTTOM_LEFT.Y = Child.__vREL_BOTTOM_RIGHT.Y;
             }
-
-            // Ok, combine resulting bounding box with next child...
 	    }
 
-	    __vTOP_LEFT.X = Rc.left;
-	    __vTOP_LEFT.Y = Rc.top;
-	    __vTOP_RIGHT.X = Rc.right;
-	    __vTOP_RIGHT.Y = Rc.top;
-	    __vBOTTOM_LEFT.X = Rc.left;
-	    __vBOTTOM_LEFT.Y = Rc.bottom;
-	    __vBOTTOM_RIGHT.X = Rc.right;
-	    __vBOTTOM_RIGHT.Y = Rc.bottom;
+	    __vREL_TOP_RIGHT.Y = __vREL_TOP_LEFT.Y;
+	    __vREL_BOTTOM_LEFT.X = __vREL_TOP_LEFT.X;
+	    __vREL_BOTTOM_RIGHT.X = __vREL_TOP_RIGHT.X;
+	    __vREL_BOTTOM_RIGHT.Y = __vREL_BOTTOM_LEFT.Y;
 
-	    // Re-multiply our bounding box vertex vectors with the rotated matrix
-	    MI = scene.__modelViewMatrix;
-	    __vTOP_LEFT = MI.multiplyByVector(__vTOP_LEFT);
-	    __vTOP_RIGHT = MI.multiplyByVector(__vTOP_RIGHT);
-	    __vBOTTOM_LEFT = MI.multiplyByVector(__vBOTTOM_LEFT);
-	    __vBOTTOM_RIGHT = MI.multiplyByVector(__vBOTTOM_RIGHT);
+	    __vABS_TOP_LEFT = scene.__modelViewMatrix.multiplyByVector(__vREL_TOP_LEFT);
+	    __vABS_TOP_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vREL_TOP_RIGHT);
+	    __vABS_BOTTOM_LEFT = scene.__modelViewMatrix.multiplyByVector(__vREL_BOTTOM_LEFT);
+	    __vABS_BOTTOM_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vREL_BOTTOM_RIGHT);
+
+		__mTemp.identity();
+
+		__currentFrame.apply(__mTemp);
+
+	    __vREL_TOP_LEFT = __mTemp.multiplyByVector(__vREL_TOP_LEFT);
+	    __vREL_TOP_RIGHT = __mTemp.multiplyByVector(__vREL_TOP_RIGHT);
+	    __vREL_BOTTOM_LEFT = __mTemp.multiplyByVector(__vREL_BOTTOM_LEFT);
+	    __vREL_BOTTOM_RIGHT = __mTemp.multiplyByVector(__vREL_BOTTOM_RIGHT);
 
 	    __hasBoundingBox = true;
 	}
@@ -455,7 +479,7 @@ class CocoClip : EventTarget
 		gl.enableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, scene.__boundingBoxBuffer);
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([__vTOP_LEFT.X, __vTOP_LEFT.Y, __vTOP_RIGHT.X, __vTOP_RIGHT.Y, __vBOTTOM_RIGHT.X, __vBOTTOM_RIGHT.Y, __vBOTTOM_LEFT.X, __vBOTTOM_LEFT.Y]));
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([__vABS_TOP_LEFT.X, __vABS_TOP_LEFT.Y, __vABS_TOP_RIGHT.X, __vABS_TOP_RIGHT.Y, __vABS_BOTTOM_RIGHT.X, __vABS_BOTTOM_RIGHT.Y, __vABS_BOTTOM_LEFT.X, __vABS_BOTTOM_LEFT.Y]));
 		gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);
 		scene.__projectionMatrix.update(gl, scene.__boundingBoxProgram.GLSLuProjMat);
 		gl.drawArrays(gl.LINE_LOOP, 0, 4);

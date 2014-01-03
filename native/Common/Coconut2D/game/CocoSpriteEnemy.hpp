@@ -7,7 +7,7 @@
 class CocoSpriteEnemy : public CocoSpriteActor
 {
 public:
-	virtual CocoSpriteEnemy();
+	CocoSpriteEnemy();
 };
 
 #endif

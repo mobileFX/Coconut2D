@@ -33,8 +33,10 @@ CocoMatrix::CocoMatrix(CocoMatrix* M)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoMatrix::~CocoMatrix()
 {
-	delete __stack;
-	delete __data;
+	if(__data)
+	{
+		__data = (delete __data, NULL);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,6 +323,9 @@ void CocoMatrix::pop()
 		rc43 = (*data)[14];
 		rc44 = (*data)[15];
 		__dirty = true;
-		delete data;
+		if(data)
+		{
+			data = (delete data, NULL);
+		}
 	}
 }

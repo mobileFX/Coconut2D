@@ -7,26 +7,20 @@ function CocoScene()
 	return ((function ()
 	{
 		var __CLASS__COCOSCENE__ = this,
-			__PDEFINE__ =
-			{
-			}.constructor.defineProperty,
-			__NOENUM__ =
-			{
-				enumerable: false
-			};
+			__PDEFINE__ = {}.constructor.defineProperty,
+			__NOENUM__ = {enumerable:false};
 		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
 		this.__SUPER__ = __SUPER__;
 		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
 		this.__CLASS__ = 'CocoScene';
-		this.__PROTECTED__ =
-		{
-		};
+		this.__PROTECTED__ = {};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		//@line 124
 		var getImageSymbol = this.getImageSymbol = function (symbolName)
 		{
 			//@line 126
 			for (var i = __CLASS__COCOSCENE__.__imageSymbols.size() - 1; i >= 0; i--)
+			//@line 127
 			{
 				//@line 128
 				if (__CLASS__COCOSCENE__.__imageSymbols[i].symbolName == symbolName)
@@ -41,6 +35,7 @@ function CocoScene()
 		{
 			//@line 137
 			for (var i = __CLASS__COCOSCENE__.__soundSymbols.size() - 1; i >= 0; i--)
+			//@line 138
 			{
 				//@line 139
 				if (__CLASS__COCOSCENE__.__soundSymbols[i].symbolName == symbolName)
@@ -141,6 +136,7 @@ function CocoScene()
 			__CLASS__COCOSCENE__.__projectionMatrix = new CocoMatrix;
 			//@line 202
 			if (window.deviceRotation)
+			//@line 203
 			{
 				//@line 204
 				var c = Math.cos(window.deviceRotation);
@@ -156,6 +152,7 @@ function CocoScene()
 				__CLASS__COCOSCENE__.__projectionMatrix.rotateZ(-window.deviceRotation);
 			}
 			else
+			//@line 212
 			{
 				//@line 213
 				__CLASS__COCOSCENE__.__projectionMatrix.ortho(-(gl.canvas.width / 2.0), gl.canvas.width / 2.0, gl.canvas.height / 2.0, -(gl.canvas.height / 2.0), -1.0, 1.0);
@@ -208,11 +205,13 @@ function CocoScene()
 			var sibling;
 			//@line 248
 			for (var i = 0, L = __CLASS__COCOSCENE__.__imageSymbols.size(); i < L; i++)
+			//@line 249
 			{
 				//@line 250
 				img = __CLASS__COCOSCENE__.__imageSymbols[i];
 				//@line 251
 				if (__CLASS__COCOSCENE__.__view_width && __CLASS__COCOSCENE__.__view_height)
+				//@line 252
 				{
 					//@line 253
 					var w = img.viewOptimalWidth * __CLASS__COCOSCENE__.__view_scale * window.devicePixelRatio;
@@ -220,11 +219,13 @@ function CocoScene()
 					var h = img.viewOptimalHeight * __CLASS__COCOSCENE__.__view_scale * window.devicePixelRatio;
 					//@line 255
 					for (var j = 0; j < img.viewSiblings.size(); j++)
+					//@line 256
 					{
 						//@line 257
 						sibling = img.viewSiblings[j];
 						//@line 258
 						if (sibling.textureWidth >= w && sibling.textureHeight >= h)
+						//@line 259
 						{
 							//@line 260
 							img.image = new Image;
@@ -243,6 +244,7 @@ function CocoScene()
 				}
 				//@line 269
 				if (!img.image)
+				//@line 270
 				{
 					//@line 271
 					sibling = img.viewSiblings[img.viewSiblings.size() - 1];
@@ -259,6 +261,7 @@ function CocoScene()
 				}
 				//@line 279
 				if (img.image)
+				//@line 280
 				{
 					//@line 281
 					trace("Loaded image: " + img.image.src);
@@ -270,16 +273,19 @@ function CocoScene()
 		{
 			//@line 289
 			if (!__CLASS__COCOSCENE__.__ready)
+			//@line 290
 			{
 				//@line 291
 				var img;
 				//@line 292
 				for (var i = __CLASS__COCOSCENE__.__imageSymbols.size() - 1; i >= 0; i--)
+				//@line 293
 				{
 					//@line 294
 					img = __CLASS__COCOSCENE__.__imageSymbols[i];
 					//@line 295
 					if (!img.image || !img.image.width || !img.image.height)
+					//@line 296
 					{
 						//@line 297
 						return false;
@@ -287,6 +293,7 @@ function CocoScene()
 					else
 					//@line 299
 					if (!img.texture)
+					//@line 300
 					{
 						//@line 301
 						img.prepare(gl);
@@ -310,6 +317,7 @@ function CocoScene()
 		{
 			//@line 315
 			if (!__CLASS__COCOSCENE__.__glProgram)
+			//@line 316
 			{
 				//@line 317
 				prepare(gl);
@@ -319,9 +327,11 @@ function CocoScene()
 			else
 			//@line 320
 			if (resourcesLoaded(gl))
+			//@line 321
 			{
 				//@line 322
 				if (__CLASS__COCOSCENE__.__startTime == -1)
+				//@line 323
 				{
 					//@line 324
 					__CLASS__COCOSCENE__.__startTime = time;
@@ -329,6 +339,7 @@ function CocoScene()
 					__CLASS__COCOSCENE__.__elapsedTime = 0;
 				}
 				else
+				//@line 328
 				{
 					//@line 329
 					__CLASS__COCOSCENE__.__elapsedTime = (time - __CLASS__COCOSCENE__.__startTime) - (__CLASS__COCOSCENE__.__currentTime);
@@ -337,6 +348,7 @@ function CocoScene()
 				__CLASS__COCOSCENE__.__currentTime = time - __CLASS__COCOSCENE__.__startTime;
 				//@line 332
 				if (__CLASS__COCOSCENE__.__root)
+				//@line 333
 				{
 					//@line 334
 					__CLASS__COCOSCENE__.__modelViewMatrix.identity();
@@ -350,6 +362,7 @@ function CocoScene()
 					var max = __CLASS__COCOSCENE__.__root.__childWithMaxTimelineDuration;
 					//@line 339
 					if (max && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
+					//@line 340
 					{
 						//@line 341
 						__CLASS__COCOSCENE__.__finished = true;
@@ -397,7 +410,7 @@ function CocoScene()
 		var gotoAndStopByName = this.gotoAndStopByName = function (LabelName, deep)
 		{
 			//@line 376
-			var scope = __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
+			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
 			//@line 377
 			scope.gotoFrameByName(LabelName, true, deep);
 		};
@@ -405,7 +418,7 @@ function CocoScene()
 		var gotoAndPlayByIndex = this.gotoAndPlayByIndex = function (FrameIndex, deep)
 		{
 			//@line 383
-			var scope = __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
+			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
 			//@line 384
 			scope.gotoFrameByIndex(FrameIndex, false, deep);
 		};
@@ -413,7 +426,7 @@ function CocoScene()
 		var gotoAndStopyByIndex = this.gotoAndStopyByIndex = function (FrameIndex, deep)
 		{
 			//@line 390
-			var scope = __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
+			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
 			//@line 391
 			scope.gotoFrameByIndex(FrameIndex, true, deep);
 		};
@@ -423,7 +436,7 @@ function CocoScene()
 			//@line 397
 			deep = (deep == "true");
 			//@line 398
-			var scope = __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
+			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
 			//@line 399
 			scope.gotoFrameByIndex(-1, true, deep);
 		};
@@ -481,36 +494,38 @@ function CocoScene()
 		{
 			//@line 104
 			__CLASS__COCOSCENE__.__root && ((__CLASS__COCOSCENE__.__root.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__root.Destructor()) || !__CLASS__COCOSCENE__.__root.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__root);
-			__CLASS__COCOSCENE__.__root = null;;
+			__CLASS__COCOSCENE__.__root = null;
 			//@line 105
 			__CLASS__COCOSCENE__.__modelViewMatrix && ((__CLASS__COCOSCENE__.__modelViewMatrix.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__modelViewMatrix.Destructor()) || !__CLASS__COCOSCENE__.__modelViewMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__modelViewMatrix);
-			__CLASS__COCOSCENE__.__modelViewMatrix = null;;
+			__CLASS__COCOSCENE__.__modelViewMatrix = null;
 			//@line 106
 			__CLASS__COCOSCENE__.__projectionMatrix && ((__CLASS__COCOSCENE__.__projectionMatrix.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__projectionMatrix.Destructor()) || !__CLASS__COCOSCENE__.__projectionMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__projectionMatrix);
-			__CLASS__COCOSCENE__.__projectionMatrix = null;;
+			__CLASS__COCOSCENE__.__projectionMatrix = null;
 			//@line 107
 			__CLASS__COCOSCENE__.__glProgram && ((__CLASS__COCOSCENE__.__glProgram.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__glProgram.Destructor()) || !__CLASS__COCOSCENE__.__glProgram.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__glProgram);
-			__CLASS__COCOSCENE__.__glProgram = null;;
+			__CLASS__COCOSCENE__.__glProgram = null;
 			//@line 108
 			__CLASS__COCOSCENE__.__boundingBoxProgram && ((__CLASS__COCOSCENE__.__boundingBoxProgram.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__boundingBoxProgram.Destructor()) || !__CLASS__COCOSCENE__.__boundingBoxProgram.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__boundingBoxProgram);
-			__CLASS__COCOSCENE__.__boundingBoxProgram = null;;
+			__CLASS__COCOSCENE__.__boundingBoxProgram = null;
 			//@line 109
 			__CLASS__COCOSCENE__.__boundingBoxBuffer && ((__CLASS__COCOSCENE__.__boundingBoxBuffer.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__boundingBoxBuffer.Destructor()) || !__CLASS__COCOSCENE__.__boundingBoxBuffer.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__boundingBoxBuffer);
-			__CLASS__COCOSCENE__.__boundingBoxBuffer = null;;
+			__CLASS__COCOSCENE__.__boundingBoxBuffer = null;
 			//@line 111
 			var i = 0;
 			//@line 112
 			for (i = __CLASS__COCOSCENE__.__imageSymbols.size() - 1; i >= 0; i--)
+			//@line 113
 			{
 				//@line 114
 				delete __CLASS__COCOSCENE__.__imageSymbols[i];
 			}
 			//@line 117
 			for (i = __CLASS__COCOSCENE__.__soundSymbols.size() - 1; i >= 0; i--)
+			//@line 118
 			{
 				//@line 119
 				delete __CLASS__COCOSCENE__.__soundSymbols[i];
-			} /*Auto generated destructor code*/
+			}
 			__CLASS__COCOSCENE__.__sceneName = null;
 			__CLASS__COCOSCENE__.__imageSymbols = null;
 			__CLASS__COCOSCENE__.__soundSymbols = null;
@@ -585,7 +600,5 @@ function CocoScene()
 		};
 		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
 		return this
-	}).call(
-	{
-	})).Constructor.apply(this, [].slice.call(arguments))
+	}).call({})).Constructor.apply(this, [].slice.call(arguments))
 }

@@ -121,7 +121,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewWarning = function (e, ast)
 	{
-		if(!ast.__warnings) ast.__warnings = {};
+		//if(!ast.__warnings) ast.__warnings = {};
 		if(!ast.__warnings[e]) ast.__warnings[e] = 0;
 		ast.__warnings[e]++;
 		if(ast.__warnings[e]>1) return;
@@ -133,7 +133,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewError = function (e, ast)
 	{
-		if(!ast.__errors) ast.__errors = {};
+		//if(!ast.__errors) ast.__errors = {};
 		if(!ast.__errors[e]) ast.__errors[e] = 0;
 		ast.__errors[e]++;
 		if(ast.__errors[e]>1) return;
@@ -194,6 +194,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		var _this = this;
 		_this.tokenizer = ast.tokenizer;
 		var currFunction = null;
+		var currClass = null;
+		var currDot = [];
 
 	    // Descent the ast.
 		function descend(node)
@@ -205,6 +207,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			case jsdef.CLASS:
 				if(!_this.fileClasses[node.file]) _this.fileClasses[node.file]={};
 				_this.fileClasses[node.file][node.name] = node;
+				currClass = node;
 				break;
 
 			case jsdef.FUNCTION:
@@ -219,6 +222,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 			case jsdef.DOT:
 				// Pre-process DOT for speed.
+				currDot.push(node);
 				node.identifiers_list = _this.reduceProps(node);
 				node.identifier_first = node.identifiers_list[0].ast;
 				node.identifier_last = node.identifiers_list[node.identifiers_list.length-1].ast;
@@ -233,6 +237,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 						break;
 					}
 				}
+				currDot.pop();
 				break;
 			}
 
@@ -247,6 +252,11 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 					case "identifier_first":
 					case "identifier_last":
 					case "returnPaths":
+					case "inClass":
+					case "inFunction":
+					case "inDot":
+					case "source":
+					case "nodeType":
 						break;
 
 					default:
@@ -264,6 +274,11 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
             // Enrich ast node with usefull data and delete its reference to tokenizer.
 			node.nodeType = GLOBAL.narcissus.jsdefNames[node.type];
 			node.source = _this.tokenizer.source.slice(node.start, node.end);
+			node.inClass = currClass;
+			node.inFunction = currFunction;
+			node.inDot = currDot.lenght>0;
+			node.__warnings = {};
+			node.__errors = {};
 			var o_start = (node.__filePosOffset - (node.line_start - node.__fileLineOffset)+1);
 			var o_end = (node.__filePosOffset - (node.line_end - node.__fileLineOffset)+1);
 			node.start -= o_start;
@@ -274,6 +289,9 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 			node.line_end -= node.__fileLineOffset;
 			node.tokenizer = null;
 			delete node.tokenizer;
+
+			if(node.type==jsdef.CLASS) currClass=null;
+			if(node.type==jsdef.FUNCTION) currFunction=null;
 		}
 
 		descend(ast);
@@ -458,7 +476,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 		if(!noWarning && _this.secondPass && !symbol)
 		{
-			if(_this.isInside(ast, null, "isPrototype", true))
+			if(ast.file.substr(ast.file.length-3)==".js" || _this.isInside(ast, null, "isPrototype", true))
 			{
 				return null;
 			}
@@ -591,22 +609,19 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getClassScope = function()
 	{
-		var scope = _this.getCurrentScope();
-		while(scope)
-		{
-			if(scope.isClass)
-				return scope;
-			scope = scope.parentScope;
-		}
+		return _this.currClassName && _this.currClassName!="Global" ? _this.classes[_this.currClassName].scope : null;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.isInside = function(ast, jsdefType, propName, propValue)
+	_this.isInside = function(ast, jsdefType, propName, propValue, stop_jsdefType)
 	{
 		if(!ast) return false;
 		for(var p=ast.parent;p!=null;p=p.parent)
 		{
-			if(jsdefType !=null && p.type==jsdefType)
+			if(p.type==stop_jsdefType)
+				return false;
+
+			if(p.type==jsdefType)
 			{
 				if(propName && propValue)
 				{
@@ -1210,7 +1225,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				if(!_this.secondPass)
 			 	{
 	       			var classScope = _this.getClassScope();
-					if(classScope && !_this.isInside(ast[item], jsdef.BLOCK) && Object.prototype.hasOwnProperty.call(classScope.vars, ast[item].name))
+					if(classScope && Object.prototype.hasOwnProperty.call(classScope.vars, ast[item].name) && !_this.isInside(ast[item], jsdef.BLOCK))
 					{
 						_this.NewWarning("Found declaration of variable " + ast[item].name + " in class scope", ast[item]);
 					}
@@ -1432,7 +1447,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.THIS:
-			if(_this.isInside(ast, jsdef.FUNCTION) && _this.isInside(ast, jsdef.CLASS))
+			if( ast.inFunction && ast.inClass)
+			//if(_this.isInside(ast, jsdef.FUNCTION) && _this.isInside(ast, jsdef.CLASS))
 			{
 				ast.symbol = _this.getCurrentClass();
 				ast.runtime = ast.symbol.classId;
@@ -2503,7 +2519,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		//** Need to rewrite using Roger's convertion tables
 
 		var _this = this;
-		if(!_this.currClassName) return;
+		if(!_this.currClassName || !_this.secondPass) return;
 
 		// Fast type checking
 		if(type1==type2) return type1;
@@ -2607,14 +2623,15 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	_this.addDebugSymbol = function(ast, runtime)
 	{
 		if(!_this.secondPass || !_this.exportSymbols) return;
+
 		var identifier = "";
 
-		if(ast.type==jsdef.IDENTIFIER && !_this.isInside(ast,jsdef.DOT))
+		if(ast.type==jsdef.IDENTIFIER && !ast.inDot)// !_this.isInside(ast,jsdef.DOT))
 		{
 			identifier = ast.value;
 			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
 		}
-		else if(ast.type==jsdef.DOT && _this.currClassName && !_this.isInside(ast, jsdef.DOT)) // Process top-level DOTs only, skip inner DOTs.
+		else if(ast.type==jsdef.DOT && _this.currClassName && !ast.inDot)// !_this.isInside(ast, jsdef.DOT)) // Process top-level DOTs only, skip inner DOTs.
 		{
 			var v_identifiers = [], v_runtime = [], buff = [];
 			for(var i=0;i<ast.identifiers_list.length;i++)
@@ -2846,23 +2863,4 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

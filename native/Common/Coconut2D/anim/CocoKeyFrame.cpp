@@ -17,6 +17,7 @@ CocoKeyFrame::CocoKeyFrame()
 	pivotY = 0.0;
 	alpha = 1.0;
 	action = NULL;
+	nextState = NULL;
 	__lastActionExecutionTime = 0.0;
 }
 
@@ -42,6 +43,7 @@ CocoKeyFrame* CocoKeyFrame::clone()
 	c->x = x;
 	c->y = y;
 	c->action = action;
+	c->nextState = nextState;
 	c->calcBoundingBox = calcBoundingBox;
 	c->__lastActionExecutionTime = __lastActionExecutionTime;
 	return c;
@@ -63,6 +65,10 @@ void CocoKeyFrame::execute(WebGLRenderingContext* gl, float currentTime, float l
 		{
 			Array* args = {gl, currentTime, loopTime, clip, this};
 			action->apply(scene, args);
+		}
+		if(nextState)
+		{
+			engine->setNextState(nextState);
 		}
 	}
 }

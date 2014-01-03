@@ -11,10 +11,9 @@ class CocoEngine
 public:
 	State* __currentState;
 	State* __nextState;
-	float __stateStart;
 	DeviceEvent* __deviceEvent;
-	virtual CocoEngine();
-	virtual ~CocoEngine();
+	CocoEngine();
+	~CocoEngine();
 	void __setTouchEvent(DeviceEvent* e);
 	void run(WebGLRenderingContext* gl, float time);
 	void setNextState(State* s);
@@ -22,7 +21,7 @@ public:
 	{
 		CocoEngine* self;
 		STATE_NULL(CocoEngine* self) : self(self) {}
-		void tick() {}
+		void tick();
 	}* STATE_NULL = new struct STATE_NULL(this);
 };
 

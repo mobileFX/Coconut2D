@@ -1,7 +1,7 @@
 #include "CocoSequence.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoSequence::CocoSequence(std::string name, Array<int> framesArray)
+CocoSequence::CocoSequence(String name, Array<int> framesArray)
 {
 	this->name = name;
 	this->frames = framesArray;

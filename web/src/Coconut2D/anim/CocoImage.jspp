@@ -54,6 +54,7 @@ class CocoImage
 	public var texSize:Float32Array;
 	public var buffer:WebGLBuffer;
 	public var isSpriteSheet:Boolean;
+	public var __pixelRatioScale:Float;
 
 	// Sprite
 	public var sequences:Array<CocoSequence>;
@@ -140,8 +141,10 @@ class CocoImage
 	*/
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function prepare(gl:WebGLRenderingContext)
+	public function prepare(scene:CocoScene, gl:WebGLRenderingContext)
 	{
+		__pixelRatioScale = scene.__view_pixel_ratio / pixelRatio;
+
 		// Calc texture data and size.
 		var w2:Float = textureCellWidth / 2.0;
 		var h2:Float = textureCellHeight / 2.0;
@@ -175,8 +178,3 @@ class CocoImage
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 }
-
-
-
-
-

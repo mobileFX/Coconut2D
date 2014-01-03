@@ -6,11 +6,11 @@
 class CocoImageSibling
 {
 public:
-	std::string url;
+	String url;
 	float pixelRatio;
 	float textureWidth;
 	float textureHeight;
-	virtual CocoImageSibling(std::string url, float pixelRatio, float textureWidth, float textureHeight);
+	CocoImageSibling(String url, float pixelRatio, float textureWidth, float textureHeight);
 };
 
 #endif

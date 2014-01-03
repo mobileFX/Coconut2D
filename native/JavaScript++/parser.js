@@ -1267,10 +1267,10 @@ function __init_narcissus(GLOBAL)
 
 				switch(f.name)
 				{
-				case "enter": 	n.enter = f; f.public=true; break;
-				case "exit": 	n.exit  = f; f.public=true; break;
-				case "tick": 	n.tick  = f; f.public=true; break;
-				case "paint":	n.paint = f; f.public=true; break;
+				case "enter": f.public=true; break;
+				case "exit":  f.public=true; break;
+				case "tick":  f.public=true; break;
+				case "paint": f.public=true; break;
 				default:
 					throw t.newSyntaxError("Invalid function inside State");
 				}
@@ -2363,6 +2363,7 @@ function __init_narcissus(GLOBAL)
 
 }
 __init_narcissus(this);
+
 
 
 

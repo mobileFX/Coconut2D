@@ -4,6 +4,7 @@
 #include "Coconut2D.hpp"
 #include "CocoTimeLabel.hpp"
 #include "CocoKeyFrame.hpp"
+#include "CocoState.hpp"
 #include "CocoScene.hpp"
 #include "CocoClip.hpp"
 
@@ -19,18 +20,18 @@ public:
 	bool __paused;
 	CocoKeyFrame* __pausedKeyFrame;
 	float __fps;
-	virtual CocoTimeline();
-	virtual ~CocoTimeline();
+	CocoTimeline();
+	~CocoTimeline();
 	void clear();
 	void reset();
 	CocoTimeLabel* addLabel(CocoTimeLabel* Label);
-	CocoTimeLabel* addLabelEx(int FrameIndex, std::string LabelName);
-	CocoTimeLabel* findLabelByName(std::string LabelName);
+	CocoTimeLabel* addLabelEx(int FrameIndex, String LabelName);
+	CocoTimeLabel* findLabelByName(String LabelName);
 	CocoKeyFrame* keyFrame(int frameIndex);
 	CocoKeyFrame* firstKeyFrame();
 	CocoKeyFrame* lastKeyFrame();
 	CocoKeyFrame* addKeyFrame(CocoKeyFrame* KeyFrame);
-	CocoKeyFrame* addKeyFrameEx(Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha);
+	CocoKeyFrame* addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha);
 	void prepare(CocoScene* scene, CocoClip* clip);
 	void normalizetimeline();
 	void jumpBy(float frames, bool paused);

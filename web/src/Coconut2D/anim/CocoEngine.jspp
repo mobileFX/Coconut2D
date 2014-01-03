@@ -42,14 +42,11 @@ state class CocoEngine
 {
 	public var __currentState:State;
 	public var __nextState:State;
-	public var __stateStart:Float;
 	public var __deviceEvent:DeviceEvent;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		__stateStart = 0.0;
-
 		// Set event handlers
 		__deviceEvent = null;
 		window.addEventListener("touchstart", __setTouchEvent);
@@ -81,19 +78,18 @@ state class CocoEngine
 			if(__currentState && __currentState.exit) __currentState.exit();
 			__currentState = __nextState;
 			__currentState.enter();
-			__stateStart = time;
 			__nextState = null;
 			trace("@@STATE " + __currentState.__name);
 			return;
 		}
 
-		__currentState.tick(time-__stateStart);
+		__currentState.tick(time);
 
 		if(__nextState==null)
 		{
 			gl.clearColor(0,0,0,1);
 			gl.clear(gl.COLOR_BUFFER_BIT);
-			__currentState.paint(gl, time-__stateStart);
+			__currentState.paint(gl, time);
 		}
 
 		__deviceEvent = null;

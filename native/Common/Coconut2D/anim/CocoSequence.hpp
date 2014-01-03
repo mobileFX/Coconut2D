@@ -6,9 +6,9 @@
 class CocoSequence
 {
 public:
-	std::string name;
+	String name;
 	Array<int> frames;
-	virtual CocoSequence(std::string name, Array<int> framesArray);
+	CocoSequence(String name, Array<int> framesArray);
 };
 
 #endif
