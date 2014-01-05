@@ -37,14 +37,14 @@
 "#include WebGLRenderingContext.jspp"
 "#include CocoMatrix.jspp"
 "#include CocoImage.jspp"
-"#include CocoSound.jspp"
+"#include CocoAudio.jspp"
 "#include CocoTimeline.jspp"
 
 class CocoClip : EventTarget
 {
 	public var __instanceName:String;
 	public var __image:CocoImage;
-	public var __audio:CocoSound;
+	public var __audio:CocoAudio;
 	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var __children:Array<CocoClip>;
 	public var __currentSequence:CocoSequence;
@@ -67,7 +67,7 @@ class CocoClip : EventTarget
 	public var __childWithMaxTimelineDuration:CocoClip;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(optional image:CocoImage, optional audio:CocoSound, optional sequence:String)
+	public function Constructor(optional image:CocoImage, optional audio:CocoAudio, optional sequence:String)
 	{
 		__symbolLoop					= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
 		__currentSequenceFrameIndex		= 0;
@@ -238,7 +238,7 @@ class CocoClip : EventTarget
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean)
+	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip)
 	{
 		// Get scene current time + timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )
 		var __currentTime:Float = scene.__currentTime + __timeline.__skipTime;
@@ -321,7 +321,7 @@ class CocoClip : EventTarget
 				for (var i:Integer = 0, L:Integer = __children.size(); i < L; i++)
 				{
 					scene.__modelViewMatrix.push();
-					__children[i].paint(gl, scene, this, picking);
+					__children[i].paint(gl, scene, this);
 					scene.__modelViewMatrix.pop();
 				}
 				scene.__levelParents.pop();
@@ -351,12 +351,20 @@ class CocoClip : EventTarget
 			}
 		}
 
+		// Take care of audio loops
+		__audio && __audio.tick();
+
 		// Execute KeyFrame action callback.
 		if(!__timeline.__paused && (__currentFrame.action || __currentFrame.nextState))
 		{
 			this.__parent = parentClip;
 			__currentFrame.execute(gl, __currentTime, __loopTime, scene, this);
 			this.__parent = null;
+		}
+
+		// Update Cursor Variables
+		if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration.__currentFrame && __childWithMaxTimelineDuration.__currentFrame.frameIndex == __childWithMaxTimelineDuration.__timeline.lastKeyFrame().frameIndex)
+		{
 		}
 	}
 

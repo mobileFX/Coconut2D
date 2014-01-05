@@ -2826,6 +2826,11 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		// Export to IDE
 		// ======================================================================================
 
+		write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
+		write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
+		write("C:/Users/Admin/Desktop/members.xml", mbrLists);
+		write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
+
 		if(!_this.selectedClass)
 			jsppCallback("resetSymbols");
 
@@ -2863,4 +2868,5 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};
 }
+
 

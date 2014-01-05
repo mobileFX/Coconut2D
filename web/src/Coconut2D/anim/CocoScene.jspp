@@ -42,7 +42,7 @@ class CocoScene
 	// Resources
 	public var __sceneName:String;
 	public var __imageSymbols:Array<CocoImage>;
-	public var __soundSymbols:Array<CocoSound>;
+	public var __soundSymbols:Array<CocoAudio>;
 	public var __clipSymbols:Array<CocoClip>;
 
 	// Fixed View Port
@@ -132,7 +132,7 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function getSoundSymbol(symbolName:String) :CocoSound
+	public function getSoundSymbol(symbolName:String) :CocoAudio
 	{
 		for(var i:Integer = __soundSymbols.size() - 1; i >= 0; i--)
 		{
@@ -154,12 +154,11 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function newResourceSound(symbolName:String, filename:String) :CocoSound
+	public function newResourceSound(symbolName:String, filename:String, autoplay:Boolean, loops:Integer) :CocoAudio
 	{
 		if(getSoundSymbol(symbolName)) throw "Resource sound " + symbolName + " already exists.";
-		var snd:CocoSound = new CocoSound();
+		var snd:CocoAudio = new CocoAudio(filename, autoplay, loops);
 		snd.symbolName = symbolName;
-		snd.createFromFile(filename, null);
 		__soundSymbols.push(snd);
 		return snd;
 	}
@@ -333,7 +332,7 @@ class CocoScene
 		    {
 				__modelViewMatrix.identity();
 		    	__levelParents = [__root];
-				__root.paint(gl, this, null, false);
+				__root.paint(gl, this, null);
 				__levelParents = [];
 				var max:CocoClip = __root.__childWithMaxTimelineDuration;
 				if(max && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)

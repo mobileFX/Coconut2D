@@ -47,6 +47,7 @@ class Function
 
 class Global
 {
+	public function __Audio_load(url:String, obj:Audio) :Integer {}
 	public function eval(s:String) :Object {}
 	public function parseInt(s:String, radix:Number) :Integer {}
 	public function parseFloat(s:String) :Float {}
@@ -66,6 +67,8 @@ class Global
 	public var __registerCallback;
 	public var __unRegisterCallback;
 	public var __ImageData_loadImage;
+	public var __Audio_play;
+	public var __Audio_pause;
 	public var __WebGLRenderingContext_activeTexture;
 	public var __WebGLRenderingContext_attachShader;
 	public var __WebGLRenderingContext_bindAttribLocation;
@@ -487,6 +490,21 @@ class DeviceEvent
 	public var __clientX :Integer;
 	public var __clientY :Integer;
 } //DeviceEvent
+
+class Audio
+{
+	public function play() {}
+	public function pause() {}
+	public function Constructor(url:String) {}
+	public var __uid :Integer;
+	public var currentTime :Float;
+	public var duration :Float;
+	public var paused :Boolean;
+	public var ended :Boolean;
+	public var autoplay :Boolean;
+	public var loop :Boolean;
+	public var src :String;
+} //Audio
 
 class HTMLCanvasElement
 {
@@ -1080,6 +1098,24 @@ class WebGLRenderingContext
 	public var canvas :HTMLCanvasElement;
 } //WebGLRenderingContext
 
+class CocoAudio
+{
+	public function tick() {}
+	public function play() {}
+	public function pause() {}
+	public function currentTime() :Float {}
+	public function duration() :Float {}
+	public function paused() :Boolean {}
+	public function ended() :Boolean {}
+	public function Constructor(filename:String, autoplay:Boolean, loops:Integer) {}
+	public var symbolName :String;
+	public var audio :Audio;
+	public var autoplay :Boolean;
+	public var loops :Integer;
+	private var __firstPlayed :Boolean;
+	private var __loopCount :Integer;
+} //CocoAudio
+
 class CocoImageSibling
 {
 	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float) {}
@@ -1129,13 +1165,6 @@ class CocoImage
 	public var viewSiblings :Array<CocoImageSibling>;
 	public var pixelRatio :Float;
 } //CocoImage
-
-class CocoSound
-{
-	public function createFromFile(filename:String, onloadCallBack:Function) {}
-	public function Constructor() {}
-	public var symbolName :String;
-} //CocoSound
 
 class CocoTimeLabel
 {
@@ -1261,15 +1290,15 @@ class CocoClip : EventTarget
 	public function getChildIndex(child:CocoClip) :Integer {}
 	public function gotoFrameByName(LabelName:String, pause:Boolean, deep:Boolean) :Boolean {}
 	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean, deep:Boolean) :Boolean {}
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, picking:Boolean) {}
+	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip) {}
 	public function hitTest(wx:Float, wy:Float) :Boolean {}
 	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
 	public function initBoundingBoxFromChildren(scene:CocoScene) {}
 	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
-	public function Constructor(image:CocoImage, audio:CocoSound, sequence:String) {}
+	public function Constructor(image:CocoImage, audio:CocoAudio, sequence:String) {}
 	public var __instanceName :String;
 	public var __image :CocoImage;
-	public var __audio :CocoSound;
+	public var __audio :CocoAudio;
 	public var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var __children :Array<CocoClip>;
 	public var __currentSequence :CocoSequence;
@@ -1295,9 +1324,9 @@ class CocoClip : EventTarget
 class CocoScene
 {
 	public function getImageSymbol(symbolName:String) :CocoImage {}
-	public function getSoundSymbol(symbolName:String) :CocoSound {}
+	public function getSoundSymbol(symbolName:String) :CocoAudio {}
 	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage {}
-	public function newResourceSound(symbolName:String, filename:String) :CocoSound {}
+	public function newResourceSound(symbolName:String, filename:String, autoplay:Boolean, loops:Integer) :CocoAudio {}
 	private function prepare(gl:WebGLRenderingContext) {}
 	private function makeProgram(gl:WebGLRenderingContext, vs:String, fs:String) :WebGLProgram {}
 	private function loadResources() {}
@@ -1312,7 +1341,7 @@ class CocoScene
 	public function Constructor() {}
 	public var __sceneName :String;
 	public var __imageSymbols :Array<CocoImage>;
-	public var __soundSymbols :Array<CocoSound>;
+	public var __soundSymbols :Array<CocoAudio>;
 	public var __clipSymbols :Array<CocoClip>;
 	public var __fps :Float;
 	public var __view_width :Float;
@@ -1347,14 +1376,7 @@ class CocoEngine
 	public var __nextState :State;
 	public var __deviceEvent :DeviceEvent;
 	public var STATE_NULL :State;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public var STATE_GAME :State;
 } //CocoEngine
 
 class CocoSprite
@@ -1445,35 +1467,21 @@ class GameEngine : CocoEngine
 {
 	public function Constructor() {}
 	public var scene :CocoScene;
-	public var balance :Number;
-	public var winnings :Number;
-	public var avatars :Array<CocoClip>;
-	public var avatar_leo :CocoClip;
-	public var avatar_xerxes :CocoClip;
-	public var avatar_spartan :CocoClip;
-	public var avatar_persian :CocoClip;
-	public var avatar_swords :CocoClip;
-	public var avatar_armor :CocoClip;
-	public var btnOpenAll :CocoClip;
-	public var btnBuyTicket :CocoClip;
-	public var selectedAvatar :Number;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public var STATE_GAME :State;
 } //GameEngine
 
-class SceneGameBoard : CocoScene
+class BitmapSymbolsTest : CocoScene
 {
 	public function Constructor() {}
-} //SceneGameBoard
+} //BitmapSymbolsTest
 
-class SceneTitle : CocoScene
+class SynthesisTest : CocoScene
 {
 	public function Constructor() {}
-} //SceneTitle
+} //SynthesisTest
+
+class Test : CocoScene
+{
+	public function Constructor() {}
+} //Test
 

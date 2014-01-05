@@ -15,79 +15,81 @@ function CocoImage()
 		this.__CLASS__ = 'CocoImage';
 		this.__PROTECTED__ = {};
 		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 100
+		//@line 101
 		var addSibling = this.addSibling = function (sibling)
 		{
-			//@line 102
-			__CLASS__COCOIMAGE__.viewSiblings.push(sibling);
 			//@line 103
+			__CLASS__COCOIMAGE__.viewSiblings.push(sibling);
+			//@line 104
 			return sibling;
 		};
-		//@line 107
+		//@line 108
 		var addSequence = this.addSequence = function (sequence)
 		{
-			//@line 109
-			if (!sequence) return null;
 			//@line 110
-			if (__CLASS__COCOIMAGE__.getSequence(sequence.name)) throw "Sequence " + sequence.name + " already exists.";
+			if (!sequence) return null;
 			//@line 111
-			__CLASS__COCOIMAGE__.sequences.push(sequence);
+			if (__CLASS__COCOIMAGE__.getSequence(sequence.name)) throw "Sequence " + sequence.name + " already exists.";
 			//@line 112
-			__CLASS__COCOIMAGE__.isSpriteSheet = true;
+			__CLASS__COCOIMAGE__.sequences.push(sequence);
 			//@line 113
+			__CLASS__COCOIMAGE__.isSpriteSheet = true;
+			//@line 114
 			return sequence;
 		};
-		//@line 117
+		//@line 118
 		var getSequence = this.getSequence = function (name)
 		{
-			//@line 119
-			for (var i = __CLASS__COCOIMAGE__.sequences.size() - 1; i >= 0; i--)
 			//@line 120
+			for (var i = __CLASS__COCOIMAGE__.sequences.size() - 1; i >= 0; i--)
+			//@line 121
 			{
-				//@line 121
-				if (__CLASS__COCOIMAGE__.sequences[i].name == name)
 				//@line 122
+				if (__CLASS__COCOIMAGE__.sequences[i].name == name)
+				//@line 123
 				return __CLASS__COCOIMAGE__.sequences[i];
 			}
-			//@line 124
+			//@line 125
 			return null;
 		};
-		//@line 143
-		var prepare = this.prepare = function (gl)
+		//@line 144
+		var prepare = this.prepare = function (scene, gl)
 		{
 			//@line 146
+			__CLASS__COCOIMAGE__.__pixelRatioScale = scene.__view_pixel_ratio / __CLASS__COCOIMAGE__.pixelRatio;
+			//@line 149
 			var w2 = __CLASS__COCOIMAGE__.textureCellWidth / 2.0;
-			//@line 147
+			//@line 150
 			var h2 = __CLASS__COCOIMAGE__.textureCellHeight / 2.0;
-			//@line 148
-			__CLASS__COCOIMAGE__.texSize = new Float32Array([__CLASS__COCOIMAGE__.textureCellWidth / __CLASS__COCOIMAGE__.image.naturalWidth, __CLASS__COCOIMAGE__.textureCellHeight / __CLASS__COCOIMAGE__.image.naturalHeight]);
 			//@line 151
+			__CLASS__COCOIMAGE__.texSize = new Float32Array([__CLASS__COCOIMAGE__.textureCellWidth / __CLASS__COCOIMAGE__.image.naturalWidth, __CLASS__COCOIMAGE__.textureCellHeight / __CLASS__COCOIMAGE__.image.naturalHeight]);
+			//@line 154
 			__CLASS__COCOIMAGE__.texture = gl.createTexture();
-			//@line 152
-			gl.bindTexture(gl.TEXTURE_2D, __CLASS__COCOIMAGE__.texture);
 			//@line 155
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, __CLASS__COCOIMAGE__.image);
+			gl.bindTexture(gl.TEXTURE_2D, __CLASS__COCOIMAGE__.texture);
 			//@line 158
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, __CLASS__COCOIMAGE__.image);
+			//@line 161
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			//@line 159
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			//@line 162
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			//@line 165
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			//@line 163
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 			//@line 166
-			gl.generateMipmap(gl.TEXTURE_2D);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 			//@line 169
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			//@line 171
-			var texData = new Float32Array([0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2]);
+			gl.generateMipmap(gl.TEXTURE_2D);
 			//@line 172
-			__CLASS__COCOIMAGE__.buffer = gl.createBuffer();
-			//@line 173
-			gl.bindBuffer(gl.ARRAY_BUFFER, __CLASS__COCOIMAGE__.buffer);
+			gl.bindTexture(gl.TEXTURE_2D, null);
 			//@line 174
-			gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
+			var texData = new Float32Array([0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2]);
 			//@line 175
+			__CLASS__COCOIMAGE__.buffer = gl.createBuffer();
+			//@line 176
+			gl.bindBuffer(gl.ARRAY_BUFFER, __CLASS__COCOIMAGE__.buffer);
+			//@line 177
+			gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
+			//@line 178
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		};
 		//@line 45
@@ -110,33 +112,35 @@ function CocoImage()
 		this.buffer = null;
 		//@line 56
 		this.isSpriteSheet = false;
-		//@line 59
+		//@line 57
+		this.__pixelRatioScale = 0;
+		//@line 60
 		this.sequences = [];
-		//@line 62
-		this.baseUrl = "";
 		//@line 63
-		this.viewOptimalWidth = 0;
+		this.baseUrl = "";
 		//@line 64
-		this.viewOptimalHeight = 0;
+		this.viewOptimalWidth = 0;
 		//@line 65
-		this.viewSiblings = [];
+		this.viewOptimalHeight = 0;
 		//@line 66
+		this.viewSiblings = [];
+		//@line 67
 		this.pixelRatio = 0;
 		var Destructor = this.Destructor = function ()
 		{
-			//@line 92
+			//@line 93
 			__CLASS__COCOIMAGE__.texture && ((__CLASS__COCOIMAGE__.texture.hasOwnProperty('Destructor') && __CLASS__COCOIMAGE__.texture.Destructor()) || !__CLASS__COCOIMAGE__.texture.hasOwnProperty('Destructor')) && (delete __CLASS__COCOIMAGE__.texture);
 			__CLASS__COCOIMAGE__.texture = null;
-			//@line 93
+			//@line 94
 			__CLASS__COCOIMAGE__.textureGrid && ((__CLASS__COCOIMAGE__.textureGrid.hasOwnProperty('Destructor') && __CLASS__COCOIMAGE__.textureGrid.Destructor()) || !__CLASS__COCOIMAGE__.textureGrid.hasOwnProperty('Destructor')) && (delete __CLASS__COCOIMAGE__.textureGrid);
 			__CLASS__COCOIMAGE__.textureGrid = null;
-			//@line 94
+			//@line 95
 			__CLASS__COCOIMAGE__.color && ((__CLASS__COCOIMAGE__.color.hasOwnProperty('Destructor') && __CLASS__COCOIMAGE__.color.Destructor()) || !__CLASS__COCOIMAGE__.color.hasOwnProperty('Destructor')) && (delete __CLASS__COCOIMAGE__.color);
 			__CLASS__COCOIMAGE__.color = null;
-			//@line 95
+			//@line 96
 			__CLASS__COCOIMAGE__.texSize && ((__CLASS__COCOIMAGE__.texSize.hasOwnProperty('Destructor') && __CLASS__COCOIMAGE__.texSize.Destructor()) || !__CLASS__COCOIMAGE__.texSize.hasOwnProperty('Destructor')) && (delete __CLASS__COCOIMAGE__.texSize);
 			__CLASS__COCOIMAGE__.texSize = null;
-			//@line 96
+			//@line 97
 			__CLASS__COCOIMAGE__.buffer && ((__CLASS__COCOIMAGE__.buffer.hasOwnProperty('Destructor') && __CLASS__COCOIMAGE__.buffer.Destructor()) || !__CLASS__COCOIMAGE__.buffer.hasOwnProperty('Destructor')) && (delete __CLASS__COCOIMAGE__.buffer);
 			__CLASS__COCOIMAGE__.buffer = null;
 			__CLASS__COCOIMAGE__.symbolName = null;
@@ -149,6 +153,7 @@ function CocoImage()
 			__CLASS__COCOIMAGE__.texSize = null;
 			__CLASS__COCOIMAGE__.buffer = null;
 			__CLASS__COCOIMAGE__.isSpriteSheet = null;
+			__CLASS__COCOIMAGE__.__pixelRatioScale = null;
 			__CLASS__COCOIMAGE__.sequences = null;
 			__CLASS__COCOIMAGE__.baseUrl = null;
 			__CLASS__COCOIMAGE__.viewOptimalWidth = null;
@@ -157,40 +162,40 @@ function CocoImage()
 			__CLASS__COCOIMAGE__.pixelRatio = null;
 			return true
 		};
-		//@line 69
+		//@line 70
 		this.Constructor = function ()
 		{
-			//@line 71
-			__CLASS__COCOIMAGE__.image = null;
 			//@line 72
-			__CLASS__COCOIMAGE__.symbolName = "";
+			__CLASS__COCOIMAGE__.image = null;
 			//@line 73
-			__CLASS__COCOIMAGE__.texture = null;
+			__CLASS__COCOIMAGE__.symbolName = "";
 			//@line 74
-			__CLASS__COCOIMAGE__.textureCellWidth = 0;
+			__CLASS__COCOIMAGE__.texture = null;
 			//@line 75
-			__CLASS__COCOIMAGE__.textureCellHeight = 0;
+			__CLASS__COCOIMAGE__.textureCellWidth = 0;
 			//@line 76
-			__CLASS__COCOIMAGE__.textureGrid = new Float32Array([0.0, 0.0]);
+			__CLASS__COCOIMAGE__.textureCellHeight = 0;
 			//@line 77
-			__CLASS__COCOIMAGE__.color = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+			__CLASS__COCOIMAGE__.textureGrid = new Float32Array([0.0, 0.0]);
 			//@line 78
-			__CLASS__COCOIMAGE__.texSize = new Float32Array([1.0, 1.0]);
+			__CLASS__COCOIMAGE__.color = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 			//@line 79
-			__CLASS__COCOIMAGE__.buffer = null;
+			__CLASS__COCOIMAGE__.texSize = new Float32Array([1.0, 1.0]);
 			//@line 80
-			__CLASS__COCOIMAGE__.isSpriteSheet = false;
+			__CLASS__COCOIMAGE__.buffer = null;
 			//@line 81
-			__CLASS__COCOIMAGE__.sequences = [];
+			__CLASS__COCOIMAGE__.isSpriteSheet = false;
 			//@line 82
-			__CLASS__COCOIMAGE__.baseUrl = "";
+			__CLASS__COCOIMAGE__.sequences = [];
 			//@line 83
-			__CLASS__COCOIMAGE__.viewOptimalWidth = 0;
+			__CLASS__COCOIMAGE__.baseUrl = "";
 			//@line 84
-			__CLASS__COCOIMAGE__.viewOptimalHeight = 0;
+			__CLASS__COCOIMAGE__.viewOptimalWidth = 0;
 			//@line 85
-			__CLASS__COCOIMAGE__.viewSiblings = [];
+			__CLASS__COCOIMAGE__.viewOptimalHeight = 0;
 			//@line 86
+			__CLASS__COCOIMAGE__.viewSiblings = [];
+			//@line 87
 			__CLASS__COCOIMAGE__.pixelRatio = 1.0;
 			return __CLASS__COCOIMAGE__
 		};
