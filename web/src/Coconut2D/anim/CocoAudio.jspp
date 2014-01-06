@@ -38,18 +38,16 @@
 
 class CocoAudio
 {
-	public var symbolName:String;
 	public var audio:Audio;
 	public var autoplay:Boolean;
 	public var loops:Integer;
-
 	private var __firstPlayed:Boolean;
 	private var __loopCount:Integer;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(filename:String, autoplay:Boolean, loops:Integer)
+	public function Constructor(url:String, autoplay:Boolean, loops:Integer)
 	{
-		audio = new Audio(filename);
+		audio = new Audio(url);
 		audio.autoplay = false;
 		audio.loop = (loops==0);
 		this.autoplay = autoplay;
@@ -86,6 +84,7 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function play()					{ if(audio) audio.play(); }
 	public function pause()					{ if(audio) audio.pause(); }
+	public function stop()					{ __loopCount=0; __firstPlayed=true; if(audio) audio.pause(); audio.currentTime=0; }
 	public function currentTime() :Float	{ return audio ? audio.currentTime : 0; }
 	public function duration() :Float    	{ return audio ? audio.duration : 0; }
 	public function paused() :Boolean		{ return audio ? audio.paused : true; }

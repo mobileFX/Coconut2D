@@ -132,17 +132,6 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function getSoundSymbol(symbolName:String) :CocoAudio
-	{
-		for(var i:Integer = __soundSymbols.size() - 1; i >= 0; i--)
-		{
-			if(__soundSymbols[i].symbolName == symbolName)
-				return __soundSymbols[i];
-		}
-		return null;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage
 	{
 		if(getImageSymbol(symbolName)) throw "Resource image " + symbolName + " already exists.";
@@ -151,16 +140,6 @@ class CocoScene
 		img.baseUrl = baseUrl;
 		__imageSymbols.push(img);
 		return img;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function newResourceSound(symbolName:String, filename:String, autoplay:Boolean, loops:Integer) :CocoAudio
-	{
-		if(getSoundSymbol(symbolName)) throw "Resource sound " + symbolName + " already exists.";
-		var snd:CocoAudio = new CocoAudio(filename, autoplay, loops);
-		snd.symbolName = symbolName;
-		__soundSymbols.push(snd);
-		return snd;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

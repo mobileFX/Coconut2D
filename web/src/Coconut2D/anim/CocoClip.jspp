@@ -44,7 +44,6 @@ class CocoClip : EventTarget
 {
 	public var __instanceName:String;
 	public var __image:CocoImage;
-	public var __audio:CocoAudio;
 	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var __children:Array<CocoClip>;
 	public var __currentSequence:CocoSequence;
@@ -67,7 +66,7 @@ class CocoClip : EventTarget
 	public var __childWithMaxTimelineDuration:CocoClip;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(optional image:CocoImage, optional audio:CocoAudio, optional sequence:String)
+	public function Constructor(optional image:CocoImage, optional sequence:String)
 	{
 		__symbolLoop					= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
 		__currentSequenceFrameIndex		= 0;
@@ -90,8 +89,6 @@ class CocoClip : EventTarget
 		__currentSequence				= null;
 
 		__image = image;
-		__audio = audio;
-
 		if(image && sequence) __currentSequence = image.getSequence(sequence);
 	}
 
@@ -99,7 +96,6 @@ class CocoClip : EventTarget
 	public function Destructor()
 	{
 		delete __image;
-		delete __audio;
 		delete __children;
 		delete __timeline;
 		delete __vABS_TOP_LEFT;
@@ -351,20 +347,27 @@ class CocoClip : EventTarget
 			}
 		}
 
-		// Take care of audio loops
-		__audio && __audio.tick();
-
-		// Execute KeyFrame action callback.
-		if(!__timeline.__paused && (__currentFrame.action || __currentFrame.nextState))
+		if(!__timeline.__paused)
 		{
-			this.__parent = parentClip;
-			__currentFrame.execute(gl, __currentTime, __loopTime, scene, this);
-			this.__parent = null;
-		}
+			var pulse:Boolean = false;
 
-		// Update Cursor Variables
-		if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration.__currentFrame && __childWithMaxTimelineDuration.__currentFrame.frameIndex == __childWithMaxTimelineDuration.__timeline.lastKeyFrame().frameIndex)
-		{
+			// Execute KeyFrame
+			if(__currentFrame.action || __currentFrame.nextState || __currentFrame.audio)
+			{
+				this.__parent = parentClip;
+				pulse = __currentFrame.execute(gl, __currentTime, __loopTime, scene, this);
+				this.__parent = null;
+			}
+
+			if(pulse && __currentFrame.audio)
+			{
+				__currentFrame.audio.tick();
+			}
+
+			// Update Cursor Variables
+			if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration.__currentFrame && __childWithMaxTimelineDuration.__currentFrame.frameIndex == __childWithMaxTimelineDuration.__timeline.lastKeyFrame().frameIndex)
+			{
+			}
 		}
 	}
 

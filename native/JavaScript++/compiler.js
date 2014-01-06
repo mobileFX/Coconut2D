@@ -52,7 +52,9 @@
 
 	Some important architectural differencies are:
 
-	1. I pre-process the AST nodes and assign a ".parent" which makes it easier to debug the compiler.
+	== 11/12/2013 ==
+
+	1. I pre-process the AST nodes mostly to assign a ".parent" which makes it easier to debug the compiler, among other node caching.
 	2. I pre-process and reduce the jsdef.DOT list into a AST.identifiers_list[] array (special items for @@INDEX@@, @@THIS@@, @@SUPER@@)
 	3. Scopes have ".parentScope" property for faster traversal.
 	4. Every jsdef.IDENTIFIER node is "recognized" and linked with its defining Symbol. A Symbol describes an identifier and has
@@ -73,8 +75,31 @@
    14. Enums are detected if they follow a consistent syntax "var enum_name = { a:<number>, b:<number>, ... };" and they are converted
        into a class.
 
-	Elias G. Politakis - 11/12/2013
+   == 05/01/2014 ==
+
+   15. Added Finite State Machine (FSM) semantics for making game development easier. A class has "state" modifier and inside it there
+   	   can be defined public/private/protected states with enter(), exit(), tick() and paint() methods. A state is a block container of
+   	   other isolated variables and functions too and has access to class scope.
+   16. Added virtual and abstract modifiers.
+   18. Expanded "Destructors" that are required if a class has object members (which are automatically set to null by compiler).
+   19. Implemented smart "delete" statement, if an object is detected it calls its destructor and for typed arrays (of objects) the
+   	   array items are being destructed one by one.
+   20. Added "#include" and other compiler directives (mostly required by the IDE)
+
+
+	Elias G. Politakis
 	epolitakis@mobilefx.com
+
+   TODO LIST:
+   ==========
+
+   - Bug in V8 prevents breakpoints if block statements starts with jsdef.NEW/NEW_WITH_ARGS assignment (jsflags --inline-new=false)
+   - Proper support for ENUMS
+   - Add interfaces
+   - Add property setters / getters
+   - Add events
+   - IMPORTANT: Need to detect jsdef.NEW and jsdef.NEW_WITH_ARGS inside method calls that produce memory leaks in
+   				C++ and issue warnings. Possible define a weak_new operator and pass delete obligation to consumer?
 
 */
 
@@ -2868,5 +2893,3 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};
 }
-
-

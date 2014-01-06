@@ -1103,12 +1103,12 @@ class CocoAudio
 	public function tick() {}
 	public function play() {}
 	public function pause() {}
+	public function stop() {}
 	public function currentTime() :Float {}
 	public function duration() :Float {}
 	public function paused() :Boolean {}
 	public function ended() :Boolean {}
-	public function Constructor(filename:String, autoplay:Boolean, loops:Integer) {}
-	public var symbolName :String;
+	public function Constructor(url:String, autoplay:Boolean, loops:Integer) {}
 	public var audio :Audio;
 	public var autoplay :Boolean;
 	public var loops :Integer;
@@ -1223,9 +1223,9 @@ class CocoMatrix
 
 class CocoKeyFrame
 {
-	public function clone() :CocoKeyFrame {}
+	public function clone(exact:Boolean) :CocoKeyFrame {}
 	public function reset() {}
-	public function execute(gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, scene:CocoScene, clip:CocoClip) {}
+	public function execute(gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, scene:CocoScene, clip:CocoClip) :Boolean {}
 	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float) {}
 	public function combine(Frame:CocoKeyFrame) {}
 	public function apply(matrix:CocoMatrix) {}
@@ -1245,6 +1245,7 @@ class CocoKeyFrame
 	public var rotation :Float;
 	public var action :Function;
 	public var nextState :State;
+	public var audio :CocoAudio;
 	private var __lastActionExecutionTime :Float;
 } //CocoKeyFrame
 
@@ -1259,7 +1260,7 @@ class CocoTimeline
 	public function firstKeyFrame() :CocoKeyFrame {}
 	public function lastKeyFrame() :CocoKeyFrame {}
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame {}
-	public function addKeyFrameEx(nextState:State, actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, alpha:Float) :CocoKeyFrame {}
+	public function addKeyFrameEx(nextState:State, actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, alpha:Float, audio:CocoAudio) :CocoKeyFrame {}
 	public function prepare(scene:CocoScene, clip:CocoClip) {}
 	public function normalizetimeline() {}
 	public function jumpBy(frames:Float, paused:Boolean) {}
@@ -1295,10 +1296,9 @@ class CocoClip : EventTarget
 	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
 	public function initBoundingBoxFromChildren(scene:CocoScene) {}
 	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
-	public function Constructor(image:CocoImage, audio:CocoAudio, sequence:String) {}
+	public function Constructor(image:CocoImage, sequence:String) {}
 	public var __instanceName :String;
 	public var __image :CocoImage;
-	public var __audio :CocoAudio;
 	public var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var __children :Array<CocoClip>;
 	public var __currentSequence :CocoSequence;
@@ -1324,9 +1324,7 @@ class CocoClip : EventTarget
 class CocoScene
 {
 	public function getImageSymbol(symbolName:String) :CocoImage {}
-	public function getSoundSymbol(symbolName:String) :CocoAudio {}
 	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage {}
-	public function newResourceSound(symbolName:String, filename:String, autoplay:Boolean, loops:Integer) :CocoAudio {}
 	private function prepare(gl:WebGLRenderingContext) {}
 	private function makeProgram(gl:WebGLRenderingContext, vs:String, fs:String) :WebGLProgram {}
 	private function loadResources() {}

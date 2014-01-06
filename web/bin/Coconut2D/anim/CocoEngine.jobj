@@ -44,31 +44,27 @@ function CocoEngine()
 				__CLASS__COCOENGINE__.__currentState.enter();
 				//@line 81
 				__CLASS__COCOENGINE__.__nextState = null;
-				//@line 82
-				trace("@@STATE " + __CLASS__COCOENGINE__.__currentState.__name);
-				//@line 83
-				return;
 			}
-			//@line 86
+			//@line 85
 			__CLASS__COCOENGINE__.__currentState.tick(time);
-			//@line 88
+			//@line 87
 			if (__CLASS__COCOENGINE__.__nextState == null)
-			//@line 89
+			//@line 88
 			{
-				//@line 90
+				//@line 89
 				gl.clearColor(0, 0, 0, 1);
-				//@line 91
+				//@line 90
 				gl.clear(gl.COLOR_BUFFER_BIT);
-				//@line 92
+				//@line 91
 				__CLASS__COCOENGINE__.__currentState.paint(gl, time);
 			}
-			//@line 95
+			//@line 94
 			__CLASS__COCOENGINE__.__deviceEvent = null;
 		};
-		//@line 99
+		//@line 98
 		var setNextState = this.setNextState = function (s)
 		{
-			//@line 101
+			//@line 100
 			__CLASS__COCOENGINE__.__nextState = s;
 		};
 		//@line 43
@@ -77,14 +73,14 @@ function CocoEngine()
 		this.__nextState = null;
 		//@line 45
 		this.__deviceEvent = null;
-		//@line 105
+		//@line 104
 		this.STATE_NULL = (function ()
 		{
 			this.__name = 'STATE_NULL';
-			//@line 107
+			//@line 106
 			var tick = this.tick = function ()
 			{
-				//@line 108
+				//@line 107
 			};
 			return this
 		}).call(new State);

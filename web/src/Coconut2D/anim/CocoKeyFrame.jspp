@@ -54,6 +54,7 @@ class CocoKeyFrame
 	public var rotation:Float;
 	public var action:Function;
 	public var nextState:State;
+	public var audio:CocoAudio;
 
 	private var __lastActionExecutionTime:Float;
 
@@ -75,16 +76,18 @@ class CocoKeyFrame
 		alpha						= 1.0;
 		action						= null;
 		nextState					= null;
+		audio						= null;
 		__lastActionExecutionTime 	= 0.0;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete audio;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function clone() :CocoKeyFrame
+	public function clone(optional exact:Boolean) :CocoKeyFrame
 	{
 	    var c:CocoKeyFrame = new CocoKeyFrame();
 
@@ -100,11 +103,15 @@ class CocoKeyFrame
 		c.visible               	= visible;
 		c.x                     	= x;
 		c.y                     	= y;
-		c.action					= action;
-		c.nextState					= nextState;
 		c.calcBoundingBox			= calcBoundingBox;
-		c.__lastActionExecutionTime	= __lastActionExecutionTime;
 
+		if(exact)
+		{
+			c.action					= action;
+			c.nextState					= nextState;
+			c.audio						= audio;
+			c.__lastActionExecutionTime	= __lastActionExecutionTime;
+		}
 	    return c;
 	}
 
@@ -115,23 +122,30 @@ class CocoKeyFrame
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function execute(gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, scene:CocoScene, clip:CocoClip)
+	public function execute(gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, scene:CocoScene, clip:CocoClip) :Boolean
 	{
 		//gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, clip:CocoClip, keyFrame:CocoKeyFrame
 
+		var pulse:Boolean = false;
+
 		if((currentTime==0) || (currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
 		{
+			pulse = true;
 			__lastActionExecutionTime = currentTime;
+
 			if(action)
 			{
 				var args:Array = [gl, currentTime, loopTime, clip, this];
 				action.apply(scene, args);
 			}
+
 			if(nextState)
 			{
 				engine.setNextState(nextState);
 			}
 		}
+
+		return pulse;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,5 +179,3 @@ class CocoKeyFrame
 		if(pivotX!=0 || pivotY!=0) matrix.translate(-pivotX, -pivotY);
 	}
 }
-
-
