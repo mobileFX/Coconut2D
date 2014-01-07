@@ -1,32 +1,18 @@
 //@line 37
 
-function WebGLProgram()
+function WebGLProgram(__CLASS__WEBGLPROGRAM__$uid__)
 {
-	var __SUPER__, __CLASS__WEBGLOBJECT__;
-	return ((function ()
+	var __BASE__ = null;
+
+	function WebGLProgram(__BASE__, __CLASS__WEBGLPROGRAM__$uid__)
 	{
-		var __CLASS__WEBGLPROGRAM__ = this,
-			__PDEFINE__ = {}.constructor.defineProperty,
-			__NOENUM__ = {enumerable:false};
-		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
-		this.__SUPER__ = __SUPER__;
-		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
-		this.__CLASS__ = 'WebGLProgram';
+		var __CLASS__WEBGLPROGRAM__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
 		this.__PROTECTED__ = {};
-		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		var __TMP_SUPER__ = __SUPER__,
-			__TMP_ARRAY__ = [];
-		for (var __TMP_MEMBER__ in __TMP_SUPER__)
-		__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
-		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
-		__TMP_SUPER__ = __SUPER__.__PROTECTED__;
-		__TMP_ARRAY__.length = 0;
-		for (var __TMP_MEMBER__ in __TMP_SUPER__)
-		{
-			__TMP_ARRAY__.push(__TMP_MEMBER__ + '=__TMP_SUPER__.' + __TMP_MEMBER__);
-			this.__PROTECTED__[__TMP_MEMBER__] = __TMP_SUPER__[__TMP_MEMBER__];
-		}
-		__TMP_ARRAY__.length && eval('var ' + __TMP_ARRAY__.join() + ';');
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		var __SUPER__ = this.__SUPER__ = __BASE__;
 		//@line 39
 		this.GLSLiTexCoords = 0;
 		//@line 40
@@ -99,12 +85,12 @@ function WebGLProgram()
 			__CLASS__WEBGLPROGRAM__.GLSLuSprFrame = null;
 			//@line 60
 			__CLASS__WEBGLPROGRAM__.GLSLuSprSize = null;
-			return __CLASS__WEBGLPROGRAM__
 		};
-		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
-		return this
-	}).call((function (o)
-	{
-		return (F.prototype = __SUPER__ = __CLASS__WEBGLOBJECT____ = o, new F); function F(){}
-	})(new WebGLObject(arguments[0])))).Constructor.apply(this, [].slice.call(arguments))
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__WEBGLPROGRAM__$uid__);
+		return this;
+	}
+	__BASE__ = new WebGLObject(__CLASS__WEBGLPROGRAM__$uid__);
+	WebGLProgram.prototype = __BASE__;
+	return new WebGLProgram(__BASE__, __CLASS__WEBGLPROGRAM__$uid__);
 }

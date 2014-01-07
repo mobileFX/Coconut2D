@@ -1,19 +1,17 @@
 //@line 47
 
-function WebGLRenderingContext()
+function WebGLRenderingContext(__CLASS__WEBGLRENDERINGCONTEXT__$canvas__)
 {
-	var __SUPER__;
-	return ((function ()
+	var __BASE__ = null;
+
+	function WebGLRenderingContext(__BASE__, __CLASS__WEBGLRENDERINGCONTEXT__$canvas__)
 	{
-		var __CLASS__WEBGLRENDERINGCONTEXT__ = this,
-			__PDEFINE__ = {}.constructor.defineProperty,
-			__NOENUM__ = {enumerable:false};
-		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
-		this.__SUPER__ = __SUPER__;
-		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
-		this.__CLASS__ = 'WebGLRenderingContext';
+		var __CLASS__WEBGLRENDERINGCONTEXT__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
 		this.__PROTECTED__ = {};
-		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		//@line 361
 		var activeTexture = this.activeTexture = function (texture)
 		{
@@ -1776,9 +1774,10 @@ function WebGLRenderingContext()
 			__CLASS__WEBGLRENDERINGCONTEXT__.__uid = 1;
 			//@line 352
 			__CLASS__WEBGLRENDERINGCONTEXT__.canvas = canvas;
-			return __CLASS__WEBGLRENDERINGCONTEXT__
 		};
-		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
-		return this
-	}).call({})).Constructor.apply(this, [].slice.call(arguments))
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__WEBGLRENDERINGCONTEXT__$canvas__);
+		return this;
+	}
+	return new WebGLRenderingContext(__BASE__, __CLASS__WEBGLRENDERINGCONTEXT__$canvas__);
 }

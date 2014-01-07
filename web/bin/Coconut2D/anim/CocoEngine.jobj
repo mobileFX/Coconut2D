@@ -3,20 +3,18 @@
 
 function CocoEngine()
 {
-	var __SUPER__;
-	return ((function ()
+	var __BASE__ = null;
+
+	function CocoEngine(__BASE__)
 	{
-		var __CLASS__COCOENGINE__ = this,
-			__PDEFINE__ = {}.constructor.defineProperty,
-			__NOENUM__ = {enumerable:false};
-		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
-		this.__SUPER__ = __SUPER__;
-		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
-		this.__CLASS__ = 'CocoEngine';
+		var __CLASS__COCOENGINE__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
 		this.__PROTECTED__ = {};
-		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		//@line 63
-		var __setTouchEvent = function (e)
+		this.__PRIVATE__.__setTouchEvent = function (e)
 		{
 			//@line 65
 			__CLASS__COCOENGINE__.__deviceEvent = e;
@@ -90,10 +88,8 @@ function CocoEngine()
 			__CLASS__COCOENGINE__.__currentState = null;
 			__CLASS__COCOENGINE__.__nextState = null;
 			__CLASS__COCOENGINE__.__deviceEvent = null;
-			__CLASS__COCOENGINE__.STATE_NULL.Destructor();
 			__CLASS__COCOENGINE__.STATE_NULL = null;
-			__CLASS__COCOENGINE__.STATE_GAME.Destructor();
-			__CLASS__COCOENGINE__.STATE_GAME = null;
+			__CLASS__GAMEENGINE__.STATE_GAME = null;
 			return true
 		};
 		//@line 48
@@ -102,14 +98,15 @@ function CocoEngine()
 			//@line 51
 			__CLASS__COCOENGINE__.__deviceEvent = null;
 			//@line 52
-			window.addEventListener("touchstart", __setTouchEvent);
+			window.addEventListener("touchstart", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
 			//@line 53
-			window.addEventListener("touchmove", __setTouchEvent);
+			window.addEventListener("touchmove", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
 			//@line 54
-			window.addEventListener("touchend", __setTouchEvent);
-			return __CLASS__COCOENGINE__
+			window.addEventListener("touchend", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
 		};
-		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
-		return this
-	}).call({})).Constructor.apply(this, [].slice.call(arguments))
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new CocoEngine(__BASE__);
 }

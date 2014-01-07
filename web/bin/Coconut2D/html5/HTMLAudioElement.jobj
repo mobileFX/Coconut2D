@@ -1,35 +1,50 @@
 //@line 34
 
-function Audio()
+function Audio(__CLASS__AUDIO__$url__)
 {
-	var __SUPER__;
-	return ((function ()
+	var __BASE__ = null;
+
+	function Audio(__BASE__, __CLASS__AUDIO__$url__)
 	{
-		var __CLASS__AUDIO__ = this,
-			__PDEFINE__ = {}.constructor.defineProperty,
-			__NOENUM__ = {enumerable:false};
-		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
-		this.__SUPER__ = __SUPER__;
-		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
-		this.__CLASS__ = 'Audio';
+		var __CLASS__AUDIO__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
 		this.__PROTECTED__ = {};
-		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		//@line 55
 		var play = this.play = function ()
 		{
 			//@line 57
-			__Audio_play(__CLASS__AUDIO__.__uid);
+			__Audio_play(__CLASS__AUDIO__.__PRIVATE__.__uid);
 		};
 		//@line 61
 		var pause = this.pause = function ()
 		{
 			//@line 63
-			__Audio_pause(__CLASS__AUDIO__.__uid);
+			__Audio_pause(__CLASS__AUDIO__.__PRIVATE__.__uid);
 		};
+		//@line 67
+		Object.defineProperty(this, 'currentTime', {
+			enumerable: true,
+			//@line 69
+			get: function ()
+			{
+				//@line 71
+				return __CLASS__AUDIO__.__PRIVATE__.__currentTime;
+				return 0
+			},
+			//@line 74
+			set: function (time)
+			{
+				//@line 76
+				__Audio_position(__CLASS__AUDIO__.__PRIVATE__.__uid, time);
+			}
+		});
 		//@line 36
-		this.__uid = 0;
-		//@line 39
-		this.currentTime = 0;
+		this.__PRIVATE__.__uid = 0;
+		//@line 37
+		this.__PRIVATE__.__currentTime = 0;
 		//@line 40
 		this.duration = 0;
 		//@line 41
@@ -44,8 +59,9 @@ function Audio()
 		this.src = "";
 		var Destructor = this.Destructor = function ()
 		{
-			__CLASS__AUDIO__.__uid = null;
 			__CLASS__AUDIO__.currentTime = null;
+			__CLASS__AUDIO__.__PRIVATE__.__uid = null;
+			__CLASS__AUDIO__.__PRIVATE__.__currentTime = null;
 			__CLASS__AUDIO__.duration = null;
 			__CLASS__AUDIO__.paused = null;
 			__CLASS__AUDIO__.ended = null;
@@ -59,12 +75,13 @@ function Audio()
 		{
 			var url = arguments[0];
 			//@line 50
-			__CLASS__AUDIO__.__uid = __Audio_load(url, __CLASS__AUDIO__);
+			__CLASS__AUDIO__.__PRIVATE__.__uid = __Audio_load(url, __CLASS__AUDIO__);
 			//@line 51
-			if (__CLASS__AUDIO__.__uid) __CLASS__AUDIO__.src = url;
-			return __CLASS__AUDIO__
+			if (__CLASS__AUDIO__.__PRIVATE__.__uid) __CLASS__AUDIO__.src = url;
 		};
-		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
-		return this
-	}).call({})).Constructor.apply(this, [].slice.call(arguments))
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__AUDIO__$url__);
+		return this;
+	}
+	return new Audio(__BASE__, __CLASS__AUDIO__$url__);
 }

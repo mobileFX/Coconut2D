@@ -87,7 +87,7 @@ class CocoKeyFrame
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function clone(optional exact:Boolean) :CocoKeyFrame
+	public function clone(exact:Boolean) :CocoKeyFrame
 	{
 	    var c:CocoKeyFrame = new CocoKeyFrame();
 
@@ -103,15 +103,19 @@ class CocoKeyFrame
 		c.visible               	= visible;
 		c.x                     	= x;
 		c.y                     	= y;
-		c.calcBoundingBox			= calcBoundingBox;
+		c.calcBoundingBox			= this.calcBoundingBox;
 
-		if(exact)
-		{
-			c.action					= action;
-			c.nextState					= nextState;
-			c.audio						= audio;
-			c.__lastActionExecutionTime	= __lastActionExecutionTime;
-		}
+        if(exact)
+        {
+			c.action				= action;
+			c.nextState				= nextState;
+			c.audio					= audio;
+        }
+
+        //if(!exact && audio) debugger;
+
+		c.__lastActionExecutionTime	= __lastActionExecutionTime;
+
 	    return c;
 	}
 
@@ -142,6 +146,12 @@ class CocoKeyFrame
 			if(nextState)
 			{
 				engine.setNextState(nextState);
+			}
+
+			if(audio && audio.src)
+			{
+				trace("sound: " + audio.src);
+				audio.tick();
 			}
 		}
 

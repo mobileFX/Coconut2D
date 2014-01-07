@@ -3,18 +3,16 @@
 
 function CocoKeyFrame()
 {
-	var __SUPER__;
-	return ((function ()
+	var __BASE__ = null;
+
+	function CocoKeyFrame(__BASE__)
 	{
-		var __CLASS__COCOKEYFRAME__ = this,
-			__PDEFINE__ = {}.constructor.defineProperty,
-			__NOENUM__ = {enumerable:false};
-		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
-		this.__SUPER__ = __SUPER__;
-		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
-		this.__CLASS__ = 'CocoKeyFrame';
+		var __CLASS__COCOKEYFRAME__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
 		this.__PROTECTED__ = {};
-		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		//@line 90
 		var clone = this.clone = function (exact)
 		{
@@ -56,96 +54,105 @@ function CocoKeyFrame()
 				c.nextState = __CLASS__COCOKEYFRAME__.nextState;
 				//@line 112
 				c.audio = __CLASS__COCOKEYFRAME__.audio;
-				//@line 113
-				c.__lastActionExecutionTime = __lastActionExecutionTime;
 			}
-			//@line 115
+			//@line 117
+			c.__lastActionExecutionTime = __CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime;
+			//@line 119
 			return c;
 		};
-		//@line 119
+		//@line 123
 		var reset = this.reset = function ()
 		{
-			//@line 121
-			__lastActionExecutionTime = 0.0;
+			//@line 125
+			__CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime = 0.0;
 		};
-		//@line 125
+		//@line 129
 		var execute = this.execute = function (gl, currentTime, loopTime, scene, clip)
 		{
-			//@line 129
+			//@line 133
 			var pulse = false;
-			//@line 131
-			if ((currentTime == 0) || (currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
-			//@line 132
+			//@line 135
+			if ((currentTime == 0) || (currentTime - __CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
+			//@line 136
 			{
-				//@line 133
-				pulse = true;
-				//@line 134
-				__lastActionExecutionTime = currentTime;
-				//@line 136
-				if (__CLASS__COCOKEYFRAME__.action)
 				//@line 137
+				pulse = true;
+				//@line 138
+				__CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime = currentTime;
+				//@line 140
+				if (__CLASS__COCOKEYFRAME__.action)
+				//@line 141
 				{
-					//@line 138
+					//@line 142
 					var args = [gl, currentTime, loopTime, clip, __CLASS__COCOKEYFRAME__];
-					//@line 139
+					//@line 143
 					__CLASS__COCOKEYFRAME__.action.apply(scene, args);
 				}
-				//@line 142
+				//@line 146
 				if (__CLASS__COCOKEYFRAME__.nextState)
-				//@line 143
+				//@line 147
 				{
-					//@line 144
+					//@line 148
 					engine.setNextState(__CLASS__COCOKEYFRAME__.nextState);
 				}
+				//@line 151
+				if (__CLASS__COCOKEYFRAME__.audio && __CLASS__COCOKEYFRAME__.audio.src)
+				//@line 152
+				{
+					//@line 153
+					trace("sound: " + __CLASS__COCOKEYFRAME__.audio.src);
+					//@line 154
+					__CLASS__COCOKEYFRAME__.audio.tick();
+				}
 			}
-			//@line 148
+			//@line 158
 			return pulse;
 			return false
 		};
-		//@line 152
+		//@line 162
 		var interpolate = this.interpolate = function (F1, F2, s)
 		{
-			//@line 154
+			//@line 164
 			__CLASS__COCOKEYFRAME__.alpha = F1.alpha + s * (F2.alpha - F1.alpha);
-			//@line 155
+			//@line 165
 			__CLASS__COCOKEYFRAME__.x = F1.x + s * (F2.x - F1.x);
-			//@line 156
+			//@line 166
 			__CLASS__COCOKEYFRAME__.y = F1.y + s * (F2.y - F1.y);
-			//@line 157
+			//@line 167
 			__CLASS__COCOKEYFRAME__.scaleX = F1.scaleX + s * (F2.scaleX - F1.scaleX);
-			//@line 158
+			//@line 168
 			__CLASS__COCOKEYFRAME__.scaleY = F1.scaleY + s * (F2.scaleY - F1.scaleY);
-			//@line 159
+			//@line 169
 			__CLASS__COCOKEYFRAME__.rotation = F1.rotation + s * (F2.rotation - F1.rotation);
-			//@line 160
+			//@line 170
 			__CLASS__COCOKEYFRAME__.pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
-			//@line 161
+			//@line 171
 			__CLASS__COCOKEYFRAME__.pivotY = F1.pivotY + s * (F2.pivotY - F1.pivotY);
 		};
-		//@line 165
+		//@line 175
 		var combine = this.combine = function (Frame)
 		{
-			//@line 167
+			//@line 177
 			if (!Frame) return;
-			//@line 168
+			//@line 178
 			__CLASS__COCOKEYFRAME__.alpha = __CLASS__COCOKEYFRAME__.alpha * Frame.alpha;
-			//@line 169
+			//@line 179
 			__CLASS__COCOKEYFRAME__.visible = __CLASS__COCOKEYFRAME__.visible && Frame.visible;
-			//@line 170
+			//@line 180
 			__CLASS__COCOKEYFRAME__.handleEvents = __CLASS__COCOKEYFRAME__.handleEvents && Frame.handleEvents;
-			//@line 171
+			//@line 181
 			__CLASS__COCOKEYFRAME__.calcBoundingBox = __CLASS__COCOKEYFRAME__.calcBoundingBox && Frame.calcBoundingBox;
 		};
-		//@line 174
+		//@line 184
 		var apply = this.apply = function (matrix)
 		{
-			//@line 176
+			//@line 186
 			if (__CLASS__COCOKEYFRAME__.x != 0 || __CLASS__COCOKEYFRAME__.y != 0) matrix.translate(__CLASS__COCOKEYFRAME__.x, __CLASS__COCOKEYFRAME__.y);
-			//@line 177
+			//@line 187
 			if (__CLASS__COCOKEYFRAME__.rotation != 0) matrix.rotateZ(__CLASS__COCOKEYFRAME__.rotation * RADIANS);
-			//@line 178
+			//@line 188
 			if (__CLASS__COCOKEYFRAME__.scaleX != 1 || __CLASS__COCOKEYFRAME__.scaleY != 1) matrix.scale(__CLASS__COCOKEYFRAME__.scaleX, __CLASS__COCOKEYFRAME__.scaleY);
-			//@line 179
+			//@line 189
 			if (__CLASS__COCOKEYFRAME__.pivotX != 0 || __CLASS__COCOKEYFRAME__.pivotY != 0) matrix.translate(-__CLASS__COCOKEYFRAME__.pivotX, -__CLASS__COCOKEYFRAME__.pivotY);
 		};
 		//@line 42
@@ -182,7 +189,7 @@ function CocoKeyFrame()
 		//@line 57
 		this.audio = null;
 		//@line 59
-		var __lastActionExecutionTime = 0;
+		this.__PRIVATE__.__lastActionExecutionTime = 0;
 		var Destructor = this.Destructor = function ()
 		{
 			//@line 86
@@ -204,7 +211,7 @@ function CocoKeyFrame()
 			__CLASS__COCOKEYFRAME__.action = null;
 			__CLASS__COCOKEYFRAME__.nextState = null;
 			__CLASS__COCOKEYFRAME__.audio = null;
-			__CLASS__COCOKEYFRAME__.__lastActionExecutionTime = null;
+			__CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime = null;
 			return true
 		};
 		//@line 62
@@ -243,10 +250,11 @@ function CocoKeyFrame()
 			//@line 79
 			__CLASS__COCOKEYFRAME__.audio = null;
 			//@line 80
-			__lastActionExecutionTime = 0.0;
-			return __CLASS__COCOKEYFRAME__
+			__CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime = 0.0;
 		};
-		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
-		return this
-	}).call({})).Constructor.apply(this, [].slice.call(arguments))
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new CocoKeyFrame(__BASE__);
 }

@@ -65,6 +65,8 @@ class CocoClip : EventTarget
 	public var __mTemp:CocoMatrix;
 	public var __childWithMaxTimelineDuration:CocoClip;
 
+	private var __currentAudio:CocoAudio;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage, optional sequence:String)
 	{
@@ -268,7 +270,7 @@ class CocoClip : EventTarget
 
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
 				if(clippingTime > 0)
-					__currentFrame = __timeline.lastKeyFrame().clone();
+					__currentFrame = __timeline.lastKeyFrame().clone(false);
 				else
 					__currentFrame = __timeline.interpolateByTime(__loopTime);
 				break;
@@ -356,18 +358,23 @@ class CocoClip : EventTarget
 			{
 				this.__parent = parentClip;
 				pulse = __currentFrame.execute(gl, __currentTime, __loopTime, scene, this);
+				if(pulse && __currentFrame.audio && __currentFrame.audio.src)
+				{
+					__currentAudio = __currentFrame.audio;
+				}
 				this.__parent = null;
-			}
-
-			if(pulse && __currentFrame.audio)
-			{
-				__currentFrame.audio.tick();
 			}
 
 			// Update Cursor Variables
 			if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration.__currentFrame && __childWithMaxTimelineDuration.__currentFrame.frameIndex == __childWithMaxTimelineDuration.__timeline.lastKeyFrame().frameIndex)
 			{
 			}
+		}
+
+		// Tick audio
+		if(__currentAudio)
+		{
+			__currentAudio.tick();
 		}
 	}
 

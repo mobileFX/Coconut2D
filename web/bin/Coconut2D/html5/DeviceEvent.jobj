@@ -2,18 +2,16 @@
 
 function DeviceEvent()
 {
-	var __SUPER__;
-	return ((function ()
+	var __BASE__ = null;
+
+	function DeviceEvent(__BASE__)
 	{
-		var __CLASS__DEVICEEVENT__ = this,
-			__PDEFINE__ = {}.constructor.defineProperty,
-			__NOENUM__ = {enumerable:false};
-		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
-		this.__SUPER__ = __SUPER__;
-		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
-		this.__CLASS__ = 'DeviceEvent';
+		var __CLASS__DEVICEEVENT__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
 		this.__PROTECTED__ = {};
-		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		//@line 92
 		var stopPropagation = this.stopPropagation = function ()
 		{
@@ -196,9 +194,10 @@ function DeviceEvent()
 			__CLASS__DEVICEEVENT__.targetTouches = new TouchList;
 			//@line 80
 			__CLASS__DEVICEEVENT__.changedTouches = new TouchList;
-			return __CLASS__DEVICEEVENT__
 		};
-		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
-		return this
-	}).call({})).Constructor.apply(this, [].slice.call(arguments))
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new DeviceEvent(__BASE__);
 }

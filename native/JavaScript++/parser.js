@@ -164,15 +164,8 @@ function __init_narcissus(GLOBAL)
 		// Functions
 		"function",
 		"state",
-		//"property",
-		//"get",
-		//"set",
+		"property",
 		//"event",
-		//"state",
-
-		// State Machine
-		//"init",
-		//"tick",
 
         // Keywords.
 		"break",
@@ -782,6 +775,10 @@ function __init_narcissus(GLOBAL)
 			return StateDefinition(t, x);
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  		case jsdef.PROPERTY:
+  			return PropertyDefinition(t, x);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.FUNCTION:
 			return FunctionDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
 
@@ -1131,6 +1128,7 @@ function __init_narcissus(GLOBAL)
 
 		var mods = [jsdef.CLASS,
 					jsdef.FUNCTION,
+					jsdef.PROPERTY,
 					jsdef.STATE,
 					jsdef.STATIC,
 					jsdef.VIRTUAL,
@@ -1162,6 +1160,10 @@ function __init_narcissus(GLOBAL)
 					else if(t.match(jsdef.VAR))
 					{
 						n.push(Variables(t, x));
+					}
+					else if(t.match(jsdef.PROPERTY))
+					{
+						n.push(PropertyDefinition(t, x));
 					}
 					else if(t.match(jsdef.FUNCTION))
 					{
@@ -1246,8 +1248,6 @@ function __init_narcissus(GLOBAL)
 	function StateDefinition(t, x)
 	{
 		var n = new Node(t, jsdef.STATE);
-		//n.paramsList = [];
-		//n.returnPaths = [];
 		n.vartype = "State";
 		t.setModifiers(n);
 		t.mustMatch(jsdef.IDENTIFIER);
@@ -1289,6 +1289,67 @@ function __init_narcissus(GLOBAL)
 		n.line_end = t.line_start;
 		n.body.line_end = t.line_start;
 		return n;
+	}
+
+	// ==================================================================================================================================
+	//	    ____                             __  _
+	//	   / __ \_________  ____  ___  _____/ /_(_)__  _____
+	//	  / /_/ / ___/ __ \/ __ \/ _ \/ ___/ __/ / _ \/ ___/
+	//	 / ____/ /  / /_/ / /_/ /  __/ /  / /_/ /  __(__  )
+	//	/_/   /_/   \____/ .___/\___/_/   \__/_/\___/____/
+	//	                /_/
+	// ==================================================================================================================================
+
+	function PropertyDefinition(t, x)
+	{
+		var p = new Node(t, jsdef.PROPERTY);
+		t.setModifiers(p);
+		t.mustMatch(jsdef.IDENTIFIER);
+		p.name = t.token().value;
+		p.__start = t.token().start;
+		p.__end = t.token().end;
+		t.mustMatch(jsdef.LEFT_CURLY)
+		x2 = new CompilerContext(true);
+		p.body = Script(t, x2);
+		t.mustMatch(jsdef.RIGHT_CURLY);
+		for(item in p.body)
+		{
+			if(!isFinite(item)) break;
+			if(p.body[item].type==jsdef.FUNCTION)
+			{
+				if(p.body[item].name=="set")
+				{
+					p.setter = p.body[item];
+					p.setter.public = p.public;
+					p.setter.private = p.private;
+					p.setter.protected = p.protected;
+					p.setter.virtual = p.virtual;
+					p.setter.abstract = p.public;
+					p.setter.static = p.static;
+					continue;
+				}
+				else if(p.body[item].name=="get")
+				{
+					p.getter = p.body[item];
+					p.getter.public = p.public;
+					p.getter.private = p.private;
+					p.getter.protected = p.protected;
+					p.getter.virtual = p.virtual;
+					p.getter.abstract = p.public;
+					p.getter.static = p.static;
+					continue;
+				}
+			}
+			throw t.newSyntaxError("Invalid inside property definition");
+		}
+
+		if(!p.getter)
+			throw t.newSyntaxError("Missing property getter");
+
+		//p.body = null;
+		p.vartype = p.getter.returntype;
+		p.subtype = p.getter.subtype;
+		return p;
 	}
 
 	// ==================================================================================================================================
@@ -2040,6 +2101,9 @@ function __init_narcissus(GLOBAL)
 				}
 				break;
 
+			case jsdef.PROPERTY:
+				debugger;
+
 			case jsdef.FUNCTION:
 				if(!t.scanOperand)
 					break loop;
@@ -2363,6 +2427,7 @@ function __init_narcissus(GLOBAL)
 
 }
 __init_narcissus(this);
+
 
 
 

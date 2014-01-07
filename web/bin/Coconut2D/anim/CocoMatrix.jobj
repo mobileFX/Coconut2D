@@ -1,20 +1,18 @@
 "#export web"
 //@line 41
 
-function CocoMatrix()
+function CocoMatrix(__CLASS__COCOMATRIX__$M__)
 {
-	var __SUPER__;
-	return ((function ()
+	var __BASE__ = null;
+
+	function CocoMatrix(__BASE__, __CLASS__COCOMATRIX__$M__)
 	{
-		var __CLASS__COCOMATRIX__ = this,
-			__PDEFINE__ = {}.constructor.defineProperty,
-			__NOENUM__ = {enumerable:false};
-		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
-		this.__SUPER__ = __SUPER__;
-		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
-		this.__CLASS__ = 'CocoMatrix';
+		var __CLASS__COCOMATRIX__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
 		this.__PROTECTED__ = {};
-		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		//@line 109
 		var identity = this.identity = function ()
 		{
@@ -597,9 +595,10 @@ function CocoMatrix()
 			__CLASS__COCOMATRIX__.__data = new Float32Array([__CLASS__COCOMATRIX__.rc11, __CLASS__COCOMATRIX__.rc12, __CLASS__COCOMATRIX__.rc13, __CLASS__COCOMATRIX__.rc14, __CLASS__COCOMATRIX__.rc21, __CLASS__COCOMATRIX__.rc22, __CLASS__COCOMATRIX__.rc23, __CLASS__COCOMATRIX__.rc24, __CLASS__COCOMATRIX__.rc31, __CLASS__COCOMATRIX__.rc32, __CLASS__COCOMATRIX__.rc33, __CLASS__COCOMATRIX__.rc34, __CLASS__COCOMATRIX__.rc41, __CLASS__COCOMATRIX__.rc42, __CLASS__COCOMATRIX__.rc43, __CLASS__COCOMATRIX__.rc44]);
 			//@line 90
 			__CLASS__COCOMATRIX__.__dirty = false;
-			return __CLASS__COCOMATRIX__
 		};
-		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
-		return this
-	}).call({})).Constructor.apply(this, [].slice.call(arguments))
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__COCOMATRIX__$M__);
+		return this;
+	}
+	return new CocoMatrix(__BASE__, __CLASS__COCOMATRIX__$M__);
 }

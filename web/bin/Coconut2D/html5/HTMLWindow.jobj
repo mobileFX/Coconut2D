@@ -2,18 +2,16 @@
 
 function HTMLWindow()
 {
-	var __SUPER__;
-	return ((function ()
+	var __BASE__ = null;
+
+	function HTMLWindow(__BASE__)
 	{
-		var __CLASS__HTMLWINDOW__ = this,
-			__PDEFINE__ = {}.constructor.defineProperty,
-			__NOENUM__ = {enumerable:false};
-		if (typeof __PDEFINE__ != 'function') __PDEFINE__ = null; /*@cc_on @if(1)try{({}).constructor.defineProperty({},'x',{})}catch(e){__PDEFINE__=null}@end @*/
-		this.__SUPER__ = __SUPER__;
-		__PDEFINE__ && __PDEFINE__(this, '__SUPER__', __NOENUM__);
-		this.__CLASS__ = 'HTMLWindow';
+		var __CLASS__HTMLWINDOW__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
 		this.__PROTECTED__ = {};
-		__PDEFINE__ && __PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		//@line 70
 		var addEventListener = this.addEventListener = function (eventType, listener, useCapture)
 		{
@@ -99,9 +97,10 @@ function HTMLWindow()
 			__CLASS__HTMLWINDOW__.__deviceEvent = new DeviceEvent;
 			//@line 58
 			__registerManager(__CLASS__HTMLWINDOW__, __CLASS__HTMLWINDOW__.dispatchEvent, __CLASS__HTMLWINDOW__.__deviceEvent);
-			return __CLASS__HTMLWINDOW__
 		};
-		__PDEFINE__ && __PDEFINE__(this, 'Constructor', __NOENUM__);
-		return this
-	}).call({})).Constructor.apply(this, [].slice.call(arguments))
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new HTMLWindow(__BASE__);
 }

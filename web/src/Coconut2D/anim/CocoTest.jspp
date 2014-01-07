@@ -1,0 +1,64 @@
+state class CocoTest
+{
+	public var v1:Boolean;
+	private var v2:Boolean;
+	protected var v3:Boolean;
+
+	public function Constructor()
+	{
+		v1 = v2 = v3 = false;
+		p1 = p2 = p3 = false;
+	}
+
+	public function Destructor()
+	{
+		v1 = v2 = v3 = false;
+		p1 = p2 = p3 = false;
+	}
+
+	public function f1():Boolean { return v1 && v2 && v3 && p1 && p2 && p3; }
+	private function f2():Boolean { return v1 && v2 && v3 && p1 && p2 && p3; }
+	protected function f3():Boolean { return v1 && v2 && v3 && p1 && p2 && p3; }
+
+	public state s1
+	{
+		function enter() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		function exit() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		function tick() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		function paint() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+	}
+
+	private state s2
+	{
+		function enter() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		function exit() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		function tick() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		function paint() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+	}
+
+	protected state s3
+	{
+		function enter() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		function exit() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		function tick() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		function paint() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+	}
+
+	public property p1
+	{
+		function get():Boolean  { return v1 && v2 && v3 && f1() && f2() && f3(); }
+		function set(v:Boolean) { v1=v; v2=v; v3=v; p1=v; p2=v; p3=v; }
+	}
+
+	private property p2
+	{
+		function get():Boolean  { return v1 && v2 && v3 && f1() && f2() && f3(); }
+		function set(v:Boolean) { v1=v; v2=v; v3=v; p1=v; p2=v; p3=v; }
+	}
+
+	protected property p3
+	{
+		function get():Boolean  { return v1 && v2 && v3 && f1() && f2() && f3(); }
+		function set(v:Boolean) { v1=v; v2=v; v3=v; p1=v; p2=v; p3=v; }
+	}
+}

@@ -67,8 +67,10 @@ class Global
 	public var __registerCallback;
 	public var __unRegisterCallback;
 	public var __ImageData_loadImage;
+	public var __Audio_position;
 	public var __Audio_play;
 	public var __Audio_pause;
+	public var __Audio_stop;
 	public var __WebGLRenderingContext_activeTexture;
 	public var __WebGLRenderingContext_attachShader;
 	public var __WebGLRenderingContext_bindAttribLocation;
@@ -456,6 +458,23 @@ class State
 	public var params :Object;
 } //State
 
+class CocoTest
+{
+	public function f1() :Boolean {}
+	private function f2() :Boolean {}
+	protected function f3() :Boolean {}
+	public function Constructor() {}
+	public var p1 :Boolean;
+	private var p2 :Boolean;
+	protected var p3 :Boolean;
+	public var v1 :Boolean;
+	private var v2 :Boolean;
+	protected var v3 :Boolean;
+	public var s1 :State;
+	private var s2 :State;
+	protected var s3 :State;
+} //CocoTest
+
 class EventTarget
 {
 	public function Constructor() {}
@@ -496,8 +515,9 @@ class Audio
 	public function play() {}
 	public function pause() {}
 	public function Constructor(url:String) {}
-	public var __uid :Integer;
 	public var currentTime :Float;
+	private var __uid :Integer;
+	private var __currentTime :Float;
 	public var duration :Float;
 	public var paused :Boolean;
 	public var ended :Boolean;
@@ -1104,11 +1124,13 @@ class CocoAudio
 	public function play() {}
 	public function pause() {}
 	public function stop() {}
-	public function currentTime() :Float {}
 	public function duration() :Float {}
 	public function paused() :Boolean {}
 	public function ended() :Boolean {}
+	public function getCurrentTime() :Float {}
+	public function setCurrentTime(t:Float) {}
 	public function Constructor(url:String, autoplay:Boolean, loops:Integer) {}
+	public var src :String;
 	public var audio :Audio;
 	public var autoplay :Boolean;
 	public var loops :Integer;
@@ -1319,6 +1341,7 @@ class CocoClip : EventTarget
 	public var __vTemp :CocoVector;
 	public var __mTemp :CocoMatrix;
 	public var __childWithMaxTimelineDuration :CocoClip;
+	private var __currentAudio :CocoAudio;
 } //CocoClip
 
 class CocoScene
@@ -1339,8 +1362,6 @@ class CocoScene
 	public function Constructor() {}
 	public var __sceneName :String;
 	public var __imageSymbols :Array<CocoImage>;
-	public var __soundSymbols :Array<CocoAudio>;
-	public var __clipSymbols :Array<CocoClip>;
 	public var __fps :Float;
 	public var __view_width :Float;
 	public var __view_height :Float;

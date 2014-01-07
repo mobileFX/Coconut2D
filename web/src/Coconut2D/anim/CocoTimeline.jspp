@@ -323,16 +323,14 @@ class CocoTimeline
 	        {
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
 
-	            F = F1.clone();
+	            F = F1.clone(false);
 	            F.frameIndex = FrameIndex;
-	            F.action=null;
 	            return (__pausedKeyFrame = F);
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 
-	            F = F1.clone();
+	            F = F1.clone(false);
 	            F.frameIndex = FrameIndex;
-	            F.action=null;
 	            F.visible = false;
 	            return (__pausedKeyFrame = F);
 
@@ -344,18 +342,16 @@ class CocoTimeline
 	            if(!F2)
 	            {
 	                // Fallback to echo
-	                F = F1.clone();
+	                F = F1.clone(false);
 	                F.frameIndex = FrameIndex;
-	                F.action=null;
 	                return (__pausedKeyFrame = F);
 
 	            }
 	            else
 	            {
 	                // Interpolate between frames
-	                F = F1.clone();
+	                F = F1.clone(false);
 	                F.frameIndex = FrameIndex;
-	                F.action=null;
 	                s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
 	                F.interpolate(F1, F2, s);
 	                return (__pausedKeyFrame = F);

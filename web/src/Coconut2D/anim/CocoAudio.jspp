@@ -38,6 +38,7 @@
 
 class CocoAudio
 {
+	public var src:String;
 	public var audio:Audio;
 	public var autoplay:Boolean;
 	public var loops:Integer;
@@ -47,9 +48,10 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(url:String, autoplay:Boolean, loops:Integer)
 	{
+		src = url;
 		audio = new Audio(url);
-		audio.autoplay = false;
-		audio.loop = (loops==0);
+		audio.autoplay = false;		// Controlled by CocoAudio
+		audio.loop = false;			// Controlled by CocoAudio
 		this.autoplay = autoplay;
 		this.loops = loops;
 		__firstPlayed = false;
@@ -65,7 +67,7 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function tick()
 	{
-		if(!audio) return;
+		if(!audio || !audio.src) return;
 
 		if(!__firstPlayed && autoplay)
 		{
@@ -84,9 +86,10 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function play()					{ if(audio) audio.play(); }
 	public function pause()					{ if(audio) audio.pause(); }
-	public function stop()					{ __loopCount=0; __firstPlayed=true; if(audio) audio.pause(); audio.currentTime=0; }
-	public function currentTime() :Float	{ return audio ? audio.currentTime : 0; }
-	public function duration() :Float    	{ return audio ? audio.duration : 0; }
+	public function stop()					{ __loopCount=0; __firstPlayed=true; if(audio) audio.pause(); setCurrentTime(0); }
+	public function duration() :Float   	{ return audio ? audio.duration : 0; }
 	public function paused() :Boolean		{ return audio ? audio.paused : true; }
 	public function ended() :Boolean		{ return audio ? audio.ended : true; }
+	public function getCurrentTime() :Float	{ return audio ? audio.currentTime : 0; }
+	public function setCurrentTime(t:Float)	{ if(audio) audio.currentTime = t; }
 }
