@@ -10,7 +10,7 @@ CocoTimeline::CocoTimeline()
 	__paused = false;
 	__pausedKeyFrame = NULL;
 	__fps = 30;
-	addKeyFrameEx(NULL, NULL, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1);
+	addKeyFrameEx(NULL, NULL, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, NULL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ CocoKeyFrame* CocoTimeline::addKeyFrame(CocoKeyFrame* KeyFrame)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha)
+CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha, CocoAudio* audio)
 {
 	CocoKeyFrame* KeyFrame = new CocoKeyFrame();
 	KeyFrame->nextState = nextState;
@@ -121,6 +121,7 @@ CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, Function* actionCall
 	KeyFrame->pivotX = pivotX;
 	KeyFrame->pivotY = pivotY;
 	KeyFrame->alpha = alpha;
+	KeyFrame->audio = audio;
 	return addKeyFrame(KeyFrame);
 }
 
@@ -242,7 +243,7 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 	F1 = keyFrame(FrameIndex);
 	if(F1)
 	{
-		return (__pausedKeyFrame = F1->clone());
+		return (__pausedKeyFrame = F1->clone(true));
 	}
 	F1 = findKeyFrameBeforeframeIndex(FrameIndex, false,  -1);
 	if(!F1)
@@ -258,17 +259,15 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 		{
 			case COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_ECHO:
 			{
-				F = F1->clone();
+				F = F1->clone(false);
 				F->frameIndex = FrameIndex;
-				F->action = NULL;
 				return (__pausedKeyFrame = F);
 			}
 			break;
 			case COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_NONE:
 			{
-				F = F1->clone();
+				F = F1->clone(false);
 				F->frameIndex = FrameIndex;
-				F->action = NULL;
 				F->visible = false;
 				return (__pausedKeyFrame = F);
 			}
@@ -278,16 +277,14 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 				F2 = findKeyFrameAfterframeIndex(FrameIndex, false,  -1);
 				if(!F2)
 				{
-					F = F1->clone();
+					F = F1->clone(false);
 					F->frameIndex = FrameIndex;
-					F->action = NULL;
 					return (__pausedKeyFrame = F);
 				}
 				else
 				{
-					F = F1->clone();
+					F = F1->clone(false);
 					F->frameIndex = FrameIndex;
-					F->action = NULL;
 					s = (float)((frameIndex - F1->frameIndex)) / (float)((F2->frameIndex - F1->frameIndex));
 					F->interpolate(F1, F2, s);
 					return (__pausedKeyFrame = F);

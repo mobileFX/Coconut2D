@@ -1742,6 +1742,16 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 						}
 					}
 
+					// Check member access
+					if(ast.symbol.private && ast.inClass!=ast.symbol.ast.inClass)
+					{
+						_this.NewError("Invalid private member access: " + ast.value, ast);
+					}
+					else if(ast.symbol.protected && ast.inClass!=ast.symbol.ast.inClass && ast.inClass.symbol.baseSymbol!=ast.symbol.ast.inClass.symbol)
+					{
+						_this.NewError("Invalid protected member access: " + ast.value, ast);
+					}
+
 					// Generate debug symbol
 					_this.addDebugSymbol(ast, ast.runtime);
 				}
@@ -3107,6 +3117,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};
 }
+
+
 
 
 

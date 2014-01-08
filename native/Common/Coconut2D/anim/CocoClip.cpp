@@ -1,7 +1,7 @@
 #include "CocoClip.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoClip::CocoClip(CocoImage* image, CocoSound* audio, String sequence)
+CocoClip::CocoClip(CocoImage* image, String sequence)
 {
 	__symbolLoop = COCO_CLIP_SYMBOL_LOOP_ENUM::CLIP_SYMBOL_LOOP_CONTINUOUS;
 	__currentSequenceFrameIndex = 0;
@@ -23,7 +23,6 @@ CocoClip::CocoClip(CocoImage* image, CocoSound* audio, String sequence)
 	__childWithMaxTimelineDuration = NULL;
 	__currentSequence = NULL;
 	__image = image;
-	__audio = audio;
 	if(image && sequence)
 	{
 		__currentSequence = image->getSequence(sequence);
@@ -36,10 +35,6 @@ CocoClip::~CocoClip()
 	if(__image)
 	{
 		__image = (delete __image, NULL);
-	}
-	if(__audio)
-	{
-		__audio = (delete __audio, NULL);
 	}
 	if(__timeline)
 	{
@@ -225,7 +220,7 @@ bool CocoClip::gotoFrameByIndex(int FrameIndex, bool pause, bool deep)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking)
+void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip)
 {
 	float __currentTime = scene->__currentTime + __timeline->__skipTime;
 	if(__firstTickTime == -1)
@@ -258,7 +253,7 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 		{
 			if(clippingTime > 0)
 			{
-				__currentFrame = __timeline->lastKeyFrame()->clone();
+				__currentFrame = __timeline->lastKeyFrame()->clone(false);
 			}
 			else
 			{
@@ -303,7 +298,7 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 			for(int i = 0,  L = __children.size(); i < L; i++)
 			{
 				scene->__modelViewMatrix->push();
-				__children[i]->paint(gl, scene, this, picking);
+				__children[i]->paint(gl, scene, this);
 				scene->__modelViewMatrix->pop();
 			}
 			scene->__levelParents.pop();
@@ -329,11 +324,26 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 			}
 		}
 	}
-	if(!__timeline->__paused && (__currentFrame->action || __currentFrame->nextState))
+	if(!__timeline->__paused)
 	{
-		this->__parent = parentClip;
-		__currentFrame->execute(gl, __currentTime, __loopTime, scene, this);
-		this->__parent = NULL;
+		bool pulse = false;
+		if(__currentFrame->action || __currentFrame->nextState || __currentFrame->audio)
+		{
+			this->__parent = parentClip;
+			pulse = __currentFrame->execute(gl, __currentTime, __loopTime, scene, this);
+			if(pulse && __currentFrame->audio != NULL)
+			{
+				__currentAudio = __currentFrame->audio;
+			}
+			this->__parent = NULL;
+		}
+		if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration->__currentFrame && __childWithMaxTimelineDuration->__currentFrame->frameIndex == __childWithMaxTimelineDuration->__timeline->lastKeyFrame()->frameIndex)
+		{
+		}
+	}
+	if(__currentAudio)
+	{
+		__currentAudio->tick();
 	}
 }
 

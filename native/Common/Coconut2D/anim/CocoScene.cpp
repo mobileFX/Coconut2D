@@ -56,9 +56,6 @@ CocoScene::~CocoScene()
 	for(i = __imageSymbols.size() - 1; i >= 0; i--)
 	{
 	}
-	for(i = __soundSymbols.size() - 1; i >= 0; i--)
-	{
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,19 +66,6 @@ CocoImage* CocoScene::getImageSymbol(String symbolName)
 		if(__imageSymbols[i]->symbolName == symbolName)
 		{
 			return __imageSymbols[i];
-		}
-	}
-	return NULL;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoSound* CocoScene::getSoundSymbol(String symbolName)
-{
-	for(int i = __soundSymbols.size() - 1; i >= 0; i--)
-	{
-		if(__soundSymbols[i]->symbolName == symbolName)
-		{
-			return __soundSymbols[i];
 		}
 	}
 	return NULL;
@@ -99,20 +83,6 @@ CocoImage* CocoScene::newResourceImage(String symbolName, String baseUrl)
 	img->baseUrl = baseUrl;
 	__imageSymbols.push(img);
 	return img;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoSound* CocoScene::newResourceSound(String symbolName, String filename)
-{
-	if(getSoundSymbol(symbolName))
-	{
-		throw CocoException("Resource sound " + symbolName + " already exists.");
-	}
-	CocoSound* snd = new CocoSound();
-	snd->symbolName = symbolName;
-	snd->createFromFile(filename, NULL);
-	__soundSymbols.push(snd);
-	return snd;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +253,7 @@ void CocoScene::paint(WebGLRenderingContext* gl, float time)
 		{
 			__modelViewMatrix->identity();
 			__levelParents = {__root};
-			__root->paint(gl, this, NULL, false);
+			__root->paint(gl, this, NULL);
 			CocoClip* max = __root->__childWithMaxTimelineDuration;
 			if(max && max->__currentFrame->frameIndex == max->__timeline->lastKeyFrame()->frameIndex)
 			{

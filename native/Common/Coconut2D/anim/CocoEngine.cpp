@@ -38,8 +38,6 @@ void CocoEngine::run(WebGLRenderingContext* gl, float time)
 		__currentState = __nextState;
 		__currentState->enter();
 		__nextState = NULL;
-		trace("@@STATE " + __currentState->__name);
-		return;
 	}
 	__currentState->tick(time);
 	if(__nextState == NULL)

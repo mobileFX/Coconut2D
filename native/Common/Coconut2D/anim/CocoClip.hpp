@@ -7,19 +7,18 @@
 #include "CocoClip.hpp"
 #include "WebGLRenderingContext.hpp"
 #include "CocoImage.hpp"
-#include "CocoSound.hpp"
 #include "CocoSequence.hpp"
 #include "CocoTimeline.hpp"
 #include "CocoKeyFrame.hpp"
 #include "CocoVector.hpp"
 #include "CocoMatrix.hpp"
+#include "CocoAudio.hpp"
 
 class CocoClip : public EventTarget
 {
 public:
 	String __instanceName;
 	CocoImage* __image;
-	CocoSound* __audio;
 	COCO_CLIP_SYMBOL_LOOP_ENUM __symbolLoop;
 	Array<CocoClip*> __children;
 	CocoSequence* __currentSequence;
@@ -40,7 +39,8 @@ public:
 	CocoVector* __vTemp;
 	CocoMatrix* __mTemp;
 	CocoClip* __childWithMaxTimelineDuration;
-	CocoClip(CocoImage* image = NULL, CocoSound* audio = NULL, String sequence = "");
+	CocoAudio* __currentAudio;
+	CocoClip(CocoImage* image = NULL, String sequence = "");
 	~CocoClip();
 	void prepare(CocoScene* scene);
 	void reset();
@@ -51,7 +51,7 @@ public:
 	int getChildIndex(CocoClip* child);
 	bool gotoFrameByName(String LabelName, bool pause, bool deep);
 	bool gotoFrameByIndex(int FrameIndex, bool pause, bool deep);
-	void paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool picking);
+	virtual void paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip);
 	bool hitTest(float wx, float wy);
 	void initBoundingBoxFromTexture(CocoScene* scene, float W2, float H2);
 	void initBoundingBoxFromChildren(CocoScene* scene);

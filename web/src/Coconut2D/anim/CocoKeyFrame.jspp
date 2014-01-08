@@ -109,12 +109,10 @@ class CocoKeyFrame
         {
 			c.action				= action;
 			c.nextState				= nextState;
-			c.audio					= audio;
+			c.audio					= audio ? audio.cloneNode(true) : null;
         }
 
-        //if(!exact && audio) debugger;
-
-		c.__lastActionExecutionTime	= __lastActionExecutionTime;
+ 		c.__lastActionExecutionTime	= __lastActionExecutionTime;
 
 	    return c;
 	}
@@ -134,7 +132,6 @@ class CocoKeyFrame
 
 		if((currentTime==0) || (currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
 		{
-			pulse = true;
 			__lastActionExecutionTime = currentTime;
 
 			if(action)
@@ -148,11 +145,12 @@ class CocoKeyFrame
 				engine.setNextState(nextState);
 			}
 
-			if(audio && audio.src)
+			if(audio)
 			{
-				trace("sound: " + audio.src);
 				audio.tick();
 			}
+
+			pulse = true;
 		}
 
 		return pulse;

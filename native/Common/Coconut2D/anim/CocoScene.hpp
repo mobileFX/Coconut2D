@@ -3,7 +3,6 @@
 
 #include "Coconut2D.hpp"
 #include "CocoImage.hpp"
-#include "CocoSound.hpp"
 #include "WebGLRenderingContext.hpp"
 #include "WebGLProgram.hpp"
 #include "CocoClip.hpp"
@@ -15,8 +14,6 @@ class CocoScene
 public:
 	String __sceneName;
 	Array<CocoImage*> __imageSymbols;
-	Array<CocoSound*> __soundSymbols;
-	Array<CocoClip*> __clipSymbols;
 	float __fps;
 	float __view_width;
 	float __view_height;
@@ -41,9 +38,7 @@ public:
 	CocoScene();
 	~CocoScene();
 	CocoImage* getImageSymbol(String symbolName);
-	CocoSound* getSoundSymbol(String symbolName);
 	CocoImage* newResourceImage(String symbolName, String baseUrl);
-	CocoSound* newResourceSound(String symbolName, String filename);
 	void prepare(WebGLRenderingContext* gl);
 	WebGLProgram* makeProgram(WebGLRenderingContext* gl, String vs, String fs);
 	void loadResources();

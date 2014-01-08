@@ -25,8 +25,10 @@
 
 //# DO NOT EDIT BEGIN #//
 class State;
+class CocoTest;
 class EventTarget;
 class DeviceEvent;
+class Audio;
 class HTMLCanvasElement;
 class HTMLElement;
 class HTMLDocument;
@@ -48,11 +50,11 @@ class WebGLTexture;
 class WebGLUniformLocation;
 class WebGLProgram;
 class WebGLRenderingContext;
+class CocoAudio;
 class CocoImageSibling;
 class CocoRect;
 class CocoSequence;
 class CocoImage;
-class CocoSound;
 class CocoTimeLabel;
 class CocoVector;
 class CocoMatrix;

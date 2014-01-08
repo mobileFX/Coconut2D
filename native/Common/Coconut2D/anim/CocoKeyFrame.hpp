@@ -8,6 +8,7 @@
 #include "CocoClip.hpp"
 #include "CocoMatrix.hpp"
 #include "CocoState.hpp"
+#include "CocoAudio.hpp"
 
 class CocoKeyFrame
 {
@@ -27,12 +28,13 @@ public:
 	float rotation;
 	Function* action;
 	State* nextState;
+	CocoAudio* audio;
 	float __lastActionExecutionTime;
 	CocoKeyFrame();
 	~CocoKeyFrame();
-	CocoKeyFrame* clone();
+	CocoKeyFrame* clone(bool exact);
 	void reset();
-	void execute(WebGLRenderingContext* gl, float currentTime, float loopTime, CocoScene* scene, CocoClip* clip);
+	bool execute(WebGLRenderingContext* gl, float currentTime, float loopTime, CocoScene* scene, CocoClip* clip);
 	void interpolate(CocoKeyFrame* F1, CocoKeyFrame* F2, float s);
 	void combine(CocoKeyFrame* Frame);
 	void apply(CocoMatrix* matrix);

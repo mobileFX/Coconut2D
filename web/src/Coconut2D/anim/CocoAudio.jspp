@@ -45,6 +45,8 @@ class CocoAudio
 	private var __firstPlayed:Boolean;
 	private var __loopCount:Integer;
 
+	private var __refCount:Integer;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(url:String, autoplay:Boolean, loops:Integer)
 	{
@@ -56,12 +58,23 @@ class CocoAudio
 		this.loops = loops;
 		__firstPlayed = false;
 		__loopCount = 0;
+		__refCount = 1;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete audio;
+		if(--__refCount==0)
+		{
+			delete audio;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function cloneNode(deep:Boolean) :CocoAudio
+	{
+		__refCount++;
+		return this;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,6 +87,8 @@ class CocoAudio
 			__firstPlayed = true;
 			play();
 		}
+
+		trace(src + " : " + String(getCurrentTime()));
 
 		if(loops>=0 && audio.ended)
 		{

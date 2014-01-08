@@ -18,16 +18,21 @@ CocoKeyFrame::CocoKeyFrame()
 	alpha = 1.0;
 	action = NULL;
 	nextState = NULL;
+	audio = NULL;
 	__lastActionExecutionTime = 0.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoKeyFrame::~CocoKeyFrame()
 {
+	if(audio)
+	{
+		audio = (delete audio, NULL);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoKeyFrame::clone()
+CocoKeyFrame* CocoKeyFrame::clone(bool exact)
 {
 	CocoKeyFrame* c = new CocoKeyFrame();
 	c->alpha = alpha;
@@ -42,9 +47,13 @@ CocoKeyFrame* CocoKeyFrame::clone()
 	c->visible = visible;
 	c->x = x;
 	c->y = y;
-	c->action = action;
-	c->nextState = nextState;
-	c->calcBoundingBox = calcBoundingBox;
+	c->calcBoundingBox = this->calcBoundingBox;
+	if(exact)
+	{
+		c->action = action;
+		c->nextState = nextState;
+		c->audio = audio;
+	}
 	c->__lastActionExecutionTime = __lastActionExecutionTime;
 	return c;
 }
@@ -56,8 +65,9 @@ void CocoKeyFrame::reset()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoKeyFrame::execute(WebGLRenderingContext* gl, float currentTime, float loopTime, CocoScene* scene, CocoClip* clip)
+bool CocoKeyFrame::execute(WebGLRenderingContext* gl, float currentTime, float loopTime, CocoScene* scene, CocoClip* clip)
 {
+	bool pulse = false;
 	if((currentTime == 0) || (currentTime - __lastActionExecutionTime > clip->__timeline->__singleFrameDurationTime))
 	{
 		__lastActionExecutionTime = currentTime;
@@ -70,7 +80,13 @@ void CocoKeyFrame::execute(WebGLRenderingContext* gl, float currentTime, float l
 		{
 			engine->setNextState(nextState);
 		}
+		if(audio)
+		{
+			audio->tick();
+		}
+		pulse = true;
 	}
+	return pulse;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
