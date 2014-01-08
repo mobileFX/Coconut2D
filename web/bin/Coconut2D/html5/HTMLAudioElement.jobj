@@ -12,32 +12,32 @@ function Audio(__CLASS__AUDIO__$url__)
 		this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
-		//@line 55
+		//@line 61
 		var play = this.play = function ()
 		{
-			//@line 57
+			//@line 63
 			__Audio_play(__CLASS__AUDIO__.__PRIVATE__.__uid);
 		};
-		//@line 61
+		//@line 67
 		var pause = this.pause = function ()
 		{
-			//@line 63
+			//@line 69
 			__Audio_pause(__CLASS__AUDIO__.__PRIVATE__.__uid);
 		};
-		//@line 67
+		//@line 73
 		Object.defineProperty(this, 'currentTime', {
 			enumerable: true,
-			//@line 69
+			//@line 75
 			get: function ()
 			{
-				//@line 71
+				//@line 77
 				return __CLASS__AUDIO__.__PRIVATE__.__currentTime;
 				return 0
 			},
-			//@line 74
+			//@line 80
 			set: function (time)
 			{
-				//@line 76
+				//@line 82
 				__Audio_position(__CLASS__AUDIO__.__PRIVATE__.__uid, time);
 			}
 		});
@@ -59,6 +59,8 @@ function Audio(__CLASS__AUDIO__$url__)
 		this.src = "";
 		var Destructor = this.Destructor = function ()
 		{
+			//@line 57
+			trace("Delete Audio " + __CLASS__AUDIO__.src);
 			__CLASS__AUDIO__.currentTime = null;
 			__CLASS__AUDIO__.__PRIVATE__.__uid = null;
 			__CLASS__AUDIO__.__PRIVATE__.__currentTime = null;

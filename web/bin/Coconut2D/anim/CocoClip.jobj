@@ -281,13 +281,13 @@ function CocoClip(__CLASS__COCOCLIP__$image__, __CLASS__COCOCLIP__$sequence__)
 						//@line 305
 						var frame = __CLASS__COCOCLIP__.__currentSequence.frames[__CLASS__COCOCLIP__.__currentSequenceFrameIndex];
 						//@line 306
-						scene.drawFrame(gl, __CLASS__COCOCLIP__.__image, frame, __CLASS__COCOCLIP__.__currentFrame.alpha);
+						scene.drawFrame(gl, __CLASS__COCOCLIP__.__image, frame, __CLASS__COCOCLIP__.__currentFrame.alpha, __CLASS__COCOCLIP__.__currentFrame.flipH, __CLASS__COCOCLIP__.__currentFrame.flipV);
 					}
 					else
 					//@line 309
 					{
 						//@line 311
-						scene.drawFrame(gl, __CLASS__COCOCLIP__.__image, 0, __CLASS__COCOCLIP__.__currentFrame.alpha);
+						scene.drawFrame(gl, __CLASS__COCOCLIP__.__image, 0, __CLASS__COCOCLIP__.__currentFrame.alpha, __CLASS__COCOCLIP__.__currentFrame.flipH, __CLASS__COCOCLIP__.__currentFrame.flipV);
 					}
 				}
 				else
@@ -357,7 +357,7 @@ function CocoClip(__CLASS__COCOCLIP__$image__, __CLASS__COCOCLIP__$sequence__)
 					//@line 360
 					pulse = __CLASS__COCOCLIP__.__currentFrame.execute(gl, __currentTime, __loopTime, scene, __CLASS__COCOCLIP__);
 					//@line 361
-					if (pulse && __CLASS__COCOCLIP__.__currentFrame.audio && __CLASS__COCOCLIP__.__currentFrame.audio.src)
+					if (pulse && __CLASS__COCOCLIP__.__currentFrame.audio != null)
 					//@line 362
 					{
 						//@line 363

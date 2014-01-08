@@ -678,6 +678,7 @@ class WebGLProgram : WebGLObject
 	public var GLSLuSampler :WebGLUniformLocation;
 	public var GLSLuSprFrame :WebGLUniformLocation;
 	public var GLSLuSprSize :WebGLUniformLocation;
+	public var GLSLuSprFlip :WebGLUniformLocation;
 } //WebGLProgram
 
 class WebGLRenderingContext
@@ -1270,6 +1271,8 @@ class CocoKeyFrame
 	public var action :Function;
 	public var nextState :State;
 	public var audio :CocoAudio;
+	public var flipH :Boolean;
+	public var flipV :Boolean;
 	private var __lastActionExecutionTime :Float;
 } //CocoKeyFrame
 
@@ -1284,7 +1287,7 @@ class CocoTimeline
 	public function firstKeyFrame() :CocoKeyFrame {}
 	public function lastKeyFrame() :CocoKeyFrame {}
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame {}
-	public function addKeyFrameEx(nextState:State, actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, alpha:Float, audio:CocoAudio) :CocoKeyFrame {}
+	public function addKeyFrameEx(nextState:State, actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean) :CocoKeyFrame {}
 	public function prepare(scene:CocoScene, clip:CocoClip) {}
 	public function normalizetimeline() {}
 	public function jumpBy(frames:Float, paused:Boolean) {}
@@ -1355,7 +1358,7 @@ class CocoScene
 	private function loadResources() {}
 	private function resourcesLoaded(gl:WebGLRenderingContext) :Boolean {}
 	public function paint(gl:WebGLRenderingContext, time:Float) {}
-	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Float, alpha:Float) {}
+	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Float, alpha:Float, flipH:Boolean, flipV:Boolean) {}
 	public function gotoAndPlayByName(LabelName:String, deep:Boolean) {}
 	public function gotoAndStopByName(LabelName:String, deep:Boolean) {}
 	public function gotoAndPlayByIndex(FrameIndex:Integer, deep:Boolean) {}
@@ -1397,14 +1400,7 @@ class CocoEngine
 	public var __nextState :State;
 	public var __deviceEvent :DeviceEvent;
 	public var STATE_NULL :State;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public var STATE_GAME :State;
 } //CocoEngine
 
 class CocoSprite
@@ -1495,35 +1491,21 @@ class GameEngine : CocoEngine
 {
 	public function Constructor() {}
 	public var scene :CocoScene;
-	public var balance :Number;
-	public var winnings :Number;
-	public var avatars :Array<CocoClip>;
-	public var avatar_leo :CocoClip;
-	public var avatar_xerxes :CocoClip;
-	public var avatar_spartan :CocoClip;
-	public var avatar_persian :CocoClip;
-	public var avatar_swords :CocoClip;
-	public var avatar_armor :CocoClip;
-	public var btnOpenAll :CocoClip;
-	public var btnBuyTicket :CocoClip;
-	public var selectedAvatar :Number;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public var STATE_GAME :State;
 } //GameEngine
 
-class SceneGameBoard : CocoScene
+class BitmapSymbolsTest : CocoScene
 {
 	public function Constructor() {}
-} //SceneGameBoard
+} //BitmapSymbolsTest
 
-class SceneTitle : CocoScene
+class SynthesisTest : CocoScene
 {
 	public function Constructor() {}
-} //SceneTitle
+} //SynthesisTest
+
+class Test : CocoScene
+{
+	public function Constructor() {}
+} //Test
 

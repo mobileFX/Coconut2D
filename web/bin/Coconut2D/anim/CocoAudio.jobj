@@ -13,43 +13,53 @@ function CocoAudio(__CLASS__COCOAUDIO__$url__, __CLASS__COCOAUDIO__$autoplay__, 
 		this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
-		//@line 68
+		//@line 74
+		var cloneNode = this.cloneNode = function (deep)
+		{
+			//@line 76
+			__CLASS__COCOAUDIO__.__PRIVATE__.__refCount++;
+			//@line 77
+			return __CLASS__COCOAUDIO__;
+		};
+		//@line 81
 		var tick = this.tick = function ()
 		{
-			//@line 70
+			//@line 83
 			if (!__CLASS__COCOAUDIO__.audio || !__CLASS__COCOAUDIO__.audio.src) return;
-			//@line 72
+			//@line 85
 			if (!__CLASS__COCOAUDIO__.__PRIVATE__.__firstPlayed && __CLASS__COCOAUDIO__.autoplay)
-			//@line 73
+			//@line 86
 			{
-				//@line 74
+				//@line 87
 				__CLASS__COCOAUDIO__.__PRIVATE__.__firstPlayed = true;
-				//@line 75
+				//@line 88
 				__CLASS__COCOAUDIO__.play();
 			}
-			//@line 78
+			//@line 91
+			trace(__CLASS__COCOAUDIO__.src + " : " + String(__CLASS__COCOAUDIO__.getCurrentTime()));
+			//@line 93
 			if (__CLASS__COCOAUDIO__.loops >= 0 && __CLASS__COCOAUDIO__.audio.ended)
-			//@line 79
+			//@line 94
 			{
-				//@line 80
+				//@line 95
 				__CLASS__COCOAUDIO__.__PRIVATE__.__loopCount++;
-				//@line 81
+				//@line 96
 				if (__CLASS__COCOAUDIO__.loops == 0 || (__CLASS__COCOAUDIO__.loops > 0 || __CLASS__COCOAUDIO__.__PRIVATE__.__loopCount < __CLASS__COCOAUDIO__.loops))
-				//@line 82
+				//@line 97
 				__CLASS__COCOAUDIO__.play();
 			}
 		};
-		//@line 87
+		//@line 102
 		var play = this.play = function ()
 		{
 			if (__CLASS__COCOAUDIO__.audio) __CLASS__COCOAUDIO__.audio.play();
 		};
-		//@line 88
+		//@line 103
 		var pause = this.pause = function ()
 		{
 			if (__CLASS__COCOAUDIO__.audio) __CLASS__COCOAUDIO__.audio.pause();
 		};
-		//@line 89
+		//@line 104
 		var stop = this.stop = function ()
 		{
 			__CLASS__COCOAUDIO__.__PRIVATE__.__loopCount = 0;
@@ -57,31 +67,31 @@ function CocoAudio(__CLASS__COCOAUDIO__$url__, __CLASS__COCOAUDIO__$autoplay__, 
 			if (__CLASS__COCOAUDIO__.audio) __CLASS__COCOAUDIO__.audio.pause();
 			__CLASS__COCOAUDIO__.setCurrentTime(0);
 		};
-		//@line 90
+		//@line 105
 		var duration = this.duration = function ()
 		{
 			return __CLASS__COCOAUDIO__.audio ? __CLASS__COCOAUDIO__.audio.duration : 0;
 			return 0
 		};
-		//@line 91
+		//@line 106
 		var paused = this.paused = function ()
 		{
 			return __CLASS__COCOAUDIO__.audio ? __CLASS__COCOAUDIO__.audio.paused : true;
 			return false
 		};
-		//@line 92
+		//@line 107
 		var ended = this.ended = function ()
 		{
 			return __CLASS__COCOAUDIO__.audio ? __CLASS__COCOAUDIO__.audio.ended : true;
 			return false
 		};
-		//@line 93
+		//@line 108
 		var getCurrentTime = this.getCurrentTime = function ()
 		{
 			return __CLASS__COCOAUDIO__.audio ? __CLASS__COCOAUDIO__.audio.currentTime : 0;
 			return 0
 		};
-		//@line 94
+		//@line 109
 		var setCurrentTime = this.setCurrentTime = function (t)
 		{
 			if (__CLASS__COCOAUDIO__.audio) __CLASS__COCOAUDIO__.audio.currentTime = t;
@@ -98,41 +108,51 @@ function CocoAudio(__CLASS__COCOAUDIO__$url__, __CLASS__COCOAUDIO__$autoplay__, 
 		this.__PRIVATE__.__firstPlayed = false;
 		//@line 46
 		this.__PRIVATE__.__loopCount = 0;
+		//@line 48
+		this.__PRIVATE__.__refCount = 0;
 		var Destructor = this.Destructor = function ()
 		{
-			//@line 64
-			__CLASS__COCOAUDIO__.audio && ((__CLASS__COCOAUDIO__.audio.hasOwnProperty('Destructor') && __CLASS__COCOAUDIO__.audio.Destructor()) || !__CLASS__COCOAUDIO__.audio.hasOwnProperty('Destructor')) && (delete __CLASS__COCOAUDIO__.audio);
-			__CLASS__COCOAUDIO__.audio = null;
+			//@line 67
+			if (--__CLASS__COCOAUDIO__.__PRIVATE__.__refCount == 0)
+			//@line 68
+			{
+				//@line 69
+				__CLASS__COCOAUDIO__.audio && ((__CLASS__COCOAUDIO__.audio.hasOwnProperty('Destructor') && __CLASS__COCOAUDIO__.audio.Destructor()) || !__CLASS__COCOAUDIO__.audio.hasOwnProperty('Destructor')) && (delete __CLASS__COCOAUDIO__.audio);
+				__CLASS__COCOAUDIO__.audio = null;
+			}
 			__CLASS__COCOAUDIO__.src = null;
 			__CLASS__COCOAUDIO__.audio = null;
 			__CLASS__COCOAUDIO__.autoplay = null;
 			__CLASS__COCOAUDIO__.loops = null;
 			__CLASS__COCOAUDIO__.__PRIVATE__.__firstPlayed = null;
 			__CLASS__COCOAUDIO__.__PRIVATE__.__loopCount = null;
+			__CLASS__COCOAUDIO__.__PRIVATE__.__refCount = null;
 			return true
 		};
-		//@line 49
+		//@line 51
 		this.Constructor = function ()
 		{
 			var url = arguments[0];
 			var autoplay = arguments[1];
 			var loops = arguments[2];
-			//@line 51
-			__CLASS__COCOAUDIO__.src = url;
-			//@line 52
-			__CLASS__COCOAUDIO__.audio = new Audio(url);
 			//@line 53
-			__CLASS__COCOAUDIO__.audio.autoplay = false;
+			__CLASS__COCOAUDIO__.src = url;
 			//@line 54
-			__CLASS__COCOAUDIO__.audio.loop = false;
+			__CLASS__COCOAUDIO__.audio = new Audio(url);
 			//@line 55
-			__CLASS__COCOAUDIO__.autoplay = autoplay;
+			__CLASS__COCOAUDIO__.audio.autoplay = false;
 			//@line 56
-			__CLASS__COCOAUDIO__.loops = loops;
+			__CLASS__COCOAUDIO__.audio.loop = false;
 			//@line 57
-			__CLASS__COCOAUDIO__.__PRIVATE__.__firstPlayed = false;
+			__CLASS__COCOAUDIO__.autoplay = autoplay;
 			//@line 58
+			__CLASS__COCOAUDIO__.loops = loops;
+			//@line 59
+			__CLASS__COCOAUDIO__.__PRIVATE__.__firstPlayed = false;
+			//@line 60
 			__CLASS__COCOAUDIO__.__PRIVATE__.__loopCount = 0;
+			//@line 61
+			__CLASS__COCOAUDIO__.__PRIVATE__.__refCount = 1;
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
 		this.Constructor(__CLASS__COCOAUDIO__$url__, __CLASS__COCOAUDIO__$autoplay__, __CLASS__COCOAUDIO__$loops__);
