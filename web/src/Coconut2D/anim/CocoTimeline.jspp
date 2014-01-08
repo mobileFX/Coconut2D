@@ -60,7 +60,7 @@ class CocoTimeline
 		__pausedKeyFrame			= null;
 		__fps						= 30;
 
-		addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, null);
+		addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, null, false, false);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +169,9 @@ class CocoTimeline
 								  pivotX:Float,
 								  pivotY:Float,
 								  alpha:Float,
-								  audio:CocoAudio) :CocoKeyFrame
+								  audio:CocoAudio,
+								  flipH:Boolean,
+								  flipV:Boolean) :CocoKeyFrame
 	{
 	    var KeyFrame:CocoKeyFrame = new CocoKeyFrame();
 
@@ -188,6 +190,8 @@ class CocoTimeline
 	    KeyFrame.pivotY 			= pivotY;
 	    KeyFrame.alpha 				= alpha;
 	    KeyFrame.audio				= audio;
+	    KeyFrame.flipH				= flipH;
+	    KeyFrame.flipV				= flipV;
 
 	    return addKeyFrame(KeyFrame);
 	}
