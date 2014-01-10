@@ -2,7 +2,6 @@
 #define __COCOCLIP_HPP__
 
 #include "Coconut2D.hpp"
-#include "EventTarget.hpp"
 #include "CocoScene.hpp"
 #include "CocoClip.hpp"
 #include "WebGLRenderingContext.hpp"
@@ -14,7 +13,7 @@
 #include "CocoMatrix.hpp"
 #include "CocoAudio.hpp"
 
-class CocoClip : public EventTarget
+class CocoClip
 {
 public:
 	String __instanceName;
@@ -40,7 +39,7 @@ public:
 	CocoMatrix* __mTemp;
 	CocoClip* __childWithMaxTimelineDuration;
 	CocoAudio* __currentAudio;
-	CocoClip(CocoImage* image = NULL, String sequence = "");
+	CocoClip(CocoImage* image = nullptr, String sequence = "");
 	~CocoClip();
 	void prepare(CocoScene* scene);
 	void reset();

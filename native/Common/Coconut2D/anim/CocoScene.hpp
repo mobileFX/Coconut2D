@@ -44,7 +44,7 @@ public:
 	void loadResources();
 	bool resourcesLoaded(WebGLRenderingContext* gl);
 	virtual void paint(WebGLRenderingContext* gl, float time);
-	void drawFrame(WebGLRenderingContext* gl, CocoImage* image, float frame, float alpha);
+	void drawFrame(WebGLRenderingContext* gl, CocoImage* image, float frame, float alpha, bool flipH, bool flipV);
 	void gotoAndPlayByName(String LabelName, bool deep = false);
 	void gotoAndStopByName(String LabelName, bool deep = false);
 	void gotoAndPlayByIndex(int FrameIndex, bool deep = false);

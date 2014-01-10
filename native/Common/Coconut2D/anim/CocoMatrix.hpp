@@ -29,7 +29,7 @@ public:
 	Array<Float32Array*> __stack;
 	Float32Array* __data;
 	bool __dirty;
-	CocoMatrix(CocoMatrix* M = NULL);
+	CocoMatrix(CocoMatrix* M = nullptr);
 	~CocoMatrix();
 	void identity();
 	void ortho(float left, float right, float bottom, float top, float near, float far);

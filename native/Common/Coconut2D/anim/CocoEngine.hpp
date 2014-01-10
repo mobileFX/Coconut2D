@@ -17,12 +17,6 @@ public:
 	void __setTouchEvent(DeviceEvent* e);
 	void run(WebGLRenderingContext* gl, float time);
 	void setNextState(State* s);
-	struct STATE_NULL : State
-	{
-		CocoEngine* self;
-		STATE_NULL(CocoEngine* self) : self(self) {}
-		void tick();
-	}* STATE_NULL = new struct STATE_NULL(this);
 };
 
 #endif

@@ -6,9 +6,9 @@ CocoClip::CocoClip(CocoImage* image, String sequence)
 	__symbolLoop = COCO_CLIP_SYMBOL_LOOP_ENUM::CLIP_SYMBOL_LOOP_CONTINUOUS;
 	__currentSequenceFrameIndex = 0;
 	__timeline = new CocoTimeline();
-	__parent = NULL;
+	__parent = nullptr;
 	__firstTickTime = -1.0;
-	__currentFrame = NULL;
+	__currentFrame = nullptr;
 	__hasBoundingBox = false;
 	__vABS_TOP_LEFT = new CocoVector();
 	__vABS_TOP_RIGHT = new CocoVector();
@@ -20,8 +20,9 @@ CocoClip::CocoClip(CocoImage* image, String sequence)
 	__vREL_BOTTOM_RIGHT = new CocoVector();
 	__vTemp = new CocoVector();
 	__mTemp = new CocoMatrix();
-	__childWithMaxTimelineDuration = NULL;
-	__currentSequence = NULL;
+	__childWithMaxTimelineDuration = nullptr;
+	__currentSequence = nullptr;
+	__currentAudio = nullptr;
 	__image = image;
 	if(image && sequence)
 	{
@@ -34,51 +35,51 @@ CocoClip::~CocoClip()
 {
 	if(__image)
 	{
-		__image = (delete __image, NULL);
+		__image = (delete __image, nullptr);
 	}
 	if(__timeline)
 	{
-		__timeline = (delete __timeline, NULL);
+		__timeline = (delete __timeline, nullptr);
 	}
 	if(__vABS_TOP_LEFT)
 	{
-		__vABS_TOP_LEFT = (delete __vABS_TOP_LEFT, NULL);
+		__vABS_TOP_LEFT = (delete __vABS_TOP_LEFT, nullptr);
 	}
 	if(__vABS_TOP_RIGHT)
 	{
-		__vABS_TOP_RIGHT = (delete __vABS_TOP_RIGHT, NULL);
+		__vABS_TOP_RIGHT = (delete __vABS_TOP_RIGHT, nullptr);
 	}
 	if(__vABS_BOTTOM_LEFT)
 	{
-		__vABS_BOTTOM_LEFT = (delete __vABS_BOTTOM_LEFT, NULL);
+		__vABS_BOTTOM_LEFT = (delete __vABS_BOTTOM_LEFT, nullptr);
 	}
 	if(__vABS_BOTTOM_RIGHT)
 	{
-		__vABS_BOTTOM_RIGHT = (delete __vABS_BOTTOM_RIGHT, NULL);
+		__vABS_BOTTOM_RIGHT = (delete __vABS_BOTTOM_RIGHT, nullptr);
 	}
 	if(__vREL_TOP_LEFT)
 	{
-		__vREL_TOP_LEFT = (delete __vREL_TOP_LEFT, NULL);
+		__vREL_TOP_LEFT = (delete __vREL_TOP_LEFT, nullptr);
 	}
 	if(__vREL_TOP_RIGHT)
 	{
-		__vREL_TOP_RIGHT = (delete __vREL_TOP_RIGHT, NULL);
+		__vREL_TOP_RIGHT = (delete __vREL_TOP_RIGHT, nullptr);
 	}
 	if(__vREL_BOTTOM_LEFT)
 	{
-		__vREL_BOTTOM_LEFT = (delete __vREL_BOTTOM_LEFT, NULL);
+		__vREL_BOTTOM_LEFT = (delete __vREL_BOTTOM_LEFT, nullptr);
 	}
 	if(__vREL_BOTTOM_RIGHT)
 	{
-		__vREL_BOTTOM_RIGHT = (delete __vREL_BOTTOM_RIGHT, NULL);
+		__vREL_BOTTOM_RIGHT = (delete __vREL_BOTTOM_RIGHT, nullptr);
 	}
 	if(__vTemp)
 	{
-		__vTemp = (delete __vTemp, NULL);
+		__vTemp = (delete __vTemp, nullptr);
 	}
 	if(__mTemp)
 	{
-		__mTemp = (delete __mTemp, NULL);
+		__mTemp = (delete __mTemp, nullptr);
 	}
 }
 
@@ -98,9 +99,9 @@ void CocoClip::reset()
 	if(__currentFrame)
 		if(__currentFrame)
 		{
-			__currentFrame = (delete __currentFrame, NULL);
+			__currentFrame = (delete __currentFrame, nullptr);
 		}
-	__currentFrame = NULL;
+	__currentFrame = nullptr;
 	__firstTickTime = -1;
 	__timeline->reset();
 	for(int i = __children.size() - 1; i >= 0; i--)
@@ -114,7 +115,7 @@ CocoClip* CocoClip::addChild(CocoClip* clipInstance)
 {
 	if(!clipInstance)
 	{
-		return NULL;
+		return nullptr;
 	}
 	if(!clipInstance->__instanceName)
 	{
@@ -130,7 +131,7 @@ CocoClip* CocoClip::removeChild(CocoClip* clipInstance)
 {
 	if(!clipInstance)
 	{
-		return NULL;
+		return nullptr;
 	}
 	__children.splice(getChildIndex(clipInstance), 1);
 	normalize();
@@ -140,7 +141,7 @@ CocoClip* CocoClip::removeChild(CocoClip* clipInstance)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoClip::normalize()
 {
-	__childWithMaxTimelineDuration = NULL;
+	__childWithMaxTimelineDuration = nullptr;
 	for(int i = __children.size() - 1; i >= 0; i--)
 	{
 		if(!__childWithMaxTimelineDuration)
@@ -165,7 +166,7 @@ CocoClip* CocoClip::getChildByName(String instanceName)
 			return __children[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,7 +234,7 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 	if(!__timeline->__paused && __currentFrame)
 		if(__currentFrame)
 		{
-			__currentFrame = (delete __currentFrame, NULL);
+			__currentFrame = (delete __currentFrame, nullptr);
 		}
 	switch(__symbolLoop)
 	{
@@ -284,11 +285,11 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 			{
 				__currentSequenceFrameIndex = __timeline->__paused ? 0 : (int)std::floor((float)((__currentTime - __firstTickTime)) / (float)(((float)(1000.0) / (float)(scene->__fps)))) % (int)__currentSequence->frames.size();
 				int frame = __currentSequence->frames[__currentSequenceFrameIndex];
-				scene->drawFrame(gl, __image, frame, __currentFrame->alpha);
+				scene->drawFrame(gl, __image, frame, __currentFrame->alpha, __currentFrame->flipH, __currentFrame->flipV);
 			}
 			else
 			{
-				scene->drawFrame(gl, __image, 0, __currentFrame->alpha);
+				scene->drawFrame(gl, __image, 0, __currentFrame->alpha, __currentFrame->flipH, __currentFrame->flipV);
 			}
 		}
 		else
@@ -323,27 +324,27 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 				}
 			}
 		}
-	}
-	if(!__timeline->__paused)
-	{
-		bool pulse = false;
-		if(__currentFrame->action || __currentFrame->nextState || __currentFrame->audio)
+		if(!__timeline->__paused)
 		{
-			this->__parent = parentClip;
-			pulse = __currentFrame->execute(gl, __currentTime, __loopTime, scene, this);
-			if(pulse && __currentFrame->audio != NULL)
+			bool pulse = false;
+			if(__currentFrame->action || __currentFrame->nextState || __currentFrame->audio)
 			{
-				__currentAudio = __currentFrame->audio;
+				this->__parent = parentClip;
+				pulse = __currentFrame->execute(gl, __currentTime, __loopTime, scene, this);
+				if(pulse && __currentFrame->audio != nullptr)
+				{
+					__currentAudio = __currentFrame->audio;
+				}
+				this->__parent = nullptr;
 			}
-			this->__parent = NULL;
+			if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration->__currentFrame && __childWithMaxTimelineDuration->__currentFrame->frameIndex == __childWithMaxTimelineDuration->__timeline->lastKeyFrame()->frameIndex)
+			{
+			}
 		}
-		if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration->__currentFrame && __childWithMaxTimelineDuration->__currentFrame->frameIndex == __childWithMaxTimelineDuration->__timeline->lastKeyFrame()->frameIndex)
+		if(__currentAudio)
 		{
+			__currentAudio->tick();
 		}
-	}
-	if(__currentAudio)
-	{
-		__currentAudio->tick();
 	}
 }
 
@@ -385,16 +386,14 @@ void CocoClip::initBoundingBoxFromChildren(CocoScene* scene)
 	{
 		return;
 	}
-	CocoClip* Child;
-	int i = 0;
-	String vClip = "";
 	__vREL_TOP_LEFT->X = 100000;
 	__vREL_TOP_RIGHT->X = -100000;
 	__vREL_TOP_LEFT->Y = 100000;
 	__vREL_BOTTOM_LEFT->Y = -100000;
-	for(vClip : __children)
+	CocoClip* Child;
+	for(int i = 0,  L = __children.size(); i < L; i++)
 	{
-		Child = __children[vClip];
+		Child = __children[i];
 		if(Child->__hasBoundingBox)
 		{
 			if(Child->__vREL_TOP_LEFT->X < __vREL_TOP_LEFT->X)
@@ -496,7 +495,7 @@ void CocoClip::drawBoundingBox(CocoScene* scene, WebGLRenderingContext* gl)
 	gl->vertexAttribPointer(scene->__boundingBoxProgram->GLSLiVec2Coords, 2, gl->FLOAT, false, 0, 0);
 	scene->__projectionMatrix->update(gl, scene->__boundingBoxProgram->GLSLuProjMat);
 	gl->drawArrays(gl->LINE_LOOP, 0, 4);
-	gl->bindBuffer(gl->ARRAY_BUFFER, NULL);
+	gl->bindBuffer(gl->ARRAY_BUFFER, nullptr);
 	gl->disableVertexAttribArray(scene->__boundingBoxProgram->GLSLiVec2Coords);
 	gl->useProgram(scene->__glProgram);
 	gl->enableVertexAttribArray(scene->__glProgram->GLSLiTexCoords);

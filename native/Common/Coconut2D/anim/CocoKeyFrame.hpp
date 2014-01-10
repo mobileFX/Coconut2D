@@ -29,6 +29,8 @@ public:
 	Function* action;
 	State* nextState;
 	CocoAudio* audio;
+	bool flipH;
+	bool flipV;
 	float __lastActionExecutionTime;
 	CocoKeyFrame();
 	~CocoKeyFrame();

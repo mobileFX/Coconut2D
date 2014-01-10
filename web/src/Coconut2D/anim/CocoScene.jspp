@@ -200,13 +200,13 @@ class CocoScene
 		gl.shaderSource(fshader, fs);
 		gl.compileShader(vshader);
 		gl.compileShader(fshader);
-		if(!gl.getShaderParameter(vshader, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(vshader);
-		if(!gl.getShaderParameter(fshader, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(fshader);
+		//if(!gl.getShaderParameter(vshader, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(vshader);
+		//if(!gl.getShaderParameter(fshader, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(fshader);
 		var program:WebGLProgram = gl.createProgram();
 		gl.attachShader(program, vshader);
 		gl.attachShader(program, fshader);
 		gl.linkProgram(program);
-		if(!gl.getProgramParameter(program, gl.LINK_STATUS)) throw gl.getProgramInfoLog(program);
+		//if(!gl.getProgramParameter(program, gl.LINK_STATUS)) throw gl.getProgramInfoLog(program);
 		return program;
 	}
 

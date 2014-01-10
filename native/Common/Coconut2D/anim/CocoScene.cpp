@@ -11,16 +11,16 @@ CocoScene::CocoScene()
 	__currentTime = 0.0;
 	__elapsedTime = 0.0;
 	__startTime = -1;
-	__root = NULL;
-	__modelViewMatrix = NULL;
-	__projectionMatrix = NULL;
-	__glProgram = NULL;
-	__vertex_shader = "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + uSprFrame.y) * uSprSize.y));}";
+	__root = nullptr;
+	__modelViewMatrix = nullptr;
+	__projectionMatrix = nullptr;
+	__glProgram = nullptr;
+	__vertex_shader = "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((abs(iTexCoords.x - uSprFlip.x) + uSprFrame.x) * uSprSize.x), ((abs(iTexCoords.y - uSprFlip.y) + uSprFrame.y) * uSprSize.y));}";
 	__fragment_shader = "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
 	__boundingBoxVertexShader = "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void){ gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
 	__boundingBoxFragmentShader = "#ifdef GL_ES\nprecision lowp float;\n#endif\nvoid main(void){ gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
-	__boundingBoxProgram = NULL;
-	__boundingBoxBuffer = NULL;
+	__boundingBoxProgram = nullptr;
+	__boundingBoxBuffer = nullptr;
 	__ready = false;
 	__finished = false;
 }
@@ -30,27 +30,27 @@ CocoScene::~CocoScene()
 {
 	if(__root)
 	{
-		__root = (delete __root, NULL);
+		__root = (delete __root, nullptr);
 	}
 	if(__modelViewMatrix)
 	{
-		__modelViewMatrix = (delete __modelViewMatrix, NULL);
+		__modelViewMatrix = (delete __modelViewMatrix, nullptr);
 	}
 	if(__projectionMatrix)
 	{
-		__projectionMatrix = (delete __projectionMatrix, NULL);
+		__projectionMatrix = (delete __projectionMatrix, nullptr);
 	}
 	if(__glProgram)
 	{
-		__glProgram = (delete __glProgram, NULL);
+		__glProgram = (delete __glProgram, nullptr);
 	}
 	if(__boundingBoxProgram)
 	{
-		__boundingBoxProgram = (delete __boundingBoxProgram, NULL);
+		__boundingBoxProgram = (delete __boundingBoxProgram, nullptr);
 	}
 	if(__boundingBoxBuffer)
 	{
-		__boundingBoxBuffer = (delete __boundingBoxBuffer, NULL);
+		__boundingBoxBuffer = (delete __boundingBoxBuffer, nullptr);
 	}
 	int i = 0;
 	for(i = __imageSymbols.size() - 1; i >= 0; i--)
@@ -68,7 +68,7 @@ CocoImage* CocoScene::getImageSymbol(String symbolName)
 			return __imageSymbols[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,6 +109,7 @@ void CocoScene::prepare(WebGLRenderingContext* gl)
 	__glProgram->GLSLuMVMat = gl->getUniformLocation(__glProgram, "uMVMat");
 	__glProgram->GLSLuSprSize = gl->getUniformLocation(__glProgram, "uSprSize");
 	__glProgram->GLSLuSprFrame = gl->getUniformLocation(__glProgram, "uSprFrame");
+	__glProgram->GLSLuSprFlip = gl->getUniformLocation(__glProgram, "uSprFlip");
 	__glProgram->GLSLuSampler = gl->getUniformLocation(__glProgram, "uSampler");
 	__glProgram->GLSLuColor = gl->getUniformLocation(__glProgram, "uColor");
 	__modelViewMatrix = new CocoMatrix();
@@ -117,8 +118,8 @@ void CocoScene::prepare(WebGLRenderingContext* gl)
 	__projectionMatrix = new CocoMatrix();
 	if(window->deviceRotation)
 	{
-		float c = std::cosf(window->deviceRotation);
-		float s = std::sinf(window->deviceRotation);
+		float c = std::cos(window->deviceRotation);
+		float s = std::sin(window->deviceRotation);
 		float orthoWidth = std::abs(c * gl->canvas->width + s * gl->canvas->height);
 		float orthoHeight = std::abs(-s * gl->canvas->width + c * gl->canvas->height);
 		__projectionMatrix->ortho((float)(-orthoWidth) / (float)(2.0), (float)(orthoWidth) / (float)(2.0), (float)(orthoHeight) / (float)(2.0), (float)(-orthoHeight) / (float)(2.0),  -1.0, 1.0);
@@ -142,22 +143,10 @@ WebGLProgram* CocoScene::makeProgram(WebGLRenderingContext* gl, String vs, Strin
 	gl->shaderSource(fshader, fs);
 	gl->compileShader(vshader);
 	gl->compileShader(fshader);
-	if(!gl->getShaderParameter(vshader, gl->COMPILE_STATUS))
-	{
-		throw CocoException(gl->getShaderInfoLog(vshader));
-	}
-	if(!gl->getShaderParameter(fshader, gl->COMPILE_STATUS))
-	{
-		throw CocoException(gl->getShaderInfoLog(fshader));
-	}
 	WebGLProgram* program = gl->createProgram();
 	gl->attachShader(program, vshader);
 	gl->attachShader(program, fshader);
 	gl->linkProgram(program);
-	if(!gl->getProgramParameter(program, gl->LINK_STATUS))
-	{
-		throw CocoException(gl->getProgramInfoLog(program));
-	}
 	return program;
 }
 
@@ -253,7 +242,7 @@ void CocoScene::paint(WebGLRenderingContext* gl, float time)
 		{
 			__modelViewMatrix->identity();
 			__levelParents = {__root};
-			__root->paint(gl, this, NULL);
+			__root->paint(gl, this, nullptr);
 			CocoClip* max = __root->__childWithMaxTimelineDuration;
 			if(max && max->__currentFrame->frameIndex == max->__timeline->lastKeyFrame()->frameIndex)
 			{
@@ -264,7 +253,7 @@ void CocoScene::paint(WebGLRenderingContext* gl, float time)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoScene::drawFrame(WebGLRenderingContext* gl, CocoImage* image, float frame, float alpha)
+void CocoScene::drawFrame(WebGLRenderingContext* gl, CocoImage* image, float frame, float alpha, bool flipH, bool flipV)
 {
 	(*image->color)[3] = alpha;
 	if(__modelViewMatrix->__dirty)
@@ -273,6 +262,7 @@ void CocoScene::drawFrame(WebGLRenderingContext* gl, CocoImage* image, float fra
 	}
 	gl->uniform2f(__glProgram->GLSLuSprSize, (*image->texSize)[0], (*image->texSize)[1]);
 	gl->uniform2f(__glProgram->GLSLuSprFrame, (*image->textureGrid)[frame * 2 + 1], (*image->textureGrid)[frame * 2]);
+	gl->uniform2f(__glProgram->GLSLuSprFlip, (flipH ? 1.0 : 0.0), (flipV ? 1.0 : 0.0));
 	gl->bindBuffer(gl->ARRAY_BUFFER, image->buffer);
 	gl->vertexAttribPointer(__glProgram->GLSLiTexCoords, 2, gl->FLOAT, false, 16, 0);
 	gl->vertexAttribPointer(__glProgram->GLSLiVecCoords, 2, gl->FLOAT, false, 16, 8);
@@ -280,7 +270,7 @@ void CocoScene::drawFrame(WebGLRenderingContext* gl, CocoImage* image, float fra
 	gl->uniform1i(__glProgram->GLSLuSampler, 0);
 	gl->uniform4fv(__glProgram->GLSLuColor, image->color);
 	gl->drawArrays(gl->TRIANGLE_STRIP, 0, 4);
-	gl->bindBuffer(gl->ARRAY_BUFFER, NULL);
+	gl->bindBuffer(gl->ARRAY_BUFFER, nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -8,9 +8,8 @@ CocoTimeline::CocoTimeline()
 	__durationInFrames = 0;
 	__skipTime = 0.0;
 	__paused = false;
-	__pausedKeyFrame = NULL;
+	__pausedKeyFrame = nullptr;
 	__fps = 30;
-	addKeyFrameEx(NULL, NULL, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, NULL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +62,7 @@ CocoTimeLabel* CocoTimeline::findLabelByName(String LabelName)
 			return __labels[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +75,7 @@ CocoKeyFrame* CocoTimeline::keyFrame(int frameIndex)
 			return __keyFrames[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +103,7 @@ CocoKeyFrame* CocoTimeline::addKeyFrame(CocoKeyFrame* KeyFrame)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha, CocoAudio* audio)
+CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha, CocoAudio* audio, bool flipH, bool flipV)
 {
 	CocoKeyFrame* KeyFrame = new CocoKeyFrame();
 	KeyFrame->nextState = nextState;
@@ -122,6 +121,8 @@ CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, Function* actionCall
 	KeyFrame->pivotY = pivotY;
 	KeyFrame->alpha = alpha;
 	KeyFrame->audio = audio;
+	KeyFrame->flipH = flipH;
+	KeyFrame->flipV = flipV;
 	return addKeyFrame(KeyFrame);
 }
 
@@ -154,7 +155,7 @@ void CocoTimeline::jumpBy(float frames, bool paused)
 	if(frames != 0)
 	{
 		__skipTime += (frames * __singleFrameDurationTime);
-		__pausedKeyFrame = NULL;
+		__pausedKeyFrame = nullptr;
 	}
 }
 
@@ -183,7 +184,7 @@ CocoKeyFrame* CocoTimeline::findKeyFrameBeforeframeIndex(float frameIndex, bool 
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +212,7 @@ CocoKeyFrame* CocoTimeline::findKeyFrameAfterframeIndex(float frameIndex, bool i
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,9 +229,9 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 	{
 		return __pausedKeyFrame;
 	}
-	CocoKeyFrame* F = NULL;
-	CocoKeyFrame* F1 = NULL;
-	CocoKeyFrame* F2 = NULL;
+	CocoKeyFrame* F = nullptr;
+	CocoKeyFrame* F1 = nullptr;
+	CocoKeyFrame* F2 = nullptr;
 	float s = 1.0;
 	float FrameIndex = std::floor(frameIndex);
 	if(__keyFrames.size() == 0)
@@ -291,7 +292,12 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 				}
 			}
 			break;
+			case COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_PHYSICS:
+			{
+				break;
+			}
+			break;
 		}
 	}
-	return NULL;
+	return nullptr;
 }

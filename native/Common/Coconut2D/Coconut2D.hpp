@@ -12,16 +12,62 @@
 
 #define GLOBAL_FPS 30.0f
 #define COCO_STOP_ON_CURRENT_FRAME -1
+#define RADIANS (M_PI / 180.0f)
+#define APPNAME "Coconut2D"
 
 #include "Window.hpp"
+#include "Structs.h"
 
-//#include <cassert>
+#include <cassert>
 #include <algorithm>
 #include <cmath>
 #include <stack>
 #include <string>
 #include <vector>
 #include <map>
+#include <chrono>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Enum for screen resolution dpi.
+ * @enum {number}
+ */
+enum SCREEN_RESOLUTION_DPI_ENUM
+{
+    RESOLUTION_nodpi							= 0,
+    RESOLUTION_ldpi								= 1,
+    RESOLUTION_mdpi								= 2,
+    RESOLUTION_tvdpi							= 3,
+    RESOLUTION_hdpi								= 4,
+    RESOLUTION_xhdpi							= 5,
+    RESOLUTION_Retina							= 5,
+    RESOLUTION_DefaultDpi						= 0
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Enum for clip symbol loop synchronization.
+ * @enum {number}
+ */
+enum COCO_CLIP_SYMBOL_LOOP_ENUM
+{
+    CLIP_SYMBOL_LOOP_CONTINUOUS					= 0,
+    CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT	= 1,
+    CLIP_SYMBOL_LOOP_ONCE						= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Enum for keyframe interpolation calculation.
+ * @enum {number}
+ */
+enum COCO_KEYFRAME_INTERPOLATION_ENUM
+{
+    KEYFRAME_INTERPOLATION_NONE					= 0,
+    KEYFRAME_INTERPOLATION_MOTION_TWEEN			= 1,
+    KEYFRAME_INTERPOLATION_ECHO					= 2,
+    KEYFRAME_INTERPOLATION_PHYSICS				= 3
+};
 
 //# DO NOT EDIT BEGIN #//
 class State;
@@ -89,16 +135,25 @@ class SceneTitle;
 
 #define CocoException	std::string
 #define Number          float
-#define Boolean         bool
-#define String          std::string
-#define Function        void*
-#define Object          void*
-//template<class T> using Array = std::vector<T>;
+#define Function        void
 template<class T> using Stack = std::stack<T>;
 template<class T> using Dictionary = std::map<std::string, T>;
 template<class T> using Index = std::map<size_t, T>;
+struct State {
+	virtual void enter() {}
+	virtual void exit() {}
+	virtual void tick(float time) = 0;
+	virtual void paint(WebGLRenderingContext* gl, float time) {}
+};
 
-static bool operator!(std::string str) { return str.empty(); }
+class String : public std::string
+{
+public:
+	operator bool() const { return !empty(); }
+	String& operator =(const char* c_str) { std::string::operator=(c_str); return *this; }
+	String() = default;
+	String(const char* str) : std::string(str) {}
+};
 
 template<class T> class Array : public std::vector<T>
 {
@@ -121,7 +176,7 @@ public:
 	}
 };
 
-typedef void (CocoScene::*FPAction)(WebGLRenderingContext*, Number, Number, CocoScene*, CocoClip*);
+typedef void (CocoScene::*CocoAction)(WebGLRenderingContext*, Number, Number, CocoScene*, CocoClip*);
 
 ////////////////////////////////////////////////////////////////
 #ifdef IOS_APPLICATION

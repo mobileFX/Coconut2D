@@ -40,7 +40,7 @@
 "#include CocoAudio.jspp"
 "#include CocoTimeline.jspp"
 
-class CocoClip : EventTarget
+class CocoClip
 {
 	public var __instanceName:String;
 	public var __image:CocoImage;
@@ -89,6 +89,7 @@ class CocoClip : EventTarget
 		__mTemp							= new CocoMatrix();
 		__childWithMaxTimelineDuration	= null;
 		__currentSequence				= null;
+		__currentAudio					= null;
 
 		__image = image;
 		if(image && sequence) __currentSequence = image.getSequence(sequence);
@@ -224,8 +225,9 @@ class CocoClip : EventTarget
 			}
 			else
 			{
-				var frames:Integer = (FrameIndex - clip.__currentFrame.frameIndex);
+				var frames:Integer = (FrameIndex - (clip.__currentFrame ? clip.__currentFrame.frameIndex : 0));
 				clip.__timeline.jumpBy(frames, pause);
+				clip.__timeline.interpolateByFrame(FrameIndex);
 			}
 			if (deep)
 			{
@@ -260,15 +262,24 @@ class CocoClip : EventTarget
 		// Take into account time sync between this clip and its parent.
 		switch(__symbolLoop)
 		{
+			// Child loop is not synchronized with parent
+   			// Parent timeline: *----------------------*----------------------*
+   			// Child timeline:  *--------------*--------------*--------------*-
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS:
 				__currentFrame = __timeline.interpolateByTime(__loopTime);
 				break;
 
+			// When parent loops, child will reset and start again.
+   			// Parent timeline: *----------------------*----------------------*
+   			// Child timeline:  *--------------*------|*--------------*------|*
 			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT:
 				__currentFrame = __timeline.interpolateByTime(__loopTime); // TODO
 				break;
 
-			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
+			// Child will echo its last frame until parent loops
+   			// Parent timeline: *----------------------*----------------------*
+   			// Child timeline:  *--------------*~~~~~~|*--------------*~~~~~~|*
+   			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
 				if(clippingTime > 0)
 					__currentFrame = __timeline.lastKeyFrame().clone(false);
 				else
@@ -342,34 +353,34 @@ class CocoClip : EventTarget
 
 					if(hitTest(x,y))
 		   	        {
-		   	        	//enigne.signalEvent(this, new CocoTouchEvent(engine.__deviceEvent.type, x, y) );
-		   	        	drawBoundingBox(scene, gl);
+		   	        	engine.__clicked.push(this);
+		   	        	//drawBoundingBox(scene, gl);
+		   	        }
 		   	        }
 				}
 			}
-		}
 
-		if(!__timeline.__paused)
-		{
-			var pulse:Boolean = false;
-
-			// Execute KeyFrame
-			if(__currentFrame.action || __currentFrame.nextState || __currentFrame.audio)
+			if(!__timeline.__paused)
 			{
-				this.__parent = parentClip;
-				pulse = __currentFrame.execute(gl, __currentTime, __loopTime, scene, this);
-				if(pulse && __currentFrame.audio!=null)
+				var pulse:Boolean = false;
+
+				// Execute KeyFrame
+				if(__currentFrame.action || __currentFrame.nextState || __currentFrame.audio)
 				{
-					__currentAudio = __currentFrame.audio;
+					this.__parent = parentClip;
+					pulse = __currentFrame.execute(gl, __currentTime, __loopTime, scene, this);
+					if(pulse && __currentFrame.audio!=null)
+					{
+						__currentAudio = __currentFrame.audio;
+					}
+					this.__parent = null;
 				}
-				this.__parent = null;
-			}
 
-			// Update Cursor Variables
-			if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration.__currentFrame && __childWithMaxTimelineDuration.__currentFrame.frameIndex == __childWithMaxTimelineDuration.__timeline.lastKeyFrame().frameIndex)
-			{
+				// Update Cursor Variables
+				if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration.__currentFrame && __childWithMaxTimelineDuration.__currentFrame.frameIndex == __childWithMaxTimelineDuration.__timeline.lastKeyFrame().frameIndex)
+				{
+				}
 			}
-		}
 
 		// Tick audio
 		if(__currentAudio)
@@ -427,18 +438,15 @@ class CocoClip : EventTarget
 	    if(__children.size()==0)
 	    	return;
 
-	    var Child :CocoClip
-	    var i :Integer;
-		var vClip :String;
-
 	    __vREL_TOP_LEFT.X = 100000;
 		__vREL_TOP_RIGHT.X = -100000;
 	    __vREL_TOP_LEFT.Y = 100000;
 	    __vREL_BOTTOM_LEFT.Y = -100000;
 
-        for(vClip in __children)
+        var Child :CocoClip
+        for (var i:Integer = 0, L:Integer = __children.size(); i < L; i++)
 	    {
-            Child = __children[vClip];
+            Child = __children[i];
             if(Child.__hasBoundingBox)
             {
 				if(Child.__vREL_TOP_LEFT.X < __vREL_TOP_LEFT.X) __vREL_TOP_LEFT.X = Child.__vREL_TOP_LEFT.X;

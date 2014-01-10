@@ -16,9 +16,11 @@ CocoKeyFrame::CocoKeyFrame()
 	pivotX = 0.0;
 	pivotY = 0.0;
 	alpha = 1.0;
-	action = NULL;
-	nextState = NULL;
-	audio = NULL;
+	action = nullptr;
+	nextState = nullptr;
+	audio = nullptr;
+	flipH = false;
+	flipV = false;
 	__lastActionExecutionTime = 0.0;
 }
 
@@ -27,7 +29,7 @@ CocoKeyFrame::~CocoKeyFrame()
 {
 	if(audio)
 	{
-		audio = (delete audio, NULL);
+		audio = (delete audio, nullptr);
 	}
 }
 
@@ -47,12 +49,14 @@ CocoKeyFrame* CocoKeyFrame::clone(bool exact)
 	c->visible = visible;
 	c->x = x;
 	c->y = y;
+	c->flipH = flipH;
+	c->flipV = flipV;
 	c->calcBoundingBox = this->calcBoundingBox;
 	if(exact)
 	{
 		c->action = action;
 		c->nextState = nextState;
-		c->audio = audio;
+		c->audio = audio ? audio->cloneNode(true) : nullptr;
 	}
 	c->__lastActionExecutionTime = __lastActionExecutionTime;
 	return c;
@@ -111,6 +115,8 @@ void CocoKeyFrame::combine(CocoKeyFrame* Frame)
 	}
 	alpha = alpha * Frame->alpha;
 	visible = visible && Frame->visible;
+	flipH = (flipH && !Frame->flipH) || (!flipH && Frame->flipH);
+	flipV = (flipV && !Frame->flipV) || (!flipV && Frame->flipV);
 	handleEvents = handleEvents && Frame->handleEvents;
 	calcBoundingBox = calcBoundingBox && Frame->calcBoundingBox;
 }

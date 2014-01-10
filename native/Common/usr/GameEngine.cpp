@@ -11,7 +11,7 @@ GameEngine::~GameEngine()
 {
 	if(scene)
 	{
-		scene = (delete scene, NULL);
+		scene = (delete scene, nullptr);
 	}
 }
 
@@ -30,7 +30,7 @@ void GameEngine::STATE_TITLE_SCREEN::exit()
 {
 	if(self->scene)
 	{
-		self->scene = (delete self->scene, NULL);
+		self->scene = (delete self->scene, nullptr);
 	}
 }
 

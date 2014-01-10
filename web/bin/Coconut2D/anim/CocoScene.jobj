@@ -148,10 +148,6 @@ function CocoScene()
 			gl.compileShader(vshader);
 			//@line 202
 			gl.compileShader(fshader);
-			//@line 203
-			if (!gl.getShaderParameter(vshader, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(vshader);
-			//@line 204
-			if (!gl.getShaderParameter(fshader, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(fshader);
 			//@line 205
 			var program = gl.createProgram();
 			//@line 206
@@ -160,8 +156,6 @@ function CocoScene()
 			gl.attachShader(program, fshader);
 			//@line 208
 			gl.linkProgram(program);
-			//@line 209
-			if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw gl.getProgramInfoLog(program);
 			//@line 210
 			return program;
 		};

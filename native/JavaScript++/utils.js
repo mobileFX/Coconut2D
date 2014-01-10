@@ -96,8 +96,8 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bMath.floor\\(", "mg", "std::floor(");
 	buff = RxReplace(buff, "\\bMath.min\\(", "mg", "std::min(");
 	buff = RxReplace(buff, "\\bMath.max\\(", "mg", "std::max(");
-	buff = RxReplace(buff, "\\bMath.sin\\(", "mg", "std::sinf(");
-	buff = RxReplace(buff, "\\bMath.cos\\(", "mg", "std::cosf(");
+	buff = RxReplace(buff, "\\bMath.sin\\(", "mg", "std::sin(");
+	buff = RxReplace(buff, "\\bMath.cos\\(", "mg", "std::cos(");
 	buff = RxReplace(buff, "\\bMath.abs\\(", "mg", "std::abs(");
 	buff = RxReplace(buff, "_ENUM\\.(\\w+)", "mg", "_ENUM::$1");
 	return buff;
@@ -197,6 +197,7 @@ function parse_jspp(code, className)
 		trace("ERROR: " +e);
 	}
 }
+
 
 
 

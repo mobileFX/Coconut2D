@@ -13,59 +13,74 @@ function CocoEngine()
 		this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
-		//@line 63
+		//@line 67
 		this.__PRIVATE__.__setTouchEvent = function (e)
 		{
-			//@line 65
+			//@line 69
 			__CLASS__COCOENGINE__.__deviceEvent = e;
-			//@line 66
+			//@line 70
 			__CLASS__COCOENGINE__.__deviceEvent.__clientX = e.touches[0].clientX;
-			//@line 67
+			//@line 71
 			__CLASS__COCOENGINE__.__deviceEvent.__clientY = e.touches[0].clientY;
 		};
-		//@line 71
+		//@line 75
 		var run = this.run = function (gl, time)
 		{
-			//@line 73
-			if (!__CLASS__COCOENGINE__.__currentState && !__CLASS__COCOENGINE__.__nextState)
-			//@line 74
-			__CLASS__COCOENGINE__.__nextState = __CLASS__COCOENGINE__.STATE_NULL;
-			//@line 76
-			if (__CLASS__COCOENGINE__.__nextState != null)
 			//@line 77
+			if (!__CLASS__COCOENGINE__.__currentState && !__CLASS__COCOENGINE__.__nextState) return;
+			//@line 79
+			if (__CLASS__COCOENGINE__.__nextState != null)
+			//@line 80
 			{
-				//@line 78
-				if (__CLASS__COCOENGINE__.__currentState && __CLASS__COCOENGINE__.__currentState.exit) __CLASS__COCOENGINE__.__currentState.exit();
-				//@line 79
-				__CLASS__COCOENGINE__.__currentState = __CLASS__COCOENGINE__.__nextState;
-				//@line 80
-				__CLASS__COCOENGINE__.__currentState.enter();
 				//@line 81
-				__CLASS__COCOENGINE__.__nextState = null;
+				if (__CLASS__COCOENGINE__.__currentState) __CLASS__COCOENGINE__.__currentState.exit();
 				//@line 82
+				__CLASS__COCOENGINE__.__currentState = __CLASS__COCOENGINE__.__nextState;
+				//@line 83
+				__CLASS__COCOENGINE__.__currentState.enter();
+				//@line 84
+				__CLASS__COCOENGINE__.__nextState = null;
+				//@line 85
 				trace("@@STATE " + __CLASS__COCOENGINE__.__currentState.__name);
 			}
-			//@line 85
-			__CLASS__COCOENGINE__.__currentState.tick(time);
-			//@line 87
-			if (__CLASS__COCOENGINE__.__nextState == null)
 			//@line 88
+			__CLASS__COCOENGINE__.__currentState.tick(time);
+			//@line 89
+			__CLASS__COCOENGINE__.__clicked = [];
+			//@line 91
+			if (__CLASS__COCOENGINE__.__nextState == null)
+			//@line 92
 			{
-				//@line 89
+				//@line 93
 				gl.clearColor(0, 0, 0, 1);
-				//@line 90
+				//@line 94
 				gl.clear(gl.COLOR_BUFFER_BIT);
-				//@line 91
+				//@line 95
 				__CLASS__COCOENGINE__.__currentState.paint(gl, time);
 			}
-			//@line 94
+			//@line 98
 			__CLASS__COCOENGINE__.__deviceEvent = null;
 		};
-		//@line 98
+		//@line 102
 		var setNextState = this.setNextState = function (s)
 		{
-			//@line 100
+			//@line 104
 			__CLASS__COCOENGINE__.__nextState = s;
+		};
+		//@line 108
+		var isClicked = this.isClicked = function (check)
+		{
+			//@line 110
+			for (var i = __CLASS__COCOENGINE__.__clicked.size(); i--;)
+			//@line 111
+			for (var r = check.size(); r--;)
+			//@line 112
+			if (check[r] == __CLASS__COCOENGINE__.__clicked[i])
+			//@line 113
+			return r;
+			//@line 114
+			return -1;
+			return 0
 		};
 		//@line 43
 		this.__currentState = null;
@@ -73,37 +88,30 @@ function CocoEngine()
 		this.__nextState = null;
 		//@line 45
 		this.__deviceEvent = null;
-		//@line 104
-		this.STATE_NULL = (function ()
-		{
-			this.__name = 'STATE_NULL';
-			//@line 106
-			var tick = this.tick = function ()
-			{
-				//@line 107
-			};
-			return this
-		}).call(new State);
+		//@line 46
+		this.__clicked = [];
 		var Destructor = this.Destructor = function ()
 		{
-			//@line 59
+			//@line 63
 			__CLASS__COCOENGINE__.__currentState = null;
 			__CLASS__COCOENGINE__.__nextState = null;
 			__CLASS__COCOENGINE__.__deviceEvent = null;
-			__CLASS__COCOENGINE__.STATE_NULL = null;
+			__CLASS__COCOENGINE__.__clicked = null;
 			__CLASS__GAMEENGINE__.STATE_GAME = null;
 			return true
 		};
-		//@line 48
+		//@line 49
 		this.Constructor = function ()
 		{
-			//@line 51
-			__CLASS__COCOENGINE__.__deviceEvent = null;
 			//@line 52
-			window.addEventListener("touchstart", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
+			__CLASS__COCOENGINE__.__clicked = [];
 			//@line 53
+			__CLASS__COCOENGINE__.__deviceEvent = null;
+			//@line 56
+			window.addEventListener("touchstart", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
+			//@line 57
 			window.addEventListener("touchmove", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
-			//@line 54
+			//@line 58
 			window.addEventListener("touchend", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);

@@ -35,7 +35,7 @@ CocoMatrix::~CocoMatrix()
 {
 	if(__data)
 	{
-		__data = (delete __data, NULL);
+		__data = (delete __data, nullptr);
 	}
 }
 
@@ -237,8 +237,8 @@ void CocoMatrix::scale(float sx, float sy)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoMatrix::rotateZ(float rz)
 {
-	float c = std::cosf(rz);
-	float s = std::sinf(rz);
+	float c = std::cos(rz);
+	float s = std::sin(rz);
 	float t0 = 0.0,  t1 = 0.0;
 	t0 = rc11;
 	t1 = rc21;
@@ -325,7 +325,7 @@ void CocoMatrix::pop()
 		__dirty = true;
 		if(data)
 		{
-			data = (delete data, NULL);
+			data = (delete data, nullptr);
 		}
 	}
 }

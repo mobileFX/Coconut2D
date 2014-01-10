@@ -1307,7 +1307,7 @@ class CocoTimeline
 	public var __fps :Float;
 } //CocoTimeline
 
-class CocoClip : EventTarget
+class CocoClip
 {
 	public function prepare(scene:CocoScene) {}
 	public function reset() {}
@@ -1395,11 +1395,12 @@ class CocoEngine
 	private function __setTouchEvent(e:DeviceEvent) {}
 	public function run(gl:WebGLRenderingContext, time:Float) {}
 	public function setNextState(s:State) {}
+	public function isClicked(check:Array<CocoClip>) :Integer {}
 	public function Constructor() {}
 	public var __currentState :State;
 	public var __nextState :State;
 	public var __deviceEvent :DeviceEvent;
-	public var STATE_NULL :State;
+	public var __clicked :Array<CocoClip>;
 	public var STATE_GAME :State;
 } //CocoEngine
 

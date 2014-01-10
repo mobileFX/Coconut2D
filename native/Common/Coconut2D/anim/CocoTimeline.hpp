@@ -32,7 +32,7 @@ public:
 	CocoKeyFrame* firstKeyFrame();
 	CocoKeyFrame* lastKeyFrame();
 	CocoKeyFrame* addKeyFrame(CocoKeyFrame* KeyFrame);
-	CocoKeyFrame* addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha, CocoAudio* audio);
+	CocoKeyFrame* addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha, CocoAudio* audio, bool flipH, bool flipV);
 	void prepare(CocoScene* scene, CocoClip* clip);
 	void normalizetimeline();
 	void jumpBy(float frames, bool paused);

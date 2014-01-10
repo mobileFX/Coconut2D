@@ -59,7 +59,7 @@ function CPPCompiler(ast, infolder, outfolder)
 		"Number"	: {	"default": "0" },
 		"Float"		: { "default": "0.0" },
 		"Integer"	: { "default": "0" },
-		"Object"	: { "default": "NULL" },
+		"Object"	: { "default": "nullptr" },
 		"String"	: { "default": '""' }
 	};
 }
@@ -242,7 +242,7 @@ CPPCompiler.prototype.compile = function (ast)
 		{
 			param = ast.paramsList[i];
 			cppParamsList += param.vartype + (param.isPointer ? "*" : "") + " " + param.name;
-			var def = (_this.types.hasOwnProperty(param.vartype) ? _this.types[param.vartype].default : "NULL");
+			var def = (_this.types.hasOwnProperty(param.vartype) ? _this.types[param.vartype].default : "nullptr");
 			hppParamList += param.vartype + (param.isPointer ? "*" : "") + " " + param.name + (param.optional ? "=" + def : "");
 			if(i!=ast.paramsList.length-1)
 			{
@@ -657,7 +657,7 @@ CPPCompiler.prototype.compile = function (ast)
 		if(ast[0].symbol && ast[0].symbol.pointer)
 		{
 			var id = generate(ast[0]).CPP;
-			CPP.push("if(" + id + ") " + id + " = (delete " + id + ", NULL)");
+			CPP.push("if(" + id + ") " + id + " = (delete " + id + ", nullptr)");
 		}
 		break;
 
@@ -697,7 +697,7 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.NE:					CPP.push(generate(ast[0]).CPP); CPP.push("!=");	 CPP.push(generate(ast[1]).CPP); break;
 	case jsdef.NEW_WITH_ARGS:		CPP.push("new "); CPP.push(generate(ast[0]).CPP); CPP.push("("); CPP.push(generate(ast[1]).CPP); CPP.push(")"); break;
 	case jsdef.NOT:					CPP.push("!"); CPP.push(generate(ast[0]).CPP); break;
-	case jsdef.NULL:				CPP.push("NULL"); break;
+	case jsdef.NULL:				CPP.push("nullptr"); break;
 	case jsdef.NUMBER:				CPP.push(ast.value); break;
 	case jsdef.OR:					CPP.push(generate(ast[0]).CPP); CPP.push("||"); CPP.push(generate(ast[1]).CPP);	break;
 	case jsdef.PLUS: 				CPP.push(generate(ast[0]).CPP); CPP.push("+"); CPP.push(generate(ast[1]).CPP); break;
@@ -721,6 +721,7 @@ CPPCompiler.prototype.compile = function (ast)
 
 	return {CPP:CPP.join(""), HPP:HPP.join("")};
 };
+
 
 
 

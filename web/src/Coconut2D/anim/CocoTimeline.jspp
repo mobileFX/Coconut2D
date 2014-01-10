@@ -59,8 +59,6 @@ class CocoTimeline
 		__paused					= false;
 		__pausedKeyFrame			= null;
 		__fps						= 30;
-
-		addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, null, false, false);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -360,6 +358,9 @@ class CocoTimeline
 	                F.interpolate(F1, F2, s);
 	                return (__pausedKeyFrame = F);
 	            }
+
+	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_PHYSICS:
+	        	break;
 	        }
 	    }
 	    return null;

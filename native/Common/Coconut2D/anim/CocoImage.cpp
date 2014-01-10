@@ -3,15 +3,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoImage::CocoImage()
 {
-	image = NULL;
+	image = nullptr;
 	symbolName = "";
-	texture = NULL;
+	texture = nullptr;
 	textureCellWidth = 0;
 	textureCellHeight = 0;
 	textureGrid = new Float32Array({0.0, 0.0});
 	color = new Float32Array({1.0, 1.0, 1.0, 1.0});
 	texSize = new Float32Array({1.0, 1.0});
-	buffer = NULL;
+	buffer = nullptr;
 	isSpriteSheet = false;
 	baseUrl = "";
 	viewOptimalWidth = 0;
@@ -24,23 +24,23 @@ CocoImage::~CocoImage()
 {
 	if(texture)
 	{
-		texture = (delete texture, NULL);
+		texture = (delete texture, nullptr);
 	}
 	if(textureGrid)
 	{
-		textureGrid = (delete textureGrid, NULL);
+		textureGrid = (delete textureGrid, nullptr);
 	}
 	if(color)
 	{
-		color = (delete color, NULL);
+		color = (delete color, nullptr);
 	}
 	if(texSize)
 	{
-		texSize = (delete texSize, NULL);
+		texSize = (delete texSize, nullptr);
 	}
 	if(buffer)
 	{
-		buffer = (delete buffer, NULL);
+		buffer = (delete buffer, nullptr);
 	}
 }
 
@@ -56,7 +56,7 @@ CocoSequence* CocoImage::addSequence(CocoSequence* sequence)
 {
 	if(!sequence)
 	{
-		return NULL;
+		return nullptr;
 	}
 	if(getSequence(sequence->name))
 	{
@@ -77,7 +77,7 @@ CocoSequence* CocoImage::getSequence(String name)
 			return sequences[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,10 +95,10 @@ void CocoImage::prepare(CocoScene* scene, WebGLRenderingContext* gl)
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_MAG_FILTER, gl->LINEAR);
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_MIN_FILTER, gl->LINEAR_MIPMAP_NEAREST);
 	gl->generateMipmap(gl->TEXTURE_2D);
-	gl->bindTexture(gl->TEXTURE_2D, NULL);
+	gl->bindTexture(gl->TEXTURE_2D, nullptr);
 	Float32Array* texData = new Float32Array({0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2});
 	buffer = gl->createBuffer();
 	gl->bindBuffer(gl->ARRAY_BUFFER, buffer);
 	gl->bufferData(gl->ARRAY_BUFFER, texData, gl->STATIC_DRAW);
-	gl->bindBuffer(gl->ARRAY_BUFFER, NULL);
+	gl->bindBuffer(gl->ARRAY_BUFFER, nullptr);
 }
