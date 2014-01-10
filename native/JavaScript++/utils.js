@@ -108,12 +108,17 @@ function compile_jspp(code, infolder, outfolder)
 {
 	try
 	{
+		var codeFile;
+		var compilerFolder;
+
 		// Append externs and ECMA classes
 		if(infolder)
 		{
 			var file = infolder.split("/");
 			file.splice(file.length-2,2);
-			file = file.join("/") + "/native/JavaScript++/externs.jspp";
+			compilerFolder = file.join("/") + "/native/JavaScript++";
+			file = compilerFolder+"/externs.jspp";
+			codeFile = compilerFolder+"/code.txt";
 			var externs = read(file);
 			file = infolder + "/ECMA/externs.jspp";
 			code = "\"script_begin:///" + file + "\";\n" + externs + "\n\"script_end:///" + file + "\";\n" + code;
@@ -122,10 +127,10 @@ function compile_jspp(code, infolder, outfolder)
 		// Parse source code
 		narcissus.__messages = true;
 		narcissus.__cpp = false;
-		var ast = narcissus.jsparse(code);
+		var ast = narcissus.jsparse(code, codeFile);
 
 		// Compile ast
-		var compiler = new Compiler(ast, infolder, outfolder, true, null);
+		var compiler = new Compiler(ast, infolder, outfolder, compilerFolder, true, null);
 		compiler.compile();
 
 		trace("JavaScript Code generation Done.");
@@ -160,7 +165,7 @@ function compile_cpp(code, infolder, outfolder)
 		// Compile ast to JavaScript to build symbol tables
 
 
-		var compiler = new Compiler(ast, infolder, null, false, null);
+		var compiler = new Compiler(ast, infolder, null, null, false, null);
 		compiler.compile();
 
 		// Compile ast to C++
@@ -189,7 +194,7 @@ function parse_jspp(code, className)
 		var ast = narcissus.jsparse(code);
 
 		// Compile ast
-		var compiler = new Compiler(ast, null, null, true, className);
+		var compiler = new Compiler(ast, null, null, null, true, className);
 		compiler.compile();
 	}
 	catch(e)
@@ -197,14 +202,3 @@ function parse_jspp(code, className)
 		trace("ERROR: " +e);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-

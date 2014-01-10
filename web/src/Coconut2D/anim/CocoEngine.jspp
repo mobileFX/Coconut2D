@@ -1,6 +1,5 @@
 "#export native"
 "#export web"
-
 /* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
@@ -40,10 +39,13 @@
 
 state class CocoEngine
 {
-	public var __currentState:State;
-	public var __nextState:State;
-	public var __deviceEvent:DeviceEvent;
-	public var __clicked:Array<CocoClip>;
+	public const TICK_TIME:Float = (1000.0/60.0);
+
+	private var __currentState:State;
+	private var __nextState:State;
+	private var __deviceEvent:DeviceEvent;
+	private var __clicked:Array<CocoClip>;
+	private var __clock:Float;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -51,6 +53,7 @@ state class CocoEngine
 		// Set event handlers
 		__clicked = [];
 		__deviceEvent = null;
+		__clock = 0;
 
 		// Set event handlers
 		window.addEventListener("touchstart", __setTouchEvent);
@@ -64,11 +67,9 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	private function __setTouchEvent(e:DeviceEvent)
+	public function setNextState(s:State)
 	{
-		__deviceEvent = e;
-		__deviceEvent.__clientX = e.touches[0].clientX;
-		__deviceEvent.__clientY = e.touches[0].clientY;
+		__nextState = s;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,33 +83,51 @@ state class CocoEngine
 			__currentState = __nextState;
 			__currentState.enter();
 			__nextState = null;
+			__clicked = [];
 			trace("@@STATE " + __currentState.__name);
 		}
 
-		__currentState.tick(time);
+		__currentState.tick(__clock);
 		__clicked = [];
 
 		if(__nextState==null)
 		{
 			gl.clearColor(0,0,0,1);
 			gl.clear(gl.COLOR_BUFFER_BIT);
-			__currentState.paint(gl, time);
+			__currentState.paint(gl, __clock);
 		}
 
 		__deviceEvent = null;
+		__clock += TICK_TIME;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function setNextState(s:State)
+	private function __setTouchEvent(e:DeviceEvent)
 	{
-		__nextState = s;
+		__deviceEvent = e;
+		__deviceEvent.__clientX = e.touches[0].clientX;
+		__deviceEvent.__clientY = e.touches[0].clientY;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getTouchEvent() :DeviceEvent
+	{
+		// In the future we need to filter the event type
+		return __deviceEvent;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function pushTouched(clip:CocoClip)
+	{
+		trace("click: " + clip.__instanceName);
+		__clicked.push(clip);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function isClicked(check:Array<CocoClip>):Integer
 	{
-		for(var i:Integer = __clicked.size(); i--;)
-			for(var r:Integer = check.size(); r--;)
+		for(var i:Integer = __clicked.size()-1; i>=0; i--)
+			for(var r:Integer = check.size()-1; r>=0; r--)
 				if(check[r] == __clicked[i])
 					return r;
 		return -1;

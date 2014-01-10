@@ -103,7 +103,7 @@
 
 */
 
-function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
+function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selectedClass)
 {
 	// ast				: The abstract syntax tree root node as produced by the parser
 	// infoder			: The root input folder containing the source files
@@ -119,6 +119,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 	_this.ast = ast;                        // The Abstract Syntax Tree root node (jsdef.SCRIPT)
     _this.infolder = infolder;              // The root input source code folder (eg. D:/Project/src)
     _this.outfolder = outfolder;            // The root output folder for generated files (eg. D:/Project/bin)
+    _this.compilerFolder = compilerFolder;	// The root output folder for symbols
 	_this.tokenizer = null;                 // Reference to tokenizer (reserved for future use)
 	_this.fileClasses = {};                 // Map of classes per file (usage: _this.fileClasses[file][class] = ast; )
 	_this.includes = [];                    // List of include files for current file being processed (resets per file)
@@ -252,6 +253,12 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
     				currFunction.returnPaths.push(node);
     			break;
 
+    		case jsdef.INDEX:
+			case jsdef.GROUP:
+			case jsdef.CALL:
+				currDot.push(node);
+				break;
+
 			case jsdef.DOT:
 				// Pre-process DOT for speed.
 				currDot.push(node);
@@ -304,24 +311,42 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 
             // Enrich ast node with usefull data and delete its reference to tokenizer.
 			node.nodeType = GLOBAL.narcissus.jsdefNames[node.type];
-			node.source = _this.tokenizer.source.slice(node.start, node.end);
 			node.inClass = currClass;
 			node.inFunction = currFunction;
-			node.inDot = currDot.length>0 ? currDot[currDot.length-1] : null;
+			node.inDot = currDot.length>0 && currDot[currDot.length-1].type==jsdef.DOT ? currDot[currDot.length-1] : null;
+			node.inIndex = currDot.length>0 && currDot[currDot.length-1].type==jsdef.INDEX ? currDot[currDot.length-1] : null;
+			node.inGroup = currDot.length>0 && currDot[currDot.length-1].type==jsdef.GROUP ? currDot[currDot.length-1] : null;
+			node.inCall = currDot.length>0 && currDot[currDot.length-1].type==jsdef.CALL ? currDot[currDot.length-1] : null;
 			var o_start = (node.__filePosOffset - (node.line_start - node.__fileLineOffset)+1);
 			var o_end = (node.__filePosOffset - (node.line_end - node.__fileLineOffset)+1);
+			node.source = _this.tokenizer.source.slice(node.start, node.end);
+			node.s = node.start;
+			node.e = node.end;
 			node.start -= o_start;
 			node.end -= o_end;
-			node.__start -= o_start;
-			node.__end -= o_start;
 			node.line_start -= node.__fileLineOffset;
 			node.line_end -= node.__fileLineOffset;
 			node.tokenizer = null;
+
 			delete node.tokenizer;
 
-			if(node.type==jsdef.DOT) currDot.pop();
-			if(node.type==jsdef.CLASS) currClass=null;
-			if(node.type==jsdef.FUNCTION) currFunction=null;
+			switch(node.type)
+			{
+    		case jsdef.INDEX:
+			case jsdef.GROUP:
+			case jsdef.CALL:
+			case jsdef.DOT:
+				currDot.pop();
+				break;
+
+			case jsdef.CLASS:
+				currClass=null;
+				break;
+
+			case jsdef.FUNCTION:
+				currFunction=null;
+				break;
+			}
 		}
 
 		descend(ast);
@@ -1101,8 +1126,8 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 				functionSymbol.baseSymbol	= baseMethodSymbol;
 				functionSymbol.file			= ast.file;
 				functionSymbol.path			= ast.path;
-				functionSymbol.start		= classScope && !isAnonymous ? ast.__start : ast.start;
-				functionSymbol.end			= classScope && !isAnonymous ? ast.__end : ast.end;
+				functionSymbol.start		= ast.start;
+				functionSymbol.end			= ast.end;
 				functionSymbol.line_start	= ast.line_start;
 				functionSymbol.line_end		= ast.line_end;
 				functionSymbol.scopeId		= methodScope.scopeId;
@@ -2874,7 +2899,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		if(ast.type==jsdef.IDENTIFIER && !ast.inDot)
 		{
 			identifier = ast.value;
-			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
+			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' s='" + ast.s + "' e='" + ast.e + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
 		}
 		else if(ast.type==jsdef.IDENTIFIER && ast.inDot)
 		{
@@ -2907,7 +2932,7 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 					v_identifiers.push(value);
 					v_runtime.push(value);
 				}
-				buff.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + f.start + "' end='" + f.end + "' line='" + f.line_start + "' identifier='" + v_identifiers.join(".") + "' runtime='" + v_runtime.join(".") +"'/>\n");
+				buff.push("<DEBUG_SYMBOL file='" + ast.path + "' s='" + ast.s + "' e='" + ast.e + "' start='" + f.start + "' end='" + f.end + "' line='" + f.line_start + "' identifier='" + v_identifiers.join(".") + "' runtime='" + v_runtime.join(".") +"'/>\n");
 			}
 			// Reverse debug symbols for faster search and append them to debug symbols table.
 			_this.debugSymbolsTable = _this.debugSymbolsTable.concat(buff.reverse());
@@ -3075,10 +3100,10 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		// Export to IDE
 		// ======================================================================================
 
-		write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
-		write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
-		write("C:/Users/Admin/Desktop/members.xml", mbrLists);
-		write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
+        write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
+        write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
+        write("C:/Users/Admin/Desktop/members.xml", mbrLists);
+        write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
 
 		if(!_this.selectedClass)
 			jsppCallback("resetSymbols");
@@ -3117,8 +3142,6 @@ function Compiler(ast, infolder, outfolder, exportSymbols, selectedClass)
 		return xml.join(" ");
 	};
 }
-
-
 
 
 

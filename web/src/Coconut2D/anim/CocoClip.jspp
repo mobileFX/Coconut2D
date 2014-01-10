@@ -64,8 +64,10 @@ class CocoClip
 	public var __vTemp:CocoVector;
 	public var __mTemp:CocoMatrix;
 	public var __childWithMaxTimelineDuration:CocoClip;
+	public var __clipPath:String;
 
 	private var __currentAudio:CocoAudio;
+
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage, optional sequence:String)
@@ -90,6 +92,7 @@ class CocoClip
 		__childWithMaxTimelineDuration	= null;
 		__currentSequence				= null;
 		__currentAudio					= null;
+		__clipPath						= "";
 
 		__image = image;
 		if(image && sequence) __currentSequence = image.getSequence(sequence);
@@ -205,16 +208,21 @@ class CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoFrameByName(LabelName:String, pause:Boolean, deep:Boolean) :Boolean
+	public function gotoFrameByName(LabelName:String, optional pause:Boolean, optional deep:Boolean) :Boolean
 	{
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
+
+		trace("gotoFrameByName: " + __clipPath + ", label=" + LabelName);
+
 		return gotoFrameByIndex(Label.frameIndex, pause, deep);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean, deep:Boolean) :Boolean
+	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean, optional deep:Boolean) :Boolean
 	{
+		trace("gotoFrameByIndex: " + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
+
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
 		{
@@ -226,8 +234,8 @@ class CocoClip
 			else
 			{
 				var frames:Integer = (FrameIndex - (clip.__currentFrame ? clip.__currentFrame.frameIndex : 0));
+				trace("timeline jump: " + clip.__clipPath + ", from_frame=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "(none)") + ", to_frame=" + String(FrameIndex));
 				clip.__timeline.jumpBy(frames, pause);
-				clip.__timeline.interpolateByFrame(FrameIndex);
 			}
 			if (deep)
 			{
@@ -238,8 +246,17 @@ class CocoClip
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip)
+	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean)
 	{
+		__clipPath = (parentClip ? parentClip.__clipPath + "\\" : "") + this.__instanceName;
+
+        // When a clip is paused we need to subtract the tick-time of the engine.
+        // Engine's tick-time is fixed to 1000/60 = 16.666~ milliseconds but in
+        // a proper implementation this could vary and should be derived from
+        // an ellapsed time between two requestAnimationFrame.
+		if(__timeline.__paused)
+			__timeline.__skipTime -= engine.TICK_TIME;
+
 		// Get scene current time + timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )
 		var __currentTime:Float = scene.__currentTime + __timeline.__skipTime;
 
@@ -251,10 +268,11 @@ class CocoClip
 		var parentClipsDuration:Float = (parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__durationInTime);
 
 		// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
-		var clippingTime:Float = Math.floor((__currentTime - __firstTickTime) / parentClipsDuration) * parentClipsDuration;
+		var dt:Float = Math.max(0, __currentTime - __firstTickTime);
+		var clippingTime:Float = Math.floor(dt / parentClipsDuration) * parentClipsDuration;
 
 		// Adjust LoopTime start.
-		var __loopTime:Float = (__currentTime - __firstTickTime) - clippingTime;
+		var __loopTime:Float = dt - clippingTime;
 
 		// Delete previous __currentFrame if not paused.
 		if(!__timeline.__paused && __currentFrame) delete __currentFrame;
@@ -291,16 +309,17 @@ class CocoClip
 		if(parentClip)
 		{
 			 __currentFrame.combine(parentClip.__currentFrame);
-
-			// If a child handles events and requires a bounding box calculation
-			// then the entire parent-child chain needs to calculate bounding box.
-			if(__currentFrame.calcBoundingBox)
-				parentClip.__currentFrame.calcBoundingBox = true;
 		}
 
 		// If current frame is visible, render this clip and its children.
 		if(__currentFrame.alpha != 0 && __currentFrame.visible)
 		{
+
+			// If we need to handle and event or if our parent has asked us to
+			// calc our bounding box **AND** there is an actual event waiting
+			// then we set calcBoundingBox to true.
+			calcBoundingBox = (__currentFrame.handleEvents || calcBoundingBox) && (engine.getTouchEvent()!=null);
+
 			if(__image)
 			{
 				__currentFrame.scaleX *= __image.__pixelRatioScale;
@@ -312,7 +331,7 @@ class CocoClip
 				if(__image.isSpriteSheet && __currentSequence)
 				{
 					// Render animation sequence.
-					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor((__currentTime - __firstTickTime) / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
+					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(dt / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
 					var frame:Integer = __currentSequence.frames[__currentSequenceFrameIndex];
 					scene.drawFrame(gl, __image, frame, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
 				}
@@ -330,34 +349,34 @@ class CocoClip
 				for (var i:Integer = 0, L:Integer = __children.size(); i < L; i++)
 				{
 					scene.__modelViewMatrix.push();
-					__children[i].paint(gl, scene, this);
+					__children[i].paint(gl, scene, this, calcBoundingBox);
 					scene.__modelViewMatrix.pop();
 				}
 				scene.__levelParents.pop();
 			}
 
-			// Handle touch event
-			if(__currentFrame.alpha != 0 && __currentFrame.visible && engine.__deviceEvent && this!=scene.__root)// && __currentFrame.calcBoundingBox)
+			// Calculare bounding box
+			if(calcBoundingBox)
 			{
 				// Calculate bounding box vertices
 				if(__image)
 					initBoundingBoxFromTexture(scene, __image.textureCellWidth / 2, __image.textureCellHeight / 2);
 				else if(__children.size()>0)
 					initBoundingBoxFromChildren(scene);
+			}
 
+			// Handle touch event
+			var touchEvent:DeviceEvent = engine.getTouchEvent();
+			if(__currentFrame.handleEvents && touchEvent && touchEvent.type=="touchend" && this!=scene.__root)
+			{
 				// Point in quad?
-				if(!__image)
-				{
-		   	        var x = (engine.__deviceEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;
-					var y = (engine.__deviceEvent.__clientY - gl.canvas.height / 2.0) / scene.__view_scale;
-
-					if(hitTest(x,y))
-		   	        {
-		   	        	engine.__clicked.push(this);
-		   	        	//drawBoundingBox(scene, gl);
-		   	        }
-		   	        }
-				}
+	   	        var x = (touchEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;
+				var y = (touchEvent.__clientY - gl.canvas.height / 2.0) / scene.__view_scale;
+				if(hitTest(x,y))
+	   	        {
+	   	        	engine.pushTouched(this);
+	   	        	drawBoundingBox(scene, gl);
+	   	        }
 			}
 
 			if(!__timeline.__paused)
@@ -382,10 +401,11 @@ class CocoClip
 				}
 			}
 
-		// Tick audio
-		if(__currentAudio)
-		{
-			__currentAudio.tick();
+			// Tick audio
+			if(__currentAudio)
+			{
+				__currentAudio.tick();
+			}
 		}
 	}
 

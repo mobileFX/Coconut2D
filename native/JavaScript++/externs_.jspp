@@ -1258,7 +1258,6 @@ class CocoKeyFrame
 	public var frameIndex :Integer;
 	public var frameInterpolation :COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var handleEvents :Boolean;
-	public var calcBoundingBox :Boolean;
 	public var visible :Boolean;
 	public var alpha :Float;
 	public var x :Float;
@@ -1303,7 +1302,6 @@ class CocoTimeline
 	public var __durationInFrames :Integer;
 	public var __skipTime :Float;
 	public var __paused :Boolean;
-	public var __pausedKeyFrame :CocoKeyFrame;
 	public var __fps :Float;
 } //CocoTimeline
 
@@ -1318,7 +1316,7 @@ class CocoClip
 	public function getChildIndex(child:CocoClip) :Integer {}
 	public function gotoFrameByName(LabelName:String, pause:Boolean, deep:Boolean) :Boolean {}
 	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean, deep:Boolean) :Boolean {}
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip) {}
+	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean) {}
 	public function hitTest(wx:Float, wy:Float) :Boolean {}
 	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
 	public function initBoundingBoxFromChildren(scene:CocoScene) {}
@@ -1346,6 +1344,7 @@ class CocoClip
 	public var __vTemp :CocoVector;
 	public var __mTemp :CocoMatrix;
 	public var __childWithMaxTimelineDuration :CocoClip;
+	public var __clipPath :String;
 	private var __currentAudio :CocoAudio;
 } //CocoClip
 
@@ -1392,16 +1391,27 @@ class CocoScene
 
 class CocoEngine
 {
-	private function __setTouchEvent(e:DeviceEvent) {}
-	public function run(gl:WebGLRenderingContext, time:Float) {}
 	public function setNextState(s:State) {}
+	public function run(gl:WebGLRenderingContext, time:Float) {}
+	private function __setTouchEvent(e:DeviceEvent) {}
+	public function getTouchEvent() :DeviceEvent {}
+	public function pushTouched(clip:CocoClip) {}
 	public function isClicked(check:Array<CocoClip>) :Integer {}
 	public function Constructor() {}
-	public var __currentState :State;
-	public var __nextState :State;
-	public var __deviceEvent :DeviceEvent;
-	public var __clicked :Array<CocoClip>;
-	public var STATE_GAME :State;
+	public var TICK_TIME :Float;
+	private var __currentState :State;
+	private var __nextState :State;
+	private var __deviceEvent :DeviceEvent;
+	private var __clicked :Array<CocoClip>;
+	private var __clock :Float;
+	public var STATE_TITLE_SCREEN :State;
+	public var STATE_GAME_BOARD :State;
+	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
+	public var STATE_GAME_BOARD_BUY_TICKET :State;
+	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_WIN :State;
+	public var STATE_GAME_BOARD_LOSE :State;
 } //CocoEngine
 
 class CocoSprite
@@ -1444,69 +1454,83 @@ class CocoTiledLayer
 	public function Constructor() {}
 } //CocoTiledLayer
 
-class UIView : CocoClip
+class CocoUIView : CocoClip
 {
-} //UIView
+} //CocoUIView
 
-class UIControlView : UIView
+class CocoUIControlView : CocoUIView
 {
-} //UIControlView
+} //CocoUIControlView
 
-class UIButtonView : UIControlView
+class CocoUIButtonView : CocoUIControlView
 {
-} //UIButtonView
+} //CocoUIButtonView
 
-class UICheckboxView : UIControlView
+class CocoUICheckboxView : CocoUIControlView
 {
-} //UICheckboxView
+} //CocoUICheckboxView
 
-class UILabelView : UIControlView
+class CocoUILabelView : CocoUIControlView
 {
-} //UILabelView
+} //CocoUILabelView
 
-class UINavbarView : UIControlView
+class CocoUINavbarView : CocoUIControlView
 {
-} //UINavbarView
+} //CocoUINavbarView
 
-class UIPageView : UIView
+class CocoUIPageView : CocoUIView
 {
-} //UIPageView
+} //CocoUIPageView
 
-class UIPickerView : UIControlView
+class CocoUIPickerView : CocoUIControlView
 {
-} //UIPickerView
+} //CocoUIPickerView
 
-class UIScrollView : UIView
+class CocoUIScrollView : CocoUIView
 {
-} //UIScrollView
+} //CocoUIScrollView
 
-class UITabView : UIControlView
+class CocoUITabView : CocoUIControlView
 {
-} //UITabView
+} //CocoUITabView
 
-class UITextView : UIControlView
+class CocoUITextView : CocoUIControlView
 {
-} //UITextView
+} //CocoUITextView
 
 class GameEngine : CocoEngine
 {
 	public function Constructor() {}
 	public var scene :CocoScene;
-	public var STATE_GAME :State;
+	public var balance :Number;
+	public var winnings :Number;
+	public var avatars :Array<CocoClip>;
+	public var avatar_leo :CocoClip;
+	public var avatar_xerxes :CocoClip;
+	public var avatar_spartan :CocoClip;
+	public var avatar_persian :CocoClip;
+	public var avatar_swords :CocoClip;
+	public var avatar_armor :CocoClip;
+	public var btnOpenAll :CocoClip;
+	public var btnBuyTicket :CocoClip;
+	public var selectedAvatar :Number;
+	public var STATE_TITLE_SCREEN :State;
+	public var STATE_GAME_BOARD :State;
+	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
+	public var STATE_GAME_BOARD_BUY_TICKET :State;
+	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_WIN :State;
+	public var STATE_GAME_BOARD_LOSE :State;
 } //GameEngine
 
-class BitmapSymbolsTest : CocoScene
+class SceneGameBoard : CocoScene
 {
 	public function Constructor() {}
-} //BitmapSymbolsTest
+} //SceneGameBoard
 
-class SynthesisTest : CocoScene
+class SceneTitle : CocoScene
 {
 	public function Constructor() {}
-} //SynthesisTest
-
-class Test : CocoScene
-{
-	public function Constructor() {}
-} //Test
+} //SceneTitle
 

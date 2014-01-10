@@ -46,7 +46,6 @@ class CocoTimeline
 	public var __durationInFrames:Integer;
 	public var __skipTime:Float;
 	public var __paused:Boolean;
-	public var __pausedKeyFrame:CocoKeyFrame;
 	public var __fps:Float;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +56,6 @@ class CocoTimeline
 		__durationInFrames			= 0;
 		__skipTime					= 0.0;
 		__paused					= false;
-		__pausedKeyFrame			= null;
 		__fps						= 30;
 	}
 
@@ -220,11 +218,7 @@ class CocoTimeline
 	public function jumpBy(frames:Float, paused:Boolean)
 	{
 		__paused = paused;
-		if(frames!=0)
-		{
-			__skipTime += (frames * __singleFrameDurationTime);
-			__pausedKeyFrame = null;
-		}
+		__skipTime += frames * __singleFrameDurationTime;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -285,9 +279,6 @@ class CocoTimeline
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolateByFrame(frameIndex:Float) :CocoKeyFrame
 	{
-		if(__paused && __pausedKeyFrame)
-			return __pausedKeyFrame;
-
 	    var F:CocoKeyFrame = null;
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
@@ -300,13 +291,16 @@ class CocoTimeline
 	        F = new CocoKeyFrame();
 	        F.frameIndex = FrameIndex;
 	        F.visible = false;
-	        return (__pausedKeyFrame = F);
+	        return F;
 	    }
 
 	    // Exact KeyFrame exists?
 	    F1 = keyFrame(FrameIndex);
 	    if(F1)
-	    	return (__pausedKeyFrame = F1.clone(true));
+	    {
+	    	F1 = F1.clone(true);
+	    	return F1;
+	    }
 
 	    // Seek previous KeyFrame
 	    F1 = findKeyFrameBeforeframeIndex(FrameIndex, false, -1);
@@ -317,7 +311,7 @@ class CocoTimeline
 	        F = new CocoKeyFrame();
 	        F.frameIndex = FrameIndex;
 	        F.visible = false;
-	        return (__pausedKeyFrame = F);
+	        return F;
 	    }
 	    else
 	    {
@@ -327,14 +321,14 @@ class CocoTimeline
 
 	            F = F1.clone(false);
 	            F.frameIndex = FrameIndex;
-	            return (__pausedKeyFrame = F);
+	            return F;
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 
 	            F = F1.clone(false);
 	            F.frameIndex = FrameIndex;
 	            F.visible = false;
-	            return (__pausedKeyFrame = F);
+	            return F;
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 
@@ -346,7 +340,7 @@ class CocoTimeline
 	                // Fallback to echo
 	                F = F1.clone(false);
 	                F.frameIndex = FrameIndex;
-	                return (__pausedKeyFrame = F);
+	                return F;
 
 	            }
 	            else
@@ -356,7 +350,7 @@ class CocoTimeline
 	                F.frameIndex = FrameIndex;
 	                s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
 	                F.interpolate(F1, F2, s);
-	                return (__pausedKeyFrame = F);
+	                return F;
 	            }
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_PHYSICS:

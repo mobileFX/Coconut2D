@@ -42,7 +42,6 @@ class CocoKeyFrame
 	public var frameIndex:Integer;
 	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var handleEvents:Boolean;
-	public var calcBoundingBox:Boolean;
 	public var visible:Boolean;
 	public var alpha:Float;
 	public var x:Float;
@@ -66,7 +65,6 @@ class CocoKeyFrame
 		frameIndex					= 0;
 		frameInterpolation 			= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 		handleEvents 				= false;
-		calcBoundingBox				= false;
 		visible						= true;
 		x							= 0.0;
 		y							= 0.0;
@@ -109,7 +107,6 @@ class CocoKeyFrame
 		c.y                     	= y;
 		c.flipH						= flipH;
 		c.flipV						= flipV;
-		c.calcBoundingBox			= this.calcBoundingBox;
 
         if(exact)
         {
@@ -136,7 +133,7 @@ class CocoKeyFrame
 
 		var pulse:Boolean = false;
 
-		if((currentTime==0) || (currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
+		if((loopTime==0) || (currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
 		{
 			__lastActionExecutionTime = currentTime;
 
@@ -183,8 +180,6 @@ class CocoKeyFrame
 	    visible = visible && Frame.visible;
 	    flipH = (flipH && !Frame.flipH) || (!flipH && Frame.flipH);
 	    flipV = (flipV && !Frame.flipV) || (!flipV && Frame.flipV);
-	    handleEvents = handleEvents && Frame.handleEvents;
-	    calcBoundingBox = calcBoundingBox && Frame.calcBoundingBox;
 	}
 
 	public function apply(matrix:CocoMatrix)

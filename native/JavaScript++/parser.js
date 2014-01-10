@@ -464,16 +464,13 @@ function __init_narcissus(GLOBAL)
 			else if((match = /^[$\w]+/.exec(input)) && !reRegExp.test(input))
 			{
 				var id = match[0];
-				//if(id.indexOf("ECMA")==0)
-				//{
-				//	id = id.substr(4);
-				//}
 				token.type = jsdef.keywords(id) || jsdef.IDENTIFIER;
 				token.value = id;
 			}
 			else if((match = RegExp("^\\x22(?!\\x22)(?:\\\\.|[^\\x22])*\\x22|^\\x27(?!\\x27)(?:\\\\.|[^\\x27])*\\x27|^([\\x27\\x22]{3})((?:(?!\\1)[\\s\\S])*)\\1|^\\x22\\x22|^\\x27\\x27", "").exec(input)))
 			{
 				token.type = jsdef.STRING;
+
 				if(match[1])
 				{
 					this.line_start += match[2].split(/\r?\n/gm).length - 1;
@@ -484,6 +481,8 @@ function __init_narcissus(GLOBAL)
 					this.line_start += match[0].split(/\r?\n/gm).length - 1;
 					token.value = match[0].replace(RegExp("^['\\x22]|['\\x22]$", "gm"), "");
 				}
+
+				//if(token.value=="#export native") debugger;
 
 				///////////////////////////////////////////////////////////////////
 				// File
@@ -539,10 +538,10 @@ function __init_narcissus(GLOBAL)
 			{
 				throw this.newSyntaxError("Illegal token");
 			}
+
 			token.start = this.cursor;
 			this.cursor += match[0].length;
 			token.end = this.cursor;
-
 			token.line_start = this.line_start;
 			token.line_end = this.line_start;
 
@@ -1065,8 +1064,8 @@ function __init_narcissus(GLOBAL)
 			t.unget();
 			n.expression = Expression(t, x);
 
-			n.end = n.expression.end;
-			n.line_end = n.expression.line_end;
+			n.end = t.cursor;// n.expression.end;
+			n.line_end = t.line_start;// n.expression.line_end;
 
 			// Heuristics to detect vartype from jsdef.NEW operator in expression
 
@@ -2416,6 +2415,7 @@ function __init_narcissus(GLOBAL)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	function jsparse(s, f, l)
 	{
+		jsppCallback("module", f, f, 0, 0, s);
 		var t = new Tokenizer(s, f, l);
 		var x = new CompilerContext(false);
 		var n = Script(t, x);
@@ -2427,19 +2427,6 @@ function __init_narcissus(GLOBAL)
 
 }
 __init_narcissus(this);
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

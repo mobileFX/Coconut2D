@@ -305,7 +305,7 @@ class CocoScene
 		    {
 				__modelViewMatrix.identity();
 		    	__levelParents = [__root];
-				__root.paint(gl, this, null);
+				__root.paint(gl, this, null, false);
 				__levelParents = [];
 				var max:CocoClip = __root.__childWithMaxTimelineDuration;
 				if(max && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
