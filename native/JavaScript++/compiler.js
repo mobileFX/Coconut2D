@@ -2067,6 +2067,13 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.MUL:					_this.arithmeticOp(ast, "*", out); break;
+		case jsdef.DIV:					_this.arithmeticOp(ast, "/", out); break;
+		case jsdef.MINUS: 				_this.arithmeticOp(ast, "-", out); break;
+		case jsdef.PLUS: 				_this.arithmeticOp(ast, "+", out); break;
+		case jsdef.MOD:					_this.arithmeticOp(ast, "%", out); break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.AND:					out.push(generate(ast[0])); out.push("&&"); out.push(generate(ast[1])); break;
 		case jsdef.BITWISE_AND:			out.push(generate(ast[0])); out.push("&"); out.push(generate(ast[1])); break;
 		case jsdef.BITWISE_NOT:			out.push("~"); out.push(generate(ast[0])); break;
@@ -2078,7 +2085,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.DEBUGGER:			out.push("debugger;"); break;
 		case jsdef.DECREMENT:			if(ast.postfix) { out.push(generate(ast[0])); out.push("--"); } else { out.push("--"); out.push(generate(ast[0])); } break;
 		case jsdef.DEFAULT:				out.push("default:"); out.push(generate(ast.statements)); break;
-		case jsdef.DIV:					out.push(generate(ast[0])); out.push("/"); out.push(generate(ast[1])); break;
 		case jsdef.DO: 					ast.body.isLoop = true; out.push("do"); out.push(generate(ast.body)); out.push("while(" + generate(ast.condition) + ");"); break;
 		case jsdef.EQ: 					out.push(generate(ast[0])); out.push("==");	 out.push(generate(ast[1])); break;
 		case jsdef.EXPONENT:			out.push("Math.pow(" + generate(ast[0]) + "," + generate(ast[1]) + ")");break;
@@ -2092,9 +2098,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.LE:					out.push(generate(ast[0])); out.push("<=");  out.push(generate(ast[1])); break;
 		case jsdef.LSH:					out.push(generate(ast[0])); out.push("<<"); out.push(generate(ast[1])); break;
 		case jsdef.LT:					out.push(generate(ast[0])); out.push("<");   out.push(generate(ast[1])); break;
-		case jsdef.MINUS: 				out.push(generate(ast[0])); out.push("-"); out.push(generate(ast[1])); break;
-		case jsdef.MOD:					out.push(generate(ast[0])); out.push("%"); out.push(generate(ast[1])); break;
-		case jsdef.MUL: 				out.push(generate(ast[0])); out.push("*"); out.push(generate(ast[1])); break;
 		case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	 out.push(generate(ast[1])); break;
 		case jsdef.NEW: 				out.push("new "); out.push(generate(ast[0])); break;
 		case jsdef.NEW_WITH_ARGS:		out.push("new "); out.push(generate(ast[0])); out.push("("); out.push(generate(ast[1])); out.push(")"); _this.checkFunctionCall(ast); break;
@@ -2102,7 +2105,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.NULL:				out.push("null"); break;
 		case jsdef.NUMBER:				out.push(ast.value); break;
 		case jsdef.OR:					out.push(generate(ast[0])); out.push("||"); out.push(generate(ast[1]));	break;
-		case jsdef.PLUS: 				out.push(generate(ast[0])); out.push("+"); out.push(generate(ast[1])); break;
 		case jsdef.RETURN:				out.push("return"); if(ast.value) out.push(" " + generate(ast.value)); out.push(";\n"); break;
 		case jsdef.RSH:					out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
 		case jsdef.SEMICOLON:			var expr = (ast.expression ? generate(ast.expression) : ""); if(expr) out.push(expr + ";\n"); break;
@@ -2123,6 +2125,36 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 		return out.join("");
 	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.arithmeticOp = function(ast, op, out)
+	{
+
+		var g0 = _this.generate(ast[0]);
+		var g1 = _this.generate(ast[1]);
+		/*
+		if(_this.secondPass)
+		{
+			var t0 = _this.getTypeName(ast[0]);
+			var t1 = _this.getTypeName(ast[1]);
+			if(t0=="Time" || t1=="Time")
+			{
+				var decimals = "1e8";
+				g0 = "(Math.round((" + g0 + ")*" + decimals + "))";
+				g1 = "(Math.round((" + g1 + ")*" + decimals + "))";
+				out.push("((");
+				out.push(g0);
+				out.push(op);
+				out.push(g1);
+				out.push(")/" + decimals + ")");
+				return;
+			}
+		}
+		*/
+		out.push(g0);
+		out.push(op);
+		out.push(g1);
+	}
 
 	// ==================================================================================================================================
 	//	    ______                         __           ________
@@ -2473,7 +2505,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			PLUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" }, "String": { "String": "String" } },
 			MINUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
 			MUL: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			DIV: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
+			DIV: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number", "Float":"Number", "Time":"Number" } },
 			MOD:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
 			BIT: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
 			ASSIGN: { "Number":	 { "Boolean": "Number",	"Number": "Number" }, "Boolean": { "Boolean": "Number", "Number": "Number" }
@@ -2710,7 +2742,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				if(!symbol) { _this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]); return null; }
 				return symbol.subtype;
 			}
-			return ast[0].symbol ? ast[0].symbol.subtype : _this.UNTUPED;
+			return ast[0].symbol.subtype;
 			break;
 
 		//=============================================================================================================================
@@ -2820,6 +2852,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 		// Integer
 		if(type1=="Integer" && type2=="Number") return type1;
+		if(type1=="Integer" && type2=="Time") return type1;
 		if(type1=="Integer" && type2=="Float") return type1;
 		if(type1=="Integer" && type2=="Float") 	{ _this.NewWarning(customError || "Precision loss converting Float to Integer", ast); return type1; }
 		if(type1=="Integer" && type2=="Object") { _this.NewError(customError || "Invalid Object to Integer convertion", ast); return type1; }
@@ -2827,12 +2860,19 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		// Number
 		if(type1=="Number" && type2=="Integer") return type1;
 		if(type1=="Number" && type2=="Float") return type1;
+		if(type1=="Number" && type2=="Time") return type1;
 		if(type1=="Number" && type2=="Object") { _this.NewError(customError || "Invalid Object to Number convertion", ast); return type1; }
 
 		// Float
 		if(type1=="Float" && type2=="Number") return type1;
+		if(type1=="Float" && type2=="Time") return type1;
 		if(type1=="Float" && type2=="Integer") return type1;
 		if(type1=="Float" && type2=="Object") { _this.NewError(customError || "Invalid Object to Float convertion", ast); return type1; }
+
+		// Time
+		if(type1=="Time" && type2=="Number") return type1;
+		if(type1=="Time" && type2=="Float") return type1;
+		if(type1=="Time" && type2=="Integer") return type1;
 
 		// Date
 		if(type1=="Date" && type2=="Null") return type1;
@@ -3142,6 +3182,8 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		return xml.join(" ");
 	};
 }
+
+
 
 
 

@@ -36,30 +36,28 @@ function CocoAudio(__CLASS__COCOAUDIO__$url__, __CLASS__COCOAUDIO__$autoplay__, 
 				__CLASS__COCOAUDIO__.play();
 			}
 			//@line 91
-			trace(__CLASS__COCOAUDIO__.src + " : " + String(__CLASS__COCOAUDIO__.getCurrentTime()));
-			//@line 93
 			if (__CLASS__COCOAUDIO__.loops >= 0 && __CLASS__COCOAUDIO__.audio.ended)
-			//@line 94
+			//@line 92
 			{
-				//@line 95
+				//@line 93
 				__CLASS__COCOAUDIO__.__PRIVATE__.__loopCount++;
-				//@line 96
+				//@line 94
 				if (__CLASS__COCOAUDIO__.loops == 0 || (__CLASS__COCOAUDIO__.loops > 0 || __CLASS__COCOAUDIO__.__PRIVATE__.__loopCount < __CLASS__COCOAUDIO__.loops))
-				//@line 97
+				//@line 95
 				__CLASS__COCOAUDIO__.play();
 			}
 		};
-		//@line 102
+		//@line 100
 		var play = this.play = function ()
 		{
 			if (__CLASS__COCOAUDIO__.audio) __CLASS__COCOAUDIO__.audio.play();
 		};
-		//@line 103
+		//@line 101
 		var pause = this.pause = function ()
 		{
 			if (__CLASS__COCOAUDIO__.audio) __CLASS__COCOAUDIO__.audio.pause();
 		};
-		//@line 104
+		//@line 102
 		var stop = this.stop = function ()
 		{
 			__CLASS__COCOAUDIO__.__PRIVATE__.__loopCount = 0;
@@ -67,31 +65,31 @@ function CocoAudio(__CLASS__COCOAUDIO__$url__, __CLASS__COCOAUDIO__$autoplay__, 
 			if (__CLASS__COCOAUDIO__.audio) __CLASS__COCOAUDIO__.audio.pause();
 			__CLASS__COCOAUDIO__.setCurrentTime(0);
 		};
-		//@line 105
+		//@line 103
 		var duration = this.duration = function ()
 		{
 			return __CLASS__COCOAUDIO__.audio ? __CLASS__COCOAUDIO__.audio.duration : 0;
 			return 0
 		};
-		//@line 106
+		//@line 104
 		var paused = this.paused = function ()
 		{
 			return __CLASS__COCOAUDIO__.audio ? __CLASS__COCOAUDIO__.audio.paused : true;
 			return false
 		};
-		//@line 107
+		//@line 105
 		var ended = this.ended = function ()
 		{
 			return __CLASS__COCOAUDIO__.audio ? __CLASS__COCOAUDIO__.audio.ended : true;
 			return false
 		};
-		//@line 108
+		//@line 106
 		var getCurrentTime = this.getCurrentTime = function ()
 		{
 			return __CLASS__COCOAUDIO__.audio ? __CLASS__COCOAUDIO__.audio.currentTime : 0;
 			return 0
 		};
-		//@line 109
+		//@line 107
 		var setCurrentTime = this.setCurrentTime = function (t)
 		{
 			if (__CLASS__COCOAUDIO__.audio) __CLASS__COCOAUDIO__.audio.currentTime = t;

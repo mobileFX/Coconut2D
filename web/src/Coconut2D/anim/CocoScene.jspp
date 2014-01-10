@@ -51,9 +51,9 @@ class CocoScene
 	public var __view_scale:Float;
 
 	// Rendering
-	public var __currentTime:Float;
-	public var __elapsedTime:Float;
-	public var __startTime:Float;
+	public var __currentTime:Time;
+	public var __elapsedTime:Time;
+	public var __startTime:Time;
 	public var __root:CocoClip;
 	public var __modelViewMatrix:CocoMatrix;
 	public var __projectionMatrix:CocoMatrix;
@@ -282,7 +282,7 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function paint(gl:WebGLRenderingContext, time:Float)
+	public virtual function paint(gl:WebGLRenderingContext, time:Time)
 	{
 		if(!__glProgram)
 		{
@@ -364,11 +364,10 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function stop(optional deep:Boolean)
+	public function stop()
 	{
-		deep = (deep == "true");
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByIndex(-1, true, deep);
+		scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true, false);
 	}
 }
 

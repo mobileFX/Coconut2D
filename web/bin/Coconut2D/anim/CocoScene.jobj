@@ -394,14 +394,12 @@ function CocoScene()
 			scope.gotoFrameByIndex(FrameIndex, true, deep);
 		};
 		//@line 367
-		var stop = this.stop = function (deep)
+		var stop = this.stop = function ()
 		{
 			//@line 369
-			deep = (deep == "true");
-			//@line 370
 			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
-			//@line 371
-			scope.gotoFrameByIndex(-1, true, deep);
+			//@line 370
+			scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true, false);
 		};
 		//@line 43
 		this.__sceneName = "";
@@ -418,11 +416,11 @@ function CocoScene()
 		//@line 51
 		this.__view_scale = 0;
 		//@line 54
-		this.__currentTime = 0;
+		this.__currentTime = null;
 		//@line 55
-		this.__elapsedTime = 0;
+		this.__elapsedTime = null;
 		//@line 56
-		this.__startTime = 0;
+		this.__startTime = null;
 		//@line 57
 		this.__root = null;
 		//@line 58

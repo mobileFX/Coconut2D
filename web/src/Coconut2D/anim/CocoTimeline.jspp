@@ -41,10 +41,9 @@ class CocoTimeline
 {
 	public var __labels:Array<CocoTimeLabel>;
 	public var __keyFrames:Array<CocoKeyFrame>;
-	public var __singleFrameDurationTime:Float;
-	public var __durationInTime:Float;
+	public var __singleFrameDurationTime:Time;
+	public var __durationInTime:Time;
 	public var __durationInFrames:Integer;
-	public var __skipTime:Float;
 	public var __paused:Boolean;
 	public var __fps:Float;
 
@@ -54,7 +53,6 @@ class CocoTimeline
 		__singleFrameDurationTime	= 0.0;
 		__durationInTime			= 0.0;
 		__durationInFrames			= 0;
-		__skipTime					= 0.0;
 		__paused					= false;
 		__fps						= 30;
 	}
@@ -78,7 +76,6 @@ class CocoTimeline
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
-		__skipTime = 0;
 		__paused = false;
 		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
 		{
@@ -221,13 +218,6 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function jumpBy(frames:Float, paused:Boolean)
-	{
-		__paused = paused;
-		__skipTime += frames * __singleFrameDurationTime;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
 	{
 		var KeyFrame:CocoKeyFrame;
@@ -276,7 +266,7 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function interpolateByTime(LoopTime:Float) :CocoKeyFrame
+	public function interpolateByTime(LoopTime:Time) :CocoKeyFrame
 	{
 	    var T:Float = (LoopTime / __singleFrameDurationTime);
 	    return interpolateByFrame(T);

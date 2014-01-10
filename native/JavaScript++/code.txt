@@ -299,6 +299,11 @@ class Integer : Number 	{}
 class Float : Number 	{}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+class Time : Number
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class Boolean
 {
 }
@@ -3464,8 +3469,6 @@ class CocoAudio
 			play();
 		}
 
-		trace(src + " : " + String(getCurrentTime()));
-
 		if(loops>=0 && audio.ended)
 		{
 			__loopCount++;
@@ -4428,7 +4431,7 @@ class CocoKeyFrame
 	public var flipH:Boolean;
 	public var flipV:Boolean;
 
-	private var __lastActionExecutionTime:Float;
+	private var __lastActionExecutionTime:Time;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -4504,7 +4507,7 @@ class CocoKeyFrame
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function execute(gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, scene:CocoScene, clip:CocoClip) :Boolean
+	public function execute(gl:WebGLRenderingContext, currentTime:Time, loopTime:Time, scene:CocoScene, clip:CocoClip) :Boolean
 	{
 		//gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, clip:CocoClip, keyFrame:CocoKeyFrame
 
@@ -4619,10 +4622,9 @@ class CocoTimeline
 {
 	public var __labels:Array<CocoTimeLabel>;
 	public var __keyFrames:Array<CocoKeyFrame>;
-	public var __singleFrameDurationTime:Float;
-	public var __durationInTime:Float;
+	public var __singleFrameDurationTime:Time;
+	public var __durationInTime:Time;
 	public var __durationInFrames:Integer;
-	public var __skipTime:Float;
 	public var __paused:Boolean;
 	public var __fps:Float;
 
@@ -4632,7 +4634,6 @@ class CocoTimeline
 		__singleFrameDurationTime	= 0.0;
 		__durationInTime			= 0.0;
 		__durationInFrames			= 0;
-		__skipTime					= 0.0;
 		__paused					= false;
 		__fps						= 30;
 	}
@@ -4656,7 +4657,6 @@ class CocoTimeline
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
-		__skipTime = 0;
 		__paused = false;
 		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
 		{
@@ -4799,13 +4799,6 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function jumpBy(frames:Float, paused:Boolean)
-	{
-		__paused = paused;
-		__skipTime += frames * __singleFrameDurationTime;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
 	{
 		var KeyFrame:CocoKeyFrame;
@@ -4854,7 +4847,7 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function interpolateByTime(LoopTime:Float) :CocoKeyFrame
+	public function interpolateByTime(LoopTime:Time) :CocoKeyFrame
 	{
 	    var T:Float = (LoopTime / __singleFrameDurationTime);
 	    return interpolateByFrame(T);
@@ -4999,7 +4992,7 @@ class CocoClip
 	public var __currentSequenceFrameIndex:Integer;
 	public var __timeline:CocoTimeline;
 	public var __parent:CocoClip;
-	public var __firstTickTime:Float;
+	public var __currentTime:Time;
 	public var __currentFrame:CocoKeyFrame;
 	public var __hasBoundingBox:Boolean;
 	public var __vABS_TOP_LEFT:CocoVector;
@@ -5025,7 +5018,7 @@ class CocoClip
 		__currentSequenceFrameIndex		= 0;
 		__timeline						= new CocoTimeline();
 		__parent						= null;
-		__firstTickTime					= -1.0;
+		__currentTime					= 0.0;
 		__currentFrame					= null;
 		__hasBoundingBox				= false;
 		__vABS_TOP_LEFT					= new CocoVector();
@@ -5080,7 +5073,7 @@ class CocoClip
 	{
 		if(__currentFrame) delete __currentFrame;
 		__currentFrame = null;
-		__firstTickTime = -1;
+		__currentTime = 0.0;
 		__timeline.reset();
 
 		for(var i:Integer =__children.size()-1; i>=0; i--)
@@ -5176,20 +5169,14 @@ class CocoClip
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
 		{
 			clip = __children[i];
-			if (FrameIndex == COCO_STOP_ON_CURRENT_FRAME)
-			{
-				clip.__timeline.jumpBy(0, pause);
-			}
-			else
-			{
-				var frames:Integer = (FrameIndex - (clip.__currentFrame ? clip.__currentFrame.frameIndex : 0));
-				trace("timeline jump: " + clip.__clipPath + ", from_frame=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "(none)") + ", to_frame=" + String(FrameIndex));
-				clip.__timeline.jumpBy(frames, pause);
-			}
+			clip.__timeline.__paused = pause;
+			if(FrameIndex!=COCO_STOP_ON_CURRENT_FRAME)
+				clip.__currentTime = FrameIndex * clip.__timeline.__singleFrameDurationTime;
+
+			trace("-> child: " + clip.__clipPath + ", from=" + String(clip.__currentFrame.frameIndex) + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)));
+
 			if (deep)
-			{
 				clip.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
-			}
 		}
 		return true;
 	};
@@ -5203,28 +5190,22 @@ class CocoClip
         // Engine's tick-time is fixed to 1000/60 = 16.666~ milliseconds but in
         // a proper implementation this could vary and should be derived from
         // an ellapsed time between two requestAnimationFrame.
-		if(__timeline.__paused)
-			__timeline.__skipTime -= engine.TICK_TIME;
-
-		// Get scene current time + timeline skipTime (used in timeline jumps such as stop(), gotoAndPlay(), gotoAndStop() )
-		var __currentTime:Float = scene.__currentTime + __timeline.__skipTime;
-
-		// Keep track of first tick time.
-		if(__firstTickTime == -1) __firstTickTime = __currentTime;
+		if(!__timeline.__paused)
+			__currentTime += engine.TICK_TIME;
 
 		// Calculate the parent timeline duraction in time from its children.
 		// Note: the parent timeline might have only one KeyFrame but the actual length is defined by the max timeline size of each children.
-		var parentClipsDuration:Float = (parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__durationInTime);
+		var parentClipsDuration:Time = (parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__durationInTime);
 
 		// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
-		var dt:Float = Math.max(0, __currentTime - __firstTickTime);
-		var clippingTime:Float = Math.floor(dt / parentClipsDuration) * parentClipsDuration;
+		var clippingTime:Time = Math.floor(__currentTime / parentClipsDuration) * parentClipsDuration;
 
 		// Adjust LoopTime start.
-		var __loopTime:Float = dt - clippingTime;
+		var __loopTime:Time = __currentTime - clippingTime;
 
 		// Delete previous __currentFrame if not paused.
-		if(!__timeline.__paused && __currentFrame) delete __currentFrame;
+		if(!__timeline.__paused && __currentFrame)
+			delete __currentFrame;
 
 		// Take into account time sync between this clip and its parent.
 		switch(__symbolLoop)
@@ -5280,7 +5261,7 @@ class CocoClip
 				if(__image.isSpriteSheet && __currentSequence)
 				{
 					// Render animation sequence.
-					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(dt / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
+					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(__currentTime / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
 					var frame:Integer = __currentSequence.frames[__currentSequenceFrameIndex];
 					scene.drawFrame(gl, __image, frame, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
 				}
@@ -5543,9 +5524,9 @@ class CocoScene
 	public var __view_scale:Float;
 
 	// Rendering
-	public var __currentTime:Float;
-	public var __elapsedTime:Float;
-	public var __startTime:Float;
+	public var __currentTime:Time;
+	public var __elapsedTime:Time;
+	public var __startTime:Time;
 	public var __root:CocoClip;
 	public var __modelViewMatrix:CocoMatrix;
 	public var __projectionMatrix:CocoMatrix;
@@ -5774,7 +5755,7 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function paint(gl:WebGLRenderingContext, time:Float)
+	public virtual function paint(gl:WebGLRenderingContext, time:Time)
 	{
 		if(!__glProgram)
 		{
@@ -5856,11 +5837,10 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function stop(optional deep:Boolean)
+	public function stop()
 	{
-		deep = (deep == "true");
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByIndex(-1, true, deep);
+		scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true, false);
 	}
 }
 
@@ -5908,6 +5888,10 @@ class CocoScene
 
 state class CocoEngine
 {
+	// To avoid frame skipping and to enable time-debugging
+	// we need to enforce a fixed tick time interval. The
+	// constant we choose is for 60 frames per second but
+	// we must use division in order to set the float properly.
 	public const TICK_TIME:Float = (1000.0/60.0);
 
 	private var __currentState:State;
@@ -5942,7 +5926,7 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function run(gl:WebGLRenderingContext, time:Float)
+	public function run(gl:WebGLRenderingContext, time:Time)
 	{
 		if(!__currentState && !__nextState) return;
 
@@ -5967,6 +5951,8 @@ state class CocoEngine
 		}
 
 		__deviceEvent = null;
+
+		// To avoid frame skipping we enfore a fixed time interval of 16.66~ ms.
 		__clock += TICK_TIME;
 	}
 

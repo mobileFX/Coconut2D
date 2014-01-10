@@ -39,6 +39,10 @@
 
 state class CocoEngine
 {
+	// To avoid frame skipping and to enable time-debugging
+	// we need to enforce a fixed tick time interval. The
+	// constant we choose is for 60 frames per second but
+	// we must use division in order to set the float properly.
 	public const TICK_TIME:Float = (1000.0/60.0);
 
 	private var __currentState:State;
@@ -73,7 +77,7 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function run(gl:WebGLRenderingContext, time:Float)
+	public function run(gl:WebGLRenderingContext, time:Time)
 	{
 		if(!__currentState && !__nextState) return;
 
@@ -98,6 +102,8 @@ state class CocoEngine
 		}
 
 		__deviceEvent = null;
+
+		// To avoid frame skipping we enfore a fixed time interval of 16.66~ ms.
 		__clock += TICK_TIME;
 	}
 
