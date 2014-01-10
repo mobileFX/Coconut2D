@@ -333,12 +333,12 @@ class CocoClip
 					// Render animation sequence.
 					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(dt / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
 					var frame:Integer = __currentSequence.frames[__currentSequenceFrameIndex];
-					scene.drawFrame(gl, __image, frame, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
+					scene.drawFrame(gl, __image, frame, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
 				}
 				else
 				{
 					// Render a standard image.
-					scene.drawFrame(gl, __image, 0,  __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
+					scene.drawFrame(gl, __image, 0, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
 				}
 			}
 			else

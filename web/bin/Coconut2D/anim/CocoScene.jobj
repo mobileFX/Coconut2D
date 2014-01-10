@@ -318,7 +318,7 @@ function CocoScene()
 					//@line 307
 					__CLASS__COCOSCENE__.__levelParents = [__CLASS__COCOSCENE__.__root];
 					//@line 308
-					__CLASS__COCOSCENE__.__root.paint(gl, __CLASS__COCOSCENE__, null);
+					__CLASS__COCOSCENE__.__root.paint(gl, __CLASS__COCOSCENE__, null, false);
 					//@line 309
 					__CLASS__COCOSCENE__.__levelParents = [];
 					//@line 310
@@ -334,75 +334,73 @@ function CocoScene()
 			}
 		};
 		//@line 322
-		var drawFrame = this.drawFrame = function (gl, image, frame, alpha, flipH, flipV)
+		var drawFrame = this.drawFrame = function (gl, image, frame, red, green, blue, alpha, flipH, flipV)
 		{
 			//@line 324
-			image.color[3] = alpha;
-			//@line 325
 			if (__CLASS__COCOSCENE__.__modelViewMatrix.__dirty) __CLASS__COCOSCENE__.__modelViewMatrix.update(gl, __CLASS__COCOSCENE__.__glProgram.GLSLuMVMat);
-			//@line 326
+			//@line 325
 			gl.uniform2f(__CLASS__COCOSCENE__.__glProgram.GLSLuSprSize, image.texSize[0], image.texSize[1]);
-			//@line 327
+			//@line 326
 			gl.uniform2f(__CLASS__COCOSCENE__.__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
-			//@line 328
+			//@line 327
 			gl.uniform2f(__CLASS__COCOSCENE__.__glProgram.GLSLuSprFlip, (flipH ? 1.0 : 0.0), (flipV ? 1.0 : 0.0));
-			//@line 329
+			//@line 328
 			gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);
-			//@line 330
+			//@line 329
 			gl.vertexAttribPointer(__CLASS__COCOSCENE__.__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0);
-			//@line 331
+			//@line 330
 			gl.vertexAttribPointer(__CLASS__COCOSCENE__.__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8);
-			//@line 332
+			//@line 331
 			gl.bindTexture(gl.TEXTURE_2D, image.texture);
-			//@line 333
+			//@line 332
 			gl.uniform1i(__CLASS__COCOSCENE__.__glProgram.GLSLuSampler, 0);
+			//@line 333
+			gl.uniform4f(__CLASS__COCOSCENE__.__glProgram.GLSLuColor, red, green, blue, alpha);
 			//@line 334
-			gl.uniform4fv(__CLASS__COCOSCENE__.__glProgram.GLSLuColor, image.color);
-			//@line 335
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-			//@line 336
+			//@line 335
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		};
-		//@line 340
+		//@line 339
 		var gotoAndPlayByName = this.gotoAndPlayByName = function (LabelName, deep)
 		{
-			//@line 342
+			//@line 341
 			var scope = __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
-			//@line 343
+			//@line 342
 			scope.gotoFrameByName(LabelName, false, deep);
 		};
-		//@line 347
+		//@line 346
 		var gotoAndStopByName = this.gotoAndStopByName = function (LabelName, deep)
 		{
-			//@line 349
+			//@line 348
 			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
-			//@line 350
+			//@line 349
 			scope.gotoFrameByName(LabelName, true, deep);
 		};
-		//@line 354
+		//@line 353
 		var gotoAndPlayByIndex = this.gotoAndPlayByIndex = function (FrameIndex, deep)
 		{
-			//@line 356
+			//@line 355
 			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
-			//@line 357
+			//@line 356
 			scope.gotoFrameByIndex(FrameIndex, false, deep);
 		};
-		//@line 361
+		//@line 360
 		var gotoAndStopyByIndex = this.gotoAndStopyByIndex = function (FrameIndex, deep)
 		{
-			//@line 363
+			//@line 362
 			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
-			//@line 364
+			//@line 363
 			scope.gotoFrameByIndex(FrameIndex, true, deep);
 		};
-		//@line 368
+		//@line 367
 		var stop = this.stop = function (deep)
 		{
-			//@line 370
+			//@line 369
 			deep = (deep == "true");
-			//@line 371
+			//@line 370
 			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
-			//@line 372
+			//@line 371
 			scope.gotoFrameByIndex(-1, true, deep);
 		};
 		//@line 43
@@ -535,7 +533,7 @@ function CocoScene()
 			//@line 89
 			__CLASS__COCOSCENE__.__vertex_shader = "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((abs(iTexCoords.x - uSprFlip.x) + uSprFrame.x) * uSprSize.x), ((abs(iTexCoords.y - uSprFlip.y) + uSprFrame.y) * uSprSize.y));}";
 			//@line 90
-			__CLASS__COCOSCENE__.__fragment_shader = "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ gl_FragColor = vec4(texture2D(uSampler, pTexCoord).r * uColor.r, texture2D(uSampler, pTexCoord).g * uColor.g, texture2D(uSampler, pTexCoord).b * uColor.b, texture2D(uSampler, pTexCoord).a * uColor.a);}";
+			__CLASS__COCOSCENE__.__fragment_shader = "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;uniform vec4 uColor;varying vec2 pTexCoord;void main(void){ vec4 texColor = texture2D(uSampler, pTexCoord); float c = (texColor.r + texColor.g + texColor.b) / 3.0; gl_FragColor = vec4((1.0 - uColor.r) * c + texColor.r * uColor.r, (1.0 - uColor.g) * c + texColor.g * uColor.g, (1.0 - uColor.b) * c + texColor.b * uColor.b, texColor.a * uColor.a);}";
 			//@line 91
 			__CLASS__COCOSCENE__.__boundingBoxVertexShader = "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
 			//@line 92

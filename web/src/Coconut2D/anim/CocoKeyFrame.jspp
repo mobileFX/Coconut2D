@@ -43,6 +43,9 @@ class CocoKeyFrame
 	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var handleEvents:Boolean;
 	public var visible:Boolean;
+	public var red:Float;
+	public var green:Float;
+	public var blue:Float;
 	public var alpha:Float;
 	public var x:Float;
 	public var y:Float;
@@ -73,6 +76,9 @@ class CocoKeyFrame
 		rotation					= 0.0;
 		pivotX						= 0.0;
 		pivotY						= 0.0;
+		red							= 1.0;
+		green						= 1.0;
+		blue						= 1.0;
 		alpha						= 1.0;
 		action						= null;
 		nextState					= null;
@@ -93,6 +99,9 @@ class CocoKeyFrame
 	{
 	    var c:CocoKeyFrame = new CocoKeyFrame();
 
+		c.red						= red;
+		c.green						= green;
+		c.blue						= blue;
 		c.alpha						= alpha;
 		c.frameIndex            	= frameIndex;
 		c.frameInterpolation    	= frameInterpolation;
@@ -162,6 +171,9 @@ class CocoKeyFrame
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float)
 	{
+		red = F1.red + s * (F2.red - F1.red);
+		green = F1.green + s * (F2.green - F1.green);
+		blue = F1.blue + s * (F2.blue - F1.blue);
 	    alpha = F1.alpha + s * (F2.alpha - F1.alpha);
 	    x = F1.x + s * (F2.x - F1.x);
 	    y = F1.y + s * (F2.y - F1.y);
@@ -176,6 +188,9 @@ class CocoKeyFrame
 	public function combine(Frame:CocoKeyFrame)
 	{
 		if(!Frame) return;
+		red = red * Frame.red;
+		green = green * Frame.green;
+		blue = blue * Frame.blue;
 	    alpha = alpha * Frame.alpha;
 	    visible = visible && Frame.visible;
 	    flipH = (flipH && !Frame.flipH) || (!flipH && Frame.flipH);
