@@ -33,20 +33,20 @@ function CocoEngine()
 				//@line 87
 				__CLASS__COCOENGINE__.__PRIVATE__.__currentState = __CLASS__COCOENGINE__.__PRIVATE__.__nextState;
 				//@line 88
-				__CLASS__COCOENGINE__.__PRIVATE__.__currentState.enter();
-				//@line 89
 				__CLASS__COCOENGINE__.__PRIVATE__.__nextState = null;
+				//@line 89
+				trace("\n@@STATE " + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name);
 				//@line 90
 				__CLASS__COCOENGINE__.__PRIVATE__.__clicked = [];
 				//@line 91
-				trace("@@STATE " + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name);
+				if (__CLASS__COCOENGINE__.__PRIVATE__.__currentState) __CLASS__COCOENGINE__.__PRIVATE__.__currentState.enter();
 			}
 			//@line 94
-			__CLASS__COCOENGINE__.__PRIVATE__.__currentState.tick(__CLASS__COCOENGINE__.__PRIVATE__.__clock);
+			if (__CLASS__COCOENGINE__.__PRIVATE__.__currentState) __CLASS__COCOENGINE__.__PRIVATE__.__currentState.tick(__CLASS__COCOENGINE__.__PRIVATE__.__clock);
 			//@line 95
 			__CLASS__COCOENGINE__.__PRIVATE__.__clicked = [];
 			//@line 97
-			if (__CLASS__COCOENGINE__.__PRIVATE__.__nextState == null)
+			if (__CLASS__COCOENGINE__.__PRIVATE__.__nextState == null && __CLASS__COCOENGINE__.__PRIVATE__.__currentState != null)
 			//@line 98
 			{
 				//@line 99
@@ -100,6 +100,40 @@ function CocoEngine()
 			return -1;
 			return 0
 		};
+		//@line 143
+		var __trace = this.__trace = function (scene, clip, message)
+		{
+			//@line 145
+			if (scene && clip)
+			//@line 146
+			{
+				//@line 147
+				var rf = (scene.__root.__currentTime / __CLASS__COCOENGINE__.TICK_TIME);
+				//@line 148
+				var rc = (clip.__currentTime / __CLASS__COCOENGINE__.TICK_TIME);
+				//@line 150
+				message =
+				//@line 155
+				//@line 153
+				//@line 151
+				//@line 150
+				"\n" + message +
+				//@line 151
+				": state=" + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name +
+				//@line 152
+				", clip=" + scene.__sceneName + clip.__clipPath +
+				//@line 153
+				", root_frame=" + rf.toFixed(2) +
+				//@line 154
+				", root_time=" + scene.__root.__currentTime.toFixed(2) +
+				//@line 155
+				", clip_frame=" + rc.toFixed(2) +
+				//@line 156
+				", clip_time=" + clip.__currentTime.toFixed(2);
+			}
+			//@line 158
+			trace(message);
+		};
 		//@line 46
 		this.TICK_TIME = (1000.0 / 60.0);
 		//@line 48
@@ -111,7 +145,7 @@ function CocoEngine()
 		//@line 51
 		this.__PRIVATE__.__clicked = [];
 		//@line 52
-		this.__PRIVATE__.__clock = 0;
+		this.__PRIVATE__.__clock = null;
 		var Destructor = this.Destructor = function ()
 		{
 			//@line 70

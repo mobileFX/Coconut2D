@@ -23,7 +23,7 @@ class Object
 class Array
 {
 	public function concat(args:Array) :Array {}
-	public function join(seperator:String) :Array {}
+	public function join(seperator:String) :String {}
 	public function pop() :Array {}
 	public function push(args:Object) :Object {}
 	public function reverse() :Array {}
@@ -212,7 +212,7 @@ class Global
 	public var Infinity :Number;
 	public var innerWidth :Integer;
 	public var innerHeight :Integer;
-	public var deviceRotation :Integer;
+	public var deviceRotation :Float;
 	public var devicePixelRatio :Float;
 	public var global :Global;
 	public var engine :CocoEngine;
@@ -456,8 +456,8 @@ class State
 {
 	public function enter() {}
 	public function exit() {}
-	public function tick(time:Float) {}
-	public function paint(gl:WebGLRenderingContext, time:Float) {}
+	public function tick(time:Time) {}
+	public function paint(gl:WebGLRenderingContext, time:Time) {}
 	public var __name :String;
 	public var params :Object;
 } //State
@@ -534,8 +534,8 @@ class HTMLCanvasElement
 {
 	public function getContext(contextId:String) :WebGLRenderingContext {}
 	public function Constructor() {}
-	public var width :Integer;
-	public var height :Integer;
+	public var width :Float;
+	public var height :Float;
 } //HTMLCanvasElement
 
 class HTMLElement
@@ -561,7 +561,7 @@ class HTMLWindow
 	public var document :HTMLDocument;
 	public var innerHeight :Integer;
 	public var innerWidth :Integer;
-	public var devicePixelRatio :Integer;
+	public var devicePixelRatio :Float;
 	public var __deviceEvent :DeviceEvent;
 	public var __elements :Array<Function>;
 } //HTMLWindow
@@ -1254,7 +1254,7 @@ class CocoKeyFrame
 {
 	public function clone(exact:Boolean) :CocoKeyFrame {}
 	public function reset() {}
-	public function execute(gl:WebGLRenderingContext, currentTime:Time, loopTime:Time, scene:CocoScene, clip:CocoClip) :Boolean {}
+	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip) :Boolean {}
 	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float) {}
 	public function combine(Frame:CocoKeyFrame) {}
 	public function apply(matrix:CocoMatrix) {}
@@ -1296,10 +1296,9 @@ class CocoTimeline
 	public function addKeyFrameEx(nextState:State, actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean) :CocoKeyFrame {}
 	public function prepare(scene:CocoScene, clip:CocoClip) {}
 	public function normalizetimeline() {}
-	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
-	public function findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
-	public function interpolateByTime(LoopTime:Time) :CocoKeyFrame {}
-	public function interpolateByFrame(frameIndex:Float) :CocoKeyFrame {}
+	public function findKeyFrameBeforeframeIndex(frameIndex:Integer, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
+	public function findKeyFrameAfterframeIndex(frameIndex:Integer, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
+	public function interpolate(frameIndex:Integer) :CocoKeyFrame {}
 	public function Constructor() {}
 	public var __labels :Array<CocoTimeLabel>;
 	public var __keyFrames :Array<CocoKeyFrame>;
@@ -1307,7 +1306,7 @@ class CocoTimeline
 	public var __durationInTime :Time;
 	public var __durationInFrames :Integer;
 	public var __paused :Boolean;
-	public var __fps :Float;
+	public var __fps :Integer;
 } //CocoTimeline
 
 class CocoClip
@@ -1321,7 +1320,7 @@ class CocoClip
 	public function getChildIndex(child:CocoClip) :Integer {}
 	public function gotoFrameByName(LabelName:String, pause:Boolean, deep:Boolean) :Boolean {}
 	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean, deep:Boolean) :Boolean {}
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean) {}
+	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function hitTest(wx:Float, wy:Float) :Boolean {}
 	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
 	public function initBoundingBoxFromChildren(scene:CocoScene) {}
@@ -1362,7 +1361,7 @@ class CocoScene
 	private function loadResources() {}
 	private function resourcesLoaded(gl:WebGLRenderingContext) :Boolean {}
 	public function paint(gl:WebGLRenderingContext, time:Time) {}
-	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Float, red:Float, green:Float, blue:Float, alpha:Float, flipH:Boolean, flipV:Boolean) {}
+	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Integer, red:Float, green:Float, blue:Float, alpha:Float, flipH:Boolean, flipV:Boolean) {}
 	public function gotoAndPlayByName(LabelName:String, deep:Boolean) {}
 	public function gotoAndStopByName(LabelName:String, deep:Boolean) {}
 	public function gotoAndPlayByIndex(FrameIndex:Integer, deep:Boolean) {}
@@ -1371,7 +1370,7 @@ class CocoScene
 	public function Constructor() {}
 	public var __sceneName :String;
 	public var __imageSymbols :Array<CocoImage>;
-	public var __fps :Float;
+	public var __fps :Integer;
 	public var __view_width :Float;
 	public var __view_height :Float;
 	public var __view_pixel_ratio :Float;
@@ -1402,13 +1401,14 @@ class CocoEngine
 	public function getTouchEvent() :DeviceEvent {}
 	public function pushTouched(clip:CocoClip) {}
 	public function isClicked(check:Array<CocoClip>) :Integer {}
+	public function __trace(scene:CocoScene, clip:CocoClip, message:String) {}
 	public function Constructor() {}
-	public var TICK_TIME :Float;
+	public var TICK_TIME :Time;
 	private var __currentState :State;
 	private var __nextState :State;
 	private var __deviceEvent :DeviceEvent;
 	private var __clicked :Array<CocoClip>;
-	private var __clock :Float;
+	private var __clock :Time;
 	public var STATE_TITLE_SCREEN :State;
 	public var STATE_GAME_BOARD :State;
 	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;

@@ -43,13 +43,13 @@ state class CocoEngine
 	// we need to enforce a fixed tick time interval. The
 	// constant we choose is for 60 frames per second but
 	// we must use division in order to set the float properly.
-	public const TICK_TIME:Float = (1000.0/60.0);
+	public const TICK_TIME:Time = (1000.0/60.0);
 
 	private var __currentState:State;
 	private var __nextState:State;
 	private var __deviceEvent:DeviceEvent;
 	private var __clicked:Array<CocoClip>;
-	private var __clock:Float;
+	private var __clock:Time;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -85,16 +85,16 @@ state class CocoEngine
 		{
 			if(__currentState) __currentState.exit();
 			__currentState = __nextState;
-			__currentState.enter();
 			__nextState = null;
+			trace("\n@@STATE " + __currentState.__name);
 			__clicked = [];
-			trace("@@STATE " + __currentState.__name);
+			if(__currentState) __currentState.enter();
 		}
 
-		__currentState.tick(__clock);
+		if(__currentState) __currentState.tick(__clock);
 		__clicked = [];
 
-		if(__nextState==null)
+		if(__nextState==null && __currentState!=null)
 		{
 			gl.clearColor(0,0,0,1);
 			gl.clear(gl.COLOR_BUFFER_BIT);
@@ -139,4 +139,23 @@ state class CocoEngine
 		return -1;
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __trace(scene:CocoScene, clip:CocoClip, message: String)
+	{
+		if(scene && clip)
+		{
+			var t:Time = 1000/scene.__fps;
+			var rf:Float = Math.floor(scene.__root.__currentTime/t);
+			var rc:Float = Math.floor(clip.__currentTime/t);
+
+			message = "\n" + message +
+					  ": state=" + __currentState.__name +
+					  ", clip=" + scene.__sceneName + clip.__clipPath +
+					  ", root_frame=" + String(rf) +
+					  ", clip_frame=" + String(rc) +
+					  ", root_time=" + scene.__root.__currentTime.toFixed(2) +
+					  ", clip_time=" + clip.__currentTime.toFixed(2);
+		}
+		trace(message);
+	}
 }

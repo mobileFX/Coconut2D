@@ -136,29 +136,32 @@ class CocoKeyFrame
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function execute(gl:WebGLRenderingContext, currentTime:Time, loopTime:Time, scene:CocoScene, clip:CocoClip) :Boolean
+	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip) :Boolean
 	{
 		//gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, clip:CocoClip, keyFrame:CocoKeyFrame
 
 		var pulse:Boolean = false;
 
-		if((loopTime==0) || (currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
+		if((__lastActionExecutionTime==0) || (__lastActionExecutionTime > 0 && clip.__currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
 		{
-			__lastActionExecutionTime = currentTime;
+			__lastActionExecutionTime = clip.__currentTime;
 
 			if(action)
 			{
-				var args:Array = [gl, currentTime, loopTime, clip, this];
+				engine.__trace(scene, clip, "@@ACTION");
+				var args:Array = [gl, clip, this];
 				action.apply(scene, args);
 			}
 
 			if(nextState)
 			{
+				engine.__trace(scene, clip, "@@NEXT_STATE");
 				engine.setNextState(nextState);
 			}
 
 			if(audio)
 			{
+				engine.__trace(scene, clip, "@@AUDIO");
 				audio.tick();
 			}
 

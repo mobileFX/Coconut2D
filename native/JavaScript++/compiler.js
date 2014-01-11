@@ -500,30 +500,15 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			// If the identifier is not in a DOT or if the identifier
 			// is the first item in a DOT then we perform a scope lookup.
 			// Otherwise, we perform a dot symbol Lookup.
-
-			var parent;
-			for(parent=(ast ? ast.parent : null); parent!=null; parent = parent.parent)
-			{
-				if(parent.type==jsdef.INDEX || parent.type==jsdef.LEFT_CURLY)
-				{
-					parent = null;
-					break;
-				}
-				if(parent.identifiers_list)
-				{
-					break;
-				}
-			}
-
-			var searchScope = (!parent || (parent && parent.identifiers_list && parent.identifiers_list[0].value==identifier));
+			var searchScope = (!ast || (!ast.inDot || (ast.inDot && ast.inDot.identifiers_list[0].value==identifier)));
 
 			// Lookup scope chain (classes, base clasees, methods, base class methods, variables, etc.)
 			if(searchScope)	symbol = _this.LookupScopeChain(identifier, scope, true);
 
 			// Lookup DOT chain.
-			if(!symbol && _this.secondPass && parent && parent.identifiers_list)
+			if(!symbol && _this.secondPass && ast && ast.inDot)
 			{
-				symbol = _this.LookupLastDotIdentifier(parent, scope);
+				symbol = _this.LookupLastDotIdentifier(ast.inDot, scope);
 			}
 
 			return symbol;
@@ -1825,12 +1810,22 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CALL:
-			out.push(generate(ast[0]));
-			ast[0].type == jsdef.REGEXP && out.push(".exec");
-			out.push("(");
-			out.push(generate(ast[1]));
-			out.push(")");
-			_this.checkFunctionCall(ast);
+			var f = generate(ast[0]);
+			var cls = _this.getClass(f);
+			if(cls)
+			{
+				// Typcast
+				out.push(generate(ast[1]));
+			}
+			else
+			{
+				out.push(f);
+				ast[0].type == jsdef.REGEXP && out.push(".exec");
+				out.push("(");
+				out.push(generate(ast[1]));
+				out.push(")");
+				_this.checkFunctionCall(ast);
+			}
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2100,7 +2095,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.LT:					out.push(generate(ast[0])); out.push("<");   out.push(generate(ast[1])); break;
 		case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	 out.push(generate(ast[1])); break;
 		case jsdef.NEW: 				out.push("new "); out.push(generate(ast[0])); break;
-		case jsdef.NEW_WITH_ARGS:		out.push("new "); out.push(generate(ast[0])); out.push("("); out.push(generate(ast[1])); out.push(")"); _this.checkFunctionCall(ast); break;
 		case jsdef.NOT:					out.push("!"); out.push(generate(ast[0])); break;
 		case jsdef.NULL:				out.push("null"); break;
 		case jsdef.NUMBER:				out.push(ast.value); break;
@@ -2118,6 +2112,18 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.URSH:				out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
 		case jsdef.VOID:				out.push("void "); out.push(generate(ast[0])); break;
 		case jsdef.WHILE:				ast.body.isLoop=true; out.push("while(" + generate(ast.condition) + ")"); out.push(generate(ast.body)); break;
+
+		case jsdef.NEW_WITH_ARGS:
+
+			if(ast.source=="new Array(level+1)") debugger;
+			out.push("new ");
+			out.push(generate(ast[0]));
+			out.push("(");
+			out.push(generate(ast[1]));
+			out.push(")");
+			_this.checkFunctionCall(ast);
+			break;
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		default:
 			//debugger;
@@ -2504,7 +2510,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		{
 			PLUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" }, "String": { "String": "String" } },
 			MINUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			MUL: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
+			MUL: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number","Float":"Number", "Time":"Number"  } },
 			DIV: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number", "Float":"Number", "Time":"Number" } },
 			MOD:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
 			BIT: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
@@ -2850,29 +2856,31 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
   		// Object
 		if(type1=="Object") return type1;
 
-		// Integer
-		if(type1=="Integer" && type2=="Number") return type1;
-		if(type1=="Integer" && type2=="Time") return type1;
-		if(type1=="Integer" && type2=="Float") return type1;
-		if(type1=="Integer" && type2=="Float") 	{ _this.NewWarning(customError || "Precision loss converting Float to Integer", ast); return type1; }
-		if(type1=="Integer" && type2=="Object") { _this.NewError(customError || "Invalid Object to Integer convertion", ast); return type1; }
-
 		// Number
 		if(type1=="Number" && type2=="Integer") return type1;
 		if(type1=="Number" && type2=="Float") return type1;
 		if(type1=="Number" && type2=="Time") return type1;
 		if(type1=="Number" && type2=="Object") { _this.NewError(customError || "Invalid Object to Number convertion", ast); return type1; }
 
+		// Integer
+		if(type1=="Integer" && type2=="Number") return type1;
+		//if(type1=="Integer" && type2=="Time") { _this.NewWarning(customError || "Precision loss converting Time to Integer", ast); return type1; }
+		//if(type1=="Integer" && type2=="Float") { _this.NewWarning(customError || "Precision loss converting Float to Integer", ast); return type1; }
+		//if(type1=="Integer" && type2=="Object") { _this.NewError(customError || "Invalid Object to Integer convertion", ast); return type1; }
+		if(type1=="Integer") { _this.NewError(customError || "Invalid "+type2+" to Integer convertion", ast); return type1; };
+
 		// Float
 		if(type1=="Float" && type2=="Number") return type1;
-		if(type1=="Float" && type2=="Time") return type1;
-		if(type1=="Float" && type2=="Integer") return type1;
-		if(type1=="Float" && type2=="Object") { _this.NewError(customError || "Invalid Object to Float convertion", ast); return type1; }
+		//if(type1=="Float" && type2=="Time") return type1;
+		//if(type1=="Float" && type2=="Integer") return type1;
+		//if(type1=="Float" && type2=="Object") { _this.NewError(customError || "Invalid Object to Float convertion", ast); return type1; }
+        if(type1=="Float") { _this.NewError(customError || "Invalid "+type2+" to Float convertion", ast); return type1; };
 
 		// Time
 		if(type1=="Time" && type2=="Number") return type1;
-		if(type1=="Time" && type2=="Float") return type1;
-		if(type1=="Time" && type2=="Integer") return type1;
+		//if(type1=="Time" && type2=="Float") return type1;
+		//if(type1=="Time" && type2=="Integer") return type1;
+		if(type1=="Time") { _this.NewError(customError || "Invalid "+type2+" to Time convertion", ast); return type1; };
 
 		// Date
 		if(type1=="Date" && type2=="Null") return type1;
@@ -3182,6 +3190,11 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		return xml.join(" ");
 	};
 }
+
+
+
+
+
 
 
 

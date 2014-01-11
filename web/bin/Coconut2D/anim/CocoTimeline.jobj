@@ -273,137 +273,127 @@ function CocoTimeline()
 			return null;
 		};
 		//@line 269
-		var interpolateByTime = this.interpolateByTime = function (LoopTime)
+		var interpolate = this.interpolate = function (frameIndex)
 		{
 			//@line 271
-			var T = (LoopTime / __CLASS__COCOTIMELINE__.__singleFrameDurationTime);
-			//@line 272
-			return __CLASS__COCOTIMELINE__.interpolateByFrame(T);
-		};
-		//@line 276
-		var interpolateByFrame = this.interpolateByFrame = function (frameIndex)
-		{
-			//@line 278
 			var F = null;
-			//@line 279
+			//@line 272
 			var F1 = null;
-			//@line 280
+			//@line 273
 			var F2 = null;
-			//@line 281
+			//@line 274
 			var s = 1.0;
-			//@line 282
-			var FrameIndex = Math.floor(frameIndex);
-			//@line 285
+			//@line 277
 			if (__CLASS__COCOTIMELINE__.__keyFrames.size() == 0)
-			//@line 286
+			//@line 278
 			{
-				//@line 287
+				//@line 279
 				F = new CocoKeyFrame;
-				//@line 288
-				F.frameIndex = FrameIndex;
-				//@line 289
+				//@line 280
+				F.frameIndex = frameIndex;
+				//@line 281
 				F.visible = false;
-				//@line 290
+				//@line 282
 				return F;
 			}
-			//@line 294
-			F1 = __CLASS__COCOTIMELINE__.keyFrame(FrameIndex);
-			//@line 295
+			//@line 286
+			F1 = __CLASS__COCOTIMELINE__.keyFrame(frameIndex);
+			//@line 287
 			if (F1)
-			//@line 296
+			//@line 288
 			{
-				//@line 297
+				//@line 289
 				F1 = F1.clone(true);
-				//@line 298
+				//@line 290
 				return F1;
 			}
-			//@line 302
-			F1 = __CLASS__COCOTIMELINE__.findKeyFrameBeforeframeIndex(FrameIndex, false, -1);
-			//@line 304
+			//@line 294
+			F1 = __CLASS__COCOTIMELINE__.findKeyFrameBeforeframeIndex(frameIndex, false, -1);
+			//@line 296
 			if (!F1)
-			//@line 305
+			//@line 297
 			{
-				//@line 307
+				//@line 299
 				F = new CocoKeyFrame;
-				//@line 308
-				F.frameIndex = FrameIndex;
-				//@line 309
+				//@line 300
+				F.frameIndex = frameIndex;
+				//@line 301
 				F.visible = false;
-				//@line 310
+				//@line 302
 				return F;
 			}
 			else
-			//@line 313
+			//@line 305
 			{
-				//@line 314
+				//@line 306
 				switch (F1.frameInterpolation)
 				{
-					//@line 316
+					//@line 308
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
 					{
-						//@line 318
+						//@line 310
 						F = F1.clone(false);
-						//@line 319
-						F.frameIndex = FrameIndex;
-						//@line 320
+						//@line 311
+						F.frameIndex = frameIndex;
+						//@line 312
 						return F;
 					}
 					break;
-					//@line 322
+					//@line 314
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 					{
-						//@line 324
+						//@line 316
 						F = F1.clone(false);
-						//@line 325
-						F.frameIndex = FrameIndex;
-						//@line 326
+						//@line 317
+						F.frameIndex = frameIndex;
+						//@line 318
 						F.visible = false;
-						//@line 327
+						//@line 319
 						return F;
 					}
 					break;
-					//@line 329
+					//@line 321
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 					{
-						//@line 332
-						F2 = __CLASS__COCOTIMELINE__.findKeyFrameAfterframeIndex(FrameIndex, false, -1);
-						//@line 334
+						//@line 324
+						F2 = __CLASS__COCOTIMELINE__.findKeyFrameAfterframeIndex(frameIndex, false, -1);
+						//@line 326
 						if (!F2)
+						//@line 327
+						{
+							//@line 329
+							F = F1.clone(false);
+							//@line 330
+							F.frameIndex = frameIndex;
+							//@line 331
+							return F;
+						}
+						else
 						//@line 335
 						{
 							//@line 337
 							F = F1.clone(false);
 							//@line 338
-							F.frameIndex = FrameIndex;
+							F.frameIndex = frameIndex;
 							//@line 339
-							return F;
-						}
-						else
-						//@line 343
-						{
-							//@line 345
-							F = F1.clone(false);
-							//@line 346
-							F.frameIndex = FrameIndex;
-							//@line 347
 							s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
-							//@line 348
+							//@line 340
 							F.interpolate(F1, F2, s);
-							//@line 349
+							//@line 341
 							return F;
 						}
 					}
 					break;
-					//@line 352
+					//@line 344
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_PHYSICS:
 					{
-						//@line 353
+						//@line 345
 						break;
 					}
 					break;
 				}
 			}
-			//@line 356
+			//@line 348
 			return null;
 		};
 		//@line 42

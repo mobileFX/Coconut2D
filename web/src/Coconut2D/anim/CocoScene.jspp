@@ -44,7 +44,7 @@ class CocoScene
 	public var __imageSymbols:Array<CocoImage>;
 
 	// Fixed View Port
-	public var __fps:Float;
+	public var __fps:Integer;
 	public var __view_width:Float;
 	public var __view_height:Float;
 	public var __view_pixel_ratio:Float;
@@ -182,7 +182,7 @@ class CocoScene
 		}
 		else
 		{
-			__projectionMatrix.ortho( -(gl.canvas.width / 2.0), gl.canvas.width / 2.0, gl.canvas.height / 2.0,  -(gl.canvas.height / 2.0), -1.0, 1.0);
+			__projectionMatrix.ortho( -(gl.canvas.width / 2), gl.canvas.width / 2, gl.canvas.height / 2,  -(gl.canvas.height / 2), -1, 1);
 		}
 
 		__projectionMatrix.scale(__view_scale, __view_scale);
@@ -305,10 +305,10 @@ class CocoScene
 		    {
 				__modelViewMatrix.identity();
 		    	__levelParents = [__root];
-				__root.paint(gl, this, null, false);
+				__root.paint(gl, this, null, false, 0);
 				__levelParents = [];
 				var max:CocoClip = __root.__childWithMaxTimelineDuration;
-				if(max && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
+				if(max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
 				{
 					__finished=true;
 					//__root.reset();
@@ -319,7 +319,7 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Float, red:Float, green:Float, blue:Float, alpha:Float, flipH:Boolean, flipV:Boolean)
+	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Integer, red:Float, green:Float, blue:Float, alpha:Float, flipH:Boolean, flipV:Boolean)
 	{
 		if(__modelViewMatrix.__dirty) __modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
 		gl.uniform2f(__glProgram.GLSLuSprSize, image.texSize[0], image.texSize[1]);

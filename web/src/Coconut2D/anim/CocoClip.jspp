@@ -213,7 +213,7 @@ class CocoClip
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
 
-		trace("gotoFrameByName: " + __clipPath + ", label=" + LabelName);
+		trace("gotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		return gotoFrameByIndex(Label.frameIndex, pause, deep);
 	}
@@ -221,7 +221,7 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean, optional deep:Boolean) :Boolean
 	{
-		trace("gotoFrameByIndex: " + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
@@ -229,7 +229,7 @@ class CocoClip
 			clip = __children[i];
 			clip.__timeline.__paused = pause;
 			if(FrameIndex!=COCO_STOP_ON_CURRENT_FRAME)
-				clip.__currentTime = FrameIndex * clip.__timeline.__singleFrameDurationTime;
+				clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
 
 			trace("-> child: " + clip.__clipPath + ", from=" + String(clip.__currentFrame.frameIndex) + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)));
 
@@ -240,110 +240,95 @@ class CocoClip
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean)
+	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
-		__clipPath = (parentClip ? parentClip.__clipPath + "\\" : "") + this.__instanceName;
+		// Set clip path for debugging.
+		__clipPath = (parentClip ? parentClip.__clipPath : "") + "/" + this.__instanceName;
 
-        // When a clip is paused we need to subtract the tick-time of the engine.
-        // Engine's tick-time is fixed to 1000/60 = 16.666~ milliseconds but in
-        // a proper implementation this could vary and should be derived from
-        // an ellapsed time between two requestAnimationFrame.
-		if(!__timeline.__paused)
-			__currentTime += engine.TICK_TIME;
-
-		// Calculate the parent timeline duraction in time from its children.
-		// Note: the parent timeline might have only one KeyFrame but the actual length is defined by the max timeline size of each children.
-		var parentClipsDuration:Time = (parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__durationInTime);
-
-		// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
-		var clippingTime:Time = Math.floor(__currentTime / parentClipsDuration) * parentClipsDuration;
-
-		// Adjust LoopTime start.
-		var __loopTime:Time = __currentTime - clippingTime;
-
-		// Delete previous __currentFrame if not paused.
-		if(!__timeline.__paused && __currentFrame)
-			delete __currentFrame;
-
-		// Take into account time sync between this clip and its parent.
-		switch(__symbolLoop)
-		{
-			// Child loop is not synchronized with parent
-   			// Parent timeline: *----------------------*----------------------*
-   			// Child timeline:  *--------------*--------------*--------------*-
-			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS:
-				__currentFrame = __timeline.interpolateByTime(__loopTime);
-				break;
-
-			// When parent loops, child will reset and start again.
-   			// Parent timeline: *----------------------*----------------------*
-   			// Child timeline:  *--------------*------|*--------------*------|*
-			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT:
-				__currentFrame = __timeline.interpolateByTime(__loopTime); // TODO
-				break;
-
-			// Child will echo its last frame until parent loops
-   			// Parent timeline: *----------------------*----------------------*
-   			// Child timeline:  *--------------*~~~~~~|*--------------*~~~~~~|*
-   			case COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_ONCE:
-				if(clippingTime > 0)
-					__currentFrame = __timeline.lastKeyFrame().clone(false);
-				else
-					__currentFrame = __timeline.interpolateByTime(__loopTime);
-				break;
-		}
-
-		// Combine parent clip currentframe values with this clip's interpolated frame values.
+        // =============================================================================================================
+        // Combine with parent clip and interpolate
+        // =============================================================================================================
 		if(parentClip)
 		{
-			 __currentFrame.combine(parentClip.__currentFrame);
-		}
+			// Calculate the parent timeline duraction in time from its children (which are siblings to this clip)
+			var parentClipsDuration:Time = parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime;
 
-		// If current frame is visible, render this clip and its children.
-		if(__currentFrame.alpha != 0 && __currentFrame.visible)
-		{
+			// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
+			var __loopTime:Time = __currentTime - Math.floor(__currentTime / parentClipsDuration) * parentClipsDuration;
+
+			// Calculate frameIndex from time.
+			var frameIndex:Integer = Math.floor(__loopTime / __timeline.__singleFrameDurationTime);
+
+			// Interpolate
+			if(__currentFrame) delete __currentFrame;
+			__currentFrame = __timeline.interpolate(frameIndex);
+
+			// Combine parent clip currentframe values with this clip's interpolated frame values.
+			 __currentFrame.combine(parentClip.__currentFrame);
+
+			// If current frame is visible, render this clip and its children.
+			if(__currentFrame.alpha == 0 || !__currentFrame.visible)
+			{
+				if(!__timeline.__paused)
+					__currentTime += engine.TICK_TIME;
+				return;
+			}
 
 			// If we need to handle and event or if our parent has asked us to
 			// calc our bounding box **AND** there is an actual event waiting
 			// then we set calcBoundingBox to true.
 			calcBoundingBox = (__currentFrame.handleEvents || calcBoundingBox) && (engine.getTouchEvent()!=null);
+		}
 
-			if(__image)
+        // =============================================================================================================
+		// RENDER!
+        // =============================================================================================================
+		if(__image)
+		{
+			__currentFrame.scaleX *= __image.__pixelRatioScale;
+			__currentFrame.scaleY *= __image.__pixelRatioScale;
+			__currentFrame.apply(scene.__modelViewMatrix);
+			__currentFrame.scaleX /= __image.__pixelRatioScale;
+			__currentFrame.scaleY /= __image.__pixelRatioScale;
+
+			if(__image.isSpriteSheet && __currentSequence)
 			{
-				__currentFrame.scaleX *= __image.__pixelRatioScale;
-				__currentFrame.scaleY *= __image.__pixelRatioScale;
-				__currentFrame.apply(scene.__modelViewMatrix);
-				__currentFrame.scaleX /= __image.__pixelRatioScale;
-				__currentFrame.scaleY /= __image.__pixelRatioScale;
-
-				if(__image.isSpriteSheet && __currentSequence)
-				{
-					// Render animation sequence.
-					__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(__currentTime / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
-					var frame:Integer = __currentSequence.frames[__currentSequenceFrameIndex];
-					scene.drawFrame(gl, __image, frame, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
-				}
-				else
-				{
-					// Render a standard image.
-					scene.drawFrame(gl, __image, 0, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
-				}
+				// Render animation sequence.
+				__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(__currentTime / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
+				var frame:Integer = __currentSequence.frames[__currentSequenceFrameIndex];
+				scene.drawFrame(gl, __image, frame, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
 			}
 			else
 			{
-				// Render Children
+				// Render a standard image.
+				scene.drawFrame(gl, __image, 0, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
+			}
+		}
+		else
+		{
+			// Render Children
+			var childrenCound:Integer = __children.size();
+			if(childrenCound>0)
+			{
+				var child:CocoClip;
 				scene.__levelParents.push(this);
-				__currentFrame.apply(scene.__modelViewMatrix);
-				for (var i:Integer = 0, L:Integer = __children.size(); i < L; i++)
+				if(__currentFrame) __currentFrame.apply(scene.__modelViewMatrix);
+				for (var i:Integer = 0; i < childrenCound; i++)
 				{
 					scene.__modelViewMatrix.push();
-					__children[i].paint(gl, scene, this, calcBoundingBox);
+					child = __children[i];
+					child.paint(gl, scene, this, calcBoundingBox, level+1);
 					scene.__modelViewMatrix.pop();
 				}
 				scene.__levelParents.pop();
 			}
+		}
 
+		if(this!=scene.__root)
+		{
+	        // =============================================================================================================
 			// Calculare bounding box
+	        // =============================================================================================================
 			if(calcBoundingBox)
 			{
 				// Calculate bounding box vertices
@@ -353,9 +338,11 @@ class CocoClip
 					initBoundingBoxFromChildren(scene);
 			}
 
+	        // =============================================================================================================
 			// Handle touch event
+	        // =============================================================================================================
 			var touchEvent:DeviceEvent = engine.getTouchEvent();
-			if(__currentFrame.handleEvents && touchEvent && touchEvent.type=="touchend" && this!=scene.__root)
+			if(__currentFrame.handleEvents && touchEvent && touchEvent.type=="touchend")
 			{
 				// Point in quad?
 	   	        var x = (touchEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;
@@ -367,34 +354,45 @@ class CocoClip
 	   	        }
 			}
 
+	        // =============================================================================================================
+			// Execute KeyFrame
+	        // =============================================================================================================
 			if(!__timeline.__paused)
 			{
 				var pulse:Boolean = false;
-
-				// Execute KeyFrame
 				if(__currentFrame.action || __currentFrame.nextState || __currentFrame.audio)
 				{
 					this.__parent = parentClip;
-					pulse = __currentFrame.execute(gl, __currentTime, __loopTime, scene, this);
+					pulse = __currentFrame.execute(gl, scene, this);
 					if(pulse && __currentFrame.audio!=null)
 					{
 						__currentAudio = __currentFrame.audio;
 					}
 					this.__parent = null;
 				}
-
-				// Update Cursor Variables
-				if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration.__currentFrame && __childWithMaxTimelineDuration.__currentFrame.frameIndex == __childWithMaxTimelineDuration.__timeline.lastKeyFrame().frameIndex)
-				{
-				}
 			}
 
+	        // =============================================================================================================
+			// Update Cursor Variables
+	        // =============================================================================================================
+			if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration.__currentFrame && __childWithMaxTimelineDuration.__currentFrame.frameIndex == __childWithMaxTimelineDuration.__timeline.lastKeyFrame().frameIndex)
+			{
+			}
+
+	        // =============================================================================================================
 			// Tick audio
+	        // =============================================================================================================
 			if(__currentAudio)
 			{
 				__currentAudio.tick();
 			}
 		}
+
+		// =============================================================================================================
+		// Propagate clip's timeline.
+		// =============================================================================================================
+		if(!__timeline.__paused)
+			__currentTime += engine.TICK_TIME;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

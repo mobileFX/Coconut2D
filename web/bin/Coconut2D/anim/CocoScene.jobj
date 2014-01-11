@@ -124,7 +124,7 @@ function CocoScene()
 			//@line 184
 			{
 				//@line 185
-				__CLASS__COCOSCENE__.__projectionMatrix.ortho(-(gl.canvas.width / 2.0), gl.canvas.width / 2.0, gl.canvas.height / 2.0, -(gl.canvas.height / 2.0), -1.0, 1.0);
+				__CLASS__COCOSCENE__.__projectionMatrix.ortho(-(gl.canvas.width / 2), gl.canvas.width / 2, gl.canvas.height / 2, -(gl.canvas.height / 2), -1, 1);
 			}
 			//@line 188
 			__CLASS__COCOSCENE__.__projectionMatrix.scale(__CLASS__COCOSCENE__.__view_scale, __CLASS__COCOSCENE__.__view_scale);
@@ -318,13 +318,13 @@ function CocoScene()
 					//@line 307
 					__CLASS__COCOSCENE__.__levelParents = [__CLASS__COCOSCENE__.__root];
 					//@line 308
-					__CLASS__COCOSCENE__.__root.paint(gl, __CLASS__COCOSCENE__, null, false);
+					__CLASS__COCOSCENE__.__root.paint(gl, __CLASS__COCOSCENE__, null, false, 0);
 					//@line 309
 					__CLASS__COCOSCENE__.__levelParents = [];
 					//@line 310
 					var max = __CLASS__COCOSCENE__.__root.__childWithMaxTimelineDuration;
 					//@line 311
-					if (max && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
+					if (max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
 					//@line 312
 					{
 						//@line 313
