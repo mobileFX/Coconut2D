@@ -45,61 +45,50 @@ class CocoAudio
 	private var __firstPlayed:Boolean;
 	private var __loopCount:Integer;
 
-	private var __refCount:Integer;
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(url:String, autoplay:Boolean, loops:Integer)
 	{
-		src = url;
 		audio = new Audio(url);
 		audio.autoplay = false;		// Controlled by CocoAudio
 		audio.loop = false;			// Controlled by CocoAudio
+		this.src = url;
 		this.autoplay = autoplay;
 		this.loops = loops;
 		__firstPlayed = false;
 		__loopCount = 0;
-		__refCount = 1;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		if(--__refCount==0)
-		{
+		if(audio)
 			delete audio;
-		}
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function cloneNode(deep:Boolean) :CocoAudio
-	{
-		__refCount++;
-		return this;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function tick()
 	{
-		if(!audio || !audio.src) return;
+		if(!audio) return;
 
 		if(!__firstPlayed && autoplay)
 		{
 			__firstPlayed = true;
 			play();
+			return;
 		}
 
 		if(loops>=0 && audio.ended)
 		{
 			__loopCount++;
-			if(loops==0 || (loops>0 || __loopCount < loops))
+			if(loops==0 || (loops>0 && __loopCount < loops))
 				play();
 		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function play()					{ if(audio) audio.play(); }
-	public function pause()					{ if(audio) audio.pause(); }
-	public function stop()					{ __loopCount=0; __firstPlayed=true; if(audio) audio.pause(); setCurrentTime(0); }
+	public function play()					{ if(audio) { audio.ended=false; audio.paused=false; audio.play();} }
+	public function pause()					{ if(audio) { audio.ended=false; audio.paused=true; audio.pause();} }
+	public function stop()					{ __loopCount=0; __firstPlayed=true; if(audio) { audio.ended=true; audio.paused=false; audio.pause(); setCurrentTime(0); } }
 	public function duration() :Float   	{ return audio ? audio.duration : 0; }
 	public function paused() :Boolean		{ return audio ? audio.paused : true; }
 	public function ended() :Boolean		{ return audio ? audio.ended : true; }

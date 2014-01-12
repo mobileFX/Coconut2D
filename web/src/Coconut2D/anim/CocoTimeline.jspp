@@ -45,7 +45,7 @@ class CocoTimeline
 	public var __durationInTime:Time;
 	public var __durationInFrames:Integer;
 	public var __paused:Boolean;
-	public var __fps:Integer;
+	public var __fps:Float;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -286,8 +286,7 @@ class CocoTimeline
 	    F1 = keyFrame(frameIndex);
 	    if(F1)
 	    {
-	    	F1 = F1.clone(true);
-	    	return F1;
+	    	return F1.clone();
 	    }
 
 	    // Seek previous KeyFrame
@@ -307,13 +306,19 @@ class CocoTimeline
 	        {
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
 
-	            F = F1.clone(false);
+	            F = F1.clone();
+	            F.action = null;
+	            F.audio = null;
+	            F.nextState = null;
 	            F.frameIndex = frameIndex;
 	            return F;
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 
-	            F = F1.clone(false);
+	            F = F1.clone();
+	            F.action = null;
+	            F.audio = null;
+	            F.nextState = null;
 	            F.frameIndex = frameIndex;
 	            F.visible = false;
 	            return F;
@@ -326,7 +331,10 @@ class CocoTimeline
 	            if(!F2)
 	            {
 	                // Fallback to echo
-	                F = F1.clone(false);
+	                F = F1.clone();
+		            F.action = null;
+		            F.audio = null;
+		            F.nextState = null;
 	                F.frameIndex = frameIndex;
 	                return F;
 
@@ -334,7 +342,10 @@ class CocoTimeline
 	            else
 	            {
 	                // Interpolate between frames
-	                F = F1.clone(false);
+	                F = F1.clone();
+		            F.action = null;
+		            F.audio = null;
+		            F.nextState = null;
 	                F.frameIndex = frameIndex;
 	                s = Float((frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex));
 	                F.interpolate(F1, F2, s);

@@ -974,12 +974,16 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			// (the idea is to call the destructor of any object class member variables and set them to null)
 			out.push("var Destructor = this.Destructor = function(){");
 			if(destructor) out.push(generate(destructor.body));
+
 			if(_this.secondPass)
 			{
+				out.push("{");
 				for(item in classSymbol.vars)
 					out.push(classSymbol.vars[item].runtime+"=null;");
+				if(baseClass)
+					out.push("__SUPER__ && ((__SUPER__.hasOwnProperty('Destructor') && __SUPER__.Destructor()) || !__SUPER__.hasOwnProperty('Destructor')) && (delete __SUPER__);");
+				out.push("}");
 			}
-			if(baseClass) out.push("__SUPER__ && ((__SUPER__.hasOwnProperty('Destructor') && __SUPER__.Destructor()) || !__SUPER__.hasOwnProperty('Destructor')) && (delete __SUPER__);");
 			out.push("return true};");
 
 			// Generate Constructor and call it
@@ -1308,7 +1312,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			ast.scope = _this.getCurrentScope();
 			var classSymbol = ast.scope.isClass ? ast.scope.ast.symbol : null;
 			var classId	= classSymbol ? classSymbol.classId : null;
-
 			var firstItem = true;
 			var extern_symbol = null;
 
@@ -1711,8 +1714,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.IDENTIFIER:
 
-		    ast.runtime = ast.value;
-
 			if(_this.currClassName && _this.secondPass)
 			{
 				if(!ast.symbol)
@@ -1721,54 +1722,97 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				if(!ast.symbol)
 				{
 					ast.runtime = ast.value;
+					out.push(ast.runtime);
 					_this.NewError("Symbol not found: " + ast.value, ast);
 				}
 				else
 				{
-					// Purpose of the following code is to emit the runtime code
-					// for the current identifier. If the identifier is a class
-					// member such as a method, variable, property or state, then
-					// we need to emit a canonical name such as:
-					//
-					// __CLASS_NAME__.[<public>|__PRIVATE__|__PROTECTED__].<identifier>
-					//
-					// An exception to this rule is when the identifier is part of
-					// a DOT and in particular if the identifier is !not! the first
-					// identifier of the DOT, in which case we emit only its name
-					// as the preceding identifiers should have emitted the proper
-					// runtime code.
-
-					if(!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast))
+					if(!ast.symbol.public && !ast.symbol.private && !ast.symbol.protected)
 					{
-						ast.runtime = ast.symbol.runtime;
+						//if(ast.inDot && ast.inDot.identifier_first!=ast)
+						//	debugger;
 
-						// Identifier defined in base class?
-						var cls = _this.getCurrentClass();
-						if(!ast.symbol.isEnum && ast.symbol.ast.file.indexOf(".jspp")!=-1
-							&& cls && cls.baseSymbol && cls.baseSymbol.file!="externs.jspp"
-							&& cls.baseSymbol==ast.symbol.ast.inClass.symbol)
+						// Standard var declaration
+						out.push(ast.value);
+					}
+					else
+					{
+						// Purpose of the following code is to emit the runtime code
+						// for the current identifier. If the identifier is a class
+						// member such as a method, variable, property or state, then
+						// we need to emit a canonical name such as:
+						//
+						// __CLASS_NAME__.[<public>|__PRIVATE__|__PROTECTED__].<identifier>
+						//
+						// An exception to this rule is when the identifier is part of
+						// a DOT and in particular if the identifier is !not! the first
+						// identifier of the DOT, in which case we emit only its name
+						// as the preceding identifiers should have emitted the proper
+						// runtime code.
+
+						if(!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast))
 						{
-							ast.runtime = _this.getCurrentClass().classId + ".__SUPER__." + ast.value;
+							ast.runtime = ast.symbol.runtime;
+
+							// Identifier defined in base class?
+							var cls = _this.getCurrentClass();
+							if(!ast.symbol.isEnum && ast.symbol.ast.file.indexOf(".jspp")!=-1
+								&& cls && cls.baseSymbol && cls.baseSymbol.file!="externs.jspp"
+								&& cls.baseSymbol==ast.symbol.ast.inClass.symbol)
+							{
+								ast.runtime = _this.getCurrentClass().classId + ".__SUPER__." + ast.value;
+							}
+						}
+
+						// Check member access
+						if(ast.symbol.private && ast.inClass!=ast.symbol.ast.inClass)
+						{
+							_this.NewError("Invalid private member access: " + ast.value, ast);
+						}
+						else if(ast.symbol.protected && ast.inClass!=ast.symbol.ast.inClass && ast.inClass.symbol.baseSymbol!=ast.symbol.ast.inClass.symbol)
+						{
+							_this.NewError("Invalid protected member access: " + ast.value, ast);
+						}
+
+						// Generate debug symbol
+						_this.addDebugSymbol(ast, ast.runtime);
+
+						// Generate identifier
+						if(!ast.inDot)
+						{
+							out.push(ast.runtime);
+						}
+						else
+						{
+							if(ast.inDot.identifier_first==ast)
+							{
+								out.push(ast.runtime);
+							}
+
+							// The rest case assume identifier is not the first in DOT.
+
+							else if(ast.symbol.public)
+							{
+								out.push(ast.value);
+							}
+							else if(ast.symbol.protected)
+							{
+								out.push("__PROTECTED__." + ast.value);
+							}
+							else if(ast.symbol.private)
+							{
+								out.push("__PRIVATE__." + ast.value);
+							}
 						}
 					}
-
-					// Check member access
-					if(ast.symbol.private && ast.inClass!=ast.symbol.ast.inClass)
-					{
-						_this.NewError("Invalid private member access: " + ast.value, ast);
-					}
-					else if(ast.symbol.protected && ast.inClass!=ast.symbol.ast.inClass && ast.inClass.symbol.baseSymbol!=ast.symbol.ast.inClass.symbol)
-					{
-						_this.NewError("Invalid protected member access: " + ast.value, ast);
-					}
-
-					// Generate debug symbol
-					_this.addDebugSymbol(ast, ast.runtime);
 				}
 			}
-
-			// Generate identifier
-			out.push(ast.runtime);
+			else if(!ast.runtime)
+			{
+		    	ast.runtime = ast.value;
+				// Generate identifier
+				out.push(ast.runtime);
+			}
 			break;
 
 		// ==================================================================================================================================
@@ -1784,13 +1828,15 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			ast.name = "SCRIPT";
 			var body = [];
 			if(_this.scopesStack.length==0) body.push("var global=(function(){return this}).call();");
-			var scope = _this.NewScope(ast);
+			if(!ast.parent || (ast.parent && ast.parent.type!=jsdef.FUNCTION))
+				_this.NewScope(ast);
 			for(var item in ast)
 			{
 				if(!isFinite(item)) break;
 				body.push(generate(ast[item]));
 			}
-			_this.ExitScope();
+			if(!ast.parent || (ast.parent && ast.parent.type!=jsdef.FUNCTION))
+				_this.ExitScope();
 			out = out.concat(body);
 			break;
 
@@ -2051,11 +2097,13 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			var expr = generate(ast[0]);
 			if(_this.currClassName && _this.secondPass && ast[0].symbol)
 			{
+				out.push("{");
 				if(ast[0].symbol.subtype && __isPointer(ast[0].symbol.subtype))
 				{
 					out.push("(function(o){for(var i=o.length;i--;){o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);o[i]=null;}})(" + expr + ");");
 				}
 				out.push("$ && (($.hasOwnProperty('Destructor') && $.Destructor()) || !$.hasOwnProperty('Destructor')) && (delete $);$=null".replace(new RegExp("\\$", "g"), expr));
+				out.push("}");
 			}
 			else
 				out.push("delete " + expr);
@@ -2735,7 +2783,11 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			if(ast[0].type==jsdef.DOT)
 			{
 				var symbol = _this.LookupLastDotIdentifier(ast[0], _this.getCurrentScope());
-				if(!symbol) { _this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]); return null; }
+				if(!symbol)
+				{
+					_this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]);
+					return null;
+				}
 				return symbol.vartype;
 			}
 			return ast[0].symbol.vartype;
@@ -2745,7 +2797,11 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			if(ast[0].type==jsdef.DOT)
 			{
 				var symbol = _this.LookupLastDotIdentifier(ast[0], _this.getCurrentScope());
-				if(!symbol) { _this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]); return null; }
+				if(!symbol)
+				{
+					_this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]);
+					return null;
+				}
 				return symbol.subtype;
 			}
 			return ast[0].symbol.subtype;
@@ -2754,7 +2810,11 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		//=============================================================================================================================
 		case jsdef.DOT:
 			var symbol = _this.LookupLastDotIdentifier(ast, _this.getCurrentScope());
-			if(!symbol) { _this.NewError("Symbol not found: " + ast.source, ast); return null; }
+			if(!symbol)
+			{
+				_this.NewError("Symbol not found: " + ast.source, ast);
+				return null;
+			}
 			return symbol.vartype;
 
 		//=============================================================================================================================
@@ -3148,10 +3208,10 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		// Export to IDE
 		// ======================================================================================
 
-        write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
-        write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
-        write("C:/Users/Admin/Desktop/members.xml", mbrLists);
-        write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
+        //write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
+        //write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
+        //write("C:/Users/Admin/Desktop/members.xml", mbrLists);
+        //write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
 
 		if(!_this.selectedClass)
 			jsppCallback("resetSymbols");
@@ -3190,6 +3250,10 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		return xml.join(" ");
 	};
 }
+
+
+
+
 
 
 

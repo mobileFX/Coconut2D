@@ -124,7 +124,7 @@ function CocoScene()
 			//@line 184
 			{
 				//@line 185
-				__CLASS__COCOSCENE__.__projectionMatrix.ortho(-(gl.canvas.width / 2), gl.canvas.width / 2, gl.canvas.height / 2, -(gl.canvas.height / 2), -1, 1);
+				__CLASS__COCOSCENE__.__projectionMatrix.ortho(-(gl.canvas.width / 2.0), gl.canvas.width / 2.0, gl.canvas.height / 2.0, -(gl.canvas.height / 2.0), -1.0, 1.0);
 			}
 			//@line 188
 			__CLASS__COCOSCENE__.__projectionMatrix.scale(__CLASS__COCOSCENE__.__view_scale, __CLASS__COCOSCENE__.__view_scale);
@@ -450,25 +450,37 @@ function CocoScene()
 		var Destructor = this.Destructor = function ()
 		{
 			//@line 102
-			__CLASS__COCOSCENE__.__root && ((__CLASS__COCOSCENE__.__root.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__root.Destructor()) || !__CLASS__COCOSCENE__.__root.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__root);
-			__CLASS__COCOSCENE__.__root = null;
+			{
+				__CLASS__COCOSCENE__.__root && ((__CLASS__COCOSCENE__.__root.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__root.Destructor()) || !__CLASS__COCOSCENE__.__root.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__root);
+				__CLASS__COCOSCENE__.__root = null
+			};
 			//@line 103
-			__CLASS__COCOSCENE__.__modelViewMatrix && ((__CLASS__COCOSCENE__.__modelViewMatrix.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__modelViewMatrix.Destructor()) || !__CLASS__COCOSCENE__.__modelViewMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__modelViewMatrix);
-			__CLASS__COCOSCENE__.__modelViewMatrix = null;
+			{
+				__CLASS__COCOSCENE__.__modelViewMatrix && ((__CLASS__COCOSCENE__.__modelViewMatrix.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__modelViewMatrix.Destructor()) || !__CLASS__COCOSCENE__.__modelViewMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__modelViewMatrix);
+				__CLASS__COCOSCENE__.__modelViewMatrix = null
+			};
 			//@line 104
-			__CLASS__COCOSCENE__.__projectionMatrix && ((__CLASS__COCOSCENE__.__projectionMatrix.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__projectionMatrix.Destructor()) || !__CLASS__COCOSCENE__.__projectionMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__projectionMatrix);
-			__CLASS__COCOSCENE__.__projectionMatrix = null;
+			{
+				__CLASS__COCOSCENE__.__projectionMatrix && ((__CLASS__COCOSCENE__.__projectionMatrix.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__projectionMatrix.Destructor()) || !__CLASS__COCOSCENE__.__projectionMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__projectionMatrix);
+				__CLASS__COCOSCENE__.__projectionMatrix = null
+			};
 			//@line 105
-			__CLASS__COCOSCENE__.__glProgram && ((__CLASS__COCOSCENE__.__glProgram.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__glProgram.Destructor()) || !__CLASS__COCOSCENE__.__glProgram.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__glProgram);
-			__CLASS__COCOSCENE__.__glProgram = null;
+			{
+				__CLASS__COCOSCENE__.__glProgram && ((__CLASS__COCOSCENE__.__glProgram.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__glProgram.Destructor()) || !__CLASS__COCOSCENE__.__glProgram.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__glProgram);
+				__CLASS__COCOSCENE__.__glProgram = null
+			};
 			//@line 106
-			__CLASS__COCOSCENE__.__boundingBoxProgram && ((__CLASS__COCOSCENE__.__boundingBoxProgram.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__boundingBoxProgram.Destructor()) || !__CLASS__COCOSCENE__.__boundingBoxProgram.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__boundingBoxProgram);
-			__CLASS__COCOSCENE__.__boundingBoxProgram = null;
+			{
+				__CLASS__COCOSCENE__.__boundingBoxProgram && ((__CLASS__COCOSCENE__.__boundingBoxProgram.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__boundingBoxProgram.Destructor()) || !__CLASS__COCOSCENE__.__boundingBoxProgram.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__boundingBoxProgram);
+				__CLASS__COCOSCENE__.__boundingBoxProgram = null
+			};
 			//@line 107
-			__CLASS__COCOSCENE__.__boundingBoxBuffer && ((__CLASS__COCOSCENE__.__boundingBoxBuffer.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__boundingBoxBuffer.Destructor()) || !__CLASS__COCOSCENE__.__boundingBoxBuffer.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__boundingBoxBuffer);
-			__CLASS__COCOSCENE__.__boundingBoxBuffer = null;
+			{
+				__CLASS__COCOSCENE__.__boundingBoxBuffer && ((__CLASS__COCOSCENE__.__boundingBoxBuffer.hasOwnProperty('Destructor') && __CLASS__COCOSCENE__.__boundingBoxBuffer.Destructor()) || !__CLASS__COCOSCENE__.__boundingBoxBuffer.hasOwnProperty('Destructor')) && (delete __CLASS__COCOSCENE__.__boundingBoxBuffer);
+				__CLASS__COCOSCENE__.__boundingBoxBuffer = null
+			};
 			//@line 109
-			var i = 0;
+			i = 0;
 			//@line 110
 			for (i = __CLASS__COCOSCENE__.__imageSymbols.size() - 1; i >= 0; i--)
 			//@line 111
@@ -476,29 +488,32 @@ function CocoScene()
 				//@line 112
 				delete __CLASS__COCOSCENE__.__imageSymbols[i];
 			}
-			__CLASS__COCOSCENE__.__sceneName = null;
-			__CLASS__COCOSCENE__.__imageSymbols = null;
-			__CLASS__COCOSCENE__.__fps = null;
-			__CLASS__COCOSCENE__.__view_width = null;
-			__CLASS__COCOSCENE__.__view_height = null;
-			__CLASS__COCOSCENE__.__view_pixel_ratio = null;
-			__CLASS__COCOSCENE__.__view_scale = null;
-			__CLASS__COCOSCENE__.__currentTime = null;
-			__CLASS__COCOSCENE__.__elapsedTime = null;
-			__CLASS__COCOSCENE__.__startTime = null;
-			__CLASS__COCOSCENE__.__root = null;
-			__CLASS__COCOSCENE__.__modelViewMatrix = null;
-			__CLASS__COCOSCENE__.__projectionMatrix = null;
-			__CLASS__COCOSCENE__.__glProgram = null;
-			__CLASS__COCOSCENE__.__levelParents = null;
-			__CLASS__COCOSCENE__.__vertex_shader = null;
-			__CLASS__COCOSCENE__.__fragment_shader = null;
-			__CLASS__COCOSCENE__.__boundingBoxVertexShader = null;
-			__CLASS__COCOSCENE__.__boundingBoxFragmentShader = null;
-			__CLASS__COCOSCENE__.__boundingBoxProgram = null;
-			__CLASS__COCOSCENE__.__boundingBoxBuffer = null;
-			__CLASS__COCOSCENE__.__ready = null;
-			__CLASS__COCOSCENE__.__finished = null;
+			{
+				__CLASS__COCOSCENE__.__sceneName = null;
+				__CLASS__COCOSCENE__.__imageSymbols = null;
+				__CLASS__COCOSCENE__.__fps = null;
+				__CLASS__COCOSCENE__.__view_width = null;
+				__CLASS__COCOSCENE__.__view_height = null;
+				__CLASS__COCOSCENE__.__view_pixel_ratio = null;
+				__CLASS__COCOSCENE__.__view_scale = null;
+				__CLASS__COCOSCENE__.__currentTime = null;
+				__CLASS__COCOSCENE__.__elapsedTime = null;
+				__CLASS__COCOSCENE__.__startTime = null;
+				__CLASS__COCOSCENE__.__root = null;
+				__CLASS__COCOSCENE__.__modelViewMatrix = null;
+				__CLASS__COCOSCENE__.__projectionMatrix = null;
+				__CLASS__COCOSCENE__.__glProgram = null;
+				__CLASS__COCOSCENE__.__levelParents = null;
+				__CLASS__COCOSCENE__.__vertex_shader = null;
+				__CLASS__COCOSCENE__.__fragment_shader = null;
+				__CLASS__COCOSCENE__.__boundingBoxVertexShader = null;
+				__CLASS__COCOSCENE__.__boundingBoxFragmentShader = null;
+				__CLASS__COCOSCENE__.__boundingBoxProgram = null;
+				__CLASS__COCOSCENE__.__boundingBoxBuffer = null;
+				__CLASS__COCOSCENE__.__ready = null;
+				__CLASS__COCOSCENE__.__finished = null;
+				i = null;
+			}
 			return true
 		};
 		//@line 75

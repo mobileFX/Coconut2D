@@ -104,34 +104,38 @@ function CocoEngine()
 		var __trace = this.__trace = function (scene, clip, message)
 		{
 			//@line 145
+			return;
+			//@line 147
 			if (scene && clip)
-			//@line 146
+			//@line 148
 			{
-				//@line 147
-				var rf = (scene.__root.__currentTime / __CLASS__COCOENGINE__.TICK_TIME);
-				//@line 148
-				var rc = (clip.__currentTime / __CLASS__COCOENGINE__.TICK_TIME);
+				//@line 149
+				var t = 1000 / scene.__fps;
 				//@line 150
+				var rf = Math.floor(scene.__root.__currentTime / t);
+				//@line 151
+				var rc = Math.floor(clip.__currentTime / t);
+				//@line 153
 				message =
-				//@line 155
-				//@line 153
-				//@line 151
-				//@line 150
-				"\n" + message +
-				//@line 151
-				": state=" + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name +
-				//@line 152
-				", clip=" + scene.__sceneName + clip.__clipPath +
-				//@line 153
-				", root_frame=" + rf.toFixed(2) +
-				//@line 154
-				", root_time=" + scene.__root.__currentTime.toFixed(2) +
-				//@line 155
-				", clip_frame=" + rc.toFixed(2) +
+				//@line 158
 				//@line 156
+				//@line 154
+				//@line 153
+				"\n" + message +
+				//@line 154
+				": state=" + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name +
+				//@line 155
+				", clip=" + scene.__sceneName + clip.__clipPath +
+				//@line 156
+				", root_frame=" + rf +
+				//@line 157
+				", clip_frame=" + rc +
+				//@line 158
+				", root_time=" + scene.__root.__currentTime.toFixed(2) +
+				//@line 159
 				", clip_time=" + clip.__currentTime.toFixed(2);
 			}
-			//@line 158
+			//@line 161
 			trace(message);
 		};
 		//@line 46
@@ -149,13 +153,15 @@ function CocoEngine()
 		var Destructor = this.Destructor = function ()
 		{
 			//@line 70
-			__CLASS__COCOENGINE__.TICK_TIME = null;
-			__CLASS__COCOENGINE__.__PRIVATE__.__currentState = null;
-			__CLASS__COCOENGINE__.__PRIVATE__.__nextState = null;
-			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent = null;
-			__CLASS__COCOENGINE__.__PRIVATE__.__clicked = null;
-			__CLASS__COCOENGINE__.__PRIVATE__.__clock = null;
-			__CLASS__GAMEENGINE__.STATE_GAME = null;
+			{
+				__CLASS__COCOENGINE__.TICK_TIME = null;
+				__CLASS__COCOENGINE__.__PRIVATE__.__currentState = null;
+				__CLASS__COCOENGINE__.__PRIVATE__.__nextState = null;
+				__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent = null;
+				__CLASS__COCOENGINE__.__PRIVATE__.__clicked = null;
+				__CLASS__COCOENGINE__.__PRIVATE__.__clock = null;
+				__CLASS__GAMEENGINE__.STATE_GAME = null;
+			}
 			return true
 		};
 		//@line 55

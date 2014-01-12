@@ -31,14 +31,14 @@ function Audio(__CLASS__AUDIO__$url__)
 			get: function ()
 			{
 				//@line 77
-				return __CLASS__AUDIO__.__PRIVATE__.__currentTime;
+				return __Audio_get_position(__CLASS__AUDIO__.__PRIVATE__.__uid);
 				return 0
 			},
 			//@line 80
 			set: function (time)
 			{
 				//@line 82
-				__Audio_position(__CLASS__AUDIO__.__PRIVATE__.__uid, time);
+				__Audio_set_position(__CLASS__AUDIO__.__PRIVATE__.__uid, time);
 			}
 		});
 		//@line 36
@@ -61,15 +61,17 @@ function Audio(__CLASS__AUDIO__$url__)
 		{
 			//@line 57
 			trace("Delete Audio " + __CLASS__AUDIO__.src);
-			__CLASS__AUDIO__.currentTime = null;
-			__CLASS__AUDIO__.__PRIVATE__.__uid = null;
-			__CLASS__AUDIO__.__PRIVATE__.__currentTime = null;
-			__CLASS__AUDIO__.duration = null;
-			__CLASS__AUDIO__.paused = null;
-			__CLASS__AUDIO__.ended = null;
-			__CLASS__AUDIO__.autoplay = null;
-			__CLASS__AUDIO__.loop = null;
-			__CLASS__AUDIO__.src = null;
+			{
+				__CLASS__AUDIO__.currentTime = null;
+				__CLASS__AUDIO__.__PRIVATE__.__uid = null;
+				__CLASS__AUDIO__.__PRIVATE__.__currentTime = null;
+				__CLASS__AUDIO__.duration = null;
+				__CLASS__AUDIO__.paused = null;
+				__CLASS__AUDIO__.ended = null;
+				__CLASS__AUDIO__.autoplay = null;
+				__CLASS__AUDIO__.loop = null;
+				__CLASS__AUDIO__.src = null;
+			}
 			return true
 		};
 		//@line 48

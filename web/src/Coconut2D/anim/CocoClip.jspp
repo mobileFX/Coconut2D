@@ -68,7 +68,6 @@ class CocoClip
 
 	private var __currentAudio:CocoAudio;
 
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage, optional sequence:String)
 	{
@@ -213,7 +212,7 @@ class CocoClip
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
 
-		trace("gotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
+		//trace("gotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		return gotoFrameByIndex(Label.frameIndex, pause, deep);
 	}
@@ -221,7 +220,7 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean, optional deep:Boolean) :Boolean
 	{
-		trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
+		//trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
@@ -231,7 +230,7 @@ class CocoClip
 			if(FrameIndex!=COCO_STOP_ON_CURRENT_FRAME)
 				clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
 
-			trace("-> child: " + clip.__clipPath + ", from=" + String(clip.__currentFrame.frameIndex) + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)));
+			//trace("-> child: " + clip.__clipPath + ", from=" + String(clip.__currentFrame.frameIndex) + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)));
 
 			if (deep)
 				clip.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
@@ -260,15 +259,17 @@ class CocoClip
 			var frameIndex:Integer = Math.floor(__loopTime / __timeline.__singleFrameDurationTime);
 
 			// Interpolate
-			if(__currentFrame) delete __currentFrame;
+			if(__currentFrame)
+				delete __currentFrame;
 			__currentFrame = __timeline.interpolate(frameIndex);
 
 			// Combine parent clip currentframe values with this clip's interpolated frame values.
 			 __currentFrame.combine(parentClip.__currentFrame);
 
-			// If current frame is visible, render this clip and its children.
+			// If current frame is not visible then we skip processing children.
 			if(__currentFrame.alpha == 0 || !__currentFrame.visible)
 			{
+				// Propagate clip's timeline.
 				if(!__timeline.__paused)
 					__currentTime += engine.TICK_TIME;
 				return;
@@ -350,7 +351,7 @@ class CocoClip
 				if(hitTest(x,y))
 	   	        {
 	   	        	engine.pushTouched(this);
-	   	        	drawBoundingBox(scene, gl);
+	   	        	//drawBoundingBox(scene, gl);
 	   	        }
 			}
 
@@ -364,19 +365,14 @@ class CocoClip
 				{
 					this.__parent = parentClip;
 					pulse = __currentFrame.execute(gl, scene, this);
-					if(pulse && __currentFrame.audio!=null)
+					if(pulse && __currentFrame.audio)
 					{
+						//if(__currentAudio)
+						//	__currentAudio.stop();
 						__currentAudio = __currentFrame.audio;
 					}
 					this.__parent = null;
 				}
-			}
-
-	        // =============================================================================================================
-			// Update Cursor Variables
-	        // =============================================================================================================
-			if(__childWithMaxTimelineDuration && __childWithMaxTimelineDuration.__currentFrame && __childWithMaxTimelineDuration.__currentFrame.frameIndex == __childWithMaxTimelineDuration.__timeline.lastKeyFrame().frameIndex)
-			{
 			}
 
 	        // =============================================================================================================

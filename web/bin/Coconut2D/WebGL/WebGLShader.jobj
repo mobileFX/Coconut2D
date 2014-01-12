@@ -17,8 +17,10 @@ function WebGLShader(__CLASS__WEBGLSHADER__$uid__, __CLASS__WEBGLSHADER__$type__
 		this.__PROTECTED__.type = 0;
 		var Destructor = this.Destructor = function ()
 		{
-			__CLASS__WEBGLSHADER__.__PROTECTED__.type = null;
-			__SUPER__ && ((__SUPER__.hasOwnProperty('Destructor') && __SUPER__.Destructor()) || !__SUPER__.hasOwnProperty('Destructor')) && (delete __SUPER__);
+			{
+				__CLASS__WEBGLSHADER__.__PROTECTED__.type = null;
+				__SUPER__ && ((__SUPER__.hasOwnProperty('Destructor') && __SUPER__.Destructor()) || !__SUPER__.hasOwnProperty('Destructor')) && (delete __SUPER__);
+			}
 			return true
 		};
 		//@line 40
@@ -27,7 +29,7 @@ function WebGLShader(__CLASS__WEBGLSHADER__$uid__, __CLASS__WEBGLSHADER__$type__
 			var uid = arguments[0];
 			var type = arguments[1];
 			//@line 42
-			__CLASS__WEBGLSHADER__.type = type;
+			__CLASS__WEBGLSHADER__.__PROTECTED__.type = type;
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
 		this.Constructor(__CLASS__WEBGLSHADER__$uid__, __CLASS__WEBGLSHADER__$type__);

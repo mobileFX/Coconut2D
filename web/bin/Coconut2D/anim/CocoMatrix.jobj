@@ -468,8 +468,10 @@ function CocoMatrix(__CLASS__COCOMATRIX__$M__)
 				//@line 400
 				__CLASS__COCOMATRIX__.__dirty = true;
 				//@line 401
-				data && ((data.hasOwnProperty('Destructor') && data.Destructor()) || !data.hasOwnProperty('Destructor')) && (delete data);
-				data = null;
+				{
+					data && ((data.hasOwnProperty('Destructor') && data.Destructor()) || !data.hasOwnProperty('Destructor')) && (delete data);
+					data = null
+				};
 			}
 		};
 		//@line 43
@@ -513,38 +515,44 @@ function CocoMatrix(__CLASS__COCOMATRIX__$M__)
 		var Destructor = this.Destructor = function ()
 		{
 			//@line 96
-			(function (o)
 			{
-				for (var i = o.length; i--;)
+				(function (o)
 				{
-					o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);
-					o[i] = null;
-				}
-			})(__CLASS__COCOMATRIX__.__stack);
-			__CLASS__COCOMATRIX__.__stack && ((__CLASS__COCOMATRIX__.__stack.hasOwnProperty('Destructor') && __CLASS__COCOMATRIX__.__stack.Destructor()) || !__CLASS__COCOMATRIX__.__stack.hasOwnProperty('Destructor')) && (delete __CLASS__COCOMATRIX__.__stack);
-			__CLASS__COCOMATRIX__.__stack = null;
+					for (var i = o.length; i--;)
+					{
+						o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);
+						o[i] = null;
+					}
+				})(__CLASS__COCOMATRIX__.__stack);
+				__CLASS__COCOMATRIX__.__stack && ((__CLASS__COCOMATRIX__.__stack.hasOwnProperty('Destructor') && __CLASS__COCOMATRIX__.__stack.Destructor()) || !__CLASS__COCOMATRIX__.__stack.hasOwnProperty('Destructor')) && (delete __CLASS__COCOMATRIX__.__stack);
+				__CLASS__COCOMATRIX__.__stack = null
+			};
 			//@line 97
-			__CLASS__COCOMATRIX__.__data && ((__CLASS__COCOMATRIX__.__data.hasOwnProperty('Destructor') && __CLASS__COCOMATRIX__.__data.Destructor()) || !__CLASS__COCOMATRIX__.__data.hasOwnProperty('Destructor')) && (delete __CLASS__COCOMATRIX__.__data);
-			__CLASS__COCOMATRIX__.__data = null;
-			__CLASS__COCOMATRIX__.rc11 = null;
-			__CLASS__COCOMATRIX__.rc12 = null;
-			__CLASS__COCOMATRIX__.rc13 = null;
-			__CLASS__COCOMATRIX__.rc14 = null;
-			__CLASS__COCOMATRIX__.rc21 = null;
-			__CLASS__COCOMATRIX__.rc22 = null;
-			__CLASS__COCOMATRIX__.rc23 = null;
-			__CLASS__COCOMATRIX__.rc24 = null;
-			__CLASS__COCOMATRIX__.rc31 = null;
-			__CLASS__COCOMATRIX__.rc32 = null;
-			__CLASS__COCOMATRIX__.rc33 = null;
-			__CLASS__COCOMATRIX__.rc34 = null;
-			__CLASS__COCOMATRIX__.rc41 = null;
-			__CLASS__COCOMATRIX__.rc42 = null;
-			__CLASS__COCOMATRIX__.rc43 = null;
-			__CLASS__COCOMATRIX__.rc44 = null;
-			__CLASS__COCOMATRIX__.__stack = null;
-			__CLASS__COCOMATRIX__.__data = null;
-			__CLASS__COCOMATRIX__.__dirty = null;
+			{
+				__CLASS__COCOMATRIX__.__data && ((__CLASS__COCOMATRIX__.__data.hasOwnProperty('Destructor') && __CLASS__COCOMATRIX__.__data.Destructor()) || !__CLASS__COCOMATRIX__.__data.hasOwnProperty('Destructor')) && (delete __CLASS__COCOMATRIX__.__data);
+				__CLASS__COCOMATRIX__.__data = null
+			};
+			{
+				__CLASS__COCOMATRIX__.rc11 = null;
+				__CLASS__COCOMATRIX__.rc12 = null;
+				__CLASS__COCOMATRIX__.rc13 = null;
+				__CLASS__COCOMATRIX__.rc14 = null;
+				__CLASS__COCOMATRIX__.rc21 = null;
+				__CLASS__COCOMATRIX__.rc22 = null;
+				__CLASS__COCOMATRIX__.rc23 = null;
+				__CLASS__COCOMATRIX__.rc24 = null;
+				__CLASS__COCOMATRIX__.rc31 = null;
+				__CLASS__COCOMATRIX__.rc32 = null;
+				__CLASS__COCOMATRIX__.rc33 = null;
+				__CLASS__COCOMATRIX__.rc34 = null;
+				__CLASS__COCOMATRIX__.rc41 = null;
+				__CLASS__COCOMATRIX__.rc42 = null;
+				__CLASS__COCOMATRIX__.rc43 = null;
+				__CLASS__COCOMATRIX__.rc44 = null;
+				__CLASS__COCOMATRIX__.__stack = null;
+				__CLASS__COCOMATRIX__.__data = null;
+				__CLASS__COCOMATRIX__.__dirty = null;
+			}
 			return true
 		};
 		//@line 65

@@ -47,15 +47,19 @@ function Image()
 		var Destructor = this.Destructor = function ()
 		{
 			//@line 62
-			__CLASS__IMAGE__.__imageData && ((__CLASS__IMAGE__.__imageData.hasOwnProperty('Destructor') && __CLASS__IMAGE__.__imageData.Destructor()) || !__CLASS__IMAGE__.__imageData.hasOwnProperty('Destructor')) && (delete __CLASS__IMAGE__.__imageData);
-			__CLASS__IMAGE__.__imageData = null;
-			__CLASS__IMAGE__.__imageData = null;
-			__CLASS__IMAGE__.src = null;
-			__CLASS__IMAGE__.width = null;
-			__CLASS__IMAGE__.height = null;
-			__CLASS__IMAGE__.naturalWidth = null;
-			__CLASS__IMAGE__.naturalHeight = null;
-			__CLASS__IMAGE__.complete = null;
+			{
+				__CLASS__IMAGE__.__imageData && ((__CLASS__IMAGE__.__imageData.hasOwnProperty('Destructor') && __CLASS__IMAGE__.__imageData.Destructor()) || !__CLASS__IMAGE__.__imageData.hasOwnProperty('Destructor')) && (delete __CLASS__IMAGE__.__imageData);
+				__CLASS__IMAGE__.__imageData = null
+			};
+			{
+				__CLASS__IMAGE__.__imageData = null;
+				__CLASS__IMAGE__.src = null;
+				__CLASS__IMAGE__.width = null;
+				__CLASS__IMAGE__.height = null;
+				__CLASS__IMAGE__.naturalWidth = null;
+				__CLASS__IMAGE__.naturalHeight = null;
+				__CLASS__IMAGE__.complete = null;
+			}
 			return true
 		};
 		//@line 48

@@ -67,7 +67,8 @@ class Global
 	public var __registerCallback;
 	public var __unRegisterCallback;
 	public var __ImageData_loadImage;
-	public var __Audio_position;
+	public var __Audio_get_position :Float;
+	public var __Audio_set_position;
 	public var __Audio_play;
 	public var __Audio_pause;
 	public var __Audio_stop;
@@ -534,8 +535,8 @@ class HTMLCanvasElement
 {
 	public function getContext(contextId:String) :WebGLRenderingContext {}
 	public function Constructor() {}
-	public var width :Float;
-	public var height :Float;
+	public var width :Integer;
+	public var height :Integer;
 } //HTMLCanvasElement
 
 class HTMLElement
@@ -1125,7 +1126,6 @@ class WebGLRenderingContext
 
 class CocoAudio
 {
-	public function cloneNode(deep:Boolean) :CocoAudio {}
 	public function tick() {}
 	public function play() {}
 	public function pause() {}
@@ -1142,7 +1142,6 @@ class CocoAudio
 	public var loops :Integer;
 	private var __firstPlayed :Boolean;
 	private var __loopCount :Integer;
-	private var __refCount :Integer;
 } //CocoAudio
 
 class CocoImageSibling
@@ -1252,7 +1251,7 @@ class CocoMatrix
 
 class CocoKeyFrame
 {
-	public function clone(exact:Boolean) :CocoKeyFrame {}
+	public function clone() :CocoKeyFrame {}
 	public function reset() {}
 	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip) :Boolean {}
 	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float) {}
@@ -1280,6 +1279,7 @@ class CocoKeyFrame
 	public var flipH :Boolean;
 	public var flipV :Boolean;
 	private var __lastActionExecutionTime :Time;
+	protected var __isCloned :Boolean;
 } //CocoKeyFrame
 
 class CocoTimeline
@@ -1306,7 +1306,7 @@ class CocoTimeline
 	public var __durationInTime :Time;
 	public var __durationInFrames :Integer;
 	public var __paused :Boolean;
-	public var __fps :Integer;
+	public var __fps :Float;
 } //CocoTimeline
 
 class CocoClip
@@ -1370,7 +1370,7 @@ class CocoScene
 	public function Constructor() {}
 	public var __sceneName :String;
 	public var __imageSymbols :Array<CocoImage>;
-	public var __fps :Integer;
+	public var __fps :Float;
 	public var __view_width :Float;
 	public var __view_height :Float;
 	public var __view_pixel_ratio :Float;
@@ -1391,6 +1391,7 @@ class CocoScene
 	public var __boundingBoxBuffer :WebGLBuffer;
 	public var __ready :Boolean;
 	public var __finished :Boolean;
+	public var i :Integer;
 } //CocoScene
 
 class CocoEngine
@@ -1409,14 +1410,7 @@ class CocoEngine
 	private var __deviceEvent :DeviceEvent;
 	private var __clicked :Array<CocoClip>;
 	private var __clock :Time;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public var STATE_GAME :State;
 } //CocoEngine
 
 class CocoSprite
@@ -1507,35 +1501,21 @@ class GameEngine : CocoEngine
 {
 	public function Constructor() {}
 	public var scene :CocoScene;
-	public var balance :Number;
-	public var winnings :Number;
-	public var avatars :Array<CocoClip>;
-	public var avatar_leo :CocoClip;
-	public var avatar_xerxes :CocoClip;
-	public var avatar_spartan :CocoClip;
-	public var avatar_persian :CocoClip;
-	public var avatar_swords :CocoClip;
-	public var avatar_armor :CocoClip;
-	public var btnOpenAll :CocoClip;
-	public var btnBuyTicket :CocoClip;
-	public var selectedAvatar :Number;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public var STATE_GAME :State;
 } //GameEngine
 
-class SceneGameBoard : CocoScene
+class BitmapSymbolsTest : CocoScene
 {
 	public function Constructor() {}
-} //SceneGameBoard
+} //BitmapSymbolsTest
 
-class SceneTitle : CocoScene
+class SynthesisTest : CocoScene
 {
 	public function Constructor() {}
-} //SceneTitle
+} //SynthesisTest
+
+class Test : CocoScene
+{
+	public function Constructor() {}
+} //Test
 

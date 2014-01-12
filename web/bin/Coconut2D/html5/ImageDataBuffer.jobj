@@ -21,11 +21,15 @@ function ImageDataBuffer()
 		var Destructor = this.Destructor = function ()
 		{
 			//@line 50
-			__CLASS__IMAGEDATABUFFER__.buffer && ((__CLASS__IMAGEDATABUFFER__.buffer.hasOwnProperty('Destructor') && __CLASS__IMAGEDATABUFFER__.buffer.Destructor()) || !__CLASS__IMAGEDATABUFFER__.buffer.hasOwnProperty('Destructor')) && (delete __CLASS__IMAGEDATABUFFER__.buffer);
-			__CLASS__IMAGEDATABUFFER__.buffer = null;
-			__CLASS__IMAGEDATABUFFER__.buffer = null;
-			__CLASS__IMAGEDATABUFFER__.width = null;
-			__CLASS__IMAGEDATABUFFER__.height = null;
+			{
+				__CLASS__IMAGEDATABUFFER__.buffer && ((__CLASS__IMAGEDATABUFFER__.buffer.hasOwnProperty('Destructor') && __CLASS__IMAGEDATABUFFER__.buffer.Destructor()) || !__CLASS__IMAGEDATABUFFER__.buffer.hasOwnProperty('Destructor')) && (delete __CLASS__IMAGEDATABUFFER__.buffer);
+				__CLASS__IMAGEDATABUFFER__.buffer = null
+			};
+			{
+				__CLASS__IMAGEDATABUFFER__.buffer = null;
+				__CLASS__IMAGEDATABUFFER__.width = null;
+				__CLASS__IMAGEDATABUFFER__.height = null;
+			}
 			return true
 		};
 		//@line 43

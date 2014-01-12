@@ -61,6 +61,7 @@ class CocoKeyFrame
 	public var flipV:Boolean;
 
 	private var __lastActionExecutionTime:Time;
+	protected var __isCloned:Boolean;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -86,16 +87,18 @@ class CocoKeyFrame
 		flipH						= false;
 		flipV						= false;
 		__lastActionExecutionTime 	= 0.0;
+		__isCloned					= false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete audio;
+		if(audio && !__isCloned)
+			delete audio;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function clone(exact:Boolean) :CocoKeyFrame
+	public function clone() :CocoKeyFrame
 	{
 	    var c:CocoKeyFrame = new CocoKeyFrame();
 
@@ -116,16 +119,11 @@ class CocoKeyFrame
 		c.y                     	= y;
 		c.flipH						= flipH;
 		c.flipV						= flipV;
-
-        if(exact)
-        {
-			c.action				= action;
-			c.nextState				= nextState;
-			c.audio					= audio ? audio.cloneNode(true) : null;
-        }
-
+		c.action					= action;
+		c.nextState					= nextState;
+		c.audio						= audio;
  		c.__lastActionExecutionTime	= __lastActionExecutionTime;
-
+ 		c.__isCloned				= true;
 	    return c;
 	}
 

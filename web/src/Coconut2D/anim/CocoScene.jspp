@@ -44,7 +44,7 @@ class CocoScene
 	public var __imageSymbols:Array<CocoImage>;
 
 	// Fixed View Port
-	public var __fps:Integer;
+	public var __fps:Float;
 	public var __view_width:Float;
 	public var __view_height:Float;
 	public var __view_pixel_ratio:Float;
@@ -168,21 +168,21 @@ class CocoScene
 
 		__modelViewMatrix = new CocoMatrix();
 		__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
-		__view_scale = this.__view_width>0 && this.__view_height>0 ? Math.min(gl.canvas.width / this.__view_width, gl.canvas.height / this.__view_height) : window.devicePixelRatio;
+		__view_scale = this.__view_width>0 && this.__view_height>0 ? Math.min( Float(gl.canvas.width) / this.__view_width, Float(gl.canvas.height) / this.__view_height) : window.devicePixelRatio;
 		__projectionMatrix = new CocoMatrix();
 
 		if(window.deviceRotation)
 		{
 			var c:Float = Math.cos(window.deviceRotation);
 			var s:Float = Math.sin(window.deviceRotation);
-			var orthoWidth:Float = Math.abs(c * gl.canvas.width + s * gl.canvas.height);
-			var orthoHeight:Float = Math.abs(-s * gl.canvas.width + c * gl.canvas.height);
+			var orthoWidth:Float = Math.abs(c * Float(gl.canvas.width) + s * Float(gl.canvas.height));
+			var orthoHeight:Float = Math.abs(-s * Float(gl.canvas.width) + c * Float(gl.canvas.height));
 			__projectionMatrix.ortho(-orthoWidth / 2.0, orthoWidth / 2.0, orthoHeight / 2.0,  -orthoHeight / 2.0, -1.0, 1.0);
 			__projectionMatrix.rotateZ(-window.deviceRotation);
 		}
 		else
 		{
-			__projectionMatrix.ortho( -(gl.canvas.width / 2), gl.canvas.width / 2, gl.canvas.height / 2,  -(gl.canvas.height / 2), -1, 1);
+			__projectionMatrix.ortho( -(Float(gl.canvas.width) / 2.0), Float(gl.canvas.width) / 2.0, Float(gl.canvas.height) / 2.0,  -(Float(gl.canvas.height) / 2.0), -1.0, 1.0);
 		}
 
 		__projectionMatrix.scale(__view_scale, __view_scale);

@@ -74,12 +74,12 @@ class Audio
 	{
 		function get():Float
 		{
-			return __currentTime;
+			return __Audio_get_position(__uid);
 		}
 
 		function set(time:Float)
 		{
-			__Audio_position(__uid, time);
+			__Audio_set_position(__uid, time);
 		}
 	}
 }
