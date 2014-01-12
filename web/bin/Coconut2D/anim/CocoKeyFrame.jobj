@@ -71,109 +71,109 @@ function CocoKeyFrame()
 			//@line 133
 			__CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime = 0.0;
 		};
-		//@line 137
+		//@line 139
 		var execute = this.execute = function (gl, scene, clip)
 		{
-			//@line 141
-			var pulse = false;
 			//@line 143
+			var pulse = false;
+			//@line 145
 			if ((__CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime == 0) || (__CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime > 0 && clip.__currentTime - __CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
-			//@line 144
+			//@line 146
 			{
-				//@line 145
-				__CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime = clip.__currentTime;
 				//@line 147
+				__CLASS__COCOKEYFRAME__.__PRIVATE__.__lastActionExecutionTime = clip.__currentTime;
+				//@line 149
 				if (__CLASS__COCOKEYFRAME__.action)
-				//@line 148
+				//@line 150
 				{
-					//@line 149
-					engine.__trace(scene, clip, "@@ACTION");
-					//@line 150
-					var args = [gl, clip, __CLASS__COCOKEYFRAME__];
 					//@line 151
+					engine.__trace(scene, clip, "@@ACTION");
+					//@line 152
+					var args = [gl, clip, __CLASS__COCOKEYFRAME__];
+					//@line 153
 					__CLASS__COCOKEYFRAME__.action.apply(scene, args);
 				}
-				//@line 154
+				//@line 156
 				if (__CLASS__COCOKEYFRAME__.nextState)
-				//@line 155
+				//@line 157
 				{
-					//@line 156
+					//@line 158
 					engine.__trace(scene, clip, "@@NEXT_STATE");
-					//@line 157
+					//@line 159
 					engine.setNextState(__CLASS__COCOKEYFRAME__.nextState);
 				}
-				//@line 160
+				//@line 162
 				if (__CLASS__COCOKEYFRAME__.audio)
-				//@line 161
+				//@line 163
 				{
-					//@line 162
+					//@line 164
 					engine.__trace(scene, clip, "@@AUDIO");
-					//@line 163
+					//@line 165
 					__CLASS__COCOKEYFRAME__.audio.tick();
 				}
-				//@line 166
+				//@line 168
 				pulse = true;
 			}
-			//@line 169
+			//@line 171
 			return pulse;
 			return false
 		};
-		//@line 173
+		//@line 175
 		var interpolate = this.interpolate = function (F1, F2, s)
 		{
-			//@line 175
-			__CLASS__COCOKEYFRAME__.red = F1.red + s * (F2.red - F1.red);
-			//@line 176
-			__CLASS__COCOKEYFRAME__.green = F1.green + s * (F2.green - F1.green);
 			//@line 177
-			__CLASS__COCOKEYFRAME__.blue = F1.blue + s * (F2.blue - F1.blue);
+			__CLASS__COCOKEYFRAME__.red = F1.red + s * (F2.red - F1.red);
 			//@line 178
-			__CLASS__COCOKEYFRAME__.alpha = F1.alpha + s * (F2.alpha - F1.alpha);
+			__CLASS__COCOKEYFRAME__.green = F1.green + s * (F2.green - F1.green);
 			//@line 179
-			__CLASS__COCOKEYFRAME__.x = F1.x + s * (F2.x - F1.x);
+			__CLASS__COCOKEYFRAME__.blue = F1.blue + s * (F2.blue - F1.blue);
 			//@line 180
-			__CLASS__COCOKEYFRAME__.y = F1.y + s * (F2.y - F1.y);
+			__CLASS__COCOKEYFRAME__.alpha = F1.alpha + s * (F2.alpha - F1.alpha);
 			//@line 181
-			__CLASS__COCOKEYFRAME__.scaleX = F1.scaleX + s * (F2.scaleX - F1.scaleX);
+			__CLASS__COCOKEYFRAME__.x = F1.x + s * (F2.x - F1.x);
 			//@line 182
-			__CLASS__COCOKEYFRAME__.scaleY = F1.scaleY + s * (F2.scaleY - F1.scaleY);
+			__CLASS__COCOKEYFRAME__.y = F1.y + s * (F2.y - F1.y);
 			//@line 183
-			__CLASS__COCOKEYFRAME__.rotation = F1.rotation + s * (F2.rotation - F1.rotation);
+			__CLASS__COCOKEYFRAME__.scaleX = F1.scaleX + s * (F2.scaleX - F1.scaleX);
 			//@line 184
-			__CLASS__COCOKEYFRAME__.pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
+			__CLASS__COCOKEYFRAME__.scaleY = F1.scaleY + s * (F2.scaleY - F1.scaleY);
 			//@line 185
+			__CLASS__COCOKEYFRAME__.rotation = F1.rotation + s * (F2.rotation - F1.rotation);
+			//@line 186
+			__CLASS__COCOKEYFRAME__.pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
+			//@line 187
 			__CLASS__COCOKEYFRAME__.pivotY = F1.pivotY + s * (F2.pivotY - F1.pivotY);
 		};
-		//@line 189
+		//@line 191
 		var combine = this.combine = function (Frame)
 		{
-			//@line 191
-			if (!Frame) return;
-			//@line 192
-			__CLASS__COCOKEYFRAME__.red = __CLASS__COCOKEYFRAME__.red * Frame.red;
 			//@line 193
-			__CLASS__COCOKEYFRAME__.green = __CLASS__COCOKEYFRAME__.green * Frame.green;
+			if (!Frame) return;
 			//@line 194
-			__CLASS__COCOKEYFRAME__.blue = __CLASS__COCOKEYFRAME__.blue * Frame.blue;
+			__CLASS__COCOKEYFRAME__.red = __CLASS__COCOKEYFRAME__.red * Frame.red;
 			//@line 195
-			__CLASS__COCOKEYFRAME__.alpha = __CLASS__COCOKEYFRAME__.alpha * Frame.alpha;
+			__CLASS__COCOKEYFRAME__.green = __CLASS__COCOKEYFRAME__.green * Frame.green;
 			//@line 196
-			__CLASS__COCOKEYFRAME__.visible = __CLASS__COCOKEYFRAME__.visible && Frame.visible;
+			__CLASS__COCOKEYFRAME__.blue = __CLASS__COCOKEYFRAME__.blue * Frame.blue;
 			//@line 197
-			__CLASS__COCOKEYFRAME__.flipH = (__CLASS__COCOKEYFRAME__.flipH && !Frame.flipH) || (!__CLASS__COCOKEYFRAME__.flipH && Frame.flipH);
+			__CLASS__COCOKEYFRAME__.alpha = __CLASS__COCOKEYFRAME__.alpha * Frame.alpha;
 			//@line 198
+			__CLASS__COCOKEYFRAME__.visible = __CLASS__COCOKEYFRAME__.visible && Frame.visible;
+			//@line 199
+			__CLASS__COCOKEYFRAME__.flipH = (__CLASS__COCOKEYFRAME__.flipH && !Frame.flipH) || (!__CLASS__COCOKEYFRAME__.flipH && Frame.flipH);
+			//@line 200
 			__CLASS__COCOKEYFRAME__.flipV = (__CLASS__COCOKEYFRAME__.flipV && !Frame.flipV) || (!__CLASS__COCOKEYFRAME__.flipV && Frame.flipV);
 		};
-		//@line 201
+		//@line 203
 		var apply = this.apply = function (matrix)
 		{
-			//@line 203
-			if (__CLASS__COCOKEYFRAME__.x != 0 || __CLASS__COCOKEYFRAME__.y != 0) matrix.translate(__CLASS__COCOKEYFRAME__.x, __CLASS__COCOKEYFRAME__.y);
-			//@line 204
-			if (__CLASS__COCOKEYFRAME__.rotation != 0) matrix.rotateZ(__CLASS__COCOKEYFRAME__.rotation * RADIANS);
 			//@line 205
-			if (__CLASS__COCOKEYFRAME__.scaleX != 1 || __CLASS__COCOKEYFRAME__.scaleY != 1) matrix.scale(__CLASS__COCOKEYFRAME__.scaleX, __CLASS__COCOKEYFRAME__.scaleY);
+			if (__CLASS__COCOKEYFRAME__.x != 0 || __CLASS__COCOKEYFRAME__.y != 0) matrix.translate(__CLASS__COCOKEYFRAME__.x, __CLASS__COCOKEYFRAME__.y);
 			//@line 206
+			if (__CLASS__COCOKEYFRAME__.rotation != 0) matrix.rotateZ(__CLASS__COCOKEYFRAME__.rotation * RADIANS);
+			//@line 207
+			if (__CLASS__COCOKEYFRAME__.scaleX != 1 || __CLASS__COCOKEYFRAME__.scaleY != 1) matrix.scale(__CLASS__COCOKEYFRAME__.scaleX, __CLASS__COCOKEYFRAME__.scaleY);
+			//@line 208
 			if (__CLASS__COCOKEYFRAME__.pivotX != 0 || __CLASS__COCOKEYFRAME__.pivotY != 0) matrix.translate(-__CLASS__COCOKEYFRAME__.pivotX, -__CLASS__COCOKEYFRAME__.pivotY);
 		};
 		//@line 42
