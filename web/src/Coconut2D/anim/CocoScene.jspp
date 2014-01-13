@@ -338,7 +338,7 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoAndPlayByName(LabelName:String, optional deep:Boolean)
 	{
-		var scope:CocoClip = __levelParents[__levelParents.size() - 1];
+		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
 		scope.gotoFrameByName(LabelName, false, deep);
 	}
 
