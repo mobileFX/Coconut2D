@@ -151,6 +151,8 @@ function CocoClip(__CLASS__COCOCLIP__$image__, __CLASS__COCOCLIP__$sequence__)
 			var Label = __CLASS__COCOCLIP__.__timeline.findLabelByName(LabelName);
 			//@line 213
 			if (!Label) return false;
+			//@line 215
+			trace("\ngotoFrameByName: clip=" + __CLASS__COCOCLIP__.__clipPath + ", label=" + LabelName + ", pause=" + pause + ", deep=" + deep);
 			//@line 217
 			return __CLASS__COCOCLIP__.gotoFrameByIndex(Label.frameIndex, pause, deep);
 			return false
@@ -158,6 +160,8 @@ function CocoClip(__CLASS__COCOCLIP__$image__, __CLASS__COCOCLIP__$sequence__)
 		//@line 221
 		var gotoFrameByIndex = this.gotoFrameByIndex = function (FrameIndex, pause, deep)
 		{
+			//@line 223
+			trace("gotoFrameByIndex: clip=" + __CLASS__COCOCLIP__.__clipPath + ", index=" + (FrameIndex == -1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex) + ", pause=" + pause + ", deep=" + deep);
 			//@line 225
 			var clip;
 			//@line 226
@@ -172,6 +176,8 @@ function CocoClip(__CLASS__COCOCLIP__$image__, __CLASS__COCOCLIP__$sequence__)
 				if (FrameIndex != COCO_STOP_ON_CURRENT_FRAME)
 				//@line 231
 				clip.__currentTime = FrameIndex * clip.__timeline.__singleFrameDurationTime;
+				//@line 233
+				trace("-> child: " + clip.__clipPath + ", from=" + clip.__currentFrame.frameIndex + ", to=" + (FrameIndex == -1 ? clip.__currentFrame.frameIndex : FrameIndex));
 				//@line 235
 				if (deep)
 				//@line 236

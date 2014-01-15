@@ -365,7 +365,7 @@ function CocoScene()
 		var gotoAndPlayByName = this.gotoAndPlayByName = function (LabelName, deep)
 		{
 			//@line 341
-			var scope = __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
+			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
 			//@line 342
 			scope.gotoFrameByName(LabelName, false, deep);
 		};

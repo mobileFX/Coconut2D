@@ -1528,24 +1528,42 @@ class GridSymbol
 
 class GameEngine : CocoEngine
 {
+	public function setTexts() {}
+	public function createGUID() :String {}
+	public function calculate(src:String) :String {}
+	public function hex_sha1(src:String) :String {}
+	public function core_sha1(x:Array<Number>, len:Number) :Array {}
+	public function sha1_ft(t:Number, b:Number, c:Number, d:Number) :Number {}
+	public function sha1_kt(t:Number) :Number {}
+	public function safe_add(x:Number, y:Number) :Number {}
+	public function rol(num:Number, cnt:Number) :Number {}
+	public function str2binb(str:String) :Array {}
+	public function binb2hex(binarray:Array<Number>) :String {}
 	public function hasClosedCells() :Boolean {}
 	public function OpenCell(i:Integer) {}
 	public function Constructor() {}
-	public var scene :CocoScene;
-	public var balance :Number;
-	public var winnings :Number;
-	public var avatars :Array<CocoClip>;
-	public var avatar_leo :CocoClip;
-	public var avatar_xerxes :CocoClip;
-	public var avatar_spartan :CocoClip;
-	public var avatar_persian :CocoClip;
-	public var avatar_swords :CocoClip;
-	public var avatar_armor :CocoClip;
-	public var btnOpenAll :CocoClip;
-	public var btnBuyTicket :CocoClip;
-	public var cells :Array<CocoClip>;
-	public var cellsOpen :Array<Boolean>;
-	public var selectedAvatar :Number;
+	private var scene :CocoScene;
+	private var balance :Number;
+	private var winnings :Number;
+	private var avatars :Array<CocoClip>;
+	private var avatar_leo :CocoClip;
+	private var avatar_xerxes :CocoClip;
+	private var avatar_spartan :CocoClip;
+	private var avatar_persian :CocoClip;
+	private var avatar_swords :CocoClip;
+	private var avatar_armor :CocoClip;
+	private var btnOpenAll :CocoClip;
+	private var btnBuyTicket :CocoClip;
+	private var cells :Array<CocoClip>;
+	private var cellsOpen :Array<Boolean>;
+	private var selectedAvatar :Integer;
+	private var counter :Number;
+	private var winAvatarAppearances :Integer;
+	private var TICKET_TicketID :String;
+	private var TICKET_cells :Array<Integer>;
+	private var TICKET_price :Integer;
+	private var TICKET_winCount :Integer;
+	private var WIN_PRIZES :Array<Integer>;
 	public var STATE_TITLE_SCREEN :State;
 	public var STATE_GAME_BOARD :State;
 	public var STATE_JUMPING_AVATARS :State;

@@ -142,13 +142,14 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __trace(scene:CocoScene, clip:CocoClip, message: String)
 	{
-		return;
+		//return;
 
 		if(scene && clip)
 		{
+			var ct:Time = scene.__root.__children[0].__currentTime;
 			var t:Time = 1000/scene.__fps;
-			var rf:Float = Math.floor(scene.__root.__currentTime/t);
-			var rc:Float = Math.floor(clip.__currentTime/t);
+			var rf:Float = Math.floor(ct/t);
+			var rc:Float = Math.floor(ct/t);
 
 			message = "\n" + message +
 					  ": state=" + __currentState.__name +

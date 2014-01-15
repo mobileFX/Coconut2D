@@ -1714,6 +1714,12 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.IDENTIFIER:
 
+			// C++ array length check
+			if(_this.secondPass && ast.value=="length" && ast.inDot && ast.inDot.identifier_first.symbol && ast.inDot.identifier_first.symbol.vartype.indexOf("Array")==0)
+			{
+				_this.NewError("Please use size() for array length.", ast);
+			}
+
 			if(_this.currClassName && _this.secondPass)
 			{
 				if(!ast.symbol)
@@ -3250,6 +3256,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		return xml.join(" ");
 	};
 }
+
 
 
 

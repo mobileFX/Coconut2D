@@ -103,39 +103,39 @@ function CocoEngine()
 		//@line 143
 		var __trace = this.__trace = function (scene, clip, message)
 		{
-			//@line 145
-			return;
 			//@line 147
 			if (scene && clip)
 			//@line 148
 			{
 				//@line 149
-				var t = 1000 / scene.__fps;
+				var ct = scene.__root.__children[0].__currentTime;
 				//@line 150
-				var rf = Math.floor(scene.__root.__currentTime / t);
+				var t = 1000 / scene.__fps;
 				//@line 151
-				var rc = Math.floor(clip.__currentTime / t);
-				//@line 153
+				var rf = Math.floor(ct / t);
+				//@line 152
+				var rc = Math.floor(ct / t);
+				//@line 154
 				message =
-				//@line 158
-				//@line 156
-				//@line 154
-				//@line 153
-				"\n" + message +
-				//@line 154
-				": state=" + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name +
-				//@line 155
-				", clip=" + scene.__sceneName + clip.__clipPath +
-				//@line 156
-				", root_frame=" + rf +
-				//@line 157
-				", clip_frame=" + rc +
-				//@line 158
-				", root_time=" + scene.__root.__currentTime.toFixed(2) +
 				//@line 159
+				//@line 157
+				//@line 155
+				//@line 154
+				"\n" + message +
+				//@line 155
+				": state=" + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name +
+				//@line 156
+				", clip=" + scene.__sceneName + clip.__clipPath +
+				//@line 157
+				", root_frame=" + rf +
+				//@line 158
+				", clip_frame=" + rc +
+				//@line 159
+				", root_time=" + scene.__root.__currentTime.toFixed(2) +
+				//@line 160
 				", clip_time=" + clip.__currentTime.toFixed(2);
 			}
-			//@line 161
+			//@line 162
 			trace(message);
 		};
 		//@line 46

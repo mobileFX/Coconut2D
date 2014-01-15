@@ -25,8 +25,8 @@ class Test : CocoScene
 		//====================================================================================================
 		var Image_SpriteSymbol_metal_slug:CocoImage = newResourceImage('SpriteSymbol_metal_slug', './assets/images/');
 		{
-			Image_SpriteSymbol_metal_slug.viewOptimalWidth = 36;
-			Image_SpriteSymbol_metal_slug.viewOptimalHeight = 42;
+			Image_SpriteSymbol_metal_slug.viewOptimalWidth = 0;
+			Image_SpriteSymbol_metal_slug.viewOptimalHeight = 0;
 			Image_SpriteSymbol_metal_slug.addSibling(new CocoImageSibling('metal_slug_mdpi.png', 1, 36, 42));
 			Image_SpriteSymbol_metal_slug.addSibling(new CocoImageSibling('metal_slug_xhdpi.png', 2, 72, 84));
 			Image_SpriteSymbol_metal_slug.textureCellWidth = 36;
@@ -39,8 +39,8 @@ class Test : CocoScene
 		//====================================================================================================
 		var Image_SpriteSymbol_Sparrow:CocoImage = newResourceImage('SpriteSymbol_Sparrow', './assets/images/');
 		{
-			Image_SpriteSymbol_Sparrow.viewOptimalWidth = 48;
-			Image_SpriteSymbol_Sparrow.viewOptimalHeight = 48;
+			Image_SpriteSymbol_Sparrow.viewOptimalWidth = 0;
+			Image_SpriteSymbol_Sparrow.viewOptimalHeight = 0;
 			Image_SpriteSymbol_Sparrow.addSibling(new CocoImageSibling('Sparrow.png', 1, 48, 48));
 			Image_SpriteSymbol_Sparrow.textureCellWidth = 48;
 			Image_SpriteSymbol_Sparrow.textureCellHeight = 48;
@@ -70,34 +70,48 @@ class Test : CocoScene
 			inst1.__instanceName = 'Layer1';
 			__root.addChild(inst1);
 			inst1.__timeline.clear();
-			inst1.__timeline.addKeyFrameEx(null, null, 10, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-			inst1.__timeline.addKeyFrameEx(null, null, 30, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-			{
-				var inst2:CocoClip = new  CocoClip(null, '');
-				inst2.__instanceName = 'Sparrow1';
-				inst1.addChild(inst2);
-				inst2.__timeline.clear();
-				inst2.__timeline.addKeyFrameEx(null, null, 10, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -84.5, 66.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-				{
-					var inst3:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow, '');
-					inst3.__instanceName = ':: SpriteSymbol_Sparrow';
-					inst2.addChild(inst3);
-					inst3.__timeline.clear();
-					inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-				}
-				var inst4:CocoClip = new  CocoClip(null, '');
-				inst4.__instanceName = 'metal_slug1';
-				inst1.addChild(inst4);
-				inst4.__timeline.clear();
-				inst4.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -78.5, -70.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-				{
-					var inst5:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug, '');
-					inst5.__instanceName = ':: SpriteSymbol_metal_slug';
-					inst4.addChild(inst5);
-					inst5.__timeline.clear();
-					inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-				}
-			}
+			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -45.5, -92.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			var inst2:CocoClip = new  CocoClip(null, '');
+			inst2.__instanceName = 'Layer2';
+			__root.addChild(inst2);
+			inst2.__timeline.clear();
+			inst2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -42, 82.99999, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			var inst3:CocoClip = new  CocoClip(null, '');
+			inst3.__instanceName = 'Layer3';
+			__root.addChild(inst3);
+			inst3.__timeline.clear();
+			inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 167, -16.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			var inst4:CocoClip = new  CocoClip(null, '');
+			inst4.__instanceName = 'Layer4';
+			__root.addChild(inst4);
+			inst4.__timeline.clear();
+			inst4.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 342, 168.5, 1, 1, 46.22471, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst4.__timeline.addKeyFrameEx(null, null, 66, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 590, 34.5, 0.310748, 0.208542, 0.862667, 0, 0, 1, 1, 1, 1, null, false, false);
+			var inst5:CocoClip = new  CocoClip(null, '');
+			inst5.__instanceName = 'Layer5';
+			__root.addChild(inst5);
+			inst5.__timeline.clear();
+			inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -500, -166, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			var inst6:CocoClip = new  CocoClip(null, '');
+			inst6.__instanceName = 'Layer6';
+			__root.addChild(inst6);
+			inst6.__timeline.clear();
+			inst6.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -574.5, 116, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			var inst7:CocoClip = new  CocoClip(null, '');
+			inst7.__instanceName = 'Layer7';
+			__root.addChild(inst7);
+			inst7.__timeline.clear();
+			inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 543.5, -203, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			var inst8:CocoClip = new  CocoClip(null, '');
+			inst8.__instanceName = 'Layer8';
+			__root.addChild(inst8);
+			inst8.__timeline.clear();
+			inst8.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 64, -235, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			var inst9:CocoClip = new  CocoClip(null, '');
+			inst9.__instanceName = 'Layer9';
+			__root.addChild(inst9);
+			inst9.__timeline.clear();
+			inst9.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -113.5, 227.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
 		}
 
 		/* -- DESIGNER GENERATED CODE END -- */
