@@ -50,44 +50,44 @@ function CocoImage()
 			//@line 125
 			return null;
 		};
-		//@line 144
+		//@line 129
 		var prepare = this.prepare = function (scene, gl)
 		{
-			//@line 146
+			//@line 131
 			__CLASS__COCOIMAGE__.__pixelRatioScale = scene.__view_pixel_ratio / __CLASS__COCOIMAGE__.pixelRatio;
-			//@line 149
+			//@line 134
 			var w2 = __CLASS__COCOIMAGE__.textureCellWidth / 2.0;
-			//@line 150
+			//@line 135
 			var h2 = __CLASS__COCOIMAGE__.textureCellHeight / 2.0;
-			//@line 151
+			//@line 136
 			__CLASS__COCOIMAGE__.texSize = new Float32Array([__CLASS__COCOIMAGE__.textureCellWidth / __CLASS__COCOIMAGE__.image.naturalWidth, __CLASS__COCOIMAGE__.textureCellHeight / __CLASS__COCOIMAGE__.image.naturalHeight]);
-			//@line 154
+			//@line 139
 			__CLASS__COCOIMAGE__.texture = gl.createTexture();
-			//@line 155
+			//@line 140
 			gl.bindTexture(gl.TEXTURE_2D, __CLASS__COCOIMAGE__.texture);
-			//@line 158
+			//@line 143
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, __CLASS__COCOIMAGE__.image);
-			//@line 161
+			//@line 146
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			//@line 162
+			//@line 147
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			//@line 165
+			//@line 150
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			//@line 166
+			//@line 151
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-			//@line 169
+			//@line 154
 			gl.generateMipmap(gl.TEXTURE_2D);
-			//@line 172
+			//@line 157
 			gl.bindTexture(gl.TEXTURE_2D, null);
-			//@line 174
+			//@line 159
 			var texData = new Float32Array([0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2]);
-			//@line 175
+			//@line 160
 			__CLASS__COCOIMAGE__.buffer = gl.createBuffer();
-			//@line 176
+			//@line 161
 			gl.bindBuffer(gl.ARRAY_BUFFER, __CLASS__COCOIMAGE__.buffer);
-			//@line 177
+			//@line 162
 			gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
-			//@line 178
+			//@line 163
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		};
 		//@line 45

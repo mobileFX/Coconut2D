@@ -38,15 +38,26 @@ class HTMLCanvasElement
 	public var width:Integer;
 	public var height:Integer;
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
 		width = 0;
 		height = 0;
 	}
 
-	public function getContext(contextId:String) :WebGLRenderingContext
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getContext(contextId:String) :HTMLCavnasContext
 	{
-		return new WebGLRenderingContext(this);
+		if(contextId=="2d")
+			return new CanvasRenderingContext2D(this);
+		else
+			return new WebGLRenderingContext(this);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toDataURL():String
+	{
+		return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAACACAYAAAB9V9ELAAAPy0lEQ…EIQAACBgkgAAwGHZchAAEIQAACCAByAAIQgAAEIGCQwP8Br6gO2wP7I7gAAAAASUVORK5CYII=";
 	}
 }
 

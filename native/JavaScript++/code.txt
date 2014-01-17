@@ -182,6 +182,14 @@ var __WebGLRenderingContext_vertexAttrib4fv = function(uid, indx, value__buffer_
 var __WebGLRenderingContext_vertexAttribPointer = function(uid, indx, size, type, normalized, stride, offset){};
 var __WebGLRenderingContext_viewport = function(uid, x, y, width, height){};
 
+class CocoFont
+{
+	public var height:Float;
+	public function Constructor(fontSize:Float, fontName:String, fontChars:String){}
+	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float){}
+	public function measureText(text:String):Float {}
+}
+
 // ==================================================================================================================================
 //	    ______________  ______           __                  _____           _       __     ____  __      _           __
 //	   / ____/ ____/  |/  /   |         / /___ __   ______ _/ ___/__________(_)___  / /_   / __ \/ /_    (_)__  _____/ /______
@@ -594,23 +602,26 @@ var COCO_KEYFRAME_INTERPOLATION_ENUM =
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+var COCO_TEXT_ALIGN_ENUM =
+{
+	TEXT_ALIGN_NEAR								: 0,
+	TEXT_ALIGN_CENTER							: 1,
+	TEXT_ALIGN_FAR								: 2,
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+var COCO_TEXT_TRIMMING_ENUM =
+{
+    StringTrimmingNone							: 0,
+    StringTrimmingCharacter						: 1,
+    StringTrimmingWord							: 2,
+    StringTrimmingEllipsisCharacter				: 3,
+    StringTrimmingEllipsisWord					: 4,
+    StringTrimmingEllipsisPath					: 5
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 "script_end:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/Constants.js";
 "script_begin:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/Coconut.js";
@@ -1042,15 +1053,26 @@ class HTMLCanvasElement
 	public var width:Integer;
 	public var height:Integer;
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
 		width = 0;
 		height = 0;
 	}
 
-	public function getContext(contextId:String) :WebGLRenderingContext
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getContext(contextId:String) :HTMLCavnasContext
 	{
-		return new WebGLRenderingContext(this);
+		if(contextId=="2d")
+			return new CanvasRenderingContext2D(this);
+		else
+			return new WebGLRenderingContext(this);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toDataURL():String
+	{
+		return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAACACAYAAAB9V9ELAAAPy0lEQï¿½EIQAACBgkgAAwGHZchAAEIQAACCAByAAIQgAAEIGCQwP8Br6gO2wP7I7gAAAAASUVORK5CYII=";
 	}
 }
 
@@ -1058,6 +1080,30 @@ class HTMLCanvasElement
 
 
 "script_end:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLCanvasElement.jspp";
+"script_begin:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLCanvasGradient.jspp";
+class HTMLCanvasGradient
+{
+	public function Constructor()
+	{
+	}
+}
+"script_end:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLCanvasGradient.jspp";
+"script_begin:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLCanvasPattern.jspp";
+class HTMLCanvasPattern
+{
+	public function Constructor()
+	{
+	}
+}
+"script_end:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLCanvasPattern.jspp";
+"script_begin:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLCavnasContext.jspp";
+class HTMLCavnasContext
+{
+	public function Constructor()
+	{
+	}
+}
+"script_end:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLCavnasContext.jspp";
 "script_begin:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLElement.jspp";
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -1177,6 +1223,203 @@ class HTMLDocument
 
 
 "script_end:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLDocument.jspp";
+"script_begin:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLTextMetrics.jspp";
+class HTMLTextMetrics
+{
+	public function Constructor()
+	{
+	}
+}
+"script_end:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLTextMetrics.jspp";
+"script_begin:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/CanvasRenderingContext2D.jspp";
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                            ____                 __          _             ______            __            __ ___   ____
+//	  / ____/___ _____ _   ______ ______/ __ \___  ____  ____/ /__  _____(_)___  ____ _/ ____/___  ____  / /____  _  __/ /|__ \ / __ \
+//	 / /   / __ `/ __ \ | / / __ `/ ___/ /_/ / _ \/ __ \/ __  / _ \/ ___/ / __ \/ __ `/ /   / __ \/ __ \/ __/ _ \| |/_/ __/_/ // / / /
+//	/ /___/ /_/ / / / / |/ / /_/ (__  ) _, _/  __/ / / / /_/ /  __/ /  / / / / / /_/ / /___/ /_/ / / / / /_/  __/>  </ /_/ __// /_/ /
+//	\____/\__,_/_/ /_/|___/\__,_/____/_/ |_|\___/_/ /_/\__,_/\___/_/  /_/_/ /_/\__, /\____/\____/_/ /_/\__/\___/_/|_|\__/____/_____/
+//	                                                                          /____/
+// ==================================================================================================================================
+
+"#include Constants.js"
+"#include HTMLTextMetrics.jspp"
+
+class CanvasRenderingContext2D : HTMLCavnasContext
+{
+	public const DRAWWINDOW_DRAW_CARET			= 0x01;	// Show the caret if appropriate when drawing.
+	public const DRAWWINDOW_DO_NOT_FLUSH		= 0x02;	// Do not flush pending layout notifications that could otherwise be batched up.
+	public const DRAWWINDOW_DRAW_VIEW			= 0x04;	// Draw scrollbars and scroll the viewport if they are present.
+	public const DRAWWINDOW_USE_WIDGET_LAYERS	= 0x08;	// Use the widget layer manager if available. This means hardware acceleration may be used, but it might actually be slower or lower quality than normal. It will, however, more accurately reflect the pixels rendered to the screen.
+	public const DRAWWINDOW_ASYNC_DECODE_IMAGES	= 0x10;	// Do not synchronously decode images - draw what we have.
+
+	public var __imageData:ImageData;
+	public var canvas:HTMLCanvasElement;
+
+	public var globalAlpha:Float;						// Alpha value that is applied to shapes and images before they are composited onto the canvas. Default 1.0 (opaque).
+	public var lineCap:String;							// Type of endings on the end of lines. Possible values: butt (default), round, square
+	public var lineDashOffset:Float;					// Specifies where to start a dasharray on a line.
+	public var lineJoin:String;							// Defines the type of corners where two lines meet. Possible values: round, bevel, miter (default)
+	public var lineWidth:Float;							// Width of lines. Default 1.0
+	public var miterLimit:Float;						// Default 10.
+	public var shadowBlur:Float;						// Specifies the blurring effect. Default 0
+	public var shadowColor:String;						// Color of the shadow. Default fully-transparent black.
+	public var shadowOffsetX:Float;						// Horizontal distance the shadow will be offset. Default 0.
+	public var shadowOffsetY:Float;						// Vertical distance the shadow will be offset. Default 0.
+	public var strokeStyle:Integer;						// Color or style to use for the lines around shapes. Default #000 (black).
+	public var textAlign:String;						// ossible values: start (default), end, left, right or center.
+	public var textBaseline:String;						// Possible values: top, hanging, middle, alphabetic (default), ideographic, bottom
+	public var globalCompositeOperation:String;			// With globalAlpha applied this sets how shapes and images are drawn onto the existing bitmap. Possible values: "source-atop", "source-in", "source-out", "source-over", "destination-atop", "destination-in", "destination-out", "destination-over", "lighter", "darker", "copy", "xor"
+
+	private var __fillStyle:String;
+	private var __fontSetting:String;
+	private var __font:CocoFont;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(canvas:HTMLCanvasElement)
+	{
+		this.canvas = canvas;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete __imageData;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+    //public function createImageData(imagedata:Imagedata):ImageData
+	public function arc(x:Float, y:Float, radius:Float, startAngle:Float, endAngle:Float, optional anticlockwise:Boolean)	{}
+	public function arcTo(x1:Float, y1:Float, x2:Float, y2:Float, radius:Float)                                             {}
+	public function beginPath()                                                                                             {}
+	public function bezierCurveTo(cp1x:Float, cp1y:Float, cp2x:Float, cp2y:Float, x:Float, y:Float)                         {}
+	public function clearRect(x:Float, y:Float, width:Float, height:Float)                                                  {}
+	public function clip()                                                                                                  {}
+	public function closePath()                                                                                             {}
+	public function createImageData(width:Float, height:Float):ImageData													{ return null; }
+	public function createLinearGradient(x0:Float, y0:Float, x1:Float, y1:Float):HTMLCanvasGradient							{ return null; }
+	public function createPattern(image:Image, repetition:String):HTMLCanvasPattern											{ return null; }
+	public function createRadialGradient(x0:Float, y0:Float, r0:Float, x1:Float, y1:Float, r1:Float):HTMLCanvasGradient		{ return null; }
+	public function drawCustomFocusRing(element:HTMLElement):Boolean														{ return false; }
+	public function drawSystemFocusRing(element:HTMLElement)																{}
+	public function fill()                                                     												{}
+	public function fillRect(x:Float, y:Float, width:Float, height:Float)                    								{}
+	public function getImageData(x:Float, y:Float, width:Float, height:Float):ImageData         							{ return null; }
+	public function getLineDash()																							{}
+	public function isPointInPath(x:Float, y:Float):Boolean																	{ return false; }
+	public function isPointInStroke(x:Float, y:Float):Boolean																{ return false; }
+	public function lineTo(x:Float, y:Float)																				{}
+	public function moveTo(x:Float, y:Float)																				{}
+	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float)                                                {}
+	public function rect(x:Float, y:Float, width:Float, height:Float)                                                       {}
+	public function restore()                                                                                               {}
+	public function rotate(angle:Float)                                                                                     {}
+	public function save()                                                                                                  {}
+	public function scale(x:Float, y:Float)                                                                                 {}
+	public function scrollPathIntoView()                                                                                    {}
+	public function setLineDash(segments:Array<Float>)                                                                      {}
+	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                            {}
+	public function stroke()                                                                                                {}
+	public function strokeRect(x:Float, y:Float, w:Float, h:Float)                                                          {}
+	public function strokeText(text:String, x:Float, y:Float, optional maxWidth:Float)                                      {}
+	public function transform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                               {}
+	public function translate(x:Float, y:Float)                                                                             {}
+	public function drawImage(image:Image, a1:Float, a2:Float, optional a3:Float, optional a4:Float, optional a5:Float, optional a6:Float, optional a7:Float, optional a8:Float) {}
+	public function putImageData(imagedata:ImageData, dx:Float, dy:Float, optional dirtyX:Float, optional dirtyY:Float, optional dirtyWidth:Float, optional dirtyHeight:Float) {}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/*
+	public function createWithText(width:Integer, height:Integer, font:CocoFont, text:String)
+	{
+		image = new Image();
+		image.width = width;
+		image.height = height;
+		image.__imageData = new ImageData(String(image.width), String(image.height));
+		//image.__imageData.buffer.clear();
+		font.fillText(image.__imageData.buffer, image.width, text, 0, 0);
+		textureCellWidth = font.measureText(text);
+		textureCellHeight = font.height;
+	}
+	*/
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property fillStyle
+	{
+		function get():String
+		{
+			return __fillStyle;
+		}
+		function set(v:String)
+		{
+			__fillStyle = v;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property font
+	{
+		// font-style font-variant font-weight font-size/line-height font-family
+
+		function get():String
+		{
+			return __fontSetting;
+		}
+
+		function set(v:String)
+		{
+			__fontSetting = v;
+
+           	/*
+			var rx:RegExp = new RegExp("/^\s*(?=(?:(?:[-a-z]+\s*){0,2}(italic|oblique))?)(?=(?:(?:[-a-z]+\s*){0,2}(small-caps))?)(?=(?:(?:[-a-z]+\s*){0,2}(bold(?:er)?|lighter|[1-9]00))?)(?:(?:normal|\1|\2|\3)\s*){0,3}((?:xx?-)?(?:small|large)|medium|smaller|larger|[.\d]+(?:\%|in|[cem]m|ex|p[ctx]))(?:\s*\/\s*(normal|[.\d]+(?:\%|in|[cem]m|ex|p[ctx])))?\s*([-,\"\sa-z]+?)\s*$", "i");
+			var matches:Array<String>	= rx.exec(v);
+			var fontStyle:String   		= matches[1];
+			var fontVariant:String 		= matches[2];
+			var fontWeight:String  		= matches[3];
+			var fontSize:Float    		= matches[4];
+			var lineHeight:Float  		= matches[5];
+			var fontFamily:String  		= matches[6];
+			var fontChars:String 		= " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()/.,?><';\":]|[}{\\}]`~-_";
+			__font = new CocoFont(fontSize, fontFamily, fontChars);
+			*/
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function fillText(text:String, x:Float, y:Float, optional maxWidth:Float)
+	{
+		//__font.fillText(__imageData.buffer, canvas.width, text, x, y);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function measureText(text:String):HTMLTextMetrics
+	{
+		return null;
+	}
+}
+"script_end:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/CanvasRenderingContext2D.jspp";
 "script_begin:///C:/Users/YiamiYo/Documents/GitHub/Coconut2D/web/src/Coconut2D/html5/HTMLWindow.jspp";
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -2233,7 +2476,7 @@ class WebGLProgram : WebGLObject
 "#include WebGLUniformLocation.jspp"
 "#include HTMLCanvasElement.jspp"
 
-class WebGLRenderingContext
+class WebGLRenderingContext : HTMLCavnasContext
 {
 	public const ACTIVE_ATTRIBUTES:Integer = 0x8B89;
 	public const ACTIVE_TEXTURE:Integer = 0x84E0;
@@ -3440,12 +3683,6 @@ class CocoAudio
 		__loopCount = 0;
 	}
 
-	public function reset()
-	{
-		stop();
-		__firstPlayed = false;
-	}
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
@@ -3635,11 +3872,20 @@ class CocoSequence
 {
 	public var name:String;
 	public var frames:Array<Integer>;
+	public var sequenceStartTime:Time;
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(name:String, framesArray:Array<Integer>)
 	{
 		this.name = name;
 		this.frames = framesArray;
+		this.sequenceStartTime=0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete frames;
 	}
 }
 
@@ -3771,21 +4017,6 @@ class CocoImage
 		}
 		return null;
 	}
-
-	/*
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function createWithText(font:CocoFont, text:String)
-	{
-		image = new Image();
-		image.__width = 512;
-		image.__height = 512;
-		image.__imageData = new ImageData(image.width, image.height);
-		image.__imageData.__buffer.clear();
-		font.fillText(image.__imageData.__buffer, image.width, text, 0, 0);
-		textureCellWidth = font.measureText(text);
-		textureCellHeight = font.height;
-	}
-	*/
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(scene:CocoScene, gl:WebGLRenderingContext)
@@ -4426,6 +4657,7 @@ class CocoKeyFrame
 	public var audio:CocoAudio;
 	public var flipH:Boolean;
 	public var flipV:Boolean;
+	public var spriteSequenceName:String;
 
 	private var __lastActionExecutionTime:Time;
 	protected var __isCloned:Boolean;
@@ -4455,6 +4687,7 @@ class CocoKeyFrame
 		flipV						= false;
 		__lastActionExecutionTime 	= 0.0;
 		__isCloned					= false;
+		spriteSequenceName			= "";
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4489,6 +4722,7 @@ class CocoKeyFrame
 		c.action					= action;
 		c.nextState					= nextState;
 		c.audio						= audio;
+ 		c.spriteSequenceName		= spriteSequenceName;
  		c.__lastActionExecutionTime	= __lastActionExecutionTime;
  		c.__isCloned				= true;
 	    return c;
@@ -4498,8 +4732,6 @@ class CocoKeyFrame
 	public function reset()
 	{
 		__lastActionExecutionTime = 0.0;
-		//if(audio)
-		//	audio.reset();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4567,6 +4799,7 @@ class CocoKeyFrame
 	    flipV = (flipV && !Frame.flipV) || (!flipV && Frame.flipV);
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function apply(matrix:CocoMatrix)
 	{
 		if(x!=0 || y!=0) matrix.translate(x, y);
@@ -4747,7 +4980,8 @@ class CocoTimeline
 								  alpha:Float,
 								  audio:CocoAudio,
 								  flipH:Boolean,
-								  flipV:Boolean) :CocoKeyFrame
+								  flipV:Boolean,
+								  spriteSequenceName:String) :CocoKeyFrame
 	{
 	    var KeyFrame:CocoKeyFrame = new CocoKeyFrame();
 
@@ -4771,6 +5005,7 @@ class CocoTimeline
 	    KeyFrame.audio				= audio;
 	    KeyFrame.flipH				= flipH;
 	    KeyFrame.flipV				= flipV;
+	    KeyFrame.spriteSequenceName	= spriteSequenceName;
 
 	    return addKeyFrame(KeyFrame);
 	}
@@ -4987,15 +5222,18 @@ class CocoTimeline
 class CocoClip
 {
 	public var __instanceName:String;
+	public var __scene:CocoScene;
 	public var __image:CocoImage;
 	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var __children:Array<CocoClip>;
-	public var __currentSequence:CocoSequence;
-	public var __currentSequenceFrameIndex:Integer;
 	public var __timeline:CocoTimeline;
 	public var __parent:CocoClip;
 	public var __currentTime:Time;
 	public var __currentFrame:CocoKeyFrame;
+	public var __clipPath:String;
+	public var __childWithMaxTimelineDuration:CocoClip;
+
+	// Bounding Box & Hit Test
 	public var __hasBoundingBox:Boolean;
 	public var __vABS_TOP_LEFT:CocoVector;
 	public var __vABS_TOP_RIGHT:CocoVector;
@@ -5007,16 +5245,15 @@ class CocoClip
 	public var __vREL_BOTTOM_RIGHT:CocoVector;
 	public var __vTemp:CocoVector;
 	public var __mTemp:CocoMatrix;
-	public var __childWithMaxTimelineDuration:CocoClip;
-	public var __clipPath:String;
 
+	// References to objects we do not own (do not delete in destructor)
+	private var __currentSequence:CocoSequence;
 	private var __currentAudio:CocoAudio;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(optional image:CocoImage, optional sequence:String)
+	public function Constructor(optional image:CocoImage)
 	{
 		__symbolLoop					= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
-		__currentSequenceFrameIndex		= 0;
 		__timeline						= new CocoTimeline();
 		__parent						= null;
 		__currentTime					= 0.0;
@@ -5038,7 +5275,6 @@ class CocoClip
 		__clipPath						= "";
 
 		__image = image;
-		if(image && sequence) __currentSequence = image.getSequence(sequence);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5067,6 +5303,28 @@ class CocoClip
 		{
 			__children[i].prepare(scene);
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createTextTexture(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer)
+	{
+		delete __image;
+		var canvas:HTMLCanvasElement = document.createElement("canvas");
+		canvas.width = Integer(Math.pow(2, Math.ceil(Math.log(textRectWidth)/Math.log(2))));
+		canvas.height = Integer(Math.pow(2, Math.ceil(Math.log(textRectHeight)/Math.log(2))));
+		var ctx:CanvasRenderingContext2D = canvas.getContext("2d");
+		// font-style font-variant font-weight font-size/line-height font-family
+		ctx.font = "normal normal normal " + String(fontSizePixels) + "px / normal " + fontName;
+		ctx.fillStyle = "red";
+		ctx.fillText(text, 0, Float(fontSizePixels));
+		ctx.strokeRect(0,0, Float(textRectWidth), Float(textRectHeight));
+        __image = new CocoImage();
+        __image.image = new Image();
+        __image.image.load(canvas.toDataURL());
+        __image.textureCellWidth = Float(textRectWidth);
+        __image.textureCellHeight = Float(textRectHeight);
+        __image.textureGrid = new Float32Array([0,0]);
+        __image.prepare(__scene, gl);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5156,7 +5414,7 @@ class CocoClip
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
 
-		trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
+		//trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		return gotoFrameByIndex(Label.frameIndex, pause, deep);
 	}
@@ -5164,7 +5422,7 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean, optional deep:Boolean) :Boolean
 	{
-		trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
+		//trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
@@ -5174,7 +5432,7 @@ class CocoClip
 			if(FrameIndex!=COCO_STOP_ON_CURRENT_FRAME)
 				clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
 
-			trace("-> child: " + clip.__clipPath + ", from=" + String(clip.__currentFrame.frameIndex) + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)));
+			//trace("-> child: " + clip.__clipPath + ", from=" + String(clip.__currentFrame.frameIndex) + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)));
 
 			if (deep)
 				clip.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
@@ -5185,6 +5443,8 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
+		__scene = scene;
+
 		// Set clip path for debugging.
 		__clipPath = (parentClip ? parentClip.__clipPath : "") + "/" + this.__instanceName;
 
@@ -5236,11 +5496,25 @@ class CocoClip
 			__currentFrame.scaleX /= __image.__pixelRatioScale;
 			__currentFrame.scaleY /= __image.__pixelRatioScale;
 
+			// Get sequence name
+			var sequenceName:String = parentClip && parentClip.__currentFrame ? parentClip.__currentFrame.spriteSequenceName : "";
+
+			// Check if we should change sprite animation sequence
+			if(sequenceName.length==0)
+			{
+				__currentSequence = null;
+			}
+			else if(!__currentSequence || (__currentSequence && __currentSequence.name!=sequenceName))
+			{
+				__currentSequence = __image.getSequence(sequenceName);
+				__currentSequence.sequenceStartTime = __currentTime;
+			}
+
 			if(__image.isSpriteSheet && __currentSequence)
 			{
 				// Render animation sequence.
-				__currentSequenceFrameIndex = __timeline.__paused ? 0 : Math.floor(__currentTime / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
-				var frame:Integer = __currentSequence.frames[__currentSequenceFrameIndex];
+				var sequenceFrameIndex:Integer = __timeline.__paused ? 0 : Math.floor((__currentTime-__currentSequence.sequenceStartTime) / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
+				var frame:Integer = __currentSequence.frames[sequenceFrameIndex];
 				scene.drawFrame(gl, __image, frame, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
 			}
 			else
@@ -5333,6 +5607,11 @@ class CocoClip
 		// =============================================================================================================
 		if(!__timeline.__paused)
 			__currentTime += engine.TICK_TIME;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function setText(text:String)
+	{
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5987,7 +6266,7 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __trace(scene:CocoScene, clip:CocoClip, message: String)
 	{
-		//return;
+		return;
 
 		if(scene && clip)
 		{
@@ -7018,80 +7297,93 @@ class BitmapSymbolsTest : CocoScene
 
 		__root = new CocoClip();
 		__root.__instanceName = 'root';
+		__root.__scene = this;
 		__root.__timeline.clear();
-		__root.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+		__root.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 		{
-			var inst1:CocoClip = new  CocoClip(null, '');
+			var inst1:CocoClip = new  CocoClip(null);
 			inst1.__instanceName = 'metal_slug1';
 			__root.addChild(inst1);
+			inst1.__scene = this;
 			inst1.__timeline.clear();
-			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -207.5, -116.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -207.5, -116.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst2:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug, 'Walk');
+				var inst2:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 				inst2.__instanceName = ':: SpriteSymbol_metal_slug';
 				inst1.addChild(inst2);
+				inst2.__scene = this;
 				inst2.__timeline.clear();
-				inst2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 38, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 38, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
-			var inst3:CocoClip = new  CocoClip(null, '');
+			var inst3:CocoClip = new  CocoClip(null);
 			inst3.__instanceName = 'metal_slug3';
 			__root.addChild(inst3);
+			inst3.__scene = this;
 			inst3.__timeline.clear();
-			inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -174, -30.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -174, -30.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst4:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug, 'Walk');
+				var inst4:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 				inst4.__instanceName = ':: SpriteSymbol_metal_slug';
 				inst3.addChild(inst4);
+				inst4.__scene = this;
 				inst4.__timeline.clear();
-				inst4.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst4.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
-			var inst5:CocoClip = new  CocoClip(null, '');
+			var inst5:CocoClip = new  CocoClip(null);
 			inst5.__instanceName = 'metal_slug4';
 			__root.addChild(inst5);
+			inst5.__scene = this;
 			inst5.__timeline.clear();
-			inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -114.5, -30.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -114.5, -30.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst6:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug, 'Walk');
+				var inst6:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 				inst6.__instanceName = ':: SpriteSymbol_metal_slug';
 				inst5.addChild(inst6);
+				inst6.__scene = this;
 				inst6.__timeline.clear();
-				inst6.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst6.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
-			var inst7:CocoClip = new  CocoClip(null, '');
+			var inst7:CocoClip = new  CocoClip(null);
 			inst7.__instanceName = 'Sparrow1';
 			__root.addChild(inst7);
+			inst7.__scene = this;
 			inst7.__timeline.clear();
-			inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -180.5, 47.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -180.5, 47.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst8:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow, 'Fly');
+				var inst8:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst8.__instanceName = ':: SpriteSymbol_Sparrow';
 				inst7.addChild(inst8);
+				inst8.__scene = this;
 				inst8.__timeline.clear();
-				inst8.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst8.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
-			var inst9:CocoClip = new  CocoClip(null, '');
+			var inst9:CocoClip = new  CocoClip(null);
 			inst9.__instanceName = 'Sparrow2';
 			__root.addChild(inst9);
+			inst9.__scene = this;
 			inst9.__timeline.clear();
-			inst9.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -102.5, 47.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst9.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -102.5, 47.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst10:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow, 'Fly');
+				var inst10:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst10.__instanceName = ':: SpriteSymbol_Sparrow';
 				inst9.addChild(inst10);
+				inst10.__scene = this;
 				inst10.__timeline.clear();
-				inst10.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst10.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
-			var inst11:CocoClip = new  CocoClip(null, '');
+			var inst11:CocoClip = new  CocoClip(null);
 			inst11.__instanceName = 'Sparrow3';
 			__root.addChild(inst11);
+			inst11.__scene = this;
 			inst11.__timeline.clear();
-			inst11.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -100.5, -121.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst11.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -100.5, -121.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst12:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow, 'Walk');
+				var inst12:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst12.__instanceName = ':: SpriteSymbol_Sparrow';
 				inst11.addChild(inst12);
+				inst12.__scene = this;
 				inst12.__timeline.clear();
-				inst12.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst12.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
 		}
 
@@ -7166,105 +7458,122 @@ class SynthesisTest : CocoScene
 
 		__root = new CocoClip();
 		__root.__instanceName = 'root';
+		__root.__scene = this;
 		__root.__timeline.clear();
-		__root.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+		__root.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 		{
-			var inst1:CocoClip = new  CocoClip(null, '');
+			var inst1:CocoClip = new  CocoClip(null);
 			inst1.__instanceName = 'metal_slug1';
 			__root.addChild(inst1);
+			inst1.__scene = this;
 			inst1.__timeline.clear();
-			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 150.5, -80.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 150.5, -80.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst2:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug, '');
+				var inst2:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 				inst2.__instanceName = ':: SpriteSymbol_metal_slug';
 				inst1.addChild(inst2);
+				inst2.__scene = this;
 				inst2.__timeline.clear();
-				inst2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
-			var inst3:CocoClip = new  CocoClip(null, '');
+			var inst3:CocoClip = new  CocoClip(null);
 			inst3.__instanceName = 'Sparrow1';
 			__root.addChild(inst3);
+			inst3.__scene = this;
 			inst3.__timeline.clear();
-			inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 142.5, 4.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 142.5, 4.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst4:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow, 'Walk');
+				var inst4:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst4.__instanceName = ':: SpriteSymbol_Sparrow';
 				inst3.addChild(inst4);
+				inst4.__scene = this;
 				inst4.__timeline.clear();
-				inst4.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst4.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
-			var inst5:CocoClip = new  CocoClip(null, '');
+			var inst5:CocoClip = new  CocoClip(null);
 			inst5.__instanceName = 'Sparrow2';
 			__root.addChild(inst5);
+			inst5.__scene = this;
 			inst5.__timeline.clear();
-			inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0.5, 82.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0.5, 82.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst6:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow, 'Die');
+				var inst6:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst6.__instanceName = ':: SpriteSymbol_Sparrow';
 				inst5.addChild(inst6);
+				inst6.__scene = this;
 				inst6.__timeline.clear();
-				inst6.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst6.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
-			var inst7:CocoClip = new  CocoClip(null, '');
+			var inst7:CocoClip = new  CocoClip(null);
 			inst7.__instanceName = 'ClipSymbol_Snythesis12';
 			__root.addChild(inst7);
+			inst7.__scene = this;
 			inst7.__timeline.clear();
-			inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -72.5, -74.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -72.5, -74.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst8:CocoClip = new  CocoClip(null, '');
+				var inst8:CocoClip = new  CocoClip(null);
 				inst8.__instanceName = 'metal_slug1';
 				inst7.addChild(inst8);
+				inst8.__scene = this;
 				inst8.__timeline.clear();
-				inst8.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -0.5, -40.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst8.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -0.5, -40.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 				{
-					var inst9:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug, '');
+					var inst9:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 					inst9.__instanceName = ':: SpriteSymbol_metal_slug';
 					inst8.addChild(inst9);
+					inst9.__scene = this;
 					inst9.__timeline.clear();
-					inst9.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+					inst9.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 				}
-				var inst10:CocoClip = new  CocoClip(null, '');
+				var inst10:CocoClip = new  CocoClip(null);
 				inst10.__instanceName = 'Sparrow1';
 				inst7.addChild(inst10);
+				inst10.__scene = this;
 				inst10.__timeline.clear();
-				inst10.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -4.5, 34.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst10.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -4.5, 34.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 				{
-					var inst11:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow, 'Walk');
+					var inst11:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 					inst11.__instanceName = ':: SpriteSymbol_Sparrow';
 					inst10.addChild(inst11);
+					inst11.__scene = this;
 					inst11.__timeline.clear();
-					inst11.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+					inst11.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 				}
 			}
-			var inst12:CocoClip = new  CocoClip(null, '');
+			var inst12:CocoClip = new  CocoClip(null);
 			inst12.__instanceName = 'ClipSymbol_Snythesis11';
 			__root.addChild(inst12);
+			inst12.__scene = this;
 			inst12.__timeline.clear();
-			inst12.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -177.5, -71.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst12.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -177.5, -71.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
-				var inst13:CocoClip = new  CocoClip(null, '');
+				var inst13:CocoClip = new  CocoClip(null);
 				inst13.__instanceName = 'metal_slug1';
 				inst12.addChild(inst13);
+				inst13.__scene = this;
 				inst13.__timeline.clear();
-				inst13.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -0.5, -40.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst13.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -0.5, -40.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 				{
-					var inst14:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug, '');
+					var inst14:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 					inst14.__instanceName = ':: SpriteSymbol_metal_slug';
 					inst13.addChild(inst14);
+					inst14.__scene = this;
 					inst14.__timeline.clear();
-					inst14.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+					inst14.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 				}
-				var inst15:CocoClip = new  CocoClip(null, '');
+				var inst15:CocoClip = new  CocoClip(null);
 				inst15.__instanceName = 'Sparrow1';
 				inst12.addChild(inst15);
+				inst15.__scene = this;
 				inst15.__timeline.clear();
-				inst15.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -4.5, 34.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+				inst15.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -4.5, 34.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 				{
-					var inst16:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow, 'Walk');
+					var inst16:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 					inst16.__instanceName = ':: SpriteSymbol_Sparrow';
 					inst15.addChild(inst16);
+					inst16.__scene = this;
 					inst16.__timeline.clear();
-					inst16.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+					inst16.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 				}
 			}
 		}
@@ -7316,8 +7625,8 @@ class Test : CocoScene
 		//====================================================================================================
 		var Image_SpriteSymbol_Sparrow:CocoImage = newResourceImage('SpriteSymbol_Sparrow', './assets/images/');
 		{
-			Image_SpriteSymbol_Sparrow.viewOptimalWidth = 0;
-			Image_SpriteSymbol_Sparrow.viewOptimalHeight = 0;
+			Image_SpriteSymbol_Sparrow.viewOptimalWidth = 48;
+			Image_SpriteSymbol_Sparrow.viewOptimalHeight = 48;
 			Image_SpriteSymbol_Sparrow.addSibling(new CocoImageSibling('Sparrow.png', 1, 48, 48));
 			Image_SpriteSymbol_Sparrow.textureCellWidth = 48;
 			Image_SpriteSymbol_Sparrow.textureCellHeight = 48;
@@ -7340,55 +7649,25 @@ class Test : CocoScene
 
 		__root = new CocoClip();
 		__root.__instanceName = 'root';
+		__root.__scene = this;
 		__root.__timeline.clear();
-		__root.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+		__root.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 		{
-			var inst1:CocoClip = new  CocoClip(null, '');
-			inst1.__instanceName = 'Layer1';
+			var inst1:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
+			inst1.__instanceName = 'Sparrow1';
 			__root.addChild(inst1);
+			inst1.__scene = this;
 			inst1.__timeline.clear();
-			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -45.5, -92.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-			var inst2:CocoClip = new  CocoClip(null, '');
-			inst2.__instanceName = 'Layer2';
+			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -187.5, -53.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fly');
+			inst1.__timeline.addKeyFrameEx(null, null, 30, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0.5, -54.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+			inst1.__timeline.addKeyFrameEx(null, null, 65, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 211.5, -41.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Borred');
+			var inst2:CocoClip = new  CocoClip(null);
+			inst2.__instanceName = 'Text1';
 			__root.addChild(inst2);
+			inst2.__scene = this;
+			inst2.createTextTexture('Balance', 'Arial', 66, COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_NEAR, COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_NEAR, false, COCO_TEXT_TRIMMING_ENUM.StringTrimmingNone, '0', 300, 66);
 			inst2.__timeline.clear();
-			inst2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -42, 82.99999, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-			var inst3:CocoClip = new  CocoClip(null, '');
-			inst3.__instanceName = 'Layer3';
-			__root.addChild(inst3);
-			inst3.__timeline.clear();
-			inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 167, -16.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-			var inst4:CocoClip = new  CocoClip(null, '');
-			inst4.__instanceName = 'Layer4';
-			__root.addChild(inst4);
-			inst4.__timeline.clear();
-			inst4.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 342, 168.5, 1, 1, 46.22471, 0, 0, 1, 1, 1, 1, null, false, false);
-			inst4.__timeline.addKeyFrameEx(null, null, 66, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 590, 34.5, 0.310748, 0.208542, 0.862667, 0, 0, 1, 1, 1, 1, null, false, false);
-			var inst5:CocoClip = new  CocoClip(null, '');
-			inst5.__instanceName = 'Layer5';
-			__root.addChild(inst5);
-			inst5.__timeline.clear();
-			inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -500, -166, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-			var inst6:CocoClip = new  CocoClip(null, '');
-			inst6.__instanceName = 'Layer6';
-			__root.addChild(inst6);
-			inst6.__timeline.clear();
-			inst6.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -574.5, 116, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-			var inst7:CocoClip = new  CocoClip(null, '');
-			inst7.__instanceName = 'Layer7';
-			__root.addChild(inst7);
-			inst7.__timeline.clear();
-			inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 543.5, -203, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-			var inst8:CocoClip = new  CocoClip(null, '');
-			inst8.__instanceName = 'Layer8';
-			__root.addChild(inst8);
-			inst8.__timeline.clear();
-			inst8.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 64, -235, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
-			var inst9:CocoClip = new  CocoClip(null, '');
-			inst9.__instanceName = 'Layer9';
-			__root.addChild(inst9);
-			inst9.__timeline.clear();
-			inst9.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -113.5, 227.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false);
+			inst2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -74.5, 115.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 		}
 
 		/* -- DESIGNER GENERATED CODE END -- */

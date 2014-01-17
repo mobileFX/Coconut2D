@@ -120,302 +120,304 @@ function CocoTimeline()
 			return KeyFrame;
 		};
 		//@line 151
-		var addKeyFrameEx = this.addKeyFrameEx = function (nextState, actionCallback, frameIndex, frameInterpolation, handleEvents, visible, x, y, scaleX, scaleY, rotation, pivotX, pivotY, red, green, blue, alpha, audio, flipH, flipV)
+		var addKeyFrameEx = this.addKeyFrameEx = function (nextState, actionCallback, frameIndex, frameInterpolation, handleEvents, visible, x, y, scaleX, scaleY, rotation, pivotX, pivotY, red, green, blue, alpha, audio, flipH, flipV, spriteSequenceName)
 		{
-			//@line 172
+			//@line 173
 			var KeyFrame = new CocoKeyFrame;
-			//@line 174
-			KeyFrame.nextState = nextState;
 			//@line 175
-			KeyFrame.action = actionCallback;
+			KeyFrame.nextState = nextState;
 			//@line 176
-			KeyFrame.frameIndex = frameIndex;
+			KeyFrame.action = actionCallback;
 			//@line 177
-			KeyFrame.frameInterpolation = frameInterpolation;
+			KeyFrame.frameIndex = frameIndex;
 			//@line 178
-			KeyFrame.handleEvents = handleEvents;
+			KeyFrame.frameInterpolation = frameInterpolation;
 			//@line 179
-			KeyFrame.visible = visible;
+			KeyFrame.handleEvents = handleEvents;
 			//@line 180
-			KeyFrame.x = x;
+			KeyFrame.visible = visible;
 			//@line 181
-			KeyFrame.y = y;
+			KeyFrame.x = x;
 			//@line 182
-			KeyFrame.scaleX = scaleX;
+			KeyFrame.y = y;
 			//@line 183
-			KeyFrame.scaleY = scaleY;
+			KeyFrame.scaleX = scaleX;
 			//@line 184
-			KeyFrame.rotation = rotation;
+			KeyFrame.scaleY = scaleY;
 			//@line 185
-			KeyFrame.pivotX = pivotX;
+			KeyFrame.rotation = rotation;
 			//@line 186
-			KeyFrame.pivotY = pivotY;
+			KeyFrame.pivotX = pivotX;
 			//@line 187
-			KeyFrame.red = red;
+			KeyFrame.pivotY = pivotY;
 			//@line 188
-			KeyFrame.green = green;
+			KeyFrame.red = red;
 			//@line 189
-			KeyFrame.blue = blue;
+			KeyFrame.green = green;
 			//@line 190
-			KeyFrame.alpha = alpha;
+			KeyFrame.blue = blue;
 			//@line 191
-			KeyFrame.audio = audio;
+			KeyFrame.alpha = alpha;
 			//@line 192
-			KeyFrame.flipH = flipH;
+			KeyFrame.audio = audio;
 			//@line 193
+			KeyFrame.flipH = flipH;
+			//@line 194
 			KeyFrame.flipV = flipV;
 			//@line 195
+			KeyFrame.spriteSequenceName = spriteSequenceName;
+			//@line 197
 			return __CLASS__COCOTIMELINE__.addKeyFrame(KeyFrame);
 		};
-		//@line 199
+		//@line 201
 		var prepare = this.prepare = function (scene, clip)
 		{
-			//@line 201
+			//@line 203
 			__CLASS__COCOTIMELINE__.__fps = scene.__fps;
-			//@line 202
+			//@line 204
 			__CLASS__COCOTIMELINE__.normalizetimeline();
 		};
-		//@line 206
+		//@line 208
 		var normalizetimeline = this.normalizetimeline = function ()
 		{
-			//@line 208
-			__CLASS__COCOTIMELINE__.reset();
-			//@line 209
-			__CLASS__COCOTIMELINE__.__durationInFrames = 0;
 			//@line 210
-			__CLASS__COCOTIMELINE__.__durationInTime = 0;
+			__CLASS__COCOTIMELINE__.reset();
 			//@line 211
-			__CLASS__COCOTIMELINE__.__singleFrameDurationTime = 0;
+			__CLASS__COCOTIMELINE__.__durationInFrames = 0;
 			//@line 212
-			if (__CLASS__COCOTIMELINE__.__keyFrames.size() > 0)
+			__CLASS__COCOTIMELINE__.__durationInTime = 0;
 			//@line 213
+			__CLASS__COCOTIMELINE__.__singleFrameDurationTime = 0;
+			//@line 214
+			if (__CLASS__COCOTIMELINE__.__keyFrames.size() > 0)
+			//@line 215
 			{
-				//@line 214
-				__CLASS__COCOTIMELINE__.__durationInFrames = __CLASS__COCOTIMELINE__.__keyFrames[__CLASS__COCOTIMELINE__.__keyFrames.size() - 1].frameIndex + 1;
-				//@line 215
-				__CLASS__COCOTIMELINE__.__durationInTime = (__CLASS__COCOTIMELINE__.__durationInFrames / __CLASS__COCOTIMELINE__.__fps) * 1000;
 				//@line 216
+				__CLASS__COCOTIMELINE__.__durationInFrames = __CLASS__COCOTIMELINE__.__keyFrames[__CLASS__COCOTIMELINE__.__keyFrames.size() - 1].frameIndex + 1;
+				//@line 217
+				__CLASS__COCOTIMELINE__.__durationInTime = (__CLASS__COCOTIMELINE__.__durationInFrames / __CLASS__COCOTIMELINE__.__fps) * 1000;
+				//@line 218
 				__CLASS__COCOTIMELINE__.__singleFrameDurationTime = __CLASS__COCOTIMELINE__.__durationInTime / __CLASS__COCOTIMELINE__.__durationInFrames;
 			}
 		};
-		//@line 221
+		//@line 223
 		var findKeyFrameBeforeframeIndex = this.findKeyFrameBeforeframeIndex = function (frameIndex, inclusive, excludeListIndex)
 		{
-			//@line 223
-			var KeyFrame;
-			//@line 224
-			for (var i = __CLASS__COCOTIMELINE__.__keyFrames.size() - 1; i >= 0; i--)
 			//@line 225
+			var KeyFrame;
+			//@line 226
+			for (var i = __CLASS__COCOTIMELINE__.__keyFrames.size() - 1; i >= 0; i--)
+			//@line 227
 			{
-				//@line 226
+				//@line 228
 				if (i != excludeListIndex)
-				//@line 227
+				//@line 229
 				{
-					//@line 228
-					KeyFrame = __CLASS__COCOTIMELINE__.__keyFrames[i];
-					//@line 229
-					if (inclusive)
 					//@line 230
+					KeyFrame = __CLASS__COCOTIMELINE__.__keyFrames[i];
+					//@line 231
+					if (inclusive)
+					//@line 232
 					{
-						//@line 231
+						//@line 233
 						if (KeyFrame.frameIndex <= frameIndex)
-						//@line 232
+						//@line 234
 						return KeyFrame;
 					}
 					else
-					//@line 235
+					//@line 237
 					{
-						//@line 236
+						//@line 238
 						if (KeyFrame.frameIndex < frameIndex)
-						//@line 237
+						//@line 239
 						return KeyFrame;
 					}
 				}
 			}
-			//@line 241
+			//@line 243
 			return null;
 		};
-		//@line 245
+		//@line 247
 		var findKeyFrameAfterframeIndex = this.findKeyFrameAfterframeIndex = function (frameIndex, inclusive, excludeListIndex)
 		{
-			//@line 247
-			var KeyFrame;
-			//@line 248
-			for (var i = 0, L = __CLASS__COCOTIMELINE__.__keyFrames.size(); i < L; i++)
 			//@line 249
+			var KeyFrame;
+			//@line 250
+			for (var i = 0, L = __CLASS__COCOTIMELINE__.__keyFrames.size(); i < L; i++)
+			//@line 251
 			{
-				//@line 250
+				//@line 252
 				if (i != excludeListIndex)
-				//@line 251
+				//@line 253
 				{
-					//@line 252
-					KeyFrame = __CLASS__COCOTIMELINE__.__keyFrames[i];
-					//@line 253
-					if (inclusive)
 					//@line 254
+					KeyFrame = __CLASS__COCOTIMELINE__.__keyFrames[i];
+					//@line 255
+					if (inclusive)
+					//@line 256
 					{
-						//@line 255
+						//@line 257
 						if (KeyFrame.frameIndex >= frameIndex)
-						//@line 256
+						//@line 258
 						return KeyFrame;
 					}
 					else
-					//@line 259
+					//@line 261
 					{
-						//@line 260
+						//@line 262
 						if (KeyFrame.frameIndex > frameIndex)
-						//@line 261
+						//@line 263
 						return KeyFrame;
 					}
 				}
 			}
-			//@line 265
+			//@line 267
 			return null;
 		};
-		//@line 269
+		//@line 271
 		var interpolate = this.interpolate = function (frameIndex)
 		{
-			//@line 271
-			var F = null;
-			//@line 272
-			var F1 = null;
 			//@line 273
-			var F2 = null;
+			var F = null;
 			//@line 274
+			var F1 = null;
+			//@line 275
+			var F2 = null;
+			//@line 276
 			var s = 1.0;
-			//@line 277
+			//@line 279
 			if (__CLASS__COCOTIMELINE__.__keyFrames.size() == 0)
-			//@line 278
+			//@line 280
 			{
-				//@line 279
-				F = new CocoKeyFrame;
-				//@line 280
-				F.frameIndex = frameIndex;
 				//@line 281
-				F.visible = false;
+				F = new CocoKeyFrame;
 				//@line 282
+				F.frameIndex = frameIndex;
+				//@line 283
+				F.visible = false;
+				//@line 284
 				return F;
 			}
-			//@line 286
-			F1 = __CLASS__COCOTIMELINE__.keyFrame(frameIndex);
-			//@line 287
-			if (F1)
 			//@line 288
+			F1 = __CLASS__COCOTIMELINE__.keyFrame(frameIndex);
+			//@line 289
+			if (F1)
+			//@line 290
 			{
-				//@line 289
+				//@line 291
 				return F1.clone();
 			}
-			//@line 293
-			F1 = __CLASS__COCOTIMELINE__.findKeyFrameBeforeframeIndex(frameIndex, false, -1);
 			//@line 295
+			F1 = __CLASS__COCOTIMELINE__.findKeyFrameBeforeframeIndex(frameIndex, false, -1);
+			//@line 297
 			if (!F1)
-			//@line 296
+			//@line 298
 			{
-				//@line 298
-				F = new CocoKeyFrame;
-				//@line 299
-				F.frameIndex = frameIndex;
 				//@line 300
-				F.visible = false;
+				F = new CocoKeyFrame;
 				//@line 301
+				F.frameIndex = frameIndex;
+				//@line 302
+				F.visible = false;
+				//@line 303
 				return F;
 			}
 			else
-			//@line 304
+			//@line 306
 			{
-				//@line 305
+				//@line 307
 				switch (F1.frameInterpolation)
 				{
-					//@line 307
+					//@line 309
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
 					{
-						//@line 309
-						F = F1.clone();
-						//@line 310
-						F.action = null;
 						//@line 311
-						F.audio = null;
+						F = F1.clone();
 						//@line 312
-						F.nextState = null;
+						F.action = null;
 						//@line 313
-						F.frameIndex = frameIndex;
+						F.audio = null;
 						//@line 314
+						F.nextState = null;
+						//@line 315
+						F.frameIndex = frameIndex;
+						//@line 316
 						return F;
 					}
 					break;
-					//@line 316
+					//@line 318
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 					{
-						//@line 318
-						F = F1.clone();
-						//@line 319
-						F.action = null;
 						//@line 320
-						F.audio = null;
+						F = F1.clone();
 						//@line 321
-						F.nextState = null;
+						F.action = null;
 						//@line 322
-						F.frameIndex = frameIndex;
+						F.audio = null;
 						//@line 323
-						F.visible = false;
+						F.nextState = null;
 						//@line 324
+						F.frameIndex = frameIndex;
+						//@line 325
+						F.visible = false;
+						//@line 326
 						return F;
 					}
 					break;
-					//@line 326
+					//@line 328
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 					{
-						//@line 329
-						F2 = __CLASS__COCOTIMELINE__.findKeyFrameAfterframeIndex(frameIndex, false, -1);
 						//@line 331
+						F2 = __CLASS__COCOTIMELINE__.findKeyFrameAfterframeIndex(frameIndex, false, -1);
+						//@line 333
 						if (!F2)
-						//@line 332
+						//@line 334
 						{
-							//@line 334
-							F = F1.clone();
-							//@line 335
-							F.action = null;
 							//@line 336
-							F.audio = null;
+							F = F1.clone();
 							//@line 337
-							F.nextState = null;
+							F.action = null;
 							//@line 338
-							F.frameIndex = frameIndex;
+							F.audio = null;
 							//@line 339
+							F.nextState = null;
+							//@line 340
+							F.frameIndex = frameIndex;
+							//@line 341
 							return F;
 						}
 						else
-						//@line 343
+						//@line 345
 						{
-							//@line 345
-							F = F1.clone();
-							//@line 346
-							F.action = null;
 							//@line 347
-							F.audio = null;
+							F = F1.clone();
 							//@line 348
-							F.nextState = null;
+							F.action = null;
 							//@line 349
-							F.frameIndex = frameIndex;
+							F.audio = null;
 							//@line 350
-							s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
+							F.nextState = null;
 							//@line 351
-							F.interpolate(F1, F2, s);
+							F.frameIndex = frameIndex;
 							//@line 352
+							s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
+							//@line 353
+							F.interpolate(F1, F2, s);
+							//@line 354
 							return F;
 						}
 					}
 					break;
-					//@line 355
+					//@line 357
 				case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_PHYSICS:
 					{
-						//@line 356
+						//@line 358
 						break;
 					}
 					break;
 				}
 			}
-			//@line 359
+			//@line 361
 			return null;
 		};
 		//@line 42

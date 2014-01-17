@@ -59,6 +59,7 @@ class CocoKeyFrame
 	public var audio:CocoAudio;
 	public var flipH:Boolean;
 	public var flipV:Boolean;
+	public var spriteSequenceName:String;
 
 	private var __lastActionExecutionTime:Time;
 	protected var __isCloned:Boolean;
@@ -88,6 +89,7 @@ class CocoKeyFrame
 		flipV						= false;
 		__lastActionExecutionTime 	= 0.0;
 		__isCloned					= false;
+		spriteSequenceName			= "";
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,6 +124,7 @@ class CocoKeyFrame
 		c.action					= action;
 		c.nextState					= nextState;
 		c.audio						= audio;
+ 		c.spriteSequenceName		= spriteSequenceName;
  		c.__lastActionExecutionTime	= __lastActionExecutionTime;
  		c.__isCloned				= true;
 	    return c;
@@ -131,8 +134,6 @@ class CocoKeyFrame
 	public function reset()
 	{
 		__lastActionExecutionTime = 0.0;
-		//if(audio)
-		//	audio.reset();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,6 +201,7 @@ class CocoKeyFrame
 	    flipV = (flipV && !Frame.flipV) || (!flipV && Frame.flipV);
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function apply(matrix:CocoMatrix)
 	{
 		if(x!=0 || y!=0) matrix.translate(x, y);

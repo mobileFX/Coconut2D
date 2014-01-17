@@ -12,11 +12,23 @@ function HTMLCanvasElement()
 		this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
-		//@line 47
+		//@line 49
 		var getContext = this.getContext = function (contextId)
 		{
-			//@line 49
+			//@line 51
+			if (contextId == "2d")
+			//@line 52
+			return new CanvasRenderingContext2D(__CLASS__HTMLCANVASELEMENT__);
+			else
+			//@line 54
 			return new WebGLRenderingContext(__CLASS__HTMLCANVASELEMENT__);
+		};
+		//@line 58
+		var toDataURL = this.toDataURL = function ()
+		{
+			//@line 60
+			return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAACACAYAAAB9V9ELAAAPy0lEQï¿½EIQAACBgkgAAwGHZchAAEIQAACCAByAAIQgAAEIGCQwP8Br6gO2wP7I7gAAAAASUVORK5CYII=";
+			return ""
 		};
 		//@line 38
 		this.width = 0;
@@ -30,12 +42,12 @@ function HTMLCanvasElement()
 			}
 			return true
 		};
-		//@line 41
+		//@line 42
 		this.Constructor = function ()
 		{
-			//@line 43
-			__CLASS__HTMLCANVASELEMENT__.width = 0;
 			//@line 44
+			__CLASS__HTMLCANVASELEMENT__.width = 0;
+			//@line 45
 			__CLASS__HTMLCANVASELEMENT__.height = 0;
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);

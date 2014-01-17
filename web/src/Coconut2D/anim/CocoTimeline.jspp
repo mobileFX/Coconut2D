@@ -167,7 +167,8 @@ class CocoTimeline
 								  alpha:Float,
 								  audio:CocoAudio,
 								  flipH:Boolean,
-								  flipV:Boolean) :CocoKeyFrame
+								  flipV:Boolean,
+								  spriteSequenceName:String) :CocoKeyFrame
 	{
 	    var KeyFrame:CocoKeyFrame = new CocoKeyFrame();
 
@@ -191,6 +192,7 @@ class CocoTimeline
 	    KeyFrame.audio				= audio;
 	    KeyFrame.flipH				= flipH;
 	    KeyFrame.flipV				= flipV;
+	    KeyFrame.spriteSequenceName	= spriteSequenceName;
 
 	    return addKeyFrame(KeyFrame);
 	}

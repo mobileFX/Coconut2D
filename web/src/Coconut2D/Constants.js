@@ -56,7 +56,7 @@ if(!global["trace"])
 	"#ignore_errors_begin";
 	Image.prototype.load = function(src) { this.src = src; };
 	"#ignore_errors_end";
-	
+
 	function State(){};
 }
 
@@ -117,20 +117,23 @@ var COCO_KEYFRAME_INTERPOLATION_ENUM =
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+var COCO_TEXT_ALIGN_ENUM =
+{
+	TEXT_ALIGN_NEAR								: 0,
+	TEXT_ALIGN_CENTER							: 1,
+	TEXT_ALIGN_FAR								: 2,
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+var COCO_TEXT_TRIMMING_ENUM =
+{
+    StringTrimmingNone							: 0,
+    StringTrimmingCharacter						: 1,
+    StringTrimmingWord							: 2,
+    StringTrimmingEllipsisCharacter				: 3,
+    StringTrimmingEllipsisWord					: 4,
+    StringTrimmingEllipsisPath					: 5
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
