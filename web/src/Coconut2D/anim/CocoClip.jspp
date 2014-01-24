@@ -160,6 +160,7 @@ class CocoClip
 		{
 			__children[i].reset();
 		}
+		if(__currentAudio) __currentAudio.reset();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -243,17 +244,20 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean, optional deep:Boolean) :Boolean
 	{
-		//trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
 		{
 			clip = __children[i];
-			clip.__timeline.__paused = pause;
-			if(FrameIndex!=COCO_STOP_ON_CURRENT_FRAME)
-				clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
 
-			//trace("-> child: " + clip.__clipPath + ", from=" + String(clip.__currentFrame.frameIndex) + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)));
+			if(FrameIndex==COCO_STOP_ON_CURRENT_FRAME)
+				FrameIndex = clip.__currentFrame ? clip.__currentFrame.frameIndex : 0;
+
+			clip.__timeline.__paused = pause;
+			clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
+
+			trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + String(clip.__currentTime));
 
 			if (deep)
 				clip.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
@@ -281,7 +285,7 @@ class CocoClip
 			var __loopTime:Time = __currentTime - Math.floor(__currentTime / parentClipsDuration) * parentClipsDuration;
 
 			// Calculate frameIndex from time.
-			var frameIndex:Integer = Math.floor(__loopTime / __timeline.__singleFrameDurationTime);
+			var frameIndex:Float = __loopTime / __timeline.__singleFrameDurationTime;
 
 			// Interpolate
 			if(__currentFrame)

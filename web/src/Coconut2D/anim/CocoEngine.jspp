@@ -44,6 +44,7 @@ state class CocoEngine
 	// constant we choose is for 60 frames per second but
 	// we must use division in order to set the float properly.
 	public const TICK_TIME:Time = (1000.0/60.0);
+	public var debugbreak:Boolean;
 
 	private var __currentState:State;
 	private var __nextState:State;
@@ -58,6 +59,7 @@ state class CocoEngine
 		__clicked = [];
 		__deviceEvent = null;
 		__clock = 0;
+		debugbreak=false;
 
 		// Set event handlers
 		window.addEventListener("touchstart", __setTouchEvent);

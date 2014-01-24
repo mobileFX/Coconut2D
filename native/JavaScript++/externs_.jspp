@@ -563,6 +563,7 @@ class HTMLCanvasElement
 	public function Constructor() {}
 	public var width :Integer;
 	public var height :Integer;
+	public var __imageData :ImageData;
 } //HTMLCanvasElement
 
 class HTMLCanvasGradient
@@ -647,7 +648,6 @@ class CanvasRenderingContext2D : HTMLCavnasContext
 	public var DRAWWINDOW_DRAW_VIEW :Number;
 	public var DRAWWINDOW_USE_WIDGET_LAYERS :Number;
 	public var DRAWWINDOW_ASYNC_DECODE_IMAGES :Number;
-	public var __imageData :ImageData;
 	public var canvas :HTMLCanvasElement;
 	public var globalAlpha :Float;
 	public var lineCap :String;
@@ -1242,6 +1242,7 @@ class WebGLRenderingContext : HTMLCavnasContext
 
 class CocoAudio
 {
+	public function reset() {}
 	public function tick() {}
 	public function play() {}
 	public function pause() {}
@@ -1402,6 +1403,7 @@ class CocoKeyFrame
 
 class CocoTimeline
 {
+	public function prepare(scene:CocoScene, clip:CocoClip) {}
 	public function clear() {}
 	public function reset() {}
 	public function addLabel(Label:CocoTimeLabel) :CocoTimeLabel {}
@@ -1412,11 +1414,10 @@ class CocoTimeline
 	public function lastKeyFrame() :CocoKeyFrame {}
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame {}
 	public function addKeyFrameEx(nextState:State, actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean, spriteSequenceName:String) :CocoKeyFrame {}
-	public function prepare(scene:CocoScene, clip:CocoClip) {}
 	public function normalizetimeline() {}
 	public function findKeyFrameBeforeframeIndex(frameIndex:Integer, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
 	public function findKeyFrameAfterframeIndex(frameIndex:Integer, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
-	public function interpolate(frameIndex:Integer) :CocoKeyFrame {}
+	public function interpolate(frameIndex:Float) :CocoKeyFrame {}
 	public function Constructor() {}
 	public var __labels :Array<CocoTimeLabel>;
 	public var __keyFrames :Array<CocoKeyFrame>;
@@ -1525,6 +1526,7 @@ class CocoEngine
 	public function __trace(scene:CocoScene, clip:CocoClip, message:String) {}
 	public function Constructor() {}
 	public var TICK_TIME :Time;
+	public var debugbreak :Boolean;
 	private var __currentState :State;
 	private var __nextState :State;
 	private var __deviceEvent :DeviceEvent;
