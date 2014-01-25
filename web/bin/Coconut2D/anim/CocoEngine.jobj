@@ -103,8 +103,6 @@ function CocoEngine()
 		//@line 146
 		var __trace = this.__trace = function (scene, clip, message)
 		{
-			//@line 148
-			return;
 			//@line 150
 			if (scene && clip)
 			//@line 151
@@ -116,7 +114,7 @@ function CocoEngine()
 				//@line 154
 				var rf = Math.floor(ct / t);
 				//@line 155
-				var rc = Math.floor(ct / t);
+				var rc = clip.__currentFrame.frameIndex;
 				//@line 157
 				message =
 				//@line 162

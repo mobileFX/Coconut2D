@@ -546,6 +546,7 @@ class Audio
 	public function pause() {}
 	public function Constructor(url:String) {}
 	public var currentTime :Float;
+	public var readyState :Integer;
 	private var __uid :Integer;
 	private var __currentTime :Float;
 	public var duration :Float;
@@ -1371,7 +1372,7 @@ class CocoKeyFrame
 {
 	public function clone(exact:Boolean) :CocoKeyFrame {}
 	public function reset() {}
-	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip) :Boolean {}
+	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip) {}
 	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float) {}
 	public function combine(Frame:CocoKeyFrame) {}
 	public function apply(matrix:CocoMatrix) {}
@@ -1397,8 +1398,7 @@ class CocoKeyFrame
 	public var flipH :Boolean;
 	public var flipV :Boolean;
 	public var spriteSequenceName :String;
-	private var __lastActionExecutionTime :Time;
-	protected var __isCloned :Boolean;
+	private var __isCloned :Boolean;
 } //CocoKeyFrame
 
 class CocoTimeline
@@ -1426,6 +1426,7 @@ class CocoTimeline
 	public var __durationInFrames :Integer;
 	public var __paused :Boolean;
 	public var __fps :Float;
+	public var __lastFrameIndex :Integer;
 } //CocoTimeline
 
 class CocoClip
@@ -1470,7 +1471,7 @@ class CocoClip
 	public var __vTemp :CocoVector;
 	public var __mTemp :CocoMatrix;
 	private var __currentSequence :CocoSequence;
-	private var __currentAudio :CocoAudio;
+	public var __currentAudio :CocoAudio;
 } //CocoClip
 
 class CocoScene

@@ -61,8 +61,7 @@ class CocoKeyFrame
 	public var flipV:Boolean;
 	public var spriteSequenceName:String;
 
-	private var __lastActionExecutionTime:Time;
-	protected var __isCloned:Boolean;
+	private var __isCloned:Boolean;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -87,7 +86,6 @@ class CocoKeyFrame
 		audio						= null;
 		flipH						= false;
 		flipV						= false;
-		__lastActionExecutionTime 	= 0.0;
 		__isCloned					= false;
 		spriteSequenceName			= "";
 	}
@@ -122,10 +120,9 @@ class CocoKeyFrame
 		c.flipH						= flipH;
 		c.flipV						= flipV;
  		c.spriteSequenceName		= spriteSequenceName;
- 		c.__lastActionExecutionTime	= __lastActionExecutionTime;
  		c.__isCloned				= true;
 
-		if(exact)
+		if(exact && (action || nextState || audio))
 		{
 			c.action				= action;
 			c.nextState				= nextState;
@@ -138,43 +135,33 @@ class CocoKeyFrame
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
-		__lastActionExecutionTime = 0.0;
+		if(audio)
+			audio.reset();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip) :Boolean
+	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip)
 	{
 		//gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, clip:CocoClip, keyFrame:CocoKeyFrame
 
-		var pulse:Boolean = false;
-
-		if((__lastActionExecutionTime==0) || (__lastActionExecutionTime > 0 && clip.__currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
+		if(action)
 		{
-			__lastActionExecutionTime = clip.__currentTime;
-
-			if(action)
-			{
-				engine.__trace(scene, clip, "@@ACTION");
-				var args:Array = [gl, clip, this];
-				action.apply(scene, args);
-			}
-
-			if(nextState)
-			{
-				engine.__trace(scene, clip, "@@NEXT_STATE");
-				engine.setNextState(nextState);
-			}
-
-			if(audio)
-			{
-				engine.__trace(scene, clip, "@@AUDIO");
-				audio.tick();
-			}
-
-			pulse = true;
+			engine.__trace(scene, clip, "@@ACTION");
+			var args:Array = [gl, clip, this];
+			action.apply(scene, args);
 		}
 
-		return pulse;
+		if(nextState)
+		{
+			engine.__trace(scene, clip, "@@NEXT_STATE");
+			engine.setNextState(nextState);
+		}
+
+		if(audio)
+		{
+			engine.__trace(scene, clip, "@@AUDIO");
+			audio.tick();
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

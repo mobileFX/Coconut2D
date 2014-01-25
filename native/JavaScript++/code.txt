@@ -1010,6 +1010,15 @@ class Audio
 			__Audio_set_position(__uid, time);
 		}
 	}
+
+	public property readyState
+	{
+		function get():Integer
+		{
+			//return __Audio_get_readystate(__uid);
+			return 4;
+		}
+	}
 }
 "script_end:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/Coconut2D/html5/HTMLAudioElement.jspp";
 "script_begin:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/Coconut2D/html5/HTMLCanvasElement.jspp";
@@ -3695,7 +3704,10 @@ class CocoAudio
 	public function Destructor()
 	{
 		if(audio)
+		{
+			audio.pause();
 			delete audio;
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3780,7 +3792,7 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function setCurrentTime(t: Float)
 	{
-		if(audio)
+		if(audio && audio.readyState==4)
 			audio.currentTime = t;
 	}
 }
@@ -4723,8 +4735,7 @@ class CocoKeyFrame
 	public var flipV:Boolean;
 	public var spriteSequenceName:String;
 
-	private var __lastActionExecutionTime:Time;
-	protected var __isCloned:Boolean;
+	private var __isCloned:Boolean;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -4749,7 +4760,6 @@ class CocoKeyFrame
 		audio						= null;
 		flipH						= false;
 		flipV						= false;
-		__lastActionExecutionTime 	= 0.0;
 		__isCloned					= false;
 		spriteSequenceName			= "";
 	}
@@ -4784,10 +4794,9 @@ class CocoKeyFrame
 		c.flipH						= flipH;
 		c.flipV						= flipV;
  		c.spriteSequenceName		= spriteSequenceName;
- 		c.__lastActionExecutionTime	= __lastActionExecutionTime;
  		c.__isCloned				= true;
 
-		if(exact)
+		if(exact && (action || nextState || audio))
 		{
 			c.action				= action;
 			c.nextState				= nextState;
@@ -4800,43 +4809,33 @@ class CocoKeyFrame
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
-		__lastActionExecutionTime = 0.0;
+		if(audio)
+			audio.reset();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip) :Boolean
+	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip)
 	{
 		//gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, clip:CocoClip, keyFrame:CocoKeyFrame
 
-		var pulse:Boolean = false;
-
-		if((__lastActionExecutionTime==0) || (__lastActionExecutionTime > 0 && clip.__currentTime - __lastActionExecutionTime > clip.__timeline.__singleFrameDurationTime))
+		if(action)
 		{
-			__lastActionExecutionTime = clip.__currentTime;
-
-			if(action)
-			{
-				engine.__trace(scene, clip, "@@ACTION");
-				var args:Array = [gl, clip, this];
-				action.apply(scene, args);
-			}
-
-			if(nextState)
-			{
-				engine.__trace(scene, clip, "@@NEXT_STATE");
-				engine.setNextState(nextState);
-			}
-
-			if(audio)
-			{
-				engine.__trace(scene, clip, "@@AUDIO");
-				audio.tick();
-			}
-
-			pulse = true;
+			engine.__trace(scene, clip, "@@ACTION");
+			var args:Array = [gl, clip, this];
+			action.apply(scene, args);
 		}
 
-		return pulse;
+		if(nextState)
+		{
+			engine.__trace(scene, clip, "@@NEXT_STATE");
+			engine.setNextState(nextState);
+		}
+
+		if(audio)
+		{
+			engine.__trace(scene, clip, "@@AUDIO");
+			audio.tick();
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4928,6 +4927,7 @@ class CocoTimeline
 	public var __durationInFrames:Integer;
 	public var __paused:Boolean;
 	public var __fps:Float;
+	public var __lastFrameIndex:Integer;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -4937,6 +4937,7 @@ class CocoTimeline
 		__durationInFrames			= 0;
 		__paused					= false;
 		__fps						= 30;
+		__lastFrameIndex			= -1;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -4966,6 +4967,7 @@ class CocoTimeline
 	public function reset()
 	{
 		__paused = false;
+		__lastFrameIndex = -1;
 		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
 		{
 			__keyFrames[i].reset();
@@ -5170,15 +5172,8 @@ class CocoTimeline
 	        return F;
 	    }
 
-	    // Exact KeyFrame exists?
-    	F1 = keyFrame(iFrameIndex);
-    	if(F1)
-    	{
-    		return F1.clone(true);
-    	}
-
 	    // Seek previous KeyFrame
-    	F1 = findKeyFrameBeforeframeIndex(frameIndex, false, -1);
+    	F1 = findKeyFrameBeforeframeIndex(frameIndex, true, -1);
 
 	    if(!F1)
 	    {
@@ -5190,17 +5185,25 @@ class CocoTimeline
 	    }
 	    else
 	    {
+	    	var exact:Boolean = !__paused && ((__lastFrameIndex == -1) || (__lastFrameIndex != F1.frameIndex));
+	    	__lastFrameIndex = F1.frameIndex;
+
+	    	if(F1.frameIndex==iFrameIndex)
+	    	{
+	    		return F1.clone(exact);
+	    	}
+
 	        switch(F1.frameInterpolation)
 	        {
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
 
-	            F = F1.clone(false);
+	            F = F1.clone(exact);
 	            F.frameIndex = iFrameIndex;
 	            return F;
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 
-	            F = F1.clone(false);
+	            F = F1.clone(exact);
 	            F.frameIndex = iFrameIndex;
 	            F.visible = false;
 	            return F;
@@ -5208,19 +5211,19 @@ class CocoTimeline
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 
 	            // We need the next KeyFrame now
-	            F2 = findKeyFrameAfterframeIndex(frameIndex, false, -1);
+	            F2 = findKeyFrameAfterframeIndex(frameIndex, (frameIndex>iFrameIndex), -1);
 
 	            if(!F2)
 	            {
 	                // Fallback to echo
-	                F = F1.clone(false);
+	                F = F1.clone(exact);
 	                F.frameIndex = iFrameIndex;
 	                return F;
 	            }
 	            else
 	            {
 	                // Interpolate between frames
-	                F = F1.clone(false);
+	                F = F1.clone(exact);
 	                F.frameIndex = iFrameIndex;
 	                s = Float((frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex));
 	                F.interpolate(F1, F2, s);
@@ -5308,7 +5311,7 @@ class CocoClip
 
 	// References to objects we do not own (do not delete in destructor)
 	private var __currentSequence:CocoSequence;
-	private var __currentAudio:CocoAudio;
+	public var __currentAudio:CocoAudio;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
@@ -5475,7 +5478,7 @@ class CocoClip
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
 
-		//trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		return gotoFrameByIndex(Label.frameIndex, pause, deep);
 	}
@@ -5483,7 +5486,7 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean, optional deep:Boolean) :Boolean
 	{
-		//trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
@@ -5494,9 +5497,11 @@ class CocoClip
 				FrameIndex = clip.__currentFrame ? clip.__currentFrame.frameIndex : 0;
 
 			clip.__timeline.__paused = pause;
+			clip.__timeline.__lastFrameIndex = -1;
+
 			clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
 
-			//trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + String(clip.__currentTime));
+			trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + String(clip.__currentTime));
 
 			if (deep)
 				clip.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
@@ -5642,19 +5647,20 @@ class CocoClip
 	        // =============================================================================================================
 			if(!__timeline.__paused)
 			{
-				var pulse:Boolean = false;
-				if(__currentFrame.action || __currentFrame.nextState || __currentFrame.audio)
+				this.__parent = parentClip;
+				__currentFrame.execute(gl, scene, this);
+
+		        // =============================================================================================================
+				// Audio Management (the trick here is not to reset a background sound when executing an action)
+		        // =============================================================================================================
+				if(__currentFrame.audio)
 				{
-					this.__parent = parentClip;
-					pulse = __currentFrame.execute(gl, scene, this);
-					if(pulse && __currentFrame.audio)
-					{
-						//if(__currentAudio)
-						//	__currentAudio.stop();
-						__currentAudio = __currentFrame.audio;
-					}
-					this.__parent = null;
+					if(__currentAudio && ((__currentFrame.audio != __currentAudio) || (__currentAudio.loops!=0)))
+						__currentAudio.stop();
+					__currentAudio = __currentFrame.audio;
 				}
+
+				this.__parent = null;
 			}
 
 	        // =============================================================================================================
@@ -5663,8 +5669,11 @@ class CocoClip
 			if(__currentAudio)
 			{
 				__currentAudio.tick();
-				//if(__currentAudio.ended())
-				//	__currentAudio = null;
+				if(__currentAudio.ended())
+				{
+					__currentAudio.reset();
+					__currentAudio = null;
+				}
 			}
 		}
 
@@ -6169,7 +6178,6 @@ class CocoScene
 	}
 }
 
-
 "script_end:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/Coconut2D/anim/CocoScene.jspp";
 "script_begin:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/Coconut2D/anim/CocoEngine.jspp";
 "#export native"
@@ -6319,14 +6327,14 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __trace(scene:CocoScene, clip:CocoClip, message: String)
 	{
-		return;
+		//return;
 
 		if(scene && clip)
 		{
 			var ct:Time = scene.__root.__children[0].__currentTime;
 			var t:Time = 1000/scene.__fps;
 			var rf:Float = Math.floor(ct/t);
-			var rc:Float = Math.floor(ct/t);
+			var rc:Float = clip.__currentFrame.frameIndex;// Math.floor(ct/t);
 
 			message = "\n" + message +
 					  ": state=" + __currentState.__name +

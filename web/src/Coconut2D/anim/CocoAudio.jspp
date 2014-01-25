@@ -63,7 +63,10 @@ class CocoAudio
 	public function Destructor()
 	{
 		if(audio)
+		{
+			audio.pause();
 			delete audio;
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,7 +151,7 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function setCurrentTime(t: Float)
 	{
-		if(audio)
+		if(audio && audio.readyState==4)
 			audio.currentTime = t;
 	}
 }

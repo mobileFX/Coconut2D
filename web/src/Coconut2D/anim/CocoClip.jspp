@@ -69,7 +69,7 @@ class CocoClip
 
 	// References to objects we do not own (do not delete in destructor)
 	private var __currentSequence:CocoSequence;
-	private var __currentAudio:CocoAudio;
+	public var __currentAudio:CocoAudio;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
@@ -236,7 +236,7 @@ class CocoClip
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
 
-		//trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		return gotoFrameByIndex(Label.frameIndex, pause, deep);
 	}
@@ -244,7 +244,7 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean, optional deep:Boolean) :Boolean
 	{
-		//trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
@@ -255,9 +255,11 @@ class CocoClip
 				FrameIndex = clip.__currentFrame ? clip.__currentFrame.frameIndex : 0;
 
 			clip.__timeline.__paused = pause;
+			clip.__timeline.__lastFrameIndex = -1;
+
 			clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
 
-			//trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + String(clip.__currentTime));
+			trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + String(clip.__currentTime));
 
 			if (deep)
 				clip.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
@@ -403,19 +405,20 @@ class CocoClip
 	        // =============================================================================================================
 			if(!__timeline.__paused)
 			{
-				var pulse:Boolean = false;
-				if(__currentFrame.action || __currentFrame.nextState || __currentFrame.audio)
+				this.__parent = parentClip;
+				__currentFrame.execute(gl, scene, this);
+
+		        // =============================================================================================================
+				// Audio Management (the trick here is not to reset a background sound when executing an action)
+		        // =============================================================================================================
+				if(__currentFrame.audio)
 				{
-					this.__parent = parentClip;
-					pulse = __currentFrame.execute(gl, scene, this);
-					if(pulse && __currentFrame.audio)
-					{
-						//if(__currentAudio)
-						//	__currentAudio.stop();
-						__currentAudio = __currentFrame.audio;
-					}
-					this.__parent = null;
+					if(__currentAudio && ((__currentFrame.audio != __currentAudio) || (__currentAudio.loops!=0)))
+						__currentAudio.stop();
+					__currentAudio = __currentFrame.audio;
 				}
+
+				this.__parent = null;
 			}
 
 	        // =============================================================================================================
@@ -424,8 +427,11 @@ class CocoClip
 			if(__currentAudio)
 			{
 				__currentAudio.tick();
-				//if(__currentAudio.ended())
-				//	__currentAudio = null;
+				if(__currentAudio.ended())
+				{
+					__currentAudio.reset();
+					__currentAudio = null;
+				}
 			}
 		}
 
