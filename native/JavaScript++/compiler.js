@@ -3256,18 +3256,3 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		return xml.join(" ");
 	};
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

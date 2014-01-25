@@ -7,8 +7,9 @@
 #include "CocoScene.hpp"
 #include "CocoClip.hpp"
 #include "CocoMatrix.hpp"
-#include "CocoState.hpp"
+//#include "CocoState.hpp"
 #include "CocoAudio.hpp"
+#include "CocoEngine.hpp"
 
 class CocoKeyFrame
 {
@@ -16,8 +17,10 @@ public:
 	int frameIndex;
 	COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation;
 	bool handleEvents;
-	bool calcBoundingBox;
 	bool visible;
+	float red;
+	float green;
+	float blue;
 	float alpha;
 	float x;
 	float y;
@@ -26,17 +29,19 @@ public:
 	float scaleX;
 	float scaleY;
 	float rotation;
-	Function* action;
+	CocoAction action;
 	State* nextState;
 	CocoAudio* audio;
 	bool flipH;
 	bool flipV;
-	float __lastActionExecutionTime;
+	String spriteSequenceName;
+	Time __lastActionExecutionTime;
+	bool __isCloned;
 	CocoKeyFrame();
 	~CocoKeyFrame();
-	CocoKeyFrame* clone(bool exact);
+	CocoKeyFrame* clone();
 	void reset();
-	bool execute(WebGLRenderingContext* gl, float currentTime, float loopTime, CocoScene* scene, CocoClip* clip);
+	bool execute(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* clip);
 	void interpolate(CocoKeyFrame* F1, CocoKeyFrame* F2, float s);
 	void combine(CocoKeyFrame* Frame);
 	void apply(CocoMatrix* matrix);

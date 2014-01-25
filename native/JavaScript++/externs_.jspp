@@ -1369,7 +1369,7 @@ class CocoMatrix
 
 class CocoKeyFrame
 {
-	public function clone() :CocoKeyFrame {}
+	public function clone(exact:Boolean) :CocoKeyFrame {}
 	public function reset() {}
 	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip) :Boolean {}
 	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float) {}
@@ -1415,8 +1415,8 @@ class CocoTimeline
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame {}
 	public function addKeyFrameEx(nextState:State, actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean, spriteSequenceName:String) :CocoKeyFrame {}
 	public function normalizetimeline() {}
-	public function findKeyFrameBeforeframeIndex(frameIndex:Integer, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
-	public function findKeyFrameAfterframeIndex(frameIndex:Integer, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
+	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
+	public function findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
 	public function interpolate(frameIndex:Float) :CocoKeyFrame {}
 	public function Constructor() {}
 	public var __labels :Array<CocoTimeLabel>;
@@ -1496,9 +1496,6 @@ class CocoScene
 	public var __view_height :Float;
 	public var __view_pixel_ratio :Float;
 	public var __view_scale :Float;
-	public var __currentTime :Time;
-	public var __elapsedTime :Time;
-	public var __startTime :Time;
 	public var __root :CocoClip;
 	public var __modelViewMatrix :CocoMatrix;
 	public var __projectionMatrix :CocoMatrix;
@@ -1532,7 +1529,15 @@ class CocoEngine
 	private var __deviceEvent :DeviceEvent;
 	private var __clicked :Array<CocoClip>;
 	private var __clock :Time;
-	public var STATE_GAME :State;
+	public var STATE_TITLE_SCREEN :State;
+	public var STATE_GAME_BOARD :State;
+	public var STATE_JUMPING_AVATARS :State;
+	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
+	public var STATE_GAME_BOARD_BUY_TICKET :State;
+	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_WIN :State;
+	public var STATE_GAME_BOARD_LOSE :State;
 } //CocoEngine
 
 class CocoSprite
@@ -1619,25 +1624,74 @@ class CocoUITextView : CocoUIControlView
 {
 } //CocoUITextView
 
+class GridSymbol
+{
+	public function getRandom() :Integer {}
+	public function createSymbol(symbol:Integer) :CocoClip {}
+	public function initPlaceholder() :CocoClip {}
+	public function initLeonidas() :CocoClip {}
+	public function initXerxes() :CocoClip {}
+	public function initSpartan() :CocoClip {}
+	public function initPersian() :CocoClip {}
+	public function initSwords() :CocoClip {}
+	public function initArmor() :CocoClip {}
+	public function Constructor(scene:CocoScene) {}
+	public var scene :CocoScene;
+	public var SYMBOL_LEONIDAS :Integer;
+	public var SYMBOL_XERXES :Integer;
+	public var SYMBOL_SPARTAN :Integer;
+	public var SYMBOL_PERSIAN :Integer;
+	public var SYMBOL_SWORDS :Integer;
+	public var SYMBOL_ARMOR :Integer;
+} //GridSymbol
+
 class GameEngine : CocoEngine
 {
+	public function setTexts() {}
+	public function createGUID() :String {}
+	public function hasClosedCells() :Boolean {}
+	public function OpenCell(i:Integer) {}
 	public function Constructor() {}
-	public var scene :CocoScene;
-	public var STATE_GAME :State;
+	private var scene :CocoScene;
+	private var balance :Number;
+	private var winnings :Number;
+	private var avatars :Array<CocoClip>;
+	private var avatar_leo :CocoClip;
+	private var avatar_xerxes :CocoClip;
+	private var avatar_spartan :CocoClip;
+	private var avatar_persian :CocoClip;
+	private var avatar_swords :CocoClip;
+	private var avatar_armor :CocoClip;
+	private var btnOpenAll :CocoClip;
+	private var btnBuyTicket :CocoClip;
+	private var cells :Array<CocoClip>;
+	private var cellsOpen :Array<Boolean>;
+	private var selectedAvatar :Integer;
+	private var selAvatarAppearances :Integer;
+	private var counter :Number;
+	private var TICKET_TicketID :String;
+	private var TICKET_cells :Array<Integer>;
+	private var TICKET_price :Integer;
+	private var TICKET_winCount :Integer;
+	private var WIN_PRIZES :Array<Integer>;
+	public var STATE_TITLE_SCREEN :State;
+	public var STATE_GAME_BOARD :State;
+	public var STATE_JUMPING_AVATARS :State;
+	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
+	public var STATE_GAME_BOARD_BUY_TICKET :State;
+	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_WIN :State;
+	public var STATE_GAME_BOARD_LOSE :State;
 } //GameEngine
 
-class BitmapSymbolsTest : CocoScene
+class SceneGameBoard : CocoScene
 {
 	public function Constructor() {}
-} //BitmapSymbolsTest
+} //SceneGameBoard
 
-class SynthesisTest : CocoScene
+class SceneTitle : CocoScene
 {
 	public function Constructor() {}
-} //SynthesisTest
-
-class Test : CocoScene
-{
-	public function Constructor() {}
-} //Test
+} //SceneTitle
 

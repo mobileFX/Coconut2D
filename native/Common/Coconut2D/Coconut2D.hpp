@@ -15,7 +15,7 @@
 #define RADIANS (M_PI / 180.0f)
 #define APPNAME "Coconut2D"
 
-#include "Window.hpp"
+//#include "HTMLWindow.hpp"
 #include "Structs.h"
 
 #include <cassert>
@@ -69,6 +69,25 @@ enum COCO_KEYFRAME_INTERPOLATION_ENUM
     KEYFRAME_INTERPOLATION_PHYSICS				= 3
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_TEXT_ALIGN_ENUM
+{
+	TEXT_ALIGN_NEAR								= 0,
+	TEXT_ALIGN_CENTER							= 1,
+	TEXT_ALIGN_FAR								= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_TEXT_TRIMMING_ENUM
+{
+    StringTrimmingNone							= 0,
+    StringTrimmingCharacter						= 1,
+    StringTrimmingWord							= 2,
+    StringTrimmingEllipsisCharacter				= 3,
+    StringTrimmingEllipsisWord					= 4,
+    StringTrimmingEllipsisPath					= 5
+};
+
 //# DO NOT EDIT BEGIN #//
 class State;
 class CocoTest;
@@ -76,8 +95,13 @@ class EventTarget;
 class DeviceEvent;
 class Audio;
 class HTMLCanvasElement;
+class HTMLCanvasGradient;
+class HTMLCanvasPattern;
+class HTMLCanvasContext;
 class HTMLElement;
 class HTMLDocument;
+class HTMLTextMetrics;
+class CanvasRenderingContext2D;
 class HTMLWindow;
 class ImageData;
 class Image;
@@ -117,25 +141,27 @@ class CocoSpriteEnemy;
 class CocoSpritePlayer;
 class CocoSpriteVisual;
 class CocoTiledLayer;
-class UIView;
-class UIControlView;
-class UIButtonView;
-class UICheckboxView;
-class UILabelView;
-class UINavbarView;
-class UIPageView;
-class UIPickerView;
-class UIScrollView;
-class UITabView;
-class UITextView;
+class CocoUIView;
+class CocoUIControlView;
+class CocoUIButtonView;
+class CocoUICheckboxView;
+class CocoUILabelView;
+class CocoUINavbarView;
+class CocoUIPageView;
+class CocoUIPickerView;
+class CocoUIScrollView;
+class CocoUITabView;
+class CocoUITextView;
 class GameEngine;
-class SceneGameBoard;
-class SceneTitle;
+class BitmapSymbolsTest;
+class SynthesisTest;
+class Test;
 //# DO NOT EDIT END #//
 
 #define CocoException	std::string
 #define Number          float
 #define Function        void
+#define Time			float
 template<class T> using Stack = std::stack<T>;
 template<class T> using Dictionary = std::map<std::string, T>;
 template<class T> using Index = std::map<size_t, T>;
@@ -151,6 +177,8 @@ class String : public std::string
 public:
 	operator bool() const { return !empty(); }
 	String& operator =(const char* c_str) { std::string::operator=(c_str); return *this; }
+	String& operator =(String str) { std::string::operator=(str); return *this; }
+	String& operator =(std::string str) { std::string::operator=(str); return *this; }
 	String() = default;
 	String(const char* str) : std::string(str) {}
 };
@@ -176,7 +204,10 @@ public:
 	}
 };
 
-typedef void (CocoScene::*CocoAction)(WebGLRenderingContext*, Number, Number, CocoScene*, CocoClip*);
+typedef void (CocoScene::*CocoAction)(WebGLRenderingContext*, CocoScene*, CocoClip*);
+typedef void (CocoEngine::*CocoEventAction)(DeviceEvent* e);
+
+#define trace(...)
 
 ////////////////////////////////////////////////////////////////
 #ifdef IOS_APPLICATION

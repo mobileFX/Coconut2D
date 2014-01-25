@@ -6,7 +6,6 @@ CocoKeyFrame::CocoKeyFrame()
 	frameIndex = 0;
 	frameInterpolation = COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 	handleEvents = false;
-	calcBoundingBox = false;
 	visible = true;
 	x = 0.0;
 	y = 0.0;
@@ -15,6 +14,9 @@ CocoKeyFrame::CocoKeyFrame()
 	rotation = 0.0;
 	pivotX = 0.0;
 	pivotY = 0.0;
+	red = 1.0;
+	green = 1.0;
+	blue = 1.0;
 	alpha = 1.0;
 	action = nullptr;
 	nextState = nullptr;
@@ -22,21 +24,27 @@ CocoKeyFrame::CocoKeyFrame()
 	flipH = false;
 	flipV = false;
 	__lastActionExecutionTime = 0.0;
+	__isCloned = false;
+	spriteSequenceName = "";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoKeyFrame::~CocoKeyFrame()
 {
-	if(audio)
-	{
-		audio = (delete audio, nullptr);
-	}
+	if(audio && !__isCloned)
+		if(audio)
+		{
+			audio = (delete audio, nullptr);
+		}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoKeyFrame::clone(bool exact)
+CocoKeyFrame* CocoKeyFrame::clone()
 {
 	CocoKeyFrame* c = new CocoKeyFrame();
+	c->red = red;
+	c->green = green;
+	c->blue = blue;
 	c->alpha = alpha;
 	c->frameIndex = frameIndex;
 	c->frameInterpolation = frameInterpolation;
@@ -51,14 +59,12 @@ CocoKeyFrame* CocoKeyFrame::clone(bool exact)
 	c->y = y;
 	c->flipH = flipH;
 	c->flipV = flipV;
-	c->calcBoundingBox = this->calcBoundingBox;
-	if(exact)
-	{
-		c->action = action;
-		c->nextState = nextState;
-		c->audio = audio ? audio->cloneNode(true) : nullptr;
-	}
+	c->action = action;
+	c->nextState = nextState;
+	c->audio = audio;
+	c->spriteSequenceName = spriteSequenceName;
 	c->__lastActionExecutionTime = __lastActionExecutionTime;
+	c->__isCloned = true;
 	return c;
 }
 
@@ -69,23 +75,27 @@ void CocoKeyFrame::reset()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CocoKeyFrame::execute(WebGLRenderingContext* gl, float currentTime, float loopTime, CocoScene* scene, CocoClip* clip)
+bool CocoKeyFrame::execute(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* clip)
 {
 	bool pulse = false;
-	if((currentTime == 0) || (currentTime - __lastActionExecutionTime > clip->__timeline->__singleFrameDurationTime))
+	if((__lastActionExecutionTime == 0) || (__lastActionExecutionTime > 0 && clip->__currentTime - __lastActionExecutionTime > clip->__timeline->__singleFrameDurationTime))
 	{
-		__lastActionExecutionTime = currentTime;
+		__lastActionExecutionTime = clip->__currentTime;
 		if(action)
 		{
-			Array* args = {gl, currentTime, loopTime, clip, this};
-			action->apply(scene, args);
+			engine->__trace(scene, clip, "@@ACTION");
+			//Array* args = {gl, clip, this};
+			(scene->*action)(gl, scene, clip);
+			//action->apply(scene, args);
 		}
 		if(nextState)
 		{
+			engine->__trace(scene, clip, "@@NEXT_STATE");
 			engine->setNextState(nextState);
 		}
 		if(audio)
 		{
+			engine->__trace(scene, clip, "@@AUDIO");
 			audio->tick();
 		}
 		pulse = true;
@@ -96,6 +106,9 @@ bool CocoKeyFrame::execute(WebGLRenderingContext* gl, float currentTime, float l
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoKeyFrame::interpolate(CocoKeyFrame* F1, CocoKeyFrame* F2, float s)
 {
+	red = F1->red + s * (F2->red - F1->red);
+	green = F1->green + s * (F2->green - F1->green);
+	blue = F1->blue + s * (F2->blue - F1->blue);
 	alpha = F1->alpha + s * (F2->alpha - F1->alpha);
 	x = F1->x + s * (F2->x - F1->x);
 	y = F1->y + s * (F2->y - F1->y);
@@ -113,12 +126,13 @@ void CocoKeyFrame::combine(CocoKeyFrame* Frame)
 	{
 		return;
 	}
+	red = red * Frame->red;
+	green = green * Frame->green;
+	blue = blue * Frame->blue;
 	alpha = alpha * Frame->alpha;
 	visible = visible && Frame->visible;
 	flipH = (flipH && !Frame->flipH) || (!flipH && Frame->flipH);
 	flipV = (flipV && !Frame->flipV) || (!flipV && Frame->flipV);
-	handleEvents = handleEvents && Frame->handleEvents;
-	calcBoundingBox = calcBoundingBox && Frame->calcBoundingBox;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

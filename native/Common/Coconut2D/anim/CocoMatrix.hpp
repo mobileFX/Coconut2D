@@ -5,7 +5,7 @@
 #include "CocoVector.hpp"
 #include "CocoMatrix.hpp"
 #include "WebGLRenderingContext.hpp"
-#include "WebGLUniformLocation.hpp"
+//#include "WebGLUniformLocation.hpp"
 
 class CocoMatrix
 {

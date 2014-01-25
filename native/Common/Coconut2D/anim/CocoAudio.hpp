@@ -2,7 +2,6 @@
 #define __COCOAUDIO_HPP__
 
 #include "Coconut2D.hpp"
-#include "CocoAudio.hpp"
 #include "HTMLAudioElement.hpp"
 
 class CocoAudio
@@ -14,10 +13,8 @@ public:
 	int loops;
 	bool __firstPlayed;
 	int __loopCount;
-	int __refCount;
 	CocoAudio(String url, bool autoplay, int loops);
 	~CocoAudio();
-	CocoAudio* cloneNode(bool deep);
 	void tick();
 	void play();
 	void pause();

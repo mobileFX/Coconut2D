@@ -4,7 +4,7 @@
 #include "Coconut2D.hpp"
 #include "CocoTimeLabel.hpp"
 #include "CocoKeyFrame.hpp"
-#include "CocoState.hpp"
+//#include "CocoState.hpp"
 #include "CocoAudio.hpp"
 #include "CocoScene.hpp"
 #include "CocoClip.hpp"
@@ -14,12 +14,10 @@ class CocoTimeline
 public:
 	Array<CocoTimeLabel*> __labels;
 	Array<CocoKeyFrame*> __keyFrames;
-	float __singleFrameDurationTime;
-	float __durationInTime;
+	Time __singleFrameDurationTime;
+	Time __durationInTime;
 	int __durationInFrames;
-	float __skipTime;
 	bool __paused;
-	CocoKeyFrame* __pausedKeyFrame;
 	float __fps;
 	CocoTimeline();
 	~CocoTimeline();
@@ -32,14 +30,12 @@ public:
 	CocoKeyFrame* firstKeyFrame();
 	CocoKeyFrame* lastKeyFrame();
 	CocoKeyFrame* addKeyFrame(CocoKeyFrame* KeyFrame);
-	CocoKeyFrame* addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha, CocoAudio* audio, bool flipH, bool flipV);
+	CocoKeyFrame* addKeyFrameEx(State* nextState, CocoAction actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float red, float green, float blue, float alpha, CocoAudio* audio, bool flipH, bool flipV, String spriteSequenceName);
 	void prepare(CocoScene* scene, CocoClip* clip);
 	void normalizetimeline();
-	void jumpBy(float frames, bool paused);
-	CocoKeyFrame* findKeyFrameBeforeframeIndex(float frameIndex, bool inclusive, float excludeListIndex);
-	CocoKeyFrame* findKeyFrameAfterframeIndex(float frameIndex, bool inclusive, float excludeListIndex);
-	CocoKeyFrame* interpolateByTime(float LoopTime);
-	CocoKeyFrame* interpolateByFrame(float frameIndex);
+	CocoKeyFrame* findKeyFrameBeforeframeIndex(int frameIndex, bool inclusive, float excludeListIndex);
+	CocoKeyFrame* findKeyFrameAfterframeIndex(int frameIndex, bool inclusive, float excludeListIndex);
+	CocoKeyFrame* interpolate(float frameIndex);
 };
 
 #endif

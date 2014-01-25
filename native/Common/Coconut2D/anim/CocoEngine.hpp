@@ -2,21 +2,30 @@
 #define __COCOENGINE_HPP__
 
 #include "Coconut2D.hpp"
-#include "DeviceEvent.hpp"
+//#include "CocoState.hpp"
 #include "WebGLRenderingContext.hpp"
-#include "CocoState.hpp"
+#include "DeviceEvent.hpp"
+#include "CocoClip.hpp"
+#include "CocoScene.hpp"
 
-class CocoEngine
+extern class CocoEngine
 {
 public:
+	const Time TICK_TIME = (1000.0/60.0);
 	State* __currentState;
 	State* __nextState;
 	DeviceEvent* __deviceEvent;
+	Array<CocoClip*> __clicked;
+	Time __clock;
 	CocoEngine();
-	~CocoEngine();
-	void __setTouchEvent(DeviceEvent* e);
-	void run(WebGLRenderingContext* gl, float time);
+	virtual ~CocoEngine();
 	void setNextState(State* s);
-};
+	void run(WebGLRenderingContext* gl, Time time);
+	void __setTouchEvent(DeviceEvent* e);
+	DeviceEvent* getTouchEvent();
+	void pushTouched(CocoClip* clip);
+	int isClicked(Array<CocoClip*> check);
+	void __trace(CocoScene* scene, CocoClip* clip, String message);
+}* engine;
 
 #endif

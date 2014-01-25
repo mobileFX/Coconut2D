@@ -38,19 +38,20 @@
 
 class CocoAudio
 {
-	public var src:String;
-	public var audio:Audio;
-	public var autoplay:Boolean;
-	public var loops:Integer;
-	private var __firstPlayed:Boolean;
-	private var __loopCount:Integer;
+	public var src: String;
+	public var audio: Audio;
+	public var autoplay: Boolean;
+	public var loops: Integer;
+
+	private var __firstPlayed: Boolean;
+	private var __loopCount: Integer;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(url:String, autoplay:Boolean, loops:Integer)
+	public function Constructor(url: String, autoplay: Boolean, loops: Integer)
 	{
 		audio = new Audio(url);
-		audio.autoplay = false;		// Controlled by CocoAudio
-		audio.loop = false;			// Controlled by CocoAudio
+		audio.autoplay = false; // Controlled by CocoAudio
+		audio.loop = false; // Controlled by CocoAudio
 		this.src = url;
 		this.autoplay = autoplay;
 		this.loops = loops;
@@ -58,17 +59,18 @@ class CocoAudio
 		__loopCount = 0;
 	}
 
-	public function reset()
-	{
-		stop();
-		__firstPlayed = false;
-	}
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 		if(audio)
 			delete audio;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function reset()
+	{
+		stop();
+		__firstPlayed = false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,21 +85,70 @@ class CocoAudio
 			return;
 		}
 
-		if(loops>=0 && audio.ended)
+		if(loops >= 0 && audio.ended)
 		{
 			__loopCount++;
-			if(loops==0 || (loops>0 && __loopCount < loops))
+			if(loops == 0 || (loops > 0 && __loopCount < loops))
 				play();
 		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function play()					{ if(audio) { audio.ended=false; audio.paused=false; audio.play();} }
-	public function pause()					{ if(audio) { audio.ended=false; audio.paused=true; audio.pause();} }
-	public function stop()					{ __loopCount=0; __firstPlayed=true; if(audio) { audio.ended=true; audio.paused=false; audio.pause(); setCurrentTime(0); } }
-	public function duration() :Float   	{ return audio ? audio.duration : 0; }
-	public function paused() :Boolean		{ return audio ? audio.paused : true; }
-	public function ended() :Boolean		{ return audio ? audio.ended : true; }
-	public function getCurrentTime() :Float	{ return audio ? audio.currentTime : 0; }
-	public function setCurrentTime(t:Float)	{ if(audio) audio.currentTime = t; }
+	public function play()
+	{
+		if(!audio) return;
+		audio.ended = false;
+		audio.paused = false;
+		setCurrentTime(0);
+		audio.play();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function pause()
+	{
+		if(!audio) return;
+		audio.pause();
+		audio.ended = false;
+		audio.paused = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function stop()
+	{
+		pause();
+		__loopCount = 0;
+		__firstPlayed = true;
+		setCurrentTime(0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function duration(): Float
+	{
+		return audio ? audio.duration : 0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function paused(): Boolean
+	{
+		return audio ? audio.paused : true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function ended(): Boolean
+	{
+		return audio ? audio.ended : true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getCurrentTime(): Float
+	{
+		return audio ? audio.currentTime : 0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function setCurrentTime(t: Float)
+	{
+		if(audio)
+			audio.currentTime = t;
+	}
 }

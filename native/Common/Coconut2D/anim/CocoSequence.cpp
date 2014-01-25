@@ -5,4 +5,10 @@ CocoSequence::CocoSequence(String name, Array<int> framesArray)
 {
 	this->name = name;
 	this->frames = framesArray;
+	this->sequenceStartTime = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+CocoSequence::~CocoSequence()
+{
 }

@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 GameEngine::GameEngine()
 {
-	setNextState(STATE_TITLE_SCREEN);
+	setNextState(STATE_GAME);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,17 +16,17 @@ GameEngine::~GameEngine()
 }
 
 //=======================================================
-// State: STATE_TITLE_SCREEN
+// State: STATE_GAME
 //=======================================================
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_TITLE_SCREEN::enter()
+void GameEngine::STATE_GAME::enter()
 {
-	self->scene = new SceneTitle();
+	self->scene = new Test();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_TITLE_SCREEN::exit()
+void GameEngine::STATE_GAME::exit()
 {
 	if(self->scene)
 	{
@@ -35,205 +35,12 @@ void GameEngine::STATE_TITLE_SCREEN::exit()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_TITLE_SCREEN::tick(float time)
-{
-	if(self->scene->__finished)
-	{
-		self->setNextState(self->STATE_GAME_BOARD);
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_TITLE_SCREEN::paint(WebGLRenderingContext* gl, float time)
-{
-	self->scene->paint(gl, time);
-}
-
-//=======================================================
-// State: STATE_GAME_BOARD
-//=======================================================
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD::enter()
-{
-	self->scene = new SceneGameBoard();
-	self->avatar_leo = self->scene->__root->getChildByName("Avatar_Leonidas");
-	self->avatar_xerxes = self->scene->__root->getChildByName("Avatar_Xerxes");
-	self->avatar_spartan = self->scene->__root->getChildByName("Avatar_Spartan");
-	self->avatar_persian = self->scene->__root->getChildByName("Avatar_Persian");
-	self->avatar_swords = self->scene->__root->getChildByName("Avatar_Swords");
-	self->avatar_armor = self->scene->__root->getChildByName("Avatar_Armor");
-	self->btnOpenAll = self->scene->__root->getChildByName("BuyTicketButton");
-	self->btnBuyTicket = self->scene->__root->getChildByName("OpenAllButton");
-	self->avatars = {self->avatar_leo, self->avatar_xerxes, self->avatar_spartan, self->avatar_persian, self->avatar_swords, self->avatar_armor};
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD::exit()
+void GameEngine::STATE_GAME::tick(float time)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD::tick(float time)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD::paint(WebGLRenderingContext* gl, float time)
-{
-	self->scene->paint(gl, time);
-}
-
-//=======================================================
-// State: STATE_GAME_BOARD_CHOOSE_AVATAR
-//=======================================================
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_CHOOSE_AVATAR::enter()
-{
-	self->scene->stop();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_CHOOSE_AVATAR::exit()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_CHOOSE_AVATAR::tick(float time)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_CHOOSE_AVATAR::paint(WebGLRenderingContext* gl, float time)
-{
-	self->scene->paint(gl, time);
-}
-
-//=======================================================
-// State: STATE_GAME_BOARD_BUY_TICKET
-//=======================================================
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_BUY_TICKET::enter()
-{
-	assert(false);
-	self->scene->gotoAndStopByName("WaitToBuyTicket");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_BUY_TICKET::exit()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_BUY_TICKET::tick(float time)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_BUY_TICKET::paint(WebGLRenderingContext* gl, float time)
-{
-	self->scene->paint(gl, time);
-}
-
-//=======================================================
-// State: STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL
-//=======================================================
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL::enter()
-{
-	self->scene->gotoAndStopByName("WaitToScratch");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL::exit()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL::tick(float time)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL::paint(WebGLRenderingContext* gl, float time)
-{
-	self->scene->paint(gl, time);
-}
-
-//=======================================================
-// State: STATE_GAME_BOARD_OPEN_ALL
-//=======================================================
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_OPEN_ALL::enter()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_OPEN_ALL::exit()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_OPEN_ALL::tick(float time)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_OPEN_ALL::paint(WebGLRenderingContext* gl, float time)
-{
-	self->scene->paint(gl, time);
-}
-
-//=======================================================
-// State: STATE_GAME_BOARD_WIN
-//=======================================================
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_WIN::enter()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_WIN::exit()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_WIN::tick(float time)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_WIN::paint(WebGLRenderingContext* gl, float time)
-{
-	self->scene->paint(gl, time);
-}
-
-//=======================================================
-// State: STATE_GAME_BOARD_LOSE
-//=======================================================
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_LOSE::enter()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_LOSE::exit()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_LOSE::tick(float time)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void GameEngine::STATE_GAME_BOARD_LOSE::paint(WebGLRenderingContext* gl, float time)
+void GameEngine::STATE_GAME::paint(WebGLRenderingContext* gl, Time time)
 {
 	self->scene->paint(gl, time);
 }

@@ -6,9 +6,7 @@ CocoTimeline::CocoTimeline()
 	__singleFrameDurationTime = 0.0;
 	__durationInTime = 0.0;
 	__durationInFrames = 0;
-	__skipTime = 0.0;
 	__paused = false;
-	__pausedKeyFrame = nullptr;
 	__fps = 30;
 }
 
@@ -27,7 +25,6 @@ void CocoTimeline::clear()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoTimeline::reset()
 {
-	__skipTime = 0;
 	__paused = false;
 	for(int i = __keyFrames.size() - 1; i >= 0; i--)
 	{
@@ -103,7 +100,7 @@ CocoKeyFrame* CocoTimeline::addKeyFrame(CocoKeyFrame* KeyFrame)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, Function* actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float alpha, CocoAudio* audio, bool flipH, bool flipV)
+CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, CocoAction actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float red, float green, float blue, float alpha, CocoAudio* audio, bool flipH, bool flipV, String spriteSequenceName)
 {
 	CocoKeyFrame* KeyFrame = new CocoKeyFrame();
 	KeyFrame->nextState = nextState;
@@ -119,10 +116,14 @@ CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, Function* actionCall
 	KeyFrame->rotation = rotation;
 	KeyFrame->pivotX = pivotX;
 	KeyFrame->pivotY = pivotY;
+	KeyFrame->red = red;
+	KeyFrame->green = green;
+	KeyFrame->blue = blue;
 	KeyFrame->alpha = alpha;
 	KeyFrame->audio = audio;
 	KeyFrame->flipH = flipH;
 	KeyFrame->flipV = flipV;
+	KeyFrame->spriteSequenceName = spriteSequenceName;
 	return addKeyFrame(KeyFrame);
 }
 
@@ -143,24 +144,13 @@ void CocoTimeline::normalizetimeline()
 	if(__keyFrames.size() > 0)
 	{
 		__durationInFrames = __keyFrames[__keyFrames.size() - 1]->frameIndex + 1;
-		__durationInTime = ((float)(__durationInFrames) / (float)(__fps)) * 1000;
-		__singleFrameDurationTime = (float)(__durationInTime) / (float)(__durationInFrames);
+		__durationInTime = Time(((float)(__durationInFrames) / (float)(__fps)) * 1000);
+		__singleFrameDurationTime = (float)(__durationInTime) / (float)(Time(__durationInFrames));
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoTimeline::jumpBy(float frames, bool paused)
-{
-	__paused = paused;
-	if(frames != 0)
-	{
-		__skipTime += (frames * __singleFrameDurationTime);
-		__pausedKeyFrame = nullptr;
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoTimeline::findKeyFrameBeforeframeIndex(float frameIndex, bool inclusive, float excludeListIndex)
+CocoKeyFrame* CocoTimeline::findKeyFrameBeforeframeIndex(int frameIndex, bool inclusive, float excludeListIndex)
 {
 	CocoKeyFrame* KeyFrame;
 	for(int i = __keyFrames.size() - 1; i >= 0; i--)
@@ -188,7 +178,7 @@ CocoKeyFrame* CocoTimeline::findKeyFrameBeforeframeIndex(float frameIndex, bool 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoTimeline::findKeyFrameAfterframeIndex(float frameIndex, bool inclusive, float excludeListIndex)
+CocoKeyFrame* CocoTimeline::findKeyFrameAfterframeIndex(int frameIndex, bool inclusive, float excludeListIndex)
 {
 	CocoKeyFrame* KeyFrame;
 	for(int i = 0,  L = __keyFrames.size(); i < L; i++)
@@ -216,35 +206,24 @@ CocoKeyFrame* CocoTimeline::findKeyFrameAfterframeIndex(float frameIndex, bool i
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoTimeline::interpolateByTime(float LoopTime)
+CocoKeyFrame* CocoTimeline::interpolate(float frameIndex)
 {
-	float T = ((float)(LoopTime) / (float)(__singleFrameDurationTime));
-	return interpolateByFrame(T);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
-{
-	if(__paused && __pausedKeyFrame)
-	{
-		return __pausedKeyFrame;
-	}
 	CocoKeyFrame* F = nullptr;
 	CocoKeyFrame* F1 = nullptr;
 	CocoKeyFrame* F2 = nullptr;
+	int FrameIndex = floor(frameIndex);
 	float s = 1.0;
-	float FrameIndex = std::floor(frameIndex);
 	if(__keyFrames.size() == 0)
 	{
 		F = new CocoKeyFrame();
 		F->frameIndex = FrameIndex;
 		F->visible = false;
-		return (__pausedKeyFrame = F);
+		return F;
 	}
 	F1 = keyFrame(FrameIndex);
 	if(F1)
 	{
-		return (__pausedKeyFrame = F1->clone(true));
+		return F1->clone();
 	}
 	F1 = findKeyFrameBeforeframeIndex(FrameIndex, false,  -1);
 	if(!F1)
@@ -252,7 +231,7 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 		F = new CocoKeyFrame();
 		F->frameIndex = FrameIndex;
 		F->visible = false;
-		return (__pausedKeyFrame = F);
+		return F;
 	}
 	else
 	{
@@ -260,17 +239,23 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 		{
 			case COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_ECHO:
 			{
-				F = F1->clone(false);
+				F = F1->clone();
+				F->action = nullptr;
+				F->audio = nullptr;
+				F->nextState = nullptr;
 				F->frameIndex = FrameIndex;
-				return (__pausedKeyFrame = F);
+				return F;
 			}
 			break;
 			case COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_NONE:
 			{
-				F = F1->clone(false);
+				F = F1->clone();
+				F->action = nullptr;
+				F->audio = nullptr;
+				F->nextState = nullptr;
 				F->frameIndex = FrameIndex;
 				F->visible = false;
-				return (__pausedKeyFrame = F);
+				return F;
 			}
 			break;
 			case COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN:
@@ -278,17 +263,23 @@ CocoKeyFrame* CocoTimeline::interpolateByFrame(float frameIndex)
 				F2 = findKeyFrameAfterframeIndex(FrameIndex, false,  -1);
 				if(!F2)
 				{
-					F = F1->clone(false);
+					F = F1->clone();
+					F->action = nullptr;
+					F->audio = nullptr;
+					F->nextState = nullptr;
 					F->frameIndex = FrameIndex;
-					return (__pausedKeyFrame = F);
+					return F;
 				}
 				else
 				{
-					F = F1->clone(false);
+					F = F1->clone();
+					F->action = nullptr;
+					F->audio = nullptr;
+					F->nextState = nullptr;
 					F->frameIndex = FrameIndex;
-					s = (float)((frameIndex - F1->frameIndex)) / (float)((F2->frameIndex - F1->frameIndex));
+					s = float((float)((frameIndex - F1->frameIndex)) / (float)((F2->frameIndex - F1->frameIndex)));
 					F->interpolate(F1, F2, s);
-					return (__pausedKeyFrame = F);
+					return F;
 				}
 			}
 			break;

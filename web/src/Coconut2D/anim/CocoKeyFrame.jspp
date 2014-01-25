@@ -100,7 +100,7 @@ class CocoKeyFrame
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function clone() :CocoKeyFrame
+	public function clone(exact:Boolean) :CocoKeyFrame
 	{
 	    var c:CocoKeyFrame = new CocoKeyFrame();
 
@@ -121,12 +121,17 @@ class CocoKeyFrame
 		c.y                     	= y;
 		c.flipH						= flipH;
 		c.flipV						= flipV;
-		c.action					= action;
-		c.nextState					= nextState;
-		c.audio						= audio;
  		c.spriteSequenceName		= spriteSequenceName;
  		c.__lastActionExecutionTime	= __lastActionExecutionTime;
  		c.__isCloned				= true;
+
+		if(exact)
+		{
+			c.action				= action;
+			c.nextState				= nextState;
+			c.audio					= audio;
+		}
+
 	    return c;
 	}
 

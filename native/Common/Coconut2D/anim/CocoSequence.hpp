@@ -8,7 +8,9 @@ class CocoSequence
 public:
 	String name;
 	Array<int> frames;
+	Time sequenceStartTime;
 	CocoSequence(String name, Array<int> framesArray);
+	~CocoSequence();
 };
 
 #endif

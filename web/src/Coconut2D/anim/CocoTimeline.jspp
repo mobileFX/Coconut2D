@@ -222,7 +222,7 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function findKeyFrameBeforeframeIndex(frameIndex:Integer, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
+	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
 	{
 		var KeyFrame:CocoKeyFrame;
 		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
@@ -246,7 +246,7 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function findKeyFrameAfterframeIndex(frameIndex:Integer, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
+	public function findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
 	{
 		var KeyFrame:CocoKeyFrame;
 		for(var i:Integer = 0, L:Integer = __keyFrames.size(); i < L; i++)
@@ -276,7 +276,8 @@ class CocoTimeline
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
 	    var s:Float = 1.0;
-	    var iFrameIndex:Integer = Math.floor(frameIndex);
+	    var i:Integer = Math.floor(frameIndex);
+	    var iFrameIndex:Integer = (frameIndex-i >= 0.5 ? i+1 : i);
 
 	    // Timeline is empty?
 	    if(__keyFrames.size()==0)
@@ -288,14 +289,14 @@ class CocoTimeline
 	    }
 
 	    // Exact KeyFrame exists?
-	    F1 = keyFrame(iFrameIndex);
-	    if(F1)
-	    {
-	    	return F1.clone();
-	    }
+    	F1 = keyFrame(iFrameIndex);
+    	if(F1)
+    	{
+    		return F1.clone(true);
+    	}
 
 	    // Seek previous KeyFrame
-	    F1 = findKeyFrameBeforeframeIndex(iFrameIndex, false, -1);
+    	F1 = findKeyFrameBeforeframeIndex(frameIndex, false, -1);
 
 	    if(!F1)
 	    {
@@ -311,19 +312,13 @@ class CocoTimeline
 	        {
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
 
-	            F = F1.clone();
-	            F.action = null;
-	            F.audio = null;
-	            F.nextState = null;
+	            F = F1.clone(false);
 	            F.frameIndex = iFrameIndex;
 	            return F;
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 
-	            F = F1.clone();
-	            F.action = null;
-	            F.audio = null;
-	            F.nextState = null;
+	            F = F1.clone(false);
 	            F.frameIndex = iFrameIndex;
 	            F.visible = false;
 	            return F;
@@ -331,25 +326,19 @@ class CocoTimeline
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN:
 
 	            // We need the next KeyFrame now
-	            F2 = findKeyFrameAfterframeIndex(iFrameIndex, false, -1);
+	            F2 = findKeyFrameAfterframeIndex(frameIndex, false, -1);
 
 	            if(!F2)
 	            {
 	                // Fallback to echo
-	                F = F1.clone();
-		            F.action = null;
-		            F.audio = null;
-		            F.nextState = null;
+	                F = F1.clone(false);
 	                F.frameIndex = iFrameIndex;
 	                return F;
 	            }
 	            else
 	            {
 	                // Interpolate between frames
-	                F = F1.clone();
-		            F.action = null;
-		            F.audio = null;
-		            F.nextState = null;
+	                F = F1.clone(false);
 	                F.frameIndex = iFrameIndex;
 	                s = Float((frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex));
 	                F.interpolate(F1, F2, s);

@@ -3,40 +3,30 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoAudio::CocoAudio(String url, bool autoplay, int loops)
 {
-	src = url;
 	audio = new Audio(url);
 	audio->autoplay = false;
 	audio->loop = false;
+	this->src = url;
 	this->autoplay = autoplay;
 	this->loops = loops;
 	__firstPlayed = false;
 	__loopCount = 0;
-	__refCount = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoAudio::~CocoAudio()
 {
-	if(--__refCount == 0)
-	{
+	if(audio)
 		if(audio)
 		{
 			audio = (delete audio, nullptr);
 		}
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoAudio* CocoAudio::cloneNode(bool deep)
-{
-	__refCount++;
-	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoAudio::tick()
 {
-	if(!audio || !audio->src)
+	if(!audio)
 	{
 		return;
 	}
@@ -44,12 +34,12 @@ void CocoAudio::tick()
 	{
 		__firstPlayed = true;
 		play();
+		return;
 	}
-	trace(src + " : " + String(getCurrentTime()));
 	if(loops >= 0 && audio->ended)
 	{
 		__loopCount++;
-		if(loops == 0 || (loops > 0 || __loopCount < loops))
+		if(loops == 0 || (loops > 0 && __loopCount < loops))
 		{
 			play();
 		}
@@ -61,6 +51,8 @@ void CocoAudio::play()
 {
 	if(audio)
 	{
+		audio->ended = false;
+		audio->paused = false;
 		audio->play();
 	}
 }
@@ -70,6 +62,8 @@ void CocoAudio::pause()
 {
 	if(audio)
 	{
+		audio->ended = false;
+		audio->paused = true;
 		audio->pause();
 	}
 }
@@ -81,9 +75,11 @@ void CocoAudio::stop()
 	__firstPlayed = true;
 	if(audio)
 	{
+		audio->ended = true;
+		audio->paused = false;
 		audio->pause();
+		setCurrentTime(0);
 	}
-	setCurrentTime(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +103,7 @@ bool CocoAudio::ended()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 float CocoAudio::getCurrentTime()
 {
-	return audio ? audio->currentTime : 0;
+	return audio ? audio->__currentTime : 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +111,6 @@ void CocoAudio::setCurrentTime(float t)
 {
 	if(audio)
 	{
-		audio->currentTime = t;
+		audio->__currentTime = t;
 	}
 }

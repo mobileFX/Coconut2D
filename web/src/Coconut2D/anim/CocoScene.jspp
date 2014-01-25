@@ -51,9 +51,6 @@ class CocoScene
 	public var __view_scale:Float;
 
 	// Rendering
-	public var __currentTime:Time;
-	public var __elapsedTime:Time;
-	public var __startTime:Time;
 	public var __root:CocoClip;
 	public var __modelViewMatrix:CocoMatrix;
 	public var __projectionMatrix:CocoMatrix;
@@ -79,9 +76,6 @@ class CocoScene
 		__view_height				= 0;
 		__view_pixel_ratio			= 0;
 		__view_scale				= 1;
-		__currentTime 				= 0.0;
-		__elapsedTime	 			= 0.0;
-		__startTime 				= -1;
 		__root 						= null;
 		__modelViewMatrix			= null;
 		__projectionMatrix 			= null;
@@ -291,16 +285,6 @@ class CocoScene
 		}
 		else if(resourcesLoaded(gl))
 		{
-			if(__startTime == -1)
-			{
-				__startTime = time;
-				__elapsedTime = 0;
-			}
-			else
-			{
-		    	__elapsedTime = (time-__startTime) - (__currentTime);
-			}
-			__currentTime = time - __startTime;
 		    if(__root)
 		    {
 				__modelViewMatrix.identity();
