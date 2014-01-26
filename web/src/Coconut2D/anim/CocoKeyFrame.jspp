@@ -40,6 +40,7 @@
 class CocoKeyFrame
 {
 	public var frameIndex:Integer;
+	public var __frameIndex:Float;
 	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var handleEvents:Boolean;
 	public var visible:Boolean;
@@ -67,6 +68,7 @@ class CocoKeyFrame
 	public function Constructor()
 	{
 		frameIndex					= 0;
+		__frameIndex				= 0;
 		frameInterpolation 			= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 		handleEvents 				= false;
 		visible						= true;
@@ -120,6 +122,7 @@ class CocoKeyFrame
 		c.flipH						= flipH;
 		c.flipV						= flipV;
  		c.spriteSequenceName		= spriteSequenceName;
+		c.__frameIndex				= Float(frameIndex);
  		c.__isCloned				= true;
 
 		if(exact && (action || nextState || audio))

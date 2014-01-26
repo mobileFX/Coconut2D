@@ -72,7 +72,12 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
-		stop();
+		if(!audio) return;
+		audio.pause();
+		audio.ended = false;
+		audio.paused = true;
+		setCurrentTime(0);
+		__loopCount = 0;
 		__firstPlayed = false;
 	}
 
@@ -118,7 +123,10 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function stop()
 	{
-		pause();
+		if(!audio) return;
+		audio.pause();
+		audio.ended = false;
+		audio.paused = true;
 		__loopCount = 0;
 		__firstPlayed = true;
 		setCurrentTime(0);

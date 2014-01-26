@@ -46,7 +46,9 @@ class CocoTimeline
 	public var __durationInFrames:Integer;
 	public var __paused:Boolean;
 	public var __fps:Float;
-	public var __lastFrameIndex:Integer;
+	public var __currentFrameIndex:Integer;
+	public var __firstKeyFrameIndex:Integer;
+	public var __lastKeyFrameIndex:Integer;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -56,7 +58,7 @@ class CocoTimeline
 		__durationInFrames			= 0;
 		__paused					= false;
 		__fps						= 30;
-		__lastFrameIndex			= -1;
+		__currentFrameIndex			= -1;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +88,7 @@ class CocoTimeline
 	public function reset()
 	{
 		__paused = false;
-		__lastFrameIndex = -1;
+		__currentFrameIndex = -1;
 		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
 		{
 			__keyFrames[i].reset();
@@ -210,17 +212,16 @@ class CocoTimeline
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function normalizetimeline()
 	{
-		reset();
 		__durationInFrames = 0;
 		__durationInTime = 0;
 		__singleFrameDurationTime = 0;
 		if (__keyFrames.size() > 0)
 		{
 			__durationInFrames = __keyFrames[__keyFrames.size() - 1].frameIndex + 1;
-			//__durationInTime = Time((__durationInFrames / __fps) * 1000);
-			//__singleFrameDurationTime = __durationInTime / Time(__durationInFrames);
 			__singleFrameDurationTime = 1000.0 / __fps;
 			__durationInTime = Time(__durationInFrames) * __singleFrameDurationTime;
+			__firstKeyFrameIndex = firstKeyFrame().frameIndex;
+			__lastKeyFrameIndex = lastKeyFrame().frameIndex;
 		}
 	}
 
@@ -279,8 +280,7 @@ class CocoTimeline
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
 	    var s:Float = 1.0;
-	    var i:Integer = Math.floor(frameIndex);
-	    var iFrameIndex:Integer = (frameIndex-i >= 0.5 ? i+1 : i);
+	    var iFrameIndex:Integer = Math.floor(frameIndex);
 
 	    // Timeline is empty?
 	    if(__keyFrames.size()==0)
@@ -299,17 +299,20 @@ class CocoTimeline
 	        // No previous KeyFrame
 	        F = new CocoKeyFrame();
 	        F.frameIndex = iFrameIndex;
+	        F.__frameIndex = frameIndex;
 	        F.visible = false;
 	        return F;
 	    }
 	    else
 	    {
-	    	var exact:Boolean = !__paused && ((__lastFrameIndex == -1) || (__lastFrameIndex != F1.frameIndex));
-	    	__lastFrameIndex = F1.frameIndex;
+	    	var exact:Boolean = !__paused && ((__currentFrameIndex == -1) || (__currentFrameIndex != F1.frameIndex));
+	    	__currentFrameIndex = F1.frameIndex;
 
 	    	if(F1.frameIndex==iFrameIndex)
 	    	{
-	    		return F1.clone(exact);
+	    		F1 = F1.clone(exact);
+	    		F1.__frameIndex = frameIndex;
+	    		return F1;
 	    	}
 
 	        switch(F1.frameInterpolation)
@@ -318,12 +321,14 @@ class CocoTimeline
 
 	            F = F1.clone(exact);
 	            F.frameIndex = iFrameIndex;
+	            F.__frameIndex = frameIndex;
 	            return F;
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 
 	            F = F1.clone(exact);
 	            F.frameIndex = iFrameIndex;
+	            F.__frameIndex = frameIndex;
 	            F.visible = false;
 	            return F;
 
@@ -337,6 +342,7 @@ class CocoTimeline
 	                // Fallback to echo
 	                F = F1.clone(exact);
 	                F.frameIndex = iFrameIndex;
+	                F.__frameIndex = frameIndex;
 	                return F;
 	            }
 	            else
@@ -344,6 +350,7 @@ class CocoTimeline
 	                // Interpolate between frames
 	                F = F1.clone(exact);
 	                F.frameIndex = iFrameIndex;
+	                F.__frameIndex = frameIndex;
 	                s = Float((frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex));
 	                F.interpolate(F1, F2, s);
 	                return F;

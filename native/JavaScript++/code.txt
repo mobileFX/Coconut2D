@@ -3713,7 +3713,12 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
-		stop();
+		if(!audio) return;
+		audio.pause();
+		audio.ended = false;
+		audio.paused = true;
+		setCurrentTime(0);
+		__loopCount = 0;
 		__firstPlayed = false;
 	}
 
@@ -3759,7 +3764,10 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function stop()
 	{
-		pause();
+		if(!audio) return;
+		audio.pause();
+		audio.ended = false;
+		audio.paused = true;
 		__loopCount = 0;
 		__firstPlayed = true;
 		setCurrentTime(0);
@@ -4714,6 +4722,7 @@ class CocoMatrix
 class CocoKeyFrame
 {
 	public var frameIndex:Integer;
+	public var __frameIndex:Float;
 	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var handleEvents:Boolean;
 	public var visible:Boolean;
@@ -4741,6 +4750,7 @@ class CocoKeyFrame
 	public function Constructor()
 	{
 		frameIndex					= 0;
+		__frameIndex				= 0;
 		frameInterpolation 			= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 		handleEvents 				= false;
 		visible						= true;
@@ -4794,6 +4804,7 @@ class CocoKeyFrame
 		c.flipH						= flipH;
 		c.flipV						= flipV;
  		c.spriteSequenceName		= spriteSequenceName;
+		c.__frameIndex				= Float(frameIndex);
  		c.__isCloned				= true;
 
 		if(exact && (action || nextState || audio))
@@ -4927,7 +4938,9 @@ class CocoTimeline
 	public var __durationInFrames:Integer;
 	public var __paused:Boolean;
 	public var __fps:Float;
-	public var __lastFrameIndex:Integer;
+	public var __currentFrameIndex:Integer;
+	public var __firstKeyFrameIndex:Integer;
+	public var __lastKeyFrameIndex:Integer;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -4937,7 +4950,7 @@ class CocoTimeline
 		__durationInFrames			= 0;
 		__paused					= false;
 		__fps						= 30;
-		__lastFrameIndex			= -1;
+		__currentFrameIndex			= -1;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -4967,7 +4980,7 @@ class CocoTimeline
 	public function reset()
 	{
 		__paused = false;
-		__lastFrameIndex = -1;
+		__currentFrameIndex = -1;
 		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
 		{
 			__keyFrames[i].reset();
@@ -5091,17 +5104,16 @@ class CocoTimeline
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function normalizetimeline()
 	{
-		reset();
 		__durationInFrames = 0;
 		__durationInTime = 0;
 		__singleFrameDurationTime = 0;
 		if (__keyFrames.size() > 0)
 		{
 			__durationInFrames = __keyFrames[__keyFrames.size() - 1].frameIndex + 1;
-			//__durationInTime = Time((__durationInFrames / __fps) * 1000);
-			//__singleFrameDurationTime = __durationInTime / Time(__durationInFrames);
 			__singleFrameDurationTime = 1000.0 / __fps;
 			__durationInTime = Time(__durationInFrames) * __singleFrameDurationTime;
+			__firstKeyFrameIndex = firstKeyFrame().frameIndex;
+			__lastKeyFrameIndex = lastKeyFrame().frameIndex;
 		}
 	}
 
@@ -5160,8 +5172,7 @@ class CocoTimeline
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
 	    var s:Float = 1.0;
-	    var i:Integer = Math.floor(frameIndex);
-	    var iFrameIndex:Integer = (frameIndex-i >= 0.5 ? i+1 : i);
+	    var iFrameIndex:Integer = Math.floor(frameIndex);
 
 	    // Timeline is empty?
 	    if(__keyFrames.size()==0)
@@ -5180,17 +5191,20 @@ class CocoTimeline
 	        // No previous KeyFrame
 	        F = new CocoKeyFrame();
 	        F.frameIndex = iFrameIndex;
+	        F.__frameIndex = frameIndex;
 	        F.visible = false;
 	        return F;
 	    }
 	    else
 	    {
-	    	var exact:Boolean = !__paused && ((__lastFrameIndex == -1) || (__lastFrameIndex != F1.frameIndex));
-	    	__lastFrameIndex = F1.frameIndex;
+	    	var exact:Boolean = !__paused && ((__currentFrameIndex == -1) || (__currentFrameIndex != F1.frameIndex));
+	    	__currentFrameIndex = F1.frameIndex;
 
 	    	if(F1.frameIndex==iFrameIndex)
 	    	{
-	    		return F1.clone(exact);
+	    		F1 = F1.clone(exact);
+	    		F1.__frameIndex = frameIndex;
+	    		return F1;
 	    	}
 
 	        switch(F1.frameInterpolation)
@@ -5199,12 +5213,14 @@ class CocoTimeline
 
 	            F = F1.clone(exact);
 	            F.frameIndex = iFrameIndex;
+	            F.__frameIndex = frameIndex;
 	            return F;
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 
 	            F = F1.clone(exact);
 	            F.frameIndex = iFrameIndex;
+	            F.__frameIndex = frameIndex;
 	            F.visible = false;
 	            return F;
 
@@ -5218,6 +5234,7 @@ class CocoTimeline
 	                // Fallback to echo
 	                F = F1.clone(exact);
 	                F.frameIndex = iFrameIndex;
+	                F.__frameIndex = frameIndex;
 	                return F;
 	            }
 	            else
@@ -5225,6 +5242,7 @@ class CocoTimeline
 	                // Interpolate between frames
 	                F = F1.clone(exact);
 	                F.frameIndex = iFrameIndex;
+	                F.__frameIndex = frameIndex;
 	                s = Float((frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex));
 	                F.interpolate(F1, F2, s);
 	                return F;
@@ -5285,15 +5303,19 @@ class CocoTimeline
 class CocoClip
 {
 	public var __instanceName:String;
+	public var __clipPath:String;
 	public var __scene:CocoScene;
 	public var __image:CocoImage;
 	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var __children:Array<CocoClip>;
 	public var __timeline:CocoTimeline;
 	public var __parent:CocoClip;
+
+	// Animation Control Variables
 	public var __currentTime:Time;
+	public var __loopTime:Time;
+	public var __loops:Integer;
 	public var __currentFrame:CocoKeyFrame;
-	public var __clipPath:String;
 	public var __childWithMaxTimelineDuration:CocoClip;
 
 	// Bounding Box & Hit Test
@@ -5311,7 +5333,7 @@ class CocoClip
 
 	// References to objects we do not own (do not delete in destructor)
 	private var __currentSequence:CocoSequence;
-	public var __currentAudio:CocoAudio;
+	private var __currentAudio:CocoAudio;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
@@ -5412,6 +5434,7 @@ class CocoClip
 		if(!clipInstance.__instanceName) throw "Invalid instance name.";
 		__children.push(clipInstance);
 		normalize();
+		clipInstance.__clipPath = (__clipPath ? __clipPath : __instanceName) + "/" + clipInstance.__instanceName;
 		return clipInstance;
 	}
 
@@ -5473,20 +5496,20 @@ class CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoFrameByName(LabelName:String, optional pause:Boolean, optional deep:Boolean) :Boolean
+	public function gotoFrameByName(LabelName:String, optional pause:Boolean) :Boolean
 	{
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
 
-		trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause));
 
-		return gotoFrameByIndex(Label.frameIndex, pause, deep);
+		return gotoFrameByIndex(Label.frameIndex, pause);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean, optional deep:Boolean) :Boolean
+	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean
 	{
-		trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("\ngotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause));
 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
@@ -5497,36 +5520,38 @@ class CocoClip
 				FrameIndex = clip.__currentFrame ? clip.__currentFrame.frameIndex : 0;
 
 			clip.__timeline.__paused = pause;
-			clip.__timeline.__lastFrameIndex = -1;
+			clip.__timeline.__currentFrameIndex = -1;
 
 			clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
 
-			trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + String(clip.__currentTime));
-
-			if (deep)
-				clip.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
+			trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + clip.__currentTime.toFixed(2) + ", paused=" + String(clip.__timeline.__paused));
 		}
 		return true;
-	};
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __advanceTime(parentClipsDuration:Time)
+	{
+		if(__timeline.__paused) return;
+		__currentTime += engine.TICK_TIME;
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
 		__scene = scene;
 
-		// Set clip path for debugging.
-		__clipPath = (parentClip ? parentClip.__clipPath : "") + "/" + this.__instanceName;
+		// Calculate the parent timeline duraction in time from its children (which are siblings to this clip)
+		var parentClipsDuration:Time = parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : this.__timeline.__singleFrameDurationTime;
 
         // =============================================================================================================
         // Combine with parent clip and interpolate
         // =============================================================================================================
 		if(parentClip)
 		{
-			// Calculate the parent timeline duraction in time from its children (which are siblings to this clip)
-			var parentClipsDuration:Time = parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime;
-
 			// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
-			var __loopTime:Time = __currentTime - Math.floor(__currentTime / parentClipsDuration) * parentClipsDuration;
+			__loops = Math.floor(__currentTime / parentClipsDuration);
+			__loopTime = __currentTime - (Time(__loops) * parentClipsDuration);
 
 			// Calculate frameIndex from time.
 			var frameIndex:Float = __loopTime / __timeline.__singleFrameDurationTime;
@@ -5536,6 +5561,10 @@ class CocoClip
 				delete __currentFrame;
 			__currentFrame = __timeline.interpolate(frameIndex);
 
+			// Frame Index cannot exceed timeline bounds.
+
+			engine.__trace(scene, this, "@PAINT");
+
 			// Combine parent clip currentframe values with this clip's interpolated frame values.
 			 __currentFrame.combine(parentClip.__currentFrame);
 
@@ -5543,8 +5572,7 @@ class CocoClip
 			if(__currentFrame.alpha == 0 || !__currentFrame.visible)
 			{
 				// Propagate clip's timeline.
-				if(!__timeline.__paused)
-					__currentTime += engine.TICK_TIME;
+				__advanceTime(parentClipsDuration);
 				return;
 			}
 
@@ -5565,16 +5593,18 @@ class CocoClip
 			__currentFrame.scaleX /= __image.__pixelRatioScale;
 			__currentFrame.scaleY /= __image.__pixelRatioScale;
 
-			// Get sequence name
-			var sequenceName:String = parentClip && parentClip.__currentFrame ? parentClip.__currentFrame.spriteSequenceName : "";
+			// Get sequence name, first from current clip and if not found from parent clip.
+			var sequenceName:String = __currentFrame.spriteSequenceName;
+			if(!sequenceName) sequenceName = parentClip.__currentFrame.spriteSequenceName;
 
 			// Check if we should change sprite animation sequence
-			if(sequenceName.length==0)
+			if(!sequenceName)
 			{
 				__currentSequence = null;
 			}
-			else if(!__currentSequence || (__currentSequence && __currentSequence.name!=sequenceName))
+			else if(!__currentSequence || __currentSequence.name!=sequenceName)
 			{
+				trace("Loading sprite animation sequence: " + this.__clipPath + " -> " + sequenceName);
 				__currentSequence = __image.getSequence(sequenceName);
 				__currentSequence.sequenceStartTime = __currentTime;
 			}
@@ -5680,8 +5710,7 @@ class CocoClip
 		// =============================================================================================================
 		// Propagate clip's timeline.
 		// =============================================================================================================
-		if(!__timeline.__paused)
-			__currentTime += engine.TICK_TIME;
+		__advanceTime(parentClipsDuration);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -6110,6 +6139,7 @@ class CocoScene
 		{
 		    if(__root)
 		    {
+		    	engine.__trace(this, null, "@CYCLE");
 				__modelViewMatrix.identity();
 		    	__levelParents = [__root];
 				__root.paint(gl, this, null, false, 0);
@@ -6143,38 +6173,38 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndPlayByName(LabelName:String, optional deep:Boolean)
+	public function gotoAndPlayByName(LabelName:String)
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByName(LabelName, false, deep);
+		scope.gotoFrameByName(LabelName, false);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndStopByName(LabelName:String, optional deep:Boolean)
+	public function gotoAndStopByName(LabelName:String)
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByName(LabelName, true, deep);
+		scope.gotoFrameByName(LabelName, true);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndPlayByIndex(FrameIndex:Integer, optional deep:Boolean)
+	public function gotoAndPlayByIndex(FrameIndex:Integer)
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByIndex(FrameIndex, false, deep);
+		scope.gotoFrameByIndex(FrameIndex, false);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndStopyByIndex(FrameIndex:Integer, optional deep:Boolean)
+	public function gotoAndStopyByIndex(FrameIndex:Integer)
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByIndex(FrameIndex, true, deep);
+		scope.gotoFrameByIndex(FrameIndex, true);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function stop()
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true, false);
+		scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true);
 	}
 }
 
@@ -6327,22 +6357,26 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __trace(scene:CocoScene, clip:CocoClip, message: String)
 	{
-		//return;
+		return;
 
 		if(scene && clip)
 		{
-			var ct:Time = scene.__root.__children[0].__currentTime;
-			var t:Time = 1000/scene.__fps;
-			var rf:Float = Math.floor(ct/t);
-			var rc:Float = clip.__currentFrame.frameIndex;// Math.floor(ct/t);
+			var rf:Float = scene.__root.__childWithMaxTimelineDuration.__timeline.__currentFrameIndex;
+			var rt:Float = scene.__root.__currentTime;
+			var cf:Float = clip.__timeline.__currentFrameIndex;
+			var ct:Float = clip.__currentTime;
 
-			message = "\n" + message +
-					  ": state=" + __currentState.__name +
-					  ", clip=" + scene.__sceneName + clip.__clipPath +
-					  ", root_frame=" + String(rf) +
-					  ", clip_frame=" + String(rc) +
-					  ", root_time=" + scene.__root.__currentTime.toFixed(2) +
-					  ", clip_time=" + clip.__currentTime.toFixed(2);
+			message = message +
+					  " R(f:" + rf.toFixed(2) +
+					  ", t:" + rt.toFixed(2) +
+					  ", L:" + scene.__root.__loops.toFixed(2) +
+					  ")\tC(f:" + cf.toFixed(2) +
+					  ", t:" + ct.toFixed(2) +
+					  ", L:" + clip.__loops.toFixed(2) +
+					  ", P:" + String(clip.__timeline.__paused) +
+					  ")\tstate: " + __currentState.__name +
+					  "\tclip: " + scene.__sceneName + clip.__clipPath;
+
 		}
 		trace(message);
 	}
@@ -7256,7 +7290,10 @@ state class GameEngine : CocoEngine
 
 		function enter()
 		{
-			scene = new Test();
+			scene = new TestSequences();
+			scene.__root.getChildByName("Sparrows").getChildByName("ClipSymbol1").gotoFrameByIndex(0, true);
+			scene.__root.getChildByName("Sparrows").getChildByName("ClipSymbol2").gotoFrameByIndex(1, true);
+			scene.__root.getChildByName("Sparrows").getChildByName("ClipSymbol3").gotoFrameByIndex(2, true);
 		}
 
 		function exit()
@@ -7274,22 +7311,6 @@ state class GameEngine : CocoEngine
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 "script_end:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/usr/GameEngine.jspp";
 "script_begin:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/usr/animations/BitmapSymbolsTest.jspp";
@@ -7367,7 +7388,10 @@ class BitmapSymbolsTest : CocoScene
 			__root.addChild(inst1);
 			inst1.__scene = this;
 			inst1.__timeline.clear();
-			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -207.5, -116.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst1.__timeline.addKeyFrameEx(null, null, 30, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -231.5, -125.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst1.__timeline.addKeyFrameEx(null, null, 38, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_PHYSICS, false, true, -105.5484, -131.0645, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst1.__timeline.addKeyFrameEx(null, null, 61, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -241, 128.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst1.__timeline.addKeyFrameEx(null, null, 75, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -108.5, 136.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
 				var inst2:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 				inst2.__instanceName = ':: SpriteSymbol_metal_slug';
@@ -7382,6 +7406,7 @@ class BitmapSymbolsTest : CocoScene
 			inst3.__scene = this;
 			inst3.__timeline.clear();
 			inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -174, -30.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst3.__timeline.addKeyFrameEx(null, null, 20, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 113, -12, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
 				var inst4:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 				inst4.__instanceName = ':: SpriteSymbol_metal_slug';
@@ -7396,6 +7421,7 @@ class BitmapSymbolsTest : CocoScene
 			inst5.__scene = this;
 			inst5.__timeline.clear();
 			inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -114.5, -30.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst5.__timeline.addKeyFrameEx(null, null, 10, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 172.5, -12, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
 				var inst6:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 				inst6.__instanceName = ':: SpriteSymbol_metal_slug';
@@ -7410,6 +7436,7 @@ class BitmapSymbolsTest : CocoScene
 			inst7.__scene = this;
 			inst7.__timeline.clear();
 			inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -180.5, 47.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst7.__timeline.addKeyFrameEx(null, null, 27, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 106.5, 66, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
 				var inst8:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst8.__instanceName = ':: SpriteSymbol_Sparrow';
@@ -7424,6 +7451,7 @@ class BitmapSymbolsTest : CocoScene
 			inst9.__scene = this;
 			inst9.__timeline.clear();
 			inst9.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -102.5, 47.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst9.__timeline.addKeyFrameEx(null, null, 15, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 184.5, 66, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
 				var inst10:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst10.__instanceName = ':: SpriteSymbol_Sparrow';
@@ -7438,6 +7466,7 @@ class BitmapSymbolsTest : CocoScene
 			inst11.__scene = this;
 			inst11.__timeline.clear();
 			inst11.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -100.5, -121.5, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst11.__timeline.addKeyFrameEx(null, null, 40, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 186.5, -103, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
 				var inst12:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst12.__instanceName = ':: SpriteSymbol_Sparrow';
@@ -7749,6 +7778,149 @@ class Test : CocoScene
 }
 
 "script_end:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/usr/animations/Test.jspp";
+"script_begin:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/usr/animations/TestSequences.jspp";
+"#export web"
+"#export native"
+"@export_native"
+"@export_web"
+
+"#include Coconut.js"
+"#include CocoScene.jspp"
+
+class TestSequences : CocoScene
+{
+	public function Constructor()
+	{
+		/* -- DESIGNER GENERATED CODE BEGIN -- */
+		__sceneName = 'TestSequences';
+		__fps = 30;
+		__view_width = 480;
+		__view_height = 320;
+		__view_pixel_ratio = 1;
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+		// CocoImage Symbols
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		// Symbol Image: SpriteSymbol_Sparrow
+		//====================================================================================================
+		var Image_SpriteSymbol_Sparrow:CocoImage = newResourceImage('SpriteSymbol_Sparrow', './assets/images/');
+		{
+			Image_SpriteSymbol_Sparrow.viewOptimalWidth = 48;
+			Image_SpriteSymbol_Sparrow.viewOptimalHeight = 48;
+			Image_SpriteSymbol_Sparrow.addSibling(new CocoImageSibling('Sparrow.png', 1, 48, 48));
+			Image_SpriteSymbol_Sparrow.textureCellWidth = 48;
+			Image_SpriteSymbol_Sparrow.textureCellHeight = 48;
+			Image_SpriteSymbol_Sparrow.textureGrid = new Float32Array([0,0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,0,1,1,1,2,1,3,1,4,1,5,1,6,1,7,2,0,2,1,2,2,2,3,2,4,2,5,2,6,2,7,3,0,3,1,3,2,3,3,3,4,3,5,3,6,3,7,4,0,4,1,4,2,4,3,4,4,4,5,4,6,4,7,5,0,5,1,5,2,5,3,5,4,5,5,5,6,5,7,6,0,6,1,6,2,6,3]);
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Fly', [22,23,24]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Fire', [25,26,27,28,29,30,31,32,33,34,35]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Die', [37,38,39,40,41,42,41,42,41,42]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Eat', [0,44,44,45,45,46,46,47,47]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Burb', [0,48,48,48,49,49,49,48,48,48,49,49,49,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Borred', [0,1,2,1,0]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Jump', [10,11,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Walk', [3,4,5,6,7,8,9]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Fall', [14,15]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Happy', [16,17,18,19,20,21]));
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Scene Root Clip
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		__root = new CocoClip();
+		__root.__instanceName = 'root';
+		__root.__scene = this;
+		__root.__timeline.clear();
+		__root.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		{
+			var inst1:CocoClip = new  CocoClip(null);
+			inst1.__instanceName = 'Sparrows';
+			__root.addChild(inst1);
+			inst1.__scene = this;
+			inst1.__timeline.clear();
+			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 19.5, -20, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			{
+				var inst2:CocoClip = new  CocoClip(null);
+				inst2.__instanceName = 'ClipSymbol1';
+				inst1.addChild(inst2);
+				inst2.__scene = this;
+				inst2.__timeline.clear();
+				inst2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -155.75, -65.99999, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+				{
+					var inst3:CocoClip = new  CocoClip(null);
+					inst3.__instanceName = 'Sparrow1';
+					inst2.addChild(inst3);
+					inst3.__scene = this;
+					inst3.__timeline.clear();
+					inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fly');
+					inst3.__timeline.addKeyFrameEx(null, null, 1, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+					inst3.__timeline.addKeyFrameEx(null, null, 2, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fire');
+					{
+						var inst4:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
+						inst4.__instanceName = ':: SpriteSymbol_Sparrow';
+						inst3.addChild(inst4);
+						inst4.__scene = this;
+						inst4.__timeline.clear();
+						inst4.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+					}
+				}
+				var inst5:CocoClip = new  CocoClip(null);
+				inst5.__instanceName = 'ClipSymbol2';
+				inst1.addChild(inst5);
+				inst5.__scene = this;
+				inst5.__timeline.clear();
+				inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -154.75, 3.000015, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+				{
+					var inst6:CocoClip = new  CocoClip(null);
+					inst6.__instanceName = 'Sparrow1';
+					inst5.addChild(inst6);
+					inst6.__scene = this;
+					inst6.__timeline.clear();
+					inst6.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fly');
+					inst6.__timeline.addKeyFrameEx(null, null, 1, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+					inst6.__timeline.addKeyFrameEx(null, null, 2, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fire');
+					{
+						var inst7:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
+						inst7.__instanceName = ':: SpriteSymbol_Sparrow';
+						inst6.addChild(inst7);
+						inst7.__scene = this;
+						inst7.__timeline.clear();
+						inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+					}
+				}
+				var inst8:CocoClip = new  CocoClip(null);
+				inst8.__instanceName = 'ClipSymbol3';
+				inst1.addChild(inst8);
+				inst8.__scene = this;
+				inst8.__timeline.clear();
+				inst8.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -162.25, 88.00002, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+				{
+					var inst9:CocoClip = new  CocoClip(null);
+					inst9.__instanceName = 'Sparrow1';
+					inst8.addChild(inst9);
+					inst9.__scene = this;
+					inst9.__timeline.clear();
+					inst9.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fly');
+					inst9.__timeline.addKeyFrameEx(null, null, 1, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+					inst9.__timeline.addKeyFrameEx(null, null, 2, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fire');
+					{
+						var inst10:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
+						inst10.__instanceName = ':: SpriteSymbol_Sparrow';
+						inst9.addChild(inst10);
+						inst10.__scene = this;
+						inst10.__timeline.clear();
+						inst10.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+					}
+				}
+			}
+		}
+
+		/* -- DESIGNER GENERATED CODE END -- */
+	}
+}
+
+"script_end:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/usr/animations/TestSequences.jspp";
 "script_begin:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/web/src/main.js";
 "#export web"
 

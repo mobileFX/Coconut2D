@@ -43,15 +43,19 @@
 class CocoClip
 {
 	public var __instanceName:String;
+	public var __clipPath:String;
 	public var __scene:CocoScene;
 	public var __image:CocoImage;
 	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var __children:Array<CocoClip>;
 	public var __timeline:CocoTimeline;
 	public var __parent:CocoClip;
+
+	// Animation Control Variables
 	public var __currentTime:Time;
+	public var __loopTime:Time;
+	public var __loops:Integer;
 	public var __currentFrame:CocoKeyFrame;
-	public var __clipPath:String;
 	public var __childWithMaxTimelineDuration:CocoClip;
 
 	// Bounding Box & Hit Test
@@ -69,7 +73,7 @@ class CocoClip
 
 	// References to objects we do not own (do not delete in destructor)
 	private var __currentSequence:CocoSequence;
-	public var __currentAudio:CocoAudio;
+	private var __currentAudio:CocoAudio;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
@@ -170,6 +174,7 @@ class CocoClip
 		if(!clipInstance.__instanceName) throw "Invalid instance name.";
 		__children.push(clipInstance);
 		normalize();
+		clipInstance.__clipPath = (__clipPath ? __clipPath : __instanceName) + "/" + clipInstance.__instanceName;
 		return clipInstance;
 	}
 
@@ -231,20 +236,20 @@ class CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoFrameByName(LabelName:String, optional pause:Boolean, optional deep:Boolean) :Boolean
+	public function gotoFrameByName(LabelName:String, optional pause:Boolean) :Boolean
 	{
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
 
-		trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause));
 
-		return gotoFrameByIndex(Label.frameIndex, pause, deep);
+		return gotoFrameByIndex(Label.frameIndex, pause);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean, optional deep:Boolean) :Boolean
+	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean
 	{
-		trace("gotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause) + ", deep=" + String(deep));
+		trace("\ngotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause));
 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
@@ -255,36 +260,38 @@ class CocoClip
 				FrameIndex = clip.__currentFrame ? clip.__currentFrame.frameIndex : 0;
 
 			clip.__timeline.__paused = pause;
-			clip.__timeline.__lastFrameIndex = -1;
+			clip.__timeline.__currentFrameIndex = -1;
 
 			clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
 
-			trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + String(clip.__currentTime));
-
-			if (deep)
-				clip.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
+			trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + clip.__currentTime.toFixed(2) + ", paused=" + String(clip.__timeline.__paused));
 		}
 		return true;
-	};
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __advanceTime(parentClipsDuration:Time)
+	{
+		if(__timeline.__paused) return;
+		__currentTime += engine.TICK_TIME;
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
 		__scene = scene;
 
-		// Set clip path for debugging.
-		__clipPath = (parentClip ? parentClip.__clipPath : "") + "/" + this.__instanceName;
+		// Calculate the parent timeline duraction in time from its children (which are siblings to this clip)
+		var parentClipsDuration:Time = parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : this.__timeline.__singleFrameDurationTime;
 
         // =============================================================================================================
         // Combine with parent clip and interpolate
         // =============================================================================================================
 		if(parentClip)
 		{
-			// Calculate the parent timeline duraction in time from its children (which are siblings to this clip)
-			var parentClipsDuration:Time = parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime;
-
 			// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
-			var __loopTime:Time = __currentTime - Math.floor(__currentTime / parentClipsDuration) * parentClipsDuration;
+			__loops = Math.floor(__currentTime / parentClipsDuration);
+			__loopTime = __currentTime - (Time(__loops) * parentClipsDuration);
 
 			// Calculate frameIndex from time.
 			var frameIndex:Float = __loopTime / __timeline.__singleFrameDurationTime;
@@ -294,6 +301,10 @@ class CocoClip
 				delete __currentFrame;
 			__currentFrame = __timeline.interpolate(frameIndex);
 
+			// Frame Index cannot exceed timeline bounds.
+
+			engine.__trace(scene, this, "@PAINT");
+
 			// Combine parent clip currentframe values with this clip's interpolated frame values.
 			 __currentFrame.combine(parentClip.__currentFrame);
 
@@ -301,8 +312,7 @@ class CocoClip
 			if(__currentFrame.alpha == 0 || !__currentFrame.visible)
 			{
 				// Propagate clip's timeline.
-				if(!__timeline.__paused)
-					__currentTime += engine.TICK_TIME;
+				__advanceTime(parentClipsDuration);
 				return;
 			}
 
@@ -323,16 +333,18 @@ class CocoClip
 			__currentFrame.scaleX /= __image.__pixelRatioScale;
 			__currentFrame.scaleY /= __image.__pixelRatioScale;
 
-			// Get sequence name
-			var sequenceName:String = parentClip && parentClip.__currentFrame ? parentClip.__currentFrame.spriteSequenceName : "";
+			// Get sequence name, first from current clip and if not found from parent clip.
+			var sequenceName:String = __currentFrame.spriteSequenceName;
+			if(!sequenceName) sequenceName = parentClip.__currentFrame.spriteSequenceName;
 
 			// Check if we should change sprite animation sequence
-			if(sequenceName.length==0)
+			if(!sequenceName)
 			{
 				__currentSequence = null;
 			}
-			else if(!__currentSequence || (__currentSequence && __currentSequence.name!=sequenceName))
+			else if(!__currentSequence || __currentSequence.name!=sequenceName)
 			{
+				trace("Loading sprite animation sequence: " + this.__clipPath + " -> " + sequenceName);
 				__currentSequence = __image.getSequence(sequenceName);
 				__currentSequence.sequenceStartTime = __currentTime;
 			}
@@ -438,8 +450,7 @@ class CocoClip
 		// =============================================================================================================
 		// Propagate clip's timeline.
 		// =============================================================================================================
-		if(!__timeline.__paused)
-			__currentTime += engine.TICK_TIME;
+		__advanceTime(parentClipsDuration);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -145,22 +145,26 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __trace(scene:CocoScene, clip:CocoClip, message: String)
 	{
-		//return;
+		return;
 
 		if(scene && clip)
 		{
-			var ct:Time = scene.__root.__children[0].__currentTime;
-			var t:Time = 1000/scene.__fps;
-			var rf:Float = Math.floor(ct/t);
-			var rc:Float = clip.__currentFrame.frameIndex;// Math.floor(ct/t);
+			var rf:Float = scene.__root.__childWithMaxTimelineDuration.__timeline.__currentFrameIndex;
+			var rt:Float = scene.__root.__currentTime;
+			var cf:Float = clip.__timeline.__currentFrameIndex;
+			var ct:Float = clip.__currentTime;
 
-			message = "\n" + message +
-					  ": state=" + __currentState.__name +
-					  ", clip=" + scene.__sceneName + clip.__clipPath +
-					  ", root_frame=" + String(rf) +
-					  ", clip_frame=" + String(rc) +
-					  ", root_time=" + scene.__root.__currentTime.toFixed(2) +
-					  ", clip_time=" + clip.__currentTime.toFixed(2);
+			message = message +
+					  " R(f:" + rf.toFixed(2) +
+					  ", t:" + rt.toFixed(2) +
+					  ", L:" + scene.__root.__loops.toFixed(2) +
+					  ")\tC(f:" + cf.toFixed(2) +
+					  ", t:" + ct.toFixed(2) +
+					  ", L:" + clip.__loops.toFixed(2) +
+					  ", P:" + String(clip.__timeline.__paused) +
+					  ")\tstate: " + __currentState.__name +
+					  "\tclip: " + scene.__sceneName + clip.__clipPath;
+
 		}
 		trace(message);
 	}

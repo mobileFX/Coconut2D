@@ -1,0 +1,140 @@
+"#export web"
+"#export native"
+"@export_native"
+"@export_web"
+
+"#include Coconut.js"
+"#include CocoScene.jspp"
+
+class TestSequences : CocoScene
+{
+	public function Constructor()
+	{
+		/* -- DESIGNER GENERATED CODE BEGIN -- */
+		__sceneName = 'TestSequences';
+		__fps = 30;
+		__view_width = 480;
+		__view_height = 320;
+		__view_pixel_ratio = 1;
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+		// CocoImage Symbols
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		// Symbol Image: SpriteSymbol_Sparrow
+		//====================================================================================================
+		var Image_SpriteSymbol_Sparrow:CocoImage = newResourceImage('SpriteSymbol_Sparrow', './assets/images/');
+		{
+			Image_SpriteSymbol_Sparrow.viewOptimalWidth = 48;
+			Image_SpriteSymbol_Sparrow.viewOptimalHeight = 48;
+			Image_SpriteSymbol_Sparrow.addSibling(new CocoImageSibling('Sparrow.png', 1, 48, 48));
+			Image_SpriteSymbol_Sparrow.textureCellWidth = 48;
+			Image_SpriteSymbol_Sparrow.textureCellHeight = 48;
+			Image_SpriteSymbol_Sparrow.textureGrid = new Float32Array([0,0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,0,1,1,1,2,1,3,1,4,1,5,1,6,1,7,2,0,2,1,2,2,2,3,2,4,2,5,2,6,2,7,3,0,3,1,3,2,3,3,3,4,3,5,3,6,3,7,4,0,4,1,4,2,4,3,4,4,4,5,4,6,4,7,5,0,5,1,5,2,5,3,5,4,5,5,5,6,5,7,6,0,6,1,6,2,6,3]);
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Fly', [22,23,24]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Fire', [25,26,27,28,29,30,31,32,33,34,35]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Die', [37,38,39,40,41,42,41,42,41,42]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Eat', [0,44,44,45,45,46,46,47,47]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Burb', [0,48,48,48,49,49,49,48,48,48,49,49,49,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51,50,51]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Borred', [0,1,2,1,0]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Jump', [10,11,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Walk', [3,4,5,6,7,8,9]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Fall', [14,15]));
+			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Happy', [16,17,18,19,20,21]));
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Scene Root Clip
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		__root = new CocoClip();
+		__root.__instanceName = 'root';
+		__root.__scene = this;
+		__root.__timeline.clear();
+		__root.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		{
+			var inst1:CocoClip = new  CocoClip(null);
+			inst1.__instanceName = 'Sparrows';
+			__root.addChild(inst1);
+			inst1.__scene = this;
+			inst1.__timeline.clear();
+			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 19.5, -20, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			{
+				var inst2:CocoClip = new  CocoClip(null);
+				inst2.__instanceName = 'ClipSymbol1';
+				inst1.addChild(inst2);
+				inst2.__scene = this;
+				inst2.__timeline.clear();
+				inst2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -155.75, -65.99999, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+				{
+					var inst3:CocoClip = new  CocoClip(null);
+					inst3.__instanceName = 'Sparrow1';
+					inst2.addChild(inst3);
+					inst3.__scene = this;
+					inst3.__timeline.clear();
+					inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fly');
+					inst3.__timeline.addKeyFrameEx(null, null, 1, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+					inst3.__timeline.addKeyFrameEx(null, null, 2, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fire');
+					{
+						var inst4:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
+						inst4.__instanceName = ':: SpriteSymbol_Sparrow';
+						inst3.addChild(inst4);
+						inst4.__scene = this;
+						inst4.__timeline.clear();
+						inst4.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+					}
+				}
+				var inst5:CocoClip = new  CocoClip(null);
+				inst5.__instanceName = 'ClipSymbol2';
+				inst1.addChild(inst5);
+				inst5.__scene = this;
+				inst5.__timeline.clear();
+				inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -154.75, 3.000015, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+				{
+					var inst6:CocoClip = new  CocoClip(null);
+					inst6.__instanceName = 'Sparrow1';
+					inst5.addChild(inst6);
+					inst6.__scene = this;
+					inst6.__timeline.clear();
+					inst6.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fly');
+					inst6.__timeline.addKeyFrameEx(null, null, 1, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+					inst6.__timeline.addKeyFrameEx(null, null, 2, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fire');
+					{
+						var inst7:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
+						inst7.__instanceName = ':: SpriteSymbol_Sparrow';
+						inst6.addChild(inst7);
+						inst7.__scene = this;
+						inst7.__timeline.clear();
+						inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+					}
+				}
+				var inst8:CocoClip = new  CocoClip(null);
+				inst8.__instanceName = 'ClipSymbol3';
+				inst1.addChild(inst8);
+				inst8.__scene = this;
+				inst8.__timeline.clear();
+				inst8.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -162.25, 88.00002, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+				{
+					var inst9:CocoClip = new  CocoClip(null);
+					inst9.__instanceName = 'Sparrow1';
+					inst8.addChild(inst9);
+					inst9.__scene = this;
+					inst9.__timeline.clear();
+					inst9.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fly');
+					inst9.__timeline.addKeyFrameEx(null, null, 1, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+					inst9.__timeline.addKeyFrameEx(null, null, 2, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Fire');
+					{
+						var inst10:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
+						inst10.__instanceName = ':: SpriteSymbol_Sparrow';
+						inst9.addChild(inst10);
+						inst10.__scene = this;
+						inst10.__timeline.clear();
+						inst10.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+					}
+				}
+			}
+		}
+
+		/* -- DESIGNER GENERATED CODE END -- */
+	}
+}

@@ -287,6 +287,7 @@ class CocoScene
 		{
 		    if(__root)
 		    {
+		    	engine.__trace(this, null, "@CYCLE");
 				__modelViewMatrix.identity();
 		    	__levelParents = [__root];
 				__root.paint(gl, this, null, false, 0);
@@ -320,37 +321,37 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndPlayByName(LabelName:String, optional deep:Boolean)
+	public function gotoAndPlayByName(LabelName:String)
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByName(LabelName, false, deep);
+		scope.gotoFrameByName(LabelName, false);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndStopByName(LabelName:String, optional deep:Boolean)
+	public function gotoAndStopByName(LabelName:String)
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByName(LabelName, true, deep);
+		scope.gotoFrameByName(LabelName, true);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndPlayByIndex(FrameIndex:Integer, optional deep:Boolean)
+	public function gotoAndPlayByIndex(FrameIndex:Integer)
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByIndex(FrameIndex, false, deep);
+		scope.gotoFrameByIndex(FrameIndex, false);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function gotoAndStopyByIndex(FrameIndex:Integer, optional deep:Boolean)
+	public function gotoAndStopyByIndex(FrameIndex:Integer)
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByIndex(FrameIndex, true, deep);
+		scope.gotoFrameByIndex(FrameIndex, true);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function stop()
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
-		scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true, false);
+		scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true);
 	}
 }

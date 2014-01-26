@@ -26,26 +26,32 @@ function GameEngine()
 			var enter = this.enter = function ()
 			{
 				//@line 38
-				__CLASS__GAMEENGINE__.scene = new Test;
+				__CLASS__GAMEENGINE__.scene = new TestSequences;
+				//@line 39
+				__CLASS__GAMEENGINE__.scene.__root.getChildByName("Sparrows").getChildByName("ClipSymbol1").gotoFrameByIndex(0, true);
+				//@line 40
+				__CLASS__GAMEENGINE__.scene.__root.getChildByName("Sparrows").getChildByName("ClipSymbol2").gotoFrameByIndex(1, true);
+				//@line 41
+				__CLASS__GAMEENGINE__.scene.__root.getChildByName("Sparrows").getChildByName("ClipSymbol3").gotoFrameByIndex(2, true);
 			};
-			//@line 41
+			//@line 44
 			var exit = this.exit = function ()
 			{
-				//@line 43
+				//@line 46
 				{
 					__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
 					__CLASS__GAMEENGINE__.scene = null
 				};
 			};
-			//@line 46
+			//@line 49
 			var tick = this.tick = function (time)
 			{
-				//@line 47
+				//@line 50
 			};
-			//@line 50
+			//@line 53
 			var paint = this.paint = function (gl, time)
 			{
-				//@line 52
+				//@line 55
 				__CLASS__GAMEENGINE__.scene.paint(gl, time);
 			};
 			return this

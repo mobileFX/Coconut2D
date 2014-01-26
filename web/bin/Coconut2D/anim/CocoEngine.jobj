@@ -103,39 +103,48 @@ function CocoEngine()
 		//@line 146
 		var __trace = this.__trace = function (scene, clip, message)
 		{
+			//@line 148
+			return;
 			//@line 150
 			if (scene && clip)
 			//@line 151
 			{
 				//@line 152
-				var ct = scene.__root.__children[0].__currentTime;
+				var rf = scene.__root.__childWithMaxTimelineDuration.__timeline.__currentFrameIndex;
 				//@line 153
-				var t = 1000 / scene.__fps;
+				var rt = scene.__root.__currentTime;
 				//@line 154
-				var rf = Math.floor(ct / t);
+				var cf = clip.__timeline.__currentFrameIndex;
 				//@line 155
-				var rc = clip.__currentFrame.frameIndex;
+				var ct = clip.__currentTime;
 				//@line 157
 				message =
-				//@line 162
-				//@line 160
-				//@line 158
-				//@line 157
-				"\n" + message +
-				//@line 158
-				": state=" + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name +
-				//@line 159
-				", clip=" + scene.__sceneName + clip.__clipPath +
-				//@line 160
-				", root_frame=" + rf +
-				//@line 161
-				", clip_frame=" + rc +
-				//@line 162
-				", root_time=" + scene.__root.__currentTime.toFixed(2) +
+				//@line 165
 				//@line 163
-				", clip_time=" + clip.__currentTime.toFixed(2);
+				//@line 161
+				//@line 159
+				//@line 157
+				message +
+				//@line 158
+				" R(f:" + rf.toFixed(2) +
+				//@line 159
+				", t:" + rt.toFixed(2) +
+				//@line 160
+				", L:" + scene.__root.__loops.toFixed(2) +
+				//@line 161
+				")\tC(f:" + cf.toFixed(2) +
+				//@line 162
+				", t:" + ct.toFixed(2) +
+				//@line 163
+				", L:" + clip.__loops.toFixed(2) +
+				//@line 164
+				", P:" + clip.__timeline.__paused +
+				//@line 165
+				")\tstate: " + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name +
+				//@line 166
+				"\tclip: " + scene.__sceneName + clip.__clipPath;
 			}
-			//@line 165
+			//@line 169
 			trace(message);
 		};
 		//@line 47

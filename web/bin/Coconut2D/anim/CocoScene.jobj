@@ -297,92 +297,94 @@ function CocoScene()
 				//@line 289
 				{
 					//@line 290
-					__CLASS__COCOSCENE__.__modelViewMatrix.identity();
+					engine.__trace(__CLASS__COCOSCENE__, null, "@CYCLE");
 					//@line 291
-					__CLASS__COCOSCENE__.__levelParents = [__CLASS__COCOSCENE__.__root];
+					__CLASS__COCOSCENE__.__modelViewMatrix.identity();
 					//@line 292
-					__CLASS__COCOSCENE__.__root.paint(gl, __CLASS__COCOSCENE__, null, false, 0);
+					__CLASS__COCOSCENE__.__levelParents = [__CLASS__COCOSCENE__.__root];
 					//@line 293
-					__CLASS__COCOSCENE__.__levelParents = [];
+					__CLASS__COCOSCENE__.__root.paint(gl, __CLASS__COCOSCENE__, null, false, 0);
 					//@line 294
-					var max = __CLASS__COCOSCENE__.__root.__childWithMaxTimelineDuration;
+					__CLASS__COCOSCENE__.__levelParents = [];
 					//@line 295
-					if (max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
+					var max = __CLASS__COCOSCENE__.__root.__childWithMaxTimelineDuration;
 					//@line 296
+					if (max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
+					//@line 297
 					{
-						//@line 297
+						//@line 298
 						__CLASS__COCOSCENE__.__finished = true;
 					}
 				}
 			}
 		};
-		//@line 306
+		//@line 307
 		var drawFrame = this.drawFrame = function (gl, image, frame, red, green, blue, alpha, flipH, flipV)
 		{
-			//@line 308
-			if (__CLASS__COCOSCENE__.__modelViewMatrix.__dirty) __CLASS__COCOSCENE__.__modelViewMatrix.update(gl, __CLASS__COCOSCENE__.__glProgram.GLSLuMVMat);
 			//@line 309
-			gl.uniform2f(__CLASS__COCOSCENE__.__glProgram.GLSLuSprSize, image.texSize[0], image.texSize[1]);
+			if (__CLASS__COCOSCENE__.__modelViewMatrix.__dirty) __CLASS__COCOSCENE__.__modelViewMatrix.update(gl, __CLASS__COCOSCENE__.__glProgram.GLSLuMVMat);
 			//@line 310
-			gl.uniform2f(__CLASS__COCOSCENE__.__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
+			gl.uniform2f(__CLASS__COCOSCENE__.__glProgram.GLSLuSprSize, image.texSize[0], image.texSize[1]);
 			//@line 311
-			gl.uniform2f(__CLASS__COCOSCENE__.__glProgram.GLSLuSprFlip, (flipH ? 1.0 : 0.0), (flipV ? 1.0 : 0.0));
+			gl.uniform2f(__CLASS__COCOSCENE__.__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
 			//@line 312
-			gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);
+			gl.uniform2f(__CLASS__COCOSCENE__.__glProgram.GLSLuSprFlip, (flipH ? 1.0 : 0.0), (flipV ? 1.0 : 0.0));
 			//@line 313
-			gl.vertexAttribPointer(__CLASS__COCOSCENE__.__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0);
+			gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);
 			//@line 314
-			gl.vertexAttribPointer(__CLASS__COCOSCENE__.__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8);
+			gl.vertexAttribPointer(__CLASS__COCOSCENE__.__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0);
 			//@line 315
-			gl.bindTexture(gl.TEXTURE_2D, image.texture);
+			gl.vertexAttribPointer(__CLASS__COCOSCENE__.__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8);
 			//@line 316
-			gl.uniform1i(__CLASS__COCOSCENE__.__glProgram.GLSLuSampler, 0);
+			gl.bindTexture(gl.TEXTURE_2D, image.texture);
 			//@line 317
-			gl.uniform4f(__CLASS__COCOSCENE__.__glProgram.GLSLuColor, red, green, blue, alpha);
+			gl.uniform1i(__CLASS__COCOSCENE__.__glProgram.GLSLuSampler, 0);
 			//@line 318
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+			gl.uniform4f(__CLASS__COCOSCENE__.__glProgram.GLSLuColor, red, green, blue, alpha);
 			//@line 319
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+			//@line 320
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		};
-		//@line 323
-		var gotoAndPlayByName = this.gotoAndPlayByName = function (LabelName, deep)
+		//@line 324
+		var gotoAndPlayByName = this.gotoAndPlayByName = function (LabelName)
 		{
-			//@line 325
-			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
 			//@line 326
-			scope.gotoFrameByName(LabelName, false, deep);
-		};
-		//@line 330
-		var gotoAndStopByName = this.gotoAndStopByName = function (LabelName, deep)
-		{
-			//@line 332
 			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
+			//@line 327
+			scope.gotoFrameByName(LabelName, false);
+		};
+		//@line 331
+		var gotoAndStopByName = this.gotoAndStopByName = function (LabelName)
+		{
 			//@line 333
-			scope.gotoFrameByName(LabelName, true, deep);
-		};
-		//@line 337
-		var gotoAndPlayByIndex = this.gotoAndPlayByIndex = function (FrameIndex, deep)
-		{
-			//@line 339
 			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
+			//@line 334
+			scope.gotoFrameByName(LabelName, true);
+		};
+		//@line 338
+		var gotoAndPlayByIndex = this.gotoAndPlayByIndex = function (FrameIndex)
+		{
 			//@line 340
-			scope.gotoFrameByIndex(FrameIndex, false, deep);
-		};
-		//@line 344
-		var gotoAndStopyByIndex = this.gotoAndStopyByIndex = function (FrameIndex, deep)
-		{
-			//@line 346
 			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
-			//@line 347
-			scope.gotoFrameByIndex(FrameIndex, true, deep);
+			//@line 341
+			scope.gotoFrameByIndex(FrameIndex, false);
 		};
-		//@line 351
+		//@line 345
+		var gotoAndStopyByIndex = this.gotoAndStopyByIndex = function (FrameIndex)
+		{
+			//@line 347
+			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
+			//@line 348
+			scope.gotoFrameByIndex(FrameIndex, true);
+		};
+		//@line 352
 		var stop = this.stop = function ()
 		{
-			//@line 353
-			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
 			//@line 354
-			scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true, false);
+			var scope = __CLASS__COCOSCENE__.__levelParents.size() == 0 ? __CLASS__COCOSCENE__.__root : __CLASS__COCOSCENE__.__levelParents[__CLASS__COCOSCENE__.__levelParents.size() - 1];
+			//@line 355
+			scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true);
 		};
 		//@line 43
 		this.__sceneName = "";
