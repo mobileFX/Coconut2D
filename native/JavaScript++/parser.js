@@ -482,8 +482,6 @@ function __init_narcissus(GLOBAL)
 					token.value = match[0].replace(RegExp("^['\\x22]|['\\x22]$", "gm"), "");
 				}
 
-				//if(token.value=="#export native") debugger;
-
 				///////////////////////////////////////////////////////////////////
 				// File
 				if(token.value && token.value.indexOf(this.__FILE_DELIM) != -1)
@@ -2102,6 +2100,7 @@ function __init_narcissus(GLOBAL)
 
 			case jsdef.PROPERTY:
 				debugger;
+				break;
 
 			case jsdef.FUNCTION:
 				if(!t.scanOperand)
@@ -2427,9 +2426,3 @@ function __init_narcissus(GLOBAL)
 
 }
 __init_narcissus(this);
-
-
-
-
-
-
