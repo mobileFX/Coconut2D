@@ -12,12 +12,12 @@
 #include "CocoMatrix.hpp"
 #include "CocoSequence.hpp"
 #include "CocoAudio.hpp"
-#include "HTMLDocument.hpp"
 
 class CocoClip
 {
 public:
 	String __instanceName;
+	String __clipPath;
 	CocoScene* __scene;
 	CocoImage* __image;
 	COCO_CLIP_SYMBOL_LOOP_ENUM __symbolLoop;
@@ -25,8 +25,9 @@ public:
 	CocoTimeline* __timeline;
 	CocoClip* __parent;
 	Time __currentTime;
+	Time __loopTime;
+	int __loops;
 	CocoKeyFrame* __currentFrame;
-	String __clipPath;
 	CocoClip* __childWithMaxTimelineDuration;
 	bool __hasBoundingBox;
 	CocoVector* __vABS_TOP_LEFT;
@@ -51,8 +52,9 @@ public:
 	void normalize();
 	CocoClip* getChildByName(String instanceName);
 	int getChildIndex(CocoClip* child);
-	bool gotoFrameByName(String LabelName, bool pause = false, bool deep = false);
-	bool gotoFrameByIndex(int FrameIndex, bool pause = false, bool deep = false);
+	bool gotoFrameByName(String LabelName, bool pause = false);
+	bool gotoFrameByIndex(int FrameIndex, bool pause = false);
+	void __advanceTime(Time parentClipsDuration);
 	virtual void paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool calcBoundingBox, int level);
 	void setText(String text);
 	bool hitTest(float wx, float wy);

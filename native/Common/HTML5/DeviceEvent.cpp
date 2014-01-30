@@ -56,7 +56,7 @@ void DeviceEvent::initEvent(String type, bool canBubble, bool cancelable)
 	this->type = type;
 	this->bubbles = canBubble;
 	this->cancelable = cancelable;
-	this->timeStamp = std::chrono::steady_clock::now().time_since_epoch().count();// (new Date()).getTime();
+	//this->timeStamp = std::chrono::steady_clock::now().time_since_epoch().count();// (new Date()).getTime();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -116,5 +116,6 @@ void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, fl
 float CocoFont::measureText(String text)
 {
 	LOGW("Fonts not supported!\n");
+	return 0.0f;
 }
 #endif

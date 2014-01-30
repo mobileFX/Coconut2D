@@ -4,6 +4,7 @@
 CocoKeyFrame::CocoKeyFrame()
 {
 	frameIndex = 0;
+	__frameIndex = 0;
 	frameInterpolation = COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 	handleEvents = false;
 	visible = true;
@@ -23,7 +24,6 @@ CocoKeyFrame::CocoKeyFrame()
 	audio = nullptr;
 	flipH = false;
 	flipV = false;
-	__lastActionExecutionTime = 0.0;
 	__isCloned = false;
 	spriteSequenceName = "";
 }
@@ -39,7 +39,7 @@ CocoKeyFrame::~CocoKeyFrame()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoKeyFrame::clone()
+CocoKeyFrame* CocoKeyFrame::clone(bool exact)
 {
 	CocoKeyFrame* c = new CocoKeyFrame();
 	c->red = red;
@@ -59,48 +59,47 @@ CocoKeyFrame* CocoKeyFrame::clone()
 	c->y = y;
 	c->flipH = flipH;
 	c->flipV = flipV;
-	c->action = action;
-	c->nextState = nextState;
-	c->audio = audio;
 	c->spriteSequenceName = spriteSequenceName;
-	c->__lastActionExecutionTime = __lastActionExecutionTime;
+	c->__frameIndex = float(frameIndex);
 	c->__isCloned = true;
+	if(exact && (action || nextState || audio))
+	{
+		c->action = action;
+		c->nextState = nextState;
+		c->audio = audio;
+	}
 	return c;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoKeyFrame::reset()
 {
-	__lastActionExecutionTime = 0.0;
+	if(audio)
+	{
+		audio->reset();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CocoKeyFrame::execute(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* clip)
+void CocoKeyFrame::execute(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* clip)
 {
-	bool pulse = false;
-	if((__lastActionExecutionTime == 0) || (__lastActionExecutionTime > 0 && clip->__currentTime - __lastActionExecutionTime > clip->__timeline->__singleFrameDurationTime))
+	if(action)
 	{
-		__lastActionExecutionTime = clip->__currentTime;
-		if(action)
-		{
-			engine->__trace(scene, clip, "@@ACTION");
-			//Array* args = {gl, clip, this};
-			(scene->*action)(gl, scene, clip);
-			//action->apply(scene, args);
-		}
-		if(nextState)
-		{
-			engine->__trace(scene, clip, "@@NEXT_STATE");
-			engine->setNextState(nextState);
-		}
-		if(audio)
-		{
-			engine->__trace(scene, clip, "@@AUDIO");
-			audio->tick();
-		}
-		pulse = true;
+		engine->__trace(scene, clip, "@@ACTION");
+		(scene->*action)(gl, scene, clip);
+		//Array* args = {gl, clip, this};
+		//action->apply(scene, args);
 	}
-	return pulse;
+	if(nextState)
+	{
+		engine->__trace(scene, clip, "@@NEXT_STATE");
+		engine->setNextState(nextState);
+	}
+	if(audio)
+	{
+		engine->__trace(scene, clip, "@@AUDIO");
+		audio->tick();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

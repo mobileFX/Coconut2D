@@ -14,8 +14,13 @@ ArrayBuffer* ArrayBuffer::NewFromImage(std::string str, uint32_t& width, uint32_
 	fxFile* file = fxFile::open(str.c_str());
 	switch(file->mime)
 	{
+		#ifdef ENABLE_PNG_SUPPORT
 		case fxFile::MIME::IMAGE_PNG: return NewFromImage_PNG(file, width, height);
+		#endif
+		
+		#ifdef ENABLE_JPEG_SUPPORT
 		case fxFile::MIME::IMAGE_JPG: return NewFromImage_JPG(file, width, height);
+		#endif
 		default:
 			return NULL;
 	}
@@ -78,7 +83,7 @@ ArrayBuffer* ArrayBuffer::NewFromImage_PNG(fxFile* file, uint32_t& width, uint32
 }
 #endif /* ENABLE_PNG_SUPPORT */
 
-#ifdef ENABLE_JPEG_SUPPORT
+#ifdef ENABLE_JPG_SUPPORT
 // ==================================================================================================================================
 //	       ______  ____________
 //	      / / __ \/ ____/ ____/
@@ -146,4 +151,4 @@ ArrayBuffer* ArrayBuffer::NewFromImage_JPG(fxFile* file, uint32_t& width, uint32
 	delete file;
 	return ret;
 }
-#endif /* ENABLE_JPEG_SUPPORT */
+#endif /* ENABLE_JPG_SUPPORT */

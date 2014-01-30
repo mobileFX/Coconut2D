@@ -27,8 +27,12 @@ public:
 	String src;
 	Audio(String url);
 	~Audio();
+	void tick();
 	void play();
 	void pause();
+	float get_currentTime();
+	void set_currentTime(float time);
+	int get_readyState();
 };
 
 #endif /* defined(__CocoEngine__HTMLAudioElement__) */

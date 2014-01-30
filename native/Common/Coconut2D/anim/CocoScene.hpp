@@ -8,7 +8,6 @@
 #include "CocoClip.hpp"
 #include "CocoMatrix.hpp"
 //#include "WebGLBuffer.hpp"
-#include "HTMLWindow.hpp"
 
 class CocoScene
 {
@@ -20,9 +19,6 @@ public:
 	float __view_height;
 	float __view_pixel_ratio;
 	float __view_scale;
-	Time __currentTime;
-	Time __elapsedTime;
-	Time __startTime;
 	CocoClip* __root;
 	CocoMatrix* __modelViewMatrix;
 	CocoMatrix* __projectionMatrix;
@@ -46,10 +42,10 @@ public:
 	bool resourcesLoaded(WebGLRenderingContext* gl);
 	virtual void paint(WebGLRenderingContext* gl, Time time);
 	void drawFrame(WebGLRenderingContext* gl, CocoImage* image, int frame, float red, float green, float blue, float alpha, bool flipH, bool flipV);
-	void gotoAndPlayByName(String LabelName, bool deep = false);
-	void gotoAndStopByName(String LabelName, bool deep = false);
-	void gotoAndPlayByIndex(int FrameIndex, bool deep = false);
-	void gotoAndStopyByIndex(int FrameIndex, bool deep = false);
+	void gotoAndPlayByName(String LabelName);
+	void gotoAndStopByName(String LabelName);
+	void gotoAndPlayByIndex(int FrameIndex);
+	void gotoAndStopyByIndex(int FrameIndex);
 	void stop();
 };
 

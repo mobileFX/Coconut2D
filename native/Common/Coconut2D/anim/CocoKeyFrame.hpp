@@ -15,6 +15,7 @@ class CocoKeyFrame
 {
 public:
 	int frameIndex;
+	float __frameIndex;
 	COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation;
 	bool handleEvents;
 	bool visible;
@@ -35,13 +36,12 @@ public:
 	bool flipH;
 	bool flipV;
 	String spriteSequenceName;
-	Time __lastActionExecutionTime;
 	bool __isCloned;
 	CocoKeyFrame();
 	~CocoKeyFrame();
-	CocoKeyFrame* clone();
+	CocoKeyFrame* clone(bool exact);
 	void reset();
-	bool execute(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* clip);
+	void execute(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* clip);
 	void interpolate(CocoKeyFrame* F1, CocoKeyFrame* F2, float s);
 	void combine(CocoKeyFrame* Frame);
 	void apply(CocoMatrix* matrix);

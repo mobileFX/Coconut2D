@@ -69,6 +69,10 @@ public:
 	void putImageData(ImageData* imagedata, float dx, float dy, float dirtyX = 0.0, float dirtyY = 0.0, float dirtyWidth = 0.0, float dirtyHeight = 0.0);
 	void fillText(String text, float x, float y, float maxWidth = 0.0);
 	HTMLTextMetrics* measureText(String text);
+	String get_fillStyle();
+	void set_fillStyle(String v);
+	String get_font();
+	void set_font(String v);
 };
 
 #endif

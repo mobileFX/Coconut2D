@@ -5,6 +5,7 @@ CocoSequence::CocoSequence(String name, Array<int> framesArray)
 {
 	this->name = name;
 	this->frames = framesArray;
+	assert(this->frames.size());
 	this->sequenceStartTime = 0;
 }
 

@@ -1,6 +1,9 @@
 #ifndef _fxGLWrap_h
 #define _fxGLWrap_h
 
+#import <UIKit/UIView.h>
+#import <UIKit/UIApplication.h>
+#import <QuartzCore/CAEAGLLayer.h>
 #import "Structs.h"
 
 @interface fxGLWrap : UIView
@@ -18,7 +21,6 @@
 - (void)SetBuffers;
 - (void)SwapBuffers;
 - (fxScreen)GetScreen;
-
 
 @end
 

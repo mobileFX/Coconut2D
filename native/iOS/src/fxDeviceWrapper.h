@@ -8,7 +8,7 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import <QuartzCore/QuartzCore.h>
 #import "Coconut2D.hpp"
-#import "fxArgs.h"
+//#import "fxArgs.h"
 #import "fxGLWrap.h"
 #import "fxKeyWrap.h"
 
@@ -25,7 +25,6 @@
     float last_rotation;
 	
 	CADisplayLink* cadlink;
-	//StateAnim* anim;
 }
 @property (strong, nonatomic) UIWindow* window;
 @property (strong, nonatomic) fxGLWrap* glwrap;

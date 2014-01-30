@@ -25,6 +25,8 @@
 #ifndef _Structs_h
 #define _Structs_h
 
+typedef unsigned char uint8_t;
+
 struct fxScreen
 {
 	int width;

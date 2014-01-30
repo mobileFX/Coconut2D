@@ -33,8 +33,14 @@ public:
 		return reinterpret_cast<void*>(reinterpret_cast<char*>(data) + i);
 	}
 	static ArrayBuffer* NewFromImage(std::string str, uint32_t& width, uint32_t& height);
+	
+	#ifdef ENABLE_PNG_SUPPORT
 	static ArrayBuffer* NewFromImage_PNG(fxFile* file, uint32_t& width, uint32_t& height);
+	#endif
+	
+	#ifdef ENABLE_JPG_SUPPORT
 	static ArrayBuffer* NewFromImage_JPG(fxFile* file, uint32_t& width, uint32_t& height);
+	#endif
 };
 
 #endif /* defined(__CocoEngine__ArrayBuffer__) */

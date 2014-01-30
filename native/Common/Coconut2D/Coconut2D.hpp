@@ -17,15 +17,17 @@
 
 //#include "HTMLWindow.hpp"
 #include "Structs.h"
-
+#include <UIKit/UIEvent.h>
+#include <UIKit/UITouch.h>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
 #include <stack>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <map>
-#include <chrono>
+//#include <chrono>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -89,7 +91,7 @@ enum COCO_TEXT_TRIMMING_ENUM
 };
 
 //# DO NOT EDIT BEGIN #//
-class State;
+//class State;
 class CocoTest;
 class EventTarget;
 class DeviceEvent;
@@ -97,7 +99,7 @@ class Audio;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
 class HTMLCanvasPattern;
-class HTMLCanvasContext;
+class HTMLCavnasContext;
 class HTMLElement;
 class HTMLDocument;
 class HTMLTextMetrics;
@@ -152,10 +154,10 @@ class CocoUIPickerView;
 class CocoUIScrollView;
 class CocoUITabView;
 class CocoUITextView;
+class GridSymbol;
 class GameEngine;
-class BitmapSymbolsTest;
-class SynthesisTest;
-class Test;
+class SceneGameBoard;
+class SceneTitle;
 //# DO NOT EDIT END #//
 
 #define CocoException	std::string
@@ -181,13 +183,24 @@ public:
 	String& operator =(std::string str) { std::string::operator=(str); return *this; }
 	String() = default;
 	String(const char* str) : std::string(str) {}
+	String(const std::string& str) : std::string(str) {}
 };
 
 template<class T> class Array : public std::vector<T>
 {
 public:
 	Array() : std::vector<T>() {}
-	Array(std::initializer_list<T> val) : std::vector<T>(val) {}
+	int size() { return std::vector<T>::size(); }
+	//Array(std::initializer_list<T> val) : std::vector<T>(val) {}
+	Array(size_t size, ...) : std::vector<T>(size) 
+	{
+		va_list vl;
+		va_start(vl, size);
+		for(size_t i = 0; i < size; i++)
+			this->at(i) = (T)va_arg(vl, T);
+		va_end(vl);
+	}
+	Array(const std::vector<T>& v) : std::vector<T>(v) {}
 	void push(const T& v)
 	{
 		std::vector<T>::push_back(v);
@@ -198,9 +211,98 @@ public:
 		std::vector<T>::pop_back();
 		return ret;
 	}
+	Array<T> slice(int first, int last)
+	{
+		return Array<T>(std::vector<T>(std::vector<T>::begin() + first, std::vector<T>::begin() + last));
+	}
 	void splice(int index, int count)
 	{
 		std::vector<T>::erase(std::vector<T>::begin() + index, std::vector<T>::begin() + index + count);
+	}
+	Array<T>& operator()(T v)
+	{
+		this->push(v);
+		return *this;
+	}
+};
+
+template<> class Array<bool> : public std::vector<bool>
+{
+public:
+	Array() : std::vector<bool>() {}
+	int size() { return std::vector<bool>::size(); }
+	//Array(std::initializer_list<T> val) : std::vector<T>(val) {}
+	Array(size_t size, ...) : std::vector<bool>(size)
+	{
+		va_list vl;
+		va_start(vl, size);
+		for(size_t i = 0; i < size; i++)
+			this->at(i) = (bool)va_arg(vl, int);
+		va_end(vl);
+	}
+	Array(const std::vector<bool>& v) : std::vector<bool>(v) {}
+	void push(const bool& v)
+	{
+		std::vector<bool>::push_back(v);
+	};
+	bool pop()
+	{
+		bool ret = std::vector<bool>::back();
+		std::vector<bool>::pop_back();
+		return ret;
+	}
+	Array<bool> slice(int first, int last)
+	{
+		return Array<bool>(std::vector<bool>(std::vector<bool>::begin() + first, std::vector<bool>::begin() + last));
+	}
+	void splice(int index, int count)
+	{
+		std::vector<bool>::erase(std::vector<bool>::begin() + index, std::vector<bool>::begin() + index + count);
+	}
+	Array<bool>& operator()(bool v)
+	{
+		this->push(v);
+		return *this;
+	}
+};
+
+template<> class Array<float> : public std::vector<float>
+{
+public:
+	Array() : std::vector<float>() {}
+	int size() { return std::vector<float>::size(); }
+	//Array(std::initializer_list<float> val) : std::vector<float>(val) {}
+	Array(size_t size, ...) : std::vector<float>(size)
+	{
+		va_list vl;
+		va_start(vl, size);
+		for(size_t i = 0; i < size; i++)
+			this->at(i) = (float)va_arg(vl, double);
+		va_end(vl);
+	}
+	Array(const std::vector<float>& v) : std::vector<float>(v) {}
+	void push(const float& v)
+	{
+		std::vector<float>::push_back(v);
+	};
+	float pop()
+	{
+		float ret = std::vector<float>::back();
+		std::vector<float>::pop_back();
+		return ret;
+	}
+	Array<float> slice(int first, int last)
+	{
+		return Array<float>(std::vector<float>(std::vector<float>::begin() + first, std::vector<float>::begin() + last));
+	}
+	void splice(int index, int count)
+	{
+		std::vector<float>::erase(std::vector<float>::begin() + index, std::vector<float>::begin() + index + count);
+	}
+	Array<float>& operator()(float v)
+	{
+		this->push(v);
+		return *this;
 	}
 };
 
@@ -208,6 +310,27 @@ typedef void (CocoScene::*CocoAction)(WebGLRenderingContext*, CocoScene*, CocoCl
 typedef void (CocoEngine::*CocoEventAction)(DeviceEvent* e);
 
 #define trace(...)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum fxEvent
+{
+	LOAD = 0,
+	FOCUS,
+	BLUR,
+	UNLOAD,
+	RESIZE,
+	CLICK,
+	KEYDOWN,
+	KEYPRESS,
+	KEYUP,
+	TOUCHSTART,
+	TOUCHMOVE,
+	TOUCHEND,
+	TOUCHCANCEL,
+	GESTURESTART,
+	GESTURECHANGE,
+	GESTUREEND
+};
 
 ////////////////////////////////////////////////////////////////
 #ifdef IOS_APPLICATION
@@ -276,12 +399,12 @@ typedef void (CocoEngine::*CocoEventAction)(DeviceEvent* e);
 
 
 ////////////////////////////////////////////////////////////////
-#ifdef ENABLE_JPEG_SUPPORT
+#ifdef ENABLE_JPG_SUPPORT
 #undef FALSE
 #undef TRUE
 #include <jpeglib.h>
-#elif !DISABLE_JPEG_SUPPORT
-#warning "Building without JPEG support!"
+#elif !DISABLE_JPG_SUPPORT
+#warning "Building without JPG support!"
 #endif
 ////////////////////////////////////////////////////////////////
 

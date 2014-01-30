@@ -478,16 +478,99 @@ CPPCompiler.prototype.compile = function (ast)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.ARRAY_INIT:
-		CPP.push("//<<{");
-		var firstItem = true;
+
+		// Case1: new Float32Arra([]) no constructor, detect from jsdef.NEW_WITH_ARGS
+		// Case2: new CocoSequence(params, array) constructor, detect from arguaments
+		// Case3: a = [], assignment, detect from identifier a
+
+		var fnSymbol = null;
+		var vartype = null;
+		var subtype = null;
+
+		if(ast.parent.type==jsdef.ASSIGN)
+		{
+			vartype =  ast.parent.parent.expression[0].symbol.vartype;
+			subtype =  ast.parent.parent.expression[0].symbol.subtype;
+		}
+		else if(ast.parent.type==jsdef.LIST)
+		{
+			// Get ast index in function call list
+			var index = -1;
+			for(item in ast.parent)
+			{
+				if(!isFinite(item)) break;
+				index++;
+			}
+
+			switch(ast.parent.parent.type)
+			{
+			case jsdef.CALL:
+				switch(ast.inCall[0].type)
+				{
+				case jsdef.IDENTIFIER:
+					fnSymbol = ast.inCall[0].symbol;
+					break;
+				case jsdef.DOT:
+				  	fnSymbol = ast.inCall.inCall[0].identifier_last.symbol;
+				  	break;
+				default:
+					debugger;
+				}
+				break;
+
+			case jsdef.NEW_WITH_ARGS:
+				for(item in ast.parent.parent[0].symbol.methods)
+				{
+					if(item=="Constructor")
+					{
+						fnSymbol = ast.parent.parent[0].symbol.methods[item];
+						break;
+					}
+				}
+				if(!fnSymbol)
+				{
+					// Float32Array, etc.
+					item = ast.parent.parent[0].symbol;
+					if(item.name.indexOf("Array")!=-1)
+					{
+						vartype = "Array<" + item.subtype +">";
+						subtype = item.subtype;
+					}
+					else
+					{
+						//debugger;
+					}
+				}
+				break;
+
+			default:
+				//debugger;
+			}
+
+			// From function symbol arguments get ast datatype
+			if(fnSymbol)
+			{
+				var arg = fnSymbol.paramsList[index];
+				vartype = arg.vartype;
+				subtype = arg.subtype;
+			}
+		}
+		else
+		{
+			//debugger;
+		}
+
+		var out=[];
+	 	out.push(vartype + "()");
 		for(var item in ast)
 		{
-			if(!isFinite(item)) continue;
-			if(!firstItem) CPP.push(",");
-			CPP.push(generate(ast[item]).CPP);
-			firstItem = false;
+			if(!isFinite(item)) break;
+			out.push("("+generate(ast[item]).CPP+")");
 		}
-		CPP.push("}>>//");
+		out = out.join("");
+		trace(ast.parent.parent.source + " ---> " + vartype);
+		trace(out);
+		CPP.push(out);
 		break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

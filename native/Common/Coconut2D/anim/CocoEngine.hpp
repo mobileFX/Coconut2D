@@ -11,14 +11,15 @@
 extern class CocoEngine
 {
 public:
-	const Time TICK_TIME = (1000.0/60.0);
+	const Time TICK_TIME = 1000.0 / 60.0;
+	bool debugbreak;
 	State* __currentState;
 	State* __nextState;
 	DeviceEvent* __deviceEvent;
 	Array<CocoClip*> __clicked;
 	Time __clock;
 	CocoEngine();
-	virtual ~CocoEngine();
+	~CocoEngine();
 	void setNextState(State* s);
 	void run(WebGLRenderingContext* gl, Time time);
 	void __setTouchEvent(DeviceEvent* e);

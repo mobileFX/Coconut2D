@@ -26,7 +26,7 @@ CocoMatrix::CocoMatrix(CocoMatrix* M)
 	{
 		identity();
 	}
-	__data = new Float32Array({rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44});
+	__data = new Float32Array(Array<float>(16, rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44));
 	__dirty = false;
 }
 
@@ -297,7 +297,7 @@ void CocoMatrix::update(WebGLRenderingContext* gl, WebGLUniformLocation* ul)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoMatrix::push()
 {
-	__stack.push(new Float32Array({rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44}));
+	__stack.push(new Float32Array(Array<float>(16, rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

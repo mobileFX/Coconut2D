@@ -34,7 +34,6 @@
 #ifndef _fxFontFace_h
 #define _fxFontFace_h
 
-#include "Common.h"
 #include "fxFile.h"
 
 #ifdef ENABLE_FREETYPE_SUPPORT

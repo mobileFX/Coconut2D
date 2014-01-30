@@ -100,8 +100,10 @@ void CocoClip::createTextTexture(String text, String fontName, int fontSizePixel
 	canvas->width = int(pow(2, ceil((float)(log(textRectWidth)) / (float)(log(2)))));
 	canvas->height = int(pow(2, ceil((float)(log(textRectHeight)) / (float)(log(2)))));
 	CanvasRenderingContext2D* ctx = (CanvasRenderingContext2D*)canvas->getContext("2d");
-	ctx->__font = new CocoFont(fontSizePixels, fontName, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()/.,?><';\":]|[}{\\}]`~");//"normal normal normal " + std::to_string(fontSizePixels) + "px / normal " + fontName;
-	ctx->__fillStyle = "red";
+	std::stringstream ss;
+	ss<<"normal normal normal "<<fontSizePixels<<"px / normal " + fontName;
+	ctx->set_font(ss.str());
+	ctx->set_fillStyle(std::string("red"));
 	ctx->fillText(text, 0, float(fontSizePixels));
 	ctx->strokeRect(0, 0, float(textRectWidth), float(textRectHeight));
 	__image = new CocoImage();
@@ -109,7 +111,7 @@ void CocoClip::createTextTexture(String text, String fontName, int fontSizePixel
 	__image->image->load(canvas->toDataURL());
 	__image->textureCellWidth = float(textRectWidth);
 	__image->textureCellHeight = float(textRectHeight);
-	__image->textureGrid = new Float32Array({0, 0});
+	__image->textureGrid = new Float32Array(Array<float>(2, 0, 0));
 	__image->prepare(__scene, gl);
 }
 
@@ -128,6 +130,10 @@ void CocoClip::reset()
 	{
 		__children[i]->reset();
 	}
+	if(__currentAudio)
+	{
+		__currentAudio->reset();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,6 +149,7 @@ CocoClip* CocoClip::addChild(CocoClip* clipInstance)
 	}
 	__children.push(clipInstance);
 	normalize();
+	clipInstance->__clipPath = (__clipPath ? __clipPath : __instanceName) + "/" + clipInstance->__instanceName;
 	return clipInstance;
 }
 
@@ -206,59 +213,68 @@ int CocoClip::getChildIndex(CocoClip* child)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CocoClip::gotoFrameByName(String LabelName, bool pause, bool deep)
+bool CocoClip::gotoFrameByName(String LabelName, bool pause)
 {
 	CocoTimeLabel* Label = __timeline->findLabelByName(LabelName);
 	if(!Label)
 	{
 		return false;
 	}
-	return gotoFrameByIndex(Label->frameIndex, pause, deep);
+	trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause));
+	return gotoFrameByIndex(Label->frameIndex, pause);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CocoClip::gotoFrameByIndex(int FrameIndex, bool pause, bool deep)
+bool CocoClip::gotoFrameByIndex(int FrameIndex, bool pause)
 {
+	trace("\ngotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex == -1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause));
 	CocoClip* clip;
 	for(int i = __children.size() - 1; i >= 0; i--)
 	{
 		clip = __children[i];
+		if(FrameIndex == COCO_STOP_ON_CURRENT_FRAME)
+		{
+			FrameIndex = clip->__currentFrame ? clip->__currentFrame->frameIndex : 0;
+		}
 		clip->__timeline->__paused = pause;
-		if(FrameIndex != COCO_STOP_ON_CURRENT_FRAME)
-		{
-			clip->__currentTime = Time(FrameIndex) * clip->__timeline->__singleFrameDurationTime;
-		}
-		if(deep)
-		{
-			clip->gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, pause, deep);
-		}
+		clip->__timeline->__currentFrameIndex = -1;
+		clip->__currentTime = Time(FrameIndex) * clip->__timeline->__singleFrameDurationTime;
+		trace("-> child: " + clip->__clipPath + ", from=" + (clip->__currentFrame ? String(clip->__currentFrame->frameIndex) : "0") + ", to=" + String((FrameIndex == -1 ? clip->__currentFrame->frameIndex : FrameIndex)) + ", time=" + clip->__currentTime->toFixed(2) + ", paused=" + String(clip->__timeline->__paused));
 	}
 	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoClip::__advanceTime(Time parentClipsDuration)
+{
+	if(__timeline->__paused)
+	{
+		return;
+	}
+	__currentTime += engine->TICK_TIME;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* parentClip, bool calcBoundingBox, int level)
 {
 	__scene = scene;
-	__clipPath = (parentClip ? parentClip->__clipPath : "") + "/" + this->__instanceName;
+	Time parentClipsDuration = parentClip ? parentClip->__childWithMaxTimelineDuration->__timeline->__durationInTime : this->__timeline->__singleFrameDurationTime;
 	if(parentClip)
 	{
-		Time parentClipsDuration = parentClip->__childWithMaxTimelineDuration->__timeline->__durationInTime;
-		Time __loopTime = __currentTime - std::floor((float)(__currentTime) / (float)(parentClipsDuration)) * parentClipsDuration;
-		float frameIndex = ((float)(__loopTime) / (float)(__timeline->__singleFrameDurationTime));
+		__loops = std::floor((float)(__currentTime) / (float)(parentClipsDuration));
+		__loopTime = __currentTime - (Time(__loops) * parentClipsDuration);
+		float frameIndex = (float)(__loopTime) / (float)(__timeline->__singleFrameDurationTime);
 		if(__currentFrame)
 			if(__currentFrame)
 			{
 				__currentFrame = (delete __currentFrame, nullptr);
 			}
 		__currentFrame = __timeline->interpolate(frameIndex);
+		engine->__trace(scene, this, "@PAINT");
 		__currentFrame->combine(parentClip->__currentFrame);
 		if(__currentFrame->alpha == 0 || !__currentFrame->visible)
 		{
-			if(!__timeline->__paused)
-			{
-				__currentTime += engine->TICK_TIME;
-			}
+			__advanceTime(parentClipsDuration);
 			return;
 		}
 		calcBoundingBox = (__currentFrame->handleEvents || calcBoundingBox) && (engine->getTouchEvent() != nullptr);
@@ -270,13 +286,18 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 		__currentFrame->apply(scene->__modelViewMatrix);
 		__currentFrame->scaleX /= __image->__pixelRatioScale;
 		__currentFrame->scaleY /= __image->__pixelRatioScale;
-		String sequenceName = parentClip && parentClip->__currentFrame ? parentClip->__currentFrame->spriteSequenceName : "";
+		String sequenceName = __currentFrame->spriteSequenceName;
+		if(!sequenceName)
+		{
+			sequenceName = parentClip->__currentFrame->spriteSequenceName;
+		}
 		if(!sequenceName)
 		{
 			__currentSequence = nullptr;
 		}
-		else if(!__currentSequence || (__currentSequence && __currentSequence->name != sequenceName))
+		else if(!__currentSequence || __currentSequence->name != sequenceName)
 		{
+			trace("Loading sprite animation sequence: " + this->__clipPath + " -> " + sequenceName);
 			__currentSequence = __image->getSequence(sequenceName);
 			__currentSequence->sequenceStartTime = __currentTime;
 		}
@@ -337,27 +358,29 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 		}
 		if(!__timeline->__paused)
 		{
-			bool pulse = false;
-			if(__currentFrame->action || __currentFrame->nextState || __currentFrame->audio)
+			this->__parent = parentClip;
+			__currentFrame->execute(gl, scene, this);
+			if(__currentFrame->audio)
 			{
-				this->__parent = parentClip;
-				pulse = __currentFrame->execute(gl, scene, this);
-				if(pulse && __currentFrame->audio)
+				if(__currentAudio && ((__currentFrame->audio != __currentAudio) || (__currentAudio->loops != 0)))
 				{
-					__currentAudio = __currentFrame->audio;
+					__currentAudio->reset();
 				}
-				this->__parent = nullptr;
+				__currentAudio = __currentFrame->audio;
 			}
+			this->__parent = nullptr;
 		}
 		if(__currentAudio)
 		{
 			__currentAudio->tick();
+			if(__currentAudio->ended())
+			{
+				__currentAudio->reset();
+				__currentAudio = nullptr;
+			}
 		}
 	}
-	if(!__timeline->__paused)
-	{
-		__currentTime += engine->TICK_TIME;
-	}
+	__advanceTime(parentClipsDuration);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -508,7 +531,7 @@ void CocoClip::drawBoundingBox(CocoScene* scene, WebGLRenderingContext* gl)
 	gl->useProgram(scene->__boundingBoxProgram);
 	gl->enableVertexAttribArray(scene->__boundingBoxProgram->GLSLiVec2Coords);
 	gl->bindBuffer(gl->ARRAY_BUFFER, scene->__boundingBoxBuffer);
-	gl->bufferSubData(gl->ARRAY_BUFFER, 0, new Float32Array({__vABS_TOP_LEFT->X, __vABS_TOP_LEFT->Y, __vABS_TOP_RIGHT->X, __vABS_TOP_RIGHT->Y, __vABS_BOTTOM_RIGHT->X, __vABS_BOTTOM_RIGHT->Y, __vABS_BOTTOM_LEFT->X, __vABS_BOTTOM_LEFT->Y}));
+	gl->bufferSubData(gl->ARRAY_BUFFER, 0, new Float32Array(Array<float>(8, __vABS_TOP_LEFT->X, __vABS_TOP_LEFT->Y, __vABS_TOP_RIGHT->X, __vABS_TOP_RIGHT->Y, __vABS_BOTTOM_RIGHT->X, __vABS_BOTTOM_RIGHT->Y, __vABS_BOTTOM_LEFT->X, __vABS_BOTTOM_LEFT->Y)));
 	gl->vertexAttribPointer(scene->__boundingBoxProgram->GLSLiVec2Coords, 2, gl->FLOAT, false, 0, 0);
 	scene->__projectionMatrix->update(gl, scene->__boundingBoxProgram->GLSLuProjMat);
 	gl->drawArrays(gl->LINE_LOOP, 0, 4);

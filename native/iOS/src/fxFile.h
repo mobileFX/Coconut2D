@@ -3,7 +3,6 @@
 
 #include <cstdio>
 #include "Coconut2D.hpp"
-#include "Common.h"
 
 class fxFile
 {
@@ -154,12 +153,12 @@ public:
 		return ret;
 	}
 	
-	fxFile(size_t i_length) : type(TYPE_DATA), mime(MIME_OTHER), cursor(0), fd(nullptr), file(nullptr), length(i_length)
+	fxFile(size_t i_length) : fd(nullptr), file(nullptr), data(nullptr), cursor(0), length(i_length), type(TYPE_DATA), mime(MIME_OTHER)
 	{
 		data = new unsigned char[length];
 	}
 	
-	fxFile(const char* str, bool i_isAsset) : fd(nullptr), file(nullptr), mime(MIME_OTHER), data(nullptr), isAsset(i_isAsset), length(0)
+	fxFile(const char* str, bool i_isAsset) : fd(nullptr), file(nullptr), data(nullptr), isAsset(i_isAsset), length(0), mime(MIME_OTHER)
 	{
 		char* ld = (char*) strrchr(str, '.');
         if(!ld)

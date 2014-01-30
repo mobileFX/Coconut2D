@@ -96,7 +96,6 @@
    - Bug in V8 prevents breakpoints if block statements starts with jsdef.NEW/NEW_WITH_ARGS assignment (jsflags --inline-new=false)
    - Proper support for ENUMS
    - Add interfaces
-   - Add property setters / getters
    - Add events
    - IMPORTANT: Need to detect jsdef.NEW and jsdef.NEW_WITH_ARGS inside method calls that produce memory leaks in
    				C++ and issue warnings. Possible define a weak_new operator and pass delete obligation to consumer?
@@ -1733,11 +1732,15 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				}
 				else
 				{
+					switch(ast.value)
+					{
+					case "Float32Array":	ast.symbol.subtype = "Float"; break;
+					case "Int32Array":		ast.symbol.subtype = "int"; break;
+					case "Uint8Array":		ast.symbol.subtype = "uint8_t"; break;
+					}
+
 					if(!ast.symbol.public && !ast.symbol.private && !ast.symbol.protected)
 					{
-						//if(ast.inDot && ast.inDot.identifier_first!=ast)
-						//	debugger;
-
 						// Standard var declaration
 						out.push(ast.value);
 					}
@@ -2168,8 +2171,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.WHILE:				ast.body.isLoop=true; out.push("while(" + generate(ast.condition) + ")"); out.push(generate(ast.body)); break;
 
 		case jsdef.NEW_WITH_ARGS:
-
-			if(ast.source=="new Array(level+1)") debugger;
 			out.push("new ");
 			out.push(generate(ast[0]));
 			out.push("(");

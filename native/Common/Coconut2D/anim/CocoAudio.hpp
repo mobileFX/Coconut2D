@@ -15,6 +15,7 @@ public:
 	int __loopCount;
 	CocoAudio(String url, bool autoplay, int loops);
 	~CocoAudio();
+	void reset();
 	void tick();
 	void play();
 	void pause();
@@ -24,6 +25,7 @@ public:
 	bool ended();
 	float getCurrentTime();
 	void setCurrentTime(float t);
+	
 };
 
 #endif

@@ -8,9 +8,6 @@ CocoScene::CocoScene()
 	__view_height = 0;
 	__view_pixel_ratio = 0;
 	__view_scale = 1;
-	__currentTime = 0.0;
-	__elapsedTime = 0.0;
-	__startTime = -1;
 	__root = nullptr;
 	__modelViewMatrix = nullptr;
 	__projectionMatrix = nullptr;
@@ -52,8 +49,7 @@ CocoScene::~CocoScene()
 	{
 		__boundingBoxBuffer = (delete __boundingBoxBuffer, nullptr);
 	}
-	int i;
-	for(i = __imageSymbols.size() - 1; i >= 0; i--)
+	for(size_t i = __imageSymbols.size() - 1; i--;)
 	{
 	}
 }
@@ -98,7 +94,7 @@ void CocoScene::prepare(WebGLRenderingContext* gl)
 	__boundingBoxProgram->GLSLuProjMat = gl->getUniformLocation(__boundingBoxProgram, "uProjMat");
 	__boundingBoxBuffer = gl->createBuffer();
 	gl->bindBuffer(gl->ARRAY_BUFFER, __boundingBoxBuffer);
-	gl->bufferData(gl->ARRAY_BUFFER, new Float32Array({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}), gl->DYNAMIC_DRAW);
+	gl->bufferData(gl->ARRAY_BUFFER, new Float32Array(Array<float>(8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)), gl->DYNAMIC_DRAW);
 	__glProgram = makeProgram(gl, __vertex_shader, __fragment_shader);
 	gl->useProgram(__glProgram);
 	__glProgram->GLSLiVecCoords = gl->getAttribLocation(__glProgram, "iVecCoords");
@@ -228,20 +224,11 @@ void CocoScene::paint(WebGLRenderingContext* gl, Time time)
 	}
 	else if(resourcesLoaded(gl))
 	{
-		if(__startTime == -1)
-		{
-			__startTime = time;
-			__elapsedTime = 0;
-		}
-		else
-		{
-			__elapsedTime = (time - __startTime) - (__currentTime);
-		}
-		__currentTime = time - __startTime;
 		if(__root)
 		{
+			engine->__trace(this, nullptr, "@CYCLE");
 			__modelViewMatrix->identity();
-			__levelParents = {__root};
+			__levelParents = Array<CocoClip*>(1, __root);
 			__root->paint(gl, this, nullptr, false, 0);
 			CocoClip* max = __root->__childWithMaxTimelineDuration;
 			if(max && max->__currentFrame && max->__currentFrame->frameIndex == max->__timeline->lastKeyFrame()->frameIndex)
@@ -273,36 +260,36 @@ void CocoScene::drawFrame(WebGLRenderingContext* gl, CocoImage* image, int frame
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoScene::gotoAndPlayByName(String LabelName, bool deep)
+void CocoScene::gotoAndPlayByName(String LabelName)
 {
 	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];
-	scope->gotoFrameByName(LabelName, false, deep);
+	scope->gotoFrameByName(LabelName, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoScene::gotoAndStopByName(String LabelName, bool deep)
+void CocoScene::gotoAndStopByName(String LabelName)
 {
 	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];
-	scope->gotoFrameByName(LabelName, true, deep);
+	scope->gotoFrameByName(LabelName, true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoScene::gotoAndPlayByIndex(int FrameIndex, bool deep)
+void CocoScene::gotoAndPlayByIndex(int FrameIndex)
 {
 	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];
-	scope->gotoFrameByIndex(FrameIndex, false, deep);
+	scope->gotoFrameByIndex(FrameIndex, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoScene::gotoAndStopyByIndex(int FrameIndex, bool deep)
+void CocoScene::gotoAndStopyByIndex(int FrameIndex)
 {
 	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];
-	scope->gotoFrameByIndex(FrameIndex, true, deep);
+	scope->gotoFrameByIndex(FrameIndex, true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoScene::stop()
 {
 	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];
-	scope->gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true, false);
+	scope->gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true);
 }

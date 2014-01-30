@@ -8,9 +8,9 @@ CocoImage::CocoImage()
 	texture = nullptr;
 	textureCellWidth = 0;
 	textureCellHeight = 0;
-	textureGrid = new Float32Array({0.0, 0.0});
-	color = new Float32Array({1.0, 1.0, 1.0, 1.0});
-	texSize = new Float32Array({1.0, 1.0});
+	textureGrid = new Float32Array(Array<float>(2, 0.0, 0.0));
+	color = new Float32Array(Array<float>(4, 1.0, 1.0, 1.0, 1.0));
+	texSize = new Float32Array(Array<float>(2, 1.0, 1.0));
 	buffer = nullptr;
 	isSpriteSheet = false;
 	baseUrl = "";
@@ -86,7 +86,7 @@ void CocoImage::prepare(CocoScene* scene, WebGLRenderingContext* gl)
 	__pixelRatioScale = (float)(scene->__view_pixel_ratio) / (float)(pixelRatio);
 	float w2 = (float)(textureCellWidth) / (float)(2.0);
 	float h2 = (float)(textureCellHeight) / (float)(2.0);
-	texSize = new Float32Array({(float)(textureCellWidth) / (float)(image->naturalWidth), (float)(textureCellHeight) / (float)(image->naturalHeight)});
+	texSize = new Float32Array(Array<float>(2, (float)(textureCellWidth) / (float)(image->naturalWidth), (float)(textureCellHeight) / (float)(image->naturalHeight)));
 	texture = gl->createTexture();
 	gl->bindTexture(gl->TEXTURE_2D, texture);
 	gl->texImage2D(gl->TEXTURE_2D, 0, gl->RGBA, gl->RGBA, gl->UNSIGNED_BYTE, image);
@@ -96,7 +96,7 @@ void CocoImage::prepare(CocoScene* scene, WebGLRenderingContext* gl)
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_MIN_FILTER, gl->LINEAR_MIPMAP_NEAREST);
 	gl->generateMipmap(gl->TEXTURE_2D);
 	gl->bindTexture(gl->TEXTURE_2D, nullptr);
-	Float32Array* texData = new Float32Array({0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2});
+	Float32Array* texData = new Float32Array(Array<float>(16, 0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2));
 	buffer = gl->createBuffer();
 	gl->bindBuffer(gl->ARRAY_BUFFER, buffer);
 	gl->bufferData(gl->ARRAY_BUFFER, texData, gl->STATIC_DRAW);

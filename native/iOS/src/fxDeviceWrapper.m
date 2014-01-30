@@ -4,31 +4,32 @@
 
 - (void)tick
 {
-	static std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-    static std::chrono::steady_clock::time_point now, last_tick = std::chrono::steady_clock::now(), last_draw = std::chrono::steady_clock::now();
-    static std::chrono::duration<double, std::milli> tick_dif = std::chrono::duration<double, std::milli>::zero();
-    static std::chrono::duration<double, std::milli> draw_dif = std::chrono::duration<double, std::milli>::zero();
+	//static std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    //static std::chrono::steady_clock::time_point now, last_tick = std::chrono::steady_clock::now(), last_draw = std::chrono::steady_clock::now();
+    //static std::chrono::duration<double, std::milli> tick_dif = std::chrono::duration<double, std::milli>::zero();
+    //static std::chrono::duration<double, std::milli> draw_dif = std::chrono::duration<double, std::milli>::zero();
     
     
     // Mark time and calc difference since last call
-    now = std::chrono::steady_clock::now();
-    draw_dif = now - last_draw;
-    tick_dif = now - last_tick;
+    //now = std::chrono::steady_clock::now();
+    //draw_dif = now - last_draw;
+    //tick_dif = now - last_tick;
     
     // If the time ellapsed is grater than 16ms we flush OpenGL trying to achieve 60 fps.
-    if((draw_dif + tick_dif).count() > 16.0)
+    //if((draw_dif + tick_dif).count() > 16.0)
     {
-        last_draw = now;
+        //last_draw = now;
         [self.glwrap SetBuffers];
         //fxCRL::paint();
-		engine->run(gl, std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(now - start).count());
+		//engine->run(gl, std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(now - start).count());
+		engine->run(gl, (1000.0 / 60.0));
         [self.glwrap SwapBuffers];
         
-        now = std::chrono::steady_clock::now();
+        //now = std::chrono::steady_clock::now();
     }
     
     // Tick the HTML5 timers
-    last_tick = now;
+    //last_tick = now;
     //fxCRL::tick();
     
 	//dispatch_async(dispatch_get_main_queue(), ^(void){ [self tick]; });
@@ -119,16 +120,8 @@
     //fxCRL::init(fxArgs::Args->getArgc(), fxArgs::Args->getArgv(), [self.glwrap GetScreen], self);
     [self.glwrap InitGL];
 	window = new HTMLWindow();
+	window->setScreen([self.glwrap GetScreen]);
 	document = new HTMLDocument();
-	window->innerWidth = [self.glwrap GetScreen].width;
-	window->innerHeight = [self.glwrap GetScreen].height;
-	window->devicePixelRatio = [self.glwrap GetScreen].pixelRatio;
-	switch([self.glwrap GetScreen].rotation) {
-		case fxScreen::Rotation::NONE: window->deviceRotation = 0.0f; break;
-		case fxScreen::Rotation::RCW: window->deviceRotation = M_PI_2; break;
-		case fxScreen::Rotation::RCCW: window->deviceRotation = -M_PI_2; break;
-		case fxScreen::Rotation::FULL: window->deviceRotation = M_PI; break;
-	}
     
     //fxCRL::handleEvent(0, fxCRL::fxEvent::LOAD);
 	HTMLCanvasElement* canvas = document->createElement("canvas");
@@ -156,7 +149,7 @@
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-    //fxCRL::handleEvent(0, fxCRL::fxEvent::BLUR);
+    window->handleEvent(0, fxEvent::BLUR);
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -173,13 +166,13 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     //// Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    //fxCRL::handleEvent(0, fxCRL::fxEvent::FOCUS);
+    window->handleEvent(0, fxEvent::FOCUS);
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    //fxCRL::handleEvent(0, fxCRL::fxEvent::UNLOAD);
+    window->handleEvent(0, fxEvent::UNLOAD);
     //fxCRL::quit();
 }
 
@@ -188,25 +181,25 @@
     ///[self VideoPlay:"file:///var/mobile/Applications/26DA39E3-D7A3-4B7B-9DA0-1C523A3AA745/fxCore.app/web/assets/videosample.mp4"];
     //[self.keywrap becomeFirstResponder];
     //std::cout<<"Began: "<<[i_touches count]<<"/"<<[[event allTouches] count]<<"\n";
-    //fxCRL::handleEvent(0, fxCRL::fxEvent::TOUCHSTART, (void*)event);
+    window->handleEvent(0, fxEvent::TOUCHSTART, (void*)event);
 }
 
 - (void)touchesMoved:(NSSet *)i_touches withEvent:(UIEvent *)event
 {
     //std::cout<<"Moved: "<<[i_touches count]<<"/"<<[[event allTouches] count]<<"\n";
-    //fxCRL::handleEvent(0, fxCRL::fxEvent::TOUCHMOVE, (void*)event);
+    window->handleEvent(0, fxEvent::TOUCHMOVE, (void*)event);
 }
 
 - (void)touchesEnded:(NSSet *)i_touches withEvent:(UIEvent *)event
 {
     //std::cout<<"Ended: "<<[i_touches count]<<"/"<<[[event allTouches] count]<<"\n";
-    //fxCRL::handleEvent(0, fxCRL::fxEvent::TOUCHEND, (void*)event);
+    window->handleEvent(0, fxEvent::TOUCHEND, (void*)event);
 }
 
 - (void)touchesCancelled:(NSSet *)i_touches withEvent:(UIEvent *)event
 {
     //std::cout<<"Cancelled: "<<[i_touches count]<<"/"<<[[event allTouches] count]<<"\n";
-    //fxCRL::handleEvent(0, fxCRL::fxEvent::TOUCHCANCEL, (void*)event);
+    window->handleEvent(0, fxEvent::TOUCHCANCEL, (void*)event);
 }
 
 - (void)handlePinch:(UIPinchGestureRecognizer *)recognizer

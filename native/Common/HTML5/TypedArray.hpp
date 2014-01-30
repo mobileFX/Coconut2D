@@ -20,9 +20,10 @@ public:
 	const unsigned long BYTES_PER_ELEMENT = sizeof(T);
 	unsigned long length;
 	
-	TypedArray<T>(std::vector<T> val)
+	TypedArray<T>(Array<T> val)
 	{
 		length = val.size();
+		assert(length);
 		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
 		byteOffset = 0;
 		byteLength = buffer->byteLength;

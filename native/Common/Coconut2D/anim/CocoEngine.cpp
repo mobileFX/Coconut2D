@@ -1,13 +1,14 @@
 #include "CocoEngine.hpp"
 
-CocoEngine* engine;
+CocoEngine* engine = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoEngine::CocoEngine()
 {
-	__currentState = nullptr;
 	__deviceEvent = nullptr;
+	__currentState = nullptr;
 	__clock = 0;
+	debugbreak = false;
 	window->addEventListener("touchstart", &CocoEngine::__setTouchEvent);
 	window->addEventListener("touchmove", &CocoEngine::__setTouchEvent);
 	window->addEventListener("touchend", &CocoEngine::__setTouchEvent);
@@ -40,6 +41,7 @@ void CocoEngine::run(WebGLRenderingContext* gl, Time time)
 		__currentState = __nextState;
 		__nextState = nullptr;
 		trace("\n@@STATE " + __currentState->__name);
+		__clicked.clear();
 		if(__currentState)
 		{
 			__currentState->enter();
@@ -49,6 +51,7 @@ void CocoEngine::run(WebGLRenderingContext* gl, Time time)
 	{
 		__currentState->tick(__clock);
 	}
+	__clicked.clear();
 	if(__nextState == nullptr && __currentState != nullptr)
 	{
 		gl->clearColor(0, 0, 0, 1);
@@ -96,13 +99,13 @@ int CocoEngine::isClicked(Array<CocoClip*> check)
 void CocoEngine::__trace(CocoScene* scene, CocoClip* clip, String message)
 {
 	return;
-	/*if(scene && clip)
+	if(scene && clip)
 	{
-		Time ct = scene->__root->__children[0]->__currentTime;
-		Time t = (float)(1000) / (float)(scene->__fps);
-		float rf = std::floor((float)(ct) / (float)(t));
-		float rc = std::floor((float)(ct) / (float)(t));
-		message = "\n" + message + ": state=" + __currentState->__name + ", clip=" + scene->__sceneName + clip->__clipPath + ", root_frame=" + String(rf) + ", clip_frame=" + String(rc) + ", root_time=" + scene->__root->__currentTime->toFixed(2) + ", clip_time=" + clip->__currentTime->toFixed(2);
+		float rf = scene->__root->__childWithMaxTimelineDuration->__timeline->__currentFrameIndex;
+		float rt = scene->__root->__currentTime;
+		float cf = clip->__timeline->__currentFrameIndex;
+		float ct = clip->__currentTime;
+		//message = message + " R(f:" + rf.toFixed(2) + ", t:" + rt.toFixed(2) + ", L:" + scene->__root->__loops.toFixed(2) + ")\tC(f:" + cf.toFixed(2) + ", t:" + ct.toFixed(2) + ", L:" + clip->__loops.toFixed(2) + ", P:" + String(clip->__timeline->__paused) + ")\tstate: " + __currentState->__name + "\tclip: " + scene->__sceneName + clip->__clipPath;
 	}
-	trace(message);*/
+	trace(message);
 }
