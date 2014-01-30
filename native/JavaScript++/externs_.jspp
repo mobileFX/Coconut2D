@@ -1536,7 +1536,15 @@ class CocoEngine
 	private var __deviceEvent :DeviceEvent;
 	private var __clicked :Array<CocoClip>;
 	private var __clock :Time;
-	public var STATE_GAME :State;
+	public var STATE_TITLE_SCREEN :State;
+	public var STATE_GAME_BOARD :State;
+	public var STATE_JUMPING_AVATARS :State;
+	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
+	public var STATE_GAME_BOARD_BUY_TICKET :State;
+	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_WIN :State;
+	public var STATE_GAME_BOARD_LOSE :State;
 } //CocoEngine
 
 class CocoSprite
@@ -1623,30 +1631,83 @@ class CocoUITextView : CocoUIControlView
 {
 } //CocoUITextView
 
+class GridSymbol
+{
+	public function getRandom() :Integer {}
+	public function createSymbol(symbol:Integer) :CocoClip {}
+	public function initPlaceholder() :CocoClip {}
+	public function initLeonidas() :CocoClip {}
+	public function initXerxes() :CocoClip {}
+	public function initSpartan() :CocoClip {}
+	public function initPersian() :CocoClip {}
+	public function initSwords() :CocoClip {}
+	public function initArmor() :CocoClip {}
+	public function Constructor(scene:CocoScene) {}
+	public var scene :CocoScene;
+	public var SYMBOL_LEONIDAS :Integer;
+	public var SYMBOL_XERXES :Integer;
+	public var SYMBOL_SPARTAN :Integer;
+	public var SYMBOL_PERSIAN :Integer;
+	public var SYMBOL_SWORDS :Integer;
+	public var SYMBOL_ARMOR :Integer;
+} //GridSymbol
+
 class GameEngine : CocoEngine
 {
+	public function setTexts() {}
+	public function createGUID() :String {}
+	public function calculate(src:String) :String {}
+	public function hex_sha1(src:String) :String {}
+	public function core_sha1(x:Array<Number>, len:Number) :Array {}
+	public function sha1_ft(t:Number, b:Number, c:Number, d:Number) :Number {}
+	public function sha1_kt(t:Number) :Number {}
+	public function safe_add(x:Number, y:Number) :Number {}
+	public function rol(num:Number, cnt:Number) :Number {}
+	public function str2binb(str:String) :Array {}
+	public function binb2hex(binarray:Array<Number>) :String {}
+	public function hasClosedCells() :Boolean {}
+	public function OpenCell(i:Integer) {}
 	public function Constructor() {}
-	public var scene :CocoScene;
-	public var STATE_GAME :State;
+	private var scene :CocoScene;
+	private var balance :Number;
+	private var winnings :Number;
+	private var avatars :Array<CocoClip>;
+	private var avatar_leo :CocoClip;
+	private var avatar_xerxes :CocoClip;
+	private var avatar_spartan :CocoClip;
+	private var avatar_persian :CocoClip;
+	private var avatar_swords :CocoClip;
+	private var avatar_armor :CocoClip;
+	private var btnOpenAll :CocoClip;
+	private var btnBuyTicket :CocoClip;
+	private var cells :Array<CocoClip>;
+	private var cellsOpen :Array<Boolean>;
+	private var selectedAvatar :Integer;
+	private var selAvatarAppearances :Integer;
+	private var counter :Number;
+	private var TICKET_TicketID :String;
+	private var TICKET_cells :Array<Integer>;
+	private var TICKET_price :Integer;
+	private var TICKET_winCount :Integer;
+	private var WIN_PRIZES :Array<Integer>;
+	public var STATE_TITLE_SCREEN :State;
+	public var STATE_GAME_BOARD :State;
+	public var STATE_JUMPING_AVATARS :State;
+	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
+	public var STATE_GAME_BOARD_BUY_TICKET :State;
+	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_WIN :State;
+	public var STATE_GAME_BOARD_LOSE :State;
 } //GameEngine
 
-class BitmapSymbolsTest : CocoScene
+class SceneGameBoard : CocoScene
 {
 	public function Constructor() {}
-} //BitmapSymbolsTest
+} //SceneGameBoard
 
-class SynthesisTest : CocoScene
+class SceneTitle : CocoScene
 {
 	public function Constructor() {}
-} //SynthesisTest
-
-class Test : CocoScene
-{
-	public function Constructor() {}
-} //Test
-
-class TestSequences : CocoScene
-{
-	public function Constructor() {}
-} //TestSequences
+} //SceneTitle
 
