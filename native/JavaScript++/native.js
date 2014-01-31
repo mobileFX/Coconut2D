@@ -211,6 +211,10 @@ CPPCompiler.prototype.compile = function (ast)
 				result = generate(ast.body[item]);
 				HPP.push(result.CPP);
 				break;
+			case jsdef.ENUM:
+				result = generate(ast.body[item]);
+				HPP.push(result.HPP);
+				break;
 			case jsdef.VAR:
 				result = generate(ast.body[item]);
 				CPP.push(result.CPP);
@@ -262,7 +266,7 @@ CPPCompiler.prototype.compile = function (ast)
 		if(!_this.currClassName) return _this.NULL_GEN;
 
 		if(!ast.returntype) ast.returntype = "void";
-		var name = (ast.isConstructor ? _this.currClassName : (ast.isDestructor ? "~" + _this.currClassName : ast.name));
+		var name = (ast.isConstructor ? _this.currClassName : (ast.isDestructor ? "~" + _this.currClassName : ast.name ));
 		var param, cppParamsList = "(", hppParamList = "(";
 
 		for(var i=0; i<ast.paramsList.length; i++)
@@ -280,8 +284,9 @@ CPPCompiler.prototype.compile = function (ast)
 		cppParamsList += ")";
 		hppParamList += ")";
 
-		var fn = (ast.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : ast.returntype + (ast.isPointer ? "*" : "") + " ") + name + hppParamList + ";";
+		var fn = (ast.static ? "static " :"") + (ast.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : ast.returntype + (ast.isPointer ? "*" : "") + " ") + name + hppParamList + ";";
 		HPP.push(fn);
+		if(ast.static) trace(fn);
 
         CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 		CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.isPointer?"*":"") + " ") + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
@@ -433,6 +438,27 @@ CPPCompiler.prototype.compile = function (ast)
 		break;
 
 	// ==================================================================================================================================
+	//	    ______
+	//	   / ____/___  __  ______ ___
+	//	  / __/ / __ \/ / / / __ `__ \
+	//	 / /___/ / / / /_/ / / / / / /
+	//	/_____/_/ /_/\__,_/_/ /_/ /_/
+	//
+	// ==================================================================================================================================
+	case jsdef.ENUM:
+		HPP.push("\nenum " + ast.name + " {\n");
+		var firstItem = true;
+		for(item in ast)
+		{
+			if(!isFinite(item)) break;
+			if(!firstItem) HPP.push("," + "\n");
+			HPP.push(ast[item].name + " = " + ast[item].value);
+			firstItem = false;
+		}
+		HPP.push("\n};\n");
+		break;
+
+	// ==================================================================================================================================
 	//	    ____    __           __  _ _____
 	//	   /  _/___/ /__  ____  / /_(_) __(_)__  _____
 	//	   / // __  / _ \/ __ \/ __/ / /_/ / _ \/ ___/
@@ -454,9 +480,11 @@ CPPCompiler.prototype.compile = function (ast)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.IDENTIFIER:
 		var isProp = false;
+		var name = ast.value.replace(/\$\d+/,'');
+
 		if(ast.symbol && ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST)
 		{
-			CPP.push("&" + ast.symbol.ast.scope.className + "::" + ast.value);
+			CPP.push("&" + ast.symbol.ast.scope.className + "::" + name);
 			break;
 		}
 		else if(ast.symbol && ast.symbol.type == jsdef.PROPERTY)
@@ -471,7 +499,7 @@ CPPCompiler.prototype.compile = function (ast)
 			else if(ast.symbol.ast.parent.parent && ast.symbol.ast.parent.parent.scope && ast.symbol.ast.parent.parent.scope.isClass && (ast.parent.type != jsdef.DOT || (ast.parent[0] == ast)))
 				CPP.push("self->");
 		}
-		CPP.push(ast.value + (isProp && !_this.in_setter ? "()" : ""));
+		CPP.push(name + (isProp && !_this.in_setter ? "()" : ""));
 		break;
 
 	// ==================================================================================================================================
@@ -552,18 +580,24 @@ CPPCompiler.prototype.compile = function (ast)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.ARRAY_INIT:
 
-		// Case1: new Float32Arra([]) no constructor, detect from jsdef.NEW_WITH_ARGS
-		// Case2: new CocoSequence(params, array) constructor, detect from arguaments
-		// Case3: a = [], assignment, detect from identifier a
+		// Case1: new Float32Arra([...])
+		// Case2: new CocoSequence(params, [...]) or foo([...])
+		// Case3: a = [...]
+		// Case4: var x:Array<T> = [...]
 
 		var fnSymbol = null;
 		var vartype = null;
 		var subtype = null;
 
-		if(ast.parent.type==jsdef.ASSIGN)
+        if(ast.parent.parent.type==jsdef.VAR)
+        {
+        	vartype = ast.parent.parent[0].symbol.vartype;
+        	subtype = ast.parent.parent[0].symbol.subtype;
+        }
+		else if(ast.parent.type==jsdef.ASSIGN)
 		{
-			vartype =  ast.parent.parent.expression[0].symbol.vartype;
-			subtype =  ast.parent.parent.expression[0].symbol.subtype;
+			vartype = ast.parent.parent.expression[0].symbol.vartype;
+			subtype = ast.parent.parent.expression[0].symbol.subtype;
 		}
 		else if(ast.parent.type==jsdef.LIST)
 		{
@@ -587,7 +621,7 @@ CPPCompiler.prototype.compile = function (ast)
 				  	fnSymbol = ast.inCall.inCall[0].identifier_last.symbol;
 				  	break;
 				default:
-					debugger;
+					//debugger;
 				}
 				break;
 
@@ -690,7 +724,10 @@ CPPCompiler.prototype.compile = function (ast)
 				_this.in_setter = false;
 				CPP.push("(" + generate(ast[1]).CPP + ")");
      		}
-     		else debugger; // no such setter
+     		else
+     		{
+     			//debugger; // no such setter
+     		}
      	}
      	else if(ast[0].type == jsdef.DOT && ast[0].identifier_last.symbol && ast[0].identifier_last.symbol.type == jsdef.PROPERTY)
 		{
@@ -701,7 +738,10 @@ CPPCompiler.prototype.compile = function (ast)
 				_this.in_setter = false;
 				CPP.push("(" + generate(ast[1]).CPP + ")");
      		}
-     		else debugger; // no such setter
+     		else
+     		{
+     			//debugger; // no such setter
+     		}
 		}
 		else
 		{

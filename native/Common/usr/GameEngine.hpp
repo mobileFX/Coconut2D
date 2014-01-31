@@ -3,12 +3,12 @@
 
 #include "Coconut2D.hpp"
 #include "CocoEngine.hpp"
-#include "CocoClip.hpp"
 #include "CocoScene.hpp"
+#include "CocoClip.hpp"
+#include "GridSymbol.hpp"
 #include "SceneTitle.hpp"
 #include "WebGLRenderingContext.hpp"
 #include "SceneGameBoard.hpp"
-#include "GridSymbol.hpp"
 
 class GameEngine : public CocoEngine
 {

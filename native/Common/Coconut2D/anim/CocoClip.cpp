@@ -354,7 +354,7 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 			if(__currentFrame->action)
 			{
 				engine->__trace(scene, this, "@@ACTION");
-				(__currentFrame->action)(scene, this);
+				__currentFrame->action(scene, this);
 			}
 			if(__currentFrame->nextState)
 			{

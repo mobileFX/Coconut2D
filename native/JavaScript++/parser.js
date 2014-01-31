@@ -145,6 +145,7 @@ function __init_narcissus(GLOBAL)
 		"LIST",
 		"FOR_INSIDE",
 		"ARRAY_COMP",
+		"ENUM_ITEM",
 
         // Terminals.
         "IDENTIFIER",
@@ -1020,6 +1021,11 @@ function __init_narcissus(GLOBAL)
 			break;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.ENUM:
+			n = Enumeration(t,x);
+			break;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.LET:
 			n = Variables(t, x);
 			n.block = true;
@@ -1133,7 +1139,8 @@ function __init_narcissus(GLOBAL)
 					jsdef.VIRTUAL,
 					jsdef.ABSTRACT,
 					jsdef.VAR,
-					jsdef.CONST];
+					jsdef.CONST,
+					jsdef.ENUM];
 
 		f.body = (function (t, x)
 		{
@@ -1159,6 +1166,10 @@ function __init_narcissus(GLOBAL)
 					else if(t.match(jsdef.VAR))
 					{
 						n.push(Variables(t, x));
+					}
+					else if(t.match(jsdef.ENUM))
+					{
+						n.push(Enumeration(t,x));
 					}
 					else if(t.match(jsdef.PROPERTY))
 					{
@@ -1233,6 +1244,44 @@ function __init_narcissus(GLOBAL)
 			x.funDecls.push(f);
 
 		return f;
+	}
+
+	// ==================================================================================================================================
+	//	    ______                                      __  _
+	//	   / ____/___  __  ______ ___  ___  _________ _/ /_(_)___  ____
+	//	  / __/ / __ \/ / / / __ `__ \/ _ \/ ___/ __ `/ __/ / __ \/ __ \
+	//	 / /___/ / / / /_/ / / / / / /  __/ /  / /_/ / /_/ / /_/ / / / /
+	//	/_____/_/ /_/\__,_/_/ /_/ /_/\___/_/   \__,_/\__/_/\____/_/ /_/
+	//
+	// ==================================================================================================================================
+
+	function Enumeration(t,x)
+	{
+		var n = new Node(t, jsdef.ENUM);
+		t.setModifiers(n);
+		t.mustMatch(jsdef.IDENTIFIER);
+		n.name = t.token().value;
+		n.vartype = n.name;
+		n.__start = t.token().start;
+		n.__end = t.token().end;
+		t.mustMatch(jsdef.LEFT_CURLY)
+		for(;;)
+		{
+			t.mustMatch(jsdef.IDENTIFIER);
+			var f = new Node(t, jsdef.ENUM_ITEM);
+			f.name = t.token().value;
+			f.vartype = n.name;
+            t.mustMatch(jsdef.ASSIGN);
+            t.mustMatch(jsdef.NUMBER);
+            f.value = t.token().value;
+            n.push(f);
+            if(!t.match(jsdef.COMMA))
+            	break;
+		}
+		t.mustMatch(jsdef.RIGHT_CURLY);
+		n.end = t.cursor;
+		n.line_end = t.line_start;
+		return n;
 	}
 
 	// ==================================================================================================================================
@@ -2101,7 +2150,7 @@ function __init_narcissus(GLOBAL)
 				break;
 
 			case jsdef.PROPERTY:
-				debugger;
+				//debugger;
 				break;
 
 			case jsdef.FUNCTION:

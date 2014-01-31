@@ -409,6 +409,13 @@ void CocoScene::gotoAndStopyByIndex(int FrameIndex)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoScene::stop(CocoScene* scene, CocoClip* clip)
+{
+	CocoClip* scope = scene->__levelParents.size() == 0 ? scene->__root : scene->__levelParents[scene->__levelParents.size() - 1];
+	scope->gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoScene::stop()
 {
 	CocoClip* scope = __levelParents.size() == 0 ? __root : __levelParents[__levelParents.size() - 1];

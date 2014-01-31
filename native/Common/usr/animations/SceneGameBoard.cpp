@@ -2108,13 +2108,13 @@ SceneGameBoard::SceneGameBoard()
 			inst166->addChild(inst181);
 			inst181->__scene = this;
 			inst181->__timeline->clear();
-			inst181->__timeline->addKeyFrameEx(engine->STATE_JUMPING_AVATARS, nullptr, 125, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_NONE, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, nullptr, false, false, "");
+			inst181->__timeline->addKeyFrameEx(((GameEngine*)engine)->STATE_JUMPING_AVATARS, nullptr, 125, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_NONE, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, nullptr, false, false, "");
 		}
 		CocoClip* inst182 = new CocoClip(nullptr);
 		inst182->__instanceName = "Actions";
 		__root->addChild(inst182);
 		inst182->__scene = this;
 		inst182->__timeline->clear();
-		inst182->__timeline->addKeyFrameEx(engine->STATE_GAME_BOARD_CHOOSE_AVATAR, nullptr, 71, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_NONE, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, nullptr, false, false, "");
+		inst182->__timeline->addKeyFrameEx(((GameEngine*)engine)->STATE_GAME_BOARD_CHOOSE_AVATAR, nullptr, 71, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_NONE, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, nullptr, false, false, "");
 	}
 }

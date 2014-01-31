@@ -1511,9 +1511,7 @@ class CocoScene
 	public function gotoAndPlayByIndex(FrameIndex:Integer) {}
 	public function gotoAndStopyByIndex(FrameIndex:Integer) {}
 	public function stop(scene:CocoScene, clip:CocoClip) {}
-	public function stop$1(a:Integer) {}
-	public function stop$2(a:Float) {}
-	public function stop$3() {}
+	public function stop$1() {}
 	public function Constructor() {}
 	public var __sceneName :String;
 	public var __imageSymbols :Array<CocoImage>;
@@ -1560,15 +1558,6 @@ class CocoEngine
 	private var __deviceEvent :DeviceEvent;
 	private var __clicked :Array<CocoClip>;
 	private var __clock :Time;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_JUMPING_AVATARS :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
 } //CocoEngine
 
 class CocoSprite
@@ -1668,13 +1657,34 @@ class GridSymbol
 	public function initArmor() :CocoClip {}
 	public function Constructor(scene:CocoScene) {}
 	public var scene :CocoScene;
-	public var SYMBOL_LEONIDAS :Integer;
-	public var SYMBOL_XERXES :Integer;
-	public var SYMBOL_SPARTAN :Integer;
-	public var SYMBOL_PERSIAN :Integer;
-	public var SYMBOL_SWORDS :Integer;
-	public var SYMBOL_ARMOR :Integer;
+	public var SYMBOL_LEONIDAS :SYMBOL_ENUM;
+	public var SYMBOL_XERXES :SYMBOL_ENUM;
+	public var SYMBOL_SPARTAN :SYMBOL_ENUM;
+	public var SYMBOL_PERSIAN :SYMBOL_ENUM;
+	public var SYMBOL_SWORDS :SYMBOL_ENUM;
+	public var SYMBOL_ARMOR :SYMBOL_ENUM;
 } //GridSymbol
+
+class SYMBOL_ENUM
+{
+	public function getRandom() :Integer {}
+	public function createSymbol(symbol:Integer) :CocoClip {}
+	public function initPlaceholder() :CocoClip {}
+	public function initLeonidas() :CocoClip {}
+	public function initXerxes() :CocoClip {}
+	public function initSpartan() :CocoClip {}
+	public function initPersian() :CocoClip {}
+	public function initSwords() :CocoClip {}
+	public function initArmor() :CocoClip {}
+	public function Constructor(scene:CocoScene) {}
+	public var scene :CocoScene;
+	public var SYMBOL_LEONIDAS :SYMBOL_ENUM;
+	public var SYMBOL_XERXES :SYMBOL_ENUM;
+	public var SYMBOL_SPARTAN :SYMBOL_ENUM;
+	public var SYMBOL_PERSIAN :SYMBOL_ENUM;
+	public var SYMBOL_SWORDS :SYMBOL_ENUM;
+	public var SYMBOL_ARMOR :SYMBOL_ENUM;
+} //SYMBOL_ENUM
 
 class SceneGameBoard : CocoScene
 {

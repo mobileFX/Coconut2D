@@ -6315,16 +6315,6 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function stop(a:Integer)
-	{
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function stop(a:Float)
-	{
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function stop()
 	{
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
@@ -7386,12 +7376,16 @@ class CocoUITextView : CocoUIControlView
 class GridSymbol
 {
     public var scene:CocoScene;
-	public const SYMBOL_LEONIDAS:Integer = 1;
-	public const SYMBOL_XERXES:Integer = 2;
-	public const SYMBOL_SPARTAN:Integer = 3;
-	public const SYMBOL_PERSIAN:Integer = 4;
-	public const SYMBOL_SWORDS:Integer = 5;
-	public const SYMBOL_ARMOR:Integer = 6;
+
+	private enum SYMBOL_ENUM
+	{
+		SYMBOL_LEONIDAS = 1,
+		SYMBOL_XERXES = 2,
+		SYMBOL_SPARTAN = 3,
+		SYMBOL_PERSIAN = 4,
+		SYMBOL_SWORDS = 5,
+		SYMBOL_ARMOR = 6
+	};
 
 	public function Constructor(scene:CocoScene)
 	{
@@ -9826,14 +9820,14 @@ class SceneGameBoard : CocoScene
 				inst166.addChild(inst181);
 				inst181.__scene = this;
 				inst181.__timeline.clear();
-				inst181.__timeline.addKeyFrameEx(engine.STATE_JUMPING_AVATARS, null, 125, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+				inst181.__timeline.addKeyFrameEx(GameEngine(engine).STATE_JUMPING_AVATARS, null, 125, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
 			var inst182:CocoClip = new  CocoClip(null);
 			inst182.__instanceName = 'Actions';
 			__root.addChild(inst182);
 			inst182.__scene = this;
 			inst182.__timeline.clear();
-			inst182.__timeline.addKeyFrameEx(engine.STATE_GAME_BOARD_CHOOSE_AVATAR, null, 71, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst182.__timeline.addKeyFrameEx(GameEngine(engine).STATE_GAME_BOARD_CHOOSE_AVATAR, null, 71, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 		}
 
 		/* -- DESIGNER GENERATED CODE END -- */

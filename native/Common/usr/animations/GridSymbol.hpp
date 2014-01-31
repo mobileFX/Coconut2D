@@ -11,13 +11,17 @@
 class GridSymbol
 {
 public:
+
+	enum SYMBOL_ENUM
+	{
+		SYMBOL_LEONIDAS = 1,
+		SYMBOL_XERXES = 2,
+		SYMBOL_SPARTAN = 3,
+		SYMBOL_PERSIAN = 4,
+		SYMBOL_SWORDS = 5,
+		SYMBOL_ARMOR = 6
+	};
 	CocoScene* scene;
-	const int SYMBOL_LEONIDAS = 1;
-	const int SYMBOL_XERXES = 2;
-	const int SYMBOL_SPARTAN = 3;
-	const int SYMBOL_PERSIAN = 4;
-	const int SYMBOL_SWORDS = 5;
-	const int SYMBOL_ARMOR = 6;
 	GridSymbol(CocoScene* scene);
 	~GridSymbol();
 	int getRandom();

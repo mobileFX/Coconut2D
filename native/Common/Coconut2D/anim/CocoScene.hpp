@@ -4,12 +4,13 @@
 #include "Coconut2D.hpp"
 #include "CocoImage.hpp"
 #include "WebGLRenderingContext.hpp"
+#include "CocoImageSibling.hpp"
+#include "CocoClip.hpp"
 #include "CocoKeyFrame.hpp"
+#include "CocoScene.hpp"
+#include "CocoMatrix.hpp"
 #include "HTMLCanvasElement.hpp"
 #include "HTMLWindow.hpp"
-#include "CocoMatrix.hpp"
-#include "CocoClip.hpp"
-#include "CocoImageSibling.hpp"
 #include "HTMLImageElement.hpp"
 #include "CocoEngine.hpp"
 #include "CocoTimeline.hpp"
@@ -57,6 +58,7 @@ public:
 	void gotoAndStopByName(String LabelName);
 	void gotoAndPlayByIndex(int FrameIndex);
 	void gotoAndStopyByIndex(int FrameIndex);
+	static void stop(CocoScene* scene, CocoClip* clip);
 	void stop();
 };
 

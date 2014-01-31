@@ -502,13 +502,12 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			var searchScope = (!ast || (!ast.inDot || (ast.inDot && ast.inDot.identifiers_list[0].value==identifier)));
 
 			// Lookup scope chain (classes, base clasees, methods, base class methods, variables, etc.)
-			if(searchScope)	symbol = _this.LookupScopeChain(identifier, scope, true);
+			if(searchScope)
+				symbol = _this.LookupScopeChain(identifier, scope, true);
 
 			// Lookup DOT chain.
 			if(!symbol && _this.secondPass && ast && ast.inDot)
-			{
 				symbol = _this.LookupLastDotIdentifier(ast.inDot, scope);
-			}
 
 			return symbol;
 		}
@@ -965,6 +964,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 					case jsdef.STATE:
 					case jsdef.CONST:
 					case jsdef.VAR:
+					case jsdef.ENUM:
 						out.push(generate(member));
 						break;
 				}
@@ -1523,6 +1523,105 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			break;
 
 		// ==================================================================================================================================
+		//	    ______
+		//	   / ____/___  __  ______ ___  _____
+		//	  / __/ / __ \/ / / / __ `__ \/ ___/
+		//	 / /___/ / / / /_/ / / / / / (__  )
+		//	/_____/_/ /_/\__,_/_/ /_/ /_/____/
+		//
+		// ==================================================================================================================================
+
+		case jsdef.ENUM:
+
+			var scope = _this.getCurrentScope();
+			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
+
+			var classSymbol = new ClassSymbol();
+			{
+				classSymbol.symbolId	= (++_this.symbolId);
+				classSymbol.name		= ast.name;
+				classSymbol.vartype		= ast.name;
+				classSymbol.classId		= classId;
+				classSymbol.base		= null;
+				classSymbol.baseSymbol	= null;
+				classSymbol.type		= jsdef.CLASS;
+				classSymbol.nodeType	= "CLASS";
+				classSymbol.isPrototype = false;
+				classSymbol.isEnum		= true;
+				classSymbol.isState		= false;
+				classSymbol.ast			= ast;
+				classSymbol.scope		= scope;
+				classSymbol.file		= ast.file;
+				classSymbol.path		= ast.path;
+				classSymbol.start		= ast.start;
+				classSymbol.end			= ast.end;
+				classSymbol.line_start	= ast.line_start;
+				classSymbol.line_end	= ast.line_end;
+				classSymbol.scopeId		= scope.scopeId;
+				classSymbol.vars		= scope.vars;
+				classSymbol.methods	 	= scope.methods;
+				classSymbol.runtime		= ast.name;
+			}
+
+			// Save symbol
+			ast.symbol = classSymbol;
+			_this.classes[classSymbol.name] = classSymbol;
+
+            // Generate enum
+			if(ast.public)			out.push("this.");
+			else if(ast.private)	out.push("this.__PRIVATE__.");
+			else if(ast.protected)	out.push("this.__PROTECTED__.");
+			out.push(ast.name + " = {");
+			var firstItem = true;
+			for(item in ast)
+			{
+				if(!isFinite(item)) break;
+
+				// Enum Item Symbol
+				var varSymbol = new VarSymbol()
+				{
+					varSymbol.symbolId		= (++_this.symbolId);
+					varSymbol.name			= ast[item].name;
+					varSymbol.value			= ast[item].value;
+					varSymbol.type			= ast[item].type;
+					varSymbol.nodeType		= ast[item].nodeType;
+					varSymbol.classId		= classId;
+					varSymbol.public		= true;
+					varSymbol.private		= false;
+					varSymbol.protected		= false;
+					varSymbol.static		= true;
+					varSymbol.optional		= false;
+					varSymbol.virtual		= false;
+					varSymbol.abstract		= false;
+					varSymbol.constant		= true;
+					varSymbol.ast			= ast[item];
+					varSymbol.scope			= scope;
+					varSymbol.baseSymbol	= null;
+					varSymbol.file			= ast[item].file;
+					varSymbol.path			= ast[item].path;
+					varSymbol.start			= ast[item].start;
+					varSymbol.end			= ast[item].end;
+					varSymbol.line_start	= ast[item].line_start;
+					varSymbol.line_end		= ast[item].line_end;
+					varSymbol.scopeId		= scope.scopeId;
+					varSymbol.vartype		= ast.name;
+					varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(vartype);
+					varSymbol.pointer		= false;
+
+					if(ast.public)			varSymbol.runtime = "this." + ast.name + "." + varSymbol.name;
+					else if(ast.private)	varSymbol.runtime = "this.__PRIVATE__." + ast.name + "." + varSymbol.name;
+					else if(ast.protected)	varSymbol.runtime = "this.__PROTECTED__." + ast.name + "." + varSymbol.name;
+				}
+				classSymbol.vars[varSymbol.name] = varSymbol;
+
+				if(!firstItem) out.push(", ");
+				out.push(ast[item].name + ":" + ast[item].value);
+				firstItem = false;
+			}
+			out.push("};");
+			break;
+
+		// ==================================================================================================================================
 		//	    ____                             __
 		//	   / __ \_________  ____  ___  _____/ /___  __
 		//	  / /_/ / ___/ __ \/ __ \/ _ \/ ___/ __/ / / /
@@ -1681,7 +1780,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 			ast.symbol = stateSymbol;
 			classSymbol.scope.vars[ast.name] = stateSymbol;
-			if(classSymbol.baseSymbol) classSymbol.baseSymbol.vars[ast.name] = stateSymbol;
+			//if(classSymbol.baseSymbol) classSymbol.baseSymbol.vars[ast.name] = stateSymbol;
 			_this.states[ast.name] = stateSymbol;
 
 			if(ast.public)			out.push("this.");
@@ -1785,6 +1884,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			//==================================================================================
 			// Lookup the symbol for this identifier.
 			//==================================================================================
+
 			if(!ast.symbol)
 				ast.symbol = _this.LookupIdentifier(_this.getCurrentScope(), ast.value, ast);
 
@@ -1936,9 +2036,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				}
 			}
 
-			// Generate debug symbol
-			_this.addDebugSymbol(ast, ast.runtime);
-
 			// Generate identifier
 			if(!ast.inDot)
 			{
@@ -1978,6 +2075,12 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			{
 				_this.NewError("Invalid protected member access: " + ast.value, ast);
 			}
+
+			//==================================================================================
+			// Generate debug symbol
+			//==================================================================================
+			ast.runtime = out.join("");
+			_this.addDebugSymbol(ast, ast.runtime);
 
 			//==================================================================================
 			// Done generating identifier
@@ -2473,6 +2576,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		}
 		ast.symbol = classSymbol;
 		_this.classes[className] = classSymbol;
+		_this.scopesStack[0].vars[className] = classSymbol;
 
 		for(var item in ast)
 		{
@@ -2482,8 +2586,8 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				varSymbol.symbolId		= (++_this.symbolId);
 				varSymbol.name			= ast[item][0].value;
 				varSymbol.value			= ast[item][1].value;
-				varSymbol.type			= jsdef.IDENTIFIER;
-				varSymbol.nodeType		= "ENUM";
+				varSymbol.type			= jsdef.ENUM_ITEM;
+				varSymbol.nodeType		= "ENUM_ITEM";
 				varSymbol.classId		= classId;
 				varSymbol.public		= true;
 				varSymbol.private		= false;
