@@ -44,6 +44,7 @@ class CocoKeyFrame
 	public var frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var handleEvents:Boolean;
 	public var visible:Boolean;
+	public var filter:Integer;
 	public var red:Float;
 	public var green:Float;
 	public var blue:Float;
@@ -55,7 +56,7 @@ class CocoKeyFrame
 	public var scaleX:Float;
 	public var scaleY:Float;
 	public var rotation:Float;
-	public var action:Function;
+	public var action:CocoAction;
 	public var nextState:State;
 	public var audio:CocoAudio;
 	public var flipH:Boolean;
@@ -72,6 +73,7 @@ class CocoKeyFrame
 		frameInterpolation 			= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 		handleEvents 				= false;
 		visible						= true;
+		filter						= 0;
 		x							= 0.0;
 		y							= 0.0;
 		scaleX						= 1.0;
@@ -104,6 +106,7 @@ class CocoKeyFrame
 	{
 	    var c:CocoKeyFrame = new CocoKeyFrame();
 
+		c.filter					= filter;
 		c.red						= red;
 		c.green						= green;
 		c.blue						= blue;
@@ -143,31 +146,6 @@ class CocoKeyFrame
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip)
-	{
-		//gl:WebGLRenderingContext, currentTime:Float, loopTime:Float, clip:CocoClip, keyFrame:CocoKeyFrame
-
-		if(action)
-		{
-			engine.__trace(scene, clip, "@@ACTION");
-			var args:Array = [gl, clip, this];
-			action.apply(scene, args);
-		}
-
-		if(nextState)
-		{
-			engine.__trace(scene, clip, "@@NEXT_STATE");
-			engine.setNextState(nextState);
-		}
-
-		if(audio)
-		{
-			engine.__trace(scene, clip, "@@AUDIO");
-			audio.tick();
-		}
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float)
 	{
 		red = F1.red + s * (F2.red - F1.red);
@@ -187,6 +165,7 @@ class CocoKeyFrame
 	public function combine(Frame:CocoKeyFrame)
 	{
 		if(!Frame) return;
+		if(!filter) filter = Frame.filter;
 		red = red * Frame.red;
 		green = green * Frame.green;
 		blue = blue * Frame.blue;

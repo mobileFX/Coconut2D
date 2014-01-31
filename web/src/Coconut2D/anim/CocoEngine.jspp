@@ -57,12 +57,15 @@ state class CocoEngine
 	public function Constructor()
 	{
 		// Set event handlers
-		__clicked = [];
+		__currentState = null;
 		__deviceEvent = null;
 		__clock = 0;
 		debugbreak=false;
 
 		// Set event handlers
+		window.addEventListener("mousedown", __setTouchEvent);
+		window.addEventListener("mousemove", __setTouchEvent);
+		window.addEventListener("mouseup", __setTouchEvent);
 		window.addEventListener("touchstart", __setTouchEvent);
 		window.addEventListener("touchmove", __setTouchEvent);
 		window.addEventListener("touchend", __setTouchEvent);
@@ -90,12 +93,12 @@ state class CocoEngine
 			__currentState = __nextState;
 			__nextState = null;
 			trace("\n@@STATE " + __currentState.__name);
-			__clicked = [];
+			__clicked.clear();
 			if(__currentState) __currentState.enter();
 		}
 
 		if(__currentState) __currentState.tick(__clock);
-		__clicked = [];
+		__clicked.clear();
 
 		if(__nextState==null && __currentState!=null)
 		{
@@ -114,8 +117,8 @@ state class CocoEngine
 	private function __setTouchEvent(e:DeviceEvent)
 	{
 		__deviceEvent = e;
-		__deviceEvent.__clientX = e.touches[0].clientX;
-		__deviceEvent.__clientY = e.touches[0].clientY;
+		__deviceEvent.__clientX = e.touches ? e.touches[0].clientX : e.clientX;
+		__deviceEvent.__clientY = e.touches ? e.touches[0].clientY : e.clientY;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,9 +148,7 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __trace(scene:CocoScene, clip:CocoClip, message: String)
 	{
-		return;
-
-		if(scene && clip)
+		/*if(scene && clip)
 		{
 			var rf:Float = scene.__root.__childWithMaxTimelineDuration.__timeline.__currentFrameIndex;
 			var rt:Float = scene.__root.__currentTime;
@@ -166,6 +167,6 @@ state class CocoEngine
 					  "\tclip: " + scene.__sceneName + clip.__clipPath;
 
 		}
-		trace(message);
+		trace(message);*/
 	}
 }

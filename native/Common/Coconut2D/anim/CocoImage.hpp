@@ -7,8 +7,6 @@
 #include "CocoScene.hpp"
 #include "WebGLRenderingContext.hpp"
 #include "HTMLImageElement.hpp"
-//#include "WebGLTexture.hpp"
-//#include "WebGLBuffer.hpp"
 
 class CocoImage
 {

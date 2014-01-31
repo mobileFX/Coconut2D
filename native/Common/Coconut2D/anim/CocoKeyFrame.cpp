@@ -8,6 +8,7 @@ CocoKeyFrame::CocoKeyFrame()
 	frameInterpolation = COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_MOTION_TWEEN;
 	handleEvents = false;
 	visible = true;
+	filter = 0;
 	x = 0.0;
 	y = 0.0;
 	scaleX = 1.0;
@@ -42,6 +43,7 @@ CocoKeyFrame::~CocoKeyFrame()
 CocoKeyFrame* CocoKeyFrame::clone(bool exact)
 {
 	CocoKeyFrame* c = new CocoKeyFrame();
+	c->filter = filter;
 	c->red = red;
 	c->green = green;
 	c->blue = blue;
@@ -60,7 +62,7 @@ CocoKeyFrame* CocoKeyFrame::clone(bool exact)
 	c->flipH = flipH;
 	c->flipV = flipV;
 	c->spriteSequenceName = spriteSequenceName;
-	c->__frameIndex = float(frameIndex);
+	c->__frameIndex = ((float)frameIndex);
 	c->__isCloned = true;
 	if(exact && (action || nextState || audio))
 	{
@@ -77,28 +79,6 @@ void CocoKeyFrame::reset()
 	if(audio)
 	{
 		audio->reset();
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoKeyFrame::execute(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* clip)
-{
-	if(action)
-	{
-		engine->__trace(scene, clip, "@@ACTION");
-		(scene->*action)(gl, scene, clip);
-		//Array* args = {gl, clip, this};
-		//action->apply(scene, args);
-	}
-	if(nextState)
-	{
-		engine->__trace(scene, clip, "@@NEXT_STATE");
-		engine->setNextState(nextState);
-	}
-	if(audio)
-	{
-		engine->__trace(scene, clip, "@@AUDIO");
-		audio->tick();
 	}
 }
 
@@ -124,6 +104,10 @@ void CocoKeyFrame::combine(CocoKeyFrame* Frame)
 	if(!Frame)
 	{
 		return;
+	}
+	if(!filter)
+	{
+		filter = Frame->filter;
 	}
 	red = red * Frame->red;
 	green = green * Frame->green;

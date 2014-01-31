@@ -26,7 +26,7 @@ CocoMatrix::CocoMatrix(CocoMatrix* M)
 	{
 		identity();
 	}
-	__data = new Float32Array(Array<float>(16, rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44));
+	__data = new Float32Array(Array<float> ()(rc11)(rc12)(rc13)(rc14)(rc21)(rc22)(rc23)(rc24)(rc31)(rc32)(rc33)(rc34)(rc41)(rc42)(rc43)(rc44));
 	__dirty = false;
 }
 
@@ -237,8 +237,8 @@ void CocoMatrix::scale(float sx, float sy)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoMatrix::rotateZ(float rz)
 {
-	float c = std::cos(rz);
-	float s = std::sin(rz);
+	float c = cos(rz);
+	float s = sin(rz);
 	float t0 = 0.0,  t1 = 0.0;
 	t0 = rc11;
 	t1 = rc21;
@@ -297,7 +297,7 @@ void CocoMatrix::update(WebGLRenderingContext* gl, WebGLUniformLocation* ul)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoMatrix::push()
 {
-	__stack.push(new Float32Array(Array<float>(16, rc11, rc12, rc13, rc14, rc21, rc22, rc23, rc24, rc31, rc32, rc33, rc34, rc41, rc42, rc43, rc44)));
+	__stack.push(new Float32Array(Array<float> ()(rc11)(rc12)(rc13)(rc14)(rc21)(rc22)(rc23)(rc24)(rc31)(rc32)(rc33)(rc34)(rc41)(rc42)(rc43)(rc44)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

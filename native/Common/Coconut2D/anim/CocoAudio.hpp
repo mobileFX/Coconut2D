@@ -25,7 +25,6 @@ public:
 	bool ended();
 	float getCurrentTime();
 	void setCurrentTime(float t);
-	
 };
 
 #endif

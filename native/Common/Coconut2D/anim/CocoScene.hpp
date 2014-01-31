@@ -4,10 +4,15 @@
 #include "Coconut2D.hpp"
 #include "CocoImage.hpp"
 #include "WebGLRenderingContext.hpp"
-//#include "WebGLProgram.hpp"
-#include "CocoClip.hpp"
+#include "CocoKeyFrame.hpp"
+#include "HTMLCanvasElement.hpp"
+#include "HTMLWindow.hpp"
 #include "CocoMatrix.hpp"
-//#include "WebGLBuffer.hpp"
+#include "CocoClip.hpp"
+#include "CocoImageSibling.hpp"
+#include "HTMLImageElement.hpp"
+#include "CocoEngine.hpp"
+#include "CocoTimeline.hpp"
 
 class CocoScene
 {
@@ -23,9 +28,14 @@ public:
 	CocoMatrix* __modelViewMatrix;
 	CocoMatrix* __projectionMatrix;
 	WebGLProgram* __glProgram;
+	WebGLProgram* __glProgram_Simple;
+	WebGLProgram* __glProgram_SimpleWithAlpha;
+	WebGLProgram* __glProgram_SaturationWithAlpha;
 	Array<CocoClip*> __levelParents;
-	String __vertex_shader;
-	String __fragment_shader;
+	String __vertex_shader_Common;
+	String __fragment_shader_Simple;
+	String __fragment_shader_SimpleWithAlpha;
+	String __fragment_shader_SaturationWithAlpha;
 	String __boundingBoxVertexShader;
 	String __boundingBoxFragmentShader;
 	WebGLProgram* __boundingBoxProgram;
@@ -41,7 +51,8 @@ public:
 	void loadResources();
 	bool resourcesLoaded(WebGLRenderingContext* gl);
 	virtual void paint(WebGLRenderingContext* gl, Time time);
-	void drawFrame(WebGLRenderingContext* gl, CocoImage* image, int frame, float red, float green, float blue, float alpha, bool flipH, bool flipV);
+	bool setFilter(int filter);
+	void drawFrame(WebGLRenderingContext* gl, CocoImage* image, int frame, CocoKeyFrame* KF);
 	void gotoAndPlayByName(String LabelName);
 	void gotoAndStopByName(String LabelName);
 	void gotoAndPlayByIndex(int FrameIndex);

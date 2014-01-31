@@ -620,11 +620,12 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		}
 
 		// Found it!
-		if(symbol) return symbol;
+		if(symbol)
+			return symbol;
 
-   		// Identifier not found in current scope, move to parent scope.
+		// Identifier not found in current scope, move to parent scope.
 		if(deep && scope.parentScope)
-			return _this.LookupScopeChain(identifier, scope.parentScope, deep);
+			return  _this.LookupScopeChain(identifier, scope.parentScope, deep);
 	};
 
 	// ==================================================================================================================================
@@ -677,17 +678,17 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				if(propName && propValue)
 				{
 					if(p[propName]==propValue)
-						return true;
+						return p;
 				}
 				else
 				{
-					return true;
+					return p;
 				}
 			}
 			else if(propName && propValue)
 			{
 				if(p[propName]==propValue)
-					return true;
+					return p;
 			}
 		}
 		return false;
@@ -1076,6 +1077,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			var methodScope = _this.NewScope(ast);
 			var parentScope = methodScope.parentScope;	// Could be State, Property or Class scope
 			var classScope = _this.getClassScope();		// Class scope
+			var classSymbol	=  classScope ? classScope.ast.symbol : null;
 			var className = classScope ? classScope.ast.name : null;
 			var classId = classScope ? classScope.ast.symbol.classId : null;
 			var isGlobal = !classScope && parentScope.isGlobal;
@@ -1085,13 +1087,34 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 			if(_this.currClassName) _this.debugSymbolsTable.push("<!-- " + className + " :: " + fnName + " -->\n");
 
+            // Check for function overloading
+			if(!isAnonymous && Object.prototype.hasOwnProperty.call(parentScope.methods, fnName))
+			{
+				var fn_ast = parentScope.methods[fnName].ast;
+				if(!_this.secondPass)
+				{
+					// The function is overloaded! First we need to change the compiled function
+					// name using the pattern <function_name>$<index> where index is the overload
+					// index of the function in the ast.overloads[] list. We keep a list of all
+					// overloaded functions in the first AST node we find during the first pass.
+					// During generation the functions are generated as foo, foo$1, foo$2, etc.
+					// and the compiler during identifier recognition decides which overload
+					// function to bind.
+
+					if(!fn_ast.overloads) fn_ast.overloads = [];
+					fn_ast.overloads.push(ast);
+					ast.overloadOf = fn_ast;
+					fnName += "$" + fn_ast.overloads.length;
+				}
+				else if(fn_ast.overloads)
+				{
+					fnName = ast.symbol.name;
+				}
+			}
+
 			// Link method symbol with base class method symbol for speed.
 			if(parentScope.isClass && parentScope.ast.symbol.baseSymbol)
-				baseMethodSymbol = _this.LookupIdentifier(parentScope.ast.symbol.baseSymbol.scope, ast.name, ast, true);
-
-            // Check for redeclaration (overloads are not supported yet)
-			if(!_this.secondPass && !isAnonymous && Object.prototype.hasOwnProperty.call(parentScope.methods,fnName))
-				_this.NewError("Redeclaration of function " + fnName, ast);
+				baseMethodSymbol = _this.LookupIdentifier(parentScope.ast.symbol.baseSymbol.scope, fnName, ast, true);
 
 			// Function Symbol
 			var functionSymbol = new FunctionSymbol();
@@ -1132,7 +1155,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
            	// Save symbol
 			ast.symbol = functionSymbol;
-			parentScope.methods[ast.name] = functionSymbol;
+			parentScope.methods[fnName] = functionSymbol;
 
 			// Record vartype usage in class level (used to check #includes)
 			if(functionSymbol.subtype)
@@ -1239,11 +1262,12 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 	  				else if(ast.public)			out.push("var " + fnName + " = this." + fnName + " = function" + paramsList + "{");
 	  				else if(ast.private)		out.push("this.__PRIVATE__." + fnName + " = function" + paramsList + "{");
 	  				else if(ast.protected)		out.push("this.__PROTECTED__." + fnName + " = function" + paramsList + "{");
-	  				else _this.NewError("No access modifier defined for function: " + ast.name, ast);
+	  				else _this.NewError("No access modifier defined for function: " + fnName, ast);
 	  			}
 
 				// Generate Function Body
-				out.push(generate(ast.body));
+				ast.fnBody = generate(ast.body);
+				out.push(ast.fnBody);
 
 				// Generate default return value
 				if(!ast.isConstructor && !ast.isDestructor)
@@ -1256,14 +1280,49 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				out.push("}");
 				if(!_this.in_property) out.push(";");
 
+				// We check overloaded functions once they are all generated.
+				if(_this.secondPass && ast.overloadOf && fnName==ast.overloadOf.name+"$"+ast.overloadOf.overloads.length)
+				{
+					// Get all overloaded functions in one list
+					var overloads = [ast.overloadOf].concat(ast.overloadOf.overloads);
+
+					// Overloaded functions must all have a different signature.
+					for(var i=0;i<overloads.length;i++)
+					{
+						// Make sure all overloads know they are overloaded.
+						overloads[i].symbol.overloads = overloads;
+
+						for(var j=i+1;j<overloads.length;j++)
+						{
+							if(overloads[i]!=overloads[j] && overloads[i].paramsList.length==overloads[j].paramsList.length)
+							{
+								var redeclaration = true;
+								for(var k=0; k<overloads[i].paramsList.length; k++)
+								{
+									//if(_this.typeCheck(overloads[j].paramsList[k], overloads[i].paramsList[k].vartype, overloads[j].paramsList[k].vartype, null, true))
+									if(overloads[i].paramsList[k].vartype!=overloads[j].paramsList[k].vartype)
+									{
+										redeclaration=false;
+										break;
+									}
+								}
+								if(redeclaration)
+								{
+									_this.NewError("Redeclaration of function " + overloads[j].name, overloads[i]);
+								}
+							}
+						}
+					}
+				}
+
 				// Check function return paths
 				if(_this.secondPass && ast.file && ast.file!="externs.jspp")
 				{
 					if(!ast.isConstructor && baseMethodSymbol && !baseMethodSymbol.virtual)
-						_this.NewError("Base class method is not virtual: " + ast.name, ast);
+						_this.NewError("Base class method is not virtual: " + fnName, ast);
 
 					if(ast.returntype && ast.returnPaths.length==0)
-						_this.NewError("Function must return a value: " + ast.name, ast);
+						_this.NewError("Function must return a value: " + fnName, ast);
 
 					if(ast.returntype && !_this.getClass(ast.returntype))
 						_this.NewError("Return type not found " + ast.returntype, ast);
@@ -1271,10 +1330,10 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 					for(var i=0;i<ast.returnPaths.length;i++)
 					{
 						if(ast.returntype && !ast.returnPaths[i].value)
-							_this.NewError("Function must return a value: " + ast.name, ast);
+							_this.NewError("Function must return a value: " + fnName, ast);
 
 						else if(!ast.returntype && ast.returnPaths[i].value)
-							_this.NewError("Function does not return a value: " + ast.name, ast);
+							_this.NewError("Function does not return a value: " + fnName, ast);
 
 						else
 						{
@@ -1309,12 +1368,13 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.CONST:
 
 			ast.scope = _this.getCurrentScope();
+			var classScope = _this.getClassScope();
 			var classSymbol = ast.scope.isClass ? ast.scope.ast.symbol : null;
 			var classId	= classSymbol ? classSymbol.classId : null;
 			var firstItem = true;
 			var extern_symbol = null;
 
-			if(ast.scope.isClass)
+			if(ast.scope.isClass && !ast.inFunction)
 			{
 				// Declare class variable depending on its modifier
 				if(ast.public)			out.push("this.");
@@ -1356,7 +1416,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 				if(!_this.secondPass)
 			 	{
-	       			var classScope = _this.getClassScope();
 					if(classScope && Object.prototype.hasOwnProperty.call(classScope.vars, ast[item].name) && !_this.isInside(ast[item], jsdef.BLOCK))
 					{
 						_this.NewWarning("Found declaration of variable " + ast[item].name + " in class scope", ast[item]);
@@ -1422,12 +1481,12 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				ast.scope.vars[ast[item].name] = varSymbol;
 
 				// Record vartype usage in class level (used to check #includes)
-				if(classSymbol)
+				if(classScope)
 				{
 					if(varSymbol.subtype)
-						classSymbol.scope.vartypes[varSymbol.subtype] = true;
+						classScope.vartypes[varSymbol.subtype] = true;
 					else if(varSymbol.vartype)
-						classSymbol.scope.vartypes[varSymbol.vartype] = true;
+						classScope.vartypes[varSymbol.vartype] = true;
 				}
 
 				if(!firstItem) out.push(", ");
@@ -1437,7 +1496,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				if(ast[item].initializer)
 				{
 					// Generate initializer
-					if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.isState))
+					if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction)
 					{
 						if(_this.in_state)
 							_this.NewError("Invalid state variable initializer, should be in state enter() function : " + ast[item].name, ast[item]);
@@ -1713,115 +1772,216 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.IDENTIFIER:
 
-			// C++ array length check
-			if(_this.secondPass && ast.value=="length" && ast.inDot && ast.inDot.identifier_first.symbol && ast.inDot.identifier_first.symbol.vartype.indexOf("Array")==0)
+			//==================================================================================
+			// First pass or not inside a class?
+			//==================================================================================
+			if(!_this.currClassName || !_this.secondPass)
+			{
+				// Generate identifier and be gone.
+				out.push(ast.value);
+				break;
+			}
+
+			//==================================================================================
+			// Lookup the symbol for this identifier.
+			//==================================================================================
+			if(!ast.symbol)
+				ast.symbol = _this.LookupIdentifier(_this.getCurrentScope(), ast.value, ast);
+
+			if(!ast.symbol)
+			{
+				ast.runtime = ast.value;
+				out.push(ast.runtime);
+				_this.NewError("Symbol not found: " + ast.value, ast);
+				break;
+			}
+
+			//==================================================================================
+			// Check array length and suggest size() for C++ compatibility
+			//==================================================================================
+			if(ast.value=="length" && ast.inDot && ast.inDot.identifier_first.symbol &&
+			   ast.inDot.identifier_first.symbol.vartype.indexOf("Array")==0)
 			{
 				_this.NewError("Please use size() for array length.", ast);
 			}
 
-			if(_this.currClassName && _this.secondPass)
+			//==================================================================================
+			// Treat subtype of typed arrays and vartype/subtype for #includes
+			//==================================================================================
+			switch(ast.value)
 			{
-				if(!ast.symbol)
-					ast.symbol = _this.LookupIdentifier(_this.getCurrentScope(), ast.value, ast);
+			case "Float32Array":	ast.symbol.subtype = "Float"; break;
+			case "Int32Array":		ast.symbol.subtype = "int"; break;
+			case "Uint8Array":		ast.symbol.subtype = "uint8_t"; break;
+			default:
 
-				if(!ast.symbol)
+				// Add vartype to class vartypes lists (used to determine #includes)
+				var classScope = _this.getClassScope();
+				if(classScope)
 				{
-					ast.runtime = ast.value;
-					out.push(ast.runtime);
-					_this.NewError("Symbol not found: " + ast.value, ast);
-				}
-				else
-				{
-					switch(ast.value)
-					{
-					case "Float32Array":	ast.symbol.subtype = "Float"; break;
-					case "Int32Array":		ast.symbol.subtype = "int"; break;
-					case "Uint8Array":		ast.symbol.subtype = "uint8_t"; break;
-					}
-
-					if(!ast.symbol.public && !ast.symbol.private && !ast.symbol.protected)
-					{
-						// Standard var declaration
-						out.push(ast.value);
-					}
-					else
-					{
-						// Purpose of the following code is to emit the runtime code
-						// for the current identifier. If the identifier is a class
-						// member such as a method, variable, property or state, then
-						// we need to emit a canonical name such as:
-						//
-						// __CLASS_NAME__.[<public>|__PRIVATE__|__PROTECTED__].<identifier>
-						//
-						// An exception to this rule is when the identifier is part of
-						// a DOT and in particular if the identifier is !not! the first
-						// identifier of the DOT, in which case we emit only its name
-						// as the preceding identifiers should have emitted the proper
-						// runtime code.
-
-						if(!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast))
-						{
-							ast.runtime = ast.symbol.runtime;
-
-							// Identifier defined in base class?
-							var cls = _this.getCurrentClass();
-							if(!ast.symbol.isEnum && ast.symbol.ast.file.indexOf(".jspp")!=-1
-								&& cls && cls.baseSymbol && cls.baseSymbol.file!="externs.jspp"
-								&& cls.baseSymbol==ast.symbol.ast.inClass.symbol)
-							{
-								ast.runtime = _this.getCurrentClass().classId + ".__SUPER__." + ast.value;
-							}
-						}
-
-						// Check member access
-						if(ast.symbol.private && ast.inClass!=ast.symbol.ast.inClass)
-						{
-							_this.NewError("Invalid private member access: " + ast.value, ast);
-						}
-						else if(ast.symbol.protected && ast.inClass!=ast.symbol.ast.inClass && ast.inClass.symbol.baseSymbol!=ast.symbol.ast.inClass.symbol)
-						{
-							_this.NewError("Invalid protected member access: " + ast.value, ast);
-						}
-
-						// Generate debug symbol
-						_this.addDebugSymbol(ast, ast.runtime);
-
-						// Generate identifier
-						if(!ast.inDot)
-						{
-							out.push(ast.runtime);
-						}
-						else
-						{
-							if(ast.inDot.identifier_first==ast)
-							{
-								out.push(ast.runtime);
-							}
-
-							// The rest case assume identifier is not the first in DOT.
-
-							else if(ast.symbol.public)
-							{
-								out.push(ast.value);
-							}
-							else if(ast.symbol.protected)
-							{
-								out.push("__PROTECTED__." + ast.value);
-							}
-							else if(ast.symbol.private)
-							{
-								out.push("__PRIVATE__." + ast.value);
-							}
-						}
-					}
+					if(ast.symbol.subtype)
+						classScope.vartypes[ast.symbol.subtype] = true;
+					else if(ast.symbol.vartype)
+						classScope.vartypes[ast.symbol.vartype] = true;
 				}
 			}
-			else if(!ast.runtime)
+
+			//==================================================================================
+			// Is this identifier a standard var declaration?
+			//==================================================================================
+			if(!ast.symbol.public && !ast.symbol.private && !ast.symbol.protected)
 			{
-		    	ast.runtime = ast.value;
-				// Generate identifier
+				out.push(ast.value);
+				break;
+			}
+
+			//==================================================================================
+			// If the identifier's symbol is an overloaded function we need
+			// to determine from the execution context which overload to use.
+			//
+			// We need to consider the places where an overloaded function might appea:
+			// 1) as right-value in an assignment (function pointer):	var fn:Function = foo;
+			// 2) as an argument in a function call					: 	goo(foo);
+			// 3) as a call (that could be in a DOT)				:	foo() + object.foo()
+			//
+			//==================================================================================
+			if(ast.symbol.overloads)
+			{
+				var astCALL=null;
+
+				// Function pointer inside a call.
+				// We need a static overload.
+
+				if(ast.parent.type==jsdef.LIST)
+				{
+					for(var i=ast.symbol.overloads.length-1;i>=0;i--)
+					{
+						if(ast.symbol.overloads[i].symbol.static)
+						{
+							ast.symbol = ast.symbol.overloads[i].symbol;
+							ast.value = ast.symbol.name;
+							break;
+						}
+					}
+					if(!ast.symbol.static)
+						_this.NewError("Overloaded function pointer must be static.", ast);
+				}
+
+				// A jsdef.CALL to an overload function.
+				// Determine overload from args.
+
+				else if(astCALL=_this.isInside(ast, jsdef.CALL))
+				{
+					var overload_matched = false;
+
+					// Test every overloaded function
+					for(var i=ast.symbol.overloads.length-1;i>=0;i--)
+					{
+						if(ast.symbol.overloads[i].paramsList.length==astCALL[1].length)
+						{
+							// Test every argument
+							var maching_args = true;
+							for(var j=0;j<astCALL[1].length;j++)
+							{
+								var type1 = _this.getTypeName(astCALL[0][j]);
+								var type2 = ast.symbol.overloads[i].paramsList[j].vartype;
+								if(!_this.typeCheck(ast, type1, type2, null, true))
+								{
+									maching_args=false;
+									break;
+								}
+							}
+							if(maching_args)
+							{
+								// Found the proper overloaded function!!
+								ast.symbol = ast.symbol.overloads[i].symbol;
+								ast.value = ast.symbol.name;
+								overload_matched = true;
+								break;
+							}
+						}
+					}
+
+					if(!overload_matched)
+						_this.NewError("Invalid call to overloaded method.", ast);
+				}
+			}
+
+			//==================================================================================
+			// Purpose of the following code is to emit the runtime code
+			// for the current identifier. If the identifier is a class
+			// member such as a method, variable, property or state, then
+			// we need to emit a canonical name such as:
+			//
+			// __CLASS_NAME__.[<public>|__PRIVATE__|__PROTECTED__].<identifier>
+			//
+			// An exception to this rule is when the identifier is part of
+			// a DOT and in particular if the identifier is !not! the first
+			// identifier of the DOT, in which case we emit only its name
+			// as the preceding identifiers should have emitted the proper
+			// runtime code.
+			//==================================================================================
+
+			if(!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast))
+			{
+				ast.runtime = ast.symbol.runtime;
+
+				// Identifier defined in base class?
+				var cls = _this.getCurrentClass();
+				if(!ast.symbol.isEnum && ast.symbol.ast.file.indexOf(".jspp")!=-1
+					&& cls && cls.baseSymbol && cls.baseSymbol.file!="externs.jspp"
+					&& cls.baseSymbol==ast.symbol.ast.inClass.symbol)
+				{
+					ast.runtime = _this.getCurrentClass().classId + ".__SUPER__." + ast.value;
+				}
+			}
+
+			// Generate debug symbol
+			_this.addDebugSymbol(ast, ast.runtime);
+
+			// Generate identifier
+			if(!ast.inDot)
+			{
 				out.push(ast.runtime);
 			}
+			else
+			{
+				if(ast.inDot.identifier_first==ast)
+				{
+					out.push(ast.runtime);
+				}
+
+				// The rest case assume identifier is not the first in DOT.
+
+				else if(ast.symbol.public)
+				{
+					out.push(ast.value);
+				}
+				else if(ast.symbol.protected)
+				{
+					out.push("__PROTECTED__." + ast.value);
+				}
+				else if(ast.symbol.private)
+				{
+					out.push("__PRIVATE__." + ast.value);
+				}
+			}
+
+			//==================================================================================
+			// Check member access
+			//==================================================================================
+			if(ast.symbol.private && ast.inClass!=ast.symbol.ast.inClass)
+			{
+				_this.NewError("Invalid private member access: " + ast.value, ast);
+			}
+			else if(ast.symbol.protected && ast.inClass!=ast.symbol.ast.inClass && ast.inClass.symbol.baseSymbol!=ast.symbol.ast.inClass.symbol)
+			{
+				_this.NewError("Invalid protected member access: " + ast.value, ast);
+			}
+
+			//==================================================================================
+			// Done generating identifier
+			//==================================================================================
 			break;
 
 		// ==================================================================================================================================
@@ -1870,6 +2030,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			if(cls)
 			{
 				// Typcast
+				ast.isTypeCasting = true;
 				out.push(generate(ast[1]));
 			}
 			else
@@ -2889,7 +3050,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typeCheck = function(ast, type1, type2, customError)
+	_this.typeCheck = function(ast, type1, type2, customError, checkOnly)
 	{
 		//** Need to rewrite using Roger's convertion tables
 
@@ -2907,18 +3068,21 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		// Invalid left/right type
 		if(!type1 || type1=="null" || type1==this.UNTYPED)
 		{
+			if(checkOnly) return false;
 			_this.NewError(customError || "Invalid left type: " + (ast[0] ? ast[0] : ast).source, ast);
 			return type1;
 		}
 
 		if(!type2 || type2=="null" || type2==_this.UNTYPED)
 		{
+			if(checkOnly) return false;
 			_this.NewError(customError || "Invalid right type: " + (ast[1] ? ast[1] : ast).source, ast);
 			return type2;
 		}
 
         // Null
-		if(__isPointer(type1) && type2=="Null") return type1;
+		if((__isPointer(type1) || type1 == "CocoAction") && type2=="Null") return type1;
+		if(type1 == "CocoAction" && type2 == "Function") return type1;
 
   		// Object
 		if(type1=="Object") return type1;
@@ -2927,27 +3091,39 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		if(type1=="Number" && type2=="Integer") return type1;
 		if(type1=="Number" && type2=="Float") return type1;
 		if(type1=="Number" && type2=="Time") return type1;
-		if(type1=="Number" && type2=="Object") { _this.NewError(customError || "Invalid Object to Number convertion", ast); return type1; }
+		if(type1=="Number" && type2=="Object")
+		{
+			if(checkOnly) return false;
+			_this.NewError(customError || "Invalid Object to Number convertion", ast);
+			return type1;
+		}
 
 		// Integer
 		if(type1=="Integer" && type2=="Number") return type1;
-		//if(type1=="Integer" && type2=="Time") { _this.NewWarning(customError || "Precision loss converting Time to Integer", ast); return type1; }
-		//if(type1=="Integer" && type2=="Float") { _this.NewWarning(customError || "Precision loss converting Float to Integer", ast); return type1; }
-		//if(type1=="Integer" && type2=="Object") { _this.NewError(customError || "Invalid Object to Integer convertion", ast); return type1; }
-		if(type1=="Integer") { _this.NewError(customError || "Invalid "+type2+" to Integer convertion", ast); return type1; };
+		if(type1=="Integer")
+		{
+			if(checkOnly) return false;
+			_this.NewError(customError || "Invalid "+type2+" to Integer convertion", ast);
+			return type1;
+		};
 
 		// Float
 		if(type1=="Float" && type2=="Number") return type1;
-		//if(type1=="Float" && type2=="Time") return type1;
-		//if(type1=="Float" && type2=="Integer") return type1;
-		//if(type1=="Float" && type2=="Object") { _this.NewError(customError || "Invalid Object to Float convertion", ast); return type1; }
-        if(type1=="Float") { _this.NewError(customError || "Invalid "+type2+" to Float convertion", ast); return type1; };
+        if(type1=="Float")
+        {
+        	if(checkOnly) return false;
+        	_this.NewError(customError || "Invalid "+type2+" to Float convertion", ast);
+        	return type1;
+        };
 
 		// Time
 		if(type1=="Time" && type2=="Number") return type1;
-		//if(type1=="Time" && type2=="Float") return type1;
-		//if(type1=="Time" && type2=="Integer") return type1;
-		if(type1=="Time") { _this.NewError(customError || "Invalid "+type2+" to Time convertion", ast); return type1; };
+		if(type1=="Time")
+		{
+			if(checkOnly) return false;
+			_this.NewError(customError || "Invalid "+type2+" to Time convertion", ast);
+			return type1;
+		};
 
 		// Date
 		if(type1=="Date" && type2=="Null") return type1;
@@ -2962,6 +3138,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
     	// Boolean
 		if(type1=="Boolean" && type2=="Number")
 		{
+			if(checkOnly) return false;
 			_this.NewError(customError || "Invalid Number to Boolean convertion", ast); return type1;
 		}
 
@@ -2990,6 +3167,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 			cls2 = cls2.baseSymbol;
 		}
 
+		if(checkOnly) return false;
 		_this.NewError(customError || "Type mismatch: " + type1 + " and " + type2, ast);
 		return type1;
 	};
@@ -3035,7 +3213,8 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				else if(i==0)
 				{
 					v_identifiers.push(value);
-					v_runtime.push(f.symbol.runtime);
+					if(f.symbol)
+						v_runtime.push(f.symbol.runtime);
 				}
 				else if(f.type==jsdef.INDEX)
 				{

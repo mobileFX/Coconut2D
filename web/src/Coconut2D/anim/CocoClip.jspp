@@ -137,12 +137,12 @@ class CocoClip
 		var canvas:HTMLCanvasElement = document.createElement("canvas");
 		canvas.width = Integer(Math.pow(2, Math.ceil(Math.log(textRectWidth)/Math.log(2))));
 		canvas.height = Integer(Math.pow(2, Math.ceil(Math.log(textRectHeight)/Math.log(2))));
-		var ctx:CanvasRenderingContext2D = canvas.getContext("2d");
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 		// font-style font-variant font-weight font-size/line-height font-family
-		ctx.font = "normal normal normal " + String(fontSizePixels) + "px / normal " + fontName;
-		ctx.fillStyle = "red";
-		ctx.fillText(text, 0, Float(fontSizePixels));
-		ctx.strokeRect(0,0, Float(textRectWidth), Float(textRectHeight));
+		//ctx.font = "normal normal normal " + String(fontSizePixels) + "px / normal " + fontName;
+		//ctx.fillStyle = "red";
+		//ctx.fillText(text, 0, Float(fontSizePixels));
+		//ctx.strokeRect(0,0, Float(textRectWidth), Float(textRectHeight));
         __image = new CocoImage();
         __image.image = new Image();
         __image.image.load(canvas.toDataURL());
@@ -264,7 +264,7 @@ class CocoClip
 
 			clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
 
-			trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + clip.__currentTime.toFixed(2) + ", paused=" + String(clip.__timeline.__paused));
+			//trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + clip.__currentTime.toFixed(2) + ", paused=" + String(clip.__timeline.__paused));
 		}
 		return true;
 	}
@@ -344,7 +344,7 @@ class CocoClip
 			}
 			else if(!__currentSequence || __currentSequence.name!=sequenceName)
 			{
-				trace("Loading sprite animation sequence: " + this.__clipPath + " -> " + sequenceName);
+				//trace("Loading sprite animation sequence: " + this.__clipPath + " -> " + sequenceName);
 				__currentSequence = __image.getSequence(sequenceName);
 				__currentSequence.sequenceStartTime = __currentTime;
 			}
@@ -354,12 +354,12 @@ class CocoClip
 				// Render animation sequence.
 				var sequenceFrameIndex:Integer = __timeline.__paused ? 0 : Math.floor((__currentTime-__currentSequence.sequenceStartTime) / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
 				var frame:Integer = __currentSequence.frames[sequenceFrameIndex];
-				scene.drawFrame(gl, __image, frame, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
+				scene.drawFrame(gl, __image, frame, __currentFrame);
 			}
 			else
 			{
 				// Render a standard image.
-				scene.drawFrame(gl, __image, 0, __currentFrame.red, __currentFrame.green, __currentFrame.blue, __currentFrame.alpha, __currentFrame.flipH, __currentFrame.flipV);
+				scene.drawFrame(gl, __image, 0, __currentFrame);
 			}
 		}
 		else
@@ -400,7 +400,7 @@ class CocoClip
 			// Handle touch event
 	        // =============================================================================================================
 			var touchEvent:DeviceEvent = engine.getTouchEvent();
-			if(__currentFrame.handleEvents && touchEvent && touchEvent.type=="touchend")
+			if(__currentFrame.handleEvents && touchEvent && (touchEvent.type=="touchend" || touchEvent.type=="mouseup"))
 			{
 				// Point in quad?
 	   	        var x = (touchEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;
@@ -418,7 +418,24 @@ class CocoClip
 			if(!__timeline.__paused)
 			{
 				this.__parent = parentClip;
-				__currentFrame.execute(gl, scene, this);
+
+				if(__currentFrame.action)
+				{
+					engine.__trace(scene, this, "@@ACTION");
+					__currentFrame.action(scene, this);
+				}
+
+				if(__currentFrame.nextState)
+				{
+					engine.__trace(scene, this, "@@NEXT_STATE");
+					engine.setNextState(__currentFrame.nextState);
+				}
+
+				if(__currentFrame.audio)
+				{
+					engine.__trace(scene, this, "@@AUDIO");
+					__currentFrame.audio.tick();
+				}
 
 		        // =============================================================================================================
 				// Audio Management (the trick here is not to reset a background sound when executing an action)
@@ -426,7 +443,7 @@ class CocoClip
 				if(__currentFrame.audio)
 				{
 					if(__currentAudio && ((__currentFrame.audio != __currentAudio) || (__currentAudio.loops!=0)))
-						__currentAudio.stop();
+						__currentAudio.reset();
 					__currentAudio = __currentFrame.audio;
 				}
 

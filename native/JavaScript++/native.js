@@ -1,3 +1,4 @@
+"#export native"
 /* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
@@ -48,6 +49,7 @@ function CPPCompiler(ast, infolder, outfolder)
 	_this.errors = [];
 	_this.warnings = [];
 	_this.in_state = false;
+	_this.in_setter = false;
 	_this.currFileName = null;
 	_this.currClassName = null;
 	_this.NULL_GEN = { CPP:"", HPP:"" };
@@ -71,7 +73,13 @@ CPPCompiler.prototype.getClassList = function()
 	var out = [];
 	for(item in _this.classList)
 	{
-		out.push( "class " + item + ";" );
+		switch(item)
+		{
+		case "State":
+			break;
+		default:
+			out.push( "class " + item + ";" );
+		}
 	}
 	return out.join("\n");
 }
@@ -156,10 +164,24 @@ CPPCompiler.prototype.compile = function (ast)
 		{
 			for(file in ast.fileClasses)
 			{
-				if(file=="externs.jspp") continue;
-				if(ast.fileClasses[file][vartype])
+				switch(file)
 				{
-					_HPP_INCLUDES[file.replace(".jspp", ".hpp")]=true;
+				case "externs.jspp":
+				case "CocoState.jspp":
+				case "WebGLProgram.jspp":
+				case "WebGLBuffer.jspp":
+				case "WebGLTexture.jspp":
+				case "WebGLUniformLocation.jspp":
+				case "WebGLObject.jspp":
+				case "WebGLShader.jspp":
+				case "WebGLRenderbuffer.jspp":
+				case "WebGLFramebuffer.jspp":
+					break;
+				default:
+					if(ast.fileClasses[file][vartype])
+					{
+						_HPP_INCLUDES[file.replace(".jspp", ".hpp")]=true;
+					}
 				}
 			}
 		}
@@ -185,6 +207,10 @@ CPPCompiler.prototype.compile = function (ast)
 			if(!isFinite(item)) continue;
 			switch(ast.body[item].type)
 			{
+			case jsdef.CONST:
+				result = generate(ast.body[item]);
+				HPP.push(result.CPP);
+				break;
 			case jsdef.VAR:
 				result = generate(ast.body[item]);
 				CPP.push(result.CPP);
@@ -197,6 +223,7 @@ CPPCompiler.prototype.compile = function (ast)
 			if(!isFinite(item)) continue;
 			switch(ast.body[item].type)
 			{
+			case jsdef.PROPERTY:
 			case jsdef.STATE:
 			case jsdef.FUNCTION:
 				result = generate(ast.body[item]);
@@ -292,6 +319,7 @@ CPPCompiler.prototype.compile = function (ast)
 			if(!isFinite(item)) continue;
 			switch(ast.body[item].type)
 			{
+			case jsdef.CONST:
 			case jsdef.VAR:
 				result = generate(ast.body[item]);
 				HPP.push(result.HPP);
@@ -317,6 +345,32 @@ CPPCompiler.prototype.compile = function (ast)
 
 		break;
 
+    case jsdef.PROPERTY:
+    	if(!_this.currClassName) return _this.NULL_GEN;
+    	if(ast.getter)
+    	{
+			var name = "_get_" + ast.name;
+			var ret = (ast.getter.returntype + (ast.getter.isPointer ? "*" : "") + " ");
+			HPP.push((ast.virtual ? "virtual " : "") + ret + name + "();");
+	        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+			CPP.push( ret + _this.currClassName + "::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + "()");
+	        CPP.push("\n{\n");
+			CPP.push(generate(ast.getter.body).CPP);
+			CPP.push("}\n");
+    	}
+    	if(ast.setter)
+    	{
+			var name = "_set_" + ast.name;
+			var param = "(" + ast.vartype + (ast.vartype.isPointer?"*":"") + " v)";
+			HPP.push((ast.virtual ? "virtual " : "") + ("void ") + name + param + ";");
+	        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+			CPP.push( "void " + _this.currClassName + "::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + param);
+	        CPP.push("\n{\n");
+			CPP.push(generate(ast.setter.body).CPP);
+			CPP.push("}\n");
+    	}
+    	break;
+
 	// ==================================================================================================================================
 	//	 _    __           _       __    __
 	//	| |  / /___ ______(_)___ _/ /_  / /__  _____
@@ -330,11 +384,12 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.VAR:
 	case jsdef.CONST:
 
-		var _CPP = [];
+        var isConst = (ast.type == jsdef.CONST);
+		var _CPP = [(isConst ? "const " : "")];
 		var _HPP = [];
 		var firstItem = true;
 
-		if(ast.scope.isClass || _this.in_state)
+		if(!isConst && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction)
 		{
 			for(var item in ast)
 			{
@@ -371,7 +426,7 @@ CPPCompiler.prototype.compile = function (ast)
 			_CPP.push(";");
 		}
 
-		if(ast.scope.isClass || _this.in_state)
+		if(!isConst && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction)
 			HPP.push(_HPP.join(""));
 		else
 			CPP.push(_CPP.join(""));
@@ -398,10 +453,16 @@ CPPCompiler.prototype.compile = function (ast)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.IDENTIFIER:
+		var isProp = false;
 		if(ast.symbol && ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST)
 		{
-			CPP.push("(CocoAction)&" + ast.symbol.ast.scope.className + "::" + ast.value);
+			CPP.push("&" + ast.symbol.ast.scope.className + "::" + ast.value);
 			break;
+		}
+		else if(ast.symbol && ast.symbol.type == jsdef.PROPERTY)
+		{
+			CPP.push(_this.in_setter ? "set_" : "get_");
+			isProp = true;
 		}
 		else if(_this.in_state)
 		{
@@ -410,7 +471,7 @@ CPPCompiler.prototype.compile = function (ast)
 			else if(ast.symbol.ast.parent.parent && ast.symbol.ast.parent.parent.scope && ast.symbol.ast.parent.parent.scope.isClass && (ast.parent.type != jsdef.DOT || (ast.parent[0] == ast)))
 				CPP.push("self->");
 		}
-		CPP.push(ast.value);
+		CPP.push(ast.value + (isProp && !_this.in_setter ? "()" : ""));
 		break;
 
 	// ==================================================================================================================================
@@ -446,10 +507,22 @@ CPPCompiler.prototype.compile = function (ast)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.CALL:
-		CPP.push(generate(ast[0]).CPP);
-		CPP.push("(");
-		CPP.push(generate(ast[1]).CPP);
-		CPP.push(")");
+		if(ast.isTypeCasting)
+		{
+			CPP.push("((");
+			var vartype = generate(ast[0]).CPP;
+			CPP.push(vartype + (__isPointer(vartype) ? "*":""));
+			CPP.push(")");
+			CPP.push(generate(ast[1]).CPP);
+			CPP.push(")");
+		}
+		else
+		{
+			CPP.push(generate(ast[0]).CPP);
+			CPP.push("(");
+			CPP.push(generate(ast[1]).CPP);
+			CPP.push(")");
+		}
 		break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -568,8 +641,8 @@ CPPCompiler.prototype.compile = function (ast)
 			out.push("("+generate(ast[item]).CPP+")");
 		}
 		out = out.join("");
-		trace(ast.parent.parent.source + " ---> " + vartype);
-		trace(out);
+		//trace(ast.parent.parent.source + " ---> " + vartype);
+		//trace(out);
 		CPP.push(out);
 		break;
 
@@ -608,10 +681,35 @@ CPPCompiler.prototype.compile = function (ast)
 			if(isEmpty) return _this.NULL_GEN;
 		}
 
-		CPP.push(generate(ast[0]).CPP);
-		CPP.push(ast.value);
-		if(ast.value != "=") CPP.push("=");
-		CPP.push(generate(ast[1]).CPP);
+     	if(ast[0].symbol && ast[0].symbol.type == jsdef.PROPERTY)
+     	{
+     		if(ast[0].symbol.ast.setter)
+     		{
+				_this.in_setter = true;
+				CPP.push(generate(ast[0]).CPP);
+				_this.in_setter = false;
+				CPP.push("(" + generate(ast[1]).CPP + ")");
+     		}
+     		else debugger; // no such setter
+     	}
+     	else if(ast[0].type == jsdef.DOT && ast[0].identifier_last.symbol && ast[0].identifier_last.symbol.type == jsdef.PROPERTY)
+		{
+			if(ast[0].identifier_last.symbol.ast.setter)
+     		{
+				_this.in_setter = true;
+				CPP.push(generate(ast[0]).CPP);
+				_this.in_setter = false;
+				CPP.push("(" + generate(ast[1]).CPP + ")");
+     		}
+     		else debugger; // no such setter
+		}
+		else
+		{
+			CPP.push(generate(ast[0]).CPP);
+			CPP.push(ast.value);
+			if(ast.value != "=") CPP.push("=");
+			CPP.push(generate(ast[1]).CPP);
+		}
 		break;
 
 	// ==================================================================================================================================
@@ -690,6 +788,8 @@ CPPCompiler.prototype.compile = function (ast)
 			break;
 
 		default:
+			// TODO
+			//CPP.push('String("' + ast.value + '")');
 			CPP.push('"' + ast.value + '"');
 		}
 

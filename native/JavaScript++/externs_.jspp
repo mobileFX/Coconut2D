@@ -53,6 +53,10 @@ class Function
 	public var length :Number;
 } //Function
 
+class CocoAction : Function
+{
+} //CocoAction
+
 class Global
 {
 	public function __Audio_load(url:String, obj:Audio) :Integer {}
@@ -478,6 +482,14 @@ class COCO_TEXT_TRIMMING_ENUM
 	public var StringTrimmingEllipsisPath :COCO_TEXT_TRIMMING_ENUM;
 } //COCO_TEXT_TRIMMING_ENUM
 
+class COCO_FILTER_ENUM
+{
+	public var FILTER_INHERIT :COCO_FILTER_ENUM;
+	public var FILTER_SIMPLE :COCO_FILTER_ENUM;
+	public var FILTER_SIMPLE_WITH_ALPHA :COCO_FILTER_ENUM;
+	public var FILTER_SATURATION_WITH_ALPHA :COCO_FILTER_ENUM;
+} //COCO_FILTER_ENUM
+
 class State
 {
 	public function enter() {}
@@ -536,6 +548,8 @@ class DeviceEvent
 	public var changedTouches :TouchList;
 	public var scale :Float;
 	public var rotation :Float;
+	public var clientX :Integer;
+	public var clientY :Integer;
 	public var __clientX :Integer;
 	public var __clientY :Integer;
 } //DeviceEvent
@@ -557,9 +571,14 @@ class Audio
 	public var src :String;
 } //Audio
 
+class HTMLCanvasContext
+{
+	public function Constructor() {}
+} //HTMLCanvasContext
+
 class HTMLCanvasElement
 {
-	public function getContext(contextId:String) :HTMLCavnasContext {}
+	public function getContext(contextId:String) :HTMLCanvasContext {}
 	public function toDataURL() :String {}
 	public function Constructor() {}
 	public var width :Integer;
@@ -576,11 +595,6 @@ class HTMLCanvasPattern
 {
 	public function Constructor() {}
 } //HTMLCanvasPattern
-
-class HTMLCavnasContext
-{
-	public function Constructor() {}
-} //HTMLCavnasContext
 
 class HTMLElement
 {
@@ -600,7 +614,7 @@ class HTMLTextMetrics
 	public function Constructor() {}
 } //HTMLTextMetrics
 
-class CanvasRenderingContext2D : HTMLCavnasContext
+class CanvasRenderingContext2D : HTMLCanvasContext
 {
 	public function arc(x:Float, y:Float, radius:Float, startAngle:Float, endAngle:Float, anticlockwise:Boolean) {}
 	public function arcTo(x1:Float, y1:Float, x2:Float, y2:Float, radius:Float) {}
@@ -795,6 +809,7 @@ class WebGLProgram : WebGLObject
 	public var GLSLiVec2Coords :Integer;
 	public var GLSLiVecCoords :Integer;
 	public var GLSLuColor :WebGLUniformLocation;
+	public var GLSLuAlpha :WebGLUniformLocation;
 	public var GLSLuMVMat :WebGLUniformLocation;
 	public var GLSLuProjMat :WebGLUniformLocation;
 	public var GLSLuSampler :WebGLUniformLocation;
@@ -803,7 +818,7 @@ class WebGLProgram : WebGLObject
 	public var GLSLuSprFlip :WebGLUniformLocation;
 } //WebGLProgram
 
-class WebGLRenderingContext : HTMLCavnasContext
+class WebGLRenderingContext : HTMLCanvasContext
 {
 	public function activeTexture(texture:Integer) {}
 	public function attachShader(program:WebGLProgram, shader:WebGLShader) {}
@@ -1372,7 +1387,6 @@ class CocoKeyFrame
 {
 	public function clone(exact:Boolean) :CocoKeyFrame {}
 	public function reset() {}
-	public function execute(gl:WebGLRenderingContext, scene:CocoScene, clip:CocoClip) {}
 	public function interpolate(F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float) {}
 	public function combine(Frame:CocoKeyFrame) {}
 	public function apply(matrix:CocoMatrix) {}
@@ -1382,6 +1396,7 @@ class CocoKeyFrame
 	public var frameInterpolation :COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var handleEvents :Boolean;
 	public var visible :Boolean;
+	public var filter :Integer;
 	public var red :Float;
 	public var green :Float;
 	public var blue :Float;
@@ -1393,7 +1408,7 @@ class CocoKeyFrame
 	public var scaleX :Float;
 	public var scaleY :Float;
 	public var rotation :Float;
-	public var action :Function;
+	public var action :CocoAction;
 	public var nextState :State;
 	public var audio :CocoAudio;
 	public var flipH :Boolean;
@@ -1414,7 +1429,7 @@ class CocoTimeline
 	public function firstKeyFrame() :CocoKeyFrame {}
 	public function lastKeyFrame() :CocoKeyFrame {}
 	public function addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame {}
-	public function addKeyFrameEx(nextState:State, actionCallback:Function, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean, spriteSequenceName:String) :CocoKeyFrame {}
+	public function addKeyFrameEx(nextState:State, actionCallback:CocoAction, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, filter:Integer, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean, spriteSequenceName:String) :CocoKeyFrame {}
 	public function normalizetimeline() {}
 	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
 	public function findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
@@ -1489,12 +1504,16 @@ class CocoScene
 	private function loadResources() {}
 	private function resourcesLoaded(gl:WebGLRenderingContext) :Boolean {}
 	public function paint(gl:WebGLRenderingContext, time:Time) {}
-	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Integer, red:Float, green:Float, blue:Float, alpha:Float, flipH:Boolean, flipV:Boolean) {}
+	private function setFilter(filter:Integer) :Boolean {}
+	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Integer, KF:CocoKeyFrame) {}
 	public function gotoAndPlayByName(LabelName:String) {}
 	public function gotoAndStopByName(LabelName:String) {}
 	public function gotoAndPlayByIndex(FrameIndex:Integer) {}
 	public function gotoAndStopyByIndex(FrameIndex:Integer) {}
-	public function stop() {}
+	public function stop(scene:CocoScene, clip:CocoClip) {}
+	public function stop$1(a:Integer) {}
+	public function stop$2(a:Float) {}
+	public function stop$3() {}
 	public function Constructor() {}
 	public var __sceneName :String;
 	public var __imageSymbols :Array<CocoImage>;
@@ -1507,9 +1526,14 @@ class CocoScene
 	public var __modelViewMatrix :CocoMatrix;
 	public var __projectionMatrix :CocoMatrix;
 	public var __glProgram :WebGLProgram;
+	public var __glProgram_Simple :WebGLProgram;
+	public var __glProgram_SimpleWithAlpha :WebGLProgram;
+	public var __glProgram_SaturationWithAlpha :WebGLProgram;
 	public var __levelParents :Array<CocoClip>;
-	public var __vertex_shader :String;
-	public var __fragment_shader :String;
+	public var __vertex_shader_Common :String;
+	public var __fragment_shader_Simple :String;
+	public var __fragment_shader_SimpleWithAlpha :String;
+	public var __fragment_shader_SaturationWithAlpha :String;
 	public var __boundingBoxVertexShader :String;
 	public var __boundingBoxFragmentShader :String;
 	public var __boundingBoxProgram :WebGLProgram;
@@ -1652,19 +1676,20 @@ class GridSymbol
 	public var SYMBOL_ARMOR :Integer;
 } //GridSymbol
 
+class SceneGameBoard : CocoScene
+{
+	public function Constructor() {}
+} //SceneGameBoard
+
+class SceneTitle : CocoScene
+{
+	public function Constructor() {}
+} //SceneTitle
+
 class GameEngine : CocoEngine
 {
 	public function setTexts() {}
 	public function createGUID() :String {}
-	public function calculate(src:String) :String {}
-	public function hex_sha1(src:String) :String {}
-	public function core_sha1(x:Array<Number>, len:Number) :Array {}
-	public function sha1_ft(t:Number, b:Number, c:Number, d:Number) :Number {}
-	public function sha1_kt(t:Number) :Number {}
-	public function safe_add(x:Number, y:Number) :Number {}
-	public function rol(num:Number, cnt:Number) :Number {}
-	public function str2binb(str:String) :Array {}
-	public function binb2hex(binarray:Array<Number>) :String {}
 	public function hasClosedCells() :Boolean {}
 	public function OpenCell(i:Integer) {}
 	public function Constructor() {}
@@ -1700,14 +1725,4 @@ class GameEngine : CocoEngine
 	public var STATE_GAME_BOARD_WIN :State;
 	public var STATE_GAME_BOARD_LOSE :State;
 } //GameEngine
-
-class SceneGameBoard : CocoScene
-{
-	public function Constructor() {}
-} //SceneGameBoard
-
-class SceneTitle : CocoScene
-{
-	public function Constructor() {}
-} //SceneTitle
 

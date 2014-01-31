@@ -57,6 +57,7 @@ public:
 	WebGLUniformLocation* GLSLuSprFrame;
 	WebGLUniformLocation* GLSLuSampler;
 	WebGLUniformLocation* GLSLuColor;
+	WebGLUniformLocation* GLSLuAlpha;
 	WebGLUniformLocation* GLSLuSprFlip;
 };
 

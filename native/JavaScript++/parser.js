@@ -77,9 +77,11 @@ function __isPointer(vartype)
 	case "String":
 	case "Integer":
 	case "Float":
+	case "Time":
 	case "void":
 	case "undefined":
 	case "null":
+	case "CocoAction":
 		return false;
 	default:
 		if(vartype.indexOf("_ENUM")!=-1) return false;

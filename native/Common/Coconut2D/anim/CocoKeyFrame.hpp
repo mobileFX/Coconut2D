@@ -3,13 +3,8 @@
 
 #include "Coconut2D.hpp"
 #include "CocoKeyFrame.hpp"
-#include "WebGLRenderingContext.hpp"
-#include "CocoScene.hpp"
-#include "CocoClip.hpp"
 #include "CocoMatrix.hpp"
-//#include "CocoState.hpp"
 #include "CocoAudio.hpp"
-#include "CocoEngine.hpp"
 
 class CocoKeyFrame
 {
@@ -19,6 +14,7 @@ public:
 	COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation;
 	bool handleEvents;
 	bool visible;
+	int filter;
 	float red;
 	float green;
 	float blue;
@@ -41,7 +37,6 @@ public:
 	~CocoKeyFrame();
 	CocoKeyFrame* clone(bool exact);
 	void reset();
-	void execute(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* clip);
 	void interpolate(CocoKeyFrame* F1, CocoKeyFrame* F2, float s);
 	void combine(CocoKeyFrame* Frame);
 	void apply(CocoMatrix* matrix);

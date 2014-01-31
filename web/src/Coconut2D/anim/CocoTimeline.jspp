@@ -161,7 +161,7 @@ class CocoTimeline
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addKeyFrameEx(nextState:State,
-								  actionCallback:Function,
+								  actionCallback:CocoAction,
 								  frameIndex:Integer,
 								  frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM,
 								  handleEvents:Boolean,
@@ -173,6 +173,7 @@ class CocoTimeline
 								  rotation:Float,
 								  pivotX:Float,
 								  pivotY:Float,
+								  filter:Integer,
 								  red:Float,
 								  green:Float,
 								  blue:Float,
@@ -190,6 +191,7 @@ class CocoTimeline
 	    KeyFrame.frameInterpolation = frameInterpolation;
 	    KeyFrame.handleEvents 		= handleEvents;
 	    KeyFrame.visible 			= visible;
+	    KeyFrame.filter				= filter;
 	    KeyFrame.x 					= x;
 	    KeyFrame.y 					= y;
 	    KeyFrame.scaleX				= scaleX;

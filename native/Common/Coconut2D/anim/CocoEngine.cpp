@@ -1,14 +1,15 @@
 #include "CocoEngine.hpp"
 
-CocoEngine* engine = nullptr;
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoEngine::CocoEngine()
 {
-	__deviceEvent = nullptr;
 	__currentState = nullptr;
+	__deviceEvent = nullptr;
 	__clock = 0;
 	debugbreak = false;
+	window->addEventListener("mousedown", &CocoEngine::__setTouchEvent);
+	window->addEventListener("mousemove", &CocoEngine::__setTouchEvent);
+	window->addEventListener("mouseup", &CocoEngine::__setTouchEvent);
 	window->addEventListener("touchstart", &CocoEngine::__setTouchEvent);
 	window->addEventListener("touchmove", &CocoEngine::__setTouchEvent);
 	window->addEventListener("touchend", &CocoEngine::__setTouchEvent);
@@ -66,8 +67,8 @@ void CocoEngine::run(WebGLRenderingContext* gl, Time time)
 void CocoEngine::__setTouchEvent(DeviceEvent* e)
 {
 	__deviceEvent = e;
-	__deviceEvent->__clientX = (*e->touches)[0]->clientX;
-	__deviceEvent->__clientY = (*e->touches)[0]->clientY;
+	__deviceEvent->__clientX = e->touches ? (*e->touches)[0]->clientX : e->clientX;
+	__deviceEvent->__clientY = e->touches ? (*e->touches)[0]->clientY : e->clientY;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,14 +99,4 @@ int CocoEngine::isClicked(Array<CocoClip*> check)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoEngine::__trace(CocoScene* scene, CocoClip* clip, String message)
 {
-	return;
-	if(scene && clip)
-	{
-		float rf = scene->__root->__childWithMaxTimelineDuration->__timeline->__currentFrameIndex;
-		float rt = scene->__root->__currentTime;
-		float cf = clip->__timeline->__currentFrameIndex;
-		float ct = clip->__currentTime;
-		//message = message + " R(f:" + rf.toFixed(2) + ", t:" + rt.toFixed(2) + ", L:" + scene->__root->__loops.toFixed(2) + ")\tC(f:" + cf.toFixed(2) + ", t:" + ct.toFixed(2) + ", L:" + clip->__loops.toFixed(2) + ", P:" + String(clip->__timeline->__paused) + ")\tstate: " + __currentState->__name + "\tclip: " + scene->__sceneName + clip->__clipPath;
-	}
-	trace(message);
 }

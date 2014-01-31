@@ -8,7 +8,7 @@ GameEngine::GameEngine()
 	counter = 0;
 	TICKET_price = 5;
 	TICKET_winCount = 3;
-	WIN_PRIZES = Array<int>(8, 0, 0, 0, 5, 50, 100, 500, 5000);
+	WIN_PRIZES = Array<int> ()(0)(0)(0)(5)(50)(100)(500)(5000);
 	setNextState(STATE_TITLE_SCREEN);
 }
 
@@ -72,10 +72,11 @@ void GameEngine::STATE_GAME_BOARD::enter()
 	self->btnBuyTicket = self->scene->__root->getChildByName("BuyTicketButton");
 	self->btnOpenAll = self->scene->__root->getChildByName("OpenAllButton");
 	self->cells = self->scene->__root->getChildByName("Grid")->__children.slice(0, 12);
-	self->cellsOpen = Array<bool>(12, false, false, false, false, false, false, false, false, false, false, false, false);
-	self->avatars = Array<CocoClip*>(6, self->avatar_leo, self->avatar_xerxes, self->avatar_spartan, self->avatar_persian, self->avatar_swords, self->avatar_armor);
+	self->cellsOpen = Array<bool> ()(false)(false)(false)(false)(false)(false)(false)(false)(false)(false)(false)(false);
+	self->avatars = Array<CocoClip*> ()(self->avatar_leo)(self->avatar_xerxes)(self->avatar_spartan)(self->avatar_persian)(self->avatar_swords)(self->avatar_armor);
 	self->balance = 5000;
 	self->TICKET_TicketID = self->createGUID();
+	self->TICKET_cells.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +134,7 @@ void GameEngine::STATE_GAME_BOARD_CHOOSE_AVATAR::enter()
 		self->btnBuyTicket->gotoFrameByName("Enabled", true);
 	}
 	self->selAvatarAppearances = 0;
+	self->TICKET_cells.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,7 +153,7 @@ void GameEngine::STATE_GAME_BOARD_CHOOSE_AVATAR::exit()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void GameEngine::STATE_GAME_BOARD_CHOOSE_AVATAR::tick(Time time)
 {
-	if(self->selectedAvatar != -1 && engine->isClicked(Array<CocoClip*>(1, self->btnBuyTicket)) != -1)
+	if(self->selectedAvatar != -1 && engine->isClicked(Array<CocoClip*> ()(self->btnBuyTicket)) != -1)
 	{
 		for(int i = self->avatars.size(); i--;)
 			if(i != self->selectedAvatar)
@@ -209,10 +211,11 @@ void GameEngine::STATE_GAME_BOARD_BUY_TICKET::exit()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void GameEngine::STATE_GAME_BOARD_BUY_TICKET::tick(Time time)
 {
-	if(engine->isClicked(Array<CocoClip*>(1, self->btnBuyTicket)) != -1)
+	if(engine->isClicked(Array<CocoClip*> ()(self->btnBuyTicket)) != -1)
 	{
 		self->TICKET_TicketID = self->createGUID();
 		self->balance -= self->TICKET_price;
+		Number blnce = self->balance;
 		self->setNextState(self->STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL);
 	}
 }
@@ -238,7 +241,7 @@ void GameEngine::STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL::enter()
 	Xerxes = self->scene->__root->getChildByName("Xerxes");
 	Leonidas->gotoFrameByName("Animate", false);
 	Xerxes->gotoFrameByName("Animate", false);
-	self->TICKET_cells = Array<int>(0);
+	self->TICKET_cells.clear();
 	for(int i = 0; i < self->cells.size(); i++)
 	{
 		self->TICKET_cells.push(gridSymbol->getRandom());
@@ -257,8 +260,10 @@ void GameEngine::STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL::exit()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void GameEngine::STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL::tick(Time time)
 {
-	if(engine->isClicked(Array<CocoClip*>(1, self->btnOpenAll)) != -1)
+	if(engine->isClicked(Array<CocoClip*> ()(self->btnOpenAll)) != -1)
+	{
 		self->setNextState(self->STATE_GAME_BOARD_OPEN_ALL);
+	}
 	self->OpenCell(engine->isClicked(self->cells));
 	if(self->TICKET_winCount == self->selAvatarAppearances)
 	{
@@ -274,6 +279,7 @@ void GameEngine::STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL::tick(Time time)
 		{
 			self->setNextState(self->STATE_GAME_BOARD_LOSE);
 		}
+		int noWinningAvatars = self->selAvatarAppearances;
 	}
 }
 
@@ -304,8 +310,8 @@ void GameEngine::STATE_GAME_BOARD_OPEN_ALL::tick(Time time)
 {
 	if(!((int)count % (int)openTicks))
 	{
-		int state = (float)(count) / (float)(openTicks);
-		switch(state)
+		int i = (float)(count) / (float)(openTicks);
+		switch(i)
 		{
 			case 0:
 			{
@@ -448,14 +454,8 @@ void GameEngine::setTexts()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 String GameEngine::createGUID()
 {
-	Array<String> list;
-	list.push("87D2C004-1441-4CD5-AEB3-E221BA96C9B8");
-	list.push("23FCC6FD-2E17-49ED-85E3-21AFB67A9FA5");
-	list.push("F09FEBCF-7541-43F3-BFE5-EE48EC44A3AD");
-	list.push("F6C2F6D2-5B47-4E0F-A6EC-DAE78AADCE47");
-	list.push("7798C232-4859-4FF8-93BD-8CE68D1F0718");
-	list.push("46F61FE6-A48A-45D6-A96E-2E2E83D9A21A");
-	return list[std::floor(((float)rand() / (float)RAND_MAX) * list.size())];
+	Array<String> list = null()("87D2C004-1441-4CD5-AEB3-E221BA96C9B8")("23FCC6FD-2E17-49ED-85E3-21AFB67A9FA5")("F09FEBCF-7541-43F3-BFE5-EE48EC44A3AD")("F6C2F6D2-5B47-4E0F-A6EC-DAE78AADCE47")("7798C232-4859-4FF8-93BD-8CE68D1F0718")("46F61FE6-A48A-45D6-A96E-2E2E83D9A21A");
+	return list[floor(((float)rand() / (float)RAND_MAX) * list.size())];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

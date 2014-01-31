@@ -2,16 +2,17 @@
 #define __COCOENGINE_HPP__
 
 #include "Coconut2D.hpp"
-//#include "CocoState.hpp"
 #include "WebGLRenderingContext.hpp"
 #include "DeviceEvent.hpp"
 #include "CocoClip.hpp"
 #include "CocoScene.hpp"
+#include "Touch.hpp"
+#include "HTMLWindow.hpp"
 
-extern class CocoEngine
+class CocoEngine
 {
 public:
-	const Time TICK_TIME = 1000.0 / 60.0;
+	const Time TICK_TIME = ((float)(1000.0) / (float)(60.0));
 	bool debugbreak;
 	State* __currentState;
 	State* __nextState;
@@ -27,6 +28,6 @@ public:
 	void pushTouched(CocoClip* clip);
 	int isClicked(Array<CocoClip*> check);
 	void __trace(CocoScene* scene, CocoClip* clip, String message);
-}* engine;
+};
 
 #endif

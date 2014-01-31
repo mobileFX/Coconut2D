@@ -101,7 +101,7 @@ CocoKeyFrame* CocoTimeline::addKeyFrame(CocoKeyFrame* KeyFrame)
 {
 	if(KeyFrame)
 	{
-		KeyFrame->frameIndex = std::floor(KeyFrame->frameIndex);
+		KeyFrame->frameIndex = floor(KeyFrame->frameIndex);
 		__keyFrames.push(KeyFrame);
 		normalizetimeline();
 	}
@@ -109,7 +109,7 @@ CocoKeyFrame* CocoTimeline::addKeyFrame(CocoKeyFrame* KeyFrame)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, CocoAction actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float red, float green, float blue, float alpha, CocoAudio* audio, bool flipH, bool flipV, String spriteSequenceName)
+CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, CocoAction actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, int filter, float red, float green, float blue, float alpha, CocoAudio* audio, bool flipH, bool flipV, String spriteSequenceName)
 {
 	CocoKeyFrame* KeyFrame = new CocoKeyFrame();
 	KeyFrame->nextState = nextState;
@@ -118,6 +118,7 @@ CocoKeyFrame* CocoTimeline::addKeyFrameEx(State* nextState, CocoAction actionCal
 	KeyFrame->frameInterpolation = frameInterpolation;
 	KeyFrame->handleEvents = handleEvents;
 	KeyFrame->visible = visible;
+	KeyFrame->filter = filter;
 	KeyFrame->x = x;
 	KeyFrame->y = y;
 	KeyFrame->scaleX = scaleX;
@@ -146,7 +147,7 @@ void CocoTimeline::normalizetimeline()
 	{
 		__durationInFrames = __keyFrames[__keyFrames.size() - 1]->frameIndex + 1;
 		__singleFrameDurationTime = (float)(1000.0) / (float)(__fps);
-		__durationInTime = Time(__durationInFrames) * __singleFrameDurationTime;
+		__durationInTime = ((Time)__durationInFrames) * __singleFrameDurationTime;
 		__firstKeyFrameIndex = firstKeyFrame()->frameIndex;
 		__lastKeyFrameIndex = lastKeyFrame()->frameIndex;
 	}
@@ -215,7 +216,7 @@ CocoKeyFrame* CocoTimeline::interpolate(float frameIndex)
 	CocoKeyFrame* F1 = nullptr;
 	CocoKeyFrame* F2 = nullptr;
 	float s = 1.0;
-	int iFrameIndex = std::floor(frameIndex);
+	int iFrameIndex = floor(frameIndex);
 	if(__keyFrames.size() == 0)
 	{
 		F = new CocoKeyFrame();
@@ -276,7 +277,7 @@ CocoKeyFrame* CocoTimeline::interpolate(float frameIndex)
 					F = F1->clone(exact);
 					F->frameIndex = iFrameIndex;
 					F->__frameIndex = frameIndex;
-					s = float((float)((frameIndex - F1->frameIndex)) / (float)((F2->frameIndex - F1->frameIndex)));
+					s = ((float)(float)((frameIndex - F1->frameIndex)) / (float)((F2->frameIndex - F1->frameIndex)));
 					F->interpolate(F1, F2, s);
 					return F;
 				}

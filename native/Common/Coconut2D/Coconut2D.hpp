@@ -48,6 +48,19 @@ enum SCREEN_RESOLUTION_DPI_ENUM
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
+ * Enum for filter shaders.
+ * @enum {number}
+ */
+enum FILTER_ENUM
+{
+    FILTER_INHERIT					= 0,
+    FILTER_SIMPLE					= 1,
+    FILTER_SIMPLE_WITH_ALPHA		= 2,
+	FILTER_SATURATION_WITH_ALPHA	= 3
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
  * Enum for clip symbol loop synchronization.
  * @enum {number}
  */
@@ -91,15 +104,14 @@ enum COCO_TEXT_TRIMMING_ENUM
 };
 
 //# DO NOT EDIT BEGIN #//
-//class State;
 class CocoTest;
 class EventTarget;
 class DeviceEvent;
 class Audio;
+class HTMLCanvasContext;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
 class HTMLCanvasPattern;
-class HTMLCavnasContext;
 class HTMLElement;
 class HTMLDocument;
 class HTMLTextMetrics;
@@ -155,10 +167,12 @@ class CocoUIScrollView;
 class CocoUITabView;
 class CocoUITextView;
 class GridSymbol;
-class GameEngine;
 class SceneGameBoard;
 class SceneTitle;
+class GameEngine;
 //# DO NOT EDIT END #//
+
+extern CocoEngine* engine;
 
 #define CocoException	std::string
 #define Number          float
@@ -192,7 +206,7 @@ public:
 	Array() : std::vector<T>() {}
 	int size() { return std::vector<T>::size(); }
 	//Array(std::initializer_list<T> val) : std::vector<T>(val) {}
-	Array(size_t size, ...) : std::vector<T>(size) 
+	Array(size_t size, ...) : std::vector<T>(size)
 	{
 		va_list vl;
 		va_start(vl, size);

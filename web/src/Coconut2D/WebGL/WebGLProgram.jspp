@@ -41,6 +41,7 @@ class WebGLProgram : WebGLObject
 	public var GLSLiVecCoords:Integer;
 
 	public var GLSLuColor:WebGLUniformLocation;
+	public var GLSLuAlpha:WebGLUniformLocation;
 	public var GLSLuMVMat:WebGLUniformLocation;
 	public var GLSLuProjMat:WebGLUniformLocation;
 	public var GLSLuSampler:WebGLUniformLocation;
@@ -54,6 +55,7 @@ class WebGLProgram : WebGLObject
 		this.GLSLiVec2Coords = 0;
 		this.GLSLiVecCoords = 0;
 		this.GLSLuColor = null;
+		this.GLSLuAlpha = null;
 		this.GLSLuMVMat = null;
 		this.GLSLuProjMat = null;
 		this.GLSLuSampler = null;
@@ -65,6 +67,7 @@ class WebGLProgram : WebGLObject
 	public function Destructor()
 	{
 		delete GLSLuColor;
+		delete GLSLuAlpha;
 		delete GLSLuMVMat;
 		delete GLSLuProjMat;
 		delete GLSLuSampler;

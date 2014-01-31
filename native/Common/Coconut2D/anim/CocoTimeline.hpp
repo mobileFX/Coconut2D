@@ -6,7 +6,6 @@
 #include "CocoClip.hpp"
 #include "CocoTimeLabel.hpp"
 #include "CocoKeyFrame.hpp"
-//#include "CocoState.hpp"
 #include "CocoAudio.hpp"
 
 class CocoTimeline
@@ -34,7 +33,7 @@ public:
 	CocoKeyFrame* firstKeyFrame();
 	CocoKeyFrame* lastKeyFrame();
 	CocoKeyFrame* addKeyFrame(CocoKeyFrame* KeyFrame);
-	CocoKeyFrame* addKeyFrameEx(State* nextState, CocoAction actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, float red, float green, float blue, float alpha, CocoAudio* audio, bool flipH, bool flipV, String spriteSequenceName);
+	CocoKeyFrame* addKeyFrameEx(State* nextState, CocoAction actionCallback, int frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM frameInterpolation, bool handleEvents, bool visible, float x, float y, float scaleX, float scaleY, float rotation, float pivotX, float pivotY, int filter, float red, float green, float blue, float alpha, CocoAudio* audio, bool flipH, bool flipV, String spriteSequenceName);
 	void normalizetimeline();
 	CocoKeyFrame* findKeyFrameBeforeframeIndex(float frameIndex, bool inclusive, float excludeListIndex);
 	CocoKeyFrame* findKeyFrameAfterframeIndex(float frameIndex, bool inclusive, float excludeListIndex);

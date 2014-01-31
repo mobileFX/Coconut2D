@@ -7,11 +7,19 @@
 #include "WebGLRenderingContext.hpp"
 #include "CocoImage.hpp"
 #include "CocoTimeline.hpp"
+#include "HTMLDocument.hpp"
+#include "HTMLCanvasElement.hpp"
+#include "CanvasRenderingContext2D.hpp"
+#include "HTMLCanvasContext.hpp"
+#include "HTMLImageElement.hpp"
 #include "CocoKeyFrame.hpp"
-#include "CocoVector.hpp"
+#include "CocoAudio.hpp"
+#include "CocoTimeLabel.hpp"
+#include "CocoEngine.hpp"
+#include "DeviceEvent.hpp"
 #include "CocoMatrix.hpp"
 #include "CocoSequence.hpp"
-#include "CocoAudio.hpp"
+#include "CocoVector.hpp"
 
 class CocoClip
 {

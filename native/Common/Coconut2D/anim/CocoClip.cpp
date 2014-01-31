@@ -97,21 +97,15 @@ void CocoClip::createTextTexture(String text, String fontName, int fontSizePixel
 		__image = (delete __image, nullptr);
 	}
 	HTMLCanvasElement* canvas = document->createElement("canvas");
-	canvas->width = int(pow(2, ceil((float)(log(textRectWidth)) / (float)(log(2)))));
-	canvas->height = int(pow(2, ceil((float)(log(textRectHeight)) / (float)(log(2)))));
-	CanvasRenderingContext2D* ctx = (CanvasRenderingContext2D*)canvas->getContext("2d");
-	std::stringstream ss;
-	ss<<"normal normal normal "<<fontSizePixels<<"px / normal " + fontName;
-	ctx->set_font(ss.str());
-	ctx->set_fillStyle(std::string("red"));
-	ctx->fillText(text, 0, float(fontSizePixels));
-	ctx->strokeRect(0, 0, float(textRectWidth), float(textRectHeight));
+	canvas->width = ((int)pow(2, ceil((float)(log(textRectWidth)) / (float)(log(2)))));
+	canvas->height = ((int)pow(2, ceil((float)(log(textRectHeight)) / (float)(log(2)))));
+	CanvasRenderingContext2D* ctx = ((CanvasRenderingContext2D*)canvas->getContext("2d"));
 	__image = new CocoImage();
 	__image->image = new Image();
 	__image->image->load(canvas->toDataURL());
-	__image->textureCellWidth = float(textRectWidth);
-	__image->textureCellHeight = float(textRectHeight);
-	__image->textureGrid = new Float32Array(Array<float>(2, 0, 0));
+	__image->textureCellWidth = ((float)textRectWidth);
+	__image->textureCellHeight = ((float)textRectHeight);
+	__image->textureGrid = new Float32Array(Array<float> ()(0)(0));
 	__image->prepare(__scene, gl);
 }
 
@@ -220,14 +214,14 @@ bool CocoClip::gotoFrameByName(String LabelName, bool pause)
 	{
 		return false;
 	}
-	trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause));
+	trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + ((String)pause));
 	return gotoFrameByIndex(Label->frameIndex, pause);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool CocoClip::gotoFrameByIndex(int FrameIndex, bool pause)
 {
-	trace("\ngotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex == -1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause));
+	trace("\ngotoFrameByIndex: clip=" + __clipPath + ", index=" + ((String)(FrameIndex == -1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + ((String)pause));
 	CocoClip* clip;
 	for(int i = __children.size() - 1; i >= 0; i--)
 	{
@@ -238,8 +232,7 @@ bool CocoClip::gotoFrameByIndex(int FrameIndex, bool pause)
 		}
 		clip->__timeline->__paused = pause;
 		clip->__timeline->__currentFrameIndex = -1;
-		clip->__currentTime = Time(FrameIndex) * clip->__timeline->__singleFrameDurationTime;
-		trace("-> child: " + clip->__clipPath + ", from=" + (clip->__currentFrame ? String(clip->__currentFrame->frameIndex) : "0") + ", to=" + String((FrameIndex == -1 ? clip->__currentFrame->frameIndex : FrameIndex)) + ", time=" + clip->__currentTime->toFixed(2) + ", paused=" + String(clip->__timeline->__paused));
+		clip->__currentTime = ((Time)FrameIndex) * clip->__timeline->__singleFrameDurationTime;
 	}
 	return true;
 }
@@ -261,8 +254,8 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 	Time parentClipsDuration = parentClip ? parentClip->__childWithMaxTimelineDuration->__timeline->__durationInTime : this->__timeline->__singleFrameDurationTime;
 	if(parentClip)
 	{
-		__loops = std::floor((float)(__currentTime) / (float)(parentClipsDuration));
-		__loopTime = __currentTime - (Time(__loops) * parentClipsDuration);
+		__loops = floor((float)(__currentTime) / (float)(parentClipsDuration));
+		__loopTime = __currentTime - (((Time)__loops) * parentClipsDuration);
 		float frameIndex = (float)(__loopTime) / (float)(__timeline->__singleFrameDurationTime);
 		if(__currentFrame)
 			if(__currentFrame)
@@ -297,19 +290,18 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 		}
 		else if(!__currentSequence || __currentSequence->name != sequenceName)
 		{
-			trace("Loading sprite animation sequence: " + this->__clipPath + " -> " + sequenceName);
 			__currentSequence = __image->getSequence(sequenceName);
 			__currentSequence->sequenceStartTime = __currentTime;
 		}
 		if(__image->isSpriteSheet && __currentSequence)
 		{
-			int sequenceFrameIndex = __timeline->__paused ? 0 : (int)std::floor((float)((__currentTime - __currentSequence->sequenceStartTime)) / (float)(((float)(1000.0) / (float)(scene->__fps)))) % (int)__currentSequence->frames.size();
+			int sequenceFrameIndex = __timeline->__paused ? 0 : (int)floor((float)((__currentTime - __currentSequence->sequenceStartTime)) / (float)(((float)(1000.0) / (float)(scene->__fps)))) % (int)__currentSequence->frames.size();
 			int frame = __currentSequence->frames[sequenceFrameIndex];
-			scene->drawFrame(gl, __image, frame, __currentFrame->red, __currentFrame->green, __currentFrame->blue, __currentFrame->alpha, __currentFrame->flipH, __currentFrame->flipV);
+			scene->drawFrame(gl, __image, frame, __currentFrame);
 		}
 		else
 		{
-			scene->drawFrame(gl, __image, 0, __currentFrame->red, __currentFrame->green, __currentFrame->blue, __currentFrame->alpha, __currentFrame->flipH, __currentFrame->flipV);
+			scene->drawFrame(gl, __image, 0, __currentFrame);
 		}
 	}
 	else
@@ -347,7 +339,7 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 			}
 		}
 		DeviceEvent* touchEvent = engine->getTouchEvent();
-		if(__currentFrame->handleEvents && touchEvent && touchEvent->type == "touchend")
+		if(__currentFrame->handleEvents && touchEvent && (touchEvent->type == "touchend" || touchEvent->type == "mouseup"))
 		{
 			Number x = (float)((touchEvent->__clientX - (float)(gl->canvas->width) / (float)(2.0))) / (float)(scene->__view_scale);
 			Number y = (float)((touchEvent->__clientY - (float)(gl->canvas->height) / (float)(2.0))) / (float)(scene->__view_scale);
@@ -359,7 +351,21 @@ void CocoClip::paint(WebGLRenderingContext* gl, CocoScene* scene, CocoClip* pare
 		if(!__timeline->__paused)
 		{
 			this->__parent = parentClip;
-			__currentFrame->execute(gl, scene, this);
+			if(__currentFrame->action)
+			{
+				engine->__trace(scene, this, "@@ACTION");
+				(__currentFrame->action)(scene, this);
+			}
+			if(__currentFrame->nextState)
+			{
+				engine->__trace(scene, this, "@@NEXT_STATE");
+				engine->setNextState(__currentFrame->nextState);
+			}
+			if(__currentFrame->audio)
+			{
+				engine->__trace(scene, this, "@@AUDIO");
+				__currentFrame->audio->tick();
+			}
 			if(__currentFrame->audio)
 			{
 				if(__currentAudio && ((__currentFrame->audio != __currentAudio) || (__currentAudio->loops != 0)))
@@ -531,7 +537,7 @@ void CocoClip::drawBoundingBox(CocoScene* scene, WebGLRenderingContext* gl)
 	gl->useProgram(scene->__boundingBoxProgram);
 	gl->enableVertexAttribArray(scene->__boundingBoxProgram->GLSLiVec2Coords);
 	gl->bindBuffer(gl->ARRAY_BUFFER, scene->__boundingBoxBuffer);
-	gl->bufferSubData(gl->ARRAY_BUFFER, 0, new Float32Array(Array<float>(8, __vABS_TOP_LEFT->X, __vABS_TOP_LEFT->Y, __vABS_TOP_RIGHT->X, __vABS_TOP_RIGHT->Y, __vABS_BOTTOM_RIGHT->X, __vABS_BOTTOM_RIGHT->Y, __vABS_BOTTOM_LEFT->X, __vABS_BOTTOM_LEFT->Y)));
+	gl->bufferSubData(gl->ARRAY_BUFFER, 0, new Float32Array(Array<float> ()(__vABS_TOP_LEFT->X)(__vABS_TOP_LEFT->Y)(__vABS_TOP_RIGHT->X)(__vABS_TOP_RIGHT->Y)(__vABS_BOTTOM_RIGHT->X)(__vABS_BOTTOM_RIGHT->Y)(__vABS_BOTTOM_LEFT->X)(__vABS_BOTTOM_LEFT->Y)));
 	gl->vertexAttribPointer(scene->__boundingBoxProgram->GLSLiVec2Coords, 2, gl->FLOAT, false, 0, 0);
 	scene->__projectionMatrix->update(gl, scene->__boundingBoxProgram->GLSLuProjMat);
 	gl->drawArrays(gl->LINE_LOOP, 0, 4);

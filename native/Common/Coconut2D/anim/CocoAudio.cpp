@@ -48,7 +48,6 @@ void CocoAudio::tick()
 	{
 		return;
 	}
-	audio->tick();
 	if(!__firstPlayed && autoplay)
 	{
 		__firstPlayed = true;
