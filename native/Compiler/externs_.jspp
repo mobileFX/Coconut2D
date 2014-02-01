@@ -32,7 +32,7 @@ class Array
 {
 	public function concat(args:Array) :Array {}
 	public function join(seperator:String) :String {}
-	public function pop() :Array {}
+	public function pop() :Object {}
 	public function push(args:Object) :Object {}
 	public function reverse() :Array {}
 	public function shift() :Array {}
@@ -253,6 +253,7 @@ class String
 	public function slice(start:Number, end:Number) :String {}
 	public function split(separator:String, limit:Number) :Array {}
 	public function substring(start:Number, end:Number) :String {}
+	public function substr(start:Number, size:Number) :String {}
 	public function toLowerCase() :String {}
 	public function toLocaleLowerCase() :String {}
 	public function toUpperCase() :String {}
@@ -377,6 +378,8 @@ class RegExp
 class ArrayBuffer
 {
 	public function slice(begin:Number, end:Number) :ArrayBuffer {}
+	public function encodeAsPNG(width:Number, height:Number) :ArrayBuffer {}
+	public function encodeAsBase64() :String {}
 	public var byteLength :Number;
 	public var __uid :Integer;
 } //ArrayBuffer
@@ -1644,95 +1647,35 @@ class CocoUITextView : CocoUIControlView
 {
 } //CocoUITextView
 
-class GridSymbol
-{
-	public function getRandom() :Integer {}
-	public function createSymbol(symbol:Integer) :CocoClip {}
-	public function initPlaceholder() :CocoClip {}
-	public function initLeonidas() :CocoClip {}
-	public function initXerxes() :CocoClip {}
-	public function initSpartan() :CocoClip {}
-	public function initPersian() :CocoClip {}
-	public function initSwords() :CocoClip {}
-	public function initArmor() :CocoClip {}
-	public function Constructor(scene:CocoScene) {}
-	public var SYMBOL_LEONIDAS :SYMBOL_ENUM;
-	public var SYMBOL_XERXES :SYMBOL_ENUM;
-	public var SYMBOL_SPARTAN :SYMBOL_ENUM;
-	public var SYMBOL_PERSIAN :SYMBOL_ENUM;
-	public var SYMBOL_SWORDS :SYMBOL_ENUM;
-	public var SYMBOL_ARMOR :SYMBOL_ENUM;
-	public var scene :CocoScene;
-} //GridSymbol
-
-class SYMBOL_ENUM
-{
-	public function getRandom() :Integer {}
-	public function createSymbol(symbol:Integer) :CocoClip {}
-	public function initPlaceholder() :CocoClip {}
-	public function initLeonidas() :CocoClip {}
-	public function initXerxes() :CocoClip {}
-	public function initSpartan() :CocoClip {}
-	public function initPersian() :CocoClip {}
-	public function initSwords() :CocoClip {}
-	public function initArmor() :CocoClip {}
-	public function Constructor(scene:CocoScene) {}
-	public var SYMBOL_LEONIDAS :SYMBOL_ENUM;
-	public var SYMBOL_XERXES :SYMBOL_ENUM;
-	public var SYMBOL_SPARTAN :SYMBOL_ENUM;
-	public var SYMBOL_PERSIAN :SYMBOL_ENUM;
-	public var SYMBOL_SWORDS :SYMBOL_ENUM;
-	public var SYMBOL_ARMOR :SYMBOL_ENUM;
-	public var scene :CocoScene;
-} //SYMBOL_ENUM
-
-class SceneGameBoard : CocoScene
-{
-	public function Constructor() {}
-} //SceneGameBoard
-
-class SceneTitle : CocoScene
-{
-	public function Constructor() {}
-} //SceneTitle
-
 class GameEngine : CocoEngine
 {
-	public function setTexts() {}
-	public function createGUID() :String {}
-	public function hasClosedCells() :Boolean {}
-	public function OpenCell(i:Integer) {}
 	public function Constructor() {}
-	private var scene :CocoScene;
-	private var balance :Number;
-	private var winnings :Number;
-	private var avatars :Array<CocoClip>;
-	private var avatar_leo :CocoClip;
-	private var avatar_xerxes :CocoClip;
-	private var avatar_spartan :CocoClip;
-	private var avatar_persian :CocoClip;
-	private var avatar_swords :CocoClip;
-	private var avatar_armor :CocoClip;
-	private var btnOpenAll :CocoClip;
-	private var btnBuyTicket :CocoClip;
-	private var cells :Array<CocoClip>;
-	private var cellsOpen :Array<Boolean>;
-	private var selectedAvatar :Integer;
-	private var selAvatarAppearances :Integer;
-	private var counter :Number;
-	private var TICKET_TicketID :String;
-	private var TICKET_cells :Array<Integer>;
-	private var TICKET_price :Integer;
-	private var TICKET_winCount :Integer;
-	private var WIN_PRIZES :Array<Integer>;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_JUMPING_AVATARS :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public var scene :CocoScene;
+	public var STATE_GAME :State;
 } //GameEngine
+
+class BitmapSymbolsTest : CocoScene
+{
+	public function Constructor() {}
+} //BitmapSymbolsTest
+
+class SynthesisTest : CocoScene
+{
+	public function Constructor() {}
+} //SynthesisTest
+
+class Test : CocoScene
+{
+	public function Constructor() {}
+} //Test
+
+class TestSequences : CocoScene
+{
+	public function Constructor() {}
+} //TestSequences
+
+class TestText : CocoScene
+{
+	public function Constructor() {}
+} //TestText
 

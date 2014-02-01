@@ -45,6 +45,7 @@ class HTMLCanvasElement
 	{
 		width = 0;
 		height = 0;
+		__imageData = null;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +66,7 @@ class HTMLCanvasElement
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function toDataURL():String
 	{
-		return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAACACAYAAAB9V9ELAAAPy0lEQ…EIQAACBgkgAAwGHZchAAEIQAACCAByAAIQgAAEIGCQwP8Br6gO2wP7I7gAAAAASUVORK5CYII=";
+		return "data:image/png;base64," + (__imageData ? __imageData.buffer.encodeAsPNG(__imageData.width, __imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
 	}
 }
 

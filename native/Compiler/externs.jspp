@@ -222,7 +222,7 @@ class Array
 	public var length:Number;
 	public function concat(args:Array):Array {}
 	public function join(seperator:String):String {}
-	public function pop():Array {}
+	public function pop():Object {}
 	public function push(args:Object):Object {}
 	public function reverse():Array {}
 	public function shift():Array {}
@@ -278,15 +278,16 @@ class String
 	public function charAt(position:Number):String {}
 	public function charCodeAt(position:Number):Number {}
 	public function concat(value:String):String {}
-	public function indexOf(searchString:String, startPosition:Number):Number {}
+	public function indexOf(searchString:String, optional startPosition:Number):Number {}
 	public function lastIndexOf(searchString:String, startPosition:Number):Number {}
 	public function localeCompare(otherString:String):Number {}
 	public function match(regexp:RegExp):Array {}
 	public function replace(regexp:RegExp, replaceValue:String):String {}
 	public function search(regexp:RegExp):Number {}
 	public function slice(start:Number, end:Number):String {}
-	public function split(separator:String, limit:Number):Array {}
-	public function substring(start:Number, end:Number):String {}
+	public function split(separator:String, optional limit:Number):Array {}
+	public function substring(start:Number, optional end:Number):String {}
+	public function substr(start:Number, optional size:Number):String {}
 	public function toLowerCase():String {}
 	public function toLocaleLowerCase():String {}
 	public function toUpperCase():String {}
@@ -413,6 +414,8 @@ class ArrayBuffer
 {
 	public var byteLength:Number;
     public function slice(begin:Number, end:Number): ArrayBuffer {}
+    public function encodeAsPNG(width:Number, height:Number):ArrayBuffer {}
+    public function encodeAsBase64():String {}
     public var __uid:Integer;
 }
 

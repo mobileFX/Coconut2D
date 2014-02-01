@@ -67,6 +67,7 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public function Constructor(canvas:HTMLCanvasElement)
 	{
 		this.canvas = canvas;
+		canvas.__imageData = new ImageData(String(canvas.width), String(canvas.height));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,27 +156,148 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 
 		function set(v:String)
 		{
-			__fontSetting = v;
-
-           	/*
-			var rx:RegExp = new RegExp("/^\s*(?=(?:(?:[-a-z]+\s*){0,2}(italic|oblique))?)(?=(?:(?:[-a-z]+\s*){0,2}(small-caps))?)(?=(?:(?:[-a-z]+\s*){0,2}(bold(?:er)?|lighter|[1-9]00))?)(?:(?:normal|\1|\2|\3)\s*){0,3}((?:xx?-)?(?:small|large)|medium|smaller|larger|[.\d]+(?:\%|in|[cem]m|ex|p[ctx]))(?:\s*\/\s*(normal|[.\d]+(?:\%|in|[cem]m|ex|p[ctx])))?\s*([-,\"\sa-z]+?)\s*$", "i");
-			var matches:Array<String>	= rx.exec(v);
-			var fontStyle:String   		= matches[1];
-			var fontVariant:String 		= matches[2];
-			var fontWeight:String  		= matches[3];
-			var fontSize:Float    		= matches[4];
-			var lineHeight:Float  		= matches[5];
-			var fontFamily:String  		= matches[6];
-			var fontChars:String 		= " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()/.,?><';\":]|[}{\\}]`~-_";
-			__font = new CocoFont(fontSize, fontFamily, fontChars);
-			*/
+			const fontChars:String = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()/.,?><';\":]|[}{\\}]`~-_";
+			var spl:Array<String> = v.split(" ");
+			var fontStyle:String = "normal";
+			var fontVariant:String = "normal";
+			var fontWeight:String = "normal";
+			var fontSize:String = "medium";
+			var lineHeight:String = "normal";
+			var fontFamily:String = "arial,sans-serif";
+			var s:Integer = 0;
+			var str:String;
+			for(var i:Integer = 0; i < spl.size(); i++)
+			{
+				str = spl[i];
+				if(!str) continue;
+				switch(s)
+				{
+					case 3:
+					{
+						var idx:Integer = str.indexOf("/");
+						if(idx != -1)
+						{
+                            fontSize = str.substr(0, idx);
+							var lh:String = str.substr(idx + 1);
+							if(lh)
+							{
+								lineHeight = lh;
+								s++;
+							}
+						}
+						else
+							fontSize = str;
+						s++;
+						break;
+					}
+					case 4:
+					{
+						var idx:Integer = str.indexOf("/");
+						if(idx != -1)
+						{
+							var lh:String = str.substr(idx + 1);
+							if(lh)
+							{
+								lineHeight = lh;
+								s++;
+							}
+						}
+						else
+						{
+							fontFamily = spl.slice(i).join("");
+							i = spl.size();
+						}
+						s++;
+						break;
+					}
+					case 5:
+					{
+						fontFamily = spl.slice(i + 1).join("");
+						i = spl.size();
+						break;
+					}
+					default:
+					{
+						if(str == "inherit")
+						{
+							// We don't support inherit
+							return;
+						}
+						else if(str == "normal")
+						{
+							switch(s)
+							{
+								case 0: s++; break;
+								case 1: s++; break;
+								case 2: s++; break;
+								case 4: s++; break;
+								default: return;
+							}
+						}
+						else if(str == "italic" || str == "oblique")
+						{
+							switch(s)
+							{
+								case 0: fontStyle = str; s = 1; break;
+								default: return;
+							}
+						}
+						else if(str == "small-caps")
+						{
+							switch(s)
+							{
+								case 0: fontVariant = str; s = 2; break;
+								case 1: fontVariant = str; s = 2; break;
+								default: return;
+							}
+						}
+						else if(str == "bold" || str == "bolder" || str == "lighter" || str == "100" || str == "200" || str == "300" || str == "400" || str == "500" || str == "600" || str == "700" || str == "800" || str == "900")
+						{
+							switch(s)
+							{
+								case 2: fontWeight = str; s = 3; break;
+								default: return;
+							}
+						}
+					}
+				}
+			}
+			var fontSizeInPixels:Float;
+			if(fontSize == "xx-small") fontSizeInPixels = 9;
+			else if(fontSize == "x-small") fontSizeInPixels = 10;
+			else if(fontSize == "small") fontSizeInPixels = 13;
+			else if(fontSize == "medium") fontSizeInPixels = 16;
+			else if(fontSize == "large") fontSizeInPixels = 18;
+			else if(fontSize == "x-large") fontSizeInPixels = 24;
+			else if(fontSize == "xx-large") fontSizeInPixels = 32;
+			else if(fontSize == "smaller") fontSizeInPixels = 13;
+			else if(fontSize == "larger") fontSizeInPixels = 18;
+			else
+			{
+				if(fontSize.indexOf("px") != -1)
+				{
+					fontSizeInPixels = parseFloat(fontSize);
+				}
+				else if(fontSize.indexOf("in") != -1)
+				{
+					fontSizeInPixels = parseFloat(fontSize) * window.devicePixelRatio * 160.0;
+				}
+				else if(fontSize.indexOf("cm") != -1)
+				{
+					fontSizeInPixels = parseFloat(fontSize) * window.devicePixelRatio * 160.0 / 2.54;
+				}
+				else
+					return;
+			}
+           	__fontSetting = v;
+           	__font = new CocoFont(fontSizeInPixels, fontFamily, fontChars);
 		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function fillText(text:String, x:Float, y:Float, optional maxWidth:Float)
 	{
-		//__font.fillText(__imageData.buffer, canvas.width, text, x, y);
+		__font.fillText(canvas.__imageData.buffer, canvas.__imageData.width, text, x, y);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

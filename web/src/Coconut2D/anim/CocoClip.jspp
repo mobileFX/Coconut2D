@@ -144,9 +144,9 @@ class CocoClip
 		canvas.height = Integer(Math.pow(2, Math.ceil(Math.log(textRectHeight)/Math.log(2))));
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 		// font-style font-variant font-weight font-size/line-height font-family
-		//ctx.font = "normal normal normal " + String(fontSizePixels) + "px / normal " + fontName;
+		ctx.font = "normal normal normal " + String(fontSizePixels) + "px / normal " + fontName;
 		//ctx.fillStyle = "red";
-		//ctx.fillText(text, 0, Float(fontSizePixels));
+		ctx.fillText(text, 0, Float(fontSizePixels));
 		//ctx.strokeRect(0,0, Float(textRectWidth), Float(textRectHeight));
         __image = new CocoImage();
         __image.image = new Image();
@@ -349,7 +349,7 @@ class CocoClip
 
 			// Get sequence name, first from current clip and if not found from parent clip.
 			var sequenceName:String = __currentFrame.spriteSequenceName;
-			if(!sequenceName) sequenceName = parentClip.__currentFrame.spriteSequenceName;
+			if(!sequenceName && parentClip && parentClip.__currentFrame) sequenceName = parentClip.__currentFrame.spriteSequenceName;
 
 			// Check if we should change sprite animation sequence
 			if(!sequenceName)

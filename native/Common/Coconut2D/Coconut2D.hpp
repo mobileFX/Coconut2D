@@ -24,8 +24,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Structs.h"
-#include <UIKit/UIEvent.h>
-#include <UIKit/UITouch.h>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
@@ -102,10 +100,11 @@ class CocoUIPickerView;
 class CocoUIScrollView;
 class CocoUITabView;
 class CocoUITextView;
-class GridSymbol;
-class SceneGameBoard;
-class SceneTitle;
 class GameEngine;
+class BitmapSymbolsTest;
+class SynthesisTest;
+class Test;
+class TestSequences;
 //# DO NOT EDIT END #//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -378,6 +377,8 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef IOS_APPLICATION
 #define PLATFORM "iOS"
+#include <UIKit/UIEvent.h>
+#include <UIKit/UITouch.h>
 #define fxAPIGetKey(E) (*(const uint32_t*)(E))
 #define fxAPIGetMouseEventX(E) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].x)
 #define fxAPIGetMouseEventY(E) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].y)
@@ -391,6 +392,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #elif ANDROID_APPLICATION
 #define PLATFORM "Android"
+#include <chrono>
 #include <jni.h>
 #include <android_native_app_glue.h>
 #define fxAPIGetMouseEventX(E) AMotionEvent_getX((AInputEvent*)E, 0)

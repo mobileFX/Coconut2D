@@ -1,0 +1,101 @@
+//@line 36
+
+function ImageData(__CLASS__IMAGEDATA__$a0__, __CLASS__IMAGEDATA__$a1__)
+{
+	var __BASE__ = null;
+
+	function ImageData(__BASE__, __CLASS__IMAGEDATA__$a0__, __CLASS__IMAGEDATA__$a1__)
+	{
+		var __CLASS__IMAGEDATA__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
+		this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		//@line 38
+		this.buffer = null;
+		//@line 39
+		this.data = null;
+		//@line 40
+		this.src = "";
+		//@line 41
+		this.width = 0;
+		//@line 42
+		this.height = 0;
+		var Destructor = this.Destructor = function ()
+		{
+			//@line 75
+			{
+				__CLASS__IMAGEDATA__.buffer && ((__CLASS__IMAGEDATA__.buffer.hasOwnProperty('Destructor') && __CLASS__IMAGEDATA__.buffer.Destructor()) || !__CLASS__IMAGEDATA__.buffer.hasOwnProperty('Destructor')) && (delete __CLASS__IMAGEDATA__.buffer);
+				__CLASS__IMAGEDATA__.buffer = null
+			};
+			//@line 76
+			{
+				__CLASS__IMAGEDATA__.data && ((__CLASS__IMAGEDATA__.data.hasOwnProperty('Destructor') && __CLASS__IMAGEDATA__.data.Destructor()) || !__CLASS__IMAGEDATA__.data.hasOwnProperty('Destructor')) && (delete __CLASS__IMAGEDATA__.data);
+				__CLASS__IMAGEDATA__.data = null
+			};
+			{
+				__CLASS__IMAGEDATA__.buffer = null;
+				__CLASS__IMAGEDATA__.data = null;
+				__CLASS__IMAGEDATA__.src = null;
+				__CLASS__IMAGEDATA__.width = null;
+				__CLASS__IMAGEDATA__.height = null;
+			}
+			return true
+		};
+		//@line 44
+		this.Constructor = function ()
+		{
+			var a0 = arguments[0];
+			var a1 = arguments[1];
+			//@line 46
+			__CLASS__IMAGEDATA__.buffer = null;
+			//@line 47
+			__CLASS__IMAGEDATA__.data = null;
+			//@line 48
+			__CLASS__IMAGEDATA__.width = 0;
+			//@line 49
+			__CLASS__IMAGEDATA__.height = 0;
+			//@line 50
+			__CLASS__IMAGEDATA__.src = "";
+			//@line 52
+			if (isNaN(a0))
+			//@line 53
+			{
+				//@line 54
+				var data = __ImageData_loadImage(a0);
+				//@line 55
+				if (data)
+				//@line 56
+				{
+					//@line 57
+					__CLASS__IMAGEDATA__.src = a0;
+					//@line 58
+					__CLASS__IMAGEDATA__.buffer = data.buffer;
+					//@line 59
+					__CLASS__IMAGEDATA__.width = data.width;
+					//@line 60
+					__CLASS__IMAGEDATA__.height = data.height;
+				}
+			}
+			else
+			//@line 63
+			if (!isNaN(a0) && !isNaN(a1))
+			//@line 64
+			{
+				//@line 65
+				__CLASS__IMAGEDATA__.width = parseInt(a0);
+				//@line 66
+				__CLASS__IMAGEDATA__.height = parseInt(a1);
+				//@line 67
+				__CLASS__IMAGEDATA__.data = new Int32Array(__CLASS__IMAGEDATA__.width * __CLASS__IMAGEDATA__.height);
+				//@line 68
+				__CLASS__IMAGEDATA__.buffer = __CLASS__IMAGEDATA__.data.buffer;
+			}
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__IMAGEDATA__$a0__, __CLASS__IMAGEDATA__$a1__);
+		return this;
+	}
+	return new ImageData(__BASE__, __CLASS__IMAGEDATA__$a0__, __CLASS__IMAGEDATA__$a1__);
+}

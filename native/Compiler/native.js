@@ -822,9 +822,8 @@ CPPCompiler.prototype.compile = function (ast)
 			break;
 
 		default:
-			// TODO
-			//CPP.push('String("' + ast.value + '")');
-			CPP.push('"' + ast.value + '"');
+			CPP.push('String("' + ast.value + '")');
+			//CPP.push('"' + ast.value + '"');
 		}
 
 		if(_this.currFileName!=ast.path)
