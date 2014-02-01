@@ -281,6 +281,15 @@ class CocoClip
 	{
 		__scene = scene;
 
+        // =============================================================================================================
+		// Get touch event
+        // =============================================================================================================
+		var touchEvent:DeviceEvent = engine.getTouchEvent();
+		if(touchEvent && touchEvent.type!="touchend" && touchEvent.type!="mouseup")
+		{
+			touchEvent = null;
+		}
+
 		// Calculate the parent timeline duraction in time from its children (which are siblings to this clip)
 		var parentClipsDuration:Time = parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : this.__timeline.__singleFrameDurationTime;
 
@@ -316,10 +325,10 @@ class CocoClip
 				return;
 			}
 
-			// If we need to handle and event or if our parent has asked us to
+			// If we need to handle an event or if our parent has asked us to
 			// calc our bounding box **AND** there is an actual event waiting
 			// then we set calcBoundingBox to true.
-			calcBoundingBox = (__currentFrame.handleEvents || calcBoundingBox) && (engine.getTouchEvent()!=null);
+			calcBoundingBox = (__currentFrame.handleEvents || calcBoundingBox) && (touchEvent!=null);
 		}
 
         // =============================================================================================================
@@ -399,8 +408,7 @@ class CocoClip
 	        // =============================================================================================================
 			// Handle touch event
 	        // =============================================================================================================
-			var touchEvent:DeviceEvent = engine.getTouchEvent();
-			if(__currentFrame.handleEvents && touchEvent && (touchEvent.type=="touchend" || touchEvent.type=="mouseup"))
+			if(__currentFrame.handleEvents && touchEvent)
 			{
 				// Point in quad?
 	   	        var x = (touchEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;

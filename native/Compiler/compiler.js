@@ -1744,6 +1744,9 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				_this.NewError("Duplicate state name: " + ast.name, ast);
 
 			var hasTick = false;
+			var hasPaint = false;
+			var hasEnter = false;
+			var hasExit = false;
 			var classSymbol = _this.getCurrentScope().ast.symbol;
 			_this.in_state = ast.name;
 
@@ -1817,16 +1820,21 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 					break;
 
 				case jsdef.FUNCTION:
+					if(ast.body[item].name=="enter") hasEnter = true;
+					if(ast.body[item].name=="exit") hasExit = true;
 					if(ast.body[item].name=="tick") hasTick = true;
+					if(ast.body[item].name=="paint") hasPaint = true;
 					out.push(generate(ast.body[item]));
  					break;
 				}
 			}
 			out.push("return this}).call(new State);");
 
-            // Tick function must be implemented.
-			if(!hasTick)
-				_this.NewError("Missing state tick function: " + ast.name, ast);
+            // Check state implementation
+			if(!hasEnter) _this.NewError("Missing state enter function: " + ast.name, ast);
+			if(!hasExit) _this.NewError("Missing state exit function: " + ast.name, ast);
+			if(!hasTick) _this.NewError("Missing state tick function: " + ast.name, ast);
+			if(!hasPaint) _this.NewError("Missing state paint function: " + ast.name, ast);
 
 			_this.in_state = false;
 			_this.ExitScope();
