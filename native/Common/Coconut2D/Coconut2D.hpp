@@ -10,12 +10,19 @@
 #ifndef __COCONUT2D_HPP__
 #define __COCONUT2D_HPP__
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Application-wide constants
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define APPNAME "Coconut2D"
 #define GLOBAL_FPS 30.0f
 #define COCO_STOP_ON_CURRENT_FRAME -1
 #define RADIANS (M_PI / 180.0f)
-#define APPNAME "Coconut2D"
 
-//#include "HTMLWindow.hpp"
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Common Includes
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "Structs.h"
 #include <UIKit/UIEvent.h>
 #include <UIKit/UITouch.h>
@@ -27,81 +34,10 @@
 #include <sstream>
 #include <vector>
 #include <map>
-//#include <chrono>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Enum for screen resolution dpi.
- * @enum {number}
- */
-enum SCREEN_RESOLUTION_DPI_ENUM
-{
-    RESOLUTION_nodpi							= 0,
-    RESOLUTION_ldpi								= 1,
-    RESOLUTION_mdpi								= 2,
-    RESOLUTION_tvdpi							= 3,
-    RESOLUTION_hdpi								= 4,
-    RESOLUTION_xhdpi							= 5,
-    RESOLUTION_Retina							= 5,
-    RESOLUTION_DefaultDpi						= 0
-};
-
+// Auto-generated class list
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Enum for filter shaders.
- * @enum {number}
- */
-enum FILTER_ENUM
-{
-    FILTER_INHERIT					= 0,
-    FILTER_SIMPLE					= 1,
-    FILTER_SIMPLE_WITH_ALPHA		= 2,
-	FILTER_SATURATION_WITH_ALPHA	= 3
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Enum for clip symbol loop synchronization.
- * @enum {number}
- */
-enum COCO_CLIP_SYMBOL_LOOP_ENUM
-{
-    CLIP_SYMBOL_LOOP_CONTINUOUS					= 0,
-    CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT	= 1,
-    CLIP_SYMBOL_LOOP_ONCE						= 2
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Enum for keyframe interpolation calculation.
- * @enum {number}
- */
-enum COCO_KEYFRAME_INTERPOLATION_ENUM
-{
-    KEYFRAME_INTERPOLATION_NONE					= 0,
-    KEYFRAME_INTERPOLATION_MOTION_TWEEN			= 1,
-    KEYFRAME_INTERPOLATION_ECHO					= 2,
-    KEYFRAME_INTERPOLATION_PHYSICS				= 3
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum COCO_TEXT_ALIGN_ENUM
-{
-	TEXT_ALIGN_NEAR								= 0,
-	TEXT_ALIGN_CENTER							= 1,
-	TEXT_ALIGN_FAR								= 2
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum COCO_TEXT_TRIMMING_ENUM
-{
-    StringTrimmingNone							= 0,
-    StringTrimmingCharacter						= 1,
-    StringTrimmingWord							= 2,
-    StringTrimmingEllipsisCharacter				= 3,
-    StringTrimmingEllipsisWord					= 4,
-    StringTrimmingEllipsisPath					= 5
-};
 
 //# DO NOT EDIT BEGIN #//
 class CocoTest;
@@ -172,22 +108,138 @@ class SceneTitle;
 class GameEngine;
 //# DO NOT EDIT END #//
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Externs for global objects
+////////////////////////////////////////////////////////////////////////////////////////////////////
 extern CocoEngine* engine;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for HTML5 Events
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum fxEvent
+{
+	LOAD = 0,
+	FOCUS,
+	BLUR,
+	UNLOAD,
+	RESIZE,
+	CLICK,
+	KEYDOWN,
+	KEYPRESS,
+	KEYUP,
+	TOUCHSTART,
+	TOUCHMOVE,
+	TOUCHEND,
+	TOUCHCANCEL,
+	GESTURESTART,
+	GESTURECHANGE,
+	GESTUREEND
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for screen resolution dpi
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum SCREEN_RESOLUTION_DPI_ENUM
+{
+    RESOLUTION_nodpi							= 0,
+    RESOLUTION_ldpi								= 1,
+    RESOLUTION_mdpi								= 2,
+    RESOLUTION_tvdpi							= 3,
+    RESOLUTION_hdpi								= 4,
+    RESOLUTION_xhdpi							= 5,
+    RESOLUTION_Retina							= 5,
+    RESOLUTION_DefaultDpi						= 0
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for filter shaders.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_FILTER_ENUM
+{
+    FILTER_INHERIT					= 0,
+    FILTER_SIMPLE					= 1,
+    FILTER_SIMPLE_WITH_ALPHA		= 2,
+	FILTER_SATURATION_WITH_ALPHA	= 3
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for clip symbol loop synchronization.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_CLIP_SYMBOL_LOOP_ENUM
+{
+    CLIP_SYMBOL_LOOP_CONTINUOUS					= 0,
+    CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT	= 1,
+    CLIP_SYMBOL_LOOP_ONCE						= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for keyframe interpolation calculation.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_KEYFRAME_INTERPOLATION_ENUM
+{
+    KEYFRAME_INTERPOLATION_NONE					= 0,
+    KEYFRAME_INTERPOLATION_MOTION_TWEEN			= 1,
+    KEYFRAME_INTERPOLATION_ECHO					= 2,
+    KEYFRAME_INTERPOLATION_PHYSICS				= 3
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for text alignment
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_TEXT_ALIGN_ENUM
+{
+	TEXT_ALIGN_NEAR								= 0,
+	TEXT_ALIGN_CENTER							= 1,
+	TEXT_ALIGN_FAR								= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for text trimming
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_TEXT_TRIMMING_ENUM
+{
+    StringTrimmingNone							= 0,
+    StringTrimmingCharacter						= 1,
+    StringTrimmingWord							= 2,
+    StringTrimmingEllipsisCharacter				= 3,
+    StringTrimmingEllipsisWord					= 4,
+    StringTrimmingEllipsisPath					= 5
+};
+
+// ==================================================================================================================================
+//	  ______                 ____       ____
+//	 /_  __/_  ______  ___  / __ \___  / __/____
+//	  / / / / / / __ \/ _ \/ / / / _ \/ /_/ ___/
+//	 / / / /_/ / /_/ /  __/ /_/ /  __/ __(__  )
+//	/_/  \__, / .___/\___/_____/\___/_/ /____/
+//	    /____/_/
+// ==================================================================================================================================
 
 #define CocoException	std::string
 #define Number          float
 #define Function        void
 #define Time			float
+
+#define trace(...)
+
+typedef void (*CocoAction)(CocoScene*, CocoClip*);
+typedef void (CocoEngine::*CocoEventAction)(DeviceEvent* e);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T> using Stack = std::stack<T>;
 template<class T> using Dictionary = std::map<std::string, T>;
 template<class T> using Index = std::map<size_t, T>;
-struct State {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+struct State
+{
 	virtual void enter() {}
 	virtual void exit() {}
 	virtual void tick(float time) = 0;
 	virtual void paint(WebGLRenderingContext* gl, float time) {}
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class String : public std::string
 {
 public:
@@ -200,6 +252,7 @@ public:
 	String(const std::string& str) : std::string(str) {}
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T> class Array : public std::vector<T>
 {
 public:
@@ -240,6 +293,7 @@ public:
 	}
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 template<> class Array<bool> : public std::vector<bool>
 {
 public:
@@ -280,6 +334,7 @@ public:
 	}
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 template<> class Array<float> : public std::vector<float>
 {
 public:
@@ -320,33 +375,7 @@ public:
 	}
 };
 
-typedef void (CocoScene::*CocoAction)(WebGLRenderingContext*, CocoScene*, CocoClip*);
-typedef void (CocoEngine::*CocoEventAction)(DeviceEvent* e);
-
-#define trace(...)
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-enum fxEvent
-{
-	LOAD = 0,
-	FOCUS,
-	BLUR,
-	UNLOAD,
-	RESIZE,
-	CLICK,
-	KEYDOWN,
-	KEYPRESS,
-	KEYUP,
-	TOUCHSTART,
-	TOUCHMOVE,
-	TOUCHEND,
-	TOUCHCANCEL,
-	GESTURESTART,
-	GESTURECHANGE,
-	GESTUREEND
-};
-
-////////////////////////////////////////////////////////////////
 #ifdef IOS_APPLICATION
 #define PLATFORM "iOS"
 #define fxAPIGetKey(E) (*(const uint32_t*)(E))
@@ -358,6 +387,8 @@ enum fxEvent
 #define fxAPIGetChangedTouchEventY(E, I) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].y)
 #define fxAPIGetTouchesLength(E) ([[(UIEvent*)E allTouches] count])
 #define fxAPIGetChangedTouchesLength(E) ([[(UIEvent*)E allTouches] count])
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #elif ANDROID_APPLICATION
 #define PLATFORM "Android"
 #include <jni.h>
@@ -370,6 +401,8 @@ enum fxEvent
 #define fxAPIGetChangedTouchEventY(E, I) AMotionEvent_getY((AInputEvent*)E, I)
 #define fxAPIGetTouchesLength(E) AMotionEvent_getPointerCount((AInputEvent*)E)
 #define fxAPIGetChangedTouchesLength(E) AMotionEvent_getPointerCount((AInputEvent*)E)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #else
 #define PLATFORM "General"
 #define fxAPIGetKey(E)(*(const uint32_t*)(E))
@@ -382,10 +415,8 @@ enum fxEvent
 #define fxAPIGetTouchesLength(E) (((QEvent*)(E))->type() == QEvent::MouseButtonRelease ? 0 : 1)
 #define fxAPIGetChangedTouchesLength(E) 1
 #endif
-////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_FX_DEBUG
 #ifdef ANDROID_APPLICATION
 #include <android/log.h>
@@ -400,19 +431,15 @@ enum fxEvent
 #define LOGI(...)
 #define LOGW(...)
 #endif
-////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_PNG_SUPPORT
 #include <png.h>
 #elif !DISABLE_PNG_SUPPORT
 #warning "Building without PNG support!"
 #endif
-////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_JPG_SUPPORT
 #undef FALSE
 #undef TRUE
@@ -420,10 +447,8 @@ enum fxEvent
 #elif !DISABLE_JPG_SUPPORT
 #warning "Building without JPG support!"
 #endif
-////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_OGG_SUPPORT
 #define AUDIO_SAMPLE_SIZE 2
 #define AUDIO_FORMAT_MONO AL_FORMAT_MONO16
@@ -432,10 +457,8 @@ enum fxEvent
 #elif !DISABLE_OGG_SUPPORT
 #warning "Building without Vorbis OGG support!"
 #endif
-////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_OPENAL_SUPPORT
 #ifdef IOS_APPLICATION
 #include <OpenAL/al.h>
@@ -447,29 +470,23 @@ enum fxEvent
 #elif !DISABLE_OPENAL_SUPPORT
 #warning "Building without Audio support!"
 #endif
-////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_FREETYPE_SUPPORT
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #elif !DISABLE_FREETYPE_SUPPORT
 #warning "Building without Font support!"
 #endif
-////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_CURL_SUPPORT
 #include <curl.h>
 #elif !DISABLE_CURL_SUPPORT
 #warning "Building without XMLHttpRequest support!"
 #endif
-////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_OPENGL_SUPPORT
 #ifdef ANDROID_APPLICATION
 #include <EGL/egl.h>
@@ -482,16 +499,13 @@ enum fxEvent
 #elif !DISABLE_OPENGL_SUPPORT
 #warning "Building without OpenGL support!"
 #endif
-////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #define JSINTERVAL_MIN 4
 #define JSTOUCHLIST_MAX_LENGTH 5
 #define SHADER_SOURCE_BUFFER_SIZE 4096
 #define INFO_LOG_BUFFER_SIZE 4096
 #define fxObjectUID size_t
-
 
 #endif
 

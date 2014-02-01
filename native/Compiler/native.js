@@ -243,11 +243,9 @@ CPPCompiler.prototype.compile = function (ast)
 
 		file = path + ast.name + ".cpp";
 		jsppCallback("module", ast.path, file, 0, 0, formatCPP(CPP.join("")));
-		trace("Generated " + file);
 
 		file = path + ast.name + ".hpp";
 		jsppCallback("module", ast.path, file, 0, 0, formatCPP(HPP.join("")));
-		trace("Generated " + file);
 
 		break;
 
@@ -286,7 +284,6 @@ CPPCompiler.prototype.compile = function (ast)
 
 		var fn = (ast.static ? "static " :"") + (ast.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : ast.returntype + (ast.isPointer ? "*" : "") + " ") + name + hppParamList + ";";
 		HPP.push(fn);
-		if(ast.static) trace(fn);
 
         CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 		CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.isPointer?"*":"") + " ") + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
@@ -675,8 +672,6 @@ CPPCompiler.prototype.compile = function (ast)
 			out.push("("+generate(ast[item]).CPP+")");
 		}
 		out = out.join("");
-		//trace(ast.parent.parent.source + " ---> " + vartype);
-		//trace(out);
 		CPP.push(out);
 		break;
 

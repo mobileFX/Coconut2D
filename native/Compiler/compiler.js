@@ -86,6 +86,18 @@
    	   array items are being destructed one by one.
    20. Added "#include" and other compiler directives (mostly required by the IDE)
 
+   == 01/02/2014 ==
+
+   21. Added Enums in classes
+   22. Added function overloading at compile time. Overloaded functions are named <function_name>$<index> and the compiler determines which overload to use.
+   23. Added static functions (not proper implementation yet but works)
+   24. Added properties.
+   25. Implemented PRIVATE the same way as PROTECTED
+   26. Completely re-wrote jsdef.IDENTIFIER generator (MAJOR REWRITE!)
+   27. Re-engineered jsdef.CLASS generator
+   28. Added C++ generator (detects pointers!!) for seamlessly compiling JavaScript++ to native C++ for iOS and Android.
+
+
 
 	Elias G. Politakis
 	epolitakis@mobilefx.com
@@ -1057,7 +1069,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				buff = RxReplace(buff, "\\{[\\s\\t\\n\\r]*\\}", "mg", "{}");
 				buff = RxReplace(buff, "(^[\\s\\t\\n\\r]*$)+", "mg", "");
 				jsppCallback("module", ast.path, file, 0, 0, buff);
-				trace("Generated file: " + file);
 			}
 			break;
 
@@ -1228,10 +1239,12 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 				functionSymbol.arguments[varSymbol.name] = varSymbol;
 
     			// Record vartype usage in class level (used to check #includes)
+    			/*
 				if(varSymbol.subtype)
 					parentScope.vartypes[varSymbol.subtype] = true;
 				else if(varSymbol.vartype)
 						parentScope.vartypes[varSymbol.vartype] = true;
+						*/
 
 			}
 			paramsList = "(" + paramsList + ")";
@@ -2643,8 +2656,6 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 			constructor.classId = classId;
 			constructor.className = className;
-
-			trace("Converting prototype symbol to class symbol: " + className);
 
 			var scope = _this.NewScope(ast);
 			_this.scopesStack.pop();

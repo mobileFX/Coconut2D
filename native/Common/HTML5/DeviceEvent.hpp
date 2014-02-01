@@ -28,6 +28,8 @@ public:
 	TouchList* changedTouches;
 	float scale;
 	float rotation;
+	int clientX;
+	int clientY;
 	int __clientX;
 	int __clientY;
 	DeviceEvent();

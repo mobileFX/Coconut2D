@@ -10,8 +10,8 @@ SceneTitle::SceneTitle()
 	__view_pixel_ratio = 1;
 	CocoImage* Image_INTRO_PAPYRI = newResourceImage("INTRO_PAPYRI", "./assets/images/");
 	{
-		Image_INTRO_PAPYRI->viewOptimalWidth = 572;
-		Image_INTRO_PAPYRI->viewOptimalHeight = 429;
+		Image_INTRO_PAPYRI->viewOptimalWidth = 0;
+		Image_INTRO_PAPYRI->viewOptimalHeight = 0;
 		Image_INTRO_PAPYRI->addSibling(new CocoImageSibling("INTRO_PAPYRI_mdpi.png", 1, 1024, 768));
 		Image_INTRO_PAPYRI->addSibling(new CocoImageSibling("INTRO_PAPYRI_xhdpi.png", 2, 2048, 1536));
 		Image_INTRO_PAPYRI->textureCellWidth = 1024;
@@ -20,8 +20,8 @@ SceneTitle::SceneTitle()
 	}
 	CocoImage* Image_INTRO_SHIELD = newResourceImage("INTRO_SHIELD", "./assets/images/");
 	{
-		Image_INTRO_SHIELD->viewOptimalWidth = 521;
-		Image_INTRO_SHIELD->viewOptimalHeight = 391;
+		Image_INTRO_SHIELD->viewOptimalWidth = 0;
+		Image_INTRO_SHIELD->viewOptimalHeight = 0;
 		Image_INTRO_SHIELD->addSibling(new CocoImageSibling("INTRO_SHIELD_mdpi.png", 1, 1024, 768));
 		Image_INTRO_SHIELD->addSibling(new CocoImageSibling("INTRO_SHIELD_xhdpi.png", 2, 2048, 1536));
 		Image_INTRO_SHIELD->textureCellWidth = 1024;
@@ -30,8 +30,8 @@ SceneTitle::SceneTitle()
 	}
 	CocoImage* Image_title_screen = newResourceImage("title_screen", "./assets/images/");
 	{
-		Image_title_screen->viewOptimalWidth = 572;
-		Image_title_screen->viewOptimalHeight = 429;
+		Image_title_screen->viewOptimalWidth = 0;
+		Image_title_screen->viewOptimalHeight = 0;
 		Image_title_screen->addSibling(new CocoImageSibling("title_screen_mdpi.png", 1, 1024, 768));
 		Image_title_screen->addSibling(new CocoImageSibling("title_screen_xhdpi.png", 2, 2048, 1536));
 		Image_title_screen->textureCellWidth = 1024;
@@ -40,8 +40,8 @@ SceneTitle::SceneTitle()
 	}
 	CocoImage* Image_TITLE_SCREEN_LOGO = newResourceImage("TITLE_SCREEN_LOGO", "./assets/images/");
 	{
-		Image_TITLE_SCREEN_LOGO->viewOptimalWidth = 249;
-		Image_TITLE_SCREEN_LOGO->viewOptimalHeight = 293;
+		Image_TITLE_SCREEN_LOGO->viewOptimalWidth = 0;
+		Image_TITLE_SCREEN_LOGO->viewOptimalHeight = 0;
 		Image_TITLE_SCREEN_LOGO->addSibling(new CocoImageSibling("TITLE_SCREEN_LOGO_mdpi.png", 1, 542, 638));
 		Image_TITLE_SCREEN_LOGO->addSibling(new CocoImageSibling("TITLE_SCREEN_LOGO_xhdpi.png", 2, 1084, 1276));
 		Image_TITLE_SCREEN_LOGO->textureCellWidth = 542;

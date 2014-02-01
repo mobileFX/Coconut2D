@@ -130,15 +130,15 @@ function compile_jspp(code, infolder, outfolder)
 		}
 
 		// Parse source code
+		trace("Parsing JavaScript++ files ...");
 		narcissus.__messages = true;
 		narcissus.__cpp = false;
 		var ast = narcissus.jsparse(code, codeFile);
 
 		// Compile ast
+		trace("Compiling JavaScript++ to JavaScript ...");
 		var compiler = new Compiler(ast, infolder, outfolder, compilerFolder, true, null);
 		compiler.compile();
-
-		trace("JavaScript Code generation Done.");
 	}
 	catch(e)
 	{
@@ -163,13 +163,13 @@ function compile_cpp(code, infolder, outfolder)
 		}
 
 		// Parse source code
+		trace("Parsing JavaScript++ files ...");
 		narcissus.__messages = true;
 		narcissus.__cpp = true;
 		var ast = narcissus.jsparse(code);
 
 		// Compile ast to JavaScript to build symbol tables
-
-
+		trace("Compiling JavaScript++ to C++ ...");
 		var compiler = new Compiler(ast, infolder, null, null, false, null);
 		compiler.compile();
 
@@ -179,12 +179,10 @@ function compile_cpp(code, infolder, outfolder)
 
 		// Update Coconut2D.hpp
 		jsppCallback("coconut2d.hpp", "", "", 0, 0, compiler.getClassList());
-
-		trace("C++ Code generation Done.");
 	}
 	catch(e)
 	{
-		trace("ERROR: " +e);
+		//trace("ERROR: " +e);
 	}
 }
 
@@ -204,6 +202,6 @@ function parse_jspp(code, className)
 	}
 	catch(e)
 	{
-		trace("ERROR: " +e);
+		//trace("ERROR: " +e);
 	}
 }

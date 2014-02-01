@@ -15,6 +15,7 @@
 //extern fxArgs* fxArgs::Args;
 extern char* fxFile::filesPath;
 extern char* fxFile::assetPath;
+CocoEngine* engine;
 
 //#define DEBUG_LOG_TO_REMOTE_CONSOLE "192.168.1.166"
 

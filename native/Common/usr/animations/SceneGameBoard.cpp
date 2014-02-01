@@ -10,8 +10,8 @@ SceneGameBoard::SceneGameBoard()
 	__view_pixel_ratio = 1;
 	CocoImage* Image_backround = newResourceImage("backround", "./assets/images/");
 	{
-		Image_backround->viewOptimalWidth = 572;
-		Image_backround->viewOptimalHeight = 429;
+		Image_backround->viewOptimalWidth = 0;
+		Image_backround->viewOptimalHeight = 0;
 		Image_backround->addSibling(new CocoImageSibling("backround_ldpi.png", 0.75, 429, 322));
 		Image_backround->addSibling(new CocoImageSibling("backround_mdpi.png", 1, 572, 429));
 		Image_backround->addSibling(new CocoImageSibling("backround_tvdpi.png", 1.25, 715, 536));
@@ -23,8 +23,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_AVATAR_BAR = newResourceImage("AVATAR_BAR", "./assets/images/");
 	{
-		Image_AVATAR_BAR->viewOptimalWidth = 222;
-		Image_AVATAR_BAR->viewOptimalHeight = 41;
+		Image_AVATAR_BAR->viewOptimalWidth = 0;
+		Image_AVATAR_BAR->viewOptimalHeight = 0;
 		Image_AVATAR_BAR->addSibling(new CocoImageSibling("AVATAR_BAR_ldpi.png", 0.75, 166, 31));
 		Image_AVATAR_BAR->addSibling(new CocoImageSibling("AVATAR_BAR_mdpi.png", 1, 222, 41));
 		Image_AVATAR_BAR->addSibling(new CocoImageSibling("AVATAR_BAR_tvdpi.png", 1.25, 278, 51));
@@ -36,8 +36,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_Balance = newResourceImage("Balance", "./assets/images/");
 	{
-		Image_Balance->viewOptimalWidth = 93;
-		Image_Balance->viewOptimalHeight = 44;
+		Image_Balance->viewOptimalWidth = 0;
+		Image_Balance->viewOptimalHeight = 0;
 		Image_Balance->addSibling(new CocoImageSibling("Balance_ldpi.png", 0.75, 69, 33));
 		Image_Balance->addSibling(new CocoImageSibling("Balance_mdpi.png", 1, 92, 44));
 		Image_Balance->addSibling(new CocoImageSibling("Balance_tvdpi.png", 1.25, 115, 55));
@@ -49,8 +49,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_winnings = newResourceImage("winnings", "./assets/images/");
 	{
-		Image_winnings->viewOptimalWidth = 93;
-		Image_winnings->viewOptimalHeight = 44;
+		Image_winnings->viewOptimalWidth = 0;
+		Image_winnings->viewOptimalHeight = 0;
 		Image_winnings->addSibling(new CocoImageSibling("winnings_ldpi.png", 0.75, 69, 33));
 		Image_winnings->addSibling(new CocoImageSibling("winnings_mdpi.png", 1, 92, 44));
 		Image_winnings->addSibling(new CocoImageSibling("winnings_tvdpi.png", 1.25, 115, 55));
@@ -62,8 +62,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_grWhiteStar = newResourceImage("grWhiteStar", "./assets/images/");
 	{
-		Image_grWhiteStar->viewOptimalWidth = 24;
-		Image_grWhiteStar->viewOptimalHeight = 24;
+		Image_grWhiteStar->viewOptimalWidth = 0;
+		Image_grWhiteStar->viewOptimalHeight = 0;
 		Image_grWhiteStar->addSibling(new CocoImageSibling("grWhiteStar_ldpi.png", 0.75, 18, 18));
 		Image_grWhiteStar->addSibling(new CocoImageSibling("grWhiteStar_mdpi.png", 1, 24, 24));
 		Image_grWhiteStar->addSibling(new CocoImageSibling("grWhiteStar_tvdpi.png", 1.25, 30, 30));
@@ -75,8 +75,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_openunpressed = newResourceImage("openunpressed", "./assets/images/");
 	{
-		Image_openunpressed->viewOptimalWidth = 69;
-		Image_openunpressed->viewOptimalHeight = 69;
+		Image_openunpressed->viewOptimalWidth = 0;
+		Image_openunpressed->viewOptimalHeight = 0;
 		Image_openunpressed->addSibling(new CocoImageSibling("openunpressed_ldpi.png", 0.75, 52, 52));
 		Image_openunpressed->addSibling(new CocoImageSibling("openunpressed_mdpi.png", 1, 69, 69));
 		Image_openunpressed->addSibling(new CocoImageSibling("openunpressed_tvdpi.png", 1.25, 86, 86));
@@ -88,8 +88,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_LEONIDAS_body = newResourceImage("LEONIDAS_body", "./assets/images/");
 	{
-		Image_LEONIDAS_body->viewOptimalWidth = 294;
-		Image_LEONIDAS_body->viewOptimalHeight = 330;
+		Image_LEONIDAS_body->viewOptimalWidth = 0;
+		Image_LEONIDAS_body->viewOptimalHeight = 0;
 		Image_LEONIDAS_body->addSibling(new CocoImageSibling("LEONIDAS_body_mdpi.png", 1, 294, 330));
 		Image_LEONIDAS_body->addSibling(new CocoImageSibling("LEONIDAS_body_xhdpi.png", 2, 588, 659));
 		Image_LEONIDAS_body->textureCellWidth = 294;
@@ -98,8 +98,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_LEONIDAS_hand = newResourceImage("LEONIDAS_hand", "./assets/images/");
 	{
-		Image_LEONIDAS_hand->viewOptimalWidth = 43;
-		Image_LEONIDAS_hand->viewOptimalHeight = 105;
+		Image_LEONIDAS_hand->viewOptimalWidth = 0;
+		Image_LEONIDAS_hand->viewOptimalHeight = 0;
 		Image_LEONIDAS_hand->addSibling(new CocoImageSibling("LEONIDAS_hand_mdpi.png", 1, 43, 105));
 		Image_LEONIDAS_hand->addSibling(new CocoImageSibling("LEONIDAS_hand_xhdpi.png", 2, 86, 210));
 		Image_LEONIDAS_hand->textureCellWidth = 43;
@@ -108,8 +108,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_XERXES_Body = newResourceImage("XERXES_Body", "./assets/images/");
 	{
-		Image_XERXES_Body->viewOptimalWidth = 68;
-		Image_XERXES_Body->viewOptimalHeight = 102;
+		Image_XERXES_Body->viewOptimalWidth = 0;
+		Image_XERXES_Body->viewOptimalHeight = 0;
 		Image_XERXES_Body->addSibling(new CocoImageSibling("XERXES_Body_ldpi.png", 0.75, 51, 76));
 		Image_XERXES_Body->addSibling(new CocoImageSibling("XERXES_Body_mdpi.png", 1, 68, 102));
 		Image_XERXES_Body->addSibling(new CocoImageSibling("XERXES_Body_tvdpi.png", 1.25, 85, 128));
@@ -121,8 +121,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_Xerxes_Sleeve = newResourceImage("Xerxes_Sleeve", "./assets/images/");
 	{
-		Image_Xerxes_Sleeve->viewOptimalWidth = 12;
-		Image_Xerxes_Sleeve->viewOptimalHeight = 11;
+		Image_Xerxes_Sleeve->viewOptimalWidth = 0;
+		Image_Xerxes_Sleeve->viewOptimalHeight = 0;
 		Image_Xerxes_Sleeve->addSibling(new CocoImageSibling("Xerxes_Sleeve_ldpi.png", 0.75, 9, 8));
 		Image_Xerxes_Sleeve->addSibling(new CocoImageSibling("Xerxes_Sleeve_mdpi.png", 1, 12, 11));
 		Image_Xerxes_Sleeve->addSibling(new CocoImageSibling("Xerxes_Sleeve_tvdpi.png", 1.25, 15, 14));
@@ -134,8 +134,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_XERXES_hand = newResourceImage("XERXES_hand", "./assets/images/");
 	{
-		Image_XERXES_hand->viewOptimalWidth = 28;
-		Image_XERXES_hand->viewOptimalHeight = 25;
+		Image_XERXES_hand->viewOptimalWidth = 0;
+		Image_XERXES_hand->viewOptimalHeight = 0;
 		Image_XERXES_hand->addSibling(new CocoImageSibling("XERXES_hand_ldpi.png", 0.75, 21, 19));
 		Image_XERXES_hand->addSibling(new CocoImageSibling("XERXES_hand_mdpi.png", 1, 28, 25));
 		Image_XERXES_hand->addSibling(new CocoImageSibling("XERXES_hand_tvdpi.png", 1.25, 35, 31));
@@ -147,8 +147,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_XerxesClipHead2 = newResourceImage("XerxesClipHead2", "./assets/images/");
 	{
-		Image_XerxesClipHead2->viewOptimalWidth = 21;
-		Image_XerxesClipHead2->viewOptimalHeight = 32;
+		Image_XerxesClipHead2->viewOptimalWidth = 0;
+		Image_XerxesClipHead2->viewOptimalHeight = 0;
 		Image_XerxesClipHead2->addSibling(new CocoImageSibling("XerxesClipHead2_mdpi.png", 1, 61, 90));
 		Image_XerxesClipHead2->addSibling(new CocoImageSibling("XerxesClipHead2_xhdpi.png", 2, 122, 180));
 		Image_XerxesClipHead2->textureCellWidth = 61;
@@ -158,8 +158,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_grid_tile = newResourceImage("grid_tile", "./assets/images/");
 	{
-		Image_grid_tile->viewOptimalWidth = 53;
-		Image_grid_tile->viewOptimalHeight = 53;
+		Image_grid_tile->viewOptimalWidth = 0;
+		Image_grid_tile->viewOptimalHeight = 0;
 		Image_grid_tile->addSibling(new CocoImageSibling("grid_tile_ldpi.png", 0.75, 40, 40));
 		Image_grid_tile->addSibling(new CocoImageSibling("grid_tile_mdpi.png", 1, 53, 53));
 		Image_grid_tile->addSibling(new CocoImageSibling("grid_tile_tvdpi.png", 1.25, 66, 66));
@@ -171,8 +171,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_ticket_price = newResourceImage("ticket_price", "./assets/images/");
 	{
-		Image_ticket_price->viewOptimalWidth = 86;
-		Image_ticket_price->viewOptimalHeight = 14;
+		Image_ticket_price->viewOptimalWidth = 0;
+		Image_ticket_price->viewOptimalHeight = 0;
 		Image_ticket_price->addSibling(new CocoImageSibling("ticket_price_ldpi.png", 0.75, 64, 10));
 		Image_ticket_price->addSibling(new CocoImageSibling("ticket_price_mdpi.png", 1, 86, 14));
 		Image_ticket_price->addSibling(new CocoImageSibling("ticket_price_tvdpi.png", 1.25, 108, 18));
@@ -184,8 +184,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_PriceTable = newResourceImage("PriceTable", "./assets/images/");
 	{
-		Image_PriceTable->viewOptimalWidth = 89;
-		Image_PriceTable->viewOptimalHeight = 92;
+		Image_PriceTable->viewOptimalWidth = 0;
+		Image_PriceTable->viewOptimalHeight = 0;
 		Image_PriceTable->addSibling(new CocoImageSibling("PriceTable_ldpi.png", 0.75, 67, 69));
 		Image_PriceTable->addSibling(new CocoImageSibling("PriceTable_mdpi.png", 1, 89, 92));
 		Image_PriceTable->addSibling(new CocoImageSibling("PriceTable_tvdpi.png", 1.25, 111, 115));
@@ -197,8 +197,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_StoneTile_Back = newResourceImage("StoneTile_Back", "./assets/images/");
 	{
-		Image_StoneTile_Back->viewOptimalWidth = 57;
-		Image_StoneTile_Back->viewOptimalHeight = 57;
+		Image_StoneTile_Back->viewOptimalWidth = 0;
+		Image_StoneTile_Back->viewOptimalHeight = 0;
 		Image_StoneTile_Back->addSibling(new CocoImageSibling("StoneTile_Back_ldpi.png", 0.75, 47, 47));
 		Image_StoneTile_Back->addSibling(new CocoImageSibling("StoneTile_Back_mdpi.png", 1, 63, 63));
 		Image_StoneTile_Back->addSibling(new CocoImageSibling("StoneTile_Back_tvdpi.png", 1.25, 79, 79));
@@ -210,8 +210,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_ImageSymbol_txtChooseAvatar = newResourceImage("ImageSymbol_txtChooseAvatar", "./assets/images/");
 	{
-		Image_ImageSymbol_txtChooseAvatar->viewOptimalWidth = 178;
-		Image_ImageSymbol_txtChooseAvatar->viewOptimalHeight = 18;
+		Image_ImageSymbol_txtChooseAvatar->viewOptimalWidth = 0;
+		Image_ImageSymbol_txtChooseAvatar->viewOptimalHeight = 0;
 		Image_ImageSymbol_txtChooseAvatar->addSibling(new CocoImageSibling("txtChooseAvatar_mdpi.png", 1, 178, 18));
 		Image_ImageSymbol_txtChooseAvatar->addSibling(new CocoImageSibling("txtChooseAvatar_xhdpi.png", 2, 356, 36));
 		Image_ImageSymbol_txtChooseAvatar->textureCellWidth = 178;
@@ -220,8 +220,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_ImageSymbol_WIN_Shield = newResourceImage("ImageSymbol_WIN_Shield", "./assets/images/");
 	{
-		Image_ImageSymbol_WIN_Shield->viewOptimalWidth = 357;
-		Image_ImageSymbol_WIN_Shield->viewOptimalHeight = 321;
+		Image_ImageSymbol_WIN_Shield->viewOptimalWidth = 0;
+		Image_ImageSymbol_WIN_Shield->viewOptimalHeight = 0;
 		Image_ImageSymbol_WIN_Shield->addSibling(new CocoImageSibling("WIN_Shield_mdpi.png", 1, 357, 321));
 		Image_ImageSymbol_WIN_Shield->addSibling(new CocoImageSibling("WIN_Shield_xhdpi.png", 2, 714, 642));
 		Image_ImageSymbol_WIN_Shield->textureCellWidth = 357;
@@ -230,8 +230,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_ImageSymbol_WIN_Logo = newResourceImage("ImageSymbol_WIN_Logo", "./assets/images/");
 	{
-		Image_ImageSymbol_WIN_Logo->viewOptimalWidth = 334;
-		Image_ImageSymbol_WIN_Logo->viewOptimalHeight = 300;
+		Image_ImageSymbol_WIN_Logo->viewOptimalWidth = 0;
+		Image_ImageSymbol_WIN_Logo->viewOptimalHeight = 0;
 		Image_ImageSymbol_WIN_Logo->addSibling(new CocoImageSibling("WIN_Logo_mdpi.png", 1, 334, 300));
 		Image_ImageSymbol_WIN_Logo->addSibling(new CocoImageSibling("WIN_Logo_xhdpi.png", 2, 668, 600));
 		Image_ImageSymbol_WIN_Logo->textureCellWidth = 334;
@@ -240,8 +240,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_ImageSymbol_cloud2 = newResourceImage("ImageSymbol_cloud2", "./assets/images/");
 	{
-		Image_ImageSymbol_cloud2->viewOptimalWidth = 190;
-		Image_ImageSymbol_cloud2->viewOptimalHeight = 58;
+		Image_ImageSymbol_cloud2->viewOptimalWidth = 0;
+		Image_ImageSymbol_cloud2->viewOptimalHeight = 0;
 		Image_ImageSymbol_cloud2->addSibling(new CocoImageSibling("cloud2_mdpi.png", 1, 190, 58));
 		Image_ImageSymbol_cloud2->addSibling(new CocoImageSibling("cloud2_xhdpi.png", 2, 380, 116));
 		Image_ImageSymbol_cloud2->textureCellWidth = 190;
@@ -250,8 +250,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_ImageSymbol_cloud5 = newResourceImage("ImageSymbol_cloud5", "./assets/images/");
 	{
-		Image_ImageSymbol_cloud5->viewOptimalWidth = 102;
-		Image_ImageSymbol_cloud5->viewOptimalHeight = 25;
+		Image_ImageSymbol_cloud5->viewOptimalWidth = 0;
+		Image_ImageSymbol_cloud5->viewOptimalHeight = 0;
 		Image_ImageSymbol_cloud5->addSibling(new CocoImageSibling("cloud5_mdpi.png", 1, 102, 25));
 		Image_ImageSymbol_cloud5->addSibling(new CocoImageSibling("cloud5_xhdpi.png", 2, 204, 50));
 		Image_ImageSymbol_cloud5->textureCellWidth = 102;
@@ -260,8 +260,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_TileOnly = newResourceImage("TileOnly", "./assets/images/");
 	{
-		Image_TileOnly->viewOptimalWidth = 48;
-		Image_TileOnly->viewOptimalHeight = 49;
+		Image_TileOnly->viewOptimalWidth = 0;
+		Image_TileOnly->viewOptimalHeight = 0;
 		Image_TileOnly->addSibling(new CocoImageSibling("TileOnly_ldpi.png", 0.75, 36, 37));
 		Image_TileOnly->addSibling(new CocoImageSibling("TileOnly_mdpi.png", 1, 48, 49));
 		Image_TileOnly->addSibling(new CocoImageSibling("TileOnly_tvdpi.png", 1.25, 60, 61));
@@ -273,8 +273,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_buyunpressed = newResourceImage("buyunpressed", "./assets/images/");
 	{
-		Image_buyunpressed->viewOptimalWidth = 125;
-		Image_buyunpressed->viewOptimalHeight = 125;
+		Image_buyunpressed->viewOptimalWidth = 0;
+		Image_buyunpressed->viewOptimalHeight = 0;
 		Image_buyunpressed->addSibling(new CocoImageSibling("buyunpressed_mdpi.png", 1, 125, 125));
 		Image_buyunpressed->addSibling(new CocoImageSibling("buyunpressed_xhdpi.png", 2, 250, 250));
 		Image_buyunpressed->textureCellWidth = 125;
@@ -283,8 +283,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_SpriteSymbol_XerxesAvatar = newResourceImage("SpriteSymbol_XerxesAvatar", "./assets/images/");
 	{
-		Image_SpriteSymbol_XerxesAvatar->viewOptimalWidth = 52;
-		Image_SpriteSymbol_XerxesAvatar->viewOptimalHeight = 53;
+		Image_SpriteSymbol_XerxesAvatar->viewOptimalWidth = 0;
+		Image_SpriteSymbol_XerxesAvatar->viewOptimalHeight = 0;
 		Image_SpriteSymbol_XerxesAvatar->addSibling(new CocoImageSibling("XerxesAvatar_mdpi.png", 1, 160, 160));
 		Image_SpriteSymbol_XerxesAvatar->addSibling(new CocoImageSibling("XerxesAvatar_xhdpi.png", 2, 320, 320));
 		Image_SpriteSymbol_XerxesAvatar->textureCellWidth = 160;
@@ -294,8 +294,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_SpriteSymbol_SwordsAvatar = newResourceImage("SpriteSymbol_SwordsAvatar", "./assets/images/");
 	{
-		Image_SpriteSymbol_SwordsAvatar->viewOptimalWidth = 52;
-		Image_SpriteSymbol_SwordsAvatar->viewOptimalHeight = 53;
+		Image_SpriteSymbol_SwordsAvatar->viewOptimalWidth = 0;
+		Image_SpriteSymbol_SwordsAvatar->viewOptimalHeight = 0;
 		Image_SpriteSymbol_SwordsAvatar->addSibling(new CocoImageSibling("SwordsAvatar_mdpi.png", 1, 160, 160));
 		Image_SpriteSymbol_SwordsAvatar->addSibling(new CocoImageSibling("SwordsAvatar_xhdpi.png", 2, 320, 320));
 		Image_SpriteSymbol_SwordsAvatar->textureCellWidth = 160;
@@ -305,8 +305,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_SpriteSymbol_LeonidasAvatar = newResourceImage("SpriteSymbol_LeonidasAvatar", "./assets/images/");
 	{
-		Image_SpriteSymbol_LeonidasAvatar->viewOptimalWidth = 48;
-		Image_SpriteSymbol_LeonidasAvatar->viewOptimalHeight = 49;
+		Image_SpriteSymbol_LeonidasAvatar->viewOptimalWidth = 0;
+		Image_SpriteSymbol_LeonidasAvatar->viewOptimalHeight = 0;
 		Image_SpriteSymbol_LeonidasAvatar->addSibling(new CocoImageSibling("LeonidasAvatar_mdpi.png", 1, 160, 160));
 		Image_SpriteSymbol_LeonidasAvatar->addSibling(new CocoImageSibling("LeonidasAvatar_xhdpi.png", 2, 320, 320));
 		Image_SpriteSymbol_LeonidasAvatar->textureCellWidth = 160;
@@ -316,8 +316,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_ImageSymbol_avatarArmor = newResourceImage("ImageSymbol_avatarArmor", "./assets/images/");
 	{
-		Image_ImageSymbol_avatarArmor->viewOptimalWidth = 48;
-		Image_ImageSymbol_avatarArmor->viewOptimalHeight = 49;
+		Image_ImageSymbol_avatarArmor->viewOptimalWidth = 0;
+		Image_ImageSymbol_avatarArmor->viewOptimalHeight = 0;
 		Image_ImageSymbol_avatarArmor->addSibling(new CocoImageSibling("avatarArmor_mdpi.png", 1, 160, 160));
 		Image_ImageSymbol_avatarArmor->addSibling(new CocoImageSibling("avatarArmor_xhdpi.png", 2, 320, 320));
 		Image_ImageSymbol_avatarArmor->textureCellWidth = 160;
@@ -326,8 +326,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_ImageSymbol_avatarSpartan = newResourceImage("ImageSymbol_avatarSpartan", "./assets/images/");
 	{
-		Image_ImageSymbol_avatarSpartan->viewOptimalWidth = 48;
-		Image_ImageSymbol_avatarSpartan->viewOptimalHeight = 49;
+		Image_ImageSymbol_avatarSpartan->viewOptimalWidth = 0;
+		Image_ImageSymbol_avatarSpartan->viewOptimalHeight = 0;
 		Image_ImageSymbol_avatarSpartan->addSibling(new CocoImageSibling("avatarSpartan_mdpi.png", 1, 160, 160));
 		Image_ImageSymbol_avatarSpartan->addSibling(new CocoImageSibling("avatarSpartan_xhdpi.png", 2, 320, 320));
 		Image_ImageSymbol_avatarSpartan->textureCellWidth = 160;
@@ -336,8 +336,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_ImageSymbol_avatarPersian = newResourceImage("ImageSymbol_avatarPersian", "./assets/images/");
 	{
-		Image_ImageSymbol_avatarPersian->viewOptimalWidth = 48;
-		Image_ImageSymbol_avatarPersian->viewOptimalHeight = 49;
+		Image_ImageSymbol_avatarPersian->viewOptimalWidth = 0;
+		Image_ImageSymbol_avatarPersian->viewOptimalHeight = 0;
 		Image_ImageSymbol_avatarPersian->addSibling(new CocoImageSibling("avatarPersian_mdpi.png", 1, 160, 160));
 		Image_ImageSymbol_avatarPersian->addSibling(new CocoImageSibling("avatarPersian_xhdpi.png", 2, 320, 320));
 		Image_ImageSymbol_avatarPersian->textureCellWidth = 160;
@@ -346,8 +346,8 @@ SceneGameBoard::SceneGameBoard()
 	}
 	CocoImage* Image_SpriteSymbol_LeonidasClipHead2 = newResourceImage("SpriteSymbol_LeonidasClipHead2", "./assets/images/");
 	{
-		Image_SpriteSymbol_LeonidasClipHead2->viewOptimalWidth = 43;
-		Image_SpriteSymbol_LeonidasClipHead2->viewOptimalHeight = 41;
+		Image_SpriteSymbol_LeonidasClipHead2->viewOptimalWidth = 0;
+		Image_SpriteSymbol_LeonidasClipHead2->viewOptimalHeight = 0;
 		Image_SpriteSymbol_LeonidasClipHead2->addSibling(new CocoImageSibling("LeonidasClipHead2_mdpi.png", 1, 62, 59));
 		Image_SpriteSymbol_LeonidasClipHead2->addSibling(new CocoImageSibling("LeonidasClipHead2_xhdpi.png", 2, 124, 118));
 		Image_SpriteSymbol_LeonidasClipHead2->textureCellWidth = 62;

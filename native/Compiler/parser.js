@@ -495,7 +495,6 @@ function __init_narcissus(GLOBAL)
 					this.__file = v[v.length-1];
 					this.__fileLineOffset = this.line_start;
 					this.__filePosOffset = this.cursor + token.value.length + 4;
-					if(narcissus.__messages) trace("Parsing file: " + this.__path);
 				}
 				///////////////////////////////////////////////////////////////////
 			}
