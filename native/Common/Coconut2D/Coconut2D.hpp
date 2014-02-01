@@ -102,11 +102,10 @@ class CocoUIPickerView;
 class CocoUIScrollView;
 class CocoUITabView;
 class CocoUITextView;
+class GridSymbol;
+class SceneGameBoard;
+class SceneTitle;
 class GameEngine;
-class BitmapSymbolsTest;
-class SynthesisTest;
-class Test;
-class TestSequences;
 //# DO NOT EDIT END #//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

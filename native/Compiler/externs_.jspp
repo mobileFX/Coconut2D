@@ -1450,6 +1450,7 @@ class CocoTimeline
 class CocoClip
 {
 	public function prepare(scene:CocoScene) {}
+	public function setText(text:String) {}
 	public function createTextTexture(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) {}
 	public function reset() {}
 	public function addChild(clipInstance:CocoClip) :CocoClip {}
@@ -1461,7 +1462,6 @@ class CocoClip
 	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean) :Boolean {}
 	private function __advanceTime(parentClipsDuration:Time) {}
 	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	public function setText(text:String) {}
 	public function hitTest(wx:Float, wy:Float) :Boolean {}
 	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
 	public function initBoundingBoxFromChildren(scene:CocoScene) {}

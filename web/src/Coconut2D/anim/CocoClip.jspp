@@ -131,6 +131,11 @@ class CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function setText(text:String)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function createTextTexture(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer)
 	{
 		delete __image;
@@ -408,7 +413,7 @@ class CocoClip
 	        // =============================================================================================================
 			// Handle touch event
 	        // =============================================================================================================
-			if(__currentFrame.handleEvents && touchEvent)
+			if(calcBoundingBox && __currentFrame.handleEvents)
 			{
 				// Point in quad?
 	   	        var x = (touchEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;
@@ -476,11 +481,6 @@ class CocoClip
 		// Propagate clip's timeline.
 		// =============================================================================================================
 		__advanceTime(parentClipsDuration);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function setText(text:String)
-	{
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
