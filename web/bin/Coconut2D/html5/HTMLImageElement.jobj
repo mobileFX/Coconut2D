@@ -1,0 +1,88 @@
+//@line 37
+
+function Image()
+{
+	var __BASE__ = null;
+
+	function Image(__BASE__)
+	{
+		var __CLASS__IMAGE__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
+		this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		//@line 66
+		var load = this.load = function (url)
+		{
+			//@line 68
+			__CLASS__IMAGE__.__imageData = new ImageData(url);
+			//@line 69
+			__CLASS__IMAGE__.src = __CLASS__IMAGE__.__imageData.src;
+			//@line 70
+			__CLASS__IMAGE__.width = __CLASS__IMAGE__.__imageData.width;
+			//@line 71
+			__CLASS__IMAGE__.height = __CLASS__IMAGE__.__imageData.height;
+			//@line 72
+			__CLASS__IMAGE__.naturalWidth = __CLASS__IMAGE__.__imageData.width;
+			//@line 73
+			__CLASS__IMAGE__.naturalHeight = __CLASS__IMAGE__.__imageData.height;
+			//@line 74
+			__CLASS__IMAGE__.complete = true;
+		};
+		//@line 39
+		this.__imageData = null;
+		//@line 40
+		this.src = "";
+		//@line 41
+		this.width = 0;
+		//@line 42
+		this.height = 0;
+		//@line 43
+		this.naturalWidth = 0;
+		//@line 44
+		this.naturalHeight = 0;
+		//@line 45
+		this.complete = false;
+		var Destructor = this.Destructor = function ()
+		{
+			//@line 62
+			{
+				__CLASS__IMAGE__.__imageData && ((__CLASS__IMAGE__.__imageData.hasOwnProperty('Destructor') && __CLASS__IMAGE__.__imageData.Destructor()) || !__CLASS__IMAGE__.__imageData.hasOwnProperty('Destructor')) && (delete __CLASS__IMAGE__.__imageData);
+				__CLASS__IMAGE__.__imageData = null
+			};
+			{
+				__CLASS__IMAGE__.__imageData = null;
+				__CLASS__IMAGE__.src = null;
+				__CLASS__IMAGE__.width = null;
+				__CLASS__IMAGE__.height = null;
+				__CLASS__IMAGE__.naturalWidth = null;
+				__CLASS__IMAGE__.naturalHeight = null;
+				__CLASS__IMAGE__.complete = null;
+			}
+			return true
+		};
+		//@line 48
+		this.Constructor = function ()
+		{
+			//@line 50
+			__CLASS__IMAGE__.__imageData = null;
+			//@line 51
+			__CLASS__IMAGE__.src = "";
+			//@line 52
+			__CLASS__IMAGE__.width = 0;
+			//@line 53
+			__CLASS__IMAGE__.height = 0;
+			//@line 54
+			__CLASS__IMAGE__.naturalWidth = 0;
+			//@line 55
+			__CLASS__IMAGE__.naturalHeight = 0;
+			//@line 56
+			__CLASS__IMAGE__.complete = false;
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new Image(__BASE__);
+}

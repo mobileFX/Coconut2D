@@ -2464,7 +2464,7 @@ function __init_narcissus(GLOBAL)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	function jsparse(s, f, l)
 	{
-		jsppCallback("module", f, f, 0, 0, s);
+		//jsppCallback("module", f, f, 0, 0, s);
 		var t = new Tokenizer(s, f, l);
 		var x = new CompilerContext(false);
 		var n = Script(t, x);
