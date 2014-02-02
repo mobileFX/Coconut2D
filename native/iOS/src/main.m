@@ -6,15 +6,15 @@
 #include <libgen.h>
 
 #import "Coconut2D.hpp"
-#import "fxFile.h"
+#import "AssetFile.h"
 //#import "fxArgs.h"
 #import "fxFontFace.h"
 #import "fxAudioStream.h"
 #import "fxDeviceWrapper.h"
 
 //extern fxArgs* fxArgs::Args;
-extern char* fxFile::filesPath;
-extern char* fxFile::assetPath;
+extern char* AssetFile::filesPath;
+extern char* AssetFile::assetPath;
 CocoEngine* engine;
 
 //#define DEBUG_LOG_TO_REMOTE_CONSOLE "192.168.1.166"
@@ -48,11 +48,11 @@ int main(int argc, char *argv[])
     bundleDir += "/web/";
     LOGI("documentsDir: %s\nbundleDir: %s\n", documentsDir.c_str(), bundleDir.c_str());
 
-    fxFile::init(documentsDir.c_str(), bundleDir.c_str());
+    AssetFile::init(documentsDir.c_str(), bundleDir.c_str());
     /*fxArgs::init("./args.txt");
 	if(!fxArgs::Args)
 	{
-		fxFile::quit();
+		AssetFile::quit();
 		return ret;
 	}*/
     fxFontFace::init();
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     fxAudioStream::quit();
     fxFontFace::quit();
     //fxArgs::quit();
-    fxFile::quit();
+    AssetFile::quit();
 
     return ret;
 }

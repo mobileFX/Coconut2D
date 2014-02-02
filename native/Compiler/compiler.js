@@ -2157,20 +2157,22 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CALL:
-			var f = generate(ast[0]);
-			var cls = _this.getClass(f);
-			if(cls)
+			var call0 = generate(ast[0]);
+			var call1 = generate(ast[1]);
+			var cls = _this.getClass(call0);
+			if(_this.secondPass && cls)
 			{
 				// Typcast
 				ast.isTypeCasting = true;
-				out.push(generate(ast[1]));
+				ast.castFromType = _this.getTypeName(ast[1][0]);
+				ast.castToType = call0;
+				out.push("("+call1+")");
 			}
 			else
 			{
-				out.push(f);
-				ast[0].type == jsdef.REGEXP && out.push(".exec");
+				out.push(call0);
 				out.push("(");
-				out.push(generate(ast[1]));
+				out.push(call1);
 				out.push(")");
 				_this.checkFunctionCall(ast);
 			}
@@ -2945,7 +2947,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 		if(vartype.charAt(vartype.length-1)!='>') return null;
 
-		var subtype = /<(\w+)>/.exec(vartype)[1];
+		var subtype = /<(\w+)(?:\*)*>/.exec(vartype)[1];
 		return subtype;
 	};
 
@@ -3083,8 +3085,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.CALL:
 			// Typecasting?
 			if(_this.getClass(ast[0].value)) return ast[0].value;
-			var vartype = _this.getTypeName(ast[0]);
-			return vartype;
+			return _this.getTypeName(ast[0]);
 
 		//=============================================================================================================================
 		case jsdef.INDEX:

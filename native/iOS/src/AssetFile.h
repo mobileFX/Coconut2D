@@ -1,47 +1,66 @@
-#ifndef _fxFile_h
-#define _fxFile_h
+#ifndef _AssetFile_h
+#define _AssetFile_h
 
-#include <cstdio>
 #include "Coconut2D.hpp"
 
-class fxFile
+//////////////////////////////////////////////////////////////////////////////////////////////
+class AssetFile//	: public AutoGC<AssetFile>
 {
-private:
-	static char* filesPath;
-    static char* assetPath;
-    
 protected:
-    void* fd;
-    char* file;
-    unsigned char* data;
+
+	// Set the global folders for loading resources.
+	// Especially for Android we also need to define an assets path.
+	static char* filesPath;
+	static char* assetPath;
+
+	void* fd;
+	char* file;
+	unsigned char* data;
 	size_t cursor;
-    bool isAsset;
+	bool isAsset;
 	size_t length;
-    
+
 public:
-	
+
 	enum Type {
 		TYPE_FILE,
 		TYPE_ASSET,
 		TYPE_DATA
 	} type;
-	
+
 	enum MIME {
 		IMAGE_PNG,
 		IMAGE_JPG,
+		AUDIO_OGG,
+		FONT_TTF,
 		MIME_OTHER
 	} mime;
-	
-	static void init(const char* i_filesPath, const char* i_assetPath)
+
+	// ==================================================================================================================================
+	//	   _____ __        __  _     
+	//	  / ___// /_____ _/ /_(_)____
+	//	  \__ \/ __/ __ `/ __/ / ___/
+	//	 ___/ / /_/ /_/ / /_/ / /__  
+	//	/____/\__/\__,_/\__/_/\___/  
+	//	                             
+	// ==================================================================================================================================
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	static void init(const char* FilesPath, const char* AssetPath)
 	{
-        filesPath = strdup(i_filesPath);
-        assetPath = strdup(i_assetPath);
+		filesPath = strdup(FilesPath);
+		assetPath = strdup(AssetPath);
 	}
-    static void quit()
-    {
-        free(filesPath); filesPath = nullptr;
-        free(assetPath); assetPath = nullptr;
-    }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	static void quit()
+	{
+		free(filesPath); filesPath = nullptr;
+		free(assetPath); assetPath = nullptr;
+		//GC();
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
     static bool exists(const char* str, bool isAsset)
     {
         if(isAsset && assetPath && str)
@@ -49,8 +68,10 @@ public:
             std::string temps(assetPath);
             temps += str + 2;
             FILE* f = fopen(temps.c_str(), "rb");
-            if(f) fclose(f);
-            else return false;
+			if(f) 
+				fclose(f);
+            else 
+				return false;
         }
         else if(!isAsset && filesPath && str)
         {
@@ -62,8 +83,9 @@ public:
         }
         else return false;
         return true;
-    }
-    static fxFile* open(const char* str)
+	}
+
+	static AssetFile* open(const char* str)
     {
 		if(!strncmp(str, "data:", 5))
 		{
@@ -71,24 +93,34 @@ public:
 				return createFromBase64(str + 22, IMAGE_PNG);
 			else if(!strncmp(str + 5, "image/jpg;base64,", 17))
 				return createFromBase64(str + 22, IMAGE_JPG);
+			else if(!strncmp(str + 5, "audio/ogg;base64,", 17))
+				return createFromBase64(str + 22, AUDIO_OGG);
+			else if(!strncmp(str + 5, "font/ttf;base64,", 16))
+				return createFromBase64(str + 21, FONT_TTF);
 			else
 			{
 				LOGW("Unsupported data!");
-				return NULL;
+				return nullptr;
 			}
 		}
         if(str && strlen(str) > 2 && str[0] == '.' && str[1] == '/')
         {
-            if(exists(str, false)) return new fxFile(str, false);
-            else if(exists(str, true)) return new fxFile(str, true);
-			else LOGW("Could not open file: %s\n", str);
+            if(exists(str, false)) 
+				return new AssetFile(str, false);
+            else if(exists(str, true)) 
+				return new AssetFile(str, true);
         }
-        return nullptr;
+		LOGW("File does not exist!\n");
+		return NULL;
     }
-    static bool create(const char* str)
-    {
-        return createWithData(str, nullptr, 0);
-    }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	static bool create(const char* str)
+	{
+		return createWithData(str, nullptr);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
     static bool createWithData(const char* str, const char* data, size_t size = 0)
     {
         if(filesPath && str)
@@ -110,7 +142,8 @@ public:
         else return false;
         return true;
     }
-	static fxFile* createFromBase64(const char* str, MIME mime)
+
+	static AssetFile* createFromBase64(const char* str, MIME mime)
 	{
 		// -43
 		static const unsigned char unb64[] = { 62, 0, 0, 0, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0, 0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
@@ -119,7 +152,7 @@ public:
 		int pad = 0;
 		if(str[len - 1] == '=') pad++;
 		if(str[len - 2] == '=') pad++;
-		fxFile* ret = new fxFile(3 * len / 4 - pad);
+		AssetFile* ret = new AssetFile(3 * len / 4 - pad);
 		ret->mime = mime;
 		size_t i, c = 0;
 		unsigned char A, B, C, D;
@@ -152,13 +185,23 @@ public:
 		}
 		return ret;
 	}
-	
-	fxFile(size_t i_length) : fd(nullptr), file(nullptr), data(nullptr), cursor(0), length(i_length), type(TYPE_DATA), mime(MIME_OTHER)
+
+	// ==================================================================================================================================
+	//	    ____           __                      
+	//	   /  _/___  _____/ /_____ _____  ________ 
+	//	   / // __ \/ ___/ __/ __ `/ __ \/ ___/ _ \
+	//	 _/ // / / (__  ) /_/ /_/ / / / / /__/  __/
+	//	/___/_/ /_/____/\__/\__,_/_/ /_/\___/\___/ 
+	//	                                           
+	// ==================================================================================================================================
+
+	AssetFile(size_t i_length) : fd(nullptr), file(nullptr), data(nullptr), cursor(0), length(i_length), type(TYPE_DATA), mime(MIME_OTHER)
 	{
 		data = new unsigned char[length];
 	}
-	
-	fxFile(const char* str, bool i_isAsset) : fd(nullptr), file(nullptr), data(nullptr), isAsset(i_isAsset), length(0), mime(MIME_OTHER)
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	AssetFile(const char* str, bool i_isAsset) : fd(nullptr), file(nullptr), data(nullptr), isAsset(i_isAsset), length(0), mime(MIME_OTHER)
 	{
 		char* ld = (char*) strrchr(str, '.');
         if(!ld)
@@ -171,6 +214,8 @@ public:
             ld++;
             if(!strncmp(ld, "jpg", 3)) mime = IMAGE_JPG;
             else if(!strncmp(ld, "png", 3)) mime = IMAGE_PNG;
+			else if(!strncmp(ld, "ogg", 3)) mime = AUDIO_OGG;
+			else if(!strncmp(ld, "ttf", 3)) mime = FONT_TTF;
 		}
         if(isAsset && assetPath && str)
         {
@@ -205,7 +250,9 @@ public:
 			else LOGI("FILE ERROR OPEN: %s\n", file);
         }
 	}
-	~fxFile()
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	~AssetFile()
 	{
         if(fd)
         {
@@ -215,24 +262,14 @@ public:
         if(file) delete[] file;
         if(data) delete[] data;
 	}
-    unsigned char* getData()
-    {
-        if(!fd) return nullptr;
-        if(!data)
-        {
-            rewind((FILE*)fd);
-            data = new unsigned char[length + 1];
-            data[length] = 0;
-            fread(data, 1, length, (FILE*)fd);
-        }
-        return data;
-    }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	inline const size_t& getLength() const { return length; }
-    inline const char* getFullPath() const { return file; }
+	inline const char* getFullPath() const { return file; }
     
     // standard io functions pass-through
     // they update only the file, not the data!
-    inline int seek(long int offset, int origin)
+	inline int seek(long int offset, int origin)
 	{
 		switch(type)
 		{
@@ -280,6 +317,19 @@ public:
 	}
     inline size_t write(const void* src, size_t size) { return fwrite(src, 1, size, (FILE*)fd); }
     inline int flush() { return fflush((FILE*)fd); }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+    unsigned char* getData()
+    {
+		if(!data && fd)
+        {
+            rewind((FILE*)fd);
+            data = new unsigned char[length + 1];
+            data[length] = 0;
+            fread(data, 1, length, (FILE*)fd);
+        }
+        return data;
+    }
 };
 
 #endif

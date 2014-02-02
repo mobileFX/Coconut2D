@@ -10,12 +10,11 @@
 
 #ifdef ENABLE_FREETYPE_SUPPORT
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoFont::CocoFont(float fontSize, String fontName, String fontChars) : height(fontSize)
+CocoFont::CocoFont(float fontSize, String fontName, fxFontFace::FONT_STYLE style, String fontChars) : height(fontSize)
 {
-	const fxFontFace* fc = fxFontFace::get(fontName.c_str());
-	if(fc)
+	const FT_Face face = fxFontFace::get(fontName, style);
+	if(face)
 	{
-		FT_Face face = fc->getFace();
         //if(FT_Set_Char_Size(face, 0, height << 6, 0, 0)) { LOGW("Error Freetype: Could not set font char size\n"); }
         if(FT_Set_Pixel_Sizes(face, 0, height)) { LOGW("Error Freetype: Could not set font char size\n"); }
         else
@@ -40,7 +39,7 @@ CocoFont::CocoFont(float fontSize, String fontName, String fontChars) : height(f
                         if(c.horiAdvance > maxHoriAdvance) maxHoriAdvance = c.horiAdvance;
                         c.data = new unsigned char[c.rect.size.x * c.rect.size.y];
                         memcpy(c.data, face->glyph->bitmap.buffer, c.rect.size.x * c.rect.size.y);
-                        if(!fc->hasKerning()) c.horiKernings = nullptr;
+                        if(FT_HAS_KERNING(face)) c.horiKernings = nullptr;
                         else
                         {
                             c.horiKernings = new int[fontChars.size()];

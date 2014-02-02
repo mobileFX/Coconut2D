@@ -533,12 +533,37 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.CALL:
 		if(ast.isTypeCasting)
 		{
-			CPP.push("((");
 			var vartype = generate(ast[0]).CPP;
-			CPP.push(vartype + (__isPointer(vartype) ? "*":""));
-			CPP.push(")");
-			CPP.push(generate(ast[1]).CPP);
-			CPP.push(")");
+			if(ast.castToType=="String")
+			{
+				switch(ast.castFromType)
+				{
+				case "Float":
+				case "Number":
+				case "Integer":
+					CPP.push("(String(toString(" + generate(ast[1]).CPP + ")))");
+					break;
+
+				case "Boolean":
+					CPP.push("(String(" + generate(ast[1]).CPP + " ? \"true\" : \"false\"))");
+					break;
+
+				case "String":
+					CPP.push("("+generate(ast[1]).CPP+")");
+					break;
+
+				default:
+					debugger;
+				}
+			}
+			else
+			{
+				CPP.push("((");
+				CPP.push(vartype + (__isPointer(vartype) ? "*":""));
+				CPP.push(")");
+				CPP.push(generate(ast[1]).CPP);
+				CPP.push(")");
+			}
 		}
 		else
 		{

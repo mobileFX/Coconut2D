@@ -6,7 +6,7 @@ class fxDeviceWrapper;
 
 #import "Common.h"
 #import "fxCRL.h"
-#import "fxFile.h"
+#import "AssetFile.h"
 #import "fxFontFace.h"
 #import "fxAudioStream.h"
 #import "fxDeviceWrapper.h"
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         else if(strcmp(argv[i], "--root_folder") == 0) dir = argv[i + 1];
     }
 
-    fxFile::init((dir + "/local/").c_str(), (dir + "/web/").c_str());
+    AssetFile::init((dir + "/local/").c_str(), (dir + "/web/").c_str());
     fxFontFace::init();
     fxAudioStream::init();
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
     fxAudioStream::quit();
     fxFontFace::quit();
-    fxFile::quit();
+    AssetFile::quit();
 
     return ret;
 }

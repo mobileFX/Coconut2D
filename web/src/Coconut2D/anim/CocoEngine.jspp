@@ -103,7 +103,7 @@ state class CocoEngine
 
 		if(__nextState==null && __currentState!=null)
 		{
-			gl.clearColor(1,1,1,1);
+			gl.clearColor(0,0,0,1);
 			gl.clear(gl.COLOR_BUFFER_BIT);
 			__currentState.paint(gl, __clock);
 		}
@@ -149,7 +149,8 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __trace(scene:CocoScene, clip:CocoClip, message: String)
 	{
-		/*if(scene && clip)
+		/*
+		if(scene && clip)
 		{
 			var rf:Float = scene.__root.__childWithMaxTimelineDuration.__timeline.__currentFrameIndex;
 			var rt:Float = scene.__root.__currentTime;
@@ -168,6 +169,7 @@ state class CocoEngine
 					  "\tclip: " + scene.__sceneName + clip.__clipPath;
 
 		}
-		trace(message);*/
+		trace(message);
+		*/
 	}
 }

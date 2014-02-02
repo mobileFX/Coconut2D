@@ -276,13 +276,15 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolate(frameIndex:Float) :CocoKeyFrame
 	{
 	    var F:CocoKeyFrame = null;
 	    var F1:CocoKeyFrame = null;
 	    var F2:CocoKeyFrame = null;
 	    var s:Float = 1.0;
-	    frameIndex = Math.max(0.0, frameIndex);
+	    if(frameIndex<=0) frameIndex = 0;
 	    var iFrameIndex:Integer = Math.floor(frameIndex);
 
 	    // Timeline is empty?
@@ -354,7 +356,7 @@ class CocoTimeline
 	                F = F1.clone(exact);
 	                F.frameIndex = iFrameIndex;
 	                F.__frameIndex = frameIndex;
-	                s = Float((frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex));
+	                s = (frameIndex - Float(F1.frameIndex)) / Float(F2.frameIndex - F1.frameIndex);
 	                F.interpolate(F1, F2, s);
 	                return F;
 	            }

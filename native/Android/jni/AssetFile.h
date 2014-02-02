@@ -1,10 +1,10 @@
-#ifndef _AssetFile_h
-#define _AssetFile_h
+#ifndef _fxFile_h
+#define _fxFile_h
 
 #include "cstdio"
 #include "Coconut2D.hpp"
 
-class AssetFile
+class fxFile
 {
 private:
 	static char* filesPath;
@@ -55,13 +55,13 @@ public:
         else return false;
         return true;
     }
-    static AssetFile* open(const char* str)
+    static fxFile* open(const char* str)
     {
-        AssetFile* ret = nullptr;
+        fxFile* ret = nullptr;
         if(str && strlen(str) > 2 && str[0] == '.' && str[1] == '/')
         {
-            if(exists(str, false)) ret = new AssetFile(str, false);
-            else if(exists(str, true)) ret = new AssetFile(str, true);
+            if(exists(str, false)) ret = new fxFile(str, false);
+            else if(exists(str, true)) ret = new fxFile(str, true);
             else LOGW("Could not open file: %s\n", str);
         }
         return ret;
@@ -91,7 +91,7 @@ public:
         else return false;
         return true;
     }
-	AssetFile(const char* str, bool i_isAsset) : file(nullptr), data(nullptr), isAsset(i_isAsset), length(0)
+	fxFile(const char* str, bool i_isAsset) : file(nullptr), data(nullptr), isAsset(i_isAsset), length(0)
 	{
         if(isAsset && assetPath && str)
         {
@@ -122,7 +122,7 @@ public:
 			else LOGI("FILE ERROR OPEN: %s\n", file);
         }
 	}
-	~AssetFile()
+	~fxFile()
 	{
 		if(isAsset && ptr.ad) AAsset_close(ptr.ad);
 		else if(!isAsset && ptr.fd) fclose(ptr.fd);
@@ -153,7 +153,7 @@ public:
     		return AAsset_seek(ptr.ad, offset, origin);
     	else if(!isAsset && ptr.fd)
     		return fseek(ptr.fd, offset, origin);
-    	LOGW("Error AssetFile::seek(%ld, %d)\n", offset, origin);
+    	LOGW("Error fxFile::seek(%ld, %d)\n", offset, origin);
     	return -1;
     }
     long int tell()
@@ -162,7 +162,7 @@ public:
     		return length - AAsset_getRemainingLength(ptr.ad);
     	else if(!isAsset && ptr.fd)
     		return ftell(ptr.fd);
-    	LOGW("Error AssetFile::tell()\n");
+    	LOGW("Error fxFile::tell()\n");
     	return -1;
     }
     size_t read(void* dest, size_t size)
@@ -171,14 +171,14 @@ public:
     		return AAsset_read(ptr.ad, dest, size);
     	else if(!isAsset && ptr.fd)
     		return fread(dest, 1, size, ptr.fd);
-    	LOGW("Error AssetFile::read(0x%08x, %zu)\n", (size_t)dest, size);
+    	LOGW("Error fxFile::read(0x%08x, %zu)\n", (size_t)dest, size);
     	return 0;
     }
     size_t write(const void* src, size_t size)
     {
     	if(!isAsset && ptr.fd)
     		return fwrite(src, 1, size, ptr.fd);
-    	LOGW("Error AssetFile::write(%s, %zu)\n", (const char*)src, size);
+    	LOGW("Error fxFile::write(%s, %zu)\n", (const char*)src, size);
     	return 0;
     }
     int flush()

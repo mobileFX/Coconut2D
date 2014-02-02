@@ -468,6 +468,14 @@ class COCO_KEYFRAME_INTERPOLATION_ENUM
 	public var KEYFRAME_INTERPOLATION_PHYSICS :COCO_KEYFRAME_INTERPOLATION_ENUM;
 } //COCO_KEYFRAME_INTERPOLATION_ENUM
 
+class COCO_FILTER_ENUM
+{
+	public var FILTER_INHERIT :COCO_FILTER_ENUM;
+	public var FILTER_SIMPLE :COCO_FILTER_ENUM;
+	public var FILTER_SIMPLE_WITH_ALPHA :COCO_FILTER_ENUM;
+	public var FILTER_SATURATION_WITH_ALPHA :COCO_FILTER_ENUM;
+} //COCO_FILTER_ENUM
+
 class COCO_TEXT_ALIGN_ENUM
 {
 	public var TEXT_ALIGN_NEAR :COCO_TEXT_ALIGN_ENUM;
@@ -484,14 +492,6 @@ class COCO_TEXT_TRIMMING_ENUM
 	public var StringTrimmingEllipsisWord :COCO_TEXT_TRIMMING_ENUM;
 	public var StringTrimmingEllipsisPath :COCO_TEXT_TRIMMING_ENUM;
 } //COCO_TEXT_TRIMMING_ENUM
-
-class COCO_FILTER_ENUM
-{
-	public var FILTER_INHERIT :COCO_FILTER_ENUM;
-	public var FILTER_SIMPLE :COCO_FILTER_ENUM;
-	public var FILTER_SIMPLE_WITH_ALPHA :COCO_FILTER_ENUM;
-	public var FILTER_SATURATION_WITH_ALPHA :COCO_FILTER_ENUM;
-} //COCO_FILTER_ENUM
 
 class State
 {
@@ -1478,6 +1478,16 @@ class CocoClip
 	public var __children :Array<CocoClip>;
 	public var __timeline :CocoTimeline;
 	public var __parent :CocoClip;
+	public var text :String;
+	public var textFontName :String;
+	public var textFontSize :Integer;
+	public var textHAlign :COCO_TEXT_ALIGN_ENUM;
+	public var textVAlign :COCO_TEXT_ALIGN_ENUM;
+	public var textMultiline :Boolean;
+	public var textTrimming :COCO_TEXT_TRIMMING_ENUM;
+	public var textColor :String;
+	public var textWidth :Integer;
+	public var textHeight :Integer;
 	public var __currentTime :Time;
 	public var __loopTime :Time;
 	public var __loops :Integer;

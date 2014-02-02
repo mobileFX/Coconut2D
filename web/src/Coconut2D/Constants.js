@@ -117,25 +117,6 @@ var COCO_KEYFRAME_INTERPOLATION_ENUM =
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-var COCO_TEXT_ALIGN_ENUM =
-{
-	TEXT_ALIGN_NEAR								: 0,
-	TEXT_ALIGN_CENTER							: 1,
-	TEXT_ALIGN_FAR								: 2,
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-var COCO_TEXT_TRIMMING_ENUM =
-{
-    StringTrimmingNone							: 0,
-    StringTrimmingCharacter						: 1,
-    StringTrimmingWord							: 2,
-    StringTrimmingEllipsisCharacter				: 3,
-    StringTrimmingEllipsisWord					: 4,
-    StringTrimmingEllipsisPath					: 5
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_FILTER_ENUM =
 {
 	FILTER_INHERIT								: 0,
@@ -143,6 +124,26 @@ var COCO_FILTER_ENUM =
 	FILTER_SIMPLE_WITH_ALPHA					: 2,
 	FILTER_SATURATION_WITH_ALPHA				: 3
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+var COCO_TEXT_ALIGN_ENUM =
+{
+	TEXT_ALIGN_NEAR		: 0,
+	TEXT_ALIGN_CENTER	: 1,
+	TEXT_ALIGN_FAR		: 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+var COCO_TEXT_TRIMMING_ENUM =
+{
+    StringTrimmingNone				: 0,
+    StringTrimmingCharacter			: 1,
+    StringTrimmingWord				: 2,
+    StringTrimmingEllipsisCharacter	: 3,
+    StringTrimmingEllipsisWord		: 4,
+    StringTrimmingEllipsisPath		: 5
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 var COCO_STOP_ON_CURRENT_FRAME					= -1;

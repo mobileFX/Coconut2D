@@ -32,6 +32,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <cstdlib>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Auto-generated class list
@@ -100,11 +101,10 @@ class CocoUIPickerView;
 class CocoUIScrollView;
 class CocoUITabView;
 class CocoUITextView;
+class GridSymbol;
+class SceneGameBoard;
+class SceneTitle;
 class GameEngine;
-class BitmapSymbolsTest;
-class SynthesisTest;
-class Test;
-class TestSequences;
 //# DO NOT EDIT END #//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -250,6 +250,14 @@ public:
 	String(const char* str) : std::string(str) {}
 	String(const std::string& str) : std::string(str) {}
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T> std::string toString(T v)
+{
+	std::stringstream ss;
+	ss<<v;
+	return ss.str();
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T> class Array : public std::vector<T>

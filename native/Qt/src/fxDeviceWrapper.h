@@ -8,7 +8,7 @@ class fxDeviceWrapper;
 #include <QtOpenGL/QGLWidget>
 #include <QtGui/QMouseEvent>
 #include <QTimer>
-#include "fxFile.h"
+#include "AssetFile.h"
 
 class fxDeviceWrapper : public QGLWidget
 {

@@ -35,6 +35,6 @@
 
 #ifdef ENABLE_FREETYPE_SUPPORT
 extern FT_Library fxFontFace::ftLibrary;
-extern std::map<std::string, fxFontFace*> fxFontFace::fonts;
+extern std::map<fxFontFace, FT_Face, fxFontFace> fxFontFace::fonts;
 #endif /* ENABLE_FREETYPE_SUPPORT */
 

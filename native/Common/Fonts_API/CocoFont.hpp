@@ -30,7 +30,7 @@ public:
     std::map<uint16_t, CocoFontChar> chars;
     uint16_t height;
     uint16_t maxHoriAdvance;
-	CocoFont(float fontSize, String fontName, String fontChars);
+	CocoFont(float fontSize, String fontName, fxFontFace::FONT_STYLE style, String fontChars);
 	~CocoFont();
 	void fillText(ArrayBuffer* imageDataBuffer, int width, String text, float x, float y);
 	float measureText(String text);

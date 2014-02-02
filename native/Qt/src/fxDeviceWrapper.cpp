@@ -1,7 +1,7 @@
 #include "fxDeviceWrapper.h"
 
-extern char* fxFile::filesPath;
-extern char* fxFile::assetPath;
+extern char* AssetFile::filesPath;
+extern char* AssetFile::assetPath;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 fxDeviceWrapper::fxDeviceWrapper(int i_argc, char *i_argv[]) :  timer(this), argc(i_argc), argv(i_argv), ready(false)

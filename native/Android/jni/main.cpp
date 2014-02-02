@@ -1,12 +1,12 @@
-#include "fxFile.h"
+#include "AssetFile.h"
 #include "fxArgs.h"
 #include "fxFontFace.h"
 #include "fxAudioStream.h"
 #include "fxDeviceWrapper.h"
 
-extern AAssetManager* fxFile::manager;
-extern char* fxFile::assetPath;
-extern char* fxFile::filesPath;
+extern AAssetManager* AssetFile::manager;
+extern char* AssetFile::assetPath;
+extern char* AssetFile::filesPath;
 extern fxArgs* fxArgs::Args;
 
 void android_main(android_app* app)
@@ -20,11 +20,11 @@ void android_main(android_app* app)
 
 	LOGI("internalDataPath: %s\n", app->activity->internalDataPath);
 	LOGI("externalDataPath: %s\n", app->activity->externalDataPath);
-	fxFile::init(app->activity->assetManager, "/data/data/com.mobilefx.cocoengine/files/");
+	AssetFile::init(app->activity->assetManager, "/data/data/com.mobilefx.cocoengine/files/");
 	fxArgs::init("./args.txt");
 	if(!fxArgs::Args)
 	{
-		fxFile::quit();
+		AssetFile::quit();
 		return;
 	}
 	fxFontFace::init();
@@ -35,6 +35,6 @@ void android_main(android_app* app)
 	fxAudioStream::quit();
 	fxFontFace::quit();
 	fxArgs::quit();
-	fxFile::quit();
+	AssetFile::quit();
 }
 

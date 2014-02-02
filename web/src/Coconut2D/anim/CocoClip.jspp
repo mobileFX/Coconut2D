@@ -51,6 +51,18 @@ class CocoClip
 	public var __timeline:CocoTimeline;
 	public var __parent:CocoClip;
 
+	// Text
+	public var text:String;
+	public var textFontName:String;
+	public var textFontSize:Integer;//pixels
+	public var textHAlign:COCO_TEXT_ALIGN_ENUM;
+	public var textVAlign:COCO_TEXT_ALIGN_ENUM;
+	public var textMultiline:Boolean
+	public var textTrimming:COCO_TEXT_TRIMMING_ENUM;
+	public var textColor:String;
+	public var textWidth:Integer;
+	public var textHeight:Integer;
+
 	// Animation Control Variables
 	public var __currentTime:Time;
 	public var __loopTime:Time;
@@ -138,19 +150,35 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function createTextTexture(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer)
 	{
+		this.text			= text;
+		this.textFontName   = fontName;
+		this.textFontSize   = fontSizePixels;
+		this.textHAlign     = hAlign;
+		this.textVAlign     = vAlign;
+		this.textMultiline  = multiline;
+		this.textTrimming   = trimming;
+		this.textColor      = CSSColor;
+		this.textWidth      = textRectWidth;
+		this.textHeight     = textRectHeight;
+
 		delete __image;
+
+		// Create a power-of-two sized canvas and get 2d context
 		var canvas:HTMLCanvasElement = document.createElement("canvas");
 		canvas.width = Integer(Math.pow(2, Math.ceil(Math.log(textRectWidth)/Math.log(2))));
 		canvas.height = Integer(Math.pow(2, Math.ceil(Math.log(textRectHeight)/Math.log(2))));
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-		// font-style font-variant font-weight font-size/line-height font-family
+
+		// Set the font
 		ctx.font = "normal normal normal " + String(fontSizePixels) + "px / normal " + fontName;
-		//ctx.fillStyle = "red";
+		ctx.fillStyle = "white";
 		ctx.fillText(text, 0, Float(fontSizePixels));
-		//ctx.strokeRect(0,0, Float(textRectWidth), Float(textRectHeight));
+
+		// Create a texture image from the base64 PNG data of the canvas
         __image = new CocoImage();
         __image.image = new Image();
-        __image.image.load(canvas.toDataURL());
+        var url:String = canvas.toDataURL();
+        __image.image.load(url);
         __image.textureCellWidth = Float(textRectWidth);
         __image.textureCellHeight = Float(textRectHeight);
         __image.textureGrid = new Float32Array([0,0]);
@@ -246,7 +274,7 @@ class CocoClip
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
 		if(!Label) return false;
 
-		trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause));
+		//trace("\ngotoFrameByName: clip=" + __clipPath + ", label=" + LabelName + ", pause=" + String(pause));
 
 		return gotoFrameByIndex(Label.frameIndex, pause);
 	}
@@ -254,7 +282,7 @@ class CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean
 	{
-		trace("\ngotoFrameByIndex: clip=" + __clipPath + ", index=" + String((FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : FrameIndex)) + ", pause=" + String(pause));
+		//trace("\ngotoFrameByIndex: clip=" + __clipPath + ", index=" + (FrameIndex==-1 ? "STOP_ON_CURRENT_FRAME" : String(FrameIndex)) + ", pause=" + String(pause));
 
 		var clip:CocoClip;
 		for (var i:Integer = __children.size() - 1; i >= 0; i--)
@@ -317,7 +345,7 @@ class CocoClip
 
 			// Frame Index cannot exceed timeline bounds.
 
-			engine.__trace(scene, this, "@PAINT");
+			//engine.__trace(scene, this, "@PAINT");
 
 			// Combine parent clip currentframe values with this clip's interpolated frame values.
 			 __currentFrame.combine(parentClip.__currentFrame);
@@ -434,19 +462,19 @@ class CocoClip
 
 				if(__currentFrame.action)
 				{
-					engine.__trace(scene, this, "@@ACTION");
+					//engine.__trace(scene, this, "@@ACTION");
 					__currentFrame.action(scene, this);
 				}
 
 				if(__currentFrame.nextState)
 				{
-					engine.__trace(scene, this, "@@NEXT_STATE");
+					//engine.__trace(scene, this, "@@NEXT_STATE");
 					engine.setNextState(__currentFrame.nextState);
 				}
 
 				if(__currentFrame.audio)
 				{
-					engine.__trace(scene, this, "@@AUDIO");
+					//engine.__trace(scene, this, "@@AUDIO");
 					__currentFrame.audio.tick();
 				}
 

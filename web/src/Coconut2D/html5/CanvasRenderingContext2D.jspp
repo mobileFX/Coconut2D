@@ -117,21 +117,6 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public function putImageData(imagedata:ImageData, dx:Float, dy:Float, optional dirtyX:Float, optional dirtyY:Float, optional dirtyWidth:Float, optional dirtyHeight:Float) {}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/*
-	public function createWithText(width:Integer, height:Integer, font:CocoFont, text:String)
-	{
-		image = new Image();
-		image.width = width;
-		image.height = height;
-		image.__imageData = new ImageData(String(image.width), String(image.height));
-		//image.__imageData.buffer.clear();
-		font.fillText(image.__imageData.buffer, image.width, text, 0, 0);
-		textureCellWidth = font.measureText(text);
-		textureCellHeight = font.height;
-	}
-	*/
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public property fillStyle
 	{
 		function get():String
@@ -290,14 +275,15 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 					return;
 			}
            	__fontSetting = v;
-           	__font = new CocoFont(fontSizeInPixels, fontFamily.split(",")[0], fontChars);
+           	__font = new CocoFont(fontSizeInPixels, fontFamily, fontChars);
 		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function fillText(text:String, x:Float, y:Float, optional maxWidth:Float)
 	{
-		__font.fillText(canvas.__imageData.buffer, canvas.__imageData.width, text, x, y);
+		if(__font)
+			__font.fillText(canvas.__imageData.buffer, canvas.__imageData.width, text, x, y);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

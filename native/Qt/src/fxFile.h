@@ -1,9 +1,9 @@
-#ifndef _fxFile_h
-#define _fxFile_h
+#ifndef _AssetFile_h
+#define _AssetFile_h
 
 #include "cstdio"
 
-class fxFile
+class AssetFile
 {
 private:
     static char* filesPath;
@@ -48,13 +48,13 @@ public:
         else return false;
         return true;
     }
-    static fxFile* open(const char* str)
+    static AssetFile* open(const char* str)
     {
-        fxFile* ret = nullptr;
+        AssetFile* ret = nullptr;
         if(str && strlen(str) > 2 && str[0] == '.' && str[1] == '/')
         {
-            if(exists(str, false)) ret = new fxFile(str, false);
-            else if(exists(str, true)) ret = new fxFile(str, true);
+            if(exists(str, false)) ret = new AssetFile(str, false);
+            else if(exists(str, true)) ret = new AssetFile(str, true);
         }
         return ret;
     }
@@ -83,7 +83,7 @@ public:
         else return false;
         return true;
     }
-    fxFile(const char* str, bool i_isAsset) : fd(nullptr), file(nullptr), data(nullptr), isAsset(i_isAsset), length(0)
+    AssetFile(const char* str, bool i_isAsset) : fd(nullptr), file(nullptr), data(nullptr), isAsset(i_isAsset), length(0)
     {
         if(isAsset && assetPath && str)
         {
@@ -116,7 +116,7 @@ public:
             else LOGI("FILE ERROR OPEN: %s\n", file);
         }
     }
-    ~fxFile()
+    ~AssetFile()
     {
         if(fd)
         {

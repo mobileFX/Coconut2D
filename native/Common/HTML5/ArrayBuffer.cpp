@@ -11,15 +11,15 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 ArrayBuffer* ArrayBuffer::NewFromImage(std::string str, uint32_t& width, uint32_t& height)
 {
-	fxFile* file = fxFile::open(str.c_str());
+	AssetFile* file = AssetFile::open(str.c_str());
 	switch(file->mime)
 	{
 		#ifdef ENABLE_PNG_SUPPORT
-		case fxFile::MIME::IMAGE_PNG: return NewFromImage_PNG(file, width, height);
+		case AssetFile::MIME::IMAGE_PNG: return NewFromImage_PNG(file, width, height);
 		#endif
-		
+
 		#ifdef ENABLE_JPEG_SUPPORT
-		case fxFile::MIME::IMAGE_JPG: return NewFromImage_JPG(file, width, height);
+		case AssetFile::MIME::IMAGE_JPG: return NewFromImage_JPG(file, width, height);
 		#endif
 		default:
 			return NULL;
@@ -40,21 +40,21 @@ ArrayBuffer* ArrayBuffer::NewFromImage(std::string str, uint32_t& width, uint32_
 //////////////////////////////////////////////////////////////////////////////////////////////
 static void png_from_memory(png_structp png_ptr, png_bytep readBytes, png_size_t readCount)
 {
-	fxFile* file = (fxFile*)png_get_io_ptr(png_ptr);
+	AssetFile* file = (AssetFile*)png_get_io_ptr(png_ptr);
 	file->read(readBytes, readCount);
 }
 
-ArrayBuffer* ArrayBuffer::NewFromImage_PNG(fxFile* file, uint32_t& width, uint32_t& height)
+ArrayBuffer* ArrayBuffer::NewFromImage_PNG(AssetFile* file, uint32_t& width, uint32_t& height)
 {
 	ArrayBuffer* ret = NULL;
 	unsigned char sig[8];
 	size_t rowbytes;
 	png_bytepp rows;
-	
+
 	if(!file) return ret;
-	
+
 	file->read(sig, 8);
-	
+
 	if(!png_sig_cmp(sig, 0, 8))
 	{
 		png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
@@ -68,12 +68,12 @@ ArrayBuffer* ArrayBuffer::NewFromImage_PNG(fxFile* file, uint32_t& width, uint32
 			height = png_get_image_height(png_ptr, info_ptr);
 			rows = png_get_rows(png_ptr, info_ptr);
 			rowbytes = png_get_rowbytes(png_ptr, info_ptr);
-			
+
 			ArrayBuffer* t = new ArrayBuffer(height * rowbytes);
-			
+
 			for(uint32_t i = height; i--;)
 				memcpy((*t)[rowbytes * i], rows[i], rowbytes);
-					   
+
 			ret = t;
 		}
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
@@ -97,18 +97,18 @@ ArrayBuffer* ArrayBuffer::NewFromImage_PNG(fxFile* file, uint32_t& width, uint32
 static void jpeg_error(j_common_ptr cInfo)
 {
 	char pszMessage[JMSG_LENGTH_MAX];
-	
+
 	(*cInfo->err->format_message)(cInfo, pszMessage);
-	
+
 	LOGW("Jpeg Lib error: %s\n", pszMessage);
 }
 
-ArrayBuffer* ArrayBuffer::NewFromImage_JPG(fxFile* file, uint32_t& width, uint32_t& height)
+ArrayBuffer* ArrayBuffer::NewFromImage_JPG(AssetFile* file, uint32_t& width, uint32_t& height)
 {
 	ArrayBuffer* ret = NULL;
-	
+
 	if(!file) return ret;
-	
+
 	size_t rowBytesIn, rowBytesOut;
 	jpeg_decompress_struct cInfo;
 	jpeg_error_mgr jError;
@@ -122,15 +122,15 @@ ArrayBuffer* ArrayBuffer::NewFromImage_JPG(fxFile* file, uint32_t& width, uint32
 	height = cInfo.output_height;
 	rowBytesIn = width * cInfo.output_components;
 	rowBytesOut = width * sizeof(uint32_t);
-	
+
 	ArrayBuffer* t = new ArrayBuffer(height * rowBytesOut);
-	
+
 	JSAMPLE* pSample = (JSAMPLE*)malloc(rowBytesIn);
-	
+
 	JSAMPROW pRow[1];
 	pRow[0] = pSample;
 	unsigned char* ptrRow;
-	
+
 	unsigned char* ptr = (unsigned char*)((*t)[0]);
 	for(uint32_t i = height; i--;)
 	{
@@ -142,12 +142,12 @@ ArrayBuffer* ArrayBuffer::NewFromImage_JPG(fxFile* file, uint32_t& width, uint32
 			ptr[3] = 0xFF;
 		}
 	}
-	
+
 	free(pSample);
 	jpeg_finish_decompress(&cInfo);
 	jpeg_destroy_decompress(&cInfo);
 	ret = t;
-	
+
 	delete file;
 	return ret;
 }
