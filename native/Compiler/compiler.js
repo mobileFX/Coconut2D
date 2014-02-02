@@ -670,6 +670,14 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getBaseClass = function(vartype)
+	{
+		var cls = _this.getClass(vartype);
+		if(cls && cls.baseSymbol) return cls.baseSymbol;
+		return null;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getClassScope = function()
 	{
 		return _this.currClassName && _this.currClassName!="Global" ? _this.classes[_this.currClassName].scope : null;
@@ -2937,7 +2945,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 		if(vartype.charAt(vartype.length-1)!='>') return null;
 
-		var subtype = vartype.substr(vartype.indexOf('<'));
+		var subtype = /<(\w+)>/.exec(vartype)[1];
 		return subtype;
 	};
 
@@ -2957,6 +2965,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.DELETE:          return "Boolean";
 		case jsdef.EQ:              return "Boolean";
 		case jsdef.FALSE:           return "Boolean";
+		case jsdef.FUNCTION:		return ast.symbol.vartype;
 		case jsdef.GE:              return "Boolean";
 		case jsdef.GROUP: 			return _this.getTypeName(ast[0]);
 		case jsdef.GT:              return "Boolean";
@@ -3066,37 +3075,24 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 		case jsdef.IDENTIFIER:
 			if(_this.getClass(ast.value)) return "Class";
 			if(!ast.symbol) return _this.UNTYPED;
-			if(ast.symbol.type==jsdef.FUNCTION) return "Function";
+			if(ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST) return "Function"; //Function Pointer
+			if(ast.symbol.type==jsdef.FUNCTION) return ast.symbol.vartype;
 			return ast.symbol.vartype;
 
 		//=============================================================================================================================
 		case jsdef.CALL:
-			if(ast[0].type==jsdef.DOT)
-			{
-				var symbol = _this.LookupLastDotIdentifier(ast[0], _this.getCurrentScope());
-				if(!symbol)
-				{
-					_this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]);
-					return null;
-				}
-				return symbol.vartype;
-			}
-			return ast[0].symbol.vartype;
+			// Typecasting?
+			if(_this.getClass(ast[0].value)) return ast[0].value;
+			var vartype = _this.getTypeName(ast[0]);
+			return vartype;
 
 		//=============================================================================================================================
 		case jsdef.INDEX:
-			if(ast[0].type==jsdef.DOT)
-			{
-				var symbol = _this.LookupLastDotIdentifier(ast[0], _this.getCurrentScope());
-				if(!symbol)
-				{
-					_this.NewError("Symbol not found: " + ast[0].identifier_last, ast[0]);
-					return null;
-				}
-				return symbol.subtype;
-			}
-			return ast[0].symbol.subtype;
-			break;
+			var vartype = _this.getTypeName(ast[0]);
+		    var cls = _this.getClass(vartype);
+		    if(cls && cls.subtype) return cls.subtype;
+			var subtype = _this.getSubType(vartype);
+			return subtype;
 
 		//=============================================================================================================================
 		case jsdef.DOT:
@@ -3110,7 +3106,7 @@ function Compiler(ast, infolder, outfolder, compilerFolder, exportSymbols, selec
 
 		//=============================================================================================================================
 		default:
-			//debugger;
+			debugger;
 		}
 	};
 
