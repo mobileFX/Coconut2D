@@ -1,0 +1,612 @@
+//@line 37
+
+function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
+{
+	var __BASE__ = null;
+
+	function CanvasRenderingContext2D(__BASE__, __CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
+	{
+		var __CLASS__CANVASRENDERINGCONTEXT2D__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
+		this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		var __SUPER__ = this.__SUPER__ = __BASE__;
+		//@line 81
+		var arc = this.arc = function (x, y, radius, startAngle, endAngle, anticlockwise)
+		{};
+		//@line 82
+		var arcTo = this.arcTo = function (x1, y1, x2, y2, radius)
+		{};
+		//@line 83
+		var beginPath = this.beginPath = function ()
+		{};
+		//@line 84
+		var bezierCurveTo = this.bezierCurveTo = function (cp1x, cp1y, cp2x, cp2y, x, y)
+		{};
+		//@line 85
+		var clearRect = this.clearRect = function (x, y, width, height)
+		{};
+		//@line 86
+		var clip = this.clip = function ()
+		{};
+		//@line 87
+		var closePath = this.closePath = function ()
+		{};
+		//@line 88
+		var createImageData = this.createImageData = function (width, height)
+		{
+			return null;
+		};
+		//@line 89
+		var createLinearGradient = this.createLinearGradient = function (x0, y0, x1, y1)
+		{
+			return null;
+		};
+		//@line 90
+		var createPattern = this.createPattern = function (image, repetition)
+		{
+			return null;
+		};
+		//@line 91
+		var createRadialGradient = this.createRadialGradient = function (x0, y0, r0, x1, y1, r1)
+		{
+			return null;
+		};
+		//@line 92
+		var drawCustomFocusRing = this.drawCustomFocusRing = function (element)
+		{
+			return false;
+			return false
+		};
+		//@line 93
+		var drawSystemFocusRing = this.drawSystemFocusRing = function (element)
+		{};
+		//@line 94
+		var fill = this.fill = function ()
+		{};
+		//@line 95
+		var fillRect = this.fillRect = function (x, y, width, height)
+		{};
+		//@line 96
+		var getImageData = this.getImageData = function (x, y, width, height)
+		{
+			return null;
+		};
+		//@line 97
+		var getLineDash = this.getLineDash = function ()
+		{};
+		//@line 98
+		var isPointInPath = this.isPointInPath = function (x, y)
+		{
+			return false;
+			return false
+		};
+		//@line 99
+		var isPointInStroke = this.isPointInStroke = function (x, y)
+		{
+			return false;
+			return false
+		};
+		//@line 100
+		var lineTo = this.lineTo = function (x, y)
+		{};
+		//@line 101
+		var moveTo = this.moveTo = function (x, y)
+		{};
+		//@line 102
+		var quadraticCurveTo = this.quadraticCurveTo = function (cpx, cpy, x, y)
+		{};
+		//@line 103
+		var rect = this.rect = function (x, y, width, height)
+		{};
+		//@line 104
+		var restore = this.restore = function ()
+		{};
+		//@line 105
+		var rotate = this.rotate = function (angle)
+		{};
+		//@line 106
+		var save = this.save = function ()
+		{};
+		//@line 107
+		var scale = this.scale = function (x, y)
+		{};
+		//@line 108
+		var scrollPathIntoView = this.scrollPathIntoView = function ()
+		{};
+		//@line 109
+		var setLineDash = this.setLineDash = function (segments)
+		{};
+		//@line 110
+		var setTransform = this.setTransform = function (m11, m12, m21, m22, dx, dy)
+		{};
+		//@line 111
+		var stroke = this.stroke = function ()
+		{};
+		//@line 112
+		var strokeRect = this.strokeRect = function (x, y, w, h)
+		{};
+		//@line 113
+		var strokeText = this.strokeText = function (text, x, y, maxWidth)
+		{};
+		//@line 114
+		var transform = this.transform = function (m11, m12, m21, m22, dx, dy)
+		{};
+		//@line 115
+		var translate = this.translate = function (x, y)
+		{};
+		//@line 116
+		var drawImage = this.drawImage = function (image, a1, a2, a3, a4, a5, a6, a7, a8)
+		{};
+		//@line 117
+		var putImageData = this.putImageData = function (imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight)
+		{};
+		//@line 120
+		Object.defineProperty(this, 'fillStyle', {
+			enumerable: true,
+			//@line 122
+			get: function ()
+			{
+				//@line 124
+				return __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillStyle;
+				return ""
+			},
+			//@line 126
+			set: function (v)
+			{
+				//@line 128
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillStyle = v;
+			}
+		});
+		//@line 133
+		Object.defineProperty(this, 'font', {
+			enumerable: true,
+			//@line 137
+			get: function ()
+			{
+				//@line 139
+				return __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fontSetting;
+				return ""
+			},
+			//@line 142
+			set: function (v)
+			{
+				//@line 144
+				var fontChars = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()/.,?><';\":]|[}{\\}]`~-_";
+				//@line 145
+				var spl = v.split(" ");
+				//@line 146
+				var fontStyle = "normal";
+				//@line 147
+				var fontVariant = "normal";
+				//@line 148
+				var fontWeight = "normal";
+				//@line 149
+				var fontSize = "medium";
+				//@line 150
+				var lineHeight = "normal";
+				//@line 151
+				var fontFamily = "arial,sans-serif";
+				//@line 152
+				var s = 0;
+				//@line 153
+				var str = "";
+				//@line 154
+				for (var i = 0; i < spl.size(); i++)
+				//@line 155
+				{
+					//@line 156
+					str = spl[i];
+					//@line 157
+					if (!str) continue;
+					//@line 158
+					switch (s)
+					{
+						//@line 160
+					case 3:
+						{
+							//@line 161
+							{
+								//@line 162
+								var idx = str.indexOf("/");
+								//@line 163
+								if (idx != -1)
+								//@line 164
+								{
+									//@line 165
+									fontSize = str.substr(0, idx);
+									//@line 166
+									var lh = str.substr(idx + 1);
+									//@line 167
+									if (lh)
+									//@line 168
+									{
+										//@line 169
+										lineHeight = lh;
+										//@line 170
+										s++;
+									}
+								}
+								else
+								//@line 174
+								fontSize = str;
+								//@line 175
+								s++;
+								//@line 176
+								break;
+							}
+						}
+						break;
+						//@line 178
+					case 4:
+						{
+							//@line 179
+							{
+								//@line 180
+								var idx = str.indexOf("/");
+								//@line 181
+								if (idx != -1)
+								//@line 182
+								{
+									//@line 183
+									var lh = str.substr(idx + 1);
+									//@line 184
+									if (lh)
+									//@line 185
+									{
+										//@line 186
+										lineHeight = lh;
+										//@line 187
+										s++;
+									}
+								}
+								else
+								//@line 191
+								{
+									//@line 192
+									fontFamily = spl.slice(i).join("");
+									//@line 193
+									i = spl.size();
+								}
+								//@line 195
+								s++;
+								//@line 196
+								break;
+							}
+						}
+						break;
+						//@line 198
+					case 5:
+						{
+							//@line 199
+							{
+								//@line 200
+								fontFamily = spl.slice(i + 1).join("");
+								//@line 201
+								i = spl.size();
+								//@line 202
+								break;
+							}
+						}
+						break;
+						//@line 204
+					default:
+						{
+							//@line 205
+							{
+								//@line 206
+								if (str == "inherit")
+								//@line 207
+								{
+									//@line 209
+									return;
+								}
+								else
+								//@line 211
+								if (str == "normal")
+								//@line 212
+								{
+									//@line 213
+									switch (s)
+									{
+										//@line 215
+									case 0:
+										{
+											s++;
+											break;
+										}
+										break;
+										//@line 216
+									case 1:
+										{
+											s++;
+											break;
+										}
+										break;
+										//@line 217
+									case 2:
+										{
+											s++;
+											break;
+										}
+										break;
+										//@line 218
+									case 4:
+										{
+											s++;
+											break;
+										}
+										break;
+										//@line 219
+									default:
+										{
+											return;
+										}
+										break;
+									}
+								}
+								else
+								//@line 222
+								if (str == "italic" || str == "oblique")
+								//@line 223
+								{
+									//@line 224
+									switch (s)
+									{
+										//@line 226
+									case 0:
+										{
+											fontStyle = str;
+											s = 1;
+											break;
+										}
+										break;
+										//@line 227
+									default:
+										{
+											return;
+										}
+										break;
+									}
+								}
+								else
+								//@line 230
+								if (str == "small-caps")
+								//@line 231
+								{
+									//@line 232
+									switch (s)
+									{
+										//@line 234
+									case 0:
+										{
+											fontVariant = str;
+											s = 2;
+											break;
+										}
+										break;
+										//@line 235
+									case 1:
+										{
+											fontVariant = str;
+											s = 2;
+											break;
+										}
+										break;
+										//@line 236
+									default:
+										{
+											return;
+										}
+										break;
+									}
+								}
+								else
+								//@line 239
+								if (str == "bold" || str == "bolder" || str == "lighter" || str == "100" || str == "200" || str == "300" || str == "400" || str == "500" || str == "600" || str == "700" || str == "800" || str == "900")
+								//@line 240
+								{
+									//@line 241
+									switch (s)
+									{
+										//@line 243
+									case 2:
+										{
+											fontWeight = str;
+											s = 3;
+											break;
+										}
+										break;
+										//@line 244
+									default:
+										{
+											return;
+										}
+										break;
+									}
+								}
+							}
+						}
+						break;
+					}
+				}
+				//@line 250
+				var fontSizeInPixels = 0;
+				//@line 251
+				if (fontSize == "xx-small") fontSizeInPixels = 9;
+				else
+				//@line 252
+				if (fontSize == "x-small") fontSizeInPixels = 10;
+				else
+				//@line 253
+				if (fontSize == "small") fontSizeInPixels = 13;
+				else
+				//@line 254
+				if (fontSize == "medium") fontSizeInPixels = 16;
+				else
+				//@line 255
+				if (fontSize == "large") fontSizeInPixels = 18;
+				else
+				//@line 256
+				if (fontSize == "x-large") fontSizeInPixels = 24;
+				else
+				//@line 257
+				if (fontSize == "xx-large") fontSizeInPixels = 32;
+				else
+				//@line 258
+				if (fontSize == "smaller") fontSizeInPixels = 13;
+				else
+				//@line 259
+				if (fontSize == "larger") fontSizeInPixels = 18;
+				else
+				//@line 261
+				{
+					//@line 262
+					if (fontSize.indexOf("px") != -1)
+					//@line 263
+					{
+						//@line 264
+						fontSizeInPixels = parseFloat(fontSize);
+					}
+					else
+					//@line 266
+					if (fontSize.indexOf("in") != -1)
+					//@line 267
+					{
+						//@line 268
+						fontSizeInPixels = parseFloat(fontSize) * window.devicePixelRatio * 160.0;
+					}
+					else
+					//@line 270
+					if (fontSize.indexOf("cm") != -1)
+					//@line 271
+					{
+						//@line 272
+						fontSizeInPixels = parseFloat(fontSize) * window.devicePixelRatio * 160.0 / 2.54;
+					}
+					else
+					//@line 275
+					return;
+				}
+				//@line 277
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fontSetting = v;
+				//@line 278
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font = new CocoFont(fontSizeInPixels, fontFamily, fontChars);
+			}
+		});
+		//@line 283
+		var fillText = this.fillText = function (text, x, y, maxWidth)
+		{
+			//@line 285
+			if (__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font)
+			//@line 286
+			__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font.fillText(__CLASS__CANVASRENDERINGCONTEXT2D__.canvas.__imageData.buffer, __CLASS__CANVASRENDERINGCONTEXT2D__.canvas.__imageData.width, text, x, y);
+		};
+		//@line 290
+		var measureText = this.measureText = function (text)
+		{
+			//@line 292
+			return null;
+		};
+		//@line 39
+		this.DRAWWINDOW_DRAW_CARET = 1;
+		//@line 40
+		this.DRAWWINDOW_DO_NOT_FLUSH = 2;
+		//@line 41
+		this.DRAWWINDOW_DRAW_VIEW = 4;
+		//@line 42
+		this.DRAWWINDOW_USE_WIDGET_LAYERS = 8;
+		//@line 43
+		this.DRAWWINDOW_ASYNC_DECODE_IMAGES = 16;
+		//@line 45
+		this.canvas = null;
+		//@line 47
+		this.globalAlpha = 0;
+		//@line 48
+		this.lineCap = "";
+		//@line 49
+		this.lineDashOffset = 0;
+		//@line 50
+		this.lineJoin = "";
+		//@line 51
+		this.lineWidth = 0;
+		//@line 52
+		this.miterLimit = 0;
+		//@line 53
+		this.shadowBlur = 0;
+		//@line 54
+		this.shadowColor = "";
+		//@line 55
+		this.shadowOffsetX = 0;
+		//@line 56
+		this.shadowOffsetY = 0;
+		//@line 57
+		this.strokeStyle = 0;
+		//@line 58
+		this.textAlign = "";
+		//@line 59
+		this.textBaseline = "";
+		//@line 60
+		this.globalCompositeOperation = "";
+		//@line 62
+		this.__PRIVATE__.__fillStyle = "";
+		//@line 63
+		this.__PRIVATE__.__fontSetting = "";
+		//@line 64
+		this.__PRIVATE__.__font = null;
+		var Destructor = this.Destructor = function ()
+		{
+			//@line 76
+			{
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font && ((__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font.hasOwnProperty('Destructor') && __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font.Destructor()) || !__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font.hasOwnProperty('Destructor')) && (delete __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font);
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font = null
+			};
+			{
+				__CLASS__CANVASRENDERINGCONTEXT2D__.fillStyle = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.font = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.DRAWWINDOW_DRAW_CARET = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.DRAWWINDOW_DO_NOT_FLUSH = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.DRAWWINDOW_DRAW_VIEW = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.DRAWWINDOW_USE_WIDGET_LAYERS = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.DRAWWINDOW_ASYNC_DECODE_IMAGES = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.canvas = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.globalAlpha = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.lineCap = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.lineDashOffset = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.lineJoin = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.lineWidth = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.miterLimit = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.shadowBlur = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.shadowColor = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.shadowOffsetX = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.shadowOffsetY = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.strokeStyle = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.textAlign = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.textBaseline = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.globalCompositeOperation = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillStyle = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fontSetting = null;
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font = null;
+				__SUPER__ && ((__SUPER__.hasOwnProperty('Destructor') && __SUPER__.Destructor()) || !__SUPER__.hasOwnProperty('Destructor')) && (delete __SUPER__);
+			}
+			return true
+		};
+		//@line 67
+		this.Constructor = function ()
+		{
+			var canvas = arguments[0];
+			//@line 69
+			__CLASS__CANVASRENDERINGCONTEXT2D__.canvas = canvas;
+			//@line 70
+			canvas.__imageData = new ImageData((canvas.width), (canvas.height));
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__);
+		return this;
+	}
+	__BASE__ = new HTMLCanvasContext(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__);
+	CanvasRenderingContext2D.prototype = __BASE__;
+	return new CanvasRenderingContext2D(__BASE__, __CLASS__CANVASRENDERINGCONTEXT2D__$canvas__);
+}

@@ -1,0 +1,80 @@
+"#export web"
+//@line 15
+
+function GameEngine()
+{
+	var __BASE__ = null;
+
+	function GameEngine(__BASE__)
+	{
+		var __CLASS__GAMEENGINE__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
+		this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		var __SUPER__ = this.__SUPER__ = __BASE__;
+		//@line 17
+		this.scene = null;
+		//@line 32
+		this.STATE_GAME = (function ()
+		{
+			this.__name = 'STATE_GAME';
+			//@line 34
+			var foo = this.foo = null;
+			//@line 36
+			var enter = this.enter = function ()
+			{
+				//@line 38
+				__CLASS__GAMEENGINE__.scene = new TestText;
+			};
+			//@line 44
+			var exit = this.exit = function ()
+			{
+				//@line 46
+				{
+					__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
+					__CLASS__GAMEENGINE__.scene = null
+				};
+			};
+			//@line 49
+			var tick = this.tick = function (time)
+			{
+				//@line 50
+			};
+			//@line 53
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 55
+				__CLASS__GAMEENGINE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		var Destructor = this.Destructor = function ()
+		{
+			//@line 28
+			{
+				__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
+				__CLASS__GAMEENGINE__.scene = null
+			};
+			{
+				__CLASS__GAMEENGINE__.scene = null;
+				__CLASS__GAMEENGINE__.STATE_GAME = null;
+				__SUPER__ && ((__SUPER__.hasOwnProperty('Destructor') && __SUPER__.Destructor()) || !__SUPER__.hasOwnProperty('Destructor')) && (delete __SUPER__);
+			}
+			return true
+		};
+		//@line 20
+		this.Constructor = function ()
+		{
+			//@line 22
+			__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME);
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__BASE__ = new CocoEngine();
+	GameEngine.prototype = __BASE__;
+	return new GameEngine(__BASE__);
+}

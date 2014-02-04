@@ -1,14 +1,17 @@
-#ifndef _fxFile_h
-#define _fxFile_h
+#ifndef _AssetFile_h
+#define _AssetFile_h
 
-#include "cstdio"
 #include "Coconut2D.hpp"
 
-class fxFile
+//////////////////////////////////////////////////////////////////////////////////////////////
+class AssetFile//	: public AutoGC<AssetFile>
 {
-private:
+protected:
+
+	// Set the global folders for loading resources.
+	// Especially for Android we also need to define an assets path.
 	static char* filesPath;
-    static char* assetPath;
+	static char* assetPath;
     static AAssetManager* manager;
 
 protected:
@@ -17,22 +20,50 @@ protected:
     	AAsset* ad;
     } ptr;
     char* file;
-    char* data;
+	unsigned char* data;
+	size_t cursor;
     bool isAsset;
 	size_t length;
 
 public:
+
+	enum Type {
+		TYPE_FILE,
+		TYPE_ASSET,
+		TYPE_DATA
+	} type;
+
+	enum MIME {
+		IMAGE_PNG,
+		IMAGE_JPG,
+		AUDIO_OGG,
+		FONT_TTF,
+		MIME_OTHER
+	} mime;
+	// ==================================================================================================================================
+	//	   _____ __        __  _     
+	//	  / ___// /_____ _/ /_(_)____
+	//	  \__ \/ __/ __ `/ __/ / ___/
+	//	 ___/ / /_/ /_/ / /_/ / /__  
+	//	/____/\__/\__,_/\__/_/\___/  
+	//	                             
+	// ==================================================================================================================================
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	static void init(AAssetManager* i_manager, const char* str)
 	{
 		assetPath = strdup("web/");
 		filesPath = strdup(str);
 		manager = i_manager;
 	}
-    static void quit()
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	static void quit()
     {
     	manager = nullptr;
         free(filesPath); filesPath = nullptr;
         free(assetPath); assetPath = nullptr;
+		//GC();
     }
     static bool exists(const char* str, bool isAsset)
     {
@@ -55,20 +86,37 @@ public:
         else return false;
         return true;
     }
-    static fxFile* open(const char* str)
+	static AssetFile* open(const char* str)
     {
-        fxFile* ret = nullptr;
+		if(!strncmp(str, "data:", 5))
+		{
+			if(!strncmp(str + 5, "image/png;base64,", 17))
+				return createFromBase64(str + 22, IMAGE_PNG);
+			else if(!strncmp(str + 5, "image/jpg;base64,", 17))
+				return createFromBase64(str + 22, IMAGE_JPG);
+			else if(!strncmp(str + 5, "audio/ogg;base64,", 17))
+				return createFromBase64(str + 22, AUDIO_OGG);
+			else if(!strncmp(str + 5, "font/ttf;base64,", 16))
+				return createFromBase64(str + 21, FONT_TTF);
+			else
+			{
+				LOGW("Unsupported data!");
+				return nullptr;
+			}
+		}
         if(str && strlen(str) > 2 && str[0] == '.' && str[1] == '/')
         {
-            if(exists(str, false)) ret = new fxFile(str, false);
-            else if(exists(str, true)) ret = new fxFile(str, true);
-            else LOGW("Could not open file: %s\n", str);
+            if(exists(str, false)) 
+				return new AssetFile(str, false);
+            else if(exists(str, true)) 
+				return new AssetFile(str, true);
         }
-        return ret;
+		LOGW("File does not exist!\n");
+		return NULL;
     }
     static bool create(const char* str)
     {
-        return createWithData(str, nullptr, 0);
+		return createWithData(str, nullptr);
     }
     static bool createWithData(const char* str, const char* data, size_t size = 0)
     {
@@ -91,10 +139,83 @@ public:
         else return false;
         return true;
     }
-	fxFile(const char* str, bool i_isAsset) : file(nullptr), data(nullptr), isAsset(i_isAsset), length(0)
+
+	static AssetFile* createFromBase64(const char* str, MIME mime)
 	{
+		// -43
+		static const unsigned char unb64[] = { 62, 0, 0, 0, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0, 0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
+		size_t len = strlen(str);
+		if(len < 2) return nullptr;
+		int pad = 0;
+		if(str[len - 1] == '=') pad++;
+		if(str[len - 2] == '=') pad++;
+		AssetFile* ret = new AssetFile(3 * len / 4 - pad);
+		ret->mime = mime;
+		size_t i, c = 0;
+		unsigned char A, B, C, D;
+		for(i = 0; i < len - 4 - pad; i += 4)
+		{
+			A = unb64[str[i] - 43];
+			B = unb64[str[i + 1] - 43];
+			C = unb64[str[i + 2] - 43];
+			D = unb64[str[i + 3] - 43];
+			
+			ret->data[c++] = (A << 2) | (B >> 4);
+			ret->data[c++] = (B << 4) | (C >> 2);
+			ret->data[c++] = (C << 6) | (D);
+		}
+		if(pad == 1)
+		{
+			A = unb64[str[i] - 43];
+			B = unb64[str[i + 1] - 43];
+			C = unb64[str[i + 2] - 43];
+			
+			ret->data[c++] = (A << 2) | (B >> 4);
+			ret->data[c++] = (B << 4) | (C >> 2);
+		}
+		else if(pad == 2)
+		{
+			A = unb64[str[i] - 43];
+			B = unb64[str[i + 1] - 43];
+			
+			ret->data[c++] = (A << 2) | (B >> 4);
+		}
+		return ret;
+	}
+
+	// ==================================================================================================================================
+	//	    ____           __                      
+	//	   /  _/___  _____/ /_____ _____  ________ 
+	//	   / // __ \/ ___/ __/ __ `/ __ \/ ___/ _ \
+	//	 _/ // / / (__  ) /_/ /_/ / / / / /__/  __/
+	//	/___/_/ /_/____/\__/\__,_/_/ /_/\___/\___/ 
+	//	                                           
+	// ==================================================================================================================================
+
+	AssetFile(size_t i_length) : file(nullptr), data(nullptr), cursor(0), length(i_length), type(TYPE_DATA), mime(MIME_OTHER)
+	{
+		data = new unsigned char[length];
+	}
+
+	AssetFile(const char* str, bool i_isAsset) : file(nullptr), data(nullptr), isAsset(i_isAsset), length(0), mime(MIME_OTHER)
+	{
+		char* ld = (char*) strrchr(str, '.');
+        if(!ld)
+        {
+            LOGW("Invalid file!\n");
+            return;
+        }
+        else
+        {
+            ld++;
+            if(!strncmp(ld, "jpg", 3)) mime = IMAGE_JPG;
+            else if(!strncmp(ld, "png", 3)) mime = IMAGE_PNG;
+			else if(!strncmp(ld, "ogg", 3)) mime = AUDIO_OGG;
+			else if(!strncmp(ld, "ttf", 3)) mime = FONT_TTF;
+		}
         if(isAsset && assetPath && str)
         {
+			type = TYPE_ASSET;
             std::string temps(assetPath);
             temps += str + 2;
             file = strdup(temps.c_str());
@@ -108,6 +229,7 @@ public:
         }
         else if(!isAsset && filesPath && str)
         {
+			type = TYPE_FILE;
             std::string temps(filesPath);
             temps += str + 2;
             file = strdup(temps.c_str());
@@ -122,18 +244,18 @@ public:
 			else LOGI("FILE ERROR OPEN: %s\n", file);
         }
 	}
-	~fxFile()
+	~AssetFile()
 	{
 		if(isAsset && ptr.ad) AAsset_close(ptr.ad);
 		else if(!isAsset && ptr.fd) fclose(ptr.fd);
-        delete[] file;
-        delete[] data;
+        if(file) delete[] file;
+        if(data) delete[] data;
 	}
-    char* getData()
+    unsigned char* getData()
     {
         if(!data)
         {
-        	data = new char[length + 1];
+        	data = new unsigned char[length + 1];
 			data[length] = 0;
 			seek(0, SEEK_SET);
 			read(data, length);
@@ -145,34 +267,54 @@ public:
 
     // standard io functions pass-through
     // they update only the file, not the data!
-    // standard io functions pass-through
-    // they update only the file, not the data!
-    int seek(long int offset, int origin)
+	inline int seek(long int offset, int origin)
+	{
+		switch(type)
+		{
+			case TYPE_FILE:
+				return fseek(ptr.fd, offset, origin);
+			case TYPE_ASSET:
+				return AAsset_seek(ptr.ad, offset, origin);
+			case TYPE_DATA:
+				switch(origin)
+				{
+					case SEEK_SET: cursor = offset; break;
+					case SEEK_CUR: cursor += offset; break;
+					case SEEK_END: cursor = length - offset; break;
+				}
+				return 0;
+		}
+		return -1;
+    }
+	inline long int tell()
     {
-    	if(isAsset && ptr.ad)
-    		return AAsset_seek(ptr.ad, offset, origin);
-    	else if(!isAsset && ptr.fd)
-    		return fseek(ptr.fd, offset, origin);
-    	LOGW("Error fxFile::seek(%ld, %d)\n", offset, origin);
+		switch(type)
+		{
+			case TYPE_FILE:
+				return ftell(ptr.fd);
+			case TYPE_ASSET:
+    			return length - AAsset_getRemainingLength(ptr.ad);
+			case TYPE_DATA:
+				return cursor;
+		}
     	return -1;
     }
-    long int tell()
+	inline size_t read(void* dest, size_t size)
     {
-    	if(isAsset && ptr.ad)
-    		return length - AAsset_getRemainingLength(ptr.ad);
-    	else if(!isAsset && ptr.fd)
-    		return ftell(ptr.fd);
-    	LOGW("Error fxFile::tell()\n");
-    	return -1;
-    }
-    size_t read(void* dest, size_t size)
-    {
-    	if(isAsset && ptr.ad)
-    		return AAsset_read(ptr.ad, dest, size);
-    	else if(!isAsset && ptr.fd)
-    		return fread(dest, 1, size, ptr.fd);
-    	LOGW("Error fxFile::read(0x%08x, %zu)\n", (size_t)dest, size);
-    	return 0;
+		switch(type)
+		{
+			case TYPE_FILE:
+				return fread(dest, 1, size, ptr.fd);
+			case TYPE_ASSET:
+    			return AAsset_read(ptr.ad, dest, size);
+			case TYPE_DATA:
+				size_t ret = size;
+				if(ret + cursor > length) ret = length - cursor;
+				memcpy(dest, data + cursor, ret);
+				cursor += ret;
+				return ret;
+		}
+		return 0;
     }
     size_t write(const void* src, size_t size)
     {

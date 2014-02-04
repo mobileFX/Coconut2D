@@ -1,0 +1,700 @@
+"#export web"
+//@line 18
+
+function GameEngine()
+{
+	var __BASE__ = null;
+
+	function GameEngine(__BASE__)
+	{
+		var __CLASS__GAMEENGINE__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
+		this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		var __SUPER__ = this.__SUPER__ = __BASE__;
+		//@line 480
+		var setTexts = this.setTexts = function ()
+		{
+			//@line 483
+			__CLASS__GAMEENGINE__.__PRIVATE__.balance += __CLASS__GAMEENGINE__.__PRIVATE__.WIN_PRIZES[__CLASS__GAMEENGINE__.__PRIVATE__.selAvatarAppearances];
+			//@line 484
+			var blnce = __CLASS__GAMEENGINE__.__PRIVATE__.balance;
+		};
+		//@line 493
+		var createGUID = this.createGUID = function ()
+		{
+			//@line 495
+			var list = ["87D2C004-1441-4CD5-AEB3-E221BA96C9B8", "23FCC6FD-2E17-49ED-85E3-21AFB67A9FA5", "F09FEBCF-7541-43F3-BFE5-EE48EC44A3AD", "F6C2F6D2-5B47-4E0F-A6EC-DAE78AADCE47", "7798C232-4859-4FF8-93BD-8CE68D1F0718", "46F61FE6-A48A-45D6-A96E-2E2E83D9A21A"];
+			//@line 496
+			return list[Math.floor(Math.random() * list.size())];
+			return ""
+		};
+		//@line 499
+		var hasClosedCells = this.hasClosedCells = function ()
+		{
+			//@line 501
+			for (var c = __CLASS__GAMEENGINE__.__PRIVATE__.cellsOpen.size(); c--;)
+			//@line 502
+			if (!__CLASS__GAMEENGINE__.__PRIVATE__.cellsOpen[c])
+			//@line 503
+			return true;
+			//@line 504
+			return false;
+			return false
+		};
+		//@line 507
+		var OpenCell = this.OpenCell = function (i)
+		{
+			//@line 509
+			if (i != -1 && !__CLASS__GAMEENGINE__.__PRIVATE__.cellsOpen[i])
+			//@line 510
+			{
+				//@line 511
+				__CLASS__GAMEENGINE__.__PRIVATE__.cells[i].gotoFrameByName("flip", false);
+				//@line 512
+				__CLASS__GAMEENGINE__.__PRIVATE__.cellsOpen[i] = true;
+				//@line 513
+				if (__CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar == (__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_cells[i] - 1)) __CLASS__GAMEENGINE__.__PRIVATE__.selAvatarAppearances++;
+			}
+		};
+		//@line 20
+		this.__PRIVATE__.scene = null;
+		//@line 22
+		this.__PRIVATE__.balance = 0;
+		//@line 23
+		this.__PRIVATE__.winnings = 0;
+		//@line 25
+		this.__PRIVATE__.avatars = [];
+		//@line 26
+		this.__PRIVATE__.avatar_leo = null;
+		//@line 27
+		this.__PRIVATE__.avatar_xerxes = null;
+		//@line 28
+		this.__PRIVATE__.avatar_spartan = null;
+		//@line 29
+		this.__PRIVATE__.avatar_persian = null;
+		//@line 30
+		this.__PRIVATE__.avatar_swords = null;
+		//@line 31
+		this.__PRIVATE__.avatar_armor = null;
+		//@line 33
+		this.__PRIVATE__.btnOpenAll = null;
+		//@line 34
+		this.__PRIVATE__.btnBuyTicket = null;
+		//@line 35
+		this.__PRIVATE__.cells = [];
+		//@line 36
+		this.__PRIVATE__.cellsOpen = [];
+		//@line 38
+		this.__PRIVATE__.selectedAvatar = 0;
+		//@line 39
+		this.__PRIVATE__.selAvatarAppearances = 0;
+		//@line 40
+		this.__PRIVATE__.counter = 0;
+		//@line 43
+		this.__PRIVATE__.TICKET_TicketID = "";
+		//@line 44
+		this.__PRIVATE__.TICKET_cells = [];
+		//@line 45
+		this.__PRIVATE__.TICKET_price = 0;
+		//@line 46
+		this.__PRIVATE__.TICKET_winCount = 0;
+		//@line 47
+		this.__PRIVATE__.WIN_PRIZES = [];
+		//@line 73
+		this.STATE_TITLE_SCREEN = (function ()
+		{
+			this.__name = 'STATE_TITLE_SCREEN';
+			//@line 75
+			var enter = this.enter = function ()
+			{
+				//@line 77
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene = new SceneTitle;
+			};
+			//@line 80
+			var exit = this.exit = function ()
+			{
+				//@line 82
+				{
+					__CLASS__GAMEENGINE__.__PRIVATE__.scene && ((__CLASS__GAMEENGINE__.__PRIVATE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.__PRIVATE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.__PRIVATE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.__PRIVATE__.scene);
+					__CLASS__GAMEENGINE__.__PRIVATE__.scene = null
+				};
+			};
+			//@line 85
+			var tick = this.tick = function (time)
+			{
+				//@line 88
+				if (__CLASS__GAMEENGINE__.__PRIVATE__.scene.__finished)
+				//@line 89
+				__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD);
+			};
+			//@line 92
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 94
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		//@line 99
+		this.STATE_GAME_BOARD = (function ()
+		{
+			this.__name = 'STATE_GAME_BOARD';
+			//@line 101
+			var enter = this.enter = function ()
+			{
+				//@line 104
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene = new SceneGameBoard;
+				//@line 106
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_leo = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("Avatar_Leonidas");
+				//@line 107
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_xerxes = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("Avatar_Xerxes");
+				//@line 108
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_spartan = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("Avatar_Spartan");
+				//@line 109
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_persian = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("Avatar_Persian");
+				//@line 110
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_swords = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("Avatar_Swords");
+				//@line 111
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_armor = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("Avatar_Armor");
+				//@line 113
+				__CLASS__GAMEENGINE__.__PRIVATE__.btnBuyTicket = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("BuyTicketButton");
+				//@line 114
+				__CLASS__GAMEENGINE__.__PRIVATE__.btnOpenAll = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("OpenAllButton");
+				//@line 116
+				__CLASS__GAMEENGINE__.__PRIVATE__.cells = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("Grid").__children.slice(0, 12);
+				//@line 117
+				__CLASS__GAMEENGINE__.__PRIVATE__.cellsOpen = [false, false, false, false, false, false, false, false, false, false, false, false];
+				//@line 118
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatars = [__CLASS__GAMEENGINE__.__PRIVATE__.avatar_leo, __CLASS__GAMEENGINE__.__PRIVATE__.avatar_xerxes, __CLASS__GAMEENGINE__.__PRIVATE__.avatar_spartan, __CLASS__GAMEENGINE__.__PRIVATE__.avatar_persian, __CLASS__GAMEENGINE__.__PRIVATE__.avatar_swords, __CLASS__GAMEENGINE__.__PRIVATE__.avatar_armor];
+				//@line 120
+				__CLASS__GAMEENGINE__.__PRIVATE__.balance = 5000;
+				//@line 121
+				__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_TicketID = __CLASS__GAMEENGINE__.createGUID();
+				//@line 122
+				__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_cells.clear();
+			};
+			//@line 125
+			var exit = this.exit = function ()
+			{
+				//@line 126
+			};
+			//@line 129
+			var tick = this.tick = function (time)
+			{
+				//@line 130
+			};
+			//@line 133
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 135
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		//@line 140
+		this.STATE_JUMPING_AVATARS = (function ()
+		{
+			this.__name = 'STATE_JUMPING_AVATARS';
+			//@line 142
+			var enter = this.enter = function ()
+			{
+				//@line 145
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.gotoAndPlayByName("JumpingAvatars");
+				//@line 151
+				for (var i = __CLASS__GAMEENGINE__.__PRIVATE__.avatars.size(); i--;)
+				//@line 152
+				if (i != __CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar)
+				//@line 153
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatars[i].gotoFrameByName("Enable", false);
+			};
+			//@line 156
+			var exit = this.exit = function ()
+			{
+				//@line 157
+			};
+			//@line 160
+			var tick = this.tick = function (time)
+			{
+				//@line 161
+			};
+			//@line 164
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 166
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		//@line 171
+		this.STATE_GAME_BOARD_CHOOSE_AVATAR = (function ()
+		{
+			this.__name = 'STATE_GAME_BOARD_CHOOSE_AVATAR';
+			//@line 173
+			var enter = this.enter = function ()
+			{
+				//@line 176
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.stop$1();
+				//@line 179
+				if (__CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar != -1)
+				//@line 180
+				__CLASS__GAMEENGINE__.__PRIVATE__.btnBuyTicket.gotoFrameByName("Enabled", true);
+				//@line 183
+				__CLASS__GAMEENGINE__.__PRIVATE__.selAvatarAppearances = 0;
+				//@line 184
+				__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_cells.clear();
+			};
+			//@line 187
+			var exit = this.exit = function ()
+			{
+				//@line 191
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("PrizeTable").gotoFrameByName("Show", false);
+				//@line 192
+				for (var i = __CLASS__GAMEENGINE__.__PRIVATE__.cells.size(); i--;)
+				//@line 193
+				{
+					//@line 195
+					__CLASS__GAMEENGINE__.__PRIVATE__.cells[i].gotoFrameByName("closed", true);
+					//@line 198
+					__CLASS__GAMEENGINE__.__PRIVATE__.cellsOpen[i] = false;
+					//@line 201
+					var back = __CLASS__GAMEENGINE__.__PRIVATE__.cells[i].getChildByName("Back");
+					//@line 204
+					back.removeChild(back.getChildByName("Placeholder"));
+				}
+			};
+			//@line 208
+			var tick = this.tick = function (time)
+			{
+				//@line 211
+				if (__CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar != -1 && engine.isClicked([__CLASS__GAMEENGINE__.__PRIVATE__.btnBuyTicket]) != -1)
+				//@line 212
+				{
+					//@line 214
+					for (var i = __CLASS__GAMEENGINE__.__PRIVATE__.avatars.size(); i--;)
+					//@line 215
+					if (i != __CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar)
+					//@line 216
+					__CLASS__GAMEENGINE__.__PRIVATE__.avatars[i].gotoFrameByName("Disable", false);
+					//@line 219
+					__CLASS__GAMEENGINE__.__PRIVATE__.balance -= __CLASS__GAMEENGINE__.__PRIVATE__.TICKET_price;
+					//@line 223
+					__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL);
+				}
+				//@line 227
+				var clickedAvatar = engine.isClicked(__CLASS__GAMEENGINE__.__PRIVATE__.avatars);
+				//@line 228
+				if (clickedAvatar != -1)
+				//@line 229
+				{
+					//@line 231
+					if (__CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar == clickedAvatar)
+					//@line 232
+					{
+						//@line 233
+						for (var i = __CLASS__GAMEENGINE__.__PRIVATE__.avatars.size(); i--;)
+						//@line 234
+						if (i != __CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar)
+						//@line 235
+						__CLASS__GAMEENGINE__.__PRIVATE__.avatars[i].gotoFrameByName("Disable", false);
+					}
+					else
+					//@line 238
+					{
+						//@line 239
+						for (var i = __CLASS__GAMEENGINE__.__PRIVATE__.avatars.size(); i--;)
+						//@line 240
+						__CLASS__GAMEENGINE__.__PRIVATE__.avatars[i].gotoFrameByName((i == clickedAvatar ? "Select" : "Disable"), false);
+					}
+					//@line 244
+					__CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar = clickedAvatar;
+					//@line 247
+					__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD_BUY_TICKET);
+				}
+			};
+			//@line 251
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 253
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		//@line 259
+		this.STATE_GAME_BOARD_BUY_TICKET = (function ()
+		{
+			this.__name = 'STATE_GAME_BOARD_BUY_TICKET';
+			//@line 261
+			var enter = this.enter = function ()
+			{
+				//@line 265
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.gotoAndStopByName("WaitToBuyTicket");
+				//@line 266
+				__CLASS__GAMEENGINE__.__PRIVATE__.btnBuyTicket.gotoFrameByName("Enabled", true);
+			};
+			//@line 269
+			var exit = this.exit = function ()
+			{
+				//@line 270
+			};
+			//@line 273
+			var tick = this.tick = function (time)
+			{
+				//@line 277
+				if (engine.isClicked([__CLASS__GAMEENGINE__.__PRIVATE__.btnBuyTicket]) != -1)
+				{
+					//@line 278
+					__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_TicketID = __CLASS__GAMEENGINE__.createGUID();
+					//@line 280
+					__CLASS__GAMEENGINE__.__PRIVATE__.balance -= __CLASS__GAMEENGINE__.__PRIVATE__.TICKET_price;
+					//@line 281
+					var blnce = __CLASS__GAMEENGINE__.__PRIVATE__.balance;
+					//@line 285
+					__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL);
+				}
+			};
+			//@line 289
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 291
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		//@line 298
+		this.STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL = (function ()
+		{
+			this.__name = 'STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL';
+			//@line 300
+			var gridSymbol = this.gridSymbol = null;
+			//@line 301
+			var Leonidas = this.Leonidas = null;
+			//@line 302
+			var Xerxes = this.Xerxes = null;
+			//@line 304
+			var enter = this.enter = function ()
+			{
+				//@line 306
+				gridSymbol = new GridSymbol(__CLASS__GAMEENGINE__.__PRIVATE__.scene);
+				//@line 308
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.gotoAndStopByName("WaitToScratch");
+				//@line 311
+				__CLASS__GAMEENGINE__.__PRIVATE__.btnBuyTicket.gotoFrameByName("Disable", false);
+				//@line 312
+				__CLASS__GAMEENGINE__.__PRIVATE__.btnOpenAll.gotoFrameByName("Enabled", true);
+				//@line 315
+				Leonidas = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("Leonidas");
+				//@line 316
+				Xerxes = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("Xerxes");
+				//@line 317
+				Leonidas.gotoFrameByName("Animate", false);
+				//@line 318
+				Xerxes.gotoFrameByName("Animate", false);
+				//@line 322
+				__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_cells.clear();
+				//@line 323
+				for (var i = 0; i < __CLASS__GAMEENGINE__.__PRIVATE__.cells.size(); i++)
+				//@line 324
+				{
+					//@line 325
+					__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_cells.push(gridSymbol.getRandom());
+					//@line 326
+					__CLASS__GAMEENGINE__.__PRIVATE__.cells[i].getChildByName("Back").addChild(gridSymbol.createSymbol(__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_cells[i]));
+				}
+			};
+			//@line 330
+			var exit = this.exit = function ()
+			{
+				//@line 333
+				__CLASS__GAMEENGINE__.__PRIVATE__.btnOpenAll.gotoFrameByName("Disable", false);
+				//@line 334
+				Leonidas.gotoFrameByIndex(0, true);
+				//@line 335
+				Xerxes.gotoFrameByIndex(0, true);
+			};
+			//@line 338
+			var tick = this.tick = function (time)
+			{
+				//@line 341
+				if (engine.isClicked([__CLASS__GAMEENGINE__.__PRIVATE__.btnOpenAll]) != -1)
+				//@line 342
+				__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD_OPEN_ALL);
+				//@line 345
+				__CLASS__GAMEENGINE__.OpenCell(engine.isClicked(__CLASS__GAMEENGINE__.__PRIVATE__.cells));
+				//@line 349
+				if (__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_winCount == __CLASS__GAMEENGINE__.__PRIVATE__.selAvatarAppearances)
+				//@line 350
+				__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD_OPEN_ALL);
+				//@line 353
+				if (!__CLASS__GAMEENGINE__.hasClosedCells())
+				//@line 354
+				{
+					//@line 355
+					if (__CLASS__GAMEENGINE__.__PRIVATE__.selAvatarAppearances >= 3)
+					//@line 356
+					__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD_WIN);
+					else
+					//@line 358
+					__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD_LOSE);
+					//@line 359
+					var noWinningAvatars = __CLASS__GAMEENGINE__.__PRIVATE__.selAvatarAppearances;
+				}
+			};
+			//@line 363
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 365
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		//@line 371
+		this.STATE_GAME_BOARD_OPEN_ALL = (function ()
+		{
+			this.__name = 'STATE_GAME_BOARD_OPEN_ALL';
+			//@line 373
+			var openTicks = this.openTicks = 0;
+			//@line 374
+			var count = this.count = 0;
+			//@line 376
+			var enter = this.enter = function ()
+			{
+				//@line 378
+				openTicks = 5;
+				//@line 379
+				count = 0;
+			};
+			//@line 382
+			var exit = this.exit = function ()
+			{
+				//@line 383
+			};
+			//@line 386
+			var tick = this.tick = function (time)
+			{
+				//@line 389
+				if (!(count % openTicks))
+				//@line 390
+				{
+					//@line 391
+					var i = count / openTicks;
+					//@line 392
+					switch (i)
+					{
+						//@line 394
+					case 0:
+						{
+							__CLASS__GAMEENGINE__.OpenCell(11);
+							break;
+						}
+						break;
+						//@line 395
+					case 1:
+						{
+							__CLASS__GAMEENGINE__.OpenCell(1);
+							__CLASS__GAMEENGINE__.OpenCell(2);
+							break;
+						}
+						break;
+						//@line 396
+					case 2:
+						{
+							__CLASS__GAMEENGINE__.OpenCell(3);
+							__CLASS__GAMEENGINE__.OpenCell(4);
+							__CLASS__GAMEENGINE__.OpenCell(5);
+							break;
+						}
+						break;
+						//@line 397
+					case 3:
+						{
+							__CLASS__GAMEENGINE__.OpenCell(6);
+							__CLASS__GAMEENGINE__.OpenCell(7);
+							__CLASS__GAMEENGINE__.OpenCell(8);
+							break;
+						}
+						break;
+						//@line 398
+					case 4:
+						{
+							__CLASS__GAMEENGINE__.OpenCell(9);
+							__CLASS__GAMEENGINE__.OpenCell(10);
+							break;
+						}
+						break;
+						//@line 399
+					case 5:
+						{
+							__CLASS__GAMEENGINE__.OpenCell(0);
+							break;
+						}
+						break;
+						//@line 400
+					default:
+						{
+							//@line 401
+							if (__CLASS__GAMEENGINE__.__PRIVATE__.selAvatarAppearances >= 3)
+							//@line 402
+							__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD_WIN);
+							else
+							//@line 404
+							__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME_BOARD_LOSE);
+						}
+						break;
+					}
+				}
+				//@line 407
+				count++;
+			};
+			//@line 410
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 412
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		//@line 418
+		this.STATE_GAME_BOARD_WIN = (function ()
+		{
+			this.__name = 'STATE_GAME_BOARD_WIN';
+			//@line 420
+			var enter = this.enter = function ()
+			{
+				//@line 422
+				__CLASS__GAMEENGINE__.setTexts();
+				//@line 425
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.gotoAndStopByName("WinAnim");
+				//@line 426
+				for (var i = __CLASS__GAMEENGINE__.__PRIVATE__.cells.size(); i--;)
+				//@line 427
+				{
+					//@line 429
+					if (__CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar == (__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_cells[i] - 1))
+					//@line 430
+					__CLASS__GAMEENGINE__.__PRIVATE__.cells[i].gotoFrameByName("Winner", false);
+					else
+					//@line 432
+					__CLASS__GAMEENGINE__.__PRIVATE__.cells[i].gotoFrameByName("Looser", false);
+				}
+			};
+			//@line 436
+			var exit = this.exit = function ()
+			{
+				//@line 439
+				var win = __CLASS__GAMEENGINE__.__PRIVATE__.scene.__root.getChildByName("YouWin");
+				//@line 440
+				win.gotoFrameByIndex(0, false);
+			};
+			//@line 443
+			var tick = this.tick = function (time)
+			{
+				//@line 444
+			};
+			//@line 447
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 449
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		//@line 455
+		this.STATE_GAME_BOARD_LOSE = (function ()
+		{
+			this.__name = 'STATE_GAME_BOARD_LOSE';
+			//@line 457
+			var enter = this.enter = function ()
+			{
+				//@line 460
+				__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_JUMPING_AVATARS);
+			};
+			//@line 463
+			var exit = this.exit = function ()
+			{
+				//@line 464
+			};
+			//@line 467
+			var tick = this.tick = function (time)
+			{
+				//@line 468
+			};
+			//@line 471
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 473
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		var Destructor = this.Destructor = function ()
+		{
+			//@line 68
+			{
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene && ((__CLASS__GAMEENGINE__.__PRIVATE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.__PRIVATE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.__PRIVATE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.__PRIVATE__.scene);
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene = null
+			};
+			{
+				__CLASS__GAMEENGINE__.__PRIVATE__.scene = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.balance = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.winnings = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatars = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_leo = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_xerxes = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_spartan = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_persian = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_swords = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.avatar_armor = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.btnOpenAll = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.btnBuyTicket = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.cells = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.cellsOpen = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.selAvatarAppearances = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.counter = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_TicketID = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_cells = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_price = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_winCount = null;
+				__CLASS__GAMEENGINE__.__PRIVATE__.WIN_PRIZES = null;
+				__CLASS__GAMEENGINE__.STATE_TITLE_SCREEN = null;
+				__CLASS__GAMEENGINE__.STATE_GAME_BOARD = null;
+				__CLASS__GAMEENGINE__.STATE_JUMPING_AVATARS = null;
+				__CLASS__GAMEENGINE__.STATE_GAME_BOARD_CHOOSE_AVATAR = null;
+				__CLASS__GAMEENGINE__.STATE_GAME_BOARD_BUY_TICKET = null;
+				__CLASS__GAMEENGINE__.STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL = null;
+				__CLASS__GAMEENGINE__.STATE_GAME_BOARD_OPEN_ALL = null;
+				__CLASS__GAMEENGINE__.STATE_GAME_BOARD_WIN = null;
+				__CLASS__GAMEENGINE__.STATE_GAME_BOARD_LOSE = null;
+				__SUPER__ && ((__SUPER__.hasOwnProperty('Destructor') && __SUPER__.Destructor()) || !__SUPER__.hasOwnProperty('Destructor')) && (delete __SUPER__);
+			}
+			return true
+		};
+		//@line 50
+		this.Constructor = function ()
+		{
+			//@line 53
+			__CLASS__GAMEENGINE__.__PRIVATE__.selectedAvatar = -1;
+			//@line 54
+			__CLASS__GAMEENGINE__.__PRIVATE__.selAvatarAppearances = 0;
+			//@line 55
+			__CLASS__GAMEENGINE__.__PRIVATE__.counter = 0;
+			//@line 56
+			__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_price = 5;
+			//@line 57
+			__CLASS__GAMEENGINE__.__PRIVATE__.TICKET_winCount = 3;
+			//@line 58
+			__CLASS__GAMEENGINE__.__PRIVATE__.WIN_PRIZES = [0, 0, 0, 5, 50, 100, 500, 5000];
+			//@line 61
+			__CLASS__GAMEENGINE__.__SUPER__.setNextState(__CLASS__GAMEENGINE__.STATE_TITLE_SCREEN);
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__BASE__ = new CocoEngine();
+	GameEngine.prototype = __BASE__;
+	return new GameEngine(__BASE__);
+}

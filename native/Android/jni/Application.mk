@@ -1,16 +1,16 @@
-APP_ABI := armeabi 	armeabi-v7a x86
+APP_ABI := armeabi armeabi-v7a x86
 APP_PLATFORM := android-9
 APP_STL := gnustl_static
 #Don't optimize code and don't include debug information
 #for some reason the application doesn't launch/crashes at launch with -O2/s but works with -O0/1/3
-APP_CFLAGS := -O3 -g0
+APP_CFLAGS := -O0 -g0
 APP_CPPFLAGS += -std=c++11 -DANDROID_APPLICATION -fexceptions
 #APP_CPPFLAGS += -DJAVASCRIPT_ENGINE_V8 -Wfatal-errors 
 APP_CPPFLAGS += -DENABLE_OPENGL_SUPPORT
 APP_CPPFLAGS += -DENABLE_OPENAL_SUPPORT
 APP_CPPFLAGS += -DENABLE_FREETYPE_SUPPORT
 APP_CPPFLAGS += -DENABLE_PNG_SUPPORT
-APP_CPPFLAGS += -DENABLE_JPEG_SUPPORT
+APP_CPPFLAGS += -DENABLE_JPG_SUPPORT
 APP_CPPFLAGS += -DENABLE_OGG_SUPPORT
 APP_CPPFLAGS += -DENABLE_CURL_SUPPORT
 APP_CPPFLAGS += -DENABLE_FX_DEBUG

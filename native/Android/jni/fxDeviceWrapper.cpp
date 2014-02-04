@@ -1,7 +1,5 @@
 #include "fxDeviceWrapper.h"
 
-extern GameEngine* engine;
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 fxDeviceWrapper::fxDeviceWrapper(android_app* i_app) : app(i_app), jenv(nullptr), glwrap(nullptr), video(false)
 {
@@ -77,10 +75,10 @@ void fxDeviceWrapper::StateHandler(android_app* app, int32_t state)
 	switch(state)
 	{
 		case APP_CMD_INIT_WINDOW:
+		{
 			LOGI("Window Init!\n");
 			t->glwrap = new fxGLWrap(app->window, t);
-			window = new Window();
-			window->window = window->self = window;
+			window = new HTMLWindow();
 			window->innerWidth = t->glwrap->GetScreen().width;
 			window->innerHeight = t->glwrap->GetScreen().height;
 			window->devicePixelRatio = t->glwrap->GetScreen().pixelRatio;
@@ -92,14 +90,16 @@ void fxDeviceWrapper::StateHandler(android_app* app, int32_t state)
 				case fxScreen::Rotation::RCCW: window->deviceRotation = -M_PI_2; break;
 				case fxScreen::Rotation::FULL: window->deviceRotation = M_PI; break;
 			}*/
-			t->gl = new WebGLRenderingContext();
-			t->gl->canvas = new HTMLCanvasElement();
-			t->gl->canvas->width = window->innerWidth;
-			t->gl->canvas->height = window->innerHeight;
+			document = new HTMLDocument();
+			HTMLCanvasElement* canvas = document->createElement("canvas");
+			gl = (WebGLRenderingContext*)canvas->getContext("webgl");
+			gl->canvas->width = window->innerWidth;
+			gl->canvas->height = window->innerHeight;
 			engine = new GameEngine();
 			//fxCRL::init(fxArgs::Args->getArgc(), fxArgs::Args->getArgv(), t->glwrap->GetScreen(), t);
 			//fxCRL::handleEvent(0, fxCRL::fxEvent::LOAD, nullptr);
 			break;
+		}
 		case APP_CMD_WINDOW_REDRAW_NEEDED:
 			LOGI("Redraw Needed!\n");
 			break;

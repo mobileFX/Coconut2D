@@ -6,7 +6,6 @@ class fxGLWrap;
 
 #include "Coconut2D.hpp"
 #include "AssetFile.h"
-#include "fxArgs.h"
 #include "fxFontFace.h"
 #include "fxAudioStream.h"
 #include "fxGLWrap.h"
@@ -20,7 +19,6 @@ protected:
 	android_app* app;
 	JNIEnv* jenv;
 	fxGLWrap* glwrap;
-	WebGLRenderingContext* gl;
 
 	// Java Methods
 	jmethodID jmID_KeyboardShow;
