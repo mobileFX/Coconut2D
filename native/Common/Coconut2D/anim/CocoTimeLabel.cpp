@@ -1,8 +1,0 @@
-#include "CocoTimeLabel.hpp"
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoTimeLabel::CocoTimeLabel(int FrameIndex, String LabelName)
-{
-	frameIndex = FrameIndex;
-	name = LabelName;
-}
