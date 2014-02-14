@@ -343,10 +343,6 @@ class CocoClip
 				delete __currentFrame;
 			__currentFrame = __timeline.interpolate(frameIndex);
 
-			// Frame Index cannot exceed timeline bounds.
-
-			//engine.__trace(scene, this, "@PAINT");
-
 			// Combine parent clip currentframe values with this clip's interpolated frame values.
 			 __currentFrame.combine(parentClip.__currentFrame);
 

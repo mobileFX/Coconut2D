@@ -3393,13 +3393,13 @@ function Compiler(ast, exportSymbols, selectedClass)
 							xmlArgsList.push(argumentSymbol.name + argumentSymbol.ast.xmlvartype);
 						}
 						hasArgs = (args.length>0);
-						xml.push(_this.objectToXML(methodSymbol, methodSymbol.name, !hasArgs));
+						xml.push(_this.objectToXML(methodSymbol, "METHOD", !hasArgs));
 						if(hasArgs)
 						{
 							xml.push("<ARGUMENTS>\n");
 							xml.push(args.join(""));
 							xml.push("</ARGUMENTS>\n");
-							xml.push("</" + methodSymbol.name +">\n");
+							xml.push("</METHOD>\n");
 						}
 						sig = methodSymbol.name + "(" + xmlArgsList.join(", ") + ")" + methodSymbol.ast.xmlvartype;
 						modifier = "public";
