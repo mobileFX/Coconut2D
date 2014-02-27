@@ -114,7 +114,7 @@
 
 */
 
-function Compiler(ast, exportSymbols, selectedClass)
+function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 {
 	// ast				: The abstract syntax tree root node as produced by the parser
 	// selectedClass	: Used if we want to parse-only a single class for intelliSence use
@@ -142,6 +142,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 	_this.in_state = false;    				// Flag that indicates we are processing a state
 	_this.in_property = false;    			// Flag that indicates we are processing a property
 	_this.states = {};						// Map of states
+	_this.importJSProto = importJSProto;	// Import JavaScript Prototypes to JavaScript Classes
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Symbol constructors

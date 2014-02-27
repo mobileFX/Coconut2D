@@ -342,6 +342,7 @@ class CocoClip
 			if(__currentFrame)
 				delete __currentFrame;
 			__currentFrame = __timeline.interpolate(frameIndex);
+			if(!__currentFrame) return;
 
 			// Combine parent clip currentframe values with this clip's interpolated frame values.
 			 __currentFrame.combine(parentClip.__currentFrame);

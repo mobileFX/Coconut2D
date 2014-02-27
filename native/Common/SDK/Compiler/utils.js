@@ -109,7 +109,7 @@ function formatCPP(buff)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function compile_jspp(code, externs)
+function compile_jspp(code, externs, importJSProto)
 {
 	try
 	{
@@ -124,8 +124,8 @@ function compile_jspp(code, externs)
 		var ast = narcissus.jsparse(code);
 
 		// Compile ast
-		trace("Compiling JavaScript Classes to JavaScript ...");
-		var compiler = new Compiler(ast, true, null);
+		trace(importJSProto ? "Importing JavaScript Prototypes to JavaScript Classes ..." : "Compiling JavaScript Classes to JavaScript ...");
+		var compiler = new Compiler(ast, true, null, importJSProto);
 		compiler.compile();
 	}
 	catch(e)
@@ -186,3 +186,4 @@ function parse_jspp(code, className)
 		//trace("ERROR: " +e);
 	}
 }
+
