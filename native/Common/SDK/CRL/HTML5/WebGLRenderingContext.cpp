@@ -1,4 +1,4 @@
-#include "WebGLRenderingContext.hpp"
+﻿#include "WebGLRenderingContext.hpp"
 
 WebGLRenderingContext* gl = nullptr;
 
@@ -854,21 +854,21 @@ WebGLProgram* makeProgram(WebGLRenderingContext* gl, std::string vs, std::string
 {
 	WebGLShader* vshader = gl->createShader(gl->VERTEX_SHADER);
 	WebGLShader* fshader = gl->createShader(gl->FRAGMENT_SHADER);
-	
+
 	gl->shaderSource(vshader, vs);
 	gl->shaderSource(fshader, fs);
-	
+
 	gl->compileShader(vshader);
 	gl->compileShader(fshader);
-	
+
 	assert(gl->getShaderParameter(vshader, gl->COMPILE_STATUS).valBool);
 	assert(gl->getShaderParameter(fshader, gl->COMPILE_STATUS).valBool);
-	
+
 	WebGLProgram* program = gl->createProgram();
 	gl->attachShader(program, vshader);
 	gl->attachShader(program, fshader);
 	gl->linkProgram(program);
 	//assert(!gl->getProgramParameter(program, gl->LINK_STATUS).valBool);
-	
+
 	return program;
 }

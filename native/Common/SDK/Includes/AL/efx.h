@@ -1,4 +1,4 @@
-#ifndef AL_EFX_H
+﻿#ifndef AL_EFX_H
 #define AL_EFX_H
 
 

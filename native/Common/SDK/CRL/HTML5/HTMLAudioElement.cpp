@@ -1,4 +1,4 @@
-//
+﻿//
 //  HTMLAudioElement.cpp
 //  CocoEngine
 //
@@ -62,7 +62,7 @@ float Audio::get_currentTime()
 {
 	if(!stream)
 		return 0.0f;
-	
+
 	return stream->get_position();
 }
 

@@ -1,4 +1,4 @@
-#include "fxDeviceWrapper.h"
+﻿#include "fxDeviceWrapper.h"
 
 extern char* AssetFile::filesPath;
 extern char* AssetFile::assetPath;

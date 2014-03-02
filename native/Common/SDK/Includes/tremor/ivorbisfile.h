@@ -1,4 +1,4 @@
-/********************************************************************
+﻿/********************************************************************
  *                                                                  *
  * THIS FILE IS PART OF THE OggVorbis 'TREMOR' CODEC SOURCE CODE.   *
  *                                                                  *
@@ -28,11 +28,11 @@ extern "C"
 
 #define CHUNKSIZE 1024
 /* The function prototypes for the callbacks are basically the same as for
- * the stdio functions fread, fseek, fclose, ftell. 
+ * the stdio functions fread, fseek, fclose, ftell.
  * The one difference is that the FILE * arguments have been replaced with
  * a void * - this is to be used as a pointer to whatever internal data these
  * functions might need. In the stdio case, it's just a FILE * cast to a void *
- * 
+ *
  * If you use other functions, check the docs for these functions and return
  * the right values. For seek_func(), you *MUST* return -1 if the stream is
  * unseekable

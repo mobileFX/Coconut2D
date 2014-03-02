@@ -1,4 +1,4 @@
-#ifndef fxDeviceWrapper_h
+﻿#ifndef fxDeviceWrapper_h
 #define fxDeviceWrapper_h
 
 class fxDeviceWrapper;

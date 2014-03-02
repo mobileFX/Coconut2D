@@ -1,4 +1,4 @@
-/* Reverb presets for EFX */
+﻿/* Reverb presets for EFX */
 
 #ifndef EFX_PRESETS_H
 #define EFX_PRESETS_H

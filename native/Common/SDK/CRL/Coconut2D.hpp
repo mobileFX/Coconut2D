@@ -1,4 +1,4 @@
-// ==================================================================================================================================
+﻿// ==================================================================================================================================
 //	   ______                             __     ___   ____     ___    ____  ____
 //	  / ____/___  _________  ____  __  __/ /_   |__ \ / __ \   /   |  / __ \/  _/
 //	 / /   / __ \/ ___/ __ \/ __ \/ / / / __/   __/ // / / /  / /| | / /_/ // /
@@ -264,6 +264,7 @@ template<class T> class Array : public std::vector<T>
 {
 public:
 	Array() : std::vector<T>() {}
+	//Array(const std::vector<T>* v) : std::vector<T>(*v) {}
 	int size() { return std::vector<T>::size(); }
 	//Array(std::initializer_list<T> val) : std::vector<T>(val) {}
 	Array(size_t size, ...) : std::vector<T>(size)
@@ -293,10 +294,10 @@ public:
 	{
 		std::vector<T>::erase(std::vector<T>::begin() + index, std::vector<T>::begin() + index + count);
 	}
-	Array<T>& operator()(T v)
+	Array<T>* operator()(T v)
 	{
 		this->push(v);
-		return *this;
+		return this;
 	}
 };
 
@@ -375,7 +376,7 @@ public:
 	{
 		std::vector<float>::erase(std::vector<float>::begin() + index, std::vector<float>::begin() + index + count);
 	}
-	Array<float>& operator()(float v)
+	Array<float>* operator()(float v)
 	{
 		this->push(v);
 		return *this;

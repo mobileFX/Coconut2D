@@ -1,4 +1,4 @@
-#include <QApplication>
+﻿#include <QApplication>
 #include <QDesktopWidget>
 #include <cstdlib>
 

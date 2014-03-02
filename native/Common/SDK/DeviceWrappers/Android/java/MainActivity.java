@@ -1,4 +1,4 @@
-package $(PROJECT_PACKAGE);
+﻿package $(PROJECT_PACKAGE);
 
 import android.app.NativeActivity;
 import android.os.*;

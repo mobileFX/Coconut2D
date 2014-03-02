@@ -1,4 +1,4 @@
-#include "fxDeviceWrapper.h"
+﻿#include "fxDeviceWrapper.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 fxDeviceWrapper::fxDeviceWrapper(android_app* i_app) : app(i_app), jenv(nullptr), glwrap(nullptr), video(false)

@@ -1,4 +1,4 @@
-#ifndef _WebGLRenderingContext_h
+﻿#ifndef _WebGLRenderingContext_h
 #define _WebGLRenderingContext_h
 
 #include <string>
@@ -75,7 +75,7 @@ public:
 		length
 	};
 	void execute();*/
-	
+
 	WebGLRenderingContext(HTMLCanvasElement* canvas) : HTMLCanvasContext(canvas) {}
 	//void getContextAttributes();
 	//void isContextLost();
@@ -222,7 +222,7 @@ public:
 	//void vertexAttrib4fv();
 	void vertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLintptr offset);
 	//void viewport();
-	
+
 	const GLenum DEPTH_BUFFER_BIT = 0x00000100;
 	const GLenum STENCIL_BUFFER_BIT = 0x00000400;
 	const GLenum COLOR_BUFFER_BIT = 0x00004000;

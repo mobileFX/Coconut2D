@@ -1,4 +1,4 @@
-#import "fxGLWrap.h"
+﻿#import "fxGLWrap.h"
 
 @implementation fxGLWrap
 

@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -97,6 +97,10 @@
    27. Re-engineered jsdef.CLASS generator
    28. Added C++ generator (detects pointers!!) for seamlessly compiling JavaScript++ to native C++ for iOS and Android.
 
+   == 01/03/2014 ==
+
+   29. Added support for new Array<subtype>. In C++ arrays are now pointers and need to be deleted.
+   30. Arrays must be typed inside classes
 
 
 	Elias G. Politakis
@@ -1483,6 +1487,9 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					varSymbol.isPointer = __isPointer(varSymbol.vartype);
 				}
 
+                if(ast[item].vartype == "Array" && !ast[item].subtype)
+                	_this.NewError("Untyped Array " + ast[item].name, ast[item]);
+
 				// Detect if identifier vartype is a typed array and get subtype.
 				if(!varSymbol.subtype && varSymbol.vartype)
 				{
@@ -1936,6 +1943,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			case "Float32Array":	ast.symbol.subtype = "Float"; break;
 			case "Int32Array":		ast.symbol.subtype = "int"; break;
 			case "Uint8Array":		ast.symbol.subtype = "uint8_t"; break;
+			case "Array":			if(!ast.subtype) _this.NewError("Untyped Array", ast);
 			default:
 
 				// Add vartype to class vartypes lists (used to determine #includes)
@@ -3101,7 +3109,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 		//=============================================================================================================================
 		default:
-			debugger;
+			//debugger;
 		}
 	};
 

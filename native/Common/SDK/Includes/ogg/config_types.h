@@ -1,4 +1,4 @@
-#ifndef __CONFIG_TYPES_H__
+﻿#ifndef __CONFIG_TYPES_H__
 #define __CONFIG_TYPES_H__
 
 /* these are filled in by configure */

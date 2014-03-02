@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2006, 2008 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef JSCallbackFunction_h
@@ -47,12 +47,12 @@ public:
     }
 
     static const ClassInfo s_info;
-    
-    // InternalFunction mish-mashes constructor and function behavior -- we should 
+
+    // InternalFunction mish-mashes constructor and function behavior -- we should
     // refactor the code so this override isn't necessary
-    static Structure* createStructure(JSGlobalData& globalData, JSGlobalObject* globalObject, JSValue proto) 
-    { 
-        return Structure::create(globalData, globalObject, proto, TypeInfo(ObjectType, StructureFlags), &s_info); 
+    static Structure* createStructure(JSGlobalData& globalData, JSGlobalObject* globalObject, JSValue proto)
+    {
+        return Structure::create(globalData, globalObject, proto, TypeInfo(ObjectType, StructureFlags), &s_info);
     }
 
 private:

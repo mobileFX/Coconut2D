@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2006, 2008 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef JSCallbackConstructor_h
@@ -35,20 +35,20 @@ class JSCallbackConstructor : public JSNonFinalObject {
 public:
     typedef JSNonFinalObject Base;
 
-    static JSCallbackConstructor* create(ExecState* exec, JSGlobalObject* globalObject, Structure* structure, JSClassRef classRef, JSObjectCallAsConstructorCallback callback) 
+    static JSCallbackConstructor* create(ExecState* exec, JSGlobalObject* globalObject, Structure* structure, JSClassRef classRef, JSObjectCallAsConstructorCallback callback)
     {
         JSCallbackConstructor* constructor = new (NotNull, allocateCell<JSCallbackConstructor>(*exec->heap())) JSCallbackConstructor(globalObject, structure, classRef, callback);
         constructor->finishCreation(globalObject, classRef);
         return constructor;
     }
-    
+
     ~JSCallbackConstructor();
     static void destroy(JSCell*);
     JSClassRef classRef() const { return m_class; }
     JSObjectCallAsConstructorCallback callback() const { return m_callback; }
     static const ClassInfo s_info;
 
-    static Structure* createStructure(JSGlobalData& globalData, JSGlobalObject* globalObject, JSValue proto) 
+    static Structure* createStructure(JSGlobalData& globalData, JSGlobalObject* globalObject, JSValue proto)
     {
         return Structure::create(globalData, globalObject, proto, TypeInfo(ObjectType, StructureFlags), &s_info);
     }

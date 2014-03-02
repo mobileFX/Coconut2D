@@ -1,4 +1,4 @@
-#include "HTMLDocument.hpp"
+﻿#include "HTMLDocument.hpp"
 
 HTMLDocument* document;
 

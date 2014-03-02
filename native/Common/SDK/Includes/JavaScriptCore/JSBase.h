@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef JSBase_h
@@ -118,13 +118,13 @@ JS_EXPORT bool JSCheckScriptSyntax(JSContextRef ctx, JSStringRef script, JSStrin
 
 /*!
 @function JSGarbageCollect
-@abstract Performs a JavaScript garbage collection. 
+@abstract Performs a JavaScript garbage collection.
 @param ctx The execution context to use.
-@discussion JavaScript values that are on the machine stack, in a register, 
- protected by JSValueProtect, set as the global object of an execution context, 
+@discussion JavaScript values that are on the machine stack, in a register,
+ protected by JSValueProtect, set as the global object of an execution context,
  or reachable from any such value will not be collected.
 
- During JavaScript execution, you are not required to call this function; the 
+ During JavaScript execution, you are not required to call this function; the
  JavaScript engine will garbage collect as needed. JavaScript values created
  within a context group are automatically destroyed when the last reference
  to the context group is released.

@@ -1,4 +1,4 @@
-//
+﻿//
 //  HTMLCanvasContext.hpp
 //  CocoEngine
 //

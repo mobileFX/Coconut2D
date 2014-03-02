@@ -1,4 +1,4 @@
-//
+﻿//
 //  TypedArray.cpp
 //  CocoEngine
 //

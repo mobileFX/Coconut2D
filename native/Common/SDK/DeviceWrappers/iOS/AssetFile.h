@@ -1,4 +1,4 @@
-#ifndef _AssetFile_h
+﻿#ifndef _AssetFile_h
 #define _AssetFile_h
 
 #include "Coconut2D.hpp"
@@ -37,12 +37,12 @@ public:
 	} mime;
 
 	// ==================================================================================================================================
-	//	   _____ __        __  _     
+	//	   _____ __        __  _
 	//	  / ___// /_____ _/ /_(_)____
 	//	  \__ \/ __/ __ `/ __/ / ___/
-	//	 ___/ / /_/ /_/ / /_/ / /__  
-	//	/____/\__/\__,_/\__/_/\___/  
-	//	                             
+	//	 ___/ / /_/ /_/ / /_/ / /__
+	//	/____/\__/\__,_/\__/_/\___/
+	//
 	// ==================================================================================================================================
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,9 +68,9 @@ public:
             std::string temps(assetPath);
             temps += str + 2;
             FILE* f = fopen(temps.c_str(), "rb");
-			if(f) 
+			if(f)
 				fclose(f);
-            else 
+            else
 				return false;
         }
         else if(!isAsset && filesPath && str)
@@ -105,9 +105,9 @@ public:
 		}
         if(str && strlen(str) > 2 && str[0] == '.' && str[1] == '/')
         {
-            if(exists(str, false)) 
+            if(exists(str, false))
 				return new AssetFile(str, false);
-            else if(exists(str, true)) 
+            else if(exists(str, true))
 				return new AssetFile(str, true);
         }
 		LOGW("File does not exist!\n");
@@ -162,7 +162,7 @@ public:
 			B = unb64[str[i + 1] - 43];
 			C = unb64[str[i + 2] - 43];
 			D = unb64[str[i + 3] - 43];
-			
+
 			ret->data[c++] = (A << 2) | (B >> 4);
 			ret->data[c++] = (B << 4) | (C >> 2);
 			ret->data[c++] = (C << 6) | (D);
@@ -172,7 +172,7 @@ public:
 			A = unb64[str[i] - 43];
 			B = unb64[str[i + 1] - 43];
 			C = unb64[str[i + 2] - 43];
-			
+
 			ret->data[c++] = (A << 2) | (B >> 4);
 			ret->data[c++] = (B << 4) | (C >> 2);
 		}
@@ -180,19 +180,19 @@ public:
 		{
 			A = unb64[str[i] - 43];
 			B = unb64[str[i + 1] - 43];
-			
+
 			ret->data[c++] = (A << 2) | (B >> 4);
 		}
 		return ret;
 	}
 
 	// ==================================================================================================================================
-	//	    ____           __                      
-	//	   /  _/___  _____/ /_____ _____  ________ 
+	//	    ____           __
+	//	   /  _/___  _____/ /_____ _____  ________
 	//	   / // __ \/ ___/ __/ __ `/ __ \/ ___/ _ \
 	//	 _/ // / / (__  ) /_/ /_/ / / / / /__/  __/
-	//	/___/_/ /_/____/\__/\__,_/_/ /_/\___/\___/ 
-	//	                                           
+	//	/___/_/ /_/____/\__/\__,_/_/ /_/\___/\___/
+	//
 	// ==================================================================================================================================
 
 	AssetFile(size_t i_length) : fd(nullptr), file(nullptr), data(nullptr), cursor(0), length(i_length), type(TYPE_DATA), mime(MIME_OTHER)
@@ -266,7 +266,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	inline const size_t& getLength() const { return length; }
 	inline const char* getFullPath() const { return file; }
-    
+
     // standard io functions pass-through
     // they update only the file, not the data!
 	inline int seek(long int offset, int origin)

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2006, 2007, 2008, 2010 Apple Inc. All rights reserved.
  * Copyright (C) 2007 Eric Seidel <eric@webkit.org>
  *
@@ -21,7 +21,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef JSCallbackObject_h
@@ -41,26 +41,26 @@ struct JSCallbackObjectData : WeakHandleOwner {
     {
         JSClassRetain(jsClass);
     }
-    
+
     ~JSCallbackObjectData()
     {
         JSClassRelease(jsClass);
     }
-    
+
     JSValue getPrivateProperty(const Identifier& propertyName) const
     {
         if (!m_privateProperties)
             return JSValue();
         return m_privateProperties->getPrivateProperty(propertyName);
     }
-    
+
     void setPrivateProperty(JSGlobalData& globalData, JSCell* owner, const Identifier& propertyName, JSValue value)
     {
         if (!m_privateProperties)
             m_privateProperties = adoptPtr(new JSPrivatePropertyMap);
         m_privateProperties->setPrivateProperty(globalData, owner, propertyName, value);
     }
-    
+
     void deletePrivateProperty(const Identifier& propertyName)
     {
         if (!m_privateProperties)
@@ -85,13 +85,13 @@ struct JSCallbackObjectData : WeakHandleOwner {
                 return JSValue();
             return location->second.get();
         }
-        
+
         void setPrivateProperty(JSGlobalData& globalData, JSCell* owner, const Identifier& propertyName, JSValue value)
         {
             WriteBarrier<Unknown> empty;
             m_propertyMap.add(propertyName.impl(), empty).iterator->second.set(globalData, owner, value);
         }
-        
+
         void deletePrivateProperty(const Identifier& propertyName)
         {
             m_propertyMap.remove(propertyName.impl());
@@ -113,7 +113,7 @@ struct JSCallbackObjectData : WeakHandleOwner {
     virtual void finalize(Handle<Unknown>, void*);
 };
 
-    
+
 template <class Parent>
 class JSCallbackObject : public Parent {
 protected:
@@ -149,17 +149,17 @@ public:
     bool inherits(JSClassRef) const;
 
     static Structure* createStructure(JSGlobalData&, JSGlobalObject*, JSValue);
-    
+
     JSValue getPrivateProperty(const Identifier& propertyName) const
     {
         return m_callbackObjectData->getPrivateProperty(propertyName);
     }
-    
+
     void setPrivateProperty(JSGlobalData& globalData, const Identifier& propertyName, JSValue value)
     {
         m_callbackObjectData->setPrivateProperty(globalData, this, propertyName, value);
     }
-    
+
     void deletePrivateProperty(const Identifier& propertyName)
     {
         m_callbackObjectData->deletePrivateProperty(propertyName);
@@ -179,7 +179,7 @@ private:
 
     static bool getOwnPropertySlot(JSCell*, ExecState*, const Identifier&, PropertySlot&);
     static bool getOwnPropertyDescriptor(JSObject*, ExecState*, const Identifier&, PropertyDescriptor&);
-    
+
     static void put(JSCell*, ExecState*, const Identifier&, JSValue, PutPropertySlot&);
 
     static bool deleteProperty(JSCell*, ExecState*, const Identifier&);
@@ -203,12 +203,12 @@ private:
     }
 
     void init(ExecState*);
- 
+
     static JSCallbackObject* asCallbackObject(JSValue);
- 
+
     static EncodedJSValue JSC_HOST_CALL call(ExecState*);
     static EncodedJSValue JSC_HOST_CALL construct(ExecState*);
-   
+
     JSValue getStaticValue(ExecState*, const Identifier&);
     static JSValue staticFunctionGetter(ExecState*, JSValue, const Identifier&);
     static JSValue callbackGetter(ExecState*, JSValue, const Identifier&);

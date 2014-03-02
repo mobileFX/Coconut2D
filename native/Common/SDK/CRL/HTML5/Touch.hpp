@@ -1,4 +1,4 @@
-#ifndef __TOUCH_HPP__
+﻿#ifndef __TOUCH_HPP__
 #define __TOUCH_HPP__
 
 #include "Coconut2D.hpp"

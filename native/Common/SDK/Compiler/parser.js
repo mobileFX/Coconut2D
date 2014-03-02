@@ -1,4 +1,4 @@
-// ==================================================================================================================================
+﻿// ==================================================================================================================================
 //	    _   __                _                         ____
 //	   / | / /___ ___________(_)___________  _______   / __ \____ ______________  _____
 //	  /  |/ / __ `/ ___/ ___/ / ___/ ___/ / / / ___/  / /_/ / __ `/ ___/ ___/ _ \/ ___/
@@ -85,7 +85,7 @@ function __isPointer(vartype)
 		return false;
 	default:
 		if(vartype.indexOf("_ENUM")!=-1) return false;
-		if(vartype.indexOf("<")!=-1) return false;
+		//if(vartype.indexOf("<")!=-1) return false;
 		return true;
 	}
 }
@@ -203,7 +203,15 @@ function __init_narcissus(GLOBAL)
 		"var",
 		"void",
 		"while",
-		"with"
+		"with",
+
+		// AS3
+		"implements",
+		"interface",
+        "as",
+		"import",
+		"package",
+		"use"
 	];
 
 	// Operator and punctuator mapping from token to tree node type name.
@@ -339,7 +347,7 @@ function __init_narcissus(GLOBAL)
 
 	var opRegExp = new RegExp(opRegExpSrc);
 	var fpRegExp = /^\d+\.(?!\.)\d*(?:[eE][-+]?\d+)?|^\d+(?:\.\d*)?[eE][-+]?\d+|^\.\d+(?:[eE][-+]?\d+)?/;
-	var reRegExp = /^(?:m(x)?|(?=\/))([^\w\s\\])((?:\\.|(?!\2)[^\\])*)\2([a-z]*)/;
+	//var reRegExp = /^(?:m(x)?|(?=\/))([^\w\s\\])((?:\\.|(?!\2)[^\\])*)\2([a-z]*)/;
 	var scopeId = 1;
 
 	function Tokenizer(s, f, l)
@@ -464,7 +472,7 @@ function __init_narcissus(GLOBAL)
 				token.type = jsdef.NUMBER;
 				token.value = parseInt(match[0]);
 			}
-			else if((match = /^[$\w]+/.exec(input)) && !reRegExp.test(input))
+			else if((match = /^[$\w]+/.exec(input)))// && !reRegExp.test(input))
 			{
 				var id = match[0];
 				token.type = jsdef.keywords(id) || jsdef.IDENTIFIER;
@@ -498,11 +506,13 @@ function __init_narcissus(GLOBAL)
 				}
 				///////////////////////////////////////////////////////////////////
 			}
+			/*
 			else if(this.scanOperand && (match = reRegExp.exec(input)))
 			{
 				token.type = jsdef.REGEXP;
 				token.value = [match[1], match[2], match[3], match[4]];
 			}
+			*/
 			else if((match = opRegExp.exec(input)))
 			{
 				var op = match[0];
@@ -704,7 +714,10 @@ function __init_narcissus(GLOBAL)
 		var n = new Node(t, jsdef.BLOCK);
 		x.stmtStack.push(n);
 		while(!t.done() && t.peek() != jsdef.RIGHT_CURLY)
-			n.push(Statement(t, x));
+		{
+			var stm = Statement(t, x);
+			if(stm) n.push(stm);
+		}
 		x.stmtStack.pop();
 		n.blockId = ++blockId;
 		n.scopeId = t.NewScopeId();
@@ -1043,6 +1056,18 @@ function __init_narcissus(GLOBAL)
 			return n;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        case jsdef.PACKAGE:
+        	while(t.peek() != jsdef.LEFT_CURLY)
+        		t.get();
+			return null;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        case jsdef.USE:
+        case jsdef.IMPORT:
+        	while(t.get() != jsdef.SEMICOLON);
+			return null;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		default:
 			if(tt == jsdef.IDENTIFIER)
 			{
@@ -1125,6 +1150,13 @@ function __init_narcissus(GLOBAL)
 			}
 		}
 
+		// Interfaces
+        if(t.match(jsdef.IMPLEMENTS))
+        {
+        	t.mustMatch(jsdef.IDENTIFIER);
+			// Ignore..
+        }
+
 		t.setModifiers(f);
 		t.mustMatch(jsdef.LEFT_CURLY);
 
@@ -1188,7 +1220,12 @@ function __init_narcissus(GLOBAL)
 					}
 				}
 
-				if(t.token().type == jsdef.PRIVATE)
+                if(t.token().type == jsdef.FUNCTION)
+                {
+                	t.private = true;
+                	n.push(FunctionDefinition(t, x, false, DECLARED_FORM))
+                }
+				else if(t.token().type == jsdef.PRIVATE)
 				{
 					t.private = true;
 					recognizeStatement(n);
@@ -1413,7 +1450,28 @@ function __init_narcissus(GLOBAL)
 		var f = new Node(t);
 
 		if(t.match(jsdef.IDENTIFIER))
-			f.name = t.token().value;
+		{
+			var v = t.token().value;
+			if(t.peek() == jsdef.IDENTIFIER)
+			{
+				if(v == "get")
+				{
+					debugger;
+					f.isGetter = true;
+				}
+				else if(v == "set")
+				{
+					debugger;
+					f.isSetter = true;
+				}
+				else
+					throw t.newSyntaxError("Invalid function identifier");
+
+				t.match(jsdef.IDENTIFIER);
+				f.name = t.token().value;
+			}
+			else f.name = v;
+		}
 
 		else if(requireName)
 			throw t.newSyntaxError("Missing function identifier");
@@ -1662,7 +1720,7 @@ function __init_narcissus(GLOBAL)
 		return n;
 	}
 
-	function matchVartype(t, node, typeProp)
+	function matchVartype(t, node, typeProp, skip)
 	{
 		node[typeProp] = null;
 		node["subtype"] = null;
@@ -1673,7 +1731,7 @@ function __init_narcissus(GLOBAL)
 		node[typeProp] = vartype;
 
 		// Typed Array
-		if(t.match(jsdef.LT))
+		if(!skip && t.match(jsdef.LT))
 		{
 			t.mustMatch(jsdef.IDENTIFIER);
 			subtype = new Node(t).value;
@@ -2059,6 +2117,17 @@ function __init_narcissus(GLOBAL)
 				// jsdef.COMMA trees into a single array.
 				// FALL THROUGH
 
+			case jsdef.LT:
+
+				if(tt==jsdef.LT && operators.top().type==jsdef.NEW && operands.top().value=="Array")
+				{
+					operators.top().vartype=="Array";
+					matchVartype(t, operators.top(), "subtype", true);
+					operands.top().subtype = operators.top().subtype;
+					t.mustMatch(jsdef.GT);
+					break;
+				}
+
 			case jsdef.OR:
 			case jsdef.AND:
 			case jsdef.BITWISE_OR:
@@ -2068,7 +2137,6 @@ function __init_narcissus(GLOBAL)
 			case jsdef.NE:
 			case jsdef.STRICT_EQ:
 			case jsdef.STRICT_NE:
-			case jsdef.LT:
 			case jsdef.LE:
 			case jsdef.GE:
 			case jsdef.GT:
@@ -2085,6 +2153,7 @@ function __init_narcissus(GLOBAL)
 			case jsdef.EXPONENT:
 			case jsdef.DOT:
 			case jsdef.RANGE:
+			case jsdef.AS:
 				if(t.scanOperand)
 					break loop;
 				while(opPrecedence[operators.top().type] >= opPrecedence[tt])
@@ -2097,6 +2166,11 @@ function __init_narcissus(GLOBAL)
 				{
 					t.mustMatch(jsdef.IDENTIFIER);
 					operands.push(new Node(t, jsdef.DOT, operands.pop(), new Node(t)));
+				}
+				else if(tt == jsdef.AS)
+				{
+					var n = new Node(t);
+					matchVartype(t, n, "vartype");
 				}
 				else
 				{
@@ -2437,7 +2511,7 @@ function __init_narcissus(GLOBAL)
 						n[1].type = jsdef.LIST;
 				}
 				--x.parenLevel;
-				break;
+            	break;
 
 			// Automatic semicolon insertion means we may scan across a newline
 			// and into the beginning of another statement.  If so, break out of
@@ -2462,10 +2536,25 @@ function __init_narcissus(GLOBAL)
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	function jsparse(s, f, l)
+	function jsparse(code, as3)
 	{
-		//jsppCallback("module", f, f, 0, 0, s);
-		var t = new Tokenizer(s, f, l);
+        if(as3)
+        {
+		    code = RxReplace(code, "\\bVector\\.\\<", "mg", "Array<");
+			code = RxReplace(code, "\\:\\s*void", "mg", "");
+			code = RxReplace(code, "\\:\\s*\\*", "mg", ":Object");
+			code = RxReplace(code, "for\\s*each\\(", "mg", "for(");
+			code = RxReplace(code, "\\bextends\\b", "mg", ":");
+			code = RxReplace(code, "\\bb2internal\\b", "mg", "private");
+			code = RxReplace(code, "\\binternal\\b", "mg", "private");
+			code = RxReplace(code, "\\boverride\\s+\\b", "mg", "");
+			code = RxReplace(code, "(public|private|protected)?\\s*interface[\\W\\w]*?\\}", "mg", "");
+			code = RxReplace(code, "(?:public|private|protected)\\s+class\\s+(\\w+)", "mg", "class $1");
+			code = RxReplace(code, "\\bpublic\\s+namespace[\\W\\w]*?;", "mg", "");
+			write("C:/Users/admin/Desktop/code.as3", code);
+        }
+
+		var t = new Tokenizer(code);
 		var x = new CompilerContext(false);
 		var n = Script(t, x);
 		if(!t.done()) throw t.newSyntaxError("Syntax error");

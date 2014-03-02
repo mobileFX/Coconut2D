@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef JSContextRef_h
@@ -74,7 +74,7 @@ JS_EXPORT void JSContextGroupRelease(JSContextGroupRef group) AVAILABLE_IN_WEBKI
  In WebKit version 4.0 and later, the context is created in a unique context group.
  Therefore, scripts may execute in it concurrently with scripts executing in other contexts.
  However, you may not use values created in the context in other contexts.
-@param globalObjectClass The class to use when creating the global object. Pass 
+@param globalObjectClass The class to use when creating the global object. Pass
  NULL to use the default object class.
 @result A JSGlobalContext with a global object of class globalObjectClass.
 */

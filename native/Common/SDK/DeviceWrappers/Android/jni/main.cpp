@@ -1,4 +1,4 @@
-#include "AssetFile.h"
+﻿#include "AssetFile.h"
 #include "fxFontFace.h"
 #include "fxAudioStream.h"
 #include "fxDeviceWrapper.h"

@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *

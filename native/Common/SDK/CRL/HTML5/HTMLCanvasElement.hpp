@@ -1,4 +1,4 @@
-//
+﻿//
 //  HTMLCanvasElement.hpp
 //  CocoEngine
 //
@@ -22,7 +22,7 @@ class HTMLCanvasElement
 public:
 	unsigned long width;
 	unsigned long height;
-	
+
 	HTMLCanvasElement();
 	HTMLCanvasContext* getContext(String contextId);
 	String toDataURL();

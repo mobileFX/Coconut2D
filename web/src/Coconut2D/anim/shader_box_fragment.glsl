@@ -1,4 +1,4 @@
-#ifdef GL_ES
+﻿#ifdef GL_ES
 precision lowp float;
 #endif
 

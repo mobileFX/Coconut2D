@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008, 2009, 2010 Apple Inc. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,14 +120,14 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER
- * 
+ *
  * Used on functions introduced in WebKit 1.0
  */
 #define AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER_BUT_DEPRECATED
- * 
+ *
  * Used on functions introduced in WebKit 1.0,
  * and deprecated in WebKit 1.0
  */
@@ -135,8 +135,8 @@
 
 /*
  * DEPRECATED_IN_WEBKIT_VERSION_1_0_AND_LATER
- * 
- * Used on types deprecated in WebKit 1.0 
+ *
+ * Used on types deprecated in WebKit 1.0
  */
 #define DEPRECATED_IN_WEBKIT_VERSION_1_0_AND_LATER     DEPRECATED_ATTRIBUTE
 
@@ -147,7 +147,7 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_1_AND_LATER
- * 
+ *
  * Used on declarations introduced in WebKit 1.1
  */
 #if WEBKIT_VERSION_MAX_ALLOWED < WEBKIT_VERSION_1_1
@@ -160,8 +160,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_1_AND_LATER_BUT_DEPRECATED
- * 
- * Used on declarations introduced in WebKit 1.1, 
+ *
+ * Used on declarations introduced in WebKit 1.1,
  * and deprecated in WebKit 1.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_1
@@ -172,8 +172,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_1_1
- * 
- * Used on declarations introduced in WebKit 1.0, 
+ *
+ * Used on declarations introduced in WebKit 1.0,
  * but later deprecated in WebKit 1.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_1
@@ -184,8 +184,8 @@
 
 /*
  * DEPRECATED_IN_WEBKIT_VERSION_1_1_AND_LATER
- * 
- * Used on types deprecated in WebKit 1.1 
+ *
+ * Used on types deprecated in WebKit 1.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_1
     #define DEPRECATED_IN_WEBKIT_VERSION_1_1_AND_LATER    DEPRECATED_ATTRIBUTE
@@ -200,8 +200,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_2_AND_LATER
- * 
- * Used on declarations introduced in WebKit 1.2 
+ *
+ * Used on declarations introduced in WebKit 1.2
  */
 #if WEBKIT_VERSION_MAX_ALLOWED < WEBKIT_VERSION_1_2
     #define AVAILABLE_WEBKIT_VERSION_1_2_AND_LATER     UNAVAILABLE_ATTRIBUTE
@@ -213,8 +213,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_2_AND_LATER_BUT_DEPRECATED
- * 
- * Used on declarations introduced in WebKit 1.2, 
+ *
+ * Used on declarations introduced in WebKit 1.2,
  * and deprecated in WebKit 1.2
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_2
@@ -225,8 +225,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_1_2
- * 
- * Used on declarations introduced in WebKit 1.0, 
+ *
+ * Used on declarations introduced in WebKit 1.0,
  * but later deprecated in WebKit 1.2
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_2
@@ -237,8 +237,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_1_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_1_2
- * 
- * Used on declarations introduced in WebKit 1.1, 
+ *
+ * Used on declarations introduced in WebKit 1.1,
  * but later deprecated in WebKit 1.2
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_2
@@ -249,7 +249,7 @@
 
 /*
  * DEPRECATED_IN_WEBKIT_VERSION_1_2_AND_LATER
- * 
+ *
  * Used on types deprecated in WebKit 1.2
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_2
@@ -265,8 +265,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER
- * 
- * Used on declarations introduced in WebKit 1.3 
+ *
+ * Used on declarations introduced in WebKit 1.3
  */
 #if WEBKIT_VERSION_MAX_ALLOWED < WEBKIT_VERSION_1_3
     #define AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER     UNAVAILABLE_ATTRIBUTE
@@ -278,8 +278,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER_BUT_DEPRECATED
- * 
- * Used on declarations introduced in WebKit 1.3, 
+ *
+ * Used on declarations introduced in WebKit 1.3,
  * and deprecated in WebKit 1.3
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_3
@@ -290,8 +290,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_1_3
- * 
- * Used on declarations introduced in WebKit 1.0, 
+ *
+ * Used on declarations introduced in WebKit 1.0,
  * but later deprecated in WebKit 1.3
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_3
@@ -302,8 +302,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_1_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_1_3
- * 
- * Used on declarations introduced in WebKit 1.1, 
+ *
+ * Used on declarations introduced in WebKit 1.1,
  * but later deprecated in WebKit 1.3
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_3
@@ -314,8 +314,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_2_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_1_3
- * 
- * Used on declarations introduced in WebKit 1.2, 
+ *
+ * Used on declarations introduced in WebKit 1.2,
  * but later deprecated in WebKit 1.3
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_3
@@ -326,8 +326,8 @@
 
 /*
  * DEPRECATED_IN_WEBKIT_VERSION_1_3_AND_LATER
- * 
- * Used on types deprecated in WebKit 1.3 
+ *
+ * Used on types deprecated in WebKit 1.3
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_1_3
     #define DEPRECATED_IN_WEBKIT_VERSION_1_3_AND_LATER    DEPRECATED_ATTRIBUTE
@@ -342,8 +342,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_2_0_AND_LATER
- * 
- * Used on declarations introduced in WebKit 2.0 
+ *
+ * Used on declarations introduced in WebKit 2.0
  */
 #if WEBKIT_VERSION_MAX_ALLOWED < WEBKIT_VERSION_2_0
     #define AVAILABLE_WEBKIT_VERSION_2_0_AND_LATER     UNAVAILABLE_ATTRIBUTE
@@ -355,8 +355,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_2_0_AND_LATER_BUT_DEPRECATED
- * 
- * Used on declarations introduced in WebKit 2.0, 
+ *
+ * Used on declarations introduced in WebKit 2.0,
  * and deprecated in WebKit 2.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_2_0
@@ -367,8 +367,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_2_0
- * 
- * Used on declarations introduced in WebKit 1.0, 
+ *
+ * Used on declarations introduced in WebKit 1.0,
  * but later deprecated in WebKit 2.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_2_0
@@ -379,8 +379,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_1_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_2_0
- * 
- * Used on declarations introduced in WebKit 1.1, 
+ *
+ * Used on declarations introduced in WebKit 1.1,
  * but later deprecated in WebKit 2.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_2_0
@@ -391,8 +391,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_2_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_2_0
- * 
- * Used on declarations introduced in WebKit 1.2, 
+ *
+ * Used on declarations introduced in WebKit 1.2,
  * but later deprecated in WebKit 2.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_2_0
@@ -403,8 +403,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_2_0
- * 
- * Used on declarations introduced in WebKit 1.3, 
+ *
+ * Used on declarations introduced in WebKit 1.3,
  * but later deprecated in WebKit 2.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_2_0
@@ -415,8 +415,8 @@
 
 /*
  * DEPRECATED_IN_WEBKIT_VERSION_2_0_AND_LATER
- * 
- * Used on types deprecated in WebKit 2.0 
+ *
+ * Used on types deprecated in WebKit 2.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_2_0
     #define DEPRECATED_IN_WEBKIT_VERSION_2_0_AND_LATER    DEPRECATED_ATTRIBUTE
@@ -431,8 +431,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_3_0_AND_LATER
- * 
- * Used on declarations introduced in WebKit 3.0 
+ *
+ * Used on declarations introduced in WebKit 3.0
  */
 #if WEBKIT_VERSION_MAX_ALLOWED < WEBKIT_VERSION_3_0
     #define AVAILABLE_WEBKIT_VERSION_3_0_AND_LATER     UNAVAILABLE_ATTRIBUTE
@@ -444,8 +444,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_3_0_AND_LATER_BUT_DEPRECATED
- * 
- * Used on declarations introduced in WebKit 3.0, 
+ *
+ * Used on declarations introduced in WebKit 3.0,
  * and deprecated in WebKit 3.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_0
@@ -456,8 +456,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_0
- * 
- * Used on declarations introduced in WebKit 1.0, 
+ *
+ * Used on declarations introduced in WebKit 1.0,
  * but later deprecated in WebKit 3.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_0
@@ -468,8 +468,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_1_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_0
- * 
- * Used on declarations introduced in WebKit 1.1, 
+ *
+ * Used on declarations introduced in WebKit 1.1,
  * but later deprecated in WebKit 3.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_0
@@ -480,8 +480,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_2_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_0
- * 
- * Used on declarations introduced in WebKit 1.2, 
+ *
+ * Used on declarations introduced in WebKit 1.2,
  * but later deprecated in WebKit 3.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_0
@@ -492,8 +492,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_0
- * 
- * Used on declarations introduced in WebKit 1.3, 
+ *
+ * Used on declarations introduced in WebKit 1.3,
  * but later deprecated in WebKit 3.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_0
@@ -504,8 +504,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_2_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_0
- * 
- * Used on declarations introduced in WebKit 2.0, 
+ *
+ * Used on declarations introduced in WebKit 2.0,
  * but later deprecated in WebKit 3.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_0
@@ -516,8 +516,8 @@
 
 /*
  * DEPRECATED_IN_WEBKIT_VERSION_3_0_AND_LATER
- * 
- * Used on types deprecated in WebKit 3.0 
+ *
+ * Used on types deprecated in WebKit 3.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_0
     #define DEPRECATED_IN_WEBKIT_VERSION_3_0_AND_LATER    DEPRECATED_ATTRIBUTE
@@ -532,7 +532,7 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_3_1_AND_LATER
- * 
+ *
  * Used on declarations introduced in WebKit 3.1
  */
 #if WEBKIT_VERSION_MAX_ALLOWED < WEBKIT_VERSION_3_1
@@ -545,8 +545,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_3_1_AND_LATER_BUT_DEPRECATED
- * 
- * Used on declarations introduced in WebKit 3.1, 
+ *
+ * Used on declarations introduced in WebKit 3.1,
  * and deprecated in WebKit 3.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_1
@@ -557,8 +557,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_1
- * 
- * Used on declarations introduced in WebKit 1.0, 
+ *
+ * Used on declarations introduced in WebKit 1.0,
  * but later deprecated in WebKit 3.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_1
@@ -569,8 +569,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_1_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_1
- * 
- * Used on declarations introduced in WebKit 1.1, 
+ *
+ * Used on declarations introduced in WebKit 1.1,
  * but later deprecated in WebKit 3.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_1
@@ -581,8 +581,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_2_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_1
- * 
- * Used on declarations introduced in WebKit 1.2, 
+ *
+ * Used on declarations introduced in WebKit 1.2,
  * but later deprecated in WebKit 3.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_1
@@ -593,8 +593,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_1
- * 
- * Used on declarations introduced in WebKit 1.3, 
+ *
+ * Used on declarations introduced in WebKit 1.3,
  * but later deprecated in WebKit 3.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_1
@@ -605,8 +605,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_2_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_1
- * 
- * Used on declarations introduced in WebKit 2.0, 
+ *
+ * Used on declarations introduced in WebKit 2.0,
  * but later deprecated in WebKit 3.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_1
@@ -617,8 +617,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_3_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_3_1
- * 
- * Used on declarations introduced in WebKit 3.0, 
+ *
+ * Used on declarations introduced in WebKit 3.0,
  * but later deprecated in WebKit 3.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_1
@@ -629,7 +629,7 @@
 
 /*
  * DEPRECATED_IN_WEBKIT_VERSION_3_1_AND_LATER
- * 
+ *
  * Used on types deprecated in WebKit 3.1
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_3_1
@@ -645,7 +645,7 @@
 
 /*
  * AVAILABLE_IN_WEBKIT_VERSION_4_0
- * 
+ *
  * Used on declarations introduced in WebKit 4.0
  */
 #if WEBKIT_VERSION_MAX_ALLOWED < WEBKIT_VERSION_4_0
@@ -658,8 +658,8 @@
 
 /*
  * AVAILABLE_IN_WEBKIT_VERSION_4_0_BUT_DEPRECATED
- * 
- * Used on declarations introduced in WebKit 4.0, 
+ *
+ * Used on declarations introduced in WebKit 4.0,
  * and deprecated in WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_4_0
@@ -670,8 +670,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 1.0, 
+ *
+ * Used on declarations introduced in WebKit 1.0,
  * but later deprecated in WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_4_0
@@ -682,8 +682,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_1_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 1.1, 
+ *
+ * Used on declarations introduced in WebKit 1.1,
  * but later deprecated in WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_4_0
@@ -694,8 +694,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_2_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 1.2, 
+ *
+ * Used on declarations introduced in WebKit 1.2,
  * but later deprecated in WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_4_0
@@ -706,8 +706,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 1.3, 
+ *
+ * Used on declarations introduced in WebKit 1.3,
  * but later deprecated in WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_4_0
@@ -718,8 +718,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_2_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 2.0, 
+ *
+ * Used on declarations introduced in WebKit 2.0,
  * but later deprecated in WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_4_0
@@ -730,8 +730,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_3_0_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 3.0, 
+ *
+ * Used on declarations introduced in WebKit 3.0,
  * but later deprecated in WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_4_0
@@ -742,8 +742,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_3_1_AND_LATER_BUT_DEPRECATED_IN_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 3.1, 
+ *
+ * Used on declarations introduced in WebKit 3.1,
  * but later deprecated in WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_4_0
@@ -754,7 +754,7 @@
 
 /*
  * DEPRECATED_IN_WEBKIT_VERSION_4_0
- * 
+ *
  * Used on types deprecated in WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_4_0
@@ -770,7 +770,7 @@
 
 /*
  * AVAILABLE_AFTER_WEBKIT_VERSION_4_0
- * 
+ *
  * Used on declarations introduced after WebKit 4.0
  */
 #if WEBKIT_VERSION_MAX_ALLOWED < WEBKIT_VERSION_LATEST
@@ -783,8 +783,8 @@
 
 /*
  * AVAILABLE_AFTER_WEBKIT_VERSION_4_0_BUT_DEPRECATED
- * 
- * Used on declarations introduced after WebKit 4.0, 
+ *
+ * Used on declarations introduced after WebKit 4.0,
  * and deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -795,8 +795,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_0_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 1.0, 
+ *
+ * Used on declarations introduced in WebKit 1.0,
  * but later deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -807,8 +807,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_1_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 1.1, 
+ *
+ * Used on declarations introduced in WebKit 1.1,
  * but later deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -819,8 +819,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_2_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 1.2, 
+ *
+ * Used on declarations introduced in WebKit 1.2,
  * but later deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -831,8 +831,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_1_3_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 1.3, 
+ *
+ * Used on declarations introduced in WebKit 1.3,
  * but later deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -843,8 +843,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_2_0_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 2.0, 
+ *
+ * Used on declarations introduced in WebKit 2.0,
  * but later deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -855,8 +855,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_3_0_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 3.0, 
+ *
+ * Used on declarations introduced in WebKit 3.0,
  * but later deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -867,8 +867,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_3_1_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 3.1, 
+ *
+ * Used on declarations introduced in WebKit 3.1,
  * but later deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -879,8 +879,8 @@
 
 /*
  * AVAILABLE_WEBKIT_VERSION_4_0_AND_LATER_BUT_DEPRECATED_AFTER_WEBKIT_VERSION_4_0
- * 
- * Used on declarations introduced in WebKit 4.0 
+ *
+ * Used on declarations introduced in WebKit 4.0
  * but later deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -891,7 +891,7 @@
 
 /*
  * DEPRECATED_AFTER_WEBKIT_VERSION_4_0
- * 
+ *
  * Used on types deprecated after WebKit 4.0
  */
 #if WEBKIT_VERSION_MIN_REQUIRED >= WEBKIT_VERSION_LATEST
@@ -907,7 +907,7 @@
 
 /*
  * AVAILABLE_AFTER_WEBKIT_VERSION_5_1
- * 
+ *
  * Used on functions introduced after WebKit 5.1
  */
 #define AVAILABLE_AFTER_WEBKIT_VERSION_5_1

@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -597,9 +597,13 @@ CPPCompiler.prototype.compile = function (ast)
 		// Case3: a = [...]
 		// Case4: var x:Array<T> = [...]
 
+		//(*(new Array<CocoClip*>()))(__root);
+
 		var fnSymbol = null;
 		var vartype = null;
 		var subtype = null;
+
+		//if(ast.source=="[__root") debugger;
 
         if(ast.parent.parent.type==jsdef.VAR)
         {
@@ -680,7 +684,7 @@ CPPCompiler.prototype.compile = function (ast)
 		}
 
 		var out=[];
-	 	out.push(vartype + "()");
+	 	out.push("new " + vartype.trim()+"");
 		for(var item in ast)
 		{
 			if(!isFinite(item)) break;
@@ -867,7 +871,7 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.INDEX:
 		var out = [];
 		var type = ast[0].vartype;
-		var pointerAccess = !__isVector(type);
+		var pointerAccess = true;// !__isVector(type);
 		if(pointerAccess) out.push("(*");
 		out.push(generate(ast[0]).CPP);
 		if(pointerAccess) out.push(")");
@@ -897,10 +901,29 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.DEBUGGER:			CPP.push("assert(false);"); break;
 	case jsdef.EXPONENT:			CPP.push("std::pow(" + generate(ast[0]).CPP + "," + generate(ast[1]).CPP + ")");break;
 	case jsdef.MOD:					CPP.push("(int)" + generate(ast[0]).CPP); CPP.push("%"); CPP.push("(int)" + generate(ast[1]).CPP); break;
-	case jsdef.NEW: 				CPP.push("new "); CPP.push(generate(ast[0]).CPP +"()"); break;
 	case jsdef.THROW:				CPP.push("throw CocoException("); CPP.push(generate(ast.exception).CPP); CPP.push(");"); break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	case jsdef.NEW:
+	case jsdef.NEW_WITH_ARGS:
+		CPP.push("new ");
+		CPP.push(generate(ast[0]).CPP);
+
+		if(ast.subtype)
+		{
+			CPP.push("<" + ast.subtype + ">");
+		}
+
+		CPP.push("(");
+
+		if(ast[1])
+			CPP.push(generate(ast[1]).CPP);
+
+		CPP.push(")");
+		break;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	case jsdef.AND:					CPP.push(generate(ast[0]).CPP); CPP.push("&&"); CPP.push(generate(ast[1]).CPP); break;
 	case jsdef.BITWISE_AND:			CPP.push(generate(ast[0]).CPP); CPP.push("&"); CPP.push(generate(ast[1]).CPP); break;
 	case jsdef.BITWISE_NOT:			CPP.push("~"); CPP.push(generate(ast[0]).CPP); break;
@@ -927,7 +950,6 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.MINUS: 				CPP.push(generate(ast[0]).CPP); CPP.push("-"); CPP.push(generate(ast[1]).CPP); break;
 	case jsdef.MUL: 				CPP.push(generate(ast[0]).CPP); CPP.push("*"); CPP.push(generate(ast[1]).CPP); break;
 	case jsdef.NE:					CPP.push(generate(ast[0]).CPP); CPP.push("!=");	 CPP.push(generate(ast[1]).CPP); break;
-	case jsdef.NEW_WITH_ARGS:		CPP.push("new "); CPP.push(generate(ast[0]).CPP); CPP.push("("); CPP.push(generate(ast[1]).CPP); CPP.push(")"); break;
 	case jsdef.NOT:					CPP.push("!"); CPP.push(generate(ast[0]).CPP); break;
 	case jsdef.NULL:				CPP.push("nullptr"); break;
 	case jsdef.NUMBER:				CPP.push(ast.value); break;
@@ -945,7 +967,6 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.URSH:				CPP.push(generate(ast[0]).CPP); CPP.push(">>"); CPP.push(generate(ast[1]).CPP); break;
 	case jsdef.VOID:				CPP.push("void "); CPP.push(generate(ast[0]).CPP); break;
 	case jsdef.WHILE:				ast.body.isLoop=true; CPP.push("while(" + generate(ast.condition).CPP + ")"); CPP.push(generate(ast.body).CPP); break;
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	default:
 		//debugger;

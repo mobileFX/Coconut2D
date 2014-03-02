@@ -1,4 +1,4 @@
-#ifndef _fxDeviceWrapper_h
+﻿#ifndef _fxDeviceWrapper_h
 #define _fxDeviceWrapper_h
 
 @class fxDeviceWrapper;
@@ -23,7 +23,7 @@
     float last_scale;
     float rotation;
     float last_rotation;
-	
+
 	CADisplayLink* cadlink;
 }
 @property (strong, nonatomic) UIWindow* window;

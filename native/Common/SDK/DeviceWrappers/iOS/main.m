@@ -1,4 +1,4 @@
-@class fxDeviceWrapper;
+﻿@class fxDeviceWrapper;
 
 #import <UIKit/UIKit.h>
 #include <sys/socket.h>

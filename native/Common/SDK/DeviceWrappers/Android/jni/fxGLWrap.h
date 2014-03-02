@@ -1,4 +1,4 @@
-#ifndef _fxGLWrap_h
+﻿#ifndef _fxGLWrap_h
 #define _fxGLWrap_h
 
 #include "Coconut2D.hpp"

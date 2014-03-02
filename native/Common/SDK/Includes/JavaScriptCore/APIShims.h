@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2009 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef APIShims_h
@@ -73,7 +73,7 @@ public:
         init();
     }
 
-    // This constructor is necessary for HeapTimer to prevent it from accidentally resurrecting 
+    // This constructor is necessary for HeapTimer to prevent it from accidentally resurrecting
     // the ref count of a "dead" JSGlobalData.
     APIEntryShim(JSGlobalData* globalData, RefGlobalDataTag refGlobalData, bool registerThread = true)
         : APIEntryShimWithoutLock(globalData, registerThread, refGlobalData)

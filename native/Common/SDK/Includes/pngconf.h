@@ -1,4 +1,4 @@
-
+﻿
 /* pngconf.h - machine configurable file for libpng
  *
  * libpng version 1.6.1 - March 28, 2013

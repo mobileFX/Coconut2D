@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2010 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
 /*! @typedef JSWeakObjectMapRef A weak map for storing JSObjectRefs */
 typedef struct OpaqueJSWeakObjectMap* JSWeakObjectMapRef;
 
-/*! 
+/*!
  @typedef JSWeakMapDestroyedCallback
  @abstract The callback invoked when a JSWeakObjectMapRef is being destroyed.
  @param map The map that is being destroyed.

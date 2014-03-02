@@ -1,0 +1,40 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+template<> class Array<float> : public std::vector<float>
+{
+public:
+	Array() : std::vector<float>() {}
+	int size() { return std::vector<float>::size(); }
+	//Array(std::initializer_list<float> val) : std::vector<float>(val) {}
+	Array(size_t size, ...) : std::vector<float>(size)
+	{
+		va_list vl;
+		va_start(vl, size);
+		for(size_t i = 0; i < size; i++)
+			this->at(i) = (float)va_arg(vl, double);
+		va_end(vl);
+	}
+	Array(const std::vector<float>& v) : std::vector<float>(v) {}
+	void push(const float& v)
+	{
+		std::vector<float>::push_back(v);
+	};
+	float pop()
+	{
+		float ret = std::vector<float>::back();
+		std::vector<float>::pop_back();
+		return ret;
+	}
+	Array<float> slice(int first, int last)
+	{
+		return Array<float>(std::vector<float>(std::vector<float>::begin() + first, std::vector<float>::begin() + last));
+	}
+	void splice(int index, int count)
+	{
+		std::vector<float>::erase(std::vector<float>::begin() + index, std::vector<float>::begin() + index + count);
+	}
+	Array<float>& operator()(float v)
+	{
+		this->push(v);
+		return *this;
+	}
+};

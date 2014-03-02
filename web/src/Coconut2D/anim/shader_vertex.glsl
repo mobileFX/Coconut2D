@@ -1,4 +1,4 @@
-attribute vec2 iVecCoords;
+﻿attribute vec2 iVecCoords;
 attribute vec2 iTexCoords;
 uniform mat4 uProjMat;
 uniform mat4 uMVMat;

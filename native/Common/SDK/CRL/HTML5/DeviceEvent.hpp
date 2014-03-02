@@ -1,4 +1,4 @@
-#ifndef __DEVICEEVENT_HPP__
+﻿#ifndef __DEVICEEVENT_HPP__
 #define __DEVICEEVENT_HPP__
 
 #include "Coconut2D.hpp"

@@ -1,4 +1,4 @@
-
+﻿
 /* pnginfo.h - header file for PNG reference library
  *
  * Copyright (c) 1998-2013 Glenn Randers-Pehrson
@@ -224,7 +224,7 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
    /* Storage for unknown chunks that the library doesn't recognize. */
    png_unknown_chunkp unknown_chunks;
 
-   /* The type of this field is limited by the type of 
+   /* The type of this field is limited by the type of
     * png_struct::user_chunk_cache_max, else overflow can occur.
     */
    int                unknown_chunks_num;

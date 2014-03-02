@@ -1,4 +1,4 @@
-#import "fxDeviceWrapper.h"
+﻿#import "fxDeviceWrapper.h"
 
 @implementation fxDeviceWrapper
 

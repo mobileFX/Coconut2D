@@ -1,4 +1,4 @@
-#ifndef __HTMLDOCUMENT_HPP__
+﻿#ifndef __HTMLDOCUMENT_HPP__
 #define __HTMLDOCUMENT_HPP__
 
 #include "Coconut2D.hpp"

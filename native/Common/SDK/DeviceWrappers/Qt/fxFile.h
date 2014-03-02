@@ -1,4 +1,4 @@
-#ifndef _AssetFile_h
+﻿#ifndef _AssetFile_h
 #define _AssetFile_h
 
 #include "cstdio"

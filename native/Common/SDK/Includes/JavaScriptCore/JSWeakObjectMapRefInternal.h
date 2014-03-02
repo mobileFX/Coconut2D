@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2010 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ public:
     }
 
     WeakMapType& map() { return m_map; }
-    
+
     ~OpaqueJSWeakObjectMap()
     {
         m_callback(this, m_data);

@@ -1,4 +1,4 @@
-"#export native"
+﻿"#export native"
 "#export web"
 
 "#include Coconut.js"
@@ -16,6 +16,8 @@ state class GameEngine : CocoEngine
 {
 	public var scene:CocoScene;
 
+    private var arr:Array<Integer>;
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
@@ -28,6 +30,13 @@ state class GameEngine : CocoEngine
 		delete scene;
 	}
 
+	function foo()
+	{
+		arr = new Array<Integer>;
+		arr[5] = 4;
+		arr.push(5);
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public state STATE_GAME
 	{
@@ -35,10 +44,7 @@ state class GameEngine : CocoEngine
 
 		function enter()
 		{
-			scene = new BitmapSymbolsTest();
-			//scene.__root.getChildByName("Sparrows").getChildByName("ClipSymbol1").gotoFrameByIndex(0, true);
-			//scene.__root.getChildByName("Sparrows").getChildByName("ClipSymbol2").gotoFrameByIndex(1, true);
-			//scene.__root.getChildByName("Sparrows").getChildByName("ClipSymbol3").gotoFrameByIndex(2, true);
+			scene = new NewAnimation();
 		}
 
 		function exit()

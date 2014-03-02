@@ -1,4 +1,4 @@
- ///http://jsonviewer.stack.hu/
+﻿ ///http://jsonviewer.stack.hu/
 
 if(!this['jsppCallback']) this.jsppCallback = function(){};
 if(!this['window']) this.window = {};
@@ -135,6 +135,18 @@ function compile_jspp(code, externs, importJSProto)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function convert_as3(code)
+{
+	debugger;
+	trace("Converting ActionScript3 Classes to CocoScript Classes ...");
+	narcissus.__messages = true;
+	narcissus.__cpp = false;
+	var ast = narcissus.jsparse(code, true);
+	var compiler = new AS3Compiler(ast);
+	compiler.compile(ast);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function compile_cpp(code, externs)
 {
 	try
@@ -186,4 +198,3 @@ function parse_jspp(code, className)
 		//trace("ERROR: " +e);
 	}
 }
-

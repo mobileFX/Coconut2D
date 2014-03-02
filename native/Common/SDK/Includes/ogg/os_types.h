@@ -1,4 +1,4 @@
-/********************************************************************
+﻿/********************************************************************
  *                                                                  *
  * THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.   *
  * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
@@ -24,7 +24,7 @@
 #define _ogg_realloc realloc
 #define _ogg_free    free
 
-#if defined(_WIN32) 
+#if defined(_WIN32)
 
 #  if defined(__CYGWIN__)
 #    include <stdint.h>

@@ -1,4 +1,4 @@
-//
+﻿//
 //  HTMLEvent.hpp
 //  CocoEngine
 //
