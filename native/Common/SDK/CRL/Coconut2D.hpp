@@ -263,10 +263,11 @@ template<class T> std::string toString(T v)
 template<class T> class Array : public std::vector<T>
 {
 public:
+
 	Array() : std::vector<T>() {}
-	//Array(const std::vector<T>* v) : std::vector<T>(*v) {}
+
 	int size() { return std::vector<T>::size(); }
-	//Array(std::initializer_list<T> val) : std::vector<T>(val) {}
+
 	Array(size_t size, ...) : std::vector<T>(size)
 	{
 		va_list vl;
@@ -275,25 +276,32 @@ public:
 			this->at(i) = (T)va_arg(vl, T);
 		va_end(vl);
 	}
+
 	Array(const std::vector<T>& v) : std::vector<T>(v) {}
-	void push(const T& v)
+
+	Array<T>* push(const T& v)
 	{
 		std::vector<T>::push_back(v);
+		return this;
 	};
+
 	T pop()
 	{
 		T ret = std::vector<T>::back();
 		std::vector<T>::pop_back();
 		return ret;
 	}
-	Array<T> slice(int first, int last)
+
+	Array<T>* slice(int first, int last)
 	{
-		return Array<T>(std::vector<T>(std::vector<T>::begin() + first, std::vector<T>::begin() + last));
+		return new Array<T>(std::vector<T>(std::vector<T>::begin() + first, std::vector<T>::begin() + last));
 	}
+
 	void splice(int index, int count)
 	{
 		std::vector<T>::erase(std::vector<T>::begin() + index, std::vector<T>::begin() + index + count);
 	}
+
 	Array<T>* operator()(T v)
 	{
 		this->push(v);
@@ -307,7 +315,7 @@ template<> class Array<bool> : public std::vector<bool>
 public:
 	Array() : std::vector<bool>() {}
 	int size() { return std::vector<bool>::size(); }
-	//Array(std::initializer_list<T> val) : std::vector<T>(val) {}
+
 	Array(size_t size, ...) : std::vector<bool>(size)
 	{
 		va_list vl;
@@ -316,29 +324,36 @@ public:
 			this->at(i) = (bool)va_arg(vl, int);
 		va_end(vl);
 	}
+
 	Array(const std::vector<bool>& v) : std::vector<bool>(v) {}
-	void push(const bool& v)
+
+	Array<bool>* push(const bool& v)
 	{
 		std::vector<bool>::push_back(v);
+		return this;
 	};
+
 	bool pop()
 	{
 		bool ret = std::vector<bool>::back();
 		std::vector<bool>::pop_back();
 		return ret;
 	}
-	Array<bool> slice(int first, int last)
+
+	Array<bool>* slice(int first, int last)
 	{
-		return Array<bool>(std::vector<bool>(std::vector<bool>::begin() + first, std::vector<bool>::begin() + last));
+		return new Array<bool>(std::vector<bool>(std::vector<bool>::begin() + first, std::vector<bool>::begin() + last));
 	}
+
 	void splice(int index, int count)
 	{
 		std::vector<bool>::erase(std::vector<bool>::begin() + index, std::vector<bool>::begin() + index + count);
 	}
-	Array<bool>& operator()(bool v)
+
+	Array<bool>* operator()(bool v)
 	{
 		this->push(v);
-		return *this;
+		return this;
 	}
 };
 
@@ -348,7 +363,7 @@ template<> class Array<float> : public std::vector<float>
 public:
 	Array() : std::vector<float>() {}
 	int size() { return std::vector<float>::size(); }
-	//Array(std::initializer_list<float> val) : std::vector<float>(val) {}
+
 	Array(size_t size, ...) : std::vector<float>(size)
 	{
 		va_list vl;
@@ -357,29 +372,36 @@ public:
 			this->at(i) = (float)va_arg(vl, double);
 		va_end(vl);
 	}
+
 	Array(const std::vector<float>& v) : std::vector<float>(v) {}
-	void push(const float& v)
+
+	Array<float>* push(const float& v)
 	{
 		std::vector<float>::push_back(v);
+		return this;
 	};
+
 	float pop()
 	{
 		float ret = std::vector<float>::back();
 		std::vector<float>::pop_back();
 		return ret;
 	}
-	Array<float> slice(int first, int last)
+
+	Array<float>* slice(int first, int last)
 	{
-		return Array<float>(std::vector<float>(std::vector<float>::begin() + first, std::vector<float>::begin() + last));
+		return new Array<float>(std::vector<float>(std::vector<float>::begin() + first, std::vector<float>::begin() + last));
 	}
+
 	void splice(int index, int count)
 	{
 		std::vector<float>::erase(std::vector<float>::begin() + index, std::vector<float>::begin() + index + count);
 	}
+
 	Array<float>* operator()(float v)
 	{
 		this->push(v);
-		return *this;
+		return this;
 	}
 };
 

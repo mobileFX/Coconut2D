@@ -684,11 +684,11 @@ CPPCompiler.prototype.compile = function (ast)
 		}
 
 		var out=[];
-	 	out.push("new " + vartype.trim()+"");
+	 	out.push("(new " + vartype.trim()+"())");
 		for(var item in ast)
 		{
 			if(!isFinite(item)) break;
-			out.push("("+generate(ast[item]).CPP+")");
+			out.push("->push("+generate(ast[item]).CPP+")");
 		}
 		out = out.join("");
 		CPP.push(out);
