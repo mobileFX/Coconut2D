@@ -1,0 +1,85 @@
+﻿"#package org.coconut2d.sdk.webgl"
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	 _       __     __    ________    ____
+//	| |     / /__  / /_  / ____/ /   / __ \_________  ____ __________ _____ ___
+//	| | /| / / _ \/ __ \/ / __/ /   / /_/ / ___/ __ \/ __ `/ ___/ __ `/ __ `__ \
+//	| |/ |/ /  __/ /_/ / /_/ / /___/ ____/ /  / /_/ / /_/ / /  / /_/ / / / / / /
+//	|__/|__/\___/_.___/\____/_____/_/   /_/   \____/\__, /_/   \__,_/_/ /_/ /_/
+//	                                               /____/
+// ==================================================================================================================================
+
+"#include WebGLObject.jspp";
+
+class WebGLProgram : WebGLObject
+{
+	public var GLSLiTexCoords:Integer;
+	public var GLSLiVec2Coords:Integer;
+	public var GLSLiVecCoords:Integer;
+
+	public var GLSLuColor:WebGLUniformLocation;
+	public var GLSLuAlpha:WebGLUniformLocation;
+	public var GLSLuMVMat:WebGLUniformLocation;
+	public var GLSLuProjMat:WebGLUniformLocation;
+	public var GLSLuSampler:WebGLUniformLocation;
+	public var GLSLuSprFrame:WebGLUniformLocation;
+	public var GLSLuSprSize:WebGLUniformLocation;
+	public var GLSLuSprFlip:WebGLUniformLocation;
+
+	public function Constructor(uid:Integer)
+	{
+		this.GLSLiTexCoords = 0;
+		this.GLSLiVec2Coords = 0;
+		this.GLSLiVecCoords = 0;
+		this.GLSLuColor = null;
+		this.GLSLuAlpha = null;
+		this.GLSLuMVMat = null;
+		this.GLSLuProjMat = null;
+		this.GLSLuSampler = null;
+		this.GLSLuSprFrame = null;
+		this.GLSLuSprSize = null;
+		this.GLSLuSprFlip = null;
+	}
+
+	public function Destructor()
+	{
+		delete GLSLuColor;
+		delete GLSLuAlpha;
+		delete GLSLuMVMat;
+		delete GLSLuProjMat;
+		delete GLSLuSampler;
+		delete GLSLuSprFrame;
+		delete GLSLuSprSize;
+		delete GLSLuSprFlip;
+	}
+}
+
+
+
+
+
+

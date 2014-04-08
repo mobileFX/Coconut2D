@@ -1,36 +1,104 @@
-﻿{
-    "PROJECT_NAME": "Coconut2D",
-    "PROJECT_DISPLAY_NAME": "Coconut2D",
-    "PROJECT_PACKAGE": "com.mobilefx.Coconut2D",
-    "PROJECT_VERSION": "1.0",
-    "CONFIGURATION": "C++",
-    "DEVICE_VIEWPORT": {
-        "ViewWidth": 480,
-        "ViewHeight": 320,
-        "ViewPixelRatio": 1
-    },
-    "CERTIFICATE_REQUEST": {
-        "Company": "mobileFX",
-        "Organization": "mobileFX",
-        "Country": "US",
-        "Password": "password"
-    },
-    "PLATFORMS": {
-        "ANDROID": {
-            "ANDROID_PLATFORM": "android-10",
-            "minSdkVersion": "10",
-            "targetSdkVersion": "19",
-            "screenOrientation": "landscape"
-        },
-        "iOS": {
-            "PROJECT_IOSMINVER": "5",
-            "PROJECT_CPUSET": "armv7",
-            "PROJECT_CERTIFICATES": "ios_development.cer:AppleIncRootCertificate.cer:AppleWWDRCA.cer",
-            "PROJECT_PRIVATE_KEY": "EliasPolitakis.key",
-            "PROJECT_PRIVATE_KEY_PASSPHRASE": "puerre",
-            "PROJECT_PROVISION": "EliasPolitakisDevelopment.mobileprovision"
-        },
-        "WEB": {}
-    },
-    "NoGITSymbolinkLink": true
+{
+	"PROJECT_NAME": "Coconut2D",
+	"PROJECT_DISPLAY_NAME": "Coconut2D",
+	"PROJECT_PACKAGE": "com.mobilefx.Coconut2D",
+	"PROJECT_VERSION": "1.0",
+	"PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim",
+	"CONFIGURATION": "Debug",
+	"PROJECT_PATHS":
+	{
+		"SDK": "$(PROJECT_ROOT)/.SDK",
+		"SOURCES": "$(PROJECT_ROOT)/src",
+		"NATIVE_COMMON": "$(PROJECT_ROOT)/.targets/native/_Common",
+		"SOURCES_MASK": "*.jspp",
+		"ANIMATION_SCRIPTS": "$(PROJECT_ROOT)/src/animations",
+		"ICON_2048x2048": "$(PROJECT_ROOT)/icon.png",
+		"ASSETS": "$(PROJECT_ROOT)/assets",
+		"ASSETS_ANIMATIONS": "$(PROJECT_ROOT)/assets/animations",
+		"ASSETS_FONTS": "$(PROJECT_ROOT)/assets/fonts",
+		"ASSETS_IMAGES": "$(PROJECT_ROOT)/assets/images",
+		"ASSETS_SOUNDS": "$(PROJECT_ROOT)/assets/sounds",
+		"ASSETS_VIDEOS": "$(PROJECT_ROOT)/assets/videos"
+	},
+	"DEVICE_VIEWPORT":
+	{
+		"VIEW_WIDTH": "480",
+		"VIEW_HEIGHT": "320",
+		"VIEW_PIXEL_RATIO": "1"
+	},
+	"TARGETS":
+	{
+		"CocoPlayer":
+		{
+			"TARGET_ROOT": "$(PROJECT_ROOT)/.targets/web/CocoPlayer",
+			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
+			"TARGET_ASSETS": "$(TARGET_ROOT)/assets",
+			"TARGET_OUTPUT": "$(TARGET_ROOT)/main.js",
+			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
+			"TARGET_EXPORT": "all",
+			"TARGET_ADDITIONAL_FRAMEWORKS": "",
+			"DEVICE_CLASS": "COCO_PLAYER",
+			"DEVICE_WRAPPER": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
+			"DEVICE_WRAPPER_TEMPLATES": ""
+		},
+		"HTML5":
+		{
+			"TARGET_ROOT": "$(PROJECT_ROOT)/.targets/web/HTML5",
+			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
+			"TARGET_ASSETS": "$(TARGET_ROOT)/assets",
+			"TARGET_OUTPUT": "$(TARGET_ROOT)/index.html",
+			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
+			"TARGET_EXPORT": "web",
+			"TARGET_ADDITIONAL_FRAMEWORKS": "",
+			"DEVICE_CLASS": "HTML5_BROWSER",
+			"DEVICE_WRAPPER": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
+			"DEVICE_WRAPPER_TEMPLATES": ""
+		},
+		"Android":
+		{
+			"TARGET_ROOT": "$(PROJECT_ROOT)/.targets/native/Android",
+			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
+			"TARGET_ASSETS": "$(TARGET_ROOT)/assets",
+			"TARGET_OUTPUT": "$(TARGET_ROOT)/bin/$(PROJECT_NAME).apk",
+			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
+			"TARGET_EXPORT": "native",
+			"TARGET_ADDITIONAL_FRAMEWORKS": "",
+			"TARGET_NATIVE_MASK": "*.cpp;*.hpp;*.h",
+			"DEVICE_CLASS": "ANDROID",
+			"DEVICE_WRAPPER": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
+			"DEVICE_WRAPPER_TEMPLATES": "*.xml;*.properties;*.java",
+			"ANDROID_PLATFORM": "android-10",
+			"MIN_SDK_VERSION": "10",
+			"TARGET_SDK_VERSION": "19",
+			"SCREEN_ORIENTATION": "landscape",
+			"CODE_SIGNING":
+			{
+				"COMPANY": "mobileFX",
+				"ORGANIZATION": "mobileFX",
+				"COUNTRY": "US",
+				"PASSWORD": "password"
+			}
+		},
+		"iOS":
+		{
+			"TARGET_ROOT": "$(PROJECT_ROOT)/.targets/native/iOS",
+			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
+			"TARGET_ASSETS": "$(TARGET_ROOT)/assets",
+			"TARGET_OUTPUT": "$(TARGET_ROOT)/bin/$(PROJECT_NAME).ipa",
+			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
+			"TARGET_EXPORT": "native",
+			"TARGET_ADDITIONAL_FRAMEWORKS": "",
+			"DEVICE_CLASS": "IOS",
+			"DEVICE_WRAPPER": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
+			"PROJECT_IOSMINVER": "5",
+			"PROJECT_CPUSET": "armv7",
+			"CODE_SIGNING":
+			{
+				"IOS_CERTIFICATES": "ios_development.cer:AppleIncRootCertificate.cer:AppleWWDRCA.cer",
+				"IOS_PRIVATE_KEY": "EliasPolitakis.key",
+				"IOS_PRIVATE_KEY_PASSPHRASE": "puerre",
+				"IOS_PROVISION": "EliasPolitakisDevelopment.mobileprovision"
+			}
+		}
+	}
 }

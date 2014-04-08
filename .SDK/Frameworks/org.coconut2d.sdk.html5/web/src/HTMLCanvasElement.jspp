@@ -1,0 +1,74 @@
+﻿"#package org.coconut2d.sdk.html5"
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	    __  __________  _____    ______                            ________                          __
+//	   / / / /_  __/  |/  / /   / ____/___ _____ _   ______ ______/ ____/ /__  ____ ___  ___  ____  / /_
+//	  / /_/ / / / / /|_/ / /   / /   / __ `/ __ \ | / / __ `/ ___/ __/ / / _ \/ __ `__ \/ _ \/ __ \/ __/
+//	 / __  / / / / /  / / /___/ /___/ /_/ / / / / |/ / /_/ (__  ) /___/ /  __/ / / / / /  __/ / / / /_
+//	/_/ /_/ /_/ /_/  /_/_____/\____/\__,_/_/ /_/|___/\__,_/____/_____/_/\___/_/ /_/ /_/\___/_/ /_/\__/
+//
+// ==================================================================================================================================
+
+class HTMLCanvasElement
+{
+	public var width:Integer;
+	public var height:Integer;
+
+	public var __imageData:ImageData;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		width = 0;
+		height = 0;
+		__imageData = null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete __imageData;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getContext(contextId:String) :HTMLCanvasContext
+	{
+		if(contextId=="2d")
+			return new CanvasRenderingContext2D(this);
+		else
+			return HTMLCanvasContext(new WebGLRenderingContext(this));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toDataURL():String
+	{
+		return "data:image/png;base64," + (__imageData ? __imageData.buffer.encodeAsPNG(__imageData.width, __imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
+	}
+}
+
+
+

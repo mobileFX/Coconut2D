@@ -1,0 +1,166 @@
+﻿"#package org.coconut2d.sdk.anim"
+
+"#export native"
+"#export web"
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                 ____
+//	  / ____/___  _________  /  _/___ ___  ____ _____ ____
+//	 / /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \
+//	/ /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/
+//	\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/
+//	                                          /____/
+// ==================================================================================================================================
+
+class CocoImage
+{
+	public var symbolName:String;
+	public var image:Image;
+
+	// Texture
+	public var texture:WebGLTexture;
+	public var textureCellWidth:Float;
+	public var textureCellHeight:Float;
+	public var textureGrid:Float32Array;
+	public var color:Float32Array;
+	public var texSize:Float32Array;
+	public var buffer:WebGLBuffer;
+	public var isSpriteSheet:Boolean;
+	public var __pixelRatioScale:Float;
+
+	// Sprite
+	public var sequences:Array<CocoSequence>;
+
+	// Resolution Siblings
+	public var baseUrl:String;
+	public var viewOptimalWidth:Integer;
+	public var viewOptimalHeight:Integer;
+	public var viewSiblings:Array<CocoImageSibling>;
+	public var pixelRatio:Float;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		viewSiblings		= new Array<CocoImageSibling>;
+		sequences			= new Array<CocoSequence>;
+		image				= null;
+		symbolName			= "";
+		texture				= null;
+		textureCellWidth	= 0;
+		textureCellHeight	= 0;
+		textureGrid			= new Float32Array([0.0]);
+		textureGrid			= new Float32Array([0.0, 0.0]);
+		color				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		texSize				= new Float32Array([1.0, 1.0]);
+		buffer				= null;
+		isSpriteSheet		= false;
+		sequences 			= [];
+		baseUrl				= "";
+		viewOptimalWidth	= 0;
+		viewOptimalHeight	= 0;
+		viewSiblings		= [];
+		pixelRatio			= 1.0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete viewSiblings;
+		delete sequences;
+		delete texture;
+		delete textureGrid;
+		delete color;
+		delete texSize;
+		delete buffer;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addSibling(sibling:CocoImageSibling) :CocoImageSibling
+	{
+		viewSiblings.push(sibling);
+		return sibling;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addSequence(sequence:CocoSequence) :CocoSequence
+	{
+		if(!sequence) return null;
+		if(getSequence(sequence.name)) throw "Sequence " + sequence.name + " already exists.";
+		sequences.push(sequence);
+		isSpriteSheet = true;
+		return sequence;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getSequence(name:String) :CocoSequence
+	{
+		for (var i:Integer = sequences.size() - 1; i >= 0; i--)
+		{
+			if(sequences[i].name == name)
+				return sequences[i];
+		}
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepare(scene:CocoScene, gl:WebGLRenderingContext)
+	{
+		__pixelRatioScale = scene.__view_pixel_ratio / pixelRatio;
+
+		// Calc texture data and size.
+		var w2:Float = textureCellWidth / 2.0;
+		var h2:Float = textureCellHeight / 2.0;
+		texSize = new Float32Array([textureCellWidth / image.naturalWidth, textureCellHeight / image.naturalHeight]);
+
+		// Create a texture and bind it.
+		texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+
+		// Load image data to texture.
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+		// Instruct WebGL how to wrap the texture.
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+		// Instruct WebGL how to filter the texture when rendering.
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+
+		// Generate mipmaps.
+		gl.generateMipmap(gl.TEXTURE_2D);
+
+		// Done
+		gl.bindTexture(gl.TEXTURE_2D, null);
+
+		var texData:Float32Array = new Float32Array([0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2]);
+		buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+	}
+}

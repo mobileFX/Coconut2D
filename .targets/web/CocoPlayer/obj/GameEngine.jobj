@@ -1,0 +1,81 @@
+﻿"#export web";
+"#include CocoEngine.jobj";
+//@line 15
+
+function GameEngine()
+{
+	var __BASE__ = null;
+
+	function GameEngineClass(__BASE__)
+	{
+		var __CLASS__GAMEENGINE__ = this;
+		__PDEFINE__ = Object.defineProperty, __NOENUM__ = {enumerable:false};
+		this.__PRIVATE__ = {};
+		this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		var __SUPER__ = this.__SUPER__ =
+		{};
+		this.__BASE__ = __BASE__;
+		//@line 17
+		this.scene = null;
+		//@line 31
+		this.STATE_GAME = (function ()
+		{
+			this.__name = 'STATE_GAME';
+			//@line 33
+			var enter = this.enter = function ()
+			{
+				//@line 35
+				__CLASS__GAMEENGINE__.scene = new NewAnimation;
+			};
+			//@line 38
+			var exit = this.exit = function ()
+			{
+				//@line 40
+				{
+					__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
+					__CLASS__GAMEENGINE__.scene = null
+				};
+			};
+			//@line 43
+			var tick = this.tick = function (time)
+			{
+				//@line 44
+			};
+			//@line 47
+			var paint = this.paint = function (gl, time)
+			{
+				//@line 49
+				__CLASS__GAMEENGINE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		var Destructor = this.Destructor = function ()
+		{
+			//@line 27
+			{
+				__CLASS__GAMEENGINE__.scene = null;
+				__CLASS__GAMEENGINE__.STATE_GAME = null;
+				__BASE__ && ((__BASE__.hasOwnProperty('Destructor') && __BASE__.Destructor()) || !__BASE__.hasOwnProperty('Destructor')) && (delete __BASE__);
+			}
+			return true
+		};
+		//@line 20
+		this.Constructor = function ()
+		{
+			//@line 22
+			__CLASS__GAMEENGINE__.__BASE__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME);
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__BASE__ = new CocoEngine();
+	GameEngineClass.prototype = __BASE__;
+	return new GameEngineClass(__BASE__);
+}
+GameEngine.prototype =
+{};
+GameEngine.prototype.__PRIVATE__ = {};
+GameEngine.prototype.__PROTECTED__ = {};
