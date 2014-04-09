@@ -100,7 +100,7 @@ static void jpeg_error(j_common_ptr cInfo)
 
 	(*cInfo->err->format_message)(cInfo, pszMessage);
 
-	LOGW("Jpeg Lib error: %s\n", pszMessage);
+	trace("Jpeg Lib error: %s\n", pszMessage);
 }
 
 ArrayBuffer* ArrayBuffer::NewFromImage_JPG(AssetFile* file, uint32_t& width, uint32_t& height)

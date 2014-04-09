@@ -13,7 +13,10 @@ fxDeviceWrapper::fxDeviceWrapper(android_app* i_app) : app(i_app), jenv(nullptr)
     jvmArgs.group = NULL;
 
 	app->activity->vm->GetEnv((void**)&jenv, JNI_VERSION_1_6);
-	if(app->activity->vm->AttachCurrentThread(&jenv, &jvmArgs) == JNI_ERR) { LOGW("Could not AttachCurrentThread to JavaVM!\n"); }
+	if(app->activity->vm->AttachCurrentThread(&jenv, &jvmArgs) == JNI_ERR)
+	{
+		trace("ERROR(fxDeviceWrapper.cpp): Could not AttachCurrentThread to JavaVM");
+	}
 	else
 	{
 		jclass jcls = jenv->GetObjectClass(app->activity->clazz);
@@ -25,19 +28,7 @@ fxDeviceWrapper::fxDeviceWrapper(android_app* i_app) : app(i_app), jenv(nullptr)
 		jmID_GetScreenIsPortrait = jenv->GetMethodID(jcls, "GetScreenIsPortrait", "()Z");
 		jmID_GetScreenTop = jenv->GetMethodID(jcls, "GetScreenTop", "()I");
 	}
-
-	//LOGI("Window Init!\n");
-	//glwrap = new fxGLWrap(app->window);
-	//fxCRL::init(fxArgs::Args->getArgc(), fxArgs::Args->getArgv(), glwrap->GetScreen());
-	//fxCRL::handleEvent(0, fxCRL::fxEvent::LOAD, nullptr);
-
-	LOGI("Preloop\n");
 	EventLoop();
-	LOGI("Done!\n");
-
-	//fxCRL::quit();
-	//delete glwrap;
-	//glwrap = nullptr;
 }
 
 fxDeviceWrapper::~fxDeviceWrapper()
@@ -52,11 +43,11 @@ void fxDeviceWrapper::EventLoop()
 
 	do
 	{
-		//LOGI("Loop!\n");
 		while((ident = ALooper_pollAll(2, &fd, &event, (void**)&source)) >= 0)
 		{
-			if(source) source->process(app, source);
-			else LOGW("error source\n");
+			if(source)
+				source->process(app, source);
+
 			/*if(ident == LOOPER_ID_MAIN)
 			{
 				int8_t cmd = android_app_read_cmd(app);
@@ -65,8 +56,8 @@ void fxDeviceWrapper::EventLoop()
 			}*/
 		}
 		tick();
-		//std::this_thread::sleep_for(std::chrono::milliseconds(1));
-	} while(!app->destroyRequested);
+	}
+	while(!app->destroyRequested);
 }
 
 void fxDeviceWrapper::StateHandler(android_app* app, int32_t state)
@@ -76,7 +67,6 @@ void fxDeviceWrapper::StateHandler(android_app* app, int32_t state)
 	{
 		case APP_CMD_INIT_WINDOW:
 		{
-			LOGI("Window Init!\n");
 			t->glwrap = new fxGLWrap(app->window, t);
 			window = new HTMLWindow();
 			window->innerWidth = t->glwrap->GetScreen().width;
@@ -84,42 +74,28 @@ void fxDeviceWrapper::StateHandler(android_app* app, int32_t state)
 			window->devicePixelRatio = t->glwrap->GetScreen().pixelRatio;
 
 			window->deviceRotation = 0.0f;
-			/*switch(t->glwrap->GetScreen().rotation) {
-				case fxScreen::Rotation::NONE: window->deviceRotation = 0.0f; break;
-				case fxScreen::Rotation::RCW: window->deviceRotation = M_PI_2; break;
-				case fxScreen::Rotation::RCCW: window->deviceRotation = -M_PI_2; break;
-				case fxScreen::Rotation::FULL: window->deviceRotation = M_PI; break;
-			}*/
 			document = new HTMLDocument();
 			HTMLCanvasElement* canvas = document->createElement("canvas");
 			gl = (WebGLRenderingContext*)canvas->getContext("webgl");
 			gl->canvas->width = window->innerWidth;
 			gl->canvas->height = window->innerHeight;
 			engine = new GameEngine();
-			//fxCRL::init(fxArgs::Args->getArgc(), fxArgs::Args->getArgv(), t->glwrap->GetScreen(), t);
-			//fxCRL::handleEvent(0, fxCRL::fxEvent::LOAD, nullptr);
 			break;
 		}
 		case APP_CMD_WINDOW_REDRAW_NEEDED:
-			LOGI("Redraw Needed!\n");
 			break;
 		case APP_CMD_TERM_WINDOW:
-			//fxCRL::handleEvent(0, fxCRL::fxEvent::UNLOAD);
-			//fxCRL::quit();
 			delete t->glwrap;
 			t->glwrap = nullptr;
 			break;
 		case APP_CMD_GAINED_FOCUS:
-			//fxCRL::handleEvent(0, fxCRL::fxEvent::FOCUS);
 			break;
 		case APP_CMD_LOST_FOCUS:
-			//fxCRL::handleEvent(0, fxCRL::fxEvent::BLUR);
 			break;
 		case APP_CMD_STOP:
 			ANativeActivity_finish(app->activity);
 			break;
 		default:
-			LOGW("State not handled(0x%08X)!!!", state);
 			break;
 	}
 }
@@ -137,21 +113,13 @@ int32_t fxDeviceWrapper::InputHandler(android_app* app, AInputEvent* event)
 			{
 				case AMOTION_EVENT_ACTION_DOWN:
 				case AMOTION_EVENT_ACTION_POINTER_DOWN:
-					//t->KeyboardShow();
-					//t->jenv->CallVoidMethod(app->activity->clazz, t->jmID_PlayVideo);
-					//t->video = true;
-					//fxCRL::handleEvent(0, fxCRL::fxEvent::TOUCHSTART, event);
 					break;
 				case AMOTION_EVENT_ACTION_MOVE:
-					//fxCRL::handleEvent(0, fxCRL::fxEvent::TOUCHMOVE, event);
 					break;
 				case AMOTION_EVENT_ACTION_UP:
 				case AMOTION_EVENT_ACTION_POINTER_UP:
-					//t->KeyboardHide();
-					//fxCRL::handleEvent(0, fxCRL::fxEvent::TOUCHEND, event);
 					break;
 				case AMOTION_EVENT_ACTION_CANCEL:
-					//fxCRL::handleEvent(0, fxCRL::fxEvent::TOUCHCANCEL, event);
 					break;
 				default:
 					break;
@@ -161,7 +129,6 @@ int32_t fxDeviceWrapper::InputHandler(android_app* app, AInputEvent* event)
 		case AINPUT_EVENT_TYPE_KEY:
 		{
 			uint16_t key_val = AKeyEvent_getKeyCode(event);
-			//fxCRL::keyboardInput(reinterpret_cast<const char*>(&key_val));
 			break;
 		}
 		default:
@@ -200,21 +167,16 @@ void fxDeviceWrapper::tick()
         	double td = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(now - start).count();
         	engine->run(gl, td);
         	glwrap->SwapBuffers();
-        	if(count++ == 30) {
-        		LOGI("fps: %lf", 1000.0f / (total / 30.0f));
+        	if(count++ == 30)
+        	{
         		count = 1;
         		total = draw_dif.count();
         	} else total += draw_dif.count();
         }
 
         now = std::chrono::steady_clock::steady_clock::now();
-        //LOGI("draw_diff: %llf\n", draw_dif.count());
     }
-
-    //LOGI("tick_diff: %llf\n", tick_dif.count());
-    // Tick the HTML5 timers
     last_tick = now;
-    //fxCRL::tick();
 }
 
 void fxDeviceWrapper::KeyboardShow()

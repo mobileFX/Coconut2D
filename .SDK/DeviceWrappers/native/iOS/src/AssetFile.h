@@ -99,7 +99,7 @@ public:
 				return createFromBase64(str + 21, FONT_TTF);
 			else
 			{
-				LOGW("Unsupported data!");
+				trace("ERROR:(AssetFile.h) Unsupported data!");
 				return nullptr;
 			}
 		}
@@ -110,7 +110,7 @@ public:
             else if(exists(str, true))
 				return new AssetFile(str, true);
         }
-		LOGW("File does not exist!\n");
+		trace("File does not exist!\n");
 		return NULL;
     }
 
@@ -206,7 +206,7 @@ public:
 		char* ld = (char*) strrchr(str, '.');
         if(!ld)
         {
-            LOGW("Invalid file!\n");
+            trace("Invalid file!\n");
             return;
         }
         else
@@ -229,9 +229,9 @@ public:
                 fseek((FILE*)fd, 0, SEEK_END);
                 length = ftell((FILE*)fd);
                 rewind((FILE*)fd);
-				LOGI("ASSET OPEN(\"%s\")!\n", str);
+				trace("ASSET OPEN(\"%s\")!\n", str);
 			}
-			else LOGI("ASSET ERROR OPEN: %s\n", file);
+			else trace("ASSET ERROR OPEN: %s\n", file);
         }
         else if(!isAsset && filesPath && str)
         {
@@ -245,9 +245,9 @@ public:
                 fseek((FILE*)fd, 0, SEEK_END);
                 length = ftell((FILE*)fd);
                 rewind((FILE*)fd);
-				LOGI("FILE OPEN(\"%s\")!\n", str);
+				trace("FILE OPEN(\"%s\")!\n", str);
 			}
-			else LOGI("FILE ERROR OPEN: %s\n", file);
+			else trace("FILE ERROR OPEN: %s\n", file);
         }
 	}
 

@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     int height = 480;
     int zoom = 100;
     std::string dir = QApplication::applicationDirPath().toUtf8().constData();
-    LOGI("Application folder: %s\n", dir.c_str());
+    trace("Application folder: %s\n", dir.c_str());
 
     for(int i = 1; i < argc; i++)
     {

@@ -96,9 +96,9 @@ public:
                 fseek((FILE*)fd, 0, SEEK_END);
                 length = ftell((FILE*)fd);
                 rewind((FILE*)fd);
-                LOGI("ASSET OPEN(\"%s\")!\n", str);
+                trace("ASSET OPEN(\"%s\")!\n", str);
             }
-            else LOGI("ASSET ERROR OPEN: %s\n", file);
+            else trace("ASSET ERROR OPEN: %s\n", file);
         }
         else if(!isAsset && filesPath && str)
         {
@@ -111,9 +111,9 @@ public:
                 fseek((FILE*)fd, 0, SEEK_END);
                 length = ftell((FILE*)fd);
                 rewind((FILE*)fd);
-                LOGI("FILE OPEN(\"%s\")!\n", str);
+                trace("FILE OPEN(\"%s\")!\n", str);
             }
-            else LOGI("FILE ERROR OPEN: %s\n", file);
+            else trace("FILE ERROR OPEN: %s\n", file);
         }
     }
     ~AssetFile()

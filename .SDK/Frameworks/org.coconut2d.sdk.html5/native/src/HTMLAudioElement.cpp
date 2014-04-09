@@ -19,7 +19,7 @@ Audio::Audio(String url)
 Audio::~Audio()
 {
 	delete stream;
-	trace("Delete Audio " + src);
+	trace("Delete Audio %s", src.c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

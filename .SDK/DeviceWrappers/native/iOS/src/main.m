@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     documentsDir += "/";
     std::string bundleDir([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);
     bundleDir += "/web/";
-    LOGI("documentsDir: %s\nbundleDir: %s\n", documentsDir.c_str(), bundleDir.c_str());
+    trace("documentsDir: %s\nbundleDir: %s\n", documentsDir.c_str(), bundleDir.c_str());
 
     AssetFile::init(documentsDir.c_str(), bundleDir.c_str());
     /*fxArgs::init("./args.txt");

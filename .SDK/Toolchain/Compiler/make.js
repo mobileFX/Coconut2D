@@ -272,6 +272,14 @@ function make()
         // Build the static libraries for arm and x86
         trace("\nCalling make ...");
         _this.shell(make_lib_cmd, TARGET.TARGET_ROOT+"/jni", "cc1plus.exe");
+
+        // Sanity check
+        if(!fileExists(TARGET.TARGET_ROOT+"/libs/armeabi/libCoconut2D.so") ||
+           !fileExists(TARGET.TARGET_ROOT+"/libs/armeabi-v7a/libCoconut2D.so") ||
+           !fileExists(TARGET.TARGET_ROOT+"/libs/x86/libCoconut2D.so"))
+        {
+        	throw new Error("ERROR: Failed to compile Android static library");
+        }
   	};
 
     // =====================================================================
@@ -279,15 +287,24 @@ function make()
     // =====================================================================
   	_this.compile_apk = function()
   	{
+  		trace("\nCalling ant ...");
   		var buff = [];
   		var make_cmd = TARGET.TARGET_ROOT + "/make.bat";
   		buff.push('@echo off');
-  		buff.push('SET JAVA_HOME=' + makefile.Vars.PATH_3RD_PARTY_JAVA.replace(/\x2f/mg, '\\')+"\\");
-  		buff.push('SET ANDROID_SDK_HOME=' + makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK.replace(/\x2f/mg, '\\')+"\\");
-  		buff.push('SET ANT_HOME=' + makefile.Vars.PATH_3RD_PARTY_ANT.replace(/\x2f/mg, '\\')+"\\");
-  		buff.push('"%ANT_HOME%ant" -S -q ' + makefile.Vars.CONFIGURATION.toLowerCase());
+  		buff.push(_this.winPath('SET ANT_HOME=' + makefile.Vars.PATH_3RD_PARTY_ANT));
+  		buff.push(_this.winPath('SET JAVA_HOME=' + makefile.Vars.PATH_3RD_PARTY_JAVA));
+  		buff.push(_this.winPath('SET ANDROID_SDK_HOME=' + makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK+"\\"));
+  		buff.push(_this.winPath('SET PATH=%ANT_HOME%;%ANT_HOME%/bin;%JAVA_HOME%;%JAVA_HOME%/bin;%PATH%'));
+  		buff.push(_this.winPath('"%ANT_HOME%/bin/ant" ' + makefile.Vars.CONFIGURATION.toLowerCase()));
 		buff = _this.replaceVars(buff.join("\n"));
         _this.module(make_cmd, buff);
+        _this.shell(make_cmd, TARGET.TARGET_ROOT);
+
+        // Sanity check and output
+        if(!fileExists(_this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME)-$(CONFIGURATION).apk")))
+        	throw new Error("Failed to compile Android application");
+        else
+        	copyFile(_this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME)-$(CONFIGURATION).apk"), _this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME).apk"));
   	};
 
 	// ==================================================================================================================================
@@ -391,15 +408,22 @@ function make()
 		var folders = _this.FindFolders(TARGET.TARGET_ROOT, "$*;$*.*", true);
 		for(i=0;i<folders.length;i++)
 		{
-			trace("+ folder: " + folders[i]);
+			var src = folders[i];
+			var dst = folders[i];
 			for(;;)
 			{
-				var match = /\$\(([^)]+?)\)/mg.exec(folders[i]);
+				var match = /\$\(([^)]+?)\)/mg.exec(dst);
 				if(!match) break;
-				trace(match[1]);
+				var value = makefile.Vars[match[1]];
+				value = value.replace(/\./g, "/");
+				dst = dst.replace(match[0], value);
+			}
+			if(src!=dst)
+			{
+				copyFolder(src, dst);
+				deleteFolder(src);
 			}
 		}
-		debugger;
 
 		// Get a list of template files for this target and replace variables
 		var templateFilesMask = TARGET.DEVICE_WRAPPER_TEMPLATES;
@@ -866,6 +890,22 @@ function make()
 	};
 
     // =====================================================================
+    // Unix Path
+    // =====================================================================
+	_this.unixPath = function(path)
+	{
+		return _this.replaceVars(path).replace(/\x5c/g, '/');
+	};
+
+    // =====================================================================
+    // Unix Path
+    // =====================================================================
+	_this.winPath = function(path)
+	{
+		return _this.replaceVars(path).replace(/\x2f/g, '\\');
+	};
+
+    // =====================================================================
     // Execute a shell command in the IDE
     // =====================================================================
 	_this.shell = function(command, path, wait_process)
@@ -1131,6 +1171,8 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bMath.sin\\(", "mg", "sin(");
 	buff = RxReplace(buff, "\\bMath.cos\\(", "mg", "cos(");
 	buff = RxReplace(buff, "\\bMath.abs\\(", "mg", "abs(");
+	buff = RxReplace(buff, "\\btrace\\s*\\((.*)\\)\\s*;\\s*$", "mg", "trace(($1).c_str());");
+	buff = RxReplace(buff, "([\\x22\\x27])\\x2e\\x2fassets\\x2f", "mg", "$1./");
 	buff = RxReplace(buff, "\\bMath.random\\(\\)", "mg", "((float)rand()/(float)RAND_MAX)");
 	buff = RxReplace(buff, "_ENUM\\.(\\w+)", "mg", "_ENUM::$1");
 	return buff;

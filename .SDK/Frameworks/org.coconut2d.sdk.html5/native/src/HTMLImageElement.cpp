@@ -21,7 +21,7 @@ ImageData::ImageData(std::string str)
 ImageData::~ImageData()
 {
 	delete buffer;
-	trace("Image buffer deleted: " + src);
+	trace("Image buffer deleted: %s", src.c_str());
 }
 
 void Image::load(std::string str)
@@ -31,6 +31,7 @@ void Image::load(std::string str)
 	height = data->height;
 	naturalWidth = data->width;
 	naturalHeight = data->height;
+	src=str;
 }
 
 Image::~Image()

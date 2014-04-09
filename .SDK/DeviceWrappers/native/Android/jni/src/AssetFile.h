@@ -52,7 +52,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	static void init(AAssetManager* i_manager, const char* str)
 	{
-		assetPath = strdup("web/");
+		assetPath = strdup("");
 		filesPath = strdup(str);
 		manager = i_manager;
 	}
@@ -100,7 +100,7 @@ public:
 				return createFromBase64(str + 21, FONT_TTF);
 			else
 			{
-				LOGW("Unsupported data!");
+				trace("ERROR(AssetFile.h): Unsupported data");
 				return nullptr;
 			}
 		}
@@ -111,7 +111,7 @@ public:
             else if(exists(str, true))
 				return new AssetFile(str, true);
         }
-		LOGW("File does not exist!\n");
+		trace("ERROR(AssetFile.h): File does not exist %s", str);
 		return NULL;
     }
     static bool create(const char* str)
@@ -202,7 +202,7 @@ public:
 		char* ld = (char*) strrchr(str, '.');
         if(!ld)
         {
-            LOGW("Invalid file!\n");
+            trace("ERROR(AssetFile.h): Invalid file %s", str);
             return;
         }
         else
@@ -223,9 +223,11 @@ public:
 			if (ptr.ad)
 			{
 				length = AAsset_getLength(ptr.ad);
-				LOGI("ASSET OPEN(\"%s\")!\n", str);
 			}
-			else LOGI("ASSET ERROR OPEN: %s\n", file);
+			else
+			{
+				trace("ERROR(AssetFile.h): open asset failed %s", file);
+			}
         }
         else if(!isAsset && filesPath && str)
         {
@@ -239,9 +241,11 @@ public:
                 fseek(ptr.fd, 0, SEEK_END);
                 length = ftell(ptr.fd);
                 rewind(ptr.fd);
-				LOGI("FILE OPEN(\"%s\")!\n", str);
 			}
-			else LOGI("FILE ERROR OPEN: %s\n", file);
+			else
+			{
+				trace("ERROR(AssetFile.h): open file failed %s", file);
+			}
         }
 	}
 	~AssetFile()
@@ -320,7 +324,7 @@ public:
     {
     	if(!isAsset && ptr.fd)
     		return fwrite(src, 1, size, ptr.fd);
-    	LOGW("Error fxFile::write(%s, %zu)\n", (const char*)src, size);
+    	trace("ERROR(AssetFile.h): write file failed %s", file);
     	return 0;
     }
     int flush()

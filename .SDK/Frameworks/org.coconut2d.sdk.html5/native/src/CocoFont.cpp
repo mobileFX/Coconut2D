@@ -15,18 +15,18 @@ CocoFont::CocoFont(float fontSize, String fontName, fxFontFace::FONT_STYLE style
 	const FT_Face face = fxFontFace::get(fontName, style);
 	if(face)
 	{
-        //if(FT_Set_Char_Size(face, 0, height << 6, 0, 0)) { LOGW("Error Freetype: Could not set font char size\n"); }
-        if(FT_Set_Pixel_Sizes(face, 0, height)) { LOGW("Error Freetype: Could not set font char size\n"); }
+        //if(FT_Set_Char_Size(face, 0, height << 6, 0, 0)) { trace("Error Freetype: Could not set font char size\n"); }
+        if(FT_Set_Pixel_Sizes(face, 0, height)) { trace("Error Freetype: Could not set font char size\n"); }
         else
         {
             FT_UInt char_index[fontChars.size()];
             for(size_t i = fontChars.size(); i--;) char_index[i] = FT_Get_Char_Index(face, (FT_ULong)(fontChars[i]));
             for(size_t l = fontChars.size(); l--;)
             {
-                if(FT_Load_Glyph(face, char_index[l], FT_LOAD_RENDER)) { LOGW("Error FreeType: Could not load glyph\n"); }
+                if(FT_Load_Glyph(face, char_index[l], FT_LOAD_RENDER)) { trace("Error FreeType: Could not load glyph\n"); }
                 else
                 {
-                    if(face->glyph->bitmap.pixel_mode != FT_PIXEL_MODE_GRAY) { LOGW("Wrong FT_Pixel_Mode!\n"); }
+                    if(face->glyph->bitmap.pixel_mode != FT_PIXEL_MODE_GRAY) { trace("Wrong FT_Pixel_Mode!\n"); }
                     else
                     {
                         CocoFontChar c;
@@ -104,17 +104,17 @@ float CocoFont::measureText(String text)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoFont::CocoFont(float fontSize, String fontName, String fontChars)
 {
-	LOGW("Fonts not supported!\n");
+	trace("Fonts not supported!\n");
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, float x, float y)
 {
-	LOGW("Fonts not supported!\n");
+	trace("Fonts not supported!\n");
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 float CocoFont::measureText(String text)
 {
-	LOGW("Fonts not supported!\n");
+	trace("Fonts not supported!\n");
 	return 0.0f;
 }
 #endif

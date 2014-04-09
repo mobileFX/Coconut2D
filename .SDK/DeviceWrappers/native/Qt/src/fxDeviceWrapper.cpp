@@ -35,7 +35,6 @@ void fxDeviceWrapper::paintGL()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool fxDeviceWrapper::event(QEvent* e)
 {
-    //LOGI("QEvent::Type(%d)\n", e->type());
     switch(e->type())
     {
         case QEvent::MouseButtonPress:

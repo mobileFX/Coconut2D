@@ -4,7 +4,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 fxGLWrap::fxGLWrap(ANativeWindow* window, fxDeviceWrapper* dev)
 {
-	LOGI("fxGLWrap();\n");
 	EGLint numConfigs, format;
 	EGLConfig config;
 
@@ -22,14 +21,12 @@ fxGLWrap::fxGLWrap(ANativeWindow* window, fxDeviceWrapper* dev)
 			EGL_NONE
 	};
 
-	LOGI("eglGetDisplay();\n");
 	display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
 	eglInitialize(display, 0, 0);
 	eglChooseConfig(display, attribs, &config, 1, &numConfigs);
 	eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
 
-	LOGI("ANativeWindow_setBuffersGeometry();\n");
 	ANativeWindow_setBuffersGeometry(window, 0, 0, format);
 
 	surface = eglCreateWindowSurface(display, config, window, nullptr);
@@ -49,14 +46,11 @@ fxGLWrap::fxGLWrap(ANativeWindow* window, fxDeviceWrapper* dev)
 	screen.isPortrait = dev->GetScreenIsPortrait();
 	screen.top = dev->GetScreenTop();
 
-	LOGI("glViewport();\n");
     glViewport(0, 0, screen.width * screen.pixelRatio, screen.height * screen.pixelRatio);
-    LOGI("fxGLWrap Initialized successfully!\n");
 }
 
 fxGLWrap::~fxGLWrap()
 {
-	LOGW("DESTRUCTOR!\n");
     if(display != EGL_NO_DISPLAY)
     {
     	ClearContext();
@@ -74,8 +68,9 @@ fxGLWrap::~fxGLWrap()
 void fxGLWrap::SetContext()
 {
 	if(eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
-		LOGW("ERROR eglMakeCurrent(%d)!\n", eglGetError());
-	else LOGI("setContext OK!");
+	{
+		trace("ERROR(fxGLWrap.cpp): eglMakeCurrent(%d)", eglGetError());
+	}
 }
 
 void fxGLWrap::ClearContext()
@@ -91,42 +86,3 @@ void fxGLWrap::SwapBuffers()
 {
 	eglSwapBuffers(display, surface);
 }
-/*
-////////////////////////////////////////////////////////////////////////////////////////////////////
-fxSLWrap::fxSLWrap(ANativeWindow*) : engineObj(nullptr), outputObj(nullptr)
-{
-	LOGI("fxSLWrap();\n");
-
-	if(slCreateEngine(&engineObj, 0, nullptr, 0, nullptr, nullptr) != SL_RESULT_SUCCESS)
-		LOGW("Error creating the OpenSL ES Engine!\n");
-
-	if(engineObj)
-	{
-		if((*engineObj)->Realize(engineObj, SL_BOOLEAN_FALSE) != SL_RESULT_SUCCESS)
-			LOGW("Error realizing the OpenSL ES Engine!\n");
-
-		if((*engineObj)->GetInterface(engineObj, SL_IID_ENGINE, &engineItf) != SL_RESULT_SUCCESS)
-			LOGW("Error getting the interface of OpenSL ES Engine!\n");
-
-		if((*engineItf)->CreateOutputMix(engineItf, &outputObj, 0, nullptr, nullptr) != SL_RESULT_SUCCESS)
-			LOGW("Error creating output mixer of OpenSL ES Engine!\n");
-
-		if(outputObj)
-		{
-			if((*outputObj)->Realize(outputObj, SL_BOOLEAN_FALSE) != SL_RESULT_SUCCESS)
-				LOGW("Error realizing the output mixer of OpenSL ES Engine!\n");
-
-			if((*outputObj)->GetInterface(outputObj, SL_IID_VOLUME, &volumeItf) != SL_RESULT_SUCCESS)
-				LOGW("Error getting the volume interface of OpenSL ES Engine!\n");
-
-			LOGI("fxSLWrap Initialized successfully!\n");
-		}
-	}
-}
-
-fxSLWrap::~fxSLWrap()
-{
-	if(outputObj) (*outputObj)->Destroy(outputObj);
-	if(engineObj) (*engineObj)->Destroy(engineObj);
-}
-*/

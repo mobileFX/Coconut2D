@@ -211,7 +211,7 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 		}
 
 		default:
-			LOGW("Event not implemented!\n");
+			trace("Event not implemented!\n");
 	}
 
 	dispatchEvent(uid, eventType);

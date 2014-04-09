@@ -84,9 +84,9 @@ void fxAudioStream::init()
 
     #ifdef ENABLE_OPENAL_SUPPORT
     alcDevice = alcOpenDevice(nullptr);
-    if(!alcDevice) LOGW("Could not get default ALC Device!\n");
+    if(!alcDevice) trace("Could not get default ALC Device!\n");
     alcContext = alcCreateContext(alcDevice, nullptr);
-    if(!alcContext) LOGW("Could not create ALC Context!\n");
+    if(!alcContext) trace("Could not create ALC Context!\n");
 	buffers = new std::map<std::string, ALuint>();
     alcMakeContextCurrent(alcContext);
     #endif /* ENABLE_OPENAL_SUPPORT */
@@ -117,9 +117,9 @@ void fxAudioStream::quit()
     alcDestroyContext(alcContext);
     if(alcCloseDevice(alcDevice) != ALC_TRUE)
     {
-    	LOGW("alcCloseDevice Error!\n");
+    	trace("alcCloseDevice Error!\n");
     } else {
-    	LOGI("alcCloseDevice ok!");
+    	trace("alcCloseDevice ok!");
     }
     #endif /* ENABLE_OPENAL_SUPPORT */
 }
@@ -129,7 +129,7 @@ void fxAudioStream::add(fxObjectUID uid, const char* str)
 {
     if(!audios) return;
     audios->insert(std::pair<fxObjectUID, fxAudioStream*>(uid, new fxAudioStream(str)));
-    LOGI("audio file allocated!\n");
+    trace("audio file allocated!\n");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +178,7 @@ fxAudioStream::fxAudioStream(const char* str) : loop(false), playCount(1), type(
 		AssetFile* file = AssetFile::open(str);
 		if(!file)
 		{
-			LOGW("Could not load audio from: %s\n", str);
+			trace("Could not load audio from: %s\n", str);
 			return;
 		}
 		switch(file->mime)
@@ -196,7 +196,7 @@ fxAudioStream::fxAudioStream(const char* str) : loop(false), playCount(1), type(
 				{
 					case 1: alFormat = AUDIO_FORMAT_MONO; break;
 					case 2: alFormat = AUDIO_FORMAT_STEREO; break;
-					default: { LOGW("Wrong number of channels in OGG file!\n"); }
+					default: { trace("Wrong number of channels in OGG file!\n"); }
 				}
 
 				int ovSection = 0;
@@ -218,7 +218,7 @@ fxAudioStream::fxAudioStream(const char* str) : loop(false), playCount(1), type(
 			}
 			#endif /* ENABLE_OGG_SUPPORT */
 			default:
-				LOGW("Unsupported audio format!\n");
+				trace("Unsupported audio format!\n");
 				return;
 		}
 		delete file;
@@ -240,7 +240,7 @@ fxAudioStream::~fxAudioStream()
     }
 }
 #else
-fxAudioStream::fxAudioStream(const char* str) : state(State::NONE) { LOGW("Audio playback not supported!\n"); }
+fxAudioStream::fxAudioStream(const char* str) : state(State::NONE) { trace("Audio playback not supported!\n"); }
 fxAudioStream::~fxAudioStream() {}
 #endif /* ENALE_OPENAL_SUPPORT */
 
@@ -344,13 +344,13 @@ void fxAudioStream::_tick()
      {
      alSourceUnqueueBuffers(alSource, 1, &buff);
      size = ov_read(&ovf, (char*)Buffer, AUDIO_BUFFER_SIZE, &ovSection);
-     if(size < 0) { LOGW("Error reading OGG file!\n"); }
+     if(size < 0) { trace("Error reading OGG file!\n"); }
      else if(!size)
      {
      ov_pcm_seek(&ovf, 0);
      if(!loop && !(--playCount)) { alSourceStop(alSource); }
      size = ov_read(&ovf, (char*)Buffer, AUDIO_BUFFER_SIZE, &ovSection);
-     if(size <= 0) { LOGW("Error on OGG file!\n"); }
+     if(size <= 0) { trace("Error on OGG file!\n"); }
      }
      if(size > 0)
      {

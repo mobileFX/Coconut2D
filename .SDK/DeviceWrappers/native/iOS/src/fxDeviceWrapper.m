@@ -38,7 +38,7 @@
 
 - (void)VideoPlay:(const char*)path
 {
-    LOGI("Playing video!\n");
+    trace("Playing video!\n");
     //NSString str = [[NSString alloc] initWithUTF8String:path];
     self.player = [[[MPMoviePlayerController alloc] initWithContentURL:[NSURL URLWithString:[[NSString alloc] initWithUTF8String:path]]] autorelease];
     self.player.controlStyle = MPMovieControlStyleNone;
