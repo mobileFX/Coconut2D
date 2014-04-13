@@ -2,21 +2,23 @@
 # iOS Build Makefile
 #==============================================================================
 
-CERTIFICATES = $(PROJECT_CERTIFICATES)
-PRIVATE_KEY  = $(PROJECT_PRIVATE_KEY)
-PASSPHRASE   = $(PROJECT_PRIVATE_KEY_PASSPHRASE)
-PROVISION    = $(PROJECT_PROVISION)
-IOSMINVER    = $(PROJECT_IOSMINVER)
-CPUSET       = $(PROJECT_CPUSET)
-CFLAGS       = $(PROJECT_CFLAGS)
-LDFLAGS      = $(PROJECT_LDFLAGS)
-SRC          = $(PROJECT_SRC)
-RES          = $(PROJECT_RES)
+CERTIFICATES = $(TARGETS.iOS.CODE_SIGNING.IOS_CERTIFICATES)
+PRIVATE_KEY  = $(TARGETS.iOS.CODE_SIGNING.IOS_PRIVATE_KEY)
+PASSPHRASE   = $(TARGETS.iOS.CODE_SIGNING.IOS_PRIVATE_KEY_PASSPHRASE)
+PROVISION    = $(TARGETS.iOS.CODE_SIGNING.IOS_PROVISION)
+IOSMINVER    = $(TARGETS.iOS.APP_SETTINGS.IOSMINVER)
+CPUSET       = $(TARGETS.iOS.APP_SETTINGS.CPUSET)
+LDFLAGS		 = -L$(PATH_SDK_LIBRARIES)/$(TARGET)
+
+CFLAGS = $(NATIVE_CPP_INCLUDES)
+
+SRC = $(NATIVE_CPP_SOURCES)
+
+RES = $(NATIVE_RESOURCES)
 
 #==============================================================================
 VSCOMPILE 	= yes
 NAME		= $(shell "$(IOSBUILDENV_PATH)/Toolchain/plconvert" "Info.plist" -query CFBundleExecutable)
-ASSETS		= web
 PAYLOAD		= Payload
 BIN			= bin
 OUTDIR		= $(PAYLOAD)\$(NAME).app
@@ -30,7 +32,9 @@ OBJ			= $(addsuffix .obj, $(basename $(SRC)))
 OBJ_OBJ		= $(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $(SRC)))))
 
 #==============================================================================
-all:	prepare resources $(OBJ) link codesign ipa end
+compile:	prepare resources $(OBJ)
+
+#link codesign ipa end
 
 #==============================================================================
 # Prepare Compilation
@@ -135,7 +139,6 @@ ipa:
 # This simple rule displays the success message after a successful build
 #==============================================================================
 end:
-	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(ASSETS)"
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(OUTDIR)"
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(PAYLOAD)"
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(OBJDIR)"

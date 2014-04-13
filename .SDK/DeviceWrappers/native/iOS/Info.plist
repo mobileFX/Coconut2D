@@ -26,16 +26,16 @@
 	<key>CFBundleName</key><string>$(PROJECT_NAME)</string>
 	<key>CFBundleDisplayName</key><string>$(PROJECT_DISPLAY_NAME)</string>
 	<key>CFBundleExecutable</key><string>$(PROJECT_NAME)</string>
-	<key>CFBundleIdentifier</key><string>$(CFBundleIdentifier)</string>
+	<key>CFBundleIdentifier</key><string>$(TARGETS.iOS.APP_SETTINGS.CFBundleIdentifier)</string>
 	<key>CFBundleVersion</key><string>$(PROJECT_VERSION)</string>
 	<key>CFBundleShortVersionString</key><string>$(PROJECT_VERSION_SHORT)</string>
-	<key>NSHumanReadableCopyright</key><string>$(COPYRIGHT)</string>
+	<key>NSHumanReadableCopyright</key><string>$(TAGS.OG_COPYRIGHT)</string>
 
 	<!-- User Interface -->
-	<key>UIStatusBarHidden</key><$(UIStatusBarHidden)/>
-	<key>UIStatusBarStyle</key><string>$(UIStatusBarStyle)</string>
-	<key>UIViewControllerBasedStatusBarAppearance</key><$(UIViewControllerBasedStatusBarAppearance)/>
-	<key>UIViewEdgeAntialiasing</key><$(UIViewEdgeAntialiasing)/>
+	<key>UIStatusBarHidden</key><$(TARGETS.iOS.APP_SETTINGS.UIStatusBarHidden)/>
+	<key>UIStatusBarStyle</key><string>$(TARGETS.iOS.APP_SETTINGS.UIStatusBarStyle)</string>
+	<key>UIViewControllerBasedStatusBarAppearance</key><$(TARGETS.iOS.APP_SETTINGS.UIViewControllerBasedStatusBarAppearance)/>
+	<key>UIViewEdgeAntialiasing</key><$(TARGETS.iOS.APP_SETTINGS.UIViewEdgeAntialiasing)/>
 
 	<!-- Target Platforms -->
 	<key>CFBundleSupportedPlatforms</key>
@@ -50,7 +50,7 @@
 	</array>
 
 	<!-- Running in Background -->
-	<key>UIApplicationExitsOnSuspend</key><$(UIApplicationExitsOnSuspend)/>
+	<key>UIApplicationExitsOnSuspend</key><$(TARGETS.iOS.APP_SETTINGS.UIApplicationExitsOnSuspend)/>
 
 	<key>UIBackgroundModes</key>
 	<array>
@@ -60,17 +60,17 @@
 	</array>
 
 	<!-- Screen Orientation -->
-	<key>UIInterfaceOrientation</key><string>$(UIInterfaceOrientation)</string>
+	<key>UIInterfaceOrientation</key><string>$(TARGETS.iOS.APP_SETTINGS.UIInterfaceOrientation)</string>
 
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>$(UISupportedInterfaceOrientations1)</string>
-		<string>$(UISupportedInterfaceOrientations2)</string>
+		<string>$(TARGETS.iOS.APP_SETTINGS.UISupportedInterfaceOrientations1)</string>
+		<string>$(TARGETS.iOS.APP_SETTINGS.UISupportedInterfaceOrientations2)</string>
 	</array>
 
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
-		<string>$(UISupportedInterfaceOrientations_iPad)</string>
+		<string>$(TARGETS.iOS.APP_SETTINGS.UISupportedInterfaceOrientations_iPad)</string>
 	</array>
 
     <!-- Resources -->
@@ -78,11 +78,11 @@
 
 	<!-- Icons -->
 
-	<key>UIPrerenderedIcon</key><$(UIPrerenderedIcon)/>
+	<key>UIPrerenderedIcon</key><$(TARGETS.iOS.APP_SETTINGS.UIPrerenderedIcon)/>
 
 	<key>CFBundleIconFiles</key>
 	<array>
-		$(ICONS)
+		$(APP_ICONS)
 	</array>
 
 	<key>CFBundleIcons</key>
@@ -91,9 +91,9 @@
 		<dict>
 			<key>CFBundleIconFiles</key>
 			<array>
-				$(ICONS)
+				$(APP_ICONS)
 			</array>
-			<key>UIPrerenderedIcon</key><$(UIPrerenderedIcon)/>
+			<key>UIPrerenderedIcon</key><$(TARGETS.iOS.APP_SETTINGS.UIPrerenderedIcon)/>
 		</dict>
 	</dict>
 

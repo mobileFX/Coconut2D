@@ -2,9 +2,31 @@
 	"PROJECT_NAME": "Coconut2D",
 	"PROJECT_DISPLAY_NAME": "Coconut2D",
 	"PROJECT_PACKAGE": "com.mobilefx.Coconut2D",
-	"PROJECT_VERSION": "1.0",
+	"PROJECT_VERSION": "1.0.0",
+	"PROJECT_VERSION_SHORT": "1.0",
 	"PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim",
 	"CONFIGURATION": "Debug",
+	"TAGS":
+	{
+		"OG_COMPANY_ADDRESS": "52 Electras str",
+		"OG_COMPANY_COUNTRY": "Greece",
+		"OG_COMPANY_EMAIL": "info@mobilefx.com",
+		"OG_COMPANY_NAME": "mobileFX",
+		"OG_COMPANY_PHONE": "+302109522504",
+		"OG_COMPANY_POSTCODE": "17673",
+		"OG_COMPANY_REGION": "N. Attikis",
+		"OG_COPYRIGHT": "Copyright (C) 2014 mobileFX, All Rights Reserved",
+		"OG_CURRENCY": "Eur",
+		"OG_DEMO_VIDEO_HEIGHT": "385",
+		"OG_DEMO_VIDEO_URL": "http://www.youtube.com/mobileFX",
+		"OG_DEMO_VIDEO_WIDTH": "640",
+		"OG_DESCRIPTION": "mobileFX presents $(PROJECT_DISPLAY_NAME)",
+		"OG_PRICE": "Free",
+		"OG_PUBLISHER": "mobileFX",
+		"OG_TITLE": "$(PROJECT_DISPLAY_NAME)",
+		"OG_HOST": "http://www.mobilefx.com/games",
+		"OG_URL": "$(TAGS.OG_HOST)/$(PROJECT_NAME).html"
+	},
 	"PROJECT_PATHS":
 	{
 		"SDK": "$(PROJECT_ROOT)/.SDK",
@@ -36,10 +58,15 @@
 			"TARGET_OUTPUT": "$(TARGET_ROOT)/main.js",
 			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
 			"TARGET_EXPORT": "all",
-			"TARGET_ADDITIONAL_FRAMEWORKS": "",
-			"DEVICE_CLASS": "COCO_PLAYER",
-			"DEVICE_WRAPPER": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
-			"DEVICE_WRAPPER_TEMPLATES": ""
+			"TARGET_ADDITIONAL_FRAMEWORKS": null,
+			"DEVICE_WRAPPER":
+			{
+				"CLASS": "COCO_PLAYER",
+				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
+				"TEMPLATES": null,
+				"TEMPLATE_EXCLUDE_VARS": null
+			},
+			"APP_SETTINGS": {}
 		},
 		"HTML5":
 		{
@@ -49,10 +76,28 @@
 			"TARGET_OUTPUT": "$(TARGET_ROOT)/index.html",
 			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
 			"TARGET_EXPORT": "web",
-			"TARGET_ADDITIONAL_FRAMEWORKS": "",
-			"DEVICE_CLASS": "HTML5_BROWSER",
-			"DEVICE_WRAPPER": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
-			"DEVICE_WRAPPER_TEMPLATES": ""
+			"TARGET_ADDITIONAL_FRAMEWORKS": null,
+			"TARGET_ADDITIONAL_NATIVE_SOURCES": null,
+			"TARGET_NATIVE_MASK": null,
+			"TARGET_RESOURCES_MASK": null,
+			"DEVICE_WRAPPER":
+			{
+				"CLASS": "HTML5_BROWSER",
+				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
+				"TEMPLATES": "*.html;*.css",
+				"TEMPLATE_EXCLUDE_VARS": null
+			},
+			"APP_SETTINGS": {},
+			"APP_ICONS":
+			{
+				"16": "$(TARGET_ROOT)/favicon.ico",
+				"72": "$(TARGET_ROOT)/apple-touch-icon-72x72.png",
+				"76": "$(TARGET_ROOT)/apple-touch-icon-76x76.png",
+				"114": "$(TARGET_ROOT)/apple-touch-icon-114x114.png",
+				"120": "$(TARGET_ROOT)/apple-touch-icon-120x120.png",
+				"144": "$(TARGET_ROOT)/apple-touch-icon-144x144.png",
+				"152": "$(TARGET_ROOT)/apple-touch-icon-152x152.png"
+			}
 		},
 		"Android":
 		{
@@ -62,16 +107,32 @@
 			"TARGET_OUTPUT": "$(TARGET_ROOT)/bin/$(PROJECT_NAME).apk",
 			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
 			"TARGET_EXPORT": "native",
-			"TARGET_ADDITIONAL_FRAMEWORKS": "",
+			"TARGET_ADDITIONAL_FRAMEWORKS": null,
+			"TARGET_ADDITIONAL_NATIVE_SOURCES": "$(TARGET_ROOT)/jni/src",
 			"TARGET_NATIVE_MASK": "*.cpp;*.hpp;*.h",
-			"DEVICE_CLASS": "ANDROID",
-			"DEVICE_WRAPPER": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
-			"DEVICE_WRAPPER_TEMPLATES": "*.xml;*.properties;*.java;*.cpp",
-			"ANDROID_PLATFORM": "android-10",
-			"MIN_SDK_VERSION": "10",
-			"TARGET_SDK_VERSION": "19",
-			"SCREEN_ORIENTATION": "landscape",
-			"RELOAD_AFTER_BUILD": "true",
+			"TARGET_RESOURCES_MASK": "*.png;*.jpeg;*.ogg",
+			"RELOAD_AFTER_BUILD": true,
+			"DEVICE_WRAPPER":
+			{
+				"CLASS": "ANDROID",
+				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
+				"TEMPLATES": "*.xml;*.properties;*.java;*.cpp",
+				"TEMPLATE_EXCLUDE_VARS": null
+			},
+			"APP_SETTINGS":
+			{
+				"ANDROID_PLATFORM": "android-10",
+				"MIN_SDK_VERSION": "10",
+				"TARGET_SDK_VERSION": "19",
+				"SCREEN_ORIENTATION": "landscape"
+			},
+			"APP_ICONS":
+			{
+				"48": "$(TARGET_ROOT)/res/drawable-mdpi/ic_launcher.png",
+				"72": "$(TARGET_ROOT)/res/drawable-hdpi/ic_launcher.png",
+				"96": "$(TARGET_ROOT)/res/drawable-xhdpi/ic_launcher.png",
+				"144": "$(TARGET_ROOT)/res/drawable-xxhdpi/ic_launcher.png;$(TARGET_ROOT)/res/drawable/ic_launcher.png"
+			},
 			"CODE_SIGNING":
 			{
 				"COMPANY": "mobileFX",
@@ -88,18 +149,61 @@
 			"TARGET_OUTPUT": "$(TARGET_ROOT)/bin/$(PROJECT_NAME).ipa",
 			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
 			"TARGET_EXPORT": "native",
-			"TARGET_ADDITIONAL_FRAMEWORKS": "",
-			"DEVICE_CLASS": "IOS",
-			"DEVICE_WRAPPER": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
-			"PROJECT_IOSMINVER": "5",
-			"PROJECT_CPUSET": "armv7",
-			"RELOAD_AFTER_BUILD": "true",
+			"TARGET_ADDITIONAL_FRAMEWORKS": null,
+			"TARGET_ADDITIONAL_NATIVE_SOURCES": "$(TARGET_ROOT)/src",
+			"TARGET_NATIVE_MASK": "*.m;*.cpp;*.hpp;*.h",
+			"TARGET_RESOURCES_MASK": "*.plist;*.png;*.jpeg;*.ogg",
+			"RELOAD_AFTER_BUILD": true,
+			"DEVICE_WRAPPER":
+			{
+				"CLASS": "IOS",
+				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
+				"TEMPLATES": "*.m;*.plist",
+				"TEMPLATE_EXCLUDE_VARS": "IOSBUILDENV_PATH;PAYLOAD;NAME;CPUSET;IOSMINVER;SRC;OBJDIR;OBJ;OUTDIR;BIN;RES;CFLAGS;LDFLAGS;OBJ_OBJ;PROVISION;CERTIFICATES;PRIVATE_KEY;PASSPHRASE"
+			},
+			"APP_SETTINGS":
+			{
+				"IOSMINVER": "5",
+				"CPUSET": "armv7",
+				"CFBundleIdentifier": "$(PROJECT_PACKAGE)",
+				"UIStatusBarHidden": true,
+				"UIStatusBarStyle": "UIStatusBarStyleBlackTranslucent",
+				"UIViewControllerBasedStatusBarAppearance": true,
+				"UIViewEdgeAntialiasing": false,
+				"UIApplicationExitsOnSuspend": true,
+				"UIInterfaceOrientation": "UIInterfaceOrientationLandscapeRight",
+				"UISupportedInterfaceOrientations1": "UIInterfaceOrientationLandscapeRight",
+				"UISupportedInterfaceOrientations2": "UIInterfaceOrientationLandscapeRight",
+				"UISupportedInterfaceOrientations_iPad": "UIInterfaceOrientationLandscapeRight",
+				"UIPrerenderedIcon": true
+			},
+			"APP_ICONS":
+			{
+				"29": "$(TARGET_ROOT)/Icon-29.png",
+				"40": "$(TARGET_ROOT)/Icon-40.png",
+				"48": "$(TARGET_ROOT)/Icon-48.png",
+				"50": "$(TARGET_ROOT)/Icon-50.png;$(TARGET_ROOT)/Icon-Small-50.png",
+				"57": "$(TARGET_ROOT)/Icon.png;$(TARGET_ROOT)/Icon-57.png",
+				"58": "$(TARGET_ROOT)/Icon-29@2x.png;$(TARGET_ROOT)/Icon-58.png",
+				"60": "$(TARGET_ROOT)/Icon-60.png",
+				"72": "$(TARGET_ROOT)/Icon-72.png",
+				"76": "$(TARGET_ROOT)/Icon-76.png",
+				"80": "$(TARGET_ROOT)/Icon-40@2x.png;$(TARGET_ROOT)/Icon-80.png",
+				"96": "$(TARGET_ROOT)/Icon-48@2x.png;$(TARGET_ROOT)/Icon-96.png",
+				"100": "$(TARGET_ROOT)/Icon-Small-50@2x.png;$(TARGET_ROOT)/Icon-100.png",
+				"114": "$(TARGET_ROOT)/Icon@2x.png;$(TARGET_ROOT)/Icon-57@2x.png;$(TARGET_ROOT)/Icon-114.png",
+				"120": "$(TARGET_ROOT)/Icon-60@2x.png;$(TARGET_ROOT)/Icon-120.png",
+				"144": "$(TARGET_ROOT)/Icon-72@2x.png;$(TARGET_ROOT)/Icon-144.png",
+				"152": "$(TARGET_ROOT)/Icon-76@2x.png;$(TARGET_ROOT)/Icon-152.png",
+				"512": "$(TARGET_ROOT)/iTunesArtwork.png",
+				"1024": "$(TARGET_ROOT)/iTunesArtwork@2x.png"
+			},
 			"CODE_SIGNING":
 			{
 				"IOS_CERTIFICATES": "ios_development.cer:AppleIncRootCertificate.cer:AppleWWDRCA.cer",
-				"IOS_PRIVATE_KEY": "EliasPolitakis.key",
+				"IOS_PRIVATE_KEY": "ios_development.key",
 				"IOS_PRIVATE_KEY_PASSPHRASE": "puerre",
-				"IOS_PROVISION": "EliasPolitakisDevelopment.mobileprovision"
+				"IOS_PROVISION": "Coconut2D.mobileprovision"
 			}
 		}
 	}

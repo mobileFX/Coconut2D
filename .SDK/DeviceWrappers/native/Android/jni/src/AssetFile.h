@@ -63,8 +63,9 @@ public:
     	manager = nullptr;
         free(filesPath); filesPath = nullptr;
         free(assetPath); assetPath = nullptr;
-		//GC();
     }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
     static bool exists(const char* str, bool isAsset)
     {
         if(isAsset && assetPath && str)
@@ -86,6 +87,8 @@ public:
         else return false;
         return true;
     }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	static AssetFile* open(const char* str)
     {
 		if(!strncmp(str, "data:", 5))
@@ -114,10 +117,14 @@ public:
 		trace("ERROR(AssetFile.h): File does not exist %s", str);
 		return NULL;
     }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
     static bool create(const char* str)
     {
 		return createWithData(str, nullptr);
     }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
     static bool createWithData(const char* str, const char* data, size_t size = 0)
     {
         if(filesPath && str)
@@ -140,9 +147,9 @@ public:
         return true;
     }
 
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	static AssetFile* createFromBase64(const char* str, MIME mime)
 	{
-		// -43
 		static const unsigned char unb64[] = { 62, 0, 0, 0, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0, 0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
 		size_t len = strlen(str);
 		if(len < 2) return nullptr;
@@ -248,6 +255,8 @@ public:
 			}
         }
 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	~AssetFile()
 	{
 		if(isAsset && ptr.ad) AAsset_close(ptr.ad);

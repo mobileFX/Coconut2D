@@ -58,8 +58,9 @@ function make()
   	{
   		_this.clean();
   		_this.apply_device_wrapper();
+  		_this.generate_icons();
   		_this.copy_assets();
-  		_this.compile_jspp();
+  		_this.generate_javascript();
   		_this.create_payload_js();
   		_this.closure();
   	};
@@ -71,8 +72,9 @@ function make()
   	{
   		_this.clean();
   		_this.apply_device_wrapper();
+  		_this.generate_icons();
   		_this.copy_assets();
-  		_this.compile_jspp();
+  		_this.generate_javascript();
   		_this.create_payload_js();
   		_this.closure();
   		_this.create_index_html();
@@ -88,8 +90,9 @@ function make()
 
   		_this.clean();
   		_this.apply_device_wrapper();
+  		_this.generate_icons();
   		_this.copy_assets();
-  		_this.compile_cpp();
+  		_this.generate_cpp();
   		_this.compile_jni_static_lib();
   		_this.compile_apk();
   	};
@@ -101,8 +104,10 @@ function make()
   	{
   		_this.clean();
   		_this.apply_device_wrapper();
+  		_this.generate_icons();
   		_this.copy_assets();
-  		_this.compile_cpp();
+  		_this.generate_cpp();
+  		_this.compile_ipa();
   	};
 
 	// ==================================================================================================================================
@@ -117,7 +122,7 @@ function make()
     // =====================================================================
     // Compile JavaScript Classes to pure JavaScript
     // =====================================================================
-	_this.compile_jspp = function()
+	_this.generate_javascript = function()
 	{
 		// Get all source code (including externs)
 		var code = _this.getSourceCode();
@@ -139,7 +144,7 @@ function make()
     // =====================================================================
     // Compile JavaScript Classes to C++
     // =====================================================================
-	_this.compile_cpp = function()
+	_this.generate_cpp = function()
 	{
 		// Get all source code (including externs)
 		var code = _this.getSourceCode();
@@ -149,15 +154,16 @@ function make()
 		narcissus.__messages = true;
 		narcissus.__cpp = true;
 		var ast = narcissus.jsparse(code);
-		trace("+ Abstract Syntax Tree (AST) is generated.");
-
-		trace("\nCompiling JavaScript Classes to C++ ...");
+		trace("+ Abstract Syntax Tree (AST) generated.");
 
 		// Compile AST to JavaScript to build symbol tables
+		trace("\nBuilding Symbol Tables ...");
 		var compiler = new Compiler(ast, false, null);
 		compiler.compile();
+		trace("+ Symbol tables generated.");
 
 		// Compile AST to C++
+		trace("\nCompiling JavaScript Classes to C++ ...");
 		var compiler = new CPPCompiler(ast);
 		compiler.compile();
 
@@ -198,44 +204,16 @@ function make()
   		trace("\nCompiling Android JNI Static Library ...");
 
 		// Collect all C++ sources
-  		var JNI_SOURCES_PATH = [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ROOT+"/jni" ].join(";");
-  		var files = _this.collectSources(JNI_SOURCES_PATH,
+  		var CPP_SOURCES_PATH = [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";");
+  		var files = _this.collectSources(CPP_SOURCES_PATH,
   										 TARGET.TARGET_NATIVE_MASK,
   										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
   										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
 		// Make all paths relative to JNI folder
-		var root = TARGET.TARGET_ROOT + "/jni";
-		var includes = relativePath(root, makefile.Vars.PATH_SDK_INCLUDES);
-		var CPP = [];
-		var HPP = [includes];
-		var HPPmap = {};
-		HPPmap[includes] = true;
-		for(i=0;i<files.length;i++)
-		{
-			files[i] = relativePath(root, files[i]);
-
-			if(/\.cpp$/i.test(files[i]))
-			{
-				if(files[i].indexOf("./")==0)
-					files[i] = files[i].substr(2);
-				CPP.push(files[i]);
-			}
-
-			if(/\.h[p]*?$/i.test(files[i]))
-			{
-				var path = files[i].substr(0, files[i].lastIndexOf("/"));
-				if(!HPPmap[path])
-				{
-					HPPmap[path] = true;
-					HPP.push(path);
-				}
-			}
-		}
-		HPP =  HPP.sort().reverse();
-		CPP = CPP.sort().reverse();
-		makefile.Vars["JNI_SOURCES"] = CPP.join(" \\\n");
-		makefile.Vars["JNI_INCLUDES"] = HPP.join(" \\\n");
+		files = _this.get_relative_cpp_hpp(files, TARGET.TARGET_ROOT + "/jni");
+		makefile.Vars["NATIVE_CPP_SOURCES"] = files.CPP.join(" \\\n");
+		makefile.Vars["NATIVE_CPP_INCLUDES"] = files.HPP.join(" \\\n");
 
         // Create Android.mk
 		var file = TARGET.TARGET_ROOT+"/jni/Android.mk";
@@ -259,7 +237,7 @@ function make()
         var buff = [];
         var make_lib_cmd = TARGET.TARGET_ROOT + "/jni/make_lib.bat";
         buff.push('@echo off');
-        buff.push('SET NDK_ROOT=' + makefile.Vars.PATH_3RD_PARTY_ANDROID_NDK.replace(/\x2f/mg, '\\')+"\\");
+        buff.push('SET NDK_ROOT=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_NDK)+"\\");
         buff.push('SET NDK_PROJECT_PATH=$(TARGET_ROOT)');
         buff.push('call "%NDK_ROOT%find-win-host.cmd" NDK_WIN_HOST');
         buff.push('if ERRORLEVEL 1 (exit /b 1)');
@@ -295,7 +273,7 @@ function make()
   		buff.push(_this.winPath('SET JAVA_HOME=' + makefile.Vars.PATH_3RD_PARTY_JAVA));
   		buff.push(_this.winPath('SET ANDROID_SDK_HOME=' + makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK+"\\"));
   		buff.push(_this.winPath('SET PATH=%ANT_HOME%;%ANT_HOME%/bin;%JAVA_HOME%;%JAVA_HOME%/bin;%PATH%'));
-  		buff.push(_this.winPath('"%ANT_HOME%/bin/ant" ' + makefile.Vars.CONFIGURATION.toLowerCase()));
+  		buff.push(_this.winPath('"%ANT_HOME%/bin/ant" -S ' + makefile.Vars.CONFIGURATION.toLowerCase()));
 		buff = _this.replaceVars(buff.join("\n"));
         _this.module(make_cmd, buff);
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
@@ -305,6 +283,86 @@ function make()
         	throw new Error("Failed to compile Android application");
         else
         	copyFile(_this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME)-$(CONFIGURATION).apk"), _this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME).apk"));
+  	};
+
+    // =====================================================================
+    // Compile iOS Application
+    // =====================================================================
+  	_this.compile_ipa = function()
+  	{
+  		trace("\nCompiling iOS Application ...");
+
+		// Collect all C++ sources
+  		var CPP_SOURCES_PATH = [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";");
+  		var files = _this.collectSources(CPP_SOURCES_PATH,
+  										 TARGET.TARGET_NATIVE_MASK,
+  										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
+  										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
+
+		// Make all paths relative to target folder
+		files = _this.get_relative_cpp_hpp(files, TARGET.TARGET_ROOT);
+		makefile.Vars["NATIVE_CPP_SOURCES"] = _this.winPath(files.CPP.join(" \\\n"));
+		makefile.Vars["NATIVE_CPP_INCLUDES"] = _this.winPath(" -I" + files.HPP.join(" \\\n -I"));
+
+		// Collect resources
+		trace("\n Collecting Resources ...");
+		var files = _this.FindFiles(TARGET.TARGET_ROOT, TARGET.TARGET_RESOURCES_MASK, true);
+		for(i=0;i<files.length;i++)
+		{
+			files[i] = relativePath(TARGET.TARGET_ROOT, files[i]);
+		}
+		files.push("./assets");
+		makefile.Vars["NATIVE_RESOURCES"] = files.join(" \\\n");
+		trace("+ Done.");
+
+		// Collect icons
+		trace("\n Collecting Icons ...");
+		var files = _this.FindFiles(TARGET.TARGET_ROOT, "*.png", false);
+		for(i=0;i<files.length;i++)
+		{
+			files[i] = files[i].substr(files[i].lastIndexOf("/")+1);
+			files[i] = "\t\t<string>" + files[i] + "</string>";
+	  	}
+		makefile.Vars["APP_ICONS"] = files.join("\n");
+		trace("+ Done.");
+
+		// Create Info.plist		//$(APP_ICONS)
+		trace("\n Creating Info.plist ...");
+        trace("+ replacing variables ...");
+		var file = TARGET.TARGET_ROOT+"/Info.plist";
+		var buff = read(file);
+		buff = _this.replaceVars(buff, true);
+        _this.module(file, buff);
+
+        // Create Makefile
+		var file = TARGET.TARGET_ROOT+"/Makefile.mk";
+		trace("\nCreating iOS Makefile makefile ...");
+		trace("+ makefile: " + file);
+        trace("+ replacing variables ...");
+		var buff = read(file);
+		buff = _this.replaceVars(buff, true, TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";"));
+        _this.module(file, buff);
+
+        // Create a custom make_ios.bat (offers better control than relying on environment variables)
+        var buff = [];
+        var make_cmd = TARGET.TARGET_ROOT + "/make_ios.bat";
+        buff.push('@echo off');
+        buff.push('SET IOSBUILDENV_PATH=' + makefile.Vars.PATH_3RD_PARTY_IOS_BUILD_ENV);
+        buff.push('SET IOS_PROJECT_PATH=$(TARGET_ROOT)');
+		buff.push('SET IOS_MAKEFILE=%IOS_PROJECT_PATH%/Makefile.mk');
+        buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --jobs --warn-undefined-variables SHELL=%ComSpec% compile');
+        buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% link codesign ipa end');
+        //buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% all');
+		buff = _this.replaceVars(_this.winPath(buff.join("\n")));
+        _this.module(make_cmd, buff);
+
+        // Build the static libraries for arm and x86
+        trace("\nCalling iOS make ...");
+        _this.shell(make_cmd, TARGET.TARGET_ROOT);
+
+        // Sanity check
+        if(!fileExists(TARGET.TARGET_OUTPUT))
+       		throw new Error("ERROR: Failed to compile iOS Application");
   	};
 
 	// ==================================================================================================================================
@@ -396,11 +454,11 @@ function make()
 	{
 		trace("\nApplying Device Wrapper Template ...");
 
-		trace("+ source: " + TARGET.DEVICE_WRAPPER);
+		trace("+ source: " + TARGET.DEVICE_WRAPPER.PATH);
 		trace("+ destination: " + TARGET.TARGET_ROOT);
 
 		// Copy device wrapper template folder to target root
-		copyFolder(TARGET.DEVICE_WRAPPER, TARGET.TARGET_ROOT);
+		copyFolder(TARGET.DEVICE_WRAPPER.PATH, TARGET.TARGET_ROOT);
 		IDECallback("folder", TARGET.TARGET_ROOT);
 
 		// We need to resolve path variables to actual paths
@@ -426,9 +484,9 @@ function make()
 		}
 
 		// Get a list of template files for this target and replace variables
-		var templateFilesMask = TARGET.DEVICE_WRAPPER_TEMPLATES;
-		trace("+ templates: " + (templateFilesMask.length>0 ? templateFilesMask : "(none)"));
-        if(templateFilesMask.length>0)
+		var templateFilesMask = TARGET.DEVICE_WRAPPER.TEMPLATES;
+		trace("+ templates: " + (templateFilesMask ? templateFilesMask : "(none)"));
+        if(templateFilesMask)
         {
   			trace("\nProcessing Templates ...");
   			var files = _this.FindFiles(TARGET.TARGET_ROOT, templateFilesMask, true);
@@ -436,10 +494,44 @@ function make()
   			{
 				trace("+ processing: " + files[i]);
 				var buff = read(files[i]);
-				buff = _this.replaceVars(buff, true);
+				buff = _this.replaceVars(buff, true, ["APP_ICONS", "SCRIPTS"]);
   				_this.module(files[i], buff);
   			}
         }
+	};
+
+    // =====================================================================
+    // Generate icons
+    // =====================================================================
+	_this.generate_icons = function()
+	{
+		var list = TARGET.APP_ICONS;
+		if(!list) return;
+
+		trace("\nGenerating App Icons ...");
+
+		var template = makefile.Config.PROJECT_PATHS.ICON_2048x2048;
+		if(!template || !fileExists(template))
+			throw new Error("Missing project template icon (2048x2048)");
+
+		trace("+ template: " + template);
+
+		for(size in list)
+		{
+			var exports = list[size].split(";");
+			for(var i=0;i<exports.length;i++)
+			{
+				if(!fileExists(exports[i]))
+				{
+					trace("+ generating: " + exports[i]);
+					resizeImage(template, exports[i], size);
+				}
+				else
+				{
+					trace("+ exists: " + exports[i]);
+				}
+			}
+		}
 	};
 
 	// ==================================================================================================================================
@@ -688,11 +780,13 @@ function make()
 
 	    // Collect source paths from frameworks
 	    trace("+ scanning frameworks ...");
-	    var vFrameworks = (makefile.Config.PROJECT_FRAMEWORKS+";"+TARGET.TARGET_ADDITIONAL_FRAMEWORKS).split(";");
+	    var vFrameworks = makefile.Config.PROJECT_FRAMEWORKS;
+	    if(TARGET.TARGET_ADDITIONAL_FRAMEWORKS) vFrameworks += (";"+TARGET.TARGET_ADDITIONAL_FRAMEWORKS)
+	    vFrameworks = vFrameworks.split(";");
 	    vFrameworksSrcSubPaths = vFrameworksSrcSubPaths.split(";");
 	    for(var i=0; i<vFrameworks.length; i++)
 	    {
-	    	if(vFrameworks[i]=="") continue;
+	    	if(!vFrameworks[i]) continue;
 	    	var framework = makefile.Components.Frameworks[vFrameworks[i]];
 	    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
 	    	{
@@ -734,6 +828,40 @@ function make()
   	};
 
   	// =====================================================================
+	// Extract C++ .cpp and .hpp files relative to a root folder
+	// =====================================================================
+  	_this.get_relative_cpp_hpp = function(files, root)
+  	{
+		var includes = relativePath(root, makefile.Vars.PATH_SDK_INCLUDES);
+		var CPP = [];
+		var HPP = [includes];
+		var HPPmap = {};
+		HPPmap[includes] = true;
+		for(i=0;i<files.length;i++)
+		{
+			files[i] = relativePath(root, files[i]);
+			if(/\.(cpp|m)$/i.test(files[i]))
+			{
+				if(files[i].indexOf("./")==0)
+					files[i] = files[i].substr(2);
+				CPP.push(files[i]);
+			}
+			if(/\.h[p]*?$/i.test(files[i]))
+			{
+				var path = files[i].substr(0, files[i].lastIndexOf("/"));
+				if(!HPPmap[path])
+				{
+					HPPmap[path] = true;
+					HPP.push(path);
+				}
+			}
+		}
+		HPP =  HPP.sort().reverse();
+		CPP = CPP.sort().reverse();
+		return { CPP:CPP, HPP:HPP };
+  	};
+
+  	// =====================================================================
 	// Send a module to IDE
 	// =====================================================================
 	_this.module = function(fileName, buffer, substitute_variables)
@@ -760,12 +888,12 @@ function make()
 			match=rx.exec(buffer);
 			if(!match) break;
 			var name = match[1];
-			var value = makefile.Vars[name];
+			var value = _this.getVar(name);
 			if(!value)
 			{
+				unresolved.push(name);
 				var r = new RegExp("\\$\\("+name+"\\)", "g");
 				buffer = buffer.replace(r, "@@@"+name+"@@@");
-				unresolved.push(name);
 			}
 			else
 			{
@@ -782,10 +910,28 @@ function make()
 			var r = new RegExp("@@@"+unresolved[i]+"@@@", "g");
 			buffer = buffer.replace(r, "$("+unresolved[i]+")");
 			if(exceptions && exceptions.indexOf(unresolved[i])!=-1) continue;
-			trace("  !WARNING: Variable not found: " + name);
+			trace("  !WARNING: Variable not found: " + unresolved[i]);
 		}
 
 		return buffer;
+	};
+
+    // =====================================================================
+    // Resolves a single var by name
+    // =====================================================================
+	_this.getVar = function(name)
+	{
+		try
+		{
+			if(makefile.Vars[name])
+				return makefile.Vars[name];
+			var path  = "makefile." + name;
+			return eval(path);
+		}
+		catch(e)
+		{
+			return null;
+		}
 	};
 
     // =====================================================================

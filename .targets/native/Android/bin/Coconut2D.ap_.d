@@ -21,8 +21,6 @@ D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Andr
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\images\metal_slug_mdpi.png \
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\images\metal_slug_xhdpi.png \
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\images\Sparrow.png \
-D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\sounds\example.ogg \
-D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\sounds\Powerup.ogg \
-D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\sounds\RobotNoise.ogg \
-D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\sounds\The_Abyss-4T.ogg \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\sounds\Background.ogg \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\sounds\click_001.ogg \
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\bin\AndroidManifest.xml \
