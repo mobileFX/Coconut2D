@@ -75,17 +75,17 @@ public:
 				int er = 0;
 				if((er = FT_New_Memory_Face(ftLibrary, (const FT_Byte*)file->getData(), file->getLength(), 0, &ftFace)))
 				{
-					trace("Could not load FreeType Face(%d)!\n", er);
+					trace("Could not load FreeType Face(%d)!", er);
 				}
 				fonts.insert(std::pair<fxFontFace, FT_Face>(ff, ftFace));
 				break;
 			}
 			default:
-				trace("Unsupported font type!\n");
+				trace("Unsupported font type!");
 				return;
 		}
 
-        //trace("@font-face %s loaded\n", name);
+        //trace("@font-face %s loaded", name);
     }
     static FT_Face get(std::string name, FONT_STYLE style)
     {
@@ -96,8 +96,8 @@ public:
     }
     static void init()
     {
-        if(FT_Init_FreeType(&ftLibrary)) { trace("Could not initialize FreeType library!\n"); }
-        else { trace("FreeType OK!\n"); }
+        if(FT_Init_FreeType(&ftLibrary)) { trace("Could not initialize FreeType library!"); }
+        else { trace("FreeType OK!"); }
     }
     static void quit()
     {
@@ -115,14 +115,14 @@ public:
 class fxFontFace : public AssetFile
 {
 public:
-    static void add(const char* name, FONT_STYLE style, const char* filename) { trace("Fonts not supported!\n"); }
-    static const FT_Face* get(const char* name, FONT_STYLE style) { trace("Fonts not supported!\n"); return nullptr; }
-    static void init() { trace("Fonts not supported!\n"); }
-    static void quit(){ trace("Fonts not supported!\n"); }
+    static void add(const char* name, FONT_STYLE style, const char* filename) { trace("Fonts not supported!"); }
+    static const FT_Face* get(const char* name, FONT_STYLE style) { trace("Fonts not supported!"); return nullptr; }
+    static void init() { trace("Fonts not supported!"); }
+    static void quit(){ trace("Fonts not supported!"); }
 
 	fxFontFace(const char* i_name, FONT_STYLE i_style) : name(i_name), style(i_style) {}
-    inline void getFace() const { trace("Fonts not supported!\n"); }
-    inline bool hasKerning() const { trace("Fonts not supported!\n"); return false; }
+    inline void getFace() const { trace("Fonts not supported!"); }
+    inline bool hasKerning() const { trace("Fonts not supported!"); return false; }
 };
 
 #endif /* ENABLE_FREETYPE_SUPPORT */

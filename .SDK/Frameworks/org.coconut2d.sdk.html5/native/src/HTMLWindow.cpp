@@ -26,13 +26,16 @@ HTMLWindow::~HTMLWindow()
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void HTMLWindow::setScreen(fxScreen screen)
 {
 	innerWidth = screen.width;
 	innerHeight = screen.height;
 	devicePixelRatio = screen.pixelRatio;
 	screenRotation = screen.rotation;
-	switch(screenRotation) {
+
+	switch(screenRotation)
+	{
 		case fxScreen::Rotation::NONE: deviceRotation = 0.0f; break;
 		case fxScreen::Rotation::RCW: deviceRotation = M_PI_2; break;
 		case fxScreen::Rotation::RCCW: deviceRotation = -M_PI_2; break;

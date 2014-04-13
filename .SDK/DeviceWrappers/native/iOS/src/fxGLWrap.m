@@ -38,30 +38,60 @@
 {
     if((self = [super initWithFrame:rect]))
     {
+        UIDevice* device = [UIDevice currentDevice];
         UIInterfaceOrientation ori = [[UIApplication sharedApplication] statusBarOrientation];
 
-        switch(ori)
-        {
-            case UIInterfaceOrientationPortrait: screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true; break;
-            case UIInterfaceOrientationPortraitUpsideDown: screen.rotation = fxScreen::Rotation::FULL; screen.isPortrait = true; break;
-            case UIInterfaceOrientationLandscapeLeft: screen.rotation = fxScreen::Rotation::RCW; screen.isPortrait = false; break;
-            case UIInterfaceOrientationLandscapeRight: screen.rotation = fxScreen::Rotation::RCCW; screen.isPortrait = false; break;
-        }
+   		// Get current screen orientation
+   		bool screen_is_landscape = (rect.size.height < rect.size.width);
+		bool is_iPad = (UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPhone);
+		bool is_iPhone = !is_iPad;
 
-        if(screen.rotation == fxScreen::Rotation::NONE || screen.rotation == fxScreen::Rotation::FULL)
+
+        screen.pixelRatio = scale;
+
+        if(is_iPhone)
         {
-            screen.top = [UIApplication sharedApplication].statusBarFrame.size.height;
-            screen.width = rect.size.width;
-            screen.height = rect.size.height;
+	        switch(ori)
+	        {
+		        case UIInterfaceOrientationPortrait: 			screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true;  break;
+		        case UIInterfaceOrientationPortraitUpsideDown: 	screen.rotation = fxScreen::Rotation::FULL; screen.isPortrait = true;  break;
+		        case UIInterfaceOrientationLandscapeLeft: 		screen.rotation = fxScreen::Rotation::RCW;  screen.isPortrait = false; break;
+		        case UIInterfaceOrientationLandscapeRight: 		screen.rotation = fxScreen::Rotation::RCCW; screen.isPortrait = false; break;
+	        }
         }
         else
         {
-            screen.top = [UIApplication sharedApplication].statusBarFrame.size.width;
-            screen.isPortrait = false;
-            screen.width = rect.size.height;
-            screen.height = rect.size.width;
+	        switch(ori)
+	        {
+		        case UIInterfaceOrientationPortrait: 			screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true;  break;
+		        case UIInterfaceOrientationPortraitUpsideDown: 	screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = false;  break;
+		        case UIInterfaceOrientationLandscapeLeft: 		screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true; break;
+		        case UIInterfaceOrientationLandscapeRight: 		screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true; break;
+	        }
         }
-        screen.pixelRatio = scale;
+
+        switch(ori)
+        {
+	        case UIInterfaceOrientationPortrait:
+	        case UIInterfaceOrientationPortraitUpsideDown:
+
+	            screen.top = [UIApplication sharedApplication].statusBarFrame.size.height;
+	            screen.width = rect.size.width;
+	            screen.height = rect.size.height;
+	            break;
+
+	        case UIInterfaceOrientationLandscapeLeft:
+	        case UIInterfaceOrientationLandscapeRight:
+
+	            screen.top = [UIApplication sharedApplication].statusBarFrame.size.width;
+	            screen.isPortrait = false;
+	            screen.width = rect.size.height;
+	            screen.height = rect.size.width;
+	            break;
+        }
+
+       //NSLog(@"Device: %@", (is_iPad ? @"iPad" : @"iPhone"));
+        //NSLog(@"Screen: %@", (screen.isPortrait ? @"portrait" : @"landscape"));
 
         ((CAEAGLLayer*)self.layer).opaque = YES;
         ((CAEAGLLayer*)self.layer).contentsScale = scale;
@@ -85,8 +115,10 @@
 {
     context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
     [EAGLContext setCurrentContext:context];
-	if(screen.isPortrait) glViewport(0, 0, screen.width * screen.pixelRatio, screen.height * screen.pixelRatio);
-	else glViewport(0, 0, screen.height * screen.pixelRatio, screen.width * screen.pixelRatio);
+	if(screen.isPortrait)
+		glViewport(0, 0, screen.width * screen.pixelRatio, screen.height * screen.pixelRatio);
+	else
+		glViewport(0, 0, screen.height * screen.pixelRatio, screen.width * screen.pixelRatio);
     glGenFramebuffers(1, &fbuff);
     glGenRenderbuffers(1, &rbuff);
     glBindFramebuffer(GL_FRAMEBUFFER, fbuff);

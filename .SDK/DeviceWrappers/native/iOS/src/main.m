@@ -39,7 +39,9 @@ extern char* AssetFile::filesPath;
 extern char* AssetFile::assetPath;
 CocoEngine* engine;
 
-//#define DEBUG_LOG_TO_REMOTE_CONSOLE "$(LOCALHOST_IP)"
+#define CONFIGURATION_$(UCONFIGURATION)
+#define DEBUG_HOST_IP 	"$(DEBUG_HOST_IP)"
+#define DEBUG_HOST_PORT $(DEBUG_HOST_PORT)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
@@ -47,13 +49,22 @@ int main(int argc, char *argv[])
 	int ret = -1;
 
 	// Redirect the standard error stream to a remote console
-	#if defined DEBUG_LOG_TO_REMOTE_CONSOLE
+	#if defined CONFIGURATION_DEBUG
 	{
-		struct sockaddr_in debugserver_sockaddr = { AF_INET, 0, 0x8813, { 0 }, { 0 } };
-		debugserver_sockaddr.sin_addr.s_addr = inet_addr(DEBUG_LOG_TO_REMOTE_CONSOLE);
+		trace("Connecting to iOS Debug Server: %s", DEBUG_HOST_IP);
+		struct sockaddr_in debugserver_sockaddr = { AF_INET, 0, htons(DEBUG_HOST_PORT), { 0 }, { 0 } };
+		debugserver_sockaddr.sin_addr.s_addr = inet_addr(DEBUG_HOST_IP);
 		int debug_socket = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		trace("Socket Handle: %d",debug_socket);
 		if((debug_socket!=-1) && (connect(debug_socket, (struct sockaddr *) &debugserver_sockaddr, sizeof (debugserver_sockaddr))!=-1))
+		{
 			dup2(debug_socket, STDERR_FILENO);
+			trace("Connected%s\n", "");
+		}
+		else
+		{
+			trace("Failed to connect%s\n", "");
+		}
 	}
 	#endif
 
@@ -92,6 +103,7 @@ void trace(const char* fmt, ...)
 	va_start(vl, fmt);
 	vsprintf(buff, fmt, vl);
 	va_end(vl);
+	//fprintf(stderr, "%s\n", buff);
 	NSLog(@"%s\n",buff);
 	free(buff);
 }

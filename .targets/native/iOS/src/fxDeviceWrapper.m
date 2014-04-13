@@ -30,35 +30,60 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    UIDevice* dev = [UIDevice currentDevice];
-
-    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
-    self.glwrap = [[[fxGLWrap alloc] initWithFrame:[[UIScreen mainScreen] bounds] contentsScale:self.window.screen.scale] autorelease];
-
-    self.window.backgroundColor = [UIColor whiteColor];
-    self.window.rootViewController = self;
-    [self.window addSubview:self.glwrap];
-    [self.window makeKeyAndVisible];
-
+	// Initialize gesture control variables
     last_scale = 1.0;
     last_rotation = 0.0;
     scale = 1.0;
     rotation = 0.0;
 
+    // Create a Window
+    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
+
+    // Create an OpenGL View
+    self.glwrap = [[[fxGLWrap alloc] initWithFrame:[[UIScreen mainScreen] bounds] contentsScale:self.window.screen.scale] autorelease];
+
+    // Set window root view controller
+    self.window.backgroundColor = [UIColor whiteColor];
+    self.window.rootViewController = self;
+
+    // Add OpenGL View to Window and make it visible
+    [self.window addSubview:self.glwrap];
+    [self.window makeKeyAndVisible];
+
+	// Initialize OpenGL Context
     [self.glwrap InitGL];
+
+    // Simulate HTML5 Window and Document
 	window = new HTMLWindow();
 	window->setScreen([self.glwrap GetScreen]);
 	document = new HTMLDocument();
 
+	NSLog(@"Orientation: %@", UIInterfaceOrientationIsLandscape(self.window.rootViewController.interfaceOrientation) ? @"Landscape" : @"Portrait");
+
+	// Simulate HTML5 OpenGL Canvas and set its size
 	HTMLCanvasElement* canvas = document->createElement("canvas");
 	gl = (WebGLRenderingContext*)canvas->getContext("webgl");
 	gl->canvas->width = window->innerWidth;
 	gl->canvas->height = window->innerHeight;
+
+	// Create the GameEngine
 	engine = new GameEngine();
+
+	// Start the game loop
 	self->cadlink = [[CADisplayLink displayLinkWithTarget:self selector:@selector(tick)] retain];
 	[self->cadlink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 
     return YES;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Request Animation Frame (tick and paint)
+//////////////////////////////////////////////////////////////////////////////////////////////
+- (void)tick
+{
+    [self.glwrap SetBuffers];
+	engine->run(gl, 16.0);			// <-- pseudo/fixed clock of 16 ms since last animation
+    [self.glwrap SwapBuffers];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,16 +169,6 @@
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
     return YES;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-- (void)tick
-{
-    {
-        [self.glwrap SetBuffers];
-		engine->run(gl, (1000.0 / 60.0));
-        [self.glwrap SwapBuffers];
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

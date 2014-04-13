@@ -40,6 +40,7 @@ function make()
 {
 	var _this = this;
 	var TARGET = makefile.Config.TARGETS[makefile.Vars.TARGET];
+	makefile.Vars["UCONFIGURATION"] = makefile.Vars.CONFIGURATION.toUpperCase();
 
 	// ==================================================================================================================================
 	//	    ____        _ __    __
@@ -243,7 +244,7 @@ function make()
         buff.push('if ERRORLEVEL 1 (exit /b 1)');
         buff.push('SET NDK_MAKE=%NDK_ROOT%prebuilt/%NDK_WIN_HOST%/bin/make.exe');
 		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" SHELL=cmd clean');
-		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" SHELL=cmd -j 8 %*');
+		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" SHELL=cmd -j %*');
 		buff = _this.replaceVars(buff.join("\n"));
         _this.module(make_lib_cmd, buff);
 
