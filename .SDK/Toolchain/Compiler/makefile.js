@@ -115,7 +115,7 @@
         "USERPROFILE": "C:/Users/admin",
         "TARGET": "iOS",
         "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/iOS",
-        "TARGET_DEVICE": "SAMSUNG GT-I9100",
+        "TARGET_DEVICE": "CocoPlayer",
         "LOCALHOST_IP": "192.168.1.103",
         "PROJECT_NAME": "Coconut2D",
         "PROJECT_DISPLAY_NAME": "Coconut2D",

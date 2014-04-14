@@ -1684,6 +1684,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					varSymbol.type			= ast[item].type;
 					varSymbol.nodeType		= ast[item].nodeType;
 					varSymbol.classId		= classId;
+					varSymbol.isEnum		= true;
 					varSymbol.public		= true;
 					varSymbol.private		= false;
 					varSymbol.protected		= false;
@@ -2221,11 +2222,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			// Done generating identifier
 			//==================================================================================
 
-			if(_this.secondPass && !ast.symbol)
-			{
-				debugger;
-			}
-
 			break;
 
 		// ==================================================================================================================================
@@ -2331,7 +2327,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.OBJECT_INIT:
 			if(_this.secondPass && _this.currClassName) _this.NewError("Illegal object initialization inside class", ast);
-			_this.processEnum(ast);
 			out.push("{");
 			var firstItem = true;
 			for(var item in ast)
@@ -2357,9 +2352,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			out.push(ast.value);
 			if(ast.value != "=") out.push("=");
 			out.push(generate(ast[1]));
-
-			if(ast[0][0] && ast[0][0][1] && ast[0][0][1].value=="prototype")
-				_this.processPrototype(ast);
 
 			if(ast[0].type==jsdef.THIS)
 			{
@@ -2589,10 +2581,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			out.push(")");
 			_this.checkFunctionCall(ast);
 			break;
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		default:
-			//debugger;
 		}
 
 		return out.join("");
@@ -2604,329 +2592,9 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 		var g0 = _this.generate(ast[0]);
 		var g1 = _this.generate(ast[1]);
-		/*
-		if(_this.secondPass)
-		{
-			var t0 = _this.getTypeName(ast[0]);
-			var t1 = _this.getTypeName(ast[1]);
-			if(t0=="Time" || t1=="Time")
-			{
-				var decimals = "1e8";
-				g0 = "(Math.round((" + g0 + ")*" + decimals + "))";
-				g1 = "(Math.round((" + g1 + ")*" + decimals + "))";
-				out.push("((");
-				out.push(g0);
-				out.push(op);
-				out.push(g1);
-				out.push(")/" + decimals + ")");
-				return;
-			}
-		}
-		*/
 		out.push(g0);
 		out.push(op);
 		out.push(g1);
-	}
-
-	// ==================================================================================================================================
-	//	    ______                         __           ________
-	//	   / ____/___  __  ______ ___     / /_____     / ____/ /___ ___________
-	//	  / __/ / __ \/ / / / __ `__ \   / __/ __ \   / /   / / __ `/ ___/ ___/
-	//	 / /___/ / / / /_/ / / / / / /  / /_/ /_/ /  / /___/ / /_/ (__  |__  )
-	//	/_____/_/ /_/\__,_/_/ /_/ /_/   \__/\____/   \____/_/\__,_/____/____/
-	//
-	// ==================================================================================================================================
-
-	_this.processEnum = function(ast)
-	{
-		var _this = this;
-		if(ast.parent.type!=jsdef.IDENTIFIER) return null;
-		var symbol = _this.LookupIdentifier(_this.getCurrentScope(), ast.parent.value, ast.parent, true);
-		if(!symbol) return null;
-
-		// Sanity check for enum
-		var isEnum = true;
-		var vartype = null;
-		for(var item in ast)
-		{
-			if(!isFinite(item)) break;
-		    if(ast[item][1].type==jsdef.NUMBER)
-		    {
-		    	if(!vartype) vartype = "Number";
-		    	if(vartype!="Number") return null;
-		    	continue;
-		    }
-		    if(ast[item][1].type==jsdef.STRING)
-		    {
-		    	if(!vartype) vartype = "String";
-		    	if(vartype!="String") return null;
-		    	continue;
-		    }
-		    isEnum=false;
-		    break;
-		}
-		if(!isEnum) return null;
-
-		// Object Initialization is Enum, delete old symbol (identifier in global scope),
-		// define a new class and add enum items as public static member fields.
-
-		delete _this.scopesStack[0].vars[ast.parent.value];
-
-		var className = ast.parent.name;
-		var classId = className;//"__CLASS__" + className.toUpperCase() + "__";
-
-		var scope = _this.NewScope(ast);
-		_this.scopesStack.pop();
-
-		scope.name			= className;
-		scope.parentScope	= _this.scopesStack[0];
-		scope.ast			= ast;
-		scope.type			= jsdef.CLASS;
-		scope.nodeType		= "CLASS";
-		scope.isGlobal		= false;
-		scope.isClass		= true;
-		scope.isMethod		= false;
-		scope.file			= ast.file;
-		scope.path			= ast.path;
-		scope.start			= ast.start;
-		scope.end			= ast.end;
-		scope.line_start	= ast.line_start;
-		scope.line_end		= ast.line_end;
-		scope.scopeId		= scope.scopeId;
-		scope.vars			= {};
-		scope.methods		= {};
-
-		var classSymbol = new ClassSymbol();
-		{
-			classSymbol.symbolId	= (++_this.symbolId);
-			classSymbol.name		= className;
-			classSymbol.vartype		= className;
-			classSymbol.classId		= classId;
-			classSymbol.base		= null;
-			classSymbol.baseSymbol	= null;
-			classSymbol.type		= jsdef.CLASS;
-			classSymbol.nodeType	= "CLASS";
-			classSymbol.isPrototype = false;
-			classSymbol.isEnum		= true;
-			classSymbol.ast			= ast;
-			classSymbol.scope		= scope;
-			classSymbol.file		= ast.file;
-			classSymbol.path		= ast.path;
-			classSymbol.start		= ast.start;
-			classSymbol.end			= ast.end;
-			classSymbol.line_start	= ast.line_start;
-			classSymbol.line_end	= ast.line_end;
-			classSymbol.scopeId		= scope.scopeId;
-			classSymbol.vars		= scope.vars;
-			classSymbol.methods	 	= scope.methods;
-			classSymbol.runtime		= className;
-		}
-		ast.symbol = classSymbol;
-		_this.classes[className] = classSymbol;
-		_this.scopesStack[0].vars[className] = classSymbol;
-
-		for(var item in ast)
-		{
-			if(!isFinite(item)) break;
-			var varSymbol = new VarSymbol()
-			{
-				varSymbol.symbolId		= (++_this.symbolId);
-				varSymbol.name			= ast[item][0].value;
-				varSymbol.value			= ast[item][1].value;
-				varSymbol.type			= jsdef.ENUM_ITEM;
-				varSymbol.nodeType		= "ENUM_ITEM";
-				varSymbol.classId		= classId;
-				varSymbol.public		= true;
-				varSymbol.private		= false;
-				varSymbol.protected		= false;
-				varSymbol.static		= true; //CHECK:false
-				varSymbol.optional		= false;
-				varSymbol.virtual		= false;
-				varSymbol.abstract		= false;
-				varSymbol.constant		= true;
-				varSymbol.ast			= ast[item];
-				varSymbol.scope			= scope;
-				varSymbol.baseSymbol	= null;
-				varSymbol.file			= ast[item].file;
-				varSymbol.path			= ast[item].path;
-				varSymbol.start			= ast[item].start;
-				varSymbol.end			= ast[item].end;
-				varSymbol.line_start	= ast[item].line_start;
-				varSymbol.line_end		= ast[item].line_end;
-				varSymbol.scopeId		= scope.scopeId;
-				varSymbol.vartype		= className;
-				varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(vartype);
-				varSymbol.pointer		= false;
-				varSymbol.runtime 		= varSymbol.name;
-			}
-			classSymbol.vars[varSymbol.name] = varSymbol;
-		}
-
-		return classSymbol;
-	};
-
-	// ==================================================================================================================================
-	//	    ____             __        __                      __           ________
-	//	   / __ \_________  / /_____  / /___  ______  ___     / /_____     / ____/ /___ ___________
-	//	  / /_/ / ___/ __ \/ __/ __ \/ __/ / / / __ \/ _ \   / __/ __ \   / /   / / __ `/ ___/ ___/
-	//	 / ____/ /  / /_/ / /_/ /_/ / /_/ /_/ / /_/ /  __/  / /_/ /_/ /  / /___/ / /_/ (__  |__  )
-	//	/_/   /_/   \____/\__/\____/\__/\__, / .___/\___/   \__/\____/   \____/_/\__,_/____/____/
-	//	                               /____/_/
-	// ==================================================================================================================================
-
-	_this.processPrototype = function(ast)
-	{
-		var _this = this;
-		var className = ast[0][0][0].value;
-		var classId = "__CLASS__" + className.toUpperCase() + "__";
-
-		ast.isPrototype = true;
-
-		// Upgrade prototype Function to Class.
-		if(!_this.getClass(className))
-		{
-			var constructor = _this.scopesStack[0].methods[className];
-			if(!constructor) return _this.NewError("Constructor function not found: " + className, ast);
-
-			constructor.classId = classId;
-			constructor.className = className;
-
-			var scope = _this.NewScope(ast);
-			_this.scopesStack.pop();
-
-			scope.name			= className;
-			scope.parentScope	= _this.scopesStack[0];
-			scope.ast			= constructor;
-			scope.type			= jsdef.CLASS;
-			scope.nodeType		= "CLASS";
-			scope.isGlobal		= false;
-			scope.isClass		= true;
-			scope.isMethod		= false;
-			scope.file			= constructor.file;
-			scope.path			= constructor.path;
-			scope.start			= constructor.start;
-			scope.end			= constructor.end;
-			scope.line_start	= constructor.line_start;
-			scope.line_end		= constructor.line_end;
-			scope.scopeId		= scope.scopeId;
-			scope.vars			= {};
-			scope.methods		= {};
-
-			var classSymbol = new ClassSymbol();
-			{
-				classSymbol.symbolId	= (++_this.symbolId);
-				classSymbol.name		= className;
-				classSymbol.vartype		= className;
-				classSymbol.classId		= classId;
-				classSymbol.base		= null;
-				classSymbol.baseSymbol	= null;
-				classSymbol.type		= jsdef.CLASS;
-				classSymbol.nodeType	= "CLASS";
-				classSymbol.isPrototype = true;
-				classSymbol.isEnum		= false;
-				classSymbol.ast			= constructor;
-				classSymbol.scope		= scope;
-				classSymbol.file		= constructor.file;
-				classSymbol.path		= constructor.path;
-				classSymbol.start		= constructor.start;
-				classSymbol.end			= constructor.end;
-				classSymbol.line_start	= constructor.line_start;
-				classSymbol.line_end	= constructor.line_end;
-				classSymbol.scopeId		= scope.scopeId;
-				classSymbol.vars		= scope.vars;
-				classSymbol.methods	 	= scope.methods;
-			}
-			constructor.symbol = classSymbol;
-			_this.classes[className] = classSymbol;
-		}
-		else
-		{
-			classSymbol = _this.getClass(className);
-		}
-
-		if(ast[1].type==jsdef.FUNCTION)
-		{
-			var methodName = ast[0][1].value;
-			ast[1].name = methodName;
-			ast[1].symbol.name = methodName;
-			ast[1].symbol.scope.name = methodName;
-			for(item in classSymbol.methods)
-			{
-				if(classSymbol.methods[item]===ast[1].symbol)
-				{
-					delete classSymbol.methods[item];
-					classSymbol.methods[methodName] = ast[1].symbol;
-					break;
-				}
-			}
-		}
-		else
-		{
-			var varSymbol = new VarSymbol();
-
-			varSymbol.symbolId		= (++_this.symbolId);
-			varSymbol.name			= ast[0][1].value;
-			varSymbol.type			= ast[0][1].type;
-			varSymbol.nodeType		= ast[0][1].nodeType;
-			varSymbol.classId		= classId;
-			varSymbol.public		= true;
-			varSymbol.private		= false;
-			varSymbol.protected		= false;
-			varSymbol.static		= false;
-			varSymbol.optional		= false;
-			varSymbol.virtual		= false;
-			varSymbol.abstract		= false;
-			varSymbol.constant		= false;
-			varSymbol.ast			= ast[0];
-			varSymbol.scope			= classSymbol.scope;
-			varSymbol.baseSymbol	= null;
-			varSymbol.file			= ast[0].file;
-			varSymbol.path			= ast[0].path;
-			varSymbol.start			= ast[0].start;
-			varSymbol.end			= ast[0].end;
-			varSymbol.line_start	= ast[0].line_start;
-			varSymbol.line_end		= ast[0].line_end;
-			varSymbol.scopeId		= classSymbol.scopeId;
-			varSymbol.vartype		= null;
-			varSymbol.subtype		= null;
-			varSymbol.pointer		= ast[0].isPointer;
-			varSymbol.runtime 		= classSymbol.classId + "." + varSymbol.name;
-
-			ast[0].symbol = varSymbol;
-			classSymbol.vars[varSymbol.name] = varSymbol;
-
-			switch(ast[1].type)
-			{
-				case jsdef.TRUE:
-					varSymbol.vartype = "Boolean";
-					varSymbol.value = true;
-					break;
-
-				case jsdef.FALSE:
-					varSymbol.vartype = "Boolean";
-					varSymbol.value = false;
-					break;
-
-				case jsdef.STRING:
-					varSymbol.vartype = "String";
-					varSymbol.value = ast[1].value;
-					break;
-
-				case jsdef.NUMBER:
-					varSymbol.vartype = "Number";
-					varSymbol.value = ast[1].value;
-					break;
-
-				case jsdef.NEW:
-				case jsdef.NEW_WITH_ARGS:
-					varSymbol.vartype = ast[1][0].value;
-					break;
-
-				case jsdef.ARRAY_INIT:
-					varSymbol.vartype = "Array";
-					break;
-			}
-		}
 	};
 
 	// ==================================================================================================================================
@@ -3220,10 +2888,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				return null;
 			}
 			return symbol.vartype;
-
-		//=============================================================================================================================
-		default:
-			//debugger;
 		}
 	};
 
@@ -3253,9 +2917,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			case jsdef.SUPER:
 				fnSymbol = ast[0].symbol.methods['Constructor'];
 				break;
-
-			default:
-				//debugger;
 			}
 		}
 

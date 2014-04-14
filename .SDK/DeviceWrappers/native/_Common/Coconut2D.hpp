@@ -209,10 +209,10 @@ enum SCREEN_RESOLUTION_DPI_ENUM
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 enum COCO_FILTER_ENUM
 {
-    FILTER_INHERIT					= 0,
-    FILTER_SIMPLE					= 1,
-    FILTER_SIMPLE_WITH_ALPHA		= 2,
-	FILTER_SATURATION_WITH_ALPHA	= 3
+    FILTER_INHERIT								= 0,
+    FILTER_SIMPLE								= 1,
+    FILTER_SIMPLE_WITH_ALPHA					= 2,
+	FILTER_SATURATION_WITH_ALPHA				= 3
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

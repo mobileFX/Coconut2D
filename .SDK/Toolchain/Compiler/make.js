@@ -251,6 +251,7 @@ function make()
         // Build the static libraries for arm and x86
         trace("\nCalling make ...");
         _this.shell(make_lib_cmd, TARGET.TARGET_ROOT+"/jni", "cc1plus.exe");
+        _this.DeleteFile(make_lib_cmd);
 
         // Sanity check
         if(!fileExists(TARGET.TARGET_ROOT+"/libs/armeabi/libCoconut2D.so") ||
@@ -278,12 +279,26 @@ function make()
 		buff = _this.replaceVars(buff.join("\n"));
         _this.module(make_cmd, buff);
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
+        _this.DeleteFile(make_cmd);
+        _this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
 
         // Sanity check and output
-        if(!fileExists(_this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME)-$(CONFIGURATION).apk")))
+        var intermediate_apk = _this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME)-$(CONFIGURATION).apk");
+        var final_apk = _this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME).apk");
+        var root_apk =  _this.replaceVars("$(TARGET_ROOT)/$(PROJECT_NAME).apk");
+        if(!fileExists(intermediate_apk))
+        {
         	throw new Error("Failed to compile Android application");
+        }
         else
-        	copyFile(_this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME)-$(CONFIGURATION).apk"), _this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME).apk"));
+        {
+        	copyFile(intermediate_apk, root_apk);
+        	_this.cleanFolder(TARGET.TARGET_ROOT+"/bin");
+        	_this.DeleteFolder(TARGET.TARGET_ROOT+"/libs");
+        	_this.DeleteFolder(TARGET.TARGET_ROOT+"/assets");
+        	copyFile(root_apk, final_apk);
+        	deleteFile(root_apk);
+        }
   	};
 
     // =====================================================================
@@ -360,6 +375,9 @@ function make()
         // Build the static libraries for arm and x86
         trace("\nCalling iOS make ...");
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
+        _this.DeleteFile(make_cmd);
+        _this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
+        _this.DeleteFolder(TARGET.TARGET_ROOT+"/assets");
 
         // Sanity check
         if(!fileExists(TARGET.TARGET_OUTPUT))
@@ -840,7 +858,7 @@ function make()
 		HPPmap[includes] = true;
 		for(i=0;i<files.length;i++)
 		{
-
+			files[i] = relativePath(root, files[i]);
 			if(/\.(cpp|m)$/i.test(files[i]))
 			{
 				if(files[i].indexOf("./")==0)
@@ -849,8 +867,7 @@ function make()
 			}
 			if(/\.h[p]*?$/i.test(files[i]))
 			{
-				var file = relativePath(root, files[i]);
-				var path = file.substr(0, file.lastIndexOf("/"));
+				var path = files[i].substr(0, files[i].lastIndexOf("/"));
 				if(!HPPmap[path])
 				{
 					HPPmap[path] = true;
