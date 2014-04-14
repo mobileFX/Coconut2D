@@ -591,7 +591,7 @@ void WebGLRenderingContext::texImage2D(GLenum target, GLint level, GLenum intern
 void WebGLRenderingContext::texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, GLenum type, Image* image)
 {
 	assert(image);
-	glTexImage2D(target, level, internalformat, image->naturalWidth, image->naturalHeight, 0, format, type, image->data->buffer->data);
+	glTexImage2D(target, level, internalformat, image->naturalWidth, image->naturalHeight, 0, format, type, image->data->data->buffer->data);
 	ASSERT_GL();
 }
 //void WebGLRenderingContext::texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, Glenum type, HTMLCanvasElement* canvas);

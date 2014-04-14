@@ -1,8 +1,8 @@
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/obj/local/armeabi/objs/Coconut2D/__/__/__/__/.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoKeyFrame.o: \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoKeyFrame.cpp \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoKeyFrame.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Structs.h \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Coconut2D.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Structs.h \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/cassert \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/algorithm \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/stack \
@@ -70,33 +70,13 @@ D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Andr
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-arm/usr/include/GLES2/gl2.h \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-arm/usr/include/GLES2/gl2platform.h \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoMatrix.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoVector.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.webgl/native/src/WebGLRenderingContext.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CanvasRenderingContext2D.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp \
- src/AssetFile.h \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasContext.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CocoFont.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxFontFace.h \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasContext.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBufferView.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/TypedArray.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBufferView.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLAudioElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxAudioStream.h
+ D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.hpp
 
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoKeyFrame.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Coconut2D.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Structs.h:
+../../../../.SDK/DeviceWrappers/native/_Common/Structs.h:
 
 D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/cassert:
 
@@ -232,44 +212,4 @@ D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platf
 
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoMatrix.hpp:
 
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoVector.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.webgl/native/src/WebGLRenderingContext.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasElement.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CanvasRenderingContext2D.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp:
-
-src/AssetFile.h:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasElement.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasContext.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CocoFont.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxFontFace.h:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasContext.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBufferView.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/TypedArray.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBufferView.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp:
-
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLAudioElement.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxAudioStream.h:

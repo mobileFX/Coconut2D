@@ -1,4 +1,15 @@
 ﻿#include "CocoScene.hpp"
+#include "CocoImage.hpp"
+#include "WebGLRenderingContext.hpp"
+#include "CocoImageSibling.hpp"
+#include "CocoClip.hpp"
+#include "CocoKeyFrame.hpp"
+#include "CocoMatrix.hpp"
+#include "HTMLCanvasElement.hpp"
+#include "HTMLWindow.hpp"
+#include "HTMLImageElement.hpp"
+#include "CocoTimeline.hpp"
+#include "TypedArray.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoScene::CocoScene()
@@ -281,7 +292,6 @@ void CocoScene::paint(WebGLRenderingContext* gl, Time time)
 	{
 		if(__root)
 		{
-			engine->__debug_trace(this, nullptr, String("@CYCLE"));
 			__modelViewMatrix->identity();
 			__levelParents = (new Array<CocoClip*> ())->push(__root);
 			__root->paint(gl, this, nullptr, false, 0);

@@ -1,6 +1,4 @@
-﻿"#package org.coconut2d.sdk.anim"
-
-"#export native"
+﻿"#export native"
 "#export web"
 
 /* ***** BEGIN LICENSE BLOCK *****
@@ -333,7 +331,12 @@ class CocoScene
 		{
 		    if(__root)
 		    {
-		    	engine.__debug_trace(this, null, "@CYCLE");
+		    	//gl.useProgram(__glProgram);
+		    	//gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
+				//gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
+		    	//__projectionMatrix.update(gl, __glProgram_Simple.GLSLuProjMat);
+		    	//__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
+		    	//engine.__debug_trace(this, null, "@CYCLE");
 				__modelViewMatrix.identity();
 		    	__levelParents = [__root];
 				__root.paint(gl, this, null, false, 0);

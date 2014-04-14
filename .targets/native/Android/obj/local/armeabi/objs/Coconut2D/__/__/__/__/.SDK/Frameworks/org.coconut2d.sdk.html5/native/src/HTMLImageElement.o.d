@@ -2,9 +2,10 @@ D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Andr
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.cpp \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/string \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Structs.h \
+ D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ImageData.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBuffer.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Coconut2D.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Structs.h \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/cassert \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/algorithm \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/stack \
@@ -71,18 +72,21 @@ D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Andr
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-arm/usr/include/KHR/khrplatform.h \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-arm/usr/include/GLES2/gl2.h \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-arm/usr/include/GLES2/gl2platform.h \
- src/AssetFile.h \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp
+ ../../../../.SDK/DeviceWrappers/native/_Common/Arrays/TypedArray.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBufferView.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBuffer.hpp
 
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp:
 
 D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/string:
 
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp:
+D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ImageData.hpp:
 
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBuffer.hpp:
 
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Structs.h:
+../../../../.SDK/DeviceWrappers/native/_Common/Coconut2D.hpp:
+
+../../../../.SDK/DeviceWrappers/native/_Common/Structs.h:
 
 D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/cassert:
 
@@ -216,6 +220,8 @@ D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platf
 
 D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-arm/usr/include/GLES2/gl2platform.h:
 
-src/AssetFile.h:
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/TypedArray.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBufferView.hpp:
+
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBuffer.hpp:

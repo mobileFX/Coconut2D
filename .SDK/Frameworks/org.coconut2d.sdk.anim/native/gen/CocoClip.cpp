@@ -1,10 +1,29 @@
 ﻿#include "CocoClip.hpp"
+#include "CocoScene.hpp"
+#include "HTMLCanvasElement.hpp"
+#include "CanvasRenderingContext2D.hpp"
+#include "CocoTimeLabel.hpp"
+#include "WebGLRenderingContext.hpp"
+#include "DeviceEvent.hpp"
+#include "CocoImage.hpp"
+#include "CocoTimeline.hpp"
+#include "CocoKeyFrame.hpp"
+#include "CocoVector.hpp"
+#include "CocoMatrix.hpp"
+#include "CocoSequence.hpp"
+#include "CocoAudio.hpp"
+#include "HTMLDocument.hpp"
+#include "HTMLCanvasContext.hpp"
+#include "HTMLImageElement.hpp"
+#include "TypedArray.hpp"
+#include "CocoEngine.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoClip::CocoClip(CocoImage* image)
 {
 	__symbolLoop = COCO_CLIP_SYMBOL_LOOP_ENUM::CLIP_SYMBOL_LOOP_CONTINUOUS;
 	__timeline = new CocoTimeline();
+	__children = new Array<CocoClip*> ();
 	__parent = nullptr;
 	__currentTime = 0.0;
 	__currentFrame = nullptr;
@@ -23,7 +42,6 @@ CocoClip::CocoClip(CocoImage* image)
 	__currentSequence = nullptr;
 	__currentAudio = nullptr;
 	__clipPath = String("");
-	__children = new Array<CocoClip*> ();
 	__image = image;
 }
 
@@ -117,11 +135,11 @@ void CocoClip::createTextTexture(String text, String fontName, int fontSizePixel
 		__image = (delete __image, nullptr);
 	}
 	HTMLCanvasElement* canvas = document->createElement(String("canvas"));
-	canvas->width = ((int)pow(2, ceil((float)(log(textRectWidth)) / (float)(log(2)))));
-	canvas->height = ((int)pow(2, ceil((float)(log(textRectHeight)) / (float)(log(2)))));
+	canvas->width = pow(2, ceil((float)(log(textRectWidth)) / (float)(log(2))));
+	canvas->height = pow(2, ceil((float)(log(textRectHeight)) / (float)(log(2))));
 	CanvasRenderingContext2D* ctx = ((CanvasRenderingContext2D*)canvas->getContext(String("2d")));
-	ctx->set_font(String("normal normal normal ") + (String(toString(fontSizePixels))) + String("px / normal ") + fontName);
-	ctx->set_fillStyle(String("white"));
+	ctx->__set_font(String("normal normal normal ") + (String(toString(fontSizePixels))) + String("px / normal ") + fontName);
+	ctx->__set_fillStyle(String("white"));
 	ctx->fillText(text, 0, ((float)fontSizePixels));
 	__image = new CocoImage();
 	__image->image = new Image();

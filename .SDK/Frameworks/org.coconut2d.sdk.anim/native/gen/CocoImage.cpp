@@ -1,4 +1,10 @@
 ﻿#include "CocoImage.hpp"
+#include "CocoImageSibling.hpp"
+#include "CocoSequence.hpp"
+#include "CocoScene.hpp"
+#include "WebGLRenderingContext.hpp"
+#include "HTMLImageElement.hpp"
+#include "TypedArray.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoImage::CocoImage()

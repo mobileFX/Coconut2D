@@ -5,6 +5,7 @@ class fxDeviceWrapper;
 class fxGLWrap;
 
 #include "Coconut2D.hpp"
+#include "HTMLWindow.hpp"
 #include "AssetFile.h"
 #include "fxFontFace.h"
 #include "fxAudioStream.h"

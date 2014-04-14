@@ -3,9 +3,6 @@
 
 #include "Coconut2D.hpp"
 #include "CocoEngine.hpp"
-#include "CocoScene.hpp"
-#include "NewAnimation.hpp"
-#include "WebGLRenderingContext.hpp"
 
 class GameEngine : public CocoEngine
 {

@@ -2,9 +2,6 @@
 #define __COCOKEYFRAME_HPP__
 
 #include "Coconut2D.hpp"
-#include "CocoKeyFrame.hpp"
-#include "CocoMatrix.hpp"
-#include "CocoAudio.hpp"
 
 class CocoKeyFrame
 {

@@ -50,6 +50,7 @@ function CPPCompiler(ast)
 	_this.currFileName = null;
 	_this.currClassName = null;
 	_this.NULL_GEN = { CPP:"", HPP:"" };
+	_this.classFiles = {};
 
 	_this.types = {
 		"Boolean"	: { "default": "false" },
@@ -61,6 +62,33 @@ function CPPCompiler(ast)
 		"Object"	: { "default": "nullptr" },
 		"String"	: { "default": '""' }
 	};
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+CPPCompiler.prototype.write = function()
+{
+	for(var p in this.classFiles)
+	{
+		var hpp = "#ifndef __" + this.classFiles[p].FILE.toUpperCase() + "_HPP__\n";
+		hpp += "#define __" + this.classFiles[p].FILE.toUpperCase() + "_HPP__\n\n";
+		for(var item in this.classFiles[p].HPP_INC)
+		{
+			//cpp += "#warning \"HPP Including: " + item + "\"\n";
+			hpp += "#include \"" + item + "\"\n";
+		}
+		hpp += this.classFiles[p].HPP;
+		hpp += "\n#endif\n";
+		var cpp = ""; //"#include \"" + this.classFiles[p].FILE + ".hpp\"\n";
+		for(var item in this.classFiles[p].CPP_INC)
+		{
+			//cpp += "#warning \"CPP Including: " + item + "\"\n";
+			cpp += "#include \"" + item + "\"\n";
+		}
+		cpp += "\n" + this.classFiles[p].CPP_STATIC.join("\n");
+		cpp += "\n" + this.classFiles[p].CPP;
+		IDECallback("module_hpp", p, 0, 0, hpp);
+		IDECallback("module_cpp", p, 0, 0, cpp);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,11 +112,19 @@ CPPCompiler.prototype.getClassList = function()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CPPCompiler.prototype.compile = function (ast)
 {
+	this.generate(ast);
+	this.write();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+CPPCompiler.prototype.generate = function (ast)
+{
+
 	var _this = this, CPP = [], HPP = [], ast = ast || _this.ast;
 
 	var generate = function()
 	{
-		return _this.compile.apply(_this, Array.prototype.slice.call(arguments,0));
+		return _this.generate.apply(_this, Array.prototype.slice.call(arguments,0));
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,43 +187,70 @@ CPPCompiler.prototype.compile = function (ast)
 	 	if(ast.file!="externs.jspp")
 	 		_this.classList[ast.name] = ast;
 
-		HPP.push("#ifndef __" + ast.name.toUpperCase() + "_HPP__\n");
-		HPP.push("#define __" + ast.name.toUpperCase() + "_HPP__\n\n");
+		//HPP.push("#ifndef __" + ast.name.toUpperCase() + "_HPP__\n");
+		//HPP.push("#define __" + ast.name.toUpperCase() + "_HPP__\n\n");
 
-		_HPP_INCLUDES = {};
+		var _HPP_INCLUDES = _this.classFiles[ast.path] ? _this.classFiles[ast.path].HPP_INC : {};
 		_HPP_INCLUDES["Coconut2D.hpp"] = true;
+
+		var _CPP_INCLUDES = _this.classFiles[ast.path] ? _this.classFiles[ast.path].CPP_INC : {};
+		_CPP_INCLUDES[ast.file.replace(".jspp", ".hpp")] = true;
 
 		for(vartype in ast.scope.vartypes)
 		{
-			for(file in ast.fileClasses)
+			switch(vartype)
 			{
-				switch(file)
+			case "CocoFont":
+				_CPP_INCLUDES["CocoFont.hpp"] = true;
+				break;
+			case "Int8Array":
+			case "Uint8Array":
+			case "Uint8ClampedArray":
+			case "Int16Array":
+			case "Uint16Array":
+			case "Int32Array":
+			case "Uint32Array":
+			case "Float32Array":
+			case "Float64Array":
+				_CPP_INCLUDES["TypedArray.hpp"] = true;
+				break;
+			default:
+				for(file in ast.fileClasses)
 				{
-				case "externs.jspp":
-				case "CocoState.jspp":
-				case "WebGLProgram.jspp":
-				case "WebGLBuffer.jspp":
-				case "WebGLTexture.jspp":
-				case "WebGLUniformLocation.jspp":
-				case "WebGLObject.jspp":
-				case "WebGLShader.jspp":
-				case "WebGLRenderbuffer.jspp":
-				case "WebGLFramebuffer.jspp":
-					break;
-				default:
-					if(ast.fileClasses[file][vartype])
+					switch(file)
 					{
-						_HPP_INCLUDES[file.replace(".jspp", ".hpp")]=true;
+					case "externs.jspp":
+					case "CocoState.jspp":
+					case "WebGLProgram.jspp":
+					case "WebGLBuffer.jspp":
+					case "WebGLTexture.jspp":
+					case "WebGLUniformLocation.jspp":
+					case "WebGLObject.jspp":
+					case "WebGLShader.jspp":
+					case "WebGLRenderbuffer.jspp":
+					case "WebGLFramebuffer.jspp":
+					case "ImageData.jspp":
+					case "HTMLCanvasGradient.jspp":
+					case "HTMLCanvasPattern.jspp":
+						break;
+					default:
+						if(ast.fileClasses[file][vartype])
+						{
+							if(!__isPointer(vartype) || ast.scope.vartypes[vartype] == 2)
+								_HPP_INCLUDES[file.replace(".jspp", ".hpp")]=true;
+							else
+								_CPP_INCLUDES[file.replace(".jspp", ".hpp")]=true;
+						}
 					}
 				}
 			}
 		}
 
-		for(item in _HPP_INCLUDES)
-			HPP.push('#include "' + item + '"\n');
+		//for(item in _HPP_INCLUDES)
+			//HPP.push('#include "' + item + '"\n');
 
 		HPP.push("\n\nclass " + ast.name + (ast.symbol.base ? " : public " + ast.symbol.base : "") + "\n{\npublic:\n");
-		CPP.push('#include "' + ast.name + '.hpp"\n');
+		//CPP.push('#include "' + ast.name + '.hpp"\n');
 
 		var result;
 		for(var item in ast.body)
@@ -233,14 +296,28 @@ CPPCompiler.prototype.compile = function (ast)
 				break;
 			}
 		}
-		HPP.push("};\n\n#endif\n");
+		HPP.push("};\n");
 		_this.currClassName = null;
-
-		var buff = formatCPP(CPP.join(""));
-		buff = buff.replace("__currentFrame->action.call(scene);", "(scene->*__currentFrame->action)();");
-
-		IDECallback("module_cpp", ast.path, 0, 0, buff);
-		IDECallback("module_hpp", ast.path, 0, 0, formatCPP(HPP.join("")));
+		if(ast.file != "externs.jspp")
+		{
+			if(!_this.classFiles[ast.path])
+			{
+				_this.classFiles[ast.path] = {};
+				_this.classFiles[ast.path].FILE = ast.file.replace(".jspp", "");
+				_this.classFiles[ast.path].HPP_INC = _HPP_INCLUDES;
+				_this.classFiles[ast.path].CPP_INC = _CPP_INCLUDES;
+				_this.classFiles[ast.path].CPP_STATIC = [];
+				_this.classFiles[ast.path].HPP = formatCPP(HPP.join(""));
+				_this.classFiles[ast.path].CPP = formatCPP(CPP.join(""));
+			}
+			else
+			{
+				_this.classFiles[ast.path].HPP_INC = _HPP_INCLUDES;
+				_this.classFiles[ast.path].CPP_INC = _CPP_INCLUDES;
+				_this.classFiles[ast.path].HPP += formatCPP(HPP.join(""));
+				_this.classFiles[ast.path].CPP += formatCPP(CPP.join(""));
+			}
+		}
 		break;
 
 	// ==================================================================================================================================
@@ -345,7 +422,7 @@ CPPCompiler.prototype.compile = function (ast)
     	if(!_this.currClassName) return _this.NULL_GEN;
     	if(ast.getter)
     	{
-			var name = "_get_" + ast.name;
+			var name = "__get_" + ast.name;
 			var ret = (ast.getter.returntype + (ast.getter.isPointer ? "*" : "") + " ");
 			HPP.push((ast.virtual ? "virtual " : "") + ret + name + "();");
 	        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
@@ -356,7 +433,7 @@ CPPCompiler.prototype.compile = function (ast)
     	}
     	if(ast.setter)
     	{
-			var name = "_set_" + ast.name;
+			var name = "__set_" + ast.name;
 			var param = "(" + ast.vartype + (ast.vartype.isPointer?"*":"") + " v)";
 			HPP.push((ast.virtual ? "virtual " : "") + ("void ") + name + param + ";");
 	        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
@@ -381,16 +458,43 @@ CPPCompiler.prototype.compile = function (ast)
 	case jsdef.CONST:
 
         var isConst = (ast.type == jsdef.CONST);
-		var _CPP = [(isConst ? "const " : "")];
+		var _CPP = [];
 		var _HPP = [];
 		var firstItem = true;
+
+		if(ast.static)
+		{
+			_CPP.push("static ");
+			if(isConst)
+				_CPP.push("constexpr ");
+		}
+		else if(isConst)
+			_CPP.push("const ");
 
 		if(!isConst && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction)
 		{
 			for(var item in ast)
 			{
 				if(!isFinite(item)) continue;
-				_HPP.push(ast[item].vartype + (ast[item].isPointer ? "* " : " ") + ast[item].name + ";\n");
+				if(ast.static && ast.scope.isClass)
+				{
+					var str = formatCPP(ast[item].vartype + (ast[item].isPointer ? "* " : " ") + ast.scope.className + "::" + ast[item].name + ";");
+					if(!_this.classFiles[ast.path])
+					{
+						_this.classFiles[ast.path] = {};
+						_this.classFiles[ast.path].FILE = ast.file.replace(".jspp", "");
+						_this.classFiles[ast.path].HPP_INC = {};
+						_this.classFiles[ast.path].CPP_INC = {};
+						_this.classFiles[ast.path].CPP_STATIC = [str];
+						_this.classFiles[ast.path].HPP = "";
+						_this.classFiles[ast.path].CPP = "";
+					}
+					else
+					{
+						_this.classFiles[ast.path].CPP_STATIC.push(str);
+					}
+				}
+				_HPP.push((ast.static ? "static " : "") + ast[item].vartype + (ast[item].isPointer ? "* " : " ") + ast[item].name + ";\n");
 				// Initializer explicitly in constructor please!!
 			}
 		}
@@ -447,6 +551,24 @@ CPPCompiler.prototype.compile = function (ast)
 			firstItem = false;
 		}
 		HPP.push("\n};\n");
+		if(ast.file != "externs.jspp")
+		{
+			if(!_this.classFiles[ast.path])
+			{
+				_this.classFiles[ast.path] = {};
+				_this.classFiles[ast.path].FILE = ast.file.replace(".jspp", "");
+				_this.classFiles[ast.path].HPP_INC = {};
+				_this.classFiles[ast.path].CPP_INC = {};
+				_this.classFiles[ast.path].CPP_STATIC = [];
+				_this.classFiles[ast.path].HPP = formatCPP(HPP.join(""));
+				_this.classFiles[ast.path].CPP = formatCPP(CPP.join(""));
+			}
+			else
+			{
+				_this.classFiles[ast.path].HPP += formatCPP(HPP.join(""));
+				_this.classFiles[ast.path].CPP += formatCPP(CPP.join(""));
+			}
+		}
 		break;
 
 	// ==================================================================================================================================
@@ -480,7 +602,7 @@ CPPCompiler.prototype.compile = function (ast)
 		}
 		else if(ast.symbol && ast.symbol.type == jsdef.PROPERTY)
 		{
-			CPP.push(_this.in_setter ? "set_" : "get_");
+			CPP.push(_this.in_setter ? "__set_" : "__get_");
 			isProp = true;
 		}
 		else if(_this.in_state)
@@ -888,7 +1010,7 @@ CPPCompiler.prototype.compile = function (ast)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.DOT:
 		CPP.push(generate(ast[0]).CPP);
-		CPP.push(__isPointer(ast[0].vartype) ? "->" : ".");
+		CPP.push(ast[1].symbol.static ? "::" : __isPointer(ast[0].vartype) ? "->" : ".");
 		CPP.push(generate(ast[1]).CPP);
 		break;
 

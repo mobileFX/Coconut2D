@@ -2,8 +2,8 @@
 #define _WebGLRenderingContext_h
 
 #include <string>
-#include "HTMLCanvasElement.hpp"
 #include "HTMLCanvasContext.hpp"
+#include "HTMLCanvasElement.hpp"
 #include "ArrayBuffer.hpp"
 #include "ArrayBufferView.hpp"
 #include "TypedArray.hpp"
@@ -76,7 +76,7 @@ public:
 	};
 	void execute();*/
 
-	WebGLRenderingContext(HTMLCanvasElement* canvas) : HTMLCanvasContext(canvas) {}
+	WebGLRenderingContext(HTMLCanvasElement* i_canvas)  { canvas = i_canvas; }
 	//void getContextAttributes();
 	//void isContextLost();
 	//void getSupportedExtensions();

@@ -32,9 +32,10 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import <QuartzCore/QuartzCore.h>
 #import "Coconut2D.hpp"
+#import "HTMLWindow.hpp"
+#import "HTMLDocument.hpp"
 #import "fxGLWrap.h"
 #import "fxKeyWrap.h"
-
 #import "Coconut2D.hpp"
 #import "WebGLRenderingContext.hpp"
 #import "GameEngine.hpp"

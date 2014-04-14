@@ -1,4 +1,11 @@
 #include "NewAnimation.hpp"
+#include "CocoImage.hpp"
+#include "CocoClip.hpp"
+#include "CocoImageSibling.hpp"
+#include "CocoSequence.hpp"
+#include "TypedArray.hpp"
+#include "CocoTimeline.hpp"
+#include "CocoKeyFrame.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 NewAnimation::NewAnimation()

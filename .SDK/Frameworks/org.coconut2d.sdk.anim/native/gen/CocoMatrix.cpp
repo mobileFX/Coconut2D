@@ -1,4 +1,7 @@
 ﻿#include "CocoMatrix.hpp"
+#include "CocoVector.hpp"
+#include "WebGLRenderingContext.hpp"
+#include "TypedArray.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoMatrix::CocoMatrix(CocoMatrix* M)

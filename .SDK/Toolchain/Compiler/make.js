@@ -840,7 +840,7 @@ function make()
 		HPPmap[includes] = true;
 		for(i=0;i<files.length;i++)
 		{
-			files[i] = relativePath(root, files[i]);
+
 			if(/\.(cpp|m)$/i.test(files[i]))
 			{
 				if(files[i].indexOf("./")==0)
@@ -849,7 +849,8 @@ function make()
 			}
 			if(/\.h[p]*?$/i.test(files[i]))
 			{
-				var path = files[i].substr(0, files[i].lastIndexOf("/"));
+				var file = relativePath(root, files[i]);
+				var path = file.substr(0, file.lastIndexOf("/"));
 				if(!HPPmap[path])
 				{
 					HPPmap[path] = true;
@@ -1308,19 +1309,20 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bInteger\\b", "mg", "int");
 	buff = RxReplace(buff, "\\bBoolean\\b", "mg", "bool");
 	buff = RxReplace(buff, "\\s*//<<(.*)>>//", "mg", "$1");
-	buff = RxReplace(buff, "\\bMath.floor\\(", "mg", "floor(");
-	buff = RxReplace(buff, "\\bMath.ceil\\(", "mg", "ceil(");
-	buff = RxReplace(buff, "\\bMath.round\\(", "mg", "round(");
-	buff = RxReplace(buff, "\\bMath.pow\\(", "mg", "pow(");
-	buff = RxReplace(buff, "\\bMath.log\\(", "mg", "log(");
-	buff = RxReplace(buff, "\\bMath.min\\(", "mg", "std::min(");
-	buff = RxReplace(buff, "\\bMath.max\\(", "mg", "std::max(");
-	buff = RxReplace(buff, "\\bMath.sin\\(", "mg", "sin(");
-	buff = RxReplace(buff, "\\bMath.cos\\(", "mg", "cos(");
-	buff = RxReplace(buff, "\\bMath.abs\\(", "mg", "abs(");
+	buff = RxReplace(buff, "\\bMath::floor\\(", "mg", "floor(");
+	buff = RxReplace(buff, "\\bMath::ceil\\(", "mg", "ceil(");
+	buff = RxReplace(buff, "\\bMath::round\\(", "mg", "round(");
+	buff = RxReplace(buff, "\\bMath::pow\\(", "mg", "pow(");
+	buff = RxReplace(buff, "\\bMath::log\\(", "mg", "log(");
+	buff = RxReplace(buff, "\\bMath::min\\(", "mg", "std::min(");
+	buff = RxReplace(buff, "\\bMath::max\\(", "mg", "std::max(");
+	buff = RxReplace(buff, "\\bMath::sin\\(", "mg", "sin(");
+	buff = RxReplace(buff, "\\bMath::cos\\(", "mg", "cos(");
+	buff = RxReplace(buff, "\\bMath::abs\\(", "mg", "abs(");
+	buff = RxReplace(buff, "\\bMath::random\\(\\)", "mg", "((float)rand()/(float)RAND_MAX)");
 	buff = RxReplace(buff, "\\btrace\\s*\\((.*)\\)\\s*;\\s*$", "mg", "trace(($1).c_str());");
 	buff = RxReplace(buff, "([\\x22\\x27])\\x2e\\x2fassets\\x2f", "mg", "$1./");
-	buff = RxReplace(buff, "\\bMath.random\\(\\)", "mg", "((float)rand()/(float)RAND_MAX)");
 	buff = RxReplace(buff, "_ENUM\\.(\\w+)", "mg", "_ENUM::$1");
+	buff = RxReplace(buff, "__currentFrame\\->action\\.call\\(scene\\);", "mg", "(scene->*__currentFrame->action)();");
 	return buff;
 }

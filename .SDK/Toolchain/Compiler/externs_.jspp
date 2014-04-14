@@ -2,9 +2,9 @@
 
 class CocoFont
 {
-	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float) {}
+	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float) {}
 	public function measureText(text:String) :Float {}
-	public function Constructor(fontSize:Float, fontName:String, fontChars:String) {}
+	public function Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean) {}
 	public var height :Float;
 } //CocoFont
 
@@ -256,6 +256,7 @@ class String
 	public function toLocaleLowerCase() :String {}
 	public function toUpperCase() :String {}
 	public function toLocaleUpperCase() :String {}
+	public function size() :Integer {}
 	public var length :Number;
 } //String
 
@@ -439,6 +440,13 @@ class TypeError : Error
 {
 } //TypeError
 
+class ImageDataBuffer
+{
+	public var buffer :ArrayBuffer;
+	public var width :Integer;
+	public var height :Integer;
+} //ImageDataBuffer
+
 class SCREEN_RESOLUTION_DPI_ENUM
 {
 	public function RESOLUTION_nodpi() :SCREEN_RESOLUTION_DPI_ENUM {}
@@ -576,15 +584,23 @@ class Audio
 class HTMLCanvasContext
 {
 	public function Constructor() {}
+	public var canvas :HTMLCanvasElement;
 } //HTMLCanvasContext
+
+class PathLine
+{
+	public function Constructor(_x0:Float, _y0:Float, _x1:Float, _y1:Float) {}
+	public var x0 :Float;
+	public var y0 :Float;
+	public var x1 :Float;
+	public var y1 :Float;
+} //PathLine
 
 class CanvasRenderingContext2D : HTMLCanvasContext
 {
 	public function arc(x:Float, y:Float, radius:Float, startAngle:Float, endAngle:Float, anticlockwise:Boolean) {}
 	public function arcTo(x1:Float, y1:Float, x2:Float, y2:Float, radius:Float) {}
-	public function beginPath() {}
 	public function bezierCurveTo(cp1x:Float, cp1y:Float, cp2x:Float, cp2y:Float, x:Float, y:Float) {}
-	public function clearRect(x:Float, y:Float, width:Float, height:Float) {}
 	public function clip() {}
 	public function closePath() {}
 	public function createImageData(width:Float, height:Float) :ImageData {}
@@ -594,13 +610,10 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public function drawCustomFocusRing(element:HTMLElement) :Boolean {}
 	public function drawSystemFocusRing(element:HTMLElement) {}
 	public function fill() {}
-	public function fillRect(x:Float, y:Float, width:Float, height:Float) {}
 	public function getImageData(x:Float, y:Float, width:Float, height:Float) :ImageData {}
 	public function getLineDash() {}
 	public function isPointInPath(x:Float, y:Float) :Boolean {}
 	public function isPointInStroke(x:Float, y:Float) :Boolean {}
-	public function lineTo(x:Float, y:Float) {}
-	public function moveTo(x:Float, y:Float) {}
 	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float) {}
 	public function rect(x:Float, y:Float, width:Float, height:Float) {}
 	public function restore() {}
@@ -610,41 +623,52 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public function scrollPathIntoView() {}
 	public function setLineDash(segments:Array<Float>) {}
 	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float) {}
-	public function stroke() {}
 	public function strokeRect(x:Float, y:Float, w:Float, h:Float) {}
 	public function strokeText(text:String, x:Float, y:Float, maxWidth:Float) {}
 	public function transform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float) {}
 	public function translate(x:Float, y:Float) {}
 	public function drawImage(image:Image, a1:Float, a2:Float, a3:Float, a4:Float, a5:Float, a6:Float, a7:Float, a8:Float) {}
 	public function putImageData(imagedata:ImageData, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float) {}
+	public function beginPath() {}
+	public function moveTo(x:Float, y:Float) {}
+	public function lineTo(x:Float, y:Float) {}
+	public function stroke() {}
 	public function fillText(text:String, x:Float, y:Float, maxWidth:Float) {}
+	public function fillRect(x:Float, y:Float, width:Float, height:Float) {}
+	public function clearRect(x:Float, y:Float, width:Float, height:Float) {}
 	public function measureText(text:String) :HTMLTextMetrics {}
 	public function Constructor(canvas:HTMLCanvasElement) {}
 	public var fillStyle :String;
+	public var strokeStyle :String;
+	public var lineWidth :Float;
 	public var font :String;
 	public var DRAWWINDOW_DRAW_CARET :Number;
 	public var DRAWWINDOW_DO_NOT_FLUSH :Number;
 	public var DRAWWINDOW_DRAW_VIEW :Number;
 	public var DRAWWINDOW_USE_WIDGET_LAYERS :Number;
 	public var DRAWWINDOW_ASYNC_DECODE_IMAGES :Number;
-	public var canvas :HTMLCanvasElement;
 	public var globalAlpha :Float;
 	public var lineCap :String;
 	public var lineDashOffset :Float;
 	public var lineJoin :String;
-	public var lineWidth :Float;
 	public var miterLimit :Float;
 	public var shadowBlur :Float;
 	public var shadowColor :String;
 	public var shadowOffsetX :Float;
 	public var shadowOffsetY :Float;
-	public var strokeStyle :Integer;
 	public var textAlign :String;
 	public var textBaseline :String;
 	public var globalCompositeOperation :String;
+	private var __lineWidth :Float;
 	private var __fillStyle :String;
+	private var __fillColor :Array<Float>;
+	private var __strokeStyle :String;
+	private var __strokeColor :Array<Float>;
 	private var __fontSetting :String;
 	private var __font :CocoFont;
+	private var __curX :Float;
+	private var __curY :Float;
+	private var __pathLines :Array<PathLine>;
 } //CanvasRenderingContext2D
 
 class HTMLCanvasElement
@@ -652,8 +676,8 @@ class HTMLCanvasElement
 	public function getContext(contextId:String) :HTMLCanvasContext {}
 	public function toDataURL() :String {}
 	public function Constructor() {}
-	public var width :Integer;
-	public var height :Integer;
+	public var width :Float;
+	public var height :Float;
 	public var __imageData :ImageData;
 } //HTMLCanvasElement
 
@@ -696,6 +720,7 @@ class Image
 class HTMLTextMetrics
 {
 	public function Constructor() {}
+	public var width :Float;
 } //HTMLTextMetrics
 
 class HTMLWindow
@@ -716,20 +741,11 @@ class HTMLWindow
 class ImageData
 {
 	public function Constructor(a0:String, a1:String) {}
-	public var buffer :ArrayBuffer;
-	public var data :Int32Array;
+	public var data :Uint8Array;
 	public var src :String;
 	public var width :Integer;
 	public var height :Integer;
 } //ImageData
-
-class ImageDataBuffer
-{
-	public function Constructor() {}
-	public var buffer :ArrayBuffer;
-	public var width :Integer;
-	public var height :Integer;
-} //ImageDataBuffer
 
 class Touch
 {
@@ -1550,6 +1566,36 @@ class CocoTest
 	private var s2 :State;
 	protected var s3 :State;
 } //CocoTest
+
+class CocoTextStyle
+{
+	public function Constructor(ff:String, fsp:Integer, fs:String, fw:String, u:Boolean, r:Integer, g:Integer, b:Integer, a:Integer, br:Integer, bg:Integer, bb:Integer, ba:Integer) {}
+	public var fontFamily :String;
+	public var fontSizePixels :Integer;
+	public var fontStyle :String;
+	public var fontWeight :String;
+	public var underline :Boolean;
+	public var color :Array<Integer>;
+	public var bgcolor :Array<Integer>;
+} //CocoTextStyle
+
+class CocoText
+{
+	public function npo2(i:Integer) :Integer {}
+	public function init(width:Integer, height:Integer) {}
+	public function wrap(width:Integer) {}
+	public function draw(width:Float, height:Float, halign:Float, valign:Float, bgR:Integer, bgG:Integer, bgB:Integer, bgA:Integer) :String {}
+	public function Constructor() {}
+	public var c2d :CanvasRenderingContext2D;
+	public var str :String;
+	public var styles :Array<CocoTextStyle>;
+	public var indices :Array<Integer>;
+	public var mappings :Array<Integer>;
+	public var lineBreaks :Array<Integer>;
+	public var lineWidths :Array<Integer>;
+	public var lineHeights :Array<Integer>;
+	public var totalHeight :Integer;
+} //CocoText
 
 class CocoTimeLabel
 {

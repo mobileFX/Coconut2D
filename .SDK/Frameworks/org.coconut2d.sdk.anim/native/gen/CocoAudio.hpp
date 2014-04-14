@@ -2,7 +2,6 @@
 #define __COCOAUDIO_HPP__
 
 #include "Coconut2D.hpp"
-#include "HTMLAudioElement.hpp"
 
 class CocoAudio
 {

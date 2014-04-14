@@ -1,6 +1,4 @@
-﻿"#package org.coconut2d.sdk.html5"
-
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -35,15 +33,13 @@
 
 class ImageData
 {
-	public var buffer:ArrayBuffer;
-	public var data:Int32Array;
+	public var data:Uint8Array;
 	public var src:String;
 	public var width:Integer;
 	public var height:Integer;
 
 	public function Constructor(a0:String, optional a1:String)
 	{
-		buffer = null;
 		data = null;
 		width = 0;
 		height = 0;
@@ -51,28 +47,26 @@ class ImageData
 
 		if(isNaN(a0))
 		{
-			var data:ImageDataBuffer = __ImageData_loadImage(a0);
-			if(data)
+			var d:ImageDataBuffer = __ImageData_loadImage(a0);
+			if(d)
 			{
 				src = a0;
-				buffer = data.buffer;
-				width = data.width;
-				height = data.height;
+				width = d.width;
+				height = d.height;
+				data = new Uint8Array(d.buffer);
 			}
 		}
 		else if(!isNaN(a0) && !isNaN(a1))
 		{
 			width = parseInt(a0);
 			height = parseInt(a1);
-			data = new Int32Array(width * height);
-			buffer = data.buffer;
+			data = new Uint8Array(width * height * 4);
 		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete buffer;
 		delete data;
 	}
 }

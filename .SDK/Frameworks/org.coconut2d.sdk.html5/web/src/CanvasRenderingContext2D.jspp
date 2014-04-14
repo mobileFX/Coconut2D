@@ -1,4 +1,4 @@
-﻿"#package org.coconut2d.sdk.html5"
+﻿"#export native";
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -35,6 +35,23 @@
 
 "#include HTMLCanvasContext.jspp";
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class PathLine
+{
+	public var x0:Float;
+	public var y0:Float;
+	public var x1:Float;
+	public var y1:Float;
+	public function Constructor(_x0:Float, _y0:Float, _x1:Float, _y1:Float)
+	{
+		x0 = _x0;
+		y0 = _y0;
+		x1 = _x1;
+		y1 = _y1;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class CanvasRenderingContext2D : HTMLCanvasContext
 {
 	public const DRAWWINDOW_DRAW_CARET			= 0x01;	// Show the caret if appropriate when drawing.
@@ -43,30 +60,46 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public const DRAWWINDOW_USE_WIDGET_LAYERS	= 0x08;	// Use the widget layer manager if available. This means hardware acceleration may be used, but it might actually be slower or lower quality than normal. It will, however, more accurately reflect the pixels rendered to the screen.
 	public const DRAWWINDOW_ASYNC_DECODE_IMAGES	= 0x10;	// Do not synchronously decode images - draw what we have.
 
-	public var canvas:HTMLCanvasElement;
-
 	public var globalAlpha:Float;						// Alpha value that is applied to shapes and images before they are composited onto the canvas. Default 1.0 (opaque).
 	public var lineCap:String;							// Type of endings on the end of lines. Possible values: butt (default), round, square
 	public var lineDashOffset:Float;					// Specifies where to start a dasharray on a line.
 	public var lineJoin:String;							// Defines the type of corners where two lines meet. Possible values: round, bevel, miter (default)
-	public var lineWidth:Float;							// Width of lines. Default 1.0
 	public var miterLimit:Float;						// Default 10.
 	public var shadowBlur:Float;						// Specifies the blurring effect. Default 0
 	public var shadowColor:String;						// Color of the shadow. Default fully-transparent black.
 	public var shadowOffsetX:Float;						// Horizontal distance the shadow will be offset. Default 0.
 	public var shadowOffsetY:Float;						// Vertical distance the shadow will be offset. Default 0.
-	public var strokeStyle:Integer;						// Color or style to use for the lines around shapes. Default #000 (black).
 	public var textAlign:String;						// ossible values: start (default), end, left, right or center.
 	public var textBaseline:String;						// Possible values: top, hanging, middle, alphabetic (default), ideographic, bottom
 	public var globalCompositeOperation:String;			// With globalAlpha applied this sets how shapes and images are drawn onto the existing bitmap. Possible values: "source-atop", "source-in", "source-out", "source-over", "destination-atop", "destination-in", "destination-out", "destination-over", "lighter", "darker", "copy", "xor"
 
+	private var __lineWidth:Float;
 	private var __fillStyle:String;
+	private var __fillColor:Array<Float>;
+	private var __strokeStyle:String;
+	private var __strokeColor:Array<Float>;
 	private var __fontSetting:String;
 	private var __font:CocoFont;
+	private var __curX:Float;
+	private var __curY:Float;
+	private var __pathLines:Array<PathLine>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(canvas:HTMLCanvasElement)
 	{
+		__curX = 0.0;
+		__curY = 0.0;
+		__fillColor = new Array<Float>;
+		__fillColor.push(0.0);
+		__fillColor.push(0.0);
+		__fillColor.push(0.0);
+		__fillColor.push(1.0);
+		__strokeColor = new Array<Float>;
+		__strokeColor.push(0.0);
+		__strokeColor.push(0.0);
+		__strokeColor.push(0.0);
+		__strokeColor.push(1.0);
+		__pathLines = new Array<PathLine>;
 		this.canvas = canvas;
 		canvas.__imageData = new ImageData(String(canvas.width), String(canvas.height));
 	}
@@ -74,6 +107,9 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete __strokeColor;
+		delete __fillColor;
+		delete __pathLines;
 		delete __font;
 	}
 
@@ -81,9 +117,7 @@ class CanvasRenderingContext2D : HTMLCanvasContext
     //public function createImageData(imagedata:Imagedata):ImageData
 	public function arc(x:Float, y:Float, radius:Float, startAngle:Float, endAngle:Float, optional anticlockwise:Boolean)	{}
 	public function arcTo(x1:Float, y1:Float, x2:Float, y2:Float, radius:Float)                                             {}
-	public function beginPath()                                                                                             {}
 	public function bezierCurveTo(cp1x:Float, cp1y:Float, cp2x:Float, cp2y:Float, x:Float, y:Float)                         {}
-	public function clearRect(x:Float, y:Float, width:Float, height:Float)                                                  {}
 	public function clip()                                                                                                  {}
 	public function closePath()                                                                                             {}
 	public function createImageData(width:Float, height:Float):ImageData													{ return null; }
@@ -93,13 +127,10 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public function drawCustomFocusRing(element:HTMLElement):Boolean														{ return false; }
 	public function drawSystemFocusRing(element:HTMLElement)																{}
 	public function fill()                                                     												{}
-	public function fillRect(x:Float, y:Float, width:Float, height:Float)                    								{}
 	public function getImageData(x:Float, y:Float, width:Float, height:Float):ImageData         							{ return null; }
 	public function getLineDash()																							{}
 	public function isPointInPath(x:Float, y:Float):Boolean																	{ return false; }
 	public function isPointInStroke(x:Float, y:Float):Boolean																{ return false; }
-	public function lineTo(x:Float, y:Float)																				{}
-	public function moveTo(x:Float, y:Float)																				{}
 	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float)                                                {}
 	public function rect(x:Float, y:Float, width:Float, height:Float)                                                       {}
 	public function restore()                                                                                               {}
@@ -109,13 +140,105 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public function scrollPathIntoView()                                                                                    {}
 	public function setLineDash(segments:Array<Float>)                                                                      {}
 	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                            {}
-	public function stroke()                                                                                                {}
 	public function strokeRect(x:Float, y:Float, w:Float, h:Float)                                                          {}
 	public function strokeText(text:String, x:Float, y:Float, optional maxWidth:Float)                                      {}
 	public function transform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                               {}
 	public function translate(x:Float, y:Float)                                                                             {}
 	public function drawImage(image:Image, a1:Float, a2:Float, optional a3:Float, optional a4:Float, optional a5:Float, optional a6:Float, optional a7:Float, optional a8:Float) {}
 	public function putImageData(imagedata:ImageData, dx:Float, dy:Float, optional dirtyX:Float, optional dirtyY:Float, optional dirtyWidth:Float, optional dirtyHeight:Float) {}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function beginPath()
+	{
+		__pathLines.clear();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moveTo(x:Float, y:Float)
+	{
+		__curX = x;
+		__curY = y;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function lineTo(x:Float, y:Float)
+	{
+		__pathLines.push(new PathLine(__curX, __curY, x, y));
+		moveTo(x, y);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function stroke()
+	{
+		var l0:Integer = Math.floor(-0.5 * lineWidth);
+		var l1:Integer = Math.floor(0.5 * lineWidth);
+		for(var i:Integer = __pathLines.size(); i--;)
+		{
+			var x0:Integer = Math.floor(Math.max(Float(0.0), Math.min(canvas.width, __pathLines[i].x0)));
+			var y0:Integer = Math.floor(Math.max(Float(0.0), Math.min(canvas.height, __pathLines[i].y0)));
+			var x1:Integer = Math.floor(Math.max(Float(0.0), Math.min(canvas.width, __pathLines[i].x1)));
+			var y1:Integer = Math.floor(Math.max(Float(0.0), Math.min(canvas.height, __pathLines[i].y1)));
+			var t:Integer;
+			if(x0 > x1)
+			{
+				t = x0;
+				x0 = x1;
+				x1 = t;
+			}
+			if(y0 > y1)
+			{
+				t = y0;
+				y0 = y1;
+				y1 = t;
+			}
+			if(x0 == x1 && y0 == y1)
+			{
+				/*t = (y0 * canvas.width + x0) * 4;
+				canvas.__imageData.data[t + 0] += 255.0 * __strokeColor[0] * __strokeColor[3] - canvas.__imageData.data[t + 0] * __strokeColor[3];
+				canvas.__imageData.data[t + 1] += 255.0 * __strokeColor[1] * __strokeColor[3] - canvas.__imageData.data[t + 1] * __strokeColor[3];
+				canvas.__imageData.data[t + 2] += 255.0 * __strokeColor[2] * __strokeColor[3] - canvas.__imageData.data[t + 2] * __strokeColor[3];
+				canvas.__imageData.data[t + 3] += 255.0 * __strokeColor[3] * __strokeColor[3] - canvas.__imageData.data[t + 3] * __strokeColor[3];*/
+			}
+			else if(x0 == x1)
+			{
+				for(var y:Integer = y0; y < y1; y++)
+				{
+					for(var l:Integer = l0; l < l1; l++)
+					{
+						t = (y * Integer(canvas.width) + x0 + l) * 4;
+						if(t < canvas.__imageData.data.length)
+						{
+							canvas.__imageData.data[t + 0] += 255.0 * __strokeColor[0] * __strokeColor[3] - canvas.__imageData.data[t + 0] * __strokeColor[3];
+							canvas.__imageData.data[t + 1] += 255.0 * __strokeColor[1] * __strokeColor[3] - canvas.__imageData.data[t + 1] * __strokeColor[3];
+							canvas.__imageData.data[t + 2] += 255.0 * __strokeColor[2] * __strokeColor[3] - canvas.__imageData.data[t + 2] * __strokeColor[3];
+							canvas.__imageData.data[t + 3] += 255.0 * __strokeColor[3] * __strokeColor[3] - canvas.__imageData.data[t + 3] * __strokeColor[3];
+						}
+					}
+				}
+			}
+			else if(y0 == y1)
+			{
+				for(var x:Integer = x0; x < x1; x++)
+				{
+					for(var l:Integer = l0; l < l1; l++)
+					{
+						t = ((y0 + l) * Integer(canvas.width) + x) * 4;
+						if(t < canvas.__imageData.data.length)
+						{
+							canvas.__imageData.data[t + 0] += 255.0 * __strokeColor[0] * __strokeColor[3] - canvas.__imageData.data[t + 0] * __strokeColor[3];
+							canvas.__imageData.data[t + 1] += 255.0 * __strokeColor[1] * __strokeColor[3] - canvas.__imageData.data[t + 1] * __strokeColor[3];
+							canvas.__imageData.data[t + 2] += 255.0 * __strokeColor[2] * __strokeColor[3] - canvas.__imageData.data[t + 2] * __strokeColor[3];
+							canvas.__imageData.data[t + 3] += 255.0 * __strokeColor[3] * __strokeColor[3] - canvas.__imageData.data[t + 3] * __strokeColor[3];
+						}
+					}
+				}
+			}
+			else
+			{
+				// Only vertical/horizontal lines for now
+			}
+		}
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public property fillStyle
@@ -126,7 +249,48 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 		}
 		function set(v:String)
 		{
+			if(v.indexOf("rgba")) return;
+			var str:String = v.substr(v.indexOf("(") + 1);
+			str = str.substr(0, str.indexOf(")"));
+			var arr:Array<String> = str.split(",");
+			if(arr.size() != 4) return;
+			for(var i:Integer = 0; i < 4; i++)
+				__fillColor[i] = parseFloat(arr[i]) / 255.0;
 			__fillStyle = v;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property strokeStyle
+	{
+		function get():String
+		{
+			return __strokeStyle;
+		}
+		function set(v:String)
+		{
+			if(v.indexOf("rgba")) return;
+			var str:String = v.substr(v.indexOf("(") + 1);
+			str = str.substr(0, str.indexOf(")"));
+			var arr:Array<String> = str.split(",");
+			if(arr.size() != 4) return;
+			for(var i:Integer = 0; i < 4; i++)
+				__strokeColor[i] = parseFloat(arr[i]) / 255.0;
+			__strokeStyle = v;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property lineWidth
+	{
+		function get():Float
+		{
+			return __lineWidth;
+		}
+		function set(v:Float)
+		{
+			if(v >= 1.0)
+				__lineWidth = v;
 		}
 	}
 
@@ -142,14 +306,13 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 
 		function set(v:String)
 		{
-			const fontChars:String = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()/.,?><';\":]|[}{\\}]`~-_";
 			var spl:Array<String> = v.split(" ");
 			var fontStyle:String = "normal";
 			var fontVariant:String = "normal";
 			var fontWeight:String = "normal";
 			var fontSize:String = "medium";
 			var lineHeight:String = "normal";
-			var fontFamily:String = "arial,sans-serif";
+			var fontFamily:String = "Arial";
 			var s:Integer = 0;
 			var str:String;
 			for(var i:Integer = 0; i < spl.size(); i++)
@@ -241,6 +404,7 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 						{
 							switch(s)
 							{
+								case 1: fontWeight = str; s = 3; break;
 								case 2: fontWeight = str; s = 3; break;
 								default: return;
 							}
@@ -276,7 +440,7 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 					return;
 			}
            	__fontSetting = v;
-           	__font = new CocoFont(fontSizeInPixels, fontFamily, fontChars);
+           	__font = new CocoFont(fontSizeInPixels, fontFamily, fontWeight == "bold", fontStyle == "italic" || fontStyle == "oblique");
 		}
 	}
 
@@ -284,12 +448,47 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public function fillText(text:String, x:Float, y:Float, optional maxWidth:Float)
 	{
 		if(__font)
-			__font.fillText(canvas.__imageData.buffer, canvas.__imageData.width, text, x, y);
+			__font.fillText(canvas.__imageData.data.buffer, canvas.__imageData.width, text, x, y, __fillColor[0], __fillColor[1], __fillColor[2], __fillColor[3]);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function fillRect(x:Float, y:Float, width:Float, height:Float)
+	{
+		var _x:Integer = Integer(Math.floor(x));
+		var _y:Integer = Integer(Math.floor(y));
+		for(var ix:Integer = 0; ix < width; ix++)
+			for(var iy:Integer = 0; iy < height; iy++)
+			{
+				var idx:Integer = ((_y + iy) * canvas.__imageData.width + _x + ix) * 4;
+				if(idx < canvas.__imageData.data.length)
+				{
+					canvas.__imageData.data[idx + 0] += 255.0 * __fillColor[0] * __fillColor[3] - canvas.__imageData.data[idx + 0] * __fillColor[3];
+					canvas.__imageData.data[idx + 1] += 255.0 * __fillColor[1] * __fillColor[3] - canvas.__imageData.data[idx + 1] * __fillColor[3];
+					canvas.__imageData.data[idx + 2] += 255.0 * __fillColor[2] * __fillColor[3] - canvas.__imageData.data[idx + 2] * __fillColor[3];
+					canvas.__imageData.data[idx + 3] += 255.0 * __fillColor[3] * __fillColor[3] - canvas.__imageData.data[idx + 3] * __fillColor[3];
+				}
+			}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function clearRect(x:Float, y:Float, width:Float, height:Float)
+	{
+		var _x:Integer = Integer(Math.floor(x));
+		var _y:Integer = Integer(Math.floor(y));
+		for(var ix:Integer = 0; ix < width; ix++)
+			for(var iy:Integer = 0; iy < height; iy++)
+			{
+				var idx:Integer = (_y + iy) * canvas.__imageData.width + _x + ix;
+				if(idx < canvas.__imageData.data.length)
+					canvas.__imageData.data[idx] = 0;
+			}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function measureText(text:String):HTMLTextMetrics
 	{
-		return null;
+		var ret:HTMLTextMetrics = new HTMLTextMetrics;
+		ret.width = __font.measureText(text);
+		return ret;
 	}
 }

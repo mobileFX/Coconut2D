@@ -15,48 +15,59 @@ CFLAGS =  -I.\src \
  -I..\_Common \
  -I..\..\..\.SDK\Frameworks\org.coconut2d.sdk.webgl\native\src \
  -I..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src \
+ -I..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\gen \
  -I..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen \
- -I..\..\..\.SDK\DeviceWrappers\native\_Includes
+ -I..\..\..\.SDK\DeviceWrappers\native\_Includes \
+ -I..\..\..\.SDK\DeviceWrappers\native\_Common\Fonts \
+ -I..\..\..\.SDK\DeviceWrappers\native\_Common\Events \
+ -I..\..\..\.SDK\DeviceWrappers\native\_Common\Audio \
+ -I..\..\..\.SDK\DeviceWrappers\native\_Common\Arrays \
+ -I..\..\..\.SDK\DeviceWrappers\native\_Common
 
-SRC = src\main.m \
-src\fxKeyWrap.m \
-src\fxGLWrap.m \
-src\fxDeviceWrapper.m \
-..\_Common\animations\NewAnimation.cpp \
-..\_Common\GameEngine.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.webgl\native\src\WebGLRenderingContext.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\fxFontFace.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\fxAudioStream.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\TypedArray.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\TouchList.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\Touch.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLWindow.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLImageElement.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLEvent.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLElement.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLDocument.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLCanvasElement.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLCanvasContext.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLAudioElement.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\EventTarget.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\DeviceEvent.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\CocoFont.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\CanvasRenderingContext2D.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\ArrayBufferView.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\ArrayBuffer.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoVector.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoTimeline.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoTimeLabel.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoSequence.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoScene.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoRect.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoMatrix.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoKeyFrame.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoImageSibling.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoImage.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoEngine.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoClip.cpp \
-..\..\..\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoAudio.cpp
+SRC = D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\iOS\src\main.m \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\iOS\src\fxKeyWrap.m \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\iOS\src\fxGLWrap.m \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\iOS\src\fxDeviceWrapper.m \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\_Common\animations\NewAnimation.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\_Common\GameEngine.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.webgl\native\src\WebGLRenderingContext.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\ImageData.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLWindow.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLImageElement.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLEvent.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\src\HTMLAudioElement.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\gen\HTMLTextMetrics.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\gen\HTMLElement.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\gen\HTMLDocument.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\gen\HTMLCanvasElement.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\gen\HTMLCanvasContext.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.html5\native\gen\CanvasRenderingContext2D.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\Constants.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoVector.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoTimeline.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoTimeLabel.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoText.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoSequence.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoScene.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoRect.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoMatrix.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoKeyFrame.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoImageSibling.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoImage.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoEngine.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoClip.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\Frameworks\org.coconut2d.sdk.anim\native\gen\CocoAudio.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Fonts\fxFontFace.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Fonts\CocoFont.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Events\TouchList.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Events\Touch.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Events\EventTarget.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Events\DeviceEvent.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Coconut2D.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Audio\fxAudioStream.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Arrays\TypedArray.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Arrays\ArrayBufferView.cpp \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.SDK\DeviceWrappers\native\_Common\Arrays\ArrayBuffer.cpp
 
 RES = ./Icon-100.png \
 ./Icon-114.png \
@@ -103,7 +114,7 @@ PAYLOAD		= Payload
 BIN			= bin
 OUTDIR		= $(PAYLOAD)\$(NAME).app
 CFLAGS		+= -DIOS_APPLICATION -DENABLE_OPENGL_SUPPORT -DENABLE_PNG_SUPPORT -DENABLE_JPG_SUPPORT -DENABLE_OGG_SUPPORT -DENABLE_OPENAL_SUPPORT -DENABLE_FREETYPE_SUPPORT -DENABLE_CURL_SUPPORT
-CFLAGS		+= -O2 -W -Wall -Wno-delete-non-virtual-dtor -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wempty-body -Wuninitialized -x objective-c++ -std=gnu++11
+CFLAGS		+= -O2 -W -Wall -Wno-sign-compare -Wno-delete-non-virtual-dtor -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wempty-body -Wuninitialized -x objective-c++ -std=gnu++11
 CFLAGS		+= -target $(CPUSET)-apple-ios$(IOSMINVER).0.0 --sysroot "$(IOSBUILDENV_PATH)/SDK" -integrated-as -fdiagnostics-format=msvc -fconstant-cfstrings -miphoneos-version-min=$(IOSMINVER).0.0 -DIPHONE -D__IPHONE_OS_VERSION_MIN_REQUIRED=$(IOSMINVER)0000
 LDFLAGS 	+= -lbz2 -lfreetype -lTremolo -lcurl -ljpeg -lz -lpng
 LDFLAGS 	+= -ios_version_min $(IOSMINVER).0 -syslibroot "$(IOSBUILDENV_PATH)/SDK" -lSystem -lcrt1.o -lgcc_s.1 -lstdc++ -F"$(IOSBUILDENV_PATH)/SDK/System/Library/Frameworks" $(shell "$(IOSBUILDENV_PATH)/Toolchain/cat" "$(IOSBUILDENV_PATH)/Frameworks.iOS$(IOSMINVER)")

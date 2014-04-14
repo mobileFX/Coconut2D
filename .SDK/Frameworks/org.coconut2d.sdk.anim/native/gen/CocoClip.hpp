@@ -2,24 +2,6 @@
 #define __COCOCLIP_HPP__
 
 #include "Coconut2D.hpp"
-#include "CocoScene.hpp"
-#include "HTMLCanvasElement.hpp"
-#include "CanvasRenderingContext2D.hpp"
-#include "CocoClip.hpp"
-#include "CocoTimeLabel.hpp"
-#include "WebGLRenderingContext.hpp"
-#include "DeviceEvent.hpp"
-#include "CocoImage.hpp"
-#include "CocoTimeline.hpp"
-#include "CocoKeyFrame.hpp"
-#include "CocoVector.hpp"
-#include "CocoMatrix.hpp"
-#include "CocoSequence.hpp"
-#include "CocoAudio.hpp"
-#include "HTMLDocument.hpp"
-#include "HTMLCanvasContext.hpp"
-#include "HTMLImageElement.hpp"
-#include "CocoEngine.hpp"
 
 class CocoClip
 {

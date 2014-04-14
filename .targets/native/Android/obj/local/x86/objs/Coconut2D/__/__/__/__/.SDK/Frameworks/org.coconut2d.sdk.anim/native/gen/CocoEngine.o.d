@@ -1,8 +1,8 @@
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/obj/local/x86/objs/Coconut2D/__/__/__/__/.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoEngine.o: \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoEngine.cpp \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoEngine.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Structs.h \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Coconut2D.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Structs.h \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/cassert \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/algorithm \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/stack \
@@ -72,54 +72,32 @@ D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Andr
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-x86/usr/include/GLES2/gl2.h \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-x86/usr/include/GLES2/gl2platform.h \
  ../../../../.SDK/Frameworks/org.coconut2d.sdk.webgl/native/src/WebGLRenderingContext.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CanvasRenderingContext2D.hpp \
+ ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLCanvasContext.hpp \
+ ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLCanvasElement.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBuffer.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBufferView.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBuffer.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Arrays/TypedArray.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBufferView.hpp \
  ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp \
- src/AssetFile.h \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasContext.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CocoFont.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxFontFace.h \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasContext.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBufferView.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/TypedArray.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBufferView.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/DeviceEvent.hpp \
+ ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ImageData.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Events/DeviceEvent.hpp \
  ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLWindow.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLDocument.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/DeviceEvent.hpp \
+ ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLDocument.hpp \
  ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoEngine.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/TouchList.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Touch.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/EventTarget.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Events/TouchList.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Events/Touch.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Events/EventTarget.hpp \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoClip.hpp \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoScene.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoImage.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoImageSibling.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoSequence.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoKeyFrame.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoMatrix.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoVector.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLAudioElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxAudioStream.h \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLWindow.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoTimeline.hpp \
- D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoTimeLabel.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CanvasRenderingContext2D.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLDocument.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Touch.hpp
+ ../../../../.SDK/DeviceWrappers/native/_Common/Events/Touch.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Events/TouchList.hpp
 
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoEngine.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Coconut2D.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Structs.h:
+../../../../.SDK/DeviceWrappers/native/_Common/Structs.h:
 
 D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/cassert:
 
@@ -259,86 +237,42 @@ D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platf
 
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.webgl/native/src/WebGLRenderingContext.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasElement.hpp:
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLCanvasContext.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp:
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLCanvasElement.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CanvasRenderingContext2D.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBuffer.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBufferView.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBuffer.hpp:
 
-src/AssetFile.h:
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/TypedArray.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasElement.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasContext.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CocoFont.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxFontFace.h:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasContext.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBufferView.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/TypedArray.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBufferView.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBufferView.hpp:
 
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/DeviceEvent.hpp:
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ImageData.hpp:
+
+../../../../.SDK/DeviceWrappers/native/_Common/Events/DeviceEvent.hpp:
 
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLWindow.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLDocument.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLElement.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/DeviceEvent.hpp:
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLDocument.hpp:
 
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoEngine.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/TouchList.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Events/TouchList.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Touch.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Events/Touch.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/EventTarget.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Events/EventTarget.hpp:
 
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoClip.hpp:
 
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoScene.hpp:
 
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoImage.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Events/Touch.hpp:
 
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoImageSibling.hpp:
-
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoSequence.hpp:
-
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoKeyFrame.hpp:
-
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoMatrix.hpp:
-
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoVector.hpp:
-
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLAudioElement.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxAudioStream.h:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLWindow.hpp:
-
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoTimeline.hpp:
-
-D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoTimeLabel.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CanvasRenderingContext2D.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLDocument.hpp:
-
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Touch.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Events/TouchList.hpp:

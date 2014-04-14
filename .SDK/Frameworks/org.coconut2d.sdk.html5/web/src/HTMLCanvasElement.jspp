@@ -1,4 +1,4 @@
-﻿"#package org.coconut2d.sdk.html5"
+﻿"#export native"
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -35,16 +35,16 @@
 
 class HTMLCanvasElement
 {
-	public var width:Integer;
-	public var height:Integer;
+	public var width:Float;
+	public var height:Float;
 
 	public var __imageData:ImageData;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		width = 0;
-		height = 0;
+		width = 0.0;
+		height = 0.0;
 		__imageData = null;
 	}
 
@@ -66,7 +66,7 @@ class HTMLCanvasElement
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function toDataURL():String
 	{
-		return "data:image/png;base64," + (__imageData ? __imageData.buffer.encodeAsPNG(__imageData.width, __imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
+		return "data:image/png;base64," + (__imageData ? __imageData.data.buffer.encodeAsPNG(__imageData.width, __imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
 	}
 }
 

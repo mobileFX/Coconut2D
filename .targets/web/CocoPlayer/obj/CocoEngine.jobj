@@ -1,5 +1,5 @@
 ﻿"#export web";
-//@line 39
+//@line 37
 
 function CocoEngine()
 {
@@ -13,115 +13,115 @@ function CocoEngine()
 		this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
-		//@line 78
+		//@line 76
 		var setNextState = this.setNextState = function (s)
 		{
-			//@line 80
+			//@line 78
 			__CLASS__COCOENGINE__.__PRIVATE__.__nextState = s;
 		};
-		//@line 84
+		//@line 82
 		var run = this.run = function (gl, time)
 		{
-			//@line 86
+			//@line 84
 			if (!__CLASS__COCOENGINE__.__PRIVATE__.__currentState && !__CLASS__COCOENGINE__.__PRIVATE__.__nextState) return;
-			//@line 88
+			//@line 86
 			if (__CLASS__COCOENGINE__.__PRIVATE__.__nextState != null)
-			//@line 89
+			//@line 87
 			{
-				//@line 90
+				//@line 88
 				if (__CLASS__COCOENGINE__.__PRIVATE__.__currentState) __CLASS__COCOENGINE__.__PRIVATE__.__currentState.exit();
-				//@line 91
+				//@line 89
 				__CLASS__COCOENGINE__.__PRIVATE__.__currentState = __CLASS__COCOENGINE__.__PRIVATE__.__nextState;
-				//@line 92
+				//@line 90
 				__CLASS__COCOENGINE__.__PRIVATE__.__nextState = null;
-				//@line 93
+				//@line 91
 				trace("\n@@STATE " + __CLASS__COCOENGINE__.__PRIVATE__.__currentState.__name);
-				//@line 94
+				//@line 92
 				__CLASS__COCOENGINE__.__PRIVATE__.__clicked.clear();
-				//@line 95
+				//@line 93
 				if (__CLASS__COCOENGINE__.__PRIVATE__.__currentState) __CLASS__COCOENGINE__.__PRIVATE__.__currentState.enter();
 			}
-			//@line 98
+			//@line 96
 			if (__CLASS__COCOENGINE__.__PRIVATE__.__currentState) __CLASS__COCOENGINE__.__PRIVATE__.__currentState.tick(__CLASS__COCOENGINE__.__PRIVATE__.__clock);
-			//@line 99
+			//@line 97
 			__CLASS__COCOENGINE__.__PRIVATE__.__clicked.clear();
-			//@line 101
+			//@line 99
 			if (__CLASS__COCOENGINE__.__PRIVATE__.__nextState == null && __CLASS__COCOENGINE__.__PRIVATE__.__currentState != null)
-			//@line 102
+			//@line 100
 			{
-				//@line 103
+				//@line 101
 				gl.clearColor(0, 0, 0, 1);
-				//@line 104
+				//@line 102
 				gl.clear(gl.COLOR_BUFFER_BIT);
-				//@line 105
+				//@line 103
 				__CLASS__COCOENGINE__.__PRIVATE__.__currentState.paint(gl, __CLASS__COCOENGINE__.__PRIVATE__.__clock);
 			}
-			//@line 108
+			//@line 106
 			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent = null;
-			//@line 111
+			//@line 109
 			__CLASS__COCOENGINE__.__PRIVATE__.__clock += __CLASS__COCOENGINE__.TICK_TIME;
 		};
-		//@line 115
+		//@line 113
 		this.__PRIVATE__.__setTouchEvent = function (e)
 		{
-			//@line 117
+			//@line 115
 			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent = e;
-			//@line 118
+			//@line 116
 			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent.__clientX = e.touches ? e.touches[0].clientX : e.clientX;
-			//@line 119
+			//@line 117
 			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent.__clientY = e.touches ? e.touches[0].clientY : e.clientY;
 		};
-		//@line 123
+		//@line 121
 		var getTouchEvent = this.getTouchEvent = function ()
 		{
-			//@line 126
+			//@line 124
 			return __CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent;
 		};
-		//@line 130
+		//@line 128
 		var pushTouched = this.pushTouched = function (clip)
 		{
-			//@line 132
+			//@line 130
 			trace("click: " + clip.__instanceName);
-			//@line 133
+			//@line 131
 			__CLASS__COCOENGINE__.__PRIVATE__.__clicked.push(clip);
 		};
-		//@line 137
+		//@line 135
 		var isClicked = this.isClicked = function (check)
 		{
-			//@line 139
+			//@line 137
 			for (var i = __CLASS__COCOENGINE__.__PRIVATE__.__clicked.size() - 1; i >= 0; i--)
-			//@line 140
+			//@line 138
 			for (var r = check.size() - 1; r >= 0; r--)
-			//@line 141
+			//@line 139
 			if (check[r] == __CLASS__COCOENGINE__.__PRIVATE__.__clicked[i])
-			//@line 142
+			//@line 140
 			return r;
-			//@line 143
+			//@line 141
 			return -1;
 			return 0
 		};
-		//@line 147
+		//@line 145
 		var __debug_trace = this.__debug_trace = function (scene, clip, message)
 		{
-			//@line 148
+			//@line 146
 		};
-		//@line 45
+		//@line 43
 		this.TICK_TIME = (1000.0 / 60.0);
-		//@line 46
+		//@line 44
 		this.debugbreak = false;
-		//@line 48
+		//@line 46
 		this.__PRIVATE__.__currentState = null;
-		//@line 49
+		//@line 47
 		this.__PRIVATE__.__nextState = null;
-		//@line 50
+		//@line 48
 		this.__PRIVATE__.__deviceEvent = null;
-		//@line 51
+		//@line 49
 		this.__PRIVATE__.__clicked = [];
-		//@line 52
+		//@line 50
 		this.__PRIVATE__.__clock = null;
 		var Destructor = this.Destructor = function ()
 		{
-			//@line 74
+			//@line 72
 			{
 				(function (o)
 				{
@@ -146,26 +146,26 @@ function CocoEngine()
 			}
 			return true
 		};
-		//@line 55
+		//@line 53
 		this.Constructor = function ()
 		{
-			//@line 57
+			//@line 55
 			__CLASS__COCOENGINE__.__PRIVATE__.__clicked = new Array;
-			//@line 58
+			//@line 56
 			__CLASS__COCOENGINE__.__PRIVATE__.__currentState = null;
-			//@line 59
+			//@line 57
 			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent = null;
-			//@line 60
+			//@line 58
 			__CLASS__COCOENGINE__.__PRIVATE__.__clock = 0;
-			//@line 61
+			//@line 59
 			__CLASS__COCOENGINE__.debugbreak = false;
-			//@line 65
+			//@line 63
 			window.addEventListener("mouseup", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
-			//@line 66
+			//@line 64
 			window.addEventListener("touchstart", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
-			//@line 67
+			//@line 65
 			window.addEventListener("touchmove", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
-			//@line 68
+			//@line 66
 			window.addEventListener("touchend", __CLASS__COCOENGINE__.__PRIVATE__.__setTouchEvent);
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);

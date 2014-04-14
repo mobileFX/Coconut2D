@@ -27,7 +27,7 @@ function HTMLCanvasElement()
 		var toDataURL = this.toDataURL = function ()
 		{
 			//@line 69
-			return "data:image/png;base64," + (__CLASS__HTMLCANVASELEMENT__.__imageData ? __CLASS__HTMLCANVASELEMENT__.__imageData.buffer.encodeAsPNG(__CLASS__HTMLCANVASELEMENT__.__imageData.width, __CLASS__HTMLCANVASELEMENT__.__imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
+			return "data:image/png;base64," + (__CLASS__HTMLCANVASELEMENT__.__imageData ? __CLASS__HTMLCANVASELEMENT__.__imageData.data.buffer.encodeAsPNG(__CLASS__HTMLCANVASELEMENT__.__imageData.width, __CLASS__HTMLCANVASELEMENT__.__imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
 			return ""
 		};
 		//@line 38
@@ -54,9 +54,9 @@ function HTMLCanvasElement()
 		this.Constructor = function ()
 		{
 			//@line 46
-			__CLASS__HTMLCANVASELEMENT__.width = 0;
+			__CLASS__HTMLCANVASELEMENT__.width = 0.0;
 			//@line 47
-			__CLASS__HTMLCANVASELEMENT__.height = 0;
+			__CLASS__HTMLCANVASELEMENT__.height = 0.0;
 			//@line 48
 			__CLASS__HTMLCANVASELEMENT__.__imageData = null;
 		};

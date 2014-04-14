@@ -58,8 +58,14 @@ include $(CLEAR_VARS)
 ../../_Common \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.webgl/native/src \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen \
-../../../../.SDK/DeviceWrappers/native/_Includes
+../../../../.SDK/DeviceWrappers/native/_Includes \
+../../../../.SDK/DeviceWrappers/native/_Common/Fonts \
+../../../../.SDK/DeviceWrappers/native/_Common/Events \
+../../../../.SDK/DeviceWrappers/native/_Common/Audio \
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays \
+../../../../.SDK/DeviceWrappers/native/_Common
 	LOCAL_MODULE := Coconut2D
 	LOCAL_SRC_FILES := src/main.cpp \
 src/fxGLWrap.cpp \
@@ -68,28 +74,22 @@ src/MainActivity.cpp \
 ../../_Common/animations/NewAnimation.cpp \
 ../../_Common/GameEngine.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.webgl/native/src/WebGLRenderingContext.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxFontFace.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxAudioStream.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/TypedArray.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/TouchList.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Touch.cpp \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ImageData.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLWindow.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLImageElement.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLEvent.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLElement.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLDocument.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasElement.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLCanvasContext.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLAudioElement.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/EventTarget.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/DeviceEvent.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CocoFont.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/CanvasRenderingContext2D.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBufferView.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/ArrayBuffer.cpp \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLTextMetrics.cpp \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLElement.cpp \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLDocument.cpp \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLCanvasElement.cpp \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/HTMLCanvasContext.cpp \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/gen/CanvasRenderingContext2D.cpp \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/Constants.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoVector.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoTimeline.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoTimeLabel.cpp \
+../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoText.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoSequence.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoScene.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoRect.cpp \
@@ -99,7 +99,18 @@ src/MainActivity.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoImage.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoEngine.cpp \
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoClip.cpp \
-../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.cpp
+../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Fonts/fxFontFace.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Fonts/CocoFont.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Events/TouchList.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Events/Touch.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Events/EventTarget.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Events/DeviceEvent.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Coconut2D.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Audio/fxAudioStream.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/TypedArray.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBufferView.cpp \
+../../../../.SDK/DeviceWrappers/native/_Common/Arrays/ArrayBuffer.cpp
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module, android/native_app_glue)

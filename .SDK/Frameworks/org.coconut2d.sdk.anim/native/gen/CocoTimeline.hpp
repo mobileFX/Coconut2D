@@ -2,11 +2,6 @@
 #define __COCOTIMELINE_HPP__
 
 #include "Coconut2D.hpp"
-#include "CocoScene.hpp"
-#include "CocoClip.hpp"
-#include "CocoTimeLabel.hpp"
-#include "CocoKeyFrame.hpp"
-#include "CocoAudio.hpp"
 
 class CocoTimeline
 {

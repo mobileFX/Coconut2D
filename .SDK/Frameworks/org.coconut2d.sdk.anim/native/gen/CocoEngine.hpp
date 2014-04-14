@@ -2,12 +2,6 @@
 #define __COCOENGINE_HPP__
 
 #include "Coconut2D.hpp"
-#include "WebGLRenderingContext.hpp"
-#include "DeviceEvent.hpp"
-#include "CocoClip.hpp"
-#include "CocoScene.hpp"
-#include "Touch.hpp"
-#include "HTMLWindow.hpp"
 
 class CocoEngine
 {

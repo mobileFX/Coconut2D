@@ -1,4 +1,5 @@
 ﻿#include "CocoAudio.hpp"
+#include "HTMLAudioElement.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoAudio::CocoAudio(String url, bool autoplay, int loops)
@@ -125,14 +126,14 @@ bool CocoAudio::ended()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 float CocoAudio::getCurrentTime()
 {
-	return audio ? audio->get_currentTime() : 0;
+	return audio ? audio->__get_currentTime() : 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoAudio::setCurrentTime(float t)
 {
-	if(audio && audio->get_readyState() == 4)
+	if(audio && audio->__get_readyState() == 4)
 	{
-		audio->set_currentTime(t);
+		audio->__set_currentTime(t);
 	}
 }

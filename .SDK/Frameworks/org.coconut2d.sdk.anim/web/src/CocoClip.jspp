@@ -1,6 +1,4 @@
-﻿"#package org.coconut2d.sdk.anim"
-
-"#export native"
+﻿"#export native"
 "#export web"
 
 /* ***** BEGIN LICENSE BLOCK *****
@@ -88,6 +86,7 @@ class CocoClip
 	{
 		__symbolLoop					= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
 		__timeline						= new CocoTimeline();
+		__children						= new Array<CocoClip>;
 		__parent						= null;
 		__currentTime					= 0.0;
 		__currentFrame					= null;
@@ -107,7 +106,6 @@ class CocoClip
 		__currentAudio					= null;
 		__clipPath						= "";
 
-		__children = new Array<CocoClip>;
 		__image = image;
 	}
 
@@ -162,8 +160,8 @@ class CocoClip
 
 		// Create a power-of-two sized canvas and get 2d context
 		var canvas:HTMLCanvasElement = document.createElement("canvas");
-		canvas.width = Integer(Math.pow(2, Math.ceil(Math.log(textRectWidth)/Math.log(2))));
-		canvas.height = Integer(Math.pow(2, Math.ceil(Math.log(textRectHeight)/Math.log(2))));
+		canvas.width = Math.pow(2, Math.ceil(Math.log(textRectWidth)/Math.log(2)));
+		canvas.height = Math.pow(2, Math.ceil(Math.log(textRectHeight)/Math.log(2)));
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 
 		// Set the font

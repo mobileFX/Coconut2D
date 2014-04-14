@@ -25,6 +25,11 @@ Object.defineProperty(Array.prototype, "clear", { value: function()
 	while(this.length) { this.pop(); }
 }});
 
+Object.defineProperty(String.prototype, "size", { value: function()
+{
+	return this.length;
+}});
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function main()
 {

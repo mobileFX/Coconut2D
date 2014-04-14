@@ -849,7 +849,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			_this.scopesStack[0].vars[classSymbol.name] = classSymbol;
 
 			// Record vartype usage in class level (used to check #includes)
-			if(baseClass) scope.vartypes[baseClass] = true;
+			if(baseClass) scope.vartypes[baseClass] = 2; // Include priority (1: needed in .cpp, 2: needed in .hpp)
 
 			/*//////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1078,7 +1078,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 						break;
 					}
 				}
-				if(hasObjectMembers && !destructor)
+				if(hasObjectMembers && !destructor && ast.file!="externs.jspp")
 					_this.NewError("Missing Destructor: " + ast.name, ast);
 			}
 
@@ -1218,10 +1218,10 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			parentScope.methods[fnName] = functionSymbol;
 
 			// Record vartype usage in class level (used to check #includes)
-			if(functionSymbol.subtype)
-				parentScope.vartypes[functionSymbol.subtype] = true;
-			else if(functionSymbol.vartype)
-				parentScope.vartypes[functionSymbol.vartype] = true;
+			if(functionSymbol.subtype && !parentScope.vartypes[functionSymbol.subtype])
+				parentScope.vartypes[functionSymbol.subtype] = 1;
+			else if(functionSymbol.vartype && !parentScope.vartypes[functionSymbol.vartype])
+				parentScope.vartypes[functionSymbol.vartype] = 1;
 
 			// Process the Arguments List
 			var paramsList = "";
@@ -1566,10 +1566,10 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				// Record vartype usage in class level (used to check #includes)
 				if(classScope)
 				{
-					if(varSymbol.subtype)
-						classScope.vartypes[varSymbol.subtype] = true;
-					else if(varSymbol.vartype)
-						classScope.vartypes[varSymbol.vartype] = true;
+					if(varSymbol.subtype && !classScope.vartypes[varSymbol.subtype])
+						classScope.vartypes[varSymbol.subtype] = 1;
+					else if(varSymbol.vartype && !classScope.vartypes[varSymbol.vartype])
+						classScope.vartypes[varSymbol.vartype] = 1;
 				}
 
 				if(!firstItem)
@@ -1687,7 +1687,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					varSymbol.public		= true;
 					varSymbol.private		= false;
 					varSymbol.protected		= false;
-					varSymbol.static		= false;
+					varSymbol.static		= true; //#CHECK:false
 					varSymbol.optional		= false;
 					varSymbol.virtual		= false;
 					varSymbol.abstract		= false;
@@ -1862,7 +1862,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				stateSymbol.public			= ast.public==true;
 				stateSymbol.private			= ast.private==true;
 				stateSymbol.protected		= ast.protected==true;
-				stateSymbol.static			= false;
+				stateSymbol.static			= true; //CHECK:false
 				stateSymbol.optional		= false;
 				stateSymbol.virtual			= false;
 				stateSymbol.abstract		= false;
@@ -1988,7 +1988,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			//==================================================================================
 			// First pass or not inside a class?
 			//==================================================================================
-			if(!_this.currClassName || !_this.secondPass)
+			if(!_this.secondPass)
 			{
 				// Generate identifier and be gone.
 				out.push(ast.value);
@@ -2034,10 +2034,10 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				var classScope = _this.getClassScope();
 				if(classScope)
 				{
-					if(ast.symbol.subtype)
-						classScope.vartypes[ast.symbol.subtype] = true;
-					else if(ast.symbol.vartype)
-						classScope.vartypes[ast.symbol.vartype] = true;
+					if(ast.symbol.subtype && !classScope.vartypes[ast.symbol.subtype])
+						classScope.vartypes[ast.symbol.subtype] = 1;
+					else if(ast.symbol.vartype && !classScope.vartypes[ast.symbol.vartype])
+						classScope.vartypes[ast.symbol.vartype] = 1;
 				}
 			}
 
@@ -2139,7 +2139,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 			if(!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast))
 			{
-				if(ast.symbol.static)
+				//CHECK:if(ast.symbol.static)
+				if(ast.symbol.static && ast.symbol.type != jsdef.STATE)
 				{
 					ast.runtime = _this.currClassName + ".prototype.";
 					if(ast.symbol.protected) ast.runtime += "__PROTECTED__.";
@@ -2183,7 +2184,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 				else if(ast.symbol.public)
 				{
-					if(ast.symbol.static) out.push("prototype.");
+					if(ast.symbol.static && !ast.symbol.isEnum) out.push("prototype.");
 					out.push(ast.value);
 				}
 				else if(ast.symbol.protected)
@@ -2219,6 +2220,12 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			//==================================================================================
 			// Done generating identifier
 			//==================================================================================
+
+			if(_this.secondPass && !ast.symbol)
+			{
+				debugger;
+			}
+
 			break;
 
 		// ==================================================================================================================================
@@ -2732,7 +2739,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				varSymbol.public		= true;
 				varSymbol.private		= false;
 				varSymbol.protected		= false;
-				varSymbol.static		= false;
+				varSymbol.static		= true; //CHECK:false
 				varSymbol.optional		= false;
 				varSymbol.virtual		= false;
 				varSymbol.abstract		= false;

@@ -2,17 +2,6 @@
 #define __COCOSCENE_HPP__
 
 #include "Coconut2D.hpp"
-#include "CocoImage.hpp"
-#include "WebGLRenderingContext.hpp"
-#include "CocoImageSibling.hpp"
-#include "CocoClip.hpp"
-#include "CocoKeyFrame.hpp"
-#include "CocoMatrix.hpp"
-#include "HTMLCanvasElement.hpp"
-#include "HTMLWindow.hpp"
-#include "HTMLImageElement.hpp"
-#include "CocoEngine.hpp"
-#include "CocoTimeline.hpp"
 
 class CocoScene
 {

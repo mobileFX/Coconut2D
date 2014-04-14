@@ -1,4 +1,9 @@
 ﻿#include "CocoTimeline.hpp"
+#include "CocoScene.hpp"
+#include "CocoClip.hpp"
+#include "CocoTimeLabel.hpp"
+#include "CocoKeyFrame.hpp"
+#include "CocoAudio.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoTimeline::CocoTimeline()

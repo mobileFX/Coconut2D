@@ -1,4 +1,4 @@
-﻿//@line 36
+﻿//@line 34
 
 function Audio(__CLASS__AUDIO__$url__)
 {
@@ -12,65 +12,65 @@ function Audio(__CLASS__AUDIO__$url__)
 		this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
-		//@line 63
+		//@line 61
 		var play = this.play = function ()
 		{
-			//@line 65
+			//@line 63
 			__Audio_play(__CLASS__AUDIO__.__PRIVATE__.__uid);
 		};
-		//@line 69
+		//@line 67
 		var pause = this.pause = function ()
 		{
-			//@line 71
+			//@line 69
 			__Audio_pause(__CLASS__AUDIO__.__PRIVATE__.__uid);
 		};
-		//@line 75
+		//@line 73
 		Object.defineProperty(this, 'currentTime', {
 			enumerable: true,
-			//@line 77
+			//@line 75
 			get: function ()
 			{
-				//@line 79
+				//@line 77
 				return __Audio_get_position(__CLASS__AUDIO__.__PRIVATE__.__uid);
 				return 0
 			},
-			//@line 82
+			//@line 80
 			set: function (time)
 			{
-				//@line 84
+				//@line 82
 				__Audio_set_position(__CLASS__AUDIO__.__PRIVATE__.__uid, time);
 			}
 		});
-		//@line 88
+		//@line 87
 		Object.defineProperty(this, 'readyState', {
 			enumerable: true,
-			//@line 90
+			//@line 89
 			get: function ()
 			{
-				//@line 93
+				//@line 92
 				return 4;
 				return 0
 			}
 		});
-		//@line 38
+		//@line 36
 		this.__PRIVATE__.__uid = 0;
-		//@line 39
+		//@line 37
 		this.__PRIVATE__.__currentTime = 0;
-		//@line 42
+		//@line 40
 		this.duration = 0;
-		//@line 43
+		//@line 41
 		this.paused = false;
-		//@line 44
+		//@line 42
 		this.ended = false;
-		//@line 45
+		//@line 43
 		this.autoplay = false;
-		//@line 46
+		//@line 44
 		this.loop = false;
-		//@line 47
+		//@line 45
 		this.src = "";
 		var Destructor = this.Destructor = function ()
 		{
-			//@line 59
+			//@line 57
 			trace("Delete Audio " + __CLASS__AUDIO__.src);
 			{
 				__CLASS__AUDIO__.currentTime = null;
@@ -86,13 +86,13 @@ function Audio(__CLASS__AUDIO__$url__)
 			}
 			return true
 		};
-		//@line 50
+		//@line 48
 		this.Constructor = function ()
 		{
 			var url = arguments[0];
-			//@line 52
+			//@line 50
 			__CLASS__AUDIO__.__PRIVATE__.__uid = __Audio_load(url, __CLASS__AUDIO__);
-			//@line 53
+			//@line 51
 			if (__CLASS__AUDIO__.__PRIVATE__.__uid) __CLASS__AUDIO__.src = url;
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);

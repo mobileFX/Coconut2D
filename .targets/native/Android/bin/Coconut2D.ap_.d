@@ -14,8 +14,8 @@ D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Andr
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\images \
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\sounds \
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\videos \
-D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\fonts\Helvetica-BoldOblique.ttf \
-D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\fonts\Helvetica-Oblique.ttf \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\fonts\Helvetica-BoldItalic.ttf \
+D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\fonts\Helvetica-Italic.ttf \
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\fonts\Helvetica.ttf \
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\images\icon.png \
 D:\mobileFX\Projects\Software\Coconut\Projects\Coco.project\.targets\native\Android\assets\images\metal_slug_mdpi.png \

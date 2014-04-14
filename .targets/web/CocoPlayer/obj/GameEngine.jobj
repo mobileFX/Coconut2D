@@ -19,41 +19,41 @@ function GameEngine()
 		this.__BASE__ = __BASE__;
 		//@line 17
 		this.scene = null;
-		//@line 31
+		//@line 44
 		this.STATE_GAME = (function ()
 		{
 			this.__name = 'STATE_GAME';
-			//@line 33
+			//@line 46
 			var enter = this.enter = function ()
 			{
-				//@line 35
+				//@line 48
 				__CLASS__GAMEENGINE__.scene = new NewAnimation;
 			};
-			//@line 38
+			//@line 51
 			var exit = this.exit = function ()
 			{
-				//@line 40
+				//@line 53
 				{
 					__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
 					__CLASS__GAMEENGINE__.scene = null
 				};
 			};
-			//@line 43
+			//@line 56
 			var tick = this.tick = function (time)
 			{
-				//@line 44
+				//@line 57
 			};
-			//@line 47
+			//@line 60
 			var paint = this.paint = function (gl, time)
 			{
-				//@line 49
+				//@line 62
 				__CLASS__GAMEENGINE__.scene.paint(gl, time);
 			};
 			return this
 		}).call(new State);
 		var Destructor = this.Destructor = function ()
 		{
-			//@line 27
+			//@line 40
 			{
 				__CLASS__GAMEENGINE__.scene = null;
 				__CLASS__GAMEENGINE__.STATE_GAME = null;
@@ -64,7 +64,7 @@ function GameEngine()
 		//@line 20
 		this.Constructor = function ()
 		{
-			//@line 22
+			//@line 35
 			__CLASS__GAMEENGINE__.__BASE__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME);
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);

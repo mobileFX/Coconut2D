@@ -1,4 +1,11 @@
 ﻿#include "CocoEngine.hpp"
+#include "WebGLRenderingContext.hpp"
+#include "DeviceEvent.hpp"
+#include "CocoClip.hpp"
+#include "CocoScene.hpp"
+#include "Touch.hpp"
+#include "TouchList.hpp"
+#include "HTMLWindow.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoEngine::CocoEngine()

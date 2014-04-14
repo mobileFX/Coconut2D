@@ -1,4 +1,7 @@
 ﻿#include "GameEngine.hpp"
+#include "CocoScene.hpp"
+#include "NewAnimation.hpp"
+#include "WebGLRenderingContext.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 GameEngine::GameEngine()

@@ -37,7 +37,6 @@
 
 extern char* AssetFile::filesPath;
 extern char* AssetFile::assetPath;
-CocoEngine* engine;
 
 #define CONFIGURATION_$(UCONFIGURATION)
 #define DEBUG_HOST_IP 	"$(DEBUG_HOST_IP)"
@@ -94,17 +93,3 @@ int main(int argc, char *argv[])
 	// Done!
 	return ret;
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void trace(const char* fmt, ...)
-{
-	char* buff = (char*) malloc(2048);
-	va_list vl;
-	va_start(vl, fmt);
-	vsprintf(buff, fmt, vl);
-	va_end(vl);
-	//fprintf(stderr, "%s\n", buff);
-	NSLog(@"%s\n",buff);
-	free(buff);
-}
-

@@ -184,8 +184,8 @@ var __WebGLRenderingContext_viewport = function(uid, x, y, width, height){};
 class CocoFont
 {
 	public var height:Float;
-	public function Constructor(fontSize:Float, fontName:String, fontChars:String){}
-	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float){}
+	public function Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean){}
+	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float){}
 	public function measureText(text:String):Float {}
 }
 
@@ -292,6 +292,7 @@ class String
 	public function toLocaleLowerCase():String {}
 	public function toUpperCase():String {}
 	public function toLocaleUpperCase():String {}
+	public function size():Integer {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -467,6 +468,14 @@ class RangeError :Error {}
 class ReferenceError :Error {}
 class SyntaxError :Error {}
 class TypeError :Error {}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class ImageDataBuffer
+{
+	public var buffer:ArrayBuffer;
+	public var width:Integer;
+	public var height:Integer;
+}
 
 // ==================================================================================================================================
 //	   ________      __          __   _    __           _       __    __

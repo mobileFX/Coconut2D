@@ -1,8 +1,8 @@
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/obj/local/x86/objs/Coconut2D/__/__/__/__/.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.o: \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.cpp \
  D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Structs.h \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Coconut2D.hpp \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Structs.h \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/cassert \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/algorithm \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/stack \
@@ -72,14 +72,14 @@ D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Andr
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-x86/usr/include/GLES2/gl2.h \
  D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platforms/android-9/arch-x86/usr/include/GLES2/gl2platform.h \
  ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLAudioElement.hpp \
- ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxAudioStream.h \
+ ../../../../.SDK/DeviceWrappers/native/_Common/Audio/fxAudioStream.h \
  src/AssetFile.h
 
 D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android/jni/../../../../.SDK/Frameworks/org.coconut2d.sdk.anim/native/gen/CocoAudio.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Coconut2D.hpp:
+../../../../.SDK/DeviceWrappers/native/_Common/Coconut2D.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/Structs.h:
+../../../../.SDK/DeviceWrappers/native/_Common/Structs.h:
 
 D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/sources/cxx-stl/gnu-libstdc++/4.8/include/cassert:
 
@@ -219,6 +219,6 @@ D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/platf
 
 ../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/HTMLAudioElement.hpp:
 
-../../../../.SDK/Frameworks/org.coconut2d.sdk.html5/native/src/fxAudioStream.h:
+../../../../.SDK/DeviceWrappers/native/_Common/Audio/fxAudioStream.h:
 
 src/AssetFile.h:

@@ -2,9 +2,6 @@
 #define __COCOMATRIX_HPP__
 
 #include "Coconut2D.hpp"
-#include "CocoVector.hpp"
-#include "CocoMatrix.hpp"
-#include "WebGLRenderingContext.hpp"
 
 class CocoMatrix
 {

@@ -2,11 +2,6 @@
 #define __COCOIMAGE_HPP__
 
 #include "Coconut2D.hpp"
-#include "CocoImageSibling.hpp"
-#include "CocoSequence.hpp"
-#include "CocoScene.hpp"
-#include "WebGLRenderingContext.hpp"
-#include "HTMLImageElement.hpp"
 
 class CocoImage
 {
