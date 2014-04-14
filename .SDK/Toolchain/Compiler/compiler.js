@@ -1610,6 +1610,12 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			}
 
 			out.push(";");
+
+			if(_this.secondPass && !_this.currClassName && ast.file!="externs.jspp")
+			{
+				_this.classFiles[ast.path] = (_this.classFiles[ast.path] ? _this.classFiles[ast.path] : "") + "\n\n" + out.join("");
+			}
+
 			break;
 
 		// ==================================================================================================================================
@@ -1722,7 +1728,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 			if(_this.secondPass && !_this.currClassName)
 			{
-				_this.classFiles[ast.path] = out.join("\n") + '\n\n' + (_this.classFiles[ast.path] ? _this.classFiles[ast.path] : "");
+				_this.classFiles[ast.path] = (_this.classFiles[ast.path] ? _this.classFiles[ast.path] : "") +  "\n\n" + out.join("\n");
 			}
 
 			_this.ExitScope();
@@ -2185,17 +2191,17 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 				else if(ast.symbol.public)
 				{
-					if(ast.symbol.static && !ast.symbol.isEnum) out.push("prototype.");
+					if(ast.symbol.static && !ast.symbol.isEnum && !ast.symbol.state) out.push("prototype.");
 					out.push(ast.value);
 				}
 				else if(ast.symbol.protected)
 				{
-					if(ast.symbol.static) out.push("prototype.");
+					if(ast.symbol.static && !ast.symbol.isEnum && !ast.symbol.state) out.push("prototype.");
 					out.push("__PROTECTED__." + ast.value);
 				}
 				else if(ast.symbol.private)
 				{
-					if(ast.symbol.static) out.push("prototype.");
+					if(ast.symbol.static && !ast.symbol.isEnum && !ast.symbol.state) out.push("prototype.");
 					out.push("__PRIVATE__." + ast.value);
 				}
 			}

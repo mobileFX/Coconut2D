@@ -20,6 +20,12 @@
 	private function f2():Boolean { return v1 && v2 && v3 && p1 && p2 && p3; }
 	protected function f3():Boolean { return v1 && v2 && v3 && p1 && p2 && p3; }
 
+	public function tests()
+	{
+		s1.tick(0);
+		this.s1.tick(0);
+	}
+
 	public state s1
 	{
 		function enter() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }

@@ -668,13 +668,12 @@ CPPCompiler.prototype.generate = function (ast)
 				case "String":
 					CPP.push("("+generate(ast[1]).CPP+")");
 					break;
-
-				default:
-					debugger;
 				}
 			}
 			else
 			{
+				if(__isPointer(vartype)) debugger;
+
 				CPP.push("((");
 				CPP.push(vartype + (__isPointer(vartype) ? "*":""));
 				CPP.push(")");
@@ -1010,7 +1009,24 @@ CPPCompiler.prototype.generate = function (ast)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.DOT:
 		CPP.push(generate(ast[0]).CPP);
-		CPP.push(ast[1].symbol.static ? "::" : __isPointer(ast[0].vartype) ? "->" : ".");
+
+		if(ast[1].symbol.static && ast[1].symbol.isEnum)
+		{
+			CPP.push("::");
+		}
+		else if(ast[1].symbol.static && ast[1].symbol.state)
+		{
+			CPP.push("->");
+		}
+		else if(ast[1].symbol.static)
+		{
+			CPP.push("::");
+		}
+		else
+		{
+			CPP.push(__isPointer(ast[0].vartype) ? "->" : ".");
+		}
+
 		CPP.push(generate(ast[1]).CPP);
 		break;
 

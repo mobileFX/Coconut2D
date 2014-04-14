@@ -113,13 +113,20 @@ int32_t fxDeviceWrapper::InputHandler(android_app* app, AInputEvent* event)
 			{
 				case AMOTION_EVENT_ACTION_DOWN:
 				case AMOTION_EVENT_ACTION_POINTER_DOWN:
+					window->handleEvent(0, fxEvent::TOUCHSTART, event);
 					break;
+
 				case AMOTION_EVENT_ACTION_MOVE:
+					window->handleEvent(0, fxEvent::TOUCHMOVE, event);
 					break;
+
 				case AMOTION_EVENT_ACTION_UP:
 				case AMOTION_EVENT_ACTION_POINTER_UP:
+					window->handleEvent(0, fxEvent::TOUCHEND, event);
 					break;
+
 				case AMOTION_EVENT_ACTION_CANCEL:
+					window->handleEvent(0, fxEvent::TOUCHCANCEL, event);
 					break;
 				default:
 					break;
