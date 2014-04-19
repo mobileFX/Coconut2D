@@ -1309,11 +1309,28 @@ function ____JSONtoXML(json, rootNode)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function RxReplace(buff, patt, opts, repl)
+function RxReplace(buff, patt, opts, repl, single_line)
 {
+	if(!buff)
+	{
+		return null;
+	}
 	var rx = new RegExp(patt, opts);
-	var res = buff.replace(rx, repl);
-	return res;
+	if(single_line)
+	{
+		var arr;
+		var out = buff;
+		while(arr=rx.exec(buff))
+		{
+			if(arr[0].indexOf("//")==-1)
+				out = out.replace(arr[0], arr[0].replace(/[\n\r\t\s]+/mg, " "));
+		}
+		return out;
+	}
+	else
+	{
+		return buff.replace(rx, repl);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,70 +1,358 @@
-﻿state class CocoTest
-{
-	public var v1:Boolean;
-	private var v2:Boolean;
-	protected var v3:Boolean;
+﻿"#export native"
+"#export web"
 
-	public function Constructor()
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+/*
+
+"#export web"
+"#include Constants.jspp";
+
+include('./obj/CocoState.jobj');
+include('./obj/CocoTest.jobj');
+
+var obj1 = new Class1("Class1_arg1","Class1_arg2");
+obj1.test();
+trace(Class1.public_static_function());
+
+var obj2 = new Class2("Class2_arg1");
+obj2.test();
+trace(Class2.public_static_function());
+
+var obj3 = new Class3();
+obj3.test();
+trace(Class3.public_static_function());
+
+*/
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+state class Class1
+{
+	// Member Variables
+	public var public_var:String;
+	private var private_var:String;
+	protected var protected_var:String;
+
+	// Member Constants
+	public const public_const:String = "Class1_public_const";
+	private const private_const:String = "Class1_private_const";
+	protected const protected_const:String = "Class1_protected_const";
+
+	// Static Variables
+	public static var static_public_var:String;
+	private static var static_private_var:String;
+	protected static var static_protected_var:String;
+
+	// (used by properties)
+	private var __public_property:String;
+	private var __private_property:String;
+	private var __protected_property:String;
+
+	private static var __public_static_property:String;
+	private static var __private_static_property:String;
+	private static var __protected_static_property:String;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(arg1:String, arg2:String)
 	{
-		v1 = v2 = v3 = false;
-		p1 = p2 = p3 = false;
+		trace( "Class1::Constructor(" + arg1 + "," + arg2 + ")");
+
+		public_var 			= "Class1_public_var+" + arg1;
+		private_var 		= "Class1_private_var+" + arg2;
+		protected_var		= "Class1_protected_var";
+		public_property 	= "Class1_public_property";
+		private_property 	= "Class1_private_property";
+		protected_property 	= "Class1_protected_property";
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		v1 = v2 = v3 = false;
-		p1 = p2 = p3 = false;
 	}
 
-	public function f1():Boolean { return v1 && v2 && v3 && p1 && p2 && p3; }
-	private function f2():Boolean { return v1 && v2 && v3 && p1 && p2 && p3; }
-	protected function f3():Boolean { return v1 && v2 && v3 && p1 && p2 && p3; }
-
-	public function tests()
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function test()
 	{
-		s1.tick(0);
-		this.s1.tick(0);
+		trace("========================== Class1::test() ==========================");
+
+		public_state.tick(0)
+		private_state.tick(0)
+		protected_state.tick(0)
+
+		trace( "Class1::public_overload()                    = " + public_overload()      					);
+		trace( "Class1::public_overload(arg1)                = " + public_overload("arg1")  				);
+		trace( "Class1::public_overload(arg1,arg2)           = " + public_overload("arg1","arg2")			);
+
+		trace( "Class1::private_overload()                   = " + private_overload()      					);
+		trace( "Class1::private_overload(arg1)               = " + private_overload("arg1")  				);
+		trace( "Class1::private_overload(arg1,arg2)          = " + private_overload("arg1","arg2")			);
+
+		trace( "Class1::protected_overload()                 = " + protected_overload()      				);
+		trace( "Class1::protected_overload(arg1)             = " + protected_overload("arg1")  				);
+		trace( "Class1::protected_overload(arg1,arg2)        = " + protected_overload("arg1","arg2")		);
+
+		trace( "Class1::public_function()                    = " + public_function() 						);
+		trace( "Class1::private_function()                   = " + private_function() 						);
+		trace( "Class1::protected_function()                 = " + protected_function() 					);
+
+		trace( "Class1::public_var                           = " + public_var 								);
+		trace( "Class1::private_var                          = " + private_var 								);
+		trace( "Class1::protected_var                        = " + protected_var							);
+
+		trace( "Class1::public_property                      = " + public_property 							);
+		trace( "Class1::private_property                     = " + private_property      					);
+		trace( "Class1::protected_property                   = " + protected_property    					);
+
+		/*
+		this.public_state.tick(0)
+		this.private_state.tick(0)
+		this.protected_state.tick(0)
+		trace( "Class1::this.public_overload()               = " + this.public_overload()      				);
+		trace( "Class1::this.public_overload(arg1)           = " + this.public_overload("arg1")  			);
+		trace( "Class1::this.public_overload(arg1,arg2)      = " + this.public_overload("arg1","arg2")		);
+		trace( "Class1::this.private_overload()              = " + this.private_overload()      			);
+		trace( "Class1::this.private_overload(arg1)          = " + this.private_overload("arg1")  			);
+		trace( "Class1::this.private_overload(arg1,arg2)     = " + this.private_overload("arg1","arg2")		);
+		trace( "Class1::this.protected_overload()            = " + this.protected_overload()      			);
+		trace( "Class1::this.protected_overload(arg1)        = " + this.protected_overload("arg1")  		);
+		trace( "Class1::this.protected_overload(arg1,arg2)   = " + this.protected_overload("arg1","arg2")	);
+		trace( "Class1::this.public_function()               = " + this.public_function() 					);
+		trace( "Class1::this.private_function()              = " + this.private_function() 					);
+		trace( "Class1::this.protected_function()            = " + this.protected_function() 				);
+		trace( "Class1::this.public_function()               = " + this.public_function()					);
+		trace( "Class1::this.private_function()              = " + this.private_function()					);
+		trace( "Class1::this.protected_function()            = " + this.protected_function()				);
+		trace( "Class1::this.public_var                      = " + this.public_var 							);
+		trace( "Class1::this.private_var                     = " + this.private_var 						);
+		trace( "Class1::this.protected_var                   = " + this.protected_var						);
+		trace( "Class1::this.public_property                 = " + this.public_property 					);
+		trace( "Class1::this.private_property                = " + this.private_property     				);
+		trace( "Class1::this.protected_property              = " + this.protected_property   				);
+		*/
 	}
 
-	public state s1
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Static Functions
+
+	public static function public_static_function(optional b:String):String { return "Class1_public_static_function"; }
+	private static function private_static_function(optional b:String):String { return "Class1_private_static_function"; }
+	protected static function protected_static_function(optional b:String):String { return "Class1_protected_static_function"; }
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Standard Functions
+
+	public function public_function(optional b:String):String { return "Class1_public_function"; }
+	private function private_function(optional b:String):String { return "Class1_private_function"; }
+	protected function protected_function(optional b:String):String { return "Class1_protected_function"; }
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Overloaded Functions
+
+	public function public_overload():String { return "Class1_public_overload"; }
+	public function public_overload(arg:String):String { return "Class1_public_overload("+arg+")"; }
+	public function public_overload(arg1:String, arg2:String):String { return "Class1_public_overload("+arg1+","+arg2+")"; }
+
+	private function private_overload():String { return "Class1_private_overload"; }
+	private function private_overload(arg:String):String { return "Class1_private_overload("+arg+")"; }
+	private function private_overload(arg1:String, arg2:String):String { return "Class1_private_overload("+arg1+","+arg2+")"; }
+
+	protected function protected_overload():String { return "Class1_protected_overload"; }
+	protected function protected_overload(arg:String):String { return "Class1_protected_overload("+arg+")"; }
+	protected function protected_overload(arg1:String, arg2:String):String { return "Class1_protected_overload("+arg1+","+arg2+")"; }
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// States
+
+	public state public_state
 	{
-		function enter() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
-		function exit() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
-		function tick() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
-		function paint() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		var state_var:String;
+
+		function enter() 	{ state_var = "+public_state_scope_var"; trace("Class1_public_state_enter " + state_var); }
+		function exit() 	{ trace("Class1_public_state_exit"); }
+		function tick() 	{ trace("Class1_public_state_tick"); }
+		function paint() 	{ trace("Class1_public_state_paint"); }
 	}
 
-	private state s2
+	private state private_state
 	{
-		function enter() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
-		function exit() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
-		function tick() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
-		function paint() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		var state_var:String;
+
+		function enter() 	{ state_var = "+private_state_scope_var"; trace("Class1_private_state_enter " + state_var); }
+		function exit() 	{ trace("Class1_private_state_exit"); }
+		function tick() 	{ trace("Class1_private_state_tick"); }
+		function paint() 	{ trace("Class1_private_state_paint"); }
 	}
 
-	protected state s3
+	protected state protected_state
 	{
-		function enter() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
-		function exit() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
-		function tick() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
-		function paint() 	{ v1 = v2 = v3 = p1 = p2 = p3 = false; }
+		var state_var:String;
+
+		function enter() 	{ state_var = "+protected_state_scope_var"; trace("Class1_protected_state_enter " + state_var); }
+		function exit() 	{ trace("Class1_protected_state_exit"); }
+		function tick() 	{ trace("Class1_protected_state_tick"); }
+		function paint() 	{ trace("Class1_protected_state_paint"); }
 	}
 
-	public property p1
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Properties
+
+	public property public_property
 	{
-		function get():Boolean  { return v1 && v2 && v3 && f1() && f2() && f3(); }
-		function set(v:Boolean) { v1=v; v2=v; v3=v; p1=v; p2=v; p3=v; }
+		function get():String  { return __public_property; }
+		function set(v:String) { __public_property = v;}
 	}
 
-	private property p2
+	private property private_property
 	{
-		function get():Boolean  { return v1 && v2 && v3 && f1() && f2() && f3(); }
-		function set(v:Boolean) { v1=v; v2=v; v3=v; p1=v; p2=v; p3=v; }
+		function get():String  { return __private_property; }
+		function set(v:String) { __private_property=v; }
 	}
 
-	protected property p3
+	protected property protected_property
 	{
-		function get():Boolean  { return v1 && v2 && v3 && f1() && f2() && f3(); }
-		function set(v:Boolean) { v1=v; v2=v; v3=v; p1=v; p2=v; p3=v; }
+		function get():String  { return __protected_property; }
+		function set(v:String) { __protected_property = v;}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Static Properties
+
+	public static property public_static_property
+	{
+		function get():String  { return __public_static_property; }
+		function set(v:String) { __public_static_property = v;}
+	}
+
+	private static property private_static_property
+	{
+		function get():String  { return __private_static_property; }
+		function set(v:String) { __private_static_property=v; }
+	}
+
+	protected static property protected_static_property
+	{
+		function get():String  { return __protected_static_property; }
+		function set(v:String) { __protected_static_property = v;}
+	}
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+state class Class2 : Class1
+{
+	public var x:String;
+	private var y:String;
+	protected var z:String;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(arg1:String) : Class1(arg1, "::arg2_from_Class2")
+	{
+		trace( "Class2::Constructor(" + arg1 + ")");
+
+		x = "Class2_public_x";
+		y = "Class2_private_y";
+		z = "Class2_protected_z";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function test()
+	{
+		trace("========================== Class2::test() (before super) ==========================");
+
+		trace("Class2::test::super.test()");
+		super.test();
+
+		trace("========================== Class2::test() (after super) ==========================");
+
+		trace( x );
+		trace( y );
+		trace( z );
+
+		public_state.tick(0)
+		protected_state.tick(0)
+
+		trace( "Class2::cls2_public_function()               = " + cls2_public_function()                   );
+
+		trace( "Class2::public_overload()                    = " + public_overload()      					);
+		trace( "Class2::public_overload(arg1)                = " + public_overload("arg1")  				);
+		trace( "Class2::public_overload(arg1,arg2)           = " + public_overload("arg1","arg2")			);
+		trace( "Class2::protected_overload()                 = " + protected_overload()      				);
+		trace( "Class2::protected_overload(arg1)             = " + protected_overload("arg1")  				);
+		trace( "Class2::protected_overload(arg1,arg2)        = " + protected_overload("arg1","arg2")		);
+		trace( "Class2::public_function()                    = " + public_function() 						);
+		trace( "Class2::protected_function()                 = " + protected_function() 					);
+		trace( "Class2::public_var                           = " + public_var 								);
+		trace( "Class2::protected_var                        = " + protected_var							);
+		trace( "Class2::public_property                      = " + public_property 							);
+		trace( "Class2::protected_property                   = " + protected_property    					);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function cls2_public_function():String
+	{
+		return "Class2_cls2_public_function";
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+state class Class3 : Class2
+{
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor() : Class2("::arg1_from_Class3")
+	{
+		trace("Class3::Constructor");
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function test()
+	{
+		trace("========================== Class3::test() (before super) ==========================");
+
+		trace("Class3::test::super.test()");
+		super.test();
+
+		trace("========================== Class3::test() (after super) ==========================");
+
+		trace( x );
+		trace( z );
+
+		public_state.tick(0)
+		protected_state.tick(0)
+
+		trace( "Class3::public_overload()                    = " + public_overload()      					);
+		trace( "Class3::public_overload(arg1)                = " + public_overload("arg1")  				);
+		trace( "Class3::public_overload(arg1,arg2)           = " + public_overload("arg1","arg2")			);
+		trace( "Class3::protected_overload()                 = " + protected_overload()      				);
+		trace( "Class3::protected_overload(arg1)             = " + protected_overload("arg1")  				);
+		trace( "Class3::protected_overload(arg1,arg2)        = " + protected_overload("arg1","arg2")		);
+		trace( "Class3::public_function()                    = " + public_function() 						);
+		trace( "Class3::protected_function()                 = " + protected_function() 					);
+		trace( "Class3::public_var                           = " + public_var 								);
+		trace( "Class3::protected_var                        = " + protected_var							);
+		trace( "Class3::public_property                      = " + public_property 							);
+		trace( "Class3::protected_property                   = " + protected_property    					);
 	}
 }

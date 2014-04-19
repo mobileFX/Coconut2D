@@ -108,6 +108,11 @@
    32. Proper implementation for virtual by separating __BASE__ and __SUPER__ (NEED TESTING)
    33. Enums can be outside classes too (not recommended) and can have negative numbers
 
+   == 17/04/2014 ==
+
+   33. Re-engineered several inheritance related fragments of the code and extended the test-cases
+   34. Proper implementation for static methods
+   35. Changed constructor argumetns support and added C++ like base class constructor initialization
 
 	Elias G. Politakis
 	epolitakis@mobilefx.com
@@ -121,6 +126,8 @@
    - Add events
    - IMPORTANT: Need to detect jsdef.NEW and jsdef.NEW_WITH_ARGS inside method calls that produce memory leaks in
    				C++ and issue warnings. Possible define a weak_new operator and pass delete obligation to consumer?
+   - IMPORTANT: State exit must deallocate local state variables.
+   - Consts must become read-only properties
 
 */
 
@@ -131,29 +138,32 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 	var _this = this;
 
-	_this.symbolId = -1;					// Symbols Counter
-	_this.scopeId = -1;                     // Scopes Counter (resets per file)
-	_this.currFile = null;                  // Current File being processed
-	_this.secondPass = false;               // Flag that indicates compiler's second pass
 	_this.ast = ast;                        // The Abstract Syntax Tree root node (jsdef.SCRIPT)
-	_this.tokenizer = null;                 // Reference to tokenizer (reserved for future use)
+	_this.classes = {};                     // Map of class symbols
+	_this.classFiles = {};					// Used in order to have multiple classes in one file
+	_this.currClassName = null;             // The current class being processed (also indicates whether a JS++ class is being processed or just plain JavaScript code)
+	_this.currFile = null;                  // Current File being processed
+	_this.debugSymbolsTable = [];           // Map of source code to runtime debug symbols, used by IDE debugger (eg. class foo { public var x; } , x at runtime is __CLASS_FOO__.x )
+	_this.exportSymbols = exportSymbols;    // Flag that indicates whether symbols should be exported or not
 	_this.fileClasses = {};                 // Map of classes per file (usage: _this.fileClasses[file][class] = ast; )
+	_this.importJSProto = importJSProto;	// Import JavaScript Prototypes to JavaScript Classes
+	_this.in_property = false;    			// Flag that indicates we are processing a property
+	_this.in_state = false;    				// Flag that indicates we are processing a state
 	_this.includes = [];                    // List of include files for current file being processed (resets per file)
+	_this.line_start = -1;                  // Souce Line counter: source code lines "//@line xxx" are emitted in generated code for IDE debugger
+	_this.lineNumbers = true;				// Supress line-number generation
 	_this.no_errors = 0;                    // Semaphore that controls errors generation (used by ""#ignore_errors" directive)
+	_this.scopeId = -1;                     // Scopes Counter (resets per file)
 	_this.scopesStack = [];                 // Stack of Scopes (scopes are pushed and popped from it during generation)
 	_this.scopesTable = [];                 // Table of Scopes (scopes are only pushed)
-	_this.debugSymbolsTable = [];           // Map of source code to runtime debug symbols, used by IDE debugger (eg. class foo { public var x; } , x at runtime is __CLASS_FOO__.x )
-	_this.currClassName = null;             // The current class being processed (also indicates whether a JS++ class is being processed or just plain JavaScript code)
-	_this.classes = {};                     // Map of class symbols
-	_this.line_start = -1;                  // Souce Line counter: source code lines "//@line xxx" are emitted in generated code for IDE debugger
-	_this.UNTYPED = "Untyped";              // Untyped identifier vartype, used in Type Check System
-	_this.exportSymbols = exportSymbols;    // Flag that indicates whether symbols should be exported or not
+	_this.secondPass = false;               // Flag that indicates compiler's second pass
 	_this.selectedClass = selectedClass;    // If set it indicates that we only need to process a single class (used by IDE intelliSence for parsing classes as you type them)
-	_this.in_state = false;    				// Flag that indicates we are processing a state
-	_this.in_property = false;    			// Flag that indicates we are processing a property
 	_this.states = {};						// Map of states
-	_this.importJSProto = importJSProto;	// Import JavaScript Prototypes to JavaScript Classes
-	_this.classFiles = {};					// Used in order to have multiple classes in one file
+	_this.symbolId = -1;					// Symbols Counter
+	_this.tokenizer = null;                 // Reference to tokenizer (reserved for future use)
+	_this.UNTYPED = "Untyped";              // Untyped identifier vartype, used in Type Check System
+
+	_this.DELETE_BASE = "__BASE__ && ((__BASE__.hasOwnProperty('Destructor') && __BASE__.Destructor()) || !__BASE__.hasOwnProperty('Destructor')) && (delete __BASE__);";
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Symbol constructors
@@ -205,12 +215,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 		// First pass to record symbols
 		_this.generate(ast);
 
-		/*
-		for(var c in _this.classes)
-			if(_this.classes[c].base && !_this.classes[c].baseSymbol)
-				_this.classes[c].baseSymbol = _this.classes[_this.classes[c].base];
-		*/
-
 		if(!_this.selectedClass)
 		{
 			// Reset for second pass
@@ -224,6 +228,11 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			_this.line_start = -1;
 			_this.states = {};
 
+			// Link base classes
+			for(var c in _this.classes)
+				if(_this.classes[c].base && !_this.classes[c].baseSymbol)
+					_this.classes[c].baseSymbol = _this.classes[_this.classes[c].base];
+
 			// Second pass to generate actual code
 			_this.generate(ast);
 
@@ -231,14 +240,18 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			{
 				if(p != "externs.jspp")
 				{
-					var buff = do_js_beautify(_this.classFiles[p], 1, false, false, true);
+					var buff = _this.classFiles[p];
+					if(!buff) continue;
+					var buff = do_js_beautify(buff, 1, false, false, true);
 					buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1"); 	// Empty Lines
+					buff = RxReplace(buff, "__PDEFINE__\\(([\\w\\W\\n\\N]+?)\\);", "mg", "__PDEFINE__($1);", true);
 					buff = RxReplace(buff, "(__PDEFINE__|__PROTECTED__|__PRIVATE__) \=[\\s\\t\\n\\r]+\{[\\s\\t\\n\\r]+\}", "mg", "$1 = {}");
 					buff = RxReplace(buff, "__NOENUM__ \=[\\s\\t\\n\\r]+\{[^}]+\}", "mg", "__NOENUM__ = {enumerable:false}");
 					buff = RxReplace(buff, ";[\\s\\t\\n\\r]*function F\\(\\)[\\s\\t\\n\\r]*\{[\\s\\t\\n\\r]*\}", "mg", "; function F(){}");
 					buff = RxReplace(buff, "\\([\\s\\t\\n\\r]+", "mg", "(");
 					buff = RxReplace(buff, "\\{[\\s\\t\\n\\r]*\\}", "mg", "{}");
 					buff = RxReplace(buff, "(^[\\s\\t\\n\\r]*$)+", "mg", "");
+					buff = RxReplace(buff, "[\\n\\s\\r\\t]+\\{[\\n\\s\\r\\t]*\\};", "mg", " {};");
 					IDECallback("module_jspp", p, 0, 0, buff);
 				}
 			}
@@ -264,6 +277,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 		var currFunction = null;
 		var currClass = null;
 		var currDot = [];
+		var dic={};
 
 	    // Descent the ast.
 		function descend(node)
@@ -325,19 +339,71 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			{
 				switch(item)
 				{
-					case "tokenizer":
-					case "identifiers_list":
+					// Object Node properties that we do not want to descend
+					case "base_init_params":
+					case "constructorNode":
+					case "destructorNode":
 					case "identifier_first":
 					case "identifier_last":
-					case "returnPaths":
+					case "identifiers_list":
 					case "inClass":
-					case "inFunction":
 					case "inDot":
-					case "source":
+					case "inFunction":
+					case "overloadOf":
+					case "overloads":
+					//case "params":
+					//case "returnPaths":
+					case "tokenizer":
+
+					// Scallar Node properties that we do not want to descend
+					case "__end":
+					case "__fileLineOffset":
+					case "__filePosOffset":
+					case "__start":
+					case "__visited":
+					case "abstract":
+					case "blockId":
+					case "contextId":
+					case "defaultIndex":
+					case "end":
+					case "extends":
+					case "file":
+					case "isConstructor":
+					case "isDestructor":
+					case "isLoop":
+					case "length":
+					case "line_end":
+					case "line_start":
+					case "name":
 					case "nodeType":
+					case "optional":
+					case "path":
+					case "postfix":
+					case "private":
+					case "protected":
+					case "public":
+					case "push":
+					case "readOnly":
+					case "returntype":
+					case "scopeId":
+					case "source":
+					case "start":
+					case "state":
+					case "static":
+					case "subtype":
+					case "top":
+					case "type":
+					case "vartype":
+					case "virtual":
+					case "xmlvartype":
+
 						break;
 
+					// Object Node properties we WANT to descend
 					default:
+
+						if(!isFinite(item) && (typeof node[item] == 'object'))
+							dic[item]=true;
 
 						if(typeof node[item] == 'object'  && node[item] && !node[item].__visited)
 						{
@@ -390,6 +456,19 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 		}
 
 		descend(ast);
+
+		// Enable this code to detect Node object properties
+		// added by parser that could be excluded in descend.
+
+		var fields = [];
+		for(item in dic)
+			fields.push('case "' + item + '":');
+		if(fields.length)
+		{
+			// Add those properties to switch above
+			//trace(fields.sort().join("\n"));
+		}
+
 		return ast;
 	};
 
@@ -713,6 +792,37 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isMember = function(name, cls)
+	{
+		var symbol = cls ? (cls.methods[name] || cls.vars[name]) : null;
+		return (!symbol ? null : (cls.classId + (symbol.private ? ".__PRIVATE__" : (symbol.protected ? ".__PROTECTED__" : "") )));
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isBaseMember = function(name, cls, baseOnly)
+	{
+		var basePath = [];
+		function __isBaseMember(base)
+		{
+			if(!base) return false;
+			basePath.push(base.classId);
+			if(baseOnly) return __isBaseMember(base.baseSymbol);
+			var symbol = base.methods[name] || base.vars[name] || null;
+			if(symbol)
+			{
+				if(symbol.private) basePath.push("__PRIVATE__");
+				else if(symbol.protected) basePath.push("__PROTECTED__");
+				return true;
+			}
+			else
+			{
+				return __isBaseMember(base.baseSymbol);
+			}
+		}
+		return __isBaseMember(cls) ? basePath.join(".") : null;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.isInside = function(ast, jsdefType, propName, propValue, stop_jsdefType)
 	{
 		if(!ast) return false;
@@ -771,7 +881,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 		};
 
 		// Add debug line
-		if(_this.line_start != ast.line_start)
+		if(_this.lineNumbers && _this.line_start != ast.line_start)
 		{
 			_this.line_start != -1 && out.push("\n");
 			out.push("\/\/@line " + ast.line_start + "\n");
@@ -806,7 +916,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			var baseConstructor = baseClassSymbol ? baseClassSymbol.methods["Constructor"] : null;
 			var isGlobalClass = (ast.name=="Global");
 			var scope = (isGlobalClass ? _this.scopesStack[0] : _this.NewScope(ast));
-			var staticMembers = [];
+			var staticMembers = {};
+			var baseClasses = [];
 
 			if(baseClass && baseClass==ast.name)
 			{
@@ -851,6 +962,20 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			// Record vartype usage in class level (used to check #includes)
 			if(baseClass) scope.vartypes[baseClass] = 2; // Include priority (1: needed in .cpp, 2: needed in .hpp)
 
+			// Collect all base classes (in reverse order from bottom to top)
+			if(_this.secondPass)
+			{
+				if(baseClass && !baseClassSymbol)
+					_this.NewError("Base class not found: " + baseClass, ast);
+
+				var base = classSymbol;
+				while(((base=base.baseSymbol)!=null) && (base.file!="externs.jspp"))
+				{
+					baseClasses.push(base);
+				}
+				baseClasses = baseClasses.reverse();
+			}
+
 			/*//////////////////////////////////////////////////////////////////////////////////////////////
 
 			Defining a class and inheritance in plain JavaScript:
@@ -860,7 +985,10 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			returning an inner function that represents the Class.	When calling the outer function with the
 			"new" operator the result is an instnace of the inner function.	To implement inheritance we use the
 			good old prototypes, as demonstrated below. Our compiler's work is to construct the inner and outer
-			functions based on the AST class definition and to properly apply inheritance.
+			functions based on the AST class definition and to properly apply inheritance. Using the prototype
+			ensures that each new class instance will start with an EXACT copy of the base class. The compiler
+			applies minimal post-processing for inheritance-related things that are missing from the prototype
+			mechanics such as virtual functions, overloaded methods, etc.
 
 			function Class1()
 			{
@@ -908,7 +1036,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			var o3 = new Class2;
 			console.log(o3.x + ", " + o3.y + ", " + o3.z);
 
-
 			The original CocoScript was based on Roger's JavaScript++ implementation but class
 			initialization was too cryptic for me to undestand and debug. Also, when a class was
 			inheriting from another class, the base class was appearing in global scope and I could
@@ -921,56 +1048,131 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 			//////////////////////////////////////////////////////////////////////////////////////////////*/
 
-			// Get constructor arguments list
-			var constructorArguments = [];
-			for(var item in ast.body)
+			// Generate constructor arguments list for this class
+			var thisConstructorArguments = [];
+			if(ast.constructorNode && ast.constructorNode.params.length)
 			{
-				if(!isFinite(item)) break;
-				var member = ast.body[item];
-				if(member.type==jsdef.FUNCTION && member.name=="Constructor" && member.params.length)
-				{
-					for(i=0;i<member.params.length;i++)
-						constructorArguments.push(classId + "$" + member.params[i] + "__");
-					break;
-				}
+				for(i=0;i<ast.constructorNode.params.length;i++)
+					thisConstructorArguments.push(classId + "$" + ast.constructorNode.params[i] + "__");
 			}
-			constructorArguments = constructorArguments.join(", ");
+			thisConstructorArguments = thisConstructorArguments.join(", ");
 
 			// Generate the outer function
-			out.push("function " + ast.name + "(" + constructorArguments + "){");
+			out.push("function " + ast.name + "(" + thisConstructorArguments + "){");
 			out.push("var __BASE__ = null;");
 
 			// Generate the inner function
-			out.push("function " + ast.name + "Class(__BASE__" + (constructorArguments ? ", " + constructorArguments : "") + "){");
+			out.push("function __" + ast.name + "(" + thisConstructorArguments + "){");
 
-			// Generate self (this)
-			out.push("var " + classId + " = this;");
+			// Generate a __CLASS_<CLASSID>__ for this.
+			// When this class becomes a prototype of another class,
+			// then __CLASS_<CLASSID>__ will act as the base class.
+			// Especially for virtual methods that we need to call
+			// the original implementation using "super.<method>" we
+			// will make this call using __CLASS_<CLASSID>__.<method>
 
-			// Generate protected and private member banks
-			out.push("__PDEFINE__=Object.defineProperty,");
-			out.push("__NOENUM__={enumerable:false};");
-            out.push("this.__PRIVATE__={}; this.__PROTECTED__={};");
-			out.push("__PDEFINE__(this,'__PROTECTED__',__NOENUM__);");
-			out.push("__PDEFINE__(this,'__PRIVATE__',__NOENUM__);");
+			out.push("var __$CLASS_NAME$__ = this.__$CLASS_NAME$__ = '" + ast.name + "',");
+			out.push(classId + " = this." + classId + " = this,");
+			out.push("__PDEFINE__ = Object.defineProperty,");
+			out.push("__NOENUM__ = {enumerable:false},");
 
-			// Inherit public and protected members
-			if(baseClass)
+			// For proper implementation of Private and Protected members, we use two
+			// banks, the __PRIVATE__ and __PROTECTED__ respectively. All private or
+			// public entities such as vars, consts, enums, functions, states, properties,
+			// are saved in those two banks. Public entities are saved directly on the
+			// class and on a var (var x = this.x = <public>).
+			// Low-level classes that do not inherit from anything need to define the
+			// __PRIVATE__ and __PROTECTED__ banks. Be carefull NOT TO REDEFINE the
+			// banks if your class inherits from another class.
+
+            if(!baseClassSymbol)
+            {
+	            out.push("__PRIVATE__ = this.__PRIVATE__ = {},");
+	            out.push("__PROTECTED__ = this.__PROTECTED__ = {};");
+				out.push("__PDEFINE__(this,'__PRIVATE__',__NOENUM__);");
+				out.push("__PDEFINE__(this,'__PROTECTED__',__NOENUM__);");
+            }
+            else
+            {
+	            out.push("__PRIVATE__ = this.__PRIVATE__,");
+	            out.push("__PROTECTED__ = this.__PROTECTED__");
+	            out.push(baseClasses.length>0 ? "," : ";")
+
+	            for(i=0;i<baseClasses.length;i++)
+	            {
+	            	out.push(baseClasses[i].classId + " = this." + baseClasses[i].classId + (i!=baseClasses.length-1 ? ",": ";"));
+	            }
+            }
+
+			/////////////////////////////////////////////////////////////////////////////////
+			// Overloads can cause problems if they are positioned in source code below any
+			// functions that use/call them. Therefore we mush perform an intermediate pass
+			// between the first pass and the second pass if overloads are detected in the
+			// class in order to fully-process overloads and derive their symbols.
+			/////////////////////////////////////////////////////////////////////////////////
+			if(_this.secondPass && ast.requires_third_pass)
 			{
-				if(_this.secondPass && baseClass && !_this.getClass(baseClass))
-					_this.NewError("Base class not found: " + baseClass, ast);
-
-				out.push("var __SUPER__ = this.__SUPER__ = {}; this.__BASE__ = __BASE__;");
+				_this.no_errors++; // Supress any errors
+				for(item in ast.body)
+				{
+					if(!isFinite(item)) break;
+					member = ast.body[item];
+					if(member.type!=jsdef.FUNCTION) continue;
+					if(member.isConstructor || member.isDestructor) continue;
+					generate(member); // <- generating functions will process overloads
+				}
+				_this.no_errors--; // Restore errors generation
 			}
 
-			// Generate Class Methods
-			for(var item in ast.body)
+			/////////////////////////////////////////////////////////////////////////////////
+			// Generate Class Body
+			/////////////////////////////////////////////////////////////////////////////////
+
+			var out_constants 		= [];
+			var out_enums 			= [];
+			var out_vars			= [];
+			var out_functions		= [];
+			var out_properties 		= [];
+			var out_states 			= [];
+
+			for(item in ast.body)
 			{
 				if(!isFinite(item)) break;
-				var member = ast.body[item];
+
+				member = ast.body[item];
+
 				switch(member.type)
 				{
+					//------------------------------------------
+					case jsdef.CONST:
+					{
+						if(member.static)
+							staticMembers[member.nodeId] = generate(member);
+						else
+							out_constants.push(generate(member));
+					}
+					break;
+
+					//------------------------------------------
+					case jsdef.ENUM:
+					{
+						out_enums.push(generate(member));
+					}
+					break;
+
+					//------------------------------------------
+					case jsdef.VAR:
+					{
+						if(member.static)
+							staticMembers[member.nodeId] = generate(member);
+						else
+							out_vars.push(generate(member));
+					}
+					break;
+
+					//------------------------------------------
 					case jsdef.FUNCTION:
-					case jsdef.PROPERTY:
+					{
 						if(member.name=="Constructor")
 						{
 							member.isConstructor=true;
@@ -984,55 +1186,74 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 							continue;
 						}
 						if(member.static)
-							staticMembers.push(generate(member));
+							staticMembers[member.nodeId] = generate(member);
 						else
-							out.push(generate(member));
-						break;
-				}
-			}
+							out_functions.push(generate(member));
+					}
+					break;
 
-			// Generate Class Fields
-			for(var item in ast.body)
-			{
-				if(!isFinite(item)) break;
-				var member = ast.body[item];
-				switch(member.type)
-				{
-					case jsdef.STATE:
-					case jsdef.ENUM:
-						out.push(generate(member));
-						break;
-
-					case jsdef.CONST:
-					case jsdef.VAR:
+					//------------------------------------------
+					case jsdef.PROPERTY:
+					{
 						if(member.static)
-							staticMembers.push(generate(member));
+							staticMembers[member.nodeId] = generate(member);
 						else
-							out.push(generate(member));
-						break;
-				}
-			}
+							out_properties.push(generate(member));
+					}
+					break;
 
+					//------------------------------------------
+					case jsdef.STATE:
+					{
+						out_states.push(generate(member));
+					}
+					break;
+
+				} //switch
+
+			} //for
+
+			// Synthesize class body, keep the entities organized.
+			out.push( out_constants.join("\n") 	);
+			out.push( out_enums.join("\n") 		);
+			out.push( out_vars.join("\n") 		);
+			out.push( out_functions.join("\n") 	);
+			out.push( out_properties.join("\n") );
+			out.push( out_states.join("\n") 	);
+
+			/////////////////////////////////////////////////////////////////////////////////
 			// Generate Destructor
-			// (the idea is to call the destructor of any object class member variables and set them to null)
+			/////////////////////////////////////////////////////////////////////////////////
 			out.push("var Destructor = this.Destructor = function(){");
 			if(destructor) out.push(generate(destructor.body));
 
 			if(_this.secondPass)
 			{
 				out.push("{");
+
+				// Call the destructor of any member variable which
+				// is an object, delete it, and set it to null.
 				for(item in classSymbol.vars)
+				{
 					out.push(classSymbol.vars[item].runtime+"=null;");
+				}
+
+				// If there is a base class, call its destructor.
 				if(baseClass)
-					out.push("__BASE__ && ((__BASE__.hasOwnProperty('Destructor') && __BASE__.Destructor()) || !__BASE__.hasOwnProperty('Destructor')) && (delete __BASE__);");
+				{
+					out.push(_this.DELETE_BASE.replace(/__BASE__/g, classId+"."+baseClassId));
+				}
+
 				out.push("}");
 			}
 			out.push("return true};");
 
-			// Generate Constructor and call it
+			/////////////////////////////////////////////////////////////////////////////////
+			// Generate Constructor
+			/////////////////////////////////////////////////////////////////////////////////
 			out.push(constructor ? generate(constructor) : "this.Constructor=function(){};");
 			out.push("__PDEFINE__(this,'Constructor',__NOENUM__);");
-			out.push("this.Constructor(" + constructorArguments + ");");
+			out.push("this.Constructor(" + thisConstructorArguments + ");");
 
             // Close inner function
 			out.push("return this;}");
@@ -1040,26 +1261,102 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			// Close outer function
 			if(baseClass)
 			{
-				out.push("__BASE__ = new " + baseClass + "(" + constructorArguments + ");");
-				out.push(ast.name + "Class.prototype = __BASE__;");
+				var baseConstructorArguments = [];
+
+				// Generate base class constructor arguments call list
+				// eg. public function Constructor(arg1:String) : BaseClass(arg1, "arg2")
+
+				if(ast.base_init_params)
+				{
+					_this.lineNumbers = false;
+					for(var item in ast.base_init_params)
+					{
+						if(!isFinite(item)) break;
+						var arg = ast.base_init_params[item];
+						if(arg.type==jsdef.IDENTIFIER)
+						{
+							baseConstructorArguments.push(classId + "$" + arg.value + "__");
+						}
+						else
+						{
+							var gen = _this.generate(arg);
+							baseConstructorArguments.push(gen);
+						}
+					}
+					_this.lineNumbers = true;
+					baseConstructorArguments = baseConstructorArguments.join(", ");
+				}
+				else
+				{
+					baseConstructorArguments = thisConstructorArguments;
+				}
+
+				out.push("__" + ast.name + ".prototype = new " + baseClass + "(" + baseConstructorArguments + ");");
 			}
-			out.push("return new " + ast.name + "Class(__BASE__" + (constructorArguments ? ", " + constructorArguments : "") + ");}");
+			out.push("return new __" + ast.name + "(" + thisConstructorArguments + ");}");
 
-			out.push(ast.name + ".prototype = {};");
-			out.push(ast.name + ".prototype.__PRIVATE__ = {};");
-			out.push(ast.name + ".prototype.__PROTECTED__ = {};");
-			out.push(staticMembers.join("\n"));
+			/////////////////////////////////////////////////////////////////////////////////
+			// Generate Static class members on outer Class function
+			/////////////////////////////////////////////////////////////////////////////////
 
+			// We will use __PRIVATE__ and __PROTECTED__ to store static members on
+			// outer class function, like we did with instance members on the inner
+			// class function. This was most of the rest code will simply work for
+			// private and protected entities.
+
+			out.push(ast.name + ".__PRIVATE__ = {};");
+			out.push(ast.name + ".__PROTECTED__ = {};");
+
+			// We loop on all bases (in reverse order) and generate
+			// their static members in this class scope.
+
+			if(_this.secondPass && baseClasses.length>0)
+			{
+				for(i=0;i<baseClasses.length;i++)
+				{
+					var base = baseClasses[i];
+
+					// Vars
+					for(item in base.vars)
+					{
+						var member = base.vars[item];
+						if(!member.static || member.type==jsdef.STATE) continue;
+						switch(member.type)
+						{
+							case jsdef.PROPERTY:
+								staticMembers[member.ast.nodeId] = generate(member.ast);
+								break;
+
+							case jsdef.IDENTIFIER: // of jsdef.VAR
+								staticMembers[member.ast.nodeId] = generate(member.ast.parent);
+								break;
+						}
+					}
+
+					// Methods
+					for(item in base.methods)
+					{
+						var member = base.methods[item];
+						if(!member.static) continue;
+						staticMembers[member.ast.nodeId] = generate(member.ast);
+					}
+				}
+			}
+
+			// Finally add our own static members
+			for(item in staticMembers)
+			{
+				out.push( staticMembers[item] );
+			}
+
+			/////////////////////////////////////////////////////////////////////////////////
 			// Type Checks
+			/////////////////////////////////////////////////////////////////////////////////
 			if(_this.secondPass)
 			{
 				// Check that abstract methods are implemented
 				if(baseClass && baseClassSymbol)
 				{
-					// Check base class constructor arguments
-					if(constructor && baseConstructor && baseConstructor.paramsList.length > constructor.paramsList.length)
-						_this.NewError("Constructor arguments missmatch: " + ast.name, ast);
-
 					for(item in baseClassSymbol.methods)
 					{
 						var baseMethodSymbol = baseClassSymbol.methods[item];
@@ -1082,7 +1379,9 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					_this.NewError("Missing Destructor: " + ast.name, ast);
 			}
 
+			/////////////////////////////////////////////////////////////////////////////////
             // Done!
+			/////////////////////////////////////////////////////////////////////////////////
 			_this.currClassName = null;
 
 			if(!isGlobalClass)
@@ -1144,8 +1443,11 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			var isAnonymous = (ast.name==null || ast.name.length==0);
 			var fnName = (ast.name ? ast.name : "");
 			var baseMethodSymbol = null;
+			var skip_generate = false;
 
-			if(_this.currClassName) _this.debugSymbolsTable.push("<!-- " + className + " :: " + fnName + " -->\n");
+			// Add an XML comment to indicate function section in debug symbols XML
+			if(_this.currClassName && (!classSymbol || (classSymbol && !classSymbol.ast.requires_third_pass)))
+				_this.debugSymbolsTable.push("<!-- " + className + " :: " + fnName + " -->\n");
 
             // Check for function overloading
 			if(!isAnonymous && Object.prototype.hasOwnProperty.call(parentScope.methods, fnName))
@@ -1161,10 +1463,18 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					// and the compiler during identifier recognition decides which overload
 					// function to bind.
 
-					if(!fn_ast.overloads) fn_ast.overloads = [];
+					if(!fn_ast.overloads)
+					{
+						classSymbol.ast.requires_third_pass=true; // Indicates we will need a 3rd pass
+						fn_ast.overload_name = fnName;
+						fn_ast.overloads = [];
+					}
+
 					fn_ast.overloads.push(ast);
 					ast.overloadOf = fn_ast;
 					fnName += "$" + fn_ast.overloads.length;
+					ast.overload_name = fnName;
+
 				}
 				else if(fn_ast.overloads)
 				{
@@ -1207,9 +1517,9 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				functionSymbol.paramsList	= ast.paramsList;
 				functionSymbol.arguments	= {};
 
-    			if(classId && ast.public)			functionSymbol.runtime = classId + "." + fnName;
-				else if(classId && ast.private)		functionSymbol.runtime = classId + ".__PRIVATE__." + fnName;
-				else if(classId && ast.protected)	functionSymbol.runtime = classId + ".__PROTECTED__." + fnName;
+    			if(classId && ast.public)			functionSymbol.runtime = (_this.in_state ? "this" : classId) + "." + fnName;
+				else if(classId && ast.private)		functionSymbol.runtime = (_this.in_state ? "this" : classId) + ".__PRIVATE__." + fnName;
+				else if(classId && ast.protected)	functionSymbol.runtime = (_this.in_state ? "this" : classId) + ".__PROTECTED__." + fnName;
 				else								functionSymbol.runtime = fnName;
 			}
 
@@ -1296,71 +1606,149 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			}
 			paramsList = "(" + paramsList + ")";
 
-	        // Generate Global scope function (plain JavaScript function)
+			// =================================================================
+			// Generate Function Body (and save it to ast for later use)
+			// Function body is generated in advance because if function
+			// is virtual we will need a non-standard function generation.
+			// Function body is complete, including curly brackets.
+			// =================================================================
+
+			ast.generated_code = "{" + generate(ast.body);
+
+			// Generate default return value
+			if(!ast.isConstructor && !ast.isDestructor)
+			{
+				var vartype = _this.getVarType(ast.returntype);
+				if(_this.types.hasOwnProperty(vartype))
+					ast.generated_code += "\nreturn " + _this.types[vartype].default;
+			}
+
+			ast.generated_code += "\n}";
+
+			/////////////////////////////////////////////////////////////////////////////////////////
+	        // Global Function (plain JavaScript function)
+			/////////////////////////////////////////////////////////////////////////////////////////
+
 	        if(isGlobal)
 	        {
-	  			out.push("function " + fnName + paramsList + "{");
-				out.push(generate(ast.body));
-				out.push("}");
+	  			out.push("function " + fnName + paramsList);
+				out.push(ast.generated_code);
 	        }
-	        else if(ast.static)
-            {
-            	out.push(className + ".prototype.");
-            	if(ast.private)			out.push("__PRIVATE__.");
-				else if(ast.protected)	out.push("__PROTECTED__.");
-            	out.push(fnName + " = function" + paramsList + "{");
-            	out.push(generate(ast.body));
-            	out.push("}");
-            }
 
-	        // Generate Class member function
+			/////////////////////////////////////////////////////////////////////////////////////////
+	        // Anonymous function
+			/////////////////////////////////////////////////////////////////////////////////////////
+
+	        else if(isAnonymous)
+	        {
+	  			out.push("function " + fnName + paramsList);
+				out.push(ast.generated_code);
+	        }
+
+			/////////////////////////////////////////////////////////////////////////////////////////
+	        // Class member function
+			/////////////////////////////////////////////////////////////////////////////////////////
+
 	        else if(classScope)
 	        {
-	  			// Function definition
-	  			if(ast.isConstructor)
-	  			{
-	  			 	out.push("this.Constructor=function(){");
+				// =================================================================
+		        // Constructor function
+				// =================================================================
+	            if(ast.isConstructor)
+	            {
+	            	out.push("this.Constructor=function"+paramsList);
+	            	out.push(ast.generated_code);
+	            	out.push(";");
+	            }
 
-					// Generate constructor arguments as variables
-					for(var i=0; i<ast.paramsList.length; i++)
-						out.push("var " + ast.paramsList[i].name + "=arguments[" + i + "];");
-	  			}
-	  			else
-	  			{
-	  				if(baseMethodSymbol && baseMethodSymbol.virtual)//classSymbol && classSymbol.baseSymbol && classSymbol.baseSymbol.methods[fnName] && classSymbol.baseSymbol.methods[fnName].virtual)
-	  				{
-	  					if(ast.public)				out.push("__SUPER__." + fnName + " = this.__BASE__." + fnName + ";\nthis.__BASE__." + fnName);
-		  				else if(ast.private)		out.push("__SUPER__.__PRIVATE__." + fnName + " = this.__BASE__.__PRIVATE__." + fnName + ";\nthis.__BASE__.__PRIVATE__." + fnName);
-		  				else if(ast.protected)		out.push("__SUPER__.__PROTECTED__." + fnName + " = this.__BASE__.__PROTECTED__." + fnName + ";\nthis.__BASE__.__PROTECTED__." + fnName);
-		  				out.push(" = function" + paramsList + "{");
-	  				}
-	  				else
-	  				{
-		  				if(_this.in_property)		out.push(_this.in_property + " function" + paramsList + "{");
-		  				else if(ast.public)			out.push("var " + fnName + " = this." + fnName + " = function" + paramsList + "{");
-		  				else if(ast.private)		out.push("this.__PRIVATE__." + fnName + " = function" + paramsList + "{");
-		  				else if(ast.protected)		out.push("this.__PROTECTED__." + fnName + " = function" + paramsList + "{");
-		  				else _this.NewError("No access modifier defined for function: " + fnName, ast);
-	  				}
-	  			}
-
-				// Generate Function Body
-				ast.fnBody = generate(ast.body);
-				out.push(ast.fnBody);
-
-				// Generate default return value
-				if(!ast.isConstructor && !ast.isDestructor)
+				// =================================================================
+		        // Property setter / getter function
+				// =================================================================
+				else if(_this.in_property)
 				{
-					var vartype = _this.getVarType(ast.returntype);
-					if(_this.types.hasOwnProperty(vartype))
-						out.push("return " + _this.types[vartype].default);
+		  			out.push(_this.in_property + " function" + paramsList);
+	            	out.push(ast.generated_code);
 				}
 
-				out.push("}");
-				if(!_this.in_property) out.push(";");
+				// =================================================================
+		        // State funciton
+				// =================================================================
+				else if(_this.in_state)
+				{
+		  			out.push("var " + fnName + " = this." + fnName + " = function" + paramsList);
+	            	out.push(ast.generated_code);
+	            	out.push(";");
+				}
 
-				// We check overloaded functions once they are all generated.
-				if(_this.secondPass && ast.overloadOf && fnName==ast.overloadOf.name+"$"+ast.overloadOf.overloads.length)
+				// =================================================================
+		        // Static function
+				// =================================================================
+		        else if(ast.static)
+	            {
+					if(ast.public)			out.push(classSymbol.name+".");
+					else if(ast.private)	out.push(classSymbol.name+".__PRIVATE__.");
+					else if(ast.protected)	out.push(classSymbol.name+".__PROTECTED__.");
+	            	out.push(fnName + " = function" + paramsList);
+	            	out.push(ast.generated_code);
+	            	out.push(";");
+	            }
+
+				// =================================================================
+  				// Virtual Function
+				// =================================================================
+  				else if(baseMethodSymbol && baseMethodSymbol.virtual)
+  				{
+  					// *** How virtual functions are implemented ***
+  					//
+  					// In most programming languages a virtual method is being replaced by the
+  					// the implementation of the top-level class. Any call to the virtual method
+  					// either by the top-level class or by the base-class, calls the implementation
+  					// of the top-level class. Access to the replaced method is achieved only by
+  					// using "super" keyword.
+
+  					if(ast.private)
+  						_this.NewError("Invalid private access modifier for virtual function: "+ast.name, ast);
+
+  					if(baseMethodSymbol.public!=ast.public || baseMethodSymbol.protected!=ast.protected)
+  						_this.NewError("Invalid access modifier alteration for virtual function: "+ast.name, ast);
+
+  					if(ast.public)
+  					{
+  						out.push(fnName + "=this." + fnName + "=function" + paramsList + ast.generated_code + ";");
+  						skip_generate=true;
+  					}
+
+	  				else if(ast.protected)
+	  				{
+  						out.push("this.__PROTECTED__." + fnName + "=function" + paramsList + ast.generated_code + ";");
+  						skip_generate=true;
+	  				}
+  				}
+				// =================================================================
+  				// Standard Function
+				// =================================================================
+  				else
+  				{
+  					if(ast.private && ast.symbol.virtual)
+  						_this.NewError("Invalid private access modifier for virtual function: "+ast.name, ast);
+
+  					if(!_this.in_property && !_this.in_state && !ast.public && !ast.private && !ast.protected)
+  						_this.NewError("No access modifier defined for function: " + fnName, ast);
+
+	  				if(_this.in_property)		out.push(_this.in_property + " function" + paramsList);
+	  				else if(_this.in_state)		out.push("var " + fnName + " = this." + fnName + " = function" + paramsList);
+	  				else if(ast.public)			out.push("var " + fnName + " = this." + fnName + " = function" + paramsList);
+	  				else if(ast.private)		out.push("this.__PRIVATE__." + fnName + " = function" + paramsList);
+	  				else if(ast.protected)		out.push("this.__PROTECTED__." + fnName + " = function" + paramsList);
+
+	            	out.push(ast.generated_code);
+	            	out.push(";");
+  				}
+
+				// =================================================================
+				// Process overloaded functions once all overloads are generated.
+				// =================================================================
+				if(_this.secondPass && ast.overloadOf && ast.overload_name==ast.overloadOf.name+"$"+ast.overloadOf.overloads.length && !ast.symbol.overloads)
 				{
 					// Get all overloaded functions in one list
 					var overloads = [ast.overloadOf].concat(ast.overloadOf.overloads);
@@ -1369,17 +1757,18 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					for(var i=0;i<overloads.length;i++)
 					{
 						// Make sure all overloads know they are overloaded.
-						overloads[i].symbol.overloads = overloads;
+						var fn_ast = overloads[i];
+						fn_ast.symbol.overloads = overloads;
 
 						for(var j=i+1;j<overloads.length;j++)
 						{
-							if(overloads[i]!=overloads[j] && overloads[i].paramsList.length==overloads[j].paramsList.length)
+							var fn_overload = overloads[j];
+							if(fn_ast!=fn_overload && fn_ast.paramsList.length==fn_overload.paramsList.length)
 							{
 								var redeclaration = true;
-								for(var k=0; k<overloads[i].paramsList.length; k++)
+								for(var k=0; k<fn_ast.paramsList.length; k++)
 								{
-									//if(_this.typeCheck(overloads[j].paramsList[k], overloads[i].paramsList[k].vartype, overloads[j].paramsList[k].vartype, null, true))
-									if(overloads[i].paramsList[k].vartype!=overloads[j].paramsList[k].vartype)
+									if(fn_ast.paramsList[k].vartype!=fn_overload.paramsList[k].vartype)
 									{
 										redeclaration=false;
 										break;
@@ -1387,14 +1776,16 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 								}
 								if(redeclaration)
 								{
-									_this.NewError("Redeclaration of function " + overloads[j].name, overloads[i]);
+									_this.NewError("Redeclaration of function " + fn_overload.name, fn_ast);
 								}
 							}
 						}
 					}
 				}
 
+				// =================================================================
 				// Check function return paths
+				// =================================================================
 				if(_this.secondPass && ast.file && ast.file!="externs.jspp")
 				{
 					if(!ast.isConstructor && baseMethodSymbol && !baseMethodSymbol.virtual)
@@ -1421,15 +1812,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 						}
 					}
 				}
-	        }
 
-	        // Generate Anonymous function
-	        else if(isAnonymous)
-	        {
-	  			out.push("function " + fnName + paramsList + "{");
-				out.push(generate(ast.body));
-				out.push("}");
-	        }
+	        } //if(classScope)
 
 			_this.ExitScope();
 			break;
@@ -1456,10 +1840,18 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			if(ast.scope.isClass && !ast.inFunction)
 			{
 				// Declare class variable depending on its modifier
-				if(ast.static)			out.push(classSymbol.name + ".prototype.");
-				else					out.push("this.");
-				if(ast.private)			out.push("__PRIVATE__.");
-				else if(ast.protected)	out.push("__PROTECTED__.");
+				if(ast.static)
+				{
+					if(ast.public)			out.push(classSymbol.name+".");
+					else if(ast.private)	out.push(classSymbol.name+".__PRIVATE__.");
+					else if(ast.protected)	out.push(classSymbol.name+".__PROTECTED__.");
+				}
+				else
+				{
+					if(ast.public)			out.push("this.");
+					else if(ast.private)	out.push("__PRIVATE__.");
+					else if(ast.protected)	out.push("__PROTECTED__.");
+				}
 			}
 			else
 			{
@@ -1475,6 +1867,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				// Variables defined in JavaScript global scope such as plain JavaScript files are untyped.
 				// Such variables are window, document, canvas, gl, engine, etc. You can define their type
 				// inside externs.jspp and the compiler will automatically link the extern_symbol.
+
 				var extern_symbol = null;
 
                 // Type Checks
@@ -1575,7 +1968,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				if(!firstItem)
 				{
 					if(ast.static)
-						out.push(";\n" + classSymbol.name + ".prototype.");
+						out.push(";\n" + classSymbol.name + ".");
 					else
 						out.push(", ");
 				}
@@ -1594,18 +1987,22 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 							_this.NewError("Invalid class member initializer, should be in constructor: " + ast[item].name, ast[item]);
 					}
 
-					out.push("=");
-					out.push(generate(ast[item].initializer));
+					ast.generated_code = generate(ast[item].initializer);
 				}
 				else
 				{
 					var vartype = _this.getVarType(ast[item].vartype);
 					if(_this.types.hasOwnProperty(vartype))
-						out.push("="+_this.types[vartype].default);
+					{
+						ast.generated_code = _this.types[vartype].default;
+					}
 					else if(ast.scope.isClass || ast.scope.isState)
-						out.push("=null");
+					{
+						ast.generated_code = "null";
+					}
 				}
 
+				out.push("=" + ast.generated_code);
 				firstItem = false;
 			}
 
@@ -1805,9 +2202,18 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			// Generate code
 			var definition;
 
-			if(ast.public)			definition = "this";
-			else if(ast.private)	definition = "this.__PRIVATE__";
-			else if(ast.protected)	definition = "this.__PROTECTED__";
+			if(ast.static)
+			{
+				if(ast.public)			definition = classSymbol.name;
+				else if(ast.private)	definition = classSymbol.name+".__PRIVATE__";
+				else if(ast.protected)	definition = classSymbol.name+".__PROTECTED__";
+			}
+			else
+			{
+				if(ast.public)			definition = "this";
+				else if(ast.private)	definition = "this.__PRIVATE__";
+				else if(ast.protected)	definition = "this.__PROTECTED__";
+			}
 
 			out.push("Object.defineProperty(" + definition + ", '" + propertyName + "', {enumerable:true,");
 
@@ -1821,6 +2227,9 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			}
 
 			out.push("});");
+
+			// Save generated code to ast for later use in inheritance
+			ast.generated_code = out.join("\n");
 
 			_this.in_property = null;
 			_this.ExitScope();
@@ -1848,6 +2257,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			var hasEnter = false;
 			var hasExit = false;
 			var classSymbol = _this.getCurrentScope().ast.symbol;
+			var classId = classSymbol.classId;
 			_this.in_state = ast.name;
 
 			ast.scope = _this.NewScope(ast);
@@ -1869,7 +2279,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				stateSymbol.public			= ast.public==true;
 				stateSymbol.private			= ast.private==true;
 				stateSymbol.protected		= ast.protected==true;
-				stateSymbol.static			= true; //CHECK:false
+				stateSymbol.static			= true;
 				stateSymbol.optional		= false;
 				stateSymbol.virtual			= false;
 				stateSymbol.abstract		= false;
@@ -1951,11 +2361,18 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.SUPER:
-			out.push("__SUPER__");
-			if(_this.secondPass)
+			if(ast.inClass)
 			{
 				ast.symbol = _this.getCurrentClass().baseSymbol;
-				ast.runtime = "__SUPER__." + ast.symbol.classId;
+				if(ast.symbol)
+				{
+					ast.runtime = ast.inClass.symbol.classId + "." + ast.symbol.classId;
+					out.push(ast.runtime);
+				}
+			}
+			else
+			{
+				_this.NewError("Invalid super outside class", ast);
 			}
 			break;
 
@@ -1995,7 +2412,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			//==================================================================================
 			// First pass or not inside a class?
 			//==================================================================================
-			if(!_this.secondPass)
+			if(!_this.secondPass || _this.no_errors>0)
 			{
 				// Generate identifier and be gone.
 				out.push(ast.value);
@@ -2067,6 +2484,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			// 3) as a call (that could be in a DOT)				:	foo() + object.foo()
 			//
 			//==================================================================================
+
 			if(ast.symbol.overloads)
 			{
 				var astCALL=null;
@@ -2105,7 +2523,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 							var maching_args = true;
 							for(var j=0;j<astCALL[1].length;j++)
 							{
-								var type1 = _this.getTypeName(astCALL[0][j]);
+								var type1 = _this.getTypeName(astCALL[1][j]);
 								var type2 = ast.symbol.overloads[i].paramsList[j].vartype;
 								if(!_this.typeCheck(ast, type1, type2, null, true))
 								{
@@ -2146,10 +2564,9 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 			if(!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast))
 			{
-				//CHECK:if(ast.symbol.static)
-				if(ast.symbol.static && ast.symbol.type != jsdef.STATE)
+				if(ast.symbol.static && ast.symbol.type!=jsdef.STATE)
 				{
-					ast.runtime = _this.currClassName + ".prototype.";
+					ast.runtime = _this.currClassName + ".";
 					if(ast.symbol.protected) ast.runtime += "__PROTECTED__.";
 					else if(ast.symbol.private) ast.runtime += "__PRIVATE__.";
 					ast.runtime += ast.value;
@@ -2159,13 +2576,11 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					ast.runtime = ast.symbol.runtime;
 				}
 
-				// Identifier defined in base class?
-				var cls = _this.getCurrentClass();
-				if(!ast.symbol.isEnum && ast.symbol.ast.file.indexOf(".jspp")!=-1
-					&& cls && cls.baseSymbol && cls.baseSymbol.file!="externs.jspp"
-					&& cls.baseSymbol==ast.symbol.ast.inClass.symbol)
+				// Identifier defined in class or its base(s) ?
+				var basePath = null;
+				if((basePath=(_this.isMember(ast.value, ast.inClass.symbol) || _this.isBaseMember(ast.value, ast.inClass.symbol))))
 				{
-					ast.runtime = _this.getCurrentClass().classId + ".__BASE__." + ast.value;
+					ast.runtime = basePath + "." + ast.value;
 				}
 			}
 
@@ -2213,7 +2628,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			{
 				_this.NewError("Invalid private member access: " + ast.value, ast);
 			}
-			else if(ast.symbol.protected && ast.inClass!=ast.symbol.ast.inClass && ast.inClass.symbol.baseSymbol!=ast.symbol.ast.inClass.symbol)
+			else if(ast.symbol.protected && ast.inClass!=ast.symbol.ast.inClass && !_this.isBaseMember(ast.value, ast.inClass.symbol))
 			{
 				_this.NewError("Invalid protected member access: " + ast.value, ast);
 			}

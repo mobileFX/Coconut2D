@@ -569,8 +569,6 @@ class Audio
 	public function play() {}
 	public function pause() {}
 	public function Constructor(url:String) {}
-	public var currentTime :Float;
-	public var readyState :Integer;
 	private var __uid :Integer;
 	private var __currentTime :Float;
 	public var duration :Float;
@@ -579,6 +577,8 @@ class Audio
 	public var autoplay :Boolean;
 	public var loop :Boolean;
 	public var src :String;
+	public var currentTime :Float;
+	public var readyState :Integer;
 } //Audio
 
 class HTMLCanvasContext
@@ -637,11 +637,7 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public function fillRect(x:Float, y:Float, width:Float, height:Float) {}
 	public function clearRect(x:Float, y:Float, width:Float, height:Float) {}
 	public function measureText(text:String) :HTMLTextMetrics {}
-	public function Constructor(canvas:HTMLCanvasElement) {}
-	public var fillStyle :String;
-	public var strokeStyle :String;
-	public var lineWidth :Float;
-	public var font :String;
+	public function Constructor(Canvas:HTMLCanvasElement) {}
 	public var DRAWWINDOW_DRAW_CARET :Number;
 	public var DRAWWINDOW_DO_NOT_FLUSH :Number;
 	public var DRAWWINDOW_DRAW_VIEW :Number;
@@ -669,6 +665,10 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	private var __curX :Float;
 	private var __curY :Float;
 	private var __pathLines :Array<PathLine>;
+	public var fillStyle :String;
+	public var strokeStyle :String;
+	public var lineWidth :Float;
+	public var font :String;
 } //CanvasRenderingContext2D
 
 class HTMLCanvasElement
@@ -1370,6 +1370,7 @@ class CocoEngine
 	private var __deviceEvent :DeviceEvent;
 	private var __clicked :Array<CocoClip>;
 	private var __clock :Time;
+	public var xxx :Float;
 } //CocoEngine
 
 class CocoImage
@@ -1550,23 +1551,84 @@ class State
 	public var params :Object;
 } //State
 
-class CocoTest
+class Class1
 {
-	public function f1() :Boolean {}
-	private function f2() :Boolean {}
-	protected function f3() :Boolean {}
-	public function tests() {}
+	public function test() {}
+	public function public_static_function(b:String) :String {}
+	private function private_static_function(b:String) :String {}
+	protected function protected_static_function(b:String) :String {}
+	public function public_function(b:String) :String {}
+	private function private_function(b:String) :String {}
+	protected function protected_function(b:String) :String {}
+	public function public_overload() :String {}
+	public function public_overload$1(arg:String) :String {}
+	public function public_overload$2(arg1:String, arg2:String) :String {}
+	private function private_overload() :String {}
+	private function private_overload$1(arg:String) :String {}
+	private function private_overload$2(arg1:String, arg2:String) :String {}
+	protected function protected_overload() :String {}
+	protected function protected_overload$1(arg:String) :String {}
+	protected function protected_overload$2(arg1:String, arg2:String) :String {}
+	public function Constructor(arg1:String, arg2:String) {}
+	public var public_var :String;
+	private var private_var :String;
+	protected var protected_var :String;
+	public var public_const :String;
+	private var private_const :String;
+	protected var protected_const :String;
+	public var static_public_var :String;
+	private var static_private_var :String;
+	protected var static_protected_var :String;
+	private var __public_property :String;
+	private var __private_property :String;
+	private var __protected_property :String;
+	private var __public_static_property :String;
+	private var __private_static_property :String;
+	private var __protected_static_property :String;
+	public var public_state :State;
+	private var private_state :State;
+	protected var protected_state :State;
+	public var public_property :String;
+	private var private_property :String;
+	protected var protected_property :String;
+	public var public_static_property :String;
+	private var private_static_property :String;
+	protected var protected_static_property :String;
+} //Class1
+
+class Class2 : Class1
+{
+	public function test() {}
+	public function cls2_public_function() :String {}
+	public function Constructor(arg1:String) {}
+	public var x :String;
+	private var y :String;
+	protected var z :String;
+	public var static_public_var :String;
+	private var static_private_var :String;
+	protected var static_protected_var :String;
+	private var __public_static_property :String;
+	private var __private_static_property :String;
+	private var __protected_static_property :String;
+	public var public_static_property :String;
+	private var private_static_property :String;
+	protected var protected_static_property :String;
+} //Class2
+
+class Class3 : Class2
+{
+	public function test() {}
 	public function Constructor() {}
-	public var p1 :Boolean;
-	private var p2 :Boolean;
-	protected var p3 :Boolean;
-	public var v1 :Boolean;
-	private var v2 :Boolean;
-	protected var v3 :Boolean;
-	public var s1 :State;
-	private var s2 :State;
-	protected var s3 :State;
-} //CocoTest
+	public var static_public_var :String;
+	private var static_private_var :String;
+	protected var static_protected_var :String;
+	private var __public_static_property :String;
+	private var __private_static_property :String;
+	private var __protected_static_property :String;
+	public var public_static_property :String;
+	private var private_static_property :String;
+	protected var protected_static_property :String;
+} //Class3
 
 class CocoTextStyle
 {

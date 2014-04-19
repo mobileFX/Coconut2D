@@ -248,5 +248,10 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 			trace("Event not implemented");
 	}
 
+	if(__deviceEvent->touches->length)
+	{
+		trace("Event=%d, x=%d, y=%d", (int)type, __deviceEvent->touches->item(0)->clientX, __deviceEvent->touches->item(0)->clientY);
+	}
+
 	dispatchEvent(uid, eventType);
 }

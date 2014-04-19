@@ -645,10 +645,13 @@ function __init_narcissus(GLOBAL)
 		return this.length && this[this.length - 1];
 	};
 
+	var __node_id = 0;
+
 	function Node(t, type)
 	{
 		var token = t.token();
 
+		this.nodeId = (++__node_id);
 		this.scopeId = t.ScopeId();
 		this.xmlvartype="";
 
@@ -1174,6 +1177,7 @@ function __init_narcissus(GLOBAL)
 					jsdef.CONST,
 					jsdef.ENUM];
 
+		var classNode = f;
 		f.body = (function (t, x)
 		{
 			var n = new Node(t, jsdef.BLOCK);
@@ -1209,7 +1213,7 @@ function __init_narcissus(GLOBAL)
 					}
 					else if(t.match(jsdef.FUNCTION))
 					{
-						n.push(FunctionDefinition(t, x, false, DECLARED_FORM));
+						n.push(FunctionDefinition(t, x, false, DECLARED_FORM, classNode));
 					}
 					else if(t.match(jsdef.STATE))
 					{
@@ -1449,7 +1453,7 @@ function __init_narcissus(GLOBAL)
 	//
 	// ==================================================================================================================================
 
-	function FunctionDefinition(t, x, requireName, functionForm)
+	function FunctionDefinition(t, x, requireName, functionForm, classNode)
 	{
 		var f = new Node(t);
 
@@ -1460,12 +1464,10 @@ function __init_narcissus(GLOBAL)
 			{
 				if(v == "get")
 				{
-					//debugger;
 					f.isGetter = true;
 				}
 				else if(v == "set")
 				{
-					//debugger;
 					f.isSetter = true;
 				}
 				else
@@ -1555,10 +1557,46 @@ function __init_narcissus(GLOBAL)
 			while ((tt = t.get()) != jsdef.RIGHT_PAREN);
 		}
 
+		switch(f.name)
+		{
+		case "Constructor": classNode.constructorNode=f;f.isConstructor = true; break;
+		case "Destructor": classNode.destructorNode=f;f.isDestructor = true; break;
+		}
+
 		if(t.match(jsdef.COLON))
 		{
-			matchVartype(t, f, "returntype");
-			if(t.match(jsdef.NOT)) f.returntype += "!";
+			// Constructor arguments:
+			// public function Constructor(arg1:String) : ClassTest3(arg1, "arg2")
+			if(f.name=="Constructor" && classNode && t.peek()==jsdef.IDENTIFIER)
+			{
+				t.mustMatch(jsdef.IDENTIFIER);
+				if(t.token().value==classNode.extends)
+				{
+					t.mustMatch(jsdef.LEFT_PAREN);
+					classNode.base_init_params=[];
+					while(t.peek()!=jsdef.RIGHT_PAREN)
+					{
+						t.get();
+						var arg = new Node(t);
+						classNode.base_init_params.push(arg);
+						if(t.peek()!=jsdef.COMMA)
+							break;
+						t.get();
+					}
+					t.mustMatch(jsdef.RIGHT_PAREN);
+				}
+				else
+				{
+					t.unget();
+				}
+			}
+
+			// Standard Function Return Type
+			else
+			{
+				matchVartype(t, f, "returntype");
+				if(t.match(jsdef.NOT)) f.returntype += "!";
+			}
 		}
 
 		t.setModifiers(f);
@@ -2390,7 +2428,8 @@ function __init_narcissus(GLOBAL)
 				n = new Node(t, jsdef.OBJECT_INIT);
 				object_init: if(!t.match(jsdef.RIGHT_CURLY))
 				{
-					do {
+					do
+					{
 						tt = t.get();
 						if((t.token().value == "get" || t.token().value == "set") &&
 							t.peek() == jsdef.IDENTIFIER)
