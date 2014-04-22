@@ -113,6 +113,8 @@
    33. Re-engineered several inheritance related fragments of the code and extended the test-cases
    34. Proper implementation for static methods
    35. Changed constructor argumetns support and added C++ like base class constructor initialization
+   36. Added compiler plugin support and moved exports and typesystem to plugins
+   37. Separated exports per type and added Class Diagram explort for NClass
 
 	Elias G. Politakis
 	epolitakis@mobilefx.com
@@ -131,6 +133,7 @@
 
 */
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 {
 	// ast				: The abstract syntax tree root node as produced by the parser
@@ -143,7 +146,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 	_this.classFiles = {};					// Used in order to have multiple classes in one file
 	_this.currClassName = null;             // The current class being processed (also indicates whether a JS++ class is being processed or just plain JavaScript code)
 	_this.currFile = null;                  // Current File being processed
-	_this.debugSymbolsTable = [];           // Map of source code to runtime debug symbols, used by IDE debugger (eg. class foo { public var x; } , x at runtime is __CLASS_FOO__.x )
 	_this.exportSymbols = exportSymbols;    // Flag that indicates whether symbols should be exported or not
 	_this.fileClasses = {};                 // Map of classes per file (usage: _this.fileClasses[file][class] = ast; )
 	_this.importJSProto = importJSProto;	// Import JavaScript Prototypes to JavaScript Classes
@@ -166,13 +168,18 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 	_this.DELETE_BASE = "__BASE__ && ((__BASE__.hasOwnProperty('Destructor') && __BASE__.Destructor()) || !__BASE__.hasOwnProperty('Destructor')) && (delete __BASE__);";
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Extend the compiler with plugins
+	CompilerExportsPlugin(_this);
+	CompilerTypeSystemPlugin(_this);
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Symbol constructors
-	function Scope() 			{}
-	function ClassSymbol() 		{}
-	function FunctionSymbol() 	{}
-	function PropSymbol() 		{}
-	function VarSymbol()		{}
-	function StateSymbol() 		{}
+	var Scope 			= _this.Scope 			= function Scope() 				{}
+	var ClassSymbol 	= _this.ClassSymbol 	= function ClassSymbol() 		{}
+	var FunctionSymbol 	= _this.FunctionSymbol 	= function FunctionSymbol() 	{}
+	var PropSymbol 		= _this.PropSymbol 		= function PropSymbol() 		{}
+	var VarSymbol 		= _this.VarSymbol 		= function VarSymbol()			{}
+	var StateSymbol 	= _this.StateSymbol 	= function StateSymbol() 		{}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewWarning = function (e, ast)
@@ -196,6 +203,41 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 		if(_this.selectedClass || _this.no_errors>0) return;
 		trace(" !ERROR: " + e + "\n " + ast.path + " : line " + ast.line_start + "\n");
 		IDECallback("error", ast.path, ast.line_start, 0, e);
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.addCodeToClassFile = function(file, code)
+	{
+		if(_this.secondPass)
+		{
+			if(_this.classFiles[file]==null)
+				_this.classFiles[file] = "";
+			_this.classFiles[file] += "\n\n" + code;
+		}
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.writeClassFiles = function()
+	{
+		for(var p in _this.classFiles)
+		{
+			if(p != "externs.jspp")
+			{
+				var buff = _this.classFiles[p];
+				if(!buff) continue;
+				var buff = do_js_beautify(buff, 1, false, false, true);
+				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1"); 	// Empty Lines
+				buff = RxReplace(buff, "__PDEFINE__\\(([\\w\\W\\n\\N]+?)\\);", "mg", "__PDEFINE__($1);", true);
+				buff = RxReplace(buff, "(__PDEFINE__|__PROTECTED__|__PRIVATE__) \=[\\s\\t\\n\\r]+\{[\\s\\t\\n\\r]+\}", "mg", "$1 = {}");
+				buff = RxReplace(buff, "__NOENUM__ \=[\\s\\t\\n\\r]+\{[^}]+\}", "mg", "__NOENUM__ = {enumerable:false}");
+				buff = RxReplace(buff, ";[\\s\\t\\n\\r]*function F\\(\\)[\\s\\t\\n\\r]*\{[\\s\\t\\n\\r]*\}", "mg", "; function F(){}");
+				buff = RxReplace(buff, "\\([\\s\\t\\n\\r]+", "mg", "(");
+				buff = RxReplace(buff, "\\{[\\s\\t\\n\\r]*\\}", "mg", "{}");
+				buff = RxReplace(buff, "(^[\\s\\t\\n\\r]*$)+", "mg", "");
+				buff = RxReplace(buff, "[\\n\\s\\r\\t]+\\{[\\n\\s\\r\\t]*\\};", "mg", " {};");
+				IDECallback("module_jspp", p, 0, 0, buff);
+			}
+		}
 	};
 
 	// ==================================================================================================================================
@@ -235,30 +277,11 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 			// Second pass to generate actual code
 			_this.generate(ast);
-
-			for(var p in _this.classFiles)
-			{
-				if(p != "externs.jspp")
-				{
-					var buff = _this.classFiles[p];
-					if(!buff) continue;
-					var buff = do_js_beautify(buff, 1, false, false, true);
-					buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1"); 	// Empty Lines
-					buff = RxReplace(buff, "__PDEFINE__\\(([\\w\\W\\n\\N]+?)\\);", "mg", "__PDEFINE__($1);", true);
-					buff = RxReplace(buff, "(__PDEFINE__|__PROTECTED__|__PRIVATE__) \=[\\s\\t\\n\\r]+\{[\\s\\t\\n\\r]+\}", "mg", "$1 = {}");
-					buff = RxReplace(buff, "__NOENUM__ \=[\\s\\t\\n\\r]+\{[^}]+\}", "mg", "__NOENUM__ = {enumerable:false}");
-					buff = RxReplace(buff, ";[\\s\\t\\n\\r]*function F\\(\\)[\\s\\t\\n\\r]*\{[\\s\\t\\n\\r]*\}", "mg", "; function F(){}");
-					buff = RxReplace(buff, "\\([\\s\\t\\n\\r]+", "mg", "(");
-					buff = RxReplace(buff, "\\{[\\s\\t\\n\\r]*\\}", "mg", "{}");
-					buff = RxReplace(buff, "(^[\\s\\t\\n\\r]*$)+", "mg", "");
-					buff = RxReplace(buff, "[\\n\\s\\r\\t]+\\{[\\n\\s\\r\\t]*\\};", "mg", " {};");
-					IDECallback("module_jspp", p, 0, 0, buff);
-				}
-			}
+			_this.writeClassFiles();
 		}
 
 		// Post-process to extract code and debug symbols
-		_this.exportCoconutIDESymbols();
+		_this.EXPORT_TO_IDE();
 	};
 
 	// ==================================================================================================================================
@@ -278,6 +301,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 		var currClass = null;
 		var currDot = [];
 		var dic={};
+
+		trace("+ Processing AST ...");
 
 	    // Descent the ast.
 		function descend(node)
@@ -351,8 +376,10 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					case "inFunction":
 					case "overloadOf":
 					case "overloads":
-					//case "params":
-					//case "returnPaths":
+					case "params":
+					case "parent":
+					case "returnPaths":
+					case "scope":
 					case "tokenizer":
 
 					// Scallar Node properties that we do not want to descend
@@ -432,8 +459,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			node.end -= o_end;
 			node.line_start -= node.__fileLineOffset;
 			node.line_end -= node.__fileLineOffset;
-			node.tokenizer = null;
 
+			node.tokenizer = null;
 			delete node.tokenizer;
 
 			switch(node.type)
@@ -468,6 +495,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			// Add those properties to switch above
 			//trace(fields.sort().join("\n"));
 		}
+
+		trace("+ Generating Code ...");
 
 		return ast;
 	};
@@ -819,7 +848,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				return __isBaseMember(base.baseSymbol);
 			}
 		}
-		return __isBaseMember(cls) ? basePath.join(".") : null;
+		return __isBaseMember(baseOnly ? cls.baseSymbol : cls) ? basePath.join(".") : null;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -902,7 +931,133 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 		case jsdef.CLASS:
 
-		 	_this.currClassName = ast.name;
+			/*//////////////////////////////////////////////////////////////////////////////////////////////
+
+			Defining a class and inheritance in plain JavaScript:
+			=====================================================
+
+			The basic idea (as derived from Roger Poon's JavaScript++) is to have an outer JavaScript function
+			returning an inner function that represents the Class. The reason we use the outer/inner functions
+			is because we need to run special code that will actually prepare the object instance (eg. virtual
+			functions) and this cannot be done by prototype alone. When calling the outer function with the
+			"new" operator the result is an instnace of the inner function.	To implement inheritance we use the
+			good old prototypes, as demonstrated below. Our compiler's work is to construct the inner and outer
+			functions based on the AST class definition and to properly apply inheritance. Using the prototype
+			ensures that each new class instance will start with an EXACT copy of the base class. The compiler
+			applies minimal post-processing for inheritance-related things that are missing from the prototype
+			mechanics such as virtual functions, overloaded methods, etc.
+
+			Constructing the Class and then the object instance with the "new" operator is one thing. Running
+			the object is another. We need to find an elaborate way of implementing private and protected
+			entities such as vars, consts, functions, enums, properties, states, etc. We therefore need to
+			define a __PRIVATE__ and a __PROTECTED__ bank in the inner class function for keeping class members
+			in there. For static entities (vars, consts, functions, properties), we also define a __PRIVATE__
+			and a __PROTECTED__ bank on the outer class function.
+
+			Next we have to resolve runtime symbols, or in other words recognize jsdef.IDENTIFIER(s) and produce
+			an access path. For example, when we type "this.walk()" in the class source code we need to resolve
+			all the identifiers into their canonical form taking into account base clases, which could resolve to
+			"__CLASS_DOG__.__CLASS_MAMAL__.__CLASS_ANIMAL__.walk()". Resolving identifiers is the most tricky
+			bit of this compiler and the most time-consuming because it performs several lookups.
+
+			But let's start with the basics. Copy-paste this code in Chrome or any other JavaScript testing
+			tool and examine/run it to understand the principles of JavaScript inheritance:
+
+			function Class1()
+			{
+				function Class1(base)
+				{
+					this.x = 1;
+					return this;
+				}
+				var base = new Class2;
+				Class1.prototype = base;
+				return new Class1(base);
+			}
+
+			function Class2()
+			{
+				function Class2(base)
+				{
+					this.y = 2;
+					return this;
+				}
+				var base = new Class3;
+				Class2.prototype = base;
+				return new Class2(base);
+			}
+
+			function Class3()
+			{
+				function Class3(base)
+				{
+					this.z = 3;
+					return this;
+				}
+				return new Class3(null);
+			}
+
+			var o1 = new Class1;
+			console.log(o1.x + ", " + o1.y + ", " + o1.z);
+			o1.x=100; o1.y=200; o1.z=300;
+			console.log(o1.x + ", " + o1.y + ", " + o1.z);
+
+			var o2 = new Class1;
+			console.log(o2.x + ", " + o2.y + ", " + o2.z);
+			console.log(o1.x + ", " + o1.y + ", " + o1.z);
+
+			var o3 = new Class2;
+			console.log(o3.x + ", " + o3.y + ", " + o3.z);
+
+			*** How virtual functions are implemented ***
+
+			In C++ a virtual method is being replaced by the the implementation of the derived class.
+			Any call to the virtual method either by the derived class or by the base class, calls the
+			implementation of the derived class, UNLESS you explicitly ask for BaseClass::VirtualMethod
+			like the example in goo() below which calls "Class1::foo();". Access to the replaced method
+			by the derived class is achieved only by using "super" keyword. Let us implement this in
+			JavaScript...
+
+			#include <iostream>
+			using namespace std;
+
+			class Class1
+			{
+			public:
+
+				void goo()
+				{
+					Class1::foo();
+					foo();
+				}
+
+				virtual void foo()
+				{
+					cout << "Class1::foo\n";
+				}
+			};
+
+			class Class2 : public Class1
+			{
+			public:
+				void foo()
+				{
+					cout << "Class2::foo\n";
+				}
+			};
+
+			int main()
+			{
+				Class2* obj = new Class2();
+				obj->goo();
+				obj->foo();
+				obj->Class1::foo();   //TODO: should implement this at some point
+				return 0;
+			}
+
+			//////////////////////////////////////////////////////////////////////////////////////////////*/
+
+			_this.currClassName = ast.name;
 
 		 	// Class must know its includes
 		 	ast.fileClasses = _this.fileClasses;
@@ -974,79 +1129,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					baseClasses.push(base);
 				}
 				baseClasses = baseClasses.reverse();
+				classSymbol.__baseClasses = baseClasses;
 			}
-
-			/*//////////////////////////////////////////////////////////////////////////////////////////////
-
-			Defining a class and inheritance in plain JavaScript:
-			=====================================================
-
-			The basic idea (as derived from Roger Poon's JavaScript++) is to have an outer JavaScript function
-			returning an inner function that represents the Class.	When calling the outer function with the
-			"new" operator the result is an instnace of the inner function.	To implement inheritance we use the
-			good old prototypes, as demonstrated below. Our compiler's work is to construct the inner and outer
-			functions based on the AST class definition and to properly apply inheritance. Using the prototype
-			ensures that each new class instance will start with an EXACT copy of the base class. The compiler
-			applies minimal post-processing for inheritance-related things that are missing from the prototype
-			mechanics such as virtual functions, overloaded methods, etc.
-
-			function Class1()
-			{
-				function Class1(base)
-				{
-					this.x = 1;
-					return this;
-				}
-				var base = new Class2;
-				Class1.prototype = base;
-				return new Class1(base);
-			}
-
-			function Class2()
-			{
-				function Class2(base)
-				{
-					this.y = 2;
-					return this;
-				}
-				var base = new Class3;
-				Class2.prototype = base;
-				return new Class2(base);
-			}
-
-			function Class3()
-			{
-				function Class3(base)
-				{
-					this.z = 3;
-					return this;
-				}
-				return new Class3(null);
-			}
-
-			var o1 = new Class1;
-			console.log(o1.x + ", " + o1.y + ", " + o1.z);
-			o1.x=100; o1.y=200; o1.z=300;
-			console.log(o1.x + ", " + o1.y + ", " + o1.z);
-
-			var o2 = new Class1;
-			console.log(o2.x + ", " + o2.y + ", " + o2.z);
-			console.log(o1.x + ", " + o1.y + ", " + o1.z);
-
-			var o3 = new Class2;
-			console.log(o3.x + ", " + o3.y + ", " + o3.z);
-
-			The original CocoScript was based on Roger's JavaScript++ implementation but class
-			initialization was too cryptic for me to undestand and debug. Also, when a class was
-			inheriting from another class, the base class was appearing in global scope and I could
-			not find out why. Even though it is highly likely that I produced most of the bugs while
-			tampering with Roger's work, more and more bugs that kept appearing and a very severe
-			instantiation issue with CocoAudio cloning, lead me to assume that anonymous function
-			were not creating instances properly and I decided to re-write class generation.
-			Also with anonymous functions I had problems getting a "typeof" class name at runtime
-			and viewing object type in V8 debugger.
-
-			//////////////////////////////////////////////////////////////////////////////////////////////*/
 
 			// Generate constructor arguments list for this class
 			var thisConstructorArguments = [];
@@ -1064,14 +1148,14 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			// Generate the inner function
 			out.push("function __" + ast.name + "(" + thisConstructorArguments + "){");
 
-			// Generate a __CLASS_<CLASSID>__ for this.
+			// Generate a __CLASS_<CLASSID>__ for keeping "this".
 			// When this class becomes a prototype of another class,
 			// then __CLASS_<CLASSID>__ will act as the base class.
 			// Especially for virtual methods that we need to call
 			// the original implementation using "super.<method>" we
 			// will make this call using __CLASS_<CLASSID>__.<method>
 
-			out.push("var __$CLASS_NAME$__ = this.__$CLASS_NAME$__ = '" + ast.name + "',");
+			out.push("var Class = this.Class = '" + ast.name + "',");
 			out.push(classId + " = this." + classId + " = this,");
 			out.push("__PDEFINE__ = Object.defineProperty,");
 			out.push("__NOENUM__ = {enumerable:false},");
@@ -1084,6 +1168,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			// Low-level classes that do not inherit from anything need to define the
 			// __PRIVATE__ and __PROTECTED__ banks. Be carefull NOT TO REDEFINE the
 			// banks if your class inherits from another class.
+
+			out.push("__VIRTUAL__ = this.__VIRTUAL__ = { __PROTECTED__:{} },");
 
             if(!baseClassSymbol)
             {
@@ -1224,29 +1310,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			/////////////////////////////////////////////////////////////////////////////////
 			// Generate Destructor
 			/////////////////////////////////////////////////////////////////////////////////
-			out.push("var Destructor = this.Destructor = function(){");
-			if(destructor) out.push(generate(destructor.body));
-
-			if(_this.secondPass)
-			{
-				out.push("{");
-
-				// Call the destructor of any member variable which
-				// is an object, delete it, and set it to null.
-				for(item in classSymbol.vars)
-				{
-					out.push(classSymbol.vars[item].runtime+"=null;");
-				}
-
-				// If there is a base class, call its destructor.
-				if(baseClass)
-				{
-					out.push(_this.DELETE_BASE.replace(/__BASE__/g, classId+"."+baseClassId));
-				}
-
-				out.push("}");
-			}
-			out.push("return true};");
+			if(destructor)
+				out.push(generate(destructor));
 
 			/////////////////////////////////////////////////////////////////////////////////
 			// Generate Constructor
@@ -1387,35 +1452,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			if(!isGlobalClass)
 			{
 				_this.ExitScope();
-
-	            if(_this.secondPass)
-	            {
-	            	ast.includes = [].concat(_this.includes);
-
-					_this.classFiles[ast.path] = _this.includes.join("\n").replace(/\.jspp/g, ".jobj") +
-												(_this.classFiles[ast.path] ? _this.classFiles[ast.path] + "\n\n" : "") +
-												out.join("\n");
-
-		            // Make sure we have no more and no less #includes than required for deriving compilation order
-				 	if(ast.file!="externs.jspp")
-				 	{
-                        if(classSymbol.base && !_this.searchIncludesForVartype(classSymbol.name, classSymbol.base))
-                        	_this.NewError("Missing #include for base class: " + classSymbol.base, ast);
-
-                        var remove_includes = [];
-                        for(i=0;i<ast.includes.length;i++)
-                        {
-                        	var include = /\x22\#include\s+([^\x22]+)\.\w+?\x22/g.exec(ast.includes[i])[1];
-                        	if(include!=classSymbol.base)
-                        		remove_includes.push(include);
-                        }
-
-                        if(remove_includes.length>0)
-                        {
-                        	_this.NewWarning("Unnessesary #include directives:\n + " + remove_includes.join("\n + "), ast);
-                        }
-				 	}
-	            }
+				_this.addCodeToClassFile(ast.path, out.join("\n"));
 			}
 
 			break;
@@ -1443,7 +1480,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			var isAnonymous = (ast.name==null || ast.name.length==0);
 			var fnName = (ast.name ? ast.name : "");
 			var baseMethodSymbol = null;
-			var skip_generate = false;
 
 			// Add an XML comment to indicate function section in debug symbols XML
 			if(_this.currClassName && (!classSymbol || (classSymbol && !classSymbol.ast.requires_third_pass)))
@@ -1484,7 +1520,9 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 			// Link method symbol with base class method symbol for speed.
 			if(parentScope.isClass && parentScope.ast.symbol.baseSymbol)
+			{
 				baseMethodSymbol = _this.LookupIdentifier(parentScope.ast.symbol.baseSymbol.scope, fnName, ast, true);
+			}
 
 			// Function Symbol
 			var functionSymbol = new FunctionSymbol();
@@ -1500,7 +1538,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				functionSymbol.protected	= ast.protected==true;
 				functionSymbol.static		= ast.static==true;
 				functionSymbol.optional		= false;
-				functionSymbol.virtual		= ast.virtual==true;
+				functionSymbol.virtual		= ast.virtual==true || fnName=="Destructor";
 				functionSymbol.abstract		= ast.abstract==true;
 				functionSymbol.ast			= ast;
 				functionSymbol.scope		= methodScope;
@@ -1607,7 +1645,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			paramsList = "(" + paramsList + ")";
 
 			// =================================================================
-			// Generate Function Body (and save it to ast for later use)
+			// Generate Function Body (and save it to AST for later use)
 			// Function body is generated in advance because if function
 			// is virtual we will need a non-standard function generation.
 			// Function body is complete, including curly brackets.
@@ -1662,6 +1700,35 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 	            }
 
 				// =================================================================
+		        // Destructor function
+				// =================================================================
+	            if(ast.isDestructor)
+	            {
+	            	out.push("var Destructor = this.Destructor = function(){");
+	            	out.push(generate(ast.body));
+					if(_this.secondPass)
+					{
+						out.push("{");
+
+						// Call the destructor of any member variable which
+						// is an object, delete it, and set it to null.
+						for(item in classSymbol.vars)
+						{
+							out.push(classSymbol.vars[item].runtime+"=null;");
+						}
+
+						// If there is a base class, call its destructor.
+						if(baseClass)
+						{
+							out.push(_this.DELETE_BASE.replace(/__BASE__/g, classId+"."+baseClassId));
+						}
+
+						out.push("}");
+					}
+					out.push("return true};");
+	            }
+
+				// =================================================================
 		        // Property setter / getter function
 				// =================================================================
 				else if(_this.in_property)
@@ -1698,31 +1765,46 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				// =================================================================
   				else if(baseMethodSymbol && baseMethodSymbol.virtual)
   				{
-  					// *** How virtual functions are implemented ***
-  					//
-  					// In most programming languages a virtual method is being replaced by the
-  					// the implementation of the top-level class. Any call to the virtual method
-  					// either by the top-level class or by the base-class, calls the implementation
-  					// of the top-level class. Access to the replaced method is achieved only by
-  					// using "super" keyword.
-
+   					// Check for access errors
   					if(ast.private)
   						_this.NewError("Invalid private access modifier for virtual function: "+ast.name, ast);
 
   					if(baseMethodSymbol.public!=ast.public || baseMethodSymbol.protected!=ast.protected)
   						_this.NewError("Invalid access modifier alteration for virtual function: "+ast.name, ast);
 
-  					if(ast.public)
-  					{
-  						out.push(fnName + "=this." + fnName + "=function" + paramsList + ast.generated_code + ";");
-  						skip_generate=true;
-  					}
-
-	  				else if(ast.protected)
+	  				if(_this.secondPass)
 	  				{
-  						out.push("this.__PROTECTED__." + fnName + "=function" + paramsList + ast.generated_code + ";");
-  						skip_generate=true;
-	  				}
+	  					// ---------------------------------------------------------------------
+	  					// Firt we need to find the base class.
+	  					// ---------------------------------------------------------------------
+	  					var baseClass = _this.getClass(baseMethodSymbol.className);
+
+	  					// ---------------------------------------------------------------------
+	  					// Finally we need to replace the base class virtual method
+	  					// ---------------------------------------------------------------------
+	  					if(ast.public)
+	  					{
+							var virtualRedefine = "var " + fnName + " = this." + fnName + " = __VIRTUAL__." + fnName + " = ";
+							for(i=0;i<classSymbol.__baseClasses.length;i++)
+							{
+								var base = classSymbol.__baseClasses[i];
+								virtualRedefine += base.classId+"."+fnName+" = ";
+							}
+							virtualRedefine += "function" + paramsList + ast.generated_code + ";"
+	  						out.push(virtualRedefine);
+	  					}
+		  				else if(ast.protected)
+		  				{
+							var virtualRedefine = "this.__PROTECTED__." + fnName + " = __VIRTUAL__.__PROTECTED__." + fnName + " = ";
+							for(i=0;i<classSymbol.__baseClasses.length;i++)
+							{
+								var base = classSymbol.__baseClasses[i];
+								virtualRedefine += base.classId+".__PROTECTED__."+fnName+" = ";
+							}
+							virtualRedefine += "function" + paramsList + ast.generated_code + ";"
+	  						out.push(virtualRedefine);
+		  				}
+  					}
   				}
 				// =================================================================
   				// Standard Function
@@ -1735,11 +1817,17 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
   					if(!_this.in_property && !_this.in_state && !ast.public && !ast.private && !ast.protected)
   						_this.NewError("No access modifier defined for function: " + fnName, ast);
 
-	  				if(_this.in_property)		out.push(_this.in_property + " function" + paramsList);
-	  				else if(_this.in_state)		out.push("var " + fnName + " = this." + fnName + " = function" + paramsList);
-	  				else if(ast.public)			out.push("var " + fnName + " = this." + fnName + " = function" + paramsList);
-	  				else if(ast.private)		out.push("this.__PRIVATE__." + fnName + " = function" + paramsList);
-	  				else if(ast.protected)		out.push("this.__PROTECTED__." + fnName + " = function" + paramsList);
+  					if(ast.virtual)
+  					{
+		  				     if(ast.public)			out.push("var " + fnName + " = this." + fnName + " = __VIRTUAL__." + fnName + " = function" + paramsList);
+		  				else if(ast.protected)		out.push("this.__PROTECTED__." + fnName + " = __VIRTUAL__.__PROTECTED__." + fnName + " = function" + paramsList);
+  					}
+  					else
+  					{
+		  				     if(ast.public)			out.push("var " + fnName + " = this." + fnName + " = function" + paramsList);
+		  				else if(ast.private)		out.push("this.__PRIVATE__." + fnName + " = function" + paramsList);
+		  				else if(ast.protected)		out.push("this.__PROTECTED__." + fnName + " = function" + paramsList);
+  					}
 
 	            	out.push(ast.generated_code);
 	            	out.push(";");
@@ -1872,7 +1960,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
                 // Type Checks
 				if(!ast[item].vartype && _this.currClassName)
-					_this.NewError("Type declaration missing " + ast[item].name, ast);
+					_this.NewError("Type declaration missing " + ast[item].name, ast[item]);
 
 				if(_this.secondPass && _this.currClassName && !_this.getClass(ast[item].vartype))
 					_this.NewError("Class not found: " + ast[item].vartype, ast[item]);
@@ -1913,6 +2001,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 					varSymbol.virtual		= false;
 					varSymbol.abstract		= false;
 					varSymbol.constant		= ast.type==jsdef.CONST;
+					varSymbol.value			= (ast.type==jsdef.CONST ? generate(ast[item].initializer) : null);
 					varSymbol.ast			= ast[item];
 					varSymbol.scope			= ast.scope;
 					varSymbol.baseSymbol	= null;
@@ -2007,10 +2096,9 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			}
 
 			out.push(";");
-
 			if(_this.secondPass && !_this.currClassName && ast.file!="externs.jspp")
 			{
-				_this.classFiles[ast.path] = (_this.classFiles[ast.path] ? _this.classFiles[ast.path] : "") + "\n\n" + out.join("");
+				_this.addCodeToClassFile(ast.path, out.join(""));
 			}
 
 			break;
@@ -2125,7 +2213,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 			if(_this.secondPass && !_this.currClassName)
 			{
-				_this.classFiles[ast.path] = (_this.classFiles[ast.path] ? _this.classFiles[ast.path] : "") +  "\n\n" + out.join("\n");
+				_this.addCodeToClassFile(ast.path, out.join("\n"));
 			}
 
 			_this.ExitScope();
@@ -2366,7 +2454,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				ast.symbol = _this.getCurrentClass().baseSymbol;
 				if(ast.symbol)
 				{
-					ast.runtime = ast.inClass.symbol.classId + "." + ast.symbol.classId;
+					ast.runtime = ast.symbol.classId;
 					out.push(ast.runtime);
 				}
 			}
@@ -2564,6 +2652,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 			if(!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast))
 			{
+				var basePath = null;
+
 				if(ast.symbol.static && ast.symbol.type!=jsdef.STATE)
 				{
 					ast.runtime = _this.currClassName + ".";
@@ -2575,13 +2665,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				{
 					ast.runtime = ast.symbol.runtime;
 				}
-
-				// Identifier defined in class or its base(s) ?
-				var basePath = null;
-				if((basePath=(_this.isMember(ast.value, ast.inClass.symbol) || _this.isBaseMember(ast.value, ast.inClass.symbol))))
-				{
-					ast.runtime = basePath + "." + ast.value;
-				}
 			}
 
 			// Generate identifier
@@ -2591,32 +2674,38 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			}
 			else
 			{
+				// Special case for Math in externs
 				if(ast.symbol.file == "externs.jspp")
 				{
-					// Special case for Math in externs
 					out.push(ast.value);
 				}
+
+				// First in DOT
 				else if(ast.inDot.identifier_first==ast)
 				{
-					// First in DOT
+					out.push(ast.runtime);
+				}
+
+				// Virtual Function with super
+				else if(ast.symbol.type==jsdef.FUNCTION && ast.symbol.virtual && (ast.inDot.identifier_first.type==jsdef.SUPER || ast.inDot.identifier_first.type==jsdef.THIS))
+				{
+					ast.runtime = "__VIRTUAL__."
+					if(ast.symbol.protected) ast.runtime += "__PROTECTED__.";
+					ast.runtime += ast.value;
 					out.push(ast.runtime);
 				}
 
 				// The rest cases assume identifier is not the first in DOT.
-
 				else if(ast.symbol.public)
 				{
-					if(ast.symbol.static && !ast.symbol.isEnum && !ast.symbol.state) out.push("prototype.");
 					out.push(ast.value);
 				}
 				else if(ast.symbol.protected)
 				{
-					if(ast.symbol.static && !ast.symbol.isEnum && !ast.symbol.state) out.push("prototype.");
 					out.push("__PROTECTED__." + ast.value);
 				}
 				else if(ast.symbol.private)
 				{
-					if(ast.symbol.static && !ast.symbol.isEnum && !ast.symbol.state) out.push("prototype.");
 					out.push("__PRIVATE__." + ast.value);
 				}
 			}
@@ -2634,15 +2723,11 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			}
 
 			//==================================================================================
-			// Generate debug symbol
+			// Generate debug symbol and cache identifier in current scope for speed
 			//==================================================================================
+
 			ast.runtime = out.join("");
 			_this.addDebugSymbol(ast, ast.runtime);
-
-			//==================================================================================
-			// Done generating identifier
-			//==================================================================================
-
 			break;
 
 		// ==================================================================================================================================
@@ -3016,799 +3101,5 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 		out.push(g0);
 		out.push(op);
 		out.push(g1);
-	};
-
-	// ==================================================================================================================================
-	//	  ______                    _____            __
-	//	 /_  __/_  ______  ___     / ___/__  _______/ /____  ____ ___
-	//	  / / / / / / __ \/ _ \    \__ \/ / / / ___/ __/ _ \/ __ `__ \
-	//	 / / / /_/ / /_/ /  __/   ___/ / /_/ (__  ) /_/  __/ / / / / /
-	//	/_/  \__, / .___/\___/   /____/\__, /____/\__/\___/_/ /_/ /_/
-	//	    /____/_/                  /____/
-	// ==================================================================================================================================
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.types =
-	{
-		"Array"		: { "default": "[]" },
-		"Boolean"	: { "default": "false" },
-		"Date"		: {	"default": "new Date" },
-		"Function"	: {	"default": "function(){}" },
-		"Null"		: { "default": "null" },
-		"Number"	: {	"default": "0" },
-		"Float"		: { "default": "0" },
-		"Integer"	: { "default": "0" },
-		"Object"	: { "default": "{}" },
-		"RegExp"	: { "default": "/(?:)/" },
-		"String"	: { "default": '""' }
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typerules =
-	{
-		explicit:
-		{
-			"__UNARY__"		: ["Boolean", "Number", "String"],
-			"Array"			: [],
-			"Boolean"		: ["Number", "String"],
-			"Date"			: ["Number", "String"],
-			"Function"		: ["String"],
-			"null"			: [],
-			"Number"		: ["Boolean", "String"],
-			"Object"		: [],
-			"RegExp"		: ["Boolean", "Date", "Number", "String"],
-			"String"		: ["Boolean", "Date", "Function", "Number", "RegExp"]
-		},
-
-		implicit:
-		{
-			PLUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" }, "String": { "String": "String" } },
-			MINUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			MUL: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number","Float":"Number", "Time":"Number"  } },
-			DIV: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number", "Float":"Number", "Time":"Number" } },
-			MOD:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			BIT: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			ASSIGN: { "Number":	 { "Boolean": "Number",	"Number": "Number" }, "Boolean": { "Boolean": "Number", "Number": "Number" }
-			}
-		}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// IDE icons that can be set to exported memberlist items in exportCoconutIDESymbols()
-	_this.CODE_SYMBOLS_ENUM =
-	{
-	    SYMBOL_ARGUMENT					   : 0,
-	    SYMBOL_ARRAY                       : 1,
-	    SYMBOL_BASE_CLASS                  : 2,
-	    SYMBOL_BASE_CONSTANT               : 3,
-	    SYMBOL_BASE_EVENT                  : 4,
-	    SYMBOL_BASE_PRIVATE_FIELD          : 5,
-	    SYMBOL_BASE_PRIVATE_FUNCTION       : 6,
-	    SYMBOL_BASE_PROTECTED_FIELD        : 7,
-	    SYMBOL_BASE_PROTECTED_FUNCTION     : 8,
-	    SYMBOL_BASE_PUBLIC_FIELD           : 9,
-	    SYMBOL_BASE_PUBLIC_FUNCTION        : 10,
-	    SYMBOL_CLASS                       : 11,
-	    SYMBOL_CONDITIONAL_BLOCK           : 12,
-	    SYMBOL_CONSTANT                    : 13,
-	    SYMBOL_CONSTRUCTOR                 : 14,
-	    SYMBOL_ENUM                        : 15,
-	    SYMBOL_ENUM_ITEM                   : 16,
-	    SYMBOL_ERROR                       : 17,
-	    SYMBOL_EVENT                       : 18,
-	    SYMBOL_FOLDER                      : 19,
-	    SYMBOL_HTML                        : 20,
-	    SYMBOL_HTML_STYLE                  : 21,
-	    SYMBOL_HTML_STYLE_CLASS            : 22,
-	    SYMBOL_HTML_STYLE_ID               : 23,
-	    SYMBOL_HTML_STYLE_RULE             : 24,
-	    SYMBOL_INTERFACE                   : 25,
-	    SYMBOL_LOCALS                      : 26,
-	    SYMBOL_OBJECT                      : 27,
-	    SYMBOL_PACKAGE                     : 28,
-	    SYMBOL_PRIVATE_FIELD               : 29,
-	    SYMBOL_PRIVATE_FUNCTION            : 30,
-	    SYMBOL_PROPERTY                    : 31,
-	    SYMBOL_PROTECTED_FIELD             : 32,
-	    SYMBOL_PROTECTED_FUNCTION          : 33,
-	    SYMBOL_PUBLIC_FIELD                : 34,
-	    SYMBOL_PUBLIC_FUNCTION             : 35,
-	    SYMBOL_SCRIPT_LIBRARY              : 36,
-	    SYMBOL_SYMBOLS                     : 37,
-	    SYMBOL_VARIABLE                    : 38,
-	    SYMBOL_WAIT                        : 39,
-	    SYMBOL_WARNING                     : 40,
-	    SYMBOL_WATCH                       : 41
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.getVarType = function(vartype)
-	{
-		if(!vartype) return null;
-		// Detect typed arrays Array<String>, Array<Float>, etc.
-		if(vartype.charAt(vartype.length-1)!='>') return vartype;
-		vartype = vartype.substr(0, vartype.indexOf('<'));
-		return vartype;
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// For typed arrays (eg. Array<Integer>, Array<String>, Array<MyClass> return subtype.
-	_this.getSubType = function(vartype)
-	{
-		if(!vartype) return null;
-
-		switch(vartype)
-		{
-		case "Array":
-			return "Object";
-
-		case "ArrayBuffer":
-		case "ArrayBufferView":
-		case "Float32Array":
-		case "Int32Array":
-		case "Uint8Array":
-			return "Number";
-		}
-
-		if(vartype.charAt(vartype.length-1)!='>') return null;
-
-		var subtype = /<(\w+)(?:\*)*>/.exec(vartype)[1];
-		return subtype;
-	};
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.getTypeName = function(ast)
-	{
-		var _this = this;
-		if(!_this.secondPass || !_this.currClassName || !ast) return;
-
-		switch(ast.type)
-		{
-		//=============================================================================================================================
-		case jsdef.ARRAY_INIT:		return "Array"
-		case jsdef.ASSIGN:   		return _this.getTypeName(ast[0]);
-		case jsdef.BITWISE_NOT:		return "Number";
-		case jsdef.COMMA: 			return _this.getTypeName(ast[+ast.length-1]);
-		case jsdef.DELETE:          return "Boolean";
-		case jsdef.EQ:              return "Boolean";
-		case jsdef.FALSE:           return "Boolean";
-		case jsdef.FUNCTION:		return ast.symbol.vartype;
-		case jsdef.GE:              return "Boolean";
-		case jsdef.GROUP: 			return _this.getTypeName(ast[0]);
-		case jsdef.GT:              return "Boolean";
-		case jsdef.IN:              return "Boolean";
-		case jsdef.INSIDE:          return "Boolean";
-		case jsdef.INSTANCEOF:      return "Boolean";
-		case jsdef.LE:              return "Boolean";
-		case jsdef.LT:              return "Boolean";
-		case jsdef.NE:              return "Boolean";
-		case jsdef.NEW:           	return ast[0].symbol.name;
-		case jsdef.NEW_WITH_ARGS:	return ast[0].symbol.name;
-		case jsdef.NOT:             return "Boolean";
-		case jsdef.NULL:			return "Null";
-		case jsdef.NUMBER:			return "Number";
-		case jsdef.OBJECT_INIT:		return "Object";
-		case jsdef.REGEXP:			return "RegExp";
-		case jsdef.STATE:			return "State";
-		case jsdef.STRICT_EQ:       return "Boolean";
-		case jsdef.STRICT_NE:       return "Boolean";
-		case jsdef.STRING:			return "String";
-		case jsdef.SUPER:			return ast.symbol.vartype;
-		case jsdef.THIS:			return _this.currClassName || "Function";
-		case jsdef.TRUE:			return "Boolean";
-		case jsdef.TYPEOF:			return "String";
-		case jsdef.VOID:			return _this.UNTYPED;
-
-		//=============================================================================================================================
-		case jsdef.PLUS:
-		case jsdef.MINUS:
-		case jsdef.MUL:
-		case jsdef.DIV:
-		case jsdef.MOD:
-			var operation = "", op = "";
-			if (ast.type == jsdef.PLUS) op = "PLUS";
-			else if (ast.type == jsdef.MINUS) op = "MINUS";
-			else if (ast.type == jsdef.MUL) op = "MUL";
-			else if (ast.type == jsdef.DIV) op = "DIV";
-			else if (ast.type == jsdef.MOD) op = "MOD";
-			operation = this.typerules.implicit[op];
-			var type1 = _this.getTypeName(ast[0]);
-			var type2 = _this.getTypeName(ast[1]);
-			if(operation[type1])
-			{
-				if(operation[type1].hasOwnProperty(type2))
-					return operation[type1][type2];
-				else
-					return _this.typeCheck(ast, type1, type2);
-			}
-			return _this.typeCheck(ast, type1, type2, "Illegal operation "+op+" on: "+type1+" and "+type2);
-
-		//=============================================================================================================================
-		case jsdef.INCREMENT:
-		case jsdef.DECREMENT:
-		case jsdef.UNARY_PLUS:
-		case jsdef.UNARY_MINUS:
-			var type = _this.getTypeName(ast[0]);
-			if (~this.typerules.explicit.__UNARY__.indexOf(type))
-			{
-				return "Number";
-			}
-			else
-			{
-				var op = "";
-				if (ast.type == jsdef.INCREMENT)
-					_this.NewError("Illegal operation INCREMENT on: "+type, ast);
-				else if (ast.type == jsdef.DECREMENT)
-					_this.NewError("Illegal operation DECREMENT on: "+type, ast);
-				else _this.typeCheck(ast, type, "Number");
-			}
-			return type;
-
-		//=============================================================================================================================
-		case jsdef.BITWISE_AND:
-		case jsdef.BITWISE_OR:
-		case jsdef.BITWISE_XOR:
-		case jsdef.LSH:
-		case jsdef.RSH:
-		case jsdef.URSH:
-			var operation = "", op = "";
-			if (ast.type == jsdef.BITWISE_AND) op = "&";
-			else if (ast.type == jsdef.BITWISE_OR) op = "|";
-			else if (ast.type == jsdef.BITWISE_XOR) op = "^";
-			else if (ast.type == jsdef.LSH) op = "<<";
-			else if (ast.type == jsdef.RSH) op = ">>";
-			else if (ast.type == jsdef.URSH) op = ">>>";
-			operation = this.typerules.implicit.BIT;
-			var type1 = _this.getTypeName(ast[0]);
-			var type2 = _this.getTypeName(ast[1]);
-			return operation[type1] ?
-				   (operation[type1].hasOwnProperty(type2) ? operation[type1][type2] : _this.typeCheck(ast, type1, type2))
-				   : _this.typeCheck(ast, type1, type2, "Illegal operation "+op+" on: "+type1+" and "+type2);
-
-		//=============================================================================================================================
-		case jsdef.AND:
-		case jsdef.OR:
-			var type1 = _this.getTypeName(ast[0]);
-			var type2 = _this.getTypeName(ast[1]);
-			return _this.typeCheck(ast, type1, type2);
-
-		//=============================================================================================================================
-		case jsdef.HOOK:
-			var type1 = _this.getTypeName(ast[1]);
-			var	type2 = _this.getTypeName(ast[2]);
-			return _this.typeCheck(ast, type1, type2, "Type mismatch: "+type1+" and "+type2);
-
-		//=============================================================================================================================
-		case jsdef.IDENTIFIER:
-			if(_this.getClass(ast.value)) return "Class";
-			if(!ast.symbol) return _this.UNTYPED;
-			if(ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST) return "Function"; //Function Pointer
-			if(ast.symbol.type==jsdef.FUNCTION) return ast.symbol.vartype;
-			return ast.symbol.vartype;
-
-		//=============================================================================================================================
-		case jsdef.CALL:
-			// Typecasting?
-			if(_this.getClass(ast[0].value)) return ast[0].value;
-			return _this.getTypeName(ast[0]);
-
-		//=============================================================================================================================
-		case jsdef.INDEX:
-			var vartype = _this.getTypeName(ast[0]);
-		    var cls = _this.getClass(vartype);
-		    if(cls && cls.subtype) return cls.subtype;
-			var subtype = _this.getSubType(vartype);
-			return subtype;
-
-		//=============================================================================================================================
-		case jsdef.DOT:
-			var symbol = _this.LookupLastDotIdentifier(ast, _this.getCurrentScope());
-			if(!symbol)
-			{
-				_this.NewError("Symbol not found: " + ast.source, ast);
-				return null;
-			}
-			return symbol.vartype;
-		}
-	};
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.checkFunctionCall = function(ast)
-	{
-		if(!_this.secondPass || !_this.currClassName) return;
-
-		var fnSymbol;
-
-		if(ast.type==jsdef.NEW || ast.type==jsdef.NEW_WITH_ARGS)
-		{
-			fnSymbol = ast[0].symbol.methods['Constructor'];
-		}
-		else
-		{
-			switch(ast[0].type)
-			{
-			case jsdef.DOT:
-				fnSymbol = ast[0].identifier_last.symbol;
-				break;
-
-			case jsdef.IDENTIFIER:
-				fnSymbol = ast[0].symbol;
-				break;
-
-			case jsdef.SUPER:
-				fnSymbol = ast[0].symbol.methods['Constructor'];
-				break;
-			}
-		}
-
-		if(fnSymbol  && fnSymbol instanceof FunctionSymbol)
-		{
-			var i=0, item, arg, param, type1, type2;
-
-			if(ast[1] && ast[1].length>fnSymbol.paramsList.length)
-				_this.NewError("Too many arguments: " + ast.source, ast);
-
-			for(item in fnSymbol.arguments)
-			{
-				arg = fnSymbol.arguments[item];
-				type1 = arg.vartype;
-
-				if(ast[1] && i<ast[1].length)
-				{
-					type2 = _this.getTypeName(ast[1][i]);
-					_this.typeCheck(ast[1][i], type1, type2, "Argument type mismatch: "+type1+" and "+type2);
-				}
-				else if(!arg.optional)
-				{
-					_this.NewError("Argument not optional: " + ast.source, ast);
-				}
-				i++;
-			}
-		}
-	};
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.searchIncludesForVartype = function(className, vt)
-	{
-		var already_searched = {};
-
-		function __searchIncludesForVartype(className, vt)
-		{
-			// ECMA or extern datatype?
-			var vcls = _this.getClass(vt);
-			if(!vcls) return false;
-			if(vcls.file=="externs.jspp") return true;
-			if(vcls.isEnum) return true;
-
-			// Get class from include name
-			var cls = _this.getClass(className);
-			if(!cls) return false;
-			if(cls.file=="externs.jspp") return true;
-
-			// Relaxed check of cyclic references
-			if(already_searched[className]) return false;
-			already_searched[className] = true;
-
-			// Process class includes for vt
-			var found = false;
-			var includes = cls.ast.includes;
-			if(!includes) return false;
-			for(i=0;i<includes.length;i++)
-			{
-				var include = /\x22\#include\s+([^\x22]+)\.\w+?\x22/g.exec(includes[i])[1];
-				if(include==vt)
-				{
-					found=true;
-					break;
-				}
-			}
-
-		    // Deep search of includes
-		    if(!found)
-		    {
-					for(i=0;i<includes.length;i++)
-					{
-						var include = /\x22\#include\s+([^\x22]+)\.\w+?\x22/g.exec(includes[i])[1];
-						if(__searchIncludesForVartype(include, vt))
-						{
-							found=true;
-							break;
-						}
-					}
-		    }
-
-			// Reference to vt not found in includes chain
-			return found;
-		}
-
-		return __searchIncludesForVartype(className, vt);
-	};
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typeCheck = function(ast, type1, type2, customError, checkOnly)
-	{
-		//** Need to rewrite using Roger's convertion tables
-
-		var _this = this;
-		if(!_this.currClassName || !_this.secondPass) return;
-
-		// Fast type checking
-		if(type1==type2) return type1;
-
-		// Resolve vartype and retry
-		type1=_this.getVarType(type1);
-		type2=_this.getVarType(type2);
-		if(type1==type2) return type1;
-
-		// Invalid left/right type
-		if(!type1 || type1=="null" || type1==this.UNTYPED)
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid left type: " + (ast[0] ? ast[0] : ast).source, ast);
-			return type1;
-		}
-
-		if(!type2 || type2=="null" || type2==_this.UNTYPED)
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid right type: " + (ast[1] ? ast[1] : ast).source, ast);
-			return type2;
-		}
-
-        // Null
-		if((__isPointer(type1) || type1 == "CocoAction") && type2=="Null") return type1;
-		if(type1 == "CocoAction" && type2 == "Function") return type1;
-
-  		// Object
-		if(type1=="Object") return type1;
-
-		// Number
-		if(type1=="Number" && type2=="Integer") return type1;
-		if(type1=="Number" && type2=="Float") return type1;
-		if(type1=="Number" && type2=="Time") return type1;
-		if(type1=="Number" && type2=="Object")
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid Object to Number convertion", ast);
-			return type1;
-		}
-
-		// Integer
-		if(type1=="Integer" && type2=="Number") return type1;
-		if(type1=="Integer")
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid "+type2+" to Integer convertion", ast);
-			return type1;
-		};
-
-		// Float
-		if(type1=="Float" && type2=="Number") return type1;
-        if(type1=="Float")
-        {
-        	if(checkOnly) return false;
-        	_this.NewError(customError || "Invalid "+type2+" to Float convertion", ast);
-        	return type1;
-        };
-
-		// Time
-		if(type1=="Time" && type2=="Number") return type1;
-		if(type1=="Time")
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid "+type2+" to Time convertion", ast);
-			return type1;
-		};
-
-		// Date
-		if(type1=="Date" && type2=="Null") return type1;
-
-        // String
-		if(type1=="String" && type2=="Null")
-		{
-			if(ast.type==jsdef.NEW_WITH_ARGS) return type1;
-			_this.NewWarning(customError || "String set to null, set to empty string instead", ast); return type1;
-		}
-
-    	// Boolean
-		if(type1=="Boolean" && type2=="Number")
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid Number to Boolean convertion", ast); return type1;
-		}
-
-		// State
-		if(type1=="State" && type2=="Null") return type1;
-
-        // UDT
-		var cls1 = _this.getClass(type1);
-		if(!cls1)
-		{
-			_this.NewError(customError || "Class not found: " + type1, ast);
-			return type1;
-		}
-
-		var cls2 = _this.getClass(type2);
-		if(!cls2)
-		{
-			_this.NewError(customError || "Class not found: " + type2, ast);
-			return type1;
-		}
-
-		// Inheritance
-		while(cls2)
-		{
-			if(cls1.name==cls2.name) return type1;
-			cls2 = cls2.baseSymbol;
-		}
-
-		if(checkOnly) return false;
-		_this.NewError(customError || "Type mismatch: " + type1 + " and " + type2, ast);
-		return type1;
-	};
-
-	// ==================================================================================================================================
-	//	    ______                      __     ________  ______   _____                 __          __
-	//	   / ____/  ______  ____  _____/ /_   /  _/ __ \/ ____/  / ___/__  ______ ___  / /_  ____  / /____
-	//	  / __/ | |/_/ __ \/ __ \/ ___/ __/   / // / / / __/     \__ \/ / / / __ `__ \/ __ \/ __ \/ / ___/
-	//	 / /____>  </ /_/ / /_/ / /  / /_   _/ // /_/ / /___    ___/ / /_/ / / / / / / /_/ / /_/ / (__  )
-	//	/_____/_/|_/ .___/\____/_/   \__/  /___/_____/_____/   /____/\__, /_/ /_/ /_/_.___/\____/_/____/
-	//	          /_/                                               /____/
-	// ==================================================================================================================================
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Export identifier symbols that are used during debugging.
-	_this.addDebugSymbol = function(ast, runtime)
-	{
-		if(!_this.secondPass || !_this.exportSymbols) return;
-
-		var identifier = "";
-
-		if(ast.type==jsdef.IDENTIFIER && !ast.inDot)
-		{
-			identifier = ast.value;
-			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' s='" + ast.s + "' e='" + ast.e + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
-		}
-		else if(ast.type==jsdef.IDENTIFIER && ast.inDot)
-		{
-			// Taken care by DOT
-		}
-		else if(ast.type==jsdef.DOT && _this.currClassName && !_this.isInside(ast, jsdef.DOT)) // Process top-level DOTs only, skip inner DOTs.
-		{
-			var v_identifiers = [], v_runtime = [], buff = [];
-			for(var i=0;i<ast.identifiers_list.length;i++)
-			{
-				var f = ast.identifiers_list[i].ast;
-				var value = ast.identifiers_list[i].value.replace("@@THIS@@", "this");
-				if(f.type==jsdef.NEW || f.type==jsdef.NEW_WITH_ARGS)
-				{
-					v_identifiers.push(value);
-					v_runtime.push(value);
-				}
-				else if(i==0)
-				{
-					v_identifiers.push(value);
-					if(f.symbol)
-						v_runtime.push(f.symbol.runtime);
-				}
-				else if(f.type==jsdef.INDEX)
-				{
-					v_identifiers[v_identifiers.length-1] += f.generated_index;
-					v_runtime[v_runtime.length-1] += f.generated_index;
-				}
-				else
-				{
-					v_identifiers.push(value);
-					v_runtime.push(value);
-				}
-				buff.push("<DEBUG_SYMBOL file='" + ast.path + "' s='" + ast.s + "' e='" + ast.e + "' start='" + f.start + "' end='" + f.end + "' line='" + f.line_start + "' identifier='" + v_identifiers.join(".") + "' runtime='" + v_runtime.join(".") +"'/>\n");
-			}
-			// Reverse debug symbols for faster search and append them to debug symbols table.
-			_this.debugSymbolsTable = _this.debugSymbolsTable.concat(buff.reverse());
-		}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Export class, function and identifier symbols that are used during code editing by intelliSence.
-	_this.exportCoconutIDESymbols = function()
-	{
-		if(!_this.exportSymbols) return;
-
-		var i, xml, cls, item, arg, args, argsList, xmlArgsList, hasArgs, scope, icon, sig, mbrList, mbrLists, scopeVars,
-			classSymbol, methodSymbol, argumentSymbol, varSymbol, externs, modifier, codeSymbols, varsxml, states,
-			debugSymbols = "<DEBUG_SYMBOLS>" + _this.debugSymbolsTable.join("") + "</DEBUG_SYMBOLS>";
-
-		// ======================================================================================
-		// Export Code Symbols, CodeMax MemberLists and Externs (all in one loop to save time)
-		// ======================================================================================
-
-		externs = ["// Auto-generated Project Externs\n\n"];
-		mbrLists = [];
-		xml = [];
-		xml.push("<CODE_SYMBOLS" + (_this.selectedClass ? " update='" + _this.selectedClass + "'" : "") + ">\n");
-
-		for(cls in _this.classes)
-		{
-			if(_this.selectedClass && _this.selectedClass!=cls) continue;
-
-			classSymbol = _this.classes[cls];
-			externs.push("class "+ classSymbol.name + (classSymbol.base ? " : " + classSymbol.base : "") + "\n{\n");
-
-			mbrList = [];
-			mbrList.push("<memberlist name='Class " + classSymbol.name + "'>");
-			xml.push(_this.objectToXML(classSymbol, classSymbol.name, false));
-			{
-				xml.push("<METHODS>\n");
-				for(item in classSymbol.methods)
-				{
-					methodSymbol = classSymbol.methods[item];
-					if(methodSymbol.name)
-					{
-						args = [];
-						argsList = [];
-						xmlArgsList = [];
-						for(arg in methodSymbol.arguments)
-						{
-							argumentSymbol = methodSymbol.arguments[arg];
-							args.push(_this.objectToXML(argumentSymbol, arg, true));
-							argsList.push(argumentSymbol.name + (argumentSymbol.vartype ? ":" + argumentSymbol.vartype : ""));
-							xmlArgsList.push(argumentSymbol.name + argumentSymbol.ast.xmlvartype);
-						}
-						hasArgs = (args.length>0);
-						xml.push(_this.objectToXML(methodSymbol, "METHOD", !hasArgs));
-						if(hasArgs)
-						{
-							xml.push("<ARGUMENTS>\n");
-							xml.push(args.join(""));
-							xml.push("</ARGUMENTS>\n");
-							xml.push("</METHOD>\n");
-						}
-						sig = methodSymbol.name + "(" + xmlArgsList.join(", ") + ")" + methodSymbol.ast.xmlvartype;
-						modifier = "public";
-						icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
-						if(methodSymbol.private) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FUNCTION; modifier = "private"; }
-						if(methodSymbol.protected) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FUNCTION; modifier = "protected"; }
-						if(methodSymbol.name=="Constructor") icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTRUCTOR;
-						mbrList.push('\t<member name="' + methodSymbol.name + '" proto="' + sig + '" help="' +  classSymbol.name + " :: " + sig + '" image="' + icon + '"/>');
-
-						sig = methodSymbol.name + "(" + argsList.join(", ") + ")" + (methodSymbol.vartype ? " :" + methodSymbol.vartype : "");
-						externs.push("\t" + modifier + " function "+ sig + " {}\n");
-					}
-				}
-				xml.push("</METHODS>\n");
-
-				xml.push("<VARS>\n");
-				for(item in classSymbol.vars)
-				{
-					varSymbol = classSymbol.vars[item];
-					xml.push(_this.objectToXML(varSymbol, item, true));
-					if(varSymbol.type==jsdef.CLASS)
-					{
-						icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
-						modifier = "public";
-						sig = varSymbol.name + varSymbol.ast.xmlvartype;
-						mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + sig + '" help="' + classSymbol.name + " :: " + sig + '" image="' + icon + '"/>');
-					}
-					else
-					{
-						icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
-						modifier = "public";
-						if(varSymbol.private) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD; modifier = "private"; }
-						if(varSymbol.protected) { icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD; modifier = "protected"; }
-						if(varSymbol.constant) icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT;
-						sig = varSymbol.name + varSymbol.ast.xmlvartype;
-						mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + sig + '" help="' + classSymbol.name + " :: " + sig + '" image="' + icon + '"/>');
-						externs.push("\t" + modifier + " var " + varSymbol.name + (varSymbol.vartype ? " :"+ varSymbol.vartype : "") + ";\n");
-					}
-
-				}
-				xml.push("</VARS>\n");
-			}
-			xml.push("</" + classSymbol.name + ">\n");
-			mbrList.push("</memberlist>");
-			mbrLists.push(mbrList.join("\n"));
-			externs.push("} //" + classSymbol.name + "\n\n");
-		}
-		xml.push("</CODE_SYMBOLS>\n");
-		codeSymbols = xml.join("");
-		externs = externs.join("");
-		mbrLists = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n<MEMBER_LISTS" + (_this.selectedClass ? " update='" + _this.selectedClass + "'" : "") +">\n" + mbrLists.join("\n") + "</MEMBER_LISTS>";
-
-		// ======================================================================================
-		// Export Scopes and Scope Vars
-		// ======================================================================================
-
-		xml = [];
-		xml.push("<SCOPES" + (_this.selectedClass ? " update='" + _this.selectedClass + "'" : "") + ">\n");
-		for(i=0;i<_this.scopesTable.length;i++)
-		{
-			scope = _this.scopesTable[i];
-			if(_this.selectedClass && _this.selectedClass!=scope.className) continue;
-
-			varsxml = [];
-			for(item in scope.vars)
-			{
-				varSymbol = scope.vars[item];
-				if(!varSymbol.name || !varSymbol.vartype) continue;
-				varsxml.push("\t<SYMBOL symbolId='"+varSymbol.symbolId + "' name='" + varSymbol.name +
-							 "' type='" + varSymbol.nodeType + "' vartype='" + varSymbol.vartype.replace('<','&lt;').replace('>','&gt;') +
-							 "' subtype='" + (varSymbol.subtype ? varSymbol.subtype : "") + "'/>\n");
-			}
-
-			for(item in scope.methods)
-			{
-				methodSymbol = scope.methods[item];
-				if(!methodSymbol.name) continue;
-				varsxml.push("\t<SYMBOL symbolId='"+methodSymbol.symbolId + "' name='" + methodSymbol.name + "' type='" + methodSymbol.nodeType +
-							 "' vartype='" + (!methodSymbol.vartype ? "" : methodSymbol.vartype.replace('<','&lt;').replace('>','&gt;')) +
-							 "' subtype='" + (methodSymbol.subtype ? methodSymbol.subtype : "") + "'/>\n");
-			}
-
-			xml.push(_this.objectToXML(scope, "SCOPE", varsxml.length==0, (!scope.parentScope ? "" : "parent='"+scope.parentScope.scopeId+"'")));
-
-			if(varsxml.length)
-			{
-				xml.push(varsxml.join(""));
-				xml.push("</SCOPE>\n");
-			}
-		}
-		xml.push("</SCOPES>\n");
-		scopeVars = xml.join("");
-
-		// ======================================================================================
-		// Export States
-		// ======================================================================================
-		states = [];
-		for(var item in _this.states)
-		{
-			states.push(item);
-		}
-		states = states.join(";");
-
-		// ======================================================================================
-		// Export to IDE
-		// ======================================================================================
-
-        //write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
-        //write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
-        //write("C:/Users/Admin/Desktop/members.xml", mbrLists);
-        //write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
-
-		if(!_this.selectedClass)
-			IDECallback("resetSymbols");
-
-		IDECallback("setCodeSymbols", "", 0, 0, codeSymbols);
-		IDECallback("setScopes", "", 0, 0, scopeVars);
-		IDECallback("setMemberLists", "", 0, 0, mbrLists);
-		IDECallback("setStates", "", 0, 0, states);
-
- 		if(!_this.selectedClass)
-		{
-			IDECallback("setExterns", "", 0, 0, externs);
-			IDECallback("setDebugSymbols", "", 0, 0, debugSymbols);
-		}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.objectToXML = function(obj, tag, close, more)
-	{
-		var v, xml = [];
-		xml.push("<"+tag);
-		for(var item in obj)
-		{
-			if(typeof obj[item]=="object") continue;
-			v = obj[item];
-			if(v==null || v==undefined || v==NaN || v=="NaN") continue;
-			if(typeof v == "string" && v.charAt(v.length-1)=='>')
-			{
-				v = v.replace("<", "&lt;");
-				v = v.replace(">", "&gt;");
-			}
-			xml.push(item + "='" + v + "'");
-		}
-		if(more) xml.push(more);
-		xml.push(close ? "/>\n" : ">\n");
-		return xml.join(" ");
 	};
 }

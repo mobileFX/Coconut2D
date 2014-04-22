@@ -477,6 +477,34 @@ class ImageDataBuffer
 	public var height:Integer;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class XMLHttpRequest
+{
+	public const UNSENT:Integer = 0;
+	public const OPENED:Integer = 1;
+	public const HEADERS_RECEIVED:Integer = 2;
+	public const LOADING:Integer = 3;
+	public const DONE:Integer = 4;
+
+	// request
+	public var timeout:Integer;
+	public var readyState:Integer;
+	public function open(method:String, url:String) {}
+	public function setRequestHeader(header:String, value:String) {}
+	public function send() {}
+	public function send(data:String) {}
+	public function send(data:ArrayBufferView) {}
+	public function abort() {}
+
+	// response
+	public var status:Integer;
+	public var statusText:String;
+	public var responseText:String;
+	public var responseType:Integer;//XMLHttpRequestResponseType;
+	public function getAllResponseHeaders():String {}
+	public function getResponseHeader(header:String):String {}
+}
+
 // ==================================================================================================================================
 //	   ________      __          __   _    __           _       __    __
 //	  / ____/ /___  / /_  ____ _/ /  | |  / /___ ______(_)___ _/ /_  / /__  _____

@@ -503,6 +503,9 @@ function __init_narcissus(GLOBAL)
 					this.__file = v[v.length-1];
 					this.__fileLineOffset = this.line_start;
 					this.__filePosOffset = this.cursor + token.value.length + 4;
+
+					trace("+ parsing: " + this.__file);
+
 				}
 				///////////////////////////////////////////////////////////////////
 			}
@@ -2266,7 +2269,7 @@ function __init_narcissus(GLOBAL)
 			case jsdef.NUMBER:
 			case jsdef.STRING:
 			case jsdef.REGEXP:
-			case jsdef.SUPER:
+			case jsdef.SUPER:  //TODO: much change super to support super.super.super...
 				if(!t.scanOperand)
 					break loop;
 				operands.push(new Node(t));

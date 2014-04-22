@@ -23,22 +23,31 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	   ______                _____ __        __
-//	  / ____/___  _________ / ___// /_____ _/ /____
-//	 / /   / __ \/ ___/ __ \\__ \/ __/ __ `/ __/ _ \
-//	/ /___/ /_/ / /__/ /_/ /__/ / /_/ /_/ / /_/  __/
-//	\____/\____/\___/\____/____/\__/\__,_/\__/\___/
+//	   ______                 ___________      __         __    __
+//	  / ____/___  _________  /  _/_  __(_)____/ /______ _/ /_  / /__
+//	 / /   / __ \/ ___/ __ \ / /  / / / / ___/ //_/ __ `/ __ \/ / _ \
+//	/ /___/ /_/ / /__/ /_/ // /  / / / / /__/ ,< / /_/ / /_/ / /  __/
+//	\____/\____/\___/\____/___/ /_/ /_/\___/_/|_|\__,_/_.___/_/\___/
 //
 // ==================================================================================================================================
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-class State
+class CocoITickable
 {
-	public var __name:String;
-	public var params:Object;
-	public function Destructor() {}
-	public virtual function enter() {}
-	public virtual function exit() {}
-	public abstract function tick(time:Time) {}
-	public virtual function paint(gl:WebGLRenderingContext, time:Time) {}
+	public function Constructor()
+	{
+	}
+
+	public virtual function register()
+	{
+		if(engine)
+			engine.addTickListener(this);
+	}
+
+	public virtual function unregister()
+	{
+		if(engine)
+			engine.removeTickListener(this);
+	}
+
+ 	public abstract function tick(time:Time) {}
 }

@@ -49,7 +49,7 @@ state class CocoEngine
 	private var __clicked:Array<CocoClip>;
 	private var __clock:Time;
 
-	public var xxx:Float;
+	private var __tickables:Array<CocoITickable>;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -72,6 +72,36 @@ state class CocoEngine
 	public function Destructor()
 	{
 		delete __clicked;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function addTickListener(tickable:CocoITickable)
+	{
+		__tickables.push(tickable);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getTickableIndex(tickable:CocoITickable) :Integer
+	{
+		if(tickable)
+		{
+			for(var i:Integer =__tickables.size()-1; i>=0; i--)
+			{
+				if(__tickables[i]==tickable)
+				{
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function removeTickListener(tickable:CocoITickable)
+	{
+		var index:Integer = getTickableIndex(tickable);
+		if(index!=-1)
+			__tickables.splice(index,1);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////

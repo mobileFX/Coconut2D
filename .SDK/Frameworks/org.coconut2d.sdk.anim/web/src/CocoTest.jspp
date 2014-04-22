@@ -94,9 +94,22 @@ state class Class1
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function test_virtual()
+	{
+		trace("Class1::test_virtual");
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function test()
 	{
 		trace("========================== Class1::test() ==========================");
+
+
+		// When called without super class, it should call the function above, Class1::test_virtual
+		// When called with a super class, it should call the replaced function, Class3::test_virtual
+
+		test_virtual();
+		this.test_virtual();
 
 		public_state.tick(0)
 		private_state.tick(0)
@@ -327,11 +340,18 @@ state class Class3 : Class2
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function test_virtual()
+	{
+		trace("Class3::test_virtual");
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function test()
 	{
 		trace("========================== Class3::test() (before super) ==========================");
 
 		trace("Class3::test::super.test()");
+
 		super.test();
 
 		trace("========================== Class3::test() (after super) ==========================");
