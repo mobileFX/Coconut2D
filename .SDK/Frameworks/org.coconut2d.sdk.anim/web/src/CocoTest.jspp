@@ -205,8 +205,8 @@ state class Class1
 
 		function enter() 	{ state_var = "+public_state_scope_var"; trace("Class1_public_state_enter " + state_var); }
 		function exit() 	{ trace("Class1_public_state_exit"); }
-		function tick() 	{ trace("Class1_public_state_tick"); }
-		function paint() 	{ trace("Class1_public_state_paint"); }
+		function tick(time:Time) 	{ trace("Class1_public_state_tick"); }
+		function paint(gl:WebGLRenderingContext, time:Time) 	{ trace("Class1_public_state_paint"); }
 	}
 
 	private state private_state
@@ -215,8 +215,8 @@ state class Class1
 
 		function enter() 	{ state_var = "+private_state_scope_var"; trace("Class1_private_state_enter " + state_var); }
 		function exit() 	{ trace("Class1_private_state_exit"); }
-		function tick() 	{ trace("Class1_private_state_tick"); }
-		function paint() 	{ trace("Class1_private_state_paint"); }
+		function tick(time:Time) 	{ trace("Class1_private_state_tick"); }
+		function paint(gl:WebGLRenderingContext, time:Time) 	{ trace("Class1_private_state_paint"); }
 	}
 
 	protected state protected_state
@@ -225,8 +225,8 @@ state class Class1
 
 		function enter() 	{ state_var = "+protected_state_scope_var"; trace("Class1_protected_state_enter " + state_var); }
 		function exit() 	{ trace("Class1_protected_state_exit"); }
-		function tick() 	{ trace("Class1_protected_state_tick"); }
-		function paint() 	{ trace("Class1_protected_state_paint"); }
+		function tick(time:Time) 	{ trace("Class1_protected_state_tick"); }
+		function paint(gl:WebGLRenderingContext, time:Time) 	{ trace("Class1_protected_state_paint"); }
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////

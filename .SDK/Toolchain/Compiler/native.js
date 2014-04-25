@@ -358,6 +358,25 @@ CPPCompiler.prototype.generate = function (ast)
 
         CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 		CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.isPointer?"*":"") + " ") + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
+		if(ast.isConstructor && ast.inClass.base_init_params)
+		{
+			var baseConstructorArguments = [];
+			for(var item in ast.inClass.base_init_params)
+			{
+				if(!isFinite(item)) break;
+				var arg = ast.inClass.base_init_params[item];
+				if(arg.type==jsdef.IDENTIFIER)
+				{
+					baseConstructorArguments.push(arg.value);
+				}
+				else
+				{
+					var gen = _this.generate(arg);
+					baseConstructorArguments.push(gen.CPP);
+				}
+			}
+			CPP.push(" : " + ast.inClass.extends + "(" + formatCPP(baseConstructorArguments.join(",")) + ")");
+		}
         CPP.push("\n{\n");
 		CPP.push(generate(ast.body).CPP);
 		CPP.push("}\n");
@@ -478,7 +497,7 @@ CPPCompiler.prototype.generate = function (ast)
 				if(!isFinite(item)) continue;
 				if(ast.static && ast.scope.isClass)
 				{
-					var str = formatCPP(ast[item].vartype + (ast[item].isPointer ? "* " : " ") + ast.scope.className + "::" + ast[item].name + ";");
+					var str = formatCPP(ast[item].vartype + (ast[item].isPointer ? "* " : " ") + ast.inClass.name + "::" + ast[item].name + ";");
 					if(!_this.classFiles[ast.path])
 					{
 						_this.classFiles[ast.path] = {};
@@ -582,12 +601,26 @@ CPPCompiler.prototype.generate = function (ast)
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.SUPER:
+		if(_this.currClassName && _this.classList[_this.currClassName] && _this.classList[_this.currClassName].extends)
+		{
+			CPP.push(_this.classList[_this.currClassName].extends);
+		}
+		else
+		{
 		CPP.push("super");
+		}
 		break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	case jsdef.THIS:
+		if(_this.currClassName && ast.inDot && ast.inDot.identifier_first == ast && ast.inDot.identifier_last.symbol.type == jsdef.FUNCTION && ast.inDot.identifier_last.symbol.virtual)
+		{
+			CPP.push(_this.currClassName);
+		}
+		else
+		{
 		CPP.push(_this.in_state ? "self" : "this");
+		}
 		break;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1019,6 +1052,10 @@ CPPCompiler.prototype.generate = function (ast)
 			CPP.push("->");
 		}
 		else if(ast[1].symbol.static)
+		{
+			CPP.push("::");
+		}
+		else if(ast[1].symbol.type==jsdef.FUNCTION && ast[1].symbol.virtual && (ast[0].type==jsdef.SUPER || ast[0].type==jsdef.THIS))
 		{
 			CPP.push("::");
 		}

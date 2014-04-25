@@ -132,6 +132,7 @@ class GridSymbol;
 class SceneGameBoard;
 class SceneTitle;
 class GameEngine;
+class CocoITickable;
 //# DO NOT EDIT END #//
 
 class CocoFont;

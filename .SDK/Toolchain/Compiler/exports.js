@@ -587,116 +587,178 @@ function CompilerExportsPlugin(compiler)
 	_this.exportGameStateMachine = function()
 	{
 		// States changes with two possible ways:
-		// 1. A state function (enter, exit, tick, paint) call setNextState()
-		// 2. A state function (enter, exit, tick, paint) call CocoScene.gotoAndPlay|Stop(<CocoTimeLabel>)
+		//
+		// 1. A state function (enter, exit, tick, paint) calls setNextState()
+		//
+		// 2. A state function (enter, exit, tick, paint) calls CocoScene.gotoAndPlay|Stop(<CocoTimeLabel>)
+		//    and the animation hits a KeyFrame with an action that calls setNextState() or it simply sets
+		//    the next state.
+		//
 		// We need to identify those two patterns in the source code in order to derive the state diagram.
 
-		var states = [];
-		var GgraphViz = ["digraph G = {\nrankdir=LR;\nnode [shape=circle];"];
+		var states = {};
 		var currState = null;
 
 		descend("findStates", _this.ast, function(node)
 		{
-			if(node.type==jsdef.STATE)
+			if(node.type!=jsdef.STATE) return;
+
+			currState=node.symbol;
+			states[currState.name] = currState;
+
+			// Now that we are on a state, we need to descen on its enter,exit,tick,paint
+			// and look for "setNextState()" or "CocoScene.gotoAndPlay|Stop(<CocoTimeLabel>)"
+
+			for(var item in node.symbol.scope.methods)
 			{
-				currState=node.symbol;
-				states.push(currState);
-
-				// Now that we are on a state, we need to descen on its enter,exit,tick,paint
-				// and look for "setNextState()" or "CocoScene.gotoAndPlay|Stop(<CocoTimeLabel>)"
-
-				for(var item in node.symbol.scope.methods)
+				var method = node.symbol.scope.methods[item];
+				descend("findStateChangeFunctions_"+currState.name, method.ast.body, function(node2)
 				{
-					var method = node.symbol.scope.methods[item];
-					descend("findStateChangeFunctions_"+currState.name, method.ast.body, function(node2)
+					if(!(node2.symbol && node2.type==jsdef.IDENTIFIER)) return;
+
+					switch(node2.symbol.name)
 					{
-						if(node2.type==jsdef.IDENTIFIER)
-						{
-							switch(node2.symbol.name)
+						//===================================================================================================
+						case "setNextState":
+							var nextState = null;
+							descend("findStateIdentifier_"+currState.name, getInner(node2), function(node3)
 							{
-								//===================================================================================================
-								case "setNextState":
-									var nextState = null;
-									descend("findStateIdentifier_"+currState.name, getInner(node2), function(node3)
+								if(nextState) return;
+								if(node3.type==jsdef.IDENTIFIER && node3.symbol.type==jsdef.STATE)
+								{
+									nextState = node3.symbol;
+									return true;
+								}
+							});
+							if(nextState)
+							{
+								states[nextState.name]=nextState;
+								currState.nextStates[nextState.name] = nextState;
+							}
+							break;
+
+						//===================================================================================================
+						case "gotoAndPlayByName":
+						case "gotoAndStopByName":
+
+							if(!node2.inDot) break;
+							var keyFrameIndex = -1;
+
+							// This works only for string literals
+							// eg. gotoAndPlayByName("labelName")
+							// First we need to get the label name.
+
+							var label = getInner(node2)[1][0].value;
+
+							// We need to scan all derived CocoScene classes
+							// and find a class that defines the label on
+							// the root CocoClip.
+
+							for(className in _this.classes)
+							{
+								// Get a class and check its base class
+								var cls = _this.classes[className];
+								if(cls.base == "CocoScene")
+								{
+									// Now we need to find the constructor because
+									// animations are set by the automatic generated
+									// code in constructor.
+
+									var constructor = null;
+									for(item in cls.methods)
 									{
-										if(nextState) return;
-										if(node3.type==jsdef.IDENTIFIER && node3.symbol.type==jsdef.STATE)
-										{
-											nextState = node3.symbol;
-											return true;
-										}
-									});
-									if(nextState)
-										GgraphViz.push( currState.name + " -> " + nextState.name);
-									break;
+										if(item!="Constructor") continue;
+										constructor = cls.methods[item].ast;
+										break;
+									}
+									if(!constructor) continue;
 
-								//===================================================================================================
-								case "gotoAndPlayByName":
-								case "gotoAndStopByName":
+									// We have to scan the constructor statements for
+									// the exact statement "__root.addLabelEx(labelName)"
+									// We need to resolve the labelName to a keyframeIndex.
 
-									if(!node2.inDot) break;
-									var keyFrameIndex = -1;
-									var label = getInner(node2)[1][0].value;
-
-									for(className in _this.classes)
+									for(item in constructor.body)
 									{
-										var cls = _this.classes[className];
-										if(cls.base == "CocoScene")
+										if(!isFinite(item)) continue;
+										var addLabelEx = constructor.body[item] && constructor.body[item].expression && constructor.body[item].expression.type==jsdef.CALL ? constructor.body[item].expression[0] : null;
+										if(addLabelEx && addLabelEx.type==jsdef.DOT && addLabelEx.identifier_first.value=="__root" && addLabelEx.identifier_last.value=="addLabelEx" && addLabelEx.parent[1][1].value==label)
 										{
-											var constructor = null;
-											for(item in cls.methods)
-											{
-												if(item!="Constructor") continue;
-												constructor = cls.methods[item].ast;
-												break;
-											}
-											if(!constructor) continue;
-
-											for(item in constructor.body)
-											{
-												if(!isFinite(item)) continue;
-												var addLabelEx = constructor.body[item] && constructor.body[item].expression && constructor.body[item].expression.type==jsdef.CALL ? constructor.body[item].expression[0] : null;
-												if(addLabelEx && addLabelEx.type==jsdef.DOT && addLabelEx.identifier_first.value=="__root" && addLabelEx.identifier_last.value=="addLabelEx" && addLabelEx.parent[1][1].value==label)
-												{
-													keyFrameIndex=addLabelEx.parent[1][0].value;
-													break;
-												}
-											}
-											if(keyFrameIndex==-1) continue;
-
-											var body = constructor.body[constructor.body.length-1];
-											for(item in body)
-											{
-												if(!isFinite(item)) continue;
-												var actionNode = body[item];
-												if(actionNode.type==jsdef.ASSIGN && actionNode[0].type==jsdef.DOT && actionNode[0].identifier_last.value=="__instanceName")
-												{
-													debugger;
-													actionClipName = actionNode[0].identifier_first.value;
-													break;
-												}
-											}
+											keyFrameIndex=addLabelEx.parent[1][0].value;
+											break;
 										}
 									}
+									if(keyFrameIndex==-1) continue;
 
-									break;
+									// Let us find all clips name "Actions".
+									// On "Actions" clips we normally place
+									// KeyFrames with either actions or states.
 
-								case "gotoAndPlayByIndex":
-								case "gotoAndStopyByIndex":
-									break;
+									var actionNodes = [];
+									descend("findStateIdentifier_"+currState.name+"_"+label, constructor.body, function(node3)
+									{
+										if(node3.type==jsdef.IDENTIFIER && node3.value=="__instanceName" && node3.inDot && node3.inDot.parent[1] && node3.inDot.parent[1].value.toLowerCase()=="actions")
+										{
+											actionNodes.push(node3.inDot.identifier_first.value);
+										}
+									});
+
+									// We have a list of all Action clips. We need to scan them for
+									// KeyFrames that execute actions or change states where frameIndex
+									// is grater or equal to the frameIndex of the labelName above.
+									// The pattern we are looking for is
+									// <instance>.__timeline.addKeyFrameEx(<state>,<action>,labelKeyFrameIndex,...)
+
+									for(i=actionNodes.length-1; i>=actionNodes.length-1; i--)
+									{
+										var nextState = null;
+										var actionNode = actionNodes[i];
+										descend("findStateIdentifier_"+currState.name+"_"+label+"_"+actionNode, constructor.body, function(node3)
+										{
+											if(nextState) return;
+											if(node3.type==jsdef.IDENTIFIER && node3.value=="addKeyFrameEx" && node3.inDot && node3.inDot.identifier_first.value==actionNode && node3.inDot.parent[1][2].value>=keyFrameIndex)
+											{
+												// We have successfully identifier a KeyFrame definition.
+												// We now need to determine if this KeyFrame invokes an
+												// action or if it sets a next state.
+
+												// Get the list of parameters of this KeyFrame
+												var list = node3.inDot.parent[1];
+
+												// If the first parameter is set, it is a state.
+												if(list[0].identifier_last)
+												{
+													var nextState = list[0].identifier_last.symbol;
+													states[nextState.name]=nextState;
+													currState.nextStates[nextState.name] = nextState;
+												}
+
+												// If the second parameter is set, it is an action
+												// we don't "else" so that we can examine both possibilites.
+												if(list[1].type==jsdef.FUNCTION)
+												{
+													var fn = list[1].symbol.ast;
+													debugger;
+												}
+											}
+										});
+									}
+								}
 							}
-						}
-					});
-				}
-				return true;
-			};
+							break;
+
+					} // switch(node2.symbol.name)
+
+				}); // descend("findStateChangeFunctions_"+currState.name,
+
+			}//for(var item in node.symbol.scope.methods)
+
+			return true;
 		});
 
 		function getInner(node)
 		{
 			if(node.inCall) return node.inCall;
 			if(node.inDot && node.inDot.parent.type==jsdef.CALL) return node.inDot.parent;
-			debugger;
 		}
 
 		function descend(visitedId, node, checkFn)
@@ -715,7 +777,43 @@ function CompilerExportsPlugin(compiler)
 			}
 		}
 
+		// We have a list of states that have a list of nextStates
+		// Lets create a GraphViz script.
 
+		var GgraphViz = ["","digraph G {",
+						 "graph [layout=\"dot\",fontname=\"helvetica\"];",
+						 "overlap=false;",
+						 "forcelabels=true;",
+						 "rankdir=LR;",
+						 "ranksep=2.0;",
+						 "node [shape=circle,fontname=\"helvetica\",fontsize=8];"
+						 ];
+
+		var relations = {};
+		var i=0;
+		for(item in states)
+		{
+			var currState = states[item];
+			if(currState.stateId) continue;
+			currState.stateId = "S"+(i++);
+			GgraphViz.push(currState.stateId + ' [label="' + currState.name.replace("STATE_", "").replace(/_/g, "\\n") + '"];');
+		}
+		for(item in states)
+		{
+			var currState = states[item];
+			for(next in currState.nextStates)
+			{
+				var nextState = states[next];
+				relations[currState.stateId + " -> " + nextState.stateId] = true;
+			}
+		}
+		for(relation in relations)
+		{
+			GgraphViz.push(relation);
+		}
+		GgraphViz.push("}");
+
+		return GgraphViz.join("\n");
 	};
 
 	// ==================================================================================================================================
@@ -774,17 +872,15 @@ function CompilerExportsPlugin(compiler)
 		var externs      = _this.exportExterns();
 		var states		 = _this.exportStates();
 
-		//var stateMachine = _this.exportGameStateMachine();
-
+		//var stateMachine = compiler.exportGameStateMachine();
+		//trace(stateMachine);
 		//var diagram = _this.exportClassDiagram();
 		//write("D:/mobileFX/Projects/Software/Coconut/Tools/NClass/ClassDiagram/Coconut2D.ncp", diagram);
 		//var reference	 = _this.exportClassReferenceDoc();
-
         //write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
         //write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
         //write("C:/Users/Admin/Desktop/members.xml", mbrLists);
         //write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
-
 
 		//=======================================================
 		// Send exported data to IDE

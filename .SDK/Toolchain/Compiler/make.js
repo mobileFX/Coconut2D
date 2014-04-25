@@ -36,7 +36,7 @@ if(!this['console']) console = {log:function(m){}}
 if(!this['IDECallback']) this.IDECallback = function(){};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function make()
+function make(options)
 {
 	var _this = this;
 	var TARGET = makefile.Config.TARGETS[makefile.Vars.TARGET];
@@ -137,7 +137,7 @@ function make()
 
 		// Compile AST
 		trace("\nCompiling JavaScript Classes to JavaScript ...");
-		var compiler = new Compiler(ast, true, null, false);
+		var compiler = new Compiler(ast, true);
 		compiler.compile();
 		trace("+ Done.");
 	};
@@ -159,7 +159,7 @@ function make()
 
 		// Compile AST to JavaScript to build symbol tables
 		trace("\nBuilding Symbol Tables ...");
-		var compiler = new Compiler(ast, false, null);
+		var compiler = new Compiler(ast, false);
 		compiler.compile();
 		trace("+ Symbol tables generated.");
 
@@ -1080,13 +1080,43 @@ function make()
 		IDECallback("shell", command,0,0,json);
 	}
 
+	// ==================================================================================================================================
+	//	   _____ __        __          __  ___           __    _               __  ____  _ __
+	//	  / ___// /_____ _/ /____     /  |/  /___ ______/ /_  (_)___  ___     / / / / /_(_) /____
+	//	  \__ \/ __/ __ `/ __/ _ \   / /|_/ / __ `/ ___/ __ \/ / __ \/ _ \   / / / / __/ / / ___/
+	//	 ___/ / /_/ /_/ / /_/  __/  / /  / / /_/ / /__/ / / / / / / /  __/  / /_/ / /_/ / (__  )
+	//	/____/\__/\__,_/\__/\___/  /_/  /_/\__,_/\___/_/ /_/_/_/ /_/\___/   \____/\__/_/_/____/
+	//
+	// ==================================================================================================================================
+
+	_this.exportStateMachine = function()
+	{
+		var code = _this.getSourceCode();
+		narcissus.__messages = true;
+		narcissus.__cpp = false;
+		var ast = narcissus.jsparse(code);
+		var compiler = new Compiler(ast, false);
+		compiler.compile();
+		var stateMachine = compiler.exportGameStateMachine();
+		trace(stateMachine);
+	}
+
     // =====================================================================
     // Make!
     // =====================================================================
     try
     {
-		var builder = this["Build_" + makefile.Vars.TARGET];
-		if(!builder) throw new Error("Build function not found for [" + makefile.Vars.TARGET + "] target");
+		var builder = null;
+		if(options)
+		{
+			builder = this[options];
+		}
+		else
+		{
+			builder = this["Build_" + makefile.Vars.TARGET];
+		}
+		if(!builder)
+			throw new Error("Build function not found for [" + makefile.Vars.TARGET + "] target");
 	    builder();
 	    trace("\nDone.\n");
 	}
@@ -1336,6 +1366,7 @@ function RxReplace(buff, patt, opts, repl, single_line)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function formatCPP(buff)
 {
+	if(!buff) return "";
 	buff = RxReplace(buff, "[\s\t\n\r]+\\{[\s\t\n\r]+\\};", "mg", "{};");
 	buff = RxReplace(buff, "Array\\s*\\<\\s*([\\w\\*]+)\\s*\\>\\s*", "mg", "Array<$1> ");
 	buff = RxReplace(buff, "Dictionary \\< (\\w+) \\> ", "mg", "Dictionary<$1> ");

@@ -134,7 +134,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function Compiler(ast, exportSymbols, selectedClass, importJSProto)
+function Compiler(ast, exportSymbols, selectedClass)
 {
 	// ast				: The abstract syntax tree root node as produced by the parser
 	// selectedClass	: Used if we want to parse-only a single class for intelliSence use
@@ -148,7 +148,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 	_this.currFile = null;                  // Current File being processed
 	_this.exportSymbols = exportSymbols;    // Flag that indicates whether symbols should be exported or not
 	_this.fileClasses = {};                 // Map of classes per file (usage: _this.fileClasses[file][class] = ast; )
-	_this.importJSProto = importJSProto;	// Import JavaScript Prototypes to JavaScript Classes
 	_this.in_property = false;    			// Flag that indicates we are processing a property
 	_this.in_state = false;    				// Flag that indicates we are processing a state
 	_this.includes = [];                    // List of include files for current file being processed (resets per file)
@@ -443,22 +442,20 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			nodes = null;
 
             // Enrich ast node with usefull data and delete its reference to tokenizer.
+
 			node.nodeType = GLOBAL.narcissus.jsdefNames[node.type];
+			node.source = _this.tokenizer.source.slice(node.start, node.end);
+			node.line_start -= node.__fileLineOffset;
+			node.line_end -= node.__fileLineOffset;
+			node.start -= node.__filePosOffset;
+			node.end -= node.__filePosOffset;
+
 			node.inClass = currClass;
 			node.inFunction = currFunction;
 			node.inDot = currDot.length>0 && currDot[currDot.length-1].type==jsdef.DOT ? currDot[currDot.length-1] : null;
 			node.inIndex = currDot.length>0 && currDot[currDot.length-1].type==jsdef.INDEX ? currDot[currDot.length-1] : null;
 			node.inGroup = currDot.length>0 && currDot[currDot.length-1].type==jsdef.GROUP ? currDot[currDot.length-1] : null;
 			node.inCall = currDot.length>0 && currDot[currDot.length-1].type==jsdef.CALL ? currDot[currDot.length-1] : null;
-			var o_start = (node.__filePosOffset - (node.line_start - node.__fileLineOffset)+1);
-			var o_end = (node.__filePosOffset - (node.line_end - node.__fileLineOffset)+1);
-			node.source = _this.tokenizer.source.slice(node.start, node.end);
-			node.s = node.start;
-			node.e = node.end;
-			node.start -= o_start;
-			node.end -= o_end;
-			node.line_start -= node.__fileLineOffset;
-			node.line_end -= node.__fileLineOffset;
 
 			node.tokenizer = null;
 			delete node.tokenizer;
@@ -1009,7 +1006,9 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			var o3 = new Class2;
 			console.log(o3.x + ", " + o3.y + ", " + o3.z);
 
-			*** How virtual functions are implemented ***
+			=====================================================
+			   *** How virtual functions are implemented ***
+			=====================================================
 
 			In C++ a virtual method is being replaced by the the implementation of the derived class.
 			Any call to the virtual method either by the derived class or by the base class, calls the
@@ -1024,13 +1023,11 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			class Class1
 			{
 			public:
-
 				void goo()
 				{
 					Class1::foo();
 					foo();
 				}
-
 				virtual void foo()
 				{
 					cout << "Class1::foo\n";
@@ -1160,6 +1157,15 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			out.push("__PDEFINE__ = Object.defineProperty,");
 			out.push("__NOENUM__ = {enumerable:false},");
 
+			// Define the bank for the virtual public and private methods.
+			// You are not expected to understand how this works but the
+			// main idea is that we keep a copy of the original methods
+			// in __VIRTUAL__ so that we can call them when needed.
+			// Hava a look in jsdef.FUNCTION and jsdef.IDENTIFIER for
+			// more information about virtual methods.
+
+			out.push("__VIRTUAL__ = this.__VIRTUAL__ = { __PROTECTED__:{} },");
+
 			// For proper implementation of Private and Protected members, we use two
 			// banks, the __PRIVATE__ and __PROTECTED__ respectively. All private or
 			// public entities such as vars, consts, enums, functions, states, properties,
@@ -1168,8 +1174,6 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			// Low-level classes that do not inherit from anything need to define the
 			// __PRIVATE__ and __PROTECTED__ banks. Be carefull NOT TO REDEFINE the
 			// banks if your class inherits from another class.
-
-			out.push("__VIRTUAL__ = this.__VIRTUAL__ = { __PROTECTED__:{} },");
 
             if(!baseClassSymbol)
             {
@@ -1689,6 +1693,12 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 
 	        else if(classScope)
 	        {
+
+	        	// ** WARNING **
+	        	// DO NOT REGENERATE THE FUNCTION CODE.
+	        	// IT HAS ALREADY BEEN GENERATED AND STORED
+	        	// INSIDE ast.generated_code
+
 				// =================================================================
 		        // Constructor function
 				// =================================================================
@@ -1705,7 +1715,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 	            if(ast.isDestructor)
 	            {
 	            	out.push("var Destructor = this.Destructor = function(){");
-	            	out.push(generate(ast.body));
+	            	out.push(ast.generated_code);
 					if(_this.secondPass)
 					{
 						out.push("{");
@@ -1969,10 +1979,15 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				{
 					// If a var is wrapped inside "#ignore_errors" directive we do not complain for redeclaration.
 					if(_this.no_errors)
+					{
 						extern_symbol = ast.scope.vars[ast[item].name];
+					}
 
 					else if(!_this.secondPass)
+					{
+						debugger;
 						_this.NewError("Redeclaration of variable " + ast[item].name + " in current scope", ast[item]);
+					}
 				}
 
 				if(!_this.secondPass)
@@ -2385,6 +2400,7 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				stateSymbol.vartype			= "State";
 				stateSymbol.subtype			= null;
 				stateSymbol.pointer			= true;
+				stateSymbol.nextStates		= {};
 
 				if(ast.public)			stateSymbol.runtime = classSymbol.classId + "." + ast.name;
 				else if(ast.private)	stateSymbol.runtime = classSymbol.classId + ".__PRIVATE__." + ast.name;
@@ -2558,7 +2574,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 			//==================================================================================
 			if(!ast.symbol.public && !ast.symbol.private && !ast.symbol.protected)
 			{
-				out.push(ast.value);
+				ast.runtime = ast.value;
+				out.push(ast.runtime);
 				break;
 			}
 
@@ -2677,7 +2694,8 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				// Special case for Math in externs
 				if(ast.symbol.file == "externs.jspp")
 				{
-					out.push(ast.value);
+					ast.runtime = ast.value;
+					out.push(ast.runtime);
 				}
 
 				// First in DOT
@@ -2698,15 +2716,18 @@ function Compiler(ast, exportSymbols, selectedClass, importJSProto)
 				// The rest cases assume identifier is not the first in DOT.
 				else if(ast.symbol.public)
 				{
-					out.push(ast.value);
+					ast.runtime = ast.value;
+					out.push(ast.runtime);
 				}
 				else if(ast.symbol.protected)
 				{
-					out.push("__PROTECTED__." + ast.value);
+					ast.runtime = "__PROTECTED__." + ast.value;
+					out.push(ast.runtime);
 				}
 				else if(ast.symbol.private)
 				{
-					out.push("__PRIVATE__." + ast.value);
+					ast.runtime = "__PRIVATE__." + ast.value;
+					out.push(ast.runtime);
 				}
 			}
 

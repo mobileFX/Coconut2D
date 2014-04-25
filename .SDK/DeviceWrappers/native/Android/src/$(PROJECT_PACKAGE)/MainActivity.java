@@ -31,9 +31,9 @@ public class MainActivity extends NativeActivity
 	{
 		super.onCreate(savedInstanceState);
     	try
-    	{
-			//setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-			requestWindowFeature(Window.FEATURE_NO_TITLE);
+    	{			
+			requestWindowFeature(Window.FEATURE_NO_TITLE);    					    		
+    		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);    		
 			DisplayMetrics metrics = new DisplayMetrics();
 			getWindowManager().getDefaultDisplay().getMetrics(metrics);
 			mWidth = metrics.widthPixels;
