@@ -37,7 +37,113 @@
 
 "#include CocoUIView.jspp";
 
+enum COCO_CONTROL_BORDER_STYLE_ENUM
+{
+	BORDER_NONE 	= 0,
+	BORDER_SOLID 	= 1,
+	BORDER_DOTTED 	= 2
+};
+
+enum COCO_CONTROL_DISPLAY_ENUM
+{
+	DISPLAY_BLOCK		= 0,
+	DISPLAY_FLOATING	= 1
+};
+
+enum COCO_CONTROL_ANCHOR_ENUM
+{
+	ANCHOR_TOP_LEFT			= 0,
+	ANCHOR_TOP_MIDDLE       = 1,
+	ANCHOR_TOP_RIGHT        = 2,
+	ANCHOR_MIDDLE_LEFT      = 3,
+	ANCHOR_CENTER           = 4,
+	ANCHOR_MIDDLE_RIGHT     = 5,
+	ANCHOR_BOTTOM_LEFT      = 6,
+	ANCHOR_BOTTOM_MIDDLE    = 7,
+	ANCHOR_BOTTOM_RIGHT     = 8
+};
+
+
 class CocoUIControlView : CocoUIView
 {
+	// Identity
+	public var Name:String;
+
+	// Enabled and Visibility
+	public var Enabled:Boolean;
+
+	// Parent Control and Parent Page
+	public var Container:CocoUIControlView;
+	public var Parent:CocoUIPageView;
+
+	// Borders
+	public var BorderStyle:COCO_CONTROL_BORDER_STYLE_ENUM;
+	public var BorderRadius:Integer;
+	public var BorderColor:Color;
+	public var BorderColorSel:Color;
+
+	// Background
+	public var BackgroundGradient:Gradient;
+	public var BackgroundGradientSel:Gradient;
+
+	// Skin Image
+	public var SkinImage:CocoImage;
+	public var SkinImageSel:CocoImage;
+
+	// Overlay Image
+	public var OverlayImage:CocoImage;
+	public var OverlayImageSel:CocoImage;
+	public var OverlayLeft:Float;
+	public var OverlayTop:Float;
+
+	// Glyph
+	public var GlyphImage:CocoImage;
+	public var GlyphImageSel:CocoImage;
+	public var GlyphLeft:Float;
+	public var GlyphTop:Float;
+
+	// Chevron
+	public var ChevronImage:CocoImage;
+	public var ChevronImageSel:CocoImage;
+	public var ChevronLeft:Float;
+	public var ChevronTop:Float;
+
+	// Margins
+	public var MarginLeft:Integer;
+	public var MarginRight:Integer;
+	public var MarginTop:Integer;
+	public var MarginBottom:Integer;
+
+	// Paddings
+	public var PaddingLeft:Integer;
+	public var PaddingRight:Integer;
+	public var PaddingTop:Integer;
+	public var PaddingBottom:Integer;
+
+	// Position and Size
+	public var Display:COCO_CONTROL_DISPLAY_ENUM;
+	public var Anchor:COCO_CONTROL_ANCHOR_ENUM;
+	public var Top:Float;
+	public var Left:Float;
+	public var Width:Float;
+	public var Height:Float;
+	public var Visible:Boolean;
+
+	// Sounds
+	public var SelectSound:CocoAudio;
+	public var ClickSound:CocoAudio;
+
+	// Persistency
+	//public var Persistency:CocoUIPersistentData;
+
+
+	public function Constructor()
+	{
+
+	}
+
+	public function Destructor()
+	{
+	}
 }
 

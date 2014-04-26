@@ -743,6 +743,9 @@
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
+<Member type="Method">public void addTickListener(CocoITickable tickable)</Member>
+<Member type="Method">public Integer getTickableIndex(CocoITickable tickable)</Member>
+<Member type="Method">public void removeTickListener(CocoITickable tickable)</Member>
 <Member type="Method">public void setNextState(State s)</Member>
 <Member type="Method">public void run(WebGLRenderingContext gl, Time time)</Member>
 <Member type="Method">private void __setTouchEvent(DeviceEvent e)</Member>
@@ -758,7 +761,7 @@
 <Member type="Field">private DeviceEvent __deviceEvent</Member>
 <Member type="Field">private Array&lt;CocoClip&gt; __clicked</Member>
 <Member type="Field">private Time __clock</Member>
-<Member type="Field">public Float xxx</Member>
+<Member type="Field">private Array&lt;CocoITickable&gt; __tickables</Member>
 </Entity>
 <Entity type="Class">
 <Name>CocoImage</Name>
@@ -805,9 +808,21 @@
 <Member type="Field">public Float textureHeight</Member>
 </Entity>
 <Entity type="Class">
-<Name>CocoKeyFrame</Name>
+<Name>CocoITickable</Name>
 <Access>Public</Access>
 <Location left="1540" top="840" />
+<Size width="0" height="0" />
+<Collapsed>False</Collapsed>
+<Modifier>None</Modifier>
+<Member type="Method">public void Register()</Member>
+<Member type="Method">public void Unregister()</Member>
+<Member type="Method">public void tick(Time time)</Member>
+<Member type="Constructor">public void Constructor()</Member>
+</Entity>
+<Entity type="Class">
+<Name>CocoKeyFrame</Name>
+<Access>Public</Access>
+<Location left="1760" top="840" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -846,7 +861,7 @@
 <Entity type="Class">
 <Name>CocoMatrix</Name>
 <Access>Public</Access>
-<Location left="1760" top="840" />
+<Location left="1980" top="840" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -889,7 +904,7 @@
 <Entity type="Class">
 <Name>CocoRect</Name>
 <Access>Public</Access>
-<Location left="1980" top="840" />
+<Location left="2200" top="840" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -901,7 +916,7 @@
 <Entity type="Class">
 <Name>CocoScene</Name>
 <Access>Public</Access>
-<Location left="2200" top="840" />
+<Location left="0" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -950,7 +965,7 @@
 <Entity type="Class">
 <Name>CocoSequence</Name>
 <Access>Public</Access>
-<Location left="0" top="1120" />
+<Location left="220" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -963,7 +978,7 @@
 <Entity type="Class">
 <Name>State</Name>
 <Access>Public</Access>
-<Location left="220" top="1120" />
+<Location left="440" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -978,10 +993,11 @@
 <Entity type="Class">
 <Name>Class1</Name>
 <Access>Public</Access>
-<Location left="440" top="1120" />
+<Location left="660" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
+<Member type="Method">public void test_virtual()</Member>
 <Member type="Method">public void test()</Member>
 <Member type="Method">public String public_static_function(String b)</Member>
 <Member type="Method">private String private_static_function(String b)</Member>
@@ -1025,7 +1041,7 @@
 <Entity type="Class">
 <Name>Class2</Name>
 <Access>Public</Access>
-<Location left="660" top="1120" />
+<Location left="880" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1048,10 +1064,11 @@
 <Entity type="Class">
 <Name>Class3</Name>
 <Access>Public</Access>
-<Location left="880" top="1120" />
+<Location left="1100" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
+<Member type="Method">public void test_virtual()</Member>
 <Member type="Method">public void test()</Member>
 <Member type="Constructor">public void Constructor()</Member>
 <Member type="Field">public String static_public_var</Member>
@@ -1067,7 +1084,7 @@
 <Entity type="Class">
 <Name>CocoTextStyle</Name>
 <Access>Public</Access>
-<Location left="1100" top="1120" />
+<Location left="1320" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1084,7 +1101,7 @@
 <Entity type="Class">
 <Name>CocoText</Name>
 <Access>Public</Access>
-<Location left="1320" top="1120" />
+<Location left="1540" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1107,7 +1124,7 @@
 <Entity type="Class">
 <Name>CocoTimeLabel</Name>
 <Access>Public</Access>
-<Location left="1540" top="1120" />
+<Location left="1760" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1118,7 +1135,7 @@
 <Entity type="Class">
 <Name>CocoTimeline</Name>
 <Access>Public</Access>
-<Location left="1760" top="1120" />
+<Location left="1980" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1153,7 +1170,7 @@
 <Entity type="Class">
 <Name>CocoVector</Name>
 <Access>Public</Access>
-<Location left="1980" top="1120" />
+<Location left="2200" top="1120" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1167,7 +1184,7 @@
 <Entity type="Class">
 <Name>GameEngine</Name>
 <Access>Public</Access>
-<Location left="2200" top="1120" />
+<Location left="0" top="1400" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1201,7 +1218,7 @@
 <Member type="Field">private Array&lt;Integer&gt; WIN_PRIZES</Member>
 <Member type="Method">public State STATE_TITLE_SCREEN</Member>
 <Member type="Method">public State STATE_GAME_BOARD</Member>
-<Member type="Method">public State STATE_JUMPING_AVATARS</Member>
+<Member type="Method">public State STATE_GAME_BOARD_JUMPING_AVATARS</Member>
 <Member type="Method">public State STATE_GAME_BOARD_CHOOSE_AVATAR</Member>
 <Member type="Method">public State STATE_GAME_BOARD_BUY_TICKET</Member>
 <Member type="Method">public State STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL</Member>
@@ -1212,7 +1229,7 @@
 <Entity type="Enum">
 <Name>SYMBOL_ENUM</Name>
 <Access>Public</Access>
-<Location left="0" top="1400" />
+<Location left="220" top="1400" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Value>SYMBOL_LEONIDAS</Value>
@@ -1225,7 +1242,7 @@
 <Entity type="Class">
 <Name>GridSymbol</Name>
 <Access>Public</Access>
-<Location left="220" top="1400" />
+<Location left="440" top="1400" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1245,7 +1262,7 @@
 <Entity type="Class">
 <Name>SceneGameBoard</Name>
 <Access>Public</Access>
-<Location left="440" top="1400" />
+<Location left="660" top="1400" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1254,7 +1271,7 @@
 <Entity type="Class">
 <Name>SceneTitle</Name>
 <Access>Public</Access>
-<Location left="660" top="1400" />
+<Location left="880" top="1400" />
 <Size width="0" height="0" />
 <Collapsed>False</Collapsed>
 <Modifier>None</Modifier>
@@ -1310,23 +1327,23 @@
 <StartOrientation>Vertical</StartOrientation>
 <EndOrientation>Vertical</EndOrientation>
 </Relationship>
-<Relationship type="Generalization" first="47" second="46">
-<StartOrientation>Vertical</StartOrientation>
-<EndOrientation>Vertical</EndOrientation>
-</Relationship>
 <Relationship type="Generalization" first="48" second="47">
 <StartOrientation>Vertical</StartOrientation>
 <EndOrientation>Vertical</EndOrientation>
 </Relationship>
-<Relationship type="Generalization" first="54" second="37">
+<Relationship type="Generalization" first="49" second="48">
 <StartOrientation>Vertical</StartOrientation>
 <EndOrientation>Vertical</EndOrientation>
 </Relationship>
-<Relationship type="Generalization" first="57" second="43">
+<Relationship type="Generalization" first="55" second="37">
 <StartOrientation>Vertical</StartOrientation>
 <EndOrientation>Vertical</EndOrientation>
 </Relationship>
-<Relationship type="Generalization" first="58" second="43">
+<Relationship type="Generalization" first="58" second="44">
+<StartOrientation>Vertical</StartOrientation>
+<EndOrientation>Vertical</EndOrientation>
+</Relationship>
+<Relationship type="Generalization" first="59" second="44">
 <StartOrientation>Vertical</StartOrientation>
 <EndOrientation>Vertical</EndOrientation>
 </Relationship>
@@ -1422,87 +1439,39 @@
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="47" second="45">
+<Relationship type="Dependency" first="48" second="46">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="48" second="45">
+<Relationship type="Dependency" first="49" second="46">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="54" second="43">
+<Relationship type="Dependency" first="55" second="44">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="54" second="36">
+<Relationship type="Dependency" first="55" second="36">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="54" second="56">
+<Relationship type="Dependency" first="55" second="57">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="54" second="58">
+<Relationship type="Dependency" first="55" second="59">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="54" second="45">
+<Relationship type="Dependency" first="55" second="46">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="54" second="30">
+<Relationship type="Dependency" first="55" second="30">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="54" second="57">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="38">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="36">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="39">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="44">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="52">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="51">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="40">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="2">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="35">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="54">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="37">
-<StartOrientation>Horizontal</StartOrientation>
-<EndOrientation>Horizontal</EndOrientation>
-</Relationship>
-<Relationship type="Dependency" first="57" second="45">
+<Relationship type="Dependency" first="55" second="58">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
@@ -1518,11 +1487,19 @@
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
+<Relationship type="Dependency" first="58" second="45">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="58" second="53">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
 <Relationship type="Dependency" first="58" second="52">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
-<Relationship type="Dependency" first="58" second="40">
+<Relationship type="Dependency" first="58" second="41">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
@@ -1531,6 +1508,46 @@
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>
 <Relationship type="Dependency" first="58" second="35">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="58" second="55">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="58" second="37">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="58" second="46">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="59" second="38">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="59" second="36">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="59" second="39">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="59" second="53">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="59" second="41">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="59" second="2">
+<StartOrientation>Horizontal</StartOrientation>
+<EndOrientation>Horizontal</EndOrientation>
+</Relationship>
+<Relationship type="Dependency" first="59" second="35">
 <StartOrientation>Horizontal</StartOrientation>
 <EndOrientation>Horizontal</EndOrientation>
 </Relationship>

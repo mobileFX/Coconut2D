@@ -210,7 +210,9 @@ class CocoClip
 	public function removeChild(clipInstance:CocoClip) :CocoClip
 	{
 		if(!clipInstance) return null;
-		__children.splice( getChildIndex(clipInstance), 1);
+		var index:Integer = getChildIndex(clipInstance);
+		if(index==-1) return null;
+		__children.splice(index, 1);
 		normalize();
 		return clipInstance;
 	}

@@ -875,7 +875,7 @@ function CompilerExportsPlugin(compiler)
 		//var stateMachine = compiler.exportGameStateMachine();
 		//trace(stateMachine);
 		//var diagram = _this.exportClassDiagram();
-		//write("D:/mobileFX/Projects/Software/Coconut/Tools/NClass/ClassDiagram/Coconut2D.ncp", diagram);
+		//write("D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Documentation/ClassDiagrams/Coconut2D.ncp", diagram);
 		//var reference	 = _this.exportClassReferenceDoc();
         //write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
         //write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);

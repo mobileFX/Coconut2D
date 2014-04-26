@@ -257,6 +257,8 @@ class Global
 	undefined var TypeError :TypeError;
 	undefined var ImageDataBuffer :ImageDataBuffer;
 	undefined var XMLHttpRequest :XMLHttpRequest;
+	undefined var Color :Color;
+	undefined var Gradient :Gradient;
 	undefined var global :Global;
 	undefined var engine :CocoEngine;
 	undefined var window :HTMLWindow;
@@ -315,10 +317,21 @@ class Global
 	undefined var CocoTimeLabel :CocoTimeLabel;
 	undefined var CocoTimeline :CocoTimeline;
 	undefined var CocoVector :CocoVector;
+	undefined var CocoUIFont :CocoUIFont;
+	undefined var CocoUIView :CocoUIView;
+	undefined var CocoUIControlView :CocoUIControlView;
+	undefined var CocoUIButtonView :CocoUIButtonView;
+	undefined var CocoUICheckboxView :CocoUICheckboxView;
+	undefined var CocoUILabelView :CocoUILabelView;
+	undefined var CocoUINavbarView :CocoUINavbarView;
+	undefined var CocoUIPageView :CocoUIPageView;
+	undefined var CocoUIPickerView :CocoUIPickerView;
+	undefined var CocoUIScrollView :CocoUIScrollView;
+	undefined var CocoUITabView :CocoUITabView;
+	undefined var CocoUITextView :CocoUITextView;
 	undefined var GameEngine :GameEngine;
-	undefined var GridSymbol :GridSymbol;
-	undefined var SceneGameBoard :SceneGameBoard;
-	undefined var SceneTitle :SceneTitle;
+	undefined var NewAnimation :NewAnimation;
+	undefined var Page1 :Page1;
 } //Global
 
 class String
@@ -555,6 +568,14 @@ class XMLHttpRequest
 	undefined var responseText :String;
 	undefined var responseType :Integer;
 } //XMLHttpRequest
+
+class Color : Integer
+{
+} //Color
+
+class Gradient : String
+{
+} //Gradient
 
 class SCREEN_RESOLUTION_DPI_ENUM
 {
@@ -1521,6 +1542,7 @@ class CocoImage
 	public var texture :WebGLTexture;
 	public var buffer :WebGLBuffer;
 	public var sequences :Array<CocoSequence>;
+	public var skin :Float32Array;
 	public var baseUrl :String;
 	public var viewOptimalWidth :Integer;
 	public var viewOptimalHeight :Integer;
@@ -1854,86 +1876,163 @@ class CocoVector
 	public var W :Float;
 } //CocoVector
 
+class CocoUIFont
+{
+	public var Name :String;
+	public var Size :Float;
+	public var Bold :Boolean;
+	public var Italic :Boolean;
+	public var Underline :Boolean;
+} //CocoUIFont
+
+class CocoUIView : CocoClip
+{
+} //CocoUIView
+
+class COCO_CONTROL_BORDER_STYLE_ENUM
+{
+	public function BORDER_NONE() :COCO_CONTROL_BORDER_STYLE_ENUM {}
+	public function BORDER_SOLID() :COCO_CONTROL_BORDER_STYLE_ENUM {}
+	public function BORDER_DOTTED() :COCO_CONTROL_BORDER_STYLE_ENUM {}
+	public var BORDER_NONE :COCO_CONTROL_BORDER_STYLE_ENUM;
+	public var BORDER_SOLID :COCO_CONTROL_BORDER_STYLE_ENUM;
+	public var BORDER_DOTTED :COCO_CONTROL_BORDER_STYLE_ENUM;
+} //COCO_CONTROL_BORDER_STYLE_ENUM
+
+class COCO_CONTROL_DISPLAY_ENUM
+{
+	public function DISPLAY_BLOCK() :COCO_CONTROL_DISPLAY_ENUM {}
+	public function DISPLAY_FLOATING() :COCO_CONTROL_DISPLAY_ENUM {}
+	public var DISPLAY_BLOCK :COCO_CONTROL_DISPLAY_ENUM;
+	public var DISPLAY_FLOATING :COCO_CONTROL_DISPLAY_ENUM;
+} //COCO_CONTROL_DISPLAY_ENUM
+
+class COCO_CONTROL_ANCHOR_ENUM
+{
+	public function ANCHOR_TOP_LEFT() :COCO_CONTROL_ANCHOR_ENUM {}
+	public function ANCHOR_TOP_MIDDLE() :COCO_CONTROL_ANCHOR_ENUM {}
+	public function ANCHOR_TOP_RIGHT() :COCO_CONTROL_ANCHOR_ENUM {}
+	public function ANCHOR_MIDDLE_LEFT() :COCO_CONTROL_ANCHOR_ENUM {}
+	public function ANCHOR_CENTER() :COCO_CONTROL_ANCHOR_ENUM {}
+	public function ANCHOR_MIDDLE_RIGHT() :COCO_CONTROL_ANCHOR_ENUM {}
+	public function ANCHOR_BOTTOM_LEFT() :COCO_CONTROL_ANCHOR_ENUM {}
+	public function ANCHOR_BOTTOM_MIDDLE() :COCO_CONTROL_ANCHOR_ENUM {}
+	public function ANCHOR_BOTTOM_RIGHT() :COCO_CONTROL_ANCHOR_ENUM {}
+	public var ANCHOR_TOP_LEFT :COCO_CONTROL_ANCHOR_ENUM;
+	public var ANCHOR_TOP_MIDDLE :COCO_CONTROL_ANCHOR_ENUM;
+	public var ANCHOR_TOP_RIGHT :COCO_CONTROL_ANCHOR_ENUM;
+	public var ANCHOR_MIDDLE_LEFT :COCO_CONTROL_ANCHOR_ENUM;
+	public var ANCHOR_CENTER :COCO_CONTROL_ANCHOR_ENUM;
+	public var ANCHOR_MIDDLE_RIGHT :COCO_CONTROL_ANCHOR_ENUM;
+	public var ANCHOR_BOTTOM_LEFT :COCO_CONTROL_ANCHOR_ENUM;
+	public var ANCHOR_BOTTOM_MIDDLE :COCO_CONTROL_ANCHOR_ENUM;
+	public var ANCHOR_BOTTOM_RIGHT :COCO_CONTROL_ANCHOR_ENUM;
+} //COCO_CONTROL_ANCHOR_ENUM
+
+class CocoUIControlView : CocoUIView
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public var Name :String;
+	public var Enabled :Boolean;
+	public var Container :CocoUIControlView;
+	public var Parent :CocoUIPageView;
+	public var BorderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	public var BorderRadius :Integer;
+	public var BorderColor :Color;
+	public var BorderColorSel :Color;
+	public var BackgroundGradient :Gradient;
+	public var BackgroundGradientSel :Gradient;
+	public var SkinImage :CocoImage;
+	public var SkinImageSel :CocoImage;
+	public var OverlayImage :CocoImage;
+	public var OverlayImageSel :CocoImage;
+	public var OverlayLeft :Float;
+	public var OverlayTop :Float;
+	public var GlyphImage :CocoImage;
+	public var GlyphImageSel :CocoImage;
+	public var GlyphLeft :Float;
+	public var GlyphTop :Float;
+	public var ChevronImage :CocoImage;
+	public var ChevronImageSel :CocoImage;
+	public var ChevronLeft :Float;
+	public var ChevronTop :Float;
+	public var MarginLeft :Integer;
+	public var MarginRight :Integer;
+	public var MarginTop :Integer;
+	public var MarginBottom :Integer;
+	public var PaddingLeft :Integer;
+	public var PaddingRight :Integer;
+	public var PaddingTop :Integer;
+	public var PaddingBottom :Integer;
+	public var Display :COCO_CONTROL_DISPLAY_ENUM;
+	public var Anchor :COCO_CONTROL_ANCHOR_ENUM;
+	public var Top :Float;
+	public var Left :Float;
+	public var Width :Float;
+	public var Height :Float;
+	public var Visible :Boolean;
+	public var SelectSound :CocoAudio;
+	public var ClickSound :CocoAudio;
+} //CocoUIControlView
+
+class CocoUIButtonView : CocoUIControlView
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public var BackColor :Color;
+	public var Caption :String;
+	public var CaptionFont :CocoUIFont;
+	public var CaptionAlign :COCO_TEXT_ALIGN_ENUM;
+} //CocoUIButtonView
+
+class CocoUICheckboxView : CocoUIControlView
+{
+} //CocoUICheckboxView
+
+class CocoUILabelView : CocoUIControlView
+{
+} //CocoUILabelView
+
+class CocoUINavbarView : CocoUIControlView
+{
+} //CocoUINavbarView
+
+class CocoUIPageView : CocoUIView
+{
+} //CocoUIPageView
+
+class CocoUIPickerView : CocoUIControlView
+{
+} //CocoUIPickerView
+
+class CocoUIScrollView : CocoUIView
+{
+} //CocoUIScrollView
+
+class CocoUITabView : CocoUIControlView
+{
+} //CocoUITabView
+
+class CocoUITextView : CocoUIControlView
+{
+} //CocoUITextView
+
 class GameEngine : CocoEngine
 {
-	public function setTexts() {}
-	public function createGUID() :String {}
-	public function hasClosedCells() :Boolean {}
-	public function OpenCell(i:Integer) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	private var scene :CocoScene;
-	private var balance :Number;
-	private var winnings :Number;
-	private var avatars :Array<CocoClip>;
-	private var avatar_leo :CocoClip;
-	private var avatar_xerxes :CocoClip;
-	private var avatar_spartan :CocoClip;
-	private var avatar_persian :CocoClip;
-	private var avatar_swords :CocoClip;
-	private var avatar_armor :CocoClip;
-	private var btnOpenAll :CocoClip;
-	private var btnBuyTicket :CocoClip;
-	private var cells :Array<CocoClip>;
-	private var cellsOpen :Array<Boolean>;
-	private var selectedAvatar :Integer;
-	private var selAvatarAppearances :Integer;
-	private var counter :Number;
-	private var TICKET_TicketID :String;
-	private var TICKET_cells :Array<Integer>;
-	private var TICKET_price :Integer;
-	private var TICKET_winCount :Integer;
-	private var WIN_PRIZES :Array<Integer>;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_JUMPING_AVATARS :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public var scene :CocoScene;
+	public var STATE_GAME :State;
 } //GameEngine
 
-class SYMBOL_ENUM
-{
-	public function SYMBOL_LEONIDAS() :SYMBOL_ENUM {}
-	public function SYMBOL_XERXES() :SYMBOL_ENUM {}
-	public function SYMBOL_SPARTAN() :SYMBOL_ENUM {}
-	public function SYMBOL_PERSIAN() :SYMBOL_ENUM {}
-	public function SYMBOL_SWORDS() :SYMBOL_ENUM {}
-	public function SYMBOL_ARMOR() :SYMBOL_ENUM {}
-	public var SYMBOL_LEONIDAS :SYMBOL_ENUM;
-	public var SYMBOL_XERXES :SYMBOL_ENUM;
-	public var SYMBOL_SPARTAN :SYMBOL_ENUM;
-	public var SYMBOL_PERSIAN :SYMBOL_ENUM;
-	public var SYMBOL_SWORDS :SYMBOL_ENUM;
-	public var SYMBOL_ARMOR :SYMBOL_ENUM;
-} //SYMBOL_ENUM
-
-class GridSymbol
-{
-	public function getRandom() :Integer {}
-	public function createSymbol(symbol:Integer) :CocoClip {}
-	public function initPlaceholder() :CocoClip {}
-	public function initLeonidas() :CocoClip {}
-	public function initXerxes() :CocoClip {}
-	public function initSpartan() :CocoClip {}
-	public function initPersian() :CocoClip {}
-	public function initSwords() :CocoClip {}
-	public function initArmor() :CocoClip {}
-	public function Destructor() {}
-	public function Constructor(scene:CocoScene) {}
-	public var scene :CocoScene;
-} //GridSymbol
-
-class SceneGameBoard : CocoScene
+class NewAnimation : CocoScene
 {
 	public function Constructor() {}
-} //SceneGameBoard
+} //NewAnimation
 
-class SceneTitle : CocoScene
+class Page1 : CocoScene
 {
 	public function Constructor() {}
-} //SceneTitle
+} //Page1
 
