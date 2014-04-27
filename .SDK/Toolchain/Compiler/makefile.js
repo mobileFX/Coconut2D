@@ -7,7 +7,7 @@
         "PROJECT_VERSION": "1.0.0",
         "PROJECT_VERSION_SHORT": "1.0",
         "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui",
-        "CONFIGURATION": "Debug",
+        "CONFIGURATION": "Compiler",
         "DEBUG_HOST_IP": "192.168.1.119",
         "DEBUG_HOST_PORT": "9999",
         "TAGS": {
@@ -81,7 +81,7 @@
         "PROJECT_VERSION": "1.0.0",
         "PROJECT_VERSION_SHORT": "1.0",
         "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui",
-        "CONFIGURATION": "Debug",
+        "CONFIGURATION": "Compiler",
         "DEBUG_HOST_IP": "192.168.1.119",
         "DEBUG_HOST_PORT": "9999",
         "TAGS.OG_COMPANY_ADDRESS": "52 Electras str",

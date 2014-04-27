@@ -75,61 +75,73 @@
    14. Enums are detected if they follow a consistent syntax "var enum_name = { a:<number>, b:<number>, ... };" and they are converted
        into a class.
 
-   == 05/01/2014 ==
+	== 05/01/2014 ==
 
-   15. Added Finite State Machine (FSM) semantics for making game development easier. A class has "state" modifier and inside it there
-   	   can be defined public/private/protected states with enter(), exit(), tick() and paint() methods. A state is a block container of
-   	   other isolated variables and functions too and has access to class scope.
-   16. Added virtual and abstract modifiers.
-   18. Expanded "Destructors" that are required if a class has object members (which are automatically set to null by compiler).
-   19. Implemented smart "delete" statement, if an object is detected it calls its destructor and for typed arrays (of objects) the
-   	   array items are being destructed one by one.
-   20. Added "#include" and other compiler directives (mostly required by the IDE)
+	15. Added Finite State Machine (FSM) semantics for making game development easier. A class has "state" modifier and inside it there
+		can be defined public/private/protected states with enter(), exit(), tick() and paint() methods. A state is a block container of
+		other isolated variables and functions too and has access to class scope.
+	16. Added virtual and abstract modifiers.
+	18. Expanded "Destructors" that are required if a class has object members (which are automatically set to null by compiler).
+	19. Implemented smart "delete" statement, if an object is detected it calls its destructor and for typed arrays (of objects) the
+		array items are being destructed one by one.
+	20. Added "#include" and other compiler directives (mostly required by the IDE)
 
-   == 01/02/2014 ==
+	== 01/02/2014 ==
 
-   21. Added Enums in classes
-   22. Added function overloading at compile time. Overloaded functions are named <function_name>$<index> and the compiler determines which overload to use.
-   23. Added static functions (not proper implementation yet but works)
-   24. Added properties.
-   25. Implemented PRIVATE the same way as PROTECTED
-   26. Completely re-wrote jsdef.IDENTIFIER generator (MAJOR REWRITE!)
-   27. Re-engineered jsdef.CLASS generator
-   28. Added C++ generator (detects pointers!!) for seamlessly compiling JavaScript++ to native C++ for iOS and Android.
+	21. Added Enums in classes
+	22. Added function overloading at compile time. Overloaded functions are named <function_name>$<index> and the compiler determines which overload to use.
+	23. Added static functions (not proper implementation yet but works)
+	24. Added properties.
+	25. Implemented PRIVATE the same way as PROTECTED
+	26. Completely re-wrote jsdef.IDENTIFIER generator (MAJOR REWRITE!)
+	27. Re-engineered jsdef.CLASS generator
+	28. Added C++ generator (detects pointers!!) for seamlessly compiling JavaScript++ to native C++ for iOS and Android.
 
-   == 01/03/2014 ==
+	== 01/03/2014 ==
 
-   29. Added support for new Array<subtype>. In C++ arrays are now pointers and need to be deleted.
-   30. Arrays must be typed inside classes
+	29. Added support for new Array<subtype>. In C++ arrays are now pointers and need to be deleted.
+	30. Arrays must be typed inside classes
 
-   == 18/03/2014 ==
+	== 18/03/2014 ==
 
-   31. Proper implementation for static
-   32. Proper implementation for virtual by separating __BASE__ and __SUPER__ (NEED TESTING)
-   33. Enums can be outside classes too (not recommended) and can have negative numbers
+	31. Proper implementation for static
+	32. Proper implementation for virtual by separating __BASE__ and __SUPER__ (NEED TESTING)
+	33. Enums can be outside classes too (not recommended) and can have negative numbers
 
-   == 17/04/2014 ==
+	== 17/04/2014 ==
 
-   33. Re-engineered several inheritance related fragments of the code and extended the test-cases
-   34. Proper implementation for static methods
-   35. Changed constructor argumetns support and added C++ like base class constructor initialization
-   36. Added compiler plugin support and moved exports and typesystem to plugins
-   37. Separated exports per type and added Class Diagram explort for NClass
+	33. Re-engineered several inheritance related fragments of the code and extended the test-cases
+	34. Proper implementation for static methods
+	35. Changed constructor argumetns support and added C++ like base class constructor initialization
+	36. Added compiler plugin support and moved exports and typesystem to plugins
+	37. Separated exports per type and added Class Diagram explort for NClass
+
+	== 27/04/2014 ==
+
+	38. Added interndaces. A class can implement any number of interfaces using "implements" keyword
+	    followed by a comma separated list of iterfaces. Interface inheritance is also supported.
+	    Type checking has been extended to accomodate interfaces and type casting between classes
+	    and interfaces. Casting an interface to a class is not supported and produces type cast error.
+
+	40. Added delegates. A class-member object variable can de defined as "public|private|protected delegate var obj:ClassXXX"
+		and the compiler will link at compile-time the public members of ClassXXX with the host class and generate the appropriate
+		delegation wrappers. Works with overloaded function as well.
+
 
 	Elias G. Politakis
 	epolitakis@mobilefx.com
 
-   TODO LIST:
-   ==========
+	TODO LIST:
+	==========
 
-   - Bug in V8 prevents breakpoints if block statements starts with jsdef.NEW/NEW_WITH_ARGS assignment (jsflags --inline-new=false)
-   - Proper support for ENUMS
-   - Add interfaces
-   - Add events
-   - IMPORTANT: Need to detect jsdef.NEW and jsdef.NEW_WITH_ARGS inside method calls that produce memory leaks in
-   				C++ and issue warnings. Possible define a weak_new operator and pass delete obligation to consumer?
-   - IMPORTANT: State exit must deallocate local state variables.
-   - Consts must become read-only properties
+	- Bug in V8 prevents breakpoints if block statements starts with jsdef.NEW/NEW_WITH_ARGS assignment (jsflags --inline-new=false)
+	- Proper support for ENUMS
+	- Add interfaces
+	- Add events
+	- IMPORTANT: Need to detect jsdef.NEW and jsdef.NEW_WITH_ARGS inside method calls that produce memory leaks in
+			     C++ and issue warnings. Possible define a weak_new operator and pass delete obligation to consumer?
+	- IMPORTANT: State exit must deallocate local state variables.
+	- Consts must become read-only properties
 
 */
 
@@ -563,11 +575,11 @@ function Compiler(ast, exportSymbols, selectedClass)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Every time we enter a closure (class, script, block, switch, loop, etc) we create a new scope.
     // A scope is linked to its ast so that at second pass we do not regenerate them.
-	_this.NewScope = function(ast)
+	_this.NewScope = function(ast, force)
 	{
 		var scope = null;
 
-		if(_this.secondPass)
+		if(!force && _this.secondPass)
 		{
 			scope = ast.scope;
 		}
@@ -1343,6 +1355,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 					// Get delegated object variable
 					var delegator = classSymbol.vars[item];
 
+					// Create a new method scope
+					var methodScope = _this.NewScope(delegator, true);
+
 					// Get delegated object variable class symbol
 					var cls = _this.getClass(delegator.vartype);
 
@@ -1351,6 +1366,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 					{
 						var delegatorFunctionSymbol = cls.methods[member];
 						if(!delegatorFunctionSymbol.public) continue;
+						if(delegatorFunctionSymbol.static) continue;
+						if(delegatorFunctionSymbol.abstract) continue;
 
 						var fnName = delegatorFunctionSymbol.name;
 						var paramsList = delegatorFunctionSymbol.__untypedParamsList;
@@ -1367,21 +1384,48 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 						// Extend Code Symbols
 						var functionSymbol = new FunctionSymbol();
-						for(item in delegatorFunctionSymbol) { functionSymbol[item] = delegatorFunctionSymbol[item]; }
+						{
+							for(var key in delegatorFunctionSymbol)
+								functionSymbol[key] = delegatorFunctionSymbol[key];
 
-						// The delegated method modifier must be the same with its owning delegated object variable
-						functionSymbol.public = delegator.public;
-						functionSymbol.private = delegator.private;
-						functionSymbol.protected = delegator.protected;
-						functionSymbol.delegated = true;
+							functionSymbol.delegated 	= delegatorFunctionSymbol;
+							functionSymbol.symbolId		= (++_this.symbolId);
+							functionSymbol.name			= delegatorFunctionSymbol.name;
+							functionSymbol.type			= delegatorFunctionSymbol.type;
+							functionSymbol.nodeType		= delegatorFunctionSymbol.nodeType;
+							functionSymbol.className	= classSymbol.name;
+							functionSymbol.classId		= classSymbol.classId;
+							functionSymbol.public		= delegator.public;
+							functionSymbol.private		= delegator.private;
+							functionSymbol.protected	= delegator.protected;
+							functionSymbol.static		= false;
+							functionSymbol.optional		= false;
+							functionSymbol.virtual		= delegator.virtual;
+							functionSymbol.abstract		= false;
+							functionSymbol.ast			= delegatorFunctionSymbol.ast;
+							functionSymbol.scope		= methodScope;
+							functionSymbol.baseSymbol	= delegatorFunctionSymbol.baseSymbol;
+							functionSymbol.file			= delegator.file;
+							functionSymbol.path			= delegator.path;
+							functionSymbol.start		= delegator.start;
+							functionSymbol.end			= delegator.end;
+							functionSymbol.line_start	= delegator.line_start;
+							functionSymbol.line_end		= delegator.line_end;
+							functionSymbol.scopeId		= methodScope.scopeId;
+							functionSymbol.vartype		= delegatorFunctionSymbol.vartype;
+							functionSymbol.subtype		= delegatorFunctionSymbol.subtype;
+							functionSymbol.paramsList	= delegatorFunctionSymbol.paramsList;
+							functionSymbol.arguments	= delegatorFunctionSymbol.arguments;
 
-						// We need to hack symbol runtime identifier
-						functionSymbol.runtime_delegated = delegator.runtime;
-						functionSymbol.runtime = delegator.runtime + "." + fnName;
+							functionSymbol.runtime_delegated = delegator.runtime;
+							functionSymbol.runtime = delegator.runtime + "." + fnName;
+						}
 
 						// Finally save the functionSymbol in the class
 						classSymbol.methods[fnName] = functionSymbol;
 					}
+
+					_this.ExitScope();
 				}
 			}
 
@@ -2715,8 +2759,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 				break;
 			}
 
-			//if(ast.value=="send") debugger;
-
 			//==================================================================================
 			// Lookup the symbol for this identifier.
 			//==================================================================================
@@ -2833,8 +2875,23 @@ function Compiler(ast, exportSymbols, selectedClass)
 							if(maching_args)
 							{
 								// Found the proper overloaded function!!
-								ast.__overload_symbol = ast.symbol;
-								ast.symbol = ast.symbol.overloads[i].symbol;
+
+								// *** Special Case ***
+								// If the overloaded function belongs to a delegated object we
+								// need to aquite the proper function symbol from the host class
+								// that has the proper runtime information.
+
+								if(ast.symbol.delegated)
+								{
+									ast.symbol = ast.symbol.scope.parentScope.methods[ast.symbol.overloads[i].symbol.name];
+								}
+
+								// otherwise we simply swap to the overloaded function symbol
+								else
+								{
+									ast.symbol = ast.symbol.overloads[i].symbol;
+								}
+
 								ast.value = ast.symbol.name;
 								overload_matched = true;
 								break;
@@ -2875,16 +2932,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				}
 				else
 				{
-					// Special case where overloaded function is member of a delegated object
-					if(ast.__overload_symbol && ast.__overload_symbol.delegated)
-					{
-						ast.runtime = ast.__overload_symbol.runtime_delegated + "." + ast.symbol.name;
-						debugger;
-					}
-					else
-					{
-						ast.runtime = ast.symbol.runtime;
-					}
+					ast.runtime = ast.symbol.runtime;
 				}
 			}
 
@@ -2938,13 +2986,16 @@ function Compiler(ast, exportSymbols, selectedClass)
 			//==================================================================================
 			// Check member access
 			//==================================================================================
-			if(ast.symbol.private && ast.inClass!=ast.symbol.ast.inClass)
+			if(!ast.symbol.delegated)
 			{
-				_this.NewError("Invalid private member access: " + ast.value, ast);
-			}
-			else if(ast.symbol.protected && ast.inClass!=ast.symbol.ast.inClass && !_this.isBaseMember(ast.value, ast.inClass.symbol))
-			{
-				_this.NewError("Invalid protected member access: " + ast.value, ast);
+				if(ast.symbol.private && ast.inClass!=ast.symbol.ast.inClass)
+				{
+					_this.NewError("Invalid private member access: " + ast.value, ast);
+				}
+				else if(ast.symbol.protected && ast.inClass!=ast.symbol.ast.inClass && !_this.isBaseMember(ast.value, ast.inClass.symbol))
+				{
+					_this.NewError("Invalid protected member access: " + ast.value, ast);
+				}
 			}
 
 			//==================================================================================
