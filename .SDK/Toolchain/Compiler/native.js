@@ -378,7 +378,10 @@ CPPCompiler.prototype.generate = function (ast)
 			CPP.push(" : " + ast.inClass.extends + "(" + formatCPP(baseConstructorArguments.join(",")) + ")");
 		}
         CPP.push("\n{\n");
-		CPP.push(generate(ast.body).CPP);
+
+        if(ast.body)
+			CPP.push(generate(ast.body).CPP);
+
 		CPP.push("}\n");
 
 		break;
@@ -705,8 +708,6 @@ CPPCompiler.prototype.generate = function (ast)
 			}
 			else
 			{
-				if(__isPointer(vartype)) debugger;
-
 				CPP.push("((");
 				CPP.push(vartype + (__isPointer(vartype) ? "*":""));
 				CPP.push(")");
