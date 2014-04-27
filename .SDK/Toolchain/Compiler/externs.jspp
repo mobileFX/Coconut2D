@@ -31,6 +31,158 @@
 //	                                                                                                                /____/
 // ==================================================================================================================================
 
+/*
+function __registerManager(manager) {};
+function __registerCallback(uid, type) {};
+function __unRegisterCallback(uid, type) {};
+function __ImageData_loadImage(data) {};
+
+function __Audio_load(url:String,obj:Audio) :Integer {}
+function __Audio_get_position(id:Integer):Float  {}
+function __Audio_set_position(id:Integer,time:Float)  {}
+function __Audio_play(id:Integer) {};
+function __Audio_pause(id:Integer) {};
+function __Audio_stop(id:Integer) {};
+
+function __WebGLRenderingContext_activeTexture(uid, texture) {};
+function __WebGLRenderingContext_attachShader(uid, program_uid, shader_uid) {};
+function __WebGLRenderingContext_bindAttribLocation(uid, program_uid, index, name) {};
+function __WebGLRenderingContext_bindBuffer(uid, target, buffer_uid) {};
+function __WebGLRenderingContext_bindFramebuffer(uid, target, framebuffer_uid) {};
+function __WebGLRenderingContext_bindRenderbuffer(uid, target, renderbuffer_uid) {};
+function __WebGLRenderingContext_bindTexture(uid, target, texture_uid) {};
+function __WebGLRenderingContext_blendColor(uid, red, green, blue, alpha) {};
+function __WebGLRenderingContext_blendEquation(uid, mode) {};
+function __WebGLRenderingContext_blendEquationSeparate(uid, modeRGB, modeAlpha) {};
+function __WebGLRenderingContext_blendFunc(uid, sfactor, dfactor) {};
+function __WebGLRenderingContext_blendFuncSeparate(uid, srcRGB, dstRGB, srcAlpha, dstAlpha) {};
+function __WebGLRenderingContext_bufferData() {};
+function __WebGLRenderingContext_bufferSubData(uid, target, offset, data_buffer_uid, data_byteOffset, data_length) {};
+function __WebGLRenderingContext_checkFramebufferStatus(uid, target):Integer {};
+function __WebGLRenderingContext_clear(uid, mask) {};
+function __WebGLRenderingContext_clearColor(uid, red, green, blue, alpha) {};
+function __WebGLRenderingContext_clearDepth(uid, depth) {};
+function __WebGLRenderingContext_clearStencil(uid, s) {};
+function __WebGLRenderingContext_colorMask(uid, red, green, blue, alpha) {};
+function __WebGLRenderingContext_compileShader(uid, shader_uid) {};
+function __WebGLRenderingContext_compressedTexImage2D(uid, target, level, internalformat, width, height, border, data_buffer_uid, data_byteOffset, data_length) {};
+function __WebGLRenderingContext_compressedTexSubImage2D(uid, target, level, xoffset, yoffset, width, height, format, data_buffer_uid, data_byteOffset, data_length) {};
+function __WebGLRenderingContext_copyTexImage2D(uid, target, level, internalformat, x, y, width, height, border) {};
+function __WebGLRenderingContext_copyTexSubImage2D(uid, target, level, xoffset, yoffset, x, y, width, height) {};
+function __WebGLRenderingContext_createBuffer(uid):Integer {};
+function __WebGLRenderingContext_createFramebuffer(uid):Integer {};
+function __WebGLRenderingContext_createProgram(uid):Integer {};
+function __WebGLRenderingContext_createRenderbuffer(uid):Integer {};
+function __WebGLRenderingContext_createShader(uid, type):Integer {};
+function __WebGLRenderingContext_createTexture(uid):Integer {};
+function __WebGLRenderingContext_cullFace(uid, mode) {};
+function __WebGLRenderingContext_deleteBuffer(uid, buffer_uid) {};
+function __WebGLRenderingContext_deleteFramebuffer(uid, framebuffer_uid) {};
+function __WebGLRenderingContext_deleteProgram(uid, program_uid) {};
+function __WebGLRenderingContext_deleteRenderbuffer(uid, renderbuffer_uid) {};
+function __WebGLRenderingContext_deleteShader(uid, shader_uid) {};
+function __WebGLRenderingContext_deleteTexture(uid, texture_uid) {};
+function __WebGLRenderingContext_depthFunc(uid, func) {};
+function __WebGLRenderingContext_depthMask(uid, flag) {};
+function __WebGLRenderingContext_depthRange(uid, zNear, zFar) {};
+function __WebGLRenderingContext_detachShader(uid, program_uid, shader_uid) {};
+function __WebGLRenderingContext_disable(uid, cap) {};
+function __WebGLRenderingContext_disableVertexAttribArray(uid, index) {};
+function __WebGLRenderingContext_drawArrays(uid, mode, first, count) {};
+function __WebGLRenderingContext_drawElements(uid, mode, count, type, offset) {};
+function __WebGLRenderingContext_enable(uid, cap) {};
+function __WebGLRenderingContext_enableVertexAttribArray(uid, index) {};
+function __WebGLRenderingContext_execute(uid, payload) {};
+function __WebGLRenderingContext_finish(uid) {};
+function __WebGLRenderingContext_flush(uid) {};
+function __WebGLRenderingContext_framebufferRenderbuffer(uid, target, attachment, renderbuffertarget, renderbuffer_uid) {};
+function __WebGLRenderingContext_framebufferTexture2D(uid, target, attachment, textarget, texture_uid, level) {};
+function __WebGLRenderingContext_frontFace(uid, mode) {};
+function __WebGLRenderingContext_generateMipmap(uid, target) {};
+function __WebGLRenderingContext_getActiveAttrib(uid, program_uid, index):Integer {};
+function __WebGLRenderingContext_getActiveUniform(uid, program_uid, index):Integer {};
+function __WebGLRenderingContext_getAttachedShaders(uid, program_uid):Array<WebGLShader> {};
+function __WebGLRenderingContext_getAttribLocation(uid, program_uid, name):Integer {};
+function __WebGLRenderingContext_getBufferParameter(uid, target, pname):String {};
+function __WebGLRenderingContext_getContextAttributes(uid):Integer {};
+function __WebGLRenderingContext_getError(uid):Integer {};
+function __WebGLRenderingContext_getExtension(uid, name):Object {};
+function __WebGLRenderingContext_getFramebufferAttachmentParameter(uid, target, attachment, pname):String {};
+function __WebGLRenderingContext_getParameter(uid, pname):String {};
+function __WebGLRenderingContext_getProgramInfoLog(uid, program_uid):String {};
+function __WebGLRenderingContext_getProgramParameter(uid, program_uid, pname):Boolean {};
+function __WebGLRenderingContext_getRenderbufferParameter(uid, target, pname):String {};
+function __WebGLRenderingContext_getShaderInfoLog(uid, shader_uid):String {};
+function __WebGLRenderingContext_getShaderParameter(uid, shader_uid, pname):Boolean {};
+function __WebGLRenderingContext_getShaderPrecisionFormat(uid, shadertype, precisiontype):Integer {};
+function __WebGLRenderingContext_getShaderSource(uid, shader_uid):String {};
+function __WebGLRenderingContext_getSupportedExtensions(uid):Array<String> {};
+function __WebGLRenderingContext_getTexParameter(uid, target, pname):String {};
+function __WebGLRenderingContext_getUniform(uid, program_uid, location_uid):String {};
+function __WebGLRenderingContext_getUniformLocation(uid, program_uid, name):Integer {};
+function __WebGLRenderingContext_getVertexAttrib(uid, index, pname):String {};
+function __WebGLRenderingContext_getVertexAttribOffset(uid, index, pname):Integer {};
+function __WebGLRenderingContext_hint(uid, target, mode) {};
+function __WebGLRenderingContext_isBuffer(uid, buffer_uid):Boolean {};
+function __WebGLRenderingContext_isContextLost(uid):Boolean {};
+function __WebGLRenderingContext_isEnabled(uid, cap):Boolean {};
+function __WebGLRenderingContext_isFramebuffer(uid, framebuffer_uid):Boolean {};
+function __WebGLRenderingContext_isProgram(uid, program_uid):Boolean {};
+function __WebGLRenderingContext_isRenderbuffer(uid, renderbuffer_uid):Boolean {};
+function __WebGLRenderingContext_isShader(uid, shader_uid):Boolean {};
+function __WebGLRenderingContext_isTexture(uid, texture_uid):Boolean {};
+function __WebGLRenderingContext_lineWidth(uid, width) {};
+function __WebGLRenderingContext_linkProgram(uid, program_uid) {};
+function __WebGLRenderingContext_pixelStorei(uid, pname, param) {};
+function __WebGLRenderingContext_polygonOffset(uid, factor, units) {};
+function __WebGLRenderingContext_readPixels(uid, x, y, width, height, format, type, pixels_buffer_uid, pixels_byteOffset, pixels_length) {};
+function __WebGLRenderingContext_renderbufferStorage(uid, target, internalformat, width, height) {};
+function __WebGLRenderingContext_sampleCoverage(uid, value, invert) {};
+function __WebGLRenderingContext_scissor(uid, x, y, width, height) {};
+function __WebGLRenderingContext_shaderSource(uid, shader_uid, source) {};
+function __WebGLRenderingContext_stencilFunc(uid, func, ref, mask) {};
+function __WebGLRenderingContext_stencilFuncSeparate(uid, face, func, ref, mask) {};
+function __WebGLRenderingContext_stencilMask(uid, mask) {};
+function __WebGLRenderingContext_stencilMaskSeparate(uid, face, mask) {};
+function __WebGLRenderingContext_stencilOp(uid, fail, zfail, zpass) {};
+function __WebGLRenderingContext_stencilOpSeparate(uid, face, fail, zfail, zpass) {};
+function __WebGLRenderingContext_texImage2D() {};
+function __WebGLRenderingContext_texParameterf(uid, target, pname, param) {};
+function __WebGLRenderingContext_texParameteri(uid, target, pname, param) {};
+function __WebGLRenderingContext_texSubImage2D(uid, target, level, xoffset, yoffset, width, height, format, type, pixels_buffer_uid, pixels_byteOffset, pixels_length) {};
+function __WebGLRenderingContext_uniform1f(uid, location_uid, x) {};
+function __WebGLRenderingContext_uniform1fv(uid, location_uid, v_buffer_uid, v_byteOffset, v_length) {};
+function __WebGLRenderingContext_uniform1i(uid, location_uid, x) {};
+function __WebGLRenderingContext_uniform1iv(uid, location_uid, v_buffer_uid, v_byteOffset, v_length) {};
+function __WebGLRenderingContext_uniform2f(uid, location_uid, x, y) {};
+function __WebGLRenderingContext_uniform2fv(uid, location_uid, v_buffer_uid, v_byteOffset, v_length) {};
+function __WebGLRenderingContext_uniform2i(uid, location_uid, x, y) {};
+function __WebGLRenderingContext_uniform2iv(uid, location_uid, v_buffer_uid, v_byteOffset, v_length) {};
+function __WebGLRenderingContext_uniform3f(uid, location_uid, x, y, z) {};
+function __WebGLRenderingContext_uniform3fv(uid, location_uid, v_buffer_uid, v_byteOffset, v_length) {};
+function __WebGLRenderingContext_uniform3i(uid, location_uid, x, y, z) {};
+function __WebGLRenderingContext_uniform3iv(uid, location_uid, v_buffer_uid, v_byteOffset, v_length) {};
+function __WebGLRenderingContext_uniform4f(uid, location_uid, x, y, z, w) {};
+function __WebGLRenderingContext_uniform4fv(uid, location_uid, v_buffer_uid, v_byteOffset, v_length) {};
+function __WebGLRenderingContext_uniform4i(uid, location_uid, x, y, z, w) {};
+function __WebGLRenderingContext_uniform4iv(uid, location_uid, v_buffer_uid, v_byteOffset, v_length) {};
+function __WebGLRenderingContext_uniformMatrix2fv(uid, location_uid, transpose, value_buffer_uid, value_byteOffset, value_length) {};
+function __WebGLRenderingContext_uniformMatrix3fv(uid, location_uid, transpose, value_buffer_uid, value_byteOffset, value_length) {};
+function __WebGLRenderingContext_uniformMatrix4fv(uid, location_uid, transpose, value_buffer_uid, value_byteOffset, value_length) {};
+function __WebGLRenderingContext_useProgram(uid, program_uid) {};
+function __WebGLRenderingContext_validateProgram(uid, program_uid) {};
+function __WebGLRenderingContext_vertexAttrib1f(uid, indx, x) {};
+function __WebGLRenderingContext_vertexAttrib1fv(uid, indx, value_buffer_uid, value_byteOffset, value_length) {};
+function __WebGLRenderingContext_vertexAttrib2f(uid, indx, x, y) {};
+function __WebGLRenderingContext_vertexAttrib2fv(uid, indx, value__buffer_uid, value_byteOffset, value_length) {};
+function __WebGLRenderingContext_vertexAttrib3f(uid, indx, x, y, z) {};
+function __WebGLRenderingContext_vertexAttrib3fv(uid, indx, value__buffer_uid, value_byteOffset, value_length) {};
+function __WebGLRenderingContext_vertexAttrib4f(uid, indx, x, y, z, w) {};
+function __WebGLRenderingContext_vertexAttrib4fv(uid, indx, value__buffer_uid, value_byteOffset, value_length) {};
+function __WebGLRenderingContext_vertexAttribPointer(uid, indx, size, type, normalized, stride, offset) {};
+function __WebGLRenderingContext_viewport(uid, x, y, width, height) {};
+*/
+
 var __registerManager = function(manager){};
 var __registerCallback = function(uid, type){};
 var __unRegisterCallback = function(uid, type){};
@@ -180,14 +332,6 @@ var __WebGLRenderingContext_vertexAttrib4f = function(uid, indx, x, y, z, w){};
 var __WebGLRenderingContext_vertexAttrib4fv = function(uid, indx, value__buffer_uid, value_byteOffset, value_length){};
 var __WebGLRenderingContext_vertexAttribPointer = function(uid, indx, size, type, normalized, stride, offset){};
 var __WebGLRenderingContext_viewport = function(uid, x, y, width, height){};
-
-class CocoFont
-{
-	public var height:Float;
-	public function Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean){}
-	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float){}
-	public function measureText(text:String):Float {}
-}
 
 // ==================================================================================================================================
 //	    ______________  ______           __                  _____           _       __     ____  __      _           __
@@ -503,6 +647,23 @@ class XMLHttpRequest
 	public var responseType:Integer;//XMLHttpRequestResponseType;
 	public function getAllResponseHeaders():String {}
 	public function getResponseHeader(header:String):String {}
+}
+
+// ==================================================================================================================================
+//	   ______                             __     _   __      __  _
+//	  / ____/___  _________  ____  __  __/ /_   / | / /___ _/ /_(_)   _____
+//	 / /   / __ \/ ___/ __ \/ __ \/ / / / __/  /  |/ / __ `/ __/ / | / / _ \
+//	/ /___/ /_/ / /__/ /_/ / / / / /_/ / /_   / /|  / /_/ / /_/ /| |/ /  __/
+//	\____/\____/\___/\____/_/ /_/\__,_/\__/  /_/ |_/\__,_/\__/_/ |___/\___/
+//
+// ==================================================================================================================================
+
+class CocoFont
+{
+	public var height:Float;
+	public function Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean){}
+	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float){}
+	public function measureText(text:String):Float {}
 }
 
 // ==================================================================================================================================

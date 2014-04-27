@@ -37,111 +37,92 @@
 
 "#include CocoUIView.jspp";
 
-enum COCO_CONTROL_BORDER_STYLE_ENUM
-{
-	BORDER_NONE 	= 0,
-	BORDER_SOLID 	= 1,
-	BORDER_DOTTED 	= 2
-};
-
-enum COCO_CONTROL_DISPLAY_ENUM
-{
-	DISPLAY_BLOCK		= 0,
-	DISPLAY_FLOATING	= 1
-};
-
-enum COCO_CONTROL_ANCHOR_ENUM
-{
-	ANCHOR_TOP_LEFT			= 0,
-	ANCHOR_TOP_MIDDLE       = 1,
-	ANCHOR_TOP_RIGHT        = 2,
-	ANCHOR_MIDDLE_LEFT      = 3,
-	ANCHOR_CENTER           = 4,
-	ANCHOR_MIDDLE_RIGHT     = 5,
-	ANCHOR_BOTTOM_LEFT      = 6,
-	ANCHOR_BOTTOM_MIDDLE    = 7,
-	ANCHOR_BOTTOM_RIGHT     = 8
-};
-
-
 class CocoUIControlView : CocoUIView
 {
-	// Identity
-	public var Name:String;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Enabled
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private var __enabled:Boolean;
+	public property Enabled	{ function get():Boolean { return __enabled; } function set(v:Boolean) { __enabled = v; invalidate(); }}
 
-	// Enabled and Visibility
-	public var Enabled:Boolean;
-
-	// Parent Control and Parent Page
-	public var Container:CocoUIControlView;
-	public var Parent:CocoUIPageView;
-
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Borders
-	public var BorderStyle:COCO_CONTROL_BORDER_STYLE_ENUM;
-	public var BorderRadius:Integer;
-	public var BorderColor:Color;
-	public var BorderColorSel:Color;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private var __borderStyle:COCO_CONTROL_BORDER_STYLE_ENUM;
+	private var __borderRadius:Float;
+	private var __borderColor:Color;
+	private var __borderColorSel:Color;
 
+	public property BorderStyle		{ function get():COCO_CONTROL_BORDER_STYLE_ENUM { return __borderStyle; }	function set(v:COCO_CONTROL_BORDER_STYLE_ENUM) { __borderStyle = v; invalidate(); }	}
+	public property BorderRadius	{ function get():Float { return __borderRadius; } 							function set(v:Float) { __borderRadius = v; invalidate(); }}
+	public property BorderColor		{ function get():Color { return __borderColor; } 							function set(v:Color) { __borderColor = v; invalidate(); } }
+	public property BorderColorSel	{ function get():Color { return __borderColorSel; } 						function set(v:Color) { __borderColorSel = v; invalidate(); } }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Background
-	public var BackgroundGradient:Gradient;
-	public var BackgroundGradientSel:Gradient;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private var __backgroundGradient:Gradient;
+	private var __backgroundGradientSel:Gradient;
 
+	public property BackgroundGradient		{ function get():Gradient { return __backgroundGradient; 	} function set(v:Gradient) { __backgroundGradient = v; invalidate(); 	}}
+	public property BackgroundGradientSel	{ function get():Gradient { return __backgroundGradientSel; } function set(v:Gradient) { __backgroundGradientSel = v; invalidate(); }}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Skin Image
-	public var SkinImage:CocoImage;
-	public var SkinImageSel:CocoImage;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private var __skinImage:CocoImage;
+	private var __skinImageSel:CocoImage;
 
-	// Overlay Image
-	public var OverlayImage:CocoImage;
-	public var OverlayImageSel:CocoImage;
-	public var OverlayLeft:Float;
-	public var OverlayTop:Float;
+	public property SkinImage		{ function get():CocoImage { return __skinImage; 	} function set(v:CocoImage) { __skinImage = v; invalidate(); 	}}
+	public property SkinImageSel	{ function get():CocoImage { return __skinImageSel; } function set(v:CocoImage) { __skinImageSel = v; invalidate();	}}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Glyph
-	public var GlyphImage:CocoImage;
-	public var GlyphImageSel:CocoImage;
-	public var GlyphLeft:Float;
-	public var GlyphTop:Float;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private var __glyphImage:CocoImage;
+	private var __glyphImageSel:CocoImage;
+	private var __glyphLeft:Float;
+	private var __glyphTop:Float;
 
+	public property GlyphImage		{ function get():CocoImage 	{ return __glyphImage; 		} function set(v:CocoImage) { __glyphImage = v; invalidate(); 		}}
+	public property GlyphImageSel	{ function get():CocoImage 	{ return __glyphImageSel; 	} function set(v:CocoImage) { __glyphImageSel = v; invalidate();	}}
+	public property GlyphLeft		{ function get():Float 		{ return __glyphLeft; 		} function set(v:Float) 	{ __glyphLeft = v; invalidate();		}}
+	public property GlyphTop		{ function get():Float 		{ return __glyphTop; 		} function set(v:Float) 	{ __glyphTop = v; invalidate();			}}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Chevron
-	public var ChevronImage:CocoImage;
-	public var ChevronImageSel:CocoImage;
-	public var ChevronLeft:Float;
-	public var ChevronTop:Float;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private var __chevronImage:CocoImage;
+	private var __chevronImageSel:CocoImage;
+	private var __chevronLeft:Float;
+	private var __chevronTop:Float;
 
-	// Margins
-	public var MarginLeft:Integer;
-	public var MarginRight:Integer;
-	public var MarginTop:Integer;
-	public var MarginBottom:Integer;
+	public property ChevronImage	{ function get():CocoImage 	{ return __chevronImage; 		} function set(v:CocoImage) { __chevronImage = v; invalidate(); 	}}
+	public property ChevronImageSel	{ function get():CocoImage 	{ return __chevronImageSel; 	} function set(v:CocoImage) { __chevronImageSel = v; invalidate();	}}
+	public property ChevronLeft		{ function get():Float 		{ return __chevronLeft; 		} function set(v:Float) 	{ __chevronLeft = v; invalidate();		}}
+	public property ChevronTop		{ function get():Float 		{ return __chevronTop; 			} function set(v:Float) 	{ __chevronTop = v; invalidate();		}}
 
-	// Paddings
-	public var PaddingLeft:Integer;
-	public var PaddingRight:Integer;
-	public var PaddingTop:Integer;
-	public var PaddingBottom:Integer;
-
-	// Position and Size
-	public var Display:COCO_CONTROL_DISPLAY_ENUM;
-	public var Anchor:COCO_CONTROL_ANCHOR_ENUM;
-	public var Top:Float;
-	public var Left:Float;
-	public var Width:Float;
-	public var Height:Float;
-	public var Visible:Boolean;
-
-	// Sounds
-	public var SelectSound:CocoAudio;
-	public var ClickSound:CocoAudio;
-
-	// Persistency
-	//public var Persistency:CocoUIPersistentData;
-
-
-	public function Constructor()
+	// Identity
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Name
 	{
+		function get():String
+		{
+			return this.__instanceName;
+		}
 
+		function set(v:String)
+		{
+			this.__instanceName = v;
+		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 	}

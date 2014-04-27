@@ -1,0 +1,50 @@
+//@line 35
+
+function TouchList()
+{
+	var __BASE__ = null;
+
+	function __TouchList()
+	{
+		var Class = this.Class = 'TouchList',
+			__CLASS__TOUCHLIST__ = this.__CLASS__TOUCHLIST__ = this,
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__VIRTUAL__ = this.__VIRTUAL__ =
+			{
+				__PROTECTED__: {}
+			},
+			__PRIVATE__ = this.__PRIVATE__,
+			__PROTECTED__ = this.__PROTECTED__;
+		//@line 37
+		this.length = 0;
+		//@line 51
+		this.item = function (index)
+		{
+			//@line 53
+			return __CLASS__TOUCHLIST__[index];
+		};
+		//@line 40
+		this.Constructor = function ()
+		{
+			//@line 42
+			for (var i = 0; i <= 5; i++)
+			//@line 43
+			{
+				//@line 44
+				var touch = new Touch;
+				//@line 45
+				touch.initTouch(i, null, 0, 0, 0, 0, 0, 0);
+				//@line 46
+				__CLASS__TOUCHLIST__.push(touch);
+			}
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__TouchList.prototype = new Array();
+	return new __TouchList();
+}
+TouchList.__PRIVATE__ = {};
+TouchList.__PROTECTED__ = {};

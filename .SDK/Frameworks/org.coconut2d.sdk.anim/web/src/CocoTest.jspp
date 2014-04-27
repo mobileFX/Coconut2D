@@ -47,10 +47,39 @@ trace(Class3.public_static_function());
 
 */
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+interface ITest1
+{
+	public function foo();
+}
+
+interface ITest2 : ITest1
+{
+	public function goo();
+}
+
+interface ITest3
+{
+	public function zoo();
+}
+
+class ClassDelegator
+{
+	//public function foo(a:String, b:Float, c:Class2) {}; // <-- very interesting error because Class1 implements ITest2
+
+	public function poo(a:String, b:Float, c:Class2)
+	{
+		trace("ClassDelegator::poo");
+	};
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-state class Class1
+state class Class1 implements ITest2, ITest3
 {
+	public delegate var public_delegate:ClassDelegator;
+	private delegate var private_delegate:ClassDelegator;
+	protected delegate var protected_delegate:ClassDelegator;
+
 	// Member Variables
 	public var public_var:String;
 	private var private_var:String;
@@ -75,10 +104,52 @@ state class Class1
 	private static var __private_static_property:String;
 	private static var __protected_static_property:String;
 
+	public function foo() {}
+	public function goo() {}
+	public function zoo() {}
+
+	public function interface_test1(obj:ITest1){};
+	public function interface_test2(obj:ITest2){};
+	public function interface_test3(obj:ITest3){};
+	public function interface_class(obj:Class1){};
+
+	public function interface_tests()
+	{
+		var i1:ITest1 = this;
+		var i2:ITest2 = this;
+		var i3:ITest3 = this;
+
+		interface_test1(i1);
+		interface_test2(i1);
+		//interface_test3(i1);
+		//interface_class(i1);	//Ambiguous casting of interface to class
+
+		interface_test1(i2);
+		interface_test2(i2);
+		//interface_test3(i2);
+		//interface_class(i2);	//Ambiguous casting of interface to class
+
+		//interface_test1(i3);
+		//interface_test2(i3);
+		interface_test3(i3);
+		//interface_class(i3);	//Ambiguous casting of interface to class
+
+		interface_test1(this);
+		interface_test2(this);
+		interface_test3(this);
+		interface_class(this);
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(arg1:String, arg2:String)
 	{
 		trace( "Class1::Constructor(" + arg1 + "," + arg2 + ")");
+
+		public_delegate = new ClassDelegator();
+		private_delegate = new ClassDelegator();
+		protected_delegate = new ClassDelegator();
+
+		poo("", 0 , null);
 
 		public_var 			= "Class1_public_var+" + arg1;
 		private_var 		= "Class1_private_var+" + arg2;

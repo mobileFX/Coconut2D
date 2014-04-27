@@ -179,6 +179,7 @@ function __init_narcissus(GLOBAL)
 		"debugger",
 		"default",
 		"delete",
+		"delegate",
 		"do",
 		"else",
 		"enum",
@@ -186,9 +187,9 @@ function __init_narcissus(GLOBAL)
 		"finally",
 		"for",
 		"if",
+		"implements",
 		"in",
-		"instanceof",
-		"is",
+		"interface",
 		"let",
 		"namespace",
 		"new",
@@ -199,15 +200,17 @@ function __init_narcissus(GLOBAL)
 		"throw",
 		"true",
 		"try",
-		"typeof",
 		"var",
-		"void",
 		"while",
 		"with",
 
+		// Invalid in JSPP
+		"instanceof",
+		"typeof",
+		"void",
+
 		// AS3
-		"implements",
-		"interface",
+		"is",
         "as",
 		"import",
 		"package",
@@ -575,6 +578,7 @@ function __init_narcissus(GLOBAL)
 			n.protected = this.protected;
 			n.virtual 	= this.virtual;
 			n.abstract 	= this.abstract;
+			n.delegate 	= this.delegate;
 			this.resetModifiers();
 		},
 
@@ -586,6 +590,7 @@ function __init_narcissus(GLOBAL)
 			this.protected 	= false;
 			this.virtual 	= false;
 			this.abstract 	= false;
+			this.delegate 	= false;
 		},
 
 		newSyntaxError: function(m)
@@ -800,6 +805,10 @@ function __init_narcissus(GLOBAL)
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.FUNCTION:
 			return FunctionDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.INTERFACE:
+			return ClassDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM, true);
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CLASS:
@@ -1137,10 +1146,11 @@ function __init_narcissus(GLOBAL)
 	//
 	// ==================================================================================================================================
 
-	function ClassDefinition(t, x, requireName, classForm)
+	function ClassDefinition(t, x, requireName, classForm, isInterface)
 	{
 		var f = new Node(t);
 		f.scopeId = t.ScopeId();
+		f.interfaces = [];
 
 		if(t.match(jsdef.IDENTIFIER))
 			f.name = t.token().value;
@@ -1161,7 +1171,13 @@ function __init_narcissus(GLOBAL)
         if(t.match(jsdef.IMPLEMENTS))
         {
         	t.mustMatch(jsdef.IDENTIFIER);
-			// Ignore..
+        	f.interfaces.push(t.token().value);
+        	while(t.get() == jsdef.COMMA)
+        	{
+				t.mustMatch(jsdef.IDENTIFIER);
+				f.interfaces.push(t.token().value);
+        	}
+        	t.unget();
         }
 
 		t.setModifiers(f);
@@ -1176,6 +1192,7 @@ function __init_narcissus(GLOBAL)
 					jsdef.STATIC,
 					jsdef.VIRTUAL,
 					jsdef.ABSTRACT,
+					jsdef.DELEGATE,
 					jsdef.VAR,
 					jsdef.CONST,
 					jsdef.ENUM];
@@ -1185,10 +1202,12 @@ function __init_narcissus(GLOBAL)
 		{
 			var n = new Node(t, jsdef.BLOCK);
 			x.stmtStack.push(n);
+
 			do {
 
 				t.resetModifiers();
 
+				//===============================================================================================
 				function recognizeStatement(n)
 				{
 					if(mods.switch(t.peek())==-1)
@@ -1197,17 +1216,21 @@ function __init_narcissus(GLOBAL)
 					if(t.match(jsdef.STATIC)) t.static = true;
 					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
 					if(t.match(jsdef.ABSTRACT)) t.abstract = true;
+					if(t.match(jsdef.DELEGATE)) t.delegate = true;
 
 					if(t.match(jsdef.CONST))
 					{
+						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
 						n.push(Variables(t, x));
 					}
 					else if(t.match(jsdef.VAR))
 					{
+						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
 						n.push(Variables(t, x));
 					}
 					else if(t.match(jsdef.ENUM))
 					{
+						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
 						n.push(Enumeration(t,x));
 					}
 					else if(t.match(jsdef.PROPERTY))
@@ -1220,28 +1243,33 @@ function __init_narcissus(GLOBAL)
 					}
 					else if(t.match(jsdef.STATE))
 					{
+						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
 						n.push(StateDefinition(t, x));
 					}
 					else if(t.match(jsdef.CLASS))
 					{
+						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
 						n.push(ClassDefinition(t, x, false, DECLARED_FORM));
 					}
 				}
 
+				//===============================================================================================
+
                 if(t.token().type == jsdef.FUNCTION)
                 {
+                	// Function without modifier in a class is private
                 	t.private = true;
                 	n.push(FunctionDefinition(t, x, false, DECLARED_FORM))
                 }
-				else if(t.token().type == jsdef.PRIVATE)
-				{
-					t.private = true;
-					recognizeStatement(n);
-				}
 				else if(t.token().type == jsdef.PUBLIC)
 				{
 					t.public = true;
                     recognizeStatement(n);
+				}
+				else if(t.token().type == jsdef.PRIVATE)
+				{
+					t.private = true;
+					recognizeStatement(n);
 				}
 				else if(t.token().type == jsdef.PROTECTED)
 				{
@@ -1256,7 +1284,9 @@ function __init_narcissus(GLOBAL)
 				}
 				else if(t.token().type == jsdef.CLASS)
 				{
-					n.push(ClassDefinition(t, x, true, DECLARED_FORM));
+					// Class within-class in not supported yet
+					//n.push(ClassDefinition(t, x, true, DECLARED_FORM));
+					throw t.newSyntaxError("Invalid class initialization");
 				}
 				else if(t.token().type != jsdef.SEMICOLON && t.token().type != jsdef.LEFT_CURLY)
 				{
@@ -1604,43 +1634,47 @@ function __init_narcissus(GLOBAL)
 
 		t.setModifiers(f);
 
-		var x2;
-		if(t.match(jsdef.LEFT_CURLY))
+		if(f.abstract || (classNode && classNode.type==jsdef.INTERFACE))
 		{
-			x2 = new CompilerContext(true);
-			f.body = Script(t, x2);
-			t.mustMatch(jsdef.RIGHT_CURLY);
+			t.mustMatch(jsdef.SEMICOLON);
 		}
 		else
 		{
-			x2 = new CompilerContext(true);
-			var n3 = new Node(t);
-			n3.type = jsdef.SCRIPT;
-			n3.funDecls = x2.funDecls;
-			n3.varDecls = x2.varDecls;
-			n3.contextId = ++contextId;
-			n3.scopeId = t.NewScopeId();
-			t.expClosure = true;
-			n3[0] = Expression(t, x2);
-			if(n3[0].type != jsdef.RETURN)
+			var x2;
+			if(t.match(jsdef.LEFT_CURLY))
 			{
-				throw t.newSyntaxError("Missing return in expression closure");
+				x2 = new CompilerContext(true);
+				f.body = Script(t, x2);
+				t.mustMatch(jsdef.RIGHT_CURLY);
 			}
-			f.body = n3;
+			else
+			{
+				x2 = new CompilerContext(true);
+				var n3 = new Node(t);
+				n3.type = jsdef.SCRIPT;
+				n3.funDecls = x2.funDecls;
+				n3.varDecls = x2.varDecls;
+				n3.contextId = ++contextId;
+				n3.scopeId = t.NewScopeId();
+				t.expClosure = true;
+				n3[0] = Expression(t, x2);
+				if(n3[0].type != jsdef.RETURN)
+				{
+					throw t.newSyntaxError("Missing return in expression closure");
+				}
+				f.body = n3;
+			}
 		}
 
 		f.end = t.cursor;
-		f.body.end = t.cursor;
+		if(f.body) f.body.end = t.cursor;
 
 		f.line_end = t.line_start;
-		f.body.line_end = t.line_start;
+		if(f.body) f.body.line_end = t.line_start;
 
 		f.functionForm = functionForm;
 		if(functionForm == DECLARED_FORM)
 			x.funDecls.push(f);
-
-		//if(f.name=="Constructor") f.virtual = true;
-		//if(f.name=="Destructor") f.virtual = true;
 
 		return f;
 	}
@@ -1734,13 +1768,7 @@ function __init_narcissus(GLOBAL)
 		{
 			do
 			{
-				n.public 	= t.public;
-				n.private 	= t.private;
-				n.protected = t.protected;
-				n.static 	= t.static;
-				n.virtual 	= t.virtual;
-				n.abstract 	= t.abstract;
-
+				t.setModifiers(n);
 				t.mustMatch(jsdef.IDENTIFIER);
 				var n2 = new Node(t), vartype = "";
 				n2.name = n2.value;
@@ -2244,7 +2272,6 @@ function __init_narcissus(GLOBAL)
 				break;
 
 			case jsdef.PROPERTY:
-				//debugger;
 				break;
 
 			case jsdef.FUNCTION:

@@ -1,0 +1,81 @@
+﻿"#export web";
+//@line 15
+
+function GameEngine()
+{
+	var __BASE__ = null;
+
+	function __GameEngine()
+	{
+		var Class = this.Class = 'GameEngine',
+			__CLASS__GAMEENGINE__ = this.__CLASS__GAMEENGINE__ = this,
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__VIRTUAL__ = this.__VIRTUAL__ =
+			{
+				__PROTECTED__: {}
+			},
+			__PRIVATE__ = this.__PRIVATE__,
+			__PROTECTED__ = this.__PROTECTED__,
+			__CLASS__COCOENGINE__ = this.__CLASS__COCOENGINE__;
+		//@line 17
+		this.scene = null;
+		//@line 45
+		this.STATE_GAME = (function ()
+		{
+			this.__name = 'STATE_GAME';
+			//@line 47
+			this.enter = function ()
+			{
+				//@line 49
+				__CLASS__GAMEENGINE__.scene = new NewAnimation;
+			};
+			//@line 52
+			this.exit = function ()
+			{
+				//@line 54
+				{
+					__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
+					__CLASS__GAMEENGINE__.scene = null
+				};
+			};
+			//@line 57
+			this.tick = function (time)
+			{
+				//@line 58
+			};
+			//@line 61
+			this.paint = function (gl, time)
+			{
+				//@line 63
+				__CLASS__GAMEENGINE__.scene.paint(gl, time);
+			};
+			return this
+		}).call(new State);
+		//@line 40
+		this.Destructor = function ()
+		{
+			{
+				//@line 41
+			}
+			{
+				__CLASS__GAMEENGINE__.scene = null;
+				__CLASS__GAMEENGINE__.STATE_GAME = null;
+			}
+			return true
+		};
+		//@line 20
+		this.Constructor = function ()
+		{
+			//@line 36
+			__CLASS__COCOENGINE__.setNextState(__CLASS__GAMEENGINE__.STATE_GAME);
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__GameEngine.prototype = new CocoEngine();
+	return new __GameEngine();
+}
+GameEngine.__PRIVATE__ = {};
+GameEngine.__PROTECTED__ = {};

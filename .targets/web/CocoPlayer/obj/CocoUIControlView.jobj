@@ -1,0 +1,358 @@
+"#export web";
+//@line 40
+
+function CocoUIControlView()
+{
+	var __BASE__ = null;
+
+	function __CocoUIControlView()
+	{
+		var Class = this.Class = 'CocoUIControlView',
+			__CLASS__COCOUICONTROLVIEW__ = this.__CLASS__COCOUICONTROLVIEW__ = this,
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__VIRTUAL__ = this.__VIRTUAL__ =
+			{
+				__PROTECTED__: {}
+			},
+			__PRIVATE__ = this.__PRIVATE__,
+			__PROTECTED__ = this.__PROTECTED__,
+			__CLASS__COCOCLIP__ = this.__CLASS__COCOCLIP__,
+			__CLASS__COCOUIVIEW__ = this.__CLASS__COCOUIVIEW__;
+		//@line 45
+		__PRIVATE__.__enabled = false;
+		//@line 51
+		__PRIVATE__.__borderStyle = null;
+		//@line 52
+		__PRIVATE__.__borderRadius = 0;
+		//@line 53
+		__PRIVATE__.__borderColor = null;
+		//@line 54
+		__PRIVATE__.__borderColorSel = null;
+		//@line 64
+		__PRIVATE__.__backgroundGradient = null;
+		//@line 65
+		__PRIVATE__.__backgroundGradientSel = null;
+		//@line 73
+		__PRIVATE__.__skinImage = null;
+		//@line 74
+		__PRIVATE__.__skinImageSel = null;
+		//@line 82
+		__PRIVATE__.__glyphImage = null;
+		//@line 83
+		__PRIVATE__.__glyphImageSel = null;
+		//@line 84
+		__PRIVATE__.__glyphLeft = 0;
+		//@line 85
+		__PRIVATE__.__glyphTop = 0;
+		//@line 95
+		__PRIVATE__.__chevronImage = null;
+		//@line 96
+		__PRIVATE__.__chevronImageSel = null;
+		//@line 97
+		__PRIVATE__.__chevronLeft = 0;
+		//@line 98
+		__PRIVATE__.__chevronTop = 0;
+		//@line 46
+		Object.defineProperty(this, 'Enabled', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__enabled;
+				return false
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__enabled = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 56
+		Object.defineProperty(this, 'BorderStyle', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderStyle;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderStyle = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 57
+		Object.defineProperty(this, 'BorderRadius', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderRadius;
+				return 0
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderRadius = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 58
+		Object.defineProperty(this, 'BorderColor', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderColor;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderColor = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 59
+		Object.defineProperty(this, 'BorderColorSel', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderColorSel;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderColorSel = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 67
+		Object.defineProperty(this, 'BackgroundGradient', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__backgroundGradient;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__backgroundGradient = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 68
+		Object.defineProperty(this, 'BackgroundGradientSel', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__backgroundGradientSel;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__backgroundGradientSel = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 76
+		Object.defineProperty(this, 'SkinImage', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__skinImage;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__skinImage = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 77
+		Object.defineProperty(this, 'SkinImageSel', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__skinImageSel;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__skinImageSel = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 87
+		Object.defineProperty(this, 'GlyphImage', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphImage;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphImage = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 88
+		Object.defineProperty(this, 'GlyphImageSel', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphImageSel;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphImageSel = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 89
+		Object.defineProperty(this, 'GlyphLeft', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphLeft;
+				return 0
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphLeft = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 90
+		Object.defineProperty(this, 'GlyphTop', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphTop;
+				return 0
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphTop = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 100
+		Object.defineProperty(this, 'ChevronImage', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronImage;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronImage = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 101
+		Object.defineProperty(this, 'ChevronImageSel', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronImageSel;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronImageSel = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 102
+		Object.defineProperty(this, 'ChevronLeft', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronLeft;
+				return 0
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronLeft = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 103
+		Object.defineProperty(this, 'ChevronTop', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronTop;
+				return 0
+			},
+			set: function (v)
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronTop = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 107
+		Object.defineProperty(this, 'Name', {
+			enumerable: true,
+			//@line 109
+			get: function ()
+			{
+				//@line 111
+				return __CLASS__COCOUICONTROLVIEW__.__instanceName;
+				return ""
+			},
+			//@line 114
+			set: function (v)
+			{
+				//@line 116
+				__CLASS__COCOUICONTROLVIEW__.__instanceName = v;
+			}
+		});
+		//@line 126
+		this.Destructor = function ()
+		{
+			{
+				//@line 127
+			}
+			{
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__enabled = null;
+				__CLASS__COCOUICONTROLVIEW__.Enabled = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderStyle = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderRadius = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderColor = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__borderColorSel = null;
+				__CLASS__COCOUICONTROLVIEW__.BorderStyle = null;
+				__CLASS__COCOUICONTROLVIEW__.BorderRadius = null;
+				__CLASS__COCOUICONTROLVIEW__.BorderColor = null;
+				__CLASS__COCOUICONTROLVIEW__.BorderColorSel = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__backgroundGradient = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__backgroundGradientSel = null;
+				__CLASS__COCOUICONTROLVIEW__.BackgroundGradient = null;
+				__CLASS__COCOUICONTROLVIEW__.BackgroundGradientSel = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__skinImage = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__skinImageSel = null;
+				__CLASS__COCOUICONTROLVIEW__.SkinImage = null;
+				__CLASS__COCOUICONTROLVIEW__.SkinImageSel = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphImage = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphImageSel = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphLeft = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__glyphTop = null;
+				__CLASS__COCOUICONTROLVIEW__.GlyphImage = null;
+				__CLASS__COCOUICONTROLVIEW__.GlyphImageSel = null;
+				__CLASS__COCOUICONTROLVIEW__.GlyphLeft = null;
+				__CLASS__COCOUICONTROLVIEW__.GlyphTop = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronImage = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronImageSel = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronLeft = null;
+				__CLASS__COCOUICONTROLVIEW__.__PRIVATE__.__chevronTop = null;
+				__CLASS__COCOUICONTROLVIEW__.ChevronImage = null;
+				__CLASS__COCOUICONTROLVIEW__.ChevronImageSel = null;
+				__CLASS__COCOUICONTROLVIEW__.ChevronLeft = null;
+				__CLASS__COCOUICONTROLVIEW__.ChevronTop = null;
+				__CLASS__COCOUICONTROLVIEW__.Name = null;
+			}
+			return true
+		};
+		//@line 121
+		this.Constructor = function ()
+		{
+			//@line 122
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__CocoUIControlView.prototype = new CocoUIView();
+	return new __CocoUIControlView();
+}
+CocoUIControlView.__PRIVATE__ = {};
+CocoUIControlView.__PROTECTED__ = {};

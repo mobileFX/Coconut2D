@@ -1,0 +1,927 @@
+"#export web";
+//@line 37
+
+function CocoClip(__CLASS__COCOCLIP__$image__)
+{
+	var __BASE__ = null;
+
+	function __CocoClip(__CLASS__COCOCLIP__$image__)
+	{
+		var Class = this.Class = 'CocoClip',
+			__CLASS__COCOCLIP__ = this.__CLASS__COCOCLIP__ = this,
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__VIRTUAL__ = this.__VIRTUAL__ =
+			{
+				__PROTECTED__: {}
+			},
+			__PRIVATE__ = this.__PRIVATE__ = {},
+			__PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 39
+		this.__instanceName = "";
+		//@line 40
+		this.__clipPath = "";
+		//@line 41
+		this.__scene = null;
+		//@line 42
+		this.__image = null;
+		//@line 43
+		this.__symbolLoop = null;
+		//@line 44
+		this.__children = [];
+		//@line 45
+		this.__timeline = null;
+		//@line 46
+		this.__parent = null;
+		//@line 49
+		this.text = "";
+		//@line 50
+		this.textFontName = "";
+		//@line 51
+		this.textFontSize = 0;
+		//@line 52
+		this.textHAlign = null;
+		//@line 53
+		this.textVAlign = null;
+		//@line 54
+		this.textMultiline = false;
+		//@line 55
+		this.textTrimming = null;
+		//@line 56
+		this.textColor = "";
+		//@line 57
+		this.textWidth = 0;
+		//@line 58
+		this.textHeight = 0;
+		//@line 61
+		this.__currentTime = null;
+		//@line 62
+		this.__loopTime = null;
+		//@line 63
+		this.__loops = 0;
+		//@line 64
+		this.__currentFrame = null;
+		//@line 65
+		this.__childWithMaxTimelineDuration = null;
+		//@line 68
+		this.__hasBoundingBox = false;
+		//@line 69
+		this.__vABS_TOP_LEFT = null;
+		//@line 70
+		this.__vABS_TOP_RIGHT = null;
+		//@line 71
+		this.__vABS_BOTTOM_LEFT = null;
+		//@line 72
+		this.__vABS_BOTTOM_RIGHT = null;
+		//@line 73
+		this.__vREL_TOP_LEFT = null;
+		//@line 74
+		this.__vREL_TOP_RIGHT = null;
+		//@line 75
+		this.__vREL_BOTTOM_LEFT = null;
+		//@line 76
+		this.__vREL_BOTTOM_RIGHT = null;
+		//@line 77
+		this.__vTemp = null;
+		//@line 78
+		this.__mTemp = null;
+		//@line 81
+		__PRIVATE__.__currentSequence = null;
+		//@line 82
+		__PRIVATE__.__currentAudio = null;
+		//@line 131
+		this.prepare = function (scene)
+		{
+			//@line 133
+			__CLASS__COCOCLIP__.__timeline.prepare(scene, __CLASS__COCOCLIP__);
+			//@line 134
+			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
+			//@line 135
+			{
+				//@line 136
+				__CLASS__COCOCLIP__.__children[i].prepare(scene);
+			}
+		};
+		//@line 141
+		this.setText = function (text)
+		{
+			//@line 142
+		};
+		//@line 146
+		this.createTextTexture = function (text, fontName, fontSizePixels, hAlign, vAlign, multiline, trimming, CSSColor, textRectWidth, textRectHeight)
+		{
+			//@line 148
+			__CLASS__COCOCLIP__.text = text;
+			//@line 149
+			__CLASS__COCOCLIP__.textFontName = fontName;
+			//@line 150
+			__CLASS__COCOCLIP__.textFontSize = fontSizePixels;
+			//@line 151
+			__CLASS__COCOCLIP__.textHAlign = hAlign;
+			//@line 152
+			__CLASS__COCOCLIP__.textVAlign = vAlign;
+			//@line 153
+			__CLASS__COCOCLIP__.textMultiline = multiline;
+			//@line 154
+			__CLASS__COCOCLIP__.textTrimming = trimming;
+			//@line 155
+			__CLASS__COCOCLIP__.textColor = CSSColor;
+			//@line 156
+			__CLASS__COCOCLIP__.textWidth = textRectWidth;
+			//@line 157
+			__CLASS__COCOCLIP__.textHeight = textRectHeight;
+			//@line 159
+			{
+				__CLASS__COCOCLIP__.__image && ((__CLASS__COCOCLIP__.__image.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__image.Destructor()) || !__CLASS__COCOCLIP__.__image.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__image);
+				__CLASS__COCOCLIP__.__image = null
+			};
+			//@line 162
+			var canvas = document.createElement("canvas");
+			//@line 163
+			canvas.width = Math.pow(2, Math.ceil(Math.log(textRectWidth) / Math.log(2)));
+			//@line 164
+			canvas.height = Math.pow(2, Math.ceil(Math.log(textRectHeight) / Math.log(2)));
+			//@line 165
+			var ctx = (canvas.getContext("2d"));
+			//@line 168
+			ctx.font = "normal normal normal " + (fontSizePixels) + "px / normal " + fontName;
+			//@line 169
+			ctx.fillStyle = "white";
+			//@line 170
+			ctx.fillText(text, 0, (fontSizePixels));
+			//@line 173
+			__CLASS__COCOCLIP__.__image = new CocoImage;
+			//@line 174
+			__CLASS__COCOCLIP__.__image.image = new Image;
+			//@line 175
+			var url = canvas.toDataURL();
+			//@line 176
+			__CLASS__COCOCLIP__.__image.image.load(url);
+			//@line 177
+			__CLASS__COCOCLIP__.__image.textureCellWidth = (textRectWidth);
+			//@line 178
+			__CLASS__COCOCLIP__.__image.textureCellHeight = (textRectHeight);
+			//@line 179
+			__CLASS__COCOCLIP__.__image.textureGrid = new Float32Array([0, 0]);
+			//@line 180
+			__CLASS__COCOCLIP__.__image.prepare(__CLASS__COCOCLIP__.__scene, gl);
+		};
+		//@line 184
+		this.reset = function ()
+		{
+			//@line 186
+			if (__CLASS__COCOCLIP__.__currentFrame)
+			{
+				__CLASS__COCOCLIP__.__currentFrame && ((__CLASS__COCOCLIP__.__currentFrame.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__currentFrame.Destructor()) || !__CLASS__COCOCLIP__.__currentFrame.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__currentFrame);
+				__CLASS__COCOCLIP__.__currentFrame = null
+			};
+			//@line 187
+			__CLASS__COCOCLIP__.__currentFrame = null;
+			//@line 188
+			__CLASS__COCOCLIP__.__currentTime = 0.0;
+			//@line 189
+			__CLASS__COCOCLIP__.__timeline.reset();
+			//@line 191
+			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
+			//@line 192
+			{
+				//@line 193
+				__CLASS__COCOCLIP__.__children[i].reset();
+			}
+			//@line 195
+			if (__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio) __CLASS__COCOCLIP__.__PRIVATE__.__currentAudio.reset();
+		};
+		//@line 199
+		this.addChild = function (clipInstance)
+		{
+			//@line 201
+			if (!clipInstance) return null;
+			//@line 202
+			if (!clipInstance.__instanceName) throw "Invalid instance name.";
+			//@line 203
+			__CLASS__COCOCLIP__.__children.push(clipInstance);
+			//@line 204
+			__CLASS__COCOCLIP__.__PRIVATE__.normalize();
+			//@line 205
+			clipInstance.__clipPath = (__CLASS__COCOCLIP__.__clipPath ? __CLASS__COCOCLIP__.__clipPath : __CLASS__COCOCLIP__.__instanceName) + "/" + clipInstance.__instanceName;
+			//@line 206
+			return clipInstance;
+		};
+		//@line 210
+		this.removeChild = function (clipInstance)
+		{
+			//@line 212
+			if (!clipInstance) return null;
+			//@line 213
+			var index = __CLASS__COCOCLIP__.getChildIndex(clipInstance);
+			//@line 214
+			if (index == -1) return null;
+			//@line 215
+			__CLASS__COCOCLIP__.__children.splice(index, 1);
+			//@line 216
+			__CLASS__COCOCLIP__.__PRIVATE__.normalize();
+			//@line 217
+			return clipInstance;
+		};
+		//@line 221
+		this.__PRIVATE__.normalize = function ()
+		{
+			//@line 224
+			__CLASS__COCOCLIP__.__childWithMaxTimelineDuration = null;
+			//@line 225
+			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
+			//@line 226
+			{
+				//@line 227
+				if (!__CLASS__COCOCLIP__.__childWithMaxTimelineDuration)
+				//@line 228
+				{
+					//@line 229
+					__CLASS__COCOCLIP__.__childWithMaxTimelineDuration = __CLASS__COCOCLIP__.__children[i];
+					//@line 230
+					continue;
+				}
+				//@line 232
+				if (__CLASS__COCOCLIP__.__children[i].__timeline.__durationInTime > __CLASS__COCOCLIP__.__childWithMaxTimelineDuration.__timeline.__durationInTime)
+				//@line 233
+				{
+					//@line 234
+					__CLASS__COCOCLIP__.__childWithMaxTimelineDuration = __CLASS__COCOCLIP__.__children[i];
+				}
+			}
+		};
+		//@line 240
+		this.getChildByName = function (instanceName)
+		{
+			//@line 242
+			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
+			//@line 243
+			{
+				//@line 244
+				if (__CLASS__COCOCLIP__.__children[i].__instanceName == instanceName)
+				//@line 245
+				{
+					//@line 246
+					return __CLASS__COCOCLIP__.__children[i];
+				}
+			}
+			//@line 249
+			return null;
+		};
+		//@line 253
+		this.getChildIndex = function (child)
+		{
+			//@line 255
+			if (child)
+			//@line 256
+			{
+				//@line 257
+				for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
+				//@line 258
+				{
+					//@line 259
+					if (__CLASS__COCOCLIP__.__children[i] == child)
+					//@line 260
+					{
+						//@line 261
+						return i;
+					}
+				}
+			}
+			//@line 265
+			return -1;
+			return 0
+		};
+		//@line 269
+		this.gotoFrameByName = function (LabelName, pause)
+		{
+			//@line 271
+			var Label = __CLASS__COCOCLIP__.__timeline.findLabelByName(LabelName);
+			//@line 272
+			if (!Label) return false;
+			//@line 276
+			return __CLASS__COCOCLIP__.gotoFrameByIndex(Label.frameIndex, pause);
+			return false
+		};
+		//@line 280
+		this.gotoFrameByIndex = function (FrameIndex, pause)
+		{
+			//@line 284
+			var clip = undefined;
+			//@line 285
+			for (var i = __CLASS__COCOCLIP__.__children.size() - 1; i >= 0; i--)
+			//@line 286
+			{
+				//@line 287
+				clip = __CLASS__COCOCLIP__.__children[i];
+				//@line 289
+				if (FrameIndex == COCO_STOP_ON_CURRENT_FRAME)
+				//@line 290
+				FrameIndex = clip.__currentFrame ? clip.__currentFrame.frameIndex : 0;
+				//@line 292
+				clip.__timeline.__paused = pause;
+				//@line 293
+				clip.__timeline.__currentFrameIndex = -1;
+				//@line 295
+				clip.__currentTime = (FrameIndex) * clip.__timeline.__singleFrameDurationTime;
+			}
+			//@line 299
+			return true;
+			return false
+		};
+		//@line 303
+		this.__PRIVATE__.__advanceTime = function (parentClipsDuration)
+		{
+			//@line 305
+			if (__CLASS__COCOCLIP__.__timeline.__paused) return;
+			//@line 306
+			__CLASS__COCOCLIP__.__currentTime += engine.TICK_TIME;
+		};
+		//@line 310
+		this.paint = __VIRTUAL__.paint = function (gl, scene, parentClip, calcBoundingBox, level)
+		{
+			//@line 312
+			__CLASS__COCOCLIP__.__scene = scene;
+			//@line 317
+			var touchEvent = engine.getTouchEvent();
+			//@line 318
+			if (touchEvent && touchEvent.type != "touchend" && touchEvent.type != "mouseup")
+			//@line 319
+			{
+				//@line 320
+				touchEvent = null;
+			}
+			//@line 324
+			var parentClipsDuration = parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __CLASS__COCOCLIP__.__timeline.__singleFrameDurationTime;
+			//@line 329
+			if (parentClip)
+			//@line 330
+			{
+				//@line 332
+				__CLASS__COCOCLIP__.__loops = Math.floor(__CLASS__COCOCLIP__.__currentTime / parentClipsDuration);
+				//@line 333
+				__CLASS__COCOCLIP__.__loopTime = __CLASS__COCOCLIP__.__currentTime - ((__CLASS__COCOCLIP__.__loops) * parentClipsDuration);
+				//@line 336
+				var frameIndex = __CLASS__COCOCLIP__.__loopTime / __CLASS__COCOCLIP__.__timeline.__singleFrameDurationTime;
+				//@line 339
+				if (__CLASS__COCOCLIP__.__currentFrame)
+				//@line 340
+				{
+					__CLASS__COCOCLIP__.__currentFrame && ((__CLASS__COCOCLIP__.__currentFrame.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__currentFrame.Destructor()) || !__CLASS__COCOCLIP__.__currentFrame.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__currentFrame);
+					__CLASS__COCOCLIP__.__currentFrame = null
+				};
+				//@line 341
+				__CLASS__COCOCLIP__.__currentFrame = __CLASS__COCOCLIP__.__timeline.interpolate(frameIndex);
+				//@line 342
+				if (!__CLASS__COCOCLIP__.__currentFrame) return;
+				//@line 345
+				__CLASS__COCOCLIP__.__currentFrame.combine(parentClip.__currentFrame);
+				//@line 348
+				if (__CLASS__COCOCLIP__.__currentFrame.alpha == 0 || !__CLASS__COCOCLIP__.__currentFrame.visible)
+				//@line 349
+				{
+					//@line 351
+					__CLASS__COCOCLIP__.__PRIVATE__.__advanceTime(parentClipsDuration);
+					//@line 352
+					return;
+				}
+				//@line 358
+				calcBoundingBox = (__CLASS__COCOCLIP__.__currentFrame.handleEvents || calcBoundingBox) && (touchEvent != null);
+			}
+			//@line 364
+			if (__CLASS__COCOCLIP__.__image)
+			//@line 365
+			{
+				//@line 366
+				__CLASS__COCOCLIP__.__currentFrame.scaleX *= __CLASS__COCOCLIP__.__image.__pixelRatioScale;
+				//@line 367
+				__CLASS__COCOCLIP__.__currentFrame.scaleY *= __CLASS__COCOCLIP__.__image.__pixelRatioScale;
+				//@line 368
+				__CLASS__COCOCLIP__.__currentFrame.apply(scene.__modelViewMatrix);
+				//@line 369
+				__CLASS__COCOCLIP__.__currentFrame.scaleX /= __CLASS__COCOCLIP__.__image.__pixelRatioScale;
+				//@line 370
+				__CLASS__COCOCLIP__.__currentFrame.scaleY /= __CLASS__COCOCLIP__.__image.__pixelRatioScale;
+				//@line 373
+				var sequenceName = __CLASS__COCOCLIP__.__currentFrame.spriteSequenceName;
+				//@line 374
+				if (!sequenceName && parentClip && parentClip.__currentFrame) sequenceName = parentClip.__currentFrame.spriteSequenceName;
+				//@line 377
+				if (!sequenceName)
+				//@line 378
+				{
+					//@line 379
+					__CLASS__COCOCLIP__.__PRIVATE__.__currentSequence = null;
+				}
+				else
+				//@line 381
+				if (!__CLASS__COCOCLIP__.__PRIVATE__.__currentSequence || __CLASS__COCOCLIP__.__PRIVATE__.__currentSequence.name != sequenceName)
+				//@line 382
+				{
+					//@line 384
+					__CLASS__COCOCLIP__.__PRIVATE__.__currentSequence = __CLASS__COCOCLIP__.__image.getSequence(sequenceName);
+					//@line 385
+					__CLASS__COCOCLIP__.__PRIVATE__.__currentSequence.sequenceStartTime = __CLASS__COCOCLIP__.__currentTime;
+				}
+				//@line 388
+				if (__CLASS__COCOCLIP__.__image.isSpriteSheet && __CLASS__COCOCLIP__.__PRIVATE__.__currentSequence)
+				//@line 389
+				{
+					//@line 391
+					var sequenceFrameIndex = __CLASS__COCOCLIP__.__timeline.__paused ? 0 : Math.floor((__CLASS__COCOCLIP__.__currentTime - __CLASS__COCOCLIP__.__PRIVATE__.__currentSequence.sequenceStartTime) / (1000.0 / scene.__fps)) % __CLASS__COCOCLIP__.__PRIVATE__.__currentSequence.frames.size();
+					//@line 392
+					var frame = __CLASS__COCOCLIP__.__PRIVATE__.__currentSequence.frames[sequenceFrameIndex];
+					//@line 393
+					scene.drawFrame(gl, __CLASS__COCOCLIP__.__image, frame, __CLASS__COCOCLIP__.__currentFrame);
+				}
+				else
+				//@line 396
+				{
+					//@line 398
+					scene.drawFrame(gl, __CLASS__COCOCLIP__.__image, 0, __CLASS__COCOCLIP__.__currentFrame);
+				}
+			}
+			else
+			//@line 402
+			{
+				//@line 404
+				var childrenCound = __CLASS__COCOCLIP__.__children.size();
+				//@line 405
+				if (childrenCound > 0)
+				//@line 406
+				{
+					//@line 407
+					var child = undefined;
+					//@line 408
+					scene.__levelParents.push(__CLASS__COCOCLIP__);
+					//@line 409
+					if (__CLASS__COCOCLIP__.__currentFrame) __CLASS__COCOCLIP__.__currentFrame.apply(scene.__modelViewMatrix);
+					//@line 410
+					for (var i = 0; i < childrenCound; i++)
+					//@line 411
+					{
+						//@line 412
+						scene.__modelViewMatrix.push();
+						//@line 413
+						child = __CLASS__COCOCLIP__.__children[i];
+						//@line 414
+						child.paint(gl, scene, __CLASS__COCOCLIP__, calcBoundingBox, level + 1);
+						//@line 415
+						scene.__modelViewMatrix.pop();
+					}
+					//@line 417
+					scene.__levelParents.pop();
+				}
+			}
+			//@line 421
+			if (__CLASS__COCOCLIP__ != scene.__root)
+			//@line 422
+			{
+				//@line 426
+				if (calcBoundingBox)
+				//@line 427
+				{
+					//@line 429
+					if (__CLASS__COCOCLIP__.__image)
+					//@line 430
+					__CLASS__COCOCLIP__.initBoundingBoxFromTexture(scene, __CLASS__COCOCLIP__.__image.textureCellWidth / 2, __CLASS__COCOCLIP__.__image.textureCellHeight / 2);
+					else
+					//@line 431
+					if (__CLASS__COCOCLIP__.__children.size() > 0)
+					//@line 432
+					__CLASS__COCOCLIP__.initBoundingBoxFromChildren(scene);
+				}
+				//@line 438
+				if (calcBoundingBox && __CLASS__COCOCLIP__.__currentFrame.handleEvents)
+				//@line 439
+				{
+					//@line 441
+					var x = (touchEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;
+					//@line 442
+					var y = (touchEvent.__clientY - gl.canvas.height / 2.0) / scene.__view_scale;
+					//@line 443
+					if (__CLASS__COCOCLIP__.hitTest(x, y))
+					//@line 444
+					{
+						//@line 445
+						engine.pushTouched(__CLASS__COCOCLIP__);
+					}
+				}
+				//@line 453
+				if (!__CLASS__COCOCLIP__.__timeline.__paused)
+				//@line 454
+				{
+					//@line 455
+					__CLASS__COCOCLIP__.__parent = parentClip;
+					//@line 457
+					if (__CLASS__COCOCLIP__.__currentFrame.action)
+					//@line 458
+					{
+						//@line 460
+						__CLASS__COCOCLIP__.__currentFrame.action.call(scene);
+					}
+					//@line 463
+					if (__CLASS__COCOCLIP__.__currentFrame.nextState)
+					//@line 464
+					{
+						//@line 466
+						engine.setNextState(__CLASS__COCOCLIP__.__currentFrame.nextState);
+					}
+					//@line 469
+					if (__CLASS__COCOCLIP__.__currentFrame.audio)
+					//@line 470
+					{
+						//@line 472
+						__CLASS__COCOCLIP__.__currentFrame.audio.tick();
+					}
+					//@line 478
+					if (__CLASS__COCOCLIP__.__currentFrame.audio)
+					//@line 479
+					{
+						//@line 480
+						if (__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio && ((__CLASS__COCOCLIP__.__currentFrame.audio != __CLASS__COCOCLIP__.__PRIVATE__.__currentAudio) || (__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio.loops != 0)))
+						//@line 481
+						__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio.reset();
+						//@line 482
+						__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio = __CLASS__COCOCLIP__.__currentFrame.audio;
+					}
+					//@line 485
+					__CLASS__COCOCLIP__.__parent = null;
+				}
+				//@line 491
+				if (__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio)
+				//@line 492
+				{
+					//@line 493
+					__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio.tick();
+					//@line 494
+					if (__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio.ended())
+					//@line 495
+					{
+						//@line 496
+						__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio.reset();
+						//@line 497
+						__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio = null;
+					}
+				}
+			}
+			//@line 505
+			__CLASS__COCOCLIP__.__PRIVATE__.__advanceTime(parentClipsDuration);
+		};
+		//@line 509
+		this.hitTest = function (wx, wy)
+		{
+			//@line 511
+			return (//@line 511
+			(((wx - __CLASS__COCOCLIP__.__vABS_TOP_LEFT.X) * (__CLASS__COCOCLIP__.__vABS_TOP_RIGHT.Y - __CLASS__COCOCLIP__.__vABS_TOP_LEFT.Y) - (__CLASS__COCOCLIP__.__vABS_TOP_RIGHT.X - __CLASS__COCOCLIP__.__vABS_TOP_LEFT.X) * (wy - __CLASS__COCOCLIP__.__vABS_TOP_LEFT.Y)) * ((wx - __CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.X) * (__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.Y - __CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.Y) - (__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.X - __CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.X) * (wy - __CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.Y))) > 0 &&
+			//@line 512
+			(((wx - __CLASS__COCOCLIP__.__vABS_TOP_RIGHT.X) * (__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.Y - __CLASS__COCOCLIP__.__vABS_TOP_RIGHT.Y) - (__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.X - __CLASS__COCOCLIP__.__vABS_TOP_RIGHT.X) * (wy - __CLASS__COCOCLIP__.__vABS_TOP_RIGHT.Y)) * ((wx - __CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.X) * (__CLASS__COCOCLIP__.__vABS_TOP_LEFT.Y - __CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.Y) - (__CLASS__COCOCLIP__.__vABS_TOP_LEFT.X - __CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.X) * (wy - __CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.Y))) > 0);
+			return false
+		};
+		//@line 516
+		this.initBoundingBoxFromTexture = function (scene, W2, H2)
+		{
+			//@line 518
+			__CLASS__COCOCLIP__.__mTemp.identity();
+			//@line 520
+			__CLASS__COCOCLIP__.__currentFrame.scaleX *= __CLASS__COCOCLIP__.__image.__pixelRatioScale;
+			//@line 521
+			__CLASS__COCOCLIP__.__currentFrame.scaleY *= __CLASS__COCOCLIP__.__image.__pixelRatioScale;
+			//@line 522
+			__CLASS__COCOCLIP__.__currentFrame.apply(__CLASS__COCOCLIP__.__mTemp);
+			//@line 523
+			__CLASS__COCOCLIP__.__currentFrame.scaleX /= __CLASS__COCOCLIP__.__image.__pixelRatioScale;
+			//@line 524
+			__CLASS__COCOCLIP__.__currentFrame.scaleY /= __CLASS__COCOCLIP__.__image.__pixelRatioScale;
+			//@line 528
+			__CLASS__COCOCLIP__.__vTemp.reset(-W2, -H2, 0, 1);
+			//@line 529
+			__CLASS__COCOCLIP__.__vREL_TOP_LEFT = __CLASS__COCOCLIP__.__mTemp.multiplyByVector(__CLASS__COCOCLIP__.__vTemp);
+			//@line 530
+			__CLASS__COCOCLIP__.__vABS_TOP_LEFT = scene.__modelViewMatrix.multiplyByVector(__CLASS__COCOCLIP__.__vTemp);
+			//@line 532
+			__CLASS__COCOCLIP__.__vTemp.reset(W2, -H2, 0, 1);
+			//@line 533
+			__CLASS__COCOCLIP__.__vREL_TOP_RIGHT = __CLASS__COCOCLIP__.__mTemp.multiplyByVector(__CLASS__COCOCLIP__.__vTemp);
+			//@line 534
+			__CLASS__COCOCLIP__.__vABS_TOP_RIGHT = scene.__modelViewMatrix.multiplyByVector(__CLASS__COCOCLIP__.__vTemp);
+			//@line 536
+			__CLASS__COCOCLIP__.__vTemp.reset(-W2, H2, 0, 1);
+			//@line 537
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT = __CLASS__COCOCLIP__.__mTemp.multiplyByVector(__CLASS__COCOCLIP__.__vTemp);
+			//@line 538
+			__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT = scene.__modelViewMatrix.multiplyByVector(__CLASS__COCOCLIP__.__vTemp);
+			//@line 540
+			__CLASS__COCOCLIP__.__vTemp.reset(W2, H2, 0, 1);
+			//@line 541
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT = __CLASS__COCOCLIP__.__mTemp.multiplyByVector(__CLASS__COCOCLIP__.__vTemp);
+			//@line 542
+			__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT = scene.__modelViewMatrix.multiplyByVector(__CLASS__COCOCLIP__.__vTemp);
+			//@line 544
+			__CLASS__COCOCLIP__.__hasBoundingBox = true;
+		};
+		//@line 548
+		this.initBoundingBoxFromChildren = function (scene)
+		{
+			//@line 552
+			__CLASS__COCOCLIP__.__hasBoundingBox = false;
+			//@line 554
+			if (__CLASS__COCOCLIP__.__children.size() == 0)
+			//@line 555
+			return;
+			//@line 557
+			__CLASS__COCOCLIP__.__vREL_TOP_LEFT.X = 100000;
+			//@line 558
+			__CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X = -100000;
+			//@line 559
+			__CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y = 100000;
+			//@line 560
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y = -100000;
+			//@line 562
+			var Child = undefined;
+			//@line 563
+			for (var i = 0, L = __CLASS__COCOCLIP__.__children.size(); i < L; i++)
+			//@line 564
+			{
+				//@line 565
+				Child = __CLASS__COCOCLIP__.__children[i];
+				//@line 566
+				if (Child.__hasBoundingBox)
+				//@line 567
+				{
+					//@line 568
+					if (Child.__vREL_TOP_LEFT.X < __CLASS__COCOCLIP__.__vREL_TOP_LEFT.X) __CLASS__COCOCLIP__.__vREL_TOP_LEFT.X = Child.__vREL_TOP_LEFT.X;
+					//@line 569
+					if (Child.__vREL_TOP_LEFT.X > __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X) __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X = Child.__vREL_TOP_LEFT.X;
+					//@line 570
+					if (Child.__vREL_TOP_LEFT.Y < __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y) __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y = Child.__vREL_TOP_LEFT.Y;
+					//@line 571
+					if (Child.__vREL_TOP_LEFT.Y > __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y) __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y = Child.__vREL_TOP_LEFT.Y;
+					//@line 573
+					if (Child.__vREL_TOP_RIGHT.X < __CLASS__COCOCLIP__.__vREL_TOP_LEFT.X) __CLASS__COCOCLIP__.__vREL_TOP_LEFT.X = Child.__vREL_TOP_RIGHT.X;
+					//@line 574
+					if (Child.__vREL_TOP_RIGHT.X > __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X) __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X = Child.__vREL_TOP_RIGHT.X;
+					//@line 575
+					if (Child.__vREL_TOP_RIGHT.Y < __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y) __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y = Child.__vREL_TOP_RIGHT.Y;
+					//@line 576
+					if (Child.__vREL_TOP_RIGHT.Y > __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y) __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y = Child.__vREL_TOP_RIGHT.Y;
+					//@line 578
+					if (Child.__vREL_BOTTOM_LEFT.X < __CLASS__COCOCLIP__.__vREL_TOP_LEFT.X) __CLASS__COCOCLIP__.__vREL_TOP_LEFT.X = Child.__vREL_BOTTOM_LEFT.X;
+					//@line 579
+					if (Child.__vREL_BOTTOM_LEFT.X > __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X) __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X = Child.__vREL_BOTTOM_LEFT.X;
+					//@line 580
+					if (Child.__vREL_BOTTOM_LEFT.Y < __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y) __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y = Child.__vREL_BOTTOM_LEFT.Y;
+					//@line 581
+					if (Child.__vREL_BOTTOM_LEFT.Y > __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y) __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y = Child.__vREL_BOTTOM_LEFT.Y;
+					//@line 583
+					if (Child.__vREL_BOTTOM_RIGHT.X < __CLASS__COCOCLIP__.__vREL_TOP_LEFT.X) __CLASS__COCOCLIP__.__vREL_TOP_LEFT.X = Child.__vREL_BOTTOM_RIGHT.X;
+					//@line 584
+					if (Child.__vREL_BOTTOM_RIGHT.X > __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X) __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X = Child.__vREL_BOTTOM_RIGHT.X;
+					//@line 585
+					if (Child.__vREL_BOTTOM_RIGHT.Y < __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y) __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y = Child.__vREL_BOTTOM_RIGHT.Y;
+					//@line 586
+					if (Child.__vREL_BOTTOM_RIGHT.Y > __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y) __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y = Child.__vREL_BOTTOM_RIGHT.Y;
+				}
+			}
+			//@line 590
+			__CLASS__COCOCLIP__.__vREL_TOP_RIGHT.Y = __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Y;
+			//@line 591
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.X = __CLASS__COCOCLIP__.__vREL_TOP_LEFT.X;
+			//@line 592
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT.X = __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.X;
+			//@line 593
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT.Y = __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Y;
+			//@line 595
+			__CLASS__COCOCLIP__.__vABS_TOP_LEFT = scene.__modelViewMatrix.multiplyByVector(__CLASS__COCOCLIP__.__vREL_TOP_LEFT);
+			//@line 596
+			__CLASS__COCOCLIP__.__vABS_TOP_RIGHT = scene.__modelViewMatrix.multiplyByVector(__CLASS__COCOCLIP__.__vREL_TOP_RIGHT);
+			//@line 597
+			__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT = scene.__modelViewMatrix.multiplyByVector(__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT);
+			//@line 598
+			__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT = scene.__modelViewMatrix.multiplyByVector(__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT);
+			//@line 600
+			__CLASS__COCOCLIP__.__mTemp.identity();
+			//@line 602
+			__CLASS__COCOCLIP__.__currentFrame.apply(__CLASS__COCOCLIP__.__mTemp);
+			//@line 604
+			__CLASS__COCOCLIP__.__vREL_TOP_LEFT = __CLASS__COCOCLIP__.__mTemp.multiplyByVector(__CLASS__COCOCLIP__.__vREL_TOP_LEFT);
+			//@line 605
+			__CLASS__COCOCLIP__.__vREL_TOP_RIGHT = __CLASS__COCOCLIP__.__mTemp.multiplyByVector(__CLASS__COCOCLIP__.__vREL_TOP_RIGHT);
+			//@line 606
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT = __CLASS__COCOCLIP__.__mTemp.multiplyByVector(__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT);
+			//@line 607
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT = __CLASS__COCOCLIP__.__mTemp.multiplyByVector(__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT);
+			//@line 609
+			__CLASS__COCOCLIP__.__hasBoundingBox = true;
+		};
+		//@line 613
+		this.drawBoundingBox = function (scene, gl)
+		{
+			//@line 615
+			if (!__CLASS__COCOCLIP__.__hasBoundingBox) return;
+			//@line 617
+			gl.disableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
+			//@line 618
+			gl.disableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
+			//@line 620
+			gl.useProgram(scene.__boundingBoxProgram);
+			//@line 621
+			gl.enableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
+			//@line 623
+			gl.bindBuffer(gl.ARRAY_BUFFER, scene.__boundingBoxBuffer);
+			//@line 624
+			gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([__CLASS__COCOCLIP__.__vABS_TOP_LEFT.X, __CLASS__COCOCLIP__.__vABS_TOP_LEFT.Y, __CLASS__COCOCLIP__.__vABS_TOP_RIGHT.X, __CLASS__COCOCLIP__.__vABS_TOP_RIGHT.Y, __CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.X, __CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.Y, __CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.X, __CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.Y]));
+			//@line 625
+			gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);
+			//@line 626
+			scene.__projectionMatrix.update(gl, scene.__boundingBoxProgram.GLSLuProjMat);
+			//@line 627
+			gl.drawArrays(gl.LINE_LOOP, 0, 4);
+			//@line 628
+			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			//@line 630
+			gl.disableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
+			//@line 631
+			gl.useProgram(scene.__glProgram);
+			//@line 633
+			gl.enableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
+			//@line 634
+			gl.enableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
+		};
+		//@line 113
+		this.Destructor = function ()
+		{
+			{
+				//@line 115
+				{
+					__CLASS__COCOCLIP__.__image && ((__CLASS__COCOCLIP__.__image.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__image.Destructor()) || !__CLASS__COCOCLIP__.__image.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__image);
+					__CLASS__COCOCLIP__.__image = null
+				};
+				//@line 116
+				{
+					(function (o)
+					{
+						if (!o) return;
+						for (var i = o.length; i--;)
+						{
+							o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);
+							o[i] = null;
+						}
+					})(__CLASS__COCOCLIP__.__children);
+					__CLASS__COCOCLIP__.__children && ((__CLASS__COCOCLIP__.__children.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__children.Destructor()) || !__CLASS__COCOCLIP__.__children.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__children);
+					__CLASS__COCOCLIP__.__children = null
+				};
+				//@line 117
+				{
+					__CLASS__COCOCLIP__.__timeline && ((__CLASS__COCOCLIP__.__timeline.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__timeline.Destructor()) || !__CLASS__COCOCLIP__.__timeline.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__timeline);
+					__CLASS__COCOCLIP__.__timeline = null
+				};
+				//@line 118
+				{
+					__CLASS__COCOCLIP__.__vABS_TOP_LEFT && ((__CLASS__COCOCLIP__.__vABS_TOP_LEFT.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__vABS_TOP_LEFT.Destructor()) || !__CLASS__COCOCLIP__.__vABS_TOP_LEFT.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__vABS_TOP_LEFT);
+					__CLASS__COCOCLIP__.__vABS_TOP_LEFT = null
+				};
+				//@line 119
+				{
+					__CLASS__COCOCLIP__.__vABS_TOP_RIGHT && ((__CLASS__COCOCLIP__.__vABS_TOP_RIGHT.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__vABS_TOP_RIGHT.Destructor()) || !__CLASS__COCOCLIP__.__vABS_TOP_RIGHT.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__vABS_TOP_RIGHT);
+					__CLASS__COCOCLIP__.__vABS_TOP_RIGHT = null
+				};
+				//@line 120
+				{
+					__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT && ((__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.Destructor()) || !__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT);
+					__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT = null
+				};
+				//@line 121
+				{
+					__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT && ((__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.Destructor()) || !__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT);
+					__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT = null
+				};
+				//@line 122
+				{
+					__CLASS__COCOCLIP__.__vREL_TOP_LEFT && ((__CLASS__COCOCLIP__.__vREL_TOP_LEFT.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__vREL_TOP_LEFT.Destructor()) || !__CLASS__COCOCLIP__.__vREL_TOP_LEFT.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__vREL_TOP_LEFT);
+					__CLASS__COCOCLIP__.__vREL_TOP_LEFT = null
+				};
+				//@line 123
+				{
+					__CLASS__COCOCLIP__.__vREL_TOP_RIGHT && ((__CLASS__COCOCLIP__.__vREL_TOP_RIGHT.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__vREL_TOP_RIGHT.Destructor()) || !__CLASS__COCOCLIP__.__vREL_TOP_RIGHT.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__vREL_TOP_RIGHT);
+					__CLASS__COCOCLIP__.__vREL_TOP_RIGHT = null
+				};
+				//@line 124
+				{
+					__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT && ((__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.Destructor()) || !__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT);
+					__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT = null
+				};
+				//@line 125
+				{
+					__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT && ((__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT.Destructor()) || !__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT);
+					__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT = null
+				};
+				//@line 126
+				{
+					__CLASS__COCOCLIP__.__vTemp && ((__CLASS__COCOCLIP__.__vTemp.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__vTemp.Destructor()) || !__CLASS__COCOCLIP__.__vTemp.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__vTemp);
+					__CLASS__COCOCLIP__.__vTemp = null
+				};
+				//@line 127
+				{
+					__CLASS__COCOCLIP__.__mTemp && ((__CLASS__COCOCLIP__.__mTemp.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__mTemp.Destructor()) || !__CLASS__COCOCLIP__.__mTemp.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__mTemp);
+					__CLASS__COCOCLIP__.__mTemp = null
+				};
+			}
+			{
+				__CLASS__COCOCLIP__.__instanceName = null;
+				__CLASS__COCOCLIP__.__clipPath = null;
+				__CLASS__COCOCLIP__.__scene = null;
+				__CLASS__COCOCLIP__.__image = null;
+				__CLASS__COCOCLIP__.__symbolLoop = null;
+				__CLASS__COCOCLIP__.__children = null;
+				__CLASS__COCOCLIP__.__timeline = null;
+				__CLASS__COCOCLIP__.__parent = null;
+				__CLASS__COCOCLIP__.text = null;
+				__CLASS__COCOCLIP__.textFontName = null;
+				__CLASS__COCOCLIP__.textFontSize = null;
+				__CLASS__COCOCLIP__.textHAlign = null;
+				__CLASS__COCOCLIP__.textVAlign = null;
+				__CLASS__COCOCLIP__.textMultiline = null;
+				__CLASS__COCOCLIP__.textTrimming = null;
+				__CLASS__COCOCLIP__.textColor = null;
+				__CLASS__COCOCLIP__.textWidth = null;
+				__CLASS__COCOCLIP__.textHeight = null;
+				__CLASS__COCOCLIP__.__currentTime = null;
+				__CLASS__COCOCLIP__.__loopTime = null;
+				__CLASS__COCOCLIP__.__loops = null;
+				__CLASS__COCOCLIP__.__currentFrame = null;
+				__CLASS__COCOCLIP__.__childWithMaxTimelineDuration = null;
+				__CLASS__COCOCLIP__.__hasBoundingBox = null;
+				__CLASS__COCOCLIP__.__vABS_TOP_LEFT = null;
+				__CLASS__COCOCLIP__.__vABS_TOP_RIGHT = null;
+				__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT = null;
+				__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT = null;
+				__CLASS__COCOCLIP__.__vREL_TOP_LEFT = null;
+				__CLASS__COCOCLIP__.__vREL_TOP_RIGHT = null;
+				__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT = null;
+				__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT = null;
+				__CLASS__COCOCLIP__.__vTemp = null;
+				__CLASS__COCOCLIP__.__mTemp = null;
+				__CLASS__COCOCLIP__.__PRIVATE__.__currentSequence = null;
+				__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio = null;
+			}
+			return true
+		};
+		//@line 85
+		this.Constructor = function (image)
+		{
+			//@line 87
+			__CLASS__COCOCLIP__.__symbolLoop = COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
+			//@line 88
+			__CLASS__COCOCLIP__.__timeline = new CocoTimeline;
+			//@line 89
+			__CLASS__COCOCLIP__.__children = new Array;
+			//@line 90
+			__CLASS__COCOCLIP__.__parent = null;
+			//@line 91
+			__CLASS__COCOCLIP__.__currentTime = 0.0;
+			//@line 92
+			__CLASS__COCOCLIP__.__currentFrame = null;
+			//@line 93
+			__CLASS__COCOCLIP__.__hasBoundingBox = false;
+			//@line 94
+			__CLASS__COCOCLIP__.__vABS_TOP_LEFT = new CocoVector;
+			//@line 95
+			__CLASS__COCOCLIP__.__vABS_TOP_RIGHT = new CocoVector;
+			//@line 96
+			__CLASS__COCOCLIP__.__vABS_BOTTOM_LEFT = new CocoVector;
+			//@line 97
+			__CLASS__COCOCLIP__.__vABS_BOTTOM_RIGHT = new CocoVector;
+			//@line 98
+			__CLASS__COCOCLIP__.__vREL_TOP_LEFT = new CocoVector;
+			//@line 99
+			__CLASS__COCOCLIP__.__vREL_TOP_RIGHT = new CocoVector;
+			//@line 100
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_LEFT = new CocoVector;
+			//@line 101
+			__CLASS__COCOCLIP__.__vREL_BOTTOM_RIGHT = new CocoVector;
+			//@line 102
+			__CLASS__COCOCLIP__.__vTemp = new CocoVector;
+			//@line 103
+			__CLASS__COCOCLIP__.__mTemp = new CocoMatrix;
+			//@line 104
+			__CLASS__COCOCLIP__.__childWithMaxTimelineDuration = null;
+			//@line 105
+			__CLASS__COCOCLIP__.__PRIVATE__.__currentSequence = null;
+			//@line 106
+			__CLASS__COCOCLIP__.__PRIVATE__.__currentAudio = null;
+			//@line 107
+			__CLASS__COCOCLIP__.__clipPath = "";
+			//@line 109
+			__CLASS__COCOCLIP__.__image = image;
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__COCOCLIP__$image__);
+		return this;
+	}
+	return new __CocoClip(__CLASS__COCOCLIP__$image__);
+}
+CocoClip.__PRIVATE__ = {};
+CocoClip.__PROTECTED__ = {};

@@ -926,6 +926,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 		//
 		// ==================================================================================================================================
 
+		case jsdef.INTERFACE:
 		case jsdef.CLASS:
 
 			/*//////////////////////////////////////////////////////////////////////////////////////////////
@@ -1063,6 +1064,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			var destructor = null;
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
 			var baseClass = ast.extends ? ast.extends : undefined;
+
 			var baseClassSymbol = _this.getClass(baseClass);
 			var baseClassId = baseClassSymbol ? baseClassSymbol.ast.symbol.classId : null;
 			var baseConstructor = baseClassSymbol ? baseClassSymbol.methods["Constructor"] : null;
@@ -1071,9 +1073,29 @@ function Compiler(ast, exportSymbols, selectedClass)
 			var staticMembers = {};
 			var baseClasses = [];
 
+			// Sanity check: is this class reimplemented?
+			if(!_this.secondPass)
+			{
+				var redef = _this.getClass(ast.name);
+				if(redef)
+				{
+					_this.NewError("Invalid class redefinition: " + ast.name, redef.ast);
+					_this.NewError("Invalid class redefinition: " + ast.name, ast);
+					return;
+				}
+			}
+
+			// Sanity check: is this class inheriting from itself?
 			if(baseClass && baseClass==ast.name)
 			{
 				_this.NewError("Illegal base class: " + baseClass, ast);
+				return;
+			}
+
+			// Sanity check: base class exists?
+			if(_this.secondPass && baseClass && !baseClassSymbol)
+			{
+				_this.NewError("Base class not found: " + baseClass, ast);
 				return;
 			}
 
@@ -1087,6 +1109,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				classSymbol.classId		= classId;
 				classSymbol.base		= baseClass;
 				classSymbol.baseSymbol	= baseClassSymbol;
+				classSymbol.interfaces	= ast.interfaces;
 				classSymbol.type		= ast.type;
 				classSymbol.nodeType	= ast.nodeType;
 				classSymbol.isPrototype = false;
@@ -1114,12 +1137,12 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Record vartype usage in class level (used to check #includes)
 			if(baseClass) scope.vartypes[baseClass] = 2; // Include priority (1: needed in .cpp, 2: needed in .hpp)
 
-			// Collect all base classes (in reverse order from bottom to top)
 			if(_this.secondPass)
 			{
 				if(baseClass && !baseClassSymbol)
 					_this.NewError("Base class not found: " + baseClass, ast);
 
+				// Collect all base classes (in reverse order from bottom to top)
 				var base = classSymbol;
 				while(((base=base.baseSymbol)!=null) && (base.file!="externs.jspp"))
 				{
@@ -1303,7 +1326,68 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			} //for
 
+
+			/////////////////////////////////////////////////////////////////////////////////
+			// Process Delegates
+			/////////////////////////////////////////////////////////////////////////////////
+			// Delegates are objects defined as vars inside a class thet extend class members.
+			// A class acts as a wrapper for delegate objects and at compile-time we need to
+			// generate wrapper methods for the delegated members.
+
+			if(_this.secondPass)
+			{
+				for(item in classSymbol.vars)
+				{
+					if(!classSymbol.vars[item].delegate) continue;
+
+					// Get delegated object variable
+					var delegator = classSymbol.vars[item];
+
+					// Get delegated object variable class symbol
+					var cls = _this.getClass(delegator.vartype);
+
+					// Loop on public methods
+					for(member in cls.methods)
+					{
+						var delegatorFunctionSymbol = cls.methods[member];
+						if(!delegatorFunctionSymbol.public) continue;
+
+						var fnName = delegatorFunctionSymbol.name;
+						var paramsList = delegatorFunctionSymbol.__untypedParamsList;
+
+						// Create the wrapper call
+						var wrapper = "";
+		  				     if(delegator.public)			wrapper = "this." + fnName + " = function" + paramsList;
+		  				else if(delegator.private)			wrapper = "this.__PRIVATE__." + fnName + " = function" + paramsList;
+		  				else if(delegator.protected)		wrapper = "this.__PROTECTED__." + fnName + " = function" + paramsList;
+						wrapper += "{return " + delegator.runtime + "." + fnName + paramsList + ";}";
+
+						// Insert wrapper before any other function (so that it can be overwrittern)
+						out_functions.insert(0,wrapper);
+
+						// Extend Code Symbols
+						var functionSymbol = new FunctionSymbol();
+						for(item in delegatorFunctionSymbol) { functionSymbol[item] = delegatorFunctionSymbol[item]; }
+
+						// The delegated method modifier must be the same with its owning delegated object variable
+						functionSymbol.public = delegator.public;
+						functionSymbol.private = delegator.private;
+						functionSymbol.protected = delegator.protected;
+						functionSymbol.delegated = true;
+
+						// We need to hack symbol runtime identifier
+						functionSymbol.runtime_delegated = delegator.runtime;
+						functionSymbol.runtime = delegator.runtime + "." + fnName;
+
+						// Finally save the functionSymbol in the class
+						classSymbol.methods[fnName] = functionSymbol;
+					}
+				}
+			}
+
+			/////////////////////////////////////////////////////////////////////////////////
 			// Synthesize class body, keep the entities organized.
+			/////////////////////////////////////////////////////////////////////////////////
 			out.push( out_constants.join("\n") 	);
 			out.push( out_enums.join("\n") 		);
 			out.push( out_vars.join("\n") 		);
@@ -1446,6 +1530,59 @@ function Compiler(ast, exportSymbols, selectedClass)
 				}
 				if(hasObjectMembers && !destructor && ast.file!="externs.jspp")
 					_this.NewError("Missing Destructor: " + ast.name, ast);
+
+				// Check interface
+				if(ast.type==jsdef.INTERFACE)
+				{
+					for(item in classSymbol.methods)
+					{
+						var method = classSymbol.methods[item];
+						if(!method.public || method.static)
+							_this.NewError("Invalid interface method modifiers: " + method.name, method.ast);
+					}
+
+					for(item in classSymbol.vars)
+					{
+						_this.NewError("Invalid interface member: " + item, classSymbol.vars[item].ast);
+					}
+				}
+
+				// Check interface implementation
+				if(classSymbol.interfaces.length)
+				{
+					function checkInterface(interfaceName)
+					{
+						// Get interface
+						var interfaceClass = _this.getClass(interfaceName);
+						if(!interfaceClass) _this.NewError("Interface not found: " + interfaceName, ast);
+
+						// Interface inheritance: check base interfaces
+						if(interfaceClass.baseSymbol)
+							checkInterface(interfaceClass.baseSymbol.name);
+
+						// Check if the class implements all interface methods
+						for(item in interfaceClass.methods)
+						{
+							var interfaceMethod = interfaceClass.methods[item];
+							if(!__exists(classSymbol.methods, interfaceMethod.name))
+							{
+								_this.NewError("Interface method not found: " + interfaceName + "::" + interfaceMethod.name, ast);
+							}
+							else
+							{
+								var localMethod = classSymbol.methods[interfaceMethod.name];
+								if(localMethod.__signature!=interfaceMethod.__signature)
+									_this.NewError("Invalid interface method signature: " + interfaceName + "::" + interfaceMethod.name, localMethod.ast);
+							}
+						}
+					}
+
+					// Check interfaces one by one
+					for(i=0;i<classSymbol.interfaces.length;i++)
+					{
+						checkInterface(classSymbol.interfaces[i]);
+					}
+				}
 			}
 
 			/////////////////////////////////////////////////////////////////////////////////
@@ -1456,7 +1593,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 			if(!isGlobalClass)
 			{
 				_this.ExitScope();
-				_this.addCodeToClassFile(ast.path, out.join("\n"));
+
+				if(ast.type!=jsdef.INTERFACE)
+					_this.addCodeToClassFile(ast.path, out.join("\n"));
 			}
 
 			break;
@@ -1490,7 +1629,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				_this.debugSymbolsTable.push("<!-- " + className + " :: " + fnName + " -->\n");
 
             // Check for function overloading
-			if(!isAnonymous && Object.prototype.hasOwnProperty.call(parentScope.methods, fnName))
+			if(!isAnonymous && __exists(parentScope.methods, fnName))
 			{
 				var fn_ast = parentScope.methods[fnName].ast;
 				if(!_this.secondPass)
@@ -1577,12 +1716,22 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			// Process the Arguments List
 			var paramsList = "";
+			var typedParamsList = "";
 			for(var i=0; i<ast.paramsList.length; i++)
 			{
 				var param = ast.paramsList[i];
 				param.isPointer = __isPointer(param.vartype);
+
 				paramsList += param.name;
-				if(i!=ast.paramsList.length-1) paramsList +=", ";
+
+				typedParamsList += (param.optional ? "optional " : "") +
+								   param.name + ":" + param.vartype;
+
+				if(i!=ast.paramsList.length-1)
+				{
+					paramsList +=", ";
+					typedParamsList +=", ";
+				}
 
                 // Type Checks
 				if(_this.secondPass && _this.currClassName)
@@ -1609,6 +1758,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.optional		= param.optional;
 					varSymbol.virtual		= false;
 					varSymbol.abstract		= false;
+					varSymbol.delegate		= false;
 					varSymbol.constant		= false;
 					varSymbol.ast			= param;
 					varSymbol.scope			= methodScope;
@@ -1646,7 +1796,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 					parentScope.vartypes[varSymbol.vartype] = true;
 
 			}
+
 			paramsList = "(" + paramsList + ")";
+			typedParamsList = "(" + typedParamsList + ")";
 
 			// =================================================================
 			// Generate Function Body (and save it to AST for later use)
@@ -1655,7 +1807,20 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Function body is complete, including curly brackets.
 			// =================================================================
 
-			ast.generated_code = "{" + generate(ast.body);
+			if(!_this.in_property && (ast.abstract || (classSymbol && classSymbol.type==jsdef.INTERFACE)))
+			{
+				if(ast.abstract && ast.body)
+					_this.NewError("Invalid abstract function: " + fnName, ast);
+
+				if(classSymbol.type==jsdef.INTERFACE && ast.body)
+					_this.NewError("Invalid interface function: " + fnName, ast);
+
+				ast.generated_code =  "{";
+			}
+			else
+			{
+				ast.generated_code = "{" + generate(ast.body);
+			}
 
 			// Generate default return value
 			if(!ast.isConstructor && !ast.isDestructor)
@@ -1675,6 +1840,11 @@ function Compiler(ast, exportSymbols, selectedClass)
 	        {
 	  			out.push("function " + fnName + paramsList);
 				out.push(ast.generated_code);
+
+				functionSymbol.__typedParamsList = paramsList;
+				functionSymbol.__untypedParamsList = paramsList;
+				functionSymbol.__signature = fnName + paramsList;
+				functionSymbol.__cnSignature = fnName + paramsList;
 	        }
 
 			/////////////////////////////////////////////////////////////////////////////////////////
@@ -1700,11 +1870,31 @@ function Compiler(ast, exportSymbols, selectedClass)
 	        	// INSIDE ast.generated_code
 
 				// =================================================================
+				// Generate Function Signature
+				// =================================================================
+
+				functionSymbol.__typedParamsList = typedParamsList;
+				functionSymbol.__untypedParamsList = paramsList;
+
+				functionSymbol.__cnSignature = (functionSymbol.public 		? "public " : "") +
+											   (functionSymbol.private 		? "private " : "") +
+											   (functionSymbol.protected 	? "protected " : "") +
+											   (functionSymbol.static 		? "static " : "") +
+											   (functionSymbol.abstract 	? "abstract " : "") +
+											   (functionSymbol.virtual 		? "virtual " : "") +
+											   (classSymbol 				? classSymbol.name+"::" : "") +
+											   fnName + typedParamsList +
+											   (functionSymbol.vartype 		? " :" +  functionSymbol.vartype : "");
+
+				functionSymbol.__signature = fnName + typedParamsList +
+										     (functionSymbol.vartype ? " :" +  functionSymbol.vartype : "");
+
+				// =================================================================
 		        // Constructor function
 				// =================================================================
 	            if(ast.isConstructor)
 	            {
-	            	out.push("this.Constructor=function"+paramsList);
+	            	out.push("this.Constructor = function" + paramsList);
 	            	out.push(ast.generated_code);
 	            	out.push(";");
 	            }
@@ -1712,9 +1902,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 				// =================================================================
 		        // Destructor function
 				// =================================================================
-	            if(ast.isDestructor)
+	            else if(ast.isDestructor)
 	            {
-	            	out.push("var Destructor = this.Destructor = function(){");
+	            	out.push("this.Destructor = function(){");
 	            	out.push(ast.generated_code);
 					if(_this.secondPass)
 					{
@@ -1752,7 +1942,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				// =================================================================
 				else if(_this.in_state)
 				{
-		  			out.push("var " + fnName + " = this." + fnName + " = function" + paramsList);
+		  			out.push("this." + fnName + " = function" + paramsList);
 	            	out.push(ast.generated_code);
 	            	out.push(";");
 				}
@@ -1794,7 +1984,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 	  					// ---------------------------------------------------------------------
 	  					if(ast.public)
 	  					{
-							var virtualRedefine = "var " + fnName + " = this." + fnName + " = __VIRTUAL__." + fnName + " = ";
+							var virtualRedefine = "this." + fnName + " = __VIRTUAL__." + fnName + " = ";
 							for(i=0;i<classSymbol.__baseClasses.length;i++)
 							{
 								var base = classSymbol.__baseClasses[i];
@@ -1829,12 +2019,12 @@ function Compiler(ast, exportSymbols, selectedClass)
 
   					if(ast.virtual)
   					{
-		  				     if(ast.public)			out.push("var " + fnName + " = this." + fnName + " = __VIRTUAL__." + fnName + " = function" + paramsList);
+		  				     if(ast.public)			out.push("this." + fnName + " = __VIRTUAL__." + fnName + " = function" + paramsList);
 		  				else if(ast.protected)		out.push("this.__PROTECTED__." + fnName + " = __VIRTUAL__.__PROTECTED__." + fnName + " = function" + paramsList);
   					}
   					else
   					{
-		  				     if(ast.public)			out.push("var " + fnName + " = this." + fnName + " = function" + paramsList);
+		  				     if(ast.public)			out.push("this." + fnName + " = function" + paramsList);
 		  				else if(ast.private)		out.push("this.__PRIVATE__." + fnName + " = function" + paramsList);
 		  				else if(ast.protected)		out.push("this.__PROTECTED__." + fnName + " = function" + paramsList);
   					}
@@ -1975,7 +2165,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				if(_this.secondPass && _this.currClassName && !_this.getClass(ast[item].vartype))
 					_this.NewError("Class not found: " + ast[item].vartype, ast[item]);
 
-				if(Object.prototype.hasOwnProperty.call(ast.scope.vars, ast[item].name))
+				if(__exists(ast.scope.vars, ast[item].name))
 				{
 					// If a var is wrapped inside "#ignore_errors" directive we do not complain for redeclaration.
 					if(_this.no_errors)
@@ -1985,14 +2175,13 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 					else if(!_this.secondPass)
 					{
-						debugger;
 						_this.NewError("Redeclaration of variable " + ast[item].name + " in current scope", ast[item]);
 					}
 				}
 
 				if(!_this.secondPass)
 			 	{
-					if(classScope && Object.prototype.hasOwnProperty.call(classScope.vars, ast[item].name) && !_this.isInside(ast[item], jsdef.BLOCK))
+					if(classScope && __exists(classScope.vars, ast[item].name) && !_this.isInside(ast[item], jsdef.BLOCK))
 					{
 						_this.NewWarning("Found declaration of variable " + ast[item].name + " in class scope", ast[item]);
 					}
@@ -2000,6 +2189,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 				ast[item].isPointer = __isPointer(ast[item].vartype);
 
+				// Var Symbol
 				var varSymbol = new VarSymbol();
 				{
 					varSymbol.symbolId		= (++_this.symbolId);
@@ -2015,6 +2205,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.optional		= false;
 					varSymbol.virtual		= false;
 					varSymbol.abstract		= false;
+					varSymbol.delegate		= ast.delegate;
 					varSymbol.constant		= ast.type==jsdef.CONST;
 					varSymbol.value			= (ast.type==jsdef.CONST ? generate(ast[item].initializer) : null);
 					varSymbol.ast			= ast[item];
@@ -2155,7 +2346,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				classSymbol.line_end	= ast.line_end;
 				classSymbol.scopeId		= scope.scopeId;
 				classSymbol.vars		= scope.vars;
-				classSymbol.methods	 	= scope.vars;
+				classSymbol.methods	 	= scope.methods;
 				classSymbol.runtime		= ast.name;
 			}
 
@@ -2194,10 +2385,11 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.public		= true;
 					varSymbol.private		= false;
 					varSymbol.protected		= false;
-					varSymbol.static		= true; //#CHECK:false
+					varSymbol.static		= true;
 					varSymbol.optional		= false;
 					varSymbol.virtual		= false;
 					varSymbol.abstract		= false;
+					varSymbol.delegate		= false;
 					varSymbol.constant		= true;
 					varSymbol.ast			= ast[item];
 					varSymbol.scope			= scope;
@@ -2258,7 +2450,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			var propertyName = (ast.name ? ast.name : "");
 
             // Check for redeclaration
-			if(!_this.secondPass && Object.prototype.hasOwnProperty.call(parentScope.vars, propertyName))
+			if(!_this.secondPass && __exists(parentScope.vars, propertyName))
 				_this.NewError("Redeclaration of property " + propertyName, ast);
 
            	// Define property symbol
@@ -2523,6 +2715,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 				break;
 			}
 
+			//if(ast.value=="send") debugger;
+
 			//==================================================================================
 			// Lookup the symbol for this identifier.
 			//==================================================================================
@@ -2639,6 +2833,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 							if(maching_args)
 							{
 								// Found the proper overloaded function!!
+								ast.__overload_symbol = ast.symbol;
 								ast.symbol = ast.symbol.overloads[i].symbol;
 								ast.value = ast.symbol.name;
 								overload_matched = true;
@@ -2680,7 +2875,16 @@ function Compiler(ast, exportSymbols, selectedClass)
 				}
 				else
 				{
-					ast.runtime = ast.symbol.runtime;
+					// Special case where overloaded function is member of a delegated object
+					if(ast.__overload_symbol && ast.__overload_symbol.delegated)
+					{
+						ast.runtime = ast.__overload_symbol.runtime_delegated + "." + ast.symbol.name;
+						debugger;
+					}
+					else
+					{
+						ast.runtime = ast.symbol.runtime;
+					}
 				}
 			}
 
@@ -3056,6 +3260,26 @@ function Compiler(ast, exportSymbols, selectedClass)
 		case jsdef.MOD:					_this.arithmeticOp(ast, "%", out); break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.INSTANCEOF:
+			if(_this.secondPass && _this.currClassName) _this.NewError("Illegal inside class", ast);
+			out.push(generate(ast[0]));
+			out.push(" instanceof ");
+			out.push(generate(ast[1]));
+			break;
+
+		case jsdef.TYPEOF:
+			if(_this.secondPass && _this.currClassName) _this.NewError("Illegal inside class", ast);
+			out.push("typeof ");
+			out.push(generate(ast[0]));
+			break;
+
+		case jsdef.VOID:
+			if(_this.secondPass && _this.currClassName) _this.NewError("Illegal inside class", ast);
+			out.push("void ");
+			out.push(generate(ast[0]));
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.AND:					out.push(generate(ast[0])); out.push("&&"); out.push(generate(ast[1])); break;
 		case jsdef.BITWISE_AND:			out.push(generate(ast[0])); out.push("&"); out.push(generate(ast[1])); break;
 		case jsdef.BITWISE_NOT:			out.push("~"); out.push(generate(ast[0])); break;
@@ -3075,7 +3299,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 		case jsdef.GT:					out.push(generate(ast[0])); out.push(">");   out.push(generate(ast[1])); break;
 		case jsdef.HOOK:				out.push(generate(ast[0])); out.push("?"); out.push(generate(ast[1])); out.push(":"); out.push(generate(ast[2])); break;
 		case jsdef.INCREMENT:			if(ast.postfix) { out.push(generate(ast[0])); out.push("++"); } else { out.push("++"); out.push(generate(ast[0])); } break;
-		case jsdef.INSTANCEOF: 			out.push(generate(ast[0])); out.push(" instanceof "); out.push(generate(ast[1])); break;
 		case jsdef.LABEL:				out.push(ast.label + ":"); out.push(generate(ast.statement)); break;
 		case jsdef.LE:					out.push(generate(ast[0])); out.push("<=");  out.push(generate(ast[1])); break;
 		case jsdef.LSH:					out.push(generate(ast[0])); out.push("<<"); out.push(generate(ast[1])); break;
@@ -3093,11 +3316,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 		case jsdef.STRICT_NE:			out.push(generate(ast[0]));	out.push("!="); out.push(generate(ast[1])); break;
 		case jsdef.THROW:				out.push("throw "); out.push(generate(ast.exception)); out.push(";"); break;
 		case jsdef.TRUE:				out.push("true"); break;
-		case jsdef.TYPEOF:				out.push("typeof "); out.push(generate(ast[0])); break;
 		case jsdef.UNARY_MINUS:			out.push(" -"); out.push(generate(ast[0])); break;
 		case jsdef.UNARY_PLUS:			out.push(" +"); out.push(generate(ast[0])); break;
 		case jsdef.URSH:				out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
-		case jsdef.VOID:				out.push("void "); out.push(generate(ast[0])); break;
 		case jsdef.WHILE:				ast.body.isLoop=true; out.push("while(" + generate(ast.condition) + ")"); out.push(generate(ast.body)); break;
 
 		case jsdef.NEW_WITH_ARGS:

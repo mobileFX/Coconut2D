@@ -39,6 +39,124 @@
 
 class CocoUIView : CocoClip
 {
+	private var __needsRepaint:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Margins
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private var __marginLeft:Float;
+	private var __marginRight:Float;
+	private var __marginTop:Float;
+	private var __marginBottom:Float;
+
+	public property MarginLeft		{ function get():Float { return __marginLeft; 		} function set(v:Float) 	{ __marginLeft=v; invalidate(); 	} }
+	public property MarginRight		{ function get():Float { return __marginRight;		} function set(v:Float) 	{ __marginRight=v; invalidate(); 	} }
+	public property MarginTop		{ function get():Float { return __marginTop;		} function set(v:Float)		{ __marginTop=v; invalidate(); 		} }
+	public property MarginBottom 	{ function get():Float { return __marginBottom; 	} function set(v:Float)		{ __marginBottom=v; invalidate(); 	} }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Paddings
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private var __paddingLeft:Float;
+	private var __paddingRight:Float;
+	private var __paddingTop:Float;
+	private var __paddingBottom:Float;
+
+	public property PaddingLeft		{ function get():Float { return __paddingLeft; 		} function set(v:Float) 	{ __paddingLeft=v; invalidate(); 	} }
+	public property PaddingRight	{ function get():Float { return __paddingRight;		} function set(v:Float) 	{ __paddingRight=v; invalidate(); 	} }
+	public property PaddingTop		{ function get():Float { return __paddingTop;		} function set(v:Float)		{ __paddingTop=v; invalidate(); 	} }
+	public property PaddingBottom 	{ function get():Float { return __paddingBottom; 	} function set(v:Float)		{ __paddingBottom=v; invalidate(); 	} }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Left
+	{
+		function get():Float
+		{
+			return this.__currentFrame.x;
+		}
+		function set(v:Float)
+		{
+			invalidate();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Top
+	{
+		function get():Float
+		{
+			return this.__currentFrame.y;
+		}
+		function set(v:Float)
+		{
+			invalidate();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Width
+	{
+		function get():Float
+		{
+			return 0;
+		}
+		function set(v:Float)
+		{
+			invalidate();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Height
+	{
+		function get():Float
+		{
+			return 0;
+		}
+		function set(v:Float)
+		{
+			invalidate();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Visible
+	{
+		function get():Boolean
+		{
+			return this.__currentFrame.visible;
+		}
+		function set(v:Boolean)
+		{
+			invalidate();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function invalidate()
+	{
+		__needsRepaint = true;
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Float)
+	{
+		if(__needsRepaint)
+		{
+		}
+	}
+
 }
 
 

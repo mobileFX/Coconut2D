@@ -91,54 +91,6 @@ function CompilerTypeSystemPlugin(compiler)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// IDE icons that can be set to exported memberlist items in EXPORT_TO_IDE()
-	_this.CODE_SYMBOLS_ENUM =
-	{
-	    SYMBOL_ARGUMENT					   : 0,
-	    SYMBOL_ARRAY                       : 1,
-	    SYMBOL_BASE_CLASS                  : 2,
-	    SYMBOL_BASE_CONSTANT               : 3,
-	    SYMBOL_BASE_EVENT                  : 4,
-	    SYMBOL_BASE_PRIVATE_FIELD          : 5,
-	    SYMBOL_BASE_PRIVATE_FUNCTION       : 6,
-	    SYMBOL_BASE_PROTECTED_FIELD        : 7,
-	    SYMBOL_BASE_PROTECTED_FUNCTION     : 8,
-	    SYMBOL_BASE_PUBLIC_FIELD           : 9,
-	    SYMBOL_BASE_PUBLIC_FUNCTION        : 10,
-	    SYMBOL_CLASS                       : 11,
-	    SYMBOL_CONDITIONAL_BLOCK           : 12,
-	    SYMBOL_CONSTANT                    : 13,
-	    SYMBOL_CONSTRUCTOR                 : 14,
-	    SYMBOL_ENUM                        : 15,
-	    SYMBOL_ENUM_ITEM                   : 16,
-	    SYMBOL_ERROR                       : 17,
-	    SYMBOL_EVENT                       : 18,
-	    SYMBOL_FOLDER                      : 19,
-	    SYMBOL_HTML                        : 20,
-	    SYMBOL_HTML_STYLE                  : 21,
-	    SYMBOL_HTML_STYLE_CLASS            : 22,
-	    SYMBOL_HTML_STYLE_ID               : 23,
-	    SYMBOL_HTML_STYLE_RULE             : 24,
-	    SYMBOL_INTERFACE                   : 25,
-	    SYMBOL_LOCALS                      : 26,
-	    SYMBOL_OBJECT                      : 27,
-	    SYMBOL_PACKAGE                     : 28,
-	    SYMBOL_PRIVATE_FIELD               : 29,
-	    SYMBOL_PRIVATE_FUNCTION            : 30,
-	    SYMBOL_PROPERTY                    : 31,
-	    SYMBOL_PROTECTED_FIELD             : 32,
-	    SYMBOL_PROTECTED_FUNCTION          : 33,
-	    SYMBOL_PUBLIC_FIELD                : 34,
-	    SYMBOL_PUBLIC_FUNCTION             : 35,
-	    SYMBOL_SCRIPT_LIBRARY              : 36,
-	    SYMBOL_SYMBOLS                     : 37,
-	    SYMBOL_VARIABLE                    : 38,
-	    SYMBOL_WAIT                        : 39,
-	    SYMBOL_WARNING                     : 40,
-	    SYMBOL_WATCH                       : 41
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getVarType = function(vartype)
 	{
 		if(!vartype) return null;
@@ -384,7 +336,6 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 	};
 
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.searchIncludesForVartype = function(className, vt)
 	{
@@ -553,15 +504,61 @@ function CompilerTypeSystemPlugin(compiler)
 			return type1;
 		}
 
-		// Inheritance
-		while(cls2)
-		{
-			if(cls1.name==cls2.name) return type1;
-			cls2 = cls2.baseSymbol;
-		}
+		// Inheritance and Interfaces
+		if(_this.classTypeCheck(cls1, cls2, ast))
+			return type1;
 
 		if(checkOnly) return false;
 		_this.NewError(customError || "Type mismatch " + type1 + " and " + type2 + ": " + ast.source, ast);
 		return type1;
 	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Check two types if they are binary compatible
+	_this.classTypeCheck = function(cls1, cls2, ast)
+	{
+		if(!cls1 || !cls2) return;
+
+		// Check class inheritance
+		if(cls1.type==jsdef.CLASS && cls2.type==jsdef.CLASS)
+		{
+			for(var base=cls2;base!=null;base=base.baseSymbol)
+			{
+				if(base.name==cls1.name)
+					return cls1.name;
+			}
+		}
+
+		// Check interface inheritance
+		if(cls1.type==jsdef.INTERFACE && cls2.type==jsdef.INTERFACE)
+		{
+			for(var base=cls1;base!=null;base=base.baseSymbol)
+			{
+				if(base.name==cls2.name)
+					return cls2.name;
+			}
+			for(var base=cls2;base!=null;base=base.baseSymbol)
+			{
+				if(base.name==cls1.name)
+					return cls1.name;
+			}
+		}
+
+		// Check class casting to interface
+		if(cls1.type==jsdef.INTERFACE && cls2.type==jsdef.CLASS)
+		{
+			for(i=0;i<cls2.interfaces.length;i++)
+			{
+				var ic = _this.getClass(cls2.interfaces[i]);
+				if(_this.classTypeCheck(cls1, ic, ast))
+					return cls1.name;
+			}
+		}
+
+		// Check casting interface to class
+		if(cls1.type==jsdef.CLASS && cls2.type==jsdef.INTERFACE)
+		{
+			_this.NewError("Ambiguous casting of interface to class", ast);
+		}
+	}
 }

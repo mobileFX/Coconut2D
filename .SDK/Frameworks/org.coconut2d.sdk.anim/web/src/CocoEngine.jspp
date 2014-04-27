@@ -75,13 +75,13 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function addTickListener(tickable:CocoITickable)
+	public function addTickListener(tickable:ITickable)
 	{
 		__tickables.push(tickable);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function getTickableIndex(tickable:CocoITickable) :Integer
+	public function getTickableIndex(tickable:ITickable) :Integer
 	{
 		if(tickable)
 		{
@@ -97,7 +97,7 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function removeTickListener(tickable:CocoITickable)
+	public function removeTickListener(tickable:ITickable)
 	{
 		var index:Integer = getTickableIndex(tickable);
 		if(index!=-1)

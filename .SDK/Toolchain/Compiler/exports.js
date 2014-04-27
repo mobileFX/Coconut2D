@@ -36,6 +36,54 @@ function CompilerExportsPlugin(compiler)
 	var _this = this._this = compiler;
 	_this.debugSymbolsTable = [];           // Map of source code to runtime debug symbols, used by IDE debugger (eg. class foo { public var x; } , x at runtime is __CLASS_FOO__.x )
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// IDE icons that can be set to exported memberlist items in EXPORT_TO_IDE()
+	_this.CODE_SYMBOLS_ENUM =
+	{
+	    SYMBOL_ARGUMENT					   : 0,
+	    SYMBOL_ARRAY                       : 1,
+	    SYMBOL_BASE_CLASS                  : 2,
+	    SYMBOL_BASE_CONSTANT               : 3,
+	    SYMBOL_BASE_EVENT                  : 4,
+	    SYMBOL_BASE_PRIVATE_FIELD          : 5,
+	    SYMBOL_BASE_PRIVATE_FUNCTION       : 6,
+	    SYMBOL_BASE_PROTECTED_FIELD        : 7,
+	    SYMBOL_BASE_PROTECTED_FUNCTION     : 8,
+	    SYMBOL_BASE_PUBLIC_FIELD           : 9,
+	    SYMBOL_BASE_PUBLIC_FUNCTION        : 10,
+	    SYMBOL_CLASS                       : 11,
+	    SYMBOL_CONDITIONAL_BLOCK           : 12,
+	    SYMBOL_CONSTANT                    : 13,
+	    SYMBOL_CONSTRUCTOR                 : 14,
+	    SYMBOL_ENUM                        : 15,
+	    SYMBOL_ENUM_ITEM                   : 16,
+	    SYMBOL_ERROR                       : 17,
+	    SYMBOL_EVENT                       : 18,
+	    SYMBOL_FOLDER                      : 19,
+	    SYMBOL_HTML                        : 20,
+	    SYMBOL_HTML_STYLE                  : 21,
+	    SYMBOL_HTML_STYLE_CLASS            : 22,
+	    SYMBOL_HTML_STYLE_ID               : 23,
+	    SYMBOL_HTML_STYLE_RULE             : 24,
+	    SYMBOL_INTERFACE                   : 25,
+	    SYMBOL_LOCALS                      : 26,
+	    SYMBOL_OBJECT                      : 27,
+	    SYMBOL_PACKAGE                     : 28,
+	    SYMBOL_PRIVATE_FIELD               : 29,
+	    SYMBOL_PRIVATE_FUNCTION            : 30,
+	    SYMBOL_PROPERTY                    : 31,
+	    SYMBOL_PROTECTED_FIELD             : 32,
+	    SYMBOL_PROTECTED_FUNCTION          : 33,
+	    SYMBOL_PUBLIC_FIELD                : 34,
+	    SYMBOL_PUBLIC_FUNCTION             : 35,
+	    SYMBOL_SCRIPT_LIBRARY              : 36,
+	    SYMBOL_SYMBOLS                     : 37,
+	    SYMBOL_VARIABLE                    : 38,
+	    SYMBOL_WAIT                        : 39,
+	    SYMBOL_WARNING                     : 40,
+	    SYMBOL_WATCH                       : 41
+	};
+
 	// ==================================================================================================================================
 	//	    ______                      __     ____       __                   _____                 __          __
 	//	   / ____/  ______  ____  _____/ /_   / __ \___  / /_  __  ______ _   / ___/__  ______ ___  / /_  ____  / /____
@@ -127,6 +175,7 @@ function CompilerExportsPlugin(compiler)
 				}
 
 				xml.push(_this.objectToXML(methodSymbol, "METHOD", arguments.length==0));
+
 				if(arguments.length>0)
 				{
 					xml.push("<ARGUMENTS>\n");
@@ -218,14 +267,13 @@ function CompilerExportsPlugin(compiler)
 				var methodSymbol = classSymbol.methods[item];
 				if(!methodSymbol.name) continue;
 
-				var arguments = [];
-				for(var arg in methodSymbol.arguments)
-				{
-					arguments.push(methodSymbol.arguments[arg].name + methodSymbol.arguments[arg].ast.xmlvartype);
-				}
+				//if(methodSymbol.overloads) debugger;
 
-				var signature = methodSymbol.name + "(" + arguments.join(", ") + ")" + methodSymbol.ast.xmlvartype;
-				mbrList.push('\t<member name="' + methodSymbol.name + '" proto="' + signature + '" help="' +  classSymbol.name + " :: " + signature + '" image="' + methodSymbol.icon + '"/>');
+				// XML-ize vartypes and remove overload $<index>
+				var signature = methodSymbol.__signature.replace('<','&lt;').replace('>','&gt;').replace(/\$\d+/, "");
+				var cnSignature = methodSymbol.__cnSignature.replace('<','&lt;').replace('>','&gt;').replace(/\$\d+/, "");
+
+				mbrList.push('\t<member name="' + methodSymbol.name.replace(/\$\d+/, "") + '" proto="' + signature + '" help="' + cnSignature + '" image="' + methodSymbol.icon + '"/>');
 			}
 
 			for(var item in classSymbol.vars)
@@ -856,8 +904,11 @@ function CompilerExportsPlugin(compiler)
 			{
 				var varSymbol = classSymbol.vars[item];
 				varSymbol.modifier = "public";
-				if(varSymbol.private) varSymbol.modifier = "private";
-				if(varSymbol.protected) varSymbol.modifier = "protected";
+				varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
+				if(varSymbol.private) { varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD; varSymbol.modifier = "private"; }
+				if(varSymbol.protected) { varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD; varSymbol.modifier = "protected"; }
+				if(varSymbol.constant) varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT;
+				else if(varSymbol.type==jsdef.PROPERTY) varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROPERTY;
 			}
 		}
 
@@ -908,6 +959,7 @@ function CompilerExportsPlugin(compiler)
 		xml.push("<"+tag);
 		for(var item in obj)
 		{
+			if(item.charAt(0)=="_") continue;
 			if(typeof obj[item]=="object") continue;
 			v = obj[item];
 			if(v==null || v==undefined || v==NaN || v=="NaN") continue;

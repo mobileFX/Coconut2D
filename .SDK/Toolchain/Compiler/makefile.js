@@ -8,7 +8,7 @@
         "PROJECT_VERSION_SHORT": "1.0",
         "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui",
         "CONFIGURATION": "Debug",
-        "DEBUG_HOST_IP": "192.168.1.108",
+        "DEBUG_HOST_IP": "192.168.1.119",
         "DEBUG_HOST_PORT": "9999",
         "TAGS": {
             "OG_COMPANY_ADDRESS": "52 Electras str",
@@ -45,9 +45,9 @@
             "ASSETS_VIDEOS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/assets/videos"
         },
         "DEVICE_VIEWPORT": {
-            "VIEW_WIDTH": 480,
-            "VIEW_HEIGHT": 320,
-            "VIEW_PIXEL_RATIO": 1
+            "VIEW_WIDTH": "480",
+            "VIEW_HEIGHT": "320",
+            "VIEW_PIXEL_RATIO": "1"
         },
         "TARGETS": {
             "CocoPlayer": {
@@ -74,7 +74,7 @@
         "TARGET": "CocoPlayer",
         "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/web/CocoPlayer",
         "TARGET_DEVICE": "CocoPlayer",
-        "LOCALHOST_IP": "192.168.1.108",
+        "LOCALHOST_IP": "192.168.1.119",
         "PROJECT_NAME": "Coconut2D",
         "PROJECT_DISPLAY_NAME": "Coconut2D",
         "PROJECT_PACKAGE": "com.mobilefx.Coconut2D",
@@ -82,7 +82,7 @@
         "PROJECT_VERSION_SHORT": "1.0",
         "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui",
         "CONFIGURATION": "Debug",
-        "DEBUG_HOST_IP": "192.168.1.108",
+        "DEBUG_HOST_IP": "192.168.1.119",
         "DEBUG_HOST_PORT": "9999",
         "TAGS.OG_COMPANY_ADDRESS": "52 Electras str",
         "TAGS.OG_COMPANY_COUNTRY": "Greece",

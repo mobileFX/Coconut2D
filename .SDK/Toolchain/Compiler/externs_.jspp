@@ -1,13 +1,5 @@
 ﻿// Auto-generated Project Externs
 
-class CocoFont
-{
-	undefined function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float) {}
-	undefined function measureText(text:String) :Float {}
-	undefined function Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean) {}
-	undefined var height :Float;
-} //CocoFont
-
 class Null
 {
 } //Null
@@ -221,7 +213,6 @@ class Global
 	undefined var __WebGLRenderingContext_vertexAttrib4fv;
 	undefined var __WebGLRenderingContext_vertexAttribPointer;
 	undefined var __WebGLRenderingContext_viewport;
-	undefined var CocoFont :CocoFont;
 	undefined var Null :Null;
 	undefined var Untyped :Untyped;
 	undefined var Object :Object;
@@ -257,6 +248,7 @@ class Global
 	undefined var TypeError :TypeError;
 	undefined var ImageDataBuffer :ImageDataBuffer;
 	undefined var XMLHttpRequest :XMLHttpRequest;
+	undefined var CocoFont :CocoFont;
 	undefined var Color :Color;
 	undefined var Gradient :Gradient;
 	undefined var global :Global;
@@ -302,13 +294,16 @@ class Global
 	undefined var CocoEngine :CocoEngine;
 	undefined var CocoImage :CocoImage;
 	undefined var CocoImageSibling :CocoImageSibling;
-	undefined var CocoITickable :CocoITickable;
 	undefined var CocoKeyFrame :CocoKeyFrame;
 	undefined var CocoMatrix :CocoMatrix;
 	undefined var CocoRect :CocoRect;
 	undefined var CocoScene :CocoScene;
 	undefined var CocoSequence :CocoSequence;
 	undefined var State :State;
+	undefined var ITest1 :ITest1;
+	undefined var ITest2 :ITest2;
+	undefined var ITest3 :ITest3;
+	undefined var ClassDelegator :ClassDelegator;
 	undefined var Class1 :Class1;
 	undefined var Class2 :Class2;
 	undefined var Class3 :Class3;
@@ -317,6 +312,9 @@ class Global
 	undefined var CocoTimeLabel :CocoTimeLabel;
 	undefined var CocoTimeline :CocoTimeline;
 	undefined var CocoVector :CocoVector;
+	undefined var ITickable :ITickable;
+	undefined var CocoTickable :CocoTickable;
+	undefined var CocoHttpRequest :CocoHttpRequest;
 	undefined var CocoUIFont :CocoUIFont;
 	undefined var CocoUIView :CocoUIView;
 	undefined var CocoUIControlView :CocoUIControlView;
@@ -569,6 +567,14 @@ class XMLHttpRequest
 	undefined var responseType :Integer;
 } //XMLHttpRequest
 
+class CocoFont
+{
+	undefined function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float) {}
+	undefined function measureText(text:String) :Float {}
+	undefined function Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean) {}
+	undefined var height :Float;
+} //CocoFont
+
 class Color : Integer
 {
 } //Color
@@ -579,14 +585,6 @@ class Gradient : String
 
 class SCREEN_RESOLUTION_DPI_ENUM
 {
-	public function RESOLUTION_nodpi() :SCREEN_RESOLUTION_DPI_ENUM {}
-	public function RESOLUTION_ldpi() :SCREEN_RESOLUTION_DPI_ENUM {}
-	public function RESOLUTION_mdpi() :SCREEN_RESOLUTION_DPI_ENUM {}
-	public function RESOLUTION_tvdpi() :SCREEN_RESOLUTION_DPI_ENUM {}
-	public function RESOLUTION_hdpi() :SCREEN_RESOLUTION_DPI_ENUM {}
-	public function RESOLUTION_xhdpi() :SCREEN_RESOLUTION_DPI_ENUM {}
-	public function RESOLUTION_Retina() :SCREEN_RESOLUTION_DPI_ENUM {}
-	public function RESOLUTION_DefaultDpi() :SCREEN_RESOLUTION_DPI_ENUM {}
 	public var RESOLUTION_nodpi :SCREEN_RESOLUTION_DPI_ENUM;
 	public var RESOLUTION_ldpi :SCREEN_RESOLUTION_DPI_ENUM;
 	public var RESOLUTION_mdpi :SCREEN_RESOLUTION_DPI_ENUM;
@@ -599,9 +597,6 @@ class SCREEN_RESOLUTION_DPI_ENUM
 
 class COCO_CLIP_SYMBOL_LOOP_ENUM
 {
-	public function CLIP_SYMBOL_LOOP_CONTINUOUS() :COCO_CLIP_SYMBOL_LOOP_ENUM {}
-	public function CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT() :COCO_CLIP_SYMBOL_LOOP_ENUM {}
-	public function CLIP_SYMBOL_LOOP_ONCE() :COCO_CLIP_SYMBOL_LOOP_ENUM {}
 	public var CLIP_SYMBOL_LOOP_CONTINUOUS :COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT :COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var CLIP_SYMBOL_LOOP_ONCE :COCO_CLIP_SYMBOL_LOOP_ENUM;
@@ -609,10 +604,6 @@ class COCO_CLIP_SYMBOL_LOOP_ENUM
 
 class COCO_KEYFRAME_INTERPOLATION_ENUM
 {
-	public function KEYFRAME_INTERPOLATION_NONE() :COCO_KEYFRAME_INTERPOLATION_ENUM {}
-	public function KEYFRAME_INTERPOLATION_MOTION_TWEEN() :COCO_KEYFRAME_INTERPOLATION_ENUM {}
-	public function KEYFRAME_INTERPOLATION_ECHO() :COCO_KEYFRAME_INTERPOLATION_ENUM {}
-	public function KEYFRAME_INTERPOLATION_PHYSICS() :COCO_KEYFRAME_INTERPOLATION_ENUM {}
 	public var KEYFRAME_INTERPOLATION_NONE :COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var KEYFRAME_INTERPOLATION_MOTION_TWEEN :COCO_KEYFRAME_INTERPOLATION_ENUM;
 	public var KEYFRAME_INTERPOLATION_ECHO :COCO_KEYFRAME_INTERPOLATION_ENUM;
@@ -621,10 +612,6 @@ class COCO_KEYFRAME_INTERPOLATION_ENUM
 
 class COCO_FILTER_ENUM
 {
-	public function FILTER_INHERIT() :COCO_FILTER_ENUM {}
-	public function FILTER_SIMPLE() :COCO_FILTER_ENUM {}
-	public function FILTER_SIMPLE_WITH_ALPHA() :COCO_FILTER_ENUM {}
-	public function FILTER_SATURATION_WITH_ALPHA() :COCO_FILTER_ENUM {}
 	public var FILTER_INHERIT :COCO_FILTER_ENUM;
 	public var FILTER_SIMPLE :COCO_FILTER_ENUM;
 	public var FILTER_SIMPLE_WITH_ALPHA :COCO_FILTER_ENUM;
@@ -633,9 +620,6 @@ class COCO_FILTER_ENUM
 
 class COCO_TEXT_ALIGN_ENUM
 {
-	public function TEXT_ALIGN_NEAR() :COCO_TEXT_ALIGN_ENUM {}
-	public function TEXT_ALIGN_CENTER() :COCO_TEXT_ALIGN_ENUM {}
-	public function TEXT_ALIGN_FAR() :COCO_TEXT_ALIGN_ENUM {}
 	public var TEXT_ALIGN_NEAR :COCO_TEXT_ALIGN_ENUM;
 	public var TEXT_ALIGN_CENTER :COCO_TEXT_ALIGN_ENUM;
 	public var TEXT_ALIGN_FAR :COCO_TEXT_ALIGN_ENUM;
@@ -643,12 +627,6 @@ class COCO_TEXT_ALIGN_ENUM
 
 class COCO_TEXT_TRIMMING_ENUM
 {
-	public function StringTrimmingNone() :COCO_TEXT_TRIMMING_ENUM {}
-	public function StringTrimmingCharacter() :COCO_TEXT_TRIMMING_ENUM {}
-	public function StringTrimmingWord() :COCO_TEXT_TRIMMING_ENUM {}
-	public function StringTrimmingEllipsisCharacter() :COCO_TEXT_TRIMMING_ENUM {}
-	public function StringTrimmingEllipsisWord() :COCO_TEXT_TRIMMING_ENUM {}
-	public function StringTrimmingEllipsisPath() :COCO_TEXT_TRIMMING_ENUM {}
 	public var StringTrimmingNone :COCO_TEXT_TRIMMING_ENUM;
 	public var StringTrimmingCharacter :COCO_TEXT_TRIMMING_ENUM;
 	public var StringTrimmingWord :COCO_TEXT_TRIMMING_ENUM;
@@ -1500,9 +1478,9 @@ class CocoClip
 
 class CocoEngine
 {
-	public function addTickListener(tickable:CocoITickable) {}
-	public function getTickableIndex(tickable:CocoITickable) :Integer {}
-	public function removeTickListener(tickable:CocoITickable) {}
+	public function addTickListener(tickable:ITickable) {}
+	public function getTickableIndex(tickable:ITickable) :Integer {}
+	public function removeTickListener(tickable:ITickable) {}
 	public function setNextState(s:State) {}
 	public function run(gl:WebGLRenderingContext, time:Time) {}
 	private function __setTouchEvent(e:DeviceEvent) {}
@@ -1558,14 +1536,6 @@ class CocoImageSibling
 	public var textureWidth :Float;
 	public var textureHeight :Float;
 } //CocoImageSibling
-
-class CocoITickable
-{
-	public function Register() {}
-	public function Unregister() {}
-	public function tick(time:Time) {}
-	public function Constructor() {}
-} //CocoITickable
 
 class CocoKeyFrame
 {
@@ -1714,8 +1684,36 @@ class State
 	public var params :Object;
 } //State
 
+class ITest1
+{
+	public function foo() {}
+} //ITest1
+
+class ITest2 : ITest1
+{
+	public function goo() {}
+} //ITest2
+
+class ITest3
+{
+	public function zoo() {}
+} //ITest3
+
+class ClassDelegator
+{
+	public function poo(a:String, b:Float, c:Class2) {}
+} //ClassDelegator
+
 class Class1
 {
+	public function foo() {}
+	public function goo() {}
+	public function zoo() {}
+	public function interface_test1(obj:ITest1) {}
+	public function interface_test2(obj:ITest2) {}
+	public function interface_test3(obj:ITest3) {}
+	public function interface_class(obj:Class1) {}
+	public function interface_tests() {}
 	public function test_virtual() {}
 	public function test() {}
 	public function public_static_function(b:String) :String {}
@@ -1735,6 +1733,10 @@ class Class1
 	protected function protected_overload$2(arg1:String, arg2:String) :String {}
 	public function Destructor() {}
 	public function Constructor(arg1:String, arg2:String) {}
+	protected function poo(a:String, b:Float, c:Class2) {}
+	public var public_delegate :ClassDelegator;
+	private var private_delegate :ClassDelegator;
+	protected var protected_delegate :ClassDelegator;
 	public var public_var :String;
 	private var private_var :String;
 	protected var protected_var :String;
@@ -1876,48 +1878,47 @@ class CocoVector
 	public var W :Float;
 } //CocoVector
 
-class CocoUIFont
+class ITickable
 {
-	public var Name :String;
-	public var Size :Float;
-	public var Bold :Boolean;
-	public var Italic :Boolean;
-	public var Underline :Boolean;
-} //CocoUIFont
+	public function RegisterTickable() {}
+	public function UnregisterTickable() {}
+	public function tick(time:Time) {}
+} //ITickable
 
-class CocoUIView : CocoClip
+class CocoTickable
 {
-} //CocoUIView
+	public function tick(time:Time) {}
+	public function RegisterTickable() {}
+	public function UnregisterTickable() {}
+	public function Destructor() {}
+	public function Constructor() {}
+} //CocoTickable
+
+class CocoHttpRequest : CocoTickable
+{
+	public function tick(time:Time) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	private function open(method:String, url:String) {}
+	private function setRequestHeader(header:String, value:String) {}
+	private function send() {}
+	private function send$1(data:String) {}
+	private function send$2(data:ArrayBufferView) {}
+	private function abort() {}
+	private function getAllResponseHeaders() :String {}
+	private function getResponseHeader(header:String) :String {}
+	private var request :XMLHttpRequest;
+} //CocoHttpRequest
 
 class COCO_CONTROL_BORDER_STYLE_ENUM
 {
-	public function BORDER_NONE() :COCO_CONTROL_BORDER_STYLE_ENUM {}
-	public function BORDER_SOLID() :COCO_CONTROL_BORDER_STYLE_ENUM {}
-	public function BORDER_DOTTED() :COCO_CONTROL_BORDER_STYLE_ENUM {}
 	public var BORDER_NONE :COCO_CONTROL_BORDER_STYLE_ENUM;
 	public var BORDER_SOLID :COCO_CONTROL_BORDER_STYLE_ENUM;
 	public var BORDER_DOTTED :COCO_CONTROL_BORDER_STYLE_ENUM;
 } //COCO_CONTROL_BORDER_STYLE_ENUM
 
-class COCO_CONTROL_DISPLAY_ENUM
-{
-	public function DISPLAY_BLOCK() :COCO_CONTROL_DISPLAY_ENUM {}
-	public function DISPLAY_FLOATING() :COCO_CONTROL_DISPLAY_ENUM {}
-	public var DISPLAY_BLOCK :COCO_CONTROL_DISPLAY_ENUM;
-	public var DISPLAY_FLOATING :COCO_CONTROL_DISPLAY_ENUM;
-} //COCO_CONTROL_DISPLAY_ENUM
-
 class COCO_CONTROL_ANCHOR_ENUM
 {
-	public function ANCHOR_TOP_LEFT() :COCO_CONTROL_ANCHOR_ENUM {}
-	public function ANCHOR_TOP_MIDDLE() :COCO_CONTROL_ANCHOR_ENUM {}
-	public function ANCHOR_TOP_RIGHT() :COCO_CONTROL_ANCHOR_ENUM {}
-	public function ANCHOR_MIDDLE_LEFT() :COCO_CONTROL_ANCHOR_ENUM {}
-	public function ANCHOR_CENTER() :COCO_CONTROL_ANCHOR_ENUM {}
-	public function ANCHOR_MIDDLE_RIGHT() :COCO_CONTROL_ANCHOR_ENUM {}
-	public function ANCHOR_BOTTOM_LEFT() :COCO_CONTROL_ANCHOR_ENUM {}
-	public function ANCHOR_BOTTOM_MIDDLE() :COCO_CONTROL_ANCHOR_ENUM {}
-	public function ANCHOR_BOTTOM_RIGHT() :COCO_CONTROL_ANCHOR_ENUM {}
 	public var ANCHOR_TOP_LEFT :COCO_CONTROL_ANCHOR_ENUM;
 	public var ANCHOR_TOP_MIDDLE :COCO_CONTROL_ANCHOR_ENUM;
 	public var ANCHOR_TOP_RIGHT :COCO_CONTROL_ANCHOR_ENUM;
@@ -1929,51 +1930,84 @@ class COCO_CONTROL_ANCHOR_ENUM
 	public var ANCHOR_BOTTOM_RIGHT :COCO_CONTROL_ANCHOR_ENUM;
 } //COCO_CONTROL_ANCHOR_ENUM
 
+class CocoUIFont
+{
+	public var Name :String;
+	public var Size :Float;
+	public var Bold :Boolean;
+	public var Italic :Boolean;
+	public var Underline :Boolean;
+} //CocoUIFont
+
+class CocoUIView : CocoClip
+{
+	public function invalidate() {}
+	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Float) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	private var __needsRepaint :Boolean;
+	private var __marginLeft :Float;
+	private var __marginRight :Float;
+	private var __marginTop :Float;
+	private var __marginBottom :Float;
+	public var MarginLeft :Float;
+	public var MarginRight :Float;
+	public var MarginTop :Float;
+	public var MarginBottom :Float;
+	private var __paddingLeft :Float;
+	private var __paddingRight :Float;
+	private var __paddingTop :Float;
+	private var __paddingBottom :Float;
+	public var PaddingLeft :Float;
+	public var PaddingRight :Float;
+	public var PaddingTop :Float;
+	public var PaddingBottom :Float;
+	public var Left :Float;
+	public var Top :Float;
+	public var Width :Float;
+	public var Height :Float;
+	public var Visible :Boolean;
+} //CocoUIView
+
 class CocoUIControlView : CocoUIView
 {
 	public function Destructor() {}
 	public function Constructor() {}
-	public var Name :String;
+	private var __enabled :Boolean;
 	public var Enabled :Boolean;
-	public var Container :CocoUIControlView;
-	public var Parent :CocoUIPageView;
+	private var __borderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	private var __borderRadius :Float;
+	private var __borderColor :Color;
+	private var __borderColorSel :Color;
 	public var BorderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
-	public var BorderRadius :Integer;
+	public var BorderRadius :Float;
 	public var BorderColor :Color;
 	public var BorderColorSel :Color;
+	private var __backgroundGradient :Gradient;
+	private var __backgroundGradientSel :Gradient;
 	public var BackgroundGradient :Gradient;
 	public var BackgroundGradientSel :Gradient;
+	private var __skinImage :CocoImage;
+	private var __skinImageSel :CocoImage;
 	public var SkinImage :CocoImage;
 	public var SkinImageSel :CocoImage;
-	public var OverlayImage :CocoImage;
-	public var OverlayImageSel :CocoImage;
-	public var OverlayLeft :Float;
-	public var OverlayTop :Float;
+	private var __glyphImage :CocoImage;
+	private var __glyphImageSel :CocoImage;
+	private var __glyphLeft :Float;
+	private var __glyphTop :Float;
 	public var GlyphImage :CocoImage;
 	public var GlyphImageSel :CocoImage;
 	public var GlyphLeft :Float;
 	public var GlyphTop :Float;
+	private var __chevronImage :CocoImage;
+	private var __chevronImageSel :CocoImage;
+	private var __chevronLeft :Float;
+	private var __chevronTop :Float;
 	public var ChevronImage :CocoImage;
 	public var ChevronImageSel :CocoImage;
 	public var ChevronLeft :Float;
 	public var ChevronTop :Float;
-	public var MarginLeft :Integer;
-	public var MarginRight :Integer;
-	public var MarginTop :Integer;
-	public var MarginBottom :Integer;
-	public var PaddingLeft :Integer;
-	public var PaddingRight :Integer;
-	public var PaddingTop :Integer;
-	public var PaddingBottom :Integer;
-	public var Display :COCO_CONTROL_DISPLAY_ENUM;
-	public var Anchor :COCO_CONTROL_ANCHOR_ENUM;
-	public var Top :Float;
-	public var Left :Float;
-	public var Width :Float;
-	public var Height :Float;
-	public var Visible :Boolean;
-	public var SelectSound :CocoAudio;
-	public var ClickSound :CocoAudio;
+	public var Name :String;
 } //CocoUIControlView
 
 class CocoUIButtonView : CocoUIControlView

@@ -1,4 +1,7 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -31,7 +34,9 @@
 //	                                   /_/                  /_/
 // ==================================================================================================================================
 
-class CocoHttpRequest :CocoITickable // extends XMLHttpRequest implements CocoITickable agreegates xx:Class1, yy:Class2
+ // extends XMLHttpRequest implements CocoITickable agreegates xx:Class1, yy:Class2
+
+class CocoHttpRequest : CocoITickable
 {
 	private var request:XMLHttpRequest;
 
@@ -41,15 +46,9 @@ class CocoHttpRequest :CocoITickable // extends XMLHttpRequest implements CocoIT
 		request = new XMLHttpRequest();
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor()
-	{
-		delete request;
-	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual tick(time:Time)
+	public virtual function tick(time:Time)
 	{
 	}
-
 }
