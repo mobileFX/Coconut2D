@@ -51,6 +51,16 @@ Object.defineProperty(Array.prototype, "insert", { enumerable:false, value: func
     return this;
 }});
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Object.defineProperty(Array.prototype, "switch", { value: function(v)
+{
+	for(var i=this.length;i--;)
+	{
+		if(this[i]==v) return i;
+	}
+	return -1;
+}});
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function make(options)
 {
@@ -533,6 +543,15 @@ function make(options)
   				_this.module(files[i], buff);
   			}
         }
+
+        // Update modules (text files)
+        var files = _this.FindFiles(TARGET.TARGET_ROOT, makefile.Vars.TEXT_FILES, true);
+		for(var i=0; i<files.length; i++)
+		{
+			trace("+ updating: " + files[i]);
+			var buff = read(files[i]);
+			_this.module(files[i], buff);
+		}
 	};
 
     // =====================================================================

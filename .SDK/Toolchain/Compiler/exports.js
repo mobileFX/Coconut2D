@@ -267,8 +267,6 @@ function CompilerExportsPlugin(compiler)
 				var methodSymbol = classSymbol.methods[item];
 				if(!methodSymbol.name) continue;
 
-				//if(methodSymbol.overloads) debugger;
-
 				// XML-ize vartypes and remove overload $<index>
 				var signature = methodSymbol.__signature.replace('<','&lt;').replace('>','&gt;').replace(/\$\d+/, "");
 				var cnSignature = methodSymbol.__cnSignature.replace('<','&lt;').replace('>','&gt;').replace(/\$\d+/, "");
@@ -647,7 +645,7 @@ function CompilerExportsPlugin(compiler)
 		var states = {};
 		var currState = null;
 
-		descend("findStates", _this.ast, function(node)
+		_this.descend("findStates", _this.ast, function(node)
 		{
 			if(node.type!=jsdef.STATE) return;
 
@@ -660,7 +658,7 @@ function CompilerExportsPlugin(compiler)
 			for(var item in node.symbol.scope.methods)
 			{
 				var method = node.symbol.scope.methods[item];
-				descend("findStateChangeFunctions_"+currState.name, method.ast.body, function(node2)
+				_this.descend("findStateChangeFunctions_"+currState.name, method.ast.body, function(node2)
 				{
 					if(!(node2.symbol && node2.type==jsdef.IDENTIFIER)) return;
 
@@ -669,7 +667,7 @@ function CompilerExportsPlugin(compiler)
 						//===================================================================================================
 						case "setNextState":
 							var nextState = null;
-							descend("findStateIdentifier_"+currState.name, getInner(node2), function(node3)
+							_this.descend("findStateIdentifier_"+currState.name, getInner(node2), function(node3)
 							{
 								if(nextState) return;
 								if(node3.type==jsdef.IDENTIFIER && node3.symbol.type==jsdef.STATE)
@@ -742,7 +740,7 @@ function CompilerExportsPlugin(compiler)
 									// KeyFrames with either actions or states.
 
 									var actionNodes = [];
-									descend("findStateIdentifier_"+currState.name+"_"+label, constructor.body, function(node3)
+									_this.descend("findStateIdentifier_"+currState.name+"_"+label, constructor.body, function(node3)
 									{
 										if(node3.type==jsdef.IDENTIFIER && node3.value=="__instanceName" && node3.inDot && node3.inDot.parent[1] && node3.inDot.parent[1].value.toLowerCase()=="actions")
 										{
@@ -760,7 +758,7 @@ function CompilerExportsPlugin(compiler)
 									{
 										var nextState = null;
 										var actionNode = actionNodes[i];
-										descend("findStateIdentifier_"+currState.name+"_"+label+"_"+actionNode, constructor.body, function(node3)
+										_this.descend("findStateIdentifier_"+currState.name+"_"+label+"_"+actionNode, constructor.body, function(node3)
 										{
 											if(nextState) return;
 											if(node3.type==jsdef.IDENTIFIER && node3.value=="addKeyFrameEx" && node3.inDot && node3.inDot.identifier_first.value==actionNode && node3.inDot.parent[1][2].value>=keyFrameIndex)
@@ -785,7 +783,7 @@ function CompilerExportsPlugin(compiler)
 												if(list[1].type==jsdef.FUNCTION)
 												{
 													var fn = list[1].symbol.ast;
-													debugger;
+													//debugger;
 												}
 											}
 										});
@@ -796,7 +794,7 @@ function CompilerExportsPlugin(compiler)
 
 					} // switch(node2.symbol.name)
 
-				}); // descend("findStateChangeFunctions_"+currState.name,
+				}); // _this.descend("findStateChangeFunctions_"+currState.name,
 
 			}//for(var item in node.symbol.scope.methods)
 
@@ -807,22 +805,6 @@ function CompilerExportsPlugin(compiler)
 		{
 			if(node.inCall) return node.inCall;
 			if(node.inDot && node.inDot.parent.type==jsdef.CALL) return node.inDot.parent;
-		}
-
-		function descend(visitedId, node, checkFn)
-		{
-			if(!node || !checkFn || !visitedId) return;
-			if(node["__visited__"+visitedId]) return;
-			node["__visited__"+visitedId]=true;
-			if(checkFn && checkFn(node)) return;
-			for(var item in node)
-			{
-				if(/^(base_init_params|constructorNode|destructorNode|identifier_first|identifier_last|identifiers_list|inClass|inDot|inFunction|overloadOf|overloads|params|returnPaths|tokenizer|__end|__fileLineOffset|__filePosOffset|__start|__visited|abstract|blockId|contextId|defaultIndex|end|extends|file|isConstructor|isDestructor|isLoop|length|line_end|line_start|name|nodeType|optional|path|postfix|private|protected|public|push|readOnly|returntype|scopeId|source|start|state|static|subtype|top|type|vartype|virtual|xmlvartype|symbol|parent|ast|scope|states)$/.test(item)) continue;
-				if(typeof node[item] == 'object'  && node[item])
-				{
-					var stop = descend(visitedId,node[item],checkFn);
-				}
-			}
 		}
 
 		// We have a list of states that have a list of nextStates

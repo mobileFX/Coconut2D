@@ -48,11 +48,11 @@ PathLine.__PRIVATE__ = {};
 PathLine.__PROTECTED__ = {};
 //@line 55
 
-function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$Canvas__)
+function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 {
 	var __BASE__ = null;
 
-	function __CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$Canvas__)
+	function __CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 	{
 		var Class = this.Class = 'CanvasRenderingContext2D',
 			__CLASS__CANVASRENDERINGCONTEXT2D__ = this.__CLASS__CANVASRENDERINGCONTEXT2D__ = this,
@@ -906,7 +906,7 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$Canvas__)
 			return true
 		};
 		//@line 88
-		this.Constructor = function (Canvas)
+		this.Constructor = function (canvas)
 		{
 			//@line 90
 			__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__curX = 0.0;
@@ -935,16 +935,16 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$Canvas__)
 			//@line 102
 			__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines = new Array;
 			//@line 103
-			__CLASS__CANVASRENDERINGCONTEXT2D__.canvas = Canvas;
+			__CLASS__CANVASRENDERINGCONTEXT2D__.__CLASS__HTMLCANVASCONTEXT__.canvas = canvas;
 			//@line 104
-			__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData = new ImageData((__CLASS__HTMLCANVASCONTEXT__.canvas.width), (__CLASS__HTMLCANVASCONTEXT__.canvas.height));
+			__CLASS__CANVASRENDERINGCONTEXT2D__.__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData = new ImageData((canvas.width), (canvas.height));
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
-		this.Constructor(__CLASS__CANVASRENDERINGCONTEXT2D__$Canvas__);
+		this.Constructor(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__);
 		return this;
 	}
-	__CanvasRenderingContext2D.prototype = new HTMLCanvasContext(__CLASS__CANVASRENDERINGCONTEXT2D__$Canvas__);
-	return new __CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$Canvas__);
+	__CanvasRenderingContext2D.prototype = new HTMLCanvasContext(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__);
+	return new __CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__);
 }
 CanvasRenderingContext2D.__PRIVATE__ = {};
 CanvasRenderingContext2D.__PROTECTED__ = {};

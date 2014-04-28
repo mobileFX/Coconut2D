@@ -182,6 +182,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 	// Extend the compiler with plugins
 	CompilerExportsPlugin(_this);
 	CompilerTypeSystemPlugin(_this);
+	CompilerAnalyzerPlugin(_this);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Symbol constructors
@@ -290,6 +291,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 			_this.generate(ast);
 			_this.writeClassFiles();
 		}
+
+		// Detect memory leaks
+		_this.detectMemoryLeaks();
 
 		// Post-process to extract code and debug symbols
 		_this.EXPORT_TO_IDE();
@@ -844,7 +848,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 		{
 			if(!base) return false;
 			basePath.push(base.classId);
-			if(baseOnly) return __isBaseMember(base.baseSymbol);
 			var symbol = base.methods[name] || base.vars[name] || null;
 			if(symbol)
 			{
@@ -1076,14 +1079,12 @@ function Compiler(ast, exportSymbols, selectedClass)
 			var destructor = null;
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
 			var baseClass = ast.extends ? ast.extends : undefined;
-
 			var baseClassSymbol = _this.getClass(baseClass);
 			var baseClassId = baseClassSymbol ? baseClassSymbol.ast.symbol.classId : null;
 			var baseConstructor = baseClassSymbol ? baseClassSymbol.methods["Constructor"] : null;
 			var isGlobalClass = (ast.name=="Global");
 			var scope = (isGlobalClass ? _this.scopesStack[0] : _this.NewScope(ast));
 			var staticMembers = {};
-			var baseClasses = [];
 
 			// Sanity check: is this class reimplemented?
 			if(!_this.secondPass)
@@ -1124,9 +1125,12 @@ function Compiler(ast, exportSymbols, selectedClass)
 				classSymbol.interfaces	= ast.interfaces;
 				classSymbol.type		= ast.type;
 				classSymbol.nodeType	= ast.nodeType;
+				classSymbol.isExtern	= (ast.file=="externs.jspp");
+				classSymbol.isControl	= ast.control;
 				classSymbol.isPrototype = false;
 				classSymbol.isEnum		= false;
 				classSymbol.isState		= ast.state;
+				classSymbol.isInterface	= ast.type==jsdef.INTERFACE;
 				classSymbol.ast			= ast;
 				classSymbol.scope		= scope;
 				classSymbol.file		= ast.file;
@@ -1139,6 +1143,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 				classSymbol.vars		= scope.vars;
 				classSymbol.methods	 	= scope.methods;
 				classSymbol.runtime		= ast.name;
+				classSymbol.icon		= ast.type==jsdef.INTERFACE ? _this.CODE_SYMBOLS_ENUM.SYMBOL_INTERFACE : _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
+				classSymbol.bases 		= [];
 			}
 
 			// Save symbol
@@ -1156,12 +1162,13 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 				// Collect all base classes (in reverse order from bottom to top)
 				var base = classSymbol;
-				while(((base=base.baseSymbol)!=null) && (base.file!="externs.jspp"))
+
+				classSymbol.bases=[];
+				while(((base=base.baseSymbol)!=null))
 				{
-					baseClasses.push(base);
+					classSymbol.bases.push(base);
 				}
-				baseClasses = baseClasses.reverse();
-				classSymbol.__baseClasses = baseClasses;
+				classSymbol.bases = classSymbol.bases.reverse();
 			}
 
 			// Generate constructor arguments list for this class
@@ -1221,11 +1228,15 @@ function Compiler(ast, exportSymbols, selectedClass)
             {
 	            out.push("__PRIVATE__ = this.__PRIVATE__,");
 	            out.push("__PROTECTED__ = this.__PROTECTED__");
-	            out.push(baseClasses.length>0 ? "," : ";")
+	            out.push(classSymbol.bases.length>0 ? "," : ";")
 
-	            for(i=0;i<baseClasses.length;i++)
+	            for(i=0;i<classSymbol.bases.length;i++)
 	            {
-	            	out.push(baseClasses[i].classId + " = this." + baseClasses[i].classId + (i!=baseClasses.length-1 ? ",": ";"));
+	            	if(classSymbol.bases[i].isExtern)
+	            		out.push(classSymbol.bases[i].classId + " = this");
+	            	else
+	            		out.push(classSymbol.bases[i].classId + " = this." + classSymbol.bases[i].classId );
+					out.push(i!=classSymbol.bases.length-1 ? ",": ";");
 	            }
             }
 
@@ -1507,11 +1518,14 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// We loop on all bases (in reverse order) and generate
 			// their static members in this class scope.
 
-			if(_this.secondPass && baseClasses.length>0)
+			if(_this.secondPass && classSymbol.bases.length>0)
 			{
-				for(i=0;i<baseClasses.length;i++)
+				for(i=0;i<classSymbol.bases.length;i++)
 				{
-					var base = baseClasses[i];
+					var base = classSymbol.bases[i];
+
+					if(base.isExtern)
+						continue;
 
 					// Vars
 					for(item in base.vars)
@@ -1572,7 +1586,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 						break;
 					}
 				}
-				if(hasObjectMembers && !destructor && ast.file!="externs.jspp")
+				if(hasObjectMembers && !destructor && !classSymbol.isExtern)
 					_this.NewError("Missing Destructor: " + ast.name, ast);
 
 				// Check interface
@@ -1686,7 +1700,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					// and the compiler during identifier recognition decides which overload
 					// function to bind.
 
-					if(!fn_ast.overloads)
+					if(fn_ast.overloads==null)
 					{
 						classSymbol.ast.requires_third_pass=true; // Indicates we will need a 3rd pass
 						fn_ast.overload_name = fnName;
@@ -1720,6 +1734,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				functionSymbol.nodeType		= ast.nodeType;
 				functionSymbol.className	= parentScope ? className : null;
 				functionSymbol.classId		= classScope ? classId : null;
+				functionSymbol.isExtern		= (ast.file=="externs.jspp");
 				functionSymbol.public		= ast.public==true;
 				functionSymbol.private		= ast.private==true;
 				functionSymbol.protected	= ast.protected==true;
@@ -1740,7 +1755,13 @@ function Compiler(ast, exportSymbols, selectedClass)
 				functionSymbol.vartype		= ast.returntype;
 				functionSymbol.subtype		= ast.subtype ? ast.subtype : _this.getSubType(ast.returntype);
 				functionSymbol.paramsList	= ast.paramsList;
+				functionSymbol.overloads	= ast.overloads;
 				functionSymbol.arguments	= {};
+				functionSymbol.description	= ast.jsdoc ? ast.jsdoc.descr : fnName + " is a member function of class " + className + ".";
+				functionSymbol.icon 		= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+
+				if(ast.private)						functionSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FUNCTION;
+				else if(ast.protected)				functionSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FUNCTION;
 
     			if(classId && ast.public)			functionSymbol.runtime = (_this.in_state ? "this" : classId) + "." + fnName;
 				else if(classId && ast.private)		functionSymbol.runtime = (_this.in_state ? "this" : classId) + ".__PRIVATE__." + fnName;
@@ -1750,7 +1771,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 
            	// Save symbol
 			ast.symbol = functionSymbol;
-			parentScope.methods[fnName] = functionSymbol;
+			if(fnName)
+				parentScope.methods[fnName] = functionSymbol;
 
 			// Record vartype usage in class level (used to check #includes)
 			if(functionSymbol.subtype && !parentScope.vartypes[functionSymbol.subtype])
@@ -1795,6 +1817,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.type			= param.type;
 					varSymbol.nodeType		= param.nodeType;
 					varSymbol.classId		= null;
+					varSymbol.isExtern		= functionSymbol.isExtern;
 					varSymbol.public		= false;
 					varSymbol.private		= false;
 					varSymbol.protected		= false;
@@ -1818,6 +1841,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.subtype		= param.subtype ? param.subtype : _this.getSubType(param.vartype);
 					varSymbol.pointer		= param.isPointer;
 					varSymbol.runtime		= param.name;
+					varSymbol.description	= ast.jsdoc && ast.jsdoc.args && ast.jsdoc.args[param.name] ? ast.jsdoc.args[param.name].vardescr : null;
+					varSymbol.icon			=  _this.CODE_SYMBOLS_ENUM.SYMBOL_ARGUMENT;
 				}
 
 				// Detect if identifier vartype is a typed array and get its subtype.
@@ -1843,6 +1868,37 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			paramsList = "(" + paramsList + ")";
 			typedParamsList = "(" + typedParamsList + ")";
+
+			// =================================================================
+			// Process overloaded functions once all overloads are generated.
+			// =================================================================
+			if(_this.secondPass && ast.overloadOf && ast.overload_name==ast.overloadOf.name+"$"+ast.overloadOf.overloads.length && !ast.symbol.overloads)
+			{
+				// Get all overloaded functions in one list
+				var overloads = [ast.overloadOf].concat(ast.overloadOf.overloads);
+				for(var i=0;i<overloads.length;i++)
+				{
+					overloads[i].overloads = overloads;
+					overloads[i].symbol.overloads = overloads;
+				}
+
+				// Overloaded functions must all have a different signature.
+				for(var i=0;i<overloads.length;i++)
+				{
+					for(var j=0;j<overloads.length;j++)
+					{
+						if(i==j) continue;
+						if(overloads[i].symbol.__typedParamsList==overloads[j].symbol.__typedParamsList)
+						{
+							_this.NewError("Redeclaration of function " + overloads[i].symbol.name, overloads[i]);
+							_this.NewError("Redeclaration of function " + overloads[j].symbol.name, overloads[j]);
+						}
+					}
+				}
+
+				delete overloads;
+				delete names;
+			}
 
 			// =================================================================
 			// Generate Function Body (and save it to AST for later use)
@@ -2023,15 +2079,22 @@ function Compiler(ast, exportSymbols, selectedClass)
 	  					// ---------------------------------------------------------------------
 	  					var baseClass = _this.getClass(baseMethodSymbol.className);
 
+	  					// Check if the virtual method has the right signature
+	  					if(ast.symbol.__signature != baseMethodSymbol.__signature)
+	  					{
+	  						_this.NewError("Invalid virtual method signature: " + ast.name, ast);
+	  						_this.NewError("Invalid virtual method signature: " + ast.name, baseMethodSymbol.ast);
+	  					}
+
 	  					// ---------------------------------------------------------------------
 	  					// Finally we need to replace the base class virtual method
 	  					// ---------------------------------------------------------------------
 	  					if(ast.public)
 	  					{
 							var virtualRedefine = "this." + fnName + " = __VIRTUAL__." + fnName + " = ";
-							for(i=0;i<classSymbol.__baseClasses.length;i++)
+							for(i=0;i<classSymbol.bases.length;i++)
 							{
-								var base = classSymbol.__baseClasses[i];
+								var base = classSymbol.bases[i];
 								virtualRedefine += base.classId+"."+fnName+" = ";
 							}
 							virtualRedefine += "function" + paramsList + ast.generated_code + ";"
@@ -2040,9 +2103,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 		  				else if(ast.protected)
 		  				{
 							var virtualRedefine = "this.__PROTECTED__." + fnName + " = __VIRTUAL__.__PROTECTED__." + fnName + " = ";
-							for(i=0;i<classSymbol.__baseClasses.length;i++)
+							for(i=0;i<classSymbol.bases.length;i++)
 							{
-								var base = classSymbol.__baseClasses[i];
+								var base = classSymbol.bases[i];
 								virtualRedefine += base.classId+".__PROTECTED__."+fnName+" = ";
 							}
 							virtualRedefine += "function" + paramsList + ast.generated_code + ";"
@@ -2078,47 +2141,9 @@ function Compiler(ast, exportSymbols, selectedClass)
   				}
 
 				// =================================================================
-				// Process overloaded functions once all overloads are generated.
-				// =================================================================
-				if(_this.secondPass && ast.overloadOf && ast.overload_name==ast.overloadOf.name+"$"+ast.overloadOf.overloads.length && !ast.symbol.overloads)
-				{
-					// Get all overloaded functions in one list
-					var overloads = [ast.overloadOf].concat(ast.overloadOf.overloads);
-
-					// Overloaded functions must all have a different signature.
-					for(var i=0;i<overloads.length;i++)
-					{
-						// Make sure all overloads know they are overloaded.
-						var fn_ast = overloads[i];
-						fn_ast.symbol.overloads = overloads;
-
-						for(var j=i+1;j<overloads.length;j++)
-						{
-							var fn_overload = overloads[j];
-							if(fn_ast!=fn_overload && fn_ast.paramsList.length==fn_overload.paramsList.length)
-							{
-								var redeclaration = true;
-								for(var k=0; k<fn_ast.paramsList.length; k++)
-								{
-									if(fn_ast.paramsList[k].vartype!=fn_overload.paramsList[k].vartype)
-									{
-										redeclaration=false;
-										break;
-									}
-								}
-								if(redeclaration)
-								{
-									_this.NewError("Redeclaration of function " + fn_overload.name, fn_ast);
-								}
-							}
-						}
-					}
-				}
-
-				// =================================================================
 				// Check function return paths
 				// =================================================================
-				if(_this.secondPass && ast.file && ast.file!="externs.jspp")
+				if(_this.secondPass && ast.file && !functionSymbol.isExtern)
 				{
 					if(!ast.isConstructor && baseMethodSymbol && !baseMethodSymbol.virtual)
 						_this.NewError("Base class method is not virtual: " + fnName, ast);
@@ -2242,6 +2267,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.type			= ast[item].type;
 					varSymbol.nodeType		= ast[item].nodeType;
 					varSymbol.classId		= classId;
+					varSymbol.isExtern		= (ast.file=="externs.jspp");
 					varSymbol.public		= ast.public;
 					varSymbol.private		= ast.private;
 					varSymbol.protected		= ast.protected;
@@ -2265,6 +2291,11 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.vartype		= ast[item].vartype;
 					varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(ast[item].vartype);
 					varSymbol.pointer		= ast[item].isPointer;
+					varSymbol.icon 			= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
+
+					if(varSymbol.private)				varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD;
+					else if(varSymbol.protected)		varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD;
+					if(varSymbol.constant)				varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT;
 
 					if(classId && ast.public)			varSymbol.runtime = classId + "." + ast[item].name;
 					else if(classId && ast.private)		varSymbol.runtime = classId + ".__PRIVATE__." + ast[item].name;
@@ -2346,7 +2377,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			}
 
 			out.push(";");
-			if(_this.secondPass && !_this.currClassName && ast.file!="externs.jspp")
+			if(_this.secondPass && !_this.currClassName && !varSymbol.isExtern)
 			{
 				_this.addCodeToClassFile(ast.path, out.join(""));
 			}
@@ -2372,11 +2403,15 @@ function Compiler(ast, exportSymbols, selectedClass)
 				classSymbol.symbolId	= (++_this.symbolId);
 				classSymbol.name		= ast.name;
 				classSymbol.vartype		= ast.name;
+				classSymbol.subtype		= null;
 				classSymbol.classId		= classId;
+				classSymbol.isExtern	= (ast.file=="externs.jspp");
 				classSymbol.base		= null;
 				classSymbol.baseSymbol	= null;
+				classSymbol.interfaces	= [];
 				classSymbol.type		= jsdef.CLASS;
 				classSymbol.nodeType	= "CLASS";
+				classSymbol.isControl	= false;
 				classSymbol.isPrototype = false;
 				classSymbol.isEnum		= true;
 				classSymbol.isState		= false;
@@ -2392,6 +2427,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				classSymbol.vars		= scope.vars;
 				classSymbol.methods	 	= scope.methods;
 				classSymbol.runtime		= ast.name;
+				classSymbol.icon		= _this.CODE_SYMBOLS_ENUM.SYMBOL_ENUM;
 			}
 
 			// Save symbol
@@ -2425,6 +2461,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.type			= ast[item].type;
 					varSymbol.nodeType		= ast[item].nodeType;
 					varSymbol.classId		= classId;
+					varSymbol.isExtern		= classSymbol.isExtern;
 					varSymbol.isEnum		= true;
 					varSymbol.public		= true;
 					varSymbol.private		= false;
@@ -2448,6 +2485,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.vartype		= ast.name;
 					varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(vartype);
 					varSymbol.pointer		= false;
+					varSymbol.icon			= _this.CODE_SYMBOLS_ENUM.SYMBOL_ENUM_ITEM;
 
 					if(ast.public)			varSymbol.runtime = "this." + ast.name + "." + varSymbol.name;
 					else if(ast.private)	varSymbol.runtime = "this.__PRIVATE__." + ast.name + "." + varSymbol.name;
@@ -2506,6 +2544,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				propSymbol.type			= ast.type;
 				propSymbol.nodeType		= ast.nodeType;
 				propSymbol.classId		= classId;
+				propSymbol.isExtern		= (ast.file=="externs.jspp");
 				propSymbol.public		= ast.public;
 				propSymbol.private		= ast.private;
 				propSymbol.protected	= ast.protected;
@@ -2527,11 +2566,15 @@ function Compiler(ast, exportSymbols, selectedClass)
 				propSymbol.vartype		= ast.vartype;
 				propSymbol.subtype		= ast.subtype ? ast.subtype : _this.getSubType(ast.vartype);
 				propSymbol.pointer		= ast.isPointer;
+				propSymbol.icon 		= _this.CODE_SYMBOLS_ENUM.SYMBOL_PROPERTY;
 
-				if(ast.public)				propSymbol.runtime = classId + "." + propertyName;
-				else if(ast.private)		propSymbol.runtime = classId + ".__PRIVATE__." + propertyName;
-				else if(ast.protected)		propSymbol.runtime = classId + ".__PROTECTED__." + propertyName;
-				else						propSymbol.runtime = propertyName;
+				if(propSymbol.private)			propSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROPERTY;
+				else if(propSymbol.protected)	propSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROPERTY;
+
+				if(ast.public)					propSymbol.runtime = classId + "." + propertyName;
+				else if(ast.private)			propSymbol.runtime = classId + ".__PRIVATE__." + propertyName;
+				else if(ast.protected)			propSymbol.runtime = classId + ".__PROTECTED__." + propertyName;
+				else							propSymbol.runtime = propertyName;
 			}
 
            	// Save symbol
@@ -2614,6 +2657,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				stateSymbol.type			= jsdef.STATE;
 				stateSymbol.nodeType		= ast.nodeType;
 				stateSymbol.classId			= classSymbol.classId;
+				stateSymbol.isExtern		= (ast.file=="externs.jspp");
 				stateSymbol.state			= true;
 				stateSymbol.public			= ast.public==true;
 				stateSymbol.private			= ast.private==true;
@@ -2637,11 +2681,15 @@ function Compiler(ast, exportSymbols, selectedClass)
 				stateSymbol.subtype			= null;
 				stateSymbol.pointer			= true;
 				stateSymbol.nextStates		= {};
+				stateSymbol.icon 			= _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
 
-				if(ast.public)			stateSymbol.runtime = classSymbol.classId + "." + ast.name;
-				else if(ast.private)	stateSymbol.runtime = classSymbol.classId + ".__PRIVATE__." + ast.name;
-				else if(ast.protected)	stateSymbol.runtime = classSymbol.classId + ".__PROTECTED__." + ast.name;
-				else					stateSymbol.runtime = ast.name;
+				if(stateSymbol.private)			stateSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
+				else if(stateSymbol.protected)	stateSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
+
+				if(ast.public)					stateSymbol.runtime = classSymbol.classId + "." + ast.name;
+				else if(ast.private)			stateSymbol.runtime = classSymbol.classId + ".__PRIVATE__." + ast.name;
+				else if(ast.protected)			stateSymbol.runtime = classSymbol.classId + ".__PROTECTED__." + ast.name;
+				else							stateSymbol.runtime = ast.name;
 			}
 
 			ast.symbol = stateSymbol;
@@ -2722,8 +2770,16 @@ function Compiler(ast, exportSymbols, selectedClass)
 			{
 				ast.symbol = _this.getCurrentClass();
 				ast.runtime = ast.symbol.classId;
-				var scope = _this.getClassScope();
-				out.push(scope.ast.symbol.classId);
+
+				if(ast.inDot && ast==ast.inDot.identifier_first)
+				{
+					// *** WE DO NOT GENERATE THIS IF IT IS THE FIRST IDENTIFIER IN A DOT *** //
+				}
+				else
+				{
+					var scope = _this.getClassScope();
+					out.push(scope.ast.symbol.classId);
+				}
 			}
 			else
 				out.push("this");
@@ -2731,11 +2787,21 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DOT:
-			out.push(generate(ast[0]));
-			out.push(".");
+
+			// jsdef.THIS does not produce output,
+			// so we have to be carefull with ast[0]
+			var gen = generate(ast[0]);
+			if(gen)
+			{
+				out.push(gen);
+				out.push(".");
+			}
 			out.push(generate(ast[1]));
-			_this.addDebugSymbol(ast, out.join(""));
-			if(_this.secondPass) ast[0].vartype = _this.getTypeName(ast[0]);
+			if(_this.secondPass)
+			{
+				_this.addDebugSymbol(ast, out.join(""));
+				ast[0].vartype = _this.getTypeName(ast[0]);
+			}
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2758,6 +2824,23 @@ function Compiler(ast, exportSymbols, selectedClass)
 				out.push(ast.value);
 				break;
 			}
+
+			// #######################################################################################################################################################
+			// #	   ___     __                __                  _     __           __  _ _____              _____                 __          __
+			// #	  <  /    / /   ____  ____  / /____  ______     (_)___/ /__  ____  / /_(_) __(_)__  _____   / ___/__  ______ ___  / /_  ____  / /
+			// #	  / /    / /   / __ \/ __ \/ //_/ / / / __ \   / / __  / _ \/ __ \/ __/ / /_/ / _ \/ ___/   \__ \/ / / / __ `__ \/ __ \/ __ \/ /
+			// #	 / /    / /___/ /_/ / /_/ / ,< / /_/ / /_/ /  / / /_/ /  __/ / / / /_/ / __/ /  __/ /      ___/ / /_/ / / / / / / /_/ / /_/ / /
+			// #	/_(_)  /_____/\____/\____/_/|_|\__,_/ .___/  /_/\__,_/\___/_/ /_/\__/_/_/ /_/\___/_/      /____/\__, /_/ /_/ /_/_.___/\____/_/
+			// #	                                   /_/                                                         /____/
+			// #
+			// #  Phase 1 is identifier symbol lookup.
+			// #
+			// #  The general idea is that we need to associate an identifier with an existing symbol (class, function, var, argument, property, state, etc).
+			// #  This is done mostly by _this.LookupIdentifier() but there are some special cases we need to pay attention:
+			// #  a) The first special case is Typed Arrays that we need to resolve their sub-type. For example Float32Array subtype is Float.
+			// #  b) The second special case is Overloaded Functions; We need to examine AST siblings in order to identify the proper overload to use.
+			// #
+			// #######################################################################################################################################################
 
 			//==================================================================================
 			// Lookup the symbol for this identifier.
@@ -2904,83 +2987,196 @@ function Compiler(ast, exportSymbols, selectedClass)
 				}
 			}
 
-			//==================================================================================
-			// Purpose of the following code is to emit the runtime code
-			// for the current identifier. If the identifier is a class
-			// member such as a method, variable, property or state, then
-			// we need to emit a canonical name such as:
-			//
-			// __CLASS_NAME__.[<public>|__PRIVATE__|__PROTECTED__].<identifier>
-			//
-			// An exception to this rule is when the identifier is part of
-			// a DOT and in particular if the identifier is !not! the first
-			// identifier of the DOT, in which case we emit only its name
-			// as the preceding identifiers should have emitted the proper
-			// runtime code.
-			//==================================================================================
+			// ###############################################################################################################################################################################################
+			// #	   ___        ____                  __              _     __           __  _ _____                               __  _
+			// #	  |__ \      / __ \___  _________  / /   _____     (_)___/ /__  ____  / /_(_) __(_)__  _____   _______  ______  / /_(_)___ ___  ___     ____ ______________  __________
+			// #	  __/ /     / /_/ / _ \/ ___/ __ \/ / | / / _ \   / / __  / _ \/ __ \/ __/ / /_/ / _ \/ ___/  / ___/ / / / __ \/ __/ / __ `__ \/ _ \   / __ `/ ___/ ___/ _ \/ ___/ ___/
+			// #	 / __/_    / _, _/  __(__  ) /_/ / /| |/ /  __/  / / /_/ /  __/ / / / /_/ / __/ /  __/ /     / /  / /_/ / / / / /_/ / / / / / /  __/  / /_/ / /__/ /__/  __(__  |__  )
+			// #	/____(_)  /_/ |_|\___/____/\____/_/ |___/\___/  /_/\__,_/\___/_/ /_/\__/_/_/ /_/\___/_/     /_/   \__,_/_/ /_/\__/_/_/ /_/ /_/\___/   \__,_/\___/\___/\___/____/____/
+			// #
+			// #
+			// #   Phase 2 is resolving identifier runtime access DOT path.
+			// #
+			// #   What this means?
+			// #
+			// #   First, it means you need to understand the difference between "identifer" and "symbol" before you continue reading, if you haven't already!!
+			// #   + When you type something like "var x:Float=5;", you define "symbol x".
+			// #   + When you later type "x++;" then this "x" is the "identifier x" which must be linked to "symbol x".
+			// #   The symbol holds all the nessesary metdata about the identifier, such as its vartype, its containing class, its scope, etc.
+			// #
+			// #   Therefore, resolving the identifier runtime access DOT path is the process of deriving a DOT path (A.B.C.D.x) that will take you from where the "identifier x" is to where
+			// #   "symbol x" is actually stored. This can be a different class, a base-class, a virtual method, an overloaded method, an enum, etc.
+			// #
+			// #   Typically this depends on "WHERE THE SYMBOL IS DEFINED" and "WHERE IT IS BEING ACCESSED FROM". If the symbol is defined in ClassA and it is being access from ClassB then
+			// #   we need to construct an access path that will successfully read/write its data. However, there are severlar spacial cases about this. For example, the identifier might be
+			// #   a virtual function which is a rather tricky case, or the identifier might be a member of a base-class (of a base-class, of a base-class, ..), which makes the access path
+			// #   a bit longer.
+			// #
+			// #   To actually solve this problem we need to lay down some access rules:
+			// #   =====================================================================
+			// #
+			// #   1. The DOT access-path pattern is: [__CLASS_XXX__][.__BASES__|.__VIRTUAL__][.__PRIVATE__|.__PROTECTED__].<symbol_name>
+			// #
+			// #	  __CLASS_XXX__    	: The name of the class where the symbol is defined.
+			// #	  __BASES__        	: If the symbol is an inherited member, this is a dot-list of all the base classIds leading to the low-level base-class where the symbol is defined.
+			// #	  __VIRTUAL__      	: (or) If the symbol is a virtual function symbol, we need to access it through the __VIRTUAL__ bank.
+			// #	  __PRIVATE__      	: If the symbol is a private symbol, we need to access it through the __PRIVATE__ bank.
+			// #	  __PROTECTED__    	: (or) If the symbol is a private symbol, we need to access it through the __PROTECTED__ bank.
+			// #	  <symbol_name>  	: The symbol name. This can be different from the identifier name for overloaded functions.
+			// #                          To understand what this means think of the XMLHttp.send() overloads that produce different symbol names:
+			// #                          XMLHttp.send(), XMLHttp.send$1(String), XMLHttp.send$2(ArrayBufferView)
+			// #
+			// #   2. Access at the end of the day is controlled by public/private/protected modifiers
+			// #   3. If the identifier is a class member (function, var, property, etc.) and the class derives from a base-class, we ALWAYS access the low-level base-class identifier.
+			// #   4. To make our life easier, we do not generate "this" if it is the first identifier in a DOT. We let the second identifier of the DOT generate "this" if needed. This rule actually makes
+			// #      our life much easier, especially if the DOT accesses an inherited member where generating "this" would require that we unwind the stack.
+			// #   5. We generate "this" if and only if it is alone, eg. passed as argument: obj.setParent( this );
+			// #   6. Enum Items are similar to "this" because programmers access enums either canonically "enum_name.enum_item" or straight "enum_item". Therefore we need to skip generating the enum class
+			// #      name (yes, enums are classes and enum items static constants) if it is the first identifier in a DOT, and make sure that the enum-item will be generated fully qualified.
+			// #   7. If access to the identifier is LOCAL (meaning that the identifier points to a class member) we prefix the local classId: __CLASS_XXX__
+			// #   8. If access to the identifier is NOT-LOCAL (meaning that the identifier points to another class) we DO NOT prefix the classId.
+			// #   9. Global scope knows nothing about inheritance, so if plain JavaScript code should be able to work with our classes seamlessly.
+			// #
+			// #   ** NONTE: ** The access-path of the symbol is calculated during symbol generation and stored in "symbol.runtime".
+			// #                However, resolving an identifier linked to this symbol in most cases it requres further processing.
+			// #				Both "symbol.runtime" and "ast.runtime" are exported as "debug symbols" so that when you debug and
+			// #                you hover the mouse over an identifier, it can be recognized and evaluated getting a tooltip of its
+			// #                value, or if it is an object display a list of its member values in the IDE expression viewer.
+			// #
+			// ###############################################################################################################################################################################################
 
-			if(!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast))
+			// =============================================================
+			// Symbol is static member.
+			// =============================================================
+			if(ast.symbol.static && ast.inClass && !ast.symbol.isExtern && !ast.symbol.isEnum && ast.symbol.type!=jsdef.STATE)
 			{
-				var basePath = null;
+				var path = _this.currClassName + ".";
+				if(ast.symbol.protected) path += "__PROTECTED__.";
+				else if(ast.symbol.private) path += "__PRIVATE__.";
+				path += ast.value;
+				out.push(path);
+			}
 
-				if(ast.symbol.static && ast.symbol.type!=jsdef.STATE)
+			// =============================================================
+			// Identifier is not in a DOT.
+			// =============================================================
+			else if(!ast.inDot)
+			{
+				out.push(ast.symbol.runtime);
+			}
+
+			// =============================================================
+			// Symbol is defined in externs and used in global scope.
+			// =============================================================
+			else if(ast.inDot && ast.symbol.isExtern && !ast.inClass)
+			{
+				out.push(ast.value);
+			}
+
+			// =============================================================
+			// Symbol is defined in externs and used in class scope.
+			// Also, symbol inherits from Class also defined in externs.
+			// (eg. TouchList which inherits from ECMA Array)
+			// =============================================================
+			else if(ast.inDot && ast.symbol.isExtern && ast.inClass && (path=_this.isBaseMember(ast.value, ast.inClass.symbol, true)))
+			{
+				out.push(ast.symbol.runtime);
+			}
+
+			// =============================================================
+			// Symbol is defined in externs and used in class scope.
+			// =============================================================
+			else if(ast.inDot && ast.symbol.isExtern && ast.inClass)
+			{
+				out.push(ast.value);
+			}
+
+			// =============================================================
+			// Identifier is FIRST in DOT
+			// =============================================================
+			else if(ast.inDot && ast==ast.inDot.identifier_first)
+			{
+				out.push(ast.symbol.runtime);
+			}
+
+			// =============================================================
+			// Identifier NOT first in DOT.
+			// Symbol is a virtual function.
+			// The first DOT identifier is SUPER or THIS.
+			// =============================================================
+			else if(ast.inDot && ast!=ast.inDot.identifier_first && ast.symbol.type==jsdef.FUNCTION && ast.symbol.virtual && (ast.inDot.identifier_first.type==jsdef.SUPER || ast.inDot.identifier_first.type==jsdef.THIS))
+			{
+				ast.runtime = "__VIRTUAL__."
+				if(ast.symbol.protected) ast.runtime += "__PROTECTED__.";
+				ast.runtime += ast.value;
+				out.push(ast.runtime);
+			}
+
+			// =============================================================
+			// Identifier NOT first in DOT.
+			// Identifier is ENUM ITEM.
+			// =============================================================
+			else if(ast.inDot && ast!=ast.inDot.identifier_first && ast.symbol.isEnum)
+			{
+				// TODO: Test class/global enums in CocoTest
+				// TODO: Test class public/private/protected enums in CocoTest
+				out.push(ast.value);
+			}
+
+			// =============================================================
+			// Identifier NOT first in DOT.
+			// First in DOT is THIS.
+			// =============================================================
+
+			else if(ast.inDot && ast!=ast.inDot.identifier_first && ast.inDot.identifier_first.type==jsdef.THIS)
+			{
+				// Is it a base symbol?
+				var path = _this.isBaseMember(ast.value, ast.inClass.symbol, false);
+				if(path)
 				{
-					ast.runtime = _this.currClassName + ".";
-					if(ast.symbol.protected) ast.runtime += "__PROTECTED__.";
-					else if(ast.symbol.private) ast.runtime += "__PRIVATE__.";
-					ast.runtime += ast.value;
+					out.push(path+"."+ast.value);
 				}
 				else
 				{
-					ast.runtime = ast.symbol.runtime;
+					// Process access modifiers
+					if(ast.symbol.public)
+					{
+						out.push(ast.value);
+					}
+					else if(ast.symbol.private)
+					{
+						out.push("__PRIVATE__." + ast.value);
+					}
+					else if(ast.symbol.protected)
+					{
+						out.push("__PROTECTED__." + ast.value);
+					}
 				}
 			}
 
-			// Generate identifier
-			if(!ast.inDot)
+			// =============================================================
+			// Identifier NOT first in DOT.
+			// =============================================================
+			else if(ast.inDot && ast!=ast.inDot.identifier_first)
 			{
-				out.push(ast.runtime);
-			}
-			else
-			{
-				// Special case for Math in externs
-				if(ast.symbol.file == "externs.jspp")
+				// Process access modifiers
+				if(ast.symbol.public)
 				{
-					ast.runtime = ast.value;
-					out.push(ast.runtime);
-				}
-
-				// First in DOT
-				else if(ast.inDot.identifier_first==ast)
-				{
-					out.push(ast.runtime);
-				}
-
-				// Virtual Function with super
-				else if(ast.symbol.type==jsdef.FUNCTION && ast.symbol.virtual && (ast.inDot.identifier_first.type==jsdef.SUPER || ast.inDot.identifier_first.type==jsdef.THIS))
-				{
-					ast.runtime = "__VIRTUAL__."
-					if(ast.symbol.protected) ast.runtime += "__PROTECTED__.";
-					ast.runtime += ast.value;
-					out.push(ast.runtime);
-				}
-
-				// The rest cases assume identifier is not the first in DOT.
-				else if(ast.symbol.public)
-				{
-					ast.runtime = ast.value;
-					out.push(ast.runtime);
-				}
-				else if(ast.symbol.protected)
-				{
-					ast.runtime = "__PROTECTED__." + ast.value;
-					out.push(ast.runtime);
+					out.push(ast.value);
 				}
 				else if(ast.symbol.private)
 				{
-					ast.runtime = "__PRIVATE__." + ast.value;
-					out.push(ast.runtime);
+					out.push("__PRIVATE__." + ast.value);
 				}
+				else if(ast.symbol.protected)
+				{
+					out.push("__PROTECTED__." + ast.value);
+				}
+			}
+			else
+			{
+				// Should not happen.
+				debugger;
 			}
 
 			//==================================================================================

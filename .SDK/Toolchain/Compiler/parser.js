@@ -53,49 +53,6 @@
 
 var GLOBAL = this;
 
-Object.defineProperty(Array.prototype, "switch", { value: function(v)
-{
-	for(var i=this.length;i--;)
-	{
-		if(this[i]==v) return i;
-	}
-	return -1;
-}});
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function __isPointer(vartype)
-{
-	if(!vartype)
-		return false;
-
-	switch(vartype)
-	{
-	case "Class":
-	case "Boolean":
-	case "Date":
-	case "Number":
-	case "String":
-	case "Integer":
-	case "Float":
-	case "Time":
-	case "void":
-	case "undefined":
-	case "null":
-	case "CocoAction":
-		return false;
-	default:
-		if(vartype.indexOf("_ENUM")!=-1) return false;
-		//if(vartype.indexOf("<")!=-1) return false;
-		return true;
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function __isVector(vartype)
-{
-	return vartype && vartype.indexOf("<")!=-1 ? true : false;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function __init_narcissus(GLOBAL)
 {
@@ -155,14 +112,29 @@ function __init_narcissus(GLOBAL)
 
         // OOP
 		"class",
-		"optional",
+		"interface",
+		"control",
+
+		"implements",
+
+		"public",
 		"private",
 		"protected",
-		"public",
+		"published",
+
 		"static",
-		"super",
-		"virtual",
 		"abstract",
+		"virtual",
+
+		"delegate",
+		"optional",
+		"super",
+
+		// TODO
+		"namespace",
+		"thread",
+		"volatile",
+		"inline",
 
 		// Functions
 		"function",
@@ -179,7 +151,6 @@ function __init_narcissus(GLOBAL)
 		"debugger",
 		"default",
 		"delete",
-		"delegate",
 		"do",
 		"else",
 		"enum",
@@ -187,11 +158,8 @@ function __init_narcissus(GLOBAL)
 		"finally",
 		"for",
 		"if",
-		"implements",
 		"in",
-		"interface",
 		"let",
-		"namespace",
 		"new",
 		"null",
 		"return",
@@ -456,6 +424,13 @@ function __init_narcissus(GLOBAL)
 				newlines = comment.match(/\n/g);
 				if(newlines)
 					this.line_start += newlines.length;
+
+				//JSDoc
+				if((match = /[\s\t]*\x2f\x2a\x2a([\n\N\w\W.]+?)[\s\t]+\x2a\x2f/mg.exec(comment)))
+				{
+					this.comment = match[0];
+					this.commentLine = this.line_start;
+				}
 			}
 			this.tokenIndex = (this.tokenIndex + 1) & 3;
 			token = this.tokens[this.tokenIndex];
@@ -570,12 +545,25 @@ function __init_narcissus(GLOBAL)
 			this.tokenIndex = (this.tokenIndex - 1) & 3;
 		},
 
+		copyModifiers: function(t, n)
+		{
+			n.static 	= t.static;
+			n.public 	= t.public;
+			n.private 	= t.private;
+			n.protected = t.protected;
+			n.published	= t.published;
+			n.virtual 	= t.virtual;
+			n.abstract 	= t.abstract;
+			n.delegate 	= t.delegate;
+		},
+
 		setModifiers: function(n)
 		{
 			n.static 	= this.static;
 			n.public 	= this.public;
 			n.private 	= this.private;
 			n.protected = this.protected;
+			n.published	= this.published;
 			n.virtual 	= this.virtual;
 			n.abstract 	= this.abstract;
 			n.delegate 	= this.delegate;
@@ -588,6 +576,7 @@ function __init_narcissus(GLOBAL)
 			this.private 	= false;
 			this.public 	= false;
 			this.protected 	= false;
+			this.published	= false;
 			this.virtual 	= false;
 			this.abstract 	= false;
 			this.delegate 	= false;
@@ -797,6 +786,13 @@ function __init_narcissus(GLOBAL)
 				return n;
 			}
 			return StateDefinition(t, x);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.CONTROL:
+			t.get();
+			var n = ClassDefinition(t, x, true);
+			n.control = true;
+			return n;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   		case jsdef.PROPERTY:
@@ -1165,6 +1161,14 @@ function __init_narcissus(GLOBAL)
 			{
 				f.extends = f.extends.substr(0, f.extends.indexOf("<"));
 			}
+
+			// Multiple inheritance
+			while(t.get()==jsdef.COMMA)
+			{
+				t.mustMatch(jsdef.IDENTIFIER);
+				f.extends += "," + t.token().value;
+			}
+			t.unget();
 		}
 
 		// Interfaces
@@ -1274,6 +1278,12 @@ function __init_narcissus(GLOBAL)
 				else if(t.token().type == jsdef.PROTECTED)
 				{
 					t.protected = true;
+                    recognizeStatement(n);
+				}
+				else if(t.token().type == jsdef.PUBLISHED)
+				{
+					t.public = true;
+					t.published = true;
                     recognizeStatement(n);
 				}
 				else if(t.token().type == jsdef.STATIC)
@@ -1445,23 +1455,13 @@ function __init_narcissus(GLOBAL)
 				if(p.body[item].name=="set")
 				{
 					p.setter = p.body[item];
-					p.setter.public = p.public;
-					p.setter.private = p.private;
-					p.setter.protected = p.protected;
-					p.setter.virtual = p.virtual;
-					p.setter.abstract = p.public;
-					p.setter.static = p.static;
+					t.copyModifiers(p, p.setter);
 					continue;
 				}
 				else if(p.body[item].name=="get")
 				{
 					p.getter = p.body[item];
-					p.getter.public = p.public;
-					p.getter.private = p.private;
-					p.getter.protected = p.protected;
-					p.getter.virtual = p.virtual;
-					p.getter.abstract = p.public;
-					p.getter.static = p.static;
+					t.copyModifiers(p, p.getter);
 					continue;
 				}
 			}
@@ -1632,6 +1632,11 @@ function __init_narcissus(GLOBAL)
 			}
 		}
 
+		if(t.commentLine+2>=f.line_start)
+		{
+			// Parse JSDoc comment into node
+			JSDocParse(f, t.comment);
+		}
 		t.setModifiers(f);
 
 		if(f.abstract || (classNode && classNode.type==jsdef.INTERFACE))

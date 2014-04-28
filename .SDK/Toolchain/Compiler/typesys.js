@@ -23,26 +23,52 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	   ______                _____           _       __     ______                      _ __
-//	  / ____/___  _________ / ___/__________(_)___  / /_   / ____/___  ____ ___  ____  (_) /__  _____
-//	 / /   / __ \/ ___/ __ \\__ \/ ___/ ___/ / __ \/ __/  / /   / __ \/ __ `__ \/ __ \/ / / _ \/ ___/
-//	/ /___/ /_/ / /__/ /_/ /__/ / /__/ /  / / /_/ / /_   / /___/ /_/ / / / / / / /_/ / / /  __/ /
-//	\____/\____/\___/\____/____/\___/_/  /_/ .___/\__/   \____/\____/_/ /_/ /_/ .___/_/_/\___/_/
-//	                                      /_/                                /_/
+//	  ______                    _____            __
+//	 /_  __/_  ______  ___     / ___/__  _______/ /____  ____ ___
+//	  / / / / / / __ \/ _ \    \__ \/ / / / ___/ __/ _ \/ __ `__ \
+//	 / / / /_/ / /_/ /  __/   ___/ / /_/ (__  ) /_/  __/ / / / / /
+//	/_/  \__, / .___/\___/   /____/\__, /____/\__/\___/_/ /_/ /_/
+//	    /____/_/                  /____/
 // ==================================================================================================================================
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function __isPointer(vartype)
+{
+	if(!vartype)
+		return false;
+
+	switch(vartype)
+	{
+	case "Class":
+	case "Boolean":
+	case "Date":
+	case "Number":
+	case "String":
+	case "Integer":
+	case "Float":
+	case "Time":
+	case "Color":
+	case "void":
+	case "undefined":
+	case "null":
+	case "CocoAction":
+		return false;
+	default:
+		if(vartype.indexOf("_ENUM")!=-1) return false;
+		return true;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function __isVector(vartype)
+{
+	return vartype && vartype.indexOf("<")!=-1 ? true : false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function CompilerTypeSystemPlugin(compiler)
 {
 	var _this = this._this = compiler;
-
-	// ==================================================================================================================================
-	//	  ______                    _____            __
-	//	 /_  __/_  ______  ___     / ___/__  _______/ /____  ____ ___
-	//	  / / / / / / __ \/ _ \    \__ \/ / / / ___/ __/ _ \/ __ `__ \
-	//	 / / / /_/ / /_/ /  __/   ___/ / /_/ (__  ) /_/  __/ / / / / /
-	//	/_/  \__, / .___/\___/   /____/\__, /____/\__/\___/_/ /_/ /_/
-	//	    /____/_/                  /____/
-	// ==================================================================================================================================
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.types =
@@ -250,7 +276,15 @@ function CompilerTypeSystemPlugin(compiler)
 		//=============================================================================================================================
 		case jsdef.IDENTIFIER:
 			if(_this.getClass(ast.value)) return "Class";
-			if(!ast.symbol) return _this.UNTYPED;
+
+			// Maybe the identifier is not recognized yet; attempt to recognize it.
+			if(!ast.symbol)
+			{
+				ast.symbol = _this.LookupIdentifier(_this.getCurrentScope(), ast.value, ast);
+				if(!ast.symbol)
+					return _this.UNTYPED;
+			}
+
 			if(ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST) return "Function"; //Function Pointer
 			if(ast.symbol.type==jsdef.FUNCTION) return ast.symbol.vartype;
 			return ast.symbol.vartype;
@@ -290,7 +324,7 @@ function CompilerTypeSystemPlugin(compiler)
 
 		if(ast.type==jsdef.NEW || ast.type==jsdef.NEW_WITH_ARGS)
 		{
-			fnSymbol = ast[0].symbol.methods['Constructor'];
+			fnSymbol = ast[0] && ast[0].symbol ? ast[0].symbol.methods['Constructor'] : null;
 		}
 		else
 		{
@@ -435,6 +469,7 @@ function CompilerTypeSystemPlugin(compiler)
 		if(type1=="Number" && type2=="Integer") return type1;
 		if(type1=="Number" && type2=="Float") return type1;
 		if(type1=="Number" && type2=="Time") return type1;
+		if(type1=="Number" && type2=="Color") return type1;
 		if(type1=="Number" && type2=="Object")
 		{
 			if(checkOnly) return false;
@@ -469,6 +504,14 @@ function CompilerTypeSystemPlugin(compiler)
 			return type1;
 		};
 
+		// Color
+		if(type1=="Color" && type2=="Number") return type1;
+		if(type1=="Color")
+		{
+			if(checkOnly) return false;
+			_this.NewError(customError || "Invalid "+type2+" to Color convertion: " + ast.source, ast);
+			return type1;
+		};
 		// Date
 		if(type1=="Date" && type2=="Null") return type1;
 

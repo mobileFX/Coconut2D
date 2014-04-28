@@ -85,7 +85,7 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	private var __pathLines:Array<PathLine>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(Canvas:HTMLCanvasElement)
+	public function Constructor(canvas:HTMLCanvasElement)
 	{
 		__curX = 0.0;
 		__curY = 0.0;
@@ -100,8 +100,8 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 		__strokeColor.push(0.0);
 		__strokeColor.push(1.0);
 		__pathLines = new Array<PathLine>;
-		this.canvas = Canvas;
-		canvas.__imageData = new ImageData(String(canvas.width), String(canvas.height));
+		this.canvas = canvas;
+		this.canvas.__imageData = new ImageData(String(canvas.width), String(canvas.height));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

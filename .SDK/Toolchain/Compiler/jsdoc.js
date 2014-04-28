@@ -23,33 +23,70 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	  ______                 __    __    _      __
-//	 /_  __/___  __  _______/ /_  / /   (_)____/ /_
-//	  / / / __ \/ / / / ___/ __ \/ /   / / ___/ __/
-//	 / / / /_/ / /_/ / /__/ / / / /___/ (__  ) /_
-//	/_/  \____/\__,_/\___/_/ /_/_____/_/____/\__/
+//	       _______ ____                ____
+//	      / / ___// __ \____  _____   / __ \____ ______________  _____
+//	 __  / /\__ \/ / / / __ \/ ___/  / /_/ / __ `/ ___/ ___/ _ \/ ___/
+//	/ /_/ /___/ / /_/ / /_/ / /__   / ____/ /_/ / /  (__  )  __/ /
+//	\____//____/_____/\____/\___/  /_/    \__,_/_/  /____/\___/_/
 //
 // ==================================================================================================================================
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-class TouchList : Array<Touch>
+function JSDocParse(node, comment)
 {
-	public var length:Integer;
+	// Parse a comment and set Node properties
 
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	var jsdoc = {};
+	var rx = new RegExp("@(\\w+) (.*?)$", "mg");
+	var descr = /([\w\W\n\N]+?)@\w+/mg.exec(comment)[1].split('\n');
+	var out=[];
+	for(i=0;i<descr.length;i++)
 	{
-		for(var i:Integer=0; i<=5; i++)
+		var match = /^[\/\s\t\*]*(.*?)$/.exec(descr[i].trim());
+		if(match[1])
+			out.push(match[1].trim());
+	}
+	jsdoc.descr = out.join(" ");
+
+	while(match = rx.exec(comment))
+	{
+		var attr = match[1];
+		var value = match[2];
+
+		switch(attr)
 		{
-			var touch:Touch = new Touch();
-			touch.initTouch(i, null, 0, 0, 0, 0, 0, 0);
-			push(touch);
+		case "module":
+		case "version":
+		case "author":
+		case "copyright":
+		case "tutorial":
+		case "summary":
+		case "description":
+			jsdoc[attr] = value;
+			break;
+
+		case "returns":
+			break;
+
+		case "param":
+			var param = /^\s*\{(\!?)(\w+)(\=?)\}\s*(\w+)\s*\-?\s*(.*?)$/mg.exec(value);
+			attr=null;
+			value = {};
+			if(!jsdoc.args) jsdoc.args = {};
+			value.varnull 		= param[1]!="!";
+			value.vartype 		= param[2];
+			value.varoptional 	= param[3]=="=";
+			value.varname		= param[4];
+			value.vardescr		= param[5];
+			jsdoc.args[value.varname] = value;
+			break;
 		}
+
+		if(attr)
+			jsdoc[attr] = value;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function item(index:Integer) : Touch
-	{
-		return this[index];
-	}
+	node.comment = comment;
+	node.jsdoc = jsdoc;
 }
+
+
