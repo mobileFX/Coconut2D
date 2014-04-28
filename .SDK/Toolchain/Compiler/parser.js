@@ -140,7 +140,8 @@ function __init_narcissus(GLOBAL)
 		"function",
 		"state",
 		"property",
-		//"event",
+		"event",
+		"callback",
 
         // Keywords.
 		"break",
@@ -178,7 +179,6 @@ function __init_narcissus(GLOBAL)
 		"void",
 
 		// AS3
-		"is",
         "as",
 		"import",
 		"package",
@@ -555,6 +555,7 @@ function __init_narcissus(GLOBAL)
 			n.virtual 	= t.virtual;
 			n.abstract 	= t.abstract;
 			n.delegate 	= t.delegate;
+			n.callback	= t.callback;
 		},
 
 		setModifiers: function(n)
@@ -567,6 +568,7 @@ function __init_narcissus(GLOBAL)
 			n.virtual 	= this.virtual;
 			n.abstract 	= this.abstract;
 			n.delegate 	= this.delegate;
+			n.callback	= this.callback;
 			this.resetModifiers();
 		},
 
@@ -580,6 +582,7 @@ function __init_narcissus(GLOBAL)
 			this.virtual 	= false;
 			this.abstract 	= false;
 			this.delegate 	= false;
+			this.callback	= false;
 		},
 
 		newSyntaxError: function(m)
@@ -805,6 +808,38 @@ function __init_narcissus(GLOBAL)
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.INTERFACE:
 			return ClassDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM, true);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.CALLBACK:
+			f = new Node(t,jsdef.CALLBACK);
+			t.mustMatch(jsdef.IDENTIFIER);
+			f.name = t.token().value;
+			t.mustMatch(jsdef.LEFT_PAREN);
+			f.params=[];
+			f.paramsList=[];
+			while(t.peek()==jsdef.IDENTIFIER)
+			{
+				t.mustMatch(jsdef.IDENTIFIER);
+				n2 = new Node(t);
+				n2.value = t.token().value;
+				t.mustMatch(jsdef.COLON);
+				t.mustMatch(jsdef.IDENTIFIER);
+				n2.vartype = t.token().value;
+				f.params.push(n2.value);
+				f.paramsList.push(n2);
+				if(t.peek()!=jsdef.COMMA) break;
+				t.mustMatch(jsdef.COMMA);
+			}
+			t.mustMatch(jsdef.RIGHT_PAREN);
+			if(t.peek()==jsdef.COLON)
+			{
+				t.mustMatch(jsdef.COLON);
+				matchVartype(t, f, "returntype");
+			}
+			t.mustMatch(jsdef.LEFT_CURLY);
+			t.mustMatch(jsdef.RIGHT_CURLY);
+			return f;
+			//callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean {}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CLASS:
@@ -1041,6 +1076,7 @@ function __init_narcissus(GLOBAL)
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.VAR:
 		case jsdef.CONST:
+		case jsdef.EVENT:
 			n = Variables(t, x);
 			break;
 
@@ -1196,8 +1232,10 @@ function __init_narcissus(GLOBAL)
 					jsdef.STATIC,
 					jsdef.VIRTUAL,
 					jsdef.ABSTRACT,
+					jsdef.CALLBACK,
 					jsdef.DELEGATE,
 					jsdef.VAR,
+					jsdef.EVENT,
 					jsdef.CONST,
 					jsdef.ENUM];
 
@@ -1222,12 +1260,25 @@ function __init_narcissus(GLOBAL)
 					if(t.match(jsdef.ABSTRACT)) t.abstract = true;
 					if(t.match(jsdef.DELEGATE)) t.delegate = true;
 
+					if(t.match(jsdef.CALLBACK))
+					{
+						t.mustMatch(jsdef.LT);
+						t.mustMatch(jsdef.IDENTIFIER);
+						t.callback = t.token().value;
+						t.mustMatch(jsdef.GT);
+					}
+
 					if(t.match(jsdef.CONST))
 					{
 						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
 						n.push(Variables(t, x));
 					}
 					else if(t.match(jsdef.VAR))
+					{
+						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
+						n.push(Variables(t, x));
+					}
+					else if(t.match(jsdef.EVENT))
 					{
 						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
 						n.push(Variables(t, x));
@@ -1537,6 +1588,7 @@ function __init_narcissus(GLOBAL)
 				if(tt == jsdef.RANGE)
 				{
 					t.get();
+					f.restArguments = true;
 					restParam = true;
 				}
 				else if(tt == jsdef.OPTIONAL)
@@ -1577,6 +1629,7 @@ function __init_narcissus(GLOBAL)
 					if(t.peek() == jsdef.RANGE)
 					{
 						t.mustMatch(jsdef.RANGE);
+						f.restArguments = true;
 						restParam = true;
 					}
 					else
@@ -1702,7 +1755,6 @@ function __init_narcissus(GLOBAL)
 		var x2 = new CompilerContext(false);
 		f.body = Script(t, x2);
 		t.mustMatch(jsdef.RIGHT_CURLY);
-
 		f.end = t.cursor;
 		f.line_end = t.line_start;
 

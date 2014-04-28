@@ -9,7 +9,7 @@
 	// ==================================================================================================================================
 
 	UIView is a CocoClip descendant class that represents a rectangular surface with fixed width and height.
-	In principle, all UIView descendants such as UIButtonView, UILabelView, etc., are capable of composing and
+	In principle, all UIView descendants such as CocoUIButton, CocoUILabel, etc., are capable of composing and
 	setting their own texture image.
 
 	The texture is composed from a set of properties that each UIView descendant holds, such as captions, images,
@@ -19,7 +19,7 @@
 
 	Since UIView is a CocoClip descendant, texture generation takes place when CocoClip::paint() is called from
 	its parent clip. Inside UIView::paint() the control flag UIView::__textureIsInvalid is checked and if it is
-	set a temporaty HTML5 canvas is created and passed to UIView::repaint() of each UIView descendant in order to
+	set a temporary HTML5 canvas is created and passed to UIView::repaint() of each UIView descendant in order to
 	paint its assets on it. When the canvas is paited, we create a new CocoImage and set CocoClip::__image object
 	which holds and binds the texture to the clip.
 

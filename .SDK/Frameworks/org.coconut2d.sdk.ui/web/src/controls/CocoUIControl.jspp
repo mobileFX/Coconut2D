@@ -41,10 +41,10 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Margins
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private var __marginLeft:Float;
-	private var __marginRight:Float;
-	private var __marginTop:Float;
-	private var __marginBottom:Float;
+	protected var __marginLeft:Float;
+	protected var __marginRight:Float;
+	protected var __marginTop:Float;
+	protected var __marginBottom:Float;
 
 	published property MarginLeft		{ function get():Float { return __marginLeft; 		} function set(v:Float) 	{ __marginLeft=v; invalidate(); 	} }
 	published property MarginRight		{ function get():Float { return __marginRight;		} function set(v:Float) 	{ __marginRight=v; invalidate(); 	} }
@@ -54,10 +54,10 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Paddings
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private var __paddingLeft:Float;
-	private var __paddingRight:Float;
-	private var __paddingTop:Float;
-	private var __paddingBottom:Float;
+	protected var __paddingLeft:Float;
+	protected var __paddingRight:Float;
+	protected var __paddingTop:Float;
+	protected var __paddingBottom:Float;
 
 	published property PaddingLeft		{ function get():Float { return __paddingLeft; 		} function set(v:Float) 	{ __paddingLeft=v; invalidate(); 	} }
 	published property PaddingRight		{ function get():Float { return __paddingRight;		} function set(v:Float) 	{ __paddingRight=v; invalidate(); 	} }
@@ -67,12 +67,12 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Font
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private var __fontName:String;
-	private var __fontSize:Float;
-	private var __fontBold:Boolean;
-	private var __fontItalic:Boolean;
-	private var __fontUnderline:Boolean;
-	private var __fontColor:Color;
+	protected var __fontName:String;
+	protected var __fontSize:Float;
+	protected var __fontBold:Boolean;
+	protected var __fontItalic:Boolean;
+	protected var __fontUnderline:Boolean;
+	protected var __fontColor:Color;
 
 	published property FontName			{ function get():String  { return __fontName; 		} function set(v:String) 	{ __fontName = v; invalidate(); 		}}
 	published property FontSize			{ function get():Float   { return __fontSize; 		} function set(v:Float) 	{ __fontSize = v; invalidate(); 		}}
@@ -84,10 +84,10 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Borders
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private var __borderStyle:COCO_CONTROL_BORDER_STYLE_ENUM;
-	private var __borderRadius:Float;
-	private var __borderColor:Color;
-	private var __borderColorSel:Color;
+	protected var __borderStyle:COCO_CONTROL_BORDER_STYLE_ENUM;
+	protected var __borderRadius:Float;
+	protected var __borderColor:Color;
+	protected var __borderColorSel:Color;
 
 	published property BorderStyle		{ function get():COCO_CONTROL_BORDER_STYLE_ENUM { return __borderStyle; }	function set(v:COCO_CONTROL_BORDER_STYLE_ENUM) { __borderStyle = v; invalidate(); }	}
 	published property BorderRadius		{ function get():Float { return __borderRadius; } 							function set(v:Float) { __borderRadius = v; invalidate(); }}
@@ -97,8 +97,8 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Background Gradient
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private var __backgroundGradient:Gradient;
-	private var __backgroundGradientSel:Gradient;
+	protected var __backgroundGradient:Gradient;
+	protected var __backgroundGradientSel:Gradient;
 
 	published property BackgroundGradient		{ function get():Gradient { return __backgroundGradient; 	} function set(v:Gradient) { __backgroundGradient = v; invalidate(); 	}}
 	published property BackgroundGradientSel	{ function get():Gradient { return __backgroundGradientSel; } function set(v:Gradient) { __backgroundGradientSel = v; invalidate(); }}
@@ -106,8 +106,8 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Skin Image
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private var __skinImage:CocoImage;
-	private var __skinImageSel:CocoImage;
+	protected var __skinImage:CocoImage;
+	protected var __skinImageSel:CocoImage;
 
 	published property SkinImage		{ function get():CocoImage { return __skinImage; 	} function set(v:CocoImage) { __skinImage = v; invalidate(); 	}}
 	published property SkinImageSel		{ function get():CocoImage { return __skinImageSel; } function set(v:CocoImage) { __skinImageSel = v; invalidate();	}}
@@ -115,10 +115,10 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Glyph
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private var __glyphImage:CocoImage;
-	private var __glyphImageSel:CocoImage;
-	private var __glyphLeft:Float;
-	private var __glyphTop:Float;
+	protected var __glyphImage:CocoImage;
+	protected var __glyphImageSel:CocoImage;
+	protected var __glyphLeft:Float;
+	protected var __glyphTop:Float;
 
 	published property GlyphImage		{ function get():CocoImage 	{ return __glyphImage; 		} function set(v:CocoImage) { __glyphImage = v; invalidate(); 		}}
 	published property GlyphImageSel	{ function get():CocoImage 	{ return __glyphImageSel; 	} function set(v:CocoImage) { __glyphImageSel = v; invalidate();	}}
@@ -128,10 +128,10 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Chevron
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private var __chevronImage:CocoImage;
-	private var __chevronImageSel:CocoImage;
-	private var __chevronLeft:Float;
-	private var __chevronTop:Float;
+	protected var __chevronImage:CocoImage;
+	protected var __chevronImageSel:CocoImage;
+	protected var __chevronLeft:Float;
+	protected var __chevronTop:Float;
 
 	published property ChevronImage		{ function get():CocoImage 	{ return __chevronImage; 		} function set(v:CocoImage) { __chevronImage = v; invalidate(); 	}}
 	published property ChevronImageSel	{ function get():CocoImage 	{ return __chevronImageSel; 	} function set(v:CocoImage) { __chevronImageSel = v; invalidate();	}}
@@ -188,6 +188,7 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D)
 	{
+
 	}
 }
 

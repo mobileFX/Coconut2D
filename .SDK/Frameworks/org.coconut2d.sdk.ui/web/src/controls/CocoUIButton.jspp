@@ -38,8 +38,10 @@
 
 control class CocoUIButton : CocoUIControl
 {
-	private var __caption:String;
-	private var __captionAlign:COCO_CONTROL_ANCHOR_ENUM;
+	protected var __caption:String;
+	protected var __captionAlign:COCO_CONTROL_ANCHOR_ENUM;
+
+	public event OnClick:CocoEvent = new CocoEvent("OnClick", true, true);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -51,6 +53,7 @@ control class CocoUIButton : CocoUIControl
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		this.dispatchEvent(this.OnClick);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,4 +75,3 @@ control class CocoUIButton : CocoUIControl
 	{
 	}
 }
-

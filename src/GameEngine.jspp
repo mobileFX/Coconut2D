@@ -33,6 +33,22 @@ state class GameEngine : CocoEngine
 	    trace(image_b64);
 		*/
 		setNextState(STATE_GAME);
+
+		var btn1:CocoUIButton = new CocoUIButton();
+		btn1.Caption = "test1";
+
+		var btn2:CocoUIButton = new CocoUIButton();
+		btn2.Caption = "test2";
+
+		btn1.addEventListener(btn1.OnClick, eventHandler);
+		btn1.addEventListener(btn1.OnClick, eventHandler);
+		btn2.addEventListener(btn1.OnClick, eventHandler);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public callback<CocoEventHandler> function eventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean
+	{
+		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////

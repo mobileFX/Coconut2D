@@ -579,9 +579,11 @@ function Compiler(ast, exportSymbols, selectedClass)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Every time we enter a closure (class, script, block, switch, loop, etc) we create a new scope.
     // A scope is linked to its ast so that at second pass we do not regenerate them.
-	_this.NewScope = function(ast, force)
+	_this.NewScope = function(ast, force, type)
 	{
 		var scope = null;
+
+		if(!type) type = ast.type;
 
 		if(!force && _this.secondPass)
 		{
@@ -603,12 +605,12 @@ function Compiler(ast, exportSymbols, selectedClass)
 			scope.childScopes	= [];
 			scope.ast			= ast;
 			scope.className		= _this.currClassName;
-			scope.type			= ast.type;
+			scope.type			= type;
 			scope.nodeType		= ast.nodeType;
 			scope.isGlobal		= _this.scopesStack.length==0;
-			scope.isClass		= ast.type==jsdef.CLASS;
-			scope.isMethod		= ast.type==jsdef.FUNCTION;
-			scope.isState		= ast.type==jsdef.STATE;
+			scope.isClass		= type==jsdef.CLASS;
+			scope.isMethod		= type==jsdef.FUNCTION;
+			scope.isState		= type==jsdef.STATE;
 			scope.file			= ast.file;
 			scope.path			= ast.path;
 			scope.start			= ast.start;
@@ -1123,13 +1125,15 @@ function Compiler(ast, exportSymbols, selectedClass)
 				classSymbol.base		= baseClass;
 				classSymbol.baseSymbol	= baseClassSymbol;
 				classSymbol.interfaces	= ast.interfaces;
-				classSymbol.type		= ast.type;
+				classSymbol.type		= jsdef.CLASS;
+				classSymbol.astType		= ast.type;
 				classSymbol.nodeType	= ast.nodeType;
 				classSymbol.isExtern	= (ast.file=="externs.jspp");
 				classSymbol.isControl	= ast.control;
 				classSymbol.isPrototype = false;
 				classSymbol.isEnum		= false;
 				classSymbol.isState		= ast.state;
+				classSymbol.isCallback	= false;
 				classSymbol.isInterface	= ast.type==jsdef.INTERFACE;
 				classSymbol.ast			= ast;
 				classSymbol.scope		= scope;
@@ -1307,6 +1311,13 @@ function Compiler(ast, exportSymbols, selectedClass)
 					break;
 
 					//------------------------------------------
+					case jsdef.EVENT:
+					{
+						out_vars.push(generate(member));
+					}
+					break;
+
+					//------------------------------------------
 					case jsdef.FUNCTION:
 					{
 						if(member.name=="Constructor")
@@ -1399,34 +1410,41 @@ function Compiler(ast, exportSymbols, selectedClass)
 							for(var key in delegatorFunctionSymbol)
 								functionSymbol[key] = delegatorFunctionSymbol[key];
 
-							functionSymbol.delegated 	= delegatorFunctionSymbol;
-							functionSymbol.symbolId		= (++_this.symbolId);
-							functionSymbol.name			= delegatorFunctionSymbol.name;
-							functionSymbol.type			= delegatorFunctionSymbol.type;
-							functionSymbol.nodeType		= delegatorFunctionSymbol.nodeType;
-							functionSymbol.className	= classSymbol.name;
-							functionSymbol.classId		= classSymbol.classId;
-							functionSymbol.public		= delegator.public;
-							functionSymbol.private		= delegator.private;
-							functionSymbol.protected	= delegator.protected;
-							functionSymbol.static		= false;
-							functionSymbol.optional		= false;
-							functionSymbol.virtual		= delegator.virtual;
-							functionSymbol.abstract		= false;
-							functionSymbol.ast			= delegatorFunctionSymbol.ast;
-							functionSymbol.scope		= methodScope;
-							functionSymbol.baseSymbol	= delegatorFunctionSymbol.baseSymbol;
-							functionSymbol.file			= delegator.file;
-							functionSymbol.path			= delegator.path;
-							functionSymbol.start		= delegator.start;
-							functionSymbol.end			= delegator.end;
-							functionSymbol.line_start	= delegator.line_start;
-							functionSymbol.line_end		= delegator.line_end;
-							functionSymbol.scopeId		= methodScope.scopeId;
-							functionSymbol.vartype		= delegatorFunctionSymbol.vartype;
-							functionSymbol.subtype		= delegatorFunctionSymbol.subtype;
-							functionSymbol.paramsList	= delegatorFunctionSymbol.paramsList;
-							functionSymbol.arguments	= delegatorFunctionSymbol.arguments;
+							functionSymbol.delegated 		= delegatorFunctionSymbol;
+							functionSymbol.symbolId			= (++_this.symbolId);
+							functionSymbol.name				= delegatorFunctionSymbol.name;
+							functionSymbol.type				= delegatorFunctionSymbol.type;
+							functionSymbol.nodeType			= delegatorFunctionSymbol.nodeType;
+							functionSymbol.className		= classSymbol.name;
+							functionSymbol.classId			= classSymbol.classId;
+							functionSymbol.restArguments	= delegatorFunctionSymbol.restArguments;
+							functionSymbol.callback			= false;
+							functionSymbol.public			= delegator.public;
+							functionSymbol.private			= delegator.private;
+							functionSymbol.protected		= delegator.protected;
+							functionSymbol.static			= false;
+							functionSymbol.optional			= false;
+							functionSymbol.virtual			= delegator.virtual;
+							functionSymbol.abstract			= false;
+							functionSymbol.ast				= delegatorFunctionSymbol.ast;
+							functionSymbol.scope			= methodScope;
+							functionSymbol.baseSymbol		= delegatorFunctionSymbol.baseSymbol;
+							functionSymbol.file				= delegator.file;
+							functionSymbol.path				= delegator.path;
+							functionSymbol.start			= delegator.start;
+							functionSymbol.end				= delegator.end;
+							functionSymbol.line_start		= delegator.line_start;
+							functionSymbol.line_end			= delegator.line_end;
+							functionSymbol.scopeId			= methodScope.scopeId;
+							functionSymbol.vartype			= delegatorFunctionSymbol.vartype;
+							functionSymbol.subtype			= delegatorFunctionSymbol.subtype;
+							functionSymbol.paramsList		= delegatorFunctionSymbol.paramsList;
+							functionSymbol.arguments		= delegatorFunctionSymbol.arguments;
+
+							if(functionSymbol.public)			functionSymbol.modifier = "public";
+							else if(functionSymbol.private)		functionSymbol.modifier = "private";
+							else if(functionSymbol.protected)	functionSymbol.modifier = "protected";
+							else								functionSymbol.modifier = "";
 
 							functionSymbol.runtime_delegated = delegator.runtime;
 							functionSymbol.runtime = delegator.runtime + "." + fnName;
@@ -1728,40 +1746,48 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Function Symbol
 			var functionSymbol = new FunctionSymbol();
 			{
-				functionSymbol.symbolId		= (++_this.symbolId);
-				functionSymbol.name			= fnName;
-				functionSymbol.type			= ast.type;
-				functionSymbol.nodeType		= ast.nodeType;
-				functionSymbol.className	= parentScope ? className : null;
-				functionSymbol.classId		= classScope ? classId : null;
-				functionSymbol.isExtern		= (ast.file=="externs.jspp");
-				functionSymbol.public		= ast.public==true;
-				functionSymbol.private		= ast.private==true;
-				functionSymbol.protected	= ast.protected==true;
-				functionSymbol.static		= ast.static==true;
-				functionSymbol.optional		= false;
-				functionSymbol.virtual		= ast.virtual==true || fnName=="Destructor";
-				functionSymbol.abstract		= ast.abstract==true;
-				functionSymbol.ast			= ast;
-				functionSymbol.scope		= methodScope;
-				functionSymbol.baseSymbol	= baseMethodSymbol;
-				functionSymbol.file			= ast.file;
-				functionSymbol.path			= ast.path;
-				functionSymbol.start		= ast.start;
-				functionSymbol.end			= ast.end;
-				functionSymbol.line_start	= ast.line_start;
-				functionSymbol.line_end		= ast.line_end;
-				functionSymbol.scopeId		= methodScope.scopeId;
-				functionSymbol.vartype		= ast.returntype;
-				functionSymbol.subtype		= ast.subtype ? ast.subtype : _this.getSubType(ast.returntype);
-				functionSymbol.paramsList	= ast.paramsList;
-				functionSymbol.overloads	= ast.overloads;
-				functionSymbol.arguments	= {};
-				functionSymbol.description	= ast.jsdoc ? ast.jsdoc.descr : fnName + " is a member function of class " + className + ".";
-				functionSymbol.icon 		= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+				functionSymbol.symbolId			= (++_this.symbolId);
+				functionSymbol.name				= fnName;
+				functionSymbol.type				= ast.type;
+				functionSymbol.nodeType			= ast.nodeType;
+				functionSymbol.className		= parentScope ? className : null;
+				functionSymbol.classId			= classScope ? classId : null;
+				functionSymbol.isExtern			= (ast.file=="externs.jspp");
+				functionSymbol.restArguments	= ast.restArguments;
+				functionSymbol.callback			= ast.callback;
+				functionSymbol.public			= ast.public==true;
+				functionSymbol.private			= ast.private==true;
+				functionSymbol.protected		= ast.protected==true;
+				functionSymbol.static			= ast.static==true;
+				functionSymbol.optional			= false;
+				functionSymbol.virtual			= ast.virtual==true || fnName=="Destructor";
+				functionSymbol.abstract			= ast.abstract==true;
+				functionSymbol.ast				= ast;
+				functionSymbol.scope			= methodScope;
+				functionSymbol.baseSymbol		= baseMethodSymbol;
+				functionSymbol.file				= ast.file;
+				functionSymbol.path				= ast.path;
+				functionSymbol.start			= ast.start;
+				functionSymbol.end				= ast.end;
+				functionSymbol.line_start		= ast.line_start;
+				functionSymbol.line_end			= ast.line_end;
+				functionSymbol.scopeId			= methodScope.scopeId;
+				functionSymbol.vartype			= ast.returntype;
+				functionSymbol.subtype			= ast.subtype ? ast.subtype : _this.getSubType(ast.returntype);
+				functionSymbol.paramsList		= ast.paramsList;
+				functionSymbol.overloads		= ast.overloads;
+				functionSymbol.arguments		= {};
+				functionSymbol.description		= ast.jsdoc ? ast.jsdoc.descr : fnName + " is a member function of class " + className + ".";
+				functionSymbol.icon 			= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+
+				if(functionSymbol.public)			functionSymbol.modifier = "public";
+				else if(functionSymbol.private)		functionSymbol.modifier = "private";
+				else if(functionSymbol.protected)	functionSymbol.modifier = "protected";
+				else								functionSymbol.modifier = "";
 
 				if(ast.private)						functionSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FUNCTION;
 				else if(ast.protected)				functionSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FUNCTION;
+				if(fnName=="Constructor") 			functionSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTRUCTOR;
 
     			if(classId && ast.public)			functionSymbol.runtime = (_this.in_state ? "this" : classId) + "." + fnName;
 				else if(classId && ast.private)		functionSymbol.runtime = (_this.in_state ? "this" : classId) + ".__PRIVATE__." + fnName;
@@ -1826,6 +1852,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.virtual		= false;
 					varSymbol.abstract		= false;
 					varSymbol.delegate		= false;
+					varSymbol.event			= false;
 					varSymbol.constant		= false;
 					varSymbol.ast			= param;
 					varSymbol.scope			= methodScope;
@@ -1843,6 +1870,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.runtime		= param.name;
 					varSymbol.description	= ast.jsdoc && ast.jsdoc.args && ast.jsdoc.args[param.name] ? ast.jsdoc.args[param.name].vardescr : null;
 					varSymbol.icon			=  _this.CODE_SYMBOLS_ENUM.SYMBOL_ARGUMENT;
+					varSymbol.modifier		= "";
 				}
 
 				// Detect if identifier vartype is a typed array and get its subtype.
@@ -1907,12 +1935,12 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Function body is complete, including curly brackets.
 			// =================================================================
 
-			if(!_this.in_property && (ast.abstract || (classSymbol && classSymbol.type==jsdef.INTERFACE)))
+			if(!_this.in_property && (ast.abstract || (classSymbol && classSymbol.isInterface)))
 			{
 				if(ast.abstract && ast.body)
 					_this.NewError("Invalid abstract function: " + fnName, ast);
 
-				if(classSymbol.type==jsdef.INTERFACE && ast.body)
+				if(classSymbol.isInterface && ast.body)
 					_this.NewError("Invalid interface function: " + fnName, ast);
 
 				ast.generated_code =  "{";
@@ -2170,6 +2198,19 @@ function Compiler(ast, exportSymbols, selectedClass)
 					}
 				}
 
+				// =================================================================
+				// If the function is callback, check its signature
+				// =================================================================
+				if(_this.secondPass && functionSymbol.callback)
+				{
+					var callbackSymbol = _this.getClass(functionSymbol.callback);
+					if(functionSymbol.__typedParamsList != callbackSymbol.__typedParamsList)
+					{
+						_this.NewError("Invalid callback signature: " + callbackSymbol.name, ast);
+						_this.NewError("Invalid callback signature: " + callbackSymbol.name, callbackSymbol.ast);
+					}
+				}
+
 	        } //if(classScope)
 
 			_this.ExitScope();
@@ -2186,6 +2227,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 		case jsdef.VAR:
 		case jsdef.CONST:
+		case jsdef.EVENT:
 
 			ast.scope = _this.getCurrentScope();
 			var classScope = _this.getClassScope();
@@ -2276,8 +2318,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.virtual		= false;
 					varSymbol.abstract		= false;
 					varSymbol.delegate		= ast.delegate;
+					varSymbol.event			= ast.type==jsdef.EVENT;
 					varSymbol.constant		= ast.type==jsdef.CONST;
-					varSymbol.value			= (ast.type==jsdef.CONST ? generate(ast[item].initializer) : null);
+					varSymbol.value			= (ast.type==jsdef.CONST || ast.type==jsdef.EVENT ? generate(ast[item].initializer) : null);
 					varSymbol.ast			= ast[item];
 					varSymbol.scope			= ast.scope;
 					varSymbol.baseSymbol	= null;
@@ -2293,9 +2336,16 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.pointer		= ast[item].isPointer;
 					varSymbol.icon 			= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
 
+					if(varSymbol.public)				varSymbol.modifier = "public";
+					else if(varSymbol.private)			varSymbol.modifier = "private";
+					else if(varSymbol.protected)		varSymbol.modifier = "protected";
+					else								varSymbol.modifier = "";
+
 					if(varSymbol.private)				varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD;
 					else if(varSymbol.protected)		varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD;
+
 					if(varSymbol.constant)				varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT;
+					if(varSymbol.event)					varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_EVENT;
 
 					if(classId && ast.public)			varSymbol.runtime = classId + "." + ast[item].name;
 					else if(classId && ast.private)		varSymbol.runtime = classId + ".__PRIVATE__." + ast[item].name;
@@ -2353,7 +2403,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					{
 						if(_this.in_state)
 							_this.NewError("Invalid state variable initializer, should be in state enter() function : " + ast[item].name, ast[item]);
-						else
+						else if(ast.type!=jsdef.EVENT)
 							_this.NewError("Invalid class member initializer, should be in constructor: " + ast[item].name, ast[item]);
 					}
 
@@ -2382,6 +2432,71 @@ function Compiler(ast, exportSymbols, selectedClass)
 				_this.addCodeToClassFile(ast.path, out.join(""));
 			}
 
+			break;
+
+		// ==================================================================================================================================
+		//	   ______      ______               __      ____       _____       _ __  _
+		//	  / ____/___ _/ / / /_  ____ ______/ /__   / __ \___  / __(_)___  (_) /_(_)___  ____
+		//	 / /   / __ `/ / / __ \/ __ `/ ___/ //_/  / / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
+		//	/ /___/ /_/ / / / /_/ / /_/ / /__/ ,<    / /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
+		//	\____/\__,_/_/_/_.___/\__,_/\___/_/|_|  /_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+		//
+		// ==================================================================================================================================
+
+		case jsdef.CALLBACK:
+
+			var scope = _this.NewScope(ast, false, jsdef.CLASS);
+			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
+
+			var classSymbol = new ClassSymbol();
+			{
+				classSymbol.symbolId	= (++_this.symbolId);
+				classSymbol.name		= ast.name;
+				classSymbol.vartype		= ast.name;
+				classSymbol.subtype		= null;
+				classSymbol.classId		= classId;
+				classSymbol.isExtern	= (ast.file=="externs.jspp");
+				classSymbol.base		= "Function";
+				classSymbol.baseSymbol	= _this.getClass("Function");
+				classSymbol.interfaces	= [];
+				classSymbol.type		= jsdef.CLASS;
+				classSymbol.nodeType	= "CALLBACK";
+				classSymbol.isControl	= false;
+				classSymbol.isPrototype = false;
+				classSymbol.isEnum		= false;
+				classSymbol.isState		= false;
+				classSymbol.isCallback	= true;
+				classSymbol.isInterface	= false;
+				classSymbol.ast			= ast;
+				classSymbol.scope		= scope;
+				classSymbol.file		= ast.file;
+				classSymbol.path		= ast.path;
+				classSymbol.start		= ast.start;
+				classSymbol.end			= ast.end;
+				classSymbol.line_start	= ast.line_start;
+				classSymbol.line_end	= ast.line_end;
+				classSymbol.scopeId		= scope.scopeId;
+				classSymbol.vars		= scope.vars;
+				classSymbol.methods	 	= scope.methods;
+				classSymbol.runtime		= ast.name;
+				classSymbol.icon		= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+			}
+
+			// Create callback signature and save it in the class
+			var sig = [];
+			for(item in ast.paramsList)
+			{
+				if(!isFinite(item)) break;
+				var arg = ast.paramsList[item];
+				sig.push(arg.value + ":" + arg.vartype);
+			}
+			classSymbol.__typedParamsList = "("+sig.join(", ")+")";
+
+			// Save symbol
+			ast.symbol = classSymbol;
+			_this.classes[classSymbol.name] = classSymbol;
+
+			_this.ExitScope();
 			break;
 
 		// ==================================================================================================================================
@@ -2415,6 +2530,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 				classSymbol.isPrototype = false;
 				classSymbol.isEnum		= true;
 				classSymbol.isState		= false;
+				classSymbol.isCallback	= false;
+				classSymbol.isInterface	= false;
 				classSymbol.ast			= ast;
 				classSymbol.scope		= scope;
 				classSymbol.file		= ast.file;
@@ -2471,6 +2588,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.virtual		= false;
 					varSymbol.abstract		= false;
 					varSymbol.delegate		= false;
+					varSymbol.event			= false;
 					varSymbol.constant		= true;
 					varSymbol.ast			= ast[item];
 					varSymbol.scope			= scope;
@@ -2486,11 +2604,12 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(vartype);
 					varSymbol.pointer		= false;
 					varSymbol.icon			= _this.CODE_SYMBOLS_ENUM.SYMBOL_ENUM_ITEM;
+					varSymbol.modifier 		= "public";
 
-					if(ast.public)			varSymbol.runtime = "this." + ast.name + "." + varSymbol.name;
-					else if(ast.private)	varSymbol.runtime = "this.__PRIVATE__." + ast.name + "." + varSymbol.name;
-					else if(ast.protected)	varSymbol.runtime = "this.__PROTECTED__." + ast.name + "." + varSymbol.name;
-					else					varSymbol.runtime = ast.name + "." + varSymbol.name;
+					if(varSymbol.public)			varSymbol.runtime = "this." + ast.name + "." + varSymbol.name;
+					else if(varSymbol.private)		varSymbol.runtime = "this.__PRIVATE__." + ast.name + "." + varSymbol.name;
+					else if(varSymbol.protected)	varSymbol.runtime = "this.__PROTECTED__." + ast.name + "." + varSymbol.name;
+					else							varSymbol.runtime = ast.name + "." + varSymbol.name;
 				}
 				classSymbol.vars[varSymbol.name] = varSymbol;
 
@@ -2567,6 +2686,11 @@ function Compiler(ast, exportSymbols, selectedClass)
 				propSymbol.subtype		= ast.subtype ? ast.subtype : _this.getSubType(ast.vartype);
 				propSymbol.pointer		= ast.isPointer;
 				propSymbol.icon 		= _this.CODE_SYMBOLS_ENUM.SYMBOL_PROPERTY;
+
+				if(propSymbol.public)			propSymbol.modifier = "public";
+				else if(propSymbol.private)		propSymbol.modifier = "private";
+				else if(propSymbol.protected)	propSymbol.modifier = "protected";
+				else							propSymbol.modifier = "";
 
 				if(propSymbol.private)			propSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROPERTY;
 				else if(propSymbol.protected)	propSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROPERTY;
@@ -2682,6 +2806,11 @@ function Compiler(ast, exportSymbols, selectedClass)
 				stateSymbol.pointer			= true;
 				stateSymbol.nextStates		= {};
 				stateSymbol.icon 			= _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
+
+				if(stateSymbol.public)			stateSymbol.modifier = "public";
+				else if(stateSymbol.private)	stateSymbol.modifier = "private";
+				else if(stateSymbol.protected)	stateSymbol.modifier = "protected";
+				else							stateSymbol.modifier = "";
 
 				if(stateSymbol.private)			stateSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
 				else if(stateSymbol.protected)	stateSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
@@ -2847,7 +2976,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 			//==================================================================================
 
 			if(!ast.symbol)
+			{
 				ast.symbol = _this.LookupIdentifier(_this.getCurrentScope(), ast.value, ast);
+			}
 
 			if(!ast.symbol)
 			{
@@ -3074,14 +3205,27 @@ function Compiler(ast, exportSymbols, selectedClass)
 			}
 
 			// =============================================================
-			// Symbol is defined in externs and used in class scope.
-			// Also, symbol inherits from Class also defined in externs.
+			// Symbol is defined in externs and used in derived-class scope.
+			// Also, symbol inherits from a class also defined in externs.
 			// (eg. TouchList which inherits from ECMA Array)
 			// =============================================================
 			else if(ast.inDot && ast.symbol.isExtern && ast.inClass && (path=_this.isBaseMember(ast.value, ast.inClass.symbol, true)))
 			{
 				out.push(ast.symbol.runtime);
 			}
+
+			// =============================================================
+			// Symbol is defined in externs and used in a different class scope.
+			// Also, symbol inherits from a class also defined in externs.
+			// (eg. TouchList which inherits from ECMA Array)
+			// =============================================================
+			/*
+			else if(ast.inDot && ast.symbol.isExtern && ast.inClass && (path=_this.isBaseMember(ast.value, ast.symbol.ast.inClass.symbol, false)))
+			{
+				trace(path + "   -   " + ast.symbol.runtime);
+				out.push(ast.symbol.runtime);
+			}
+			*/
 
 			// =============================================================
 			// Symbol is defined in externs and used in class scope.

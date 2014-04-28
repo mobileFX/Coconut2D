@@ -38,13 +38,13 @@
 
 class CocoUIView : CocoClip
 {
-	private var __x:Float;
-	private var __y:Float;
-	private var __width:Float;
-	private var __height:Float;
-	private var __visible:Boolean;
-	private var __textureIsInvalid:Boolean;
-	private var __enabled:Boolean;
+	protected var __x:Float;
+	protected var __y:Float;
+	protected var __width:Float;
+	protected var __height:Float;
+	protected var __visible:Boolean;
+	protected var __textureIsInvalid:Boolean;
+	protected var __enabled:Boolean;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -108,7 +108,7 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function invalidate()
+	public virtual function invalidate()
 	{
 		__textureIsInvalid = true;
 	}

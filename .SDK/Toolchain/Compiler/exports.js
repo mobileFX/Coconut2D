@@ -277,6 +277,7 @@ function CompilerExportsPlugin(compiler)
 			for(var item in classSymbol.vars)
 			{
 				var varSymbol = classSymbol.vars[item];
+
 				var signature = varSymbol.name + varSymbol.ast.xmlvartype;
 				mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + signature + '" help="' + classSymbol.name + " :: " + signature + '" image="' + varSymbol.icon + '"/>');
 			}
@@ -860,39 +861,6 @@ function CompilerExportsPlugin(compiler)
 	_this.EXPORT_TO_IDE = function()
 	{
 		if(!_this.exportSymbols) return;
-
-		//=======================================================
-		// Prepare symbols for export
-		//=======================================================
-
-		for(var cls in _this.classes)
-		{
-			var classSymbol = _this.classes[cls];
-			if(classSymbol.file=="externs.jspp") continue;
-
-			for(var item in classSymbol.methods)
-			{
-				var methodSymbol = classSymbol.methods[item];
-				if(!methodSymbol.name) continue;
-
-				methodSymbol.modifier = "public";
-				methodSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
-				if(methodSymbol.private) { methodSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FUNCTION; methodSymbol.modifier = "private"; }
-				if(methodSymbol.protected) { methodSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FUNCTION; methodSymbol.modifier = "protected"; }
-				if(methodSymbol.name=="Constructor") methodSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTRUCTOR;
-			}
-
-			for(var item in classSymbol.vars)
-			{
-				var varSymbol = classSymbol.vars[item];
-				varSymbol.modifier = "public";
-				varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
-				if(varSymbol.private) { varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PRIVATE_FIELD; varSymbol.modifier = "private"; }
-				if(varSymbol.protected) { varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROTECTED_FIELD; varSymbol.modifier = "protected"; }
-				if(varSymbol.constant) varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_CONSTANT;
-				else if(varSymbol.type==jsdef.PROPERTY) varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_PROPERTY;
-			}
-		}
 
 		//=======================================================
 		// Export symbols to various forms

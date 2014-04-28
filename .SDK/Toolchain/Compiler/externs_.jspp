@@ -10,209 +10,213 @@ class Untyped
 
 class Object
 {
-	undefined function toString() :String {}
-	undefined function toLocaleString() :String {}
-	undefined function valueOf() :Object {}
-	undefined function hasOwnProperty(name:String) :Boolean {}
-	undefined function isPrototypeOf(o:Object) :Boolean {}
-	undefined function propertyIsEnumerable(name:String) :Boolean {}
-	undefined function defineProperty(object:Object, name:String, params:Object) {}
-	undefined function Destructor() {}
-	undefined var prototype :Object;
+	public function toString() :String {}
+	public function toLocaleString() :String {}
+	public function valueOf() :Object {}
+	public function hasOwnProperty(name:String) :Boolean {}
+	public function isPrototypeOf(o:Object) :Boolean {}
+	public function propertyIsEnumerable(name:String) :Boolean {}
+	public function defineProperty(object:Object, name:String, params:Object) {}
+	public function Destructor() {}
+	public var prototype :Object;
 } //Object
 
 class Array
 {
-	undefined function concat(args:Array) :Array {}
-	undefined function join(seperator:String) :String {}
-	undefined function pop() :Object {}
-	undefined function push(args:Object) :Object {}
-	undefined function reverse() :Array {}
-	undefined function shift() :Array {}
-	undefined function slice(start:Number, end:Number) :Array {}
-	undefined function sort(funct:Function) :Array {}
-	undefined function splice(start:Number, deletecount:Number, items:Object) :Array {}
-	undefined function unshift(start:Number) :Array {}
-	undefined function forEach(item:Object) :Array {}
-	undefined function size() :Number {}
-	undefined function clear() {}
-	undefined var length :Number;
+	public function concat(args:Array) :Array {}
+	public function join(seperator:String) :String {}
+	public function pop() :Object {}
+	public function push(args:Object) :Object {}
+	public function reverse() :Array {}
+	public function shift() :Array {}
+	public function slice(start:Number, end:Number) :Array {}
+	public function sort(funct:Function) :Array {}
+	public function splice(start:Number, deletecount:Number, items:Object) :Array {}
+	public function unshift(start:Number) :Array {}
+	public function forEach(item:Object) :Array {}
+	public function size() :Number {}
+	public function clear() {}
+	public var length :Number;
 } //Array
 
 class Function
 {
-	undefined function apply(thisObject:Object, args:Object) :Object {}
-	undefined function call(thisObject:Object, args:Array) :Object {}
-	undefined var length :Number;
+	public function apply(thisObject:Object, args:Array) :Object {}
+	public function call(thisObject:Object) :Object {}
+	public var length :Number;
 } //Function
 
 class CocoAction : Function
 {
 } //CocoAction
 
+class CocoEventHandler : Function
+{
+} //CocoEventHandler
+
 class Global
 {
-	undefined function __Audio_load(url:String, obj:Audio) :Integer {}
-	undefined function eval(s:String) :Object {}
-	undefined function parseInt(s:String, radix:Number) :Integer {}
-	undefined function parseFloat(s:String) :Float {}
-	undefined function escape(s:String) :String {}
-	undefined function unescape(s:String) :String {}
-	undefined function isNaN(number:Object) :Boolean {}
-	undefined function isFinite(number:Object) :Boolean {}
-	undefined function decodeURI(encodedURI:String) :String {}
-	undefined function decodeURIComponent(uriComponent:String) :String {}
-	undefined function encodeURIComponent(uriComponent:String) :String {}
-	undefined function encodeURI(URI:String) :String {}
-	undefined function trace(message:String) {}
-	undefined function alert(message:String) {}
-	undefined function Destructor() {}
-	undefined var __registerManager;
-	undefined var __registerCallback;
-	undefined var __unRegisterCallback;
-	undefined var __ImageData_loadImage;
-	undefined var __Audio_get_position :Float;
-	undefined var __Audio_set_position;
-	undefined var __Audio_play;
-	undefined var __Audio_pause;
-	undefined var __Audio_stop;
-	undefined var __WebGLRenderingContext_activeTexture;
-	undefined var __WebGLRenderingContext_attachShader;
-	undefined var __WebGLRenderingContext_bindAttribLocation;
-	undefined var __WebGLRenderingContext_bindBuffer;
-	undefined var __WebGLRenderingContext_bindFramebuffer;
-	undefined var __WebGLRenderingContext_bindRenderbuffer;
-	undefined var __WebGLRenderingContext_bindTexture;
-	undefined var __WebGLRenderingContext_blendColor;
-	undefined var __WebGLRenderingContext_blendEquation;
-	undefined var __WebGLRenderingContext_blendEquationSeparate;
-	undefined var __WebGLRenderingContext_blendFunc;
-	undefined var __WebGLRenderingContext_blendFuncSeparate;
-	undefined var __WebGLRenderingContext_bufferData;
-	undefined var __WebGLRenderingContext_bufferSubData;
-	undefined var __WebGLRenderingContext_checkFramebufferStatus :Integer;
-	undefined var __WebGLRenderingContext_clear;
-	undefined var __WebGLRenderingContext_clearColor;
-	undefined var __WebGLRenderingContext_clearDepth;
-	undefined var __WebGLRenderingContext_clearStencil;
-	undefined var __WebGLRenderingContext_colorMask;
-	undefined var __WebGLRenderingContext_compileShader;
-	undefined var __WebGLRenderingContext_compressedTexImage2D;
-	undefined var __WebGLRenderingContext_compressedTexSubImage2D;
-	undefined var __WebGLRenderingContext_copyTexImage2D;
-	undefined var __WebGLRenderingContext_copyTexSubImage2D;
-	undefined var __WebGLRenderingContext_createBuffer :Integer;
-	undefined var __WebGLRenderingContext_createFramebuffer :Integer;
-	undefined var __WebGLRenderingContext_createProgram :Integer;
-	undefined var __WebGLRenderingContext_createRenderbuffer :Integer;
-	undefined var __WebGLRenderingContext_createShader :Integer;
-	undefined var __WebGLRenderingContext_createTexture :Integer;
-	undefined var __WebGLRenderingContext_cullFace;
-	undefined var __WebGLRenderingContext_deleteBuffer;
-	undefined var __WebGLRenderingContext_deleteFramebuffer;
-	undefined var __WebGLRenderingContext_deleteProgram;
-	undefined var __WebGLRenderingContext_deleteRenderbuffer;
-	undefined var __WebGLRenderingContext_deleteShader;
-	undefined var __WebGLRenderingContext_deleteTexture;
-	undefined var __WebGLRenderingContext_depthFunc;
-	undefined var __WebGLRenderingContext_depthMask;
-	undefined var __WebGLRenderingContext_depthRange;
-	undefined var __WebGLRenderingContext_detachShader;
-	undefined var __WebGLRenderingContext_disable;
-	undefined var __WebGLRenderingContext_disableVertexAttribArray;
-	undefined var __WebGLRenderingContext_drawArrays;
-	undefined var __WebGLRenderingContext_drawElements;
-	undefined var __WebGLRenderingContext_enable;
-	undefined var __WebGLRenderingContext_enableVertexAttribArray;
-	undefined var __WebGLRenderingContext_execute;
-	undefined var __WebGLRenderingContext_finish;
-	undefined var __WebGLRenderingContext_flush;
-	undefined var __WebGLRenderingContext_framebufferRenderbuffer;
-	undefined var __WebGLRenderingContext_framebufferTexture2D;
-	undefined var __WebGLRenderingContext_frontFace;
-	undefined var __WebGLRenderingContext_generateMipmap;
-	undefined var __WebGLRenderingContext_getActiveAttrib :Integer;
-	undefined var __WebGLRenderingContext_getActiveUniform :Integer;
-	undefined var __WebGLRenderingContext_getAttachedShaders :Array<WebGLShader>;
-	undefined var __WebGLRenderingContext_getAttribLocation :Integer;
-	undefined var __WebGLRenderingContext_getBufferParameter :String;
-	undefined var __WebGLRenderingContext_getContextAttributes :Integer;
-	undefined var __WebGLRenderingContext_getError :Integer;
-	undefined var __WebGLRenderingContext_getExtension :Object;
-	undefined var __WebGLRenderingContext_getFramebufferAttachmentParameter :String;
-	undefined var __WebGLRenderingContext_getParameter :String;
-	undefined var __WebGLRenderingContext_getProgramInfoLog :String;
-	undefined var __WebGLRenderingContext_getProgramParameter :Boolean;
-	undefined var __WebGLRenderingContext_getRenderbufferParameter :String;
-	undefined var __WebGLRenderingContext_getShaderInfoLog :String;
-	undefined var __WebGLRenderingContext_getShaderParameter :Boolean;
-	undefined var __WebGLRenderingContext_getShaderPrecisionFormat :Integer;
-	undefined var __WebGLRenderingContext_getShaderSource :String;
-	undefined var __WebGLRenderingContext_getSupportedExtensions :Array<String>;
-	undefined var __WebGLRenderingContext_getTexParameter :String;
-	undefined var __WebGLRenderingContext_getUniform :String;
-	undefined var __WebGLRenderingContext_getUniformLocation :Integer;
-	undefined var __WebGLRenderingContext_getVertexAttrib :String;
-	undefined var __WebGLRenderingContext_getVertexAttribOffset :Integer;
-	undefined var __WebGLRenderingContext_hint;
-	undefined var __WebGLRenderingContext_isBuffer :Boolean;
-	undefined var __WebGLRenderingContext_isContextLost :Boolean;
-	undefined var __WebGLRenderingContext_isEnabled :Boolean;
-	undefined var __WebGLRenderingContext_isFramebuffer :Boolean;
-	undefined var __WebGLRenderingContext_isProgram :Boolean;
-	undefined var __WebGLRenderingContext_isRenderbuffer :Boolean;
-	undefined var __WebGLRenderingContext_isShader :Boolean;
-	undefined var __WebGLRenderingContext_isTexture :Boolean;
-	undefined var __WebGLRenderingContext_lineWidth;
-	undefined var __WebGLRenderingContext_linkProgram;
-	undefined var __WebGLRenderingContext_pixelStorei;
-	undefined var __WebGLRenderingContext_polygonOffset;
-	undefined var __WebGLRenderingContext_readPixels;
-	undefined var __WebGLRenderingContext_renderbufferStorage;
-	undefined var __WebGLRenderingContext_sampleCoverage;
-	undefined var __WebGLRenderingContext_scissor;
-	undefined var __WebGLRenderingContext_shaderSource;
-	undefined var __WebGLRenderingContext_stencilFunc;
-	undefined var __WebGLRenderingContext_stencilFuncSeparate;
-	undefined var __WebGLRenderingContext_stencilMask;
-	undefined var __WebGLRenderingContext_stencilMaskSeparate;
-	undefined var __WebGLRenderingContext_stencilOp;
-	undefined var __WebGLRenderingContext_stencilOpSeparate;
-	undefined var __WebGLRenderingContext_texImage2D;
-	undefined var __WebGLRenderingContext_texParameterf;
-	undefined var __WebGLRenderingContext_texParameteri;
-	undefined var __WebGLRenderingContext_texSubImage2D;
-	undefined var __WebGLRenderingContext_uniform1f;
-	undefined var __WebGLRenderingContext_uniform1fv;
-	undefined var __WebGLRenderingContext_uniform1i;
-	undefined var __WebGLRenderingContext_uniform1iv;
-	undefined var __WebGLRenderingContext_uniform2f;
-	undefined var __WebGLRenderingContext_uniform2fv;
-	undefined var __WebGLRenderingContext_uniform2i;
-	undefined var __WebGLRenderingContext_uniform2iv;
-	undefined var __WebGLRenderingContext_uniform3f;
-	undefined var __WebGLRenderingContext_uniform3fv;
-	undefined var __WebGLRenderingContext_uniform3i;
-	undefined var __WebGLRenderingContext_uniform3iv;
-	undefined var __WebGLRenderingContext_uniform4f;
-	undefined var __WebGLRenderingContext_uniform4fv;
-	undefined var __WebGLRenderingContext_uniform4i;
-	undefined var __WebGLRenderingContext_uniform4iv;
-	undefined var __WebGLRenderingContext_uniformMatrix2fv;
-	undefined var __WebGLRenderingContext_uniformMatrix3fv;
-	undefined var __WebGLRenderingContext_uniformMatrix4fv;
-	undefined var __WebGLRenderingContext_useProgram;
-	undefined var __WebGLRenderingContext_validateProgram;
-	undefined var __WebGLRenderingContext_vertexAttrib1f;
-	undefined var __WebGLRenderingContext_vertexAttrib1fv;
-	undefined var __WebGLRenderingContext_vertexAttrib2f;
-	undefined var __WebGLRenderingContext_vertexAttrib2fv;
-	undefined var __WebGLRenderingContext_vertexAttrib3f;
-	undefined var __WebGLRenderingContext_vertexAttrib3fv;
-	undefined var __WebGLRenderingContext_vertexAttrib4f;
-	undefined var __WebGLRenderingContext_vertexAttrib4fv;
-	undefined var __WebGLRenderingContext_vertexAttribPointer;
-	undefined var __WebGLRenderingContext_viewport;
+	 function __Audio_load(url:String, obj:Audio) :Integer {}
+	public function eval(s:String) :Object {}
+	public function parseInt(s:String, radix:Number) :Integer {}
+	public function parseFloat(s:String) :Float {}
+	public function escape(s:String) :String {}
+	public function unescape(s:String) :String {}
+	public function isNaN(number:Object) :Boolean {}
+	public function isFinite(number:Object) :Boolean {}
+	public function decodeURI(encodedURI:String) :String {}
+	public function decodeURIComponent(uriComponent:String) :String {}
+	public function encodeURIComponent(uriComponent:String) :String {}
+	public function encodeURI(URI:String) :String {}
+	public function trace(message:String) {}
+	public function alert(message:String) {}
+	public function Destructor() {}
+	 var __registerManager;
+	 var __registerCallback;
+	 var __unRegisterCallback;
+	 var __ImageData_loadImage;
+	 var __Audio_get_position :Float;
+	 var __Audio_set_position;
+	 var __Audio_play;
+	 var __Audio_pause;
+	 var __Audio_stop;
+	 var __WebGLRenderingContext_activeTexture;
+	 var __WebGLRenderingContext_attachShader;
+	 var __WebGLRenderingContext_bindAttribLocation;
+	 var __WebGLRenderingContext_bindBuffer;
+	 var __WebGLRenderingContext_bindFramebuffer;
+	 var __WebGLRenderingContext_bindRenderbuffer;
+	 var __WebGLRenderingContext_bindTexture;
+	 var __WebGLRenderingContext_blendColor;
+	 var __WebGLRenderingContext_blendEquation;
+	 var __WebGLRenderingContext_blendEquationSeparate;
+	 var __WebGLRenderingContext_blendFunc;
+	 var __WebGLRenderingContext_blendFuncSeparate;
+	 var __WebGLRenderingContext_bufferData;
+	 var __WebGLRenderingContext_bufferSubData;
+	 var __WebGLRenderingContext_checkFramebufferStatus :Integer;
+	 var __WebGLRenderingContext_clear;
+	 var __WebGLRenderingContext_clearColor;
+	 var __WebGLRenderingContext_clearDepth;
+	 var __WebGLRenderingContext_clearStencil;
+	 var __WebGLRenderingContext_colorMask;
+	 var __WebGLRenderingContext_compileShader;
+	 var __WebGLRenderingContext_compressedTexImage2D;
+	 var __WebGLRenderingContext_compressedTexSubImage2D;
+	 var __WebGLRenderingContext_copyTexImage2D;
+	 var __WebGLRenderingContext_copyTexSubImage2D;
+	 var __WebGLRenderingContext_createBuffer :Integer;
+	 var __WebGLRenderingContext_createFramebuffer :Integer;
+	 var __WebGLRenderingContext_createProgram :Integer;
+	 var __WebGLRenderingContext_createRenderbuffer :Integer;
+	 var __WebGLRenderingContext_createShader :Integer;
+	 var __WebGLRenderingContext_createTexture :Integer;
+	 var __WebGLRenderingContext_cullFace;
+	 var __WebGLRenderingContext_deleteBuffer;
+	 var __WebGLRenderingContext_deleteFramebuffer;
+	 var __WebGLRenderingContext_deleteProgram;
+	 var __WebGLRenderingContext_deleteRenderbuffer;
+	 var __WebGLRenderingContext_deleteShader;
+	 var __WebGLRenderingContext_deleteTexture;
+	 var __WebGLRenderingContext_depthFunc;
+	 var __WebGLRenderingContext_depthMask;
+	 var __WebGLRenderingContext_depthRange;
+	 var __WebGLRenderingContext_detachShader;
+	 var __WebGLRenderingContext_disable;
+	 var __WebGLRenderingContext_disableVertexAttribArray;
+	 var __WebGLRenderingContext_drawArrays;
+	 var __WebGLRenderingContext_drawElements;
+	 var __WebGLRenderingContext_enable;
+	 var __WebGLRenderingContext_enableVertexAttribArray;
+	 var __WebGLRenderingContext_execute;
+	 var __WebGLRenderingContext_finish;
+	 var __WebGLRenderingContext_flush;
+	 var __WebGLRenderingContext_framebufferRenderbuffer;
+	 var __WebGLRenderingContext_framebufferTexture2D;
+	 var __WebGLRenderingContext_frontFace;
+	 var __WebGLRenderingContext_generateMipmap;
+	 var __WebGLRenderingContext_getActiveAttrib :Integer;
+	 var __WebGLRenderingContext_getActiveUniform :Integer;
+	 var __WebGLRenderingContext_getAttachedShaders :Array<WebGLShader>;
+	 var __WebGLRenderingContext_getAttribLocation :Integer;
+	 var __WebGLRenderingContext_getBufferParameter :String;
+	 var __WebGLRenderingContext_getContextAttributes :Integer;
+	 var __WebGLRenderingContext_getError :Integer;
+	 var __WebGLRenderingContext_getExtension :Object;
+	 var __WebGLRenderingContext_getFramebufferAttachmentParameter :String;
+	 var __WebGLRenderingContext_getParameter :String;
+	 var __WebGLRenderingContext_getProgramInfoLog :String;
+	 var __WebGLRenderingContext_getProgramParameter :Boolean;
+	 var __WebGLRenderingContext_getRenderbufferParameter :String;
+	 var __WebGLRenderingContext_getShaderInfoLog :String;
+	 var __WebGLRenderingContext_getShaderParameter :Boolean;
+	 var __WebGLRenderingContext_getShaderPrecisionFormat :Integer;
+	 var __WebGLRenderingContext_getShaderSource :String;
+	 var __WebGLRenderingContext_getSupportedExtensions :Array<String>;
+	 var __WebGLRenderingContext_getTexParameter :String;
+	 var __WebGLRenderingContext_getUniform :String;
+	 var __WebGLRenderingContext_getUniformLocation :Integer;
+	 var __WebGLRenderingContext_getVertexAttrib :String;
+	 var __WebGLRenderingContext_getVertexAttribOffset :Integer;
+	 var __WebGLRenderingContext_hint;
+	 var __WebGLRenderingContext_isBuffer :Boolean;
+	 var __WebGLRenderingContext_isContextLost :Boolean;
+	 var __WebGLRenderingContext_isEnabled :Boolean;
+	 var __WebGLRenderingContext_isFramebuffer :Boolean;
+	 var __WebGLRenderingContext_isProgram :Boolean;
+	 var __WebGLRenderingContext_isRenderbuffer :Boolean;
+	 var __WebGLRenderingContext_isShader :Boolean;
+	 var __WebGLRenderingContext_isTexture :Boolean;
+	 var __WebGLRenderingContext_lineWidth;
+	 var __WebGLRenderingContext_linkProgram;
+	 var __WebGLRenderingContext_pixelStorei;
+	 var __WebGLRenderingContext_polygonOffset;
+	 var __WebGLRenderingContext_readPixels;
+	 var __WebGLRenderingContext_renderbufferStorage;
+	 var __WebGLRenderingContext_sampleCoverage;
+	 var __WebGLRenderingContext_scissor;
+	 var __WebGLRenderingContext_shaderSource;
+	 var __WebGLRenderingContext_stencilFunc;
+	 var __WebGLRenderingContext_stencilFuncSeparate;
+	 var __WebGLRenderingContext_stencilMask;
+	 var __WebGLRenderingContext_stencilMaskSeparate;
+	 var __WebGLRenderingContext_stencilOp;
+	 var __WebGLRenderingContext_stencilOpSeparate;
+	 var __WebGLRenderingContext_texImage2D;
+	 var __WebGLRenderingContext_texParameterf;
+	 var __WebGLRenderingContext_texParameteri;
+	 var __WebGLRenderingContext_texSubImage2D;
+	 var __WebGLRenderingContext_uniform1f;
+	 var __WebGLRenderingContext_uniform1fv;
+	 var __WebGLRenderingContext_uniform1i;
+	 var __WebGLRenderingContext_uniform1iv;
+	 var __WebGLRenderingContext_uniform2f;
+	 var __WebGLRenderingContext_uniform2fv;
+	 var __WebGLRenderingContext_uniform2i;
+	 var __WebGLRenderingContext_uniform2iv;
+	 var __WebGLRenderingContext_uniform3f;
+	 var __WebGLRenderingContext_uniform3fv;
+	 var __WebGLRenderingContext_uniform3i;
+	 var __WebGLRenderingContext_uniform3iv;
+	 var __WebGLRenderingContext_uniform4f;
+	 var __WebGLRenderingContext_uniform4fv;
+	 var __WebGLRenderingContext_uniform4i;
+	 var __WebGLRenderingContext_uniform4iv;
+	 var __WebGLRenderingContext_uniformMatrix2fv;
+	 var __WebGLRenderingContext_uniformMatrix3fv;
+	 var __WebGLRenderingContext_uniformMatrix4fv;
+	 var __WebGLRenderingContext_useProgram;
+	 var __WebGLRenderingContext_validateProgram;
+	 var __WebGLRenderingContext_vertexAttrib1f;
+	 var __WebGLRenderingContext_vertexAttrib1fv;
+	 var __WebGLRenderingContext_vertexAttrib2f;
+	 var __WebGLRenderingContext_vertexAttrib2fv;
+	 var __WebGLRenderingContext_vertexAttrib3f;
+	 var __WebGLRenderingContext_vertexAttrib3fv;
+	 var __WebGLRenderingContext_vertexAttrib4f;
+	 var __WebGLRenderingContext_vertexAttrib4fv;
+	 var __WebGLRenderingContext_vertexAttribPointer;
+	 var __WebGLRenderingContext_viewport;
 	undefined var Null :Null;
 	undefined var Untyped :Untyped;
 	undefined var Object :Object;
@@ -220,12 +224,12 @@ class Global
 	undefined var Function :Function;
 	undefined var CocoAction :CocoAction;
 	undefined var Global :Global;
-	undefined var NaN :Number;
-	undefined var Infinity :Number;
-	undefined var innerWidth :Integer;
-	undefined var innerHeight :Integer;
-	undefined var deviceRotation :Float;
-	undefined var devicePixelRatio :Float;
+	public var NaN :Number;
+	public var Infinity :Number;
+	public var innerWidth :Integer;
+	public var innerHeight :Integer;
+	public var deviceRotation :Float;
+	public var devicePixelRatio :Float;
 	undefined var String :String;
 	undefined var Number :Number;
 	undefined var Integer :Integer;
@@ -251,18 +255,17 @@ class Global
 	undefined var CocoFont :CocoFont;
 	undefined var Color :Color;
 	undefined var Gradient :Gradient;
-	undefined var global :Global;
-	undefined var engine :CocoEngine;
-	undefined var window :HTMLWindow;
-	undefined var document :HTMLDocument;
-	undefined var gl :WebGLRenderingContext;
-	undefined var canvas :HTMLCanvasElement;
-	undefined var graphics :CocoGraphics;
-	undefined var RADIANS :Float;
-	undefined var BOX2D_SCALE :Float;
-	undefined var COCO_STOP_ON_CURRENT_FRAME :Integer;
+	 var global :Global;
+	 var engine :CocoEngine;
+	 var window :HTMLWindow;
+	 var document :HTMLDocument;
+	 var gl :WebGLRenderingContext;
+	 var canvas :HTMLCanvasElement;
+	 var graphics :CocoGraphics;
+	 var RADIANS :Float;
+	 var BOX2D_SCALE :Float;
+	 var COCO_STOP_ON_CURRENT_FRAME :Integer;
 	undefined var DeviceEvent :DeviceEvent;
-	undefined var EventTarget :EventTarget;
 	undefined var Audio :Audio;
 	undefined var HTMLCanvasContext :HTMLCanvasContext;
 	undefined var PathLine :PathLine;
@@ -276,8 +279,6 @@ class Global
 	undefined var HTMLTextMetrics :HTMLTextMetrics;
 	undefined var HTMLWindow :HTMLWindow;
 	undefined var ImageData :ImageData;
-	undefined var Touch :Touch;
-	undefined var TouchList :TouchList;
 	undefined var WebGLObject :WebGLObject;
 	undefined var WebGLActiveInfo :WebGLActiveInfo;
 	undefined var WebGLBuffer :WebGLBuffer;
@@ -316,6 +317,12 @@ class Global
 	undefined var CocoVector :CocoVector;
 	undefined var ITickable :ITickable;
 	undefined var CocoTickable :CocoTickable;
+	undefined var IEventTarget :IEventTarget;
+	undefined var Touch :Touch;
+	undefined var TouchList :TouchList;
+	undefined var CocoEvent :CocoEvent;
+	undefined var CocoEventListener :CocoEventListener;
+	undefined var CocoEventSource :CocoEventSource;
 	undefined var CocoHttpRequest :CocoHttpRequest;
 	undefined var CocoUIView :CocoUIView;
 	undefined var CocoUIPageView :CocoUIPageView;
@@ -324,6 +331,7 @@ class Global
 	undefined var CocoUICheckBox :CocoUICheckBox;
 	undefined var CocoUIComboBox :CocoUIComboBox;
 	undefined var CocoUILabel :CocoUILabel;
+	undefined var CocoUIPictureList :CocoUIPictureList;
 	undefined var CocoUITextBox :CocoUITextBox;
 	undefined var GameEngine :GameEngine;
 	undefined var NewAnimation :NewAnimation;
@@ -332,37 +340,37 @@ class Global
 
 class String
 {
-	undefined function fromCharCode(charCode:Number) :String {}
-	undefined function charAt(position:Number) :String {}
-	undefined function charCodeAt(position:Number) :Number {}
-	undefined function concat(value:String) :String {}
-	undefined function indexOf(searchString:String, startPosition:Number) :Number {}
-	undefined function lastIndexOf(searchString:String, startPosition:Number) :Number {}
-	undefined function localeCompare(otherString:String) :Number {}
-	undefined function match(regexp:RegExp) :Array {}
-	undefined function replace(regexp:RegExp, replaceValue:String) :String {}
-	undefined function search(regexp:RegExp) :Number {}
-	undefined function slice(start:Number, end:Number) :String {}
-	undefined function split(separator:String, limit:Number) :Array<String> {}
-	undefined function substring(start:Number, end:Number) :String {}
-	undefined function substr(start:Number, size:Number) :String {}
-	undefined function toLowerCase() :String {}
-	undefined function toLocaleLowerCase() :String {}
-	undefined function toUpperCase() :String {}
-	undefined function toLocaleUpperCase() :String {}
-	undefined function size() :Integer {}
-	undefined var length :Number;
+	public function fromCharCode(charCode:Number) :String {}
+	public function charAt(position:Number) :String {}
+	public function charCodeAt(position:Number) :Number {}
+	public function concat(value:String) :String {}
+	public function indexOf(searchString:String, startPosition:Number) :Number {}
+	public function lastIndexOf(searchString:String, startPosition:Number) :Number {}
+	public function localeCompare(otherString:String) :Number {}
+	public function match(regexp:RegExp) :Array {}
+	public function replace(regexp:RegExp, replaceValue:String) :String {}
+	public function search(regexp:RegExp) :Number {}
+	public function slice(start:Number, end:Number) :String {}
+	public function split(separator:String, limit:Number) :Array<String> {}
+	public function substring(start:Number, end:Number) :String {}
+	public function substr(start:Number, size:Number) :String {}
+	public function toLowerCase() :String {}
+	public function toLocaleLowerCase() :String {}
+	public function toUpperCase() :String {}
+	public function toLocaleUpperCase() :String {}
+	public function size() :Integer {}
+	public var length :Number;
 } //String
 
 class Number
 {
-	undefined function toFixed(fractionDigits:Number) :String {}
-	undefined function toExponential(fractionDigits:Number) :String {}
-	undefined function toPrecision(fractionDigits:Number) :String {}
-	undefined var MIN_VALUE :Number;
-	undefined var MAX_VALUE :Number;
-	undefined var NEGATIVE_INFINITY :Number;
-	undefined var POSITIVE_INFINITY :Number;
+	public function toFixed(fractionDigits:Number) :String {}
+	public function toExponential(fractionDigits:Number) :String {}
+	public function toPrecision(fractionDigits:Number) :String {}
+	public var MIN_VALUE :Number;
+	public var MAX_VALUE :Number;
+	public var NEGATIVE_INFINITY :Number;
+	public var POSITIVE_INFINITY :Number;
 } //Number
 
 class Integer : Number
@@ -383,136 +391,136 @@ class Boolean
 
 class Date
 {
-	undefined function UTC(hour:Number, min:Number, sec:Number, ms:Number) :Number {}
-	undefined function parse(string:String) :Number {}
-	undefined function toDateString() :String {}
-	undefined function toTimeString() :String {}
-	undefined function toLocaleString() :String {}
-	undefined function toLocaleDateString() :String {}
-	undefined function toLocaleTimeString() :String {}
-	undefined function valueOf() :Object {}
-	undefined function getFullYear() :Number {}
-	undefined function getTime() :Number {}
-	undefined function getUTCFullYear() :Number {}
-	undefined function getMonth() :Number {}
-	undefined function getUTCMonth() :Number {}
-	undefined function getDate() :Number {}
-	undefined function getUTCDate() :Number {}
-	undefined function getDay() :Number {}
-	undefined function getUTCDay() :Number {}
-	undefined function getHours() :Number {}
-	undefined function getUTCHours() :Number {}
-	undefined function getMinutes() :Number {}
-	undefined function getUTCMinutes() :Number {}
-	undefined function getSeconds() :Number {}
-	undefined function getUTCSeconds() :Number {}
-	undefined function getMilliseconds() :Number {}
-	undefined function getUTCMilliseconds() :Number {}
-	undefined function getTimezoneOffset() :Number {}
-	undefined function setTime(value:Number) :Number {}
-	undefined function setMilliseconds(value:Number) :Number {}
-	undefined function setUTCMilliseconds(ms:Number) :Number {}
-	undefined function setSeconds(sec:Number, ms:Number) :Number {}
-	undefined function setUTCSeconds(sec:Number, ms:Number) :Number {}
-	undefined function setMinutes(min:Number, sec:Number, ms:Number) :Number {}
-	undefined function setUTCMinute(min:Number, sec:Number, ms:Number) :Number {}
-	undefined function setHours(hour:Number, min:Number, sec:Number, ms:Number) :Number {}
-	undefined function setUTCHours(hour:Number, min:Number, sec:Number, ms:Number) :Number {}
-	undefined function setDate(date:Number) :Number {}
-	undefined function setUTCDate(date:Number) :Number {}
-	undefined function setMonth(month:Number, date:Number) :Number {}
-	undefined function setUTCMonth(month:Number, date:Number) :Number {}
-	undefined function setFullYear(year:Number, month:Number, date:Number) :Number {}
-	undefined function setUTCFullYear(year:Number, month:Number, date:Number) {}
-	undefined function toUTCString() :String {}
+	public function UTC(hour:Number, min:Number, sec:Number, ms:Number) :Number {}
+	public function parse(string:String) :Number {}
+	public function toDateString() :String {}
+	public function toTimeString() :String {}
+	public function toLocaleString() :String {}
+	public function toLocaleDateString() :String {}
+	public function toLocaleTimeString() :String {}
+	public function valueOf() :Object {}
+	public function getFullYear() :Number {}
+	public function getTime() :Number {}
+	public function getUTCFullYear() :Number {}
+	public function getMonth() :Number {}
+	public function getUTCMonth() :Number {}
+	public function getDate() :Number {}
+	public function getUTCDate() :Number {}
+	public function getDay() :Number {}
+	public function getUTCDay() :Number {}
+	public function getHours() :Number {}
+	public function getUTCHours() :Number {}
+	public function getMinutes() :Number {}
+	public function getUTCMinutes() :Number {}
+	public function getSeconds() :Number {}
+	public function getUTCSeconds() :Number {}
+	public function getMilliseconds() :Number {}
+	public function getUTCMilliseconds() :Number {}
+	public function getTimezoneOffset() :Number {}
+	public function setTime(value:Number) :Number {}
+	public function setMilliseconds(value:Number) :Number {}
+	public function setUTCMilliseconds(ms:Number) :Number {}
+	public function setSeconds(sec:Number, ms:Number) :Number {}
+	public function setUTCSeconds(sec:Number, ms:Number) :Number {}
+	public function setMinutes(min:Number, sec:Number, ms:Number) :Number {}
+	public function setUTCMinute(min:Number, sec:Number, ms:Number) :Number {}
+	public function setHours(hour:Number, min:Number, sec:Number, ms:Number) :Number {}
+	public function setUTCHours(hour:Number, min:Number, sec:Number, ms:Number) :Number {}
+	public function setDate(date:Number) :Number {}
+	public function setUTCDate(date:Number) :Number {}
+	public function setMonth(month:Number, date:Number) :Number {}
+	public function setUTCMonth(month:Number, date:Number) :Number {}
+	public function setFullYear(year:Number, month:Number, date:Number) :Number {}
+	public function setUTCFullYear(year:Number, month:Number, date:Number) {}
+	public function toUTCString() :String {}
 } //Date
 
 class Math
 {
-	undefined function abs(x:Number) :Number {}
-	undefined function acos(x:Number) :Float {}
-	undefined function asin(x:Number) :Float {}
-	undefined function atan(x:Number) :Float {}
-	undefined function atan2(x:Number, y:Number) :Float {}
-	undefined function ceil(x:Number) :Number {}
-	undefined function cos(x:Number) :Float {}
-	undefined function exp(x:Number) :Float {}
-	undefined function floor(x:Number) :Integer {}
-	undefined function log(x:Number) :Float {}
-	undefined function max(a:Number, b:Number) :Number {}
-	undefined function min(a:Number, b:Number) :Number {}
-	undefined function pow(x:Number, y:Number) :Float {}
-	undefined function random() :Float {}
-	undefined function round(x:Number) :Number {}
-	undefined function sin(x:Number) :Float {}
-	undefined function sqrt(x:Number) :Float {}
-	undefined function tan(x:Number) :Float {}
-	undefined var E :Float;
-	undefined var LN10 :Float;
-	undefined var LN2 :Float;
-	undefined var LOG2E :Float;
-	undefined var LOG10E :Float;
-	undefined var PI :Float;
-	undefined var SQRT1_2 :Float;
-	undefined var SQRT2 :Float;
+	public function abs(x:Number) :Number {}
+	public function acos(x:Number) :Float {}
+	public function asin(x:Number) :Float {}
+	public function atan(x:Number) :Float {}
+	public function atan2(x:Number, y:Number) :Float {}
+	public function ceil(x:Number) :Number {}
+	public function cos(x:Number) :Float {}
+	public function exp(x:Number) :Float {}
+	public function floor(x:Number) :Integer {}
+	public function log(x:Number) :Float {}
+	public function max(a:Number, b:Number) :Number {}
+	public function min(a:Number, b:Number) :Number {}
+	public function pow(x:Number, y:Number) :Float {}
+	public function random() :Float {}
+	public function round(x:Number) :Number {}
+	public function sin(x:Number) :Float {}
+	public function sqrt(x:Number) :Float {}
+	public function tan(x:Number) :Float {}
+	public var E :Float;
+	public var LN10 :Float;
+	public var LN2 :Float;
+	public var LOG2E :Float;
+	public var LOG10E :Float;
+	public var PI :Float;
+	public var SQRT1_2 :Float;
+	public var SQRT2 :Float;
 } //Math
 
 class RegExp
 {
-	undefined function exec(string:String) :Array {}
-	undefined function test(string:String) :Boolean {}
-	undefined var source :String;
-	undefined var global :Boolean;
-	undefined var ignoreCase :Boolean;
-	undefined var multiline :Boolean;
-	undefined var lastIndex :Number;
+	public function exec(string:String) :Array {}
+	public function test(string:String) :Boolean {}
+	public var source :String;
+	public var global :Boolean;
+	public var ignoreCase :Boolean;
+	public var multiline :Boolean;
+	public var lastIndex :Number;
 } //RegExp
 
 class ArrayBuffer
 {
-	undefined function slice(begin:Number, end:Number) :ArrayBuffer {}
-	undefined function encodeAsPNG(width:Number, height:Number) :ArrayBuffer {}
-	undefined function encodeAsBase64() :String {}
-	undefined var byteLength :Number;
-	undefined var __uid :Integer;
+	public function slice(begin:Number, end:Number) :ArrayBuffer {}
+	public function encodeAsPNG(width:Number, height:Number) :ArrayBuffer {}
+	public function encodeAsBase64() :String {}
+	public var byteLength :Number;
+	public var __uid :Integer;
 } //ArrayBuffer
 
 class ArrayBufferView
 {
-	undefined function Destructor() {}
-	undefined var buffer :ArrayBuffer;
-	undefined var byteLength :Number;
-	undefined var __uid :Integer;
+	public function Destructor() {}
+	public var buffer :ArrayBuffer;
+	public var byteLength :Number;
+	public var __uid :Integer;
 } //ArrayBufferView
 
 class Float32Array : ArrayBufferView
 {
-	undefined var length :Number;
-	undefined var byteOffset :Number;
-	undefined var BYTES_PER_ELEMENT :Number;
-	undefined var __uid :Integer;
+	public var length :Number;
+	public var byteOffset :Number;
+	public var BYTES_PER_ELEMENT :Number;
+	public var __uid :Integer;
 } //Float32Array
 
 class Int32Array : ArrayBufferView
 {
-	undefined var length :Number;
-	undefined var byteOffset :Number;
-	undefined var BYTES_PER_ELEMENT :Number;
-	undefined var __uid :Integer;
+	public var length :Number;
+	public var byteOffset :Number;
+	public var BYTES_PER_ELEMENT :Number;
+	public var __uid :Integer;
 } //Int32Array
 
 class Uint8Array : ArrayBufferView
 {
-	undefined var length :Number;
-	undefined var byteOffset :Number;
-	undefined var BYTES_PER_ELEMENT :Number;
-	undefined var __uid :Integer;
+	public var length :Number;
+	public var byteOffset :Number;
+	public var BYTES_PER_ELEMENT :Number;
+	public var __uid :Integer;
 } //Uint8Array
 
 class Error
 {
-	undefined var name :String;
-	undefined var message :String;
+	public var name :String;
+	public var message :String;
 } //Error
 
 class EvalError : Error
@@ -537,40 +545,40 @@ class TypeError : Error
 
 class ImageDataBuffer
 {
-	undefined var buffer :ArrayBuffer;
-	undefined var width :Integer;
-	undefined var height :Integer;
+	public var buffer :ArrayBuffer;
+	public var width :Integer;
+	public var height :Integer;
 } //ImageDataBuffer
 
 class XMLHttpRequest
 {
-	undefined function open(method:String, url:String) {}
-	undefined function setRequestHeader(header:String, value:String) {}
-	undefined function send() {}
-	undefined function send$1(data:String) {}
-	undefined function send$2(data:ArrayBufferView) {}
-	undefined function abort() {}
-	undefined function getAllResponseHeaders() :String {}
-	undefined function getResponseHeader(header:String) :String {}
-	undefined var UNSENT :Integer;
-	undefined var OPENED :Integer;
-	undefined var HEADERS_RECEIVED :Integer;
-	undefined var LOADING :Integer;
-	undefined var DONE :Integer;
-	undefined var timeout :Integer;
-	undefined var readyState :Integer;
-	undefined var status :Integer;
-	undefined var statusText :String;
-	undefined var responseText :String;
-	undefined var responseType :Integer;
+	public function open(method:String, url:String) {}
+	public function setRequestHeader(header:String, value:String) {}
+	public function send() {}
+	public function send$1(data:String) {}
+	public function send$2(data:ArrayBufferView) {}
+	public function abort() {}
+	public function getAllResponseHeaders() :String {}
+	public function getResponseHeader(header:String) :String {}
+	public var UNSENT :Integer;
+	public var OPENED :Integer;
+	public var HEADERS_RECEIVED :Integer;
+	public var LOADING :Integer;
+	public var DONE :Integer;
+	public var timeout :Integer;
+	public var readyState :Integer;
+	public var status :Integer;
+	public var statusText :String;
+	public var responseText :String;
+	public var responseType :Integer;
 } //XMLHttpRequest
 
 class CocoFont
 {
-	undefined function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float) {}
-	undefined function measureText(text:String) :Float {}
-	undefined function Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean) {}
-	undefined var height :Float;
+	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float) {}
+	public function measureText(text:String) :Float {}
+	public function Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean) {}
+	public var height :Float;
 } //CocoFont
 
 class Color : Number
@@ -675,8 +683,8 @@ class DeviceEvent
 	public var AT_TARGET :Integer;
 	public var BUBBLING_PHASE :Integer;
 	public var type :String;
-	public var target :EventTarget;
-	public var currentTarget :EventTarget;
+	public var target :IEventTarget;
+	public var currentTarget :IEventTarget;
 	public var eventPhase :Integer;
 	public var bubbles :Boolean;
 	public var cancelable :Boolean;
@@ -694,11 +702,6 @@ class DeviceEvent
 	public var __clientX :Integer;
 	public var __clientY :Integer;
 } //DeviceEvent
-
-class EventTarget
-{
-	public function Constructor() {}
-} //EventTarget
 
 class Audio
 {
@@ -890,28 +893,6 @@ class ImageData
 	public var width :Integer;
 	public var height :Integer;
 } //ImageData
-
-class Touch
-{
-	public function initTouch(identifier:Integer, target:EventTarget, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, pageX:Integer, pageY:Integer) {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public var identifier :Integer;
-	public var screenX :Integer;
-	public var screenY :Integer;
-	public var clientX :Integer;
-	public var clientY :Integer;
-	public var pageX :Integer;
-	public var pageY :Integer;
-	public var target :EventTarget;
-} //Touch
-
-class TouchList : Array
-{
-	public function item(index:Integer) :Touch {}
-	public function Constructor() {}
-	public var length :Integer;
-} //TouchList
 
 class WebGLObject
 {
@@ -1444,7 +1425,7 @@ class CocoAudio
 	private var __loopCount :Integer;
 } //CocoAudio
 
-class CocoClip
+class CocoClip : CocoEventSource
 {
 	public function prepare(scene:CocoScene) {}
 	public function setText(text:String) {}
@@ -1937,6 +1918,78 @@ class CocoTickable
 	public function Constructor() {}
 } //CocoTickable
 
+class IEventTarget
+{
+} //IEventTarget
+
+class Touch
+{
+	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, pageX:Integer, pageY:Integer) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public var identifier :Integer;
+	public var screenX :Integer;
+	public var screenY :Integer;
+	public var clientX :Integer;
+	public var clientY :Integer;
+	public var pageX :Integer;
+	public var pageY :Integer;
+	public var target :IEventTarget;
+} //Touch
+
+class TouchList : Array
+{
+	public function item(index:Integer) :Touch {}
+	public function Constructor() {}
+	public var length :Integer;
+} //TouchList
+
+class CocoEvent : Array
+{
+	public function is(Event:CocoEvent) :Boolean {}
+	public function cancelBubble() {}
+	public function preventDefault() {}
+	public function Destructor() {}
+	public function Constructor(type:String, cancelable:Boolean, bubbles:Boolean) {}
+	public var type :String;
+	public var target :IEventTarget;
+	public var currentTarget :IEventTarget;
+	public var bubbles :Boolean;
+	public var cancelable :Boolean;
+	public var timeStamp :Integer;
+	public var stopPropagation :Boolean;
+	public var defaultPrevented :Boolean;
+	public var view :HTMLWindow;
+	public var detail :Integer;
+	public var touches :TouchList;
+	public var targetTouches :TouchList;
+	public var changedTouches :TouchList;
+	public var scale :Float;
+	public var rotation :Float;
+	public var clientX :Integer;
+	public var clientY :Integer;
+	public var __clientX :Integer;
+	public var __clientY :Integer;
+} //CocoEvent
+
+class CocoEventListener
+{
+	public function Destructor() {}
+	public function Constructor(Event:CocoEvent, Callback:CocoEventHandler) {}
+	public var Event :CocoEvent;
+	public var Callback :CocoEventHandler;
+} //CocoEventListener
+
+class CocoEventSource
+{
+	public function addEventListener(Event:CocoEvent, Callback:CocoEventHandler) {}
+	public function removeEventListener(Event:CocoEvent, Callback:CocoEventHandler) :Boolean {}
+	public function dispatchEvent(Event:CocoEvent) :Integer {}
+	public function Destructor() {}
+	public function Constructor() {}
+	protected var __eventListeners :Array<CocoEventListener>;
+} //CocoEventSource
+
 class CocoHttpRequest : CocoTickable
 {
 	public function tick(time:Time) {}
@@ -1959,13 +2012,13 @@ class CocoUIView : CocoClip
 	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
 	public function Constructor() {}
-	private var __x :Float;
-	private var __y :Float;
-	private var __width :Float;
-	private var __height :Float;
-	private var __visible :Boolean;
-	private var __textureIsInvalid :Boolean;
-	private var __enabled :Boolean;
+	protected var __x :Float;
+	protected var __y :Float;
+	protected var __width :Float;
+	protected var __height :Float;
+	protected var __visible :Boolean;
+	protected var __textureIsInvalid :Boolean;
+	protected var __enabled :Boolean;
 	public var Name :String;
 	public var Enabled :Boolean;
 	public var Width :Float;
@@ -1978,10 +2031,10 @@ class CocoUIView : CocoClip
 class CocoUIPageView : CocoUIView
 {
 	public function addChild(clipInstance:CocoClip) :CocoClip {}
+	public function invalidateControls() {}
 	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	private var __controls :Array<CocoUIControl>;
 } //CocoUIPageView
 
 class CocoUIControl : CocoUIView
@@ -1989,62 +2042,62 @@ class CocoUIControl : CocoUIView
 	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	private var __marginLeft :Float;
-	private var __marginRight :Float;
-	private var __marginTop :Float;
-	private var __marginBottom :Float;
+	protected var __marginLeft :Float;
+	protected var __marginRight :Float;
+	protected var __marginTop :Float;
+	protected var __marginBottom :Float;
 	public var MarginLeft :Float;
 	public var MarginRight :Float;
 	public var MarginTop :Float;
 	public var MarginBottom :Float;
-	private var __paddingLeft :Float;
-	private var __paddingRight :Float;
-	private var __paddingTop :Float;
-	private var __paddingBottom :Float;
+	protected var __paddingLeft :Float;
+	protected var __paddingRight :Float;
+	protected var __paddingTop :Float;
+	protected var __paddingBottom :Float;
 	public var PaddingLeft :Float;
 	public var PaddingRight :Float;
 	public var PaddingTop :Float;
 	public var PaddingBottom :Float;
-	private var __fontName :String;
-	private var __fontSize :Float;
-	private var __fontBold :Boolean;
-	private var __fontItalic :Boolean;
-	private var __fontUnderline :Boolean;
-	private var __fontColor :Color;
+	protected var __fontName :String;
+	protected var __fontSize :Float;
+	protected var __fontBold :Boolean;
+	protected var __fontItalic :Boolean;
+	protected var __fontUnderline :Boolean;
+	protected var __fontColor :Color;
 	public var FontName :String;
 	public var FontSize :Float;
 	public var FontBold :Boolean;
 	public var FontItalic :Boolean;
 	public var FontUnderline :Boolean;
 	public var FontColor :Color;
-	private var __borderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
-	private var __borderRadius :Float;
-	private var __borderColor :Color;
-	private var __borderColorSel :Color;
+	protected var __borderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	protected var __borderRadius :Float;
+	protected var __borderColor :Color;
+	protected var __borderColorSel :Color;
 	public var BorderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
 	public var BorderRadius :Float;
 	public var BorderColor :Color;
 	public var BorderColorSel :Color;
-	private var __backgroundGradient :Gradient;
-	private var __backgroundGradientSel :Gradient;
+	protected var __backgroundGradient :Gradient;
+	protected var __backgroundGradientSel :Gradient;
 	public var BackgroundGradient :Gradient;
 	public var BackgroundGradientSel :Gradient;
-	private var __skinImage :CocoImage;
-	private var __skinImageSel :CocoImage;
+	protected var __skinImage :CocoImage;
+	protected var __skinImageSel :CocoImage;
 	public var SkinImage :CocoImage;
 	public var SkinImageSel :CocoImage;
-	private var __glyphImage :CocoImage;
-	private var __glyphImageSel :CocoImage;
-	private var __glyphLeft :Float;
-	private var __glyphTop :Float;
+	protected var __glyphImage :CocoImage;
+	protected var __glyphImageSel :CocoImage;
+	protected var __glyphLeft :Float;
+	protected var __glyphTop :Float;
 	public var GlyphImage :CocoImage;
 	public var GlyphImageSel :CocoImage;
 	public var GlyphLeft :Float;
 	public var GlyphTop :Float;
-	private var __chevronImage :CocoImage;
-	private var __chevronImageSel :CocoImage;
-	private var __chevronLeft :Float;
-	private var __chevronTop :Float;
+	protected var __chevronImage :CocoImage;
+	protected var __chevronImageSel :CocoImage;
+	protected var __chevronLeft :Float;
+	protected var __chevronTop :Float;
 	public var ChevronImage :CocoImage;
 	public var ChevronImageSel :CocoImage;
 	public var ChevronLeft :Float;
@@ -2056,8 +2109,9 @@ class CocoUIButton : CocoUIControl
 	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	private var __caption :String;
-	private var __captionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	protected var __caption :String;
+	protected var __captionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public var OnClick :CocoEvent;
 	public var Caption :String;
 	public var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
 } //CocoUIButton
@@ -2074,12 +2128,36 @@ class CocoUILabel : CocoUIControl
 {
 } //CocoUILabel
 
+class CocoUIPictureList : CocoUIButton
+{
+	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	protected var __secondCaption :String;
+	protected var __secondCaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public var SecondCaption :String;
+	public var SecondCaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	private var __secondCaptionFontName :String;
+	private var __secondCaptionFontSize :Float;
+	private var __secondCaptionFontBold :Boolean;
+	private var __secondCaptionFontItalic :Boolean;
+	private var __secondCaptionFontUnderline :Boolean;
+	private var __secondCaptionFontColor :Color;
+	public var SecondCaptionFontName :String;
+	public var SecondCaptionFontSize :Float;
+	public var SecondCaptionFontBold :Boolean;
+	public var SecondCaptionFontItalic :Boolean;
+	public var SecondCaptionFontUnderline :Boolean;
+	public var SecondCaptionFontColor :Color;
+} //CocoUIPictureList
+
 class CocoUITextBox : CocoUIControl
 {
 } //CocoUITextBox
 
 class GameEngine : CocoEngine
 {
+	public function eventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public var scene :CocoScene;

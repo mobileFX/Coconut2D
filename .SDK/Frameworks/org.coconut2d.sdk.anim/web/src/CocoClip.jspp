@@ -72,7 +72,7 @@
  * @summary CocoClips encapsulate reusable pieces of animation
  * @description CocoClips encapsulate reusable pieces of animation
  */
-class CocoClip
+class CocoClip : CocoEventSource implements IEventTarget
 {
 	public var __instanceName:String;
 	public var __clipPath:String;
@@ -179,9 +179,7 @@ class CocoClip
 	/**
 	 * Creates and assigns to a CocoClip a new texture image containing some text. This is a low-level
 	 * text rendering function and should not be used directly.
-
-	 * @returns void
-	 * @param {!String} 					text 				- The text to draw
+	 * @param {!String} text - The text to draw
 	 */
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function setText(text:String)
@@ -193,8 +191,6 @@ class CocoClip
 	/**
 	 * Creates and assigns to a CocoClip a new texture image containing some text. This is a low-level
 	 * text rendering function and should not be used directly.
-
-	 * @returns void
 	 * @param {!String} 					text 				- The text to draw
 	 * @param {!String} 					fontName 			- The font name to use for drawing the text
 	 * @param {!Integer} 					fontSizePixels		- The font size in pixels

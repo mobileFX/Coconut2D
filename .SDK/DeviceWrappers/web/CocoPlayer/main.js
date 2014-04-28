@@ -34,8 +34,7 @@ Object.defineProperty(String.prototype, "size", { value: function()
 function main()
 {
 
-	debugger;
-
+	/*
 	var obj1 = new Class1("Class1_arg1","Class1_arg2");
 	obj1.test();
 	trace(Class1.public_static_function());
@@ -47,6 +46,7 @@ function main()
 	var obj3 = new Class3();
 	obj3.test();
 	trace(Class3.public_static_function());
+	*/
 
 
 	// Create a CANVAS element in document BODY.

@@ -285,7 +285,11 @@ function CompilerTypeSystemPlugin(compiler)
 					return _this.UNTYPED;
 			}
 
-			if(ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST) return "Function"; //Function Pointer
+			if(ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST)
+			{
+				return ast.symbol.callback || "Function";  //Function Pointer
+			}
+
 			if(ast.symbol.type==jsdef.FUNCTION) return ast.symbol.vartype;
 			return ast.symbol.vartype;
 
@@ -348,7 +352,7 @@ function CompilerTypeSystemPlugin(compiler)
 		{
 			var i=0, item, arg, param, type1, type2;
 
-			if(ast[1] && ast[1].length>fnSymbol.paramsList.length)
+			if(ast[1] && ast[1].length>fnSymbol.paramsList.length && !fnSymbol.restArguments)
 				_this.NewError("Too many arguments: " + ast.source, ast);
 
 			for(item in fnSymbol.arguments)
@@ -563,7 +567,7 @@ function CompilerTypeSystemPlugin(compiler)
 		if(!cls1 || !cls2) return;
 
 		// Check class inheritance
-		if(cls1.type==jsdef.CLASS && cls2.type==jsdef.CLASS)
+		if(cls1.astType==jsdef.CLASS && cls2.astType==jsdef.CLASS)
 		{
 			for(var base=cls2;base!=null;base=base.baseSymbol)
 			{
@@ -573,7 +577,7 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		// Check interface inheritance
-		if(cls1.type==jsdef.INTERFACE && cls2.type==jsdef.INTERFACE)
+		if(cls1.astType==jsdef.INTERFACE && cls2.astType==jsdef.INTERFACE)
 		{
 			for(var base=cls1;base!=null;base=base.baseSymbol)
 			{
@@ -588,7 +592,7 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		// Check class casting to interface
-		if(cls1.type==jsdef.INTERFACE && cls2.type==jsdef.CLASS)
+		if(cls1.astType==jsdef.INTERFACE && cls2.astType==jsdef.CLASS)
 		{
 			for(i=0;i<cls2.interfaces.length;i++)
 			{
@@ -599,7 +603,7 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		// Check casting interface to class
-		if(cls1.type==jsdef.CLASS && cls2.type==jsdef.INTERFACE)
+		if(cls1.astType==jsdef.CLASS && cls2.astType==jsdef.INTERFACE)
 		{
 			_this.NewError("Ambiguous casting of interface to class", ast);
 		}

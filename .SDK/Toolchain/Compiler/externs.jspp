@@ -383,11 +383,15 @@ class Array
 class Function
 {
 	public var length:Number;
-	public function apply(thisObject:Object, optional args:Object):Object {}
-	public function call(thisObject:Object, optional args:Array):Object {}
+	public function apply(thisObject:Object, optional args:Array):Object {}
+	public function call(thisObject:Object, ...):Object {}
 }
 
 class CocoAction : Function {}
+
+//class CocoEventHandler : Function {}
+
+callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Global
