@@ -15,38 +15,17 @@
 state class GameEngine : CocoEngine
 {
 	public var scene:CocoScene;
+	public var btn1:CocoUIButton;
+	public var btn2:CocoUIButton;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-	    /*
-	    CocoText.init(1024, 1024);
-	    var text:CocoText = new CocoText;
-	    text.str = "The quick brown fox jumps over the lazy dog";
-	    text.styles.push(new CocoTextStyle("Helvetica", 48, "normal", "normal", true, 255, 0, 255, 255, 0, 0, 0, 255));
-	    text.styles.push(new CocoTextStyle("Helvetica", 48, "italic", "bold", false, 255, 255, 0, 255, 0, 0, 0, 255));
-	    text.indices.push(0); text.mappings.push(0);
-	    text.indices.push(4); text.mappings.push(1);
-	    text.indices.push(9); text.mappings.push(0);
-	    text.wrap(300);
-	    var image_b64:String = text.draw(600, 1000, 0.5, 0.0, 255, 216, 255, 255);
-	    trace(image_b64);
-		*/
 		setNextState(STATE_GAME);
-
-		var btn1:CocoUIButton = new CocoUIButton();
-		btn1.Caption = "test1";
-
-		var btn2:CocoUIButton = new CocoUIButton();
-		btn2.Caption = "test2";
-
-		btn1.addEventListener(btn1.OnClick, eventHandler);
-		btn1.addEventListener(btn1.OnClick, eventHandler);
-		btn2.addEventListener(btn1.OnClick, eventHandler);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
-	public callback<CocoEventHandler> function eventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean
+	public function eventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean
 	{
 		return true;
 	}
@@ -62,6 +41,16 @@ state class GameEngine : CocoEngine
 		function enter()
 		{
 			scene = new NewAnimation();
+
+			btn1 = new CocoUIButton("button1");
+			btn1.move(10, 10, 300, 60);
+			btn1.addEventListener(btn1.OnClick, eventHandler);
+			scene.__root.addChild(btn1);
+
+			btn2 = new CocoUIButton("button2");
+			btn2.move(10, 100, 300, 60);
+			btn2.addEventListener(btn2.OnClick, eventHandler);
+			scene.__root.addChild(btn2);
 		}
 
 		function exit()

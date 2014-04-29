@@ -380,7 +380,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 				switch(item)
 				{
 					// Object Node properties that we do not want to descend
-					case "base_init_params":
 					case "constructorNode":
 					case "destructorNode":
 					case "identifier_first":
@@ -396,6 +395,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 					case "returnPaths":
 					case "scope":
 					case "tokenizer":
+					case "jsdoc":
+					case "interfaces":
 
 					// Scallar Node properties that we do not want to descend
 					case "__end":
@@ -865,6 +866,21 @@ function Compiler(ast, exportSymbols, selectedClass)
 		return __isBaseMember(baseOnly ? cls.baseSymbol : cls) ? basePath.join(".") : null;
 	};
 
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.baseClassDot = function(classSymbol, baseSymbol)
+	{
+		var basePath = [];
+		function __getBase(base)
+		{
+			if(!base) return false;
+			basePath.push(base.classId);
+			if(base==baseSymbol) return true;
+			return __getBase(base.baseSymbol);
+		}
+		return __getBase(classSymbol) ? basePath.join(".") : null;
+	};
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.isInside = function(ast, jsdefType, propName, propValue, stop_jsdefType)
 	{
@@ -1236,10 +1252,16 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 	            for(i=0;i<classSymbol.bases.length;i++)
 	            {
+	            	// Special case when base is an ECMA or native Class (eg. Array)
 	            	if(classSymbol.bases[i].isExtern)
+	            	{
 	            		out.push(classSymbol.bases[i].classId + " = this");
+	            	}
+					// Standard CocoScript case when a Class inherits from a CocoScript class
 	            	else
-	            		out.push(classSymbol.bases[i].classId + " = this." + classSymbol.bases[i].classId );
+	            	{
+	            		out.push(classSymbol.bases[i].classId + " = this." + classSymbol.bases[i].classId + " = " + _this.baseClassDot(classSymbol,classSymbol.bases[i]));
+	            	}
 					out.push(i!=classSymbol.bases.length-1 ? ",": ";");
 	            }
             }
@@ -1418,7 +1440,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 							functionSymbol.className		= classSymbol.name;
 							functionSymbol.classId			= classSymbol.classId;
 							functionSymbol.restArguments	= delegatorFunctionSymbol.restArguments;
-							functionSymbol.callback			= false;
 							functionSymbol.public			= delegator.public;
 							functionSymbol.private			= delegator.private;
 							functionSymbol.protected		= delegator.protected;
@@ -1487,36 +1508,45 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Close outer function
 			if(baseClass)
 			{
-				var baseConstructorArguments = [];
-
-				// Generate base class constructor arguments call list
-				// eg. public function Constructor(arg1:String) : BaseClass(arg1, "arg2")
-
-				if(ast.base_init_params)
+				if(baseConstructor && _this.secondPass)
 				{
-					_this.lineNumbers = false;
-					for(var item in ast.base_init_params)
+					var baseConstructorArguments = [];
+
+					// Generate base class constructor arguments call list
+					// eg. public function Constructor(arg1:String) : BaseClass(arg1, "arg2")
+
+					if(baseConstructor.paramsList.length && !baseConstructor.paramsList[0].optional && !ast.base_init)
 					{
-						if(!isFinite(item)) break;
-						var arg = ast.base_init_params[item];
-						if(arg.type==jsdef.IDENTIFIER)
-						{
-							baseConstructorArguments.push(classId + "$" + arg.value + "__");
-						}
-						else
-						{
-							var gen = _this.generate(arg);
-							baseConstructorArguments.push(gen);
-						}
+						_this.NewError("Base constructor arguments missmatch: " + baseClass, ast);
 					}
-					_this.lineNumbers = true;
-					baseConstructorArguments = baseConstructorArguments.join(", ");
-				}
-				else
-				{
-					baseConstructorArguments = thisConstructorArguments;
-				}
 
+					if(ast.base_init)
+					{
+						_this.checkFunctionSignature(ast.base_init, baseConstructor);
+
+						_this.lineNumbers = false;
+						for(var item in ast.base_init[1])
+						{
+							if(!isFinite(item)) break;
+							var arg = ast.base_init[1][item];
+							if(arg.type==jsdef.IDENTIFIER)
+							{
+								baseConstructorArguments.push(classId + "$" + arg.value + "__");
+							}
+							else
+							{
+								var gen = _this.generate(arg);
+								baseConstructorArguments.push(gen);
+							}
+						}
+						_this.lineNumbers = true;
+						baseConstructorArguments = baseConstructorArguments.join(", ");
+					}
+					else
+					{
+						baseConstructorArguments = thisConstructorArguments;
+					}
+				}
 				out.push("__" + ast.name + ".prototype = new " + baseClass + "(" + baseConstructorArguments + ");");
 			}
 			out.push("return new __" + ast.name + "(" + thisConstructorArguments + ");}");
@@ -1754,7 +1784,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 				functionSymbol.classId			= classScope ? classId : null;
 				functionSymbol.isExtern			= (ast.file=="externs.jspp");
 				functionSymbol.restArguments	= ast.restArguments;
-				functionSymbol.callback			= ast.callback;
 				functionSymbol.public			= ast.public==true;
 				functionSymbol.private			= ast.private==true;
 				functionSymbol.protected		= ast.protected==true;
@@ -2120,9 +2149,17 @@ function Compiler(ast, exportSymbols, selectedClass)
 	  					if(ast.public)
 	  					{
 							var virtualRedefine = "this." + fnName + " = __VIRTUAL__." + fnName + " = ";
-							for(i=0;i<classSymbol.bases.length;i++)
+
+							for(i=classSymbol.bases.length;i--;)
 							{
 								var base = classSymbol.bases[i];
+
+								// Check if the base class has this virtual method
+								if(base.methods[fnName] && !base.methods[fnName].virtual)
+								{
+									break;
+								}
+
 								virtualRedefine += base.classId+"."+fnName+" = ";
 							}
 							virtualRedefine += "function" + paramsList + ast.generated_code + ";"
@@ -2195,19 +2232,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 							var type = _this.getTypeName(ast.returnPaths[i].value);
 							_this.typeCheck(ast.returnPaths[i].value, ast.returntype, type);
 						}
-					}
-				}
-
-				// =================================================================
-				// If the function is callback, check its signature
-				// =================================================================
-				if(_this.secondPass && functionSymbol.callback)
-				{
-					var callbackSymbol = _this.getClass(functionSymbol.callback);
-					if(functionSymbol.__typedParamsList != callbackSymbol.__typedParamsList)
-					{
-						_this.NewError("Invalid callback signature: " + callbackSymbol.name, ast);
-						_this.NewError("Invalid callback signature: " + callbackSymbol.name, callbackSymbol.ast);
 					}
 				}
 
@@ -2944,9 +2968,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.IDENTIFIER:
 
-			//==================================================================================
 			// First pass or not inside a class?
-			//==================================================================================
 			if(!_this.secondPass || _this.no_errors>0)
 			{
 				// Generate identifier and be gone.
@@ -3033,7 +3055,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// If the identifier's symbol is an overloaded function we need
 			// to determine from the execution context which overload to use.
 			//
-			// We need to consider the places where an overloaded function might appea:
+			// We need to consider the places where an overloaded function might appear:
 			// 1) as right-value in an assignment (function pointer):	var fn:Function = foo;
 			// 2) as an argument in a function call					: 	goo(foo);
 			// 3) as a call (that could be in a DOT)				:	foo() + object.foo()
@@ -3092,7 +3114,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 								// *** Special Case ***
 								// If the overloaded function belongs to a delegated object we
-								// need to aquite the proper function symbol from the host class
+								// need to aquire the proper function symbol from the host class
 								// that has the proper runtime information.
 
 								if(ast.symbol.delegated)
@@ -3213,19 +3235,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 			{
 				out.push(ast.symbol.runtime);
 			}
-
-			// =============================================================
-			// Symbol is defined in externs and used in a different class scope.
-			// Also, symbol inherits from a class also defined in externs.
-			// (eg. TouchList which inherits from ECMA Array)
-			// =============================================================
-			/*
-			else if(ast.inDot && ast.symbol.isExtern && ast.inClass && (path=_this.isBaseMember(ast.value, ast.symbol.ast.inClass.symbol, false)))
-			{
-				trace(path + "   -   " + ast.symbol.runtime);
-				out.push(ast.symbol.runtime);
-			}
-			*/
 
 			// =============================================================
 			// Symbol is defined in externs and used in class scope.
@@ -3695,14 +3704,14 @@ function Compiler(ast, exportSymbols, selectedClass)
 		case jsdef.LSH:					out.push(generate(ast[0])); out.push("<<"); out.push(generate(ast[1])); break;
 		case jsdef.LT:					out.push(generate(ast[0])); out.push("<");   out.push(generate(ast[1])); break;
 		case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	 out.push(generate(ast[1])); break;
-		case jsdef.NEW: 				out.push("new "); out.push(generate(ast[0])); break;
+		case jsdef.NEW: 				out.push("new "); out.push(generate(ast[0])); _this.checkFunctionCall(ast); break;
+		case jsdef.NEW_WITH_ARGS:		out.push("new "); out.push(generate(ast[0])); out.push("("); out.push(generate(ast[1])); out.push(")"); _this.checkFunctionCall(ast); break;
 		case jsdef.NOT:					out.push("!"); out.push(generate(ast[0])); break;
 		case jsdef.NULL:				out.push("null"); break;
 		case jsdef.NUMBER:				out.push(ast.value); break;
 		case jsdef.OR:					out.push(generate(ast[0])); out.push("||"); out.push(generate(ast[1]));	break;
 		case jsdef.RETURN:				out.push("return"); if(ast.value) out.push(" " + generate(ast.value)); out.push(";\n"); break;
 		case jsdef.RSH:					out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
-		case jsdef.SEMICOLON:			var expr = (ast.expression ? generate(ast.expression) : ""); if(expr) out.push(expr + ";\n"); break;
 		case jsdef.STRICT_EQ:			out.push(generate(ast[0])); out.push("=="); out.push(generate(ast[1])); break;
 		case jsdef.STRICT_NE:			out.push(generate(ast[0]));	out.push("!="); out.push(generate(ast[1])); break;
 		case jsdef.THROW:				out.push("throw "); out.push(generate(ast.exception)); out.push(";"); break;
@@ -3712,13 +3721,20 @@ function Compiler(ast, exportSymbols, selectedClass)
 		case jsdef.URSH:				out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
 		case jsdef.WHILE:				ast.body.isLoop=true; out.push("while(" + generate(ast.condition) + ")"); out.push(generate(ast.body)); break;
 
-		case jsdef.NEW_WITH_ARGS:
-			out.push("new ");
-			out.push(generate(ast[0]));
-			out.push("(");
-			out.push(generate(ast[1]));
-			out.push(")");
-			_this.checkFunctionCall(ast);
+		case jsdef.SEMICOLON:
+			var expr = (ast.expression ? generate(ast.expression) : "");
+			if(_this.secondPass && ast.expression && ast.expression[0] && ast.expression[0].type==jsdef.SUPER && ast.expression[1].symbol.type==jsdef.FUNCTION)
+			{
+				var params = [];
+				for(item in ast.inFunction.symbol.paramsList)
+				{
+					if(!isFinite(item)) continue;
+					var param = ast.inFunction.symbol.paramsList[item];
+					params.push(param.name);
+				}
+				expr += "(" + params.join(",") + ")";
+			}
+			if(expr) out.push(expr + ";\n");
 			break;
 		}
 
@@ -3728,7 +3744,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.arithmeticOp = function(ast, op, out)
 	{
-
 		var g0 = _this.generate(ast[0]);
 		var g1 = _this.generate(ast[1]);
 		out.push(g0);

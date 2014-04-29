@@ -126,7 +126,17 @@ state class CocoEngine
 			if(__currentState) __currentState.enter();
 		}
 
-		if(__currentState) __currentState.tick(__clock);
+		if(__currentState)
+		{
+			var i:Integer;
+			for(i=0;i<this.__clicked.size();i++)
+			{
+				var clip:CocoClip = this.__clicked[i];
+				clip.dispatchEvent(clip.OnClick);
+			}
+
+			__currentState.tick(__clock);
+		}
 		__clicked.clear();
 
 		if(__nextState==null && __currentState!=null)

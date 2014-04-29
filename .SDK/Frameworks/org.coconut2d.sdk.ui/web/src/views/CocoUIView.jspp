@@ -59,6 +59,12 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public property Name
 	{
 		function get():String { return __instanceName; }
@@ -108,6 +114,16 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function move(x:Float, y:Float, width:Float, height:Float)
+	{
+		__x = x;
+		__y = y;
+		__width = width;
+		__height = height;
+		invalidate();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function invalidate()
 	{
 		__textureIsInvalid = true;
@@ -116,7 +132,7 @@ class CocoUIView : CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
-		if(!__visible)
+		if(!__visible || !parentClip || !scene || !gl)
 			return;
 
 		// If the texture is invalid we need to recreate it
@@ -142,7 +158,7 @@ class CocoUIView : CocoClip
 	        __image.textureCellWidth = Float(__width);
 	        __image.textureCellHeight = Float(__height);
 	        __image.textureGrid = new Float32Array([0,0]);
-	        __image.prepare(__scene, gl);
+	        __image.prepare(scene, gl);
 
 	        // Delete the temp canvas
 	        ctx = null;

@@ -348,29 +348,43 @@ function CompilerTypeSystemPlugin(compiler)
 			}
 		}
 
-		if(fnSymbol  && fnSymbol instanceof _this.FunctionSymbol)
+		_this.checkFunctionSignature(ast, fnSymbol);
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.checkFunctionSignature = function(ast, fnSymbol)
+	{
+		if(!(fnSymbol  && fnSymbol instanceof _this.FunctionSymbol))
+			return;
+
+		var i=0, item, arg, param, type1, type2;
+
+		if(ast[1] && ast[1].length>fnSymbol.paramsList.length && !fnSymbol.restArguments)
+			_this.NewError("Too many arguments: " + ast.source, ast);
+
+		for(item in fnSymbol.arguments)
 		{
-			var i=0, item, arg, param, type1, type2;
+			arg = fnSymbol.arguments[item];
+			type1 = arg.vartype;
 
-			if(ast[1] && ast[1].length>fnSymbol.paramsList.length && !fnSymbol.restArguments)
-				_this.NewError("Too many arguments: " + ast.source, ast);
-
-			for(item in fnSymbol.arguments)
+			if(ast[1] && i<ast[1].length)
 			{
-				arg = fnSymbol.arguments[item];
-				type1 = arg.vartype;
+				var arg_ast = ast[1][i];
 
-				if(ast[1] && i<ast[1].length)
+				// Lookup constructor argument
+				if(ast.type==jsdef.CONSTRUCTOR_CALL && !arg_ast.symbol)
 				{
-					type2 = _this.getTypeName(ast[1][i]);
-					_this.typeCheck(ast[1][i], type1, type2, "Argument type mismatch: "+type1+" and "+type2);
+					arg_ast.symbol = _this.LookupIdentifier(fnSymbol.scope, arg_ast.value, arg_ast, true);
 				}
-				else if(!arg.optional)
-				{
-					_this.NewError("Argument not optional: " + ast.source, ast);
-				}
-				i++;
+
+				type2 = _this.getTypeName(arg_ast);
+				_this.typeCheck(arg_ast, type1, type2, "Argument type mismatch: "+type1+" and "+type2);
 			}
+			else if(!arg.optional)
+			{
+				_this.NewError("Argument not optional: " + ast.source, ast);
+			}
+			i++;
 		}
 	};
 
@@ -565,6 +579,16 @@ function CompilerTypeSystemPlugin(compiler)
 	_this.classTypeCheck = function(cls1, cls2, ast)
 	{
 		if(!cls1 || !cls2) return;
+
+		// Casting function to callback signature
+		if(cls1.isCallback)
+		{
+			if(ast.symbol.__typedParamsList==cls1.__typedParamsList)
+				return cls1.name;
+
+			_this.NewError("Callback type mismatch " + cls1.name + " and " + cls2.name + ": " + ast.source, ast);
+			return cls1.name;
+		}
 
 		// Check class inheritance
 		if(cls1.astType==jsdef.CLASS && cls2.astType==jsdef.CLASS)

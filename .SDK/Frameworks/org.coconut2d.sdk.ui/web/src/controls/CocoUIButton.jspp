@@ -41,11 +41,11 @@ control class CocoUIButton : CocoUIControl
 	protected var __caption:String;
 	protected var __captionAlign:COCO_CONTROL_ANCHOR_ENUM;
 
-	public event OnClick:CocoEvent = new CocoEvent("OnClick", true, true);
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	public function Constructor(Name:String) :CocoUIControl(Name)
 	{
+		__width = 320;
+		__height = 48;
 		__caption = "Caption";
 		__captionAlign = COCO_CONTROL_ANCHOR_ENUM.ANCHOR_CENTER;
 	}
@@ -73,5 +73,6 @@ control class CocoUIButton : CocoUIControl
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D)
 	{
+		super.repaint;
 	}
 }

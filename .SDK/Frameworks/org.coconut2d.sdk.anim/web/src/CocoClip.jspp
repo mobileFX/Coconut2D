@@ -119,6 +119,12 @@ class CocoClip : CocoEventSource implements IEventTarget
 	private var __currentSequence:CocoSequence;
 	private var __currentAudio:CocoAudio;
 
+	public event OnClick:CocoEvent 			= new CocoEvent("OnClick", true, true);
+	public event OnTouchStart:CocoEvent 	= new CocoEvent("OnTouchStart", true, true);
+	public event OnTouchMove:CocoEvent 		= new CocoEvent("OnTouchMove", true, true);
+	public event OnTouchEnd:CocoEvent 		= new CocoEvent("OnTouchEnd", true, true);
+	public event OnTouchCancel:CocoEvent 	= new CocoEvent("OnTouchCancel", true, true);
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
 	{
@@ -248,6 +254,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 		if(!clipInstance) return null;
 		if(!clipInstance.__instanceName) throw "Invalid instance name.";
 		__children.push(clipInstance);
+		clipInstance.__parent = this;
 		normalize();
 		clipInstance.__clipPath = (__clipPath ? __clipPath : __instanceName) + "/" + clipInstance.__instanceName;
 		return clipInstance;
@@ -258,6 +265,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 	{
 		if(!clipInstance) return null;
 		var index:Integer = getChildIndex(clipInstance);
+		clipInstance.__parent = null;
 		if(index==-1) return null;
 		__children.splice(index, 1);
 		normalize();
@@ -499,7 +507,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 	        // =============================================================================================================
 			if(!__timeline.__paused)
 			{
-				this.__parent = parentClip;
+				//this.__parent = parentClip;
 
 				if(__currentFrame.action)
 				{
@@ -529,7 +537,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 					__currentAudio = __currentFrame.audio;
 				}
 
-				this.__parent = null;
+				//this.__parent = null;
 			}
 
 	        // =============================================================================================================

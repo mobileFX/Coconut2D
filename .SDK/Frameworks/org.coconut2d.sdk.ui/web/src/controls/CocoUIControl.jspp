@@ -139,8 +139,10 @@ class CocoUIControl : CocoUIView
 	published property ChevronTop		{ function get():Float 		{ return __chevronTop; 			} function set(v:Float) 	{ __chevronTop = v; invalidate();		}}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	public function Constructor(Name:String)
 	{
+		__instanceName 				= Name;
+
 		__marginLeft 				= 0;
 		__marginRight 				= 0;
 		__marginTop 				= 0;
@@ -188,7 +190,7 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D)
 	{
-
+		CocoGraphics.drawSkin(ctx, this.SkinImage, this.PaddingLeft, this.PaddingTop, this.Width-this.PaddingLeft-this.PaddingRight, this.Height-this.PaddingTop-this.PaddingBottom, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_NONE);
 	}
 }
 

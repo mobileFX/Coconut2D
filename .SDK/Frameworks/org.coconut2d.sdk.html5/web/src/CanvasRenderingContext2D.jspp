@@ -457,6 +457,7 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 		var _x:Integer = Integer(Math.floor(x));
 		var _y:Integer = Integer(Math.floor(y));
 		for(var ix:Integer = 0; ix < width; ix++)
+		{
 			for(var iy:Integer = 0; iy < height; iy++)
 			{
 				var idx:Integer = ((_y + iy) * canvas.__imageData.width + _x + ix) * 4;
@@ -468,6 +469,7 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 					canvas.__imageData.data[idx + 3] += 255.0 * __fillColor[3] * __fillColor[3] - canvas.__imageData.data[idx + 3] * __fillColor[3];
 				}
 			}
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

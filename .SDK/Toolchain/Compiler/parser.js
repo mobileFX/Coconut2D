@@ -103,6 +103,7 @@ function __init_narcissus(GLOBAL)
 		"FOR_INSIDE",
 		"ARRAY_COMP",
 		"ENUM_ITEM",
+		"CONSTRUCTOR_CALL",
 
         // Terminals.
         "IDENTIFIER",
@@ -1232,7 +1233,6 @@ function __init_narcissus(GLOBAL)
 					jsdef.STATIC,
 					jsdef.VIRTUAL,
 					jsdef.ABSTRACT,
-					jsdef.CALLBACK,
 					jsdef.DELEGATE,
 					jsdef.VAR,
 					jsdef.EVENT,
@@ -1259,14 +1259,6 @@ function __init_narcissus(GLOBAL)
 					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
 					if(t.match(jsdef.ABSTRACT)) t.abstract = true;
 					if(t.match(jsdef.DELEGATE)) t.delegate = true;
-
-					if(t.match(jsdef.CALLBACK))
-					{
-						t.mustMatch(jsdef.LT);
-						t.mustMatch(jsdef.IDENTIFIER);
-						t.callback = t.token().value;
-						t.mustMatch(jsdef.GT);
-					}
 
 					if(t.match(jsdef.CONST))
 					{
@@ -1659,12 +1651,24 @@ function __init_narcissus(GLOBAL)
 				if(t.token().value==classNode.extends)
 				{
 					t.mustMatch(jsdef.LEFT_PAREN);
-					classNode.base_init_params=[];
+
+					// Create a pseudo-call
+					classNode.base_init= new Node(t, jsdef.CONSTRUCTOR_CALL);
+
+					// Save base class identifier
+					var n2=new Node(t, jsdef.IDENTIFIER);
+					n2.value = classNode.extends;
+					classNode.base_init.push(n2);
+
+					// Create a LIST
+					var n3=new Node(t, jsdef.LIST);
+					classNode.base_init.push(n3);
+
 					while(t.peek()!=jsdef.RIGHT_PAREN)
 					{
 						t.get();
 						var arg = new Node(t);
-						classNode.base_init_params.push(arg);
+						n3.push(arg);
 						if(t.peek()!=jsdef.COMMA)
 							break;
 						t.get();
