@@ -310,13 +310,6 @@ class Global
 	undefined var Touch :Touch;
 	undefined var TouchList :TouchList;
 	undefined var State :State;
-	undefined var ITest1 :ITest1;
-	undefined var ITest2 :ITest2;
-	undefined var ITest3 :ITest3;
-	undefined var ClassDelegator :ClassDelegator;
-	undefined var Class1 :Class1;
-	undefined var Class2 :Class2;
-	undefined var Class3 :Class3;
 	undefined var CocoAudio :CocoAudio;
 	undefined var CocoHttpRequest :CocoHttpRequest;
 	undefined var CocoUIView :CocoUIView;
@@ -329,6 +322,13 @@ class Global
 	undefined var CocoUIPictureList :CocoUIPictureList;
 	undefined var CocoUITextBox :CocoUITextBox;
 	undefined var GameEngine :GameEngine;
+	undefined var ITest1 :ITest1;
+	undefined var ITest2 :ITest2;
+	undefined var ITest3 :ITest3;
+	undefined var ClassDelegator :ClassDelegator;
+	undefined var Class1 :Class1;
+	undefined var Class2 :Class2;
+	undefined var Class3 :Class3;
 	undefined var NewAnimation :NewAnimation;
 	undefined var Page1 :Page1;
 } //Global
@@ -1858,120 +1858,6 @@ class State
 	public var params :Object;
 } //State
 
-class ITest1
-{
-	public function foo() {}
-} //ITest1
-
-class ITest2 : ITest1
-{
-	public function goo() {}
-} //ITest2
-
-class ITest3
-{
-	public function zoo() {}
-} //ITest3
-
-class ClassDelegator
-{
-	public function poo(a:String, b:Float, c:Class2) {}
-} //ClassDelegator
-
-class Class1
-{
-	public function foo() {}
-	public function goo() {}
-	public function zoo() {}
-	public function interface_test1(obj:ITest1) {}
-	public function interface_test2(obj:ITest2) {}
-	public function interface_test3(obj:ITest3) {}
-	public function interface_class(obj:Class1) {}
-	public function interface_tests() {}
-	public function test_virtual() {}
-	public function test() {}
-	public function public_static_function(b:String) :String {}
-	private function private_static_function(b:String) :String {}
-	protected function protected_static_function(b:String) :String {}
-	public function public_function(b:String) :String {}
-	private function private_function(b:String) :String {}
-	protected function protected_function(b:String) :String {}
-	public function public_overload() :String {}
-	public function public_overload$1(arg:String) :String {}
-	public function public_overload$2(arg1:String, arg2:String) :String {}
-	private function private_overload() :String {}
-	private function private_overload$1(arg:String) :String {}
-	private function private_overload$2(arg1:String, arg2:String) :String {}
-	protected function protected_overload() :String {}
-	protected function protected_overload$1(arg:String) :String {}
-	protected function protected_overload$2(arg1:String, arg2:String) :String {}
-	public function Destructor() {}
-	public function Constructor(arg1:String, arg2:String) {}
-	protected function poo(a:String, b:Float, c:Class2) {}
-	public var public_delegate :ClassDelegator;
-	private var private_delegate :ClassDelegator;
-	protected var protected_delegate :ClassDelegator;
-	public var public_var :String;
-	private var private_var :String;
-	protected var protected_var :String;
-	public var public_const :String;
-	private var private_const :String;
-	protected var protected_const :String;
-	public var static_public_var :String;
-	private var static_private_var :String;
-	protected var static_protected_var :String;
-	private var __public_property :String;
-	private var __private_property :String;
-	private var __protected_property :String;
-	private var __public_static_property :String;
-	private var __private_static_property :String;
-	private var __protected_static_property :String;
-	public var public_state :State;
-	private var private_state :State;
-	protected var protected_state :State;
-	public var public_property :String;
-	private var private_property :String;
-	protected var protected_property :String;
-	public var public_static_property :String;
-	private var private_static_property :String;
-	protected var protected_static_property :String;
-} //Class1
-
-class Class2 : Class1
-{
-	public function test() {}
-	public function cls2_public_function() :String {}
-	public function Constructor(arg1:String) {}
-	public var x :String;
-	private var y :String;
-	protected var z :String;
-	public var static_public_var :String;
-	private var static_private_var :String;
-	protected var static_protected_var :String;
-	private var __public_static_property :String;
-	private var __private_static_property :String;
-	private var __protected_static_property :String;
-	public var public_static_property :String;
-	private var private_static_property :String;
-	protected var protected_static_property :String;
-} //Class2
-
-class Class3 : Class2
-{
-	public function test_virtual() {}
-	public function test() {}
-	public function Constructor() {}
-	public var static_public_var :String;
-	private var static_private_var :String;
-	protected var static_protected_var :String;
-	private var __public_static_property :String;
-	private var __private_static_property :String;
-	private var __protected_static_property :String;
-	public var public_static_property :String;
-	private var private_static_property :String;
-	protected var protected_static_property :String;
-} //Class3
-
 class CocoAudio
 {
 	public function reset() {}
@@ -2174,6 +2060,120 @@ class GameEngine : CocoEngine
 	public var btn2 :CocoUIButton;
 	public var STATE_GAME :State;
 } //GameEngine
+
+class ITest1
+{
+	public function foo() {}
+} //ITest1
+
+class ITest2 : ITest1
+{
+	public function goo() {}
+} //ITest2
+
+class ITest3
+{
+	public function zoo() {}
+} //ITest3
+
+class ClassDelegator
+{
+	public function poo(a:String, b:Float, c:Class2) {}
+} //ClassDelegator
+
+class Class1
+{
+	public function foo() {}
+	public function goo() {}
+	public function zoo() {}
+	public function interface_test1(obj:ITest1) {}
+	public function interface_test2(obj:ITest2) {}
+	public function interface_test3(obj:ITest3) {}
+	public function interface_class(obj:Class1) {}
+	public function interface_tests() {}
+	public function test_virtual() {}
+	public function test() {}
+	public function public_static_function(b:String) :String {}
+	private function private_static_function(b:String) :String {}
+	protected function protected_static_function(b:String) :String {}
+	public function public_function(b:String) :String {}
+	private function private_function(b:String) :String {}
+	protected function protected_function(b:String) :String {}
+	public function public_overload() :String {}
+	public function public_overload$1(arg:String) :String {}
+	public function public_overload$2(arg1:String, arg2:String) :String {}
+	private function private_overload() :String {}
+	private function private_overload$1(arg:String) :String {}
+	private function private_overload$2(arg1:String, arg2:String) :String {}
+	protected function protected_overload() :String {}
+	protected function protected_overload$1(arg:String) :String {}
+	protected function protected_overload$2(arg1:String, arg2:String) :String {}
+	public function Destructor() {}
+	public function Constructor(arg1:String, arg2:String) {}
+	protected function poo(a:String, b:Float, c:Class2) {}
+	public var public_delegate :ClassDelegator;
+	private var private_delegate :ClassDelegator;
+	protected var protected_delegate :ClassDelegator;
+	public var public_var :String;
+	private var private_var :String;
+	protected var protected_var :String;
+	public var public_const :String;
+	private var private_const :String;
+	protected var protected_const :String;
+	public var static_public_var :String;
+	private var static_private_var :String;
+	protected var static_protected_var :String;
+	private var __public_property :String;
+	private var __private_property :String;
+	private var __protected_property :String;
+	private var __public_static_property :String;
+	private var __private_static_property :String;
+	private var __protected_static_property :String;
+	public var public_state :State;
+	private var private_state :State;
+	protected var protected_state :State;
+	public var public_property :String;
+	private var private_property :String;
+	protected var protected_property :String;
+	public var public_static_property :String;
+	private var private_static_property :String;
+	protected var protected_static_property :String;
+} //Class1
+
+class Class2 : Class1
+{
+	public function test() {}
+	public function cls2_public_function() :String {}
+	public function Constructor(arg1:String) {}
+	public var x :String;
+	private var y :String;
+	protected var z :String;
+	public var static_public_var :String;
+	private var static_private_var :String;
+	protected var static_protected_var :String;
+	private var __public_static_property :String;
+	private var __private_static_property :String;
+	private var __protected_static_property :String;
+	public var public_static_property :String;
+	private var private_static_property :String;
+	protected var protected_static_property :String;
+} //Class2
+
+class Class3 : Class2
+{
+	public function test_virtual() {}
+	public function test() {}
+	public function Constructor() {}
+	public var static_public_var :String;
+	private var static_private_var :String;
+	protected var static_protected_var :String;
+	private var __public_static_property :String;
+	private var __private_static_property :String;
+	private var __protected_static_property :String;
+	public var public_static_property :String;
+	private var private_static_property :String;
+	protected var protected_static_property :String;
+} //Class3
 
 class NewAnimation : CocoScene
 {
