@@ -30,6 +30,12 @@ interface IEventTarget
 {
 }
 
+interface IEventListener
+{
+}
+
+callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean {}
+
 // ==================================================================================================================================
 //	   ______                 ______                 __
 //	  / ____/___  _________  / ____/   _____  ____  / /_
@@ -108,14 +114,16 @@ class CocoEvent
 //
 // ==================================================================================================================================
 
-class CocoEventListener
+class CocoEventConnectionPoint
 {
 	public var Event:CocoEvent;
-	public var Callback:CocoEventHandler;
+	public var Callback:Function;
+	public var Listener:IEventListener;
 
-	public function Constructor(Event:CocoEvent, Callback:CocoEventHandler)
+	public function Constructor(Event:CocoEvent, Listener:IEventListener, Callback:Function)
 	{
 		this.Event = Event;
+		this.Listener = Listener;
 		this.Callback = Callback;
 	}
 
@@ -133,12 +141,10 @@ class CocoEventListener
 //
 // ==================================================================================================================================
 
-callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean {}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoEventSource
 {
-	protected var __eventListeners:Array<CocoEventListener>
+	protected var __eventListeners:Array<CocoEventConnectionPoint>
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -153,19 +159,19 @@ class CocoEventSource
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function addEventListener(Event:CocoEvent, Callback:CocoEventHandler)
+	public virtual function addEventListener(Event:CocoEvent, Listener:IEventListener, Callback:Function)
 	{
-		var item:CocoEventListener = new CocoEventListener(Event, Callback);
+		var item:CocoEventConnectionPoint = new CocoEventConnectionPoint(Event, Listener, Callback);
 		__eventListeners.push(item);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function removeEventListener(Event:CocoEvent, Callback:CocoEventHandler) :Boolean
+	public virtual function removeEventListener(Event:CocoEvent, Listener:IEventListener, Callback:Function) :Boolean
 	{
 		var i:Integer;
 		for(i=__eventListeners.size()-1;i>=0;i--)
 		{
-			if(__eventListeners[i].Event.is(Event) && __eventListeners[i].Callback==Callback)
+			if(__eventListeners[i].Event.is(Event) && __eventListeners[i].Listener==Listener && __eventListeners[i].Callback==Callback)
 			{
 				__eventListeners.splice(i, 1);
 				return true;
@@ -175,17 +181,18 @@ class CocoEventSource
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function dispatchEvent(Event:CocoEvent) :Integer
+	public virtual function dispatchEvent(Event:CocoEvent, ...) :Integer
 	{
 		var i:Integer;
 		var c:Integer;
 		for(i=__eventListeners.size()-1;i>=0;i--)
 		{
-			if(__eventListeners[i].Event.is(Event))
+			var cp:CocoEventConnectionPoint = __eventListeners[i];
+
+			if(cp.Event.is(Event))
 			{
 				c++;
-				var Callback:CocoEventHandler = __eventListeners[i].Callback;
-				var cancel:Boolean = Callback.call(this, __eventListeners[i].Event);
+				var cancel:Boolean = cp.Callback.call(cp.Listener, arguments.slice(1).push(cp.Event) );
 				if(cancel)
 				{
 					__eventListeners[i].Event.cancelBubble();
@@ -198,7 +205,6 @@ class CocoEventSource
 		}
 		return c;
 	}
-
 }
 
 // ==================================================================================================================================

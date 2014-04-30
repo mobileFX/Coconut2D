@@ -32,7 +32,7 @@ OBJ			= $(addsuffix .obj, $(basename $(SRC)))
 OBJ_OBJ		= $(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $(SRC)))))
 
 #==============================================================================
-compile:	prepare resources $(OBJ)
+compile:	$(OBJ)
 
 #link codesign ipa end
 

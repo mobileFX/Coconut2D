@@ -392,6 +392,7 @@ function make(options)
         buff.push('SET IOSBUILDENV_PATH=' + makefile.Vars.PATH_3RD_PARTY_IOS_BUILD_ENV);
         buff.push('SET IOS_PROJECT_PATH=$(TARGET_ROOT)');
 		buff.push('SET IOS_MAKEFILE=%IOS_PROJECT_PATH%/Makefile.mk');
+		buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% prepare resources');
         buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --jobs --warn-undefined-variables SHELL=%ComSpec% compile');
         buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% link codesign ipa end');
         //buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% all');

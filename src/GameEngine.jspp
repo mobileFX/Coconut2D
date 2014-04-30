@@ -12,7 +12,7 @@
 //	                                      /____/
 // ==================================================================================================================================
 
-state class GameEngine : CocoEngine
+state class GameEngine : CocoEngine implements IEventListener
 {
 	public var scene:CocoScene;
 	public var btn1:CocoUIButton;
@@ -24,8 +24,7 @@ state class GameEngine : CocoEngine
 		setNextState(STATE_GAME);
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function eventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean
+	public function mousedown(Sender:CocoEventSource, x:Float, y:Float) :Boolean
 	{
 		return true;
 	}
@@ -43,13 +42,14 @@ state class GameEngine : CocoEngine
 			scene = new NewAnimation();
 
 			btn1 = new CocoUIButton("button1");
+			debugger;
 			btn1.move(10, 10, 300, 60);
-			btn1.addEventListener(btn1.OnClick, eventHandler);
+			btn1.addEventListener(btn1.OnTouchStart, this, mousedown);
 			scene.__root.addChild(btn1);
 
 			btn2 = new CocoUIButton("button2");
 			btn2.move(10, 100, 300, 60);
-			btn2.addEventListener(btn2.OnClick, eventHandler);
+			btn2.addEventListener(btn2.OnTouchStart, this, mousedown);
 			scene.__root.addChild(btn2);
 		}
 

@@ -278,7 +278,8 @@ function CompilerExportsPlugin(compiler)
 			{
 				var varSymbol = classSymbol.vars[item];
 
-				var signature = varSymbol.name + varSymbol.ast.xmlvartype;
+				var signature = varSymbol.signature || (varSymbol.name + varSymbol.ast.xmlvartype);
+				signature = signature.replace('<','&lt;').replace('>','&gt;');
 				mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + signature + '" help="' + classSymbol.name + " :: " + signature + '" image="' + varSymbol.icon + '"/>');
 			}
 
@@ -412,11 +413,11 @@ function CompilerExportsPlugin(compiler)
 		{
 			var classSymbol = _this.classes[cls];
 			if(classSymbol.file=="externs.jspp") continue;
-			if(classSymbol.isEnum && !options.export_enums) continue;
+			if(classSymbol.enum && !options.export_enums) continue;
 
 			classSymbol.index = index++;
 
-			if(classSymbol.isEnum)
+			if(classSymbol.enum)
 			{
 				NClassXML.push('<Entity type="Enum">');
 	      		NClassXML.push('<Name>' + classSymbol.name + '</Name>');
@@ -425,7 +426,7 @@ function CompilerExportsPlugin(compiler)
 				NClassXML.push('<Size width="0" height="0" />');
 	        	NClassXML.push('<Collapsed>False</Collapsed>');
 			}
-			else if(classSymbol.isState)
+			else if(classSymbol.state)
 			{
 				NClassXML.push('<Entity type="Class">');
 	      		NClassXML.push('<Name>' + classSymbol.name + '</Name>');
@@ -448,7 +449,7 @@ function CompilerExportsPlugin(compiler)
         	dx++;
         	if(dx>10) { dy++; dx=0 };
 
-			if(options.export_methods && !classSymbol.isEnum)
+			if(options.export_methods && !classSymbol.enum)
 			{
 				for(var item in classSymbol.methods)
 				{
@@ -497,7 +498,7 @@ function CompilerExportsPlugin(compiler)
 					if(varSymbol.protected && !options.export_protected) continue;
 					if(varSymbol.static && !options.export_static) continue;
 
-					if(!classSymbol.isEnum && varSymbol.constant && !options.export_consts) continue;
+					if(!classSymbol.enum && varSymbol.constant && !options.export_consts) continue;
 					if(varSymbol.property && !options.export_properties) continue;
 					if(varSymbol.state && !options.export_states) continue;
 

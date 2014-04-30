@@ -41,13 +41,13 @@ function __isPointer(vartype)
 	{
 	case "Class":
 	case "Boolean":
-	case "Date":
 	case "Number":
 	case "String":
 	case "Integer":
 	case "Float":
 	case "Time":
 	case "Color":
+	case "Gradient":
 	case "void":
 	case "undefined":
 	case "null":
@@ -399,7 +399,7 @@ function CompilerTypeSystemPlugin(compiler)
 			var vcls = _this.getClass(vt);
 			if(!vcls) return false;
 			if(vcls.file=="externs.jspp") return true;
-			if(vcls.isEnum) return true;
+			if(vcls.enum) return true;
 
 			// Get class from include name
 			var cls = _this.getClass(className);
@@ -581,7 +581,7 @@ function CompilerTypeSystemPlugin(compiler)
 		if(!cls1 || !cls2) return;
 
 		// Casting function to callback signature
-		if(cls1.isCallback)
+		if(cls1.callback)
 		{
 			if(ast.symbol.__typedParamsList==cls1.__typedParamsList)
 				return cls1.name;
@@ -591,7 +591,7 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		// Check class inheritance
-		if(cls1.astType==jsdef.CLASS && cls2.astType==jsdef.CLASS)
+		if(!cls1.interface && !cls2.interface)
 		{
 			for(var base=cls2;base!=null;base=base.baseSymbol)
 			{
@@ -601,7 +601,7 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		// Check interface inheritance
-		if(cls1.astType==jsdef.INTERFACE && cls2.astType==jsdef.INTERFACE)
+		if(cls1.interface && cls2.interface)
 		{
 			for(var base=cls1;base!=null;base=base.baseSymbol)
 			{
@@ -616,7 +616,7 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		// Check class casting to interface
-		if(cls1.astType==jsdef.INTERFACE && cls2.astType==jsdef.CLASS)
+		if(cls1.interface && !cls2.interface)
 		{
 			for(i=0;i<cls2.interfaces.length;i++)
 			{
@@ -627,7 +627,7 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		// Check casting interface to class
-		if(cls1.astType==jsdef.CLASS && cls2.astType==jsdef.INTERFACE)
+		if(!cls1.interface && cls2.interface)
 		{
 			_this.NewError("Ambiguous casting of interface to class", ast);
 		}

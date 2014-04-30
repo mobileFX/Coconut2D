@@ -66,7 +66,7 @@
 class CocoTest;
 class CocoTextStyle;
 class CocoText;
-class EventTarget;
+class IEventTarget;
 class DeviceEvent;
 class Audio;
 class HTMLCanvasContext;
@@ -128,14 +128,23 @@ class CocoUIPickerView;
 class CocoUIScrollView;
 class CocoUITabView;
 class CocoUITextView;
+class CocoUIButton;
+class ITickable;
 class GridSymbol;
 class SceneGameBoard;
 class SceneTitle;
 class GameEngine;
-class CocoITickable;
+class CocoTickable;
+class CocoEventSource;
+class CocoEvent;
 //# DO NOT EDIT END #//
 
 class CocoFont;
+class Class2;
+class ITest1;
+class ITest2;
+class ITest3;
+
 
 template<typename T> struct TYPE_STRING { static constexpr char const* c_str() { return "undefined"; } };
 #define DEF_TYPE(T) template<> struct TYPE_STRING<T> { static constexpr char const* c_str() { return #T; } };
@@ -258,6 +267,35 @@ enum COCO_TEXT_TRIMMING_ENUM
     StringTrimmingEllipsisCharacter				= 3,
     StringTrimmingEllipsisWord					= 4,
     StringTrimmingEllipsisPath					= 5
+};
+
+enum COCO_CONTROL_BORDER_STYLE_ENUM
+{
+	BORDER_NONE = 0,
+	BORDER_SOLID = 1,
+	BORDER_DOTTED = 2
+};
+
+enum COCO_CONTROL_ANCHOR_ENUM
+{
+	ANCHOR_NONE = 0,
+	ANCHOR_TOP_LEFT = 1,
+	ANCHOR_TOP_MIDDLE = 2,
+	ANCHOR_TOP_RIGHT = 3,
+	ANCHOR_MIDDLE_LEFT = 4,
+	ANCHOR_CENTER = 5,
+	ANCHOR_MIDDLE_RIGHT = 6,
+	ANCHOR_BOTTOM_LEFT = 7,
+	ANCHOR_BOTTOM_MIDDLE = 8,
+	ANCHOR_BOTTOM_RIGHT = 9
+};
+
+enum COCO_SKIN_TILE_ENUM
+{
+	TILE_REPEAT_NONE = 1,
+	TILE_REPEAT_X = 2,
+	TILE_REPEAT_Y = 3,
+	TILE_REPEAT_XY = 4
 };
 
 // ==================================================================================================================================
@@ -586,6 +624,8 @@ template<class T> std::string toString(T v)
 	return ss.str();
 }
 
+typedef int Color;
+typedef String Gradient;
 #define parseFloat(S) atof((S).c_str())
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -605,6 +645,7 @@ struct State
 
 	#include <UIKit/UIEvent.h>
 	#include <UIKit/UITouch.h>
+	#include <sys/time.h>
 
 	#define fxAPIGetKey(E) (*(const uint32_t*)(E))
 	#define fxAPIGetMouseEventX(E) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].x)
@@ -725,6 +766,19 @@ struct State
 #define SHADER_SOURCE_BUFFER_SIZE 4096
 #define INFO_LOG_BUFFER_SIZE 4096
 #define fxObjectUID size_t
+
+class Date
+{
+	unsigned long long millis;
+public:
+	Date()
+	{
+		struct timeval tv;
+		gettimeofday(&tv, nullptr);
+		millis = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
+	}
+	unsigned long long getTime() { return millis; }
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

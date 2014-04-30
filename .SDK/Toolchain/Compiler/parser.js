@@ -1077,7 +1077,6 @@ function __init_narcissus(GLOBAL)
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.VAR:
 		case jsdef.CONST:
-		case jsdef.EVENT:
 			n = Variables(t, x);
 			break;
 
@@ -1272,8 +1271,39 @@ function __init_narcissus(GLOBAL)
 					}
 					else if(t.match(jsdef.EVENT))
 					{
+						// Event node must look like a function
+
 						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
-						n.push(Variables(t, x));
+						t.mustMatch(jsdef.IDENTIFIER);
+
+						var e = new Node(t, jsdef.EVENT);
+						e.value = t.token().value;
+						e.name = e.value;
+						e.vartype = "CocoEvent";
+						e.paramsList = [];
+						e.params = [];
+
+						var idf = new Node(t, jsdef.IDENTIFIER);
+						idf.value = e.name;
+						e.push(idf);
+
+						var list = new Node(t, jsdef.LIST);
+						e.push(list);
+
+						t.mustMatch(jsdef.LEFT_PAREN);
+						for(;t.peek()!=jsdef.RIGHT_PAREN;t.peek()!=jsdef.RIGHT_PAREN && t.mustMatch(jsdef.COMMA))
+						{
+							t.mustMatch(jsdef.IDENTIFIER);
+							var a = new Node(t, jsdef.IDENTIFIER);
+							a.name = t.token().value;
+							t.mustMatch(jsdef.COLON);
+							matchVartype(t, a, "vartype");
+							list.push(a);
+							e.paramsList.push(a);
+							e.params.push(a.name);
+						}
+						t.mustMatch(jsdef.RIGHT_PAREN);
+						n.push(e);
 					}
 					else if(t.match(jsdef.ENUM))
 					{

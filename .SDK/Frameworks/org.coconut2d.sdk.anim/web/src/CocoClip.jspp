@@ -119,19 +119,13 @@ class CocoClip : CocoEventSource implements IEventTarget
 	private var __currentSequence:CocoSequence;
 	private var __currentAudio:CocoAudio;
 
-	/*
-	public event OnClick(sender:IEventTarget);
-	public event OnTouchStart(sender:IEventTarget, x:Float, y:Float, touches:TouchList);
-	public event OnTouchMove(sender:IEventTarget, x:Float, y:Float, touches:TouchList);
-	public event OnTouchEnd(sender:IEventTarget, x:Float, y:Float, touches:TouchList);
-	public event OnTouchCancel(sender:IEventTarget, x:Float, y:Float, touches:TouchList);
-	*/
-
-	public event OnClick:CocoEvent 		 = new CocoEvent("OnClick", true, true);
-	public event OnTouchStart:CocoEvent  = new CocoEvent("OnTouchStart", true, true);
-	public event OnTouchMove:CocoEvent 	 = new CocoEvent("OnTouchMove", true, true);
-	public event OnTouchEnd:CocoEvent 	 = new CocoEvent("OnTouchEnd", true, true);
-	public event OnTouchCancel:CocoEvent = new CocoEvent("OnTouchCancel", true, true);
+	// Define CocoClip events
+	public event OnClick();
+	public event OnDblClick();
+	public event OnTouchStart(x:Float, y:Float);
+	public event OnTouchMove(x:Float, y:Float);
+	public event OnTouchEnd(x:Float, y:Float);
+	public event OnTouchCancel(x:Float, y:Float);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
@@ -177,12 +171,6 @@ class CocoClip : CocoEventSource implements IEventTarget
 		delete __vREL_BOTTOM_RIGHT;
 		delete __vTemp;
 		delete __mTemp;
-
-		delete OnClick;
-		delete OnTouchStart;
-		delete OnTouchMove;
-		delete OnTouchEnd;
-		delete OnTouchCancel;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,8 +225,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 		this.textHeight     = textRectHeight;
 
 		delete __image;
-		__image = graphics.createTextTexture(__scene, text, fontName, fontSizePixels, hAlign, vAlign, multiline, trimming, CSSColor, textRectWidth, textRectHeight);
-
+		//__image = CocoGraphics.createTextTexture(__scene, text, fontName, fontSizePixels, hAlign, vAlign, multiline, trimming, CSSColor, textRectWidth, textRectHeight);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
