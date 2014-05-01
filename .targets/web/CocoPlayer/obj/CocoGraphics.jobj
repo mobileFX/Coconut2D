@@ -1,0 +1,371 @@
+//@line 46
+
+function CocoGraphics()
+{
+	var __BASE__ = null;
+
+	function __CocoGraphics()
+	{
+		var Class = this.Class = 'CocoGraphics',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__COCOGRAPHICS__ = this.__CLASS__COCOGRAPHICS__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoGraphics'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__ = {},
+			__PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 52
+		this.Destructor = function ()
+		{
+			{
+				//@line 53
+			}
+			{}
+			return true
+		};
+		//@line 48
+		this.Constructor = function ()
+		{
+			//@line 49
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new __CocoGraphics();
+}
+CocoGraphics.__PRIVATE__ = {};
+CocoGraphics.__PROTECTED__ = {};
+//@line 83
+CocoGraphics.createTextTexture = function (scene, text, fontName, fontSizePixels, hAlign, vAlign, multiline, trimming, CSSColor, textRectWidth, textRectHeight)
+{
+	//@line 86
+	var canvas = document.createElement("canvas");
+	//@line 87
+	canvas.width = Math.pow(2, Math.ceil(Math.log(textRectWidth) / Math.log(2)));
+	//@line 88
+	canvas.height = Math.pow(2, Math.ceil(Math.log(textRectHeight) / Math.log(2)));
+	//@line 89
+	var ctx = (canvas.getContext("2d"));
+	//@line 92
+	ctx.font = "normal normal normal " + (fontSizePixels) + "px / normal " + fontName;
+	//@line 93
+	ctx.fillStyle = "white";
+	//@line 94
+	ctx.fillText(text, 0, (fontSizePixels));
+	//@line 97
+	var image = new CocoImage;
+	//@line 98
+	image.image = new Image;
+	//@line 99
+	var url = canvas.toDataURL();
+	//@line 100
+	image.image.load(url);
+	//@line 101
+	image.textureCellWidth = (textRectWidth);
+	//@line 102
+	image.textureCellHeight = (textRectHeight);
+	//@line 103
+	image.textureGrid = new Float32Array([0, 0]);
+	//@line 104
+	image.prepare(scene, gl);
+	//@line 107
+	ctx = null;
+	//@line 108
+	{
+		canvas && ((canvas.hasOwnProperty('Destructor') && canvas.Destructor()) || !canvas.hasOwnProperty('Destructor')) && (delete canvas);
+		canvas = null
+	};
+	//@line 109
+	return image;
+};
+//@line 122
+CocoGraphics.drawSkin = function (ctx, skinImage, x, y, width, height, anchor)
+{
+	//@line 124
+	if (!skinImage)
+	//@line 125
+	return;
+	//@line 127
+	var r = 1;
+	//@line 128
+	var p = 1;
+	//@line 129
+	var src = skinImage.image;
+	//@line 130
+	var cx = 0;
+	//@line 131
+	var cy = 0;
+	//@line 132
+	var cw = width;
+	//@line 133
+	var ch = height;
+	//@line 134
+	var W1 = skinImage.skin[0];
+	//@line 135
+	var W2 = skinImage.skin[1];
+	//@line 136
+	var W3 = skinImage.skin[2];
+	//@line 137
+	var H1 = skinImage.skin[3];
+	//@line 138
+	var H2 = skinImage.skin[4];
+	//@line 139
+	var H3 = skinImage.skin[5];
+	//@line 140
+	var RW1H1 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	//@line 141
+	var RW2H1 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
+	//@line 142
+	var RW3H1 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	//@line 143
+	var RW1H2 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y;
+	//@line 144
+	var RW2H2 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_XY;
+	//@line 145
+	var RW3H2 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y;
+	//@line 146
+	var RW1H3 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	//@line 147
+	var RW2H3 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
+	//@line 148
+	var RW3H3 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	//@line 149
+	var F = 0;
+	//@line 150
+	var RmW = 0;
+	//@line 151
+	var RmH = 0;
+	//@line 152
+	var R = [0, 0, 0];
+	//@line 153
+	var C = [0, 0, 0];
+	//@line 163
+	switch (anchor)
+	{
+		//@line 165
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_NONE:
+		{
+			//@line 166
+			break;
+		}
+		break;
+		//@line 168
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_CENTER:
+		{
+			//@line 169
+			x = cx + (cw - width) / 2;
+			//@line 170
+			y = cy + (ch - height) / 2;
+			//@line 171
+			break;
+		}
+		break;
+		//@line 173
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_LEFT:
+		{
+			//@line 174
+			x = cx;
+			//@line 175
+			y = cy;
+			//@line 176
+			break;
+		}
+		break;
+		//@line 178
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_MIDDLE:
+		{
+			//@line 179
+			x = cx + (cw - width) / 2;
+			//@line 180
+			y = cy;
+			//@line 181
+			break;
+		}
+		break;
+		//@line 183
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_RIGHT:
+		{
+			//@line 184
+			x = cx + (cw - width);
+			//@line 185
+			y = cy;
+			//@line 186
+			break;
+		}
+		break;
+		//@line 188
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT:
+		{
+			//@line 189
+			x = cx;
+			//@line 190
+			y = cy + (ch - height) / 2;
+			//@line 191
+			break;
+		}
+		break;
+		//@line 193
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_RIGHT:
+		{
+			//@line 194
+			x = cx + (cw - width);
+			//@line 195
+			y = cy + (ch - height) / 2;
+			//@line 196
+			break;
+		}
+		break;
+		//@line 198
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_LEFT:
+		{
+			//@line 199
+			x = cx;
+			//@line 200
+			y = cy + (ch - height);
+			//@line 201
+			break;
+		}
+		break;
+		//@line 203
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_MIDDLE:
+		{
+			//@line 204
+			x = cx + (cw - width) / 2;
+			//@line 205
+			y = cy + (ch - height);
+			//@line 206
+			break;
+		}
+		break;
+		//@line 208
+	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_RIGHT:
+		{
+			//@line 209
+			x = cx + (cw - width);
+			//@line 210
+			y = cy + (ch - height);
+			//@line 211
+			break;
+		}
+		break;
+	}
+};
+//@line 260
+CocoGraphics.__PRIVATE__.__drawSlice = function (ctx, skin, cx, cy, cw, ch, sx, sy, sw, sh, r)
+{
+	//@line 262
+	if (!cw || !ch || !sw || !sh) return;
+	//@line 263
+	if (r == COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE)
+	//@line 264
+	CocoGraphics.__PRIVATE__.__drawRegion(ctx, skin, sx, sy, sw, sh, cx, cy, cw, ch);
+	else
+	//@line 266
+	CocoGraphics.__PRIVATE__.__tileSkin(ctx, skin, sx, sy, sw, sh, cx, cy, cw, ch);
+};
+//@line 270
+CocoGraphics.__PRIVATE__.__countFixed = function (v)
+{
+	//@line 272
+	var c = 0;
+	//@line 273
+	for (var i = 0; i < v.length; i++)
+	//@line 274
+	if (v[i]) c++;
+	//@line 275
+	return c;
+	return 0
+};
+//@line 279
+CocoGraphics.__PRIVATE__.__fixedW = function (v)
+{
+	//@line 281
+	var R = false;
+	//@line 282
+	for (var i = 0; i < v.length; i++)
+	//@line 283
+	R |= ((v[i] == COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i] == COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y));
+	//@line 284
+	return R;
+	return false
+};
+//@line 288
+CocoGraphics.__PRIVATE__.__fixedH = function (v)
+{
+	//@line 290
+	var R = false;
+	//@line 291
+	for (var i = 0; i < v.length; i++)
+	//@line 292
+	R |= ((v[i] == COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i] == COCO_SKIN_TILE_ENUM.TILE_REPEAT_X));
+	//@line 293
+	return R;
+	return false
+};
+//@line 297
+CocoGraphics.__PRIVATE__.__tileSkin = function (ctx, image, cellX, cellY, cellWidth, cellHeight, x, y, width, height)
+{
+	//@line 299
+	if (cellWidth == 0 || cellHeight == 0)
+	//@line 300
+	return;
+	//@line 302
+	var ix = 0,
+		iy = 0,
+		cx = 0,
+		cy = 0,
+		cw = 0,
+		ch = 0,
+		r = 0;
+	//@line 304
+	for (iy = y; iy <= y + height; iy += cellHeight)
+	//@line 305
+	{
+		//@line 306
+		for (ix = x; ix <= x + width; ix += cellWidth)
+		//@line 307
+		{
+			//@line 308
+			cw = (ix + cellWidth <= x + width ? cellWidth : x + width - ix);
+			//@line 309
+			ch = (iy + cellHeight <= y + height ? cellHeight : y + height - iy);
+			//@line 310
+			if (cw > 0 && ch > 0)
+			//@line 311
+			CocoGraphics.__PRIVATE__.__drawRegion(ctx, image, cellX, cellY, cw, ch, ix, iy, cw, ch);
+		}
+	}
+};
+//@line 317
+CocoGraphics.__PRIVATE__.__drawRegion = function (ctx, image, sx, sy, sw, sh, dx, dy, dw, dh)
+{
+	//@line 319
+	if (!ctx || !image || !sw || !sh || !dw || !dh)
+	//@line 320
+	return;
+	//@line 322
+	try
+	{
+		//@line 324
+		ctx.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
+	}
+	catch (e)
+	//@line 326
+	{}
+};
+//@line 332
+CocoGraphics.drawImage = function (image, x, y, stretchW, stretchH, anchor, clear)
+{
+	//@line 333
+};

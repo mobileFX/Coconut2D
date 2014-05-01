@@ -1,0 +1,275 @@
+"#export web";
+//@line 39
+
+function CocoUIView()
+{
+	var __BASE__ = null;
+
+	function __CocoUIView()
+	{
+		var Class = this.Class = 'CocoUIView',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__COCOUIVIEW__ = this.__CLASS__COCOUIVIEW__ = this;
+		var __THIS__ = this;
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__,
+			__PROTECTED__ = this.__PROTECTED__,
+			__CLASS__COCOEVENTSOURCE__ = this.__CLASS__COCOEVENTSOURCE__ = __CLASS__COCOUIVIEW__.__CLASS__COCOCLIP__.__CLASS__COCOEVENTSOURCE__
+			__CLASS__COCOUIVIEW__.__CLASS__COCOCLIP__.__CLASS__COCOEVENTSOURCE__.__THIS__ = __CLASS__COCOUIVIEW__,
+			__CLASS__COCOCLIP__ = this.__CLASS__COCOCLIP__ = __CLASS__COCOUIVIEW__.__CLASS__COCOCLIP__
+			__CLASS__COCOUIVIEW__.__CLASS__COCOCLIP__.__THIS__ = __CLASS__COCOUIVIEW__;
+		//@line 41
+		__PROTECTED__.__x = 0;
+		//@line 42
+		__PROTECTED__.__y = 0;
+		//@line 43
+		__PROTECTED__.__width = 0;
+		//@line 44
+		__PROTECTED__.__height = 0;
+		//@line 45
+		__PROTECTED__.__visible = false;
+		//@line 46
+		__PROTECTED__.__textureIsInvalid = false;
+		//@line 47
+		__PROTECTED__.__enabled = false;
+		//@line 117
+		this.move = __VIRTUAL__.move = function (x, y, width, height)
+		{
+			//@line 119
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__x = x;
+			//@line 120
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__y = y;
+			//@line 121
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__width = width;
+			//@line 122
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__height = height;
+			//@line 123
+			__CLASS__COCOUIVIEW__.invalidate();
+		};
+		//@line 127
+		this.invalidate = __VIRTUAL__.invalidate = function ()
+		{
+			//@line 129
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__textureIsInvalid = true;
+		};
+		//@line 133
+		this.paint = __VIRTUAL__.paint = __CLASS__COCOCLIP__.paint = __CLASS__COCOEVENTSOURCE__.paint = function (gl, scene, parentClip, calcBoundingBox, level)
+		{
+			//@line 135
+			if (!__CLASS__COCOUIVIEW__.__PROTECTED__.__visible || !parentClip || !scene || !gl)
+			//@line 136
+			return;
+			//@line 139
+			if (__CLASS__COCOUIVIEW__.__PROTECTED__.__textureIsInvalid)
+			//@line 140
+			{
+				//@line 142
+				var canvas = document.createElement("canvas");
+				//@line 143
+				canvas.width = Math.pow(2, Math.ceil(Math.log(__CLASS__COCOUIVIEW__.__PROTECTED__.__width) / Math.log(2)));
+				//@line 144
+				canvas.height = Math.pow(2, Math.ceil(Math.log(__CLASS__COCOUIVIEW__.__PROTECTED__.__height) / Math.log(2)));
+				//@line 145
+				var ctx = (canvas.getContext("2d"));
+				//@line 148
+				__CLASS__COCOUIVIEW__.repaint(scene, parentClip, ctx);
+				//@line 151
+				{
+					__CLASS__COCOCLIP__.__image && ((__CLASS__COCOCLIP__.__image.hasOwnProperty('Destructor') && __CLASS__COCOCLIP__.__image.Destructor()) || !__CLASS__COCOCLIP__.__image.hasOwnProperty('Destructor')) && (delete __CLASS__COCOCLIP__.__image);
+					__CLASS__COCOCLIP__.__image = null
+				};
+				//@line 154
+				__CLASS__COCOCLIP__.__image = new CocoImage;
+				//@line 155
+				__CLASS__COCOCLIP__.__image.image = new Image;
+				//@line 156
+				var url = canvas.toDataURL();
+				//@line 157
+				__CLASS__COCOCLIP__.__image.image.load(url);
+				//@line 158
+				__CLASS__COCOCLIP__.__image.textureCellWidth = (__CLASS__COCOUIVIEW__.__PROTECTED__.__width);
+				//@line 159
+				__CLASS__COCOCLIP__.__image.textureCellHeight = (__CLASS__COCOUIVIEW__.__PROTECTED__.__height);
+				//@line 160
+				__CLASS__COCOCLIP__.__image.textureGrid = new Float32Array([0, 0]);
+				//@line 161
+				__CLASS__COCOCLIP__.__image.prepare(scene, gl);
+				//@line 164
+				ctx = null;
+				//@line 165
+				{
+					canvas && ((canvas.hasOwnProperty('Destructor') && canvas.Destructor()) || !canvas.hasOwnProperty('Destructor')) && (delete canvas);
+					canvas = null
+				};
+				//@line 167
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__textureIsInvalid = false;
+			}
+			//@line 171
+			__CLASS__COCOCLIP__.__VIRTUAL__.paint(gl, scene, parentClip, calcBoundingBox, level);
+		};
+		//@line 175
+		this.repaint = __VIRTUAL__.repaint = function (scene, parentClip, ctx) {};
+		//@line 68
+		Object.defineProperty(this, 'Name', {
+			enumerable: true,
+			//@line 70
+			get: function ()
+			{
+				return __CLASS__COCOCLIP__.__instanceName;
+				return ""
+			},
+			//@line 71
+			set: function (v)
+			{
+				__CLASS__COCOCLIP__.__instanceName = v;
+			}
+		});
+		//@line 75
+		Object.defineProperty(this, 'Enabled', {
+			enumerable: true,
+			//@line 77
+			get: function ()
+			{
+				return __CLASS__COCOUIVIEW__.__PROTECTED__.__enabled;
+				return false
+			},
+			//@line 78
+			set: function (v)
+			{
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__enabled = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 82
+		Object.defineProperty(this, 'Width', {
+			enumerable: true,
+			//@line 84
+			get: function ()
+			{
+				return __CLASS__COCOUIVIEW__.__PROTECTED__.__width;
+				return 0
+			},
+			//@line 85
+			set: function (v)
+			{
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__width = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 89
+		Object.defineProperty(this, 'Height', {
+			enumerable: true,
+			//@line 91
+			get: function ()
+			{
+				return __CLASS__COCOUIVIEW__.__PROTECTED__.__height;
+				return 0
+			},
+			//@line 92
+			set: function (v)
+			{
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__height = v;
+				__CLASS__COCOUIVIEW__.invalidate();
+			}
+		});
+		//@line 96
+		Object.defineProperty(this, 'Left', {
+			enumerable: true,
+			//@line 98
+			get: function ()
+			{
+				return __CLASS__COCOUIVIEW__.__PROTECTED__.__x;
+				return 0
+			},
+			//@line 99
+			set: function (v)
+			{
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__x = v;
+			}
+		});
+		//@line 103
+		Object.defineProperty(this, 'Top', {
+			enumerable: true,
+			//@line 105
+			get: function ()
+			{
+				return __CLASS__COCOUIVIEW__.__PROTECTED__.__y;
+				return 0
+			},
+			//@line 106
+			set: function (v)
+			{
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__y = v;
+			}
+		});
+		//@line 110
+		Object.defineProperty(this, 'Visible', {
+			enumerable: true,
+			//@line 112
+			get: function ()
+			{
+				return __CLASS__COCOUIVIEW__.__PROTECTED__.__visible;
+				return false
+			},
+			//@line 113
+			set: function (v)
+			{
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__visible = v;
+			}
+		});
+		//@line 62
+		this.Destructor = function ()
+		{
+			{
+				//@line 63
+			}
+			{
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__x = null;
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__y = null;
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__width = null;
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__height = null;
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__visible = null;
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__textureIsInvalid = null;
+				__CLASS__COCOUIVIEW__.__PROTECTED__.__enabled = null;
+				__CLASS__COCOUIVIEW__.Name = null;
+				__CLASS__COCOUIVIEW__.Enabled = null;
+				__CLASS__COCOUIVIEW__.Width = null;
+				__CLASS__COCOUIVIEW__.Height = null;
+				__CLASS__COCOUIVIEW__.Left = null;
+				__CLASS__COCOUIVIEW__.Top = null;
+				__CLASS__COCOUIVIEW__.Visible = null;
+			}
+			return true
+		};
+		//@line 50
+		this.Constructor = function ()
+		{
+			//@line 52
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__textureIsInvalid = true;
+			//@line 53
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__enabled = true;
+			//@line 54
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__visible = true;
+			//@line 55
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__x = 0;
+			//@line 56
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__y = 0;
+			//@line 57
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__width = 320;
+			//@line 58
+			__CLASS__COCOUIVIEW__.__PROTECTED__.__height = 480;
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__CocoUIView.prototype = new CocoClip();
+	return new __CocoUIView();
+}
+CocoUIView.__PRIVATE__ = {};
+CocoUIView.__PROTECTED__ = {};

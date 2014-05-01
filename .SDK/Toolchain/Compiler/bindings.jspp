@@ -1,0 +1,37 @@
+﻿////////////////////////////////////////////////////////////////////////////////////////////////////
+var global = this;
+var engine = null;
+var gl = null;
+
+if(!global.window) 		global.window = new HTMLWindow();
+if(!global.document)	global.document = window.document;
+if(!global.trace)		global.trace = function(msg) { console.log(msg); };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+if(global["EventTarget"]) global.EventTarget = function() {};
+global.EventTarget = function() {};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function State(){};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+Image.prototype.load = function(src) { this.src = src; };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Extensions of JavaScript Array and Object classes to match C++ Vector and Map.
+
+Object.defineProperty(Array.prototype, "size", { value: function()
+{
+	return this.length;
+}});
+
+Object.defineProperty(Array.prototype, "clear", { value: function()
+{
+	while(this.length) { this.pop(); }
+}});
+
+Object.defineProperty(String.prototype, "size", { value: function()
+{
+	return this.length;
+}});
+

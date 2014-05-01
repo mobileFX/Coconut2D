@@ -1,0 +1,50 @@
+﻿"#export native"
+"#export web"
+
+///////////////////////////////////////////////////////
+// This class is an events source (produces events)
+///////////////////////////////////////////////////////
+
+class TestEventSource : CocoEventSource
+{
+	public var id:String;
+	public event OnDone(a:String, b:Float);
+
+	public function Constructor(id:String)
+	{
+		this.id=id;
+	}
+
+ 	public function work()
+ 	{
+ 		this.dispatchEvent(this.OnDone, "test1", "test2");
+ 	}
+}
+
+///////////////////////////////////////////////////////
+// This class is an event listener (receives events)
+///////////////////////////////////////////////////////
+
+class TestEventListener implements IEventListener
+{
+	private var worker:TestEventSource;
+
+ 	public function Constructor()
+ 	{
+ 		worker = new TestEventSource("worker1");
+ 		worker.addEventListener(worker.OnDone, this, done);
+ 		worker.work();
+ 		worker.removeEventListener(worker.OnDone, this, done);
+ 	}
+
+	public function done(sender:TestEventSource, e:CocoEvent, a:String, b:Float) :Boolean
+	{
+		trace("Worker " + sender.id + " fired event " + e.type + " a=" + String(a) + ", b=" + String(b));
+		return false;
+	}
+
+ 	public function Destructor()
+ 	{
+ 		delete worker;
+ 	}
+}

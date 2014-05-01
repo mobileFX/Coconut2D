@@ -720,7 +720,7 @@ function make(options)
 	    trace("\nCreating payload.js ...");
 
 	    var file = TARGET.TARGET_ROOT + "/payload.js";
-	    var BUFFER = [];
+	    var BUFFER = ["if(!this['include']) this.include=function(f){};\n"];
 
 	    // Collect scripts
 	    var scripts = _this.FindFiles(TARGET.TARGET_ROOT, "*.jobj", true);
@@ -728,7 +728,7 @@ function make(options)
 	    // Order scripts
 	    scripts = _this.calculateDependencies(scripts, true);
 
-	    // === DEBUG MODE ===
+	    // === RELEASE MODE ===
 	    if(makefile.Config.CONFIGURATION=="Release")
 	    {
 		    for(var i=0; i<scripts.length; i++)
@@ -740,10 +740,9 @@ function make(options)
 			BUFFER = BUFFER.replace(/\x22#(include|export)\s+[^\x22]+\x22;{0,1}/g, "");
 			BUFFER = "/**\n * @fileoverview\n * @suppress {deprecated|globalThis|suspiciousCode|uselessCode}\n */\n\n" + BUFFER;
 	    }
-	    // === RELEASE MODE ===
+	    // === DEBUG MODE ===
 	    else
 	    {
-		    var BUFFER = [];
 		    for(var i=0; i<scripts.length; i++)
 		    {
 		    	var script = relativePath(TARGET.TARGET_ROOT,scripts[i]);
@@ -751,6 +750,9 @@ function make(options)
 		    }
 		    BUFFER = BUFFER.join("\n");
 	    }
+
+	    // Get Coconut2D Runtime Bindings
+	    BUFFER += "\n\n" + read(makefile.Vars.PATH_SDK_COMPILER + "/bindings.jspp");
 
 	    _this.module(file, BUFFER, false);
 		trace("+ created: " + file);

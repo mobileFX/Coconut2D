@@ -303,8 +303,8 @@ class Global
 	undefined var CocoTextStyle :CocoTextStyle;
 	undefined var CocoText :CocoText;
 	undefined var CocoEngine :CocoEngine;
-	undefined var IEventTarget :IEventTarget;
 	undefined var IEventListener :IEventListener;
+	undefined var IEventTarget :IEventTarget;
 	undefined var CocoEvent :CocoEvent;
 	undefined var CocoEventConnectionPoint :CocoEventConnectionPoint;
 	undefined var CocoEventSource :CocoEventSource;
@@ -323,13 +323,22 @@ class Global
 	undefined var CocoUIPictureList :CocoUIPictureList;
 	undefined var CocoUITextBox :CocoUITextBox;
 	undefined var GameEngine :GameEngine;
+	undefined var TestOutsourcer :TestOutsourcer;
+	undefined var TestIntegrator :TestIntegrator;
+	undefined var TestIntegratorClient :TestIntegratorClient;
+	undefined var TestEventSource :TestEventSource;
+	undefined var TestEventListener :TestEventListener;
 	undefined var ITest1 :ITest1;
 	undefined var ITest2 :ITest2;
 	undefined var ITest3 :ITest3;
-	undefined var ClassDelegator :ClassDelegator;
+	undefined var ClassTestInterfaces :ClassTestInterfaces;
 	undefined var Class1 :Class1;
 	undefined var Class2 :Class2;
 	undefined var Class3 :Class3;
+	undefined var TestSelf1 :TestSelf1;
+	undefined var TestSelf2 :TestSelf2;
+	undefined var TestSelf3 :TestSelf3;
+	undefined var TestThis :TestThis;
 	undefined var NewAnimation :NewAnimation;
 	undefined var Page1 :Page1;
 } //Global
@@ -2169,17 +2178,13 @@ class CocoEngine
 	private var __tickables :Array<ITickable>;
 } //CocoEngine
 
-class IEventTarget
-{
-} //IEventTarget
-
 class IEventListener
 {
 } //IEventListener
 
-class CocoEventHandler : Function
+class IEventTarget
 {
-} //CocoEventHandler
+} //IEventTarget
 
 class CocoEvent
 {
@@ -2212,7 +2217,7 @@ class CocoEvent
 class CocoEventConnectionPoint
 {
 	public function Destructor() {}
-	public function Constructor(Event:CocoEvent, Listener:IEventListener, Callback:Function) {}
+	public function Constructor(Source:CocoEventSource, Event:CocoEvent, Listener:IEventListener, Callback:Function) {}
 	public var Event :CocoEvent;
 	public var Callback :Function;
 	public var Listener :IEventListener;
@@ -2465,6 +2470,52 @@ class GameEngine : CocoEngine
 	public var STATE_GAME :State;
 } //GameEngine
 
+class TestOutsourcer
+{
+	public function work() {}
+	public function Destructor() {}
+	public function Constructor() {}
+} //TestOutsourcer
+
+class TestIntegrator
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	private function work() {}
+	private var delegator :TestOutsourcer;
+} //TestIntegrator
+
+class TestIntegratorClient
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	private var integrator :TestIntegrator;
+} //TestIntegratorClient
+
+class TestEventSource : CocoEventSource
+{
+	public function work() {}
+	public function Constructor(id:String) {}
+	public var id :String;
+	public var OnDone :TestEventSourceOnDoneEvent;
+} //TestEventSource
+
+class TestEventSourceOnDoneEvent : CocoEvent
+{
+	public function work() {}
+	public function Constructor(id:String) {}
+	public var id :String;
+	public var OnDone :TestEventSourceOnDoneEvent;
+} //TestEventSourceOnDoneEvent
+
+class TestEventListener
+{
+	public function done(sender:TestEventSource, e:CocoEvent, a:String, b:Float) :Boolean {}
+	public function Destructor() {}
+	public function Constructor() {}
+	private var worker :TestEventSource;
+} //TestEventListener
+
 class ITest1
 {
 	public function foo() {}
@@ -2480,12 +2531,7 @@ class ITest3
 	public function zoo() {}
 } //ITest3
 
-class ClassDelegator
-{
-	public function poo(a:String, b:Float, c:Class2) {}
-} //ClassDelegator
-
-class Class1
+class ClassTestInterfaces
 {
 	public function foo() {}
 	public function goo() {}
@@ -2493,8 +2539,14 @@ class Class1
 	public function interface_test1(obj:ITest1) {}
 	public function interface_test2(obj:ITest2) {}
 	public function interface_test3(obj:ITest3) {}
-	public function interface_class(obj:Class1) {}
+	public function interface_class(obj:ClassTestInterfaces) {}
 	public function interface_tests() {}
+	public function Destructor() {}
+	public function Constructor() {}
+} //ClassTestInterfaces
+
+class Class1
+{
 	public function test_virtual() {}
 	public function test() {}
 	public function public_static_function(b:String) :String {}
@@ -2514,10 +2566,6 @@ class Class1
 	protected function protected_overload$2(arg1:String, arg2:String) :String {}
 	public function Destructor() {}
 	public function Constructor(arg1:String, arg2:String) {}
-	protected function poo(a:String, b:Float, c:Class2) {}
-	public var public_delegate :ClassDelegator;
-	private var private_delegate :ClassDelegator;
-	protected var protected_delegate :ClassDelegator;
 	public var public_var :String;
 	private var private_var :String;
 	protected var protected_var :String;
@@ -2578,6 +2626,27 @@ class Class3 : Class2
 	private var private_static_property :String;
 	protected var protected_static_property :String;
 } //Class3
+
+class TestSelf1
+{
+	public function save_this() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public var saved :Object;
+} //TestSelf1
+
+class TestSelf2 : TestSelf1
+{
+} //TestSelf2
+
+class TestSelf3 : TestSelf2
+{
+} //TestSelf3
+
+class TestThis
+{
+	public function Constructor() {}
+} //TestThis
 
 class NewAnimation : CocoScene
 {

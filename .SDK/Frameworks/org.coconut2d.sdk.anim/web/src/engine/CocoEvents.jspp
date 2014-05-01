@@ -26,15 +26,19 @@
  * ***** END LICENSE BLOCK ***** */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-interface IEventTarget
-{
-}
+
+// Objects that wish to receive events need to implement IEventListener.
 
 interface IEventListener
 {
 }
 
-callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean {}
+// Objects that are event targets and need to be placed on event.target property must implement IEventListener.
+// (eg. a button that gets clicked and we read which button that was from event.target)
+
+interface IEventTarget
+{
+}
 
 // ==================================================================================================================================
 //	   ______                 ______                 __
@@ -120,7 +124,7 @@ class CocoEventConnectionPoint
 	public var Callback:Function;
 	public var Listener:IEventListener;
 
-	public function Constructor(Event:CocoEvent, Listener:IEventListener, Callback:Function)
+	public function Constructor(Source:CocoEventSource, Event:CocoEvent, Listener:IEventListener, Callback:Function)
 	{
 		this.Event = Event;
 		this.Listener = Listener;
@@ -152,7 +156,6 @@ class CocoEventSource
 		__eventListeners = new Array<CocoEventListener>;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 		delete __eventListeners;
@@ -161,7 +164,12 @@ class CocoEventSource
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function addEventListener(Event:CocoEvent, Listener:IEventListener, Callback:Function)
 	{
-		var item:CocoEventConnectionPoint = new CocoEventConnectionPoint(Event, Listener, Callback);
+		// If we din't have the "__THIS__" implementation in our inheritance mechanism,
+		// the following code would never work. It would store the CocoEventSource
+		// instance of the prototype instead of the top-level instance.
+
+		var item:CocoEventConnectionPoint = new CocoEventConnectionPoint(this, Event, Listener, Callback);
+
 		__eventListeners.push(item);
 	}
 
@@ -185,6 +193,13 @@ class CocoEventSource
 	{
 		var i:Integer;
 		var c:Integer;
+
+		var event_arguments:Array<Object>;
+		event_arguments.push(this);
+		event_arguments.push(Event);
+		event_arguments.concat(arguments);
+		//Array.prototype.slice.call(arguments, 0, arguments.length);
+
 		for(i=__eventListeners.size()-1;i>=0;i--)
 		{
 			var cp:CocoEventConnectionPoint = __eventListeners[i];
@@ -192,7 +207,7 @@ class CocoEventSource
 			if(cp.Event.is(Event))
 			{
 				c++;
-				var cancel:Boolean = cp.Callback.call(cp.Listener, arguments.slice(1).push(cp.Event) );
+				var cancel:Boolean = cp.Callback.apply(cp.Listener, event_arguments);
 				if(cancel)
 				{
 					__eventListeners[i].Event.cancelBubble();
@@ -203,6 +218,7 @@ class CocoEventSource
 				}
 			}
 		}
+		delete event_arguments;
 		return c;
 	}
 }

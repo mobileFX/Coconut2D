@@ -1,0 +1,42 @@
+﻿
+// The following code demonstrates how "this" is
+// manipulated by the inheritance code in CocoScript.
+// The base class saves "this" to a variable which
+// is retreived by the top-level class. Suprisingly
+// the retreived "this" is the top-level class!!
+// (as it should with all object oriented languages)
+
+///////////////////////////////////////////////////////
+class TestSelf1
+{
+	public var saved:Object;
+	public function Constructor(){}
+	public function Destructor(){}
+
+	public function save_this()
+	{
+		saved = this;	// <- what is this? can you guess?
+	}
+}
+
+///////////////////////////////////////////////////////
+class TestSelf2 : TestSelf1
+{
+}
+
+///////////////////////////////////////////////////////
+class TestSelf3 : TestSelf2
+{
+}
+
+///////////////////////////////////////////////////////
+class TestThis
+{
+	public function Constructor()
+	{
+		var t:TestSelf3 = new TestSelf3();
+		t.save_this();
+		trace( "Saved instance type: " + t.saved.toString() );
+	}
+}
+

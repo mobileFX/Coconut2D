@@ -958,136 +958,135 @@ function Compiler(ast, exportSymbols, selectedClass)
 		//	\____/_/\__,_/____/____/
 		//
 		// ==================================================================================================================================
+		/*//////////////////////////////////////////////////////////////////////////////////////////////
+
+		Defining a class and inheritance in plain JavaScript:
+		=====================================================
+
+		The basic idea (as derived from Roger Poon's JavaScript++) is to have an outer JavaScript function
+		returning an inner function that represents the Class. The reason we use the outer/inner functions
+		is because we need to run special code that will actually prepare the object instance (eg. virtual
+		functions) and this cannot be done by prototype alone. When calling the outer function with the
+		"new" operator the result is an instnace of the inner function.	To implement inheritance we use the
+		good old prototypes, as demonstrated below. Our compiler's work is to construct the inner and outer
+		functions based on the AST class definition and to properly apply inheritance. Using the prototype
+		ensures that each new class instance will start with an EXACT copy of the base class. The compiler
+		applies minimal post-processing for inheritance-related things that are missing from the prototype
+		mechanics such as virtual functions, overloaded methods, etc.
+
+		Constructing the Class and then the object instance with the "new" operator is one thing. Running
+		the object is another. We need to find an elaborate way of implementing private and protected
+		entities such as vars, consts, functions, enums, properties, states, etc. We therefore need to
+		define a __PRIVATE__ and a __PROTECTED__ bank in the inner class function for keeping class members
+		in there. For static entities (vars, consts, functions, properties), we also define a __PRIVATE__
+		and a __PROTECTED__ bank on the outer class function.
+
+		Next we have to resolve runtime symbols, or in other words recognize jsdef.IDENTIFIER(s) and produce
+		an access path. For example, when we type "this.walk()" in the class source code we need to resolve
+		all the identifiers into their canonical form taking into account base clases, which could resolve to
+		"__CLASS_DOG__.__CLASS_MAMAL__.__CLASS_ANIMAL__.walk()". Resolving identifiers is the most tricky
+		bit of this compiler and the most time-consuming because it performs several lookups.
+
+		But let's start with the basics. Copy-paste this code in Chrome or any other JavaScript testing
+		tool and examine/run it to understand the principles of JavaScript inheritance:
+
+		function Class1()
+		{
+			function Class1(base)
+			{
+				this.x = 1;
+				return this;
+			}
+			var base = new Class2;
+			Class1.prototype = base;
+			return new Class1(base);
+		}
+
+		function Class2()
+		{
+			function Class2(base)
+			{
+				this.y = 2;
+				return this;
+			}
+			var base = new Class3;
+			Class2.prototype = base;
+			return new Class2(base);
+		}
+
+		function Class3()
+		{
+			function Class3(base)
+			{
+				this.z = 3;
+				return this;
+			}
+			return new Class3(null);
+		}
+
+		var o1 = new Class1;
+		console.log(o1.x + ", " + o1.y + ", " + o1.z);
+		o1.x=100; o1.y=200; o1.z=300;
+		console.log(o1.x + ", " + o1.y + ", " + o1.z);
+
+		var o2 = new Class1;
+		console.log(o2.x + ", " + o2.y + ", " + o2.z);
+		console.log(o1.x + ", " + o1.y + ", " + o1.z);
+
+		var o3 = new Class2;
+		console.log(o3.x + ", " + o3.y + ", " + o3.z);
+
+		=====================================================
+		   *** How virtual functions are implemented ***
+		=====================================================
+
+		In C++ a virtual method is being replaced by the the implementation of the derived class.
+		Any call to the virtual method either by the derived class or by the base class, calls the
+		implementation of the derived class, UNLESS you explicitly ask for BaseClass::VirtualMethod
+		like the example in goo() below which calls "Class1::foo();". Access to the replaced method
+		by the derived class is achieved only by using "super" keyword. Let us implement this in
+		JavaScript...
+
+		#include <iostream>
+		using namespace std;
+
+		class Class1
+		{
+		public:
+			void goo()
+			{
+				Class1::foo();
+				foo();
+			}
+			virtual void foo()
+			{
+				cout << "Class1::foo\n";
+			}
+		};
+
+		class Class2 : public Class1
+		{
+		public:
+			void foo()
+			{
+				cout << "Class2::foo\n";
+			}
+		};
+
+		int main()
+		{
+			Class2* obj = new Class2();
+			obj->goo();
+			obj->foo();
+			obj->Class1::foo();   //TODO: should implement this at some point
+			return 0;
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////*/
 		/*@@ CLASS @@*/
 
 		case jsdef.INTERFACE:
 		case jsdef.CLASS:
-
-			/*//////////////////////////////////////////////////////////////////////////////////////////////
-
-			Defining a class and inheritance in plain JavaScript:
-			=====================================================
-
-			The basic idea (as derived from Roger Poon's JavaScript++) is to have an outer JavaScript function
-			returning an inner function that represents the Class. The reason we use the outer/inner functions
-			is because we need to run special code that will actually prepare the object instance (eg. virtual
-			functions) and this cannot be done by prototype alone. When calling the outer function with the
-			"new" operator the result is an instnace of the inner function.	To implement inheritance we use the
-			good old prototypes, as demonstrated below. Our compiler's work is to construct the inner and outer
-			functions based on the AST class definition and to properly apply inheritance. Using the prototype
-			ensures that each new class instance will start with an EXACT copy of the base class. The compiler
-			applies minimal post-processing for inheritance-related things that are missing from the prototype
-			mechanics such as virtual functions, overloaded methods, etc.
-
-			Constructing the Class and then the object instance with the "new" operator is one thing. Running
-			the object is another. We need to find an elaborate way of implementing private and protected
-			entities such as vars, consts, functions, enums, properties, states, etc. We therefore need to
-			define a __PRIVATE__ and a __PROTECTED__ bank in the inner class function for keeping class members
-			in there. For static entities (vars, consts, functions, properties), we also define a __PRIVATE__
-			and a __PROTECTED__ bank on the outer class function.
-
-			Next we have to resolve runtime symbols, or in other words recognize jsdef.IDENTIFIER(s) and produce
-			an access path. For example, when we type "this.walk()" in the class source code we need to resolve
-			all the identifiers into their canonical form taking into account base clases, which could resolve to
-			"__CLASS_DOG__.__CLASS_MAMAL__.__CLASS_ANIMAL__.walk()". Resolving identifiers is the most tricky
-			bit of this compiler and the most time-consuming because it performs several lookups.
-
-			But let's start with the basics. Copy-paste this code in Chrome or any other JavaScript testing
-			tool and examine/run it to understand the principles of JavaScript inheritance:
-
-			function Class1()
-			{
-				function Class1(base)
-				{
-					this.x = 1;
-					return this;
-				}
-				var base = new Class2;
-				Class1.prototype = base;
-				return new Class1(base);
-			}
-
-			function Class2()
-			{
-				function Class2(base)
-				{
-					this.y = 2;
-					return this;
-				}
-				var base = new Class3;
-				Class2.prototype = base;
-				return new Class2(base);
-			}
-
-			function Class3()
-			{
-				function Class3(base)
-				{
-					this.z = 3;
-					return this;
-				}
-				return new Class3(null);
-			}
-
-			var o1 = new Class1;
-			console.log(o1.x + ", " + o1.y + ", " + o1.z);
-			o1.x=100; o1.y=200; o1.z=300;
-			console.log(o1.x + ", " + o1.y + ", " + o1.z);
-
-			var o2 = new Class1;
-			console.log(o2.x + ", " + o2.y + ", " + o2.z);
-			console.log(o1.x + ", " + o1.y + ", " + o1.z);
-
-			var o3 = new Class2;
-			console.log(o3.x + ", " + o3.y + ", " + o3.z);
-
-			=====================================================
-			   *** How virtual functions are implemented ***
-			=====================================================
-
-			In C++ a virtual method is being replaced by the the implementation of the derived class.
-			Any call to the virtual method either by the derived class or by the base class, calls the
-			implementation of the derived class, UNLESS you explicitly ask for BaseClass::VirtualMethod
-			like the example in goo() below which calls "Class1::foo();". Access to the replaced method
-			by the derived class is achieved only by using "super" keyword. Let us implement this in
-			JavaScript...
-
-			#include <iostream>
-			using namespace std;
-
-			class Class1
-			{
-			public:
-				void goo()
-				{
-					Class1::foo();
-					foo();
-				}
-				virtual void foo()
-				{
-					cout << "Class1::foo\n";
-				}
-			};
-
-			class Class2 : public Class1
-			{
-			public:
-				void foo()
-				{
-					cout << "Class2::foo\n";
-				}
-			};
-
-			int main()
-			{
-				Class2* obj = new Class2();
-				obj->goo();
-				obj->foo();
-				obj->Class1::foo();   //TODO: should implement this at some point
-				return 0;
-			}
-
-			//////////////////////////////////////////////////////////////////////////////////////////////*/
 
 			_this.currClassName = ast.name;
 
@@ -1216,9 +1215,21 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// will make this call using __CLASS_<CLASSID>__.<method>
 
 			out.push("var Class = this.Class = '" + ast.name + "',");
-			out.push(classId + " = this." + classId + " = this,");
 			out.push("__PDEFINE__ = Object.defineProperty,");
 			out.push("__NOENUM__ = {enumerable:false},");
+			out.push(classId + " = this." + classId + " = this;");
+
+			// "this" is no more - we take control of "this" and
+			// we NEVER generate "this" inside member body code.
+			// "this" is used only for declaring members.
+			// The inheritance mechanism sets top-level "this" to
+			// all base classes. Enable comment below to trace
+			// how this "changes" at runtime.
+
+			out.push("var __THIS__ = this;");
+			out.push("this.toString = function(){return '" + ast.name + "'};");
+			out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){__THIS__=v;}});");
+			//out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){trace('chaning \"this\" of base class [" + classSymbol.name + "] to top-level class [' + v.Class + ']' );__THIS__=v;}});");
 
 			// Define the bank for the virtual public and private methods.
 			// You are not expected to understand how this works but the
@@ -1227,7 +1238,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Hava a look in jsdef.FUNCTION and jsdef.IDENTIFIER for
 			// more information about virtual methods.
 
-			out.push("__VIRTUAL__ = this.__VIRTUAL__ = { __PROTECTED__:{} },");
+			out.push("var __VIRTUAL__ = this.__VIRTUAL__ = { __PROTECTED__:{} },");
 
 			// For proper implementation of Private and Protected members, we use two
 			// banks, the __PRIVATE__ and __PROTECTED__ respectively. All private or
@@ -1261,7 +1272,12 @@ function Compiler(ast, exportSymbols, selectedClass)
 					// Standard CocoScript case when a Class inherits from a CocoScript class
 	            	else
 	            	{
-	            		out.push(classSymbol.bases[i].classId + " = this." + classSymbol.bases[i].classId + " = " + _this.baseClassDot(classSymbol,classSymbol.bases[i]));
+	            		var baseAccessPath = _this.baseClassDot(classSymbol,classSymbol.bases[i]);
+	            		out.push(classSymbol.bases[i].classId + " = this." + classSymbol.bases[i].classId + " = " + baseAccessPath);
+
+	            		// Replace __THIS__ of the base class
+	            		out.push(baseAccessPath + ".__THIS__ = " + classSymbol.classId);
+
 	            	}
 					out.push(i!=classSymbol.bases.length-1 ? ",": ";");
 	            }
@@ -1275,7 +1291,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 			/////////////////////////////////////////////////////////////////////////////////
 			if(_this.secondPass && ast.requires_third_pass)
 			{
-				trace("Processing overloads: " + ast.name);
 				_this.no_errors++; // Supress any errors
 				for(item in ast.body)
 				{
@@ -3155,8 +3170,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				}
 				else
 				{
-					var scope = _this.getClassScope();
-					out.push(scope.ast.symbol.classId);
+					out.push("__THIS__");
 				}
 			}
 			else
@@ -3485,8 +3499,15 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Symbol is a virtual function.
 			// The first DOT identifier is SUPER or THIS.
 			// =============================================================
-			else if(ast.inDot && ast!=ast.inDot.identifier_first && ast.symbol.type==jsdef.FUNCTION && ast.symbol.virtual && (ast.inDot.identifier_first.type==jsdef.SUPER || ast.inDot.identifier_first.type==jsdef.THIS))
+			/*@@ Virtuals (ivnocation) @@*/
+
+			// To invoke the virtual method through the __VIRTUAL__ bank,
+			// the method has to be overwitten by this class. Otherwise
+			// we invoke the method from its base class.
+
+			else if(ast.inDot && ast!=ast.inDot.identifier_first && ast.symbol.type==jsdef.FUNCTION && ast.symbol.virtual && __exists(ast.inClass.symbol.methods, ast.value) && (ast.inDot.identifier_first.type==jsdef.SUPER || ast.inDot.identifier_first.type==jsdef.THIS))
 			{
+
 				ast.runtime = "__VIRTUAL__."
 				if(ast.symbol.protected) ast.runtime += "__PROTECTED__.";
 				ast.runtime += ast.value;
@@ -3573,7 +3594,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 			//==================================================================================
 			// Generate debug symbol and cache identifier in current scope for speed
 			//==================================================================================
-
 			ast.runtime = out.join("");
 			_this.addDebugSymbol(ast, ast.runtime);
 			break;

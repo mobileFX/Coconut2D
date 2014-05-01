@@ -1,0 +1,63 @@
+﻿"#export native"
+"#export web"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+interface ITest1
+{
+	public function foo();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+interface ITest2 : ITest1
+{
+	public function goo();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+interface ITest3
+{
+	public function zoo();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+state class ClassTestInterfaces implements ITest2, ITest3
+{
+	// Methods from interfaces
+	public function foo() {}
+	public function goo() {}
+	public function zoo() {}
+
+	public function Constructor(){}
+	public function Destructor(){}
+	public function interface_test1(obj:ITest1){};					// test casting class to interface
+	public function interface_test2(obj:ITest2){};                  // test casting class to interface
+	public function interface_test3(obj:ITest3){};                  // test casting class to interface
+	public function interface_class(obj:ClassTestInterfaces){};     // (ambiguous) test casting interface to class
+
+	public function interface_tests()
+	{
+		var i1:ITest1 = this;
+		var i2:ITest2 = this;
+		var i3:ITest3 = this;
+
+		interface_test1(i1);
+		interface_test2(i1);
+		//interface_test3(i1);
+		//interface_class(i1);	//Ambiguous casting of interface to class
+
+		interface_test1(i2);
+		interface_test2(i2);
+		//interface_test3(i2);
+		//interface_class(i2);	//Ambiguous casting of interface to class
+
+		//interface_test1(i3);
+		//interface_test2(i3);
+		interface_test3(i3);
+		//interface_class(i3);	//Ambiguous casting of interface to class
+
+		interface_test1(this);
+		interface_test2(this);
+		interface_test3(this);
+	}
+}
+

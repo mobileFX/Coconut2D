@@ -39,10 +39,13 @@ state class GameEngine : CocoEngine implements IEventListener
 	{
 		function enter()
 		{
+			var t1:TestIntegratorClient = new TestIntegratorClient();
+			var t2:TestEventListener = new TestEventListener();
+			var t3:TestThis = new TestThis();
+
 			scene = new NewAnimation();
 
 			btn1 = new CocoUIButton("button1");
-			debugger;
 			btn1.move(10, 10, 300, 60);
 			btn1.addEventListener(btn1.OnTouchStart, this, mousedown);
 			scene.__root.addChild(btn1);

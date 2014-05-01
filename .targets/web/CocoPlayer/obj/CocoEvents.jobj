@@ -1,0 +1,501 @@
+"#export web";
+//@line 52
+
+function CocoEvent(__CLASS__COCOEVENT__$type__, __CLASS__COCOEVENT__$cancelable__, __CLASS__COCOEVENT__$bubbles__)
+{
+	var __BASE__ = null;
+
+	function __CocoEvent(__CLASS__COCOEVENT__$type__, __CLASS__COCOEVENT__$cancelable__, __CLASS__COCOEVENT__$bubbles__)
+	{
+		var Class = this.Class = 'CocoEvent',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__COCOEVENT__ = this.__CLASS__COCOEVENT__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoEvent'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__ = {},
+			__PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 54
+		this.type = "";
+		//@line 56
+		this.target = null;
+		//@line 57
+		this.currentTarget = null;
+		//@line 59
+		this.bubbles = false;
+		//@line 60
+		this.cancelable = false;
+		//@line 62
+		this.timeStamp = 0;
+		//@line 63
+		this.stopPropagation = false;
+		//@line 64
+		this.defaultPrevented = false;
+		//@line 66
+		this.view = null;
+		//@line 67
+		this.detail = 0;
+		//@line 69
+		this.touches = null;
+		//@line 70
+		this.targetTouches = null;
+		//@line 71
+		this.changedTouches = null;
+		//@line 72
+		this.scale = 0;
+		//@line 73
+		this.rotation = 0;
+		//@line 75
+		this.clientX = 0;
+		//@line 76
+		this.clientY = 0;
+		//@line 77
+		this.__clientX = 0;
+		//@line 78
+		this.__clientY = 0;
+		//@line 94
+		this.is = function (Event)
+		{
+			//@line 96
+			return Event.type == __CLASS__COCOEVENT__.type;
+			return false
+		};
+		//@line 100
+		this.cancelBubble = function ()
+		{
+			//@line 102
+			__CLASS__COCOEVENT__.stopPropagation = true;
+		};
+		//@line 106
+		this.preventDefault = function ()
+		{
+			//@line 108
+			__CLASS__COCOEVENT__.defaultPrevented = true;
+		};
+		//@line 89
+		this.Destructor = function ()
+		{
+			{
+				//@line 90
+			}
+			{
+				__CLASS__COCOEVENT__.type = null;
+				__CLASS__COCOEVENT__.target = null;
+				__CLASS__COCOEVENT__.currentTarget = null;
+				__CLASS__COCOEVENT__.bubbles = null;
+				__CLASS__COCOEVENT__.cancelable = null;
+				__CLASS__COCOEVENT__.timeStamp = null;
+				__CLASS__COCOEVENT__.stopPropagation = null;
+				__CLASS__COCOEVENT__.defaultPrevented = null;
+				__CLASS__COCOEVENT__.view = null;
+				__CLASS__COCOEVENT__.detail = null;
+				__CLASS__COCOEVENT__.touches = null;
+				__CLASS__COCOEVENT__.targetTouches = null;
+				__CLASS__COCOEVENT__.changedTouches = null;
+				__CLASS__COCOEVENT__.scale = null;
+				__CLASS__COCOEVENT__.rotation = null;
+				__CLASS__COCOEVENT__.clientX = null;
+				__CLASS__COCOEVENT__.clientY = null;
+				__CLASS__COCOEVENT__.__clientX = null;
+				__CLASS__COCOEVENT__.__clientY = null;
+			}
+			return true
+		};
+		//@line 81
+		this.Constructor = function (type, cancelable, bubbles)
+		{
+			//@line 83
+			__CLASS__COCOEVENT__.type = type;
+			//@line 84
+			__CLASS__COCOEVENT__.cancelable = cancelable;
+			//@line 85
+			__CLASS__COCOEVENT__.bubbles = bubbles;
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__COCOEVENT__$type__, __CLASS__COCOEVENT__$cancelable__, __CLASS__COCOEVENT__$bubbles__);
+		return this;
+	}
+	return new __CocoEvent(__CLASS__COCOEVENT__$type__, __CLASS__COCOEVENT__$cancelable__, __CLASS__COCOEVENT__$bubbles__);
+}
+CocoEvent.__PRIVATE__ = {};
+CocoEvent.__PROTECTED__ = {};
+//@line 121
+
+function CocoEventConnectionPoint(__CLASS__COCOEVENTCONNECTIONPOINT__$Source__, __CLASS__COCOEVENTCONNECTIONPOINT__$Event__, __CLASS__COCOEVENTCONNECTIONPOINT__$Listener__, __CLASS__COCOEVENTCONNECTIONPOINT__$Callback__)
+{
+	var __BASE__ = null;
+
+	function __CocoEventConnectionPoint(__CLASS__COCOEVENTCONNECTIONPOINT__$Source__, __CLASS__COCOEVENTCONNECTIONPOINT__$Event__, __CLASS__COCOEVENTCONNECTIONPOINT__$Listener__, __CLASS__COCOEVENTCONNECTIONPOINT__$Callback__)
+	{
+		var Class = this.Class = 'CocoEventConnectionPoint',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__COCOEVENTCONNECTIONPOINT__ = this.__CLASS__COCOEVENTCONNECTIONPOINT__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoEventConnectionPoint'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__ = {},
+			__PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 123
+		this.Event = null;
+		//@line 124
+		this.Callback = function () {};
+		//@line 125
+		this.Listener = null;
+		//@line 134
+		this.Destructor = function ()
+		{
+			{
+				//@line 135
+			}
+			{
+				__CLASS__COCOEVENTCONNECTIONPOINT__.Event = null;
+				__CLASS__COCOEVENTCONNECTIONPOINT__.Callback = null;
+				__CLASS__COCOEVENTCONNECTIONPOINT__.Listener = null;
+			}
+			return true
+		};
+		//@line 127
+		this.Constructor = function (Source, Event, Listener, Callback)
+		{
+			//@line 129
+			__CLASS__COCOEVENTCONNECTIONPOINT__.Event = Event;
+			//@line 130
+			__CLASS__COCOEVENTCONNECTIONPOINT__.Listener = Listener;
+			//@line 131
+			__CLASS__COCOEVENTCONNECTIONPOINT__.Callback = Callback;
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__COCOEVENTCONNECTIONPOINT__$Source__, __CLASS__COCOEVENTCONNECTIONPOINT__$Event__, __CLASS__COCOEVENTCONNECTIONPOINT__$Listener__, __CLASS__COCOEVENTCONNECTIONPOINT__$Callback__);
+		return this;
+	}
+	return new __CocoEventConnectionPoint(__CLASS__COCOEVENTCONNECTIONPOINT__$Source__, __CLASS__COCOEVENTCONNECTIONPOINT__$Event__, __CLASS__COCOEVENTCONNECTIONPOINT__$Listener__, __CLASS__COCOEVENTCONNECTIONPOINT__$Callback__);
+}
+CocoEventConnectionPoint.__PRIVATE__ = {};
+CocoEventConnectionPoint.__PROTECTED__ = {};
+//@line 149
+
+function CocoEventSource()
+{
+	var __BASE__ = null;
+
+	function __CocoEventSource()
+	{
+		var Class = this.Class = 'CocoEventSource',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__COCOEVENTSOURCE__ = this.__CLASS__COCOEVENTSOURCE__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoEventSource'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__ = {},
+			__PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 151
+		__PROTECTED__.__eventListeners = [];
+		//@line 165
+		this.addEventListener = __VIRTUAL__.addEventListener = function (Event, Listener, Callback)
+		{
+			//@line 171
+			var item = new CocoEventConnectionPoint(__THIS__, Event, Listener, Callback);
+			//@line 173
+			__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners.push(item);
+		};
+		//@line 177
+		this.removeEventListener = __VIRTUAL__.removeEventListener = function (Event, Listener, Callback)
+		{
+			//@line 179
+			var i = 0;
+			//@line 180
+			for (i = __CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners.size() - 1; i >= 0; i--)
+			//@line 181
+			{
+				//@line 182
+				if (__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners[i].Event.is(Event) && __CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners[i].Listener == Listener && __CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners[i].Callback == Callback)
+				//@line 183
+				{
+					//@line 184
+					__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners.splice(i, 1);
+					//@line 185
+					return true;
+				}
+			}
+			//@line 188
+			return false;
+			return false
+		};
+		//@line 192
+		this.dispatchEvent = __VIRTUAL__.dispatchEvent = function (Event)
+		{
+			//@line 194
+			var i = 0;
+			//@line 195
+			var c = 0;
+			//@line 197
+			var event_arguments = [];
+			//@line 198
+			event_arguments.push(__THIS__);
+			//@line 199
+			event_arguments.push(Event);
+			//@line 200
+			event_arguments.concat(arguments);
+			//@line 203
+			for (i = __CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners.size() - 1; i >= 0; i--)
+			//@line 204
+			{
+				//@line 205
+				var cp = __CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners[i];
+				//@line 207
+				if (cp.Event.is(Event))
+				//@line 208
+				{
+					//@line 209
+					c++;
+					//@line 210
+					var cancel = cp.Callback.apply(cp.Listener, event_arguments);
+					//@line 211
+					if (cancel)
+					//@line 212
+					{
+						//@line 213
+						__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners[i].Event.cancelBubble();
+					}
+					//@line 215
+					if (__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners[i].Event.stopPropagation)
+					//@line 216
+					{
+						//@line 217
+						break;
+					}
+				}
+			}
+			//@line 221
+			{
+				event_arguments && ((event_arguments.hasOwnProperty('Destructor') && event_arguments.Destructor()) || !event_arguments.hasOwnProperty('Destructor')) && (delete event_arguments);
+				event_arguments = null
+			};
+			//@line 222
+			return c;
+			return 0
+		};
+		//@line 159
+		this.Destructor = function ()
+		{
+			{
+				//@line 161
+				{
+					__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners && ((__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners.hasOwnProperty('Destructor') && __CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners.Destructor()) || !__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners.hasOwnProperty('Destructor')) && (delete __CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners);
+					__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners = null
+				};
+			}
+			{
+				__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners = null;
+			}
+			return true
+		};
+		//@line 154
+		this.Constructor = function ()
+		{
+			//@line 156
+			__CLASS__COCOEVENTSOURCE__.__PROTECTED__.__eventListeners = new Array;
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new __CocoEventSource();
+}
+CocoEventSource.__PRIVATE__ = {};
+CocoEventSource.__PROTECTED__ = {};
+//@line 236
+
+function Touch()
+{
+	var __BASE__ = null;
+
+	function __Touch()
+	{
+		var Class = this.Class = 'Touch',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__TOUCH__ = this.__CLASS__TOUCH__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'Touch'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__ = {},
+			__PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 238
+		this.identifier = 0;
+		//@line 239
+		this.screenX = 0;
+		//@line 240
+		this.screenY = 0;
+		//@line 241
+		this.clientX = 0;
+		//@line 242
+		this.clientY = 0;
+		//@line 243
+		this.pageX = 0;
+		//@line 244
+		this.pageY = 0;
+		//@line 245
+		this.target = null;
+		//@line 266
+		this.initTouch = function (identifier, target, screenX, screenY, clientX, clientY, pageX, pageY)
+		{
+			//@line 268
+			__CLASS__TOUCH__.identifier = identifier;
+			//@line 269
+			__CLASS__TOUCH__.target = target;
+			//@line 270
+			__CLASS__TOUCH__.screenX = screenX;
+			//@line 271
+			__CLASS__TOUCH__.screenY = screenY;
+			//@line 272
+			__CLASS__TOUCH__.clientX = clientX;
+			//@line 273
+			__CLASS__TOUCH__.clientY = clientY;
+			//@line 274
+			__CLASS__TOUCH__.pageX = pageX;
+			//@line 275
+			__CLASS__TOUCH__.pageY = pageY;
+		};
+		//@line 261
+		this.Destructor = function ()
+		{
+			{
+				//@line 262
+			}
+			{
+				__CLASS__TOUCH__.identifier = null;
+				__CLASS__TOUCH__.screenX = null;
+				__CLASS__TOUCH__.screenY = null;
+				__CLASS__TOUCH__.clientX = null;
+				__CLASS__TOUCH__.clientY = null;
+				__CLASS__TOUCH__.pageX = null;
+				__CLASS__TOUCH__.pageY = null;
+				__CLASS__TOUCH__.target = null;
+			}
+			return true
+		};
+		//@line 248
+		this.Constructor = function ()
+		{
+			//@line 250
+			__CLASS__TOUCH__.identifier = 0;
+			//@line 251
+			__CLASS__TOUCH__.target = null;
+			//@line 252
+			__CLASS__TOUCH__.screenX = 0;
+			//@line 253
+			__CLASS__TOUCH__.screenY = 0;
+			//@line 254
+			__CLASS__TOUCH__.clientX = 0;
+			//@line 255
+			__CLASS__TOUCH__.clientY = 0;
+			//@line 256
+			__CLASS__TOUCH__.pageX = 0;
+			//@line 257
+			__CLASS__TOUCH__.pageY = 0;
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new __Touch();
+}
+Touch.__PRIVATE__ = {};
+Touch.__PROTECTED__ = {};
+//@line 289
+
+function TouchList()
+{
+	var __BASE__ = null;
+
+	function __TouchList()
+	{
+		var Class = this.Class = 'TouchList',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__TOUCHLIST__ = this.__CLASS__TOUCHLIST__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'TouchList'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__,
+			__PROTECTED__ = this.__PROTECTED__,
+			__CLASS__ARRAY__ = this;
+		//@line 291
+		this.length = 0;
+		//@line 305
+		this.item = function (index)
+		{
+			//@line 307
+			return __THIS__[index];
+		};
+		//@line 294
+		this.Constructor = function ()
+		{
+			//@line 296
+			for (var i = 0; i <= 5; i++)
+			//@line 297
+			{
+				//@line 298
+				var touch = new Touch;
+				//@line 299
+				touch.initTouch(i, null, 0, 0, 0, 0, 0, 0);
+				//@line 300
+				__CLASS__ARRAY__.push(touch);
+			}
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__TouchList.prototype = new Array(undefined);
+	return new __TouchList();
+}
+TouchList.__PRIVATE__ = {};
+TouchList.__PROTECTED__ = {};

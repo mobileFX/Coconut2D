@@ -1,0 +1,85 @@
+//@line 36
+
+function HTMLCanvasElement()
+{
+	var __BASE__ = null;
+
+	function __HTMLCanvasElement()
+	{
+		var Class = this.Class = 'HTMLCanvasElement',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__HTMLCANVASELEMENT__ = this.__CLASS__HTMLCANVASELEMENT__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'HTMLCanvasElement'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__ = {},
+			__PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 38
+		this.width = 0;
+		//@line 39
+		this.height = 0;
+		//@line 41
+		this.__imageData = null;
+		//@line 58
+		this.getContext = function (contextId)
+		{
+			//@line 60
+			if (contextId == "2d")
+			//@line 61
+			return new CanvasRenderingContext2D(__THIS__);
+			else
+			//@line 63
+			return (new WebGLRenderingContext(__THIS__));
+		};
+		//@line 67
+		this.toDataURL = function ()
+		{
+			//@line 69
+			return "data:image/png;base64," + (__CLASS__HTMLCANVASELEMENT__.__imageData ? __CLASS__HTMLCANVASELEMENT__.__imageData.data.buffer.encodeAsPNG(__CLASS__HTMLCANVASELEMENT__.__imageData.width, __CLASS__HTMLCANVASELEMENT__.__imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
+			return ""
+		};
+		//@line 52
+		this.Destructor = function ()
+		{
+			{
+				//@line 54
+				{
+					__CLASS__HTMLCANVASELEMENT__.__imageData && ((__CLASS__HTMLCANVASELEMENT__.__imageData.hasOwnProperty('Destructor') && __CLASS__HTMLCANVASELEMENT__.__imageData.Destructor()) || !__CLASS__HTMLCANVASELEMENT__.__imageData.hasOwnProperty('Destructor')) && (delete __CLASS__HTMLCANVASELEMENT__.__imageData);
+					__CLASS__HTMLCANVASELEMENT__.__imageData = null
+				};
+			}
+			{
+				__CLASS__HTMLCANVASELEMENT__.width = null;
+				__CLASS__HTMLCANVASELEMENT__.height = null;
+				__CLASS__HTMLCANVASELEMENT__.__imageData = null;
+			}
+			return true
+		};
+		//@line 44
+		this.Constructor = function ()
+		{
+			//@line 46
+			__CLASS__HTMLCANVASELEMENT__.width = 0.0;
+			//@line 47
+			__CLASS__HTMLCANVASELEMENT__.height = 0.0;
+			//@line 48
+			__CLASS__HTMLCANVASELEMENT__.__imageData = null;
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new __HTMLCanvasElement();
+}
+HTMLCanvasElement.__PRIVATE__ = {};
+HTMLCanvasElement.__PROTECTED__ = {};
