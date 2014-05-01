@@ -214,22 +214,22 @@ class CocoGraphics
 		/*
 
 	    // Find slices with fixed width or height
-	    if(this.__fixedH([RW1H1, RW2H1, RW3H1])) R[0] = H1;
-	    if(this.__fixedH([RW1H2, RW2H2, RW3H2])) R[1] = H2;
-	    if(this.__fixedH([RW1H3, RW2H3, RW3H3])) R[2] = H3;
-	    if(this.__fixedW([RW1H1, RW1H2, RW1H3])) C[0] = W1;
-	    if(this.__fixedW([RW2H1, RW2H2, RW2H3])) C[1] = W2;
-	    if(this.__fixedW([RW3H1, RW3H2, RW3H3])) C[2] = W3;
+	    if(__fixedH([RW1H1, RW2H1, RW3H1])) R[0] = H1;
+	    if(__fixedH([RW1H2, RW2H2, RW3H2])) R[1] = H2;
+	    if(__fixedH([RW1H3, RW2H3, RW3H3])) R[2] = H3;
+	    if(__fixedW([RW1H1, RW1H2, RW1H3])) C[0] = W1;
+	    if(__fixedW([RW2H1, RW2H2, RW2H3])) C[1] = W2;
+	    if(__fixedW([RW3H1, RW3H2, RW3H3])) C[2] = W3;
 
 		// Count how many cells have fixed height and divide the remaining height to the others
-		F = this.__countFixed([H1, H2, H3]) - this.__countFixed(R);
+		F = __countFixed([H1, H2, H3]) - __countFixed(R);
 		RmH = Math.max(0, height - R[0] - R[1] - R[2]);
 		if(H1 && !R[0]) R[0] =(RmH / F);
 		if(H2 && !R[1]) R[1] =(RmH / F);
 		if(H3 && !R[2]) R[2] =(RmH / F);
 
 		// Count how many cells have fixed width and divide the remaining width to the others
-		F = this.__countFixed([W1, W2, W3]) - this.__countFixed(C);
+		F = __countFixed([W1, W2, W3]) - __countFixed(C);
 		RmW = Math.max(0, width - C[0] - C[1] - C[2]);
 		if(W1 && !C[0]) C[0] = (RmW / F);
 		if(W2 && !C[1]) C[1] = (RmW / F);
@@ -355,10 +355,10 @@ class CocoGraphics
 
 		if(anchor!=null && anchor!=Const.ODP_ANCHOR_NONE)
 		{
-			var fit = Graphics.getBestFitInfo(w, h, this.width, this.height, false);
+			var fit = Graphics.getBestFitInfo(w, h, width, height, false);
 			w = fit.w;
 			h = fit.h;
-			var pt = this.calcAnchor(this.width, this.height, 0, 0, 0, 0, 0, 0, w, h, anchor);
+			var pt = calcAnchor(width, height, 0, 0, 0, 0, 0, 0, w, h, anchor);
 			x = pt.x;
 			y = pt.y;
 		}
@@ -368,7 +368,7 @@ class CocoGraphics
 		w = Math.round(w);
 		h = Math.round(h);
 
-		var ctx = this.beginPaint();
+		var ctx = beginPaint();
 
 		var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
 								ctx.mozBackingStorePixelRatio ||
@@ -381,14 +381,14 @@ class CocoGraphics
 		try
 		{
 			ctx.setTransform(1,0,0,1,0,0);
-			if(clear) ctx.clearRect(0,0,this.width,this.height);
+			if(clear) ctx.clearRect(0,0,width,height);
 			//ctx.drawImage($img, x, y, w, h);
 			ctx.drawImage($img, 0,0,$img.width, $img.height, x, y, w, h);
 		}
 		finally
 		{
 			//ctx.scale(r,r);
-			this.endPaint();
+			endPaint();
 		}
 
 		return { x: x/r, y: y/r };

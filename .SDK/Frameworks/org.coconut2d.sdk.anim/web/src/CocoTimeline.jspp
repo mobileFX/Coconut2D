@@ -277,8 +277,6 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function interpolate(frameIndex:Float) :CocoKeyFrame
 	{
 	    var F:CocoKeyFrame = null;
@@ -358,7 +356,7 @@ class CocoTimeline
 	                F.frameIndex = iFrameIndex;
 	                F.__frameIndex = frameIndex;
 	                s = (frameIndex - Float(F1.frameIndex)) / Float(F2.frameIndex - F1.frameIndex);
-	                F.interpolate(F1, F2, s);
+	                interpolate(F, F1, F2, s);
 	                return F;
 	            }
 
@@ -367,5 +365,21 @@ class CocoTimeline
 	        }
 	    }
 	    return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function interpolate(F:CocoKeyFrame, F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float)
+	{
+		F.red = F1.red + s * (F2.red - F1.red);
+		F.green = F1.green + s * (F2.green - F1.green);
+		F.blue = F1.blue + s * (F2.blue - F1.blue);
+	    F.alpha = F1.alpha + s * (F2.alpha - F1.alpha);
+	    F.x = F1.x + s * (F2.x - F1.x);
+	    F.y = F1.y + s * (F2.y - F1.y);
+	    F.scaleX = F1.scaleX + s * (F2.scaleX - F1.scaleX);
+	    F.scaleY = F1.scaleY + s * (F2.scaleY - F1.scaleY);
+	    F.rotation = F1.rotation + s * (F2.rotation - F1.rotation);
+	    F.pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
+	    F.pivotY = F1.pivotY + s * (F2.pivotY - F1.pivotY);
 	}
 }

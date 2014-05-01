@@ -177,8 +177,6 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.LE:              return "Boolean";
 		case jsdef.LT:              return "Boolean";
 		case jsdef.NE:              return "Boolean";
-		case jsdef.NEW:           	return ast[0].symbol.name;
-		case jsdef.NEW_WITH_ARGS:	return ast[0].symbol.name;
 		case jsdef.NOT:             return "Boolean";
 		case jsdef.NULL:			return "Null";
 		case jsdef.NUMBER:			return "Number";
@@ -193,6 +191,13 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.TRUE:			return "Boolean";
 		case jsdef.TYPEOF:			return "String";
 		case jsdef.VOID:			return _this.UNTYPED;
+
+		//=============================================================================================================================
+		case jsdef.NEW:
+		case jsdef.NEW_WITH_ARGS:
+
+			if(!ast[0].symbol) ast[0].symbol = _this.LookupIdentifier(ast.inFunction.scope, ast[0].value, ast[0], true);
+			return ast[0].symbol.name;
 
 		//=============================================================================================================================
 		case jsdef.PLUS:

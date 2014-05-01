@@ -12,6 +12,10 @@ function CocoKeyFrame()
 			__NOENUM__ = {enumerable:false},
 			__CLASS__COCOKEYFRAME__ = this.__CLASS__COCOKEYFRAME__ = this;
 		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoKeyFrame'
+		};
 		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
@@ -130,73 +134,13 @@ function CocoKeyFrame()
 			//@line 135
 			return c;
 		};
-		//@line 139
+		//@line 178
 		this.reset = function ()
 		{
-			//@line 141
-			if (__CLASS__COCOKEYFRAME__.audio)
-			//@line 142
-			__CLASS__COCOKEYFRAME__.audio.reset();
-		};
-		//@line 146
-		this.interpolate = function (F1, F2, s)
-		{
-			//@line 148
-			__CLASS__COCOKEYFRAME__.red = F1.red + s * (F2.red - F1.red);
-			//@line 149
-			__CLASS__COCOKEYFRAME__.green = F1.green + s * (F2.green - F1.green);
-			//@line 150
-			__CLASS__COCOKEYFRAME__.blue = F1.blue + s * (F2.blue - F1.blue);
-			//@line 151
-			__CLASS__COCOKEYFRAME__.alpha = F1.alpha + s * (F2.alpha - F1.alpha);
-			//@line 152
-			__CLASS__COCOKEYFRAME__.x = F1.x + s * (F2.x - F1.x);
-			//@line 153
-			__CLASS__COCOKEYFRAME__.y = F1.y + s * (F2.y - F1.y);
-			//@line 154
-			__CLASS__COCOKEYFRAME__.scaleX = F1.scaleX + s * (F2.scaleX - F1.scaleX);
-			//@line 155
-			__CLASS__COCOKEYFRAME__.scaleY = F1.scaleY + s * (F2.scaleY - F1.scaleY);
-			//@line 156
-			__CLASS__COCOKEYFRAME__.rotation = F1.rotation + s * (F2.rotation - F1.rotation);
-			//@line 157
-			__CLASS__COCOKEYFRAME__.pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
-			//@line 158
-			__CLASS__COCOKEYFRAME__.pivotY = F1.pivotY + s * (F2.pivotY - F1.pivotY);
-		};
-		//@line 162
-		this.combine = function (Frame)
-		{
-			//@line 164
-			if (!Frame) return;
-			//@line 165
-			if (!__CLASS__COCOKEYFRAME__.filter) __CLASS__COCOKEYFRAME__.filter = Frame.filter;
-			//@line 166
-			__CLASS__COCOKEYFRAME__.red = __CLASS__COCOKEYFRAME__.red * Frame.red;
-			//@line 167
-			__CLASS__COCOKEYFRAME__.green = __CLASS__COCOKEYFRAME__.green * Frame.green;
-			//@line 168
-			__CLASS__COCOKEYFRAME__.blue = __CLASS__COCOKEYFRAME__.blue * Frame.blue;
-			//@line 169
-			__CLASS__COCOKEYFRAME__.alpha = __CLASS__COCOKEYFRAME__.alpha * Frame.alpha;
-			//@line 170
-			__CLASS__COCOKEYFRAME__.visible = __CLASS__COCOKEYFRAME__.visible && Frame.visible;
-			//@line 171
-			__CLASS__COCOKEYFRAME__.flipH = (__CLASS__COCOKEYFRAME__.flipH && !Frame.flipH) || (!__CLASS__COCOKEYFRAME__.flipH && Frame.flipH);
-			//@line 172
-			__CLASS__COCOKEYFRAME__.flipV = (__CLASS__COCOKEYFRAME__.flipV && !Frame.flipV) || (!__CLASS__COCOKEYFRAME__.flipV && Frame.flipV);
-		};
-		//@line 176
-		this.apply = function (matrix)
-		{
-			//@line 178
-			if (__CLASS__COCOKEYFRAME__.x != 0 || __CLASS__COCOKEYFRAME__.y != 0) matrix.translate(__CLASS__COCOKEYFRAME__.x, __CLASS__COCOKEYFRAME__.y);
-			//@line 179
-			if (__CLASS__COCOKEYFRAME__.rotation != 0) matrix.rotateZ(__CLASS__COCOKEYFRAME__.rotation * RADIANS);
 			//@line 180
-			if (__CLASS__COCOKEYFRAME__.scaleX != 1 || __CLASS__COCOKEYFRAME__.scaleY != 1) matrix.scale(__CLASS__COCOKEYFRAME__.scaleX, __CLASS__COCOKEYFRAME__.scaleY);
+			if (__CLASS__COCOKEYFRAME__.audio)
 			//@line 181
-			if (__CLASS__COCOKEYFRAME__.pivotX != 0 || __CLASS__COCOKEYFRAME__.pivotY != 0) matrix.translate(-__CLASS__COCOKEYFRAME__.pivotX, -__CLASS__COCOKEYFRAME__.pivotY);
+			__CLASS__COCOKEYFRAME__.audio.reset();
 		};
 		//@line 95
 		this.Destructor = function ()

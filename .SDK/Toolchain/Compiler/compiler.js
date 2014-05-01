@@ -3705,7 +3705,10 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.OBJECT_INIT:
-			if(_this.secondPass && _this.currClassName) _this.NewError("Illegal object initialization inside class", ast);
+
+			if(_this.secondPass && _this.currClassName)
+				_this.NewError("Illegal object initialization inside class", ast);
+
 			out.push("{");
 			var firstItem = true;
 			for(var item in ast)
@@ -3721,7 +3724,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.PROPERTY_INIT:
-			out.push(generate(ast[0]) + ":");
+			//out.push(generate(ast[0]) + ":");
+			out.push(ast[0].value+":");
 			out.push(generate(ast[1]));
 			break;
 

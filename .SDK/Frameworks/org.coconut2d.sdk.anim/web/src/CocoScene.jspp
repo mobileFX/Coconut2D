@@ -150,7 +150,7 @@ class CocoScene
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.disable(gl.CULL_FACE);
 
-       __view_scale = this.__view_width > 0 && this.__view_height > 0 ? Math.min( Float(gl.canvas.width) / this.__view_width, Float(gl.canvas.height) / this.__view_height) : window.devicePixelRatio;
+       __view_scale = __view_width > 0 && __view_height > 0 ? Math.min( Float(gl.canvas.width) / __view_width, Float(gl.canvas.height) / __view_height) : window.devicePixelRatio;
 
 		if(window.deviceRotation)
 		{

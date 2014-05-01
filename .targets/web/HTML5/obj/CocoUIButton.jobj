@@ -12,6 +12,10 @@ function CocoUIButton(__CLASS__COCOUIBUTTON__$Name__)
 			__NOENUM__ = {enumerable:false},
 			__CLASS__COCOUIBUTTON__ = this.__CLASS__COCOUIBUTTON__ = this;
 		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoUIButton'
+		};
 		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
@@ -37,7 +41,7 @@ function CocoUIButton(__CLASS__COCOUIBUTTON__$Name__)
 			//@line 62
 			var touches = undefined;
 			//@line 63
-			__CLASS__COCOEVENTSOURCE__.dispatchEvent(__CLASS__COCOUIBUTTON__.__CLASS__COCOUICONTROL__.__CLASS__COCOUIVIEW__.__CLASS__COCOCLIP__.OnTouchStart, 5, 10, touches);
+			__CLASS__COCOEVENTSOURCE__.dispatchEvent(OnTouchStart, 5, 10, touches);
 		};
 		//@line 81
 		this.repaint = __VIRTUAL__.repaint = __CLASS__COCOUICONTROL__.repaint = __CLASS__COCOUIVIEW__.repaint = __CLASS__COCOCLIP__.repaint = __CLASS__COCOEVENTSOURCE__.repaint = function (scene, parentClip, ctx)
@@ -81,7 +85,7 @@ function CocoUIButton(__CLASS__COCOUIBUTTON__$Name__)
 		{
 			{
 				//@line 56
-				__CLASS__COCOUIBUTTON__.__CLASS__COCOUICONTROL__.__CLASS__COCOUIVIEW__.__CLASS__COCOCLIP__.__CLASS__COCOEVENTSOURCE__.dispatchEvent(__CLASS__COCOUIBUTTON__.__CLASS__COCOUICONTROL__.__CLASS__COCOUIVIEW__.__CLASS__COCOCLIP__.OnTouchMove, 1, 2);
+				__CLASS__COCOEVENTSOURCE__.dispatchEvent(OnTouchMove, 1, 2);
 			}
 			{
 				__CLASS__COCOUIBUTTON__.__PROTECTED__.__caption = null;

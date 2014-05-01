@@ -377,7 +377,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 		}
 
 		// Calculate the parent timeline duration in time from its children (which are siblings to this clip)
-		var parentClipsDuration:Time = parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : this.__timeline.__singleFrameDurationTime;
+		var parentClipsDuration:Time = parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__singleFrameDurationTime;
 
         // =============================================================================================================
         // Combine with parent clip and interpolate
@@ -398,7 +398,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 			if(!__currentFrame) return;
 
 			// Combine parent clip currentframe values with this clip's interpolated frame values.
-			 __currentFrame.combine(parentClip.__currentFrame);
+			 combine(__currentFrame, parentClip.__currentFrame);
 
 			// If current frame is not visible then we skip processing children.
 			if(__currentFrame.alpha == 0 || !__currentFrame.visible)
@@ -421,7 +421,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 		{
 			__currentFrame.scaleX *= __image.__pixelRatioScale;
 			__currentFrame.scaleY *= __image.__pixelRatioScale;
-			__currentFrame.apply(scene.__modelViewMatrix);
+			apply(__currentFrame, scene.__modelViewMatrix);
 			__currentFrame.scaleX /= __image.__pixelRatioScale;
 			__currentFrame.scaleY /= __image.__pixelRatioScale;
 
@@ -436,7 +436,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 			}
 			else if(!__currentSequence || __currentSequence.name!=sequenceName)
 			{
-				//trace("Loading sprite animation sequence: " + this.__clipPath + " -> " + sequenceName);
+				//trace("Loading sprite animation sequence: " + __clipPath + " -> " + sequenceName);
 				__currentSequence = __image.getSequence(sequenceName);
 				__currentSequence.sequenceStartTime = __currentTime;
 			}
@@ -462,7 +462,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 			{
 				var child:CocoClip;
 				scene.__levelParents.push(this);
-				if(__currentFrame) __currentFrame.apply(scene.__modelViewMatrix);
+				if(__currentFrame) apply(__currentFrame, scene.__modelViewMatrix);
 				for (var i:Integer = 0; i < childrenCound; i++)
 				{
 					scene.__modelViewMatrix.push();
@@ -508,8 +508,6 @@ class CocoClip : CocoEventSource implements IEventTarget
 	        // =============================================================================================================
 			if(!__timeline.__paused)
 			{
-				//this.__parent = parentClip;
-
 				if(__currentFrame.action)
 				{
 					//engine.__trace(scene, this, "@@ACTION");
@@ -537,8 +535,6 @@ class CocoClip : CocoEventSource implements IEventTarget
 						__currentAudio.reset();
 					__currentAudio = __currentFrame.audio;
 				}
-
-				//this.__parent = null;
 			}
 
 	        // =============================================================================================================
@@ -562,6 +558,29 @@ class CocoClip : CocoEventSource implements IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame)
+	{
+		if(!F2) return;
+		if(!F1.filter) F1.filter = F2.filter;
+		F1.red = F1.red * F2.red;
+		F1.green = F1.green * F2.green;
+		F1.blue = F1.blue * F2.blue;
+	    F1.alpha = F1.alpha * F2.alpha;
+	    F1.visible = F1.visible && F2.visible;
+	    F1.flipH = (F1.flipH && !F2.flipH) || (!F1.flipH && F2.flipH);
+	    F1.flipV = (F1.flipV && !F2.flipV) || (!F1.flipV && F2.flipV);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function apply(F:CocoKeyFrame, matrix:CocoMatrix)
+	{
+		if(F.x!=0 || F.y!=0) matrix.translate(F.x, F.y);
+		if(F.rotation!=0) matrix.rotateZ(F.rotation * RADIANS);
+		if(F.scaleX!=1 ||F.scaleY!=1) matrix.scale(F.scaleX, F.scaleY);
+		if(F.pivotX!=0 || F.pivotY!=0) matrix.translate(-F.pivotX, -F.pivotY);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function hitTest(wx:Float, wy:Float) :Boolean
 	{
 		return ((((wx - __vABS_TOP_LEFT.X) * (__vABS_TOP_RIGHT.Y - __vABS_TOP_LEFT.Y) - (__vABS_TOP_RIGHT.X - __vABS_TOP_LEFT.X) * (wy - __vABS_TOP_LEFT.Y)) * ((wx - __vABS_BOTTOM_RIGHT.X) * (__vABS_BOTTOM_LEFT.Y - __vABS_BOTTOM_RIGHT.Y) - (__vABS_BOTTOM_LEFT.X - __vABS_BOTTOM_RIGHT.X) * (wy - __vABS_BOTTOM_RIGHT.Y))) > 0
@@ -575,7 +594,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 
 		__currentFrame.scaleX *= __image.__pixelRatioScale;
 		__currentFrame.scaleY *= __image.__pixelRatioScale;
-		__currentFrame.apply(__mTemp);
+		apply(__currentFrame,__mTemp);
 		__currentFrame.scaleX /= __image.__pixelRatioScale;
 		__currentFrame.scaleY /= __image.__pixelRatioScale;
 
@@ -655,7 +674,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 
 		__mTemp.identity();
 
-		__currentFrame.apply(__mTemp);
+		apply(__currentFrame, __mTemp);
 
 	    __vREL_TOP_LEFT = __mTemp.multiplyByVector(__vREL_TOP_LEFT);
 	    __vREL_TOP_RIGHT = __mTemp.multiplyByVector(__vREL_TOP_RIGHT);

@@ -12,6 +12,10 @@ function GameEngine()
 			__NOENUM__ = {enumerable:false},
 			__CLASS__GAMEENGINE__ = this.__CLASS__GAMEENGINE__ = this;
 		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'GameEngine'
+		};
 		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
@@ -42,46 +46,48 @@ function GameEngine()
 			this.enter = function ()
 			{
 				//@line 42
-				var i = new TestIntegratorClient;
+				var t1 = new TestIntegratorClient;
 				//@line 43
-				var t = new TestEventListener;
-				//@line 45
+				var t2 = new TestEventListener;
+				//@line 44
+				var t3 = new TestThis;
+				//@line 46
 				__CLASS__GAMEENGINE__.scene = new NewAnimation;
-				//@line 47
-				__CLASS__GAMEENGINE__.btn1 = new CocoUIButton("button1");
 				//@line 48
-				__CLASS__GAMEENGINE__.btn1.move(10, 10, 300, 60);
+				__CLASS__GAMEENGINE__.btn1 = new CocoUIButton("button1");
 				//@line 49
-				__CLASS__GAMEENGINE__.btn1.addEventListener(__CLASS__GAMEENGINE__.btn1.OnTouchStart, __THIS__, __CLASS__GAMEENGINE__.mousedown);
+				__CLASS__GAMEENGINE__.btn1.move(10, 10, 300, 60);
 				//@line 50
+				__CLASS__GAMEENGINE__.btn1.addEventListener(__CLASS__GAMEENGINE__.btn1.OnTouchStart, __THIS__, __CLASS__GAMEENGINE__.mousedown);
+				//@line 51
 				__CLASS__GAMEENGINE__.scene.__root.addChild(__CLASS__GAMEENGINE__.btn1);
-				//@line 52
-				__CLASS__GAMEENGINE__.btn2 = new CocoUIButton("button2");
 				//@line 53
-				__CLASS__GAMEENGINE__.btn2.move(10, 100, 300, 60);
+				__CLASS__GAMEENGINE__.btn2 = new CocoUIButton("button2");
 				//@line 54
-				__CLASS__GAMEENGINE__.btn2.addEventListener(__CLASS__GAMEENGINE__.btn2.OnTouchStart, __THIS__, __CLASS__GAMEENGINE__.mousedown);
+				__CLASS__GAMEENGINE__.btn2.move(10, 100, 300, 60);
 				//@line 55
+				__CLASS__GAMEENGINE__.btn2.addEventListener(__CLASS__GAMEENGINE__.btn2.OnTouchStart, __THIS__, __CLASS__GAMEENGINE__.mousedown);
+				//@line 56
 				__CLASS__GAMEENGINE__.scene.__root.addChild(__CLASS__GAMEENGINE__.btn2);
 			};
-			//@line 58
+			//@line 59
 			this.exit = function ()
 			{
-				//@line 60
+				//@line 61
 				{
 					__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
 					__CLASS__GAMEENGINE__.scene = null
 				};
 			};
-			//@line 63
+			//@line 64
 			this.tick = function (time)
 			{
-				//@line 64
+				//@line 65
 			};
-			//@line 67
+			//@line 68
 			this.paint = function (gl, time)
 			{
-				//@line 69
+				//@line 70
 				__CLASS__GAMEENGINE__.scene.paint(gl, time);
 			};
 			return this
