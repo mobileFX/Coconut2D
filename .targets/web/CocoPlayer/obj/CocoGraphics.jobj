@@ -1,4 +1,47 @@
-//@line 46
+//@line 35
+
+function CocoRect()
+{
+	var __BASE__ = null;
+
+	function __CocoRect()
+	{
+		var Class = this.Class = 'CocoRect',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__COCORECT__ = this.__CLASS__COCORECT__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoRect'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__ = {},
+			__PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 37
+		this.left = 0;
+		//@line 38
+		this.top = 0;
+		//@line 39
+		this.right = 0;
+		//@line 40
+		this.bottom = 0;
+		this.Constructor = function () {};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new __CocoRect();
+}
+CocoRect.__PRIVATE__ = {};
+CocoRect.__PROTECTED__ = {};
+//@line 63
 
 function CocoGraphics()
 {
@@ -24,19 +67,19 @@ function CocoGraphics()
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 52
+		//@line 69
 		this.Destructor = function ()
 		{
 			{
-				//@line 53
+				//@line 70
 			}
 			{}
 			return true
 		};
-		//@line 48
+		//@line 65
 		this.Constructor = function ()
 		{
-			//@line 49
+			//@line 66
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
 		this.Constructor();
@@ -46,281 +89,281 @@ function CocoGraphics()
 }
 CocoGraphics.__PRIVATE__ = {};
 CocoGraphics.__PROTECTED__ = {};
-//@line 83
+//@line 100
 CocoGraphics.createTextTexture = function (scene, text, fontName, fontSizePixels, hAlign, vAlign, multiline, trimming, CSSColor, textRectWidth, textRectHeight)
 {
-	//@line 86
-	var canvas = document.createElement("canvas");
-	//@line 87
-	canvas.width = Math.pow(2, Math.ceil(Math.log(textRectWidth) / Math.log(2)));
-	//@line 88
-	canvas.height = Math.pow(2, Math.ceil(Math.log(textRectHeight) / Math.log(2)));
-	//@line 89
-	var ctx = (canvas.getContext("2d"));
-	//@line 92
-	ctx.font = "normal normal normal " + (fontSizePixels) + "px / normal " + fontName;
-	//@line 93
-	ctx.fillStyle = "white";
-	//@line 94
-	ctx.fillText(text, 0, (fontSizePixels));
-	//@line 97
-	var image = new CocoImage;
-	//@line 98
-	image.image = new Image;
-	//@line 99
-	var url = canvas.toDataURL();
-	//@line 100
-	image.image.load(url);
-	//@line 101
-	image.textureCellWidth = (textRectWidth);
-	//@line 102
-	image.textureCellHeight = (textRectHeight);
 	//@line 103
-	image.textureGrid = new Float32Array([0, 0]);
+	var canvas = document.createElement("canvas");
 	//@line 104
+	canvas.width = Math.pow(2, Math.ceil(Math.log(textRectWidth) / Math.log(2)));
+	//@line 105
+	canvas.height = Math.pow(2, Math.ceil(Math.log(textRectHeight) / Math.log(2)));
+	//@line 106
+	var ctx = (canvas.getContext("2d"));
+	//@line 109
+	ctx.font = "normal normal normal " + (fontSizePixels) + "px / normal " + fontName;
+	//@line 110
+	ctx.fillStyle = "white";
+	//@line 111
+	ctx.fillText(text, 0, (fontSizePixels));
+	//@line 114
+	var image = new CocoImage;
+	//@line 115
+	image.image = new Image;
+	//@line 116
+	var url = canvas.toDataURL();
+	//@line 117
+	image.image.load(url);
+	//@line 118
+	image.textureCellWidth = (textRectWidth);
+	//@line 119
+	image.textureCellHeight = (textRectHeight);
+	//@line 120
+	image.textureGrid = new Float32Array([0, 0]);
+	//@line 121
 	image.prepare(scene, gl);
-	//@line 107
+	//@line 124
 	ctx = null;
-	//@line 108
+	//@line 125
 	{
 		canvas && ((canvas.hasOwnProperty('Destructor') && canvas.Destructor()) || !canvas.hasOwnProperty('Destructor')) && (delete canvas);
 		canvas = null
 	};
-	//@line 109
+	//@line 126
 	return image;
 };
-//@line 122
+//@line 139
 CocoGraphics.drawSkin = function (ctx, skinImage, x, y, width, height, anchor)
 {
-	//@line 124
-	if (!skinImage)
-	//@line 125
-	return;
-	//@line 127
-	var r = 1;
-	//@line 128
-	var p = 1;
-	//@line 129
-	var src = skinImage.image;
-	//@line 130
-	var cx = 0;
-	//@line 131
-	var cy = 0;
-	//@line 132
-	var cw = width;
-	//@line 133
-	var ch = height;
-	//@line 134
-	var W1 = skinImage.skin[0];
-	//@line 135
-	var W2 = skinImage.skin[1];
-	//@line 136
-	var W3 = skinImage.skin[2];
-	//@line 137
-	var H1 = skinImage.skin[3];
-	//@line 138
-	var H2 = skinImage.skin[4];
-	//@line 139
-	var H3 = skinImage.skin[5];
-	//@line 140
-	var RW1H1 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
 	//@line 141
-	var RW2H1 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
+	if (!skinImage)
 	//@line 142
-	var RW3H1 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
-	//@line 143
-	var RW1H2 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y;
+	return;
 	//@line 144
-	var RW2H2 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_XY;
+	var r = 1;
 	//@line 145
-	var RW3H2 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y;
+	var p = 1;
 	//@line 146
-	var RW1H3 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	var src = skinImage.image;
 	//@line 147
-	var RW2H3 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
+	var cx = 0;
 	//@line 148
-	var RW3H3 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	var cy = 0;
 	//@line 149
-	var F = 0;
+	var cw = width;
 	//@line 150
-	var RmW = 0;
+	var ch = height;
 	//@line 151
-	var RmH = 0;
+	var W1 = skinImage.skin[0];
 	//@line 152
-	var R = [0, 0, 0];
+	var W2 = skinImage.skin[1];
 	//@line 153
-	var C = [0, 0, 0];
+	var W3 = skinImage.skin[2];
+	//@line 154
+	var H1 = skinImage.skin[3];
+	//@line 155
+	var H2 = skinImage.skin[4];
+	//@line 156
+	var H3 = skinImage.skin[5];
+	//@line 157
+	var RW1H1 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	//@line 158
+	var RW2H1 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
+	//@line 159
+	var RW3H1 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	//@line 160
+	var RW1H2 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y;
+	//@line 161
+	var RW2H2 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_XY;
+	//@line 162
+	var RW3H2 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y;
 	//@line 163
+	var RW1H3 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	//@line 164
+	var RW2H3 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
+	//@line 165
+	var RW3H3 = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+	//@line 166
+	var F = 0;
+	//@line 167
+	var RmW = 0;
+	//@line 168
+	var RmH = 0;
+	//@line 169
+	var R = [0, 0, 0];
+	//@line 170
+	var C = [0, 0, 0];
+	//@line 180
 	switch (anchor)
 	{
-		//@line 165
+		//@line 182
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_NONE:
 		{
-			//@line 166
+			//@line 183
 			break;
 		}
 		break;
-		//@line 168
+		//@line 185
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_CENTER:
 		{
-			//@line 169
+			//@line 186
 			x = cx + (cw - width) / 2;
-			//@line 170
+			//@line 187
 			y = cy + (ch - height) / 2;
-			//@line 171
+			//@line 188
 			break;
 		}
 		break;
-		//@line 173
+		//@line 190
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_LEFT:
 		{
-			//@line 174
+			//@line 191
 			x = cx;
-			//@line 175
+			//@line 192
 			y = cy;
-			//@line 176
+			//@line 193
 			break;
 		}
 		break;
-		//@line 178
+		//@line 195
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_MIDDLE:
 		{
-			//@line 179
+			//@line 196
 			x = cx + (cw - width) / 2;
-			//@line 180
+			//@line 197
 			y = cy;
-			//@line 181
+			//@line 198
 			break;
 		}
 		break;
-		//@line 183
+		//@line 200
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_RIGHT:
 		{
-			//@line 184
+			//@line 201
 			x = cx + (cw - width);
-			//@line 185
+			//@line 202
 			y = cy;
-			//@line 186
+			//@line 203
 			break;
 		}
 		break;
-		//@line 188
+		//@line 205
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT:
 		{
-			//@line 189
+			//@line 206
 			x = cx;
-			//@line 190
+			//@line 207
 			y = cy + (ch - height) / 2;
-			//@line 191
+			//@line 208
 			break;
 		}
 		break;
-		//@line 193
+		//@line 210
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_RIGHT:
 		{
-			//@line 194
+			//@line 211
 			x = cx + (cw - width);
-			//@line 195
+			//@line 212
 			y = cy + (ch - height) / 2;
-			//@line 196
+			//@line 213
 			break;
 		}
 		break;
-		//@line 198
+		//@line 215
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_LEFT:
 		{
-			//@line 199
+			//@line 216
 			x = cx;
-			//@line 200
+			//@line 217
 			y = cy + (ch - height);
-			//@line 201
+			//@line 218
 			break;
 		}
 		break;
-		//@line 203
+		//@line 220
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_MIDDLE:
 		{
-			//@line 204
+			//@line 221
 			x = cx + (cw - width) / 2;
-			//@line 205
+			//@line 222
 			y = cy + (ch - height);
-			//@line 206
+			//@line 223
 			break;
 		}
 		break;
-		//@line 208
+		//@line 225
 	case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_RIGHT:
 		{
-			//@line 209
+			//@line 226
 			x = cx + (cw - width);
-			//@line 210
+			//@line 227
 			y = cy + (ch - height);
-			//@line 211
+			//@line 228
 			break;
 		}
 		break;
 	}
 };
-//@line 260
+//@line 277
 CocoGraphics.__PRIVATE__.__drawSlice = function (ctx, skin, cx, cy, cw, ch, sx, sy, sw, sh, r)
 {
-	//@line 262
+	//@line 279
 	if (!cw || !ch || !sw || !sh) return;
-	//@line 263
+	//@line 280
 	if (r == COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE)
-	//@line 264
+	//@line 281
 	CocoGraphics.__PRIVATE__.__drawRegion(ctx, skin, sx, sy, sw, sh, cx, cy, cw, ch);
 	else
-	//@line 266
+	//@line 283
 	CocoGraphics.__PRIVATE__.__tileSkin(ctx, skin, sx, sy, sw, sh, cx, cy, cw, ch);
 };
-//@line 270
+//@line 287
 CocoGraphics.__PRIVATE__.__countFixed = function (v)
 {
-	//@line 272
+	//@line 289
 	var c = 0;
-	//@line 273
+	//@line 290
 	for (var i = 0; i < v.length; i++)
-	//@line 274
+	//@line 291
 	if (v[i]) c++;
-	//@line 275
+	//@line 292
 	return c;
 	return 0
 };
-//@line 279
+//@line 296
 CocoGraphics.__PRIVATE__.__fixedW = function (v)
 {
-	//@line 281
+	//@line 298
 	var R = false;
-	//@line 282
+	//@line 299
 	for (var i = 0; i < v.length; i++)
-	//@line 283
+	//@line 300
 	R |= ((v[i] == COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i] == COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y));
-	//@line 284
+	//@line 301
 	return R;
 	return false
 };
-//@line 288
+//@line 305
 CocoGraphics.__PRIVATE__.__fixedH = function (v)
 {
-	//@line 290
+	//@line 307
 	var R = false;
-	//@line 291
+	//@line 308
 	for (var i = 0; i < v.length; i++)
-	//@line 292
+	//@line 309
 	R |= ((v[i] == COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i] == COCO_SKIN_TILE_ENUM.TILE_REPEAT_X));
-	//@line 293
+	//@line 310
 	return R;
 	return false
 };
-//@line 297
+//@line 314
 CocoGraphics.__PRIVATE__.__tileSkin = function (ctx, image, cellX, cellY, cellWidth, cellHeight, x, y, width, height)
 {
-	//@line 299
+	//@line 316
 	if (cellWidth == 0 || cellHeight == 0)
-	//@line 300
+	//@line 317
 	return;
-	//@line 302
+	//@line 319
 	var ix = 0,
 		iy = 0,
 		cx = 0,
@@ -328,44 +371,44 @@ CocoGraphics.__PRIVATE__.__tileSkin = function (ctx, image, cellX, cellY, cellWi
 		cw = 0,
 		ch = 0,
 		r = 0;
-	//@line 304
+	//@line 321
 	for (iy = y; iy <= y + height; iy += cellHeight)
-	//@line 305
+	//@line 322
 	{
-		//@line 306
+		//@line 323
 		for (ix = x; ix <= x + width; ix += cellWidth)
-		//@line 307
+		//@line 324
 		{
-			//@line 308
+			//@line 325
 			cw = (ix + cellWidth <= x + width ? cellWidth : x + width - ix);
-			//@line 309
+			//@line 326
 			ch = (iy + cellHeight <= y + height ? cellHeight : y + height - iy);
-			//@line 310
+			//@line 327
 			if (cw > 0 && ch > 0)
-			//@line 311
+			//@line 328
 			CocoGraphics.__PRIVATE__.__drawRegion(ctx, image, cellX, cellY, cw, ch, ix, iy, cw, ch);
 		}
 	}
 };
-//@line 317
+//@line 334
 CocoGraphics.__PRIVATE__.__drawRegion = function (ctx, image, sx, sy, sw, sh, dx, dy, dw, dh)
 {
-	//@line 319
+	//@line 336
 	if (!ctx || !image || !sw || !sh || !dw || !dh)
-	//@line 320
+	//@line 337
 	return;
-	//@line 322
+	//@line 339
 	try
 	{
-		//@line 324
+		//@line 341
 		ctx.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 	catch (e)
-	//@line 326
+	//@line 343
 	{}
 };
-//@line 332
+//@line 349
 CocoGraphics.drawImage = function (image, x, y, stretchW, stretchH, anchor, clear)
 {
-	//@line 333
+	//@line 350
 };

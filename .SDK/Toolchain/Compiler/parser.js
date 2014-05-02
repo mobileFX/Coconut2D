@@ -112,6 +112,7 @@ function __init_narcissus(GLOBAL)
         "REGEXP",
 
         // OOP
+        "struct",
 		"class",
 		"interface",
 		"control",
@@ -321,6 +322,16 @@ function __init_narcissus(GLOBAL)
 	var fpRegExp = /^\d+\.(?!\.)\d*(?:[eE][-+]?\d+)?|^\d+(?:\.\d*)?[eE][-+]?\d+|^\.\d+(?:[eE][-+]?\d+)?/;
 	//var reRegExp = /^(?:m(x)?|(?=\/))([^\w\s\\])((?:\\.|(?!\2)[^\\])*)\2([a-z]*)/;
 	var scopeId = 1;
+
+	// ==================================================================================================================================
+	//	  ______      __              _
+	//	 /_  __/___  / /_____  ____  (_)___  ___  _____
+	//	  / / / __ \/ //_/ _ \/ __ \/ /_  / / _ \/ ___/
+	//	 / / / /_/ / ,< /  __/ / / / / / /_/  __/ /
+	//	/_/  \____/_/|_|\___/_/ /_/_/ /___/\___/_/
+	//
+	// ==================================================================================================================================
+	/*@@ Tokenizer @@*/
 
 	function Tokenizer(s, f, l)
 	{
@@ -616,29 +627,17 @@ function __init_narcissus(GLOBAL)
 		return (scopeId);
 	}
 
-	function CompilerContext(inFunction)
-	{
-		this.inFunction = inFunction;
-		this.stmtStack = [];
-		this.funDecls = [];
-		this.varDecls = [];
-	}
+	// ==================================================================================================================================
+	//	    ___   ___________   _   __          __
+	//	   /   | / ___/_  __/  / | / /___  ____/ /__
+	//	  / /| | \__ \ / /    /  |/ / __ \/ __  / _ \
+	//	 / ___ |___/ // /    / /|  / /_/ / /_/ /  __/
+	//	/_/  |_/____//_/    /_/ |_/\____/\__,_/\___/
+	//
+	// ==================================================================================================================================
+	/*@@ Node @@*/
 
-	var CCp = CompilerContext.prototype;
-	CCp.bracketLevel = CCp.curlyLevel = CCp.parenLevel = CCp.hookLevel = 0;
-	CCp.ecmaStrictMode = CCp.inForLoopInit = false;
-	var contextId = 0;
-
-	function Script(t, x)
-	{
-		var n = Statements(t, x);
-		n.type = jsdef.SCRIPT;
-		n.funDecls = x.funDecls;
-		n.varDecls = x.varDecls;
-		n.contextId = ++contextId;
-		n.scopeId = t.NewScopeId();
-		return n;
-	}
+	var __node_id = 0;
 
 	// Node extends Array, which we extend slightly with a top-of-stack method.
 	Array.prototype.top = function ()
@@ -646,13 +645,20 @@ function __init_narcissus(GLOBAL)
 		return this.length && this[this.length - 1];
 	};
 
-	var __node_id = 0;
-
 	function Node(t, type)
 	{
+		this.nodeId = (++__node_id);
+		this.xmlvartype="";
+
+		if(!t)
+		{
+			this.scopeId =0;
+			this.type = type;
+			return;
+		}
+
 		var token = t.token();
 
-		this.nodeId = (++__node_id);
 		this.scopeId = t.ScopeId();
 		this.xmlvartype="";
 
@@ -714,6 +720,32 @@ function __init_narcissus(GLOBAL)
 
 	var blockId = 0;
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	function CompilerContext(inFunction)
+	{
+		this.inFunction = inFunction;
+		this.stmtStack = [];
+		this.funDecls = [];
+		this.varDecls = [];
+	}
+	var CCp = CompilerContext.prototype;
+	CCp.bracketLevel = CCp.curlyLevel = CCp.parenLevel = CCp.hookLevel = 0;
+	CCp.ecmaStrictMode = CCp.inForLoopInit = false;
+	var contextId = 0;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	function Script(t, x)
+	{
+		var n = Statements(t, x);
+		n.type = jsdef.SCRIPT;
+		n.funDecls = x.funDecls;
+		n.varDecls = x.varDecls;
+		n.contextId = ++contextId;
+		n.scopeId = t.NewScopeId();
+		return n;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	function Statements(t, x)
 	{
 		var n = new Node(t, jsdef.BLOCK);
@@ -726,447 +758,79 @@ function __init_narcissus(GLOBAL)
 		x.stmtStack.pop();
 		n.blockId = ++blockId;
 		n.scopeId = t.NewScopeId();
-
 		n.end = t.cursor;
 		n.line_end = t.line_start;
-
 		return n;
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	function Block(t, x)
 	{
 		var start = t.start;
 		var line_start = t.line_start;
-
 		t.mustMatch(jsdef.LEFT_CURLY);
 		var n = Statements(t, x);
 		t.mustMatch(jsdef.RIGHT_CURLY);
-
 		n.start = start;
 		n.line_start = line_start;
-
 		n.end = t.end;
 		n.line_end = t.line_start;
-
 		return n;
 	}
 
 	// ==================================================================================================================================
-	//	   _____ __        __                            __
-	//	  / ___// /_____ _/ /____  ____ ___  ___  ____  / /______
-	//	  \__ \/ __/ __ `/ __/ _ \/ __ `__ \/ _ \/ __ \/ __/ ___/
-	//	 ___/ / /_/ /_/ / /_/  __/ / / / / /  __/ / / / /_(__  )
-	//	/____/\__/\__,_/\__/\___/_/ /_/ /_/\___/_/ /_/\__/____/
+	//	    _   __                                                ____       _____       _ __  _
+	//	   / | / /___ _____ ___  ___  _________  ____ _________  / __ \___  / __(_)___  (_) /_(_)___  ____
+	//	  /  |/ / __ `/ __ `__ \/ _ \/ ___/ __ \/ __ `/ ___/ _ \/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
+	//	 / /|  / /_/ / / / / / /  __(__  ) /_/ / /_/ / /__/  __/ /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
+	//	/_/ |_/\__,_/_/ /_/ /_/\___/____/ .___/\__,_/\___/\___/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+	//	                               /_/
+	// ==================================================================================================================================
+	/*@@ NAMESPACE @@*/
+
+	function NamespaceDefinition(t, x)
+	{
+		var f = new Node(t);
+		if(t.match(jsdef.IDENTIFIER))
+			f.name = t.token().value;
+		t.mustMatch(jsdef.LEFT_CURLY);
+		var x2 = new CompilerContext(false);
+		f.body = Script(t, x2);
+		t.mustMatch(jsdef.RIGHT_CURLY);
+		f.end = t.cursor;
+		f.line_end = t.line_start;
+		return f;
+	}
+
+	// ==================================================================================================================================
+	//	   _____ __                  __  ____       _____       _ __  _
+	//	  / ___// /________  _______/ /_/ __ \___  / __(_)___  (_) /_(_)___  ____
+	//	  \__ \/ __/ ___/ / / / ___/ __/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
+	//	 ___/ / /_/ /  / /_/ / /__/ /_/ /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
+	//	/____/\__/_/   \__,_/\___/\__/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
 	//
 	// ==================================================================================================================================
+	/*@@ STRUCT @@*/
 
-	var DECLARED_FORM = 0,
-		EXPRESSED_FORM = 1,
-		STATEMENT_FORM = 2;
-
-	function Statement(t, x)
+	function StructDefinition(t, x)
 	{
-		var i, label, n, n2, ss, tt = t.get();
-
-		// Cases for statements ending in a right curly return early,
-		// avoiding the common semicolon insertion magic after this switch.
-
-		switch(tt)
+		var f = new Node(t);
+		t.mustMatch(jsdef.IDENTIFIER);
+		f.name = t.token().value;
+		t.mustMatch(jsdef.LEFT_CURLY);
+		for(;t.peek()!=jsdef.RIGHT_CURLY;t.peek()!=jsdef.RIGHT_CURLY && t.mustMatch(jsdef.SEMICOLON))
 		{
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.STATE:
-			switch(t.peek())
-			{
-			case jsdef.CLASS:
-				t.get();
-				var n = ClassDefinition(t, x, true);
-				n.state = true;
-				return n;
-
-			case jsdef.FUNCTION:
-				t.get();
-				var n = FunctionDefinition(t, x, true, DECLARED_FORM);
-				n.state = true;
-				return n;
-			}
-			return StateDefinition(t, x);
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.CONTROL:
-			t.get();
-			var n = ClassDefinition(t, x, true);
-			n.control = true;
-			return n;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  		case jsdef.PROPERTY:
-  			return PropertyDefinition(t, x);
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.FUNCTION:
-			return FunctionDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.INTERFACE:
-			return ClassDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM, true);
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.CALLBACK:
-			f = new Node(t,jsdef.CALLBACK);
 			t.mustMatch(jsdef.IDENTIFIER);
-			f.name = t.token().value;
-			t.mustMatch(jsdef.LEFT_PAREN);
-			f.params=[];
-			f.paramsList=[];
-			while(t.peek()==jsdef.IDENTIFIER)
-			{
-				t.mustMatch(jsdef.IDENTIFIER);
-				n2 = new Node(t);
-				n2.value = t.token().value;
-				t.mustMatch(jsdef.COLON);
-				t.mustMatch(jsdef.IDENTIFIER);
-				n2.vartype = t.token().value;
-				f.params.push(n2.value);
-				f.paramsList.push(n2);
-				if(t.peek()!=jsdef.COMMA) break;
-				t.mustMatch(jsdef.COMMA);
-			}
-			t.mustMatch(jsdef.RIGHT_PAREN);
-			if(t.peek()==jsdef.COLON)
-			{
-				t.mustMatch(jsdef.COLON);
-				matchVartype(t, f, "returntype");
-			}
-			t.mustMatch(jsdef.LEFT_CURLY);
-			t.mustMatch(jsdef.RIGHT_CURLY);
-			return f;
-			//callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean {}
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.CLASS:
-			return ClassDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.NAMESPACE:
-			return NamespaceDefinition(t, x);
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.LEFT_CURLY:
-			n = Statements(t, x);
-			t.mustMatch(jsdef.RIGHT_CURLY);
-			return n;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.IF:
-			n = new Node(t);
-			n.condition = ParenExpression(t, x);
-			x.stmtStack.push(n);
-			n.thenPart = Statement(t, x);
-			n.elsePart = t.match(jsdef.ELSE) ? Statement(t, x) : null;
-			x.stmtStack.pop();
-			return n;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.SWITCH:
-			n = new Node(t);
-			t.mustMatch(jsdef.LEFT_PAREN);
-			n.discriminant = Expression(t, x);
-			t.mustMatch(jsdef.RIGHT_PAREN);
-			n.cases = [];
-			n.defaultIndex = -1;
-			x.stmtStack.push(n);
-			t.mustMatch(jsdef.LEFT_CURLY);
-			while((tt = t.get()) != jsdef.RIGHT_CURLY)
-			{
-				switch(tt)
-				{
-				case jsdef.DEFAULT:
-					if(n.defaultIndex >= 0) throw t.newSyntaxError("More than one switch default");
-					// FALL THROUGH
-				case jsdef.CASE:
-					n2 = new Node(t);
-					n2.scopeId = t.ScopeId();
-					if(tt == jsdef.DEFAULT)
-						n.defaultIndex = n.cases.length;
-					else
-						n2.caseLabel = Expression(t, x, jsdef.COLON);
-					break;
-				default:
-					throw t.newSyntaxError("Invalid switch case");
-				}
-				t.mustMatch(jsdef.COLON);
-				n2.statements = new Node(t, jsdef.BLOCK);
-				while((tt = t.peek()) != jsdef.CASE && tt != jsdef.DEFAULT && tt != jsdef.RIGHT_CURLY)
-					n2.statements.push(Statement(t, x));
-				n.cases.push(n2);
-			}
-			x.stmtStack.pop();
-			return n;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.FOR:
-			n = new Node(t);
-			n.isLoop = true;
-			t.mustMatch(jsdef.LEFT_PAREN);
-			if((tt = t.peek()) != jsdef.SEMICOLON)
-			{
-				x.inForLoopInit = true;
-				if(tt == jsdef.VAR || tt == jsdef.LET)
-				{
-					t.get();
-					n2 = Variables(t, x);
-				}
-				else
-				{
-					n2 = Expression(t, x);
-				}
-				x.inForLoopInit = false;
-			}
-			if(n2 && t.match(jsdef.IN))
-			{
-				n.type = jsdef.FOR_IN;
-				if(n2.type == jsdef.VAR || n2.type == jsdef.LET)
-				{
-					if(n2.length != 1)
-					{
-						throw new SyntaxError("Invalid for..in left-hand side", t.filename, n2.line_start);
-					}
-					n.iterator = n2;
-					n.varDecl = n2;
-				}
-				else
-				{
-					n.iterator = n2;
-					n.varDecl = null;
-				}
-				n.object = Expression(t, x);
-			}
-			else
-			{
-				n.setup = n2 || null;
-				t.mustMatch(jsdef.SEMICOLON);
-				n.condition = (t.peek() == jsdef.SEMICOLON) ? null : Expression(t, x);
-				t.mustMatch(jsdef.SEMICOLON);
-				n.update = (t.peek() == jsdef.RIGHT_PAREN) ? null : Expression(t, x);
-			}
-			t.mustMatch(jsdef.RIGHT_PAREN);
-			n.body = nest(t, x, n, Statement);
-			return n;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.WHILE:
-			n = new Node(t);
-			n.isLoop = true;
-			n.condition = ParenExpression(t, x);
-			n.body = nest(t, x, n, Statement);
-			return n;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.DO:
-			n = new Node(t);
-			n.isLoop = true;
-			n.body = nest(t, x, n, Statement, jsdef.WHILE);
-			n.condition = ParenExpression(t, x);
-			if(!x.ecmaStrictMode)
-			{
-				// <script language="JavaScript"> (without version hints) may need
-				// automatic semicolon insertion without a newline after do-while.
-				// See http://bugzilla.mozilla.org/show_bug.cgi?id=238945.
-				t.match(jsdef.SEMICOLON);
-				return n;
-			}
-			break;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.BREAK:
-		case jsdef.CONTINUE:
-			n = new Node(t);
-			if(t.peekOnSameLine() == jsdef.IDENTIFIER)
-			{
-				t.get();
-				n.label = t.token().value;
-			}
-			ss = x.stmtStack;
-			i = ss.length;
-			label = n.label;
-			if(label)
-			{
-				do
-				{
-					if(--i < 0)
-						throw t.newSyntaxError("Label not found");
-				}
-				while (ss[i].label != label);
-			}
-			else
-			{
-				do
-				{
-					if(--i < 0)
-					{
-						throw t.newSyntaxError("Invalid " + ((tt == jsdef.BREAK) ? "break" : "continue"));
-					}
-				}
-				while (!ss[i].isLoop && (tt != jsdef.BREAK || ss[i].type != jsdef.SWITCH));
-			}
-			n.target = ss[i];
-			break;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.TRY:
-			n = new Node(t);
-			n.tryBlock = Block(t, x);
-			n.catchClauses = [];
-			while(t.match(jsdef.CATCH))
-			{
-				n2 = new Node(t);
-				t.mustMatch(jsdef.LEFT_PAREN);
-				n2.varName = t.mustMatch(jsdef.IDENTIFIER).value;
-				if(t.match(jsdef.IF))
-				{
-					if(x.ecmaStrictMode)
-						throw t.newSyntaxError("Illegal catch guard");
-					if(n.catchClauses.length && !n.catchClauses.top().guard)
-						throw t.newSyntaxError("Guarded catch after unguarded");
-					n2.guard = Expression(t, x);
-				}
-				else
-				{
-					n2.guard = null;
-				}
-				t.mustMatch(jsdef.RIGHT_PAREN);
-				n2.block = Block(t, x);
-				n.catchClauses.push(n2);
-			}
-			if(t.match(jsdef.FINALLY))
-				n.finallyBlock = Block(t, x);
-			if(!n.catchClauses.length && !n.finallyBlock)
-				throw t.newSyntaxError("Invalid try statement");
-			return n;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.CATCH:
-		case jsdef.FINALLY:
-			throw t.newSyntaxError(jsdef.tokens[tt] + " without preceding try");
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.THROW:
-			n = new Node(t);
-			n.exception = Expression(t, x);
-			break;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.RETURN:
-			if(!x.inFunction)
-				throw t.newSyntaxError("Invalid return");
-			n = new Node(t);
-			tt = t.peekOnSameLine();
-			if(tt != jsdef.END && tt != jsdef.NEWLINE && tt != jsdef.SEMICOLON && tt != jsdef.RIGHT_CURLY)
-				n.value = Expression(t, x);
-			if(!(n.value instanceof Node))
-				n.value = null;
-			break;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.WITH:
-			n = new Node(t);
-			n.object = ParenExpression(t, x);
-			n.body = nest(t, x, n, Statement);
-			return n;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.VAR:
-		case jsdef.CONST:
-			n = Variables(t, x);
-			break;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.ENUM:
-			n = Enumeration(t,x);
-			break;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.LET:
-			n = Variables(t, x);
-			n.block = true;
-			break;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.DEBUGGER:
-			n = new Node(t);
-			break;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.NEWLINE:
-		case jsdef.SEMICOLON:
-			n = new Node(t, jsdef.SEMICOLON);
-			n.expression = null;
-			return n;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        case jsdef.PACKAGE:
-        	while(t.peek() != jsdef.LEFT_CURLY)
-        		t.get();
-			return null;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        case jsdef.USE:
-        case jsdef.IMPORT:
-        	while(t.get() != jsdef.SEMICOLON);
-			return null;
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		default:
-			if(tt == jsdef.IDENTIFIER)
-			{
-				t.scanOperand = false;
-				tt = t.peek();
-				t.scanOperand = true;
-				if(tt == jsdef.COLON)
-				{
-					label = t.token().value;
-					ss = x.stmtStack;
-					for(i = ss.length - 1; i >= 0; --i)
-					{
-						if(ss[i].label == label)
-							throw t.newSyntaxError("Duplicate label");
-					}
-					t.get();
-					n = new Node(t, jsdef.LABEL);
-					n.label = label;
-					n.statement = nest(t, x, n, Statement);
-					return n;
-				}
-			}
-			n = new Node(t, jsdef.SEMICOLON);
-			t.unget();
-			n.expression = Expression(t, x);
-
-			n.end = t.cursor;// n.expression.end;
-			n.line_end = t.line_start;// n.expression.line_end;
-
-			// Heuristics to detect vartype from jsdef.NEW operator in expression
-
-			// Case 1: Assuming a DOT
-			if(n.expression && n.expression[0] && n.expression[0][1] && n.expression[0][1].type==jsdef.IDENTIFIER && !n.expression[0][1].vartype && n.expression[1] && n.expression[1].type==jsdef.NEW)
-			{
-				n.expression[0][1].vartype = n.expression[1][0].value;
-			}
-
-			break;
+			var a = new Node(t, jsdef.IDENTIFIER);
+			a.name = t.token().value;
+			t.mustMatch(jsdef.COLON);
+			matchVartype(t, a, "vartype");
+			f.push(a);
 		}
-		if(t.line_start == t.token().line_start)
-		{
-			tt = t.peekOnSameLine();
-			if(tt != jsdef.END && tt != jsdef.NEWLINE && tt != jsdef.SEMICOLON && tt != jsdef.RIGHT_CURLY)
-				throw t.newSyntaxError("Missing ; before statement");
-		}
-		t.match(jsdef.SEMICOLON);
-
-		n.end = t.cursor;
-		n.line_end = t.line_start;
-
-		return n;
+		t.mustMatch(jsdef.RIGHT_CURLY);
+		f.end = t.cursor;
+		f.line_end = t.line_start;
+		return f;
 	}
 
 	// ==================================================================================================================================
@@ -1177,12 +841,13 @@ function __init_narcissus(GLOBAL)
 	//	\____/_/\__,_/____/____/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
 	//
 	// ==================================================================================================================================
-
+	/*@@ CLASS @@*/
 	function ClassDefinition(t, x, requireName, classForm, isInterface)
 	{
 		var f = new Node(t);
 		f.scopeId = t.ScopeId();
 		f.interfaces = [];
+		f.interface = isInterface;
 
 		if(t.match(jsdef.IDENTIFIER))
 			f.name = t.token().value;
@@ -1262,53 +927,23 @@ function __init_narcissus(GLOBAL)
 					if(t.match(jsdef.CONST))
 					{
 						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
-						n.push(Variables(t, x));
+						n.push(VariablesDefinition(t, x));
 					}
 					else if(t.match(jsdef.VAR))
 					{
 						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
-						n.push(Variables(t, x));
+						n.push(VariablesDefinition(t, x));
 					}
 					else if(t.match(jsdef.EVENT))
 					{
-						// Event node must look like a function
-
 						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
-						t.mustMatch(jsdef.IDENTIFIER);
-
-						var e = new Node(t, jsdef.EVENT);
-						e.value = t.token().value;
-						e.name = e.value;
-						e.vartype = "CocoEvent";
-						e.paramsList = [];
-						e.params = [];
-
-						var idf = new Node(t, jsdef.IDENTIFIER);
-						idf.value = e.name;
-						e.push(idf);
-
-						var list = new Node(t, jsdef.LIST);
-						e.push(list);
-
-						t.mustMatch(jsdef.LEFT_PAREN);
-						for(;t.peek()!=jsdef.RIGHT_PAREN;t.peek()!=jsdef.RIGHT_PAREN && t.mustMatch(jsdef.COMMA))
-						{
-							t.mustMatch(jsdef.IDENTIFIER);
-							var a = new Node(t, jsdef.IDENTIFIER);
-							a.name = t.token().value;
-							t.mustMatch(jsdef.COLON);
-							matchVartype(t, a, "vartype");
-							list.push(a);
-							e.paramsList.push(a);
-							e.params.push(a.name);
-						}
-						t.mustMatch(jsdef.RIGHT_PAREN);
-						n.push(e);
+						if(!t.public) throw t.newSyntaxError("Events must be public");
+						n.push(EventDefinition(t, x));
 					}
 					else if(t.match(jsdef.ENUM))
 					{
 						if(isInterface) throw t.newSyntaxError("Invalid statement inside Interface");
-						n.push(Enumeration(t,x));
+						n.push(EnumerationDefinition(t, x));
 					}
 					else if(t.match(jsdef.PROPERTY))
 					{
@@ -1404,153 +1039,6 @@ function __init_narcissus(GLOBAL)
 	}
 
 	// ==================================================================================================================================
-	//	    ______                                      __  _
-	//	   / ____/___  __  ______ ___  ___  _________ _/ /_(_)___  ____
-	//	  / __/ / __ \/ / / / __ `__ \/ _ \/ ___/ __ `/ __/ / __ \/ __ \
-	//	 / /___/ / / / /_/ / / / / / /  __/ /  / /_/ / /_/ / /_/ / / / /
-	//	/_____/_/ /_/\__,_/_/ /_/ /_/\___/_/   \__,_/\__/_/\____/_/ /_/
-	//
-	// ==================================================================================================================================
-
-	function Enumeration(t,x)
-	{
-		var n = new Node(t, jsdef.ENUM);
-		t.setModifiers(n);
-		t.mustMatch(jsdef.IDENTIFIER);
-		n.name = t.token().value;
-		n.vartype = n.name;
-		n.__start = t.token().start;
-		n.__end = t.token().end;
-		t.mustMatch(jsdef.LEFT_CURLY)
-		for(;;)
-		{
-			t.mustMatch(jsdef.IDENTIFIER);
-			var f = new Node(t, jsdef.ENUM_ITEM);
-			f.name = t.token().value;
-			f.vartype = n.name;
-            t.mustMatch(jsdef.ASSIGN);
-            var m = false;
-            if(t.match(jsdef.UNARY_MINUS))
-            	m = true;
-            t.mustMatch(jsdef.NUMBER);
-            f.value = (m ? "-" : "") + t.token().value;
-            n.push(f);
-            if(!t.match(jsdef.COMMA))
-            	break;
-		}
-		t.mustMatch(jsdef.RIGHT_CURLY);
-		n.end = t.cursor;
-		n.line_end = t.line_start;
-		return n;
-	}
-
-	// ==================================================================================================================================
-	//	   _____ __        __       ____       _____       _ __  _
-	//	  / ___// /_____ _/ /____  / __ \___  / __(_)___  (_) /_(_)___  ____
-	//	  \__ \/ __/ __ `/ __/ _ \/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
-	//	 ___/ / /_/ /_/ / /_/  __/ /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
-	//	/____/\__/\__,_/\__/\___/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
-	//
-	// ==================================================================================================================================
-
-	function StateDefinition(t, x)
-	{
-		var n = new Node(t, jsdef.STATE);
-		n.vartype = "State";
-		t.setModifiers(n);
-		t.mustMatch(jsdef.IDENTIFIER);
-		n.name = t.token().value;
-		n.__start = t.token().start;
-		n.__end = t.token().end;
-		t.mustMatch(jsdef.LEFT_CURLY)
-		x2 = new CompilerContext(true);
-		n.body = Script(t, x2);
-		for(item in n.body)
-		{
-			if(!isFinite(item)) break;
-			var f = n.body[item];
-			switch(f.type)
-			{
-			case jsdef.FUNCTION:
-
-				switch(f.name)
-				{
-				case "enter": f.public=true; break;
-				case "exit":  f.public=true; break;
-				case "tick":  f.public=true; break;
-				case "paint": f.public=true; break;
-				default:
-					throw t.newSyntaxError("Invalid function inside State");
-				}
-				break;
-
-			case jsdef.VAR:
-				break;
-
-			default:
-				throw t.newSyntaxError("Invalid statement inside State");
-			}
-		}
-		t.mustMatch(jsdef.RIGHT_CURLY);
-		n.end = t.cursor;
-		n.body.end = t.cursor;
-		n.line_end = t.line_start;
-		n.body.line_end = t.line_start;
-		return n;
-	}
-
-	// ==================================================================================================================================
-	//	    ____                             __  _
-	//	   / __ \_________  ____  ___  _____/ /_(_)__  _____
-	//	  / /_/ / ___/ __ \/ __ \/ _ \/ ___/ __/ / _ \/ ___/
-	//	 / ____/ /  / /_/ / /_/ /  __/ /  / /_/ /  __(__  )
-	//	/_/   /_/   \____/ .___/\___/_/   \__/_/\___/____/
-	//	                /_/
-	// ==================================================================================================================================
-
-	function PropertyDefinition(t, x)
-	{
-		var p = new Node(t, jsdef.PROPERTY);
-		t.setModifiers(p);
-		t.mustMatch(jsdef.IDENTIFIER);
-		p.name = t.token().value;
-		p.__start = t.token().start;
-		p.__end = t.token().end;
-		t.mustMatch(jsdef.LEFT_CURLY)
-		x2 = new CompilerContext(true);
-		p.body = Script(t, x2);
-		t.mustMatch(jsdef.RIGHT_CURLY);
-		for(item in p.body)
-		{
-			if(!isFinite(item)) break;
-			if(p.body[item].type==jsdef.FUNCTION)
-			{
-				if(p.body[item].name=="set")
-				{
-					p.setter = p.body[item];
-					t.copyModifiers(p, p.setter);
-					continue;
-				}
-				else if(p.body[item].name=="get")
-				{
-					p.getter = p.body[item];
-					t.copyModifiers(p, p.getter);
-					continue;
-				}
-			}
-			throw t.newSyntaxError("Invalid inside property definition");
-		}
-
-		if(!p.getter)
-			throw t.newSyntaxError("Missing property getter");
-
-		//p.body = null;
-		p.vartype = p.getter.returntype;
-		p.subtype = p.getter.subtype;
-		return p;
-	}
-
-	// ==================================================================================================================================
 	//	    ______                 __  _             ____       _____       _ __  _
 	//	   / ____/_  ______  _____/ /_(_)___  ____  / __ \___  / __(_)___  (_) /_(_)___  ____
 	//	  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
@@ -1558,6 +1046,7 @@ function __init_narcissus(GLOBAL)
 	//	/_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
 	//
 	// ==================================================================================================================================
+	/*@@ FUNCTION @@*/
 
 	function FunctionDefinition(t, x, requireName, functionForm, classNode)
 	{
@@ -1772,30 +1261,6 @@ function __init_narcissus(GLOBAL)
 	}
 
 	// ==================================================================================================================================
-	//	    _   __                                                ____       _____       _ __  _
-	//	   / | / /___ _____ ___  ___  _________  ____ _________  / __ \___  / __(_)___  (_) /_(_)___  ____
-	//	  /  |/ / __ `/ __ `__ \/ _ \/ ___/ __ \/ __ `/ ___/ _ \/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
-	//	 / /|  / /_/ / / / / / /  __(__  ) /_/ / /_/ / /__/  __/ /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
-	//	/_/ |_/\__,_/_/ /_/ /_/\___/____/ .___/\__,_/\___/\___/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
-	//	                               /_/
-	// ==================================================================================================================================
-
-	function NamespaceDefinition(t, x)
-	{
-		var f = new Node(t);
-		if(t.match(jsdef.IDENTIFIER))
-			f.name = t.token().value;
-		t.mustMatch(jsdef.LEFT_CURLY);
-		var x2 = new CompilerContext(false);
-		f.body = Script(t, x2);
-		t.mustMatch(jsdef.RIGHT_CURLY);
-		f.end = t.cursor;
-		f.line_end = t.line_start;
-
-		return f;
-	}
-
-	// ==================================================================================================================================
 	//	 _    __           _       __    __
 	//	| |  / /___ ______(_)___ _/ /_  / /__  _____
 	//	| | / / __ `/ ___/ / __ `/ __ \/ / _ \/ ___/
@@ -1803,8 +1268,9 @@ function __init_narcissus(GLOBAL)
 	//	|___/\__,_/_/  /_/\__,_/_.___/_/\___/____/
 	//
 	// ==================================================================================================================================
+	/*@@ VAR @@*/
 
-	function Variables(t, x)
+	function VariablesDefinition(t, x)
 	{
 		var n = new Node(t);
 
@@ -1915,6 +1381,654 @@ function __init_narcissus(GLOBAL)
 		node.xmlvartype = (!vartype ? "" : " :" + vartype + (subtype ? "&lt;" + subtype + "&gt;" : ""));
 	}
 
+
+	// ==================================================================================================================================
+	//	   ______      ________             __   ____       _____       _ __  _
+	//	  / ____/___ _/ / / __ )____ ______/ /__/ __ \___  / __(_)___  (_) /_(_)___  ____
+	//	 / /   / __ `/ / / __  / __ `/ ___/ //_/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
+	//	/ /___/ /_/ / / / /_/ / /_/ / /__/ ,< / /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
+	//	\____/\__,_/_/_/_____/\__,_/\___/_/|_/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+	//
+	// ==================================================================================================================================
+	/*@@ CALLBACK @@*/
+
+	function CallbackDefinition(t,x)
+	{
+		//callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean {}
+		f = new Node(t,jsdef.CALLBACK);
+		t.mustMatch(jsdef.IDENTIFIER);
+		f.name = t.token().value;
+		t.mustMatch(jsdef.LEFT_PAREN);
+		f.params=[];
+		f.paramsList=[];
+		while(t.peek()==jsdef.IDENTIFIER)
+		{
+			t.mustMatch(jsdef.IDENTIFIER);
+			n2 = new Node(t);
+			n2.value = t.token().value;
+			t.mustMatch(jsdef.COLON);
+			t.mustMatch(jsdef.IDENTIFIER);
+			n2.vartype = t.token().value;
+			f.params.push(n2.value);
+			f.paramsList.push(n2);
+			if(t.peek()!=jsdef.COMMA) break;
+			t.mustMatch(jsdef.COMMA);
+		}
+		t.mustMatch(jsdef.RIGHT_PAREN);
+		if(t.peek()==jsdef.COLON)
+		{
+			t.mustMatch(jsdef.COLON);
+			matchVartype(t, f, "returntype");
+		}
+		t.mustMatch(jsdef.LEFT_CURLY);
+		t.mustMatch(jsdef.RIGHT_CURLY);
+		return f;
+	}
+
+	// ==================================================================================================================================
+	//	    ______                 __  ____       _____       _ __  _
+	//	   / ____/   _____  ____  / /_/ __ \___  / __(_)___  (_) /_(_)___  ____
+	//	  / __/ | | / / _ \/ __ \/ __/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
+	//	 / /___ | |/ /  __/ / / / /_/ /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
+	//	/_____/ |___/\___/_/ /_/\__/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+	//
+	// ==================================================================================================================================
+	/*@@ EVENT @@*/
+
+	function EventDefinition(t,x)
+	{
+		t.mustMatch(jsdef.IDENTIFIER);
+
+		var e = new Node(t, jsdef.EVENT);
+		e.value = t.token().value;
+		e.name = e.value;
+		e.vartype = "CocoEvent";
+		e.paramsList = [];
+		e.params = [];
+
+		var idf = new Node(t, jsdef.IDENTIFIER);
+		idf.value = e.name;
+		e.push(idf);
+
+		var list = new Node(t, jsdef.LIST);
+		e.push(list);
+
+		t.mustMatch(jsdef.LEFT_PAREN);
+		for(;t.peek()!=jsdef.RIGHT_PAREN;t.peek()!=jsdef.RIGHT_PAREN && t.mustMatch(jsdef.COMMA))
+		{
+			t.mustMatch(jsdef.IDENTIFIER);
+			var a = new Node(t, jsdef.IDENTIFIER);
+			a.name = t.token().value;
+			t.mustMatch(jsdef.COLON);
+			matchVartype(t, a, "vartype");
+			list.push(a);
+			e.paramsList.push(a);
+			e.params.push(a.name);
+		}
+		t.mustMatch(jsdef.RIGHT_PAREN);
+		return e;
+	}
+
+	// ==================================================================================================================================
+	//	    ______                                      __  _
+	//	   / ____/___  __  ______ ___  ___  _________ _/ /_(_)___  ____
+	//	  / __/ / __ \/ / / / __ `__ \/ _ \/ ___/ __ `/ __/ / __ \/ __ \
+	//	 / /___/ / / / /_/ / / / / / /  __/ /  / /_/ / /_/ / /_/ / / / /
+	//	/_____/_/ /_/\__,_/_/ /_/ /_/\___/_/   \__,_/\__/_/\____/_/ /_/
+	//
+	// ==================================================================================================================================
+	/*@@ ENUM @@*/
+
+	function EnumerationDefinition(t,x)
+	{
+		var n = new Node(t, jsdef.ENUM);
+		t.setModifiers(n);
+		t.mustMatch(jsdef.IDENTIFIER);
+		n.name = t.token().value;
+		n.vartype = n.name;
+		n.__start = t.token().start;
+		n.__end = t.token().end;
+		t.mustMatch(jsdef.LEFT_CURLY)
+		for(;;)
+		{
+			t.mustMatch(jsdef.IDENTIFIER);
+			var f = new Node(t, jsdef.ENUM_ITEM);
+			f.name = t.token().value;
+			f.vartype = n.name;
+            t.mustMatch(jsdef.ASSIGN);
+            var m = false;
+            if(t.match(jsdef.UNARY_MINUS))
+            	m = true;
+            t.mustMatch(jsdef.NUMBER);
+            f.value = (m ? "-" : "") + t.token().value;
+            n.push(f);
+            if(!t.match(jsdef.COMMA))
+            	break;
+		}
+		t.mustMatch(jsdef.RIGHT_CURLY);
+		n.end = t.cursor;
+		n.line_end = t.line_start;
+		return n;
+	}
+
+	// ==================================================================================================================================
+	//	    ____                             __        ____       _____       _ __  _
+	//	   / __ \_________  ____  ___  _____/ /___  __/ __ \___  / __(_)___  (_) /_(_)___  ____
+	//	  / /_/ / ___/ __ \/ __ \/ _ \/ ___/ __/ / / / / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
+	//	 / ____/ /  / /_/ / /_/ /  __/ /  / /_/ /_/ / /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
+	//	/_/   /_/   \____/ .___/\___/_/   \__/\__, /_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+	//	                /_/                  /____/
+	// ==================================================================================================================================
+	/*@@ PROPERTY @@*/
+
+	function PropertyDefinition(t, x)
+	{
+		var p = new Node(t, jsdef.PROPERTY);
+		t.setModifiers(p);
+		t.mustMatch(jsdef.IDENTIFIER);
+		p.name = t.token().value;
+		p.__start = t.token().start;
+		p.__end = t.token().end;
+		t.mustMatch(jsdef.LEFT_CURLY)
+		x2 = new CompilerContext(true);
+		p.body = Script(t, x2);
+		t.mustMatch(jsdef.RIGHT_CURLY);
+		for(item in p.body)
+		{
+			if(!isFinite(item)) break;
+			if(p.body[item].type==jsdef.FUNCTION)
+			{
+				if(p.body[item].name=="set")
+				{
+					p.setter = p.body[item];
+					t.copyModifiers(p, p.setter);
+					continue;
+				}
+				else if(p.body[item].name=="get")
+				{
+					p.getter = p.body[item];
+					t.copyModifiers(p, p.getter);
+					continue;
+				}
+			}
+			throw t.newSyntaxError("Invalid inside property definition");
+		}
+
+		if(!p.getter)
+			throw t.newSyntaxError("Missing property getter");
+
+		//p.body = null;
+		p.vartype = p.getter.returntype;
+		p.subtype = p.getter.subtype;
+		return p;
+	}
+
+	// ==================================================================================================================================
+	//	   _____ __        __       ____       _____       _ __  _
+	//	  / ___// /_____ _/ /____  / __ \___  / __(_)___  (_) /_(_)___  ____
+	//	  \__ \/ __/ __ `/ __/ _ \/ / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
+	//	 ___/ / /_/ /_/ / /_/  __/ /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
+	//	/____/\__/\__,_/\__/\___/_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+	//
+	// ==================================================================================================================================
+	/*@@ STATE @@*/
+
+	function StateDefinition(t, x)
+	{
+		var n = new Node(t, jsdef.STATE);
+		n.vartype = "State";
+		t.setModifiers(n);
+		t.mustMatch(jsdef.IDENTIFIER);
+		n.name = t.token().value;
+		n.__start = t.token().start;
+		n.__end = t.token().end;
+		t.mustMatch(jsdef.LEFT_CURLY)
+		x2 = new CompilerContext(true);
+		n.body = Script(t, x2);
+		for(item in n.body)
+		{
+			if(!isFinite(item)) break;
+			var f = n.body[item];
+			switch(f.type)
+			{
+			case jsdef.FUNCTION:
+
+				switch(f.name)
+				{
+				case "enter": f.public=true; break;
+				case "exit":  f.public=true; break;
+				case "tick":  f.public=true; break;
+				case "paint": f.public=true; break;
+				default:
+					throw t.newSyntaxError("Invalid function inside State");
+				}
+				break;
+
+			case jsdef.VAR:
+				break;
+
+			default:
+				throw t.newSyntaxError("Invalid statement inside State");
+			}
+		}
+		t.mustMatch(jsdef.RIGHT_CURLY);
+		n.end = t.cursor;
+		n.body.end = t.cursor;
+		n.line_end = t.line_start;
+		n.body.line_end = t.line_start;
+		return n;
+	}
+
+	// ==================================================================================================================================
+	//	   _____ __        __                            __          ____
+	//	  / ___// /_____ _/ /____  ____ ___  ___  ____  / /______   / __ \____ ______________  _____
+	//	  \__ \/ __/ __ `/ __/ _ \/ __ `__ \/ _ \/ __ \/ __/ ___/  / /_/ / __ `/ ___/ ___/ _ \/ ___/
+	//	 ___/ / /_/ /_/ / /_/  __/ / / / / /  __/ / / / /_(__  )  / ____/ /_/ / /  (__  )  __/ /
+	//	/____/\__/\__,_/\__/\___/_/ /_/ /_/\___/_/ /_/\__/____/  /_/    \__,_/_/  /____/\___/_/
+	//
+	// ==================================================================================================================================
+	/*@@ Statements Parser @@*/
+
+	var DECLARED_FORM = 0,
+		EXPRESSED_FORM = 1,
+		STATEMENT_FORM = 2;
+
+	function Statement(t, x)
+	{
+		var i, label, n, n2, ss, tt = t.get();
+
+		// Cases for statements ending in a right curly return early,
+		// avoiding the common semicolon insertion magic after this switch.
+
+		switch(tt)
+		{
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.NAMESPACE:
+			return NamespaceDefinition(t, x);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.STRUCT:
+			return StructDefinition(t,x);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.CLASS:
+			return ClassDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.CONTROL:
+			t.get();
+			var n = ClassDefinition(t, x, true);
+			n.control = true;
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.INTERFACE:
+			return ClassDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM, true);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.FUNCTION:
+			return FunctionDefinition(t, x, true, (x.stmtStack.length > 1) ? STATEMENT_FORM : DECLARED_FORM);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.VAR:
+		case jsdef.CONST:
+			n = VariablesDefinition(t, x);
+			break;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.CALLBACK:
+			return CallbackDefinition(t, x);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.ENUM:
+			n = EnumerationDefinition(t,x);
+			break;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.STATE:
+			switch(t.peek())
+			{
+			case jsdef.CLASS:
+				t.get();
+				var n = ClassDefinition(t, x, true);
+				n.state = true;
+				return n;
+
+			case jsdef.FUNCTION:
+				t.get();
+				var n = FunctionDefinition(t, x, true, DECLARED_FORM);
+				n.state = true;
+				return n;
+			}
+			return StateDefinition(t, x);
+
+		// ==================================================================================================================================
+		//	    ___        __  _                _____           _       __     _____
+		//	   /   | _____/ /_(_)___  ____     / ___/__________(_)___  / /_   |__  /
+		//	  / /| |/ ___/ __/ / __ \/ __ \    \__ \/ ___/ ___/ / __ \/ __/    /_ <
+		//	 / ___ / /__/ /_/ / /_/ / / / /   ___/ / /__/ /  / / /_/ / /_    ___/ /
+		//	/_/  |_\___/\__/_/\____/_/ /_/   /____/\___/_/  /_/ .___/\__/   /____/
+		//	                                                 /_/
+		// ==================================================================================================================================
+		/*@@ AS3 Parser @@*/
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        case jsdef.PACKAGE:
+        	while(t.peek() != jsdef.LEFT_CURLY)
+        		t.get();
+			return null;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        case jsdef.USE:
+        case jsdef.IMPORT:
+        	while(t.get() != jsdef.SEMICOLON);
+			return null;
+
+		// ==================================================================================================================================
+		//	    ______________  ______           __                  _____           _       __     _____ __        __                            __
+		//	   / ____/ ____/  |/  /   |         / /___ __   ______ _/ ___/__________(_)___  / /_   / ___// /_____ _/ /____  ____ ___  ___  ____  / /______
+		//	  / __/ / /   / /|_/ / /| |    __  / / __ `/ | / / __ `/\__ \/ ___/ ___/ / __ \/ __/   \__ \/ __/ __ `/ __/ _ \/ __ `__ \/ _ \/ __ \/ __/ ___/
+		//	 / /___/ /___/ /  / / ___ |   / /_/ / /_/ /| |/ / /_/ /___/ / /__/ /  / / /_/ / /_    ___/ / /_/ /_/ / /_/  __/ / / / / /  __/ / / / /_(__  )
+		//	/_____/\____/_/  /_/_/  |_|   \____/\__,_/ |___/\__,_//____/\___/_/  /_/ .___/\__/   /____/\__/\__,_/\__/\___/_/ /_/ /_/\___/_/ /_/\__/____/
+		//	                                                                      /_/
+		// ==================================================================================================================================
+		/*@@ ECMA Parser @@*/
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.LEFT_CURLY:
+			n = Statements(t, x);
+			t.mustMatch(jsdef.RIGHT_CURLY);
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.IF:
+			n = new Node(t);
+			n.condition = ParenExpression(t, x);
+			x.stmtStack.push(n);
+			n.thenPart = Statement(t, x);
+			n.elsePart = t.match(jsdef.ELSE) ? Statement(t, x) : null;
+			x.stmtStack.pop();
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.SWITCH:
+			n = new Node(t);
+			t.mustMatch(jsdef.LEFT_PAREN);
+			n.discriminant = Expression(t, x);
+			t.mustMatch(jsdef.RIGHT_PAREN);
+			n.cases = [];
+			n.defaultIndex = -1;
+			x.stmtStack.push(n);
+			t.mustMatch(jsdef.LEFT_CURLY);
+			while((tt = t.get()) != jsdef.RIGHT_CURLY)
+			{
+				switch(tt)
+				{
+				case jsdef.DEFAULT:
+					if(n.defaultIndex >= 0) throw t.newSyntaxError("More than one switch default");
+					// FALL THROUGH
+				case jsdef.CASE:
+					n2 = new Node(t);
+					n2.scopeId = t.ScopeId();
+					if(tt == jsdef.DEFAULT)
+						n.defaultIndex = n.cases.length;
+					else
+						n2.caseLabel = Expression(t, x, jsdef.COLON);
+					break;
+				default:
+					throw t.newSyntaxError("Invalid switch case");
+				}
+				t.mustMatch(jsdef.COLON);
+				n2.statements = new Node(t, jsdef.BLOCK);
+				while((tt = t.peek()) != jsdef.CASE && tt != jsdef.DEFAULT && tt != jsdef.RIGHT_CURLY)
+					n2.statements.push(Statement(t, x));
+				n.cases.push(n2);
+			}
+			x.stmtStack.pop();
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.FOR:
+			n = new Node(t);
+			n.isLoop = true;
+			t.mustMatch(jsdef.LEFT_PAREN);
+			if((tt = t.peek()) != jsdef.SEMICOLON)
+			{
+				x.inForLoopInit = true;
+				if(tt == jsdef.VAR || tt == jsdef.LET)
+				{
+					t.get();
+					n2 = VariablesDefinition(t, x);
+				}
+				else
+				{
+					n2 = Expression(t, x);
+				}
+				x.inForLoopInit = false;
+			}
+			if(n2 && t.match(jsdef.IN))
+			{
+				n.type = jsdef.FOR_IN;
+				if(n2.type == jsdef.VAR || n2.type == jsdef.LET)
+				{
+					if(n2.length != 1)
+					{
+						throw new SyntaxError("Invalid for..in left-hand side", t.filename, n2.line_start);
+					}
+					n.iterator = n2;
+					n.varDecl = n2;
+				}
+				else
+				{
+					n.iterator = n2;
+					n.varDecl = null;
+				}
+				n.object = Expression(t, x);
+			}
+			else
+			{
+				n.setup = n2 || null;
+				t.mustMatch(jsdef.SEMICOLON);
+				n.condition = (t.peek() == jsdef.SEMICOLON) ? null : Expression(t, x);
+				t.mustMatch(jsdef.SEMICOLON);
+				n.update = (t.peek() == jsdef.RIGHT_PAREN) ? null : Expression(t, x);
+			}
+			t.mustMatch(jsdef.RIGHT_PAREN);
+			n.body = nest(t, x, n, Statement);
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.WHILE:
+			n = new Node(t);
+			n.isLoop = true;
+			n.condition = ParenExpression(t, x);
+			n.body = nest(t, x, n, Statement);
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.DO:
+			n = new Node(t);
+			n.isLoop = true;
+			n.body = nest(t, x, n, Statement, jsdef.WHILE);
+			n.condition = ParenExpression(t, x);
+			if(!x.ecmaStrictMode)
+			{
+				// <script language="JavaScript"> (without version hints) may need
+				// automatic semicolon insertion without a newline after do-while.
+				// See http://bugzilla.mozilla.org/show_bug.cgi?id=238945.
+				t.match(jsdef.SEMICOLON);
+				return n;
+			}
+			break;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.BREAK:
+		case jsdef.CONTINUE:
+			n = new Node(t);
+			if(t.peekOnSameLine() == jsdef.IDENTIFIER)
+			{
+				t.get();
+				n.label = t.token().value;
+			}
+			ss = x.stmtStack;
+			i = ss.length;
+			label = n.label;
+			if(label)
+			{
+				do
+				{
+					if(--i < 0)
+						throw t.newSyntaxError("Label not found");
+				}
+				while (ss[i].label != label);
+			}
+			else
+			{
+				do
+				{
+					if(--i < 0)
+					{
+						throw t.newSyntaxError("Invalid " + ((tt == jsdef.BREAK) ? "break" : "continue"));
+					}
+				}
+				while (!ss[i].isLoop && (tt != jsdef.BREAK || ss[i].type != jsdef.SWITCH));
+			}
+			n.target = ss[i];
+			break;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.TRY:
+			n = new Node(t);
+			n.tryBlock = Block(t, x);
+			n.catchClauses = [];
+			while(t.match(jsdef.CATCH))
+			{
+				n2 = new Node(t);
+				t.mustMatch(jsdef.LEFT_PAREN);
+				n2.varName = t.mustMatch(jsdef.IDENTIFIER).value;
+				if(t.match(jsdef.IF))
+				{
+					if(x.ecmaStrictMode)
+						throw t.newSyntaxError("Illegal catch guard");
+					if(n.catchClauses.length && !n.catchClauses.top().guard)
+						throw t.newSyntaxError("Guarded catch after unguarded");
+					n2.guard = Expression(t, x);
+				}
+				else
+				{
+					n2.guard = null;
+				}
+				t.mustMatch(jsdef.RIGHT_PAREN);
+				n2.block = Block(t, x);
+				n.catchClauses.push(n2);
+			}
+			if(t.match(jsdef.FINALLY))
+				n.finallyBlock = Block(t, x);
+			if(!n.catchClauses.length && !n.finallyBlock)
+				throw t.newSyntaxError("Invalid try statement");
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.CATCH:
+		case jsdef.FINALLY:
+			throw t.newSyntaxError(jsdef.tokens[tt] + " without preceding try");
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.THROW:
+			n = new Node(t);
+			n.exception = Expression(t, x);
+			break;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.RETURN:
+			if(!x.inFunction)
+				throw t.newSyntaxError("Invalid return");
+			n = new Node(t);
+			tt = t.peekOnSameLine();
+			if(tt != jsdef.END && tt != jsdef.NEWLINE && tt != jsdef.SEMICOLON && tt != jsdef.RIGHT_CURLY)
+				n.value = Expression(t, x);
+			if(!(n.value instanceof Node))
+				n.value = null;
+			break;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.WITH:
+			n = new Node(t);
+			n.object = ParenExpression(t, x);
+			n.body = nest(t, x, n, Statement);
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.LET:
+			n = VariablesDefinition(t, x);
+			n.block = true;
+			break;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.DEBUGGER:
+			n = new Node(t);
+			break;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.NEWLINE:
+		case jsdef.SEMICOLON:
+			n = new Node(t, jsdef.SEMICOLON);
+			n.expression = null;
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		default:
+			if(tt == jsdef.IDENTIFIER)
+			{
+				t.scanOperand = false;
+				tt = t.peek();
+				t.scanOperand = true;
+				if(tt == jsdef.COLON)
+				{
+					label = t.token().value;
+					ss = x.stmtStack;
+					for(i = ss.length - 1; i >= 0; --i)
+					{
+						if(ss[i].label == label)
+							throw t.newSyntaxError("Duplicate label");
+					}
+					t.get();
+					n = new Node(t, jsdef.LABEL);
+					n.label = label;
+					n.statement = nest(t, x, n, Statement);
+					return n;
+				}
+			}
+			n = new Node(t, jsdef.SEMICOLON);
+			t.unget();
+			n.expression = Expression(t, x);
+
+			n.end = t.cursor;// n.expression.end;
+			n.line_end = t.line_start;// n.expression.line_end;
+
+			// Heuristics to detect vartype from jsdef.NEW operator in expression
+
+			// Case 1: Assuming a DOT
+			if(n.expression && n.expression[0] && n.expression[0][1] && n.expression[0][1].type==jsdef.IDENTIFIER && !n.expression[0][1].vartype && n.expression[1] && n.expression[1].type==jsdef.NEW)
+			{
+				n.expression[0][1].vartype = n.expression[1][0].value;
+			}
+
+			break;
+		}
+		if(t.line_start == t.token().line_start)
+		{
+			tt = t.peekOnSameLine();
+			if(tt != jsdef.END && tt != jsdef.NEWLINE && tt != jsdef.SEMICOLON && tt != jsdef.RIGHT_CURLY)
+				throw t.newSyntaxError("Missing ; before statement");
+		}
+		t.match(jsdef.SEMICOLON);
+
+		n.end = t.cursor;
+		n.line_end = t.line_start;
+
+		return n;
+	}
 	// ==================================================================================================================================
 	//	    ____        __        __                      ____       __            __  _
 	//	   / __ \____ _/ /_____ _/ /___  ______  ___     / __ \___  / /____  _____/ /_(_)___  ____
@@ -1923,6 +2037,7 @@ function __init_narcissus(GLOBAL)
 	//	/_____/\__,_/\__/\__,_/\__/\__, / .___/\___/  /_____/\___/\__/\___/\___/\__/_/\____/_/ /_/
 	//	                          /____/_/
 	// ==================================================================================================================================
+    /*@@ Type Inferencing @@*/
 
     // Experimental: heuristics based variable datatype detection when not pluggable type system is used.
     function detectDataType(varItem)
@@ -2021,13 +2136,14 @@ function __init_narcissus(GLOBAL)
     }
 
 	// ==================================================================================================================================
-	//	    ______                               _
-	//	   / ____/  ______  ________  __________(_)___  ____  _____
-	//	  / __/ | |/_/ __ \/ ___/ _ \/ ___/ ___/ / __ \/ __ \/ ___/
-	//	 / /____>  </ /_/ / /  /  __(__  |__  ) / /_/ / / / (__  )
-	//	/_____/_/|_/ .___/_/   \___/____/____/_/\____/_/ /_/____/
+	//	    ______                               _                ____
+	//	   / ____/  ______  ________  __________(_)___  ____     / __ \____ ______________  _____
+	//	  / __/ | |/_/ __ \/ ___/ _ \/ ___/ ___/ / __ \/ __ \   / /_/ / __ `/ ___/ ___/ _ \/ ___/
+	//	 / /____>  </ /_/ / /  /  __(__  |__  ) / /_/ / / / /  / ____/ /_/ / /  (__  )  __/ /
+	//	/_____/_/|_/ .___/_/   \___/____/____/_/\____/_/ /_/  /_/    \__,_/_/  /____/\___/_/
 	//	          /_/
 	// ==================================================================================================================================
+	/*@@ Expression Parser @@*/
 
 	function ParenExpression(t, x)
 	{
@@ -2441,7 +2557,7 @@ function __init_narcissus(GLOBAL)
 							if(t.match(jsdef.VAR) || t.match(jsdef.LET))
 							{
 								x.inForLoopInit = true;
-								n2.iterator = Variables(t, x);
+								n2.iterator = VariablesDefinition(t, x);
 								x.inForLoopInit = false;
 							}
 							else if(t.match(jsdef.IDENTIFIER))
@@ -2482,7 +2598,7 @@ function __init_narcissus(GLOBAL)
 									if(t.match(jsdef.VAR) || t.match(jsdef.LET))
 									{
 										x.inForLoopInit = true;
-										n2.iterator = Variables(t, x);
+										n2.iterator = VariablesDefinition(t, x);
 										x.inForLoopInit = false;
 									}
 									else if(t.match(jsdef.IDENTIFIER))

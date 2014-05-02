@@ -63,25 +63,71 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //# DO NOT EDIT BEGIN #//
-class CocoTest;
-class CocoTextStyle;
-class CocoText;
-class IEventTarget;
-class DeviceEvent;
 class Audio;
+class CanvasRenderingContext2D;
+class Class1;
+class Class2;
+class Class3;
+class ClassTestInterfaces;
+class CocoAudio;
+class CocoClip;
+class CocoEngine;
+class CocoEvent;
+class CocoEventConnectionPoint;
+class CocoEventSource;
+class CocoGraphics;
+class CocoHttpRequest;
+class CocoImage;
+class CocoImageSibling;
+class CocoMatrix;
+class CocoRect;
+class CocoScene;
+class CocoSequence;
+class CocoText;
+class CocoTextStyle;
+class CocoTickable;
+class CocoTimeLabel;
+class CocoTimeline;
+class CocoUIButton;
+class CocoUICheckBox;
+class CocoUIComboBox;
+class CocoUIControl;
+class CocoUILabel;
+class CocoUIPageView;
+class CocoUIPictureList;
+class CocoUITextBox;
+class CocoUIView;
+class CocoVector;
+class DeviceEvent;
+class GameEngine;
 class HTMLCanvasContext;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
 class HTMLCanvasPattern;
-class HTMLElement;
 class HTMLDocument;
+class HTMLElement;
 class HTMLTextMetrics;
-class PathLine;
-class CanvasRenderingContext2D;
 class HTMLWindow;
-class ImageData;
+class IEventListener;
+class IEventTarget;
+class ITest1;
+class ITest2;
+class ITest3;
+class ITickable;
 class Image;
-class ImageDataBuffer;
+class ImageData;
+class NewAnimation;
+class Page1;
+class PathLine;
+class TestEventListener;
+class TestEventSource;
+class TestIntegrator;
+class TestIntegratorClient;
+class TestOutsourcer;
+class TestSelf1;
+class TestSelf2;
+class TestSelf3;
+class TestThis;
 class Touch;
 class TouchList;
 class WebGLActiveInfo;
@@ -89,62 +135,16 @@ class WebGLBuffer;
 class WebGLContextAttributes;
 class WebGLFramebuffer;
 class WebGLObject;
+class WebGLProgram;
 class WebGLRenderbuffer;
+class WebGLRenderingContext;
 class WebGLShader;
 class WebGLShaderPrecisionFormat;
 class WebGLTexture;
 class WebGLUniformLocation;
-class WebGLProgram;
-class WebGLRenderingContext;
-class CocoAudio;
-class CocoImageSibling;
-class CocoRect;
-class CocoSequence;
-class CocoImage;
-class CocoTimeLabel;
-class CocoVector;
-class CocoMatrix;
-class CocoKeyFrame;
-class CocoTimeline;
-class CocoClip;
-class CocoScene;
-class CocoEngine;
-class CocoSprite;
-class CocoSpriteActor;
-class CocoSpriteBonus;
-class CocoSpriteBullet;
-class CocoSpriteEnemy;
-class CocoSpritePlayer;
-class CocoSpriteVisual;
-class CocoTiledLayer;
-class CocoUIView;
-class CocoUIControlView;
-class CocoUIButtonView;
-class CocoUICheckboxView;
-class CocoUILabelView;
-class CocoUINavbarView;
-class CocoUIPageView;
-class CocoUIPickerView;
-class CocoUIScrollView;
-class CocoUITabView;
-class CocoUITextView;
-class CocoUIButton;
-class ITickable;
-class GridSymbol;
-class SceneGameBoard;
-class SceneTitle;
-class GameEngine;
-class CocoTickable;
-class CocoEventSource;
-class CocoEvent;
 //# DO NOT EDIT END #//
 
 class CocoFont;
-class Class2;
-class ITest1;
-class ITest2;
-class ITest3;
-
 
 template<typename T> struct TYPE_STRING { static constexpr char const* c_str() { return "undefined"; } };
 #define DEF_TYPE(T) template<> struct TYPE_STRING<T> { static constexpr char const* c_str() { return #T; } };
@@ -648,14 +648,14 @@ struct State
 	#include <sys/time.h>
 
 	#define fxAPIGetKey(E) (*(const uint32_t*)(E))
-	#define fxAPIGetMouseEventX(E) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].x)
-	#define fxAPIGetMouseEventY(E) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].y)
-	#define fxAPIGetTouchEventX(E, I) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].x)
-	#define fxAPIGetTouchEventY(E, I) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].y)
-	#define fxAPIGetChangedTouchEventX(E, I) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].x)
-	#define fxAPIGetChangedTouchEventY(E, I) ([[[[(UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].y)
-	#define fxAPIGetTouchesLength(E) ([[(UIEvent*)E allTouches] count])
-	#define fxAPIGetChangedTouchesLength(E) ([[(UIEvent*)E allTouches] count])
+	#define fxAPIGetMouseEventX(E) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].x)
+	#define fxAPIGetMouseEventY(E) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].y)
+	#define fxAPIGetTouchEventX(E, I) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].x)
+	#define fxAPIGetTouchEventY(E, I) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].y)
+	#define fxAPIGetChangedTouchEventX(E, I) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].x)
+	#define fxAPIGetChangedTouchEventY(E, I) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].y)
+	#define fxAPIGetTouchesLength(E) ([[(__bridge UIEvent*)E allTouches] count])
+	#define fxAPIGetChangedTouchesLength(E) ([[(__bridge UIEvent*)E allTouches] count])
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #elif ANDROID_APPLICATION

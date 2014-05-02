@@ -1,5 +1,5 @@
 "#export web";
-//@line 13
+//@line 11
 
 function TestOutsourcer()
 {
@@ -25,20 +25,20 @@ function TestOutsourcer()
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 18
+		//@line 16
 		this.work = function ()
 		{
-			//@line 20
+			//@line 18
 			trace("Outsourcer is working...");
 		};
-		//@line 16
+		//@line 14
 		this.Destructor = function ()
 		{
 			{}
 			{}
 			return true
 		};
-		//@line 15
+		//@line 13
 		this.Constructor = function () {};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
 		this.Constructor();
@@ -48,7 +48,7 @@ function TestOutsourcer()
 }
 TestOutsourcer.__PRIVATE__ = {};
 TestOutsourcer.__PROTECTED__ = {};
-//@line 25
+//@line 23
 
 function TestIntegrator()
 {
@@ -74,7 +74,7 @@ function TestIntegrator()
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 27
+		//@line 25
 		__PRIVATE__.delegator = null;
 		this.__PRIVATE__.Constructor = function ()
 		{
@@ -88,11 +88,11 @@ function TestIntegrator()
 		{
 			return __CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.work();
 		}
-		//@line 34
+		//@line 32
 		this.Destructor = function ()
 		{
 			{
-				//@line 36
+				//@line 34
 				{
 					__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator && ((__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.hasOwnProperty('Destructor') && __CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.Destructor()) || !__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.hasOwnProperty('Destructor')) && (delete __CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator);
 					__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator = null
@@ -103,10 +103,10 @@ function TestIntegrator()
 			}
 			return true
 		};
-		//@line 29
+		//@line 27
 		this.Constructor = function ()
 		{
-			//@line 31
+			//@line 29
 			__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator = new TestOutsourcer;
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
@@ -117,7 +117,7 @@ function TestIntegrator()
 }
 TestIntegrator.__PRIVATE__ = {};
 TestIntegrator.__PROTECTED__ = {};
-//@line 41
+//@line 39
 
 function TestIntegratorClient()
 {
@@ -143,13 +143,13 @@ function TestIntegratorClient()
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 43
+		//@line 41
 		__PRIVATE__.integrator = null;
-		//@line 54
+		//@line 52
 		this.Destructor = function ()
 		{
 			{
-				//@line 56
+				//@line 54
 				{
 					__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator && ((__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator.hasOwnProperty('Destructor') && __CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator.Destructor()) || !__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator.hasOwnProperty('Destructor')) && (delete __CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator);
 					__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator = null
@@ -160,12 +160,12 @@ function TestIntegratorClient()
 			}
 			return true
 		};
-		//@line 45
+		//@line 43
 		this.Constructor = function ()
 		{
-			//@line 50
+			//@line 48
 			__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator = new TestIntegrator;
-			//@line 51
+			//@line 49
 			__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator.__PRIVATE__.work();
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);

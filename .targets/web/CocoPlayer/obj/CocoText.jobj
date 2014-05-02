@@ -1,5 +1,5 @@
 "#export web";
-//@line 4
+//@line 5
 
 function CocoTextStyle(__CLASS__COCOTEXTSTYLE__$ff__, __CLASS__COCOTEXTSTYLE__$fsp__, __CLASS__COCOTEXTSTYLE__$fs__, __CLASS__COCOTEXTSTYLE__$fw__, __CLASS__COCOTEXTSTYLE__$u__, __CLASS__COCOTEXTSTYLE__$r__, __CLASS__COCOTEXTSTYLE__$g__, __CLASS__COCOTEXTSTYLE__$b__, __CLASS__COCOTEXTSTYLE__$a__, __CLASS__COCOTEXTSTYLE__$br__, __CLASS__COCOTEXTSTYLE__$bg__, __CLASS__COCOTEXTSTYLE__$bb__, __CLASS__COCOTEXTSTYLE__$ba__)
 {
@@ -25,30 +25,30 @@ function CocoTextStyle(__CLASS__COCOTEXTSTYLE__$ff__, __CLASS__COCOTEXTSTYLE__$f
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 6
-		this.fontFamily = "";
 		//@line 7
-		this.fontSizePixels = 0;
+		this.fontFamily = "";
 		//@line 8
-		this.fontStyle = "";
+		this.fontSizePixels = 0;
 		//@line 9
-		this.fontWeight = "";
+		this.fontStyle = "";
 		//@line 10
-		this.underline = false;
+		this.fontWeight = "";
 		//@line 11
-		this.color = [];
+		this.underline = false;
 		//@line 12
+		this.color = [];
+		//@line 13
 		this.bgcolor = [];
-		//@line 33
+		//@line 34
 		this.Destructor = function ()
 		{
 			{
-				//@line 35
+				//@line 36
 				{
 					__CLASS__COCOTEXTSTYLE__.color && ((__CLASS__COCOTEXTSTYLE__.color.hasOwnProperty('Destructor') && __CLASS__COCOTEXTSTYLE__.color.Destructor()) || !__CLASS__COCOTEXTSTYLE__.color.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTEXTSTYLE__.color);
 					__CLASS__COCOTEXTSTYLE__.color = null
 				};
-				//@line 36
+				//@line 37
 				{
 					__CLASS__COCOTEXTSTYLE__.bgcolor && ((__CLASS__COCOTEXTSTYLE__.bgcolor.hasOwnProperty('Destructor') && __CLASS__COCOTEXTSTYLE__.bgcolor.Destructor()) || !__CLASS__COCOTEXTSTYLE__.bgcolor.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTEXTSTYLE__.bgcolor);
 					__CLASS__COCOTEXTSTYLE__.bgcolor = null
@@ -65,38 +65,38 @@ function CocoTextStyle(__CLASS__COCOTEXTSTYLE__$ff__, __CLASS__COCOTEXTSTYLE__$f
 			}
 			return true
 		};
-		//@line 14
+		//@line 15
 		this.Constructor = function (ff, fsp, fs, fw, u, r, g, b, a, br, bg, bb, ba)
 		{
-			//@line 16
-			__CLASS__COCOTEXTSTYLE__.fontFamily = ff;
 			//@line 17
-			__CLASS__COCOTEXTSTYLE__.fontSizePixels = fsp;
+			__CLASS__COCOTEXTSTYLE__.fontFamily = ff;
 			//@line 18
-			__CLASS__COCOTEXTSTYLE__.fontStyle = fs;
+			__CLASS__COCOTEXTSTYLE__.fontSizePixels = fsp;
 			//@line 19
-			__CLASS__COCOTEXTSTYLE__.fontWeight = fw;
+			__CLASS__COCOTEXTSTYLE__.fontStyle = fs;
 			//@line 20
-			__CLASS__COCOTEXTSTYLE__.underline = u;
+			__CLASS__COCOTEXTSTYLE__.fontWeight = fw;
 			//@line 21
-			__CLASS__COCOTEXTSTYLE__.color = new Array;
+			__CLASS__COCOTEXTSTYLE__.underline = u;
 			//@line 22
-			__CLASS__COCOTEXTSTYLE__.color.push(r);
+			__CLASS__COCOTEXTSTYLE__.color = new Array;
 			//@line 23
-			__CLASS__COCOTEXTSTYLE__.color.push(g);
+			__CLASS__COCOTEXTSTYLE__.color.push(r);
 			//@line 24
-			__CLASS__COCOTEXTSTYLE__.color.push(b);
+			__CLASS__COCOTEXTSTYLE__.color.push(g);
 			//@line 25
-			__CLASS__COCOTEXTSTYLE__.color.push(a);
+			__CLASS__COCOTEXTSTYLE__.color.push(b);
 			//@line 26
-			__CLASS__COCOTEXTSTYLE__.bgcolor = new Array;
+			__CLASS__COCOTEXTSTYLE__.color.push(a);
 			//@line 27
-			__CLASS__COCOTEXTSTYLE__.bgcolor.push(br);
+			__CLASS__COCOTEXTSTYLE__.bgcolor = new Array;
 			//@line 28
-			__CLASS__COCOTEXTSTYLE__.bgcolor.push(bg);
+			__CLASS__COCOTEXTSTYLE__.bgcolor.push(br);
 			//@line 29
-			__CLASS__COCOTEXTSTYLE__.bgcolor.push(bb);
+			__CLASS__COCOTEXTSTYLE__.bgcolor.push(bg);
 			//@line 30
+			__CLASS__COCOTEXTSTYLE__.bgcolor.push(bb);
+			//@line 31
 			__CLASS__COCOTEXTSTYLE__.bgcolor.push(ba);
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
@@ -107,7 +107,7 @@ function CocoTextStyle(__CLASS__COCOTEXTSTYLE__$ff__, __CLASS__COCOTEXTSTYLE__$f
 }
 CocoTextStyle.__PRIVATE__ = {};
 CocoTextStyle.__PROTECTED__ = {};
-//@line 40
+//@line 42
 
 function CocoText()
 {
@@ -133,258 +133,226 @@ function CocoText()
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 44
-		this.str = "";
-		//@line 45
-		this.styles = [];
 		//@line 46
-		this.indices = [];
+		this.str = "";
 		//@line 47
-		this.mappings = [];
+		this.styles = [];
 		//@line 48
-		this.lineBreaks = [];
+		this.indices = [];
 		//@line 49
-		this.lineWidths = [];
+		this.mappings = [];
 		//@line 50
-		this.lineHeights = [];
+		this.lineBreaks = [];
 		//@line 51
+		this.lineWidths = [];
+		//@line 52
+		this.lineHeights = [];
+		//@line 53
 		this.totalHeight = 0;
-		//@line 93
+		//@line 100
 		this.wrap = function (width)
 		{
-			//@line 95
-			__CLASS__COCOTEXT__.lineBreaks.clear();
-			//@line 96
-			__CLASS__COCOTEXT__.lineWidths.clear();
-			//@line 97
-			__CLASS__COCOTEXT__.lineHeights.clear();
-			//@line 98
-			__CLASS__COCOTEXT__.totalHeight = 0;
-			//@line 99
-			var lineWidth = 0;
-			//@line 100
-			var lineHeight = 0;
-			//@line 101
-			for (var i = 0; i < __CLASS__COCOTEXT__.indices.size(); i++)
 			//@line 102
+			__CLASS__COCOTEXT__.lineBreaks.clear();
+			//@line 103
+			__CLASS__COCOTEXT__.lineWidths.clear();
+			//@line 104
+			__CLASS__COCOTEXT__.lineHeights.clear();
+			//@line 105
+			__CLASS__COCOTEXT__.totalHeight = 0;
+			//@line 106
+			var lineWidth = 0;
+			//@line 107
+			var lineHeight = 0;
+			//@line 108
+			var L = __CLASS__COCOTEXT__.indices.size();
+			//@line 109
+			for (var i = 0; i < L; i++)
+			//@line 110
 			{
-				//@line 103
+				//@line 111
 				var style = __CLASS__COCOTEXT__.styles[__CLASS__COCOTEXT__.mappings[i]];
-				//@line 104
+				//@line 112
 				lineHeight = Math.max(lineHeight, style.fontSizePixels);
-				//@line 105
+				//@line 113
 				CocoText.c2d.font = style.fontStyle + " normal " + style.fontWeight + " " + (style.fontSizePixels) + "px " + style.fontFamily;
-				//@line 106
+				//@line 114
 				var to = i + 1 < __CLASS__COCOTEXT__.indices.size() ? __CLASS__COCOTEXT__.indices[i + 1] : __CLASS__COCOTEXT__.str.size();
-				//@line 107
+				//@line 115
 				for (var r = __CLASS__COCOTEXT__.indices[i]; r < to; r++)
-				//@line 108
+				//@line 116
 				{
-					//@line 109
+					//@line 117
 					var charWidth = CocoText.c2d.measureText((__CLASS__COCOTEXT__.str.substr(r, 1))).width;
-					//@line 111
+					//@line 118
 					if (lineWidth + charWidth > width)
-					//@line 112
+					//@line 119
 					{
-						//@line 113
-						if (lineWidth == 0) throw "Too small width!";
-						//@line 114
-						__CLASS__COCOTEXT__.lineBreaks.push(r);
-						//@line 115
-						__CLASS__COCOTEXT__.lineWidths.push(lineWidth);
-						//@line 116
-						__CLASS__COCOTEXT__.lineHeights.push(lineHeight);
-						//@line 119
-						__CLASS__COCOTEXT__.totalHeight += lineHeight;
 						//@line 120
-						lineWidth = charWidth;
+						if (lineWidth == 0) throw "Too small width!";
 						//@line 121
+						__CLASS__COCOTEXT__.lineBreaks.push(r);
+						//@line 122
+						__CLASS__COCOTEXT__.lineWidths.push(lineWidth);
+						//@line 123
+						__CLASS__COCOTEXT__.lineHeights.push(lineHeight);
+						//@line 124
+						__CLASS__COCOTEXT__.totalHeight += lineHeight;
+						//@line 125
+						lineWidth = charWidth;
+						//@line 126
 						lineHeight = style.fontSizePixels;
 					}
 					else
-					//@line 123
+					//@line 128
 					lineWidth += charWidth;
 				}
 			}
-			//@line 126
+			//@line 131
 			__CLASS__COCOTEXT__.lineWidths.push(lineWidth);
-			//@line 127
+			//@line 132
 			__CLASS__COCOTEXT__.lineHeights.push(lineHeight);
-			//@line 130
+			//@line 133
 			__CLASS__COCOTEXT__.totalHeight += lineHeight;
 		};
-		//@line 133
+		//@line 137
 		this.draw = function (width, height, halign, valign, bgR, bgG, bgB, bgA)
 		{
-			//@line 135
-			trace("CocoText::draw");
-			//@line 136
+			//@line 139
 			if (width > CocoText.c2d.canvas.width || height > CocoText.c2d.canvas.height) return "";
-			//@line 137
-			CocoText.c2d.clearRect(0.0, 0.0, width, height);
-			//@line 138
-			CocoText.c2d.fillStyle = "rgba(" + (bgR) + ", " + (bgG) + ", " + (bgB) + ", " + (bgA) + ")";
 			//@line 140
-			var cx = 0;
+			CocoText.c2d.clearRect(0.0, 0.0, width, height);
 			//@line 141
-			var cy = 0;
+			CocoText.c2d.fillStyle = "rgba(" + (bgR) + ", " + (bgG) + ", " + (bgB) + ", " + (bgA) + ")";
 			//@line 142
-			var currentLine = 0;
+			var cx = 0;
 			//@line 143
-			var prevStop = 0;
+			var cy = 0;
 			//@line 144
-			var firstChar = true;
+			var currentLine = 0;
 			//@line 145
-			for (var i = 0; i < __CLASS__COCOTEXT__.indices.size(); i++)
+			var prevStop = 0;
 			//@line 146
+			var firstChar = true;
+			//@line 147
+			var L = __CLASS__COCOTEXT__.indices.size();
+			//@line 148
+			for (var i = 0; i < L; i++)
+			//@line 149
 			{
-				//@line 147
-				var style = __CLASS__COCOTEXT__.styles[__CLASS__COCOTEXT__.mappings[i]];
-				//@line 148
-				CocoText.c2d.font = style.fontStyle + " normal " + style.fontWeight + " " + (style.fontSizePixels) + "px " + style.fontFamily;
-				//@line 149
-				trace("CocoText::draw 1");
 				//@line 150
-				var stop = 0;
+				var style = __CLASS__COCOTEXT__.styles[__CLASS__COCOTEXT__.mappings[i]];
 				//@line 151
-				var nextStop = ((i + 1 < __CLASS__COCOTEXT__.indices.size()) ? __CLASS__COCOTEXT__.indices[i + 1] : __CLASS__COCOTEXT__.str.size());
+				CocoText.c2d.font = style.fontStyle + " normal " + style.fontWeight + " " + (style.fontSizePixels) + "px " + style.fontFamily;
 				//@line 152
-				trace("CocoText::draw 2");
+				var stop = 0;
 				//@line 153
-				do
+				var nextStop = ((i + 1 < __CLASS__COCOTEXT__.indices.size()) ? __CLASS__COCOTEXT__.indices[i + 1] : __CLASS__COCOTEXT__.str.size());
 				//@line 154
+				do
+				//@line 155
 				{
-					//@line 155
-					trace("CocoText::draw 3");
 					//@line 156
 					var nextBreak = currentLine < __CLASS__COCOTEXT__.lineBreaks.size() ? __CLASS__COCOTEXT__.lineBreaks[currentLine] : __CLASS__COCOTEXT__.str.size();
 					//@line 157
-					trace("CocoText::draw 4");
-					//@line 158
 					stop = Math.min(nextStop, nextBreak);
-					//@line 159
+					//@line 158
 					var s = __CLASS__COCOTEXT__.str.substring(prevStop, stop);
-					//@line 160
-					trace("CocoText::draw 5");
-					//@line 161
+					//@line 159
 					if (firstChar)
-					//@line 162
+					//@line 160
 					{
-						//@line 164
+						//@line 161
 						firstChar = false;
 					}
-					//@line 166
+					//@line 163
 					prevStop = stop;
-					//@line 167
+					//@line 164
 					var sWidth = CocoText.c2d.measureText(s).width;
-					//@line 168
-					trace("CocoText::draw 5 1");
-					//@line 169
+					//@line 165
 					var left = (width - __CLASS__COCOTEXT__.lineWidths[currentLine]) * halign;
-					//@line 170
-					trace("CocoText::draw 5 2");
-					//@line 171
+					//@line 166
 					var top = __CLASS__COCOTEXT__.lineHeights[currentLine] / 1.125 + (height - __CLASS__COCOTEXT__.totalHeight * 1.25) * valign;
-					//@line 172
-					trace("CocoText::draw 5 3");
-					//@line 173
+					//@line 167
 					CocoText.c2d.fillStyle = "rgba(" + (style.bgcolor[0]) + ", " + (style.bgcolor[1]) + ", " + (style.bgcolor[2]) + ", " + (style.bgcolor[3]) + ")";
-					//@line 174
-					trace("CocoText::draw 5 4");
-					//@line 175
+					//@line 168
 					CocoText.c2d.fillRect(cx + left, cy + top - (style.fontSizePixels) / 1.25, sWidth, (style.fontSizePixels) * 1.125);
-					//@line 176
-					trace("CocoText::draw 5 5");
-					//@line 177
+					//@line 169
 					var StyleString = "rgba(" + (style.color[0]) + ", " + (style.color[1]) + ", " + (style.color[2]) + ", " + (style.color[3]) + ")";
-					//@line 178
-					trace("CocoText::draw 5 6");
-					//@line 179
+					//@line 170
 					CocoText.c2d.fillStyle = StyleString;
-					//@line 180
-					trace("CocoText::draw 5 7");
-					//@line 181
+					//@line 171
 					CocoText.c2d.strokeStyle = StyleString;
-					//@line 182
-					trace("CocoText::draw 5 8");
-					//@line 184
-					trace("CocoText::draw 6");
-					//@line 185
+					//@line 172
 					CocoText.c2d.fillText(s, cx + left, cy + top);
-					//@line 186
-					trace("CocoText::draw 7");
-					//@line 187
+					//@line 173
 					if (style.underline)
-					//@line 188
+					//@line 174
 					{
-						//@line 189
+						//@line 175
 						CocoText.c2d.lineWidth = (style.fontSizePixels) / 12.0;
-						//@line 190
+						//@line 176
 						CocoText.c2d.beginPath();
-						//@line 191
+						//@line 177
 						CocoText.c2d.moveTo(cx + left, cy + top + CocoText.c2d.lineWidth * 1.5);
-						//@line 192
+						//@line 178
 						CocoText.c2d.lineTo(cx + left + sWidth, cy + top + CocoText.c2d.lineWidth * 1.5);
-						//@line 193
+						//@line 179
 						CocoText.c2d.stroke();
 					}
-					//@line 195
-					trace("CocoText::draw 8");
-					//@line 196
+					//@line 181
 					cx += sWidth;
-					//@line 197
+					//@line 182
 					if (stop == nextBreak)
-					//@line 198
+					//@line 183
 					{
-						//@line 199
+						//@line 184
 						cx = 0;
-						//@line 200
+						//@line 185
 						cy += (__CLASS__COCOTEXT__.lineHeights[currentLine]) * 1.25;
-						//@line 201
+						//@line 186
 						++currentLine;
-						//@line 202
+						//@line 187
 						firstChar = true;
 					}
-					//@line 204
-					trace("CocoText::draw 9");
 				}
-				while (//@line 205
+				while (//@line 189
 				stop != nextStop);
 			}
-			//@line 207
+			//@line 191
 			return CocoText.c2d.canvas.toDataURL();
 			return ""
 		};
-		//@line 83
+		//@line 89
 		this.Destructor = function ()
 		{
 			{
-				//@line 85
+				//@line 91
 				{
 					__CLASS__COCOTEXT__.styles && ((__CLASS__COCOTEXT__.styles.hasOwnProperty('Destructor') && __CLASS__COCOTEXT__.styles.Destructor()) || !__CLASS__COCOTEXT__.styles.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTEXT__.styles);
 					__CLASS__COCOTEXT__.styles = null
 				};
-				//@line 86
+				//@line 92
 				{
 					__CLASS__COCOTEXT__.indices && ((__CLASS__COCOTEXT__.indices.hasOwnProperty('Destructor') && __CLASS__COCOTEXT__.indices.Destructor()) || !__CLASS__COCOTEXT__.indices.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTEXT__.indices);
 					__CLASS__COCOTEXT__.indices = null
 				};
-				//@line 87
+				//@line 93
 				{
 					__CLASS__COCOTEXT__.mappings && ((__CLASS__COCOTEXT__.mappings.hasOwnProperty('Destructor') && __CLASS__COCOTEXT__.mappings.Destructor()) || !__CLASS__COCOTEXT__.mappings.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTEXT__.mappings);
 					__CLASS__COCOTEXT__.mappings = null
 				};
-				//@line 88
+				//@line 94
 				{
 					__CLASS__COCOTEXT__.lineBreaks && ((__CLASS__COCOTEXT__.lineBreaks.hasOwnProperty('Destructor') && __CLASS__COCOTEXT__.lineBreaks.Destructor()) || !__CLASS__COCOTEXT__.lineBreaks.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTEXT__.lineBreaks);
 					__CLASS__COCOTEXT__.lineBreaks = null
 				};
-				//@line 89
+				//@line 95
 				{
 					__CLASS__COCOTEXT__.lineWidths && ((__CLASS__COCOTEXT__.lineWidths.hasOwnProperty('Destructor') && __CLASS__COCOTEXT__.lineWidths.Destructor()) || !__CLASS__COCOTEXT__.lineWidths.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTEXT__.lineWidths);
 					__CLASS__COCOTEXT__.lineWidths = null
 				};
-				//@line 90
+				//@line 96
 				{
 					__CLASS__COCOTEXT__.lineHeights && ((__CLASS__COCOTEXT__.lineHeights.hasOwnProperty('Destructor') && __CLASS__COCOTEXT__.lineHeights.Destructor()) || !__CLASS__COCOTEXT__.lineHeights.hasOwnProperty('Destructor')) && (delete __CLASS__COCOTEXT__.lineHeights);
 					__CLASS__COCOTEXT__.lineHeights = null
@@ -403,22 +371,22 @@ function CocoText()
 			}
 			return true
 		};
-		//@line 72
+		//@line 77
 		this.Constructor = function ()
 		{
-			//@line 74
-			__CLASS__COCOTEXT__.styles = new Array;
-			//@line 75
-			__CLASS__COCOTEXT__.indices = new Array;
-			//@line 76
-			__CLASS__COCOTEXT__.mappings = new Array;
-			//@line 77
-			__CLASS__COCOTEXT__.lineBreaks = new Array;
-			//@line 78
-			__CLASS__COCOTEXT__.lineWidths = new Array;
 			//@line 79
-			__CLASS__COCOTEXT__.lineHeights = new Array;
+			__CLASS__COCOTEXT__.styles = new Array;
 			//@line 80
+			__CLASS__COCOTEXT__.indices = new Array;
+			//@line 81
+			__CLASS__COCOTEXT__.mappings = new Array;
+			//@line 82
+			__CLASS__COCOTEXT__.lineBreaks = new Array;
+			//@line 83
+			__CLASS__COCOTEXT__.lineWidths = new Array;
+			//@line 84
+			__CLASS__COCOTEXT__.lineHeights = new Array;
+			//@line 85
 			__CLASS__COCOTEXT__.totalHeight = 0;
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
@@ -429,36 +397,36 @@ function CocoText()
 }
 CocoText.__PRIVATE__ = {};
 CocoText.__PROTECTED__ = {};
-//@line 42
+//@line 44
 CocoText.c2d = null;
-//@line 53
+//@line 56
 CocoText.npo2 = function (i)
 {
-	//@line 55
-	--i;
-	//@line 56
-	i |= i >> 1;
-	//@line 57
-	i |= i >> 2;
 	//@line 58
-	i |= i >> 4;
+	--i;
 	//@line 59
-	i |= i >> 8;
+	i |= i >> 1;
 	//@line 60
-	i |= i >> 16;
+	i |= i >> 2;
 	//@line 61
+	i |= i >> 4;
+	//@line 62
+	i |= i >> 8;
+	//@line 63
+	i |= i >> 16;
+	//@line 64
 	return ++i;
 	return 0
 };
-//@line 64
+//@line 68
 CocoText.init = function (width, height)
 {
-	//@line 66
+	//@line 70
 	var canvas = document.createElement("canvas");
-	//@line 67
+	//@line 71
 	canvas.width = (CocoText.npo2(width));
-	//@line 68
+	//@line 72
 	canvas.height = (CocoText.npo2(height));
-	//@line 69
+	//@line 73
 	CocoText.c2d = (canvas.getContext("2d"));
 };

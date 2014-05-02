@@ -17,7 +17,7 @@ class TestEventSource : CocoEventSource
 
  	public function work()
  	{
- 		this.dispatchEvent(this.OnDone, "test1", "test2");
+ 		this.dispatchEvent(this.OnDone, "test1", 5);
  	}
 }
 
@@ -37,7 +37,7 @@ class TestEventListener implements IEventListener
  		worker.removeEventListener(worker.OnDone, this, done);
  	}
 
-	public function done(sender:TestEventSource, e:CocoEvent, a:String, b:Float) :Boolean
+	public function done(sender:TestEventSource, e:TestEventSourceOnDoneEvent, a:String, b:Float) :Boolean
 	{
 		trace("Worker " + sender.id + " fired event " + e.type + " a=" + String(a) + ", b=" + String(b));
 		return false;

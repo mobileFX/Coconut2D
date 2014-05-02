@@ -130,11 +130,11 @@ function make(options)
   	this.Build_iOS = function()
   	{
   		_this.clean();
-  		_this.apply_device_wrapper();
-  		_this.generate_icons();
-  		_this.copy_assets();
+  		//_this.apply_device_wrapper();
+  		//_this.generate_icons();
+  		//_this.copy_assets();
   		_this.generate_cpp();
-  		_this.compile_ipa();
+  		//_this.compile_ipa();
   	};
 
 	// ==================================================================================================================================
@@ -195,7 +195,10 @@ function make(options)
 		compiler.compile();
 
 		// Update Coconut2D.hpp
-		//IDECallback("coconut2d.hpp", "", 0, 0, compiler.getClassList());
+		var classes = compiler.getClassList();
+		var buff = read(makefile.Vars.FILE_PATH_SDK_CRL_COCONUT2D_HPP);
+		buff = _this.replaceBuffer("//# DO NOT EDIT BEGIN #//", "//# DO NOT EDIT END #//", buff, classes);
+		_this.module(makefile.Vars.FILE_PATH_SDK_CRL_COCONUT2D_HPP, buff);
 
 		trace("+ Done.");
 	};
@@ -1033,6 +1036,19 @@ function make(options)
 		//trace("+ file pattern: " + filePattern + " -> " + pattern);
 		//test here: https://www.debuggex.com/
 		return pattern;
+	};
+
+    // =====================================================================
+    // Replace code withing a bugger enclosed by an opening and closing tag
+    // =====================================================================
+	_this.replaceBuffer = function(openTag, closeTag, buffer, fragment)
+	{
+        var pattern = openTag + "[\\s\\r\\n]*(?:[.\\s\\r\\n\\w\\W\\S]*?)" + closeTag;
+		var rx = new RegExp(pattern, "g");
+		var match = rx.exec(buffer);
+	    if(!match) return buffer;
+	    buffer = buffer.replace(rx, openTag + "\n" + fragment + "\n" + closeTag)
+	    return buffer;
 	};
 
     // =====================================================================

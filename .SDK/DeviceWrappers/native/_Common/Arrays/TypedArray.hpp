@@ -53,13 +53,14 @@ public:
 		byteLength = length * sizeof(T);
 	}
 
-	TypedArray(Array<T>* val)
+	TypedArray(Array<T>* val, bool preserve = false)
 	{
 		length = val->size();
 		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
 		byteOffset = 0;
 		byteLength = buffer->byteLength;
 		memcpy(buffer->data, val->data(), buffer->byteLength);
+		if(!preserve) delete val;
 	}
 
 	~TypedArray() { delete buffer; }

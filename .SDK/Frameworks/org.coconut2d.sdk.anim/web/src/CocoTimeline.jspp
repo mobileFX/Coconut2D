@@ -26,6 +26,64 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
+//	   ______                 __ __           ______
+//	  / ____/___  _________  / //_/__  __  __/ ____/________ _____ ___  ___
+//	 / /   / __ \/ ___/ __ \/ ,< / _ \/ / / / /_  / ___/ __ `/ __ `__ \/ _ \
+//	/ /___/ /_/ / /__/ /_/ / /| /  __/ /_/ / __/ / /  / /_/ / / / / / /  __/
+//	\____/\____/\___/\____/_/ |_\___/\__, /_/   /_/   \__,_/_/ /_/ /_/\___/
+//	                                /____/
+// ==================================================================================================================================
+
+struct CocoKeyFrame
+{
+	frameIndex:Integer;
+	__frameIndex:Float;
+	frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM;
+	handleEvents:Boolean;
+	visible:Boolean;
+	filter:Integer;
+	red:Float;
+	green:Float;
+	blue:Float;
+	alpha:Float;
+	x:Float;
+	y:Float;
+	pivotX:Float;
+	pivotY:Float;
+	scaleX:Float;
+	scaleY:Float;
+	rotation:Float;
+	action:CocoAction;
+	nextState:State;
+	audio:CocoAudio;
+	flipH:Boolean;
+	flipV:Boolean;
+	spriteSequenceName:String;
+	__isCloned:Boolean;
+}
+
+// ==================================================================================================================================
+//	   ______               _______                __          __         __
+//	  / ____/___  _________/_  __(_)___ ___  ___  / /   ____ _/ /_  ___  / /
+//	 / /   / __ \/ ___/ __ \/ / / / __ `__ \/ _ \/ /   / __ `/ __ \/ _ \/ /
+//	/ /___/ /_/ / /__/ /_/ / / / / / / / / /  __/ /___/ /_/ / /_/ /  __/ /
+//	\____/\____/\___/\____/_/ /_/_/ /_/ /_/\___/_____/\__,_/_.___/\___/_/
+//
+// ==================================================================================================================================
+
+class CocoTimeLabel
+{
+	public var frameIndex:Integer;
+	public var name:String;
+
+	public function Constructor(FrameIndex:Integer, LabelName:String)
+	{
+		frameIndex = FrameIndex;
+		name = LabelName;
+	}
+}
+
+// ==================================================================================================================================
 //	   ______               _______                ___
 //	  / ____/___  _________/_  __(_)___ ___  ___  / (_)___  ___
 //	 / /   / __ \/ ___/ __ \/ / / / __ `__ \/ _ \/ / / __ \/ _ \
@@ -92,7 +150,8 @@ class CocoTimeline
 		__currentFrameIndex = -1;
 		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
 		{
-			__keyFrames[i].reset();
+			if(__keyFrames[i].audio)
+				__keyFrames[i].audio.reset();
 		}
 	}
 
@@ -314,7 +373,7 @@ class CocoTimeline
 
 	    	if(F1.frameIndex==iFrameIndex)
 	    	{
-	    		F1 = F1.clone(exact);
+	    		F1 = CloneKeyFrame(F1, exact);
 	    		F1.__frameIndex = frameIndex;
 	    		return F1;
 	    	}
@@ -323,14 +382,14 @@ class CocoTimeline
 	        {
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
 
-	            F = F1.clone(exact);
+	            F = CloneKeyFrame(F1, exact);
 	            F.frameIndex = iFrameIndex;
 	            F.__frameIndex = frameIndex;
 	            return F;
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 
-	            F = F1.clone(exact);
+	            F = CloneKeyFrame(F1, exact);
 	            F.frameIndex = iFrameIndex;
 	            F.__frameIndex = frameIndex;
 	            F.visible = false;
@@ -344,7 +403,7 @@ class CocoTimeline
 	            if(!F2)
 	            {
 	                // Fallback to echo
-	                F = F1.clone(exact);
+	                F = CloneKeyFrame(F1, exact);
 	                F.frameIndex = iFrameIndex;
 	                F.__frameIndex = frameIndex;
 	                return F;
@@ -352,7 +411,7 @@ class CocoTimeline
 	            else
 	            {
 	                // Interpolate between frames
-	                F = F1.clone(exact);
+	                F = CloneKeyFrame(F1, exact);
 	                F.frameIndex = iFrameIndex;
 	                F.__frameIndex = frameIndex;
 	                s = (frameIndex - Float(F1.frameIndex)) / Float(F2.frameIndex - F1.frameIndex);
@@ -365,6 +424,20 @@ class CocoTimeline
 	        }
 	    }
 	    return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function CloneKeyFrame(F:CocoKeyFrame, exact:Boolean) :CocoKeyFrame
+	{
+		var c:CocoKeyFrame = new CocoKeyFrame(F);
+		if(!exact)
+		{
+			c.action	= null;
+			c.nextState	= null;
+			c.audio		= null;
+		}
+		c.__isCloned = true;
+		return c;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

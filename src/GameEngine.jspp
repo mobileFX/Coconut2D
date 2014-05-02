@@ -24,11 +24,6 @@ state class GameEngine : CocoEngine implements IEventListener
 		setNextState(STATE_GAME);
 	}
 
-	public function mousedown(Sender:CocoEventSource, x:Float, y:Float) :Boolean
-	{
-		return true;
-	}
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
@@ -45,15 +40,16 @@ state class GameEngine : CocoEngine implements IEventListener
 
 			scene = new NewAnimation();
 
-			btn1 = new CocoUIButton("button1");
-			btn1.move(10, 10, 300, 60);
-			btn1.addEventListener(btn1.OnTouchStart, this, mousedown);
-			scene.__root.addChild(btn1);
+			//btn1 = new CocoUIButton("button1");
+			//btn1.move(10, 10, 300, 60);
+			//btn1.addEventListener(btn1.OnTouchStart, this, mousedown);
+			//scene.__root.addChild(btn1);
+            //
+			//btn2 = new CocoUIButton("button2");
+			//btn2.move(10, 100, 300, 60);
+			//btn2.addEventListener(btn2.OnTouchStart, this, mousedown);
+			//scene.__root.addChild(btn2);
 
-			btn2 = new CocoUIButton("button2");
-			btn2.move(10, 100, 300, 60);
-			btn2.addEventListener(btn2.OnTouchStart, this, mousedown);
-			scene.__root.addChild(btn2);
 		}
 
 		function exit()

@@ -218,6 +218,7 @@ class Global
 	undefined var Object :Object;
 	undefined var Array :Array;
 	undefined var Function :Function;
+	undefined var CocoAction :CocoAction;
 	undefined var Global :Global;
 	public var NaN :Number;
 	public var Infinity :Number;
@@ -260,6 +261,15 @@ class Global
 	 var RADIANS :Float;
 	 var BOX2D_SCALE :Float;
 	 var COCO_STOP_ON_CURRENT_FRAME :Integer;
+	undefined var SCREEN_RESOLUTION_DPI_ENUM :SCREEN_RESOLUTION_DPI_ENUM;
+	undefined var COCO_CLIP_SYMBOL_LOOP_ENUM :COCO_CLIP_SYMBOL_LOOP_ENUM;
+	undefined var COCO_KEYFRAME_INTERPOLATION_ENUM :COCO_KEYFRAME_INTERPOLATION_ENUM;
+	undefined var COCO_FILTER_ENUM :COCO_FILTER_ENUM;
+	undefined var COCO_TEXT_ALIGN_ENUM :COCO_TEXT_ALIGN_ENUM;
+	undefined var COCO_TEXT_TRIMMING_ENUM :COCO_TEXT_TRIMMING_ENUM;
+	undefined var COCO_CONTROL_BORDER_STYLE_ENUM :COCO_CONTROL_BORDER_STYLE_ENUM;
+	undefined var COCO_CONTROL_ANCHOR_ENUM :COCO_CONTROL_ANCHOR_ENUM;
+	undefined var COCO_SKIN_TILE_ENUM :COCO_SKIN_TILE_ENUM;
 	undefined var DeviceEvent :DeviceEvent;
 	undefined var Audio :Audio;
 	undefined var HTMLCanvasContext :HTMLCanvasContext;
@@ -287,19 +297,25 @@ class Global
 	undefined var WebGLTexture :WebGLTexture;
 	undefined var WebGLUniformLocation :WebGLUniformLocation;
 	undefined var CocoClip :CocoClip;
-	undefined var CocoKeyFrame :CocoKeyFrame;
+	undefined var CocoClipOnClickEvent :CocoClipOnClickEvent;
+	undefined var CocoClipOnDblClickEvent :CocoClipOnDblClickEvent;
+	undefined var CocoClipOnTouchStartEvent :CocoClipOnTouchStartEvent;
+	undefined var CocoClipOnTouchMoveEvent :CocoClipOnTouchMoveEvent;
+	undefined var CocoClipOnTouchEndEvent :CocoClipOnTouchEndEvent;
+	undefined var CocoClipOnTouchCancelEvent :CocoClipOnTouchCancelEvent;
+	undefined var CocoVector :CocoVector;
 	undefined var CocoMatrix :CocoMatrix;
-	undefined var CocoRect :CocoRect;
 	undefined var CocoScene :CocoScene;
-	undefined var CocoSequence :CocoSequence;
+	undefined var CocoKeyFrame :CocoKeyFrame;
 	undefined var CocoTimeLabel :CocoTimeLabel;
 	undefined var CocoTimeline :CocoTimeline;
-	undefined var CocoVector :CocoVector;
 	undefined var ITickable :ITickable;
 	undefined var CocoTickable :CocoTickable;
+	undefined var CocoRect :CocoRect;
 	undefined var CocoGraphics :CocoGraphics;
-	undefined var CocoImage :CocoImage;
+	undefined var CocoSequence :CocoSequence;
 	undefined var CocoImageSibling :CocoImageSibling;
+	undefined var CocoImage :CocoImage;
 	undefined var CocoTextStyle :CocoTextStyle;
 	undefined var CocoText :CocoText;
 	undefined var CocoEngine :CocoEngine;
@@ -327,6 +343,7 @@ class Global
 	undefined var TestIntegrator :TestIntegrator;
 	undefined var TestIntegratorClient :TestIntegratorClient;
 	undefined var TestEventSource :TestEventSource;
+	undefined var TestEventSourceOnDoneEvent :TestEventSourceOnDoneEvent;
 	undefined var TestEventListener :TestEventListener;
 	undefined var ITest1 :ITest1;
 	undefined var ITest2 :ITest2;
@@ -1478,443 +1495,45 @@ class CocoClip : CocoEventSource
 
 class CocoClipOnClickEvent : CocoEvent
 {
-	public function prepare(scene:CocoScene) {}
-	public function setText(text:String) {}
-	public function setText$1(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) {}
-	public function reset() {}
-	public function clear() {}
-	public function addChild(clipInstance:CocoClip) :CocoClip {}
-	public function removeChild(clipInstance:CocoClip) :CocoClip {}
-	private function normalize() {}
-	public function getChildByName(instanceName:String) :CocoClip {}
-	public function getChildIndex(child:CocoClip) :Integer {}
-	public function gotoFrameByName(LabelName:String, pause:Boolean) :Boolean {}
-	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean) :Boolean {}
-	private function __advanceTime(parentClipsDuration:Time) {}
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame) {}
-	private function apply(F:CocoKeyFrame, matrix:CocoMatrix) {}
-	public function hitTest(wx:Float, wy:Float) :Boolean {}
-	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
-	public function initBoundingBoxFromChildren(scene:CocoScene) {}
-	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public var __instanceName :String;
-	public var __clipPath :String;
-	public var __scene :CocoScene;
-	public var __image :CocoImage;
-	public var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
-	public var __children :Array<CocoClip>;
-	public var __timeline :CocoTimeline;
-	public var __parent :CocoClip;
-	public var text :String;
-	public var textFontName :String;
-	public var textFontSize :Integer;
-	public var textHAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textVAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textMultiline :Boolean;
-	public var textTrimming :COCO_TEXT_TRIMMING_ENUM;
-	public var textColor :String;
-	public var textWidth :Integer;
-	public var textHeight :Integer;
-	public var __currentTime :Time;
-	public var __loopTime :Time;
-	public var __loops :Integer;
-	public var __currentFrame :CocoKeyFrame;
-	public var __childWithMaxTimelineDuration :CocoClip;
-	public var __hasBoundingBox :Boolean;
-	public var __vABS_TOP_LEFT :CocoVector;
-	public var __vABS_TOP_RIGHT :CocoVector;
-	public var __vABS_BOTTOM_LEFT :CocoVector;
-	public var __vABS_BOTTOM_RIGHT :CocoVector;
-	public var __vREL_TOP_LEFT :CocoVector;
-	public var __vREL_TOP_RIGHT :CocoVector;
-	public var __vREL_BOTTOM_LEFT :CocoVector;
-	public var __vREL_BOTTOM_RIGHT :CocoVector;
-	public var __vTemp :CocoVector;
-	public var __mTemp :CocoMatrix;
-	private var __currentSequence :CocoSequence;
-	private var __currentAudio :CocoAudio;
-	public var OnClick :CocoClipOnClickEvent;
-	public var OnDblClick :CocoClipOnDblClickEvent;
-	public var OnTouchStart :CocoClipOnTouchStartEvent;
-	public var OnTouchMove :CocoClipOnTouchMoveEvent;
-	public var OnTouchEnd :CocoClipOnTouchEndEvent;
-	public var OnTouchCancel :CocoClipOnTouchCancelEvent;
 } //CocoClipOnClickEvent
 
 class CocoClipOnDblClickEvent : CocoEvent
 {
-	public function prepare(scene:CocoScene) {}
-	public function setText(text:String) {}
-	public function setText$1(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) {}
-	public function reset() {}
-	public function clear() {}
-	public function addChild(clipInstance:CocoClip) :CocoClip {}
-	public function removeChild(clipInstance:CocoClip) :CocoClip {}
-	private function normalize() {}
-	public function getChildByName(instanceName:String) :CocoClip {}
-	public function getChildIndex(child:CocoClip) :Integer {}
-	public function gotoFrameByName(LabelName:String, pause:Boolean) :Boolean {}
-	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean) :Boolean {}
-	private function __advanceTime(parentClipsDuration:Time) {}
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame) {}
-	private function apply(F:CocoKeyFrame, matrix:CocoMatrix) {}
-	public function hitTest(wx:Float, wy:Float) :Boolean {}
-	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
-	public function initBoundingBoxFromChildren(scene:CocoScene) {}
-	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public var __instanceName :String;
-	public var __clipPath :String;
-	public var __scene :CocoScene;
-	public var __image :CocoImage;
-	public var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
-	public var __children :Array<CocoClip>;
-	public var __timeline :CocoTimeline;
-	public var __parent :CocoClip;
-	public var text :String;
-	public var textFontName :String;
-	public var textFontSize :Integer;
-	public var textHAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textVAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textMultiline :Boolean;
-	public var textTrimming :COCO_TEXT_TRIMMING_ENUM;
-	public var textColor :String;
-	public var textWidth :Integer;
-	public var textHeight :Integer;
-	public var __currentTime :Time;
-	public var __loopTime :Time;
-	public var __loops :Integer;
-	public var __currentFrame :CocoKeyFrame;
-	public var __childWithMaxTimelineDuration :CocoClip;
-	public var __hasBoundingBox :Boolean;
-	public var __vABS_TOP_LEFT :CocoVector;
-	public var __vABS_TOP_RIGHT :CocoVector;
-	public var __vABS_BOTTOM_LEFT :CocoVector;
-	public var __vABS_BOTTOM_RIGHT :CocoVector;
-	public var __vREL_TOP_LEFT :CocoVector;
-	public var __vREL_TOP_RIGHT :CocoVector;
-	public var __vREL_BOTTOM_LEFT :CocoVector;
-	public var __vREL_BOTTOM_RIGHT :CocoVector;
-	public var __vTemp :CocoVector;
-	public var __mTemp :CocoMatrix;
-	private var __currentSequence :CocoSequence;
-	private var __currentAudio :CocoAudio;
-	public var OnClick :CocoClipOnClickEvent;
-	public var OnDblClick :CocoClipOnDblClickEvent;
-	public var OnTouchStart :CocoClipOnTouchStartEvent;
-	public var OnTouchMove :CocoClipOnTouchMoveEvent;
-	public var OnTouchEnd :CocoClipOnTouchEndEvent;
-	public var OnTouchCancel :CocoClipOnTouchCancelEvent;
 } //CocoClipOnDblClickEvent
 
 class CocoClipOnTouchStartEvent : CocoEvent
 {
-	public function prepare(scene:CocoScene) {}
-	public function setText(text:String) {}
-	public function setText$1(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) {}
-	public function reset() {}
-	public function clear() {}
-	public function addChild(clipInstance:CocoClip) :CocoClip {}
-	public function removeChild(clipInstance:CocoClip) :CocoClip {}
-	private function normalize() {}
-	public function getChildByName(instanceName:String) :CocoClip {}
-	public function getChildIndex(child:CocoClip) :Integer {}
-	public function gotoFrameByName(LabelName:String, pause:Boolean) :Boolean {}
-	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean) :Boolean {}
-	private function __advanceTime(parentClipsDuration:Time) {}
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame) {}
-	private function apply(F:CocoKeyFrame, matrix:CocoMatrix) {}
-	public function hitTest(wx:Float, wy:Float) :Boolean {}
-	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
-	public function initBoundingBoxFromChildren(scene:CocoScene) {}
-	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public var __instanceName :String;
-	public var __clipPath :String;
-	public var __scene :CocoScene;
-	public var __image :CocoImage;
-	public var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
-	public var __children :Array<CocoClip>;
-	public var __timeline :CocoTimeline;
-	public var __parent :CocoClip;
-	public var text :String;
-	public var textFontName :String;
-	public var textFontSize :Integer;
-	public var textHAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textVAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textMultiline :Boolean;
-	public var textTrimming :COCO_TEXT_TRIMMING_ENUM;
-	public var textColor :String;
-	public var textWidth :Integer;
-	public var textHeight :Integer;
-	public var __currentTime :Time;
-	public var __loopTime :Time;
-	public var __loops :Integer;
-	public var __currentFrame :CocoKeyFrame;
-	public var __childWithMaxTimelineDuration :CocoClip;
-	public var __hasBoundingBox :Boolean;
-	public var __vABS_TOP_LEFT :CocoVector;
-	public var __vABS_TOP_RIGHT :CocoVector;
-	public var __vABS_BOTTOM_LEFT :CocoVector;
-	public var __vABS_BOTTOM_RIGHT :CocoVector;
-	public var __vREL_TOP_LEFT :CocoVector;
-	public var __vREL_TOP_RIGHT :CocoVector;
-	public var __vREL_BOTTOM_LEFT :CocoVector;
-	public var __vREL_BOTTOM_RIGHT :CocoVector;
-	public var __vTemp :CocoVector;
-	public var __mTemp :CocoMatrix;
-	private var __currentSequence :CocoSequence;
-	private var __currentAudio :CocoAudio;
-	public var OnClick :CocoClipOnClickEvent;
-	public var OnDblClick :CocoClipOnDblClickEvent;
-	public var OnTouchStart :CocoClipOnTouchStartEvent;
-	public var OnTouchMove :CocoClipOnTouchMoveEvent;
-	public var OnTouchEnd :CocoClipOnTouchEndEvent;
-	public var OnTouchCancel :CocoClipOnTouchCancelEvent;
+	public var x :Float;
+	public var y :Float;
 } //CocoClipOnTouchStartEvent
 
 class CocoClipOnTouchMoveEvent : CocoEvent
 {
-	public function prepare(scene:CocoScene) {}
-	public function setText(text:String) {}
-	public function setText$1(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) {}
-	public function reset() {}
-	public function clear() {}
-	public function addChild(clipInstance:CocoClip) :CocoClip {}
-	public function removeChild(clipInstance:CocoClip) :CocoClip {}
-	private function normalize() {}
-	public function getChildByName(instanceName:String) :CocoClip {}
-	public function getChildIndex(child:CocoClip) :Integer {}
-	public function gotoFrameByName(LabelName:String, pause:Boolean) :Boolean {}
-	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean) :Boolean {}
-	private function __advanceTime(parentClipsDuration:Time) {}
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame) {}
-	private function apply(F:CocoKeyFrame, matrix:CocoMatrix) {}
-	public function hitTest(wx:Float, wy:Float) :Boolean {}
-	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
-	public function initBoundingBoxFromChildren(scene:CocoScene) {}
-	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public var __instanceName :String;
-	public var __clipPath :String;
-	public var __scene :CocoScene;
-	public var __image :CocoImage;
-	public var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
-	public var __children :Array<CocoClip>;
-	public var __timeline :CocoTimeline;
-	public var __parent :CocoClip;
-	public var text :String;
-	public var textFontName :String;
-	public var textFontSize :Integer;
-	public var textHAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textVAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textMultiline :Boolean;
-	public var textTrimming :COCO_TEXT_TRIMMING_ENUM;
-	public var textColor :String;
-	public var textWidth :Integer;
-	public var textHeight :Integer;
-	public var __currentTime :Time;
-	public var __loopTime :Time;
-	public var __loops :Integer;
-	public var __currentFrame :CocoKeyFrame;
-	public var __childWithMaxTimelineDuration :CocoClip;
-	public var __hasBoundingBox :Boolean;
-	public var __vABS_TOP_LEFT :CocoVector;
-	public var __vABS_TOP_RIGHT :CocoVector;
-	public var __vABS_BOTTOM_LEFT :CocoVector;
-	public var __vABS_BOTTOM_RIGHT :CocoVector;
-	public var __vREL_TOP_LEFT :CocoVector;
-	public var __vREL_TOP_RIGHT :CocoVector;
-	public var __vREL_BOTTOM_LEFT :CocoVector;
-	public var __vREL_BOTTOM_RIGHT :CocoVector;
-	public var __vTemp :CocoVector;
-	public var __mTemp :CocoMatrix;
-	private var __currentSequence :CocoSequence;
-	private var __currentAudio :CocoAudio;
-	public var OnClick :CocoClipOnClickEvent;
-	public var OnDblClick :CocoClipOnDblClickEvent;
-	public var OnTouchStart :CocoClipOnTouchStartEvent;
-	public var OnTouchMove :CocoClipOnTouchMoveEvent;
-	public var OnTouchEnd :CocoClipOnTouchEndEvent;
-	public var OnTouchCancel :CocoClipOnTouchCancelEvent;
+	public var x :Float;
+	public var y :Float;
 } //CocoClipOnTouchMoveEvent
 
 class CocoClipOnTouchEndEvent : CocoEvent
 {
-	public function prepare(scene:CocoScene) {}
-	public function setText(text:String) {}
-	public function setText$1(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) {}
-	public function reset() {}
-	public function clear() {}
-	public function addChild(clipInstance:CocoClip) :CocoClip {}
-	public function removeChild(clipInstance:CocoClip) :CocoClip {}
-	private function normalize() {}
-	public function getChildByName(instanceName:String) :CocoClip {}
-	public function getChildIndex(child:CocoClip) :Integer {}
-	public function gotoFrameByName(LabelName:String, pause:Boolean) :Boolean {}
-	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean) :Boolean {}
-	private function __advanceTime(parentClipsDuration:Time) {}
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame) {}
-	private function apply(F:CocoKeyFrame, matrix:CocoMatrix) {}
-	public function hitTest(wx:Float, wy:Float) :Boolean {}
-	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
-	public function initBoundingBoxFromChildren(scene:CocoScene) {}
-	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public var __instanceName :String;
-	public var __clipPath :String;
-	public var __scene :CocoScene;
-	public var __image :CocoImage;
-	public var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
-	public var __children :Array<CocoClip>;
-	public var __timeline :CocoTimeline;
-	public var __parent :CocoClip;
-	public var text :String;
-	public var textFontName :String;
-	public var textFontSize :Integer;
-	public var textHAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textVAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textMultiline :Boolean;
-	public var textTrimming :COCO_TEXT_TRIMMING_ENUM;
-	public var textColor :String;
-	public var textWidth :Integer;
-	public var textHeight :Integer;
-	public var __currentTime :Time;
-	public var __loopTime :Time;
-	public var __loops :Integer;
-	public var __currentFrame :CocoKeyFrame;
-	public var __childWithMaxTimelineDuration :CocoClip;
-	public var __hasBoundingBox :Boolean;
-	public var __vABS_TOP_LEFT :CocoVector;
-	public var __vABS_TOP_RIGHT :CocoVector;
-	public var __vABS_BOTTOM_LEFT :CocoVector;
-	public var __vABS_BOTTOM_RIGHT :CocoVector;
-	public var __vREL_TOP_LEFT :CocoVector;
-	public var __vREL_TOP_RIGHT :CocoVector;
-	public var __vREL_BOTTOM_LEFT :CocoVector;
-	public var __vREL_BOTTOM_RIGHT :CocoVector;
-	public var __vTemp :CocoVector;
-	public var __mTemp :CocoMatrix;
-	private var __currentSequence :CocoSequence;
-	private var __currentAudio :CocoAudio;
-	public var OnClick :CocoClipOnClickEvent;
-	public var OnDblClick :CocoClipOnDblClickEvent;
-	public var OnTouchStart :CocoClipOnTouchStartEvent;
-	public var OnTouchMove :CocoClipOnTouchMoveEvent;
-	public var OnTouchEnd :CocoClipOnTouchEndEvent;
-	public var OnTouchCancel :CocoClipOnTouchCancelEvent;
+	public var x :Float;
+	public var y :Float;
 } //CocoClipOnTouchEndEvent
 
 class CocoClipOnTouchCancelEvent : CocoEvent
 {
-	public function prepare(scene:CocoScene) {}
-	public function setText(text:String) {}
-	public function setText$1(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) {}
-	public function reset() {}
-	public function clear() {}
-	public function addChild(clipInstance:CocoClip) :CocoClip {}
-	public function removeChild(clipInstance:CocoClip) :CocoClip {}
-	private function normalize() {}
-	public function getChildByName(instanceName:String) :CocoClip {}
-	public function getChildIndex(child:CocoClip) :Integer {}
-	public function gotoFrameByName(LabelName:String, pause:Boolean) :Boolean {}
-	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean) :Boolean {}
-	private function __advanceTime(parentClipsDuration:Time) {}
-	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame) {}
-	private function apply(F:CocoKeyFrame, matrix:CocoMatrix) {}
-	public function hitTest(wx:Float, wy:Float) :Boolean {}
-	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float) {}
-	public function initBoundingBoxFromChildren(scene:CocoScene) {}
-	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public var __instanceName :String;
-	public var __clipPath :String;
-	public var __scene :CocoScene;
-	public var __image :CocoImage;
-	public var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
-	public var __children :Array<CocoClip>;
-	public var __timeline :CocoTimeline;
-	public var __parent :CocoClip;
-	public var text :String;
-	public var textFontName :String;
-	public var textFontSize :Integer;
-	public var textHAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textVAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textMultiline :Boolean;
-	public var textTrimming :COCO_TEXT_TRIMMING_ENUM;
-	public var textColor :String;
-	public var textWidth :Integer;
-	public var textHeight :Integer;
-	public var __currentTime :Time;
-	public var __loopTime :Time;
-	public var __loops :Integer;
-	public var __currentFrame :CocoKeyFrame;
-	public var __childWithMaxTimelineDuration :CocoClip;
-	public var __hasBoundingBox :Boolean;
-	public var __vABS_TOP_LEFT :CocoVector;
-	public var __vABS_TOP_RIGHT :CocoVector;
-	public var __vABS_BOTTOM_LEFT :CocoVector;
-	public var __vABS_BOTTOM_RIGHT :CocoVector;
-	public var __vREL_TOP_LEFT :CocoVector;
-	public var __vREL_TOP_RIGHT :CocoVector;
-	public var __vREL_BOTTOM_LEFT :CocoVector;
-	public var __vREL_BOTTOM_RIGHT :CocoVector;
-	public var __vTemp :CocoVector;
-	public var __mTemp :CocoMatrix;
-	private var __currentSequence :CocoSequence;
-	private var __currentAudio :CocoAudio;
-	public var OnClick :CocoClipOnClickEvent;
-	public var OnDblClick :CocoClipOnDblClickEvent;
-	public var OnTouchStart :CocoClipOnTouchStartEvent;
-	public var OnTouchMove :CocoClipOnTouchMoveEvent;
-	public var OnTouchEnd :CocoClipOnTouchEndEvent;
-	public var OnTouchCancel :CocoClipOnTouchCancelEvent;
-} //CocoClipOnTouchCancelEvent
-
-class CocoKeyFrame
-{
-	public function clone(exact:Boolean) :CocoKeyFrame {}
-	public function reset() {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public var frameIndex :Integer;
-	public var __frameIndex :Float;
-	public var frameInterpolation :COCO_KEYFRAME_INTERPOLATION_ENUM;
-	public var handleEvents :Boolean;
-	public var visible :Boolean;
-	public var filter :Integer;
-	public var red :Float;
-	public var green :Float;
-	public var blue :Float;
-	public var alpha :Float;
 	public var x :Float;
 	public var y :Float;
-	public var pivotX :Float;
-	public var pivotY :Float;
-	public var scaleX :Float;
-	public var scaleY :Float;
-	public var rotation :Float;
-	public var action :CocoAction;
-	public var nextState :State;
-	public var audio :CocoAudio;
-	public var flipH :Boolean;
-	public var flipV :Boolean;
-	public var spriteSequenceName :String;
-	private var __isCloned :Boolean;
-} //CocoKeyFrame
+} //CocoClipOnTouchCancelEvent
+
+class CocoVector
+{
+	public function reset(x:Float, y:Float, z:Float, w:Float) {}
+	public function Constructor() {}
+	public var X :Float;
+	public var Y :Float;
+	public var Z :Float;
+	public var W :Float;
+} //CocoVector
 
 class CocoMatrix
 {
@@ -1954,14 +1573,6 @@ class CocoMatrix
 	public var __data :Float32Array;
 	public var __dirty :Boolean;
 } //CocoMatrix
-
-class CocoRect
-{
-	public var left :Float;
-	public var top :Float;
-	public var right :Float;
-	public var bottom :Float;
-} //CocoRect
 
 class CocoScene
 {
@@ -2008,14 +1619,33 @@ class CocoScene
 	public var __finished :Boolean;
 } //CocoScene
 
-class CocoSequence
+class CocoKeyFrame
 {
-	public function Destructor() {}
-	public function Constructor(name:String, framesArray:Array<Integer>) {}
-	public var name :String;
-	public var frames :Array<Integer>;
-	public var sequenceStartTime :Time;
-} //CocoSequence
+	public var frameIndex :Integer;
+	public var __frameIndex :Float;
+	public var frameInterpolation :COCO_KEYFRAME_INTERPOLATION_ENUM;
+	public var handleEvents :Boolean;
+	public var visible :Boolean;
+	public var filter :Integer;
+	public var red :Float;
+	public var green :Float;
+	public var blue :Float;
+	public var alpha :Float;
+	public var x :Float;
+	public var y :Float;
+	public var pivotX :Float;
+	public var pivotY :Float;
+	public var scaleX :Float;
+	public var scaleY :Float;
+	public var rotation :Float;
+	public var action :CocoAction;
+	public var nextState :State;
+	public var audio :CocoAudio;
+	public var flipH :Boolean;
+	public var flipV :Boolean;
+	public var spriteSequenceName :String;
+	public var __isCloned :Boolean;
+} //CocoKeyFrame
 
 class CocoTimeLabel
 {
@@ -2041,6 +1671,7 @@ class CocoTimeline
 	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
 	public function findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame {}
 	public function interpolate(frameIndex:Float) :CocoKeyFrame {}
+	private function CloneKeyFrame(F:CocoKeyFrame, exact:Boolean) :CocoKeyFrame {}
 	private function interpolate$1(F:CocoKeyFrame, F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float) {}
 	public function Destructor() {}
 	public function Constructor() {}
@@ -2055,16 +1686,6 @@ class CocoTimeline
 	public var __firstKeyFrameIndex :Integer;
 	public var __lastKeyFrameIndex :Integer;
 } //CocoTimeline
-
-class CocoVector
-{
-	public function reset(x:Float, y:Float, z:Float, w:Float) {}
-	public function Constructor() {}
-	public var X :Float;
-	public var Y :Float;
-	public var Z :Float;
-	public var W :Float;
-} //CocoVector
 
 class ITickable
 {
@@ -2082,6 +1703,14 @@ class CocoTickable
 	public function Constructor() {}
 } //CocoTickable
 
+class CocoRect
+{
+	public var left :Float;
+	public var top :Float;
+	public var right :Float;
+	public var bottom :Float;
+} //CocoRect
+
 class CocoGraphics
 {
 	public function createTextTexture(scene:CocoScene, text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) :CocoImage {}
@@ -2096,6 +1725,24 @@ class CocoGraphics
 	public function Destructor() {}
 	public function Constructor() {}
 } //CocoGraphics
+
+class CocoSequence
+{
+	public function Destructor() {}
+	public function Constructor(name:String, framesArray:Array<Integer>) {}
+	public var name :String;
+	public var frames :Array<Integer>;
+	public var sequenceStartTime :Time;
+} //CocoSequence
+
+class CocoImageSibling
+{
+	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float) {}
+	public var url :String;
+	public var pixelRatio :Float;
+	public var textureWidth :Float;
+	public var textureHeight :Float;
+} //CocoImageSibling
 
 class CocoImage
 {
@@ -2124,15 +1771,6 @@ class CocoImage
 	public var viewSiblings :Array<CocoImageSibling>;
 	public var pixelRatio :Float;
 } //CocoImage
-
-class CocoImageSibling
-{
-	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float) {}
-	public var url :String;
-	public var pixelRatio :Float;
-	public var textureWidth :Float;
-	public var textureHeight :Float;
-} //CocoImageSibling
 
 class CocoTextStyle
 {
@@ -2343,7 +1981,6 @@ class CocoUIView : CocoClip
 class CocoUIPageView : CocoUIView
 {
 	public function addChild(clipInstance:CocoClip) :CocoClip {}
-	public function invalidateControls() {}
 	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
 	public function Destructor() {}
 	public function Constructor() {}
@@ -2473,7 +2110,6 @@ class CocoUITextBox : CocoUIControl
 
 class GameEngine : CocoEngine
 {
-	public function mousedown(Sender:CocoEventSource, x:Float, y:Float) :Boolean {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public var scene :CocoScene;
@@ -2514,15 +2150,13 @@ class TestEventSource : CocoEventSource
 
 class TestEventSourceOnDoneEvent : CocoEvent
 {
-	public function work() {}
-	public function Constructor(id:String) {}
-	public var id :String;
-	public var OnDone :TestEventSourceOnDoneEvent;
+	public var a :String;
+	public var b :Float;
 } //TestEventSourceOnDoneEvent
 
 class TestEventListener
 {
-	public function done(sender:TestEventSource, e:CocoEvent, a:String, b:Float) :Boolean {}
+	public function done(sender:TestEventSource, e:TestEventSourceOnDoneEvent, a:String, b:Float) :Boolean {}
 	public function Destructor() {}
 	public function Constructor() {}
 	private var worker :TestEventSource;

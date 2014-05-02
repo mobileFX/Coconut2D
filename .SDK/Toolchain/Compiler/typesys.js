@@ -127,6 +127,24 @@ function CompilerTypeSystemPlugin(compiler)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getDefaultVartypeValue = function(vartype)
+	{
+		if(!vartype) return null;
+		if(__exists(_this.types, vartype) && __exists(_this.types[vartype], "default"))
+			return _this.types[vartype].default;
+		var cls = _this.getClass(vartype);
+		if(!cls) return null;
+		if(cls.enum)
+		{
+			for(item in cls.vars)
+			{
+				return cls.vars[item].value;
+			}
+		}
+		return null;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// For typed arrays (eg. Array<Integer>, Array<String>, Array<MyClass> return subtype.
 	_this.getSubType = function(vartype)
 	{
@@ -197,6 +215,11 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.NEW_WITH_ARGS:
 
 			if(!ast[0].symbol) ast[0].symbol = _this.LookupIdentifier(ast.inFunction.scope, ast[0].value, ast[0], true);
+			if(!ast[0].symbol)
+			{
+				_this.NewError("Symbol not found: " + ast[0].value, ast[0]);
+				throw new Error("Compiler Error");
+			}
 			return ast[0].symbol.name;
 
 		//=============================================================================================================================

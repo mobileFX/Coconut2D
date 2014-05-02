@@ -338,9 +338,9 @@ class CocoScene
 		    	//__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
 		    	//engine.__debug_trace(this, null, "@CYCLE");
 				__modelViewMatrix.identity();
-		    	__levelParents = [__root];
+		    	__levelParents.push(__root);
 				__root.paint(gl, this, null, false, 0);
-				__levelParents = [];
+				__levelParents.clear();
 				var max:CocoClip = __root.__childWithMaxTimelineDuration;
 				if(max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
 				{

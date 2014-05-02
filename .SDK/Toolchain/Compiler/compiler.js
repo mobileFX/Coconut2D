@@ -135,13 +135,16 @@
 	==========
 
 	- Bug in V8 prevents breakpoints if block statements starts with jsdef.NEW/NEW_WITH_ARGS assignment (jsflags --inline-new=false)
-	- Proper support for ENUMS
-	- Add interfaces
-	- Add events
+	- Proper support for ENUMS (need to check class-level enums)
+	- Consts must become read-only properties
+	- Delegation properties delegation and checks
+	- x = new Array<type> must check against x symbol for subtype
+	- Return path does not produce errors\
 	- IMPORTANT: Need to detect jsdef.NEW and jsdef.NEW_WITH_ARGS inside method calls that produce memory leaks in
 			     C++ and issue warnings. Possible define a weak_new operator and pass delete obligation to consumer?
 	- IMPORTANT: State exit must deallocate local state variables.
-	- Consts must become read-only properties
+	- CocoUIPageView::invalidateControls
+	- check for loops that have i < somehting.size()
 
 */
 
@@ -634,6 +637,55 @@ function Compiler(ast, exportSymbols, selectedClass)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/*
+	// Create a scope for entities that do NOT have an ast
+	_this.NewClassTypeScope = function(classSymbol)
+	{
+		var scope = null;
+
+		if(_this.secondPass)
+		{
+			scope = classSymbol.scope;
+		}
+		else
+		{
+			scope = new Scope();
+
+			scope.scopeId		= (++_this.scopeId);
+			scope.name			= classSymbol.name;
+			scope.parentScope	= _this.scopesStack[0];
+			scope.childScopes	= [];
+			scope.ast			= null;
+			scope.className		= classSymbol.name;
+			scope.type			= jsdef.CLASS;
+			scope.nodeType		= classSymbol.nodeType;
+			scope.isGlobal		= false;
+			scope.isClass		= true;
+			scope.isMethod		= false;
+			scope.state			= false;
+			scope.file			= classSymbol.file;
+			scope.path			= classSymbol.path;
+			scope.start			= classSymbol.start;
+			scope.end			= classSymbol.end;
+			scope.line_start	= classSymbol.line_start;
+			scope.line_end		= classSymbol.line_end;
+			scope.vars			= new Object();
+			scope.methods		= new Object();
+			scope.vartypes		= new Object();
+
+			_this.scopesStack[0].childScopes.push(scope);
+			classSymbol.scope = scope;
+		}
+
+        // Push scope to scope stack and scope table.
+		_this.scopesTable.push(scope);
+		_this.scopesStack.push(scope);
+
+		return scope;
+	}
+	*/
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.ExitScope = function()
 	{
 		return _this.scopesStack.pop();
@@ -778,7 +830,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 		}
 
 		// Search base class members
-		if(!symbol && scope.isClass && scope.ast.symbol && scope.ast.symbol.baseSymbol)
+		if(!symbol && scope.isClass && scope.ast && scope.ast.symbol && scope.ast.symbol.baseSymbol)
 		{
 			symbol = _this.LookupScopeChain(identifier, scope.ast.symbol.baseSymbol.scope, deep);
 		}
@@ -949,6 +1001,151 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 		switch(ast.type)
 		{
+		// ==================================================================================================================================
+		//	    _   _____    __  ______________ ____  ___   ____________
+		//	   / | / /   |  /  |/  / ____/ ___// __ \/   | / ____/ ____/
+		//	  /  |/ / /| | / /|_/ / __/  \__ \/ /_/ / /| |/ /   / __/
+		//	 / /|  / ___ |/ /  / / /___ ___/ / ____/ ___ / /___/ /___
+		//	/_/ |_/_/  |_/_/  /_/_____//____/_/   /_/  |_\____/_____/
+		//
+		// ==================================================================================================================================
+		/*@@ NAMESPACE @@*/
+
+		case jsdef.NAMESPACE:
+			break;
+
+		// ==================================================================================================================================
+		//	   _____ __                  __
+		//	  / ___// /________  _______/ /_
+		//	  \__ \/ __/ ___/ / / / ___/ __/
+		//	 ___/ / /_/ /  / /_/ / /__/ /_
+		//	/____/\__/_/   \__,_/\___/\__/
+		//
+		// ==================================================================================================================================
+		/*@@ STRUCT @@*/
+
+		case jsdef.STRUCT:
+			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
+			var scope = _this.NewScope(ast);
+			ast.fileClasses = _this.fileClasses;
+
+			out.push("var " + ast.name + " = {");
+
+			// Struct Symbol
+			var classSymbol = new ClassSymbol();
+			{
+				classSymbol.symbolId			= (++_this.symbolId);
+				classSymbol.name				= ast.name;
+				classSymbol.vartype				= ast.name;
+				classSymbol.subtype				= null;
+				classSymbol.classId				= classId;
+				classSymbol.base				= null;
+				classSymbol.baseSymbol			= null;
+				classSymbol.bases 				= [];
+				classSymbol.interfaces			= []
+				classSymbol.events				= {};
+				classSymbol.__event_bindings	= [];
+				classSymbol.__event_unbindings	= [];
+				classSymbol.__event_fire		= [];
+				classSymbol.type				= jsdef.CLASS;
+				classSymbol.nodeType			= "STRUCT";
+				classSymbol.extern				= (ast.file=="externs.jspp");
+				classSymbol.control				= false;
+				classSymbol._prototype			= false;
+				classSymbol.enum				= false;
+				classSymbol.state				= false;
+				classSymbol.callback			= false;
+				classSymbol.interface			= false;
+				classSymbol.struct				= true;
+				classSymbol.ast					= ast;
+				classSymbol.scope				= scope;
+				classSymbol.file				= ast.file;
+				classSymbol.path				= ast.path;
+				classSymbol.start				= ast.start;
+				classSymbol.end					= ast.end;
+				classSymbol.line_start			= ast.line_start;
+				classSymbol.line_end			= ast.line_end;
+				classSymbol.scopeId				= scope.scopeId;
+				classSymbol.vars				= scope.vars;
+				classSymbol.methods	 			= scope.methods;
+				classSymbol.runtime				= ast.name;
+				classSymbol.icon				= _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
+			}
+
+			// Save symbol
+			ast.symbol = classSymbol;
+			_this.classes[ast.name] = classSymbol;
+			_this.scopesStack[0].vars[classSymbol.name] = classSymbol;
+
+			// Set members
+			var items = [];
+			for(item in ast)
+			{
+				if(!isFinite(item)) break;
+				ast[item].pointer = __isPointer(ast[item].vartype);
+
+				// Var Symbol
+				var varSymbol = new VarSymbol();
+				{
+					varSymbol.symbolId		= (++_this.symbolId);
+					varSymbol.name			= ast[item].name;
+					varSymbol.value			= _this.getDefaultVartypeValue(ast[item].vartype);
+					varSymbol.type			= ast[item].type;
+					varSymbol.nodeType		= ast[item].nodeType;
+					varSymbol.classId		= classId;
+					varSymbol.extern		= (ast.file=="externs.jspp");
+					varSymbol.public		= true;
+					varSymbol.private		= false;
+					varSymbol.protected		= false;
+					varSymbol.static		= false;
+					varSymbol.optional		= false;
+					varSymbol.virtual		= false;
+					varSymbol.abstract		= false;
+					varSymbol.delegate		= false;
+					varSymbol.event			= false;
+					varSymbol.constant		= false;
+					varSymbol.ast			= ast[item];
+					varSymbol.scope			= ast.scope;
+					varSymbol.baseSymbol	= null;
+					varSymbol.file			= ast[item].file;
+					varSymbol.path			= ast[item].path;
+					varSymbol.start			= ast[item].start;
+					varSymbol.end			= ast[item].end;
+					varSymbol.line_start	= ast[item].line_start;
+					varSymbol.line_end		= ast[item].line_end;
+					varSymbol.scopeId		= ast.scope.scopeId;
+					varSymbol.vartype		= ast[item].vartype;
+					varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(ast[item].vartype);
+					varSymbol.pointer		= ast[item].pointer;
+					varSymbol.icon 			= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
+					varSymbol.modifier 		= "public";
+					varSymbol.runtime 		= classId + "." + ast[item].name;
+				}
+
+	            if(ast[item].vartype == "Array" && !ast[item].subtype)
+	            	_this.NewError("Untyped Array " + ast[item].name, ast[item]);
+
+				// Detect if identifier vartype is a typed array and get subtype.
+				if(!varSymbol.subtype && varSymbol.vartype)
+				{
+					var vtcls = _this.getClass(varSymbol.vartype);
+					if(vtcls && vtcls.subtype)
+						varSymbol.subtype = vtcls.subtype;
+				}
+
+	            // Save var in scopes
+				ast[item].symbol = varSymbol;
+				ast.scope.vars[ast[item].name] = varSymbol;
+
+				// Generate
+				items.push(ast[item].name + ": null");
+			}
+
+			out.push(items.join(",") + "};");
+
+			_this.ExitScope();
+			_this.addCodeToClassFile(ast.path, out.join("\n"));
+			break;
 
 		// ==================================================================================================================================
 		//	   ________
@@ -957,132 +1154,10 @@ function Compiler(ast, exportSymbols, selectedClass)
 		//	/ /___/ / /_/ (__  |__  )
 		//	\____/_/\__,_/____/____/
 		//
+		//
+		// Open Readme.txt to understand how classes are implemented.
+		//
 		// ==================================================================================================================================
-		/*//////////////////////////////////////////////////////////////////////////////////////////////
-
-		Defining a class and inheritance in plain JavaScript:
-		=====================================================
-
-		The basic idea (as derived from Roger Poon's JavaScript++) is to have an outer JavaScript function
-		returning an inner function that represents the Class. The reason we use the outer/inner functions
-		is because we need to run special code that will actually prepare the object instance (eg. virtual
-		functions) and this cannot be done by prototype alone. When calling the outer function with the
-		"new" operator the result is an instnace of the inner function.	To implement inheritance we use the
-		good old prototypes, as demonstrated below. Our compiler's work is to construct the inner and outer
-		functions based on the AST class definition and to properly apply inheritance. Using the prototype
-		ensures that each new class instance will start with an EXACT copy of the base class. The compiler
-		applies minimal post-processing for inheritance-related things that are missing from the prototype
-		mechanics such as virtual functions, overloaded methods, etc.
-
-		Constructing the Class and then the object instance with the "new" operator is one thing. Running
-		the object is another. We need to find an elaborate way of implementing private and protected
-		entities such as vars, consts, functions, enums, properties, states, etc. We therefore need to
-		define a __PRIVATE__ and a __PROTECTED__ bank in the inner class function for keeping class members
-		in there. For static entities (vars, consts, functions, properties), we also define a __PRIVATE__
-		and a __PROTECTED__ bank on the outer class function.
-
-		Next we have to resolve runtime symbols, or in other words recognize jsdef.IDENTIFIER(s) and produce
-		an access path. For example, when we type "this.walk()" in the class source code we need to resolve
-		all the identifiers into their canonical form taking into account base clases, which could resolve to
-		"__CLASS_DOG__.__CLASS_MAMAL__.__CLASS_ANIMAL__.walk()". Resolving identifiers is the most tricky
-		bit of this compiler and the most time-consuming because it performs several lookups.
-
-		But let's start with the basics. Copy-paste this code in Chrome or any other JavaScript testing
-		tool and examine/run it to understand the principles of JavaScript inheritance:
-
-		function Class1()
-		{
-			function Class1(base)
-			{
-				this.x = 1;
-				return this;
-			}
-			var base = new Class2;
-			Class1.prototype = base;
-			return new Class1(base);
-		}
-
-		function Class2()
-		{
-			function Class2(base)
-			{
-				this.y = 2;
-				return this;
-			}
-			var base = new Class3;
-			Class2.prototype = base;
-			return new Class2(base);
-		}
-
-		function Class3()
-		{
-			function Class3(base)
-			{
-				this.z = 3;
-				return this;
-			}
-			return new Class3(null);
-		}
-
-		var o1 = new Class1;
-		console.log(o1.x + ", " + o1.y + ", " + o1.z);
-		o1.x=100; o1.y=200; o1.z=300;
-		console.log(o1.x + ", " + o1.y + ", " + o1.z);
-
-		var o2 = new Class1;
-		console.log(o2.x + ", " + o2.y + ", " + o2.z);
-		console.log(o1.x + ", " + o1.y + ", " + o1.z);
-
-		var o3 = new Class2;
-		console.log(o3.x + ", " + o3.y + ", " + o3.z);
-
-		=====================================================
-		   *** How virtual functions are implemented ***
-		=====================================================
-
-		In C++ a virtual method is being replaced by the the implementation of the derived class.
-		Any call to the virtual method either by the derived class or by the base class, calls the
-		implementation of the derived class, UNLESS you explicitly ask for BaseClass::VirtualMethod
-		like the example in goo() below which calls "Class1::foo();". Access to the replaced method
-		by the derived class is achieved only by using "super" keyword. Let us implement this in
-		JavaScript...
-
-		#include <iostream>
-		using namespace std;
-
-		class Class1
-		{
-		public:
-			void goo()
-			{
-				Class1::foo();
-				foo();
-			}
-			virtual void foo()
-			{
-				cout << "Class1::foo\n";
-			}
-		};
-
-		class Class2 : public Class1
-		{
-		public:
-			void foo()
-			{
-				cout << "Class2::foo\n";
-			}
-		};
-
-		int main()
-		{
-			Class2* obj = new Class2();
-			obj->goo();
-			obj->foo();
-			obj->Class1::foo();   //TODO: should implement this at some point
-			return 0;
-		}
-
-		//////////////////////////////////////////////////////////////////////////////////////////////*/
 		/*@@ CLASS @@*/
 
 		case jsdef.INTERFACE:
@@ -1133,38 +1208,41 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Class Symbol
 			var classSymbol = new ClassSymbol();
 			{
-				classSymbol.symbolId	= (++_this.symbolId);
-				classSymbol.name		= ast.name;
-				classSymbol.vartype		= ast.name;
-				classSymbol.subtype		= ast.subtype;
-				classSymbol.classId		= classId;
-				classSymbol.base		= baseClass;
-				classSymbol.baseSymbol	= baseClassSymbol;
-				classSymbol.bases 		= [baseClassSymbol];//Must be filled with all the base classes
-				classSymbol.interfaces	= ast.interfaces;
-				classSymbol.events		= {};
-				classSymbol.type		= jsdef.CLASS;
-				classSymbol.nodeType	= ast.nodeType;
-				classSymbol.extern		= (ast.file=="externs.jspp");
-				classSymbol.control		= ast.control;
-				classSymbol._prototype	= false;
-				classSymbol.enum		= false;
-				classSymbol.state		= ast.state;
-				classSymbol.callback	= false;
-				classSymbol.interface	= ast.type==jsdef.INTERFACE;
-				classSymbol.ast			= ast;
-				classSymbol.scope		= scope;
-				classSymbol.file		= ast.file;
-				classSymbol.path		= ast.path;
-				classSymbol.start		= ast.start;
-				classSymbol.end			= ast.end;
-				classSymbol.line_start	= ast.line_start;
-				classSymbol.line_end	= ast.line_end;
-				classSymbol.scopeId		= scope.scopeId;
-				classSymbol.vars		= scope.vars;
-				classSymbol.methods	 	= scope.methods;
-				classSymbol.runtime		= ast.name;
-				classSymbol.icon		= ast.type==jsdef.INTERFACE ? _this.CODE_SYMBOLS_ENUM.SYMBOL_INTERFACE : _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
+				classSymbol.symbolId			= (++_this.symbolId);
+				classSymbol.name				= ast.name;
+				classSymbol.vartype				= ast.name;
+				classSymbol.subtype				= ast.subtype;
+				classSymbol.classId				= classId;
+				classSymbol.base				= baseClass;
+				classSymbol.baseSymbol			= baseClassSymbol;
+				classSymbol.bases 				= [baseClassSymbol];//Must be filled with all the base classes
+				classSymbol.interfaces			= ast.interfaces;
+				classSymbol.events				= {};
+				classSymbol.__event_bindings	= [];
+				classSymbol.__event_unbindings	= [];
+				classSymbol.__event_fire		= [];
+				classSymbol.type				= jsdef.CLASS;
+				classSymbol.nodeType			= ast.nodeType;
+				classSymbol.extern				= (ast.file=="externs.jspp");
+				classSymbol.control				= ast.control;
+				classSymbol._prototype			= false;
+				classSymbol.enum				= false;
+				classSymbol.state				= ast.state;
+				classSymbol.callback			= false;
+				classSymbol.interface			= ast.type==jsdef.INTERFACE;
+				classSymbol.ast					= ast;
+				classSymbol.scope				= scope;
+				classSymbol.file				= ast.file;
+				classSymbol.path				= ast.path;
+				classSymbol.start				= ast.start;
+				classSymbol.end					= ast.end;
+				classSymbol.line_start			= ast.line_start;
+				classSymbol.line_end			= ast.line_end;
+				classSymbol.scopeId				= scope.scopeId;
+				classSymbol.vars				= scope.vars;
+				classSymbol.methods	 			= scope.methods;
+				classSymbol.runtime				= ast.name;
+				classSymbol.icon				= ast.type==jsdef.INTERFACE ? _this.CODE_SYMBOLS_ENUM.SYMBOL_INTERFACE : _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
 			}
 
 			// Save symbol
@@ -1407,8 +1485,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// A class acts as a wrapper for delegate objects and at compile-time we need to
 			// generate wrapper methods for the delegated members.
 
-			/*@@ Delegates @@*/
-
 			if(_this.secondPass)
 			{
 				for(item in classSymbol.vars)
@@ -1628,7 +1704,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			}
 
 			/////////////////////////////////////////////////////////////////////////////////
-			// Type Checks
+			// Class-specific Type Checks
 			/////////////////////////////////////////////////////////////////////////////////
 			if(_this.secondPass)
 			{
@@ -1643,7 +1719,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 					}
 				}
 
+				// ================================================================
 				// If this class has object members we need a Destructor
+				// ================================================================
 				var hasObjectMembers = false;
 				for(item in classSymbol.vars)
 				{
@@ -1656,7 +1734,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 				if(hasObjectMembers && !destructor && !classSymbol.extern)
 					_this.NewError("Missing Destructor: " + ast.name, ast);
 
+				// ================================================================
 				// Check interface
+				// ================================================================
 				if(ast.type==jsdef.INTERFACE)
 				{
 					for(item in classSymbol.methods)
@@ -1672,7 +1752,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 					}
 				}
 
+				// ================================================================
 				// Check interface implementation
+				// ================================================================
 				if(classSymbol.interfaces.length)
 				{
 					function checkInterface(interfaceName)
@@ -1706,6 +1788,119 @@ function Compiler(ast, exportSymbols, selectedClass)
 					for(i=0;i<classSymbol.interfaces.length;i++)
 					{
 						checkInterface(classSymbol.interfaces[i]);
+					}
+				}
+
+				// ================================================================
+				// Check Events
+				// ================================================================
+				if(_this.secondPass)
+				{
+					// Check addEventListener and callback function that binary-match
+					// Also check that for every addEventListener there is a removeEventListener
+					// Finally creates references between event handlers and events that will
+					// be used in C++ generation.
+
+					var event_hander_id = 0;
+
+					for(i=0;i<classSymbol.__event_bindings.length;i++)
+					{
+						// Get an addEventListener statement
+						var addEventListener = classSymbol.__event_bindings[i];
+
+						// Get the event name
+						var eventName = _this.getTypeName(addEventListener.inDot.parent[1][0]);
+						if(!eventName) continue;
+
+						// Get the event class
+						var eventClass = _this.getClass(eventName);
+						if(!eventClass)
+						{
+							_this.NewError("Event class " + eventName + " not found", addEventListener);
+							continue;
+						}
+						if(eventClass.base!="CocoEvent") continue;
+
+						// Get the event handler AST
+						var bind_handler = addEventListener.inDot.parent[1][2];
+
+						// Compare event-descriptor and event-handler signatures
+						if(bind_handler.symbol.__typedParamsList!=eventClass.__typedParamsList)
+							_this.NewError("Invalid event handler signaute: " + eventClass.runtime, bind_handler.symbol.ast);
+
+						// Every addEventListener must have a removeEventListener
+						var found = false;
+						var removeEventListener = null;
+						for(j=0;j<classSymbol.__event_unbindings.length;j++)
+						{
+							// Get an removeEventListener statement
+							removeEventListener = classSymbol.__event_unbindings[j];
+
+							// Get the event name
+							var type = _this.getTypeName(removeEventListener.inDot.parent[1][0]);
+							if(type!=eventName) continue;
+
+							// Get the event handler AST
+							var unbind_handler = removeEventListener.inDot.parent[1][2];
+
+							if(unbind_handler.symbol==bind_handler.symbol)
+							{
+								found = true;
+								break;
+							}
+						}
+
+						if(!found)
+							_this.NewWarning("addEventListener without removeEventListener for event: " + eventClass.runtime, bind_handler);
+
+						// Link event handler with the event class symbol
+						if(!bind_handler.event_binders) bind_handler.event_binders = [];
+						if(!bind_handler.event_unbinders) bind_handler.event_unbinders = [];
+
+						bind_handler.event_handler_of = eventClass;
+						bind_handler.event_binders.push(addEventListener);
+
+						addEventListener.event_class = eventClass;
+						addEventListener.event_callback = bind_handler.symbol;
+
+						if(removeEventListener)
+						{
+							removeEventListener.event_class = eventClass;
+							removeEventListener.event_callback = bind_handler.symbol;
+							bind_handler.event_unbinders.push(removeEventListener);
+						}
+
+						bind_handler.event_hander_id = (++event_hander_id);
+					}
+
+					// Check dispatchEvent that matches event descriptor
+					for(i=0;i<classSymbol.__event_fire.length;i++)
+					{
+						// Get an addEventListener statement
+						var dispatchEvent = classSymbol.__event_fire[i];
+
+						// Get the event name
+						var list = (dispatchEvent.inDot ? dispatchEvent.inDot.parent : dispatchEvent.inCall)[1];
+						var eventName =_this.getTypeName(list[0]);
+						if(!eventName) continue;
+
+						// Get the event class
+						var eventClass = _this.getClass(eventName);
+						if(!eventClass)
+						{
+							_this.NewError("Event class " + eventName + " not found", dispatchEvent);
+							continue;
+						}
+						if(eventClass.base!="CocoEvent") continue;
+
+						j=0;
+						for(item in eventClass.vars)
+						{
+							var type1 = eventClass.vars[item].vartype;
+							var type2 = _this.getTypeName(list[j+1]);
+							_this.typeCheck(dispatchEvent, type1, type2, "Event handler argument type mismatch: "+type1+" and "+type2);
+							j++;
+						}
 					}
 				}
 			}
@@ -1767,7 +1962,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 					// During generation the functions are generated as foo, foo$1, foo$2, etc.
 					// and the compiler during identifier recognition decides which overload
 					// function to bind.
-					/*@@ Overloads (Detection) @@*/
 
 					if(fn_ast.overloads==null)
 					{
@@ -1993,7 +2187,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// =================================================================
 			// Process overloaded functions once all overloads are generated.
 			// =================================================================
-			/*@@ Overloads (Finalization) @@*/
 
 			if(_this.secondPass && ast.overloadOf && ast.overload_name==ast.overloadOf.name+"$"+ast.overloadOf.overloads.length && !ast.symbol.overloads)
 			{
@@ -2187,7 +2380,7 @@ function Compiler(ast, exportSymbols, selectedClass)
   				// Virtual Function
 				// =================================================================
 
-				/*@@ Virtuals (Generation) @@*/
+				/*@@ ( virtual ) @@*/
 
   				else if(baseMethodSymbol && baseMethodSymbol.virtual)
   				{
@@ -2398,7 +2591,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				{
 					varSymbol.symbolId		= (++_this.symbolId);
 					varSymbol.name			= ast[item].name;
-					varSymbol.value			= null;
+					varSymbol.value			= (ast.type==jsdef.CONST || ast.type==jsdef.EVENT ? generate(ast[item].initializer) : null);
 					varSymbol.type			= ast[item].type;
 					varSymbol.nodeType		= ast[item].nodeType;
 					varSymbol.classId		= classId;
@@ -2413,7 +2606,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.delegate		= ast.delegate;
 					varSymbol.event			= false;
 					varSymbol.constant		= ast.type==jsdef.CONST;
-					varSymbol.value			= (ast.type==jsdef.CONST || ast.type==jsdef.EVENT ? generate(ast[item].initializer) : null);
 					varSymbol.ast			= ast[item];
 					varSymbol.scope			= ast.scope;
 					varSymbol.baseSymbol	= null;
@@ -2541,40 +2733,45 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			var scope = _this.NewScope(ast, false, jsdef.CLASS);
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
+			var baseClassSymbol = _this.getClass("Function");
 
 			var classSymbol = new ClassSymbol();
 			{
-				classSymbol.symbolId	= (++_this.symbolId);
-				classSymbol.name		= ast.name;
-				classSymbol.vartype		= ast.name;
-				classSymbol.subtype		= null;
-				classSymbol.classId		= classId;
-				classSymbol.extern		= (ast.file=="externs.jspp");
-				classSymbol.base		= "Function";
-				classSymbol.baseSymbol	= _this.getClass("Function");
-				classSymbol.interfaces	= [];
-				classSymbol.events		= {};
-				classSymbol.type		= jsdef.CLASS;
-				classSymbol.nodeType	= "CALLBACK";
-				classSymbol.control		= false;
-				classSymbol._prototype	= false;
-				classSymbol.enum		= false;
-				classSymbol.state		= false;
-				classSymbol.callback	= true;
-				classSymbol.interface	= false;
-				classSymbol.ast			= ast;
-				classSymbol.scope		= scope;
-				classSymbol.file		= ast.file;
-				classSymbol.path		= ast.path;
-				classSymbol.start		= ast.start;
-				classSymbol.end			= ast.end;
-				classSymbol.line_start	= ast.line_start;
-				classSymbol.line_end	= ast.line_end;
-				classSymbol.scopeId		= scope.scopeId;
-				classSymbol.vars		= scope.vars;
-				classSymbol.methods	 	= scope.methods;
-				classSymbol.runtime		= ast.name;
-				classSymbol.icon		= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+				classSymbol.symbolId			= (++_this.symbolId);
+				classSymbol.name				= ast.name;
+				classSymbol.vartype				= ast.name;
+				classSymbol.subtype				= null;
+				classSymbol.classId				= classId;
+				classSymbol.extern				= (ast.file=="externs.jspp");
+				classSymbol.base				= "Function";
+				classSymbol.baseSymbol			= baseClassSymbol;
+				classSymbol.bases 				= [baseClassSymbol];
+				classSymbol.interfaces			= [];
+				classSymbol.events				= {};
+				classSymbol.__event_bindings	= [];
+				classSymbol.__event_unbindings	= [];
+				classSymbol.__event_fire		= [];
+				classSymbol.type				= jsdef.CLASS;
+				classSymbol.nodeType			= "CALLBACK";
+				classSymbol.control				= false;
+				classSymbol._prototype			= false;
+				classSymbol.enum				= false;
+				classSymbol.state				= false;
+				classSymbol.callback			= true;
+				classSymbol.interface			= false;
+				classSymbol.ast					= ast;
+				classSymbol.scope				= scope;
+				classSymbol.file				= ast.file;
+				classSymbol.path				= ast.path;
+				classSymbol.start				= ast.start;
+				classSymbol.end					= ast.end;
+				classSymbol.line_start			= ast.line_start;
+				classSymbol.line_end			= ast.line_end;
+				classSymbol.scopeId				= scope.scopeId;
+				classSymbol.vars				= scope.vars;
+				classSymbol.methods	 			= scope.methods;
+				classSymbol.runtime				= ast.name;
+				classSymbol.icon				= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
 			}
 
 			// Create callback signature and save it in the class
@@ -2590,6 +2787,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Save symbol
 			ast.symbol = classSymbol;
 			_this.classes[classSymbol.name] = classSymbol;
+			_this.scopesStack[0].vars[classSymbol.name] = classSymbol;
 
 			_this.ExitScope();
 
@@ -2611,11 +2809,15 @@ function Compiler(ast, exportSymbols, selectedClass)
 				_this.NewError("Invalid property outside class", ast);
 
 			var currentClass = _this.getCurrentClass();
+			var className = _this.currClassName + ast.name + "Event";
+			var classId = "__CLASS_" + _this.currClassName.toUpperCase() + ast.name.toUpperCase() + "EVENT__";
+			var baseClass = "CocoEvent";
+			var baseClassSymbol = _this.getClass(baseClass);
 
 			// =======================================================================
 			// Create event callback signature
 			// =======================================================================
-			var sig = ["Sender:CocoEventSource"];
+			var sig = ["sender:"+currentClass.name, "e:"+className];
 			for(item in ast.paramsList)
 			{
 				if(!isFinite(item)) break;
@@ -2626,25 +2828,32 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			// =======================================================================
 			// Each Event generates a Class inheriting from CocoEvent.
+			// The name of this class is <classname><eventname>Event
+			// and we must generate a dummy AST node for the rest of
+			// the code to work. We save the dymmy AST node on the
+			// class symbol itself to preserve it through second pass.
 			// =======================================================================
 
-			var scope = _this.NewScope(ast);
-			var classId = "__CLASS_" + _this.currClassName.toUpperCase() + ast.name.toUpperCase() + "EVENT__";
-			var baseClass = "CocoEvent";
-			var baseClassSymbol = _this.getClass(baseClass);
-
-			var classSymbol = new ClassSymbol();
+			var classSymbol = (_this.getClass(className) || new ClassSymbol());
+			classSymbol.ast = classSymbol.ast || new Node(null, jsdef.CLASS);
+			classSymbol.ast.parent = ast;
+			classSymbol.ast.symbol = classSymbol;
+			var scope = classSymbol.scope = _this.NewScope(classSymbol.ast);
 			{
 				classSymbol.symbolId			= (++_this.symbolId);
-				classSymbol.name				= _this.currClassName + ast.name + "Event";
-				classSymbol.vartype				= _this.currClassName + ast.name + "Event";
+				classSymbol.name				= className;
+				classSymbol.vartype				= className;
 				classSymbol.subtype				= null;
 				classSymbol.classId				= classId;
 				classSymbol.extern				= (ast.file=="externs.jspp");
 				classSymbol.base				= baseClass;
 				classSymbol.baseSymbol			= baseClassSymbol;
-				classSymbol.interfaces			= [baseClassSymbol];
+				classSymbol.bases 				= [baseClassSymbol];
+				classSymbol.interfaces			= [];
 				classSymbol.events				= {};
+				classSymbol.__event_bindings	= [];
+				classSymbol.__event_unbindings	= [];
+				classSymbol.__event_fire		= [];
 				classSymbol.type				= jsdef.CLASS;
 				classSymbol.nodeType			= "CLASS";
 				classSymbol.control				= false;
@@ -2654,31 +2863,74 @@ function Compiler(ast, exportSymbols, selectedClass)
 				classSymbol.callback			= false;
 				classSymbol.interface			= false;
 				classSymbol.event				= true;	//todo:add to others
-				classSymbol.ast					= ast;
-				classSymbol.scope				= scope;
 				classSymbol.file				= ast.file;
 				classSymbol.path				= ast.path;
 				classSymbol.start				= ast.start;
 				classSymbol.end					= ast.end;
 				classSymbol.line_start			= ast.line_start;
 				classSymbol.line_end			= ast.line_end;
-				classSymbol.scopeId				= scope.scopeId;
-				classSymbol.vars				= scope.vars;
-				classSymbol.methods	 			= scope.methods;
+				classSymbol.scopeId				= classSymbol.scope.scopeId;
+				classSymbol.vars				= classSymbol.scope.vars;
+				classSymbol.methods	 			= classSymbol.scope.methods;
 				classSymbol.runtime				= ast.name;
 				classSymbol.icon				= _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
 				classSymbol.__typedParamsList 	= __typedParamsList;
 			}
 
-			// Save symbol
+			// We need to add var members in our new Event Class.
+			for(item in ast.paramsList)
+			{
+				if(!isFinite(item)) break;
+				var arg = ast.paramsList[item];
+				var varSymbol = new VarSymbol();
+				{
+					varSymbol.symbolId				= (++_this.symbolId);
+					varSymbol.name					= arg.value;
+					varSymbol.value					= null;
+					varSymbol.type					= arg.type;
+					varSymbol.nodeType				= arg.nodeType;
+					varSymbol.classId				= classSymbol.clssId;
+					varSymbol.extern				= false
+					varSymbol.public				= true;
+					varSymbol.private				= false;
+					varSymbol.protected				= false;
+					varSymbol.static				= false;
+					varSymbol.optional				= false;
+					varSymbol.virtual				= false;
+					varSymbol.abstract				= false;
+					varSymbol.delegate				= false;
+					varSymbol.event					= false;
+					varSymbol.constant				= false;
+					varSymbol.ast					= arg;
+					varSymbol.scope					= classSymbol.scope;
+					varSymbol.baseSymbol			= null;
+					varSymbol.file					= arg.file;
+					varSymbol.path					= arg.path;
+					varSymbol.start					= arg.start;
+					varSymbol.end					= arg.end;
+					varSymbol.line_start			= arg.line_start;
+					varSymbol.line_end				= arg.line_end;
+					varSymbol.scopeId				= classSymbol.scope.scopeId;
+					varSymbol.vartype				= arg.vartype;
+					varSymbol.subtype				= arg.subtype ? arg.subtype : _this.getSubType(arg.vartype);
+					varSymbol.pointer				= arg.pointer;
+					varSymbol.icon 					= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
+					varSymbol.modifier 				= "public";
+					varSymbol.signature 			= varSymbol.name + ":" + varSymbol.vartype;
+					varSymbol.runtime 				= arg.value;
+				}
+				classSymbol.vars[varSymbol.name]=varSymbol;
+			}
+
+			// Save Event Class symbol
 			ast.event_class_symbol = classSymbol;
 			_this.classes[classSymbol.name] = classSymbol;
+			_this.scopesStack[0].vars[classSymbol.name] = classSymbol;
 
 			// =======================================================================
-			// The event is declared as a variable on this class
+			// The event is also declared as a variable of vartype
+			// <classname><eventname>Event on the current class
 			// =======================================================================
-
-			ast.scope = currentClass.scope;
 
 			var varSymbol = new VarSymbol();
 			{
@@ -2699,7 +2951,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 				varSymbol.delegate				= false;
 				varSymbol.event					= true;
 				varSymbol.constant				= false;
-				varSymbol.value					= null;
 				varSymbol.ast					= ast;
 				varSymbol.scope					= currentClass.scope;
 				varSymbol.baseSymbol			= null;
@@ -2709,14 +2960,14 @@ function Compiler(ast, exportSymbols, selectedClass)
 				varSymbol.end					= ast.end;
 				varSymbol.line_start			= ast.line_start;
 				varSymbol.line_end				= ast.line_end;
-				varSymbol.scopeId				= ast.scope.scopeId;
+				varSymbol.scopeId				= currentClass.scope.scopeId;
 				varSymbol.vartype				= classSymbol.name;
 				varSymbol.subtype				= null;
 				varSymbol.pointer				= ast.pointer;
 				varSymbol.icon 					= _this.CODE_SYMBOLS_ENUM.SYMBOL_EVENT;
 				varSymbol.modifier 				= "public";
-				varSymbol.__typedParamsList		= __typedParamsList;
-				varSymbol.signature 			= "event " + varSymbol.name + varSymbol.__typedParamsList;
+				//varSymbol.__typedParamsList		= __typedParamsList;
+				//varSymbol.signature 			= "event " + varSymbol.name + varSymbol.__typedParamsList;
 
 				if(classId && ast.public)			varSymbol.runtime = classId + "." + ast.name;
 				else if(classId && ast.private)		varSymbol.runtime = classId + ".__PRIVATE__." + ast.name;
@@ -2726,7 +2977,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 
             // Save var in scopes
 			ast.symbol = varSymbol;
-			ast.scope.vars[ast.name] = varSymbol;
+			ast.scope = currentClass.scope;
+			currentClass.scope.vars[ast.name] = varSymbol;
 			currentClass.events[ast.name] = varSymbol;
 
 			// =======================================================================
@@ -2775,42 +3027,47 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			var classSymbol = new ClassSymbol();
 			{
-				classSymbol.symbolId	= (++_this.symbolId);
-				classSymbol.name		= ast.name;
-				classSymbol.vartype		= ast.name;
-				classSymbol.subtype		= null;
-				classSymbol.classId		= classId;
-				classSymbol.extern		= (ast.file=="externs.jspp");
-				classSymbol.base		= null;
-				classSymbol.baseSymbol	= null;
-				classSymbol.interfaces	= [];
-				classSymbol.events		= {};
-				classSymbol.type		= jsdef.CLASS;
-				classSymbol.nodeType	= "CLASS";
-				classSymbol.control		= false;
-				classSymbol._prototype	= false;
-				classSymbol.enum		= true;
-				classSymbol.state		= false;
-				classSymbol.callback	= false;
-				classSymbol.interface	= false;
-				classSymbol.ast			= ast;
-				classSymbol.scope		= scope;
-				classSymbol.file		= ast.file;
-				classSymbol.path		= ast.path;
-				classSymbol.start		= ast.start;
-				classSymbol.end			= ast.end;
-				classSymbol.line_start	= ast.line_start;
-				classSymbol.line_end	= ast.line_end;
-				classSymbol.scopeId		= scope.scopeId;
-				classSymbol.vars		= scope.vars;
-				classSymbol.methods	 	= scope.methods;
-				classSymbol.runtime		= ast.name;
-				classSymbol.icon		= _this.CODE_SYMBOLS_ENUM.SYMBOL_ENUM;
+				classSymbol.symbolId			= (++_this.symbolId);
+				classSymbol.name				= ast.name;
+				classSymbol.vartype				= ast.name;
+				classSymbol.subtype				= null;
+				classSymbol.classId				= classId;
+				classSymbol.extern				= (ast.file=="externs.jspp");
+				classSymbol.base				= null;
+				classSymbol.baseSymbol			= null;
+				classSymbol.bases 				= [];
+				classSymbol.interfaces			= [];
+				classSymbol.events				= {};
+				classSymbol.__event_bindings	= [];
+				classSymbol.__event_unbindings	= [];
+				classSymbol.__event_fire		= [];
+				classSymbol.type				= jsdef.CLASS;
+				classSymbol.nodeType			= "CLASS";
+				classSymbol.control				= false;
+				classSymbol._prototype			= false;
+				classSymbol.enum				= true;
+				classSymbol.state				= false;
+				classSymbol.callback			= false;
+				classSymbol.interface			= false;
+				classSymbol.ast					= ast;
+				classSymbol.scope				= scope;
+				classSymbol.file				= ast.file;
+				classSymbol.path				= ast.path;
+				classSymbol.start				= ast.start;
+				classSymbol.end					= ast.end;
+				classSymbol.line_start			= ast.line_start;
+				classSymbol.line_end			= ast.line_end;
+				classSymbol.scopeId				= scope.scopeId;
+				classSymbol.vars				= scope.vars;
+				classSymbol.methods	 			= scope.methods;
+				classSymbol.runtime				= ast.name;
+				classSymbol.icon				= _this.CODE_SYMBOLS_ENUM.SYMBOL_ENUM;
 			}
 
 			// Save symbol
 			ast.symbol = classSymbol;
 			_this.classes[classSymbol.name] = classSymbol;
+			_this.scopesStack[0].vars[classSymbol.name] = classSymbol;
 
             // Generate enum
             if(_this.currClassName)
@@ -3301,7 +3558,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// 3) as a call (that could be in a DOT)				:	foo() + object.foo()
 			//
 			//==================================================================================
-			/*@@ Identifier (Overloads) @@*/
 
 			if(ast.symbol.overloads)
 			{
@@ -3438,7 +3694,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// #                value, or if it is an object display a list of its member values in the IDE expression viewer.
 			// #
 			// ###############################################################################################################################################################################################
-			/*@@ Identifier (Access Path) @@*/
 
 			// =============================================================
 			// Symbol is static member.
@@ -3499,7 +3754,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Symbol is a virtual function.
 			// The first DOT identifier is SUPER or THIS.
 			// =============================================================
-			/*@@ Virtuals (ivnocation) @@*/
 
 			// To invoke the virtual method through the __VIRTUAL__ bank,
 			// the method has to be overwitten by this class. Otherwise
@@ -3589,6 +3843,22 @@ function Compiler(ast, exportSymbols, selectedClass)
 				{
 					_this.NewError("Invalid protected member access: " + ast.value, ast);
 				}
+			}
+
+			//==================================================================================
+			// If the identifier is addEventListener then we need to store this ast in its class
+			//==================================================================================
+			if(ast.symbol && ast.symbol.name=="addEventListener")
+			{
+				_this.getCurrentClass().__event_bindings.push(ast);
+			}
+			if(ast.symbol && ast.symbol.name=="removeEventListener")
+			{
+				_this.getCurrentClass().__event_unbindings.push(ast);
+			}
+			if(ast.symbol && ast.symbol.name=="dispatchEvent")
+			{
+				_this.getCurrentClass().__event_fire.push(ast);
 			}
 
 			//==================================================================================
@@ -3914,6 +4184,72 @@ function Compiler(ast, exportSymbols, selectedClass)
 		case jsdef.MOD:					_this.arithmeticOp(ast, "%", out); break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.NEW:
+
+			var gen = generate(ast[0]);
+
+			if(ast[0].symbol && ast[0].symbol.struct)
+			{
+				var items = [];
+				for(item in ast[0].symbol.vars)
+					items.push(ast[0].symbol.vars[item].name + ":null");
+				out.push("{" + items.join(",") + "}");
+			}
+			else
+			{
+				out.push("new " + gen);
+				_this.checkFunctionCall(ast);
+			}
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.NEW_WITH_ARGS:
+
+			var gen0 = generate(ast[0]);
+			var gen1 = generate(ast[1]);
+
+			if(ast[0].symbol && ast[0].symbol.struct)
+			{
+				if(ast[1][0].symbol.vartype==ast[0].symbol.name)
+				{
+					var items = []
+					for(item in ast[0].symbol.vars)
+					{
+						var name = ast[0].symbol.vars[item].name;
+						items.push(name + ":" + ast[1][0].value + "." + name);
+					}
+					out.push("{" + items.join(",") + "}");
+				}
+				else
+				{
+					_this.NewError("Invalid struct initialization: " + ast[0].symbol.name, ast[0]);
+				}
+			}
+			else
+			{
+				out.push("new " +  gen0 + "(" + gen1 + ")");
+				_this.checkFunctionCall(ast);
+			}
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.SEMICOLON:
+			var expr = (ast.expression ? generate(ast.expression) : "");
+			if(_this.secondPass && ast.expression && ast.expression[0] && ast.expression[0].type==jsdef.SUPER && ast.expression[1].symbol.type==jsdef.FUNCTION)
+			{
+				var params = [];
+				for(item in ast.inFunction.symbol.paramsList)
+				{
+					if(!isFinite(item)) continue;
+					var param = ast.inFunction.symbol.paramsList[item];
+					params.push(param.name);
+				}
+				expr += "(" + params.join(",") + ")";
+			}
+			if(expr) out.push(expr + ";\n");
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.INSTANCEOF:
 			if(_this.secondPass && _this.currClassName) _this.NewError("Illegal inside class", ast);
 			out.push(generate(ast[0]));
@@ -3958,8 +4294,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 		case jsdef.LSH:					out.push(generate(ast[0])); out.push("<<"); out.push(generate(ast[1])); break;
 		case jsdef.LT:					out.push(generate(ast[0])); out.push("<");   out.push(generate(ast[1])); break;
 		case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	 out.push(generate(ast[1])); break;
-		case jsdef.NEW: 				out.push("new "); out.push(generate(ast[0])); _this.checkFunctionCall(ast); break;
-		case jsdef.NEW_WITH_ARGS:		out.push("new "); out.push(generate(ast[0])); out.push("("); out.push(generate(ast[1])); out.push(")"); _this.checkFunctionCall(ast); break;
 		case jsdef.NOT:					out.push("!"); out.push(generate(ast[0])); break;
 		case jsdef.NULL:				out.push("null"); break;
 		case jsdef.NUMBER:				out.push(ast.value); break;
@@ -3974,24 +4308,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 		case jsdef.UNARY_PLUS:			out.push(" +"); out.push(generate(ast[0])); break;
 		case jsdef.URSH:				out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
 		case jsdef.WHILE:				ast.body.isLoop=true; out.push("while(" + generate(ast.condition) + ")"); out.push(generate(ast.body)); break;
-
-		case jsdef.SEMICOLON:
-			var expr = (ast.expression ? generate(ast.expression) : "");
-			if(_this.secondPass && ast.expression && ast.expression[0] && ast.expression[0].type==jsdef.SUPER && ast.expression[1].symbol.type==jsdef.FUNCTION)
-			{
-				var params = [];
-				for(item in ast.inFunction.symbol.paramsList)
-				{
-					if(!isFinite(item)) continue;
-					var param = ast.inFunction.symbol.paramsList[item];
-					params.push(param.name);
-				}
-				expr += "(" + params.join(",") + ")";
-			}
-			if(expr) out.push(expr + ";\n");
-			break;
 		}
-
 		return out.join("");
 	};
 

@@ -31,72 +31,49 @@ function GameEngine()
 		this.btn1 = null;
 		//@line 19
 		this.btn2 = null;
-		//@line 27
-		this.mousedown = function (Sender, x, y)
-		{
-			//@line 29
-			return true;
-			return false
-		};
-		//@line 38
+		//@line 33
 		this.STATE_GAME = (function ()
 		{
 			this.__name = 'STATE_GAME';
-			//@line 40
+			//@line 35
 			this.enter = function ()
 			{
-				//@line 42
+				//@line 37
 				var t1 = new TestIntegratorClient;
-				//@line 43
+				//@line 38
 				var t2 = new TestEventListener;
-				//@line 44
+				//@line 39
 				var t3 = new TestThis;
-				//@line 46
+				//@line 41
 				__CLASS__GAMEENGINE__.scene = new NewAnimation;
-				//@line 48
-				__CLASS__GAMEENGINE__.btn1 = new CocoUIButton("button1");
-				//@line 49
-				__CLASS__GAMEENGINE__.btn1.move(10, 10, 300, 60);
-				//@line 50
-				__CLASS__GAMEENGINE__.btn1.addEventListener(__CLASS__GAMEENGINE__.btn1.OnTouchStart, __THIS__, __CLASS__GAMEENGINE__.mousedown);
-				//@line 51
-				__CLASS__GAMEENGINE__.scene.__root.addChild(__CLASS__GAMEENGINE__.btn1);
-				//@line 53
-				__CLASS__GAMEENGINE__.btn2 = new CocoUIButton("button2");
-				//@line 54
-				__CLASS__GAMEENGINE__.btn2.move(10, 100, 300, 60);
-				//@line 55
-				__CLASS__GAMEENGINE__.btn2.addEventListener(__CLASS__GAMEENGINE__.btn2.OnTouchStart, __THIS__, __CLASS__GAMEENGINE__.mousedown);
-				//@line 56
-				__CLASS__GAMEENGINE__.scene.__root.addChild(__CLASS__GAMEENGINE__.btn2);
 			};
-			//@line 59
+			//@line 55
 			this.exit = function ()
 			{
-				//@line 61
+				//@line 57
 				{
 					__CLASS__GAMEENGINE__.scene && ((__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor') && __CLASS__GAMEENGINE__.scene.Destructor()) || !__CLASS__GAMEENGINE__.scene.hasOwnProperty('Destructor')) && (delete __CLASS__GAMEENGINE__.scene);
 					__CLASS__GAMEENGINE__.scene = null
 				};
 			};
-			//@line 64
+			//@line 60
 			this.tick = function (time)
 			{
-				//@line 65
+				//@line 61
 			};
-			//@line 68
+			//@line 64
 			this.paint = function (gl, time)
 			{
-				//@line 70
+				//@line 66
 				__CLASS__GAMEENGINE__.scene.paint(gl, time);
 			};
 			return this
 		}).call(new State);
-		//@line 33
+		//@line 28
 		this.Destructor = function ()
 		{
 			{
-				//@line 34
+				//@line 29
 			}
 			{
 				__CLASS__GAMEENGINE__.scene = null;
