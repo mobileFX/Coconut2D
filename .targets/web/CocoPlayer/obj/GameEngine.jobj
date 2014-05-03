@@ -16,7 +16,10 @@ function GameEngine()
 		{
 			return 'GameEngine'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [GameEngine] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -38,12 +41,6 @@ function GameEngine()
 			//@line 35
 			this.enter = function ()
 			{
-				//@line 37
-				var t1 = new TestIntegratorClient;
-				//@line 38
-				var t2 = new TestEventListener;
-				//@line 39
-				var t3 = new TestThis;
 				//@line 41
 				__CLASS__GAMEENGINE__.scene = new NewAnimation;
 			};

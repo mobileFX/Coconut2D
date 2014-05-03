@@ -27,19 +27,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-// Objects that wish to receive events need to implement IEventListener.
-
-interface IEventListener
-{
-}
-
-// Objects that are event targets and need to be placed on event.target property must implement IEventListener.
-// (eg. a button that gets clicked and we read which button that was from event.target)
-
-interface IEventTarget
-{
-}
-
 // ==================================================================================================================================
 //	   ______                 ______                 __
 //	  / ____/___  _________  / ____/   _____  ____  / /_
@@ -63,7 +50,6 @@ class CocoEvent
 	public var stopPropagation:Boolean;
 	public var defaultPrevented:Boolean;
 
-	public var view:HTMLWindow;
 	public var detail:Integer;
 
 	public var touches:TouchList;           // all touches
@@ -191,9 +177,10 @@ class CocoEventSource
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function dispatchEvent(Event:CocoEvent, ...) :Integer
 	{
-		var i:Integer;
 		var c:Integer;
+		var i:Integer;
 
+		/*
 		var event_arguments:Array<Object>;
 		event_arguments.push(this);
 		event_arguments.push(Event);
@@ -220,90 +207,8 @@ class CocoEventSource
 		}
 		delete event_arguments;
 		return c;
-	}
-}
+		*/
 
-// ==================================================================================================================================
-//	  ______                 __
-//	 /_  __/___  __  _______/ /_
-//	  / / / __ \/ / / / ___/ __ \
-//	 / / / /_/ / /_/ / /__/ / / /
-//	/_/  \____/\__,_/\___/_/ /_/
-//
-// ==================================================================================================================================
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-class Touch
-{
-    public var identifier:Integer;
-    public var screenX:Integer;
-    public var screenY:Integer;
-    public var clientX:Integer;
-    public var clientY:Integer;
-    public var pageX:Integer;
-    public var pageY:Integer;
-    public var target:IEventTarget;
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
-	{
-		identifier	= 0;
-		target		= null;
-		screenX		= 0;
-		screenY		= 0;
-		clientX		= 0;
-		clientY		= 0;
-		pageX		= 0;
-		pageY		= 0;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor()
-	{
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, pageX:Integer, pageY:Integer)
-	{
-		this.identifier	= identifier;
-		this.target		= target;
-		this.screenX	= screenX;
-		this.screenY	= screenY;
-		this.clientX	= clientX;
-		this.clientY	= clientY;
-		this.pageX		= pageX;
-		this.pageY		= pageY;
-	}
-}
-
-// ==================================================================================================================================
-//	  ______                 __    __    _      __
-//	 /_  __/___  __  _______/ /_  / /   (_)____/ /_
-//	  / / / __ \/ / / / ___/ __ \/ /   / / ___/ __/
-//	 / / / /_/ / /_/ / /__/ / / / /___/ (__  ) /_
-//	/_/  \____/\__,_/\___/_/ /_/_____/_/____/\__/
-//
-// ==================================================================================================================================
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-class TouchList : Array<Touch>
-{
-	public var length:Integer;
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
-	{
-		for(var i:Integer=0; i<=5; i++)
-		{
-			var touch:Touch = new Touch();
-			touch.initTouch(i, null, 0, 0, 0, 0, 0, 0);
-			push(touch);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function item(index:Integer) : Touch
-	{
-		return this[index];
+		return 0;
 	}
 }

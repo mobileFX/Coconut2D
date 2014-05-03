@@ -35,7 +35,7 @@
 #define __HTMLWINDOW_HPP__
 
 #include "HTMLDocument.hpp"
-#include "DeviceEvent.hpp"
+#include "DeviceMessage.hpp"
 #include "CocoEngine.hpp"
 
 class HTMLWindow
@@ -48,7 +48,7 @@ public:
 	float devicePixelRatio;
 	float deviceRotation;
 	fxScreen::Rotation screenRotation;
-	DeviceEvent* __deviceEvent;
+	DeviceMessage* __deviceMessage;
 	CocoEventAction touchstart;
 	CocoEventAction	touchmove;
 	CocoEventAction touchend;

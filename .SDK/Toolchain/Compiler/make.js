@@ -38,7 +38,7 @@ if(!this['IDECallback']) this.IDECallback = function(){};
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function __exists(collection, key)
 {
-	return Object.prototype.hasOwnProperty.call(collection, key);
+	return (collection && Object.prototype.hasOwnProperty.call(collection, key)) || false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,11 +130,11 @@ function make(options)
   	this.Build_iOS = function()
   	{
   		_this.clean();
-  		//_this.apply_device_wrapper();
-  		//_this.generate_icons();
+  		_this.apply_device_wrapper();
+  		_this.generate_icons();
   		//_this.copy_assets();
   		_this.generate_cpp();
-  		//_this.compile_ipa();
+  		_this.compile_ipa();
   	};
 
 	// ==================================================================================================================================
@@ -163,8 +163,8 @@ function make(options)
 
 		// Compile AST
 		trace("\nCompiling JavaScript Classes to JavaScript ...");
-		var compiler = new Compiler(ast, true);
-		compiler.compile();
+		var compiler = new Compiler(ast);
+		compiler.compile(true,null,false);
 		trace("+ Done.");
 	};
 
@@ -176,6 +176,31 @@ function make(options)
 		// Get all source code (including externs)
 		var code = _this.getSourceCode();
 
+		// Collect all non-generated C++ classes from Frameworks
+		var native_classes = [];
+		var native_vartypes_includes = {};
+		trace("\nScanning for non-generated C++ classes in Frameworks ...");
+		for(item in makefile.Components.Frameworks)
+		{
+			var path = makefile.Components.Frameworks[item].Path + "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)";
+			path = _this.replaceVars(path);
+			var files = _this.FindFiles(path, "*.hpp", true);
+			for(i=0;i<files.length;i++)
+			{
+				var name = files[i].substr(files[i].lastIndexOf("/")+1);
+				native_vartypes_includes[name] = {};
+				var buff = read(files[i]);
+				var rx = /\b(class|struct)\s+([^\s\n\r\t\{\:]+)/g;
+				while(match=rx.exec(buff))
+				{
+					native_classes.push(match[0]+";");
+					native_vartypes_includes[name][match[2]] = true;
+				}
+			}
+		}
+		native_classes = native_classes.join("\n");
+		trace(native_classes.replace(/(class|struct) /g, "+ $1 "));
+
 		// Parse source code and generate AST
 		trace("\nParsing JavaScript Class files ...");
 		narcissus.__messages = true;
@@ -183,21 +208,19 @@ function make(options)
 		var ast = narcissus.jsparse(code);
 		trace("+ Abstract Syntax Tree (AST) generated.");
 
-		// Compile AST to JavaScript to build symbol tables
-		trace("\nBuilding Symbol Tables ...");
-		var compiler = new Compiler(ast, false);
-		compiler.compile();
-		trace("+ Symbol tables generated.");
-
 		// Compile AST to C++
 		trace("\nCompiling JavaScript Classes to C++ ...");
-		var compiler = new CPPCompiler(ast);
-		compiler.compile();
+		var compiler = new Compiler(ast);
+		compiler.native_vartypes_includes = native_vartypes_includes;
+		compiler.compile(false,null,true);
 
-		// Update Coconut2D.hpp
-		var classes = compiler.getClassList();
+		// Get all generated C++ classes from the compiler
+		var generated_classes = compiler.getNativeClassList();
+
+		// Update class forward declarations in Coconut2d.hpp
 		var buff = read(makefile.Vars.FILE_PATH_SDK_CRL_COCONUT2D_HPP);
-		buff = _this.replaceBuffer("//# DO NOT EDIT BEGIN #//", "//# DO NOT EDIT END #//", buff, classes);
+		buff = _this.replaceBuffer("//# Generated Classes Begin #//", "//# Generated Classes End #//", buff, generated_classes);
+		buff = _this.replaceBuffer("//# Native Classes Begin #//", "//# Native Classes End #//", buff, native_classes);
 		_this.module(makefile.Vars.FILE_PATH_SDK_CRL_COCONUT2D_HPP, buff);
 
 		trace("+ Done.");
@@ -351,12 +374,17 @@ function make(options)
 
 		// Collect resources
 		trace("\n Collecting Resources ...");
+		var files = _this.FindFiles(makefile.Config.PROJECT_PATHS.ASSETS, TARGET.TARGET_RESOURCES_MASK, true);
+
+		/*
 		var files = _this.FindFiles(TARGET.TARGET_ROOT, TARGET.TARGET_RESOURCES_MASK, true);
 		for(i=0;i<files.length;i++)
 		{
 			files[i] = relativePath(TARGET.TARGET_ROOT, files[i]);
 		}
 		files.push("./assets");
+		*/
+
 		makefile.Vars["NATIVE_RESOURCES"] = files.join(" \\\n");
 		trace("+ Done.");
 
@@ -396,7 +424,8 @@ function make(options)
         buff.push('SET IOS_PROJECT_PATH=$(TARGET_ROOT)');
 		buff.push('SET IOS_MAKEFILE=%IOS_PROJECT_PATH%/Makefile.mk');
 		buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% prepare resources');
-        buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --jobs --warn-undefined-variables SHELL=%ComSpec% compile');
+        //buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --jobs --warn-undefined-variables SHELL=%ComSpec% compile');
+        buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% compile');
         buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% link codesign ipa end');
         //buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% all');
 		buff = _this.replaceVars(_this.winPath(buff.join("\n")));
@@ -632,7 +661,9 @@ function make(options)
 		    buff.push('"script_begin:///' + file + '";\n' + code + '\n"script_end:///' + file + '";\n');
 		}
 
-		return buff.join("\n");
+		buff = buff.join("\n");
+		//write("C:/Users/Admin/Desktop/CODE.txt", buff);
+		return buff;
   	};
 
     // =====================================================================
@@ -899,7 +930,7 @@ function make(options)
 		HPPmap[includes] = true;
 		for(i=0;i<files.length;i++)
 		{
-			files[i] = relativePath(root, files[i]);
+			//files[i] = relativePath(root, files[i]);
 			if(/\.(cpp|m)$/i.test(files[i]))
 			{
 				if(files[i].indexOf("./")==0)
@@ -1312,8 +1343,8 @@ function parse_jspp(code, className)
 		var ast = narcissus.jsparse(code);
 
 		// Compile ast
-		var compiler = new Compiler(ast, true, className);
-		compiler.compile();
+		var compiler = new Compiler(ast);
+		compiler.compile(true, className, false);
 	}
 	catch(e)
 	{

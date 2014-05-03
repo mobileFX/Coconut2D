@@ -84,6 +84,261 @@ function CompilerExportsPlugin(compiler)
 	    SYMBOL_WATCH                       : 41
 	};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	function xtype(vartype)
+	{
+		return vartype.replace('<','&lt;').replace('>','&gt;');
+	}
+
+	// ==================================================================================================================================
+	//	    ______                      __     ______              ________                   __    _      __
+	//	   / ____/  ______  ____  _____/ /_   / ____/__    __     / ____/ /___ ___________   / /   (_)____/ /_
+	//	  / __/ | |/_/ __ \/ __ \/ ___/ __/  / /  __/ /___/ /_   / /   / / __ `/ ___/ ___/  / /   / / ___/ __/
+	//	 / /____>  </ /_/ / /_/ / /  / /_   / /__/_  __/_  __/  / /___/ / /_/ (__  |__  )  / /___/ (__  ) /_
+	//	/_____/_/|_/ .___/\____/_/   \__/   \____//_/   /_/     \____/_/\__,_/____/____/  /_____/_/____/\__/
+	//	          /_/
+	// ==================================================================================================================================
+
+	_this.getNativeClassList = function()
+	{
+		var classes = [];
+		for(item in _this.classes)
+		{
+			var cls = _this.classes[item];
+			if(!cls.EXPORT_NATIVE) continue;
+			if(cls.enum) continue;
+			if(cls.struct)
+				classes.push("struct " + cls.name + ";");
+			else
+				classes.push("class " + cls.name + ";");
+		}
+		classes = classes.sort().join("\n");
+		return classes;
+	};
+
+	// ==================================================================================================================================
+	//	    ______                      __     ______              _______ __
+	//	   / ____/  ______  ____  _____/ /_   / ____/__    __     / ____(_) /__  _____
+	//	  / __/ | |/_/ __ \/ __ \/ ___/ __/  / /  __/ /___/ /_   / /_  / / / _ \/ ___/
+	//	 / /____>  </ /_/ / /_/ / /  / /_   / /__/_  __/_  __/  / __/ / / /  __(__  )
+	//	/_____/_/|_/ .___/\____/_/   \__/   \____//_/   /_/    /_/   /_/_/\___/____/
+	//	          /_/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.prepare_native_files = function()
+	{
+		_this.native_files 	= {};
+		for(item in _this.classes)
+		{
+			var cls = _this.classes[item];
+			if(!cls.EXPORT_NATIVE) continue;
+
+			var native_file =
+			{
+						file: "",
+						path: "",
+						name: "",
+						classes: {},
+						cpp:
+						{
+							vartypes: {},
+							includes: {},
+							body:[],
+							out: null
+						},
+						hpp:
+						{
+							vartypes: {},
+							includes: {},
+							body:[],
+							out: null
+						}
+			};
+
+			native_file.file = cls.file;
+			native_file.path = cls.path;
+			native_file.name = cls.file.replace(".jspp", "");
+			_this.native_files[cls.file] = native_file;
+		}
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.export_cpp_files = function()
+	{
+		// ==========================================================================================
+		// Organize classes per native file
+		// ==========================================================================================
+		trace("+ Assembing source code in .cpp and .hpp files ...");
+		for(item in _this.classes)
+		{
+			// Get class symbol
+			var cls = _this.classes[item];
+			if(!cls.EXPORT_NATIVE) continue;
+
+			// Get source file node
+			var native_file = _this.native_files[cls.file];
+
+			// Place class in native file node
+			native_file.classes[cls.name] = cls;
+
+			// Associate native file node with class symbol
+			_this.SET_METADATA(cls, "native_file", native_file);
+
+			// Store native file node in native_files
+			_this.native_files[cls.file] = native_file;
+		}
+
+		// ==========================================================================================
+		// Process each native file node and collect vartypes
+		// ==========================================================================================
+		trace("+ Processing vartypes used in each .cpp and .hpp file ...");
+		for(file in _this.native_files)
+		{
+			// Get a native file
+			var native_file = _this.native_files[file];
+
+			// Collect vartypes from all classes in the native file node
+			for(item in native_file.classes)
+			{
+				var cls = native_file.classes[item];
+
+				for(vartype in cls.vartypes)
+				{
+					var include = cls.vartypes[vartype];
+					if(include & _this.INCLUDE_IN_CPP) native_file.cpp.vartypes[vartype] = true;
+					if(include & _this.INCLUDE_IN_HPP) native_file.hpp.vartypes[vartype] = true;
+				}
+			}
+		}
+
+		// ==========================================================================================
+		// Break cyclic-references between base and derivative classes
+		// (C++ compiler error: base class has incomplete type)
+		// ==========================================================================================
+		trace("+ Breaking cyclic-references between base and derivative classes ...");
+		for(file in _this.native_files)
+		{
+			// Get a native file
+			var native_file = _this.native_files[file];
+
+			// Collect vartypes from all classes in the native file node
+			for(item in native_file.classes)
+			{
+				var base = native_file.classes[item];
+				for(vartype in base.derivatives)
+				{
+					if(__exists(native_file.cpp.vartypes, vartype))
+						delete native_file.cpp.vartypes[vartype];
+
+					if(__exists(native_file.hpp.vartypes, vartype))
+						delete native_file.hpp.vartypes[vartype];
+				}
+			}
+		}
+
+		// ==========================================================================================
+		// At this point we have collected all the generated cpp and hpp code for each original file
+		// and we know what vartypes each file needs. Now we need to resolve vartypes into includes.
+		// ==========================================================================================
+		trace("+ Resolving vartypes to #includes ...");
+		for(file in _this.native_files)
+		{
+			// Get a native file
+			var native_file = _this.native_files[file];
+
+			// Standard includes for .hpp
+			native_file.hpp.includes['#include "Coconut2D.hpp"'] = true;
+
+			// Standard includes for .cpp
+			native_file.cpp.includes['#include "' + native_file.name + '.hpp"'] = true;
+
+			for(vartype in native_file.hpp.vartypes)
+			{
+				if(!__exists(native_file.classes, vartype))
+				{
+					// Find the .hpp file where this vartype is defined
+					include = find_include_file_where_vartype_is_defined(vartype, native_file);
+					if(include)	native_file.hpp.includes[include] = true;
+				}
+			}
+
+			for(vartype in native_file.cpp.vartypes)
+			{
+				if(!__exists(native_file.classes, vartype))
+				{
+					// Find the .hpp file where this vartype is defined
+					include = find_include_file_where_vartype_is_defined(vartype, native_file);
+					if(include)	native_file.cpp.includes[include] = true;
+				}
+			}
+		}
+
+		// ==========================================================================================
+		// At this stage we are ready to generate the .cpp and .hpp files
+		// ==========================================================================================
+		trace("+ Creating .cpp and .hpp files ...");
+		for(file in _this.native_files)
+		{
+			// Get a native file
+			var native_file = _this.native_files[file];
+
+			// Create .hpp
+			var tag = "__" + native_file.name.toUpperCase() + "_HPP__";
+			var includes = []; for(include in native_file.hpp.includes) { includes.push(include); }
+			native_file.hpp.out = "/* Generated by Coconut2D C++ Compiler from file " + native_file.file + " */\n\n" +
+								  "#ifndef " + tag + "\n#define " + tag + "\n\n" +
+			 					  _this.SEPARATOR + includes.join("\n") +
+			 					  _this.SEPARATOR + native_file.hpp.body.join(_this.SEPARATOR) +
+			 					  "\n#endif // " + tag + "\n";
+
+			// Create .cpp
+			var buff = native_file.cpp.body.join(_this.SEPARATOR);
+			var includes = []; for(include in native_file.cpp.includes) { includes.push(include); }
+			native_file.cpp.out = "/* Generated by Coconut2D C++ Compiler from file " + native_file.file + " */\n\n" +
+			 					  _this.SEPARATOR + includes.join("\n") +
+			 					  _this.SEPARATOR + native_file.cpp.body.join(_this.SEPARATOR);
+
+			// Save .cpp and .hpp files
+			IDECallback("module_hpp", native_file.path, 0, 0, native_file.hpp.out);
+			IDECallback("module_cpp", native_file.path, 0, 0, native_file.cpp.out);
+		}
+
+		// ==========================================================================================
+		function find_include_file_where_vartype_is_defined(vartype)
+		{
+			// Search for vartype in a generated file.
+			for(file in _this.native_files)
+			{
+				var native_file = _this.native_files[file];
+				if(__exists(native_file.classes, vartype))
+				{
+					// Return the file as #include directive
+					return '#include "' + native_file.name + '.hpp"';
+				}
+			}
+
+			// Vartype not found. Search for vartype in non-generated files.
+			for(file in _this.native_vartypes_includes)
+			{
+				if(__exists(_this.native_vartypes_includes[file], vartype))
+				{
+					// Return the file as #include directive
+					return '#include "' + file + '"';
+				}
+			}
+
+			// Nasty hack for State.
+			//TODO: Should change this with detection code
+			if(vartype=="State") return null;
+
+			// Vartype not found anywhere.
+			for(item in native_file.classes){break;}
+			_this.NewError("Class " + vartype + " must be moved inside a Framework", native_file.classes[item].ast);
+			return '#include "' + vartype + '.hpp"';
+		}
+	};
+
 	// ==================================================================================================================================
 	//	    ______                      __     ____       __                   _____                 __          __
 	//	   / ____/  ______  ____  _____/ /_   / __ \___  / /_  __  ______ _   / ___/__  ______ ___  / /_  ____  / /____
@@ -268,8 +523,8 @@ function CompilerExportsPlugin(compiler)
 				if(!methodSymbol.name) continue;
 
 				// XML-ize vartypes and remove overload $<index>
-				var signature = methodSymbol.__signature.replace('<','&lt;').replace('>','&gt;').replace(/\$\d+/, "");
-				var cnSignature = methodSymbol.__cnSignature.replace('<','&lt;').replace('>','&gt;').replace(/\$\d+/, "");
+				var signature = xtype(methodSymbol.__signature).replace(/\$\d+/, "");
+				var cnSignature = xtype(methodSymbol.__cnSignature).replace(/\$\d+/, "");
 
 				mbrList.push('\t<member name="' + methodSymbol.name.replace(/\$\d+/, "") + '" proto="' + signature + '" help="' + cnSignature + '" image="' + methodSymbol.icon + '"/>');
 			}
@@ -278,8 +533,7 @@ function CompilerExportsPlugin(compiler)
 			{
 				var varSymbol = classSymbol.vars[item];
 
-				var signature = varSymbol.signature || (varSymbol.name + varSymbol.ast.xmlvartype);
-				signature = signature.replace('<','&lt;').replace('>','&gt;');
+				var signature = xtype(varSymbol.signature || (varSymbol.name + varSymbol.ast.vartype));
 				mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + signature + '" help="' + classSymbol.name + " :: " + signature + '" image="' + varSymbol.icon + '"/>');
 			}
 
@@ -320,7 +574,7 @@ function CompilerExportsPlugin(compiler)
 				var varSymbol = scope.vars[item];
 				if(!varSymbol.name || !varSymbol.vartype) continue;
 				varsxml.push("\t<SYMBOL symbolId='"+varSymbol.symbolId + "' name='" + varSymbol.name +
-							 "' type='" + varSymbol.nodeType + "' vartype='" + varSymbol.vartype.replace('<','&lt;').replace('>','&gt;') +
+							 "' type='" + varSymbol.nodeType + "' vartype='" + xtype(varSymbol.vartype) +
 							 "' subtype='" + (varSymbol.subtype ? varSymbol.subtype : "") + "'/>\n");
 			}
 
@@ -329,7 +583,7 @@ function CompilerExportsPlugin(compiler)
 				var methodSymbol = scope.methods[item];
 				if(!methodSymbol.name) continue;
 				varsxml.push("\t<SYMBOL symbolId='"+methodSymbol.symbolId + "' name='" + methodSymbol.name + "' type='" + methodSymbol.nodeType +
-							 "' vartype='" + (!methodSymbol.vartype ? "" : methodSymbol.vartype.replace('<','&lt;').replace('>','&gt;')) +
+							 "' vartype='" + (!methodSymbol.vartype ? "" : xtype(methodSymbol.vartype)) +
 							 "' subtype='" + (methodSymbol.subtype ? methodSymbol.subtype : "") + "'/>\n");
 			}
 

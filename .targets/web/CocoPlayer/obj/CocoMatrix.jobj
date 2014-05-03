@@ -16,7 +16,10 @@ function CocoVector()
 		{
 			return 'CocoVector'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [CocoVector] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -82,7 +85,10 @@ function CocoMatrix(__CLASS__COCOMATRIX__$M__)
 		{
 			return 'CocoMatrix'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [CocoMatrix] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}

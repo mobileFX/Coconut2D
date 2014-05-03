@@ -1,6 +1,7 @@
 ﻿#ifndef _WebGLRenderingContext_h
 #define _WebGLRenderingContext_h
 
+#include "Coconut2D.hpp"
 #include <string>
 #include "HTMLCanvasContext.hpp"
 #include "HTMLCanvasElement.hpp"

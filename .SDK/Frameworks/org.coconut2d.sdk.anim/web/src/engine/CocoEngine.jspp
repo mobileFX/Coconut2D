@@ -46,7 +46,7 @@ state class CocoEngine
 
 	private var __currentState:State;
 	private var __nextState:State;
-	private var __deviceEvent:DeviceEvent;
+	private var __deviceMessage:DeviceMessage;
 	private var __clicked:Array<CocoClip>;
 	private var __clock:Time;
 
@@ -57,7 +57,7 @@ state class CocoEngine
 	{
 		__clicked = new Array<CocoClip>;
 		__currentState = null;
-		__deviceEvent = null;
+		__deviceMessage = null;
 		__clock = 0;
 		debugbreak=false;
 
@@ -146,25 +146,25 @@ state class CocoEngine
 			__currentState.paint(gl, __clock);
 		}
 
-		__deviceEvent = null;
+		__deviceMessage = null;
 
 		// To avoid frame skipping we enfore a fixed time interval of 16.66~ ms.
 		__clock += TICK_TIME;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	private function __setTouchEvent(e:DeviceEvent)
+	private function __setTouchEvent(e:DeviceMessage)
 	{
-		__deviceEvent = e;
-		__deviceEvent.__clientX = e.touches ? e.touches[0].clientX : e.clientX;
-		__deviceEvent.__clientY = e.touches ? e.touches[0].clientY : e.clientY;
+		__deviceMessage = e;
+		__deviceMessage.__clientX = e.touches ? e.touches[0].clientX : e.clientX;
+		__deviceMessage.__clientY = e.touches ? e.touches[0].clientY : e.clientY;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function getTouchEvent() :DeviceEvent
+	public function getTouchEvent() :DeviceMessage
 	{
 		// In the future we need to filter the event type
-		return __deviceEvent;
+		return __deviceMessage;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////

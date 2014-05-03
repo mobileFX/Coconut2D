@@ -39,7 +39,7 @@ extern char* AssetFile::filesPath;
 extern char* AssetFile::assetPath;
 
 #define CONFIGURATION_COMPILER
-#define DEBUG_HOST_IP 	"192.168.1.199"
+#define DEBUG_HOST_IP 	"192.168.1.154"
 #define DEBUG_HOST_PORT 9999
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

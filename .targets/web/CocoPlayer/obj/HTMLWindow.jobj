@@ -15,7 +15,10 @@ function HTMLWindow()
 		{
 			return 'HTMLWindow'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [HTMLWindow] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -35,7 +38,7 @@ function HTMLWindow()
 		//@line 40
 		this.devicePixelRatio = 0;
 		//@line 42
-		this.__deviceEvent = null;
+		this.__deviceMessage = null;
 		//@line 43
 		this.__elements = [];
 		//@line 66
@@ -58,11 +61,11 @@ function HTMLWindow()
 		this.dispatchEvent = function (uid, eventType)
 		{
 			//@line 82
-			__CLASS__HTMLWINDOW__.__deviceEvent.type = eventType;
+			__CLASS__HTMLWINDOW__.__deviceMessage.type = eventType;
 			//@line 83
 			var Callback = __CLASS__HTMLWINDOW__.__elements[eventType];
 			//@line 84
-			if (Callback) Callback.call(global, __CLASS__HTMLWINDOW__.__deviceEvent);
+			if (Callback) Callback.call(global, __CLASS__HTMLWINDOW__.__deviceMessage);
 		};
 		//@line 58
 		this.Destructor = function ()
@@ -75,8 +78,8 @@ function HTMLWindow()
 				};
 				//@line 61
 				{
-					__CLASS__HTMLWINDOW__.__deviceEvent && ((__CLASS__HTMLWINDOW__.__deviceEvent.hasOwnProperty('Destructor') && __CLASS__HTMLWINDOW__.__deviceEvent.Destructor()) || !__CLASS__HTMLWINDOW__.__deviceEvent.hasOwnProperty('Destructor')) && (delete __CLASS__HTMLWINDOW__.__deviceEvent);
-					__CLASS__HTMLWINDOW__.__deviceEvent = null
+					__CLASS__HTMLWINDOW__.__deviceMessage && ((__CLASS__HTMLWINDOW__.__deviceMessage.hasOwnProperty('Destructor') && __CLASS__HTMLWINDOW__.__deviceMessage.Destructor()) || !__CLASS__HTMLWINDOW__.__deviceMessage.hasOwnProperty('Destructor')) && (delete __CLASS__HTMLWINDOW__.__deviceMessage);
+					__CLASS__HTMLWINDOW__.__deviceMessage = null
 				};
 				//@line 62
 				{
@@ -90,7 +93,7 @@ function HTMLWindow()
 				__CLASS__HTMLWINDOW__.innerHeight = null;
 				__CLASS__HTMLWINDOW__.innerWidth = null;
 				__CLASS__HTMLWINDOW__.devicePixelRatio = null;
-				__CLASS__HTMLWINDOW__.__deviceEvent = null;
+				__CLASS__HTMLWINDOW__.__deviceMessage = null;
 				__CLASS__HTMLWINDOW__.__elements = null;
 			}
 			return true
@@ -109,9 +112,9 @@ function HTMLWindow()
 			//@line 52
 			__CLASS__HTMLWINDOW__.devicePixelRatio = global.devicePixelRatio;
 			//@line 53
-			__CLASS__HTMLWINDOW__.__deviceEvent = new DeviceEvent;
+			__CLASS__HTMLWINDOW__.__deviceMessage = new DeviceMessage;
 			//@line 54
-			__registerManager(__THIS__, __CLASS__HTMLWINDOW__.dispatchEvent, __CLASS__HTMLWINDOW__.__deviceEvent);
+			__registerManager(__THIS__, __CLASS__HTMLWINDOW__.dispatchEvent, __CLASS__HTMLWINDOW__.__deviceMessage);
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
 		this.Constructor();

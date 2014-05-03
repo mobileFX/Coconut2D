@@ -1,4 +1,5 @@
-//@line 10
+"#export web";
+//@line 11
 
 function TestSelf1()
 {
@@ -15,7 +16,10 @@ function TestSelf1()
 		{
 			return 'TestSelf1'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [TestSelf1] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -24,15 +28,15 @@ function TestSelf1()
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 12
+		//@line 13
 		this.saved = {};
-		//@line 16
+		//@line 17
 		this.save_this = function ()
 		{
-			//@line 18
+			//@line 19
 			__CLASS__TESTSELF1__.saved = __THIS__;
 		};
-		//@line 14
+		//@line 15
 		this.Destructor = function ()
 		{
 			{}
@@ -41,7 +45,7 @@ function TestSelf1()
 			}
 			return true
 		};
-		//@line 13
+		//@line 14
 		this.Constructor = function () {};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
 		this.Constructor();
@@ -51,7 +55,7 @@ function TestSelf1()
 }
 TestSelf1.__PRIVATE__ = {};
 TestSelf1.__PROTECTED__ = {};
-//@line 23
+//@line 24
 
 function TestSelf2()
 {
@@ -68,7 +72,10 @@ function TestSelf2()
 		{
 			return 'TestSelf2'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [TestSelf2] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -87,7 +94,7 @@ function TestSelf2()
 }
 TestSelf2.__PRIVATE__ = {};
 TestSelf2.__PROTECTED__ = {};
-//@line 28
+//@line 29
 
 function TestSelf3()
 {
@@ -104,7 +111,10 @@ function TestSelf3()
 		{
 			return 'TestSelf3'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [TestSelf3] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -125,7 +135,7 @@ function TestSelf3()
 }
 TestSelf3.__PRIVATE__ = {};
 TestSelf3.__PROTECTED__ = {};
-//@line 33
+//@line 34
 
 function TestThis()
 {
@@ -142,7 +152,10 @@ function TestThis()
 		{
 			return 'TestThis'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [TestThis] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -151,14 +164,14 @@ function TestThis()
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 35
+		//@line 36
 		this.Constructor = function ()
 		{
-			//@line 37
-			var t = new TestSelf3;
 			//@line 38
-			t.save_this();
+			var t = new TestSelf3;
 			//@line 39
+			t.save_this();
+			//@line 40
 			trace("Saved instance type: " + t.saved.toString());
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);

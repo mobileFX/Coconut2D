@@ -149,7 +149,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function Compiler(ast, exportSymbols, selectedClass)
+function Compiler(ast)
 {
 	// ast				: The abstract syntax tree root node as produced by the parser
 	// selectedClass	: Used if we want to parse-only a single class for intelliSence use
@@ -161,7 +161,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 	_this.classFiles = {};					// Used in order to have multiple classes in one file
 	_this.currClassName = null;             // The current class being processed (also indicates whether a JS++ class is being processed or just plain JavaScript code)
 	_this.currFile = null;                  // Current File being processed
-	_this.exportSymbols = exportSymbols;    // Flag that indicates whether symbols should be exported or not
+	_this.exportSymbols = false;		    // Flag that indicates whether symbols should be exported or not
 	_this.fileClasses = {};                 // Map of classes per file (usage: _this.fileClasses[file][class] = ast; )
 	_this.in_property = false;    			// Flag that indicates we are processing a property
 	_this.in_state = false;    				// Flag that indicates we are processing a state
@@ -173,19 +173,25 @@ function Compiler(ast, exportSymbols, selectedClass)
 	_this.scopesStack = [];                 // Stack of Scopes (scopes are pushed and popped from it during generation)
 	_this.scopesTable = [];                 // Table of Scopes (scopes are only pushed)
 	_this.secondPass = false;               // Flag that indicates compiler's second pass
-	_this.selectedClass = selectedClass;    // If set it indicates that we only need to process a single class (used by IDE intelliSence for parsing classes as you type them)
+	_this.selectedClass = null;			    // If set it indicates that we only need to process a single class (used by IDE intelliSence for parsing classes as you type them)
 	_this.states = {};						// Map of states
 	_this.symbolId = -1;					// Symbols Counter
 	_this.tokenizer = null;                 // Reference to tokenizer (reserved for future use)
 	_this.UNTYPED = "Untyped";              // Untyped identifier vartype, used in Type Check System
 
+	// Include priority (1: needed in .cpp, 2: needed in .hpp)
+	_this.INCLUDE_IN_CPP = 1;
+	_this.INCLUDE_IN_HPP = 2;
+
 	_this.DELETE_BASE = "__BASE__ && ((__BASE__.hasOwnProperty('Destructor') && __BASE__.Destructor()) || !__BASE__.hasOwnProperty('Destructor')) && (delete __BASE__);";
+	_this.SEPARATOR = "\n\n///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n";
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Extend the compiler with plugins
 	CompilerExportsPlugin(_this);
 	CompilerTypeSystemPlugin(_this);
 	CompilerAnalyzerPlugin(_this);
+	CompilerCppPlugin(_this);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Symbol constructors
@@ -232,7 +238,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.writeClassFiles = function()
+	_this.write_javascript = function()
 	{
 		for(var p in _this.classFiles)
 		{
@@ -264,10 +270,13 @@ function Compiler(ast, exportSymbols, selectedClass)
 	//	                    /_/
 	// ==================================================================================================================================
 
-	_this.compile = function()
+	_this.compile = function(exportSymbols, selectedClass, genrate_native)
 	{
+		_this.exportSymbols = exportSymbols;
+		_this.selectedClass = selectedClass;
+
 		// Pre-preocess ast
-		_this.preprocess(ast);
+		_this.preprocess();
 
 		// First pass to record symbols
 		_this.generate(ast);
@@ -292,7 +301,15 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			// Second pass to generate actual code
 			_this.generate(ast);
-			_this.writeClassFiles();
+			_this.write_javascript();
+		}
+
+		// Generate C++ code
+		if(genrate_native)
+		{
+			_this.prepare_native_files();
+			_this.generate_cpp(ast);
+			_this.export_cpp_files();
 		}
 
 		// Detect memory leaks
@@ -311,7 +328,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 	//	               /_/
 	// ==================================================================================================================================
 
-	_this.preprocess = function(ast, pass)
+	_this.preprocess = function()
 	{
 		var _this = this;
 		_this.tokenizer = ast.tokenizer;
@@ -359,9 +376,11 @@ function Compiler(ast, exportSymbols, selectedClass)
 			case jsdef.DOT:
 				// Pre-process DOT for speed.
 				currDot.push(node);
-				node.identifiers_list = _this.reduceProps(node);
-				node.identifier_first = node.identifiers_list[0].ast;
-				node.identifier_last = node.identifiers_list[node.identifiers_list.length-1].ast;
+
+				_this.SET_METADATA(node, "identifiers_list", _this.reduceProps(node));
+				_this.SET_METADATA(node, "identifier_first", node.identifiers_list[0].ast);
+				_this.SET_METADATA(node, "identifier_last", node.identifiers_list[node.identifiers_list.length-1].ast);
+
 				var values = [];
 				for(var i=0,L=node.identifiers_list.length;i<L;i++)	values.push(node.identifiers_list[i].value);
 				node.value = values.join(".");
@@ -369,7 +388,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				{
 					if(node.identifiers_list[i].value!="@@INDEX@@")
 					{
-						node.identifier_last = node.identifiers_list[i].ast;
+						_this.SET_METADATA(node, "identifier_last", node.identifiers_list[i].ast);
 						break;
 					}
 				}
@@ -441,7 +460,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 					case "type":
 					case "vartype":
 					case "virtual":
-					case "xmlvartype":
 
 						break;
 
@@ -454,7 +472,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 						if(typeof node[item] == 'object'  && node[item] && !node[item].__visited)
 						{
 							descend(node[item]);
-							node[item].parent = node;
+							_this.SET_METADATA(node[item], "parent", node);
 							nodes.push(node[item]);
 						}
 				}
@@ -462,7 +480,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 			nodes = null;
 
             // Enrich ast node with usefull data and delete its reference to tokenizer.
-
 			node.nodeType = GLOBAL.narcissus.jsdefNames[node.type];
 			node.source = _this.tokenizer.source.slice(node.start, node.end);
 			node.line_start -= node.__fileLineOffset;
@@ -470,12 +487,13 @@ function Compiler(ast, exportSymbols, selectedClass)
 			node.start -= node.__filePosOffset;
 			node.end -= node.__filePosOffset;
 
-			node.inClass = currClass;
-			node.inFunction = currFunction;
-			node.inDot = currDot.length>0 && currDot[currDot.length-1].type==jsdef.DOT ? currDot[currDot.length-1] : null;
-			node.inIndex = currDot.length>0 && currDot[currDot.length-1].type==jsdef.INDEX ? currDot[currDot.length-1] : null;
-			node.inGroup = currDot.length>0 && currDot[currDot.length-1].type==jsdef.GROUP ? currDot[currDot.length-1] : null;
-			node.inCall = currDot.length>0 && currDot[currDot.length-1].type==jsdef.CALL ? currDot[currDot.length-1] : null;
+			// Non-enumerable node metadata
+			_this.SET_METADATA(node, "inClass", currClass);
+			_this.SET_METADATA(node, "inFunction", currFunction);
+			_this.SET_METADATA(node, "inDot", currDot.length>0 && currDot[currDot.length-1].type==jsdef.DOT ? currDot[currDot.length-1] : null);
+			_this.SET_METADATA(node, "inIndex", currDot.length>0 && currDot[currDot.length-1].type==jsdef.INDEX ? currDot[currDot.length-1] : null);
+			_this.SET_METADATA(node, "inGroup", currDot.length>0 && currDot[currDot.length-1].type==jsdef.GROUP ? currDot[currDot.length-1] : null);
+			_this.SET_METADATA(node, "inCall", currDot.length>0 && currDot[currDot.length-1].type==jsdef.CALL ? currDot[currDot.length-1] : null);
 
 			node.tokenizer = null;
 			delete node.tokenizer;
@@ -499,7 +517,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			}
 		}
 
-		descend(ast);
+		descend(_this.ast);
 
 		// Enable this code to detect Node object properties
 		// added by parser that could be excluded in descend.
@@ -514,8 +532,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 		}
 
 		trace("+ Generating Code ...");
-
-		return ast;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -614,7 +630,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			scope.isGlobal		= _this.scopesStack.length==0;
 			scope.isClass		= type==jsdef.CLASS;
 			scope.isMethod		= type==jsdef.FUNCTION;
-			scope.state			= type==jsdef.STATE;
+			scope.isState		= type==jsdef.STATE;
 			scope.file			= ast.file;
 			scope.path			= ast.path;
 			scope.start			= ast.start;
@@ -637,55 +653,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/*
-	// Create a scope for entities that do NOT have an ast
-	_this.NewClassTypeScope = function(classSymbol)
-	{
-		var scope = null;
-
-		if(_this.secondPass)
-		{
-			scope = classSymbol.scope;
-		}
-		else
-		{
-			scope = new Scope();
-
-			scope.scopeId		= (++_this.scopeId);
-			scope.name			= classSymbol.name;
-			scope.parentScope	= _this.scopesStack[0];
-			scope.childScopes	= [];
-			scope.ast			= null;
-			scope.className		= classSymbol.name;
-			scope.type			= jsdef.CLASS;
-			scope.nodeType		= classSymbol.nodeType;
-			scope.isGlobal		= false;
-			scope.isClass		= true;
-			scope.isMethod		= false;
-			scope.state			= false;
-			scope.file			= classSymbol.file;
-			scope.path			= classSymbol.path;
-			scope.start			= classSymbol.start;
-			scope.end			= classSymbol.end;
-			scope.line_start	= classSymbol.line_start;
-			scope.line_end		= classSymbol.line_end;
-			scope.vars			= new Object();
-			scope.methods		= new Object();
-			scope.vartypes		= new Object();
-
-			_this.scopesStack[0].childScopes.push(scope);
-			classSymbol.scope = scope;
-		}
-
-        // Push scope to scope stack and scope table.
-		_this.scopesTable.push(scope);
-		_this.scopesStack.push(scope);
-
-		return scope;
-	}
-	*/
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.ExitScope = function()
 	{
 		return _this.scopesStack.pop();
@@ -703,6 +670,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 	// The purpose of the following functions is to link an IDENTIFIER with its defining SYMBOL,
 	// or in other words to "recognize" an identifier's type. If a program is written correctly
 	// all identifiers should be recognized.
+
+	/*@@ LookupIdentifier @@*/
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.LookupIdentifier = function(scope, identifier, ast, noWarning)
@@ -761,14 +730,15 @@ function Compiler(ast, exportSymbols, selectedClass)
 		if(!ast || !scope || !ast.identifiers_list) return null;
 
 		var dot = ast.source;
-		var identifier = ast.identifiers_list[ast.identifiers_list.length-1].value;
+		var last_identifier = ast.identifiers_list[ast.identifiers_list.length-1].value;
 		var symbol = null;
 
 		// Start descending dot chain.
 		for(var i=0; i<ast.identifiers_list.length;i++)
 		{
 			var vartype = null;
-			var nodeSymbol = _this.LookupIdentifier(scope, ast.identifiers_list[i].value, null, true);
+			var identifier = ast.identifiers_list[i].value;
+			var nodeSymbol = _this.LookupIdentifier(scope, identifier, null, true);
 			if(!nodeSymbol) break;
 			if(i==ast.identifiers_list.length-1)
 			{
@@ -777,6 +747,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			}
 			else if(ast.identifiers_list[i+1].value=="@@INDEX@@")
 			{
+				if(!nodeSymbol.subtype)	nodeSymbol = _this.getClass(nodeSymbol.vartype);
 				vartype = nodeSymbol.subtype;
 				i++;
 				if(i==ast.identifiers_list.length-1)
@@ -1034,42 +1005,46 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Struct Symbol
 			var classSymbol = new ClassSymbol();
 			{
-				classSymbol.symbolId			= (++_this.symbolId);
-				classSymbol.name				= ast.name;
-				classSymbol.vartype				= ast.name;
-				classSymbol.subtype				= null;
-				classSymbol.classId				= classId;
-				classSymbol.base				= null;
-				classSymbol.baseSymbol			= null;
-				classSymbol.bases 				= [];
-				classSymbol.interfaces			= []
-				classSymbol.events				= {};
-				classSymbol.__event_bindings	= [];
-				classSymbol.__event_unbindings	= [];
-				classSymbol.__event_fire		= [];
-				classSymbol.type				= jsdef.CLASS;
-				classSymbol.nodeType			= "STRUCT";
-				classSymbol.extern				= (ast.file=="externs.jspp");
-				classSymbol.control				= false;
-				classSymbol._prototype			= false;
-				classSymbol.enum				= false;
-				classSymbol.state				= false;
-				classSymbol.callback			= false;
-				classSymbol.interface			= false;
-				classSymbol.struct				= true;
-				classSymbol.ast					= ast;
-				classSymbol.scope				= scope;
-				classSymbol.file				= ast.file;
-				classSymbol.path				= ast.path;
-				classSymbol.start				= ast.start;
-				classSymbol.end					= ast.end;
-				classSymbol.line_start			= ast.line_start;
-				classSymbol.line_end			= ast.line_end;
-				classSymbol.scopeId				= scope.scopeId;
-				classSymbol.vars				= scope.vars;
-				classSymbol.methods	 			= scope.methods;
-				classSymbol.runtime				= ast.name;
-				classSymbol.icon				= _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
+				classSymbol.symbolId				= (++_this.symbolId);
+				classSymbol.name					= ast.name;
+				classSymbol.vartype					= ast.name;
+				classSymbol.subtype					= null;
+				classSymbol.classId					= classId;
+				classSymbol.base					= null;
+				classSymbol.baseSymbol				= null;
+				classSymbol.bases 					= [];
+				classSymbol.derivatives				= {};
+				classSymbol.interfaces				= []
+				classSymbol.events					= {};
+				classSymbol.__event_bindings		= [];
+				classSymbol.__event_unbindings		= [];
+				classSymbol.__event_fire			= [];
+				classSymbol.type					= jsdef.CLASS;
+				classSymbol.nodeType				= "STRUCT";
+				classSymbol.extern					= (ast.file=="externs.jspp");
+				classSymbol.control					= false;
+				classSymbol._prototype				= false;
+				classSymbol.enum					= false;
+				classSymbol.state					= false;
+				classSymbol.callback				= false;
+				classSymbol.interface				= false;
+				classSymbol.struct					= true;
+				classSymbol.ast						= ast;
+				classSymbol.scope					= scope;
+				classSymbol.vartypes				= scope.vartypes;
+				classSymbol.file					= ast.file;
+				classSymbol.path					= ast.path;
+				classSymbol.start					= ast.start;
+				classSymbol.end						= ast.end;
+				classSymbol.line_start				= ast.line_start;
+				classSymbol.line_end				= ast.line_end;
+				classSymbol.scopeId					= scope.scopeId;
+				classSymbol.vars					= scope.vars;
+				classSymbol.methods	 				= scope.methods;
+				classSymbol.runtime					= ast.name;
+				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
+				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
+				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
 
 			// Save symbol
@@ -1082,7 +1057,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			for(item in ast)
 			{
 				if(!isFinite(item)) break;
-				ast[item].pointer = __isPointer(ast[item].vartype);
+				ast[item].pointer = _this.isPointer(ast[item].vartype);
 
 				// Var Symbol
 				var varSymbol = new VarSymbol();
@@ -1136,6 +1111,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 	            // Save var in scopes
 				ast[item].symbol = varSymbol;
 				ast.scope.vars[ast[item].name] = varSymbol;
+
+				// Record vartype usage in class level (used to check #includes)
+				_this.record_vartype_use(ast, varSymbol, classSymbol.scope, _this.INCLUDE_IN_HPP);
 
 				// Generate
 				items.push(ast[item].name + ": null");
@@ -1208,42 +1186,50 @@ function Compiler(ast, exportSymbols, selectedClass)
 			// Class Symbol
 			var classSymbol = new ClassSymbol();
 			{
-				classSymbol.symbolId			= (++_this.symbolId);
-				classSymbol.name				= ast.name;
-				classSymbol.vartype				= ast.name;
-				classSymbol.subtype				= ast.subtype;
-				classSymbol.classId				= classId;
-				classSymbol.base				= baseClass;
-				classSymbol.baseSymbol			= baseClassSymbol;
-				classSymbol.bases 				= [baseClassSymbol];//Must be filled with all the base classes
-				classSymbol.interfaces			= ast.interfaces;
-				classSymbol.events				= {};
-				classSymbol.__event_bindings	= [];
-				classSymbol.__event_unbindings	= [];
-				classSymbol.__event_fire		= [];
-				classSymbol.type				= jsdef.CLASS;
-				classSymbol.nodeType			= ast.nodeType;
-				classSymbol.extern				= (ast.file=="externs.jspp");
-				classSymbol.control				= ast.control;
-				classSymbol._prototype			= false;
-				classSymbol.enum				= false;
-				classSymbol.state				= ast.state;
-				classSymbol.callback			= false;
-				classSymbol.interface			= ast.type==jsdef.INTERFACE;
-				classSymbol.ast					= ast;
-				classSymbol.scope				= scope;
-				classSymbol.file				= ast.file;
-				classSymbol.path				= ast.path;
-				classSymbol.start				= ast.start;
-				classSymbol.end					= ast.end;
-				classSymbol.line_start			= ast.line_start;
-				classSymbol.line_end			= ast.line_end;
-				classSymbol.scopeId				= scope.scopeId;
-				classSymbol.vars				= scope.vars;
-				classSymbol.methods	 			= scope.methods;
-				classSymbol.runtime				= ast.name;
-				classSymbol.icon				= ast.type==jsdef.INTERFACE ? _this.CODE_SYMBOLS_ENUM.SYMBOL_INTERFACE : _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
+				classSymbol.symbolId				= (++_this.symbolId);
+				classSymbol.name					= ast.name;
+				classSymbol.vartype					= ast.name;
+				classSymbol.subtype					= ast.subtype;
+				classSymbol.classId					= classId;
+				classSymbol.base					= baseClass;
+				classSymbol.baseSymbol				= baseClassSymbol;
+				classSymbol.bases 					= [baseClassSymbol];//Must be filled with all the base classes
+				classSymbol.derivatives				= {};
+				classSymbol.interfaces				= ast.interfaces;
+				classSymbol.events					= {};
+				classSymbol.__event_bindings		= [];
+				classSymbol.__event_unbindings		= [];
+				classSymbol.__event_fire			= [];
+				classSymbol.type					= jsdef.CLASS;
+				classSymbol.nodeType				= ast.nodeType;
+				classSymbol.extern					= (ast.file=="externs.jspp");
+				classSymbol.control					= ast.control;
+				classSymbol._prototype				= false;
+				classSymbol.enum					= false;
+				classSymbol.state					= ast.state;
+				classSymbol.callback				= false;
+				classSymbol.interface				= ast.type==jsdef.INTERFACE;
+				classSymbol.ast						= ast;
+				classSymbol.scope					= scope;
+				classSymbol.vartypes				= scope.vartypes;
+				classSymbol.file					= ast.file;
+				classSymbol.path					= ast.path;
+				classSymbol.start					= ast.start;
+				classSymbol.end						= ast.end;
+				classSymbol.line_start				= ast.line_start;
+				classSymbol.line_end				= ast.line_end;
+				classSymbol.scopeId					= scope.scopeId;
+				classSymbol.vars					= scope.vars;
+				classSymbol.methods	 				= scope.methods;
+				classSymbol.runtime					= ast.name;
+				classSymbol.icon					= ast.type==jsdef.INTERFACE ? _this.CODE_SYMBOLS_ENUM.SYMBOL_INTERFACE : _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
+				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
+				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
+
+			// Keep a list of derivative classes to handle cyclic-references in C++ (error: base class has incomplete type)
+			if(baseClassSymbol)
+				baseClassSymbol.derivatives[classSymbol.name] = classSymbol;
 
 			// Save symbol
 			ast.symbol = classSymbol;
@@ -1251,7 +1237,10 @@ function Compiler(ast, exportSymbols, selectedClass)
 			_this.scopesStack[0].vars[classSymbol.name] = classSymbol;
 
 			// Record vartype usage in class level (used to check #includes)
-			if(baseClass) scope.vartypes[baseClass] = 2; // Include priority (1: needed in .cpp, 2: needed in .hpp)
+			if(baseClass)
+			{
+				_this.record_vartype_use(ast, {vartype:baseClass, subtype:null}, scope, _this.INCLUDE_IN_HPP);
+			}
 
 			if(_this.secondPass)
 			{
@@ -1306,8 +1295,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			out.push("var __THIS__ = this;");
 			out.push("this.toString = function(){return '" + ast.name + "'};");
-			out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){__THIS__=v;}});");
-			//out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){trace('chaning \"this\" of base class [" + classSymbol.name + "] to top-level class [' + v.Class + ']' );__THIS__=v;}});");
+			//out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){__THIS__=v;}});");
+			out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){trace('chaning \"this\" of base class [" + classSymbol.name + "] to top-level class [' + v.Class + ']' );__THIS__=v;}});");
 
 			// Define the bank for the virtual public and private methods.
 			// You are not expected to understand how this works but the
@@ -1932,7 +1921,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 		case jsdef.FUNCTION:
 
-			ast.pointer = __isPointer(ast.returntype);
+			ast.pointer = _this.isPointer(ast.returntype);
 
 			var methodScope = _this.NewScope(ast);
 			var parentScope = methodScope.parentScope;	// Could be State, Property or Class scope
@@ -2020,7 +2009,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				functionSymbol.paramsList			= ast.paramsList;
 				functionSymbol.overloads			= ast.overloads;
 				functionSymbol.arguments			= {};
-				functionSymbol.description			= ast.jsdoc ? ast.jsdoc.descr : fnName + " is a member function of class " + className + ".";
+				functionSymbol.description			= ast.jsdoc ? ast.jsdoc.descr : (className ? fnName + " is a member function of class " + className + "." : null);
 				functionSymbol.icon 				= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
 
 				if(functionSymbol.public)			functionSymbol.modifier = "public";
@@ -2044,10 +2033,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 				parentScope.methods[fnName] = functionSymbol;
 
 			// Record vartype usage in class level (used to check #includes)
-			if(functionSymbol.subtype && !parentScope.vartypes[functionSymbol.subtype])
-				parentScope.vartypes[functionSymbol.subtype] = 1;
-			else if(functionSymbol.vartype && !parentScope.vartypes[functionSymbol.vartype])
-				parentScope.vartypes[functionSymbol.vartype] = 1;
+			if(classScope)
+				_this.record_vartype_use(ast, functionSymbol, parentScope, _this.INCLUDE_IN_CPP);
 
 			// Process the Arguments List
 			var paramsList = "";
@@ -2055,7 +2042,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			for(var i=0; i<ast.paramsList.length; i++)
 			{
 				var param = ast.paramsList[i];
-				param.pointer = __isPointer(param.vartype);
+				param.pointer = _this.isPointer(param.vartype);
 
 				paramsList += param.name;
 
@@ -2130,11 +2117,8 @@ function Compiler(ast, exportSymbols, selectedClass)
 				functionSymbol.arguments[varSymbol.name] = varSymbol;
 
     			// Record vartype usage in class level (used to check #includes)
-				if(varSymbol.subtype)
-					parentScope.vartypes[varSymbol.subtype] = true;
-				else if(varSymbol.vartype)
-					parentScope.vartypes[varSymbol.vartype] = true;
-
+    			if(classScope)
+    				_this.record_vartype_use(ast, varSymbol, parentScope, _this.INCLUDE_IN_HPP);
 			}
 
 			paramsList = "(" + paramsList + ")";
@@ -2584,7 +2568,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					}
 				}
 
-				ast[item].pointer = __isPointer(ast[item].vartype);
+				ast[item].pointer = _this.isPointer(ast[item].vartype);
 
 				// Var Symbol
 				var varSymbol = new VarSymbol();
@@ -2643,7 +2627,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				{
 					varSymbol.vartype = extern_symbol.vartype;
 					varSymbol.subtype = extern_symbol.subtype;
-					varSymbol.pointer = __isPointer(varSymbol.vartype);
+					varSymbol.pointer = _this.isPointer(varSymbol.vartype);
 				}
 
                 if(ast[item].vartype == "Array" && !ast[item].subtype)
@@ -2664,10 +2648,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				// Record vartype usage in class level (used to check #includes)
 				if(classScope)
 				{
-					if(varSymbol.subtype && !classScope.vartypes[varSymbol.subtype])
-						classScope.vartypes[varSymbol.subtype] = 1;
-					else if(varSymbol.vartype && !classScope.vartypes[varSymbol.vartype])
-						classScope.vartypes[varSymbol.vartype] = 1;
+					_this.record_vartype_use(ast, varSymbol, classScope, (ast.inFunction ? _this.INCLUDE_IN_CPP : _this.INCLUDE_IN_HPP));
 				}
 
 				if(!firstItem)
@@ -2679,12 +2660,12 @@ function Compiler(ast, exportSymbols, selectedClass)
 				}
 				out.push(ast[item].name);
 
-				if(ast.scope.state) out.push(" = this." + ast[item].name);
+				if(ast.scope.isState) out.push(" = this." + ast[item].name);
 
 				if(ast[item].initializer)
 				{
 					// Generate initializer
-					if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.state) && !ast.inFunction && !ast.static)
+					if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction && !ast.static)
 					{
 						if(_this.in_state)
 							_this.NewError("Invalid state variable initializer, should be in state enter() function : " + ast[item].name, ast[item]);
@@ -2701,7 +2682,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 					{
 						ast.generated_code = _this.types[vartype].default;
 					}
-					else if(ast.scope.isClass || ast.scope.state)
+					else if(ast.scope.isClass || ast.scope.isState)
 					{
 						ast.generated_code = "null";
 					}
@@ -2737,41 +2718,45 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			var classSymbol = new ClassSymbol();
 			{
-				classSymbol.symbolId			= (++_this.symbolId);
-				classSymbol.name				= ast.name;
-				classSymbol.vartype				= ast.name;
-				classSymbol.subtype				= null;
-				classSymbol.classId				= classId;
-				classSymbol.extern				= (ast.file=="externs.jspp");
-				classSymbol.base				= "Function";
-				classSymbol.baseSymbol			= baseClassSymbol;
-				classSymbol.bases 				= [baseClassSymbol];
-				classSymbol.interfaces			= [];
-				classSymbol.events				= {};
-				classSymbol.__event_bindings	= [];
-				classSymbol.__event_unbindings	= [];
-				classSymbol.__event_fire		= [];
-				classSymbol.type				= jsdef.CLASS;
-				classSymbol.nodeType			= "CALLBACK";
-				classSymbol.control				= false;
-				classSymbol._prototype			= false;
-				classSymbol.enum				= false;
-				classSymbol.state				= false;
-				classSymbol.callback			= true;
-				classSymbol.interface			= false;
-				classSymbol.ast					= ast;
-				classSymbol.scope				= scope;
-				classSymbol.file				= ast.file;
-				classSymbol.path				= ast.path;
-				classSymbol.start				= ast.start;
-				classSymbol.end					= ast.end;
-				classSymbol.line_start			= ast.line_start;
-				classSymbol.line_end			= ast.line_end;
-				classSymbol.scopeId				= scope.scopeId;
-				classSymbol.vars				= scope.vars;
-				classSymbol.methods	 			= scope.methods;
-				classSymbol.runtime				= ast.name;
-				classSymbol.icon				= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+				classSymbol.symbolId				= (++_this.symbolId);
+				classSymbol.name					= ast.name;
+				classSymbol.vartype					= ast.name;
+				classSymbol.subtype					= null;
+				classSymbol.classId					= classId;
+				classSymbol.extern					= (ast.file=="externs.jspp");
+				classSymbol.base					= "Function";
+				classSymbol.baseSymbol				= baseClassSymbol;
+				classSymbol.bases 					= [baseClassSymbol];
+				classSymbol.derivatives				= {};
+				classSymbol.interfaces				= [];
+				classSymbol.events					= {};
+				classSymbol.__event_bindings		= [];
+				classSymbol.__event_unbindings		= [];
+				classSymbol.__event_fire			= [];
+				classSymbol.type					= jsdef.CLASS;
+				classSymbol.nodeType				= "CALLBACK";
+				classSymbol.control					= false;
+				classSymbol._prototype				= false;
+				classSymbol.enum					= false;
+				classSymbol.state					= false;
+				classSymbol.callback				= true;
+				classSymbol.interface				= false;
+				classSymbol.ast						= ast;
+				classSymbol.scope					= scope;
+				classSymbol.vartypes				= scope.vartypes;
+				classSymbol.file					= ast.file;
+				classSymbol.path					= ast.path;
+				classSymbol.start					= ast.start;
+				classSymbol.end						= ast.end;
+				classSymbol.line_start				= ast.line_start;
+				classSymbol.line_end				= ast.line_end;
+				classSymbol.scopeId					= scope.scopeId;
+				classSymbol.vars					= scope.vars;
+				classSymbol.methods	 				= scope.methods;
+				classSymbol.runtime					= ast.name;
+				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
+				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
 
 			// Create callback signature and save it in the class
@@ -2814,6 +2799,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 			var baseClass = "CocoEvent";
 			var baseClassSymbol = _this.getClass(baseClass);
 
+			// Record vartype usage in class level (used to check #includes)
+			_this.record_vartype_use(ast, {vartype:className, subtype:null}, currentClass.scope, _this.INCLUDE_IN_HPP);
+
 			// =======================================================================
 			// Create event callback signature
 			// =======================================================================
@@ -2840,41 +2828,45 @@ function Compiler(ast, exportSymbols, selectedClass)
 			classSymbol.ast.symbol = classSymbol;
 			var scope = classSymbol.scope = _this.NewScope(classSymbol.ast);
 			{
-				classSymbol.symbolId			= (++_this.symbolId);
-				classSymbol.name				= className;
-				classSymbol.vartype				= className;
-				classSymbol.subtype				= null;
-				classSymbol.classId				= classId;
-				classSymbol.extern				= (ast.file=="externs.jspp");
-				classSymbol.base				= baseClass;
-				classSymbol.baseSymbol			= baseClassSymbol;
-				classSymbol.bases 				= [baseClassSymbol];
-				classSymbol.interfaces			= [];
-				classSymbol.events				= {};
-				classSymbol.__event_bindings	= [];
-				classSymbol.__event_unbindings	= [];
-				classSymbol.__event_fire		= [];
-				classSymbol.type				= jsdef.CLASS;
-				classSymbol.nodeType			= "CLASS";
-				classSymbol.control				= false;
-				classSymbol._prototype	 		= false;
-				classSymbol.enum				= true;
-				classSymbol.state				= false;
-				classSymbol.callback			= false;
-				classSymbol.interface			= false;
-				classSymbol.event				= true;	//todo:add to others
-				classSymbol.file				= ast.file;
-				classSymbol.path				= ast.path;
-				classSymbol.start				= ast.start;
-				classSymbol.end					= ast.end;
-				classSymbol.line_start			= ast.line_start;
-				classSymbol.line_end			= ast.line_end;
-				classSymbol.scopeId				= classSymbol.scope.scopeId;
-				classSymbol.vars				= classSymbol.scope.vars;
-				classSymbol.methods	 			= classSymbol.scope.methods;
-				classSymbol.runtime				= ast.name;
-				classSymbol.icon				= _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
-				classSymbol.__typedParamsList 	= __typedParamsList;
+				classSymbol.symbolId				= (++_this.symbolId);
+				classSymbol.name					= className;
+				classSymbol.vartype					= className;
+				classSymbol.subtype					= null;
+				classSymbol.classId					= classId;
+				classSymbol.extern					= (ast.file=="externs.jspp");
+				classSymbol.base					= baseClass;
+				classSymbol.baseSymbol				= baseClassSymbol;
+				classSymbol.bases 					= [baseClassSymbol];
+				classSymbol.derivatives				= {};
+				classSymbol.interfaces				= [];
+				classSymbol.events					= {};
+				classSymbol.__event_bindings		= [];
+				classSymbol.__event_unbindings		= [];
+				classSymbol.__event_fire			= [];
+				classSymbol.type					= jsdef.CLASS;
+				classSymbol.nodeType				= "CLASS";
+				classSymbol.control					= false;
+				classSymbol._prototype	 			= false;
+				classSymbol.enum					= true;
+				classSymbol.state					= false;
+				classSymbol.callback				= false;
+				classSymbol.interface				= false;
+				classSymbol.event					= true;	//todo:add to others
+				classSymbol.file					= ast.file;
+				classSymbol.path					= ast.path;
+				classSymbol.start					= ast.start;
+				classSymbol.end						= ast.end;
+				classSymbol.line_start				= ast.line_start;
+				classSymbol.line_end				= ast.line_end;
+				classSymbol.scopeId					= classSymbol.scope.scopeId;
+				classSymbol.vartypes				= classSymbol.scope.vartypes;
+				classSymbol.vars					= classSymbol.scope.vars;
+				classSymbol.methods	 				= classSymbol.scope.methods;
+				classSymbol.runtime					= ast.name;
+				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
+				classSymbol.__typedParamsList 		= __typedParamsList;
+				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
+				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
 
 			// We need to add var members in our new Event Class.
@@ -2920,6 +2912,9 @@ function Compiler(ast, exportSymbols, selectedClass)
 					varSymbol.runtime 				= arg.value;
 				}
 				classSymbol.vars[varSymbol.name]=varSymbol;
+
+    			// Record vartype usage in class level (used to check #includes)
+    			_this.record_vartype_use(ast, varSymbol, classSymbol.scope, _this.INCLUDE_IN_HPP);
 			}
 
 			// Save Event Class symbol
@@ -3027,41 +3022,45 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			var classSymbol = new ClassSymbol();
 			{
-				classSymbol.symbolId			= (++_this.symbolId);
-				classSymbol.name				= ast.name;
-				classSymbol.vartype				= ast.name;
-				classSymbol.subtype				= null;
-				classSymbol.classId				= classId;
-				classSymbol.extern				= (ast.file=="externs.jspp");
-				classSymbol.base				= null;
-				classSymbol.baseSymbol			= null;
-				classSymbol.bases 				= [];
-				classSymbol.interfaces			= [];
-				classSymbol.events				= {};
-				classSymbol.__event_bindings	= [];
-				classSymbol.__event_unbindings	= [];
-				classSymbol.__event_fire		= [];
-				classSymbol.type				= jsdef.CLASS;
-				classSymbol.nodeType			= "CLASS";
-				classSymbol.control				= false;
-				classSymbol._prototype			= false;
-				classSymbol.enum				= true;
-				classSymbol.state				= false;
-				classSymbol.callback			= false;
-				classSymbol.interface			= false;
-				classSymbol.ast					= ast;
-				classSymbol.scope				= scope;
-				classSymbol.file				= ast.file;
-				classSymbol.path				= ast.path;
-				classSymbol.start				= ast.start;
-				classSymbol.end					= ast.end;
-				classSymbol.line_start			= ast.line_start;
-				classSymbol.line_end			= ast.line_end;
-				classSymbol.scopeId				= scope.scopeId;
-				classSymbol.vars				= scope.vars;
-				classSymbol.methods	 			= scope.methods;
-				classSymbol.runtime				= ast.name;
-				classSymbol.icon				= _this.CODE_SYMBOLS_ENUM.SYMBOL_ENUM;
+				classSymbol.symbolId				= (++_this.symbolId);
+				classSymbol.name					= ast.name;
+				classSymbol.vartype					= ast.name;
+				classSymbol.subtype					= null;
+				classSymbol.classId					= classId;
+				classSymbol.extern					= (ast.file=="externs.jspp");
+				classSymbol.base					= null;
+				classSymbol.baseSymbol				= null;
+				classSymbol.bases 					= [];
+				classSymbol.derivatives				= {};
+				classSymbol.interfaces				= [];
+				classSymbol.events					= {};
+				classSymbol.__event_bindings		= [];
+				classSymbol.__event_unbindings		= [];
+				classSymbol.__event_fire			= [];
+				classSymbol.type					= jsdef.CLASS;
+				classSymbol.nodeType				= "CLASS";
+				classSymbol.control					= false;
+				classSymbol._prototype				= false;
+				classSymbol.enum					= true;
+				classSymbol.state					= false;
+				classSymbol.callback				= false;
+				classSymbol.interface				= false;
+				classSymbol.ast						= ast;
+				classSymbol.scope					= scope;
+				classSymbol.vartypes				= scope.vartypes;
+				classSymbol.file					= ast.file;
+				classSymbol.path					= ast.path;
+				classSymbol.start					= ast.start;
+				classSymbol.end						= ast.end;
+				classSymbol.line_start				= ast.line_start;
+				classSymbol.line_end				= ast.line_end;
+				classSymbol.scopeId					= scope.scopeId;
+				classSymbol.vars					= scope.vars;
+				classSymbol.methods	 				= scope.methods;
+				classSymbol.runtime					= ast.name;
+				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_ENUM;
+				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
+				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
 
 			// Save symbol
@@ -3157,7 +3156,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 		case jsdef.PROPERTY:
 
-			ast.pointer = __isPointer(ast.vartype);
+			ast.pointer = _this.isPointer(ast.vartype);
 
 			if(!_this.currClassName)
 				_this.NewError("Invalid property outside class", ast);
@@ -3521,22 +3520,21 @@ function Compiler(ast, exportSymbols, selectedClass)
 			//==================================================================================
 			switch(ast.value)
 			{
-			case "Float32Array":	ast.symbol.subtype = "Float"; break;
-			case "Int32Array":		ast.symbol.subtype = "int"; break;
-			case "Uint8Array":		ast.symbol.subtype = "uint8_t"; break;
-			case "Array":			if(!ast.subtype) _this.NewError("Untyped Array", ast);
-			default:
-
-				// Add vartype to class vartypes lists (used to determine #includes)
-				var classScope = _this.getClassScope();
-				if(classScope)
-				{
-					if(ast.symbol.subtype && !classScope.vartypes[ast.symbol.subtype])
-						classScope.vartypes[ast.symbol.subtype] = 1;
-					else if(ast.symbol.vartype && !classScope.vartypes[ast.symbol.vartype])
-						classScope.vartypes[ast.symbol.vartype] = 1;
-				}
+				case "Int8Array":		ast.symbol.subtype = "Integer"; break;
+				case "Int16Array":		ast.symbol.subtype = "Integer"; break;
+				case "Int32Array":		ast.symbol.subtype = "Integer"; break;
+				case "Uint8Array":		ast.symbol.subtype = "Integer"; break;
+				case "Uint16Array":		ast.symbol.subtype = "Integer"; break;
+				case "Uint32Array":		ast.symbol.subtype = "Integer"; break;
+				case "Float32Array":	ast.symbol.subtype = "Float"; break;
+				case "Float64Array":	ast.symbol.subtype = "Float"; break;
+				case "Array":			if(!ast.subtype) _this.NewError("Untyped Array", ast);
 			}
+
+			//==================================================================================
+			// Add vartype to class vartypes lists (used to determine #includes)
+			//==================================================================================
+			_this.record_vartype_use(ast, ast.symbol, _this.getClassScope(), _this.INCLUDE_IN_CPP);
 
 			//==================================================================================
 			// Is this identifier a standard var declaration?
@@ -3761,7 +3759,6 @@ function Compiler(ast, exportSymbols, selectedClass)
 
 			else if(ast.inDot && ast!=ast.inDot.identifier_first && ast.symbol.type==jsdef.FUNCTION && ast.symbol.virtual && __exists(ast.inClass.symbol.methods, ast.value) && (ast.inDot.identifier_first.type==jsdef.SUPER || ast.inDot.identifier_first.type==jsdef.THIS))
 			{
-
 				ast.runtime = "__VIRTUAL__."
 				if(ast.symbol.protected) ast.runtime += "__PROTECTED__.";
 				ast.runtime += ast.value;
@@ -4164,7 +4161,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 			{
 				out.push("{");
 				/*
-				if(ast[0].symbol.subtype && __isPointer(ast[0].symbol.subtype))
+				if(ast[0].symbol.subtype && _this.isPointer(ast[0].symbol.subtype))
 				{
 					out.push("(function(o){if(!o) return;for(var i=o.length;i--;){o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);o[i]=null;}})(" + expr + ");");
 				}
@@ -4240,7 +4237,7 @@ function Compiler(ast, exportSymbols, selectedClass)
 				var params = [];
 				for(item in ast.inFunction.symbol.paramsList)
 				{
-					if(!isFinite(item)) continue;
+					if(!isFinite(item)) break;
 					var param = ast.inFunction.symbol.paramsList[item];
 					params.push(param.name);
 				}

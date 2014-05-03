@@ -36,6 +36,13 @@ function CompilerAnalyzerPlugin(compiler)
 	var _this = this._this = compiler;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Create a non-enumerable metata entry on an object
+	_this.SET_METADATA = function(node, metaname, metadata)
+	{
+		Object.defineProperty(node, metaname, {enumerable:false, value:metadata});
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Generic AST descend.
 	// Usage: _this.descend("string id of this descend", node_to_start_descending, checker_function);
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +50,7 @@ function CompilerAnalyzerPlugin(compiler)
 	{
 		if(!node || !checkFn || !visitedId) return;
 		if(node["__visited__"+visitedId]) return;
-		node["__visited__"+visitedId]=true;
+		_this.SET_METADATA(node, "__visited__"+visitedId, true);
 		if(checkFn && checkFn(node)) return;
 		for(var item in node)
 		{

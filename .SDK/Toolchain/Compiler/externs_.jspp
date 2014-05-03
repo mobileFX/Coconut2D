@@ -270,7 +270,6 @@ class Global
 	undefined var COCO_CONTROL_BORDER_STYLE_ENUM :COCO_CONTROL_BORDER_STYLE_ENUM;
 	undefined var COCO_CONTROL_ANCHOR_ENUM :COCO_CONTROL_ANCHOR_ENUM;
 	undefined var COCO_SKIN_TILE_ENUM :COCO_SKIN_TILE_ENUM;
-	undefined var DeviceEvent :DeviceEvent;
 	undefined var Audio :Audio;
 	undefined var HTMLCanvasContext :HTMLCanvasContext;
 	undefined var PathLine :PathLine;
@@ -309,6 +308,8 @@ class Global
 	undefined var CocoKeyFrame :CocoKeyFrame;
 	undefined var CocoTimeLabel :CocoTimeLabel;
 	undefined var CocoTimeline :CocoTimeline;
+	undefined var IEventListener :IEventListener;
+	undefined var IEventTarget :IEventTarget;
 	undefined var ITickable :ITickable;
 	undefined var CocoTickable :CocoTickable;
 	undefined var CocoRect :CocoRect;
@@ -319,14 +320,13 @@ class Global
 	undefined var CocoTextStyle :CocoTextStyle;
 	undefined var CocoText :CocoText;
 	undefined var CocoEngine :CocoEngine;
-	undefined var IEventListener :IEventListener;
-	undefined var IEventTarget :IEventTarget;
 	undefined var CocoEvent :CocoEvent;
 	undefined var CocoEventConnectionPoint :CocoEventConnectionPoint;
 	undefined var CocoEventSource :CocoEventSource;
+	undefined var State :State;
+	undefined var DeviceMessage :DeviceMessage;
 	undefined var Touch :Touch;
 	undefined var TouchList :TouchList;
-	undefined var State :State;
 	undefined var CocoAudio :CocoAudio;
 	undefined var CocoHttpRequest :CocoHttpRequest;
 	undefined var CocoUIView :CocoUIView;
@@ -692,39 +692,6 @@ class COCO_SKIN_TILE_ENUM
 	public var TILE_REPEAT_XY :COCO_SKIN_TILE_ENUM;
 } //COCO_SKIN_TILE_ENUM
 
-class DeviceEvent
-{
-	public function stopPropagation() {}
-	public function preventDefault() {}
-	public function initEvent(type:String, canBubble:Boolean, cancelable:Boolean) {}
-	public function initUIEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer) {}
-	public function initTouchEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, ctrlKey:Boolean, altKey:Boolean, shiftKey:Boolean, metaKey:Boolean, touches:TouchList, targetTouches:TouchList, changedTouches:TouchList, scale:Float, rotation:Float) {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public var CAPTURING_PHASE :Integer;
-	public var AT_TARGET :Integer;
-	public var BUBBLING_PHASE :Integer;
-	public var type :String;
-	public var target :IEventTarget;
-	public var currentTarget :IEventTarget;
-	public var eventPhase :Integer;
-	public var bubbles :Boolean;
-	public var cancelable :Boolean;
-	public var timeStamp :Integer;
-	public var defaultPrevented :Boolean;
-	public var view :HTMLWindow;
-	public var detail :Integer;
-	public var touches :TouchList;
-	public var targetTouches :TouchList;
-	public var changedTouches :TouchList;
-	public var scale :Float;
-	public var rotation :Float;
-	public var clientX :Integer;
-	public var clientY :Integer;
-	public var __clientX :Integer;
-	public var __clientY :Integer;
-} //DeviceEvent
-
 class Audio
 {
 	public function play() {}
@@ -902,7 +869,7 @@ class HTMLWindow
 	public var innerHeight :Integer;
 	public var innerWidth :Integer;
 	public var devicePixelRatio :Float;
-	public var __deviceEvent :DeviceEvent;
+	public var __deviceMessage :DeviceMessage;
 	public var __elements :Array<Function>;
 } //HTMLWindow
 
@@ -1687,6 +1654,14 @@ class CocoTimeline
 	public var __lastKeyFrameIndex :Integer;
 } //CocoTimeline
 
+class IEventListener
+{
+} //IEventListener
+
+class IEventTarget
+{
+} //IEventTarget
+
 class ITickable
 {
 	public function RegisterTickable() {}
@@ -1811,8 +1786,8 @@ class CocoEngine
 	public function removeTickListener(tickable:ITickable) {}
 	public function setNextState(s:State) {}
 	public function run(gl:WebGLRenderingContext, time:Time) {}
-	private function __setTouchEvent(e:DeviceEvent) {}
-	public function getTouchEvent() :DeviceEvent {}
+	private function __setTouchEvent(e:DeviceMessage) {}
+	public function getTouchEvent() :DeviceMessage {}
 	public function pushTouched(clip:CocoClip) {}
 	public function isClicked(check:Array<CocoClip>) :Integer {}
 	public function __debug_trace(scene:CocoScene, clip:CocoClip, message:String) {}
@@ -1822,19 +1797,11 @@ class CocoEngine
 	public var debugbreak :Boolean;
 	private var __currentState :State;
 	private var __nextState :State;
-	private var __deviceEvent :DeviceEvent;
+	private var __deviceMessage :DeviceMessage;
 	private var __clicked :Array<CocoClip>;
 	private var __clock :Time;
 	private var __tickables :Array<ITickable>;
 } //CocoEngine
-
-class IEventListener
-{
-} //IEventListener
-
-class IEventTarget
-{
-} //IEventTarget
 
 class CocoEvent
 {
@@ -1851,7 +1818,6 @@ class CocoEvent
 	public var timeStamp :Integer;
 	public var stopPropagation :Boolean;
 	public var defaultPrevented :Boolean;
-	public var view :HTMLWindow;
 	public var detail :Integer;
 	public var touches :TouchList;
 	public var targetTouches :TouchList;
@@ -1883,6 +1849,47 @@ class CocoEventSource
 	protected var __eventListeners :Array<CocoEventConnectionPoint>;
 } //CocoEventSource
 
+class State
+{
+	public function enter() {}
+	public function exit() {}
+	public function tick(time:Time) {}
+	public function paint(gl:WebGLRenderingContext, time:Time) {}
+	public function Destructor() {}
+	public var __name :String;
+	public var params :Object;
+} //State
+
+class DeviceMessage
+{
+	public function stopPropagation() {}
+	public function preventDefault() {}
+	public function initEvent(type:String, canBubble:Boolean, cancelable:Boolean) {}
+	public function initUIEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer) {}
+	public function initTouchEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, ctrlKey:Boolean, altKey:Boolean, shiftKey:Boolean, metaKey:Boolean, touches:TouchList, targetTouches:TouchList, changedTouches:TouchList, scale:Float, rotation:Float) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public var type :String;
+	public var target :IEventTarget;
+	public var currentTarget :IEventTarget;
+	public var eventPhase :Integer;
+	public var bubbles :Boolean;
+	public var cancelable :Boolean;
+	public var timeStamp :Integer;
+	public var defaultPrevented :Boolean;
+	public var view :HTMLWindow;
+	public var detail :Integer;
+	public var touches :TouchList;
+	public var targetTouches :TouchList;
+	public var changedTouches :TouchList;
+	public var scale :Float;
+	public var rotation :Float;
+	public var clientX :Integer;
+	public var clientY :Integer;
+	public var __clientX :Integer;
+	public var __clientY :Integer;
+} //DeviceMessage
+
 class Touch
 {
 	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, pageX:Integer, pageY:Integer) {}
@@ -1904,17 +1911,6 @@ class TouchList : Array
 	public function Constructor() {}
 	public var length :Integer;
 } //TouchList
-
-class State
-{
-	public function enter() {}
-	public function exit() {}
-	public function tick(time:Time) {}
-	public function paint(gl:WebGLRenderingContext, time:Time) {}
-	public function Destructor() {}
-	public var __name :String;
-	public var params :Object;
-} //State
 
 class CocoAudio
 {

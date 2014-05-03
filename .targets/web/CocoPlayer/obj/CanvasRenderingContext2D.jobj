@@ -15,7 +15,10 @@ function PathLine(__CLASS__PATHLINE__$_x0__, __CLASS__PATHLINE__$_y0__, __CLASS_
 		{
 			return 'PathLine'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [PathLine] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -69,7 +72,10 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 		{
 			return 'CanvasRenderingContext2D'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [CanvasRenderingContext2D] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -251,443 +257,447 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 			//@line 174
 			var l1 = Math.floor(0.5 * __CLASS__CANVASRENDERINGCONTEXT2D__.lineWidth);
 			//@line 175
+			var data = __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data;
+			//@line 177
 			for (var i = __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines.size(); i--;)
-			//@line 176
+			//@line 178
 			{
-				//@line 177
-				var x0 = Math.floor(Math.max((0.0), Math.min(__CLASS__HTMLCANVASCONTEXT__.canvas.width, __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines[i].x0)));
-				//@line 178
-				var y0 = Math.floor(Math.max((0.0), Math.min(__CLASS__HTMLCANVASCONTEXT__.canvas.height, __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines[i].y0)));
 				//@line 179
-				var x1 = Math.floor(Math.max((0.0), Math.min(__CLASS__HTMLCANVASCONTEXT__.canvas.width, __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines[i].x1)));
+				var x0 = Math.floor(Math.max((0.0), Math.min(__CLASS__HTMLCANVASCONTEXT__.canvas.width, __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines[i].x0)));
 				//@line 180
-				var y1 = Math.floor(Math.max((0.0), Math.min(__CLASS__HTMLCANVASCONTEXT__.canvas.height, __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines[i].y1)));
+				var y0 = Math.floor(Math.max((0.0), Math.min(__CLASS__HTMLCANVASCONTEXT__.canvas.height, __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines[i].y0)));
 				//@line 181
-				var t = 0;
+				var x1 = Math.floor(Math.max((0.0), Math.min(__CLASS__HTMLCANVASCONTEXT__.canvas.width, __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines[i].x1)));
 				//@line 182
-				if (x0 > x1)
+				var y1 = Math.floor(Math.max((0.0), Math.min(__CLASS__HTMLCANVASCONTEXT__.canvas.height, __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__pathLines[i].y1)));
 				//@line 183
+				var t = 0;
+				//@line 185
+				if (x0 > x1)
+				//@line 186
 				{
-					//@line 184
+					//@line 187
 					t = x0;
-					//@line 185
+					//@line 188
 					x0 = x1;
-					//@line 186
+					//@line 189
 					x1 = t;
 				}
-				//@line 188
+				//@line 192
 				if (y0 > y1)
-				//@line 189
+				//@line 193
 				{
-					//@line 190
+					//@line 194
 					t = y0;
-					//@line 191
+					//@line 195
 					y0 = y1;
-					//@line 192
+					//@line 196
 					y1 = t;
 				}
-				//@line 194
+				//@line 199
 				if (x0 == x1 && y0 == y1)
-				//@line 195
+				//@line 200
 				{}
 				else
-				//@line 202
+				//@line 208
 				if (x0 == x1)
-				//@line 203
+				//@line 209
 				{
-					//@line 204
+					//@line 210
 					for (var y = y0; y < y1; y++)
-					//@line 205
+					//@line 211
 					{
-						//@line 206
+						//@line 212
 						for (var l = l0; l < l1; l++)
-						//@line 207
+						//@line 213
 						{
-							//@line 208
+							//@line 214
 							t = (y * (__CLASS__HTMLCANVASCONTEXT__.canvas.width) + x0 + l) * 4;
-							//@line 209
-							if (t < __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data.length)
-							//@line 210
+							//@line 215
+							if (t < data.length)
+							//@line 216
 							{
-								//@line 211
-								__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 0] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[0] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 0] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
-								//@line 212
-								__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 1] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[1] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 1] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
-								//@line 213
-								__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 2] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[2] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 2] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
-								//@line 214
-								__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 3] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 3] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
+								//@line 217
+								data[t + 0] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[0] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - (data[t + 0]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
+								//@line 218
+								data[t + 1] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[1] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - (data[t + 1]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
+								//@line 219
+								data[t + 2] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[2] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - (data[t + 2]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
+								//@line 220
+								data[t + 3] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - (data[t + 3]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
 							}
 						}
 					}
 				}
 				else
-				//@line 219
+				//@line 225
 				if (y0 == y1)
-				//@line 220
+				//@line 226
 				{
-					//@line 221
+					//@line 227
 					for (var x = x0; x < x1; x++)
-					//@line 222
+					//@line 228
 					{
-						//@line 223
+						//@line 229
 						for (var l = l0; l < l1; l++)
-						//@line 224
+						//@line 230
 						{
-							//@line 225
+							//@line 231
 							t = ((y0 + l) * (__CLASS__HTMLCANVASCONTEXT__.canvas.width) + x) * 4;
-							//@line 226
+							//@line 232
 							if (t < __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data.length)
-							//@line 227
+							//@line 233
 							{
-								//@line 228
-								__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 0] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[0] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 0] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
-								//@line 229
-								__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 1] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[1] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 1] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
-								//@line 230
-								__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 2] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[2] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 2] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
-								//@line 231
-								__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 3] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[t + 3] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
+								//@line 234
+								data[t + 0] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[0] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - (data[t + 0]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
+								//@line 235
+								data[t + 1] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[1] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - (data[t + 1]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
+								//@line 236
+								data[t + 2] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[2] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - (data[t + 2]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
+								//@line 237
+								data[t + 3] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3] - (data[t + 3]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[3];
 							}
 						}
 					}
 				}
 				else
-				//@line 237
+				//@line 243
 				{}
 			}
 		};
-		//@line 448
+		//@line 454
 		this.fillText = function (text, x, y, maxWidth)
 		{
-			//@line 450
+			//@line 456
 			if (__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font)
-			//@line 451
+			//@line 457
 			__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font.fillText(__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data.buffer, __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.width, text, x, y, __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[0], __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[1], __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[2], __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3]);
 		};
-		//@line 455
+		//@line 461
 		this.fillRect = function (x, y, width, height)
 		{
-			//@line 457
+			//@line 463
 			var _x = (Math.floor(x));
-			//@line 458
+			//@line 464
 			var _y = (Math.floor(y));
-			//@line 459
+			//@line 465
+			var data = __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data;
+			//@line 466
 			for (var ix = 0; ix < width; ix++)
-			//@line 460
+			//@line 467
 			{
-				//@line 461
+				//@line 468
 				for (var iy = 0; iy < height; iy++)
-				//@line 462
+				//@line 469
 				{
-					//@line 463
+					//@line 470
 					var idx = ((_y + iy) * __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.width + _x + ix) * 4;
-					//@line 464
+					//@line 471
 					if (idx < __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data.length)
-					//@line 465
+					//@line 472
 					{
-						//@line 466
-						__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[idx + 0] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[0] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[idx + 0] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3];
-						//@line 467
-						__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[idx + 1] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[1] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[idx + 1] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3];
-						//@line 468
-						__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[idx + 2] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[2] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[idx + 2] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3];
-						//@line 469
-						__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[idx + 3] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] - __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[idx + 3] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3];
+						//@line 473
+						data[idx + 0] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[0] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] - (data[idx + 0]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3];
+						//@line 474
+						data[idx + 1] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[1] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] - (data[idx + 1]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3];
+						//@line 475
+						data[idx + 2] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[2] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] - (data[idx + 2]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3];
+						//@line 476
+						data[idx + 3] += 255.0 * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3] - (data[idx + 3]) * __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[3];
 					}
 				}
 			}
 		};
-		//@line 476
+		//@line 483
 		this.clearRect = function (x, y, width, height)
 		{
-			//@line 478
+			//@line 485
 			var _x = (Math.floor(x));
-			//@line 479
+			//@line 486
 			var _y = (Math.floor(y));
-			//@line 480
+			//@line 487
 			for (var ix = 0; ix < width; ix++)
-			//@line 481
+			//@line 488
 			for (var iy = 0; iy < height; iy++)
-			//@line 482
+			//@line 489
 			{
-				//@line 483
+				//@line 490
 				var idx = (_y + iy) * __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.width + _x + ix;
-				//@line 484
+				//@line 491
 				if (idx < __CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data.length)
-				//@line 485
+				//@line 492
 				__CLASS__HTMLCANVASCONTEXT__.canvas.__imageData.data[idx] = 0;
 			}
 		};
-		//@line 490
+		//@line 497
 		this.measureText = function (text)
 		{
-			//@line 492
+			//@line 499
 			var ret = new HTMLTextMetrics;
-			//@line 493
+			//@line 500
 			ret.width = __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font.measureText(text);
-			//@line 494
+			//@line 501
 			return ret;
 		};
-		//@line 244
+		//@line 250
 		Object.defineProperty(this, 'fillStyle', {
 			enumerable: true,
-			//@line 246
+			//@line 252
 			get: function ()
 			{
-				//@line 248
+				//@line 254
 				return __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillStyle;
 				return ""
 			},
-			//@line 250
+			//@line 256
 			set: function (v)
 			{
-				//@line 252
-				if (v.indexOf("rgba")) return;
-				//@line 253
-				var str = v.substr(v.indexOf("(") + 1);
-				//@line 254
-				str = str.substr(0, str.indexOf(")"));
-				//@line 255
-				var arr = str.split(",");
-				//@line 256
-				if (arr.size() != 4) return;
-				//@line 257
-				for (var i = 0; i < 4; i++)
 				//@line 258
-				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[i] = parseFloat(arr[i]) / 255.0;
+				if (v.indexOf("rgba")) return;
 				//@line 259
+				var str = v.substr(v.indexOf("(") + 1);
+				//@line 260
+				str = str.substr(0, str.indexOf(")"));
+				//@line 261
+				var arr = str.split(",");
+				//@line 262
+				if (arr.size() != 4) return;
+				//@line 263
+				for (var i = 0; i < 4; i++)
+				//@line 264
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillColor[i] = parseFloat(arr[i]) / 255.0;
+				//@line 265
 				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fillStyle = v;
 			}
 		});
-		//@line 264
+		//@line 270
 		Object.defineProperty(this, 'strokeStyle', {
 			enumerable: true,
-			//@line 266
+			//@line 272
 			get: function ()
 			{
-				//@line 268
+				//@line 274
 				return __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeStyle;
 				return ""
 			},
-			//@line 270
+			//@line 276
 			set: function (v)
 			{
-				//@line 272
-				if (v.indexOf("rgba")) return;
-				//@line 273
-				var str = v.substr(v.indexOf("(") + 1);
-				//@line 274
-				str = str.substr(0, str.indexOf(")"));
-				//@line 275
-				var arr = str.split(",");
-				//@line 276
-				if (arr.size() != 4) return;
-				//@line 277
-				for (var i = 0; i < 4; i++)
 				//@line 278
-				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[i] = parseFloat(arr[i]) / 255.0;
+				if (v.indexOf("rgba")) return;
 				//@line 279
+				var str = v.substr(v.indexOf("(") + 1);
+				//@line 280
+				str = str.substr(0, str.indexOf(")"));
+				//@line 281
+				var arr = str.split(",");
+				//@line 282
+				if (arr.size() != 4) return;
+				//@line 283
+				for (var i = 0; i < 4; i++)
+				//@line 284
+				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeColor[i] = parseFloat(arr[i]) / 255.0;
+				//@line 285
 				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__strokeStyle = v;
 			}
 		});
-		//@line 284
+		//@line 290
 		Object.defineProperty(this, 'lineWidth', {
 			enumerable: true,
-			//@line 286
+			//@line 292
 			get: function ()
 			{
-				//@line 288
+				//@line 294
 				return __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__lineWidth;
 				return 0
 			},
-			//@line 290
+			//@line 296
 			set: function (v)
 			{
-				//@line 292
+				//@line 298
 				if (v >= 1.0)
-				//@line 293
+				//@line 299
 				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__lineWidth = v;
 			}
 		});
-		//@line 298
+		//@line 304
 		Object.defineProperty(this, 'font', {
 			enumerable: true,
-			//@line 302
+			//@line 308
 			get: function ()
 			{
-				//@line 304
+				//@line 310
 				return __CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fontSetting;
 				return ""
 			},
-			//@line 307
+			//@line 313
 			set: function (v)
 			{
-				//@line 309
-				var spl = v.split(" ");
-				//@line 310
-				var fontStyle = "normal";
-				//@line 311
-				var fontVariant = "normal";
-				//@line 312
-				var fontWeight = "normal";
-				//@line 313
-				var fontSize = "medium";
-				//@line 314
-				var lineHeight = "normal";
 				//@line 315
-				var fontFamily = "Arial";
+				var spl = v.split(" ");
 				//@line 316
-				var s = 0;
+				var fontStyle = "normal";
 				//@line 317
-				var str = "";
+				var fontVariant = "normal";
 				//@line 318
-				for (var i = 0; i < spl.size(); i++)
+				var fontWeight = "normal";
 				//@line 319
+				var fontSize = "medium";
+				//@line 320
+				var lineHeight = "normal";
+				//@line 321
+				var fontFamily = "Arial";
+				//@line 322
+				var s = 0;
+				//@line 323
+				var str = "";
+				//@line 324
+				for (var i = 0; i < spl.size(); i++)
+				//@line 325
 				{
-					//@line 320
+					//@line 326
 					str = spl[i];
-					//@line 321
+					//@line 327
 					if (!str) continue;
-					//@line 322
+					//@line 328
 					switch (s)
 					{
-						//@line 324
+						//@line 330
 					case 3:
 						{
-							//@line 325
+							//@line 331
 							{
-								//@line 326
+								//@line 332
 								var idx = str.indexOf("/");
-								//@line 327
+								//@line 333
 								if (idx != -1)
-								//@line 328
+								//@line 334
 								{
-									//@line 329
+									//@line 335
 									fontSize = str.substr(0, idx);
-									//@line 330
+									//@line 336
 									var lh = str.substr(idx + 1);
-									//@line 331
+									//@line 337
 									if (lh)
-									//@line 332
+									//@line 338
 									{
-										//@line 333
+										//@line 339
 										lineHeight = lh;
-										//@line 334
+										//@line 340
 										s++;
 									}
 								}
 								else
-								//@line 338
+								//@line 344
 								fontSize = str;
-								//@line 339
+								//@line 345
 								s++;
-								//@line 340
+								//@line 346
 								break;
 							}
 						}
 						break;
-						//@line 342
+						//@line 348
 					case 4:
 						{
-							//@line 343
+							//@line 349
 							{
-								//@line 344
+								//@line 350
 								var idx = str.indexOf("/");
-								//@line 345
+								//@line 351
 								if (idx != -1)
-								//@line 346
+								//@line 352
 								{
-									//@line 347
+									//@line 353
 									var lh = str.substr(idx + 1);
-									//@line 348
+									//@line 354
 									if (lh)
-									//@line 349
+									//@line 355
 									{
-										//@line 350
+										//@line 356
 										lineHeight = lh;
-										//@line 351
+										//@line 357
 										s++;
 									}
 								}
 								else
-								//@line 355
+								//@line 361
 								{
-									//@line 356
+									//@line 362
 									fontFamily = spl.slice(i).join("");
-									//@line 357
+									//@line 363
 									i = spl.size();
 								}
-								//@line 359
-								s++;
-								//@line 360
-								break;
-							}
-						}
-						break;
-						//@line 362
-					case 5:
-						{
-							//@line 363
-							{
-								//@line 364
-								fontFamily = spl.slice(i + 1).join("");
 								//@line 365
-								i = spl.size();
+								s++;
 								//@line 366
 								break;
 							}
 						}
 						break;
 						//@line 368
-					default:
+					case 5:
 						{
 							//@line 369
 							{
 								//@line 370
-								if (str == "inherit")
+								fontFamily = spl.slice(i + 1).join("");
 								//@line 371
+								i = spl.size();
+								//@line 372
+								break;
+							}
+						}
+						break;
+						//@line 374
+					default:
+						{
+							//@line 375
+							{
+								//@line 376
+								if (str == "inherit")
+								//@line 377
 								{
-									//@line 373
+									//@line 379
 									return;
 								}
 								else
-								//@line 375
+								//@line 381
 								if (str == "normal")
-								//@line 376
+								//@line 382
 								{
-									//@line 377
+									//@line 383
 									switch (s)
 									{
-										//@line 379
+										//@line 385
 									case 0:
 										{
 											s++;
 											break;
 										}
 										break;
-										//@line 380
+										//@line 386
 									case 1:
 										{
 											s++;
 											break;
 										}
 										break;
-										//@line 381
+										//@line 387
 									case 2:
 										{
 											s++;
 											break;
 										}
 										break;
-										//@line 382
+										//@line 388
 									case 4:
 										{
 											s++;
 											break;
 										}
 										break;
-										//@line 383
+										//@line 389
 									default:
 										{
 											return;
@@ -696,14 +706,14 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 									}
 								}
 								else
-								//@line 386
+								//@line 392
 								if (str == "italic" || str == "oblique")
-								//@line 387
+								//@line 393
 								{
-									//@line 388
+									//@line 394
 									switch (s)
 									{
-										//@line 390
+										//@line 396
 									case 0:
 										{
 											fontStyle = str;
@@ -711,7 +721,7 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 											break;
 										}
 										break;
-										//@line 391
+										//@line 397
 									default:
 										{
 											return;
@@ -720,14 +730,14 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 									}
 								}
 								else
-								//@line 394
+								//@line 400
 								if (str == "small-caps")
-								//@line 395
+								//@line 401
 								{
-									//@line 396
+									//@line 402
 									switch (s)
 									{
-										//@line 398
+										//@line 404
 									case 0:
 										{
 											fontVariant = str;
@@ -735,7 +745,7 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 											break;
 										}
 										break;
-										//@line 399
+										//@line 405
 									case 1:
 										{
 											fontVariant = str;
@@ -743,7 +753,7 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 											break;
 										}
 										break;
-										//@line 400
+										//@line 406
 									default:
 										{
 											return;
@@ -752,14 +762,14 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 									}
 								}
 								else
-								//@line 403
+								//@line 409
 								if (str == "bold" || str == "bolder" || str == "lighter" || str == "100" || str == "200" || str == "300" || str == "400" || str == "500" || str == "600" || str == "700" || str == "800" || str == "900")
-								//@line 404
+								//@line 410
 								{
-									//@line 405
+									//@line 411
 									switch (s)
 									{
-										//@line 407
+										//@line 413
 									case 1:
 										{
 											fontWeight = str;
@@ -767,7 +777,7 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 											break;
 										}
 										break;
-										//@line 408
+										//@line 414
 									case 2:
 										{
 											fontWeight = str;
@@ -775,7 +785,7 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 											break;
 										}
 										break;
-										//@line 409
+										//@line 415
 									default:
 										{
 											return;
@@ -788,67 +798,67 @@ function CanvasRenderingContext2D(__CLASS__CANVASRENDERINGCONTEXT2D__$canvas__)
 						break;
 					}
 				}
-				//@line 415
+				//@line 421
 				var fontSizeInPixels = 0;
-				//@line 416
+				//@line 422
 				if (fontSize == "xx-small") fontSizeInPixels = 9;
 				else
-				//@line 417
+				//@line 423
 				if (fontSize == "x-small") fontSizeInPixels = 10;
 				else
-				//@line 418
+				//@line 424
 				if (fontSize == "small") fontSizeInPixels = 13;
 				else
-				//@line 419
+				//@line 425
 				if (fontSize == "medium") fontSizeInPixels = 16;
 				else
-				//@line 420
+				//@line 426
 				if (fontSize == "large") fontSizeInPixels = 18;
 				else
-				//@line 421
+				//@line 427
 				if (fontSize == "x-large") fontSizeInPixels = 24;
 				else
-				//@line 422
+				//@line 428
 				if (fontSize == "xx-large") fontSizeInPixels = 32;
 				else
-				//@line 423
+				//@line 429
 				if (fontSize == "smaller") fontSizeInPixels = 13;
 				else
-				//@line 424
+				//@line 430
 				if (fontSize == "larger") fontSizeInPixels = 18;
 				else
-				//@line 426
+				//@line 432
 				{
-					//@line 427
+					//@line 433
 					if (fontSize.indexOf("px") != -1)
-					//@line 428
+					//@line 434
 					{
-						//@line 429
+						//@line 435
 						fontSizeInPixels = parseFloat(fontSize);
 					}
 					else
-					//@line 431
+					//@line 437
 					if (fontSize.indexOf("in") != -1)
-					//@line 432
+					//@line 438
 					{
-						//@line 433
+						//@line 439
 						fontSizeInPixels = parseFloat(fontSize) * window.devicePixelRatio * 160.0;
 					}
 					else
-					//@line 435
+					//@line 441
 					if (fontSize.indexOf("cm") != -1)
-					//@line 436
+					//@line 442
 					{
-						//@line 437
+						//@line 443
 						fontSizeInPixels = parseFloat(fontSize) * window.devicePixelRatio * 160.0 / 2.54;
 					}
 					else
-					//@line 440
+					//@line 446
 					return;
 				}
-				//@line 442
+				//@line 448
 				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__fontSetting = v;
-				//@line 443
+				//@line 449
 				__CLASS__CANVASRENDERINGCONTEXT2D__.__PRIVATE__.__font = new CocoFont(fontSizeInPixels, fontFamily, fontWeight == "bold", fontStyle == "italic" || fontStyle == "oblique");
 			}
 		});

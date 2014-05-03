@@ -32,40 +32,6 @@
 // ==================================================================================================================================
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function __isPointer(vartype)
-{
-	if(!vartype)
-		return false;
-
-	switch(vartype)
-	{
-	case "Class":
-	case "Boolean":
-	case "Number":
-	case "String":
-	case "Integer":
-	case "Float":
-	case "Time":
-	case "Color":
-	case "Gradient":
-	case "void":
-	case "undefined":
-	case "null":
-	case "CocoAction":
-		return false;
-	default:
-		if(vartype.indexOf("_ENUM")!=-1) return false;
-		return true;
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function __isVector(vartype)
-{
-	return vartype && vartype.indexOf("<")!=-1 ? true : false;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function CompilerTypeSystemPlugin(compiler)
 {
 	var _this = this._this = compiler;
@@ -117,6 +83,139 @@ function CompilerTypeSystemPlugin(compiler)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.record_vartype_use = function(ast, symbol, parentScope, include)
+	{
+		if(!_this.secondPass || !symbol || !parentScope)
+			return;
+
+		// Get the vartype or subtype if defined.
+		var subtype = _this.getSubType(symbol.returntype || symbol.vartype) || symbol.subtype;
+		var vartype = subtype || symbol.vartype;
+		if(!vartype) return;
+
+		// We do not deal with scalar datatypes unless they are enums
+		if(!_this.isEnum(vartype) && !_this.isPointer(vartype))
+			return;
+
+		// We skip ECMA types
+		if(_this.isECMA(vartype))
+			return;
+
+		// Record vartype usage
+		if(!__exists(parentScope.vartypes, vartype))
+			parentScope.vartypes[vartype] = include;
+		else
+			parentScope.vartypes[vartype] |= include;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isPointer = function (vartype)
+	{
+		if(!vartype) return false;
+
+		switch(vartype)
+		{
+		case "Class":
+		case "Boolean":
+		case "Number":
+		case "String":
+		case "Integer":
+		case "Float":
+		case "Time":
+		case "Color":
+		case "Gradient":
+		case "void":
+		case "undefined":
+		case "null":
+		case "CocoAction":
+			return false;
+
+		default:
+			return !_this.isEnum(vartype);
+		}
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isEnum  = function(vartype)
+	{
+		var cls = _this.classes[vartype];
+		return cls && cls.enum ? true : false;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isECMA = function(vartype)
+	{
+		if(!vartype) return false;
+
+		switch(vartype)
+		{
+		case "Object":
+		case "Global":
+		case "Array":
+		case "Function":
+
+		case "String":
+		case "Number":
+		case "Date":
+		case "Math":
+		case "RegExp":
+
+		case "Error":
+		case "EvalError":
+		case "RangeError":
+		case "ReferenceError":
+		case "SyntaxError":
+		case "TypeError":
+
+		case "XMLHttpRequest":
+
+		case "ArrayBuffer":
+		case "ArrayBufferView":
+
+		case "Int8Array":
+		case "Int16Array":
+		case "Int32Array":
+		case "Uint8Array":
+		case "Uint16Array":
+		case "Uint32Array":
+		case "Float32Array":
+		case "Float64Array":
+
+			return true;
+		}
+
+		return false;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isTypedArray = function(vartype)
+	{
+		if(!vartype) return false;
+
+		switch(vartype)
+		{
+		case "ArrayBuffer":
+		case "ArrayBufferView":
+		case "Int8Array":
+		case "Int16Array":
+		case "Int32Array":
+		case "Uint8Array":
+		case "Uint16Array":
+		case "Uint32Array":
+		case "Float32Array":
+		case "Float64Array":
+			return true;
+		}
+		return true;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isVector = function(vartype)
+	{
+		return vartype && vartype.indexOf("<")!=-1 ? true : false;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getVarType = function(vartype)
 	{
 		if(!vartype) return null;
@@ -152,19 +251,20 @@ function CompilerTypeSystemPlugin(compiler)
 
 		switch(vartype)
 		{
-		case "Array":
-			return "Object";
-
-		case "ArrayBuffer":
-		case "ArrayBufferView":
-		case "Float32Array":
-		case "Int32Array":
-		case "Uint8Array":
-			return "Number";
+		case "Array":			return "Object";
+		case "ArrayBuffer":		return "Number";
+		case "ArrayBufferView":	return "Number";
+		case "Int8Array":		return "Integer";
+		case "Int16Array":		return "Integer";
+		case "Int32Array":		return "Integer";
+		case "Uint8Array":		return "Integer";
+		case "Uint16Array":		return "Integer";
+		case "Uint32Array":		return "Integer";
+		case "Float32Array":	return "Float";
+		case "Float64Array":	return "Float";
 		}
 
 		if(vartype.charAt(vartype.length-1)!='>') return null;
-
 		var subtype = /<(\w+)(?:\*)*>/.exec(vartype)[1];
 		return subtype;
 	};
@@ -505,7 +605,7 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
         // Null
-		if((__isPointer(type1) || type1 == "CocoAction") && type2=="Null") return type1;
+		if((_this.isPointer(type1) || type1 == "CocoAction") && type2=="Null") return type1;
 		if(type1 == "CocoAction" && type2 == "Function") return type1;
 
   		// Object
@@ -631,11 +731,6 @@ function CompilerTypeSystemPlugin(compiler)
 		// Check interface inheritance
 		if(cls1.interface && cls2.interface)
 		{
-			for(var base=cls1;base!=null;base=base.baseSymbol)
-			{
-				if(base.name==cls2.name)
-					return cls2.name;
-			}
 			for(var base=cls2;base!=null;base=base.baseSymbol)
 			{
 				if(base.name==cls1.name)

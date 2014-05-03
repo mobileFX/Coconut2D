@@ -16,7 +16,10 @@ function CocoEngine()
 		{
 			return 'CocoEngine'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [CocoEngine] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -34,7 +37,7 @@ function CocoEngine()
 		//@line 48
 		__PRIVATE__.__nextState = null;
 		//@line 49
-		__PRIVATE__.__deviceEvent = null;
+		__PRIVATE__.__deviceMessage = null;
 		//@line 50
 		__PRIVATE__.__clicked = [];
 		//@line 51
@@ -139,7 +142,7 @@ function CocoEngine()
 				__CLASS__COCOENGINE__.__PRIVATE__.__currentState.paint(gl, __CLASS__COCOENGINE__.__PRIVATE__.__clock);
 			}
 			//@line 149
-			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent = null;
+			__CLASS__COCOENGINE__.__PRIVATE__.__deviceMessage = null;
 			//@line 152
 			__CLASS__COCOENGINE__.__PRIVATE__.__clock += __CLASS__COCOENGINE__.TICK_TIME;
 		};
@@ -147,17 +150,17 @@ function CocoEngine()
 		this.__PRIVATE__.__setTouchEvent = function (e)
 		{
 			//@line 158
-			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent = e;
+			__CLASS__COCOENGINE__.__PRIVATE__.__deviceMessage = e;
 			//@line 159
-			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent.__clientX = e.touches ? e.touches[0].clientX : e.clientX;
+			__CLASS__COCOENGINE__.__PRIVATE__.__deviceMessage.__clientX = e.touches ? e.touches[0].clientX : e.clientX;
 			//@line 160
-			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent.__clientY = e.touches ? e.touches[0].clientY : e.clientY;
+			__CLASS__COCOENGINE__.__PRIVATE__.__deviceMessage.__clientY = e.touches ? e.touches[0].clientY : e.clientY;
 		};
 		//@line 164
 		this.getTouchEvent = function ()
 		{
 			//@line 167
-			return __CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent;
+			return __CLASS__COCOENGINE__.__PRIVATE__.__deviceMessage;
 		};
 		//@line 171
 		this.pushTouched = function (clip)
@@ -202,7 +205,7 @@ function CocoEngine()
 				__CLASS__COCOENGINE__.debugbreak = null;
 				__CLASS__COCOENGINE__.__PRIVATE__.__currentState = null;
 				__CLASS__COCOENGINE__.__PRIVATE__.__nextState = null;
-				__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent = null;
+				__CLASS__COCOENGINE__.__PRIVATE__.__deviceMessage = null;
 				__CLASS__COCOENGINE__.__PRIVATE__.__clicked = null;
 				__CLASS__COCOENGINE__.__PRIVATE__.__clock = null;
 				__CLASS__COCOENGINE__.__PRIVATE__.__tickables = null;
@@ -217,7 +220,7 @@ function CocoEngine()
 			//@line 59
 			__CLASS__COCOENGINE__.__PRIVATE__.__currentState = null;
 			//@line 60
-			__CLASS__COCOENGINE__.__PRIVATE__.__deviceEvent = null;
+			__CLASS__COCOENGINE__.__PRIVATE__.__deviceMessage = null;
 			//@line 61
 			__CLASS__COCOENGINE__.__PRIVATE__.__clock = 0;
 			//@line 62

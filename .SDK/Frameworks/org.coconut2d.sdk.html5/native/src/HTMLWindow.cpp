@@ -42,7 +42,7 @@ HTMLWindow::HTMLWindow()
 	touchend = nullptr;
 	__uid = 0;
 	document = new HTMLDocument();
-	__deviceEvent = new DeviceEvent();
+	__deviceMessage = new DeviceMessage();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,9 +52,9 @@ HTMLWindow::~HTMLWindow()
 	{
 		document = (delete document, nullptr);
 	}
-	if(__deviceEvent)
+	if(__deviceMessage)
 	{
-		__deviceEvent = (delete __deviceEvent, nullptr);
+		__deviceMessage = (delete __deviceMessage, nullptr);
 	}
 }
 
@@ -100,13 +100,13 @@ void HTMLWindow::removeEventListener(String eventType, CocoEventAction listener,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void HTMLWindow::dispatchEvent(int uid, String eventType)
 {
-	__deviceEvent->type = eventType;
+	__deviceMessage->type = eventType;
 	if(eventType == "touchstart")
-		(engine->*touchstart)(__deviceEvent);
+		(engine->*touchstart)(__deviceMessage);
 	else if(eventType == "touchmove")
-		(engine->*touchmove)(__deviceEvent);
+		(engine->*touchmove)(__deviceMessage);
 	else if(eventType == "touchend")
-		(engine->*touchend)(__deviceEvent);
+		(engine->*touchend)(__deviceMessage);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,8 +159,8 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 				case fxScreen::Rotation::RCW: x = -fxAPIGetMouseEventY(data); y = fxAPIGetMouseEventX(data); break;
 				case fxScreen::Rotation::RCCW: x = fxAPIGetMouseEventY(data); y = -fxAPIGetMouseEventX(data); break;
 			}
-			__deviceEvent->__clientX = x;
-			__deviceEvent->__clientY = y;
+			__deviceMessage->__clientX = x;
+			__deviceMessage->__clientY = y;
 			break;
 		}
 
@@ -199,8 +199,8 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 				default: break;
 			}
 			int x, y;
-			__deviceEvent->touches->length = fxAPIGetTouchesLength(data);
-			for(size_t i = __deviceEvent->touches->length; i--;)
+			__deviceMessage->touches->length = fxAPIGetTouchesLength(data);
+			for(size_t i = __deviceMessage->touches->length; i--;)
 			{
 				switch(screenRotation)
 				{
@@ -215,14 +215,14 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 					case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetTouchEventY(data, i); y = fxAPIGetTouchEventX(data, i); break;
 					case fxScreen::Rotation::RCCW: x = fxAPIGetTouchEventY(data, i); y = innerHeight - fxAPIGetTouchEventX(data, i); break;
 				}
-				__deviceEvent->touches->item(i)->clientX = x;
-				__deviceEvent->touches->item(i)->clientY = y;
-				__deviceEvent->touches->item(i)->screenX = x;
-				__deviceEvent->touches->item(i)->screenY = y;
+				__deviceMessage->touches->item(i)->clientX = x;
+				__deviceMessage->touches->item(i)->clientY = y;
+				__deviceMessage->touches->item(i)->screenX = x;
+				__deviceMessage->touches->item(i)->screenY = y;
 			}
 
-			__deviceEvent->changedTouches->length = fxAPIGetChangedTouchesLength(data);
-			for(size_t i = __deviceEvent->changedTouches->length; i--;)
+			__deviceMessage->changedTouches->length = fxAPIGetChangedTouchesLength(data);
+			for(size_t i = __deviceMessage->changedTouches->length; i--;)
 			{
 				switch(screenRotation)
 				{
@@ -237,10 +237,10 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 					case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetChangedTouchEventY(data, i); y = fxAPIGetChangedTouchEventX(data, i); break;
 					case fxScreen::Rotation::RCCW: x = fxAPIGetChangedTouchEventY(data, i); y = innerHeight - fxAPIGetChangedTouchEventX(data, i); break;
 				}
-				__deviceEvent->changedTouches->item(i)->clientX = x;
-				__deviceEvent->changedTouches->item(i)->clientY = y;
-				__deviceEvent->changedTouches->item(i)->screenX = x;
-				__deviceEvent->changedTouches->item(i)->screenY = y;
+				__deviceMessage->changedTouches->item(i)->clientX = x;
+				__deviceMessage->changedTouches->item(i)->clientY = y;
+				__deviceMessage->changedTouches->item(i)->screenX = x;
+				__deviceMessage->changedTouches->item(i)->screenY = y;
 			}
 			break;
 		}
@@ -249,9 +249,9 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 			trace("Event not implemented");
 	}
 
-	if(__deviceEvent->touches->length)
+	if(__deviceMessage->touches->length)
 	{
-		trace("Event=%d, x=%d, y=%d", (int)type, __deviceEvent->touches->item(0)->clientX, __deviceEvent->touches->item(0)->clientY);
+		trace("Event=%d, x=%d, y=%d", (int)type, __deviceMessage->touches->item(0)->clientX, __deviceMessage->touches->item(0)->clientY);
 	}
 
 	dispatchEvent(uid, eventType);

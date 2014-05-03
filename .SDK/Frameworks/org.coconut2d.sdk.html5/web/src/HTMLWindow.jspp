@@ -39,7 +39,7 @@ class HTMLWindow
 	public var innerWidth:Integer;
 	public var devicePixelRatio:Float;
 
-	public var __deviceEvent:DeviceEvent;
+	public var __deviceMessage:DeviceMessage;
 	public var __elements:Array<Function>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,15 +50,15 @@ class HTMLWindow
 		innerHeight = global.innerHeight;
 		innerWidth = global.innerWidth;
 		devicePixelRatio = global.devicePixelRatio;
-		__deviceEvent = new DeviceEvent();
-		__registerManager(this, dispatchEvent, __deviceEvent);
+		__deviceMessage = new DeviceMessage();
+		__registerManager(this, dispatchEvent, __deviceMessage);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 		delete document;
-		delete __deviceEvent;
+		delete __deviceMessage;
 		delete __elements;
 	}
 
@@ -79,9 +79,9 @@ class HTMLWindow
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function dispatchEvent(uid:Integer, eventType:String)
 	{
-		__deviceEvent.type = eventType;
+		__deviceMessage.type = eventType;
 		var Callback:Function = __elements[eventType];
-		if(Callback) Callback(__deviceEvent);
+		if(Callback) Callback(__deviceMessage);
 	}
 }
 

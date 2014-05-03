@@ -1,5 +1,5 @@
 "#export web";
-//@line 8
+//@line 7
 
 function TestEventSource(__CLASS__TESTEVENTSOURCE__$id__)
 {
@@ -16,7 +16,10 @@ function TestEventSource(__CLASS__TESTEVENTSOURCE__$id__)
 		{
 			return 'TestEventSource'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [TestEventSource] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -25,9 +28,9 @@ function TestEventSource(__CLASS__TESTEVENTSOURCE__$id__)
 			__PROTECTED__ = this.__PROTECTED__,
 			__CLASS__COCOEVENTSOURCE__ = this.__CLASS__COCOEVENTSOURCE__ = __CLASS__TESTEVENTSOURCE__.__CLASS__COCOEVENTSOURCE__
 			__CLASS__TESTEVENTSOURCE__.__CLASS__COCOEVENTSOURCE__.__THIS__ = __CLASS__TESTEVENTSOURCE__;
-		//@line 10
+		//@line 9
 		this.id = "";
-		//@line 11
+		//@line 10
 		global.TestEventSourceOnDoneEvent = function ()
 		{
 			this.a = null;
@@ -35,16 +38,16 @@ function TestEventSource(__CLASS__TESTEVENTSOURCE__$id__)
 		};
 		global.TestEventSourceOnDoneEvent.prototype = new CocoEvent("OnDone", true, true);
 		this.OnDone = new TestEventSourceOnDoneEvent();
-		//@line 18
+		//@line 17
 		this.work = function ()
 		{
-			//@line 20
+			//@line 19
 			__CLASS__TESTEVENTSOURCE__.__CLASS__COCOEVENTSOURCE__.dispatchEvent(__CLASS__TESTEVENTSOURCE__.OnDone, "test1", 5);
 		};
-		//@line 13
+		//@line 12
 		this.Constructor = function (id)
 		{
-			//@line 15
+			//@line 14
 			__CLASS__TESTEVENTSOURCE__.id = id;
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
@@ -56,7 +59,7 @@ function TestEventSource(__CLASS__TESTEVENTSOURCE__$id__)
 }
 TestEventSource.__PRIVATE__ = {};
 TestEventSource.__PROTECTED__ = {};
-//@line 28
+//@line 27
 
 function TestEventListener()
 {
@@ -73,7 +76,10 @@ function TestEventListener()
 		{
 			return 'TestEventListener'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [TestEventListener] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -82,22 +88,22 @@ function TestEventListener()
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 30
+		//@line 29
 		__PRIVATE__.worker = null;
-		//@line 40
+		//@line 39
 		this.done = function (sender, e, a, b)
 		{
-			//@line 42
+			//@line 41
 			trace("Worker " + sender.id + " fired event " + e.type + " a=" + (a) + ", b=" + (b));
-			//@line 43
+			//@line 42
 			return false;
 			return false
 		};
-		//@line 46
+		//@line 45
 		this.Destructor = function ()
 		{
 			{
-				//@line 48
+				//@line 47
 				{
 					__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker && ((__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker.hasOwnProperty('Destructor') && __CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker.Destructor()) || !__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker.hasOwnProperty('Destructor')) && (delete __CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker);
 					__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker = null
@@ -108,16 +114,16 @@ function TestEventListener()
 			}
 			return true
 		};
-		//@line 32
+		//@line 31
 		this.Constructor = function ()
 		{
-			//@line 34
+			//@line 33
 			__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker = new TestEventSource("worker1");
-			//@line 35
+			//@line 34
 			__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker.addEventListener(__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker.OnDone, __THIS__, __CLASS__TESTEVENTLISTENER__.done);
-			//@line 36
+			//@line 35
 			__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker.work();
-			//@line 37
+			//@line 36
 			__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker.removeEventListener(__CLASS__TESTEVENTLISTENER__.__PRIVATE__.worker.OnDone, __THIS__, __CLASS__TESTEVENTLISTENER__.done);
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);

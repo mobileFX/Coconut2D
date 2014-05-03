@@ -59,15 +59,9 @@
 #include <cstdlib>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Auto-generated class list
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//# DO NOT EDIT BEGIN #//
-class Audio;
+//# Generated Classes Begin #//
 class CanvasRenderingContext2D;
-class Class1;
-class Class2;
-class Class3;
 class ClassTestInterfaces;
 class CocoAudio;
 class CocoClip;
@@ -75,12 +69,9 @@ class CocoEngine;
 class CocoEvent;
 class CocoEventConnectionPoint;
 class CocoEventSource;
-class CocoGraphics;
-class CocoHttpRequest;
 class CocoImage;
 class CocoImageSibling;
 class CocoMatrix;
-class CocoRect;
 class CocoScene;
 class CocoSequence;
 class CocoText;
@@ -94,11 +85,10 @@ class CocoUIComboBox;
 class CocoUIControl;
 class CocoUILabel;
 class CocoUIPageView;
-class CocoUIPictureList;
 class CocoUITextBox;
 class CocoUIView;
 class CocoVector;
-class DeviceEvent;
+class DeviceMessage;
 class GameEngine;
 class HTMLCanvasContext;
 class HTMLCanvasElement;
@@ -107,44 +97,37 @@ class HTMLCanvasPattern;
 class HTMLDocument;
 class HTMLElement;
 class HTMLTextMetrics;
-class HTMLWindow;
 class IEventListener;
 class IEventTarget;
 class ITest1;
 class ITest2;
 class ITest3;
 class ITickable;
-class Image;
-class ImageData;
 class NewAnimation;
 class Page1;
 class PathLine;
-class TestEventListener;
-class TestEventSource;
-class TestIntegrator;
-class TestIntegratorClient;
-class TestOutsourcer;
-class TestSelf1;
-class TestSelf2;
-class TestSelf3;
-class TestThis;
 class Touch;
 class TouchList;
-class WebGLActiveInfo;
-class WebGLBuffer;
-class WebGLContextAttributes;
-class WebGLFramebuffer;
+struct CocoKeyFrame;
+//# Generated Classes End #//
+
+//# Native Classes Begin #//
+class Audio;
+class HTMLEvent;
+class Image;
+class HTMLWindow;
+class ImageData;
+struct GLany;
 class WebGLObject;
-class WebGLProgram;
+class WebGLBuffer;
+class WebGLFramebuffer;
 class WebGLRenderbuffer;
-class WebGLRenderingContext;
 class WebGLShader;
-class WebGLShaderPrecisionFormat;
 class WebGLTexture;
 class WebGLUniformLocation;
-//# DO NOT EDIT END #//
-
-class CocoFont;
+class WebGLProgram;
+class WebGLRenderingContext;
+//# Native Classes End #//
 
 template<typename T> struct TYPE_STRING { static constexpr char const* c_str() { return "undefined"; } };
 #define DEF_TYPE(T) template<> struct TYPE_STRING<T> { static constexpr char const* c_str() { return #T; } };
@@ -169,14 +152,6 @@ typedef TypedArray<float> Float32Array;
 typedef TypedArray<double> Float64Array;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Externs for global objects
-////////////////////////////////////////////////////////////////////////////////////////////////////
-extern void trace(const char* fmt, ...);
-extern CocoEngine* engine;
-extern HTMLWindow* window;
-extern HTMLDocument* document;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enum for HTML5 Events
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 enum fxEvent
@@ -199,105 +174,6 @@ enum fxEvent
 	GESTUREEND
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Enum for screen resolution dpi
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum SCREEN_RESOLUTION_DPI_ENUM
-{
-    RESOLUTION_nodpi							= 0,
-    RESOLUTION_ldpi								= 1,
-    RESOLUTION_mdpi								= 2,
-    RESOLUTION_tvdpi							= 3,
-    RESOLUTION_hdpi								= 4,
-    RESOLUTION_xhdpi							= 5,
-    RESOLUTION_Retina							= 5,
-    RESOLUTION_DefaultDpi						= 0
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Enum for filter shaders.
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum COCO_FILTER_ENUM
-{
-    FILTER_INHERIT								= 0,
-    FILTER_SIMPLE								= 1,
-    FILTER_SIMPLE_WITH_ALPHA					= 2,
-	FILTER_SATURATION_WITH_ALPHA				= 3
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Enum for clip symbol loop synchronization.
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum COCO_CLIP_SYMBOL_LOOP_ENUM
-{
-    CLIP_SYMBOL_LOOP_CONTINUOUS					= 0,
-    CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT	= 1,
-    CLIP_SYMBOL_LOOP_ONCE						= 2
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Enum for keyframe interpolation calculation.
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum COCO_KEYFRAME_INTERPOLATION_ENUM
-{
-    KEYFRAME_INTERPOLATION_NONE					= 0,
-    KEYFRAME_INTERPOLATION_MOTION_TWEEN			= 1,
-    KEYFRAME_INTERPOLATION_ECHO					= 2,
-    KEYFRAME_INTERPOLATION_PHYSICS				= 3
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Enum for text alignment
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum COCO_TEXT_ALIGN_ENUM
-{
-	TEXT_ALIGN_NEAR								= 0,
-	TEXT_ALIGN_CENTER							= 1,
-	TEXT_ALIGN_FAR								= 2
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Enum for text trimming
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum COCO_TEXT_TRIMMING_ENUM
-{
-    StringTrimmingNone							= 0,
-    StringTrimmingCharacter						= 1,
-    StringTrimmingWord							= 2,
-    StringTrimmingEllipsisCharacter				= 3,
-    StringTrimmingEllipsisWord					= 4,
-    StringTrimmingEllipsisPath					= 5
-};
-
-enum COCO_CONTROL_BORDER_STYLE_ENUM
-{
-	BORDER_NONE = 0,
-	BORDER_SOLID = 1,
-	BORDER_DOTTED = 2
-};
-
-enum COCO_CONTROL_ANCHOR_ENUM
-{
-	ANCHOR_NONE = 0,
-	ANCHOR_TOP_LEFT = 1,
-	ANCHOR_TOP_MIDDLE = 2,
-	ANCHOR_TOP_RIGHT = 3,
-	ANCHOR_MIDDLE_LEFT = 4,
-	ANCHOR_CENTER = 5,
-	ANCHOR_MIDDLE_RIGHT = 6,
-	ANCHOR_BOTTOM_LEFT = 7,
-	ANCHOR_BOTTOM_MIDDLE = 8,
-	ANCHOR_BOTTOM_RIGHT = 9
-};
-
-enum COCO_SKIN_TILE_ENUM
-{
-	TILE_REPEAT_NONE = 1,
-	TILE_REPEAT_X = 2,
-	TILE_REPEAT_Y = 3,
-	TILE_REPEAT_XY = 4
-};
-
 // ==================================================================================================================================
 //	  ______                 ____       ____
 //	 /_  __/_  ______  ___  / __ \___  / __/____
@@ -314,7 +190,7 @@ enum COCO_SKIN_TILE_ENUM
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef void (CocoScene::*CocoAction)();
-typedef void (CocoEngine::*CocoEventAction)(DeviceEvent* e);
+typedef void (CocoEngine::*CocoEventAction)(DeviceMessage* e);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T> using Stack = std::stack<T>;
@@ -781,6 +657,13 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// Externs for global objects
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+extern void trace(const char* fmt, ...);
+extern CocoEngine* engine;
+extern HTMLWindow* window;
+extern HTMLDocument* document;
 
 #endif //__COCONUT2D_HPP__
 

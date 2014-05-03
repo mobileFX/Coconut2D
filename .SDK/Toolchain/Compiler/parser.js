@@ -484,6 +484,20 @@ function __init_narcissus(GLOBAL)
 				}
 
 				///////////////////////////////////////////////////////////////////
+				// "#export native";
+				if(token.value && token.value.indexOf(this.__EXPORT_NATIVE) != -1)
+				{
+					this.EXPORT_NATIVE = true;
+				}
+
+				///////////////////////////////////////////////////////////////////
+				// "#export web";
+				if(token.value && token.value.indexOf(this.__EXPORT_WEB) != -1)
+				{
+					this.EXPORT_WEB = true;
+				}
+
+				///////////////////////////////////////////////////////////////////
 				// File
 				if(token.value && token.value.indexOf(this.__FILE_DELIM) != -1)
 				{
@@ -493,7 +507,8 @@ function __init_narcissus(GLOBAL)
 					this.__file = v[v.length-1];
 					this.__fileLineOffset = this.line_start;
 					this.__filePosOffset = this.cursor + token.value.length + 4;
-
+					this.EXPORT_NATIVE = false;
+					this.EXPORT_WEB = false;
 					trace("+ parsing: " + this.__file);
 
 				}
@@ -611,6 +626,8 @@ function __init_narcissus(GLOBAL)
 
 	};
 
+	Tokenizer.prototype.__EXPORT_WEB = "#export web";
+	Tokenizer.prototype.__EXPORT_NATIVE = "#export native";
 	Tokenizer.prototype.__FILE_DELIM = "script_begin:///";
 	Tokenizer.prototype.__file = "";
 	Tokenizer.prototype.__path = "";
@@ -661,6 +678,8 @@ function __init_narcissus(GLOBAL)
 
 		this.scopeId = t.ScopeId();
 		this.xmlvartype="";
+		this.EXPORT_NATIVE = t.EXPORT_NATIVE;
+		this.EXPORT_WEB = t.EXPORT_WEB;
 
 		if(token)
 		{
@@ -1350,6 +1369,7 @@ function __init_narcissus(GLOBAL)
 		return n;
 	}
 
+	/*@@ matchVartype @@*/
 	function matchVartype(t, node, typeProp, skip)
 	{
 		node[typeProp] = null;
@@ -1367,20 +1387,9 @@ function __init_narcissus(GLOBAL)
 			subtype = new Node(t).value;
 			node.subtype = subtype;
 			t.mustMatch(jsdef.GT);
-
-			if(narcissus.__cpp)
-			{
-				node[typeProp] = vartype + "<" + subtype + (__isPointer(subtype) ? "*" : "") + ">";
-			}
-			else
-			{
-				node[typeProp] = vartype + "<" + subtype + ">";
-			}
+			node[typeProp] = vartype + "<" + subtype + ">";
 		}
-
-		node.xmlvartype = (!vartype ? "" : " :" + vartype + (subtype ? "&lt;" + subtype + "&gt;" : ""));
 	}
-
 
 	// ==================================================================================================================================
 	//	   ______      ________             __   ____       _____       _ __  _

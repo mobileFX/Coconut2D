@@ -1,5 +1,5 @@
 "#export web";
-//@line 19
+//@line 18
 
 function Class1(__CLASS__CLASS1__$arg1__, __CLASS__CLASS1__$arg2__)
 {
@@ -16,7 +16,10 @@ function Class1(__CLASS__CLASS1__$arg1__, __CLASS__CLASS1__$arg2__)
 		{
 			return 'Class1'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [Class1] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -25,291 +28,291 @@ function Class1(__CLASS__CLASS1__$arg1__, __CLASS__CLASS1__$arg2__)
 			__PROTECTED__ = this.__PROTECTED__ = {};
 		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
 		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
-		//@line 27
+		//@line 26
 		this.public_const = "Class1_public_const";
-		//@line 28
+		//@line 27
 		__PRIVATE__.private_const = "Class1_private_const";
-		//@line 29
+		//@line 28
 		__PROTECTED__.protected_const = "Class1_protected_const";
-		//@line 22
+		//@line 21
 		this.public_var = "";
-		//@line 23
+		//@line 22
 		__PRIVATE__.private_var = "";
-		//@line 24
+		//@line 23
 		__PROTECTED__.protected_var = "";
-		//@line 37
+		//@line 36
 		__PRIVATE__.__public_property = "";
-		//@line 38
+		//@line 37
 		__PRIVATE__.__private_property = "";
-		//@line 39
+		//@line 38
 		__PRIVATE__.__protected_property = "";
-		//@line 64
+		//@line 63
 		this.test_virtual = __VIRTUAL__.test_virtual = function ()
 		{
-			//@line 66
+			//@line 65
 			trace("Class1::test_virtual");
 		};
-		//@line 70
+		//@line 69
 		this.test = __VIRTUAL__.test = function ()
 		{
-			//@line 72
+			//@line 71
 			trace("========================== Class1::test() ==========================");
-			//@line 78
+			//@line 77
 			__CLASS__CLASS1__.test_virtual();
-			//@line 79
+			//@line 78
 			__VIRTUAL__.test_virtual();
-			//@line 81
+			//@line 80
 			__CLASS__CLASS1__.public_state.tick(0);
-			//@line 82
+			//@line 81
 			__CLASS__CLASS1__.__PRIVATE__.private_state.tick(0);
-			//@line 83
+			//@line 82
 			__CLASS__CLASS1__.__PROTECTED__.protected_state.tick(0);
-			//@line 85
+			//@line 84
 			trace("Class1::public_overload()                    = " + __CLASS__CLASS1__.public_overload());
-			//@line 86
+			//@line 85
 			trace("Class1::public_overload(arg1)                = " + __CLASS__CLASS1__.public_overload$1("arg1"));
-			//@line 87
+			//@line 86
 			trace("Class1::public_overload(arg1,arg2)           = " + __CLASS__CLASS1__.public_overload$2("arg1", "arg2"));
-			//@line 89
+			//@line 88
 			trace("Class1::private_overload()                   = " + __CLASS__CLASS1__.__PRIVATE__.private_overload());
-			//@line 90
+			//@line 89
 			trace("Class1::private_overload(arg1)               = " + __CLASS__CLASS1__.__PRIVATE__.private_overload$1("arg1"));
-			//@line 91
+			//@line 90
 			trace("Class1::private_overload(arg1,arg2)          = " + __CLASS__CLASS1__.__PRIVATE__.private_overload$2("arg1", "arg2"));
-			//@line 93
+			//@line 92
 			trace("Class1::protected_overload()                 = " + __CLASS__CLASS1__.__PROTECTED__.protected_overload());
-			//@line 94
+			//@line 93
 			trace("Class1::protected_overload(arg1)             = " + __CLASS__CLASS1__.__PROTECTED__.protected_overload$1("arg1"));
-			//@line 95
+			//@line 94
 			trace("Class1::protected_overload(arg1,arg2)        = " + __CLASS__CLASS1__.__PROTECTED__.protected_overload$2("arg1", "arg2"));
-			//@line 97
+			//@line 96
 			trace("Class1::public_function()                    = " + __CLASS__CLASS1__.public_function());
-			//@line 98
+			//@line 97
 			trace("Class1::private_function()                   = " + __CLASS__CLASS1__.__PRIVATE__.private_function());
-			//@line 99
+			//@line 98
 			trace("Class1::protected_function()                 = " + __CLASS__CLASS1__.__PROTECTED__.protected_function());
-			//@line 101
+			//@line 100
 			trace("Class1::public_var                           = " + __CLASS__CLASS1__.public_var);
-			//@line 102
+			//@line 101
 			trace("Class1::private_var                          = " + __CLASS__CLASS1__.__PRIVATE__.private_var);
-			//@line 103
+			//@line 102
 			trace("Class1::protected_var                        = " + __CLASS__CLASS1__.__PROTECTED__.protected_var);
-			//@line 105
+			//@line 104
 			trace("Class1::public_property                      = " + __CLASS__CLASS1__.public_property);
-			//@line 106
+			//@line 105
 			trace("Class1::private_property                     = " + __CLASS__CLASS1__.__PRIVATE__.private_property);
-			//@line 107
+			//@line 106
 			trace("Class1::protected_property                   = " + __CLASS__CLASS1__.__PROTECTED__.protected_property);
 		};
-		//@line 147
+		//@line 146
 		this.public_function = function (b)
 		{
 			return "Class1_public_function";
 			return ""
 		};
-		//@line 148
+		//@line 147
 		this.__PRIVATE__.private_function = function (b)
 		{
 			return "Class1_private_function";
 			return ""
 		};
-		//@line 149
+		//@line 148
 		this.__PROTECTED__.protected_function = function (b)
 		{
 			return "Class1_protected_function";
 			return ""
 		};
-		//@line 154
+		//@line 153
 		this.public_overload = function ()
 		{
 			return "Class1_public_overload";
 			return ""
 		};
-		//@line 155
+		//@line 154
 		this.public_overload$1 = function (arg)
 		{
 			return "Class1_public_overload(" + arg + ")";
 			return ""
 		};
-		//@line 156
+		//@line 155
 		this.public_overload$2 = function (arg1, arg2)
 		{
 			return "Class1_public_overload(" + arg1 + "," + arg2 + ")";
 			return ""
 		};
-		//@line 158
+		//@line 157
 		this.__PRIVATE__.private_overload = function ()
 		{
 			return "Class1_private_overload";
 			return ""
 		};
-		//@line 159
+		//@line 158
 		this.__PRIVATE__.private_overload$1 = function (arg)
 		{
 			return "Class1_private_overload(" + arg + ")";
 			return ""
 		};
-		//@line 160
+		//@line 159
 		this.__PRIVATE__.private_overload$2 = function (arg1, arg2)
 		{
 			return "Class1_private_overload(" + arg1 + "," + arg2 + ")";
 			return ""
 		};
-		//@line 162
+		//@line 161
 		this.__PROTECTED__.protected_overload = function ()
 		{
 			return "Class1_protected_overload";
 			return ""
 		};
-		//@line 163
+		//@line 162
 		this.__PROTECTED__.protected_overload$1 = function (arg)
 		{
 			return "Class1_protected_overload(" + arg + ")";
 			return ""
 		};
-		//@line 164
+		//@line 163
 		this.__PROTECTED__.protected_overload$2 = function (arg1, arg2)
 		{
 			return "Class1_protected_overload(" + arg1 + "," + arg2 + ")";
 			return ""
 		};
-		//@line 202
+		//@line 201
 		Object.defineProperty(this, 'public_property', {
 			enumerable: true,
-			//@line 204
+			//@line 203
 			get: function ()
 			{
 				return __CLASS__CLASS1__.__PRIVATE__.__public_property;
 				return ""
 			},
-			//@line 205
+			//@line 204
 			set: function (v)
 			{
 				__CLASS__CLASS1__.__PRIVATE__.__public_property = v;
 			}
 		});
-		//@line 208
+		//@line 207
 		Object.defineProperty(this.__PRIVATE__, 'private_property', {
 			enumerable: true,
-			//@line 210
+			//@line 209
 			get: function ()
 			{
 				return __CLASS__CLASS1__.__PRIVATE__.__private_property;
 				return ""
 			},
-			//@line 211
+			//@line 210
 			set: function (v)
 			{
 				__CLASS__CLASS1__.__PRIVATE__.__private_property = v;
 			}
 		});
-		//@line 214
+		//@line 213
 		Object.defineProperty(this.__PROTECTED__, 'protected_property', {
 			enumerable: true,
-			//@line 216
+			//@line 215
 			get: function ()
 			{
 				return __CLASS__CLASS1__.__PRIVATE__.__protected_property;
 				return ""
 			},
-			//@line 217
+			//@line 216
 			set: function (v)
 			{
 				__CLASS__CLASS1__.__PRIVATE__.__protected_property = v;
 			}
 		});
-		//@line 169
+		//@line 168
 		this.public_state = (function ()
 		{
 			this.__name = 'public_state';
-			//@line 171
+			//@line 170
 			var state_var = this.state_var = "";
-			//@line 173
+			//@line 172
 			this.enter = function ()
 			{
 				state_var = "+public_state_scope_var";
 				trace("Class1_public_state_enter " + state_var);
 			};
-			//@line 174
+			//@line 173
 			this.exit = function ()
 			{
 				trace("Class1_public_state_exit");
 			};
-			//@line 175
+			//@line 174
 			this.tick = function (time)
 			{
 				trace("Class1_public_state_tick");
 			};
-			//@line 176
+			//@line 175
 			this.paint = function (gl, time)
 			{
 				trace("Class1_public_state_paint");
 			};
 			return this
 		}).call(new State);
-		//@line 179
+		//@line 178
 		this.__PRIVATE__.private_state = (function ()
 		{
 			this.__name = 'private_state';
-			//@line 181
+			//@line 180
 			var state_var = this.state_var = "";
-			//@line 183
+			//@line 182
 			this.enter = function ()
 			{
 				state_var = "+private_state_scope_var";
 				trace("Class1_private_state_enter " + state_var);
 			};
-			//@line 184
+			//@line 183
 			this.exit = function ()
 			{
 				trace("Class1_private_state_exit");
 			};
-			//@line 185
+			//@line 184
 			this.tick = function (time)
 			{
 				trace("Class1_private_state_tick");
 			};
-			//@line 186
+			//@line 185
 			this.paint = function (gl, time)
 			{
 				trace("Class1_private_state_paint");
 			};
 			return this
 		}).call(new State);
-		//@line 189
+		//@line 188
 		this.__PROTECTED__.protected_state = (function ()
 		{
 			this.__name = 'protected_state';
-			//@line 191
+			//@line 190
 			var state_var = this.state_var = "";
-			//@line 193
+			//@line 192
 			this.enter = function ()
 			{
 				state_var = "+protected_state_scope_var";
 				trace("Class1_protected_state_enter " + state_var);
 			};
-			//@line 194
+			//@line 193
 			this.exit = function ()
 			{
 				trace("Class1_protected_state_exit");
 			};
-			//@line 195
+			//@line 194
 			this.tick = function (time)
 			{
 				trace("Class1_protected_state_tick");
 			};
-			//@line 196
+			//@line 195
 			this.paint = function (gl, time)
 			{
 				trace("Class1_protected_state_paint");
 			};
 			return this
 		}).call(new State);
-		//@line 59
+		//@line 58
 		this.Destructor = function ()
 		{
 			{
-				//@line 60
+				//@line 59
 			}
 			{
 				__CLASS__CLASS1__.public_var = null;
@@ -339,22 +342,22 @@ function Class1(__CLASS__CLASS1__$arg1__, __CLASS__CLASS1__$arg2__)
 			}
 			return true
 		};
-		//@line 46
+		//@line 45
 		this.Constructor = function (arg1, arg2)
 		{
-			//@line 48
+			//@line 47
 			trace("Class1::Constructor(" + arg1 + "," + arg2 + ")");
-			//@line 50
+			//@line 49
 			__CLASS__CLASS1__.public_var = "Class1_public_var+" + arg1;
-			//@line 51
+			//@line 50
 			__CLASS__CLASS1__.__PRIVATE__.private_var = "Class1_private_var+" + arg2;
-			//@line 52
+			//@line 51
 			__CLASS__CLASS1__.__PROTECTED__.protected_var = "Class1_protected_var";
-			//@line 53
+			//@line 52
 			__CLASS__CLASS1__.public_property = "Class1_public_property";
-			//@line 54
+			//@line 53
 			__CLASS__CLASS1__.__PRIVATE__.private_property = "Class1_private_property";
-			//@line 55
+			//@line 54
 			__CLASS__CLASS1__.__PROTECTED__.protected_property = "Class1_protected_property";
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
@@ -365,82 +368,82 @@ function Class1(__CLASS__CLASS1__$arg1__, __CLASS__CLASS1__$arg2__)
 }
 Class1.__PRIVATE__ = {};
 Class1.__PROTECTED__ = {};
-//@line 32
+//@line 31
 Class1.static_public_var = "";
-//@line 33
+//@line 32
 Class1.__PRIVATE__.static_private_var = "";
-//@line 34
+//@line 33
 Class1.__PROTECTED__.static_protected_var = "";
-//@line 41
+//@line 40
 Class1.__PRIVATE__.__public_static_property = "";
-//@line 42
+//@line 41
 Class1.__PRIVATE__.__private_static_property = "";
-//@line 43
+//@line 42
 Class1.__PRIVATE__.__protected_static_property = "";
-//@line 140
+//@line 139
 Class1.public_static_function = function (b)
 {
 	return "Class1_public_static_function";
 	return ""
 };
-//@line 141
+//@line 140
 Class1.__PRIVATE__.private_static_function = function (b)
 {
 	return "Class1_private_static_function";
 	return ""
 };
-//@line 142
+//@line 141
 Class1.__PROTECTED__.protected_static_function = function (b)
 {
 	return "Class1_protected_static_function";
 	return ""
 };
-//@line 223
+//@line 222
 Object.defineProperty(Class1, 'public_static_property', {
 	enumerable: true,
-	//@line 225
+	//@line 224
 	get: function ()
 	{
 		return Class1.__PRIVATE__.__public_static_property;
 		return ""
 	},
-	//@line 226
+	//@line 225
 	set: function (v)
 	{
 		Class1.__PRIVATE__.__public_static_property = v;
 	}
 });
-//@line 229
+//@line 228
 Object.defineProperty(Class1.__PRIVATE__, 'private_static_property', {
 	enumerable: true,
-	//@line 231
+	//@line 230
 	get: function ()
 	{
 		return Class1.__PRIVATE__.__private_static_property;
 		return ""
 	},
-	//@line 232
+	//@line 231
 	set: function (v)
 	{
 		Class1.__PRIVATE__.__private_static_property = v;
 	}
 });
-//@line 235
+//@line 234
 Object.defineProperty(Class1.__PROTECTED__, 'protected_static_property', {
 	enumerable: true,
-	//@line 237
+	//@line 236
 	get: function ()
 	{
 		return Class1.__PRIVATE__.__protected_static_property;
 		return ""
 	},
-	//@line 238
+	//@line 237
 	set: function (v)
 	{
 		Class1.__PRIVATE__.__protected_static_property = v;
 	}
 });
-//@line 244
+//@line 243
 
 function Class2(__CLASS__CLASS2__$arg1__)
 {
@@ -457,7 +460,10 @@ function Class2(__CLASS__CLASS2__$arg1__)
 		{
 			return 'Class2'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [Class2] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -466,77 +472,77 @@ function Class2(__CLASS__CLASS2__$arg1__)
 			__PROTECTED__ = this.__PROTECTED__,
 			__CLASS__CLASS1__ = this.__CLASS__CLASS1__ = __CLASS__CLASS2__.__CLASS__CLASS1__
 			__CLASS__CLASS2__.__CLASS__CLASS1__.__THIS__ = __CLASS__CLASS2__;
-		//@line 246
+		//@line 245
 		this.x = "";
-		//@line 247
+		//@line 246
 		__PRIVATE__.y = "";
-		//@line 248
+		//@line 247
 		__PROTECTED__.z = "";
-		//@line 261
+		//@line 260
 		this.test = __VIRTUAL__.test = __CLASS__CLASS1__.test = function ()
 		{
-			//@line 263
+			//@line 262
 			trace("========================== Class2::test() (before super) ==========================");
-			//@line 265
+			//@line 264
 			trace("Class2::test::super.test()");
-			//@line 266
+			//@line 265
 			__CLASS__CLASS1__.__VIRTUAL__.test();
-			//@line 268
+			//@line 267
 			trace("========================== Class2::test() (after super) ==========================");
-			//@line 270
+			//@line 269
 			trace(__CLASS__CLASS2__.x);
-			//@line 271
+			//@line 270
 			trace(__CLASS__CLASS2__.__PRIVATE__.y);
-			//@line 272
+			//@line 271
 			trace(__CLASS__CLASS2__.__PROTECTED__.z);
-			//@line 274
+			//@line 273
 			__CLASS__CLASS1__.public_state.tick(0);
-			//@line 275
+			//@line 274
 			__CLASS__CLASS1__.__PROTECTED__.protected_state.tick(0);
-			//@line 277
+			//@line 276
 			trace("Class2::cls2_public_function()               = " + __CLASS__CLASS2__.cls2_public_function());
-			//@line 279
+			//@line 278
 			trace("Class2::public_overload()                    = " + __CLASS__CLASS1__.public_overload());
-			//@line 280
+			//@line 279
 			trace("Class2::public_overload(arg1)                = " + __CLASS__CLASS1__.public_overload$1("arg1"));
-			//@line 281
+			//@line 280
 			trace("Class2::public_overload(arg1,arg2)           = " + __CLASS__CLASS1__.public_overload$2("arg1", "arg2"));
-			//@line 282
+			//@line 281
 			trace("Class2::protected_overload()                 = " + __CLASS__CLASS1__.__PROTECTED__.protected_overload());
-			//@line 283
+			//@line 282
 			trace("Class2::protected_overload(arg1)             = " + __CLASS__CLASS1__.__PROTECTED__.protected_overload$1("arg1"));
-			//@line 284
+			//@line 283
 			trace("Class2::protected_overload(arg1,arg2)        = " + __CLASS__CLASS1__.__PROTECTED__.protected_overload$2("arg1", "arg2"));
-			//@line 285
+			//@line 284
 			trace("Class2::public_function()                    = " + __CLASS__CLASS1__.public_function());
-			//@line 286
+			//@line 285
 			trace("Class2::protected_function()                 = " + __CLASS__CLASS1__.__PROTECTED__.protected_function());
-			//@line 287
+			//@line 286
 			trace("Class2::public_var                           = " + __CLASS__CLASS1__.public_var);
-			//@line 288
+			//@line 287
 			trace("Class2::protected_var                        = " + __CLASS__CLASS1__.__PROTECTED__.protected_var);
-			//@line 289
+			//@line 288
 			trace("Class2::public_property                      = " + __CLASS__CLASS1__.public_property);
-			//@line 290
+			//@line 289
 			trace("Class2::protected_property                   = " + __CLASS__CLASS1__.__PROTECTED__.protected_property);
 		};
-		//@line 294
+		//@line 293
 		this.cls2_public_function = function ()
 		{
-			//@line 296
+			//@line 295
 			return "Class2_cls2_public_function";
 			return ""
 		};
-		//@line 251
+		//@line 250
 		this.Constructor = function (arg1)
 		{
-			//@line 253
+			//@line 252
 			trace("Class2::Constructor(" + arg1 + ")");
-			//@line 255
+			//@line 254
 			__CLASS__CLASS2__.x = "Class2_public_x";
-			//@line 256
+			//@line 255
 			__CLASS__CLASS2__.__PRIVATE__.y = "Class2_private_y";
-			//@line 257
+			//@line 256
 			__CLASS__CLASS2__.__PROTECTED__.z = "Class2_protected_z";
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
@@ -548,82 +554,82 @@ function Class2(__CLASS__CLASS2__$arg1__)
 }
 Class2.__PRIVATE__ = {};
 Class2.__PROTECTED__ = {};
-//@line 32
+//@line 31
 Class2.static_public_var = "";
-//@line 33
+//@line 32
 Class2.__PRIVATE__.static_private_var = "";
-//@line 34
+//@line 33
 Class2.__PROTECTED__.static_protected_var = "";
-//@line 41
+//@line 40
 Class2.__PRIVATE__.__public_static_property = "";
-//@line 42
+//@line 41
 Class2.__PRIVATE__.__private_static_property = "";
-//@line 43
+//@line 42
 Class2.__PRIVATE__.__protected_static_property = "";
-//@line 140
+//@line 139
 Class2.public_static_function = function (b)
 {
 	return "Class1_public_static_function";
 	return ""
 };
-//@line 141
+//@line 140
 Class2.__PRIVATE__.private_static_function = function (b)
 {
 	return "Class1_private_static_function";
 	return ""
 };
-//@line 142
+//@line 141
 Class2.__PROTECTED__.protected_static_function = function (b)
 {
 	return "Class1_protected_static_function";
 	return ""
 };
-//@line 223
+//@line 222
 Object.defineProperty(Class2, 'public_static_property', {
 	enumerable: true,
-	//@line 225
+	//@line 224
 	get: function ()
 	{
 		return Class2.__PRIVATE__.__public_static_property;
 		return ""
 	},
-	//@line 226
+	//@line 225
 	set: function (v)
 	{
 		Class2.__PRIVATE__.__public_static_property = v;
 	}
 });
-//@line 229
+//@line 228
 Object.defineProperty(Class2.__PRIVATE__, 'private_static_property', {
 	enumerable: true,
-	//@line 231
+	//@line 230
 	get: function ()
 	{
 		return Class2.__PRIVATE__.__private_static_property;
 		return ""
 	},
-	//@line 232
+	//@line 231
 	set: function (v)
 	{
 		Class2.__PRIVATE__.__private_static_property = v;
 	}
 });
-//@line 235
+//@line 234
 Object.defineProperty(Class2.__PROTECTED__, 'protected_static_property', {
 	enumerable: true,
-	//@line 237
+	//@line 236
 	get: function ()
 	{
 		return Class2.__PRIVATE__.__protected_static_property;
 		return ""
 	},
-	//@line 238
+	//@line 237
 	set: function (v)
 	{
 		Class2.__PRIVATE__.__protected_static_property = v;
 	}
 });
-//@line 301
+//@line 300
 
 function Class3()
 {
@@ -640,7 +646,10 @@ function Class3()
 		{
 			return 'Class3'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [Class3] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -651,60 +660,60 @@ function Class3()
 			__CLASS__CLASS3__.__CLASS__CLASS2__.__CLASS__CLASS1__.__THIS__ = __CLASS__CLASS3__,
 			__CLASS__CLASS2__ = this.__CLASS__CLASS2__ = __CLASS__CLASS3__.__CLASS__CLASS2__
 			__CLASS__CLASS3__.__CLASS__CLASS2__.__THIS__ = __CLASS__CLASS3__;
-		//@line 310
+		//@line 309
 		this.test_virtual = __VIRTUAL__.test_virtual = __CLASS__CLASS2__.test_virtual = __CLASS__CLASS1__.test_virtual = function ()
 		{
-			//@line 312
+			//@line 311
 			trace("Class3::test_virtual");
 		};
-		//@line 316
+		//@line 315
 		this.test = __VIRTUAL__.test = __CLASS__CLASS2__.test = __CLASS__CLASS1__.test = function ()
 		{
-			//@line 318
+			//@line 317
 			trace("========================== Class3::test() (before super) ==========================");
-			//@line 320
+			//@line 319
 			trace("Class3::test::super.test()");
-			//@line 322
+			//@line 321
 			__CLASS__CLASS2__.__VIRTUAL__.test();
-			//@line 324
+			//@line 323
 			trace("========================== Class3::test() (after super) ==========================");
-			//@line 326
+			//@line 325
 			trace(__CLASS__CLASS2__.x);
-			//@line 327
+			//@line 326
 			trace(__CLASS__CLASS2__.__PROTECTED__.z);
-			//@line 329
+			//@line 328
 			__CLASS__CLASS1__.public_state.tick(0);
-			//@line 330
+			//@line 329
 			__CLASS__CLASS1__.__PROTECTED__.protected_state.tick(0);
-			//@line 332
+			//@line 331
 			trace("Class3::public_overload()                    = " + __CLASS__CLASS1__.public_overload());
-			//@line 333
+			//@line 332
 			trace("Class3::public_overload(arg1)                = " + __CLASS__CLASS1__.public_overload$1("arg1"));
-			//@line 334
+			//@line 333
 			trace("Class3::public_overload(arg1,arg2)           = " + __CLASS__CLASS1__.public_overload$2("arg1", "arg2"));
-			//@line 335
+			//@line 334
 			trace("Class3::protected_overload()                 = " + __CLASS__CLASS1__.__PROTECTED__.protected_overload());
-			//@line 336
+			//@line 335
 			trace("Class3::protected_overload(arg1)             = " + __CLASS__CLASS1__.__PROTECTED__.protected_overload$1("arg1"));
-			//@line 337
+			//@line 336
 			trace("Class3::protected_overload(arg1,arg2)        = " + __CLASS__CLASS1__.__PROTECTED__.protected_overload$2("arg1", "arg2"));
-			//@line 338
+			//@line 337
 			trace("Class3::public_function()                    = " + __CLASS__CLASS1__.public_function());
-			//@line 339
+			//@line 338
 			trace("Class3::protected_function()                 = " + __CLASS__CLASS1__.__PROTECTED__.protected_function());
-			//@line 340
+			//@line 339
 			trace("Class3::public_var                           = " + __CLASS__CLASS1__.public_var);
-			//@line 341
+			//@line 340
 			trace("Class3::protected_var                        = " + __CLASS__CLASS1__.__PROTECTED__.protected_var);
-			//@line 342
+			//@line 341
 			trace("Class3::public_property                      = " + __CLASS__CLASS1__.public_property);
-			//@line 343
+			//@line 342
 			trace("Class3::protected_property                   = " + __CLASS__CLASS1__.__PROTECTED__.protected_property);
 		};
-		//@line 304
+		//@line 303
 		this.Constructor = function ()
 		{
-			//@line 306
+			//@line 305
 			trace("Class3::Constructor");
 		};
 		__PDEFINE__(this, 'Constructor', __NOENUM__);
@@ -716,76 +725,76 @@ function Class3()
 }
 Class3.__PRIVATE__ = {};
 Class3.__PROTECTED__ = {};
-//@line 32
+//@line 31
 Class3.static_public_var = "";
-//@line 33
+//@line 32
 Class3.__PRIVATE__.static_private_var = "";
-//@line 34
+//@line 33
 Class3.__PROTECTED__.static_protected_var = "";
-//@line 41
+//@line 40
 Class3.__PRIVATE__.__public_static_property = "";
-//@line 42
+//@line 41
 Class3.__PRIVATE__.__private_static_property = "";
-//@line 43
+//@line 42
 Class3.__PRIVATE__.__protected_static_property = "";
-//@line 140
+//@line 139
 Class3.public_static_function = function (b)
 {
 	return "Class1_public_static_function";
 	return ""
 };
-//@line 141
+//@line 140
 Class3.__PRIVATE__.private_static_function = function (b)
 {
 	return "Class1_private_static_function";
 	return ""
 };
-//@line 142
+//@line 141
 Class3.__PROTECTED__.protected_static_function = function (b)
 {
 	return "Class1_protected_static_function";
 	return ""
 };
-//@line 223
+//@line 222
 Object.defineProperty(Class3, 'public_static_property', {
 	enumerable: true,
-	//@line 225
+	//@line 224
 	get: function ()
 	{
 		return Class3.__PRIVATE__.__public_static_property;
 		return ""
 	},
-	//@line 226
+	//@line 225
 	set: function (v)
 	{
 		Class3.__PRIVATE__.__public_static_property = v;
 	}
 });
-//@line 229
+//@line 228
 Object.defineProperty(Class3.__PRIVATE__, 'private_static_property', {
 	enumerable: true,
-	//@line 231
+	//@line 230
 	get: function ()
 	{
 		return Class3.__PRIVATE__.__private_static_property;
 		return ""
 	},
-	//@line 232
+	//@line 231
 	set: function (v)
 	{
 		Class3.__PRIVATE__.__private_static_property = v;
 	}
 });
-//@line 235
+//@line 234
 Object.defineProperty(Class3.__PROTECTED__, 'protected_static_property', {
 	enumerable: true,
-	//@line 237
+	//@line 236
 	get: function ()
 	{
 		return Class3.__PRIVATE__.__protected_static_property;
 		return ""
 	},
-	//@line 238
+	//@line 237
 	set: function (v)
 	{
 		Class3.__PRIVATE__.__protected_static_property = v;

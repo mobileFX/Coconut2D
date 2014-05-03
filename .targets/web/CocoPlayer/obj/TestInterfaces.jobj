@@ -16,7 +16,10 @@ function ClassTestInterfaces()
 		{
 			return 'ClassTestInterfaces'
 		};
-		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { trace('chaning "this" of base class [ClassTestInterfaces] to top-level class [' + v.Class + ']');
+				__THIS__ = v;
+			}
+		});
 		var __VIRTUAL__ = this.__VIRTUAL__ =
 		{
 			__PROTECTED__: {}
@@ -50,8 +53,6 @@ function ClassTestInterfaces()
 			var i3 = __THIS__;
 			//@line 43
 			__CLASS__CLASSTESTINTERFACES__.interface_test1(i1);
-			//@line 44
-			__CLASS__CLASSTESTINTERFACES__.interface_test2(i1);
 			//@line 48
 			__CLASS__CLASSTESTINTERFACES__.interface_test1(i2);
 			//@line 49
