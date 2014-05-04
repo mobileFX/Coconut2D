@@ -1,0 +1,123 @@
+//@line 34
+
+function HTMLWindow()
+{
+	var __BASE__ = null;
+
+	function __HTMLWindow()
+	{
+		var Class = this.Class = 'HTMLWindow',
+			__PDEFINE__ = Object.defineProperty,
+			__NOENUM__ = {enumerable:false},
+			__CLASS__HTMLWINDOW__ = this.__CLASS__HTMLWINDOW__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'HTMLWindow'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		},
+			__PRIVATE__ = this.__PRIVATE__ = {},
+			__PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 36
+		this.__uid = 0;
+		//@line 37
+		this.document = null;
+		//@line 38
+		this.innerHeight = 0;
+		//@line 39
+		this.innerWidth = 0;
+		//@line 40
+		this.devicePixelRatio = 0;
+		//@line 42
+		this.__deviceMessage = null;
+		//@line 43
+		this.__elements = [];
+		//@line 66
+		this.addEventListener = function (eventType, listener, useCapture)
+		{
+			//@line 68
+			__registerCallback(__CLASS__HTMLWINDOW__.__uid, eventType);
+			//@line 69
+			__CLASS__HTMLWINDOW__.__elements[eventType] = listener;
+		};
+		//@line 73
+		this.removeEventListener = function (eventType, listener, useCapture)
+		{
+			//@line 75
+			__CLASS__HTMLWINDOW__.__elements[eventType] = null;
+			//@line 76
+			__unRegisterCallback(__CLASS__HTMLWINDOW__.__uid, eventType);
+		};
+		//@line 80
+		this.dispatchEvent = function (uid, eventType)
+		{
+			//@line 82
+			__CLASS__HTMLWINDOW__.__deviceMessage.type = eventType;
+			//@line 83
+			var Callback = __CLASS__HTMLWINDOW__.__elements[eventType];
+			//@line 84
+			if (Callback) Callback.call(global, __CLASS__HTMLWINDOW__.__deviceMessage);
+		};
+		//@line 58
+		this.Destructor = function ()
+		{
+			{
+				//@line 60
+				{
+					__CLASS__HTMLWINDOW__.document && ((__CLASS__HTMLWINDOW__.document.hasOwnProperty('Destructor') && __CLASS__HTMLWINDOW__.document.Destructor()) || !__CLASS__HTMLWINDOW__.document.hasOwnProperty('Destructor')) && (delete __CLASS__HTMLWINDOW__.document);
+					__CLASS__HTMLWINDOW__.document = null
+				};
+				//@line 61
+				{
+					__CLASS__HTMLWINDOW__.__deviceMessage && ((__CLASS__HTMLWINDOW__.__deviceMessage.hasOwnProperty('Destructor') && __CLASS__HTMLWINDOW__.__deviceMessage.Destructor()) || !__CLASS__HTMLWINDOW__.__deviceMessage.hasOwnProperty('Destructor')) && (delete __CLASS__HTMLWINDOW__.__deviceMessage);
+					__CLASS__HTMLWINDOW__.__deviceMessage = null
+				};
+				//@line 62
+				{
+					__CLASS__HTMLWINDOW__.__elements && ((__CLASS__HTMLWINDOW__.__elements.hasOwnProperty('Destructor') && __CLASS__HTMLWINDOW__.__elements.Destructor()) || !__CLASS__HTMLWINDOW__.__elements.hasOwnProperty('Destructor')) && (delete __CLASS__HTMLWINDOW__.__elements);
+					__CLASS__HTMLWINDOW__.__elements = null
+				};
+			}
+			{
+				__CLASS__HTMLWINDOW__.__uid = null;
+				__CLASS__HTMLWINDOW__.document = null;
+				__CLASS__HTMLWINDOW__.innerHeight = null;
+				__CLASS__HTMLWINDOW__.innerWidth = null;
+				__CLASS__HTMLWINDOW__.devicePixelRatio = null;
+				__CLASS__HTMLWINDOW__.__deviceMessage = null;
+				__CLASS__HTMLWINDOW__.__elements = null;
+			}
+			return true
+		};
+		//@line 46
+		this.Constructor = function ()
+		{
+			//@line 48
+			__CLASS__HTMLWINDOW__.__uid = 0;
+			//@line 49
+			__CLASS__HTMLWINDOW__.document = new HTMLDocument;
+			//@line 50
+			__CLASS__HTMLWINDOW__.innerHeight = global.innerHeight;
+			//@line 51
+			__CLASS__HTMLWINDOW__.innerWidth = global.innerWidth;
+			//@line 52
+			__CLASS__HTMLWINDOW__.devicePixelRatio = global.devicePixelRatio;
+			//@line 53
+			__CLASS__HTMLWINDOW__.__deviceMessage = new DeviceMessage;
+			//@line 54
+			__registerManager(__THIS__, __CLASS__HTMLWINDOW__.dispatchEvent, __CLASS__HTMLWINDOW__.__deviceMessage);
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	return new __HTMLWindow();
+}
+HTMLWindow.__PRIVATE__ = {};
+HTMLWindow.__PROTECTED__ = {};

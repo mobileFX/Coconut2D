@@ -920,7 +920,7 @@ function make(options)
 		HPPmap[includes] = true;
 		for(i=0;i<files.length;i++)
 		{
-			//files[i] = relativePath(root, files[i]);
+			files[i] = relativePath(root, files[i]);
 			if(/\.(cpp|m)$/i.test(files[i]))
 			{
 				if(files[i].indexOf("./")==0)
@@ -1448,6 +1448,7 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bFloat\\b", "mg", "float");
 	buff = RxReplace(buff, "\\bInteger\\b", "mg", "int");
 	buff = RxReplace(buff, "\\bBoolean\\b", "mg", "bool");
+	buff = RxReplace(buff, "\\bObject\\b", "mg", "void");
 	buff = RxReplace(buff, "\\s*//<<(.*)>>//", "mg", "$1");
 	buff = RxReplace(buff, "\\bMath::floor\\(", "mg", "floor(");
 	buff = RxReplace(buff, "\\bMath::ceil\\(", "mg", "ceil(");

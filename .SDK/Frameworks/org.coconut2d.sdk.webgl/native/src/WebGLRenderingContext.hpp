@@ -1,43 +1,49 @@
-﻿#ifndef _WebGLRenderingContext_h
-#define _WebGLRenderingContext_h
+﻿#ifndef __WEBGLRENDERINGCONTEXT_HPP__
+#define __WEBGLRENDERINGCONTEXT_HPP__
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Coconut2D.hpp"
 #include <string>
-#include "HTMLCanvasContext.hpp"
-#include "HTMLCanvasElement.hpp"
 #include "ArrayBuffer.hpp"
 #include "ArrayBufferView.hpp"
-#include "TypedArray.hpp"
+#include "HTMLCanvasElement.hpp"
 #include "HTMLImageElement.hpp"
+#include "TypedArray.hpp"
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef NGLDEBUG
-#define	ASSERT_GL()	((void)0)
+	#define	ASSERT_GL()	((void)0)
 #else
-#define ASSERT_GL() \
-{\
-	GLenum ret = glGetError();\
-	if(ret)\
+	#define ASSERT_GL() \
 	{\
-		fprintf(stderr, "glError(0x%04X)\n", ret);\
-		fflush(stderr);\
-		assert(false);\
-	}\
-}
+		GLenum ret = glGetError();\
+		if(ret)\
+		{\
+			fprintf(stderr, "glError(0x%04X)\n", ret);\
+			fflush(stderr);\
+			assert(false);\
+		}\
+	}
 #endif
 
-struct GLany {
-	enum {
+////////////////////////////////////////////////////////////////////////////////////////////////////
+struct GLany
+{
+	enum
+	{
 		typeBool,
 		typeInt,
 		typeEnum
 	} type;
-	union {
+	union
+	{
 		GLboolean valBool;
 		GLint valInt;
 		GLenum valEnum;
 	};
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class WebGLObject { public: GLuint __uid; };
 class WebGLBuffer : public WebGLObject {};
 class WebGLFramebuffer : public WebGLObject {};
@@ -46,8 +52,9 @@ class WebGLShader : public WebGLObject {};
 class WebGLTexture : public WebGLObject {};
 class WebGLUniformLocation { public: GLint __uid; };
 
-class WebGLProgram : public WebGLObject {
-	// TODO: rm -rf
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class WebGLProgram : public WebGLObject
+{
 public:
 	GLint GLSLiVec2Coords;
 	WebGLUniformLocation* GLSLuProjMat;
@@ -62,59 +69,45 @@ public:
 	WebGLUniformLocation* GLSLuSprFlip;
 };
 
-extern class WebGLRenderingContext : public HTMLCanvasContext
+////////////////////////////////////////////////////////////////////////////////////////////////////
+extern class WebGLRenderingContext
 {
 public:
-	/*enum COCO_WEBGL_PAYLOAD_OP {
-		BINDBUFFER					= 0x0,
-		BINDTEXTURE					= 0x1,
-		DRAWARRAYS					= 0x2,
-		UNIFORM1I					= 0x3,
-		UNIFORM2F					= 0x4,
-		UNIFORM4F					= 0x5,
-		VERTEXATTRIBPOINTER			= 0x6,
-		length
-	};
-	void execute();*/
 
-	WebGLRenderingContext(HTMLCanvasElement* i_canvas)  { canvas = i_canvas; }
-	//void getContextAttributes();
-	//void isContextLost();
-	//void getSupportedExtensions();
-	//void getExtension();
+	HTMLCanvasElement* canvas;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	WebGLRenderingContext()
+	{
+		canvas = new HTMLCanvasElement();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	~WebGLRenderingContext()
+	{
+		delete canvas;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	GLenum getError();
+	GLany getProgramParameter(WebGLProgram* program, GLenum pname);
+	GLany getShaderParameter(WebGLShader* shader, GLenum pname);
+	GLint getAttribLocation(WebGLProgram* program, std::string name);
+
+	std::string getShaderInfoLog(WebGLShader* shader);
+
 	void activeTexture(GLenum texture);
 	void attachShader(WebGLProgram* program, WebGLShader* shader);
-	//void bindAttribLocation();
 	void bindBuffer(GLenum target, WebGLBuffer* buffer);
-	//void bindFramebuffer();
-	//void bindRenderbuffer();
 	void bindTexture(GLenum target, WebGLTexture* texture);
-	//void blendColor();
-	//void blendEquation();
-	//void blendEquationSeparate();
 	void blendFunc(GLenum sfactor, GLenum dfactor);
-	//void blendFuncSeparate();
-	void bufferData(GLenum target, ArrayBufferView* data, GLenum usage);
 	void bufferData(GLenum target, ArrayBuffer* data, GLenum usage);
-	void bufferSubData(GLenum target, GLintptr offset, ArrayBufferView* data);
+	void bufferData(GLenum target, ArrayBufferView* data, GLenum usage);
 	void bufferSubData(GLenum target, GLintptr offset, ArrayBuffer* data);
-	//void checkFramebufferStatus();
+	void bufferSubData(GLenum target, GLintptr offset, ArrayBufferView* data);
 	void clear(GLbitfield mask);
 	void clearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-	//void clearDepth();
-	//void clearStencil();
-	//void colorMask();
 	void compileShader(WebGLShader* shader);
-	//void compressedTexImage2D();
-	//void compressedTexSubImage2D();
-	//void copyTexImage2D();
-	//void copyTexSubImage2D();
-	WebGLBuffer* createBuffer();
-	WebGLFramebuffer* createFramebuffer();
-	WebGLProgram* createProgram();
-	WebGLRenderbuffer* createRenderbuffer();
-	WebGLShader* createShader(GLenum type);
-	WebGLTexture* createTexture();
 	void cullFace(GLenum mode);
 	void deleteBuffer(WebGLBuffer* buffer);
 	void deleteFramebuffer(WebGLFramebuffer* framebuffer);
@@ -124,8 +117,6 @@ public:
 	void deleteTexture(WebGLTexture* texture);
 	void depthFunc(GLenum func);
 	void depthMask(GLboolean flag);
-	//void depthRange();
-	//void detachShader();
 	void disable(GLenum cap);
 	void disableVertexAttribArray(GLuint index);
 	void drawArrays(GLenum mode, GLint first, GLsizei count);
@@ -134,61 +125,14 @@ public:
 	void enableVertexAttribArray(GLuint index);
 	void finish();
 	void flush();
-	//void framebufferRenderbuffer();
-	//void framebufferTexture2D();
 	void frontFace(GLenum mode);
 	void generateMipmap(GLenum target);
-	//void getActiveAttrib();
-	//void getActiveUniform();
-	//void getAttachedShaders();
-	GLint getAttribLocation(WebGLProgram* program, std::string name);
-	//void getBufferParameter();
-	//void getParameter();
-	GLenum getError();
-	//void getFramebufferAttachmentParameter();
-	GLany getProgramParameter(WebGLProgram* program, GLenum pname);
-	//void getProgramInfoLog();
-	//void getRenderbufferParameter();
-	GLany getShaderParameter(WebGLShader* shader, GLenum pname);
-	//void getShaderPrecisionFormat();
-	std::string getShaderInfoLog(WebGLShader* shader);
-	//void getShaderSource();
-	//void getTexParameter();
-	//void getUniform();
-	WebGLUniformLocation* getUniformLocation(WebGLProgram* program, std::string name);
-	//void getVertexAttrib();
-	//void getVertexAttribOffset();
-	//void hint();
-	//void isBuffer();
-	//void isEnabled();
-	//void isFramebuffer();
-	//void isProgram();
-	//void isRenderbuffer();
-	//void isShader();
-	//void isTexture();
-	//void lineWidth();
 	void linkProgram(WebGLProgram* program);
 	void pixelStorei(GLenum pname, GLint param);
-	//void polygonOffset();
-	//void readPixels();
-	//void renderbufferStorage();
-	//void sampleCoverage();
-	//void scissor();
 	void shaderSource(WebGLShader* shader, std::string source);
-	//void stencilFunc();
-	//void stencilFuncSeparate();
-	//void stencilMask();
-	//void stencilMaskSeparate();
-	//void stencilOp();
-	//void stencilOpSeparate();
-	void texImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, ArrayBufferView* pixels);
-	//void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, Glenum type, ImageData* pixels);
 	void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, GLenum type, Image* image);
-	//void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, Glenum type, HTMLCanvasElement* canvas);
-	//void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, Glenum type, HTMLVideoElement* video);
-	//void texParameterf();
+	void texImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, ArrayBufferView* pixels);
 	void texParameteri(GLenum target, GLenum pname, GLint param);
-	//void texSubImage2D();
 	void uniform1f(WebGLUniformLocation* location, GLfloat x);
 	void uniform1fv(WebGLUniformLocation* location, Float32Array* v);
 	void uniform1i(WebGLUniformLocation* location, GLint x);
@@ -213,16 +157,16 @@ public:
 	void uniformMatrix4fv(WebGLUniformLocation* location, GLboolean transpose, std::vector<GLfloat> value);
 	void useProgram(WebGLProgram* program);
 	void validateProgram(WebGLProgram* program);
-	//void vertexAttrib1f();
-	//void vertexAttrib1fv();
-	//void vertexAttrib2f();
-	//void vertexAttrib2fv();
-	//void vertexAttrib3f();
-	//void vertexAttrib3fv();
-	//void vertexAttrib4f();
-	//void vertexAttrib4fv();
 	void vertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLintptr offset);
-	//void viewport();
+
+	WebGLBuffer* createBuffer();
+	WebGLFramebuffer* createFramebuffer();
+	WebGLProgram* createProgram();
+	WebGLRenderbuffer* createRenderbuffer();
+	WebGLRenderingContext(HTMLCanvasElement* i_canvas)  { canvas = i_canvas; }
+	WebGLShader* createShader(GLenum type);
+	WebGLTexture* createTexture();
+	WebGLUniformLocation* getUniformLocation(WebGLProgram* program, std::string name);
 
 	const GLenum DEPTH_BUFFER_BIT = 0x00000100;
 	const GLenum STENCIL_BUFFER_BIT = 0x00000400;
@@ -519,8 +463,10 @@ public:
 	const GLenum CONTEXT_LOST_WEBGL = 0x9242;
 	const GLenum UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
 	const GLenum BROWSER_DEFAULT_WEBGL = 0x9244;
+
 }* gl;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 WebGLProgram* makeProgram(WebGLRenderingContext* gl, std::string vs, std::string fs);
 
-#endif
+#endif // __WEBGLRENDERINGCONTEXT_HPP__

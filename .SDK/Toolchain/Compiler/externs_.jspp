@@ -270,10 +270,9 @@ class Global
 	undefined var COCO_CONTROL_BORDER_STYLE_ENUM :COCO_CONTROL_BORDER_STYLE_ENUM;
 	undefined var COCO_CONTROL_ANCHOR_ENUM :COCO_CONTROL_ANCHOR_ENUM;
 	undefined var COCO_SKIN_TILE_ENUM :COCO_SKIN_TILE_ENUM;
-	undefined var Audio :Audio;
-	undefined var HTMLCanvasContext :HTMLCanvasContext;
 	undefined var PathLine :PathLine;
 	undefined var CanvasRenderingContext2D :CanvasRenderingContext2D;
+	undefined var Audio :Audio;
 	undefined var HTMLCanvasElement :HTMLCanvasElement;
 	undefined var HTMLCanvasGradient :HTMLCanvasGradient;
 	undefined var HTMLCanvasPattern :HTMLCanvasPattern;
@@ -311,7 +310,6 @@ class Global
 	undefined var IEventListener :IEventListener;
 	undefined var IEventTarget :IEventTarget;
 	undefined var ITickable :ITickable;
-	undefined var CocoTickable :CocoTickable;
 	undefined var CocoRect :CocoRect;
 	undefined var CocoGraphics :CocoGraphics;
 	undefined var CocoSequence :CocoSequence;
@@ -324,6 +322,7 @@ class Global
 	undefined var CocoEventConnectionPoint :CocoEventConnectionPoint;
 	undefined var CocoEventSource :CocoEventSource;
 	undefined var State :State;
+	undefined var CocoTickable :CocoTickable;
 	undefined var DeviceMessage :DeviceMessage;
 	undefined var Touch :Touch;
 	undefined var TouchList :TouchList;
@@ -692,31 +691,6 @@ class COCO_SKIN_TILE_ENUM
 	public var TILE_REPEAT_XY :COCO_SKIN_TILE_ENUM;
 } //COCO_SKIN_TILE_ENUM
 
-class Audio
-{
-	public function play() {}
-	public function pause() {}
-	public function Destructor() {}
-	public function Constructor(url:String) {}
-	private var __uid :Integer;
-	private var __currentTime :Float;
-	public var duration :Float;
-	public var paused :Boolean;
-	public var ended :Boolean;
-	public var autoplay :Boolean;
-	public var loop :Boolean;
-	public var src :String;
-	public var currentTime :Float;
-	public var readyState :Integer;
-} //Audio
-
-class HTMLCanvasContext
-{
-	public function Destructor() {}
-	public function Constructor() {}
-	public var canvas :HTMLCanvasElement;
-} //HTMLCanvasContext
-
 class PathLine
 {
 	public function Constructor(_x0:Float, _y0:Float, _x1:Float, _y1:Float) {}
@@ -726,7 +700,7 @@ class PathLine
 	public var y1 :Float;
 } //PathLine
 
-class CanvasRenderingContext2D : HTMLCanvasContext
+class CanvasRenderingContext2D
 {
 	public function arc(x:Float, y:Float, radius:Float, startAngle:Float, endAngle:Float, anticlockwise:Boolean) {}
 	public function arcTo(x1:Float, y1:Float, x2:Float, y2:Float, radius:Float) {}
@@ -769,6 +743,7 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public function measureText(text:String) :HTMLTextMetrics {}
 	public function Destructor() {}
 	public function Constructor(canvas:HTMLCanvasElement) {}
+	public var canvas :HTMLCanvasElement;
 	public var DRAWWINDOW_DRAW_CARET :Number;
 	public var DRAWWINDOW_DO_NOT_FLUSH :Number;
 	public var DRAWWINDOW_DRAW_VIEW :Number;
@@ -802,9 +777,27 @@ class CanvasRenderingContext2D : HTMLCanvasContext
 	public var font :String;
 } //CanvasRenderingContext2D
 
+class Audio
+{
+	public function play() {}
+	public function pause() {}
+	public function Destructor() {}
+	public function Constructor(url:String) {}
+	private var __uid :Integer;
+	private var __currentTime :Float;
+	public var duration :Float;
+	public var paused :Boolean;
+	public var ended :Boolean;
+	public var autoplay :Boolean;
+	public var loop :Boolean;
+	public var src :String;
+	public var currentTime :Float;
+	public var readyState :Integer;
+} //Audio
+
 class HTMLCanvasElement
 {
-	public function getContext(contextId:String) :HTMLCanvasContext {}
+	public function getContext(contextId:String) :Object {}
 	public function toDataURL() :String {}
 	public function Destructor() {}
 	public function Constructor() {}
@@ -931,7 +924,7 @@ class WebGLRenderbuffer : WebGLObject
 	public function Constructor(uid:Integer) {}
 } //WebGLRenderbuffer
 
-class WebGLRenderingContext : HTMLCanvasContext
+class WebGLRenderingContext
 {
 	public function activeTexture(texture:Integer) {}
 	public function attachShader(program:WebGLProgram, shader:WebGLShader) {}
@@ -1669,15 +1662,6 @@ class ITickable
 	public function tick(time:Time) {}
 } //ITickable
 
-class CocoTickable
-{
-	public function tick(time:Time) {}
-	public function RegisterTickable() {}
-	public function UnregisterTickable() {}
-	public function Destructor() {}
-	public function Constructor() {}
-} //CocoTickable
-
 class CocoRect
 {
 	public var left :Float;
@@ -1859,6 +1843,15 @@ class State
 	public var __name :String;
 	public var params :Object;
 } //State
+
+class CocoTickable
+{
+	public function RegisterTickable() {}
+	public function UnregisterTickable() {}
+	public function tick(time:Time) {}
+	public function Destructor() {}
+	public function Constructor() {}
+} //CocoTickable
 
 class DeviceMessage
 {
@@ -2109,8 +2102,6 @@ class GameEngine : CocoEngine
 	public function Destructor() {}
 	public function Constructor() {}
 	public var scene :CocoScene;
-	public var btn1 :CocoUIButton;
-	public var btn2 :CocoUIButton;
 	public var STATE_GAME :State;
 } //GameEngine
 

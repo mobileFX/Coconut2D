@@ -55,12 +55,12 @@ class HTMLCanvasElement
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function getContext(contextId:String) :HTMLCanvasContext
+	public function getContext(contextId:String) :Object
 	{
 		if(contextId=="2d")
-			return new CanvasRenderingContext2D(this);
+			return Object(new CanvasRenderingContext2D(this));
 		else
-			return HTMLCanvasContext(new WebGLRenderingContext(this));
+			return Object(new WebGLRenderingContext(this));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

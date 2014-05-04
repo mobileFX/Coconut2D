@@ -1248,9 +1248,11 @@ function Compiler(ast)
 
 			// Record vartype usage in class level (used to check #includes)
 			if(baseClass)
-			{
 				_this.record_vartype_use(ast, {vartype:baseClass, subtype:null}, scope, _this.INCLUDE_IN_HPP);
-			}
+
+			// Record interfaces
+			for(i=0;i<classSymbol.interfaces.length;i++)
+				_this.record_vartype_use(ast, {vartype:classSymbol.interfaces[i]}, classSymbol.scope, _this.INCLUDE_IN_HPP);
 
 			if(_this.secondPass)
 			{
@@ -1305,8 +1307,8 @@ function Compiler(ast)
 
 			out.push("var __THIS__ = this;");
 			out.push("this.toString = function(){return '" + ast.name + "'};");
-			//out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){__THIS__=v;}});");
-			out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){trace('chaning \"this\" of base class [" + classSymbol.name + "] to top-level class [' + v.Class + ']' );__THIS__=v;}});");
+			out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){__THIS__=v;}});");
+			//out.push("__PDEFINE__(this,'__THIS__', {enumerable:false, get: function(){return __THIS__;}, set:function(v){trace('chaning \"this\" of base class [" + classSymbol.name + "] to top-level class [' + v.Class + ']' );__THIS__=v;}});");
 
 			// Define the bank for the virtual public and private methods.
 			// You are not expected to understand how this works but the

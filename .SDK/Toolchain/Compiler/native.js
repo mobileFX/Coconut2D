@@ -254,33 +254,37 @@ function CompilerCppPlugin(compiler)
 			var fn = (ast.static ? "static " :"") + (ast.symbol.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : ast.returntype + (ast.pointer ? "*" : "") + " ") + name + hppParamList + (ast.symbol.abstract ? "=0":"") +";";
 			HPP.push(fn);
 
-	        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-			CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.pointer?"*":"") + " ") + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
-			if(ast.isConstructor && ast.inClass.base_init)
+			if(!ast.symbol.abstract && ast.inClass && !ast.inClass.symbol.interface)
 			{
-				var baseConstructorArguments = [];
-				for(var item in ast.inClass.base_init[1])
+		        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+				CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.pointer?"*":"") + " ") + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
+				if(ast.isConstructor && ast.inClass.base_init)
 				{
-					if(!isFinite(item)) break;
-					var arg = ast.inClass.base_init[1][item];
-					if(arg.type==jsdef.IDENTIFIER)
+					var baseConstructorArguments = [];
+					for(var item in ast.inClass.base_init[1])
 					{
-						baseConstructorArguments.push(arg.value);
+						if(!isFinite(item)) break;
+						var arg = ast.inClass.base_init[1][item];
+						if(arg.type==jsdef.IDENTIFIER)
+						{
+							baseConstructorArguments.push(arg.value);
+						}
+						else
+						{
+							var gen = _this.generate_cpp(arg);
+							baseConstructorArguments.push(gen.CPP);
+						}
 					}
-					else
-					{
-						var gen = _this.generate_cpp(arg);
-						baseConstructorArguments.push(gen.CPP);
-					}
+					CPP.push(" : " + ast.inClass.extends + "(" + formatCPP(baseConstructorArguments.join(",")) + ")");
 				}
-				CPP.push(" : " + ast.inClass.extends + "(" + formatCPP(baseConstructorArguments.join(",")) + ")");
+		        CPP.push("\n{\n");
+
+		        if(ast.body)
+					CPP.push(generate_cpp(ast.body).CPP);
+
+				CPP.push("}\n");
 			}
-	        CPP.push("\n{\n");
 
-	        if(ast.body)
-				CPP.push(generate_cpp(ast.body).CPP);
-
-			CPP.push("}\n");
 			break;
 
 		// ==================================================================================================================================
@@ -717,14 +721,54 @@ function CompilerCppPlugin(compiler)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.LIST:
 		case jsdef.COMMA:
-			var firstItem = true;
-			for(var item in ast)
+
+			var d=false;
+
+			for(i=0;i<ast.length;i++)
 			{
-				if(!isFinite(item)) break;
-				if(!firstItem) CPP.push(", ");
-				CPP.push(generate_cpp(ast[item]).CPP);
-				firstItem = false;
+				if(i>0) CPP.push(", ");
+
+				//
+				// The following code type-casts objects according to what the callee function needs.
+				// This casting is required to obtain compatibility with Interfaces and derivative classes.
+				//
+				// Example:
+				//
+				// addTickListener needs ITickable:
+				//
+				// 		void CocoEngine::addTickListener(ITickable* tickable)
+				//
+				// A CocoTickable passes itself casted to ITickable automatically:
+				//
+				//		void CocoTickable::RegisterTickable()
+				//		{
+				//			engine->addTickListener(((ITickable*)(this)));
+				//		}
+				//
+
+				if(!ast.parent.typecasting)
+				{
+					if(ast.parent[0].identifier_last && ast.parent[0].identifier_last.symbol && !ast.parent[0].identifier_last.symbol.extern)
+					{
+						if(ast.parent[0].identifier_last.symbol.paramsList.length==ast.length)
+						{
+							vartype = ast.parent[0].identifier_last.symbol.paramsList[i].vartype;
+							if(_this.isPointer(vartype))
+							{
+								CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
+								continue;
+							}
+						}
+					}
+				}
+
+				// Fall-back to regular argument generation
+				CPP.push( generate_cpp(ast[i]).CPP);
 			}
+
+			if(d)
+			trace(CPP.join(""));
+
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

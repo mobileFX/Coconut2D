@@ -90,7 +90,6 @@ class CocoUIView;
 class CocoVector;
 class DeviceMessage;
 class GameEngine;
-class HTMLCanvasContext;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
 class HTMLCanvasPattern;
