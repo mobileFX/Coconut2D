@@ -330,10 +330,11 @@ function Compiler(ast)
 
 	_this.preprocess = function()
 	{
-		var _this = this;
 		_this.tokenizer = ast.tokenizer;
+
 		var currFunction = null;
 		var currClass = null;
+		var currState = null;
 		var currDot = [];
 		var dic={};
 
@@ -350,6 +351,10 @@ function Compiler(ast)
 				if(!_this.fileClasses[node.file]) _this.fileClasses[node.file]={};
 				_this.fileClasses[node.file][node.name] = node;
 				currClass = node;
+				break;
+
+			case jsdef.STATE:
+				currState = node;
 				break;
 
 			case jsdef.FUNCTION:
@@ -489,6 +494,7 @@ function Compiler(ast)
 
 			// Non-enumerable node metadata
 			_this.SET_METADATA(node, "inClass", currClass);
+			_this.SET_METADATA(node, "inState", currState);
 			_this.SET_METADATA(node, "inFunction", currFunction);
 			_this.SET_METADATA(node, "inDot", currDot.length>0 && currDot[currDot.length-1].type==jsdef.DOT ? currDot[currDot.length-1] : null);
 			_this.SET_METADATA(node, "inIndex", currDot.length>0 && currDot[currDot.length-1].type==jsdef.INDEX ? currDot[currDot.length-1] : null);
@@ -505,6 +511,10 @@ function Compiler(ast)
 			case jsdef.CALL:
 			case jsdef.DOT:
 				currDot.pop();
+				break;
+
+			case jsdef.STATE:
+				currState=null;
 				break;
 
 			case jsdef.CLASS:

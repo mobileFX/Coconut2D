@@ -132,7 +132,7 @@ function make(options)
   		_this.clean();
   		_this.apply_device_wrapper();
   		_this.generate_icons();
-  		//_this.copy_assets();
+  		_this.copy_assets();
   		_this.generate_cpp();
   		_this.compile_ipa();
   	};
@@ -362,29 +362,21 @@ function make(options)
 
 		// Collect all C++ sources
   		var CPP_SOURCES_PATH = [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";");
-  		var files = _this.collectSources(CPP_SOURCES_PATH,
+  		var sources = _this.collectSources(CPP_SOURCES_PATH,
   										 TARGET.TARGET_NATIVE_MASK,
   										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
   										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
 		// Make all paths relative to target folder
-		files = _this.get_relative_cpp_hpp(files, TARGET.TARGET_ROOT);
+		files = _this.get_relative_cpp_hpp(sources, TARGET.TARGET_ROOT);
 		makefile.Vars["NATIVE_CPP_SOURCES"] = _this.winPath(files.CPP.join(" \\\n"));
 		makefile.Vars["NATIVE_CPP_INCLUDES"] = _this.winPath(" -I" + files.HPP.join(" \\\n -I"));
 
 		// Collect resources
 		trace("\n Collecting Resources ...");
-		var files = _this.FindFiles(makefile.Config.PROJECT_PATHS.ASSETS, TARGET.TARGET_RESOURCES_MASK, true);
-
-		/*
-		var files = _this.FindFiles(TARGET.TARGET_ROOT, TARGET.TARGET_RESOURCES_MASK, true);
-		for(i=0;i<files.length;i++)
-		{
-			files[i] = relativePath(TARGET.TARGET_ROOT, files[i]);
-		}
+		var files = _this.FindFiles(TARGET.TARGET_ROOT, TARGET.TARGET_RESOURCES_MASK, false);
+		for(i=0;i<files.length;i++) { files[i] = relativePath(TARGET.TARGET_ROOT, files[i]); }
 		files.push("./assets");
-		*/
-
 		makefile.Vars["NATIVE_RESOURCES"] = files.join(" \\\n");
 		trace("+ Done.");
 
@@ -399,7 +391,7 @@ function make(options)
 		makefile.Vars["APP_ICONS"] = files.join("\n");
 		trace("+ Done.");
 
-		// Create Info.plist		//$(APP_ICONS)
+		// Create Info.plist
 		trace("\n Creating Info.plist ...");
         trace("+ replacing variables ...");
 		var file = TARGET.TARGET_ROOT+"/Info.plist";
@@ -416,18 +408,16 @@ function make(options)
 		buff = _this.replaceVars(buff, true, TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";"));
         _this.module(file, buff);
 
-        // Create a custom make_ios.bat (offers better control than relying on environment variables)
+        // Create a custom make_ios.bat (offers better control than relying on environment variables)  //--warn-undefined-variables
         var buff = [];
         var make_cmd = TARGET.TARGET_ROOT + "/make_ios.bat";
         buff.push('@echo off');
         buff.push('SET IOSBUILDENV_PATH=' + makefile.Vars.PATH_3RD_PARTY_IOS_BUILD_ENV);
         buff.push('SET IOS_PROJECT_PATH=$(TARGET_ROOT)');
 		buff.push('SET IOS_MAKEFILE=%IOS_PROJECT_PATH%/Makefile.mk');
-		buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% prepare resources');
-        //buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --jobs --warn-undefined-variables SHELL=%ComSpec% compile');
-        buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% compile');
-        buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% link codesign ipa end');
-        //buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --warn-undefined-variables SHELL=%ComSpec% all');
+		buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" SHELL=%ComSpec% prepare resources');
+        buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" --jobs SHELL=%ComSpec% compile');
+        buff.push('"%IOSBUILDENV_PATH%/Toolchain/make.exe" --directory="%IOS_PROJECT_PATH%" --makefile="%IOS_MAKEFILE%" SHELL=%ComSpec% link codesign ipa end');
 		buff = _this.replaceVars(_this.winPath(buff.join("\n")));
         _this.module(make_cmd, buff);
 

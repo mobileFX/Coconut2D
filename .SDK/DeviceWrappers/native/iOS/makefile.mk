@@ -57,14 +57,14 @@ prepare:
 # other (whether they are files or directories) ; files are copied in place
 # and directories are recursively copied only if their content changed.
 # During this process, all property lists are converted in binary format.
-#	   ) else ( \
-#	      "$(IOSBUILDENV_PATH)/Toolchain/copy" "%%I" "$(OUTDIR)/%%I" \
 #==============================================================================
 resources:
 	@"$(IOSBUILDENV_PATH)/Toolchain/echo" "Copying resources ..."
 	@for %%I in ($(RES)) do ( \
 	   if "%%I"=="Info.plist" ( \
 	      "$(IOSBUILDENV_PATH)/Toolchain/plconvert" "%%I" "$(OUTDIR)/%%I" -binary -MinimumOSVersion=string:$(IOSMINVER).0 \
+	   ) else ( \
+	      "$(IOSBUILDENV_PATH)/Toolchain/copy" "%%I" "$(OUTDIR)/%%I" \
 	   ) \
 	)
 	@"$(IOSBUILDENV_PATH)/Toolchain/plconvert" "Info.plist" -query CFBundlePackageType > "$(OUTDIR)/PkgInfo"

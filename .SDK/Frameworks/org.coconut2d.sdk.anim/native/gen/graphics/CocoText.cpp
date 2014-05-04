@@ -2,11 +2,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "CocoText.hpp"
-#include "CanvasRenderingContext2D.hpp"
-#include "HTMLCanvasElement.hpp"
-#include "HTMLDocument.hpp"
-#include "HTMLCanvasContext.hpp"
-#include "HTMLTextMetrics.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,10 +55,6 @@ int CocoText::npo2(int i)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoText::init(int width, int height)
 {
-	HTMLCanvasElement* canvas = document->createElement(String("canvas"));
-	canvas->width = ((float)npo2(width));
-	canvas->height = ((float)npo2(height));
-	c2d = ((CanvasRenderingContext2D*)canvas->getContext(String("2d")));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,104 +101,10 @@ CocoText::~CocoText()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoText::wrap(int width)
 {
-	lineBreaks->clear();
-	lineWidths->clear();
-	lineHeights->clear();
-	totalHeight = 0;
-	int lineWidth = 0;
-	int lineHeight = 0;
-	int L = indices->size();
-	for(int i = 0; i < L; i++)
-	{
-		CocoTextStyle* style = (*styles)[(*mappings)[i]];
-		lineHeight = std::max(lineHeight, style->fontSizePixels);
-		c2d->__set_font(style->fontStyle + String(" normal ") + style->fontWeight + String(" ") + (String(toString(style->fontSizePixels))) + String("px ") + style->fontFamily);
-		int to = i + 1 < indices->size() ? (*indices)[i + 1] : str.size();
-		for(int r = (*indices)[i]; r < to; r++)
-		{
-			int charWidth = c2d->measureText((str.substr(r, 1)))->width;
-			if(lineWidth + charWidth > width)
-			{
-				if(lineWidth == 0)
-				{
-					throw CocoException(String("Too small width!"));
-				}
-				lineBreaks->push(r);
-				lineWidths->push(lineWidth);
-				lineHeights->push(lineHeight);
-				totalHeight += lineHeight;
-				lineWidth = charWidth;
-				lineHeight = style->fontSizePixels;
-			}
-			else
-			{
-				lineWidth += charWidth;
-			}
-		}
-	}
-	lineWidths->push(lineWidth);
-	lineHeights->push(lineHeight);
-	totalHeight += lineHeight;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 String CocoText::draw(float width, float height, float halign, float valign, int bgR, int bgG, int bgB, int bgA)
 {
-	if(width > c2d->canvas->width || height > c2d->canvas->height)
-	{
-		return String("");
-	}
-	c2d->clearRect(0.0, 0.0, width, height);
-	c2d->__set_fillStyle(String("rgba(") + (String(toString(bgR))) + String(", ") + (String(toString(bgG))) + String(", ") + (String(toString(bgB))) + String(", ") + (String(toString(bgA))) + String(")"));
-	float cx = 0;
-	float cy = 0;
-	int currentLine = 0;
-	int prevStop = 0;
-	bool firstChar = true;
-	int L = indices->size();
-	for(int i = 0; i < L; i++)
-	{
-		CocoTextStyle* style = (*styles)[(*mappings)[i]];
-		c2d->__set_font(style->fontStyle + String(" normal ") + style->fontWeight + String(" ") + (String(toString(style->fontSizePixels))) + String("px ") + style->fontFamily);
-		int stop = 0;
-		int nextStop = ((i + 1 < indices->size()) ? (*indices)[i + 1] : str.size());
-		do
-		{
-			int nextBreak = currentLine < lineBreaks->size() ? (*lineBreaks)[currentLine] : str.size();
-			stop = std::min(nextStop, nextBreak);
-			String s = str.substring(prevStop, stop);
-			if(firstChar)
-			{
-				firstChar = false;
-			}
-			prevStop = stop;
-			float sWidth = c2d->measureText(s)->width;
-			float left = (width - (*lineWidths)[currentLine]) * halign;
-			float top = (float)((*lineHeights)[currentLine]) / (float)(1.125) + (height - totalHeight * 1.25) * valign;
-			c2d->__set_fillStyle(String("rgba(") + (String(toString((*style->bgcolor)[0]))) + String(", ") + (String(toString((*style->bgcolor)[1]))) + String(", ") + (String(toString((*style->bgcolor)[2]))) + String(", ") + (String(toString((*style->bgcolor)[3]))) + String(")"));
-			c2d->fillRect(cx + left, cy + top - (float)(((float)style->fontSizePixels)) / (float)(1.25), sWidth, ((float)style->fontSizePixels) * 1.125);
-			String StyleString = String("rgba(") + (String(toString((*style->color)[0]))) + String(", ") + (String(toString((*style->color)[1]))) + String(", ") + (String(toString((*style->color)[2]))) + String(", ") + (String(toString((*style->color)[3]))) + String(")");
-			c2d->__set_fillStyle(StyleString);
-			c2d->__set_strokeStyle(StyleString);
-			c2d->fillText(s, cx + left, cy + top);
-			if(style->underline)
-			{
-				c2d->__set_lineWidth((float)(((float)style->fontSizePixels)) / (float)(12.0));
-				c2d->beginPath();
-				c2d->moveTo(cx + left, cy + top + c2d->__get_lineWidth() * 1.5);
-				c2d->lineTo(cx + left + sWidth, cy + top + c2d->__get_lineWidth() * 1.5);
-				c2d->stroke();
-			}
-			cx += sWidth;
-			if(stop == nextBreak)
-			{
-				cx = 0;
-				cy += ((float)(*lineHeights)[currentLine]) * 1.25;
-				++currentLine;
-				firstChar = true;
-			}
-		}
-		while(stop != nextStop);
-	}
-	return c2d->canvas->toDataURL();
+	return String("");
 }

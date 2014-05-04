@@ -817,6 +817,8 @@ function CompilerCppPlugin(compiler)
 				}
 			}
 
+			vartype = _this.VTCPP(vartype);
+
 			var out=[];
 		 	out.push("(new " + vartype.trim()+"())");
 			for(var item in ast)

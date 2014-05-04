@@ -15,8 +15,8 @@
 state class GameEngine : CocoEngine //implements IEventListener
 {
 	public var scene:CocoScene;
-	public var btn1:CocoUIButton;
-	public var btn2:CocoUIButton;
+	//public var btn1:CocoUIButton;
+	//public var btn2:CocoUIButton;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -32,8 +32,6 @@ state class GameEngine : CocoEngine //implements IEventListener
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public state STATE_GAME
 	{
-		var vzzz:Integer;
-
 		function enter()
 		{
 			//var t1:TestIntegratorClient = new TestIntegratorClient();
@@ -41,8 +39,6 @@ state class GameEngine : CocoEngine //implements IEventListener
 			//var t3:TestThis = new TestThis();
 
 			scene = new NewAnimation();
-
-			vzzz++;
 
 			//btn1 = new CocoUIButton("button1");
 			//btn1.move(10, 10, 300, 60);
@@ -53,7 +49,6 @@ state class GameEngine : CocoEngine //implements IEventListener
 			//btn2.move(10, 100, 300, 60);
 			//btn2.addEventListener(btn2.OnTouchStart, this, mousedown);
 			//scene.__root.addChild(btn2);
-
 		}
 
 		function exit()

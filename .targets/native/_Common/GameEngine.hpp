@@ -7,21 +7,17 @@
 #include "Coconut2D.hpp"
 #include "CocoEngine.hpp"
 #include "CocoScene.hpp"
-#include "CocoUIButton.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class GameEngine : public CocoEngine
 {
 public:
 	CocoScene* scene;
-	CocoUIButton* btn1;
-	CocoUIButton* btn2;
 	GameEngine();
 	virtual ~GameEngine();
 	struct STATE_GAME : State
 	{
 		GameEngine* self;
-		int vzzz = 0;
 		STATE_GAME(GameEngine* self) : self(self) {}
 		void enter();
 		void exit();

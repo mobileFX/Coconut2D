@@ -334,7 +334,7 @@ function CompilerExportsPlugin(compiler)
 
 			// Vartype not found anywhere.
 			for(item in native_file.classes){break;}
-			_this.NewError("Class " + vartype + " must be moved inside a Framework", native_file.classes[item].ast);
+			_this.NewWarning("Class " + vartype + " is used by CRL. It must be moved inside a Framework.", native_file.classes[item].ast);
 			return '#include "' + vartype + '.hpp"';
 		}
 	};
