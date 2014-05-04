@@ -755,8 +755,12 @@ function CompilerCppPlugin(compiler)
 							vartype = ast.parent[0].identifier_last.symbol.paramsList[i].vartype;
 							if(_this.isPointer(vartype))
 							{
-								CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
-								continue;
+								var cls = _this.getClass(vartype);
+								if(cls && cls.interface)
+								{
+									CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
+									continue;
+								}
 							}
 						}
 					}
