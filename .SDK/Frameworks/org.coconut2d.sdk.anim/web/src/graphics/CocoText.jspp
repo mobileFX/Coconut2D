@@ -41,7 +41,7 @@ class CocoTextStyle
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoText
 {
-	public static var c2d:CanvasRenderingContext2D;
+	public static var ctx:CanvasRenderingContext2D;
 
 	public var str:String;
 	public var styles:Array<CocoTextStyle>;
@@ -67,12 +67,10 @@ class CocoText
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static function init(width:Integer, height:Integer)
     {
-    	/*
     	var canvas:HTMLCanvasElement = document.createElement("canvas");
     	canvas.width = Float(npo2(width));
     	canvas.height = Float(npo2(height));
-    	c2d = CanvasRenderingContext2D(canvas.getContext("2d"));
-    	*/
+    	ctx = CanvasRenderingContext2D(canvas.getContext("2d"));
     }
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +99,6 @@ class CocoText
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function wrap(width:Integer)
 	{
-		/*
 		lineBreaks.clear();
 		lineWidths.clear();
 		lineHeights.clear();
@@ -113,11 +110,11 @@ class CocoText
 		{
 			var style:CocoTextStyle = styles[mappings[i]];
 			lineHeight = Math.max(lineHeight, style.fontSizePixels);
-			c2d.font = style.fontStyle + " normal " + style.fontWeight + " " + String(style.fontSizePixels) + "px " + style.fontFamily;
+			ctx.font = style.fontStyle + " normal " + style.fontWeight + " " + String(style.fontSizePixels) + "px " + style.fontFamily;
 			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
 			for(var r:Integer = indices[i]; r < to; r++)
 			{
-				var charWidth:Integer = c2d.measureText(String(str.substr(r, 1))).width;
+				var charWidth:Integer = ctx.measureText(String(str.substr(r, 1))).width;
 				if(lineWidth + charWidth > width)
 				{
 					if(lineWidth === 0) throw "Too small width!";
@@ -134,16 +131,14 @@ class CocoText
 		lineWidths.push(lineWidth);
 		lineHeights.push(lineHeight);
 		totalHeight += lineHeight;
-		*/
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function draw(width:Float, height:Float, halign:Float, valign:Float, bgR:Integer, bgG:Integer, bgB:Integer, bgA:Integer):String
 	{
-		/*
-		if(width > c2d.canvas.width || height > c2d.canvas.height) return "";
-		c2d.clearRect(0.0, 0.0, width, height);
-		c2d.fillStyle = "rgba(" + String(bgR) + ", " + String(bgG) + ", " + String(bgB) + ", " + String(bgA) + ")";
+		if(width > ctx.canvas.width || height > ctx.canvas.height) return "";
+		ctx.clearRect(0.0, 0.0, width, height);
+		ctx.fillStyle = "rgba(" + String(bgR) + ", " + String(bgG) + ", " + String(bgB) + ", " + String(bgA) + ")";
 		var cx:Float = 0;
 		var cy:Float = 0;
 		var currentLine:Integer = 0;
@@ -153,7 +148,7 @@ class CocoText
 		for(var i:Integer = 0; i<L; i++)
 		{
 			var style:CocoTextStyle = styles[mappings[i]];
-			c2d.font = style.fontStyle + " normal " + style.fontWeight + " " + String(style.fontSizePixels) + "px " + style.fontFamily;
+			ctx.font = style.fontStyle + " normal " + style.fontWeight + " " + String(style.fontSizePixels) + "px " + style.fontFamily;
 			var stop:Integer;
 			var nextStop:Integer = ((i + 1 < indices.size()) ? indices[i + 1] : str.size());
 			do
@@ -166,22 +161,22 @@ class CocoText
 					firstChar = false;
 				}
 				prevStop = stop;
-				var sWidth:Float = c2d.measureText(s).width;
+				var sWidth:Float = ctx.measureText(s).width;
 				var left:Float = (width - lineWidths[currentLine]) * halign;
 				var top:Float = lineHeights[currentLine] / 1.125 + (height - totalHeight * 1.25) * valign;
-				c2d.fillStyle = "rgba(" + String(style.bgcolor[0]) + ", " + String(style.bgcolor[1]) + ", " + String(style.bgcolor[2]) + ", " + String(style.bgcolor[3]) + ")";
-				c2d.fillRect(cx + left, cy + top - Float(style.fontSizePixels) / 1.25, sWidth, Float(style.fontSizePixels) * 1.125);
+				ctx.fillStyle = "rgba(" + String(style.bgcolor[0]) + ", " + String(style.bgcolor[1]) + ", " + String(style.bgcolor[2]) + ", " + String(style.bgcolor[3]) + ")";
+				ctx.fillRect(cx + left, cy + top - Float(style.fontSizePixels) / 1.25, sWidth, Float(style.fontSizePixels) * 1.125);
 				var StyleString:String = "rgba(" + String(style.color[0]) + ", " + String(style.color[1]) + ", " + String(style.color[2]) + ", " + String(style.color[3]) + ")";
-				c2d.fillStyle = StyleString;
-				c2d.strokeStyle = StyleString;
-				c2d.fillText(s, cx + left, cy + top);
+				ctx.fillStyle = StyleString;
+				ctx.strokeStyle = StyleString;
+				ctx.fillText(s, cx + left, cy + top);
 				if(style.underline)
 				{
-					c2d.lineWidth = Float(style.fontSizePixels) / 12.0;
-					c2d.beginPath();
-					c2d.moveTo(cx + left, cy + top + c2d.lineWidth * 1.5);
-					c2d.lineTo(cx + left + sWidth, cy + top + c2d.lineWidth * 1.5);
-					c2d.stroke();
+					ctx.lineWidth = Float(style.fontSizePixels) / 12.0;
+					ctx.beginPath();
+					ctx.moveTo(cx + left, cy + top + ctx.lineWidth * 1.5);
+					ctx.lineTo(cx + left + sWidth, cy + top + ctx.lineWidth * 1.5);
+					ctx.stroke();
 				}
 				cx += sWidth;
 				if(stop == nextBreak)
@@ -193,8 +188,6 @@ class CocoText
 				}
 			} while(stop != nextStop);
 		}
-		return c2d.canvas.toDataURL();
-		*/
-		return "";
+		return ctx.canvas.toDataURL();
 	}
 }

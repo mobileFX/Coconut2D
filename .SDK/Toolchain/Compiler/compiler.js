@@ -184,7 +184,7 @@ function Compiler(ast)
 	_this.INCLUDE_IN_HPP = 2;
 
 	_this.DELETE_BASE = "__BASE__ && ((__BASE__.hasOwnProperty('Destructor') && __BASE__.Destructor()) || !__BASE__.hasOwnProperty('Destructor')) && (delete __BASE__);";
-	_this.SEPARATOR = "\n\n///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n";
+	_this.SEPARATOR = "\n\n///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n\n";
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Extend the compiler with plugins
@@ -976,7 +976,7 @@ function Compiler(ast)
 		if(_this.lineNumbers && _this.line_start != ast.line_start)
 		{
 			_this.line_start != -1 && out.push("\n");
-			out.push("\/\/@line " + ast.line_start + "\n");
+			out.push("\/\/@line " + (ast.line_start-1) + "\n");
 			_this.line_start = ast.line_start;
 		}
 
@@ -2240,6 +2240,14 @@ function Compiler(ast)
 				var vartype = _this.getVarType(ast.returntype);
 				if(_this.types.hasOwnProperty(vartype))
 					ast.generated_code += "\nreturn " + _this.types[vartype].default;
+			}
+
+			// Function end closure
+			if(_this.lineNumbers && _this.line_start != ast.line_end)
+			{
+				_this.line_start != -1 && out.push("\n");
+				ast.generated_code += ("\/\/@line " + (ast.line_end-1) + "\n");
+				_this.line_start = ast.line_end;
 			}
 
 			ast.generated_code += "\n}";
@@ -3912,6 +3920,14 @@ function Compiler(ast)
 				if(!isFinite(item)) break;
 				out.push(generate(ast[item]));
 			}
+
+			if(_this.lineNumbers && _this.line_start != ast.line_end)
+			{
+				_this.line_start != -1 && out.push("\n");
+				out.push("\/\/@line " + (ast.line_end-1) + "\n");
+				_this.line_start = ast.line_end;
+			}
+
 			out.push("}\n");
 			_this.ExitScope();
 			break;

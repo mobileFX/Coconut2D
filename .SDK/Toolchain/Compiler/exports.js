@@ -166,6 +166,11 @@ function CompilerExportsPlugin(compiler)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.export_cpp_files = function()
 	{
+
+		// *** NOTE ***: hpp could only have includes for bases
+
+
+
 		// ==========================================================================================
 		// Organize classes per native file
 		// ==========================================================================================
@@ -868,7 +873,6 @@ function CompilerExportsPlugin(compiler)
 				}
 
 				//var recordset = __execSQL("D:\test.db", "select * from Help where topicID='" + methodSymbol.runtime +"'");
-
 			}
 			for(var item in classSymbol.vars)
 			{

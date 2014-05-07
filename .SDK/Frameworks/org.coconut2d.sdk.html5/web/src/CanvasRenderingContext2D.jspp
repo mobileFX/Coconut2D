@@ -115,37 +115,44 @@ class CanvasRenderingContext2D
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
     //public function createImageData(imagedata:Imagedata):ImageData
-	public function arc(x:Float, y:Float, radius:Float, startAngle:Float, endAngle:Float, optional anticlockwise:Boolean)	{}
-	public function arcTo(x1:Float, y1:Float, x2:Float, y2:Float, radius:Float)                                             {}
-	public function bezierCurveTo(cp1x:Float, cp1y:Float, cp2x:Float, cp2y:Float, x:Float, y:Float)                         {}
 	public function clip()                                                                                                  {}
 	public function closePath()                                                                                             {}
-	public function createImageData(width:Float, height:Float):ImageData													{ return null; }
-	public function createLinearGradient(x0:Float, y0:Float, x1:Float, y1:Float):HTMLCanvasGradient							{ return null; }
 	public function createPattern(image:Image, repetition:String):HTMLCanvasPattern											{ return null; }
-	public function createRadialGradient(x0:Float, y0:Float, r0:Float, x1:Float, y1:Float, r1:Float):HTMLCanvasGradient		{ return null; }
 	public function drawCustomFocusRing(element:HTMLElement):Boolean														{ return false; }
 	public function drawSystemFocusRing(element:HTMLElement)																{}
-	public function fill()                                                     												{}
-	public function getImageData(x:Float, y:Float, width:Float, height:Float):ImageData         							{ return null; }
 	public function getLineDash()																							{}
 	public function isPointInPath(x:Float, y:Float):Boolean																	{ return false; }
 	public function isPointInStroke(x:Float, y:Float):Boolean																{ return false; }
-	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float)                                                {}
-	public function rect(x:Float, y:Float, width:Float, height:Float)                                                       {}
-	public function restore()                                                                                               {}
-	public function rotate(angle:Float)                                                                                     {}
-	public function save()                                                                                                  {}
-	public function scale(x:Float, y:Float)                                                                                 {}
 	public function scrollPathIntoView()                                                                                    {}
 	public function setLineDash(segments:Array<Float>)                                                                      {}
-	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                            {}
 	public function strokeRect(x:Float, y:Float, w:Float, h:Float)                                                          {}
 	public function strokeText(text:String, x:Float, y:Float, optional maxWidth:Float)                                      {}
+
+	public function restore()                                                                                               {}
+	public function save()                                                                                                  {}
+
+	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                            {}
 	public function transform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                               {}
+	public function scale(x:Float, y:Float)                                                                                 {}
 	public function translate(x:Float, y:Float)                                                                             {}
+	public function rotate(angle:Float)                                                                                     {}
+
+	public function createLinearGradient(x0:Float, y0:Float, x1:Float, y1:Float):HTMLCanvasGradient							{ return null; }
+	public function createRadialGradient(x0:Float, y0:Float, r0:Float, x1:Float, y1:Float, r1:Float):HTMLCanvasGradient		{ return null; }
+
+	public function arc(x:Float, y:Float, radius:Float, startAngle:Float, endAngle:Float, optional anticlockwise:Boolean)	{}
+	public function arcTo(x1:Float, y1:Float, x2:Float, y2:Float, radius:Float)                                             {}
+	public function bezierCurveTo(cp1x:Float, cp1y:Float, cp2x:Float, cp2y:Float, x:Float, y:Float)                         {}
+	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float)                                                {}
+	public function rect(x:Float, y:Float, width:Float, height:Float)                                                       {}
+	public function fill()                                                     												{}
+
+	// 1
+	public function getImageData(x:Float, y:Float, width:Float, height:Float):ImageData         							{ return null; }
+	public function createImageData(width:Float, height:Float):ImageData													{ return null; }
 	public function drawImage(image:Image, a1:Float, a2:Float, optional a3:Float, optional a4:Float, optional a5:Float, optional a6:Float, optional a7:Float, optional a8:Float) {}
 	public function putImageData(imagedata:ImageData, dx:Float, dy:Float, optional dirtyX:Float, optional dirtyY:Float, optional dirtyWidth:Float, optional dirtyHeight:Float) {}
+
 
  	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function beginPath()

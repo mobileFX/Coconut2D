@@ -58,10 +58,18 @@
 #include <map>
 #include <cstdlib>
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// ==================================================================================================================================
+//	    ______                                   __   ________                   ____            __                 __  _
+//	   / ____/___  ______      ______ __________/ /  / ____/ /___ ___________   / __ \___  _____/ /___ __________ _/ /_(_)___  ____  _____
+//	  / /_  / __ \/ ___/ | /| / / __ `/ ___/ __  /  / /   / / __ `/ ___/ ___/  / / / / _ \/ ___/ / __ `/ ___/ __ `/ __/ / __ \/ __ \/ ___/
+//	 / __/ / /_/ / /   | |/ |/ / /_/ / /  / /_/ /  / /___/ / /_/ (__  |__  )  / /_/ /  __/ /__/ / /_/ / /  / /_/ / /_/ / /_/ / / / (__  )
+//	/_/    \____/_/    |__/|__/\__,_/_/   \__,_/   \____/_/\__,_/____/____/  /_____/\___/\___/_/\__,_/_/   \__,_/\__/_/\____/_/ /_/____/
+//
+// ==================================================================================================================================
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
+class ClassTestInterfaces;
 class CocoAudio;
 class CocoClip;
 class CocoEngine;
@@ -78,10 +86,17 @@ class CocoTextStyle;
 class CocoTickable;
 class CocoTimeLabel;
 class CocoTimeline;
+class CocoUIButton;
+class CocoUICheckBox;
+class CocoUIComboBox;
+class CocoUIControl;
+class CocoUILabel;
+class CocoUIPageView;
+class CocoUITextBox;
+class CocoUIView;
 class CocoVector;
 class DeviceMessage;
 class GameEngine;
-class GridSymbol;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
 class HTMLCanvasPattern;
@@ -90,54 +105,47 @@ class HTMLElement;
 class HTMLTextMetrics;
 class IEventListener;
 class IEventTarget;
+class ITest1;
+class ITest2;
+class ITest3;
 class ITickable;
+class NewAnimation;
+class Page1;
 class PathLine;
-class SceneGameBoard;
-class SceneTitle;
+class TestEventListener;
+class TestEventSource;
 class Touch;
 class TouchList;
 struct CocoKeyFrame;
 //# Generated Classes End #//
 
 //# Native Classes Begin #//
+class ArrayBuffer;
+class ArrayBufferView;
+class AssetFile;;
+class AssetFile;;
 class Audio;
+class CocoFont;
+class EventTarget;
 class HTMLEvent;
-class Image;
 class HTMLWindow;
+class Image;
 class ImageData;
-struct GLany;
-class WebGLObject;
 class WebGLBuffer;
 class WebGLFramebuffer;
+class WebGLObject;
+class WebGLProgram;
 class WebGLRenderbuffer;
+class WebGLRenderingContext;
 class WebGLShader;
 class WebGLTexture;
 class WebGLUniformLocation;
-class WebGLProgram;
-class WebGLRenderingContext;
+class XMLHttpRequest;
+struct CocoFontChar;
+struct GLany;
 //# Native Classes End #//
 
-template<typename T> struct TYPE_STRING { static constexpr char const* c_str() { return "undefined"; } };
-#define DEF_TYPE(T) template<> struct TYPE_STRING<T> { static constexpr char const* c_str() { return #T; } };
-DEF_TYPE(char);
-DEF_TYPE(unsigned char);
-DEF_TYPE(short);
-DEF_TYPE(unsigned short);
-DEF_TYPE(int);
-DEF_TYPE(unsigned int);
-DEF_TYPE(float);
-DEF_TYPE(double);
-
 template<typename T> class TypedArray;
-typedef TypedArray<char> Int8Array;
-typedef TypedArray<unsigned char> Uint8Array;
-typedef TypedArray<unsigned char> Uint8ClampedArray;
-typedef TypedArray<short> Int16Array;
-typedef TypedArray<unsigned short> Uint16Array;
-typedef TypedArray<int> Int32Array;
-typedef TypedArray<unsigned int> Uint32Array;
-typedef TypedArray<float> Float32Array;
-typedef TypedArray<double> Float64Array;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enum for HTML5 Events
@@ -176,16 +184,72 @@ enum fxEvent
 #define Function        void
 #define Time			float
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+#define JSINTERVAL_MIN 4
+#define JSTOUCHLIST_MAX_LENGTH 5
+#define SHADER_SOURCE_BUFFER_SIZE 4096
+#define INFO_LOG_BUFFER_SIZE 4096
+#define fxObjectUID size_t
+
+#define parseFloat(S) atof((S).c_str())
+#define parseInt(S) atoi((S).c_str())
+
+#define TODO() trace("TODO:%s @ %s:%d", __PRETTY_FUNCTION__, __FILE__, __LINE__)
+template<typename T> struct TYPE_STRING { static constexpr char const* c_str() { return "undefined"; } };
+#define DEF_TYPE(T) template<> struct TYPE_STRING<T> { static constexpr char const* c_str() { return #T; } };
+DEF_TYPE(char);
+DEF_TYPE(unsigned char);
+DEF_TYPE(short);
+DEF_TYPE(unsigned short);
+DEF_TYPE(int);
+DEF_TYPE(unsigned int);
+DEF_TYPE(float);
+DEF_TYPE(double);
+
+typedef int Color;
+
+typedef TypedArray<char> Int8Array;
+typedef TypedArray<unsigned char> Uint8Array;
+typedef TypedArray<unsigned char> Uint8ClampedArray;
+typedef TypedArray<short> Int16Array;
+typedef TypedArray<unsigned short> Uint16Array;
+typedef TypedArray<int> Int32Array;
+typedef TypedArray<unsigned int> Uint32Array;
+typedef TypedArray<float> Float32Array;
+typedef TypedArray<double> Float64Array;
+
+// ==================================================================================================================================
+//	   ______      ______               __
+//	  / ____/___ _/ / / /_  ____ ______/ /_______
+//	 / /   / __ `/ / / __ \/ __ `/ ___/ //_/ ___/
+//	/ /___/ /_/ / / / /_/ / /_/ / /__/ ,< (__  )
+//	\____/\__,_/_/_/_.___/\__,_/\___/_/|_/____/
+//
+// ==================================================================================================================================
+
 typedef void (CocoScene::*CocoAction)();
 typedef void (CocoEngine::*CocoEventAction)(DeviceMessage* e);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// ==================================================================================================================================
+//	  ______                     __      __
+//	 /_  __/__  ____ ___  ____  / /___ _/ /____  _____
+//	  / / / _ \/ __ `__ \/ __ \/ / __ `/ __/ _ \/ ___/
+//	 / / /  __/ / / / / / /_/ / / /_/ / /_/  __(__  )
+//	/_/  \___/_/ /_/ /_/ .___/_/\__,_/\__/\___/____/
+//	                  /_/
+// ==================================================================================================================================
+
 template<class T> using Stack = std::stack<T>;
 template<class T> using Dictionary = std::map<std::string, T>;
 template<class T> using Index = std::map<size_t, T>;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// ==================================================================================================================================
+//	    ___
+//	   /   |  ______________ ___  __
+//	  / /| | / ___/ ___/ __ `/ / / /
+//	 / ___ |/ /  / /  / /_/ / /_/ /
+//	/_/  |_/_/  /_/   \__,_/\__, /
+//	                       /____/
+// ==================================================================================================================================
 template<class T> class Array : public std::vector<T>
 {
 public:
@@ -270,7 +334,14 @@ public:
 	}
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// ==================================================================================================================================
+//	    ___                          __    __                ____
+//	   /   |  ______________ ___  __/ /   / /_  ____  ____  / /\ \
+//	  / /| | / ___/ ___/ __ `/ / / / /   / __ \/ __ \/ __ \/ /  \ \
+//	 / ___ |/ /  / /  / /_/ / /_/ /\ \  / /_/ / /_/ / /_/ / /   / /
+//	/_/  |_/_/  /_/   \__,_/\__, /  \_\/_.___/\____/\____/_/   /_/
+//	                       /____/
+// ==================================================================================================================================
 template<> class Array<bool> : public std::vector<bool>
 {
 public:
@@ -336,7 +407,14 @@ public:
 	}
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// ==================================================================================================================================
+//	    ___                          __    ______            ____
+//	   /   |  ______________ ___  __/ /   / __/ /___  ____ _/ /\ \
+//	  / /| | / ___/ ___/ __ `/ / / / /   / /_/ / __ \/ __ `/ __/\ \
+//	 / ___ |/ /  / /  / /_/ / /_/ /\ \  / __/ / /_/ / /_/ / /_  / /
+//	/_/  |_/_/  /_/   \__,_/\__, /  \_\/_/ /_/\____/\__,_/\__/ /_/
+//	                       /____/
+// ==================================================================================================================================
 template<> class Array<float> : public std::vector<float>
 {
 public:
@@ -402,7 +480,14 @@ public:
 	}
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// ==================================================================================================================================
+//	   _____ __       _
+//	  / ___// /______(_)___  ____ _
+//	  \__ \/ __/ ___/ / __ \/ __ `/
+//	 ___/ / /_/ /  / / / / / /_/ /
+//	/____/\__/_/  /_/_/ /_/\__, /
+//	                      /____/
+// ==================================================================================================================================
 class String : public std::string
 {
 public:
@@ -488,11 +573,16 @@ template<class T> std::string toString(T v)
 	return ss.str();
 }
 
-typedef int Color;
 typedef String Gradient;
-#define parseFloat(S) atof((S).c_str())
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// ==================================================================================================================================
+//	   _____ __        __
+//	  / ___// /_____ _/ /____
+//	  \__ \/ __/ __ `/ __/ _ \
+//	 ___/ / /_/ /_/ / /_/  __/
+//	/____/\__/\__,_/\__/\___/
+//
+// ==================================================================================================================================
 struct State
 {
 	String __name;
@@ -501,6 +591,15 @@ struct State
 	virtual void tick(float time) = 0;
 	virtual void paint(WebGLRenderingContext* gl, float time) {}
 };
+
+// ==================================================================================================================================
+//	  ______                      __     _____                 _ _____
+//	 /_  __/___ __________ ____  / /_   / ___/____  ___  _____(_) __(_)____
+//	  / / / __ `/ ___/ __ `/ _ \/ __/   \__ \/ __ \/ _ \/ ___/ / /_/ / ___/
+//	 / / / /_/ / /  / /_/ /  __/ /_    ___/ / /_/ /  __/ /__/ / __/ / /__
+//	/_/  \__,_/_/   \__, /\___/\__/   /____/ .___/\___/\___/_/_/ /_/\___/
+//	               /____/                 /_/
+// ==================================================================================================================================
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef IOS_APPLICATION
@@ -624,13 +723,14 @@ struct State
 	#warning "Building without OpenGL support!"
 #endif
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#define JSINTERVAL_MIN 4
-#define JSTOUCHLIST_MAX_LENGTH 5
-#define SHADER_SOURCE_BUFFER_SIZE 4096
-#define INFO_LOG_BUFFER_SIZE 4096
-#define fxObjectUID size_t
-
+// ==================================================================================================================================
+//	    ____        __
+//	   / __ \____ _/ /____
+//	  / / / / __ `/ __/ _ \
+//	 / /_/ / /_/ / /_/  __/
+//	/_____/\__,_/\__/\___/
+//
+// ==================================================================================================================================
 class Date
 {
 	unsigned long long millis;
@@ -644,9 +744,14 @@ public:
 	unsigned long long getTime() { return millis; }
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Externs for global objects
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// ==================================================================================================================================
+//	    ______     __
+//	   / ____/  __/ /____  _________  _____
+//	  / __/ | |/_/ __/ _ \/ ___/ __ \/ ___/
+//	 / /____>  </ /_/  __/ /  / / / (__  )
+//	/_____/_/|_|\__/\___/_/  /_/ /_/____/
+//
+// =================================================================================================================================
 
 extern void trace(const char* fmt, ...);
 extern CocoEngine* engine;

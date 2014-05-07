@@ -177,28 +177,36 @@ function make(options)
 		var code = _this.getSourceCode();
 
 		// Collect all non-generated C++ classes from Frameworks
+		trace("\nScanning for non-generated C++ classes in Frameworks ...");
 		var native_classes = [];
 		var native_vartypes_includes = {};
-		trace("\nScanning for non-generated C++ classes in Frameworks ...");
+		var paths = [makefile.Config.PROJECT_PATHS.NATIVE_COMMON].concat(TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES.split(";"));
 		for(item in makefile.Components.Frameworks)
 		{
 			var path = makefile.Components.Frameworks[item].Path + "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)";
+			paths.push(path);
+		}
+		for(j=0;j<paths.length;j++)
+		{
+			path = paths[j];
 			path = _this.replaceVars(path);
 			var files = _this.FindFiles(path, "*.hpp", true);
 			for(i=0;i<files.length;i++)
 			{
 				var name = files[i].substr(files[i].lastIndexOf("/")+1);
+				if(name.toLowerCase()=="coconut2d.hpp") continue;
 				native_vartypes_includes[name] = {};
 				var buff = read(files[i]);
-				var rx = /\b(class|struct)\s+([^\s\n\r\t\{\:]+)/g;
+				var rx = /(?:\btemplate[^>]+>[\s\n\r\t]*?)?\b(class|struct)\s+([^\s\n\r\t\x7B\:]+)/g;
 				while(match=rx.exec(buff))
 				{
+					if(match[0].indexOf("template")!=-1) continue;
 					native_classes.push(match[0]+";");
 					native_vartypes_includes[name][match[2]] = true;
 				}
 			}
 		}
-		native_classes = native_classes.join("\n");
+		native_classes = native_classes.sort().join("\n");
 		trace(native_classes.replace(/(class|struct) /g, "+ $1 "));
 
 		// Parse source code and generate AST

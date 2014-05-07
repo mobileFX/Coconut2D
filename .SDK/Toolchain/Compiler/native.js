@@ -248,6 +248,14 @@ function CompilerCppPlugin(compiler)
 					hppParamList +=", ";
 				}
 			}
+
+			// Rest arguments
+			if(ast.symbol.restArguments)
+			{
+				hppParamList+=", ...";
+				cppParamsList+=", ...";
+			}
+
 			cppParamsList += ")";
 			hppParamList += ")";
 
@@ -258,6 +266,7 @@ function CompilerCppPlugin(compiler)
 			{
 		        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 				CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.pointer?"*":"") + " ") + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
+
 				if(ast.isConstructor && ast.inClass.base_init)
 				{
 					var baseConstructorArguments = [];
@@ -277,7 +286,24 @@ function CompilerCppPlugin(compiler)
 					}
 					CPP.push(" : " + ast.inClass.extends + "(" + formatCPP(baseConstructorArguments.join(",")) + ")");
 				}
+
 		        CPP.push("\n{\n");
+
+				/*
+		        if(ast.symbol.restArguments)
+		        {
+		        	var first =  ast.params[ast.params.length-1];
+		        	CPP.push("{");
+		        	CPP.push("va_list arguments,vl_count;");
+    				CPP.push("va_start(arguments,"+first+");");
+					CPP.push("va_copy(vl_count,arguments);")
+					CPP.push("void vargument;");
+					CPP.push("int args_count=0;");
+					CPP.push("while(vargument!=0){vargument=va_arg(vl_count,void);++args_count;}");
+					CPP.push("va_end(vl_count);");
+					CPP.push("}");
+		        }
+		        */
 
 		        if(ast.body)
 					CPP.push(generate_cpp(ast.body).CPP);
@@ -311,16 +337,22 @@ function CompilerCppPlugin(compiler)
 					if(isConst)
 					{
 						val = "const " + vartype(ast[i]) + ast[i].name + initializer(ast[i]) + ";";
+						HPP.push(val);
 					}
 					else if(ast.static)
 					{
+						// static var needs to be defined in .cpp as well
+						val = vartype(ast[i]) + _this.currClassName + "::" + ast[i].name + ";";
+						CPP.push(val);
+
 						val = "static " + (isConst ? "constexpr " : "") + vartype(ast[i]) + ast[i].name + ";";
+						HPP.push(val);
 					}
 					else
 					{
 						val = vartype(ast[i]) + ast[i].name + ";";
+						HPP.push(val);
 					}
-					HPP.push(val);
 				}
 			}
 
@@ -359,12 +391,14 @@ function CompilerCppPlugin(compiler)
 			}
 
 			//==================================================================
+			// Return vartype in C++ form and handle typed-arrays
 			function vartype(vitem)
 			{
 				return _this.VTCPP(vitem.vartype) + (vitem.pointer ? "* " : " ");
 			}
 
 			//==================================================================
+			// Get value initializer or default value
 			function initializer(vitem)
 			{
 				var init;
@@ -380,7 +414,7 @@ function CompilerCppPlugin(compiler)
 					if(_this.cpp_types.hasOwnProperty(vartype))
 						return " = " + _this.cpp_types[vartype].default;
 					else if(ast.scope.isClass)
-						return " = null";
+						return " = nullptr";
 					else
 						return "";
 				}
@@ -591,6 +625,7 @@ function CompilerCppPlugin(compiler)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.IDENTIFIER:
+
 			var isProp = false;
 			var name = ast.value.replace(/\$\d+/,'');
 
@@ -614,6 +649,10 @@ function CompilerCppPlugin(compiler)
 				else if(ast.symbol.ast.parent.parent && ast.symbol.ast.parent.parent.scope && ast.symbol.ast.parent.parent.scope.isClass && (ast.parent.type != jsdef.DOT || (ast.parent[0] == ast)))
 					CPP.push("self->");
 			}
+
+			if(ast.symbol.static && !ast.symbol.extern && !ast.symbol.enum && !ast.symbol.state && !ast.inDot)
+				CPP.push(ast.symbol.scope.className+"::");
+
 			CPP.push(name + (isProp && !_this.in_setter ? "()" : ""));
 			break;
 
@@ -668,11 +707,6 @@ function CompilerCppPlugin(compiler)
 			var fn = "typedef " + (ast.returntype + (ast.pointer ? "*" : "") + " ") + "(" + name + ")" + ParamList + ";";
 			HPP.push(fn);
 
-			if(ast.file != "externs.jspp")
-			{
-				debugger;
-			}
-
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -719,6 +753,8 @@ function CompilerCppPlugin(compiler)
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/*@@ LIST @@*/
+
 		case jsdef.LIST:
 		case jsdef.COMMA:
 
@@ -727,6 +763,15 @@ function CompilerCppPlugin(compiler)
 			for(i=0;i<ast.length;i++)
 			{
 				if(i>0) CPP.push(", ");
+
+				var isReference = (ast[i].inDot && !ast[i].inCall && (ast[i].inDot.identifier_last.symbol.type==jsdef.EVENT));
+
+				if(isReference)
+				{
+					CPP.push("&(");
+				}
+
+				/*
 
 				//
 				// The following code type-casts objects according to what the callee function needs.
@@ -746,7 +791,7 @@ function CompilerCppPlugin(compiler)
 				//		}
 				//
 
-				if(!ast.parent.typecasting)
+				if(!isReference && !ast.parent.typecasting)
 				{
 					if(ast.parent[0].identifier_last && ast.parent[0].identifier_last.symbol && !ast.parent[0].identifier_last.symbol.extern)
 					{
@@ -756,18 +801,35 @@ function CompilerCppPlugin(compiler)
 							if(_this.isPointer(vartype))
 							{
 								var cls = _this.getClass(vartype);
-								if(cls && cls.interface)
+								if(cls)
 								{
-									CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
-									continue;
+									if(cls.interface)
+									{
+										CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
+										continue;
+									}
+									else if(!_this.isVector(vartype) && !_this.isECMA(vartype))
+									{
+										//trace("**CASTING: " + vartype);
+										CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
+										continue;
+									}
 								}
 							}
 						}
 					}
 				}
 
+				*/
+
 				// Fall-back to regular argument generation
 				CPP.push( generate_cpp(ast[i]).CPP);
+
+				if(isReference)
+				{
+					CPP.push(")");
+				}
+
 			}
 
 			if(d)

@@ -78,17 +78,28 @@ int main(int argc, char *argv[])
 	trace("Application Bundle Folder: %s", bundleDir.c_str());
 
 	// Initialize
+	curl_global_init(CURL_GLOBAL_ALL);
 	AssetFile::init(documentsDir.c_str(), bundleDir.c_str());
 	fxFontFace::init();
 	fxAudioStream::init();
+
+	#ifdef __XMLHTTPREQUEST_HPP__
+	XMLHttpRequest::init();
+	#endif
 
     // Start the application
 	@autoreleasepool { ret = UIApplicationMain(argc, argv, nil, NSStringFromClass([fxDeviceWrapper class])); }
 
 	// Dispose resources
+
+	#ifdef __XMLHTTPREQUEST_HPP__
+	XMLHttpRequest::quit();
+	#endif
+
 	fxAudioStream::quit();
 	fxFontFace::quit();
 	AssetFile::quit();
+	curl_global_cleanup();
 
 	// Done!
 	return ret;

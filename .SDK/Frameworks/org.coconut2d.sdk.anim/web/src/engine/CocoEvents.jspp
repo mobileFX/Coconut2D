@@ -185,7 +185,8 @@ class CocoEventSource
 		event_arguments.push(this);
 		event_arguments.push(Event);
 		event_arguments.concat(arguments);
-		//Array.prototype.slice.call(arguments, 0, arguments.length);
+		Array.prototype.slice.call(arguments, 0, arguments.length);
+
 
 		for(i=__eventListeners.size()-1;i>=0;i--)
 		{
@@ -194,7 +195,7 @@ class CocoEventSource
 			if(cp.Event.is(Event))
 			{
 				c++;
-				var cancel:Boolean = cp.Callback.apply(cp.Listener, event_arguments);
+				var cancel:Boolean = cp.Callback.apply(cp.Listener);
 				if(cancel)
 				{
 					__eventListeners[i].Event.cancelBubble();
@@ -205,10 +206,8 @@ class CocoEventSource
 				}
 			}
 		}
-		delete event_arguments;
-		return c;
+		//delete event_arguments;
 		*/
-
-		return 0;
+		return c;
 	}
 }

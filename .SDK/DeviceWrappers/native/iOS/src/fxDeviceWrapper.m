@@ -82,6 +82,11 @@
 - (void)tick
 {
     [self.glwrap SetBuffers];
+
+    #ifdef __XMLHTTPREQUEST_HPP__
+    XMLHttpRequest::tick();
+    #endif
+
 	engine->run(gl, 16.0);			// <-- pseudo/fixed clock of 16 ms since last animation
     [self.glwrap SwapBuffers];
 }

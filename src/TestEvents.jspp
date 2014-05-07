@@ -1,4 +1,5 @@
-﻿"#export web"
+﻿"#export web";
+"#export native";
 
 ///////////////////////////////////////////////////////
 // This class is an events source (produces events)
@@ -16,7 +17,7 @@ class TestEventSource : CocoEventSource
 
  	public function work()
  	{
- 		this.dispatchEvent(this.OnDone, "test1", 5);
+ 		//this.dispatchEvent(this.OnDone, "test1", 5);
  	}
 }
 
@@ -31,9 +32,9 @@ class TestEventListener implements IEventListener
  	public function Constructor()
  	{
  		worker = new TestEventSource("worker1");
- 		worker.addEventListener(worker.OnDone, this, done);
+ 		//worker.addEventListener(worker.OnDone, this, done);
  		worker.work();
- 		worker.removeEventListener(worker.OnDone, this, done);
+ 		//worker.removeEventListener(worker.OnDone, this, done);
  	}
 
 	public function done(sender:TestEventSource, e:TestEventSourceOnDoneEvent, a:String, b:Float) :Boolean

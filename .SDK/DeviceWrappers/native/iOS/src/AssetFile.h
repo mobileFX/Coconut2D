@@ -127,6 +127,18 @@ public:
 				return nullptr;
 			}
 		}
+		#ifdef __XMLHTTPREQUEST_HPP__
+		if(!strncmp(str, "http://", 7) || !strncmp(str, "https://", 8))
+		{
+			XMLHttpRequest* req = new XMLHttpRequest();
+			AssetFile* ret = req->data;
+			req->freeData = false;
+			req->open("get", str, false);
+			req->send();
+			delete req;
+			return ret;
+		}
+		#endif
         if(str && strlen(str) > 2 && str[0] == '.' && str[1] == '/')
         {
             if(exists(str, false))
@@ -221,7 +233,7 @@ public:
 
 	AssetFile(size_t i_length) : fd(nullptr), file(nullptr), data(nullptr), cursor(0), length(i_length), type(TYPE_DATA), mime(MIME_OTHER)
 	{
-		data = new unsigned char[length];
+		data = (unsigned char*)malloc(length);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,6 +301,16 @@ public:
         }
         if(file) delete[] file;
         if(data) delete[] data;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	void setMime(const char* str)
+	{
+		if(!strcmp(str, "image/png")) mime = IMAGE_PNG;
+		else if(!strcmp(str, "image/jpg") || strcmp(str, "image/jpeg")) mime = IMAGE_JPG;
+		else if(!strcmp(str, "audio/ogg")) mime = AUDIO_OGG;
+		else if(!strcmp(str, "font/ttf,")) mime = FONT_TTF;
+		else mime = MIME_OTHER;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -361,6 +383,19 @@ public:
     {
     	return fflush((FILE*)fd);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+	size_t append(void* d, size_t s)
+	{
+		if(type == TYPE_DATA)
+		{
+			realloc(data, length + s);
+			memcpy(data + length, d, s);
+			length += s;
+			return s;
+		}
+		return 0;
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
     unsigned char* getData()
