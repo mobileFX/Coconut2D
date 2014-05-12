@@ -844,7 +844,7 @@ function make(options)
        	// Get index.html template (copied from device wrapper)
 	    var template = read(TARGET.TARGET_ROOT + "/index.html");
 	    HTML = template.replace("$(SCRIPTS)", HTML.join("\n"));
-	    module(TARGET.TARGET_ROOT + "/index.html", HTML, false);
+	    _this.module(TARGET.TARGET_ROOT + "/index.html", HTML, false);
 
 	    trace("+ created: " + TARGET.TARGET_ROOT + "/index.html");
 	};
@@ -1187,11 +1187,13 @@ function make(options)
     // =====================================================================
     // Make!
     // =====================================================================
+    /*@@ make @@*/
     try
     {
 		var builder = null;
 		if(options)
 		{
+			alert(options);
 			builder = this[options];
 		}
 		else

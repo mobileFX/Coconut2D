@@ -1,4 +1,5 @@
-﻿"#export native";
+﻿"#export web";
+"#export native";
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -24,51 +25,72 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 // ==================================================================================================================================
-//	    __  __________  _____    ______                            ________                          __
-//	   / / / /_  __/  |/  / /   / ____/___ _____ _   ______ ______/ ____/ /__  ____ ___  ___  ____  / /_
-//	  / /_/ / / / / /|_/ / /   / /   / __ `/ __ \ | / / __ `/ ___/ __/ / / _ \/ __ `__ \/ _ \/ __ \/ __/
-//	 / __  / / / / /  / / /___/ /___/ /_/ / / / / |/ / /_/ (__  ) /___/ /  __/ / / / / /  __/ / / / /_
-//	/_/ /_/ /_/ /_/  /_/_____/\____/\__,_/_/ /_/|___/\__,_/____/_____/_/\___/_/ /_/ /_/\___/_/ /_/\__/
+//	   ______                 ______                 __
+//	  / ____/___  _________  / ____/   _____  ____  / /_
+//	 / /   / __ \/ ___/ __ \/ __/ | | / / _ \/ __ \/ __/
+//	/ /___/ /_/ / /__/ /_/ / /___ | |/ /  __/ / / / /_
+//	\____/\____/\___/\____/_____/ |___/\___/_/ /_/\__/
 //
 // ==================================================================================================================================
 
-class HTMLCanvasElement
+class CocoEvent
 {
-	public var width:Float;
-	public var height:Float;
+	public var type:String;
 
-	public var __imageData:ImageData;
+	public var target:IEventTarget;
+	public var currentTarget:IEventTarget;
+
+	public var bubbles:Boolean;
+	public var cancelable:Boolean;
+
+	public var timeStamp:Integer;
+	public var stopPropagation:Boolean;
+	public var defaultPrevented:Boolean;
+
+	public var detail:Integer;
+
+	public var touches:TouchList;           // all touches
+	public var targetTouches:TouchList;     // all touches in this TouchEvent Target
+	public var changedTouches:TouchList;    // all touches changed in the current event
+	public var scale:Float;     			// distance (since event start) between fingers as multiplier of initial value. Initially 1.0, zoom out (pinch) < 1.0, zoom in > 1.0.
+	public var rotation:Float;  			// rotation delta (since event start) in degrees (clockwise is positive). Initially 0.0.
+
+	public var clientX:Integer;
+	public var clientY:Integer;
+	public var __clientX:Integer;
+	public var __clientY:Integer;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	public function Constructor(type:String, cancelable:Boolean, bubbles:Boolean)
 	{
-		width = 0.0;
-		height = 0.0;
-		__imageData = null;
+		this.type = type;
+		this.cancelable = cancelable;
+		this.bubbles = bubbles;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete __imageData;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function getContext(contextId:String) :Object
+	public function is(Event:CocoEvent):Boolean
 	{
-		if(contextId=="2d")
-			return Object(new CanvasRenderingContext2D(this));
-		else
-			return Object(new WebGLRenderingContext(this));
+		return Event.type==type;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function toDataURL():String
+	public function cancelBubble()
 	{
-		return "data:image/png;base64," + (__imageData ? __imageData.data.buffer.encodeAsPNG(__imageData.width, __imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
+		stopPropagation = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function preventDefault()
+	{
+		defaultPrevented = true;
 	}
 }
-
-
-

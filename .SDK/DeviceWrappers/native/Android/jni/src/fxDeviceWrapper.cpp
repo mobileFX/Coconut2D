@@ -196,6 +196,9 @@ void fxDeviceWrapper::tick()
         if(glwrap)
         {
         	double td = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(now - start).count();
+        	#ifdef __XMLHTTPREQUEST_HPP__
+        	XMLHttpRequest::tick();
+        	#endif
         	engine->run(gl, td);
         	glwrap->SwapBuffers();
         	if(count++ == 30)

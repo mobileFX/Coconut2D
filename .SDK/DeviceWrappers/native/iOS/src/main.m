@@ -95,7 +95,6 @@ int main(int argc, char *argv[])
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::quit();
 	#endif
-
 	fxAudioStream::quit();
 	fxFontFace::quit();
 	AssetFile::quit();

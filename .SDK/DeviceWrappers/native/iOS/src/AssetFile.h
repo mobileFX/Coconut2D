@@ -299,8 +299,8 @@ public:
             fclose((FILE*)fd);
             fd = nullptr;
         }
-        if(file) delete[] file;
-        if(data) delete[] data;
+        if(file) free(file);
+        if(data) free(data);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -384,7 +384,7 @@ public:
     	return fflush((FILE*)fd);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	size_t append(void* d, size_t s)
 	{
 		if(type == TYPE_DATA)
@@ -403,7 +403,7 @@ public:
 		if(!data && fd)
         {
             rewind((FILE*)fd);
-            data = new unsigned char[length + 1];
+            data = (unsigned char*)malloc(length + 1);
             data[length] = 0;
             fread(data, 1, length, (FILE*)fd);
         }

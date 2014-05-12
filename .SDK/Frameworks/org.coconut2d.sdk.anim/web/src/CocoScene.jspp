@@ -1,5 +1,5 @@
-﻿"#export native"
-"#export web"
+﻿"#export native";
+"#export web";
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -138,6 +138,7 @@ class CocoScene
 		var img:CocoImage = new CocoImage();
 		img.symbolName = symbolName;
 		img.baseUrl = baseUrl;
+		img.scene = this;
 		__imageSymbols.push(img);
 		return img;
 	}
@@ -230,6 +231,11 @@ class CocoScene
         gl.useProgram(__glProgram);
 
 		__root.prepare(this);
+
+		for(var i:Integer = 0, L:Integer = __imageSymbols.size(); i < L ; i++)
+	    {
+	    	__imageSymbols[i].load();
+	    }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -249,72 +255,15 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function loadResources()
-	{
-		var img:CocoImage;
-		var sibling:CocoImageSibling;
-
-		// Load images depending on screen resolution and available image sizes.
-		for(var i:Integer = 0, L:Integer = __imageSymbols.size(); i < L ; i++)
-	    {
-	    	img = __imageSymbols[i];
-			if(__view_width && __view_height)
-			{
-				var w:Float = img.viewOptimalWidth * __view_scale * window.devicePixelRatio;
-				var h:Float = img.viewOptimalHeight * __view_scale * window.devicePixelRatio;
-				for(var j:Integer = 0; j < img.viewSiblings.size(); j++)
-				{
-					sibling = img.viewSiblings[j];
-					if(sibling.textureWidth>=w && sibling.textureHeight>=h)
-					{
-						img.image = new Image();
-						img.image.load(img.baseUrl + sibling.url);
-						img.textureCellWidth = sibling.textureWidth;
-						img.textureCellHeight = sibling.textureHeight;
-						img.pixelRatio = sibling.pixelRatio;
-						break;
-					}
-				}
-			}
-			if(!img.image)
-			{
-				sibling = img.viewSiblings[img.viewSiblings.size()-1];
-				img.image = new Image();
-				img.image.load(img.baseUrl + sibling.url);
-				img.textureCellWidth = sibling.textureWidth;
-				img.textureCellHeight = sibling.textureHeight;
-				img.pixelRatio = sibling.pixelRatio;
-			}
-
-			if(img.image)
-			{
-				trace("Loaded image: " + img.image.src);
-			}
-	    }
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function resourcesLoaded(gl:WebGLRenderingContext) :Boolean
+	private function resourcesLoaded() :Boolean
 	{
 		if(!__ready)
 		{
-			var img:CocoImage;
 			for (var i:Integer = __imageSymbols.size() - 1; i >= 0; i--)
-			{
-				img = __imageSymbols[i];
-				if (!img.image || !img.image.width || !img.image.height)
-				{
-					return false;
-				}
-				else if (!img.texture)
-				{
-					img.prepare(this, gl);
-					return false;
-				}
-			}
-			__ready = true;
+				if(!__imageSymbols[i].loaded) return false;
+
 			trace("Resources loaded.");
-			return false;
+			__ready = true;
 		}
 		return __ready;
 	}
@@ -325,31 +274,34 @@ class CocoScene
 		if(!__glProgram)
 		{
 			prepare(gl);
-			loadResources();
+			return;
 		}
-		else if(resourcesLoaded(gl))
+
+		if(!resourcesLoaded())
 		{
-		    if(__root)
-		    {
-		    	//gl.useProgram(__glProgram);
-		    	//gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
-				//gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
-		    	//__projectionMatrix.update(gl, __glProgram_Simple.GLSLuProjMat);
-		    	//__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
-		    	//engine.__debug_trace(this, null, "@CYCLE");
-				__modelViewMatrix.identity();
-		    	__levelParents.push(__root);
-				__root.paint(gl, this, null, false, 0);
-				__levelParents.clear();
-				var max:CocoClip = __root.__childWithMaxTimelineDuration;
-				if(max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
-				{
-					__finished=true;
-					//__root.reset();
-					//__startTime = -1;
-				}
-		    }
+			return;
 		}
+
+	    if(__root)
+	    {
+	    	//gl.useProgram(__glProgram);
+	    	//gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
+			//gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
+	    	//__projectionMatrix.update(gl, __glProgram_Simple.GLSLuProjMat);
+	    	//__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
+	    	//engine.__debug_trace(this, null, "@CYCLE");
+			__modelViewMatrix.identity();
+	    	__levelParents.push(__root);
+			__root.paint(gl, this, null, false, 0);
+			__levelParents.clear();
+			var max:CocoClip = __root.__childWithMaxTimelineDuration;
+			if(max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
+			{
+				__finished=true;
+				//__root.reset();
+				//__startTime = -1;
+			}
+	    }
 	}
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,6 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+﻿"#export native";
+
+/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -39,7 +41,8 @@ class Image
 	public var height:Integer;
 	public var naturalWidth:Integer;
 	public var naturalHeight:Integer;
-	public var complete:Boolean;
+
+	private var __complete:Boolean;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -57,6 +60,7 @@ class Image
 	public function Destructor()
 	{
 		delete __imageData;
+		trace("Image buffer deleted: " + src);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +72,16 @@ class Image
 		height = __imageData.height;
 		naturalWidth = __imageData.width;
 		naturalHeight = __imageData.height;
-		complete = true;
+		__complete = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property complete
+	{
+		function get():Boolean
+		{
+			return __complete;
+		}
 	}
 }
 

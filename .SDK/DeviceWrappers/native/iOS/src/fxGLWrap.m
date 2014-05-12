@@ -64,9 +64,9 @@
 	        switch(ori)
 	        {
 		        case UIInterfaceOrientationPortrait: 			screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true;  break;
-		        case UIInterfaceOrientationPortraitUpsideDown: 	screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = false;  break;
-		        case UIInterfaceOrientationLandscapeLeft: 		screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true; break;
-		        case UIInterfaceOrientationLandscapeRight: 		screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true; break;
+		        case UIInterfaceOrientationPortraitUpsideDown: 	screen.rotation = fxScreen::Rotation::FULL; screen.isPortrait = true;  break;
+		        case UIInterfaceOrientationLandscapeLeft: 		screen.rotation = fxScreen::Rotation::RCW;  screen.isPortrait = false; break;
+		        case UIInterfaceOrientationLandscapeRight: 		screen.rotation = fxScreen::Rotation::RCCW; screen.isPortrait = false; break;
 	        }
         }
 

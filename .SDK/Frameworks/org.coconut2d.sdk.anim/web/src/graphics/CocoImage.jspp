@@ -1,5 +1,5 @@
-﻿"#export native"
-"#export web"
+﻿"#export native";
+"#export web";
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -93,6 +93,7 @@ class CocoImage
 {
 	public var symbolName:String;
 	public var image:Image;
+	public var scene:CocoScene;
 
 	// Texture
 	public var textureCellWidth:Float;
@@ -103,6 +104,7 @@ class CocoImage
 	public var isSpriteSheet:Boolean;
 	public var __pixelRatioScale:Float;
 
+	// WebGL
 	public var texture:WebGLTexture;
 	public var buffer:WebGLBuffer;
 
@@ -144,6 +146,7 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		scene = null;
 		delete viewSiblings;
 		delete sequences;
 		delete texture;
@@ -182,6 +185,58 @@ class CocoImage
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function load()
+	{
+		var sibling:CocoImageSibling;
+
+		if(scene.__view_width && scene.__view_height)
+		{
+			var w:Float = viewOptimalWidth * scene.__view_scale * window.devicePixelRatio;
+			var h:Float = viewOptimalHeight * scene.__view_scale * window.devicePixelRatio;
+			for(var j:Integer = 0; j<viewSiblings.size(); j++)
+			{
+				sibling = viewSiblings[j];
+				if(sibling.textureWidth>=w && sibling.textureHeight>=h)
+				{
+					image = new Image();
+					image.load(baseUrl + sibling.url);
+					textureCellWidth = sibling.textureWidth;
+					textureCellHeight = sibling.textureHeight;
+					pixelRatio = sibling.pixelRatio;
+					break;
+				}
+			}
+		}
+		if(!image)
+		{
+			sibling = viewSiblings[viewSiblings.size()-1];
+			image = new Image();
+			image.load(baseUrl + sibling.url);
+			textureCellWidth = sibling.textureWidth;
+			textureCellHeight = sibling.textureHeight;
+			pixelRatio = sibling.pixelRatio;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property loaded
+	{
+		function get():Boolean
+		{
+			var ok:Boolean = texture || (image!=null && image.complete);
+			if(ok && !texture)
+				prepare(scene, gl);
+			return ok;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function unload()
+	{
+		delete image;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(scene:CocoScene, gl:WebGLRenderingContext)
 	{
 		__pixelRatioScale = scene.__view_pixel_ratio / pixelRatio;
@@ -197,6 +252,12 @@ class CocoImage
 
 		// Load image data to texture.
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+		// Unload the HTML Image to save memory.
+		// Works only on native, HTML5 browsers need the image.
+		//#IFDEF [TARGET_EXPORT=="native"]
+		unload();
+		//#ENDIF
 
 		// Instruct WebGL how to wrap the texture.
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);

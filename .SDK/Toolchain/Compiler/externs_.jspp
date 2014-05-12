@@ -2,10 +2,12 @@
 
 class Null
 {
+	public  var __className :String;
 } //Null
 
 class Untyped
 {
+	public  var __className :String;
 } //Untyped
 
 class Object
@@ -18,7 +20,8 @@ class Object
 	public function propertyIsEnumerable(name:String) :Boolean {}
 	public function defineProperty(object:Object, name:String, params:Object) {}
 	public function Destructor() {}
-	public var prototype :Object;
+	public  var prototype :Object;
+	public  var __className :String;
 } //Object
 
 class Array
@@ -36,14 +39,16 @@ class Array
 	public function forEach(item:Object) :Array {}
 	public function size() :Number {}
 	public function clear() {}
-	public var length :Number;
+	public  var length :Number;
+	public  var __className :String;
 } //Array
 
 class Function
 {
 	public function apply(thisObject:Object, args:Array) :Object {}
 	public function call(thisObject:Object) :Object {}
-	public var length :Number;
+	public  var length :Number;
+	public  var __className :String;
 } //Function
 
 class CocoAction : Function
@@ -220,12 +225,14 @@ class Global
 	undefined var Function :Function;
 	undefined var CocoAction :CocoAction;
 	undefined var Global :Global;
-	public var NaN :Number;
-	public var Infinity :Number;
-	public var innerWidth :Integer;
-	public var innerHeight :Integer;
-	public var deviceRotation :Float;
-	public var devicePixelRatio :Float;
+	public  var NaN :Number;
+	public  var Infinity :Number;
+	public  var innerWidth :Integer;
+	public  var innerHeight :Integer;
+	public  var deviceRotation :Float;
+	public  var devicePixelRatio :Float;
+	public  var __native :Boolean;
+	public  var __className :String;
 	undefined var String :String;
 	undefined var Number :Number;
 	undefined var Integer :Integer;
@@ -327,11 +334,45 @@ class Global
 	undefined var Touch :Touch;
 	undefined var TouchList :TouchList;
 	undefined var CocoAudio :CocoAudio;
+	undefined var CocoHttpRequest :CocoHttpRequest;
+	undefined var CocoUIView :CocoUIView;
+	undefined var CocoUIPageView :CocoUIPageView;
+	undefined var CocoUIControl :CocoUIControl;
+	undefined var CocoUIButton :CocoUIButton;
+	undefined var CocoUICheckBox :CocoUICheckBox;
+	undefined var CocoUIComboBox :CocoUIComboBox;
+	undefined var CocoUILabel :CocoUILabel;
+	undefined var CocoUIPictureList :CocoUIPictureList;
+	undefined var CocoUITextBox :CocoUITextBox;
 	undefined var GameEngine :GameEngine;
-	undefined var SYMBOL_ENUM :SYMBOL_ENUM;
-	undefined var GridSymbol :GridSymbol;
-	undefined var SceneGameBoard :SceneGameBoard;
-	undefined var SceneTitle :SceneTitle;
+	undefined var TestOutsourcer :TestOutsourcer;
+	undefined var TestIntegrator :TestIntegrator;
+	undefined var TestIntegratorClient :TestIntegratorClient;
+	undefined var UIButtonClass :UIButtonClass;
+	undefined var UIButtonClassOnClickEvent :UIButtonClassOnClickEvent;
+	undefined var UIButtonClassOnTouchStartEvent :UIButtonClassOnTouchStartEvent;
+	undefined var UIButtonClassOnTouchMoveEvent :UIButtonClassOnTouchMoveEvent;
+	undefined var UIButtonClassOnTouchEndEvent :UIButtonClassOnTouchEndEvent;
+	undefined var UITextBoxClass :UITextBoxClass;
+	undefined var UITextBoxClassOnChangeEvent :UITextBoxClassOnChangeEvent;
+	undefined var UITextBoxClassOnClickEvent :UITextBoxClassOnClickEvent;
+	undefined var UITextBoxClassOnTouchStartEvent :UITextBoxClassOnTouchStartEvent;
+	undefined var UITextBoxClassOnTouchMoveEvent :UITextBoxClassOnTouchMoveEvent;
+	undefined var UITextBoxClassOnTouchEndEvent :UITextBoxClassOnTouchEndEvent;
+	undefined var UIFormClass :UIFormClass;
+	undefined var ITest1 :ITest1;
+	undefined var ITest2 :ITest2;
+	undefined var ITest3 :ITest3;
+	undefined var ClassTestInterfaces :ClassTestInterfaces;
+	undefined var Class1 :Class1;
+	undefined var Class2 :Class2;
+	undefined var Class3 :Class3;
+	undefined var TestSelf1 :TestSelf1;
+	undefined var TestSelf2 :TestSelf2;
+	undefined var TestSelf3 :TestSelf3;
+	undefined var TestThis :TestThis;
+	undefined var NewAnimation :NewAnimation;
+	undefined var Page1 :Page1;
 } //Global
 
 class String
@@ -355,7 +396,8 @@ class String
 	public function toUpperCase() :String {}
 	public function toLocaleUpperCase() :String {}
 	public function size() :Integer {}
-	public var length :Number;
+	public  var length :Number;
+	public  var __className :String;
 } //String
 
 class Number
@@ -363,26 +405,31 @@ class Number
 	public function toFixed(fractionDigits:Number) :String {}
 	public function toExponential(fractionDigits:Number) :String {}
 	public function toPrecision(fractionDigits:Number) :String {}
-	public var MIN_VALUE :Number;
-	public var MAX_VALUE :Number;
-	public var NEGATIVE_INFINITY :Number;
-	public var POSITIVE_INFINITY :Number;
+	public  var MIN_VALUE :Number;
+	public  var MAX_VALUE :Number;
+	public  var NEGATIVE_INFINITY :Number;
+	public  var POSITIVE_INFINITY :Number;
+	public  var __className :String;
 } //Number
 
 class Integer : Number
 {
+	public  var __className :String;
 } //Integer
 
 class Float : Number
 {
+	public  var __className :String;
 } //Float
 
 class Time : Number
 {
+	public  var __className :String;
 } //Time
 
 class Boolean
 {
+	public  var __className :String;
 } //Boolean
 
 class Date
@@ -429,6 +476,7 @@ class Date
 	public function setFullYear(year:Number, month:Number, date:Number) :Number {}
 	public function setUTCFullYear(year:Number, month:Number, date:Number) {}
 	public function toUTCString() :String {}
+	public  var __className :String;
 } //Date
 
 class Math
@@ -451,25 +499,27 @@ class Math
 	public function sin(x:Number) :Float {}
 	public function sqrt(x:Number) :Float {}
 	public function tan(x:Number) :Float {}
-	public var E :Float;
-	public var LN10 :Float;
-	public var LN2 :Float;
-	public var LOG2E :Float;
-	public var LOG10E :Float;
-	public var PI :Float;
-	public var SQRT1_2 :Float;
-	public var SQRT2 :Float;
+	public static  var E :Float;
+	public static  var LN10 :Float;
+	public static  var LN2 :Float;
+	public static  var LOG2E :Float;
+	public static  var LOG10E :Float;
+	public static  var PI :Float;
+	public static  var SQRT1_2 :Float;
+	public static  var SQRT2 :Float;
+	public  var __className :String;
 } //Math
 
 class RegExp
 {
 	public function exec(string:String) :Array {}
 	public function test(string:String) :Boolean {}
-	public var source :String;
-	public var global :Boolean;
-	public var ignoreCase :Boolean;
-	public var multiline :Boolean;
-	public var lastIndex :Number;
+	public  var source :String;
+	public  var global :Boolean;
+	public  var ignoreCase :Boolean;
+	public  var multiline :Boolean;
+	public  var lastIndex :Number;
+	public  var __className :String;
 } //RegExp
 
 class ArrayBuffer
@@ -477,73 +527,85 @@ class ArrayBuffer
 	public function slice(begin:Number, end:Number) :ArrayBuffer {}
 	public function encodeAsPNG(width:Number, height:Number) :ArrayBuffer {}
 	public function encodeAsBase64() :String {}
-	public var byteLength :Number;
-	public var __uid :Integer;
+	public  var byteLength :Number;
+	public  var __uid :Integer;
+	public  var __className :String;
 } //ArrayBuffer
 
 class ArrayBufferView
 {
 	public function Destructor() {}
-	public var buffer :ArrayBuffer;
-	public var byteLength :Number;
-	public var __uid :Integer;
+	public  var buffer :ArrayBuffer;
+	public  var byteLength :Number;
+	public  var __uid :Integer;
+	public  var __className :String;
 } //ArrayBufferView
 
 class Float32Array : ArrayBufferView
 {
-	public var length :Number;
-	public var byteOffset :Number;
-	public var BYTES_PER_ELEMENT :Number;
-	public var __uid :Integer;
+	public  var length :Number;
+	public  var byteOffset :Number;
+	public  var BYTES_PER_ELEMENT :Number;
+	public  var __uid :Integer;
+	public  var __className :String;
 } //Float32Array
 
 class Int32Array : ArrayBufferView
 {
-	public var length :Number;
-	public var byteOffset :Number;
-	public var BYTES_PER_ELEMENT :Number;
-	public var __uid :Integer;
+	public  var length :Number;
+	public  var byteOffset :Number;
+	public  var BYTES_PER_ELEMENT :Number;
+	public  var __uid :Integer;
+	public  var __className :String;
 } //Int32Array
 
 class Uint8Array : ArrayBufferView
 {
-	public var length :Number;
-	public var byteOffset :Number;
-	public var BYTES_PER_ELEMENT :Number;
-	public var __uid :Integer;
+	public  var length :Number;
+	public  var byteOffset :Number;
+	public  var BYTES_PER_ELEMENT :Number;
+	public  var __uid :Integer;
+	public  var __className :String;
 } //Uint8Array
 
 class Error
 {
-	public var name :String;
-	public var message :String;
+	public  var name :String;
+	public  var message :String;
+	public  var __className :String;
 } //Error
 
 class EvalError : Error
 {
+	public  var __className :String;
 } //EvalError
 
 class RangeError : Error
 {
+	public  var __className :String;
 } //RangeError
 
 class ReferenceError : Error
 {
+	public  var __className :String;
 } //ReferenceError
 
 class SyntaxError : Error
 {
+	public  var __className :String;
 } //SyntaxError
 
 class TypeError : Error
 {
+	public  var __className :String;
 } //TypeError
 
 class ImageDataBuffer
 {
-	public var buffer :ArrayBuffer;
-	public var width :Integer;
-	public var height :Integer;
+	public  var buffer :ArrayBuffer;
+	public  var width :Integer;
+	public  var height :Integer;
+	public  var __className :String;
 } //ImageDataBuffer
 
 class XMLHttpRequest
@@ -556,17 +618,18 @@ class XMLHttpRequest
 	public function abort() {}
 	public function getAllResponseHeaders() :String {}
 	public function getResponseHeader(header:String) :String {}
-	public var UNSENT :Integer;
-	public var OPENED :Integer;
-	public var HEADERS_RECEIVED :Integer;
-	public var LOADING :Integer;
-	public var DONE :Integer;
-	public var timeout :Integer;
-	public var readyState :Integer;
-	public var status :Integer;
-	public var statusText :String;
-	public var responseText :String;
-	public var responseType :Integer;
+	public  var UNSENT :Integer;
+	public  var OPENED :Integer;
+	public  var HEADERS_RECEIVED :Integer;
+	public  var LOADING :Integer;
+	public  var DONE :Integer;
+	public  var timeout :Integer;
+	public  var readyState :Integer;
+	public  var status :Integer;
+	public  var statusText :String;
+	public  var responseText :String;
+	public  var responseType :Integer;
+	public  var __className :String;
 } //XMLHttpRequest
 
 class CocoFont
@@ -574,15 +637,18 @@ class CocoFont
 	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float) {}
 	public function measureText(text:String) :Float {}
 	public function Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean) {}
-	public var height :Float;
+	public  var height :Float;
+	public  var __className :String;
 } //CocoFont
 
 class Color : Number
 {
+	public  var __className :String;
 } //Color
 
 class Gradient : String
 {
+	public  var __className :String;
 } //Gradient
 
 class SCREEN_RESOLUTION_DPI_ENUM
@@ -669,10 +735,11 @@ class COCO_SKIN_TILE_ENUM
 class PathLine
 {
 	public function Constructor(_x0:Float, _y0:Float, _x1:Float, _y1:Float) {}
-	public var x0 :Float;
-	public var y0 :Float;
-	public var x1 :Float;
-	public var y1 :Float;
+	public  var x0 :Float;
+	public  var y0 :Float;
+	public  var x1 :Float;
+	public  var y1 :Float;
+	public  var __className :String;
 } //PathLine
 
 class CanvasRenderingContext2D
@@ -704,10 +771,6 @@ class CanvasRenderingContext2D
 	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float) {}
 	public function rect(x:Float, y:Float, width:Float, height:Float) {}
 	public function fill() {}
-	public function getImageData(x:Float, y:Float, width:Float, height:Float) :ImageData {}
-	public function createImageData(width:Float, height:Float) :ImageData {}
-	public function drawImage(image:Image, a1:Float, a2:Float, a3:Float, a4:Float, a5:Float, a6:Float, a7:Float, a8:Float) {}
-	public function putImageData(imagedata:ImageData, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float) {}
 	public function beginPath() {}
 	public function moveTo(x:Float, y:Float) {}
 	public function lineTo(x:Float, y:Float) {}
@@ -716,40 +779,49 @@ class CanvasRenderingContext2D
 	public function fillRect(x:Float, y:Float, width:Float, height:Float) {}
 	public function clearRect(x:Float, y:Float, width:Float, height:Float) {}
 	public function measureText(text:String) :HTMLTextMetrics {}
+	public function drawImage(image:Image, dx:Float, dy:Float) {}
+	public function drawImage$1(image:Image, dx:Float, dy:Float, dw:Float, dh:Float) {}
+	public function drawImage$2(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float) {}
+	public function createImageData(sw:Float, sh:Float) :ImageData {}
+	public function createImageData$1(imagedata:ImageData) :ImageData {}
+	public function getImageData(sx:Float, sy:Float, sw:Float, sh:Float) :ImageData {}
+	public function putImageData(imagedata:ImageData, dx:Float, dy:Float) {}
+	public function putImageData$1(imagedata:ImageData, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float) {}
 	public function Destructor() {}
 	public function Constructor(canvas:HTMLCanvasElement) {}
-	public var canvas :HTMLCanvasElement;
-	public var DRAWWINDOW_DRAW_CARET :Number;
-	public var DRAWWINDOW_DO_NOT_FLUSH :Number;
-	public var DRAWWINDOW_DRAW_VIEW :Number;
-	public var DRAWWINDOW_USE_WIDGET_LAYERS :Number;
-	public var DRAWWINDOW_ASYNC_DECODE_IMAGES :Number;
-	public var globalAlpha :Float;
-	public var lineCap :String;
-	public var lineDashOffset :Float;
-	public var lineJoin :String;
-	public var miterLimit :Float;
-	public var shadowBlur :Float;
-	public var shadowColor :String;
-	public var shadowOffsetX :Float;
-	public var shadowOffsetY :Float;
-	public var textAlign :String;
-	public var textBaseline :String;
-	public var globalCompositeOperation :String;
-	private var __lineWidth :Float;
-	private var __fillStyle :String;
-	private var __fillColor :Array<Float>;
-	private var __strokeStyle :String;
-	private var __strokeColor :Array<Float>;
-	private var __fontSetting :String;
-	private var __font :CocoFont;
-	private var __curX :Float;
-	private var __curY :Float;
-	private var __pathLines :Array<PathLine>;
-	public var fillStyle :String;
-	public var strokeStyle :String;
-	public var lineWidth :Float;
-	public var font :String;
+	public  var canvas :HTMLCanvasElement;
+	public  var DRAWWINDOW_DRAW_CARET :Number;
+	public  var DRAWWINDOW_DO_NOT_FLUSH :Number;
+	public  var DRAWWINDOW_DRAW_VIEW :Number;
+	public  var DRAWWINDOW_USE_WIDGET_LAYERS :Number;
+	public  var DRAWWINDOW_ASYNC_DECODE_IMAGES :Number;
+	public  var globalAlpha :Float;
+	public  var lineCap :String;
+	public  var lineDashOffset :Float;
+	public  var lineJoin :String;
+	public  var miterLimit :Float;
+	public  var shadowBlur :Float;
+	public  var shadowColor :String;
+	public  var shadowOffsetX :Float;
+	public  var shadowOffsetY :Float;
+	public  var textAlign :String;
+	public  var textBaseline :String;
+	public  var globalCompositeOperation :String;
+	private  var __lineWidth :Float;
+	private  var __fillStyle :String;
+	private  var __fillColor :Array<Float>;
+	private  var __strokeStyle :String;
+	private  var __strokeColor :Array<Float>;
+	private  var __fontSetting :String;
+	private  var __font :CocoFont;
+	private  var __curX :Float;
+	private  var __curY :Float;
+	private  var __pathLines :Array<PathLine>;
+	public  var fillStyle :String;
+	public  var strokeStyle :String;
+	public  var lineWidth :Float;
+	public  var font :String;
+	public  var __className :String;
 } //CanvasRenderingContext2D
 
 class Audio
@@ -758,16 +830,17 @@ class Audio
 	public function pause() {}
 	public function Destructor() {}
 	public function Constructor(url:String) {}
-	private var __uid :Integer;
-	private var __currentTime :Float;
-	public var duration :Float;
-	public var paused :Boolean;
-	public var ended :Boolean;
-	public var autoplay :Boolean;
-	public var loop :Boolean;
-	public var src :String;
-	public var currentTime :Float;
-	public var readyState :Integer;
+	private  var __uid :Integer;
+	private  var __currentTime :Float;
+	public  var duration :Float;
+	public  var paused :Boolean;
+	public  var ended :Boolean;
+	public  var autoplay :Boolean;
+	public  var loop :Boolean;
+	public  var src :String;
+	public  var currentTime :Float;
+	public  var readyState :Integer;
+	public  var __className :String;
 } //Audio
 
 class HTMLCanvasElement
@@ -776,19 +849,22 @@ class HTMLCanvasElement
 	public function toDataURL() :String {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var width :Float;
-	public var height :Float;
-	public var __imageData :ImageData;
+	public  var width :Float;
+	public  var height :Float;
+	public  var __imageData :ImageData;
+	public  var __className :String;
 } //HTMLCanvasElement
 
 class HTMLCanvasGradient
 {
 	public function Constructor() {}
+	public  var __className :String;
 } //HTMLCanvasGradient
 
 class HTMLCanvasPattern
 {
 	public function Constructor() {}
+	public  var __className :String;
 } //HTMLCanvasPattern
 
 class HTMLDocument
@@ -796,13 +872,15 @@ class HTMLDocument
 	public function createElement(tagName:String) :HTMLCanvasElement {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var body :HTMLElement;
+	public  var body :HTMLElement;
+	public  var __className :String;
 } //HTMLDocument
 
 class HTMLElement
 {
 	public function appendChild(node:HTMLCanvasElement) :HTMLCanvasElement {}
 	public function Constructor() {}
+	public  var __className :String;
 } //HTMLElement
 
 class Image
@@ -810,19 +888,22 @@ class Image
 	public function load(url:String) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var __imageData :ImageData;
-	public var src :String;
-	public var width :Integer;
-	public var height :Integer;
-	public var naturalWidth :Integer;
-	public var naturalHeight :Integer;
-	public var complete :Boolean;
+	public  var __imageData :ImageData;
+	public  var src :String;
+	public  var width :Integer;
+	public  var height :Integer;
+	public  var naturalWidth :Integer;
+	public  var naturalHeight :Integer;
+	private  var __complete :Boolean;
+	public  var complete :Boolean;
+	public  var __className :String;
 } //Image
 
 class HTMLTextMetrics
 {
 	public function Constructor() {}
-	public var width :Float;
+	public  var width :Float;
+	public  var __className :String;
 } //HTMLTextMetrics
 
 class HTMLWindow
@@ -832,71 +913,80 @@ class HTMLWindow
 	public function dispatchEvent(uid:Integer, eventType:String) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var __uid :Integer;
-	public var document :HTMLDocument;
-	public var innerHeight :Integer;
-	public var innerWidth :Integer;
-	public var devicePixelRatio :Float;
-	public var __deviceMessage :DeviceMessage;
-	public var __elements :Array<Function>;
+	public  var __uid :Integer;
+	public  var document :HTMLDocument;
+	public  var innerHeight :Integer;
+	public  var innerWidth :Integer;
+	public  var devicePixelRatio :Float;
+	public  var __deviceMessage :DeviceMessage;
+	public  var __elements :Array<Function>;
+	public  var __className :String;
 } //HTMLWindow
 
 class ImageData
 {
 	public function Destructor() {}
 	public function Constructor(a0:String, a1:String) {}
-	public var data :Uint8Array;
-	public var src :String;
-	public var width :Integer;
-	public var height :Integer;
+	public  var data :Uint8Array;
+	public  var src :String;
+	public  var width :Integer;
+	public  var height :Integer;
+	public  var __className :String;
 } //ImageData
 
 class WebGLObject
 {
 	public function Constructor(uid:Integer) {}
-	public var __uid :Integer;
+	public  var __uid :Integer;
+	public  var __className :String;
 } //WebGLObject
 
 class WebGLActiveInfo : WebGLObject
 {
 	public function Constructor(uid:Integer, program_uid:Integer, index:Integer) {}
+	public  var __className :String;
 } //WebGLActiveInfo
 
 class WebGLBuffer : WebGLObject
 {
 	public function Constructor(uid:Integer) {}
+	public  var __className :String;
 } //WebGLBuffer
 
 class WebGLContextAttributes : WebGLObject
 {
 	public function Constructor(uid:Integer) {}
+	public  var __className :String;
 } //WebGLContextAttributes
 
 class WebGLFramebuffer : WebGLObject
 {
 	public function Constructor(uid:Integer) {}
+	public  var __className :String;
 } //WebGLFramebuffer
 
 class WebGLProgram : WebGLObject
 {
 	public function Destructor() {}
 	public function Constructor(uid:Integer) {}
-	public var GLSLiTexCoords :Integer;
-	public var GLSLiVec2Coords :Integer;
-	public var GLSLiVecCoords :Integer;
-	public var GLSLuColor :WebGLUniformLocation;
-	public var GLSLuAlpha :WebGLUniformLocation;
-	public var GLSLuMVMat :WebGLUniformLocation;
-	public var GLSLuProjMat :WebGLUniformLocation;
-	public var GLSLuSampler :WebGLUniformLocation;
-	public var GLSLuSprFrame :WebGLUniformLocation;
-	public var GLSLuSprSize :WebGLUniformLocation;
-	public var GLSLuSprFlip :WebGLUniformLocation;
+	public  var GLSLiTexCoords :Integer;
+	public  var GLSLiVec2Coords :Integer;
+	public  var GLSLiVecCoords :Integer;
+	public  var GLSLuColor :WebGLUniformLocation;
+	public  var GLSLuAlpha :WebGLUniformLocation;
+	public  var GLSLuMVMat :WebGLUniformLocation;
+	public  var GLSLuProjMat :WebGLUniformLocation;
+	public  var GLSLuSampler :WebGLUniformLocation;
+	public  var GLSLuSprFrame :WebGLUniformLocation;
+	public  var GLSLuSprSize :WebGLUniformLocation;
+	public  var GLSLuSprFlip :WebGLUniformLocation;
+	public  var __className :String;
 } //WebGLProgram
 
 class WebGLRenderbuffer : WebGLObject
 {
 	public function Constructor(uid:Integer) {}
+	public  var __className :String;
 } //WebGLRenderbuffer
 
 class WebGLRenderingContext
@@ -1039,325 +1129,330 @@ class WebGLRenderingContext
 	public function viewport(x:Integer, y:Integer, width:Integer, height:Integer) {}
 	public function Destructor() {}
 	public function Constructor(canvas:HTMLCanvasElement) {}
-	public var ACTIVE_ATTRIBUTES :Integer;
-	public var ACTIVE_TEXTURE :Integer;
-	public var ACTIVE_UNIFORMS :Integer;
-	public var ALIASED_LINE_WIDTH_RANGE :Integer;
-	public var ALIASED_POINT_SIZE_RANGE :Integer;
-	public var ALPHA :Integer;
-	public var ALPHA_BITS :Integer;
-	public var ALWAYS :Integer;
-	public var ARRAY_BUFFER :Integer;
-	public var ARRAY_BUFFER_BINDING :Integer;
-	public var ATTACHED_SHADERS :Integer;
-	public var BACK :Integer;
-	public var BLEND :Integer;
-	public var BLEND_COLOR :Integer;
-	public var BLEND_DST_ALPHA :Integer;
-	public var BLEND_DST_RGB :Integer;
-	public var BLEND_EQUATION :Integer;
-	public var BLEND_EQUATION_ALPHA :Integer;
-	public var BLEND_EQUATION_RGB :Integer;
-	public var BLEND_SRC_ALPHA :Integer;
-	public var BLEND_SRC_RGB :Integer;
-	public var BLUE_BITS :Integer;
-	public var BOOL :Integer;
-	public var BOOL_VEC2 :Integer;
-	public var BOOL_VEC3 :Integer;
-	public var BOOL_VEC4 :Integer;
-	public var BROWSER_DEFAULT_WEBGL :Integer;
-	public var BUFFER_SIZE :Integer;
-	public var BUFFER_USAGE :Integer;
-	public var BYTE :Integer;
-	public var CCW :Integer;
-	public var CLAMP_TO_EDGE :Integer;
-	public var COLOR_ATTACHMENT0 :Integer;
-	public var COLOR_BUFFER_BIT :Integer;
-	public var COLOR_CLEAR_VALUE :Integer;
-	public var COLOR_WRITEMASK :Integer;
-	public var COMPILE_STATUS :Integer;
-	public var COMPRESSED_TEXTURE_FORMATS :Integer;
-	public var CONSTANT_ALPHA :Integer;
-	public var CONSTANT_COLOR :Integer;
-	public var CONTEXT_LOST_WEBGL :Integer;
-	public var CULL_FACE :Integer;
-	public var CULL_FACE_MODE :Integer;
-	public var CURRENT_PROGRAM :Integer;
-	public var CURRENT_VERTEX_ATTRIB :Integer;
-	public var CW :Integer;
-	public var DECR :Integer;
-	public var DECR_WRAP :Integer;
-	public var DELETE_STATUS :Integer;
-	public var DEPTH_ATTACHMENT :Integer;
-	public var DEPTH_BITS :Integer;
-	public var DEPTH_BUFFER_BIT :Integer;
-	public var DEPTH_CLEAR_VALUE :Integer;
-	public var DEPTH_COMPONENT :Integer;
-	public var DEPTH_COMPONENT16 :Integer;
-	public var DEPTH_FUNC :Integer;
-	public var DEPTH_RANGE :Integer;
-	public var DEPTH_STENCIL :Integer;
-	public var DEPTH_STENCIL_ATTACHMENT :Integer;
-	public var DEPTH_TEST :Integer;
-	public var DEPTH_WRITEMASK :Integer;
-	public var DITHER :Integer;
-	public var DONT_CARE :Integer;
-	public var DST_ALPHA :Integer;
-	public var DST_COLOR :Integer;
-	public var DYNAMIC_DRAW :Integer;
-	public var ELEMENT_ARRAY_BUFFER :Integer;
-	public var ELEMENT_ARRAY_BUFFER_BINDING :Integer;
-	public var EQUAL :Integer;
-	public var FASTEST :Integer;
-	public var FLOAT :Integer;
-	public var FLOAT_MAT2 :Integer;
-	public var FLOAT_MAT3 :Integer;
-	public var FLOAT_MAT4 :Integer;
-	public var FLOAT_VEC2 :Integer;
-	public var FLOAT_VEC3 :Integer;
-	public var FLOAT_VEC4 :Integer;
-	public var FRAGMENT_SHADER :Integer;
-	public var FRAMEBUFFER :Integer;
-	public var FRAMEBUFFER_ATTACHMENT_OBJECT_NAME :Integer;
-	public var FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE :Integer;
-	public var FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE :Integer;
-	public var FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL :Integer;
-	public var FRAMEBUFFER_BINDING :Integer;
-	public var FRAMEBUFFER_COMPLETE :Integer;
-	public var FRAMEBUFFER_INCOMPLETE_ATTACHMENT :Integer;
-	public var FRAMEBUFFER_INCOMPLETE_DIMENSIONS :Integer;
-	public var FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT :Integer;
-	public var FRAMEBUFFER_UNSUPPORTED :Integer;
-	public var FRONT :Integer;
-	public var FRONT_AND_BACK :Integer;
-	public var FRONT_FACE :Integer;
-	public var FUNC_ADD :Integer;
-	public var FUNC_REVERSE_SUBTRACT :Integer;
-	public var FUNC_SUBTRACT :Integer;
-	public var GENERATE_MIPMAP_HINT :Integer;
-	public var GEQUAL :Integer;
-	public var GREATER :Integer;
-	public var GREEN_BITS :Integer;
-	public var HIGH_FLOAT :Integer;
-	public var HIGH_INT :Integer;
-	public var INCR :Integer;
-	public var INCR_WRAP :Integer;
-	public var INT :Integer;
-	public var INT_VEC2 :Integer;
-	public var INT_VEC3 :Integer;
-	public var INT_VEC4 :Integer;
-	public var INVALID_ENUM :Integer;
-	public var INVALID_FRAMEBUFFER_OPERATION :Integer;
-	public var INVALID_OPERATION :Integer;
-	public var INVALID_VALUE :Integer;
-	public var INVERT :Integer;
-	public var KEEP :Integer;
-	public var LEQUAL :Integer;
-	public var LESS :Integer;
-	public var LINE_LOOP :Integer;
-	public var LINE_STRIP :Integer;
-	public var LINE_WIDTH :Integer;
-	public var LINEAR :Integer;
-	public var LINEAR_MIPMAP_LINEAR :Integer;
-	public var LINEAR_MIPMAP_NEAREST :Integer;
-	public var LINES :Integer;
-	public var LINK_STATUS :Integer;
-	public var LOW_FLOAT :Integer;
-	public var LOW_INT :Integer;
-	public var LUMINANCE :Integer;
-	public var LUMINANCE_ALPHA :Integer;
-	public var MAX_COMBINED_TEXTURE_IMAGE_UNITS :Integer;
-	public var MAX_CUBE_MAP_TEXTURE_SIZE :Integer;
-	public var MAX_FRAGMENT_UNIFORM_VECTORS :Integer;
-	public var MAX_RENDERBUFFER_SIZE :Integer;
-	public var MAX_TEXTURE_IMAGE_UNITS :Integer;
-	public var MAX_TEXTURE_SIZE :Integer;
-	public var MAX_VARYING_VECTORS :Integer;
-	public var MAX_VERTEX_ATTRIBS :Integer;
-	public var MAX_VERTEX_TEXTURE_IMAGE_UNITS :Integer;
-	public var MAX_VERTEX_UNIFORM_VECTORS :Integer;
-	public var MAX_VIEWPORT_DIMS :Integer;
-	public var MEDIUM_FLOAT :Integer;
-	public var MEDIUM_INT :Integer;
-	public var MIRRORED_REPEAT :Integer;
-	public var NEAREST :Integer;
-	public var NEAREST_MIPMAP_LINEAR :Integer;
-	public var NEAREST_MIPMAP_NEAREST :Integer;
-	public var NEVER :Integer;
-	public var NICEST :Integer;
-	public var NO_ERROR :Integer;
-	public var NONE :Integer;
-	public var NOTEQUAL :Integer;
-	public var ONE :Integer;
-	public var ONE_MINUS_CONSTANT_ALPHA :Integer;
-	public var ONE_MINUS_CONSTANT_COLOR :Integer;
-	public var ONE_MINUS_DST_ALPHA :Integer;
-	public var ONE_MINUS_DST_COLOR :Integer;
-	public var ONE_MINUS_SRC_ALPHA :Integer;
-	public var ONE_MINUS_SRC_COLOR :Integer;
-	public var OUT_OF_MEMORY :Integer;
-	public var PACK_ALIGNMENT :Integer;
-	public var POINTS :Integer;
-	public var POLYGON_OFFSET_FACTOR :Integer;
-	public var POLYGON_OFFSET_FILL :Integer;
-	public var POLYGON_OFFSET_UNITS :Integer;
-	public var RED_BITS :Integer;
-	public var RENDERBUFFER :Integer;
-	public var RENDERBUFFER_ALPHA_SIZE :Integer;
-	public var RENDERBUFFER_BINDING :Integer;
-	public var RENDERBUFFER_BLUE_SIZE :Integer;
-	public var RENDERBUFFER_DEPTH_SIZE :Integer;
-	public var RENDERBUFFER_GREEN_SIZE :Integer;
-	public var RENDERBUFFER_HEIGHT :Integer;
-	public var RENDERBUFFER_INTERNAL_FORMAT :Integer;
-	public var RENDERBUFFER_RED_SIZE :Integer;
-	public var RENDERBUFFER_STENCIL_SIZE :Integer;
-	public var RENDERBUFFER_WIDTH :Integer;
-	public var RENDERER :Integer;
-	public var REPEAT :Integer;
-	public var REPLACE :Integer;
-	public var RGB :Integer;
-	public var RGB5_A1 :Integer;
-	public var RGB565 :Integer;
-	public var RGBA :Integer;
-	public var RGBA4 :Integer;
-	public var SAMPLE_ALPHA_TO_COVERAGE :Integer;
-	public var SAMPLE_BUFFERS :Integer;
-	public var SAMPLE_COVERAGE :Integer;
-	public var SAMPLE_COVERAGE_INVERT :Integer;
-	public var SAMPLE_COVERAGE_VALUE :Integer;
-	public var SAMPLER_2D :Integer;
-	public var SAMPLER_CUBE :Integer;
-	public var SAMPLES :Integer;
-	public var SCISSOR_BOX :Integer;
-	public var SCISSOR_TEST :Integer;
-	public var SHADER_TYPE :Integer;
-	public var SHADING_LANGUAGE_VERSION :Integer;
-	public var SHORT :Integer;
-	public var SRC_ALPHA :Integer;
-	public var SRC_ALPHA_SATURATE :Integer;
-	public var SRC_COLOR :Integer;
-	public var STATIC_DRAW :Integer;
-	public var STENCIL_ATTACHMENT :Integer;
-	public var STENCIL_BACK_FAIL :Integer;
-	public var STENCIL_BACK_FUNC :Integer;
-	public var STENCIL_BACK_PASS_DEPTH_FAIL :Integer;
-	public var STENCIL_BACK_PASS_DEPTH_PASS :Integer;
-	public var STENCIL_BACK_REF :Integer;
-	public var STENCIL_BACK_VALUE_MASK :Integer;
-	public var STENCIL_BACK_WRITEMASK :Integer;
-	public var STENCIL_BITS :Integer;
-	public var STENCIL_BUFFER_BIT :Integer;
-	public var STENCIL_CLEAR_VALUE :Integer;
-	public var STENCIL_FAIL :Integer;
-	public var STENCIL_FUNC :Integer;
-	public var STENCIL_INDEX :Integer;
-	public var STENCIL_INDEX8 :Integer;
-	public var STENCIL_PASS_DEPTH_FAIL :Integer;
-	public var STENCIL_PASS_DEPTH_PASS :Integer;
-	public var STENCIL_REF :Integer;
-	public var STENCIL_TEST :Integer;
-	public var STENCIL_VALUE_MASK :Integer;
-	public var STENCIL_WRITEMASK :Integer;
-	public var STREAM_DRAW :Integer;
-	public var SUBPIXEL_BITS :Integer;
-	public var TEXTURE :Integer;
-	public var TEXTURE_2D :Integer;
-	public var TEXTURE_BINDING_2D :Integer;
-	public var TEXTURE_BINDING_CUBE_MAP :Integer;
-	public var TEXTURE_CUBE_MAP :Integer;
-	public var TEXTURE_CUBE_MAP_NEGATIVE_X :Integer;
-	public var TEXTURE_CUBE_MAP_NEGATIVE_Y :Integer;
-	public var TEXTURE_CUBE_MAP_NEGATIVE_Z :Integer;
-	public var TEXTURE_CUBE_MAP_POSITIVE_X :Integer;
-	public var TEXTURE_CUBE_MAP_POSITIVE_Y :Integer;
-	public var TEXTURE_CUBE_MAP_POSITIVE_Z :Integer;
-	public var TEXTURE_MAG_FILTER :Integer;
-	public var TEXTURE_MIN_FILTER :Integer;
-	public var TEXTURE_WRAP_S :Integer;
-	public var TEXTURE_WRAP_T :Integer;
-	public var TEXTURE0 :Integer;
-	public var TEXTURE1 :Integer;
-	public var TEXTURE10 :Integer;
-	public var TEXTURE11 :Integer;
-	public var TEXTURE12 :Integer;
-	public var TEXTURE13 :Integer;
-	public var TEXTURE14 :Integer;
-	public var TEXTURE15 :Integer;
-	public var TEXTURE16 :Integer;
-	public var TEXTURE17 :Integer;
-	public var TEXTURE18 :Integer;
-	public var TEXTURE19 :Integer;
-	public var TEXTURE2 :Integer;
-	public var TEXTURE20 :Integer;
-	public var TEXTURE21 :Integer;
-	public var TEXTURE22 :Integer;
-	public var TEXTURE23 :Integer;
-	public var TEXTURE24 :Integer;
-	public var TEXTURE25 :Integer;
-	public var TEXTURE26 :Integer;
-	public var TEXTURE27 :Integer;
-	public var TEXTURE28 :Integer;
-	public var TEXTURE29 :Integer;
-	public var TEXTURE3 :Integer;
-	public var TEXTURE30 :Integer;
-	public var TEXTURE31 :Integer;
-	public var TEXTURE4 :Integer;
-	public var TEXTURE5 :Integer;
-	public var TEXTURE6 :Integer;
-	public var TEXTURE7 :Integer;
-	public var TEXTURE8 :Integer;
-	public var TEXTURE9 :Integer;
-	public var TRIANGLE_FAN :Integer;
-	public var TRIANGLE_STRIP :Integer;
-	public var TRIANGLES :Integer;
-	public var UNPACK_ALIGNMENT :Integer;
-	public var UNPACK_COLORSPACE_CONVERSION_WEBGL :Integer;
-	public var UNPACK_FLIP_Y_WEBGL :Integer;
-	public var UNPACK_PREMULTIPLY_ALPHA_WEBGL :Integer;
-	public var UNSIGNED_BYTE :Integer;
-	public var UNSIGNED_INT :Integer;
-	public var UNSIGNED_SHORT :Integer;
-	public var UNSIGNED_SHORT_4_4_4_4 :Integer;
-	public var UNSIGNED_SHORT_5_5_5_1 :Integer;
-	public var UNSIGNED_SHORT_5_6_5 :Integer;
-	public var VALIDATE_STATUS :Integer;
-	public var VENDOR :Integer;
-	public var VERSION :Integer;
-	public var VERTEX_ATTRIB_ARRAY_BUFFER_BINDING :Integer;
-	public var VERTEX_ATTRIB_ARRAY_ENABLED :Integer;
-	public var VERTEX_ATTRIB_ARRAY_NORMALIZED :Integer;
-	public var VERTEX_ATTRIB_ARRAY_POINTER :Integer;
-	public var VERTEX_ATTRIB_ARRAY_SIZE :Integer;
-	public var VERTEX_ATTRIB_ARRAY_STRIDE :Integer;
-	public var VERTEX_ATTRIB_ARRAY_TYPE :Integer;
-	public var VERTEX_SHADER :Integer;
-	public var VIEWPORT :Integer;
-	public var ZERO :Integer;
-	public var __uid :Integer;
-	public var canvas :HTMLCanvasElement;
+	public  var ACTIVE_ATTRIBUTES :Integer;
+	public  var ACTIVE_TEXTURE :Integer;
+	public  var ACTIVE_UNIFORMS :Integer;
+	public  var ALIASED_LINE_WIDTH_RANGE :Integer;
+	public  var ALIASED_POINT_SIZE_RANGE :Integer;
+	public  var ALPHA :Integer;
+	public  var ALPHA_BITS :Integer;
+	public  var ALWAYS :Integer;
+	public  var ARRAY_BUFFER :Integer;
+	public  var ARRAY_BUFFER_BINDING :Integer;
+	public  var ATTACHED_SHADERS :Integer;
+	public  var BACK :Integer;
+	public  var BLEND :Integer;
+	public  var BLEND_COLOR :Integer;
+	public  var BLEND_DST_ALPHA :Integer;
+	public  var BLEND_DST_RGB :Integer;
+	public  var BLEND_EQUATION :Integer;
+	public  var BLEND_EQUATION_ALPHA :Integer;
+	public  var BLEND_EQUATION_RGB :Integer;
+	public  var BLEND_SRC_ALPHA :Integer;
+	public  var BLEND_SRC_RGB :Integer;
+	public  var BLUE_BITS :Integer;
+	public  var BOOL :Integer;
+	public  var BOOL_VEC2 :Integer;
+	public  var BOOL_VEC3 :Integer;
+	public  var BOOL_VEC4 :Integer;
+	public  var BROWSER_DEFAULT_WEBGL :Integer;
+	public  var BUFFER_SIZE :Integer;
+	public  var BUFFER_USAGE :Integer;
+	public  var BYTE :Integer;
+	public  var CCW :Integer;
+	public  var CLAMP_TO_EDGE :Integer;
+	public  var COLOR_ATTACHMENT0 :Integer;
+	public  var COLOR_BUFFER_BIT :Integer;
+	public  var COLOR_CLEAR_VALUE :Integer;
+	public  var COLOR_WRITEMASK :Integer;
+	public  var COMPILE_STATUS :Integer;
+	public  var COMPRESSED_TEXTURE_FORMATS :Integer;
+	public  var CONSTANT_ALPHA :Integer;
+	public  var CONSTANT_COLOR :Integer;
+	public  var CONTEXT_LOST_WEBGL :Integer;
+	public  var CULL_FACE :Integer;
+	public  var CULL_FACE_MODE :Integer;
+	public  var CURRENT_PROGRAM :Integer;
+	public  var CURRENT_VERTEX_ATTRIB :Integer;
+	public  var CW :Integer;
+	public  var DECR :Integer;
+	public  var DECR_WRAP :Integer;
+	public  var DELETE_STATUS :Integer;
+	public  var DEPTH_ATTACHMENT :Integer;
+	public  var DEPTH_BITS :Integer;
+	public  var DEPTH_BUFFER_BIT :Integer;
+	public  var DEPTH_CLEAR_VALUE :Integer;
+	public  var DEPTH_COMPONENT :Integer;
+	public  var DEPTH_COMPONENT16 :Integer;
+	public  var DEPTH_FUNC :Integer;
+	public  var DEPTH_RANGE :Integer;
+	public  var DEPTH_STENCIL :Integer;
+	public  var DEPTH_STENCIL_ATTACHMENT :Integer;
+	public  var DEPTH_TEST :Integer;
+	public  var DEPTH_WRITEMASK :Integer;
+	public  var DITHER :Integer;
+	public  var DONT_CARE :Integer;
+	public  var DST_ALPHA :Integer;
+	public  var DST_COLOR :Integer;
+	public  var DYNAMIC_DRAW :Integer;
+	public  var ELEMENT_ARRAY_BUFFER :Integer;
+	public  var ELEMENT_ARRAY_BUFFER_BINDING :Integer;
+	public  var EQUAL :Integer;
+	public  var FASTEST :Integer;
+	public  var FLOAT :Integer;
+	public  var FLOAT_MAT2 :Integer;
+	public  var FLOAT_MAT3 :Integer;
+	public  var FLOAT_MAT4 :Integer;
+	public  var FLOAT_VEC2 :Integer;
+	public  var FLOAT_VEC3 :Integer;
+	public  var FLOAT_VEC4 :Integer;
+	public  var FRAGMENT_SHADER :Integer;
+	public  var FRAMEBUFFER :Integer;
+	public  var FRAMEBUFFER_ATTACHMENT_OBJECT_NAME :Integer;
+	public  var FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE :Integer;
+	public  var FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE :Integer;
+	public  var FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL :Integer;
+	public  var FRAMEBUFFER_BINDING :Integer;
+	public  var FRAMEBUFFER_COMPLETE :Integer;
+	public  var FRAMEBUFFER_INCOMPLETE_ATTACHMENT :Integer;
+	public  var FRAMEBUFFER_INCOMPLETE_DIMENSIONS :Integer;
+	public  var FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT :Integer;
+	public  var FRAMEBUFFER_UNSUPPORTED :Integer;
+	public  var FRONT :Integer;
+	public  var FRONT_AND_BACK :Integer;
+	public  var FRONT_FACE :Integer;
+	public  var FUNC_ADD :Integer;
+	public  var FUNC_REVERSE_SUBTRACT :Integer;
+	public  var FUNC_SUBTRACT :Integer;
+	public  var GENERATE_MIPMAP_HINT :Integer;
+	public  var GEQUAL :Integer;
+	public  var GREATER :Integer;
+	public  var GREEN_BITS :Integer;
+	public  var HIGH_FLOAT :Integer;
+	public  var HIGH_INT :Integer;
+	public  var INCR :Integer;
+	public  var INCR_WRAP :Integer;
+	public  var INT :Integer;
+	public  var INT_VEC2 :Integer;
+	public  var INT_VEC3 :Integer;
+	public  var INT_VEC4 :Integer;
+	public  var INVALID_ENUM :Integer;
+	public  var INVALID_FRAMEBUFFER_OPERATION :Integer;
+	public  var INVALID_OPERATION :Integer;
+	public  var INVALID_VALUE :Integer;
+	public  var INVERT :Integer;
+	public  var KEEP :Integer;
+	public  var LEQUAL :Integer;
+	public  var LESS :Integer;
+	public  var LINE_LOOP :Integer;
+	public  var LINE_STRIP :Integer;
+	public  var LINE_WIDTH :Integer;
+	public  var LINEAR :Integer;
+	public  var LINEAR_MIPMAP_LINEAR :Integer;
+	public  var LINEAR_MIPMAP_NEAREST :Integer;
+	public  var LINES :Integer;
+	public  var LINK_STATUS :Integer;
+	public  var LOW_FLOAT :Integer;
+	public  var LOW_INT :Integer;
+	public  var LUMINANCE :Integer;
+	public  var LUMINANCE_ALPHA :Integer;
+	public  var MAX_COMBINED_TEXTURE_IMAGE_UNITS :Integer;
+	public  var MAX_CUBE_MAP_TEXTURE_SIZE :Integer;
+	public  var MAX_FRAGMENT_UNIFORM_VECTORS :Integer;
+	public  var MAX_RENDERBUFFER_SIZE :Integer;
+	public  var MAX_TEXTURE_IMAGE_UNITS :Integer;
+	public  var MAX_TEXTURE_SIZE :Integer;
+	public  var MAX_VARYING_VECTORS :Integer;
+	public  var MAX_VERTEX_ATTRIBS :Integer;
+	public  var MAX_VERTEX_TEXTURE_IMAGE_UNITS :Integer;
+	public  var MAX_VERTEX_UNIFORM_VECTORS :Integer;
+	public  var MAX_VIEWPORT_DIMS :Integer;
+	public  var MEDIUM_FLOAT :Integer;
+	public  var MEDIUM_INT :Integer;
+	public  var MIRRORED_REPEAT :Integer;
+	public  var NEAREST :Integer;
+	public  var NEAREST_MIPMAP_LINEAR :Integer;
+	public  var NEAREST_MIPMAP_NEAREST :Integer;
+	public  var NEVER :Integer;
+	public  var NICEST :Integer;
+	public  var NO_ERROR :Integer;
+	public  var NONE :Integer;
+	public  var NOTEQUAL :Integer;
+	public  var ONE :Integer;
+	public  var ONE_MINUS_CONSTANT_ALPHA :Integer;
+	public  var ONE_MINUS_CONSTANT_COLOR :Integer;
+	public  var ONE_MINUS_DST_ALPHA :Integer;
+	public  var ONE_MINUS_DST_COLOR :Integer;
+	public  var ONE_MINUS_SRC_ALPHA :Integer;
+	public  var ONE_MINUS_SRC_COLOR :Integer;
+	public  var OUT_OF_MEMORY :Integer;
+	public  var PACK_ALIGNMENT :Integer;
+	public  var POINTS :Integer;
+	public  var POLYGON_OFFSET_FACTOR :Integer;
+	public  var POLYGON_OFFSET_FILL :Integer;
+	public  var POLYGON_OFFSET_UNITS :Integer;
+	public  var RED_BITS :Integer;
+	public  var RENDERBUFFER :Integer;
+	public  var RENDERBUFFER_ALPHA_SIZE :Integer;
+	public  var RENDERBUFFER_BINDING :Integer;
+	public  var RENDERBUFFER_BLUE_SIZE :Integer;
+	public  var RENDERBUFFER_DEPTH_SIZE :Integer;
+	public  var RENDERBUFFER_GREEN_SIZE :Integer;
+	public  var RENDERBUFFER_HEIGHT :Integer;
+	public  var RENDERBUFFER_INTERNAL_FORMAT :Integer;
+	public  var RENDERBUFFER_RED_SIZE :Integer;
+	public  var RENDERBUFFER_STENCIL_SIZE :Integer;
+	public  var RENDERBUFFER_WIDTH :Integer;
+	public  var RENDERER :Integer;
+	public  var REPEAT :Integer;
+	public  var REPLACE :Integer;
+	public  var RGB :Integer;
+	public  var RGB5_A1 :Integer;
+	public  var RGB565 :Integer;
+	public  var RGBA :Integer;
+	public  var RGBA4 :Integer;
+	public  var SAMPLE_ALPHA_TO_COVERAGE :Integer;
+	public  var SAMPLE_BUFFERS :Integer;
+	public  var SAMPLE_COVERAGE :Integer;
+	public  var SAMPLE_COVERAGE_INVERT :Integer;
+	public  var SAMPLE_COVERAGE_VALUE :Integer;
+	public  var SAMPLER_2D :Integer;
+	public  var SAMPLER_CUBE :Integer;
+	public  var SAMPLES :Integer;
+	public  var SCISSOR_BOX :Integer;
+	public  var SCISSOR_TEST :Integer;
+	public  var SHADER_TYPE :Integer;
+	public  var SHADING_LANGUAGE_VERSION :Integer;
+	public  var SHORT :Integer;
+	public  var SRC_ALPHA :Integer;
+	public  var SRC_ALPHA_SATURATE :Integer;
+	public  var SRC_COLOR :Integer;
+	public  var STATIC_DRAW :Integer;
+	public  var STENCIL_ATTACHMENT :Integer;
+	public  var STENCIL_BACK_FAIL :Integer;
+	public  var STENCIL_BACK_FUNC :Integer;
+	public  var STENCIL_BACK_PASS_DEPTH_FAIL :Integer;
+	public  var STENCIL_BACK_PASS_DEPTH_PASS :Integer;
+	public  var STENCIL_BACK_REF :Integer;
+	public  var STENCIL_BACK_VALUE_MASK :Integer;
+	public  var STENCIL_BACK_WRITEMASK :Integer;
+	public  var STENCIL_BITS :Integer;
+	public  var STENCIL_BUFFER_BIT :Integer;
+	public  var STENCIL_CLEAR_VALUE :Integer;
+	public  var STENCIL_FAIL :Integer;
+	public  var STENCIL_FUNC :Integer;
+	public  var STENCIL_INDEX :Integer;
+	public  var STENCIL_INDEX8 :Integer;
+	public  var STENCIL_PASS_DEPTH_FAIL :Integer;
+	public  var STENCIL_PASS_DEPTH_PASS :Integer;
+	public  var STENCIL_REF :Integer;
+	public  var STENCIL_TEST :Integer;
+	public  var STENCIL_VALUE_MASK :Integer;
+	public  var STENCIL_WRITEMASK :Integer;
+	public  var STREAM_DRAW :Integer;
+	public  var SUBPIXEL_BITS :Integer;
+	public  var TEXTURE :Integer;
+	public  var TEXTURE_2D :Integer;
+	public  var TEXTURE_BINDING_2D :Integer;
+	public  var TEXTURE_BINDING_CUBE_MAP :Integer;
+	public  var TEXTURE_CUBE_MAP :Integer;
+	public  var TEXTURE_CUBE_MAP_NEGATIVE_X :Integer;
+	public  var TEXTURE_CUBE_MAP_NEGATIVE_Y :Integer;
+	public  var TEXTURE_CUBE_MAP_NEGATIVE_Z :Integer;
+	public  var TEXTURE_CUBE_MAP_POSITIVE_X :Integer;
+	public  var TEXTURE_CUBE_MAP_POSITIVE_Y :Integer;
+	public  var TEXTURE_CUBE_MAP_POSITIVE_Z :Integer;
+	public  var TEXTURE_MAG_FILTER :Integer;
+	public  var TEXTURE_MIN_FILTER :Integer;
+	public  var TEXTURE_WRAP_S :Integer;
+	public  var TEXTURE_WRAP_T :Integer;
+	public  var TEXTURE0 :Integer;
+	public  var TEXTURE1 :Integer;
+	public  var TEXTURE10 :Integer;
+	public  var TEXTURE11 :Integer;
+	public  var TEXTURE12 :Integer;
+	public  var TEXTURE13 :Integer;
+	public  var TEXTURE14 :Integer;
+	public  var TEXTURE15 :Integer;
+	public  var TEXTURE16 :Integer;
+	public  var TEXTURE17 :Integer;
+	public  var TEXTURE18 :Integer;
+	public  var TEXTURE19 :Integer;
+	public  var TEXTURE2 :Integer;
+	public  var TEXTURE20 :Integer;
+	public  var TEXTURE21 :Integer;
+	public  var TEXTURE22 :Integer;
+	public  var TEXTURE23 :Integer;
+	public  var TEXTURE24 :Integer;
+	public  var TEXTURE25 :Integer;
+	public  var TEXTURE26 :Integer;
+	public  var TEXTURE27 :Integer;
+	public  var TEXTURE28 :Integer;
+	public  var TEXTURE29 :Integer;
+	public  var TEXTURE3 :Integer;
+	public  var TEXTURE30 :Integer;
+	public  var TEXTURE31 :Integer;
+	public  var TEXTURE4 :Integer;
+	public  var TEXTURE5 :Integer;
+	public  var TEXTURE6 :Integer;
+	public  var TEXTURE7 :Integer;
+	public  var TEXTURE8 :Integer;
+	public  var TEXTURE9 :Integer;
+	public  var TRIANGLE_FAN :Integer;
+	public  var TRIANGLE_STRIP :Integer;
+	public  var TRIANGLES :Integer;
+	public  var UNPACK_ALIGNMENT :Integer;
+	public  var UNPACK_COLORSPACE_CONVERSION_WEBGL :Integer;
+	public  var UNPACK_FLIP_Y_WEBGL :Integer;
+	public  var UNPACK_PREMULTIPLY_ALPHA_WEBGL :Integer;
+	public  var UNSIGNED_BYTE :Integer;
+	public  var UNSIGNED_INT :Integer;
+	public  var UNSIGNED_SHORT :Integer;
+	public  var UNSIGNED_SHORT_4_4_4_4 :Integer;
+	public  var UNSIGNED_SHORT_5_5_5_1 :Integer;
+	public  var UNSIGNED_SHORT_5_6_5 :Integer;
+	public  var VALIDATE_STATUS :Integer;
+	public  var VENDOR :Integer;
+	public  var VERSION :Integer;
+	public  var VERTEX_ATTRIB_ARRAY_BUFFER_BINDING :Integer;
+	public  var VERTEX_ATTRIB_ARRAY_ENABLED :Integer;
+	public  var VERTEX_ATTRIB_ARRAY_NORMALIZED :Integer;
+	public  var VERTEX_ATTRIB_ARRAY_POINTER :Integer;
+	public  var VERTEX_ATTRIB_ARRAY_SIZE :Integer;
+	public  var VERTEX_ATTRIB_ARRAY_STRIDE :Integer;
+	public  var VERTEX_ATTRIB_ARRAY_TYPE :Integer;
+	public  var VERTEX_SHADER :Integer;
+	public  var VIEWPORT :Integer;
+	public  var ZERO :Integer;
+	public  var __uid :Integer;
+	public  var canvas :HTMLCanvasElement;
+	public  var __className :String;
 } //WebGLRenderingContext
 
 class WebGLShader : WebGLObject
 {
 	public function Constructor(uid:Integer, type:Integer) {}
-	protected var type :Integer;
+	protected  var type :Integer;
+	public  var __className :String;
 } //WebGLShader
 
 class WebGLShaderPrecisionFormat : WebGLObject
 {
 	public function Constructor(uid:Integer, shadertype:Integer, precisiontype:Integer) {}
+	public  var __className :String;
 } //WebGLShaderPrecisionFormat
 
 class WebGLTexture : WebGLObject
 {
 	public function Destructor(uid:Integer) {}
 	public function Constructor(uid:Integer) {}
+	public  var __className :String;
 } //WebGLTexture
 
 class WebGLUniformLocation : WebGLObject
 {
 	public function Constructor(uid:Integer, program_uid:Integer, name:String) {}
+	public  var __className :String;
 } //WebGLUniformLocation
 
 class CocoClip : CocoEventSource
@@ -1384,48 +1479,49 @@ class CocoClip : CocoEventSource
 	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext) {}
 	public function Destructor() {}
 	public function Constructor(image:CocoImage) {}
-	public var __instanceName :String;
-	public var __clipPath :String;
-	public var __scene :CocoScene;
-	public var __image :CocoImage;
-	public var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
-	public var __children :Array<CocoClip>;
-	public var __timeline :CocoTimeline;
-	public var __parent :CocoClip;
-	public var text :String;
-	public var textFontName :String;
-	public var textFontSize :Integer;
-	public var textHAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textVAlign :COCO_TEXT_ALIGN_ENUM;
-	public var textMultiline :Boolean;
-	public var textTrimming :COCO_TEXT_TRIMMING_ENUM;
-	public var textColor :String;
-	public var textWidth :Integer;
-	public var textHeight :Integer;
-	public var __currentTime :Time;
-	public var __loopTime :Time;
-	public var __loops :Integer;
-	public var __currentFrame :CocoKeyFrame;
-	public var __childWithMaxTimelineDuration :CocoClip;
-	public var __hasBoundingBox :Boolean;
-	public var __vABS_TOP_LEFT :CocoVector;
-	public var __vABS_TOP_RIGHT :CocoVector;
-	public var __vABS_BOTTOM_LEFT :CocoVector;
-	public var __vABS_BOTTOM_RIGHT :CocoVector;
-	public var __vREL_TOP_LEFT :CocoVector;
-	public var __vREL_TOP_RIGHT :CocoVector;
-	public var __vREL_BOTTOM_LEFT :CocoVector;
-	public var __vREL_BOTTOM_RIGHT :CocoVector;
-	public var __vTemp :CocoVector;
-	public var __mTemp :CocoMatrix;
-	private var __currentSequence :CocoSequence;
-	private var __currentAudio :CocoAudio;
+	public  var __instanceName :String;
+	public  var __clipPath :String;
+	public  var __scene :CocoScene;
+	public  var __image :CocoImage;
+	public  var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
+	public  var __children :Array<CocoClip>;
+	public  var __timeline :CocoTimeline;
+	public  var __parent :CocoClip;
+	public  var text :String;
+	public  var textFontName :String;
+	public  var textFontSize :Integer;
+	public  var textHAlign :COCO_TEXT_ALIGN_ENUM;
+	public  var textVAlign :COCO_TEXT_ALIGN_ENUM;
+	public  var textMultiline :Boolean;
+	public  var textTrimming :COCO_TEXT_TRIMMING_ENUM;
+	public  var textColor :String;
+	public  var textWidth :Integer;
+	public  var textHeight :Integer;
+	public  var __currentTime :Time;
+	public  var __loopTime :Time;
+	public  var __loops :Integer;
+	public  var __currentFrame :CocoKeyFrame;
+	public  var __childWithMaxTimelineDuration :CocoClip;
+	public  var __hasBoundingBox :Boolean;
+	public  var __vABS_TOP_LEFT :CocoVector;
+	public  var __vABS_TOP_RIGHT :CocoVector;
+	public  var __vABS_BOTTOM_LEFT :CocoVector;
+	public  var __vABS_BOTTOM_RIGHT :CocoVector;
+	public  var __vREL_TOP_LEFT :CocoVector;
+	public  var __vREL_TOP_RIGHT :CocoVector;
+	public  var __vREL_BOTTOM_LEFT :CocoVector;
+	public  var __vREL_BOTTOM_RIGHT :CocoVector;
+	public  var __vTemp :CocoVector;
+	public  var __mTemp :CocoMatrix;
+	private  var __currentSequence :CocoSequence;
+	private  var __currentAudio :CocoAudio;
 	public var OnClick :CocoClipOnClickEvent;
 	public var OnDblClick :CocoClipOnDblClickEvent;
 	public var OnTouchStart :CocoClipOnTouchStartEvent;
 	public var OnTouchMove :CocoClipOnTouchMoveEvent;
 	public var OnTouchEnd :CocoClipOnTouchEndEvent;
 	public var OnTouchCancel :CocoClipOnTouchCancelEvent;
+	public  var __className :String;
 } //CocoClip
 
 class CocoClipOnClickEvent : CocoEvent
@@ -1464,10 +1560,11 @@ class CocoVector
 {
 	public function reset(x:Float, y:Float, z:Float, w:Float) {}
 	public function Constructor() {}
-	public var X :Float;
-	public var Y :Float;
-	public var Z :Float;
-	public var W :Float;
+	public  var X :Float;
+	public  var Y :Float;
+	public  var Z :Float;
+	public  var W :Float;
+	public  var __className :String;
 } //CocoVector
 
 class CocoMatrix
@@ -1488,25 +1585,26 @@ class CocoMatrix
 	public function pop() {}
 	public function Destructor() {}
 	public function Constructor(M:CocoMatrix) {}
-	public var rc11 :Float;
-	public var rc12 :Float;
-	public var rc13 :Float;
-	public var rc14 :Float;
-	public var rc21 :Float;
-	public var rc22 :Float;
-	public var rc23 :Float;
-	public var rc24 :Float;
-	public var rc31 :Float;
-	public var rc32 :Float;
-	public var rc33 :Float;
-	public var rc34 :Float;
-	public var rc41 :Float;
-	public var rc42 :Float;
-	public var rc43 :Float;
-	public var rc44 :Float;
-	public var __stack :Array<Float32Array>;
-	public var __data :Float32Array;
-	public var __dirty :Boolean;
+	public  var rc11 :Float;
+	public  var rc12 :Float;
+	public  var rc13 :Float;
+	public  var rc14 :Float;
+	public  var rc21 :Float;
+	public  var rc22 :Float;
+	public  var rc23 :Float;
+	public  var rc24 :Float;
+	public  var rc31 :Float;
+	public  var rc32 :Float;
+	public  var rc33 :Float;
+	public  var rc34 :Float;
+	public  var rc41 :Float;
+	public  var rc42 :Float;
+	public  var rc43 :Float;
+	public  var rc44 :Float;
+	public  var __stack :Array<Float32Array>;
+	public  var __data :Float32Array;
+	public  var __dirty :Boolean;
+	public  var __className :String;
 } //CocoMatrix
 
 class CocoScene
@@ -1515,8 +1613,7 @@ class CocoScene
 	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage {}
 	private function prepare(gl:WebGLRenderingContext) {}
 	private function makeProgram(gl:WebGLRenderingContext, vs:String, fs:String) :WebGLProgram {}
-	private function loadResources() {}
-	private function resourcesLoaded(gl:WebGLRenderingContext) :Boolean {}
+	private function resourcesLoaded() :Boolean {}
 	public function paint(gl:WebGLRenderingContext, time:Time) {}
 	private function setFilter(filter:Integer) :Boolean {}
 	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Integer, KF:CocoKeyFrame) {}
@@ -1527,31 +1624,32 @@ class CocoScene
 	public function stop() {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var __sceneName :String;
-	public var __imageSymbols :Array<CocoImage>;
-	public var __fps :Float;
-	public var __view_width :Float;
-	public var __view_height :Float;
-	public var __view_pixel_ratio :Float;
-	public var __view_scale :Float;
-	public var __root :CocoClip;
-	public var __modelViewMatrix :CocoMatrix;
-	public var __projectionMatrix :CocoMatrix;
-	public var __glProgram :WebGLProgram;
-	public var __glProgram_Simple :WebGLProgram;
-	public var __glProgram_SimpleWithAlpha :WebGLProgram;
-	public var __glProgram_SaturationWithAlpha :WebGLProgram;
-	public var __levelParents :Array<CocoClip>;
-	public var __vertex_shader_Common :String;
-	public var __fragment_shader_Simple :String;
-	public var __fragment_shader_SimpleWithAlpha :String;
-	public var __fragment_shader_SaturationWithAlpha :String;
-	public var __boundingBoxVertexShader :String;
-	public var __boundingBoxFragmentShader :String;
-	public var __boundingBoxProgram :WebGLProgram;
-	public var __boundingBoxBuffer :WebGLBuffer;
-	public var __ready :Boolean;
-	public var __finished :Boolean;
+	public  var __sceneName :String;
+	public  var __imageSymbols :Array<CocoImage>;
+	public  var __fps :Float;
+	public  var __view_width :Float;
+	public  var __view_height :Float;
+	public  var __view_pixel_ratio :Float;
+	public  var __view_scale :Float;
+	public  var __root :CocoClip;
+	public  var __modelViewMatrix :CocoMatrix;
+	public  var __projectionMatrix :CocoMatrix;
+	public  var __glProgram :WebGLProgram;
+	public  var __glProgram_Simple :WebGLProgram;
+	public  var __glProgram_SimpleWithAlpha :WebGLProgram;
+	public  var __glProgram_SaturationWithAlpha :WebGLProgram;
+	public  var __levelParents :Array<CocoClip>;
+	public  var __vertex_shader_Common :String;
+	public  var __fragment_shader_Simple :String;
+	public  var __fragment_shader_SimpleWithAlpha :String;
+	public  var __fragment_shader_SaturationWithAlpha :String;
+	public  var __boundingBoxVertexShader :String;
+	public  var __boundingBoxFragmentShader :String;
+	public  var __boundingBoxProgram :WebGLProgram;
+	public  var __boundingBoxBuffer :WebGLBuffer;
+	public  var __ready :Boolean;
+	public  var __finished :Boolean;
+	public  var __className :String;
 } //CocoScene
 
 class CocoKeyFrame
@@ -1585,8 +1683,9 @@ class CocoKeyFrame
 class CocoTimeLabel
 {
 	public function Constructor(FrameIndex:Integer, LabelName:String) {}
-	public var frameIndex :Integer;
-	public var name :String;
+	public  var frameIndex :Integer;
+	public  var name :String;
+	public  var __className :String;
 } //CocoTimeLabel
 
 class CocoTimeline
@@ -1610,16 +1709,17 @@ class CocoTimeline
 	private function interpolate$1(F:CocoKeyFrame, F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var __labels :Array<CocoTimeLabel>;
-	public var __keyFrames :Array<CocoKeyFrame>;
-	public var __singleFrameDurationTime :Time;
-	public var __durationInTime :Time;
-	public var __durationInFrames :Integer;
-	public var __paused :Boolean;
-	public var __fps :Float;
-	public var __currentFrameIndex :Integer;
-	public var __firstKeyFrameIndex :Integer;
-	public var __lastKeyFrameIndex :Integer;
+	public  var __labels :Array<CocoTimeLabel>;
+	public  var __keyFrames :Array<CocoKeyFrame>;
+	public  var __singleFrameDurationTime :Time;
+	public  var __durationInTime :Time;
+	public  var __durationInFrames :Integer;
+	public  var __paused :Boolean;
+	public  var __fps :Float;
+	public  var __currentFrameIndex :Integer;
+	public  var __firstKeyFrameIndex :Integer;
+	public  var __lastKeyFrameIndex :Integer;
+	public  var __className :String;
 } //CocoTimeline
 
 class IEventListener
@@ -1639,10 +1739,11 @@ class ITickable
 
 class CocoRect
 {
-	public var left :Float;
-	public var top :Float;
-	public var right :Float;
-	public var bottom :Float;
+	public  var left :Float;
+	public  var top :Float;
+	public  var right :Float;
+	public  var bottom :Float;
+	public  var __className :String;
 } //CocoRect
 
 class CocoGraphics
@@ -1650,32 +1751,35 @@ class CocoGraphics
 	public function createTextTexture(scene:CocoScene, text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) :CocoImage {}
 	public function drawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float, anchor:COCO_CONTROL_ANCHOR_ENUM) {}
 	private function __drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Float, cy:Float, cw:Float, ch:Float, sx:Float, sy:Float, sw:Float, sh:Float, r:COCO_SKIN_TILE_ENUM) {}
-	private function __countFixed(v:Float32Array) :Integer {}
-	private function __fixedW(v:Float32Array) :Boolean {}
-	private function __fixedH(v:Float32Array) :Boolean {}
+	private function __countFixed(v:Array<Float>) :Integer {}
+	private function __fixedW(v:Array<Float>) :Boolean {}
+	private function __fixedH(v:Array<Float>) :Boolean {}
 	private function __tileSkin(ctx:CanvasRenderingContext2D, image:CocoImage, cellX:Float, cellY:Float, cellWidth:Float, cellHeight:Float, x:Float, y:Float, width:Float, height:Float) {}
 	private function __drawRegion(ctx:CanvasRenderingContext2D, image:CocoImage, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float) {}
 	public function drawImage(image:CocoImage, x:Float, y:Float, stretchW:Float, stretchH:Float, anchor:COCO_CONTROL_ANCHOR_ENUM, clear:Boolean) {}
 	public function Destructor() {}
 	public function Constructor() {}
+	public  var __className :String;
 } //CocoGraphics
 
 class CocoSequence
 {
 	public function Destructor() {}
 	public function Constructor(name:String, framesArray:Array<Integer>) {}
-	public var name :String;
-	public var frames :Array<Integer>;
-	public var sequenceStartTime :Time;
+	public  var name :String;
+	public  var frames :Array<Integer>;
+	public  var sequenceStartTime :Time;
+	public  var __className :String;
 } //CocoSequence
 
 class CocoImageSibling
 {
 	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float) {}
-	public var url :String;
-	public var pixelRatio :Float;
-	public var textureWidth :Float;
-	public var textureHeight :Float;
+	public  var url :String;
+	public  var pixelRatio :Float;
+	public  var textureWidth :Float;
+	public  var textureHeight :Float;
+	public  var __className :String;
 } //CocoImageSibling
 
 class CocoImage
@@ -1683,40 +1787,46 @@ class CocoImage
 	public function addSibling(sibling:CocoImageSibling) :CocoImageSibling {}
 	public function addSequence(sequence:CocoSequence) :CocoSequence {}
 	public function getSequence(name:String) :CocoSequence {}
+	public function load() {}
+	public function unload() {}
 	public function prepare(scene:CocoScene, gl:WebGLRenderingContext) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var symbolName :String;
-	public var image :Image;
-	public var textureCellWidth :Float;
-	public var textureCellHeight :Float;
-	public var textureGrid :Float32Array;
-	public var color :Float32Array;
-	public var texSize :Float32Array;
-	public var isSpriteSheet :Boolean;
-	public var __pixelRatioScale :Float;
-	public var texture :WebGLTexture;
-	public var buffer :WebGLBuffer;
-	public var sequences :Array<CocoSequence>;
-	public var skin :Float32Array;
-	public var baseUrl :String;
-	public var viewOptimalWidth :Integer;
-	public var viewOptimalHeight :Integer;
-	public var viewSiblings :Array<CocoImageSibling>;
-	public var pixelRatio :Float;
+	public  var symbolName :String;
+	public  var image :Image;
+	public  var scene :CocoScene;
+	public  var textureCellWidth :Float;
+	public  var textureCellHeight :Float;
+	public  var textureGrid :Float32Array;
+	public  var color :Float32Array;
+	public  var texSize :Float32Array;
+	public  var isSpriteSheet :Boolean;
+	public  var __pixelRatioScale :Float;
+	public  var texture :WebGLTexture;
+	public  var buffer :WebGLBuffer;
+	public  var sequences :Array<CocoSequence>;
+	public  var skin :Float32Array;
+	public  var baseUrl :String;
+	public  var viewOptimalWidth :Integer;
+	public  var viewOptimalHeight :Integer;
+	public  var viewSiblings :Array<CocoImageSibling>;
+	public  var pixelRatio :Float;
+	public  var loaded :Boolean;
+	public  var __className :String;
 } //CocoImage
 
 class CocoTextStyle
 {
 	public function Destructor() {}
 	public function Constructor(ff:String, fsp:Integer, fs:String, fw:String, u:Boolean, r:Integer, g:Integer, b:Integer, a:Integer, br:Integer, bg:Integer, bb:Integer, ba:Integer) {}
-	public var fontFamily :String;
-	public var fontSizePixels :Integer;
-	public var fontStyle :String;
-	public var fontWeight :String;
-	public var underline :Boolean;
-	public var color :Array<Integer>;
-	public var bgcolor :Array<Integer>;
+	public  var fontFamily :String;
+	public  var fontSizePixels :Integer;
+	public  var fontStyle :String;
+	public  var fontWeight :String;
+	public  var underline :Boolean;
+	public  var color :Array<Integer>;
+	public  var bgcolor :Array<Integer>;
+	public  var __className :String;
 } //CocoTextStyle
 
 class CocoText
@@ -1727,15 +1837,16 @@ class CocoText
 	public function draw(width:Float, height:Float, halign:Float, valign:Float, bgR:Integer, bgG:Integer, bgB:Integer, bgA:Integer) :String {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var ctx :CanvasRenderingContext2D;
-	public var str :String;
-	public var styles :Array<CocoTextStyle>;
-	public var indices :Array<Integer>;
-	public var mappings :Array<Integer>;
-	public var lineBreaks :Array<Integer>;
-	public var lineWidths :Array<Integer>;
-	public var lineHeights :Array<Integer>;
-	public var totalHeight :Integer;
+	public static  var ctx :CanvasRenderingContext2D;
+	public  var str :String;
+	public  var styles :Array<CocoTextStyle>;
+	public  var indices :Array<Integer>;
+	public  var mappings :Array<Integer>;
+	public  var lineBreaks :Array<Integer>;
+	public  var lineWidths :Array<Integer>;
+	public  var lineHeights :Array<Integer>;
+	public  var totalHeight :Integer;
+	public  var __className :String;
 } //CocoText
 
 class CocoEngine
@@ -1752,14 +1863,15 @@ class CocoEngine
 	public function __debug_trace(scene:CocoScene, clip:CocoClip, message:String) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var TICK_TIME :Time;
-	public var debugbreak :Boolean;
-	private var __currentState :State;
-	private var __nextState :State;
-	private var __deviceMessage :DeviceMessage;
-	private var __clicked :Array<CocoClip>;
-	private var __clock :Time;
-	private var __tickables :Array<ITickable>;
+	public  var TICK_TIME :Time;
+	public  var debugbreak :Boolean;
+	private  var __currentState :State;
+	private  var __nextState :State;
+	private  var __deviceMessage :DeviceMessage;
+	private  var __clicked :Array<CocoClip>;
+	private  var __clock :Time;
+	private  var __tickables :Array<ITickable>;
+	public  var __className :String;
 } //CocoEngine
 
 class CocoEvent
@@ -1769,43 +1881,46 @@ class CocoEvent
 	public function preventDefault() {}
 	public function Destructor() {}
 	public function Constructor(type:String, cancelable:Boolean, bubbles:Boolean) {}
-	public var type :String;
-	public var target :IEventTarget;
-	public var currentTarget :IEventTarget;
-	public var bubbles :Boolean;
-	public var cancelable :Boolean;
-	public var timeStamp :Integer;
-	public var stopPropagation :Boolean;
-	public var defaultPrevented :Boolean;
-	public var detail :Integer;
-	public var touches :TouchList;
-	public var targetTouches :TouchList;
-	public var changedTouches :TouchList;
-	public var scale :Float;
-	public var rotation :Float;
-	public var clientX :Integer;
-	public var clientY :Integer;
-	public var __clientX :Integer;
-	public var __clientY :Integer;
+	public  var type :String;
+	public  var target :IEventTarget;
+	public  var currentTarget :IEventTarget;
+	public  var bubbles :Boolean;
+	public  var cancelable :Boolean;
+	public  var timeStamp :Integer;
+	public  var stopPropagation :Boolean;
+	public  var defaultPrevented :Boolean;
+	public  var detail :Integer;
+	public  var touches :TouchList;
+	public  var targetTouches :TouchList;
+	public  var changedTouches :TouchList;
+	public  var scale :Float;
+	public  var rotation :Float;
+	public  var clientX :Integer;
+	public  var clientY :Integer;
+	public  var __clientX :Integer;
+	public  var __clientY :Integer;
+	public  var __className :String;
 } //CocoEvent
 
 class CocoEventConnectionPoint
 {
 	public function Destructor() {}
 	public function Constructor(Source:CocoEventSource, Event:CocoEvent, Listener:IEventListener, Callback:Function) {}
-	public var Event :CocoEvent;
-	public var Callback :Function;
-	public var Listener :IEventListener;
+	public  var Event :CocoEvent;
+	public  var Callback :Function;
+	public  var Listener :IEventListener;
+	public  var __className :String;
 } //CocoEventConnectionPoint
 
 class CocoEventSource
 {
-	public function addEventListener(Event:CocoEvent, Listener:IEventListener, Callback:Function) {}
-	public function removeEventListener(Event:CocoEvent, Listener:IEventListener, Callback:Function) :Boolean {}
+	public function addEventListener(Event:CocoEvent, Callback:Function, Listener:IEventListener) {}
+	public function removeEventListener(Event:CocoEvent, Callback:Function, Listener:IEventListener) :Boolean {}
 	public function dispatchEvent(Event:CocoEvent) :Integer {}
 	public function Destructor() {}
 	public function Constructor() {}
-	protected var __eventListeners :Array<CocoEventConnectionPoint>;
+	protected  var __eventListeners :Array<CocoEventConnectionPoint>;
+	public  var __className :String;
 } //CocoEventSource
 
 class State
@@ -1815,8 +1930,9 @@ class State
 	public function tick(time:Time) {}
 	public function paint(gl:WebGLRenderingContext, time:Time) {}
 	public function Destructor() {}
-	public var __name :String;
-	public var params :Object;
+	public  var __name :String;
+	public  var params :Object;
+	public  var __className :String;
 } //State
 
 class CocoTickable
@@ -1826,6 +1942,7 @@ class CocoTickable
 	public function tick(time:Time) {}
 	public function Destructor() {}
 	public function Constructor() {}
+	public  var __className :String;
 } //CocoTickable
 
 class DeviceMessage
@@ -1837,25 +1954,26 @@ class DeviceMessage
 	public function initTouchEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, ctrlKey:Boolean, altKey:Boolean, shiftKey:Boolean, metaKey:Boolean, touches:TouchList, targetTouches:TouchList, changedTouches:TouchList, scale:Float, rotation:Float) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var type :String;
-	public var target :IEventTarget;
-	public var currentTarget :IEventTarget;
-	public var eventPhase :Integer;
-	public var bubbles :Boolean;
-	public var cancelable :Boolean;
-	public var timeStamp :Integer;
-	public var defaultPrevented :Boolean;
-	public var view :HTMLWindow;
-	public var detail :Integer;
-	public var touches :TouchList;
-	public var targetTouches :TouchList;
-	public var changedTouches :TouchList;
-	public var scale :Float;
-	public var rotation :Float;
-	public var clientX :Integer;
-	public var clientY :Integer;
-	public var __clientX :Integer;
-	public var __clientY :Integer;
+	public  var type :String;
+	public  var target :IEventTarget;
+	public  var currentTarget :IEventTarget;
+	public  var eventPhase :Integer;
+	public  var bubbles :Boolean;
+	public  var cancelable :Boolean;
+	public  var timeStamp :Integer;
+	public  var defaultPrevented :Boolean;
+	public  var view :HTMLWindow;
+	public  var detail :Integer;
+	public  var touches :TouchList;
+	public  var targetTouches :TouchList;
+	public  var changedTouches :TouchList;
+	public  var scale :Float;
+	public  var rotation :Float;
+	public  var clientX :Integer;
+	public  var clientY :Integer;
+	public  var __clientX :Integer;
+	public  var __clientY :Integer;
+	public  var __className :String;
 } //DeviceMessage
 
 class Touch
@@ -1863,21 +1981,23 @@ class Touch
 	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, pageX:Integer, pageY:Integer) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public var identifier :Integer;
-	public var screenX :Integer;
-	public var screenY :Integer;
-	public var clientX :Integer;
-	public var clientY :Integer;
-	public var pageX :Integer;
-	public var pageY :Integer;
-	public var target :IEventTarget;
+	public  var identifier :Integer;
+	public  var screenX :Integer;
+	public  var screenY :Integer;
+	public  var clientX :Integer;
+	public  var clientY :Integer;
+	public  var pageX :Integer;
+	public  var pageY :Integer;
+	public  var target :IEventTarget;
+	public  var __className :String;
 } //Touch
 
 class TouchList : Array
 {
 	public function item(index:Integer) :Touch {}
 	public function Constructor() {}
-	public var length :Integer;
+	public  var length :Integer;
+	public  var __className :String;
 } //TouchList
 
 class CocoAudio
@@ -1894,88 +2014,467 @@ class CocoAudio
 	public function setCurrentTime(t:Float) {}
 	public function Destructor() {}
 	public function Constructor(url:String, autoplay:Boolean, loops:Integer) {}
-	public var src :String;
-	public var audio :Audio;
-	public var autoplay :Boolean;
-	public var loops :Integer;
-	private var __firstPlayed :Boolean;
-	private var __loopCount :Integer;
+	public  var src :String;
+	public  var audio :Audio;
+	public  var autoplay :Boolean;
+	public  var loops :Integer;
+	private  var __firstPlayed :Boolean;
+	private  var __loopCount :Integer;
+	public  var __className :String;
 } //CocoAudio
+
+class CocoHttpRequest : CocoTickable
+{
+	public function tick(time:Time) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	private function open(method:String, url:String, async:Boolean) {}
+	private function setRequestHeader(header:String, value:String) {}
+	private function send() {}
+	private function send$1(data:String) {}
+	private function send$2(data:ArrayBufferView) {}
+	private function abort() {}
+	private function getAllResponseHeaders() :String {}
+	private function getResponseHeader(header:String) :String {}
+	private  var request :XMLHttpRequest;
+	public  var __className :String;
+} //CocoHttpRequest
+
+class CocoUIView : CocoClip
+{
+	public function move(x:Float, y:Float, width:Float, height:Float) {}
+	public function invalidate() {}
+	public function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	protected  var __x :Float;
+	protected  var __y :Float;
+	protected  var __width :Float;
+	protected  var __height :Float;
+	protected  var __visible :Boolean;
+	protected  var __textureIsInvalid :Boolean;
+	protected  var __enabled :Boolean;
+	public  var Name :String;
+	public  var Enabled :Boolean;
+	public  var Width :Float;
+	public  var Height :Float;
+	public  var Left :Float;
+	public  var Top :Float;
+	public  var Visible :Boolean;
+	public  var __className :String;
+} //CocoUIView
+
+class CocoUIPageView : CocoUIView
+{
+	public function addChild(clipInstance:CocoClip) :CocoClip {}
+	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoUIPageView
+
+class CocoUIControl : CocoUIView
+{
+	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
+	public function Destructor() {}
+	public function Constructor(Name:String) {}
+	protected  var __marginLeft :Float;
+	protected  var __marginRight :Float;
+	protected  var __marginTop :Float;
+	protected  var __marginBottom :Float;
+	public  var MarginLeft :Float;
+	public  var MarginRight :Float;
+	public  var MarginTop :Float;
+	public  var MarginBottom :Float;
+	protected  var __paddingLeft :Float;
+	protected  var __paddingRight :Float;
+	protected  var __paddingTop :Float;
+	protected  var __paddingBottom :Float;
+	public  var PaddingLeft :Float;
+	public  var PaddingRight :Float;
+	public  var PaddingTop :Float;
+	public  var PaddingBottom :Float;
+	protected  var __fontName :String;
+	protected  var __fontSize :Float;
+	protected  var __fontBold :Boolean;
+	protected  var __fontItalic :Boolean;
+	protected  var __fontUnderline :Boolean;
+	protected  var __fontColor :Color;
+	public  var FontName :String;
+	public  var FontSize :Float;
+	public  var FontBold :Boolean;
+	public  var FontItalic :Boolean;
+	public  var FontUnderline :Boolean;
+	public  var FontColor :Color;
+	protected  var __borderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	protected  var __borderRadius :Float;
+	protected  var __borderColor :Color;
+	protected  var __borderColorSel :Color;
+	public  var BorderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	public  var BorderRadius :Float;
+	public  var BorderColor :Color;
+	public  var BorderColorSel :Color;
+	protected  var __backgroundGradient :Gradient;
+	protected  var __backgroundGradientSel :Gradient;
+	public  var BackgroundGradient :Gradient;
+	public  var BackgroundGradientSel :Gradient;
+	protected  var __skinImage :CocoImage;
+	protected  var __skinImageSel :CocoImage;
+	public  var SkinImage :CocoImage;
+	public  var SkinImageSel :CocoImage;
+	protected  var __glyphImage :CocoImage;
+	protected  var __glyphImageSel :CocoImage;
+	protected  var __glyphLeft :Float;
+	protected  var __glyphTop :Float;
+	public  var GlyphImage :CocoImage;
+	public  var GlyphImageSel :CocoImage;
+	public  var GlyphLeft :Float;
+	public  var GlyphTop :Float;
+	protected  var __chevronImage :CocoImage;
+	protected  var __chevronImageSel :CocoImage;
+	protected  var __chevronLeft :Float;
+	protected  var __chevronTop :Float;
+	public  var ChevronImage :CocoImage;
+	public  var ChevronImageSel :CocoImage;
+	public  var ChevronLeft :Float;
+	public  var ChevronTop :Float;
+	public  var __className :String;
+} //CocoUIControl
+
+class CocoUIButton : CocoUIControl
+{
+	public function foo() {}
+	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
+	public function Destructor() {}
+	public function Constructor(Name:String) {}
+	protected  var __caption :String;
+	protected  var __captionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var __className :String;
+} //CocoUIButton
+
+class CocoUICheckBox : CocoUIControl
+{
+	public function Constructor(Name:String) {}
+	public  var __className :String;
+} //CocoUICheckBox
+
+class CocoUIComboBox : CocoUIControl
+{
+	public function Constructor(Name:String) {}
+	public  var __className :String;
+} //CocoUIComboBox
+
+class CocoUILabel : CocoUIControl
+{
+	public function Constructor(Name:String) {}
+	public  var __className :String;
+} //CocoUILabel
+
+class CocoUIPictureList : CocoUIButton
+{
+	public function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D) {}
+	public function Destructor() {}
+	public function Constructor(Name:String) {}
+	protected  var __secondCaption :String;
+	protected  var __secondCaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var SecondCaption :String;
+	public  var SecondCaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	private  var __secondCaptionFontName :String;
+	private  var __secondCaptionFontSize :Float;
+	private  var __secondCaptionFontBold :Boolean;
+	private  var __secondCaptionFontItalic :Boolean;
+	private  var __secondCaptionFontUnderline :Boolean;
+	private  var __secondCaptionFontColor :Color;
+	public  var SecondCaptionFontName :String;
+	public  var SecondCaptionFontSize :Float;
+	public  var SecondCaptionFontBold :Boolean;
+	public  var SecondCaptionFontItalic :Boolean;
+	public  var SecondCaptionFontUnderline :Boolean;
+	public  var SecondCaptionFontColor :Color;
+	public  var __className :String;
+} //CocoUIPictureList
+
+class CocoUITextBox : CocoUIControl
+{
+	public function Constructor(Name:String) {}
+	public  var __className :String;
+} //CocoUITextBox
 
 class GameEngine : CocoEngine
 {
-	public function setTexts() {}
-	public function createGUID() :String {}
-	public function hasClosedCells() :Boolean {}
-	public function OpenCell(i:Integer) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	private var scene :CocoScene;
-	private var balance :Number;
-	private var winnings :Number;
-	private var avatars :Array<CocoClip>;
-	private var avatar_leo :CocoClip;
-	private var avatar_xerxes :CocoClip;
-	private var avatar_spartan :CocoClip;
-	private var avatar_persian :CocoClip;
-	private var avatar_swords :CocoClip;
-	private var avatar_armor :CocoClip;
-	private var btnOpenAll :CocoClip;
-	private var btnBuyTicket :CocoClip;
-	private var cells :Array<CocoClip>;
-	private var cellsOpen :Array<Boolean>;
-	private var selectedAvatar :Integer;
-	private var selAvatarAppearances :Integer;
-	private var counter :Number;
-	private var TICKET_TicketID :String;
-	private var TICKET_cells :Array<Integer>;
-	private var TICKET_price :Integer;
-	private var TICKET_winCount :Integer;
-	private var WIN_PRIZES :Array<Integer>;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_JUMPING_AVATARS :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public  var scene :CocoScene;
+	public var STATE_GAME :State;
+	public  var __className :String;
 } //GameEngine
 
-class SYMBOL_ENUM
+class TestOutsourcer
 {
-	public var SYMBOL_LEONIDAS :SYMBOL_ENUM;
-	public var SYMBOL_XERXES :SYMBOL_ENUM;
-	public var SYMBOL_SPARTAN :SYMBOL_ENUM;
-	public var SYMBOL_PERSIAN :SYMBOL_ENUM;
-	public var SYMBOL_SWORDS :SYMBOL_ENUM;
-	public var SYMBOL_ARMOR :SYMBOL_ENUM;
-} //SYMBOL_ENUM
-
-class GridSymbol
-{
-	public function getRandom() :Integer {}
-	public function createSymbol(symbol:Integer) :CocoClip {}
-	public function initPlaceholder() :CocoClip {}
-	public function initLeonidas() :CocoClip {}
-	public function initXerxes() :CocoClip {}
-	public function initSpartan() :CocoClip {}
-	public function initPersian() :CocoClip {}
-	public function initSwords() :CocoClip {}
-	public function initArmor() :CocoClip {}
+	public function work() {}
 	public function Destructor() {}
-	public function Constructor(scene:CocoScene) {}
-	public var scene :CocoScene;
-} //GridSymbol
+	public function Constructor() {}
+	public  var __className :String;
+} //TestOutsourcer
 
-class SceneGameBoard : CocoScene
+class TestIntegrator
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	private function work() {}
+	private  var delegator :TestOutsourcer;
+	public  var __className :String;
+} //TestIntegrator
+
+class TestIntegratorClient
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	private  var integrator :TestIntegrator;
+	public  var __className :String;
+} //TestIntegratorClient
+
+class UIButtonClass : CocoEventSource
+{
+	public function work() {}
+	public function Destructor() {}
+	public function Constructor(id:String) {}
+	public  var id :String;
+	public var OnClick :UIButtonClassOnClickEvent;
+	public var OnTouchStart :UIButtonClassOnTouchStartEvent;
+	public var OnTouchMove :UIButtonClassOnTouchMoveEvent;
+	public var OnTouchEnd :UIButtonClassOnTouchEndEvent;
+	public  var __className :String;
+} //UIButtonClass
+
+class UIButtonClassOnClickEvent : CocoEvent
+{
+} //UIButtonClassOnClickEvent
+
+class UIButtonClassOnTouchStartEvent : CocoEvent
+{
+	public var x :Float;
+	public var y :Float;
+} //UIButtonClassOnTouchStartEvent
+
+class UIButtonClassOnTouchMoveEvent : CocoEvent
+{
+	public var x :Float;
+	public var y :Float;
+} //UIButtonClassOnTouchMoveEvent
+
+class UIButtonClassOnTouchEndEvent : CocoEvent
+{
+	public var x :Float;
+	public var y :Float;
+} //UIButtonClassOnTouchEndEvent
+
+class UITextBoxClass : CocoEventSource
+{
+	public function work() {}
+	public function Destructor() {}
+	public function Constructor(id:String) {}
+	public  var id :String;
+	public var OnChange :UITextBoxClassOnChangeEvent;
+	public var OnClick :UITextBoxClassOnClickEvent;
+	public var OnTouchStart :UITextBoxClassOnTouchStartEvent;
+	public var OnTouchMove :UITextBoxClassOnTouchMoveEvent;
+	public var OnTouchEnd :UITextBoxClassOnTouchEndEvent;
+	public  var __className :String;
+} //UITextBoxClass
+
+class UITextBoxClassOnChangeEvent : CocoEvent
+{
+	public var text :String;
+} //UITextBoxClassOnChangeEvent
+
+class UITextBoxClassOnClickEvent : CocoEvent
+{
+} //UITextBoxClassOnClickEvent
+
+class UITextBoxClassOnTouchStartEvent : CocoEvent
+{
+	public var x :Float;
+	public var y :Float;
+} //UITextBoxClassOnTouchStartEvent
+
+class UITextBoxClassOnTouchMoveEvent : CocoEvent
+{
+	public var x :Float;
+	public var y :Float;
+} //UITextBoxClassOnTouchMoveEvent
+
+class UITextBoxClassOnTouchEndEvent : CocoEvent
+{
+	public var x :Float;
+	public var y :Float;
+} //UITextBoxClassOnTouchEndEvent
+
+class UIFormClass
+{
+	public function HandleOnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
+	public function HandleOnChange(sender:UITextBoxClass, e:UITextBoxClassOnChangeEvent) :Boolean {}
+	public function HandleOnValidate(sender:UITextBoxClass, e:CocoEvent, text:String) :Boolean {}
+	public function Destructor() {}
+	public function Constructor() {}
+	private  var button1 :UIButtonClass;
+	private  var text1 :UITextBoxClass;
+	private  var text2 :UITextBoxClass;
+	public  var __className :String;
+} //UIFormClass
+
+class ITest1
+{
+	public function foo() {}
+} //ITest1
+
+class ITest2 : ITest1
+{
+	public function goo() {}
+} //ITest2
+
+class ITest3
+{
+	public function zoo() {}
+} //ITest3
+
+class ClassTestInterfaces
+{
+	public function foo() {}
+	public function goo() {}
+	public function zoo() {}
+	public function interface_test1(obj:ITest1) {}
+	public function interface_test2(obj:ITest2) {}
+	public function interface_test3(obj:ITest3) {}
+	public function interface_class(obj:ClassTestInterfaces) {}
+	public function interface_tests() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //ClassTestInterfaces
+
+class Class1
+{
+	public function test_virtual() {}
+	public function test() {}
+	public function public_static_function(b:String) :String {}
+	private function private_static_function(b:String) :String {}
+	protected function protected_static_function(b:String) :String {}
+	public function public_function(b:String) :String {}
+	private function private_function(b:String) :String {}
+	protected function protected_function(b:String) :String {}
+	public function public_overload() :String {}
+	public function public_overload$1(arg:String) :String {}
+	public function public_overload$2(arg1:String, arg2:String) :String {}
+	private function private_overload() :String {}
+	private function private_overload$1(arg:String) :String {}
+	private function private_overload$2(arg1:String, arg2:String) :String {}
+	protected function protected_overload() :String {}
+	protected function protected_overload$1(arg:String) :String {}
+	protected function protected_overload$2(arg1:String, arg2:String) :String {}
+	public function Destructor() {}
+	public function Constructor(arg1:String, arg2:String) {}
+	public  var public_var :String;
+	private  var private_var :String;
+	protected  var protected_var :String;
+	public  var public_const :String;
+	private  var private_const :String;
+	protected  var protected_const :String;
+	public static  var static_public_var :String;
+	private static  var static_private_var :String;
+	protected static  var static_protected_var :String;
+	private  var __public_property :String;
+	private  var __private_property :String;
+	private  var __protected_property :String;
+	private static  var __public_static_property :String;
+	private static  var __private_static_property :String;
+	private static  var __protected_static_property :String;
+	public var public_state :State;
+	private var private_state :State;
+	protected var protected_state :State;
+	public  var public_property :String;
+	private  var private_property :String;
+	protected  var protected_property :String;
+	public static  var public_static_property :String;
+	private static  var private_static_property :String;
+	protected static  var protected_static_property :String;
+	public  var __className :String;
+} //Class1
+
+class Class2 : Class1
+{
+	public function test() {}
+	public function cls2_public_function() :String {}
+	public function Constructor(arg1:String) {}
+	public  var x :String;
+	private  var y :String;
+	protected  var z :String;
+	public  var __className :String;
+	public static  var static_public_var :String;
+	private static  var static_private_var :String;
+	protected static  var static_protected_var :String;
+	private static  var __public_static_property :String;
+	private static  var __private_static_property :String;
+	private static  var __protected_static_property :String;
+	public static  var public_static_property :String;
+	private static  var private_static_property :String;
+	protected static  var protected_static_property :String;
+} //Class2
+
+class Class3 : Class2
+{
+	public function test_virtual() {}
+	public function test() {}
+	public function Constructor() {}
+	public  var __className :String;
+	public static  var static_public_var :String;
+	private static  var static_private_var :String;
+	protected static  var static_protected_var :String;
+	private static  var __public_static_property :String;
+	private static  var __private_static_property :String;
+	private static  var __protected_static_property :String;
+	public static  var public_static_property :String;
+	private static  var private_static_property :String;
+	protected static  var protected_static_property :String;
+} //Class3
+
+class TestSelf1
+{
+	public function save_this() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var saved :Object;
+	public  var __className :String;
+} //TestSelf1
+
+class TestSelf2 : TestSelf1
+{
+	public  var __className :String;
+} //TestSelf2
+
+class TestSelf3 : TestSelf2
+{
+	public  var __className :String;
+} //TestSelf3
+
+class TestThis
 {
 	public function Constructor() {}
-} //SceneGameBoard
+	public  var __className :String;
+} //TestThis
 
-class SceneTitle : CocoScene
+class NewAnimation : CocoScene
 {
 	public function Constructor() {}
-} //SceneTitle
+	public  var __className :String;
+} //NewAnimation
+
+class Page1 : CocoScene
+{
+	public function Constructor() {}
+	public  var __className :String;
+} //Page1
 

@@ -5,46 +5,120 @@
 // This class is an events source (produces events)
 ///////////////////////////////////////////////////////
 
-class TestEventSource : CocoEventSource
+class UIButtonClass : CocoEventSource
 {
 	public var id:String;
-	public event OnDone(a:String, b:Float);
+
+	public event OnClick();
+	public event OnTouchStart(x:Float, y:Float);
+	public event OnTouchMove(x:Float, y:Float);
+	public event OnTouchEnd(x:Float, y:Float);
 
 	public function Constructor(id:String)
 	{
 		this.id=id;
 	}
 
+	public function Destructor()
+	{
+	}
+
  	public function work()
  	{
- 		//this.dispatchEvent(this.OnDone, "test1", 5);
+ 		this.dispatchEvent(this.OnClick);
  	}
 }
+
+///////////////////////////////////////////////////////
+// This class is an events source (produces events)
+///////////////////////////////////////////////////////
+class UITextBoxClass : CocoEventSource
+{
+	public var id:String;
+
+	public event OnChange(text:String);
+	public event OnClick();
+	public event OnTouchStart(x:Float, y:Float);
+	public event OnTouchMove(x:Float, y:Float);
+	public event OnTouchEnd(x:Float, y:Float);
+
+	public function Constructor(id:String)
+	{
+		this.id=id;
+	}
+
+	public function Destructor()
+	{
+	}
+
+ 	public function work()
+ 	{
+ 		dispatchEvent(this.OnClick);
+ 		this.dispatchEvent(this.OnChange, "test1");
+ 		this.dispatchEvent(this.OnTouchStart, 5, 6);
+ 	}
+}
+
 
 ///////////////////////////////////////////////////////
 // This class is an event listener (receives events)
 ///////////////////////////////////////////////////////
 
-class TestEventListener implements IEventListener
+class UIFormClass implements IEventListener
 {
-	private var worker:TestEventSource;
+	private var button1:UIButtonClass;
+	private var text1:UITextBoxClass;
+	private var text2:UITextBoxClass;
 
  	public function Constructor()
  	{
- 		worker = new TestEventSource("worker1");
- 		//worker.addEventListener(worker.OnDone, this, done);
- 		worker.work();
- 		//worker.removeEventListener(worker.OnDone, this, done);
- 	}
+ 		button1 = new UIButtonClass("button1");
+ 		button1.addEventListener(button1.OnClick, HandleOnClick);
+ 		button1.addEventListener(button1.OnClick, HandleOnClick);
 
-	public function done(sender:TestEventSource, e:TestEventSourceOnDoneEvent, a:String, b:Float) :Boolean
-	{
-		trace("Worker " + sender.id + " fired event " + e.type + " a=" + String(a) + ", b=" + String(b));
-		return false;
-	}
+ 		text1 = new UITextBoxClass("text1");
+ 		text1.addEventListener(text1.OnClick, HandleOnClick);
+ 		text1.addEventListener(text1.OnChange, HandleOnChange);
+ 		text1.addEventListener(text1.OnChange, HandleOnValidate);
+
+ 		text2 = new UITextBoxClass("text2");
+ 		text2.addEventListener(text2.OnClick, HandleOnClick);
+ 		text2.addEventListener(text2.OnChange, HandleOnChange);
+ 		text2.addEventListener(text2.OnChange, HandleOnValidate);
+
+ 		button1.work();
+ 		text1.work();
+ 	}
 
  	public function Destructor()
  	{
- 		delete worker;
+ 		button1.removeEventListener(button1.OnClick, HandleOnClick);
+ 		text1.removeEventListener(text1.OnClick, HandleOnClick);
+ 		text1.removeEventListener(text1.OnChange, HandleOnChange);
+ 		text1.removeEventListener(text1.OnChange, HandleOnValidate);
+ 		text2.removeEventListener(text2.OnClick,  HandleOnClick);
+ 		text2.removeEventListener(text2.OnChange, HandleOnChange);
+ 		text2.removeEventListener(text2.OnChange, HandleOnValidate);
+ 		delete button1;
+ 		delete text1;
+ 		delete text2;
  	}
+
+	public function HandleOnClick(sender:CocoEventSource, e:CocoEvent) :Boolean
+	{
+		trace(sender.__className + ", " + e.type);
+		return false;
+	}
+
+	public function HandleOnChange(sender:UITextBoxClass, e:UITextBoxClassOnChangeEvent) :Boolean
+	{
+		trace(sender.id + ", " + e.type + ", " + e.text);
+		return false;
+	}
+
+	public function HandleOnValidate(sender:UITextBoxClass, e:CocoEvent, text:String) :Boolean
+	{
+		trace(sender.id + ", " + e.type + ", " + text);
+		return false;
+	}
 }

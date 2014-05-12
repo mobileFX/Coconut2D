@@ -1,4 +1,6 @@
-﻿
+﻿"#export native";
+"#export web";
+
 /* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
@@ -166,8 +168,8 @@ class CocoGraphics
 		var	F:Float;
 		var	RmW:Float;
 		var	RmH:Float;
-		var	R:Float32Array = [0,0,0];
-		var	C:Float32Array = [0,0,0];
+		var	R:Array<Float> = [0,0,0];
+		var	C:Array<Float> = [0,0,0];
 
 		/*
 		x 		= Graphics.scale(x, 	 1, r);
@@ -228,7 +230,7 @@ class CocoGraphics
 				break;
 		}
 
-		/*
+
 
 	    // Find slices with fixed width or height
 	    if(__fixedH([RW1H1, RW2H1, RW3H1])) R[0] = H1;
@@ -239,38 +241,37 @@ class CocoGraphics
 	    if(__fixedW([RW3H1, RW3H2, RW3H3])) C[2] = W3;
 
 		// Count how many cells have fixed height and divide the remaining height to the others
-		F = __countFixed([H1, H2, H3]) - __countFixed(R);
-		RmH = Math.max(0, height - R[0] - R[1] - R[2]);
+		F = Float(__countFixed([H1, H2, H3]) - __countFixed(R));
+		RmH = Math.max(Float(0.0), height - R[0] - R[1] - R[2]);
 		if(H1 && !R[0]) R[0] =(RmH / F);
 		if(H2 && !R[1]) R[1] =(RmH / F);
 		if(H3 && !R[2]) R[2] =(RmH / F);
 
 		// Count how many cells have fixed width and divide the remaining width to the others
-		F = __countFixed([W1, W2, W3]) - __countFixed(C);
-		RmW = Math.max(0, width - C[0] - C[1] - C[2]);
+		F = Float(__countFixed([W1, W2, W3]) - __countFixed(C));
+		RmW = Math.max(Float(0.0), width - C[0] - C[1] - C[2]);
 		if(W1 && !C[0]) C[0] = (RmW / F);
 		if(W2 && !C[1]) C[1] = (RmW / F);
 		if(W3 && !C[2]) C[2] = (RmW / F);
 
 	    // Draw slices
 
-	    ctx.save();
-	    ctx.setTransform(1,0,0,1,0,0);
+	    //ctx.save();
+	    //ctx.setTransform(1,0,0,1,0,0);
 
-	    __drawSlice ( ctx, src, 	x, 					y, 				 	C[0],	R[0], 	0, 			0,			W1, 	H1, 	RW1H1);
-	    __drawSlice ( ctx, src, 	x + C[0], 			y, 				 	C[1],	R[0], 	W1, 		0,			W2, 	H1, 	RW2H1);
-	    __drawSlice ( ctx, src, 	x + C[0] + C[1], 	y, 				 	C[2],	R[0], 	W1 + W2, 	0,			W3, 	H1, 	RW3H1);
-	    __drawSlice ( ctx, src, 	x, 					y + R[0], 		 	C[0],	R[1], 	0, 			H1,			W1, 	H2, 	RW1H2);
-	    __drawSlice ( ctx, src, 	x + C[0], 			y + R[0], 		 	C[1],	R[1], 	W1, 		H1,			W2, 	H2, 	RW2H2);
-	    __drawSlice ( ctx, src, 	x + C[0] + C[1], 	y + R[0], 		 	C[2],	R[1], 	W1 + W2, 	H1,			W3, 	H2, 	RW3H2);
-	    __drawSlice ( ctx, src, 	x, 					y + R[0] + R[1], 	C[0],	R[2], 	0, 			H1 + H2, 	W1, 	H3, 	RW1H3);
-	    __drawSlice ( ctx, src, 	x + C[0], 			y + R[0] + R[1], 	C[1],	R[2], 	W1, 		H1 + H2, 	W2, 	H3, 	RW2H3);
-	    __drawSlice ( ctx, src, 	x + C[0] + C[1], 	y + R[0] + R[1], 	C[2],	R[2], 	W1 + W2, 	H1 + H2, 	W3, 	H3, 	RW3H3);
+	    __drawSlice ( ctx, skinImage, 	x, 					y, 				 	C[0],	R[0], 	0, 			0,			W1, 	H1, 	RW1H1);
+	    __drawSlice ( ctx, skinImage, 	x + C[0], 			y, 				 	C[1],	R[0], 	W1, 		0,			W2, 	H1, 	RW2H1);
+	    __drawSlice ( ctx, skinImage, 	x + C[0] + C[1], 	y, 				 	C[2],	R[0], 	W1 + W2, 	0,			W3, 	H1, 	RW3H1);
+	    __drawSlice ( ctx, skinImage, 	x, 					y + R[0], 		 	C[0],	R[1], 	0, 			H1,			W1, 	H2, 	RW1H2);
+	    __drawSlice ( ctx, skinImage, 	x + C[0], 			y + R[0], 		 	C[1],	R[1], 	W1, 		H1,			W2, 	H2, 	RW2H2);
+	    __drawSlice ( ctx, skinImage, 	x + C[0] + C[1], 	y + R[0], 		 	C[2],	R[1], 	W1 + W2, 	H1,			W3, 	H2, 	RW3H2);
+	    __drawSlice ( ctx, skinImage, 	x, 					y + R[0] + R[1], 	C[0],	R[2], 	0, 			H1 + H2, 	W1, 	H3, 	RW1H3);
+	    __drawSlice ( ctx, skinImage, 	x + C[0], 			y + R[0] + R[1], 	C[1],	R[2], 	W1, 		H1 + H2, 	W2, 	H3, 	RW2H3);
+	    __drawSlice ( ctx, skinImage, 	x + C[0] + C[1], 	y + R[0] + R[1], 	C[2],	R[2], 	W1 + W2, 	H1 + H2, 	W3, 	H3, 	RW3H3);
 
-	    ctx.scale(r,r);
-	    ctx.restore();
+	    //ctx.scale(r,r);
+	    //ctx.restore();
 
-	    */
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -284,28 +285,28 @@ class CocoGraphics
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __countFixed(v:Float32Array) :Integer
+	private static function __countFixed(v:Array<Float>) :Integer
 	{
 	    var c:Integer = 0;
-	    for(var i:Integer=0; i<v.length; i++)
+	    for(var i:Integer=0; i<v.size(); i++)
 	    	if(v[i]) c++;
 	    return c;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __fixedW(v:Float32Array) :Boolean
+	private static function __fixedW(v:Array<Float>) :Boolean
 	{
 		var R:Boolean = false;
-	    for(var i:Integer=0; i<v.length; i++)
+	    for(var i:Integer=0; i<v.size(); i++)
 	        R |= ((v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y));
 	    return R;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __fixedH(v:Float32Array) :Boolean
+	private static function __fixedH(v:Array<Float>) :Boolean
 	{
 		var R:Boolean = false;
-	    for(var i:Integer=0; i<v.length; i++)
+	    for(var i:Integer=0; i<v.size(); i++)
 	        R |= ((v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_X));
 	    return R;
 	}
@@ -336,13 +337,13 @@ class CocoGraphics
 		if(!ctx || !image || !sw || !sh || !dw || !dh)
 			return;
 
-		try
-		{
+		//try
+		//{
 			ctx.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
-		}
-		catch(e)
-		{
-		}
+		//}
+		//catch(e)
+		//{
+		//}
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////

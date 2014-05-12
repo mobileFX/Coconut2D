@@ -3,7 +3,7 @@ var global = this;
 var engine = null;
 var gl = null;
 
-if(!global.window) 		global.window = new HTMLWindow();
+if(!global.window) 		{ global.window = new HTMLWindow(); global.__native=true; }
 if(!global.document)	global.document = window.document;
 if(!global.trace)		global.trace = function(msg) { console.log(msg); };
 

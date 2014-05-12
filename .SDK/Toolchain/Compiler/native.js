@@ -42,6 +42,7 @@ function CompilerCppPlugin(compiler)
 
 	_this.classList 	= {};
 	_this.in_setter 	= false;
+	_this.in_event_call = false;
 	_this.NULL_GEN 		= { CPP:"", HPP:"" };
 	_this.currClass 	= null;
 
@@ -163,6 +164,7 @@ function CompilerCppPlugin(compiler)
 			HPP.push("class " + ast.name + (ext.length ? " : " + ext.join(",") : "") + "\n{\npublic:\n");
 
 			var result;
+
 			for(var item in ast.body)
 			{
 				if(!isFinite(item)) break;
@@ -172,6 +174,7 @@ function CompilerCppPlugin(compiler)
 					break;
 				}
 			}
+
 			for(var item in ast.body)
 			{
 				if(!isFinite(item)) break;
@@ -193,6 +196,7 @@ function CompilerCppPlugin(compiler)
 					break;
 				}
 			}
+
 			for(var item in ast.body)
 			{
 				if(!isFinite(item)) break;
@@ -207,6 +211,65 @@ function CompilerCppPlugin(compiler)
 					break;
 				}
 			}
+
+			// Create events dispatch static function with dispatch switch.
+			if(ast.symbol.interfaces.indexOf("IEventListener")!=-1)
+			{
+				//var local_handler = "__dispatch_event__(IEventListener* __event_listener, int __event_handler_uid, CocoEventSource* __event_source, CocoEvent* __event_object)";
+				var local_handler = "__dispatch_event__(void* __event_listener, int __event_handler_uid, void* __event_source, void* __event_object)";
+
+				HPP.push("static bool " + local_handler + ";");
+
+				// Get the event listener class name, eg. MyFormClass
+				var eventListenerClassName = ast.name;
+
+				CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n" +
+					    "bool " + eventListenerClassName + "::" + local_handler + "\n{");
+
+				// reinterpret_cast __event_listener to this class.
+				CPP.push(eventListenerClassName + "* __this = reinterpret_cast<" + eventListenerClassName + "*>(__event_listener);");
+
+				// Create dispatch switch
+				var disps = {};
+				CPP.push("switch(__event_handler_uid)\n{");
+				{
+					for(var i=0;i<ast.symbol.__event_bindings.length;i++)
+					{
+						var bind_ast = ast.symbol.__event_bindings[i];
+						var ebd = bind_ast.__event_descriptor;
+
+						if(disps[ebd.uid]) continue;
+						disps[ebd.uid] = true;
+
+						// Create event handler UID constant
+						HPP.push("static const int " + ebd.uid + " = " + ebd.id +";");
+
+						// Create the dispatch case
+						CPP.push("case " + ebd.uid+ ":\n{\n");
+						CPP.push(ebd.event_source.name + "* s = reinterpret_cast<"+ebd.event_source.name+"*>(__event_source);");
+						CPP.push(ebd.event_symbol.name + "* e = reinterpret_cast<"+ebd.event_symbol.name+"*>(__event_object);");
+
+						// Collect event handler flat arguments
+						var flat_arguments = [];
+						for(j=2;j<ebd.event_handler.paramsList.length;j++)
+						{
+							var event_parm = ebd.event_handler.paramsList[j];
+							flat_arguments.push("e->"+event_parm.name);
+							//CPP.push(event_parm.vartype + " " + event_parm.name + " = e->" + event_parm.name + ";");
+						}
+						flat_arguments = (flat_arguments.length>0 ? ", " + flat_arguments.join(", ") : "");
+
+						// Make the call to the event handler
+						CPP.push("return __this->" + ebd.event_handler.name + "(s,e"+flat_arguments+");");
+						CPP.push("}\n");
+						CPP.push("break;\n");
+					}
+				}
+				CPP.push("\n}");
+				CPP.push("return false;");
+				CPP.push("\n}");
+			}
+
 			HPP.push("};\n");
 
 			_this.currClassName = null;
@@ -289,22 +352,24 @@ function CompilerCppPlugin(compiler)
 
 		        CPP.push("\n{\n");
 
-				/*
-		        if(ast.symbol.restArguments)
+		        if(ast.isConstructor)
 		        {
-		        	var first =  ast.params[ast.params.length-1];
-		        	CPP.push("{");
-		        	CPP.push("va_list arguments,vl_count;");
-    				CPP.push("va_start(arguments,"+first+");");
-					CPP.push("va_copy(vl_count,arguments);")
-					CPP.push("void vargument;");
-					CPP.push("int args_count=0;");
-					CPP.push("while(vargument!=0){vargument=va_arg(vl_count,void);++args_count;}");
-					CPP.push("va_end(vl_count);");
-					CPP.push("}");
+		        	for(item in ast.inClass.symbol.events)
+		        	{
+		        		var ev = ast.inClass.symbol.events[item];
+		        		CPP.push("this->"+ev.runtime+" = new " + ev.vartype+";");
+		        	}
 		        }
-		        */
 
+		        if(ast.isDestructor)
+		        {
+		        	for(item in ast.inClass.symbol.events)
+		        	{
+		        		var ev = ast.inClass.symbol.events[item];
+		        		var id = "this->"+ev.runtime;
+		        		CPP.push("if(" + id + ") " + id + " = (delete " + id + ", nullptr);");
+		        	}
+		        }
 		        if(ast.body)
 					CPP.push(generate_cpp(ast.body).CPP);
 
@@ -452,18 +517,33 @@ function CompilerCppPlugin(compiler)
 			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
 			if(!_this.currClassName) return _this.NULL_GEN;
 
-			HPP.push("class " + ast.event_class_symbol.name + " : public CocoEvent \n{");
+			// Define event class
+			HPP.push("// Event " + _this.currClassName + "::" + ast.event_class_symbol.runtime + "\nclass " + ast.event_class_symbol.name + " : public CocoEvent\n{\npublic:\n");
+
+			// Event params
 			for(item in ast.event_class_symbol.vars)
 			{
 				var field = ast.event_class_symbol.vars[item].ast;
 				HPP.push("\n\t"+ _this.VTCPP(field.vartype) + " " + field.name +";");
 			}
+
+			// Event constructor and initialization of params
+			HPP.push(ast.event_class_symbol.name + "() : CocoEvent(\"" + ast.symbol.name + "\", true, true)\n{");
+			for(item in ast.event_class_symbol.vars)
+			{
+				var field = ast.event_class_symbol.vars[item].ast;
+				HPP.push(field.name + " = " + (_this.cpp_types.hasOwnProperty(field.vartype) ? _this.cpp_types[field.vartype].default : "nullptr") + ";");
+			}
+			HPP.push("\n}");
+
 			HPP.push("\n};\n");
+
+			// Add event class to hpp file
 			_this.native_files[ast.file].hpp.body.insert(0, formatCPP(HPP.join("")));
 
+			// Declare an event object in the class
 			HPP=[];
-			HPP.push("static " + ast.event_class_symbol.name + " " + ast.symbol.name +";");
-
+			HPP.push(ast.event_class_symbol.name + "* " + ast.symbol.name +"; // Event\n");
 			break;
 
 		// ==================================================================================================================================
@@ -745,10 +825,28 @@ function CompilerCppPlugin(compiler)
 			}
 			else
 			{
+				// Dectect if we are registering/unregistering/dispatching an event
+				var call_fn = _this.getCallIdentifier(ast);
+				_this.in_event_call = (call_fn.__event && (call_fn.value==_this.DISPATCH_EVENT || call_fn.value==_this.ADD_EVENT || call_fn.value==_this.REMOVE_EVENT)) ? call_fn : null;
+
+				// If we are dispatching an event we need to set event parameters
+				if(_this.in_event_call && _this.in_event_call.value==_this.DISPATCH_EVENT)
+				{
+					var list = _this.getCallList(_this.in_event_call);
+					var event_symbol = _this.in_event_call.__event_descriptor.event_symbol;
+					var i=1;
+					for(item in event_symbol.vars)
+					{
+						CPP.push((_this.in_state ? "self" : "this") + "->" + event_symbol.runtime + "->" + item + " = " + generate_cpp(list[i]).CPP + ";");
+						i++;
+					}
+				}
+
 				CPP.push(generate_cpp(ast[0]).CPP);
 				CPP.push("(");
 				CPP.push(generate_cpp(ast[1]).CPP);
 				CPP.push(")");
+				_this.in_event_call = null;
 			}
 			break;
 
@@ -758,83 +856,38 @@ function CompilerCppPlugin(compiler)
 		case jsdef.LIST:
 		case jsdef.COMMA:
 
-			var d=false;
+			// Handle addEventListener, removeEventListener,
+			// dispatchEvent for Coconut2D native events.
+			if(_this.in_event_call)
+			{
+				switch(_this.in_event_call.value)
+				{
+				case _this.DISPATCH_EVENT:
+					CPP.push(generate_cpp(ast[0]).CPP);
+					break;
+
+				case _this.ADD_EVENT:
+					var event_descr = _this.in_event_call.__event_descriptor;
+					CPP.push(generate_cpp(ast[0]).CPP + ",");
+					CPP.push((_this.in_state ? "self" : "this")+",");
+					CPP.push(event_descr.uid);
+					break;
+
+				case _this.REMOVE_EVENT:
+					var event_descr = _this.in_event_call.__event_descriptor;
+					CPP.push(generate_cpp(ast[0]).CPP + ",");
+					CPP.push((_this.in_state ? "self" : "this")+",");
+					CPP.push(event_descr.uid);
+					break;
+				}
+				break;
+			}
 
 			for(i=0;i<ast.length;i++)
 			{
 				if(i>0) CPP.push(", ");
-
-				var isReference = (ast[i].inDot && !ast[i].inCall && (ast[i].inDot.identifier_last.symbol.type==jsdef.EVENT));
-
-				if(isReference)
-				{
-					CPP.push("&(");
-				}
-
-				/*
-
-				//
-				// The following code type-casts objects according to what the callee function needs.
-				// This casting is required to obtain compatibility with Interfaces and derivative classes.
-				//
-				// Example:
-				//
-				// addTickListener needs ITickable:
-				//
-				// 		void CocoEngine::addTickListener(ITickable* tickable)
-				//
-				// A CocoTickable passes itself casted to ITickable automatically:
-				//
-				//		void CocoTickable::RegisterTickable()
-				//		{
-				//			engine->addTickListener(((ITickable*)(this)));
-				//		}
-				//
-
-				if(!isReference && !ast.parent.typecasting)
-				{
-					if(ast.parent[0].identifier_last && ast.parent[0].identifier_last.symbol && !ast.parent[0].identifier_last.symbol.extern)
-					{
-						if(ast.parent[0].identifier_last.symbol.paramsList.length==ast.length)
-						{
-							vartype = ast.parent[0].identifier_last.symbol.paramsList[i].vartype;
-							if(_this.isPointer(vartype))
-							{
-								var cls = _this.getClass(vartype);
-								if(cls)
-								{
-									if(cls.interface)
-									{
-										CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
-										continue;
-									}
-									else if(!_this.isVector(vartype) && !_this.isECMA(vartype))
-									{
-										//trace("**CASTING: " + vartype);
-										CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
-										continue;
-									}
-								}
-							}
-						}
-					}
-				}
-
-				*/
-
-				// Fall-back to regular argument generation
 				CPP.push( generate_cpp(ast[i]).CPP);
-
-				if(isReference)
-				{
-					CPP.push(")");
-				}
-
 			}
-
-			if(d)
-			trace(CPP.join(""));
-
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1114,6 +1167,7 @@ function CompilerCppPlugin(compiler)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DOT:
+
 			CPP.push(generate_cpp(ast[0]).CPP);
 
 			if(ast[1].symbol.static && ast[1].symbol.enum)
@@ -1239,3 +1293,62 @@ function CompilerCppPlugin(compiler)
 		return {CPP:CPP.join(""), HPP:HPP.join("")};
 	};
 }
+
+
+
+
+
+
+
+
+
+
+/*
+
+//
+// The following code type-casts objects according to what the callee function needs.
+// This casting is required to obtain compatibility with Interfaces and derivative classes.
+//
+// Example:
+//
+// addTickListener needs ITickable:
+//
+// 		void CocoEngine::addTickListener(ITickable* tickable)
+//
+// A CocoTickable passes itself casted to ITickable automatically:
+//
+//		void CocoTickable::RegisterTickable()
+//		{
+//			engine->addTickListener(((ITickable*)(this)));
+//		}
+//
+
+if(!isReference && !ast.parent.typecasting)
+{
+	if(ast.parent[0].identifier_last && ast.parent[0].identifier_last.symbol && !ast.parent[0].identifier_last.symbol.extern)
+	{
+		if(ast.parent[0].identifier_last.symbol.paramsList.length==ast.length)
+		{
+			vartype = ast.parent[0].identifier_last.symbol.paramsList[i].vartype;
+			if(_this.isPointer(vartype))
+			{
+				var cls = _this.getClass(vartype);
+				if(cls)
+				{
+					if(cls.interface)
+					{
+						CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
+						continue;
+					}
+					else if(!_this.isVector(vartype) && !_this.isECMA(vartype))
+					{
+						//trace("**CASTING: " + vartype);
+						CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
+						continue;
+					}
+				}
+			}
+		}
+	}
+}
+*/

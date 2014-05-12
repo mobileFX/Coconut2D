@@ -47,6 +47,7 @@ public:
 	TypedArray<uint8_t>* data;
 	int width;
 	int height;
+	std::string src;
 };
 
 #endif /* __IMAGEDATA_HPP__ */

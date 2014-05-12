@@ -169,8 +169,6 @@ function CompilerExportsPlugin(compiler)
 
 		// *** NOTE ***: hpp could only have includes for bases
 
-
-
 		// ==========================================================================================
 		// Organize classes per native file
 		// ==========================================================================================
@@ -362,7 +360,8 @@ function CompilerExportsPlugin(compiler)
 		if(ast.type==jsdef.IDENTIFIER && !ast.inDot)
 		{
 			identifier = ast.value;
-			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' s='" + ast.s + "' e='" + ast.e + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
+			if(identifier==runtime) return;
+			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
 		}
 		else if(ast.type==jsdef.IDENTIFIER && ast.inDot)
 		{
@@ -371,10 +370,11 @@ function CompilerExportsPlugin(compiler)
 		else if(ast.type==jsdef.DOT && _this.currClassName && !_this.isInside(ast, jsdef.DOT)) // Process top-level DOTs only, skip inner DOTs.
 		{
 			var v_identifiers = [], v_runtime = [], buff = [];
+
 			for(var i=0;i<ast.identifiers_list.length;i++)
 			{
 				var f = ast.identifiers_list[i].ast;
-				var value = ast.identifiers_list[i].value.replace("@@THIS@@", "this");
+				var value = ast.identifiers_list[i].value.replace("@@THIS@@", "__THIS__");
 				if(f.type==jsdef.NEW || f.type==jsdef.NEW_WITH_ARGS)
 				{
 					v_identifiers.push(value);
@@ -396,8 +396,14 @@ function CompilerExportsPlugin(compiler)
 					v_identifiers.push(value);
 					v_runtime.push(value);
 				}
-				buff.push("<DEBUG_SYMBOL file='" + ast.path + "' s='" + ast.s + "' e='" + ast.e + "' start='" + f.start + "' end='" + f.end + "' line='" + f.line_start + "' identifier='" + v_identifiers.join(".") + "' runtime='" + v_runtime.join(".") +"'/>\n");
+
+				identifier = v_identifiers.join(".");
+				runtime = v_runtime.join(".")
+				if(identifier==runtime) continue;
+
+				buff.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + f.start + "' end='" + f.end + "' line='" + f.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
 			}
+
 			// Reverse debug symbols for faster search and append them to debug symbols table.
 			_this.debugSymbolsTable = _this.debugSymbolsTable.concat(buff.reverse());
 		}
@@ -422,41 +428,112 @@ function CompilerExportsPlugin(compiler)
 			var classSymbol = _this.classes[cls];
 			xml.push(_this.objectToXML(classSymbol, classSymbol.name, false));
 
-			xml.push("<METHODS>\n");
+			// Class methods
+			var methods_xml = [];
 			for(var item in classSymbol.methods)
 			{
 				var methodSymbol = classSymbol.methods[item];
 				if(!methodSymbol.name) continue;
-
-				var arguments = [];
-				for(var arg in methodSymbol.arguments)
-				{
-					arguments.push(_this.objectToXML(methodSymbol.arguments[arg], arg, true));
-				}
-
-				xml.push(_this.objectToXML(methodSymbol, "METHOD", arguments.length==0));
-
-				if(arguments.length>0)
-				{
-					xml.push("<ARGUMENTS>\n");
-					xml.push(arguments.join(""));
-					xml.push("</ARGUMENTS>\n");
-					xml.push("</METHOD>\n");
-				}
+				if(classSymbol.scope.isGlobal && methodSymbol.name.charAt(0)=='_') continue;
+				exportMethodSymbol(methodSymbol, methods_xml);
 			}
-			xml.push("</METHODS>\n");
+			if(methods_xml.length>0)
+			{
+				xml.push("<METHODS>");
+				xml.push(methods_xml.join(""));
+				xml.push("</METHODS>");
+			}
 
-			xml.push("<VARS>\n");
+			// Class Vars
+			var vars_xml = [];
 			for(var item in classSymbol.vars)
 			{
-				xml.push(_this.objectToXML(classSymbol.vars[item], item, true));
-			}
-			xml.push("</VARS>\n");
+				var mvar = classSymbol.vars[item];
+				if(classSymbol.scope.isGlobal && mvar.name.charAt(0)=='_') continue;
 
-			xml.push("</" + classSymbol.name + ">\n");
+				var scope = mvar.scope;
+				var closeTag = !(mvar.type==jsdef.STATE || mvar.type==jsdef.PROPERTY);
+
+				vars_xml.push(_this.objectToXML(mvar, item, closeTag));
+
+				if(!closeTag)
+				{
+					// State scope vars
+					var vars_xml2 = [];
+					for(var vitem in scope.vars)
+					{
+						vars_xml2.push(_this.objectToXML(scope.vars[vitem], vitem, true));
+					}
+					if(vars_xml2.length>0)
+					{
+						vars_xml.push("<VARS>");
+						vars_xml.push(vars_xml2.join(""));
+						vars_xml.push("</VARS>");
+					}
+
+					// State scope functions
+					var methods_xml2 = [];
+					for(var vitem in scope.methods)
+					{
+						methodSymbol = scope.methods[vitem];
+						exportMethodSymbol(methodSymbol, methods_xml2);
+					}
+					if(methods_xml2.length>0)
+					{
+						vars_xml.push("<METHODS>");
+						vars_xml.push(methods_xml2.join(""));
+						vars_xml.push("</METHODS>");
+					}
+
+					vars_xml.push("</" + item + ">");
+				}
+			}
+
+			if(vars_xml.length>0)
+			{
+				xml.push("<VARS>");
+				xml.push(vars_xml.join(""));
+				xml.push("</VARS>");
+			}
+
+			xml.push("</" + classSymbol.name + ">");
 		}
-		xml.push("</CODE_SYMBOLS>\n");
+		xml.push("</CODE_SYMBOLS>");
 		return xml.join("");
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////
+		function exportMethodSymbol(methodSymbol, xml)
+		{
+			xml.push(_this.objectToXML(methodSymbol, "METHOD", false));
+
+			// Function Arguments
+/*			var arguments = [];
+			for(var arg in methodSymbol.arguments)
+			{
+				arguments.push(_this.objectToXML(methodSymbol.arguments[arg], arg, true));
+			}
+			if(arguments.length>0)
+			{
+				xml.push("<ARGUMENTS>");
+				xml.push(arguments.join(""));
+				xml.push("</ARGUMENTS>");
+			}
+*/
+			// Method scope and child-scopes vars
+			xml.push("<VARS>");
+			var all_scopes = [methodSymbol.scope].concat(methodSymbol.scope.childScopes);
+			for(var i=0;i<all_scopes.length;i++)
+			{
+				var scope = all_scopes[i];
+				for(var vitem in scope.vars)
+				{
+					xml.push(_this.objectToXML(scope.vars[vitem], vitem, true));
+				}
+			}
+			xml.push("</VARS>");
+
+			xml.push("</METHOD>");
+		}
 	};
 
 	// ==================================================================================================================================
@@ -526,10 +603,14 @@ function CompilerExportsPlugin(compiler)
 			{
 				var methodSymbol = classSymbol.methods[item];
 				if(!methodSymbol.name) continue;
+				if(classSymbol.scope.isGlobal && methodSymbol.name.charAt(0)=='_') continue;
 
 				// XML-ize vartypes and remove overload $<index>
 				var signature = xtype(methodSymbol.__signature).replace(/\$\d+/, "");
 				var cnSignature = xtype(methodSymbol.__cnSignature).replace(/\$\d+/, "");
+
+				if(methodSymbol.description)
+					cnSignature = methodSymbol.description + "\n" + cnSignature;
 
 				mbrList.push('\t<member name="' + methodSymbol.name.replace(/\$\d+/, "") + '" proto="' + signature + '" help="' + cnSignature + '" image="' + methodSymbol.icon + '"/>');
 			}
@@ -537,9 +618,17 @@ function CompilerExportsPlugin(compiler)
 			for(var item in classSymbol.vars)
 			{
 				var varSymbol = classSymbol.vars[item];
+				if(classSymbol.scope.isGlobal && varSymbol.name.charAt(0)=='_') continue;
 
-				var signature = xtype(varSymbol.signature || (varSymbol.name + varSymbol.ast.vartype));
-				mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + signature + '" help="' + classSymbol.name + " :: " + signature + '" image="' + varSymbol.icon + '"/>');
+				var signature = varSymbol.__signature || (varSymbol.name + ":" + varSymbol.vartype);
+				var cnSignature = varSymbol.__cnSignature || signature;
+				signature = xtype(signature).replace(/\$\d+/, "");
+				cnSignature = xtype(cnSignature).replace(/\$\d+/, "");
+
+				if(varSymbol.description)
+					cnSignature = varSymbol.description + "\n" + cnSignature;
+
+				mbrList.push('\t<member name="' + varSymbol.name + '" proto="' + signature + '" help="' + cnSignature + '" image="' + varSymbol.icon + '"/>');
 			}
 
 			mbrList.push("</memberlist>");
@@ -570,6 +659,7 @@ function CompilerExportsPlugin(compiler)
 		for(var i=0;i<_this.scopesTable.length;i++)
 		{
 			var scope = _this.scopesTable[i];
+			if(!scope.isGlobal && scope.path=="externs.jspp") continue;
 			if(_this.selectedClass && _this.selectedClass!=scope.className) continue;
 
 			var varsxml = [];
@@ -578,6 +668,8 @@ function CompilerExportsPlugin(compiler)
 			{
 				var varSymbol = scope.vars[item];
 				if(!varSymbol.name || !varSymbol.vartype) continue;
+				if(scope.isGlobal && varSymbol.name.charAt(0)=='_') continue;
+
 				varsxml.push("\t<SYMBOL symbolId='"+varSymbol.symbolId + "' name='" + varSymbol.name +
 							 "' type='" + varSymbol.nodeType + "' vartype='" + xtype(varSymbol.vartype) +
 							 "' subtype='" + (varSymbol.subtype ? varSymbol.subtype : "") + "'/>\n");
@@ -587,6 +679,8 @@ function CompilerExportsPlugin(compiler)
 			{
 				var methodSymbol = scope.methods[item];
 				if(!methodSymbol.name) continue;
+				if(scope.isGlobal && methodSymbol.name.charAt(0)=='_') continue;
+
 				varsxml.push("\t<SYMBOL symbolId='"+methodSymbol.symbolId + "' name='" + methodSymbol.name + "' type='" + methodSymbol.nodeType +
 							 "' vartype='" + (!methodSymbol.vartype ? "" : xtype(methodSymbol.vartype)) +
 							 "' subtype='" + (methodSymbol.subtype ? methodSymbol.subtype : "") + "'/>\n");
@@ -1169,6 +1263,27 @@ function CompilerExportsPlugin(compiler)
 		for(var item in obj)
 		{
 			if(item.charAt(0)=="_") continue;
+			switch(item)
+			{
+				case "type":
+				case "extern":
+				case "public":
+				case "private":
+				case "protected":
+				case "static":
+				case "optional":
+				case "virtual":
+				case "abstract":
+				case "delegate":
+				case "event":
+				case "constant":
+				case "start":
+				case "end":
+				case "pointer":
+				case "description":
+				case "file":
+					continue;
+			}
 			if(typeof obj[item]=="object") continue;
 			v = obj[item];
 			if(v==null || v==undefined || v==NaN || v=="NaN") continue;

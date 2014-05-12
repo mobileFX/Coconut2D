@@ -342,7 +342,7 @@ function __init_narcissus(GLOBAL)
 		this.lookahead = 0;
 		this.scanNewlines = false;
 		this.scanOperand = true;
-		this.line_start = l || 1;
+		this.line_start = l || 0;
 		this.__fileLineOffset = 0;
 		this.__filePosOffset = 0;
 	}
@@ -505,7 +505,7 @@ function __init_narcissus(GLOBAL)
 					this.__path = token.value.substr(this.__FILE_DELIM.length);
 					var v = this.__path.split("/");
 					this.__file = v[v.length-1];
-					this.__fileLineOffset = this.line_start;
+					this.__fileLineOffset = this.line_start+1;
 					this.__filePosOffset = this.cursor + token.value.length + 4;
 					this.EXPORT_NATIVE = false;
 					this.EXPORT_WEB = false;
@@ -923,6 +923,7 @@ function __init_narcissus(GLOBAL)
 					jsdef.ENUM];
 
 		var classNode = f;
+
 		f.body = (function (t, x)
 		{
 			var n = new Node(t, jsdef.BLOCK);
@@ -1044,6 +1045,12 @@ function __init_narcissus(GLOBAL)
 
 		})(t, x2);
 
+		// Add public var __className to all classes
+		if(!isInterface)
+		{
+			f.body.push(add_var_string_node(t, "__className", f.name))
+		}
+
 		f.end = t.cursor;
 		f.body.end = t.cursor;
 
@@ -1055,6 +1062,21 @@ function __init_narcissus(GLOBAL)
 			x.funDecls.push(f);
 
 		return f;
+	}
+
+	function add_var_string_node(t, varName, varValue)
+	{
+		var clsId = new Node(t, jsdef.CONST);
+		clsId.value="var";
+		clsId.public=true;
+		var vt = new Node(t, jsdef.IDENTIFIER);
+		vt.name = vt.value = varName;
+		vt.vartype = "String";
+		clsId.push(vt);
+		var init = new Node(t, jsdef.STRING);
+		init.value = varValue;
+		vt.initializer = init;
+		return clsId;
 	}
 
 	// ==================================================================================================================================

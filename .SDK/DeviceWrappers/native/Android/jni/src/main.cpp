@@ -35,13 +35,23 @@ void android_main(android_app* app)
 {
 	app_dummy();
 
+	curl_global_init(CURL_GLOBAL_ALL);
 	AssetFile::init(app->activity->assetManager, "/data/data/com.mobilefx.cocoengine/files/");
 	fxFontFace::init();
 	fxAudioStream::init();
 
+	#ifdef __XMLHTTPREQUEST_HPP__
+	XMLHttpRequest::init();
+	#endif
+
 	fxDeviceWrapper w(app);
+
+	#ifdef __XMLHTTPREQUEST_HPP__
+	XMLHttpRequest::quit();
+	#endif
 
 	fxAudioStream::quit();
 	fxFontFace::quit();
 	AssetFile::quit();
+	curl_global_cleanup();
 }

@@ -225,7 +225,7 @@ public:
 
 	AssetFile(size_t i_length) : file(nullptr), data(nullptr), cursor(0), length(i_length), type(TYPE_DATA), mime(MIME_OTHER)
 	{
-		data = new unsigned char[length];
+		data = (unsigned char*)malloc(length);
 	}
 
 	AssetFile(const char* str, bool i_isAsset) : file(nullptr), data(nullptr), isAsset(i_isAsset), length(0), mime(MIME_OTHER)
@@ -285,9 +285,33 @@ public:
 	{
 		if(isAsset && ptr.ad) AAsset_close(ptr.ad);
 		else if(!isAsset && ptr.fd) fclose(ptr.fd);
-        if(file) delete[] file;
-        if(data) delete[] data;
+        if(file) free(file);
+        if(data) free(data);
 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	void setMime(const char* str)
+	{
+		if(!strcmp(str, "image/png")) mime = IMAGE_PNG;
+		else if(!strcmp(str, "image/jpg") || strcmp(str, "image/jpeg")) mime = IMAGE_JPG;
+		else if(!strcmp(str, "audio/ogg")) mime = AUDIO_OGG;
+		else if(!strcmp(str, "font/ttf,")) mime = FONT_TTF;
+		else mime = MIME_OTHER;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	size_t append(void* d, size_t s)
+	{
+		if(type == TYPE_DATA)
+		{
+			realloc(data, length + s);
+			memcpy(data + length, d, s);
+			length += s;
+			return s;
+		}
+		return 0;
+	}
+
     unsigned char* getData()
     {
         if(!data)

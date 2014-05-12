@@ -23,30 +23,36 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	    __  __________  _____    ____                           ________                          __
-//	   / / / /_  __/  |/  / /   /  _/___ ___  ____ _____ ____  / ____/ /__  ____ ___  ___  ____  / /_
-//	  / /_/ / / / / /|_/ / /    / // __ `__ \/ __ `/ __ `/ _ \/ __/ / / _ \/ __ `__ \/ _ \/ __ \/ __/
-//	 / __  / / / / /  / / /____/ // / / / / / /_/ / /_/ /  __/ /___/ /  __/ / / / / /  __/ / / / /_
-//	/_/ /_/ /_/ /_/  /_/_____/___/_/ /_/ /_/\__,_/\__, /\___/_____/_/\___/_/ /_/ /_/\___/_/ /_/\__/
-//	                                             /____/
+//	   ______                 ______                 __  _____
+//	  / ____/___  _________  / ____/   _____  ____  / /_/ ___/____  __  _______________
+//	 / /   / __ \/ ___/ __ \/ __/ | | / / _ \/ __ \/ __/\__ \/ __ \/ / / / ___/ ___/ _ \
+//	/ /___/ /_/ / /__/ /_/ / /___ | |/ /  __/ / / / /_ ___/ / /_/ / /_/ / /  / /__/  __/
+//	\____/\____/\___/\____/_____/ |___/\___/_/ /_/\__//____/\____/\__,_/_/   \___/\___/
+//
 // ==================================================================================================================================
 
-#include "HTMLImageElement.hpp"
+#ifndef __COCOEVENTSOURCE_HPP__
+#define __COCOEVENTSOURCE_HPP__
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void Image::load(std::string str)
-{
-	src = str;
-	data = new ImageData(str);
-	width = data->width;
-	height = data->height;
-	naturalWidth = data->width;
-	naturalHeight = data->height;
-}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-Image::~Image()
+#include "Coconut2D.hpp"
+#include "CocoEventConnectionPoint.hpp"
+#include "CocoEvent.hpp"
+#include "IEventListener.hpp"
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class CocoEventSource
 {
-	delete data;
-	trace("Image buffer deleted: %s", src.c_str());
-}
+public:
+	Array<CocoEventConnectionPoint*>* __eventListeners;
+	const String __className = String("CocoEventSource");
+	CocoEventSource();
+	virtual ~CocoEventSource();
+	virtual void addEventListener(CocoEvent* Event, void* Listener, int DispID);
+	virtual bool removeEventListener(CocoEvent* Event, void* Listener, int DispID);
+	virtual int dispatchEvent(CocoEvent* Event);
+};
+
+#endif // __COCOEVENTSOURCE_HPP__

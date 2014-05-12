@@ -32,6 +32,7 @@
 //	\____/\__,_/_/ /_/|___/\__,_/____/_/ |_|\___/_/ /_/\__,_/\___/_/  /_/_/ /_/\__, /\____/\____/_/ /_/\__/\___/_/|_|\__/____/_____/
 //	                                                                          /____/
 // ==================================================================================================================================
+// http://www.w3.org/TR/2dcontext/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class PathLine
@@ -146,13 +147,6 @@ class CanvasRenderingContext2D
 	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float)                                                {}
 	public function rect(x:Float, y:Float, width:Float, height:Float)                                                       {}
 	public function fill()                                                     												{}
-
-	// 1
-	public function getImageData(x:Float, y:Float, width:Float, height:Float):ImageData         							{ return null; }
-	public function createImageData(width:Float, height:Float):ImageData													{ return null; }
-	public function drawImage(image:Image, a1:Float, a2:Float, optional a3:Float, optional a4:Float, optional a5:Float, optional a6:Float, optional a7:Float, optional a8:Float) {}
-	public function putImageData(imagedata:ImageData, dx:Float, dy:Float, optional dirtyX:Float, optional dirtyY:Float, optional dirtyWidth:Float, optional dirtyHeight:Float) {}
-
 
  	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function beginPath()
@@ -506,5 +500,142 @@ class CanvasRenderingContext2D
 		var ret:HTMLTextMetrics = new HTMLTextMetrics;
 		ret.width = __font.measureText(text);
 		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:Image, dx:Float, dy:Float)
+	{
+		drawImage(image, 0.0, 0.0, Float(image.naturalWidth), Float(image.naturalHeight), dx, dy, Float(image.naturalWidth), Float(image.naturalHeight));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:Image, dx:Float, dy:Float, dw:Float, dh:Float)
+	{
+		drawImage(image, 0.0, 0.0, Float(image.naturalWidth), Float(image.naturalHeight), dx, dy, dw, dh);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)
+	{
+		var scaleW:Float = dw / sw;
+		var scaleH:Float = dh / sh;
+		var src:Uint8Array = image.__imageData.data;
+		var data:Uint8Array = canvas.__imageData.data;
+
+		var dMinX:Integer = Math.round(dx);
+		var dMinY:Integer = Math.round(dy);
+		var dMaxX:Integer = Math.round(dx + dw);
+		var dMaxY:Integer = Math.round(dy + dh);
+		for(var x:Integer = dMinX; x < dMaxX; x++)
+		{
+			for(var y:Integer = dMinY; y < dMaxY; y++)
+			{
+				var dIdx:Integer = (y * canvas.__imageData.width + x) * 4;
+				var sIdx:Integer = ((sy + Math.round(Float(y - dMinY) / scaleH)) * image.__imageData.width + sx + Math.round(Float(x - dMinX) / scaleW)) * 4; // Nearest interpolation
+				if(dIdx < canvas.__imageData.data.length && sIdx < image.__imageData.data.length)
+				{
+					for(var i:Integer = 4; i--;)
+					{
+						data[dIdx + i] += (src[sIdx + i] - data[dIdx + i]) / 255.0 * src[sIdx + 3];
+					}
+				}
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createImageData(sw:Float, sh:Float):ImageData
+	{
+		return new ImageData(String(sw), String(sh));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createImageData(imagedata:ImageData):ImageData
+	{
+		return new ImageData(String(imagedata.width), String(imagedata.height));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getImageData(sx:Float, sy:Float, sw:Float, sh:Float):ImageData
+	{
+		var minX:Integer = Math.round(sx);
+		var minY:Integer = Math.round(sy);
+		var maxX:Integer = Math.round(sx + sw);
+		var maxY:Integer = Math.round(sy + sh);
+		var ret:ImageData = createImageData(Float(maxX - minX), Float(maxY - minY));
+		for(var x:Integer = minX; x < maxX; x++)
+		{
+			for(var y:Integer = minY; y < maxY; y++)
+			{
+				var sIdx:Integer = (y * canvas.__imageData.width + x) * 4;
+				var dIdx:Integer = ((y - minY) * ret.width + x - minX) * 4;
+				if(sIdx < canvas.__imageData.data.length)
+				{
+					for(var i:Integer = 4; i--;)
+					{
+						ret.data[dIdx + i] = canvas.__imageData.data[sIdx + i];
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function putImageData(imagedata:ImageData, dx:Float, dy:Float)
+	{
+		putImageData(imagedata, dx, dy, 0.0, 0.0, Float(imagedata.width), Float(imagedata.height));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function putImageData(imagedata:ImageData, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float)
+	{
+		if(dirtyWidth < 0.0)
+		{
+			dirtyX += dirtyWidth;
+			dirtyWidth = -dirtyWidth;
+		}
+		if(dirtyHeight < 0.0)
+		{
+			dirtyY += dirtyHeight;
+			dirtyHeight = -dirtyHeight;
+		}
+		if(dirtyX < 0.0)
+		{
+			dirtyWidth += dirtyX;
+			dirtyX = 0.0;
+		}
+		if(dirtyY < 0.0)
+		{
+			dirtyHeight += dirtyY;
+			dirtyY = 0.0;
+		}
+		if(dirtyX + dirtyWidth > imagedata.width)
+		{
+			dirtyWidth = imagedata.width - dirtyX;
+		}
+		if(dirtyY + dirtyHeight > imagedata.height)
+		{
+			dirtyHeight = imagedata.height - dirtyY;
+		}
+		if(dirtyWidth > 0.0 && dirtyHeight > 0.0)
+		{
+			var data:Uint8Array = canvas.__imageData.data;
+			for(var x:Integer = dirtyX; x < dirtyX + dirtyWidth; x++)
+			{
+				for(var y:Integer = dirtyY; y < dirtyY + dirtyHeight; y++)
+				{
+					var dIdx:Integer = ((dy + y) * canvas.__imageData.width + (dx + x)) * 4;
+					var sIdx:Integer = (y * imagedata.width + x) * 4;
+					if(dIdx < data.length && sIdx < imagedata.data.length)
+					{
+						for(var i:Integer = 4; i--;)
+						{
+							data[dIdx + i] += (imagedata.data[sIdx + i] - data[dIdx + i]) * imagedata.data[sIdx + 3];
+						}
+					}
+				}
+			}
+		}
 	}
 }
