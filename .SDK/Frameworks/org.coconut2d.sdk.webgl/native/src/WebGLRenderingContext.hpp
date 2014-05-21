@@ -226,7 +226,7 @@ public:
 	const GLenum POLYGON_OFFSET_FILL = 0x8037;
 	const GLenum SAMPLE_ALPHA_TO_COVERAGE = 0x809E;
 	const GLenum SAMPLE_COVERAGE = 0x80A0;
-	const GLenum NO_ERROR = 0;
+	const GLenum NO_ERROR_GL = 0;
 	const GLenum INVALID_ENUM = 0x0500;
 	const GLenum INVALID_VALUE = 0x0501;
 	const GLenum INVALID_OPERATION = 0x0502;

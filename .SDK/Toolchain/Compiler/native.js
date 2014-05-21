@@ -218,7 +218,7 @@ function CompilerCppPlugin(compiler)
 				//var local_handler = "__dispatch_event__(IEventListener* __event_listener, int __event_handler_uid, CocoEventSource* __event_source, CocoEvent* __event_object)";
 				var local_handler = "__dispatch_event__(void* __event_listener, int __event_handler_uid, void* __event_source, void* __event_object)";
 
-				HPP.push("static bool " + local_handler + ";");
+				HPP.push("bool " + local_handler + ";");
 
 				// Get the event listener class name, eg. MyFormClass
 				var eventListenerClassName = ast.name;

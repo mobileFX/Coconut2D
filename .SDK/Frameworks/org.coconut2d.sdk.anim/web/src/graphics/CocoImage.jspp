@@ -124,23 +124,24 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		viewSiblings		= new Array<CocoImageSibling>;
-		sequences			= new Array<CocoSequence>;
-		image				= null;
-		symbolName			= "";
-		texture				= null;
-		textureCellWidth	= 0;
-		textureCellHeight	= 0;
-		textureGrid			= new Float32Array([0.0]);
-		textureGrid			= new Float32Array([0.0, 0.0]);
-		color				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		texSize				= new Float32Array([1.0, 1.0]);
-		buffer				= null;
-		isSpriteSheet		= false;
 		baseUrl				= "";
-		viewOptimalWidth	= 0;
-		viewOptimalHeight	= 0;
+		buffer				= null;
+		color				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		image				= null;
+		isSpriteSheet		= false;
 		pixelRatio			= 1.0;
+		sequences			= new Array<CocoSequence>;
+		skin				= null;
+		symbolName			= "";
+		texSize				= new Float32Array([1.0, 1.0]);
+		texture				= null;
+		textureCellHeight	= 0;
+		textureCellWidth	= 0;
+		textureGrid			= new Float32Array([0.0, 0.0]);
+		textureGrid			= new Float32Array([0.0]);
+		viewOptimalHeight	= 0;
+		viewOptimalWidth	= 0;
+		viewSiblings		= new Array<CocoImageSibling>;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,7 +227,7 @@ class CocoImage
 			var ok:Boolean = texture || (image!=null && image.complete);
 			if(ok && !texture)
 				prepare(scene, gl);
-			return ok;
+			return ok ? true : false;
 		}
 	}
 
@@ -256,7 +257,8 @@ class CocoImage
 		// Unload the HTML Image to save memory.
 		// Works only on native, HTML5 browsers need the image.
 		//#IFDEF [TARGET_EXPORT=="native"]
-		unload();
+		if(!skin)
+			unload();
 		//#ENDIF
 
 		// Instruct WebGL how to wrap the texture.

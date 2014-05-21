@@ -43,10 +43,7 @@
 class IEventListener
 {
 public:
-	static bool __dispatch_event__(void* __event_listener, int __event_handler_uid, void* __event_source, void* __event_object)
-	{
-		return false;
-	};
+	virtual bool __dispatch_event__(void* __event_listener, int __event_handler_uid, void* __event_source, void* __event_object)=0;
 };
 
 #endif // __IEVENTLISTENER_HPP__

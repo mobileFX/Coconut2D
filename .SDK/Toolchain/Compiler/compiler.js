@@ -179,6 +179,7 @@ function Compiler(ast)
 	_this.tokenizer = null;                 // Reference to tokenizer (reserved for future use)
 	_this.UNTYPED = "Untyped";              // Untyped identifier vartype, used in Type Check System
 	_this.eventId = 0;						// Counter for UID of events
+	_this.derivatives = {};					// Classes with derivatives (base classes)
 
 	// Include priority (1: needed in .cpp, 2: needed in .hpp)
 	_this.INCLUDE_IN_CPP = 1;
@@ -1282,7 +1283,10 @@ function Compiler(ast)
 
 			// Keep a list of derivative classes to handle cyclic-references in C++ (error: base class has incomplete type)
 			if(baseClassSymbol)
+			{
 				baseClassSymbol.derivatives[classSymbol.name] = classSymbol;
+				_this.derivatives[baseClassSymbol.name] = true;
+			}
 
 			// Save symbol
 			ast.symbol = classSymbol;
@@ -1336,10 +1340,10 @@ function Compiler(ast)
 			// the original implementation using "super.<method>" we
 			// will make this call using __CLASS_<CLASSID>__.<method>
 
-			out.push("var Class = this.Class = '" + ast.name + "',");
-			out.push("__PDEFINE__ = Object.defineProperty,");
-			out.push("__NOENUM__ = {enumerable:false},");
-			out.push(classId + " = this." + classId + " = this;");
+			//out.push("var Class = this.Class = '" + ast.name + "';");
+			out.push("var __PDEFINE__ = Object.defineProperty;");
+			out.push("var __NOENUM__ = {enumerable:false};");
+			out.push("var " + classId + " = this." + classId + " = this;");
 
 			// "this" is no more - we take control of "this" and
 			// we NEVER generate "this" inside member body code.
@@ -1360,7 +1364,7 @@ function Compiler(ast)
 			// Hava a look in jsdef.FUNCTION and jsdef.IDENTIFIER for
 			// more information about virtual methods.
 
-			out.push("var __VIRTUAL__ = this.__VIRTUAL__ = { __PROTECTED__:{} },");
+			out.push("var __VIRTUAL__ = this.__VIRTUAL__ = { __PROTECTED__:{} };");
 
 			// For proper implementation of Private and Protected members, we use two
 			// banks, the __PRIVATE__ and __PROTECTED__ respectively. All private or
@@ -1373,35 +1377,33 @@ function Compiler(ast)
 
             if(!baseClassSymbol)
             {
-	            out.push("__PRIVATE__ = this.__PRIVATE__ = {},");
-	            out.push("__PROTECTED__ = this.__PROTECTED__ = {};");
+	            out.push("var __PRIVATE__ = this.__PRIVATE__ = {};");
+	            out.push("var __PROTECTED__ = this.__PROTECTED__ = {};");
 				out.push("__PDEFINE__(this,'__PRIVATE__',__NOENUM__);");
 				out.push("__PDEFINE__(this,'__PROTECTED__',__NOENUM__);");
             }
             else
             {
-	            out.push("__PRIVATE__ = this.__PRIVATE__,");
-	            out.push("__PROTECTED__ = this.__PROTECTED__");
-	            out.push(classSymbol.bases.length>0 ? "," : ";")
+	            out.push("var __PRIVATE__ = this.__PRIVATE__;");
+	            out.push("var __PROTECTED__ = this.__PROTECTED__;");
 
 	            for(i=0;i<classSymbol.bases.length;i++)
 	            {
 	            	// Special case when base is an ECMA or native Class (eg. Array)
 	            	if(classSymbol.bases[i].extern)
 	            	{
-	            		out.push(classSymbol.bases[i].classId + " = this");
+	            		out.push("var " + classSymbol.bases[i].classId + " = this;");
 	            	}
 					// Standard CocoScript case when a Class inherits from a CocoScript class
 	            	else
 	            	{
 	            		var baseAccessPath = _this.baseClassDot(classSymbol,classSymbol.bases[i]);
-	            		out.push(classSymbol.bases[i].classId + " = this." + classSymbol.bases[i].classId + " = " + baseAccessPath);
+	            		out.push("var " + classSymbol.bases[i].classId + " = this." + classSymbol.bases[i].classId + " = " + baseAccessPath + ";");
 
 	            		// Replace __THIS__ of the base class
-	            		out.push(baseAccessPath + ".__THIS__ = " + classSymbol.classId);
+	            		out.push(baseAccessPath + ".__THIS__ = " + classSymbol.classId + ";");
 
 	            	}
-					out.push(i!=classSymbol.bases.length-1 ? ",": ";");
 	            }
             }
 
@@ -1688,6 +1690,7 @@ function Compiler(ast)
 				}
 				out.push("__" + ast.name + ".prototype = new " + baseClass + "(" + baseConstructorArguments + ");");
 			}
+			out.push("__" + ast.name + ".prototype.constructor = " + ast.name + ";");
 			out.push("return new __" + ast.name + "(" + thisConstructorArguments + ");}");
 
 			/////////////////////////////////////////////////////////////////////////////////
@@ -2557,32 +2560,10 @@ function Compiler(ast)
 			var classScope = _this.getClassScope();
 			var classSymbol = ast.scope.isClass ? ast.scope.ast.symbol : null;
 			var classId	= classSymbol ? classSymbol.classId : null;
-			var firstItem = true;
 			var extern_symbol = null;
 
-			if(ast.scope.isClass && !ast.inFunction)
-			{
-				// Declare class variable depending on its modifier
-				if(ast.static)
-				{
-					if(ast.public)			out.push(classSymbol.name+".");
-					else if(ast.private)	out.push(classSymbol.name+".__PRIVATE__.");
-					else if(ast.protected)	out.push(classSymbol.name+".__PROTECTED__.");
-				}
-				else
-				{
-					if(ast.public)			out.push("this.");
-					else if(ast.private)	out.push("__PRIVATE__.");
-					else if(ast.protected)	out.push("__PROTECTED__.");
-				}
-			}
-			else
-			{
-				// Standard var declaration
-				out.push("var ");
-			}
-
 			// Process var items to record symbols and generate code
+
 			for(var item in ast)
 			{
 				if(!isFinite(item)) break;
@@ -2715,17 +2696,6 @@ function Compiler(ast)
 					_this.record_vartype_use(ast, varSymbol, classScope, (ast.inFunction ? _this.INCLUDE_IN_CPP : _this.INCLUDE_IN_HPP));
 				}
 
-				if(!firstItem)
-				{
-					if(ast.static)
-						out.push(";\n" + classSymbol.name + ".");
-					else
-						out.push(", ");
-				}
-				out.push(ast[item].name);
-
-				if(ast.scope.isState) out.push(" = this." + ast[item].name);
-
 				if(ast[item].initializer)
 				{
 					// Generate initializer
@@ -2737,26 +2707,74 @@ function Compiler(ast)
 							_this.NewError("Invalid class member initializer, should be in constructor: " + ast[item].name, ast[item]);
 					}
 
-					ast.generated_code = generate(ast[item].initializer);
+					ast[item].generated_code = generate(ast[item].initializer);
 				}
 				else
 				{
 					var vartype = _this.getVarType(ast[item].vartype);
 					if(_this.types.hasOwnProperty(vartype))
 					{
-						ast.generated_code = _this.types[vartype].default;
+						ast[item].generated_code = _this.types[vartype].default;
 					}
 					else if(ast.scope.isClass || ast.scope.isState)
 					{
-						ast.generated_code = "null";
+						ast[item].generated_code = "null";
 					}
 				}
 
-				out.push("=" + ast.generated_code);
-				firstItem = false;
-			}
+				// Generate
 
-			out.push(";");
+				if(varSymbol.extern) continue;
+
+				if(ast.scope.isClass && !ast.scope.isState && !ast.inFunction)
+				{
+					if(ast.static)
+					{
+						if(ast.public)			out.push(classSymbol.name+".");
+						else if(ast.private)	out.push(classSymbol.name+".__PRIVATE__.");
+						else if(ast.protected)	out.push(classSymbol.name+".__PROTECTED__.");
+
+						out.push(ast[item].name);
+						out.push("=" + ast[item].generated_code + ";");
+					}
+					else
+					{
+						// For inheritance to work with scalars (strings, numbers, etc.)
+						// we need to use getters and setters because only objects are
+						// referenced with prototype inheritance and a scalar var needs
+						// to get wrapped inside an object. This makes var access very
+						// slow, so we do it ONLY if the class is used as a base class
+						// by other classes (aka has derivatives) and the variable is
+						// not an object already. Also, we don't do it for consts.
+
+						if(_this.derivatives[classSymbol.name] && !varSymbol.pointer && ast.type!=jsdef.CONST)
+						{
+							out.push("__PRIVATE__.__" + varSymbol.name + "__ = " + ast[item].generated_code + ";");
+							var pdefine = "__PDEFINE__(%, '" + varSymbol.name + "', { configurable:false, get: function(){ return __PRIVATE__.__" + varSymbol.name + "__; }, set: function(v) { __PRIVATE__.__" + varSymbol.name + "__ = v; }});";
+							if(ast.public)			out.push(pdefine.replace("%", "this"));
+							else if(ast.private)	out.push(pdefine.replace("%", "__PRIVATE__"));
+							else if(ast.protected)	out.push(pdefine.replace("%", "__PROTECTED__"));
+						}
+						else
+						{
+							if(ast.public)			out.push("this.");
+							else if(ast.private)	out.push("__PRIVATE__.");
+							else if(ast.protected)	out.push("__PROTECTED__.");
+							out.push(ast[item].name);
+							out.push("=" + ast[item].generated_code + ";");
+						}
+					}
+				}
+				else
+				{
+					out.push("var ");
+					out.push(ast[item].name);
+					if(ast.scope.isState) out.push(" = this." + ast[item].name);
+					out.push("=" + ast[item].generated_code + ";");
+				}
+
+			} //loop
+
 			if(_this.secondPass && !_this.currClassName && !varSymbol.extern)
 			{
 				_this.addCodeToClassFile(ast.path, out.join(""));
@@ -4175,6 +4193,7 @@ function Compiler(ast)
 		// ==================================================================================================================================
 
 		case jsdef.FOR:
+			if(ast.setup && ast.setup.type==jsdef.VAR && ast.setup.length>1) _this.NewError("Invalid multiple variable initializers in for.", ast);
 			var setupFor = ast.setup ? generate(ast.setup) : ";";
 			setupFor=setupFor.trim();
 			out.push("for(" + setupFor + (setupFor.slice(-1) == ";" ? "": ";"));

@@ -349,16 +349,8 @@ class Global
 	undefined var TestIntegrator :TestIntegrator;
 	undefined var TestIntegratorClient :TestIntegratorClient;
 	undefined var UIButtonClass :UIButtonClass;
-	undefined var UIButtonClassOnClickEvent :UIButtonClassOnClickEvent;
-	undefined var UIButtonClassOnTouchStartEvent :UIButtonClassOnTouchStartEvent;
-	undefined var UIButtonClassOnTouchMoveEvent :UIButtonClassOnTouchMoveEvent;
-	undefined var UIButtonClassOnTouchEndEvent :UIButtonClassOnTouchEndEvent;
 	undefined var UITextBoxClass :UITextBoxClass;
 	undefined var UITextBoxClassOnChangeEvent :UITextBoxClassOnChangeEvent;
-	undefined var UITextBoxClassOnClickEvent :UITextBoxClassOnClickEvent;
-	undefined var UITextBoxClassOnTouchStartEvent :UITextBoxClassOnTouchStartEvent;
-	undefined var UITextBoxClassOnTouchMoveEvent :UITextBoxClassOnTouchMoveEvent;
-	undefined var UITextBoxClassOnTouchEndEvent :UITextBoxClassOnTouchEndEvent;
 	undefined var UIFormClass :UIFormClass;
 	undefined var ITest1 :ITest1;
 	undefined var ITest2 :ITest2;
@@ -2237,52 +2229,22 @@ class TestIntegratorClient
 	public  var __className :String;
 } //TestIntegratorClient
 
-class UIButtonClass : CocoEventSource
+class UIButtonClass : CocoClip
 {
 	public function work() {}
 	public function Destructor() {}
 	public function Constructor(id:String) {}
 	public  var id :String;
-	public var OnClick :UIButtonClassOnClickEvent;
-	public var OnTouchStart :UIButtonClassOnTouchStartEvent;
-	public var OnTouchMove :UIButtonClassOnTouchMoveEvent;
-	public var OnTouchEnd :UIButtonClassOnTouchEndEvent;
 	public  var __className :String;
 } //UIButtonClass
 
-class UIButtonClassOnClickEvent : CocoEvent
-{
-} //UIButtonClassOnClickEvent
-
-class UIButtonClassOnTouchStartEvent : CocoEvent
-{
-	public var x :Float;
-	public var y :Float;
-} //UIButtonClassOnTouchStartEvent
-
-class UIButtonClassOnTouchMoveEvent : CocoEvent
-{
-	public var x :Float;
-	public var y :Float;
-} //UIButtonClassOnTouchMoveEvent
-
-class UIButtonClassOnTouchEndEvent : CocoEvent
-{
-	public var x :Float;
-	public var y :Float;
-} //UIButtonClassOnTouchEndEvent
-
-class UITextBoxClass : CocoEventSource
+class UITextBoxClass : CocoClip
 {
 	public function work() {}
 	public function Destructor() {}
 	public function Constructor(id:String) {}
 	public  var id :String;
 	public var OnChange :UITextBoxClassOnChangeEvent;
-	public var OnClick :UITextBoxClassOnClickEvent;
-	public var OnTouchStart :UITextBoxClassOnTouchStartEvent;
-	public var OnTouchMove :UITextBoxClassOnTouchMoveEvent;
-	public var OnTouchEnd :UITextBoxClassOnTouchEndEvent;
 	public  var __className :String;
 } //UITextBoxClass
 
@@ -2291,38 +2253,23 @@ class UITextBoxClassOnChangeEvent : CocoEvent
 	public var text :String;
 } //UITextBoxClassOnChangeEvent
 
-class UITextBoxClassOnClickEvent : CocoEvent
+class UIFormClass : CocoClip
 {
-} //UITextBoxClassOnClickEvent
-
-class UITextBoxClassOnTouchStartEvent : CocoEvent
-{
-	public var x :Float;
-	public var y :Float;
-} //UITextBoxClassOnTouchStartEvent
-
-class UITextBoxClassOnTouchMoveEvent : CocoEvent
-{
-	public var x :Float;
-	public var y :Float;
-} //UITextBoxClassOnTouchMoveEvent
-
-class UITextBoxClassOnTouchEndEvent : CocoEvent
-{
-	public var x :Float;
-	public var y :Float;
-} //UITextBoxClassOnTouchEndEvent
-
-class UIFormClass
-{
+	public function HandleStart(sender:CocoEventSource, e:CocoEvent) :Boolean {}
+	public function HandleMove(sender:CocoEventSource, e:CocoEvent) :Boolean {}
+	public function HandleEnd(sender:CocoEventSource, e:CocoEvent) :Boolean {}
 	public function HandleOnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
 	public function HandleOnChange(sender:UITextBoxClass, e:UITextBoxClassOnChangeEvent) :Boolean {}
 	public function HandleOnValidate(sender:UITextBoxClass, e:CocoEvent, text:String) :Boolean {}
 	public function Destructor() {}
-	public function Constructor() {}
+	public function Constructor(scene:CocoScene) {}
+	private  var body :CocoClip;
 	private  var button1 :UIButtonClass;
 	private  var text1 :UITextBoxClass;
 	private  var text2 :UITextBoxClass;
+	private  var scrollLastTime :Time;
+	private  var scrollLastPointX :Float;
+	private  var scrollLastPointY :Float;
 	public  var __className :String;
 } //UIFormClass
 

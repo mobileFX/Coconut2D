@@ -315,7 +315,8 @@ class CocoTimeline
 	public function findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
 	{
 		var KeyFrame:CocoKeyFrame;
-		for(var i:Integer = 0, L:Integer = __keyFrames.size(); i < L; i++)
+		var L:Integer = __keyFrames.size();
+		for(var i:Integer = 0; i < L; i++)
 		{
 			if (i != excludeListIndex)
 			{

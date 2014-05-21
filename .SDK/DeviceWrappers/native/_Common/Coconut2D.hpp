@@ -57,6 +57,7 @@
 #include <vector>
 #include <map>
 #include <cstdlib>
+#include <cstdarg>
 
 // ==================================================================================================================================
 //	    ______                                   __   ________                   ____            __                 __  _
@@ -121,17 +122,9 @@ class PathLine;
 class Touch;
 class TouchList;
 class UIButtonClass;
-class UIButtonClassOnClickEvent;
-class UIButtonClassOnTouchEndEvent;
-class UIButtonClassOnTouchMoveEvent;
-class UIButtonClassOnTouchStartEvent;
 class UIFormClass;
 class UITextBoxClass;
 class UITextBoxClassOnChangeEvent;
-class UITextBoxClassOnClickEvent;
-class UITextBoxClassOnTouchEndEvent;
-class UITextBoxClassOnTouchMoveEvent;
-class UITextBoxClassOnTouchStartEvent;
 struct CocoKeyFrame;
 //# Generated Classes End #//
 
@@ -197,9 +190,6 @@ enum fxEvent
 // ==================================================================================================================================
 
 #define CocoException	std::string
-#define Number          float
-#define Function        void
-#define Time			float
 
 #define JSINTERVAL_MIN 4
 #define JSTOUCHLIST_MAX_LENGTH 5
@@ -277,7 +267,7 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	int size()
+	size_t size()
 	{
 		return std::vector<T>::size();
 	}
@@ -369,7 +359,7 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	int size()
+	size_t size()
 	{
 		return std::vector<bool>::size();
 	}
@@ -442,7 +432,7 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	int size()
+	size_t size()
 	{
 		return std::vector<float>::size();
 	}
@@ -656,6 +646,31 @@ struct State
 	#define fxAPIGetChangedTouchesLength(E) AMotionEvent_getPointerCount((AInputEvent*)E)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+#elif WIN32_APPLICATION
+	#include <windows.h>
+	#include <windowsx.h>
+
+	#undef near
+	#undef far
+
+	#ifndef M_PI
+	#define M_PI		3.14159265358979323846
+	#endif
+
+	#ifndef M_PI_2
+	#define M_PI_2		1.57079632679489661923
+	#endif
+
+	#define fxAPIGetMouseEventX(E) GET_X_LPARAM(((MSG*)E)->lParam)
+	#define fxAPIGetMouseEventY(E) GET_Y_LPARAM(((MSG*)E)->lParam)
+	#define fxAPIGetTouchEventX(E, I) GET_X_LPARAM(((MSG*)E)->lParam)
+	#define fxAPIGetTouchEventY(E, I) GET_Y_LPARAM(((MSG*)E)->lParam)
+	#define fxAPIGetChangedTouchEventX(E, I) GET_X_LPARAM(((MSG*)E)->lParam)
+	#define fxAPIGetChangedTouchEventY(E, I) GET_Y_LPARAM(((MSG*)E)->lParam)
+	#define fxAPIGetTouchesLength(E) 1
+	#define fxAPIGetChangedTouchesLength(E) 1
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #else
 
 	#define PLATFORM "General"
@@ -722,6 +737,9 @@ struct State
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_CURL_SUPPORT
 	#include <curl.h>
+	#ifndef CURL_STATICLIB
+	#define CURL_STATICLIB
+	#endif
 #elif !DISABLE_CURL_SUPPORT
 	#warning "Building without XMLHttpRequest support!"
 #endif
@@ -733,6 +751,10 @@ struct State
 		#include <GLES2/gl2.h>
 	#elif IOS_APPLICATION
 		#include <OpenGLES/ES2/gl.h>
+	#elif WIN32_APPLICATION
+		#include <GL/glew.h>
+		/*#include <GL/glut.h>*/
+		#include <GL/gl.h>
 	#else
 		#include <QtOpenGL/QtOpenGL>
 	#endif
@@ -754,9 +776,15 @@ class Date
 public:
 	Date()
 	{
-		struct timeval tv;
-		gettimeofday(&tv, nullptr);
-		millis = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
+		#ifdef WIN32_APPLICATION
+			FILETIME filetime;
+			GetSystemTimeAsFileTime(&filetime);
+			millis = ((LONGLONG)filetime.dwLowDateTime + ((LONGLONG)(filetime.dwHighDateTime) << 32LL)) / 10000 + 116444736000000000LL;
+		#else
+			struct timeval tv;
+			gettimeofday(&tv, nullptr);
+			millis = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
+		#endif
 	}
 	unsigned long long getTime() { return millis; }
 };

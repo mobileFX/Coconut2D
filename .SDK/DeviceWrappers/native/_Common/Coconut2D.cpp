@@ -58,8 +58,13 @@ void trace(const char* fmt, ...)
 
 	#ifdef ANDROID_APPLICATION
 		__android_log_print(ANDROID_LOG_INFO, "$(PROJECT_NAME)", buff,"");
+
 	#elif IOS_APPLICATION
 		NSLog(@"%s\n",buff);
+
+	#elif WIN32_APPLICATION
+		printf("%s\n", buff);
+
 	#else
 
 	#endif

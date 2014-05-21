@@ -634,7 +634,8 @@ class CocoClip : CocoEventSource implements IEventTarget
 	    __vREL_BOTTOM_LEFT.Y = -100000;
 
         var Child :CocoClip
-        for (var i:Integer = 0, L:Integer = __children.size(); i < L; i++)
+        var L:Integer = __children.size();
+        for (var i:Integer = 0; i < L; i++)
 	    {
             Child = __children[i];
             if(Child.__hasBoundingBox)

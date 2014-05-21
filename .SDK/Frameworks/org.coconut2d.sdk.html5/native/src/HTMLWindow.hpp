@@ -52,7 +52,7 @@ public:
 	CocoEventAction touchstart;
 	CocoEventAction	touchmove;
 	CocoEventAction touchend;
-	Array<Function*> __elements;
+	Array<void*> __elements;
 	HTMLWindow();
 	~HTMLWindow();
 	void setScreen(fxScreen screen);

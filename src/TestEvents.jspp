@@ -5,16 +5,16 @@
 // This class is an events source (produces events)
 ///////////////////////////////////////////////////////
 
-class UIButtonClass : CocoEventSource
+class UIButtonClass : CocoClip
 {
 	public var id:String;
 
-	public event OnClick();
-	public event OnTouchStart(x:Float, y:Float);
-	public event OnTouchMove(x:Float, y:Float);
-	public event OnTouchEnd(x:Float, y:Float);
+	//public event OnClick();
+	//public event OnTouchStart(x:Float, y:Float);
+	//public event OnTouchMove(x:Float, y:Float);
+	//public event OnTouchEnd(x:Float, y:Float);
 
-	public function Constructor(id:String)
+	public function Constructor(id:String) : CocoClip(null)
 	{
 		this.id=id;
 	}
@@ -32,17 +32,17 @@ class UIButtonClass : CocoEventSource
 ///////////////////////////////////////////////////////
 // This class is an events source (produces events)
 ///////////////////////////////////////////////////////
-class UITextBoxClass : CocoEventSource
+class UITextBoxClass : CocoClip
 {
 	public var id:String;
 
 	public event OnChange(text:String);
-	public event OnClick();
-	public event OnTouchStart(x:Float, y:Float);
-	public event OnTouchMove(x:Float, y:Float);
-	public event OnTouchEnd(x:Float, y:Float);
+	//public event OnClick();
+	//public event OnTouchStart(x:Float, y:Float);
+	//public event OnTouchMove(x:Float, y:Float);
+	//public event OnTouchEnd(x:Float, y:Float);
 
-	public function Constructor(id:String)
+	public function Constructor(id:String) : CocoClip(null)
 	{
 		this.id=id;
 	}
@@ -64,14 +64,20 @@ class UITextBoxClass : CocoEventSource
 // This class is an event listener (receives events)
 ///////////////////////////////////////////////////////
 
-class UIFormClass implements IEventListener
+class UIFormClass : CocoClip implements IEventListener
 {
+	private var body:CocoClip;
 	private var button1:UIButtonClass;
 	private var text1:UITextBoxClass;
 	private var text2:UITextBoxClass;
+	private var scrollLastTime:Time;
+	private var scrollLastPointX:Float;
+	private var scrollLastPointY:Float;
 
- 	public function Constructor()
+ 	public function Constructor(scene:CocoScene) : CocoClip(null)
  	{
+ 		var img:CocoImage = scene.getImageSymbol("SpriteSymbol_metal_slug");
+
  		button1 = new UIButtonClass("button1");
  		button1.addEventListener(button1.OnClick, HandleOnClick);
  		button1.addEventListener(button1.OnClick, HandleOnClick);
@@ -86,8 +92,35 @@ class UIFormClass implements IEventListener
  		text2.addEventListener(text2.OnChange, HandleOnChange);
  		text2.addEventListener(text2.OnChange, HandleOnValidate);
 
- 		button1.work();
- 		text1.work();
+ 		//button1.work();
+ 		//text1.work();
+ 		__instanceName = "form1";
+		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		scene.__root.addChild(this);
+
+ 		button1.__instanceName = "button1";
+ 		button1.__image = img;
+ 		button1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 100, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+
+ 		text1.__instanceName = "text1";
+ 		text1.__image = img;
+ 		text1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, -100, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+
+ 		text2.__instanceName = "text2";
+ 		text2.__image = img;
+		text2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 100, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+
+		body = new CocoClip(null);
+ 		body.__instanceName = "body";
+ 		body.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+
+ 		body.addChild(button1);
+ 		body.addChild(text1);
+ 		body.addChild(text2);
+ 		body.addEventListener(body.OnTouchStart, HandleStart);
+ 		body.addEventListener(body.OnTouchMove, HandleMove);
+ 		body.addEventListener(body.OnTouchEnd, HandleEnd);
+ 		//scene.__root.addChild(body);
  	}
 
  	public function Destructor()
@@ -103,6 +136,34 @@ class UIFormClass implements IEventListener
  		delete text1;
  		delete text2;
  	}
+
+ 	public function HandleStart(sender:CocoEventSource, e:CocoEvent) :Boolean
+	{
+		trace(sender.__className + ", " + e.type);
+		//scrollLastTime = engine.__clock;
+		//scrollLastPointX = e.__clientX;
+		//scrollLastPointY = e.__clientY;
+		return false;
+	}
+
+	public function HandleMove(sender:CocoEventSource, e:CocoEvent) :Boolean
+	{
+		trace(sender.__className + ", " + e.type);
+		var dX:Float = e.__clientX - scrollLastPointX;
+		var dY:Float = e.__clientY - scrollLastPointY;
+		body.__timeline.__keyFrames[0].x += dX;
+		body.__timeline.__keyFrames[0].y += dY;
+		//scrollLastTime = engine.__clock;
+		//scrollLastPointX = e.__clientX;
+		//scrollLastPointY = e.__clientY;
+		return false;
+	}
+
+	public function HandleEnd(sender:CocoEventSource, e:CocoEvent) :Boolean
+	{
+		trace(sender.__className + ", " + e.type);
+		return false;
+	}
 
 	public function HandleOnClick(sender:CocoEventSource, e:CocoEvent) :Boolean
 	{

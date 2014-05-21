@@ -81,7 +81,7 @@ function make(options)
     // Build for CocoPlay
     // (Similar to Browsers with OpenGL and HTML5 native bindings)
     // =====================================================================
-  	this.Build_CocoPlayer = function()
+  	this.Build_CocoScript = this.Build_CocoPlayer = function()
   	{
   		_this.clean();
   		_this.apply_device_wrapper();
@@ -135,6 +135,19 @@ function make(options)
   		_this.copy_assets();
   		_this.generate_cpp();
   		_this.compile_ipa();
+  	};
+
+    // =====================================================================
+    // Build for Win32
+    // =====================================================================
+  	this.Build_Win32 = function()
+  	{
+  		_this.clean();
+  		_this.apply_device_wrapper();
+  		_this.generate_icons();
+  		_this.copy_assets();
+  		_this.generate_cpp();
+  		_this.compile_x86();
   	};
 
 	// ==================================================================================================================================
@@ -409,11 +422,12 @@ function make(options)
 
         // Create Makefile
 		var file = TARGET.TARGET_ROOT+"/Makefile.mk";
-		trace("\nCreating iOS Makefile makefile ...");
+		trace("\nCreating iOS makefile ...");
 		trace("+ makefile: " + file);
         trace("+ replacing variables ...");
 		var buff = read(file);
-		buff = _this.replaceVars(buff, true, TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";"));
+		var excludeVars = TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS ? TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";") : null;
+		buff = _this.replaceVars(buff, true, excludeVars);
         _this.module(file, buff);
 
         // Create a custom make_ios.bat (offers better control than relying on environment variables)  //--warn-undefined-variables
@@ -441,6 +455,65 @@ function make(options)
        		throw new Error("ERROR: Failed to compile iOS Application");
   	};
 
+    // =====================================================================
+    // Compile x86 Windows Application
+    // =====================================================================
+  	_this.compile_x86 = function()
+  	{
+  		trace("\nCompiling Windows x86 Application ...");
+
+		// Collect all C++ sources
+  		var CPP_SOURCES_PATH = [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";");
+  		var sources = _this.collectSources(CPP_SOURCES_PATH,
+  										 TARGET.TARGET_NATIVE_MASK,
+  										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
+  										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
+
+		// Make all paths relative to target folder
+		files = _this.get_relative_cpp_hpp(sources, TARGET.TARGET_ROOT);
+		makefile.Vars["NATIVE_CPP_SOURCES"] = _this.winPath(files.CPP.join(" \\\n"));
+		makefile.Vars["NATIVE_CPP_INCLUDES"] = _this.winPath(" -I" + files.HPP.join(" \\\n -I"));
+
+		// Collect resources
+		trace("\n Collecting Resources ...");
+		var files = _this.FindFiles(TARGET.TARGET_ROOT, TARGET.TARGET_RESOURCES_MASK, false);
+		for(i=0;i<files.length;i++) { files[i] = relativePath(TARGET.TARGET_ROOT, files[i]); }
+		files.push("./assets");
+		makefile.Vars["NATIVE_RESOURCES"] = files.join(" \\\n");
+		trace("+ Done.");
+
+        // Create Makefile
+		var file = TARGET.TARGET_ROOT+"/Makefile.mk";
+		trace("\nCreating Windows x86 makefile ...");
+		trace("+ makefile: " + file);
+        trace("+ replacing variables ...");
+		var buff = read(file);
+		var excludeVars = TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS ? TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";") : null;
+		buff = _this.replaceVars(buff, true, excludeVars);
+        _this.module(file, buff);
+
+        // Create a custom make_x86.bat
+        var buff = [];
+        var make_cmd = TARGET.TARGET_ROOT + "/make_x86.bat";
+        buff.push('@echo off');
+        buff.push('SET PROJECT_PATH=$(TARGET_ROOT)');
+		buff.push('SET MAKEFILE=%PROJECT_PATH%/Makefile.mk');
+		buff.push('SET MINGW=$(PATH_3RD_PARTY_MINGW)');
+		buff.push('SET PATH=%MINGW%;%MINGW%/bin;%PATH%');
+		buff.push('"%MINGW%/bin/mingw32-make" --directory="%PROJECT_PATH%" --jobs --makefile="%MAKEFILE%"');
+		buff = _this.replaceVars(_this.winPath(buff.join("\n")));
+        _this.module(make_cmd, buff);
+
+        // Build the static libraries for arm and x86
+        trace("\nCalling Windows x86 make ...");
+        _this.shell(make_cmd, TARGET.TARGET_ROOT);
+        _this.DeleteFile(make_cmd);
+
+        // Sanity check
+        if(!fileExists(TARGET.TARGET_OUTPUT))
+       		throw new Error("ERROR: Failed to compile Windows x86 Application");
+  	};
+
 	// ==================================================================================================================================
 	//	   ________                 _
 	//	  / ____/ /__  ____ _____  (_)___  ____ _
@@ -462,7 +535,10 @@ function make(options)
 		var folders = TARGET.TARGET_CLEAN.split(";");
 		for(var i=0; i<folders.length; i++)
 		{
-			_this.cleanFolder(folders[i]);
+			if(folderExists(folders[i]))
+				_this.cleanFolder(folders[i]);
+			else if(fileExists(folders[i]))
+				_this.DeleteFile(folders[i]);
 		}
 
 		// Remove known deliverables
@@ -1458,6 +1534,9 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bFloat\\b", "mg", "float");
 	buff = RxReplace(buff, "\\bInteger\\b", "mg", "int");
 	buff = RxReplace(buff, "\\bBoolean\\b", "mg", "bool");
+	buff = RxReplace(buff, "\\bTime\\b", "mg", "float");
+	buff = RxReplace(buff, "\\bNumber\\b", "mg", "float");
+	buff = RxReplace(buff, "\\bFunction\\b", "mg", "void");
 	buff = RxReplace(buff, "\\bObject\\b", "mg", "void");
 	buff = RxReplace(buff, "\\s*//<<(.*)>>//", "mg", "$1");
 	buff = RxReplace(buff, "\\bMath::floor\\(", "mg", "floor(");
