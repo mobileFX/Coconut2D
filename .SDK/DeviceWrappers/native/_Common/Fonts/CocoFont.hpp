@@ -26,7 +26,7 @@
 #define __CocoEngine__CocoFont__
 
 #include "Coconut2D.hpp"
-#include "fxFontFace.h"
+#include "CocoFontsCache.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct CocoFontChar

@@ -37,7 +37,7 @@
 Audio::Audio(String url)
 {
 	src = url;
-	stream = new fxAudioStream(src.c_str());
+	stream = new CocoAudioStream(src.c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

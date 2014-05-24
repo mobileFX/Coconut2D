@@ -245,7 +245,7 @@ public:
 //	                       /____/
 // ==================================================================================================================================
 
-class AssetFile;
+class CocoAssetFile;
 
 class ArrayBuffer
 {
@@ -279,13 +279,13 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////////////
 	#ifdef ENABLE_PNG_SUPPORT
-		static ArrayBuffer* NewFromImage_PNG(AssetFile* file, uint32_t& width, uint32_t& height);
+		static ArrayBuffer* NewFromImage_PNG(CocoAssetFile* file, uint32_t& width, uint32_t& height);
 		ArrayBuffer* encodeAsPNG(size_t width, size_t height);
 	#endif
 
 	//////////////////////////////////////////////////////////////////////////////////
 	#ifdef ENABLE_JPG_SUPPORT
-		static ArrayBuffer* NewFromImage_JPG(AssetFile* file, uint32_t& width, uint32_t& height);
+		static ArrayBuffer* NewFromImage_JPG(CocoAssetFile* file, uint32_t& width, uint32_t& height);
 	#endif
 };
 
@@ -395,7 +395,6 @@ class Audio;
 class CocoEventConnectionPoint;
 class CocoEventSource;
 class CocoFont;
-class EventTarget;
 class HTMLWindow;
 class IEventListener;
 class ImageData;

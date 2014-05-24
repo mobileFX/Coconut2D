@@ -2,14 +2,14 @@
 #include <QDesktopWidget>
 #include <cstdlib>
 
-class fxDeviceWrapper;
+class CocoDeviceWrapper;
 
 #import "Common.h"
 #import "fxCRL.h"
-#import "AssetFile.h"
-#import "fxFontFace.h"
-#import "fxAudioStream.h"
-#import "fxDeviceWrapper.h"
+#import "CocoAssetFile.h"
+#import "CocoFontsCache.h"
+#import "CocoAudioStream.h"
+#import "CocoDeviceWrapper.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
@@ -31,11 +31,11 @@ int main(int argc, char *argv[])
         else if(strcmp(argv[i], "--root_folder") == 0) dir = argv[i + 1];
     }
 
-    AssetFile::init((dir + "/local/").c_str(), (dir + "/web/").c_str());
-    fxFontFace::init();
-    fxAudioStream::init();
+    CocoAssetFile::init((dir + "/local/").c_str(), (dir + "/web/").c_str());
+    CocoFontsCache::init();
+    CocoAudioStream::init();
 
-    fxDeviceWrapper w(argc, argv);
+    CocoDeviceWrapper w(argc, argv);
     w.setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint);
     w.setFixedSize(width * zoom / 100, height * zoom / 100);
     w.move(QApplication::desktop()->width() - w.frameSize().width(), 0);
@@ -43,9 +43,9 @@ int main(int argc, char *argv[])
 
     ret = app.exec();
 
-    fxAudioStream::quit();
-    fxFontFace::quit();
-    AssetFile::quit();
+    CocoAudioStream::quit();
+    CocoFontsCache::quit();
+    CocoAssetFile::quit();
 
     return ret;
 }

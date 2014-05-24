@@ -34,7 +34,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "XMLHttpRequest.hpp"
-#include "AssetFile.h"
+#include "CocoAssetFile.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +80,7 @@ XMLHttpRequest::XMLHttpRequest()
 {
 	readyState = UNSENT;
 	freeData = true;
-	data = new AssetFile(0);
+	data = new CocoAssetFile(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ size_t XMLHttpRequest::writeHeader(void* contents, size_t size, size_t nmemb, vo
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 size_t XMLHttpRequest::writeData(void* contents, size_t size, size_t nmemb, void* ptr)
 {
-	AssetFile* v = static_cast<AssetFile*>(ptr);
+	CocoAssetFile* v = static_cast<CocoAssetFile*>(ptr);
 	return v->append(contents, size * nmemb);
 }
 

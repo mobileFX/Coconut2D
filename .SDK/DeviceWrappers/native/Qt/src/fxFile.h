@@ -3,7 +3,7 @@
 
 #include "cstdio"
 
-class AssetFile
+class CocoAssetFile
 {
 private:
     static char* filesPath;
@@ -48,13 +48,13 @@ public:
         else return false;
         return true;
     }
-    static AssetFile* open(const char* str)
+    static CocoAssetFile* open(const char* str)
     {
-        AssetFile* ret = nullptr;
+        CocoAssetFile* ret = nullptr;
         if(str && strlen(str) > 2 && str[0] == '.' && str[1] == '/')
         {
-            if(exists(str, false)) ret = new AssetFile(str, false);
-            else if(exists(str, true)) ret = new AssetFile(str, true);
+            if(exists(str, false)) ret = new CocoAssetFile(str, false);
+            else if(exists(str, true)) ret = new CocoAssetFile(str, true);
         }
         return ret;
     }
@@ -83,7 +83,7 @@ public:
         else return false;
         return true;
     }
-    AssetFile(const char* str, bool i_isAsset) : fd(nullptr), file(nullptr), data(nullptr), isAsset(i_isAsset), length(0)
+    CocoAssetFile(const char* str, bool i_isAsset) : fd(nullptr), file(nullptr), data(nullptr), isAsset(i_isAsset), length(0)
     {
         if(isAsset && assetPath && str)
         {
@@ -116,7 +116,7 @@ public:
             else trace("FILE ERROR OPEN: %s\n", file);
         }
     }
-    ~AssetFile()
+    ~CocoAssetFile()
     {
         if(fd)
         {

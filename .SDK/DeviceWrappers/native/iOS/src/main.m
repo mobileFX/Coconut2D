@@ -22,7 +22,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-@class fxDeviceWrapper;
+@class CocoDeviceWrapper;
 
 #import <UIKit/UIKit.h>
 #include <sys/socket.h>
@@ -30,13 +30,13 @@
 #include <libgen.h>
 
 #import "Coconut2D.hpp"
-#import "AssetFile.h"
-#import "fxFontFace.h"
-#import "fxAudioStream.h"
-#import "fxDeviceWrapper.h"
+#import "CocoAssetFile.h"
+#import "CocoFontsCache.h"
+#import "CocoAudioStream.h"
+#import "CocoDeviceWrapper.h"
 
-extern char* AssetFile::filesPath;
-extern char* AssetFile::assetPath;
+extern char* CocoAssetFile::filesPath;
+extern char* CocoAssetFile::assetPath;
 
 #define CONFIGURATION_$(UCONFIGURATION)
 #define DEBUG_HOST_IP 	"$(DEBUG_HOST_IP)"
@@ -79,16 +79,16 @@ int main(int argc, char *argv[])
 
 	// Initialize
 	curl_global_init(CURL_GLOBAL_ALL);
-	AssetFile::init(documentsDir.c_str(), bundleDir.c_str());
-	fxFontFace::init();
-	fxAudioStream::init();
+	CocoAssetFile::init(documentsDir.c_str(), bundleDir.c_str());
+	CocoFontsCache::init();
+	CocoAudioStream::init();
 
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::init();
 	#endif
 
     // Start the application
-	@autoreleasepool { ret = UIApplicationMain(argc, argv, nil, NSStringFromClass([fxDeviceWrapper class])); }
+	@autoreleasepool { ret = UIApplicationMain(argc, argv, nil, NSStringFromClass([CocoDeviceWrapper class])); }
 
 	// Dispose resources
 
@@ -96,9 +96,9 @@ int main(int argc, char *argv[])
 	XMLHttpRequest::quit();
 	#endif
 
-	fxAudioStream::quit();
-	fxFontFace::quit();
-	AssetFile::quit();
+	CocoAudioStream::quit();
+	CocoFontsCache::quit();
+	CocoAssetFile::quit();
 
 	curl_global_cleanup();
 

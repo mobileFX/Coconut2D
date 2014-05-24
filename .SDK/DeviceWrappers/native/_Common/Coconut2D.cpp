@@ -32,7 +32,7 @@
 // ==================================================================================================================================
 
 #include "Coconut2D.hpp"
-#include "AssetFile.h" // <- Device Specific
+#include "CocoAssetFile.h" // <- Device Specific
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ANDROID_APPLICATION
@@ -76,15 +76,15 @@ void trace(const char* fmt, ...)
 //////////////////////////////////////////////////////////////////////////////////////////////
 ArrayBuffer* ArrayBuffer::NewFromImage(std::string str, uint32_t& width, uint32_t& height)
 {
-	AssetFile* file = AssetFile::open(str.c_str());
+	CocoAssetFile* file = CocoAssetFile::open(str.c_str());
 	switch(file->mime)
 	{
 		#ifdef ENABLE_PNG_SUPPORT
-		case AssetFile::MIME::IMAGE_PNG: return NewFromImage_PNG(file, width, height);
+		case CocoAssetFile::MIME::IMAGE_PNG: return NewFromImage_PNG(file, width, height);
 		#endif
 
 		#ifdef ENABLE_JPEG_SUPPORT
-		case AssetFile::MIME::IMAGE_JPG: return NewFromImage_JPG(file, width, height);
+		case CocoAssetFile::MIME::IMAGE_JPG: return NewFromImage_JPG(file, width, height);
 		#endif
 		default:
 			return NULL;
@@ -140,7 +140,7 @@ String ArrayBuffer::encodeAsBase64()
 
 static void png_from_memory(png_structp png_ptr, png_bytep readBytes, png_size_t readCount)
 {
-	AssetFile* file = (AssetFile*)png_get_io_ptr(png_ptr);
+	CocoAssetFile* file = (CocoAssetFile*)png_get_io_ptr(png_ptr);
 	file->read(readBytes, readCount);
 }
 
@@ -152,7 +152,7 @@ static void png_to_memory(png_structp png_ptr, png_bytep data, png_size_t length
 	memcpy((*buffer)[buffer->byteLength - length], data, length);
 }
 
-ArrayBuffer* ArrayBuffer::NewFromImage_PNG(AssetFile* file, uint32_t& width, uint32_t& height)
+ArrayBuffer* ArrayBuffer::NewFromImage_PNG(CocoAssetFile* file, uint32_t& width, uint32_t& height)
 {
 	ArrayBuffer* ret = NULL;
 	unsigned char sig[8];
@@ -239,7 +239,7 @@ static void jpeg_error(j_common_ptr cInfo)
 	trace("Jpeg Lib error: %s", pszMessage);
 }
 
-ArrayBuffer* ArrayBuffer::NewFromImage_JPG(AssetFile* file, uint32_t& width, uint32_t& height)
+ArrayBuffer* ArrayBuffer::NewFromImage_JPG(CocoAssetFile* file, uint32_t& width, uint32_t& height)
 {
 	ArrayBuffer* ret = NULL;
 

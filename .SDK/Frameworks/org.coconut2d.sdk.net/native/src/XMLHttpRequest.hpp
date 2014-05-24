@@ -72,7 +72,7 @@ public:
 	static size_t writeData(void* contents, size_t size, size_t nmemb, void* ptr);
 	std::vector<char> header;
 	bool freeData;
-	AssetFile* data;
+	CocoAssetFile* data;
 	void complete();
 
 	const unsigned short UNSENT = 0;

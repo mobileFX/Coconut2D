@@ -22,10 +22,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#include "AssetFile.h"
-#include "fxFontFace.h"
-#include "fxAudioStream.h"
-#include "fxDeviceWrapper.h"
+#include "CocoAssetFile.h"
+#include "CocoFontsCache.h"
+#include "CocoAudioStream.h"
+#include "CocoDeviceWrapper.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -34,23 +34,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int height = 600;
 
 	curl_global_init(CURL_GLOBAL_ALL);
-	AssetFile::init("./assets/", (std::string(getenv("USERPROFILE")) + "/Coconut2D/").c_str());
-	fxFontFace::init();
-	fxAudioStream::init();
+	CocoAssetFile::init("./assets/", (std::string(getenv("USERPROFILE")) + "/Coconut2D/").c_str());
+	CocoFontsCache::init();
+	CocoAudioStream::init();
 
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::init();
 	#endif
 
-	fxDeviceWrapper w(width, height);
+	CocoDeviceWrapper w(width, height);
 
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::quit();
 	#endif
 
-	fxAudioStream::quit();
-	fxFontFace::quit();
-	AssetFile::quit();
+	CocoAudioStream::quit();
+	CocoFontsCache::quit();
+	CocoAssetFile::quit();
 	curl_global_cleanup();
 
 	return 0;

@@ -22,36 +22,36 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#include "AssetFile.h"
-#include "fxFontFace.h"
-#include "fxAudioStream.h"
-#include "fxDeviceWrapper.h"
+#include "CocoAssetFile.h"
+#include "CocoFontsCache.h"
+#include "CocoAudioStream.h"
+#include "CocoDeviceWrapper.h"
 
-extern AAssetManager* AssetFile::manager;
-extern char* AssetFile::assetPath;
-extern char* AssetFile::filesPath;
+extern AAssetManager* CocoAssetFile::manager;
+extern char* CocoAssetFile::assetPath;
+extern char* CocoAssetFile::filesPath;
 
 void android_main(android_app* app)
 {
 	app_dummy();
 
 	curl_global_init(CURL_GLOBAL_ALL);
-	AssetFile::init(app->activity->assetManager, "/data/data/com.mobilefx.cocoengine/files/");
-	fxFontFace::init();
-	fxAudioStream::init();
+	CocoAssetFile::init(app->activity->assetManager, "/data/data/com.mobilefx.cocoengine/files/");
+	CocoFontsCache::init();
+	CocoAudioStream::init();
 
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::init();
 	#endif
 
-	fxDeviceWrapper w(app);
+	CocoDeviceWrapper w(app);
 
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::quit();
 	#endif
 
-	fxAudioStream::quit();
-	fxFontFace::quit();
-	AssetFile::quit();
+	CocoAudioStream::quit();
+	CocoFontsCache::quit();
+	CocoAssetFile::quit();
 	curl_global_cleanup();
 }

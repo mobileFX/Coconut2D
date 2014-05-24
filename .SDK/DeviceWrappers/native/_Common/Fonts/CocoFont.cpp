@@ -29,18 +29,18 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoFont::CocoFont(float fontSize, String fontName, bool bold, bool italic) : height(fontSize)
 {
-	fxFontFace::FONT_STYLE style;
+	CocoFontsCache::FONT_STYLE style;
 	if(bold)
 	{
-		if(italic) style = fxFontFace::FONT_STYLE::BoldItalic;
-		else style = fxFontFace::FONT_STYLE::Bold;
+		if(italic) style = CocoFontsCache::FONT_STYLE::BoldItalic;
+		else style = CocoFontsCache::FONT_STYLE::Bold;
 	}
 	else
 	{
-		if(italic) style = fxFontFace::FONT_STYLE::Italic;
-		else style = fxFontFace::FONT_STYLE::Regular;
+		if(italic) style = CocoFontsCache::FONT_STYLE::Italic;
+		else style = CocoFontsCache::FONT_STYLE::Regular;
 	}
-	face = fxFontFace::get(fontName, style);
+	face = CocoFontsCache::get(fontName, style);
 
 	if(!face)
 	{
@@ -107,6 +107,7 @@ void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, fl
 			}
 			c = &(it->second);
 			for(size_t ix = c->rect.size.x; ix--;)
+			{
 				for(size_t iy = c->rect.size.y; iy--;)
 				{
 					uint8_t* cp = (uint8_t*)((*imageDataBuffer)[((y + c->rect.pos.y + iy) * width + (x + c->rect.pos.x + ix)) * 4]);
@@ -118,6 +119,7 @@ void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, fl
 						cp[3] += (uint8_t)(0xFF * (A * A) - cp[3] * A);
 					}
 				}
+			}
 			x += c->horiAdvance;
 		}
     }

@@ -34,12 +34,12 @@
 #ifndef __HTMLAUDIOELEMENT_HPP__
 #define __HTMLAUDIOELEMENT_HPP__
 
-#include "fxAudioStream.h"
+#include "CocoAudioStream.h"
 
 class Audio
 {
 public:
-	fxAudioStream* stream;
+	CocoAudioStream* stream;
 	float __currentTime;
 	float duration;
 	bool paused;
