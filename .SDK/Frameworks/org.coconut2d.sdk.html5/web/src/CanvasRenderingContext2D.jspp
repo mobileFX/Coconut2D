@@ -85,6 +85,13 @@ class CanvasRenderingContext2D
 	private var __curY:Float;
 	private var __pathLines:Array<PathLine>;
 
+	private var __m11:Float;
+	private var __m12:Float;
+	private var __m21:Float;
+	private var __m22:Float;
+	private var __dx:Float;
+	private var __dy:Float;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(canvas:HTMLCanvasElement)
 	{
@@ -132,8 +139,6 @@ class CanvasRenderingContext2D
 	public function restore()                                                                                               {}
 	public function save()                                                                                                  {}
 
-	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                            {}
-	public function transform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                               {}
 	public function scale(x:Float, y:Float)                                                                                 {}
 	public function translate(x:Float, y:Float)                                                                             {}
 	public function rotate(angle:Float)                                                                                     {}
@@ -147,6 +152,34 @@ class CanvasRenderingContext2D
 	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float)                                                {}
 	public function rect(x:Float, y:Float, width:Float, height:Float)                                                       {}
 	public function fill()                                                     												{}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)
+	{
+		__m11 = m11;
+		__m12 = m12;
+		__m21 = m21;
+		__m22 = m22;
+		__dx = dx;
+		__dy = dy;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function transform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)
+	{
+		var t11:Float = __m11 * m11 + __m21 * m12;
+		var t21:Float = __m11 * m21 + __m21 * m22;
+		var t12:Float = __m12 * m11 + __m22 * m12;
+		var t22:Float = __m12 * m21 + __m22 * m22;
+		var tdx:Float = __m11 * dx + __m21 * dy + __dx;
+		var tdy:Float = __m12 * dx + __m22 * dy + __dy;
+		__m11 = t11;
+		__m12 = t12;
+		__m21 = t21;
+		__m22 = t22;
+		__dx = tdx;
+		__dy = tdy;
+	}
 
  	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function beginPath()
@@ -503,18 +536,6 @@ class CanvasRenderingContext2D
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function drawImage(image:Image, dx:Float, dy:Float)
-	{
-		drawImage(image, 0.0, 0.0, Float(image.naturalWidth), Float(image.naturalHeight), dx, dy, Float(image.naturalWidth), Float(image.naturalHeight));
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function drawImage(image:Image, dx:Float, dy:Float, dw:Float, dh:Float)
-	{
-		drawImage(image, 0.0, 0.0, Float(image.naturalWidth), Float(image.naturalHeight), dx, dy, dw, dh);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawImage(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)
 	{
 		var scaleW:Float = dw / sw;
@@ -530,7 +551,7 @@ class CanvasRenderingContext2D
 		{
 			for(var y:Integer = dMinY; y < dMaxY; y++)
 			{
-				var dIdx:Integer = (y * canvas.__imageData.width + x) * 4;
+				var dIdx:Integer = ((__m12 * x + __m22 * y + __dy) * canvas.__imageData.width + (__m11 * x + __m21 * y + __dx)) * 4;
 				var sIdx:Integer = ((sy + Math.round(Float(y - dMinY) / scaleH)) * image.__imageData.width + sx + Math.round(Float(x - dMinX) / scaleW)) * 4; // Nearest interpolation
 				if(dIdx < canvas.__imageData.data.length && sIdx < image.__imageData.data.length)
 				{
@@ -541,6 +562,18 @@ class CanvasRenderingContext2D
 				}
 			}
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:Image, dx:Float, dy:Float)
+	{
+		drawImage(image, 0.0, 0.0, Float(image.naturalWidth), Float(image.naturalHeight), dx, dy, Float(image.naturalWidth), Float(image.naturalHeight));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:Image, dx:Float, dy:Float, dw:Float, dh:Float)
+	{
+		drawImage(image, 0.0, 0.0, Float(image.naturalWidth), Float(image.naturalHeight), dx, dy, dw, dh);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

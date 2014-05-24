@@ -1,0 +1,193 @@
+"#export web";
+//@line 9
+
+function TestOutsourcer()
+{
+	var __BASE__ = null;
+
+	function __TestOutsourcer()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__TESTOUTSOURCER__ = this.__CLASS__TESTOUTSOURCER__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'TestOutsourcer'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 18
+		this.__className = "TestOutsourcer";
+		//@line 14
+		this.work = function ()
+		{
+			//@line 16
+			trace("Outsourcer is working...");
+			//@line 17
+		};
+		//@line 12
+		this.Destructor = function ()
+		{
+			{}
+			{
+				__CLASS__TESTOUTSOURCER__.__className = null;
+			}
+			return true
+		};
+		//@line 11
+		this.Constructor = function () {};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__TestOutsourcer.prototype.constructor = TestOutsourcer;
+	return new __TestOutsourcer();
+}
+TestOutsourcer.__PRIVATE__ = {};
+TestOutsourcer.__PROTECTED__ = {};
+//@line 21
+
+function TestIntegrator()
+{
+	var __BASE__ = null;
+
+	function __TestIntegrator()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__TESTINTEGRATOR__ = this.__CLASS__TESTINTEGRATOR__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'TestIntegrator'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 34
+		this.__className = "TestIntegrator";
+		//@line 23
+		__PRIVATE__.delegator = null;
+		this.__PRIVATE__.Constructor = function ()
+		{
+			return __CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.Constructor();
+		}
+		this.__PRIVATE__.Destructor = function ()
+		{
+			return __CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.Destructor();
+		}
+		this.__PRIVATE__.work = function ()
+		{
+			return __CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.work();
+		}
+		//@line 30
+		this.Destructor = function ()
+		{
+			{
+				//@line 32
+				{
+					__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator && ((__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.hasOwnProperty('Destructor') && __CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.Destructor()) || !__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator.hasOwnProperty('Destructor')) && (delete __CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator);
+					__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator = null
+				};
+				//@line 33
+			}
+			{
+				__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator = null;
+				__CLASS__TESTINTEGRATOR__.__className = null;
+			}
+			return true
+		};
+		//@line 25
+		this.Constructor = function ()
+		{
+			//@line 27
+			__CLASS__TESTINTEGRATOR__.__PRIVATE__.delegator = new TestOutsourcer;
+			//@line 28
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__TestIntegrator.prototype.constructor = TestIntegrator;
+	return new __TestIntegrator();
+}
+TestIntegrator.__PRIVATE__ = {};
+TestIntegrator.__PROTECTED__ = {};
+//@line 37
+
+function TestIntegratorClient()
+{
+	var __BASE__ = null;
+
+	function __TestIntegratorClient()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__TESTINTEGRATORCLIENT__ = this.__CLASS__TESTINTEGRATORCLIENT__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'TestIntegratorClient'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 54
+		this.__className = "TestIntegratorClient";
+		//@line 39
+		__PRIVATE__.integrator = null;
+		//@line 50
+		this.Destructor = function ()
+		{
+			{
+				//@line 52
+				{
+					__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator && ((__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator.hasOwnProperty('Destructor') && __CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator.Destructor()) || !__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator.hasOwnProperty('Destructor')) && (delete __CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator);
+					__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator = null
+				};
+				//@line 53
+			}
+			{
+				__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator = null;
+				__CLASS__TESTINTEGRATORCLIENT__.__className = null;
+			}
+			return true
+		};
+		//@line 41
+		this.Constructor = function ()
+		{
+			//@line 46
+			__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator = new TestIntegrator;
+			//@line 47
+			__CLASS__TESTINTEGRATORCLIENT__.__PRIVATE__.integrator.__PRIVATE__.work();
+			//@line 48
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__TestIntegratorClient.prototype.constructor = TestIntegratorClient;
+	return new __TestIntegratorClient();
+}
+TestIntegratorClient.__PRIVATE__ = {};
+TestIntegratorClient.__PROTECTED__ = {};

@@ -1,0 +1,131 @@
+"#export web";
+//@line 38
+
+function CocoEvent(__CLASS__COCOEVENT__$type__, __CLASS__COCOEVENT__$cancelable__, __CLASS__COCOEVENT__$bubbles__)
+{
+	var __BASE__ = null;
+
+	function __CocoEvent(__CLASS__COCOEVENT__$type__, __CLASS__COCOEVENT__$cancelable__, __CLASS__COCOEVENT__$bubbles__)
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCOEVENT__ = this.__CLASS__COCOEVENT__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoEvent'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 94
+		this.__className = "CocoEvent";
+		//@line 40
+		this.type = "";
+		//@line 42
+		this.target = null;
+		//@line 43
+		this.currentTarget = null;
+		//@line 45
+		this.bubbles = false;
+		//@line 46
+		this.cancelable = false;
+		//@line 48
+		this.timeStamp = 0;
+		//@line 49
+		this.stopPropagation = false;
+		//@line 50
+		this.defaultPrevented = false;
+		//@line 52
+		this.detail = 0;
+		//@line 54
+		this.touches = null;
+		//@line 55
+		this.changedTouches = null;
+		//@line 56
+		this.scale = 0;
+		//@line 57
+		this.rotation = 0;
+		//@line 59
+		this.clientX = 0;
+		//@line 60
+		this.clientY = 0;
+		//@line 61
+		this.__clientX = 0;
+		//@line 62
+		this.__clientY = 0;
+		//@line 78
+		this.is = function (Event)
+		{
+			//@line 80
+			return Event.type == __CLASS__COCOEVENT__.type;
+			return false //@line 81
+		};
+		//@line 84
+		this.cancelBubble = function ()
+		{
+			//@line 86
+			__CLASS__COCOEVENT__.stopPropagation = true;
+			//@line 87
+		};
+		//@line 90
+		this.preventDefault = function ()
+		{
+			//@line 92
+			__CLASS__COCOEVENT__.defaultPrevented = true;
+			//@line 93
+		};
+		//@line 73
+		this.Destructor = function ()
+		{
+			{
+				//@line 75
+			}
+			{
+				__CLASS__COCOEVENT__.type = null;
+				__CLASS__COCOEVENT__.target = null;
+				__CLASS__COCOEVENT__.currentTarget = null;
+				__CLASS__COCOEVENT__.bubbles = null;
+				__CLASS__COCOEVENT__.cancelable = null;
+				__CLASS__COCOEVENT__.timeStamp = null;
+				__CLASS__COCOEVENT__.stopPropagation = null;
+				__CLASS__COCOEVENT__.defaultPrevented = null;
+				__CLASS__COCOEVENT__.detail = null;
+				__CLASS__COCOEVENT__.touches = null;
+				__CLASS__COCOEVENT__.changedTouches = null;
+				__CLASS__COCOEVENT__.scale = null;
+				__CLASS__COCOEVENT__.rotation = null;
+				__CLASS__COCOEVENT__.clientX = null;
+				__CLASS__COCOEVENT__.clientY = null;
+				__CLASS__COCOEVENT__.__clientX = null;
+				__CLASS__COCOEVENT__.__clientY = null;
+				__CLASS__COCOEVENT__.__className = null;
+			}
+			return true
+		};
+		//@line 65
+		this.Constructor = function (type, cancelable, bubbles)
+		{
+			//@line 67
+			__CLASS__COCOEVENT__.type = type;
+			//@line 68
+			__CLASS__COCOEVENT__.cancelable = cancelable;
+			//@line 69
+			__CLASS__COCOEVENT__.bubbles = bubbles;
+			//@line 70
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__COCOEVENT__$type__, __CLASS__COCOEVENT__$cancelable__, __CLASS__COCOEVENT__$bubbles__);
+		return this;
+	}
+	__CocoEvent.prototype.constructor = CocoEvent;
+	return new __CocoEvent(__CLASS__COCOEVENT__$type__, __CLASS__COCOEVENT__$cancelable__, __CLASS__COCOEVENT__$bubbles__);
+}
+CocoEvent.__PRIVATE__ = {};
+CocoEvent.__PROTECTED__ = {};

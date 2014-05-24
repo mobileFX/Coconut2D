@@ -1,17 +1,16 @@
 ﻿"#export web";
 "#export native";
-
 "#include CocoScene.jspp";
 
 class NewAnimation : CocoScene
 {
-	public function Constructor()
+	public function Constructor(engine:CocoEngine)
 	{
 		/* -- DESIGNER GENERATED CODE BEGIN -- */
 		__sceneName = 'NewAnimation';
 		__fps = 30;
-		__view_width = 480;
-		__view_height = 320;
+		__view_width = 320;
+		__view_height = 480;
 		__view_pixel_ratio = 1;
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +53,34 @@ class NewAnimation : CocoScene
 			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Happy', [16,17,18,19,20,21]));
 		}
 
+		// Symbol Image: SkinSymbol_iPhone_AlertButton_Light
+		//====================================================================================================
+		var Image_SkinSymbol_iPhone_AlertButton_Light:CocoImage = newResourceImage('SkinSymbol_iPhone_AlertButton_Light', './assets/images/');
+		{
+			Image_SkinSymbol_iPhone_AlertButton_Light.viewOptimalWidth = 0;
+			Image_SkinSymbol_iPhone_AlertButton_Light.viewOptimalHeight = 0;
+			Image_SkinSymbol_iPhone_AlertButton_Light.addSibling(new CocoImageSibling('iPhone_AlertButton_Light_mdpi.png', 1, 128, 64));
+			Image_SkinSymbol_iPhone_AlertButton_Light.addSibling(new CocoImageSibling('iPhone_AlertButton_Light_xhdpi.png', 2, 256, 128));
+			Image_SkinSymbol_iPhone_AlertButton_Light.skin = new Float32Array([43,43,42,0,43,0]);
+			Image_SkinSymbol_iPhone_AlertButton_Light.textureCellWidth = 128;
+			Image_SkinSymbol_iPhone_AlertButton_Light.textureCellHeight = 64;
+			Image_SkinSymbol_iPhone_AlertButton_Light.textureGrid = new Float32Array([0,0]);
+		}
+
+		// Symbol Image: SkinSymbol_iPhone_ActionSheet
+		//====================================================================================================
+		var Image_SkinSymbol_iPhone_ActionSheet:CocoImage = newResourceImage('SkinSymbol_iPhone_ActionSheet', './assets/images/');
+		{
+			Image_SkinSymbol_iPhone_ActionSheet.viewOptimalWidth = 0;
+			Image_SkinSymbol_iPhone_ActionSheet.viewOptimalHeight = 0;
+			Image_SkinSymbol_iPhone_ActionSheet.addSibling(new CocoImageSibling('iPhone_ActionSheet_mdpi.png', 1, 512, 64));
+			Image_SkinSymbol_iPhone_ActionSheet.addSibling(new CocoImageSibling('iPhone_ActionSheet_xhdpi.png', 2, 1024, 128));
+			Image_SkinSymbol_iPhone_ActionSheet.skin = new Float32Array([140,4,140,33,2,27]);
+			Image_SkinSymbol_iPhone_ActionSheet.textureCellWidth = 512;
+			Image_SkinSymbol_iPhone_ActionSheet.textureCellHeight = 64;
+			Image_SkinSymbol_iPhone_ActionSheet.textureGrid = new Float32Array([0,0]);
+		}
+
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Scene Root Clip
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,8 +96,8 @@ class NewAnimation : CocoScene
 			__root.addChild(inst1);
 			inst1.__scene = this;
 			inst1.__timeline.clear();
-			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -147.5, -70, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
-			inst1.__timeline.addKeyFrameEx(null, null, 60, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 189.5, 5.5, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+			inst1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -118.5, -93, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+			inst1.__timeline.addKeyFrameEx(null, null, 60, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 131.5, -16.49999, 1, 1, 0, 5, 5, 0, 1, 1, 1, 1, null, false, false, 'Walk');
 			{
 				var inst2:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 				inst2.__instanceName = ':: SpriteSymbol_metal_slug';
@@ -84,8 +111,8 @@ class NewAnimation : CocoScene
 			__root.addChild(inst3);
 			inst3.__scene = this;
 			inst3.__timeline.clear();
-			inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -143.5, 44, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
-			inst3.__timeline.addKeyFrameEx(null, null, 60, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 193.5, 119.5, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+			inst3.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, -98.5, 63, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, 'Walk');
+			inst3.__timeline.addKeyFrameEx(null, null, 60, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 135.5, 97.50001, 1, 1, 0, 5, 5, 0, 1, 1, 1, 1, null, false, false, 'Walk');
 			{
 				var inst4:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst4.__instanceName = ':: SpriteSymbol_Sparrow';
@@ -99,7 +126,7 @@ class NewAnimation : CocoScene
 			__root.addChild(inst5);
 			inst5.__scene = this;
 			inst5.__timeline.clear();
-			inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 153.5, -60, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst5.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 130.5, -99.00001, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
 				var inst6:CocoClip = new  CocoClip(Image_SpriteSymbol_metal_slug);
 				inst6.__instanceName = ':: SpriteSymbol_metal_slug';
@@ -113,7 +140,7 @@ class NewAnimation : CocoScene
 			__root.addChild(inst7);
 			inst7.__scene = this;
 			inst7.__timeline.clear();
-			inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 155.5, 53, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+			inst7.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 126.5, 150, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			{
 				var inst8:CocoClip = new  CocoClip(Image_SpriteSymbol_Sparrow);
 				inst8.__instanceName = ':: SpriteSymbol_Sparrow';
@@ -123,6 +150,8 @@ class NewAnimation : CocoScene
 				inst8.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 			}
 		}
+
+		prepare(engine.__ctx);
 
 		/* -- DESIGNER GENERATED CODE END -- */
 	}

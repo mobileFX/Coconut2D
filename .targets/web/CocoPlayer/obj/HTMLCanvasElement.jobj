@@ -1,0 +1,91 @@
+//@line 35
+
+function HTMLCanvasElement()
+{
+	var __BASE__ = null;
+
+	function __HTMLCanvasElement()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__HTMLCANVASELEMENT__ = this.__CLASS__HTMLCANVASELEMENT__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'HTMLCanvasElement'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 70
+		this.__className = "HTMLCanvasElement";
+		//@line 37
+		this.width = 0;
+		//@line 38
+		this.height = 0;
+		//@line 40
+		this.__imageData = null;
+		//@line 57
+		this.getContext = function (contextId)
+		{
+			//@line 59
+			if (contextId == "2d")
+			//@line 60
+			return (new CanvasRenderingContext2D(__THIS__));
+			else
+			//@line 62
+			return (new WebGLRenderingContext(__THIS__));
+			return {} //@line 63
+		};
+		//@line 66
+		this.toDataURL = function ()
+		{
+			//@line 68
+			return "data:image/png;base64," + (__CLASS__HTMLCANVASELEMENT__.__imageData ? __CLASS__HTMLCANVASELEMENT__.__imageData.data.buffer.encodeAsPNG(__CLASS__HTMLCANVASELEMENT__.__imageData.width, __CLASS__HTMLCANVASELEMENT__.__imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
+			return "" //@line 69
+		};
+		//@line 51
+		this.Destructor = function ()
+		{
+			{
+				//@line 53
+				{
+					__CLASS__HTMLCANVASELEMENT__.__imageData && ((__CLASS__HTMLCANVASELEMENT__.__imageData.hasOwnProperty('Destructor') && __CLASS__HTMLCANVASELEMENT__.__imageData.Destructor()) || !__CLASS__HTMLCANVASELEMENT__.__imageData.hasOwnProperty('Destructor')) && (delete __CLASS__HTMLCANVASELEMENT__.__imageData);
+					__CLASS__HTMLCANVASELEMENT__.__imageData = null
+				};
+				//@line 54
+			}
+			{
+				__CLASS__HTMLCANVASELEMENT__.width = null;
+				__CLASS__HTMLCANVASELEMENT__.height = null;
+				__CLASS__HTMLCANVASELEMENT__.__imageData = null;
+				__CLASS__HTMLCANVASELEMENT__.__className = null;
+			}
+			return true
+		};
+		//@line 43
+		this.Constructor = function ()
+		{
+			//@line 45
+			__CLASS__HTMLCANVASELEMENT__.width = 0.0;
+			//@line 46
+			__CLASS__HTMLCANVASELEMENT__.height = 0.0;
+			//@line 47
+			__CLASS__HTMLCANVASELEMENT__.__imageData = null;
+			//@line 48
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__HTMLCanvasElement.prototype.constructor = HTMLCanvasElement;
+	return new __HTMLCanvasElement();
+}
+HTMLCanvasElement.__PRIVATE__ = {};
+HTMLCanvasElement.__PROTECTED__ = {};

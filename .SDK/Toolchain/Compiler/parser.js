@@ -1630,6 +1630,7 @@ function __init_narcissus(GLOBAL)
 				case "exit":  f.public=true; break;
 				case "tick":  f.public=true; break;
 				case "paint": f.public=true; break;
+				case "paintCanvas": f.public=true; break;
 				default:
 					throw t.newSyntaxError("Invalid function inside State");
 				}

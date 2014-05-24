@@ -127,6 +127,12 @@
 		and the compiler will link at compile-time the public members of ClassXXX with the host class and generate the appropriate
 		delegation wrappers. Works with overloaded function as well.
 
+	== 22/05/2014 ==
+
+	41. Implemented events both in JavaScript and C++. Events are supported through the CocoEventSource base class that
+		all event sources must extend. Event listeners must implement the IEventListener interface. An event is declared
+		by
+
 
 	Elias G. Politakis
 	epolitakis@mobilefx.com
@@ -665,6 +671,9 @@ function Compiler(ast)
 		_this.scopesTable.push(scope);
 		_this.scopesStack.push(scope);
 
+		if(ast.inFunction && ast.inFunction.symbol)
+			ast.inFunction.symbol.scopes.push(scope);
+
 		return scope;
 	};
 
@@ -946,7 +955,6 @@ function Compiler(ast)
 		if(ast.inCall) list = ast.inCall[1];
 		if(ast.inDot) list = _this.isInside(ast, jsdef.CALL)[1];
 		if(list && list.type==jsdef.LIST) return list;
-		debugger;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -954,7 +962,6 @@ function Compiler(ast)
 	{
 		var list = _this.getCallList(ast);
 		if(list) return list[index];
-		debugger;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1255,7 +1262,7 @@ function Compiler(ast)
 				classSymbol.__event_unbindings		= [];
 				classSymbol.__event_fire			= [];
 				classSymbol.type					= jsdef.CLASS;
-				classSymbol.nodeType				= ast.nodeType;
+				classSymbol.nodeType				= "CLASS";
 				classSymbol.extern					= (ast.file=="externs.jspp");
 				classSymbol.control					= ast.control;
 				classSymbol._prototype				= false;
@@ -2028,7 +2035,7 @@ function Compiler(ast)
 				functionSymbol.symbolId				= (++_this.symbolId);
 				functionSymbol.name					= fnName;
 				functionSymbol.type					= ast.type;
-				functionSymbol.nodeType				= ast.nodeType;
+				functionSymbol.nodeType				= "FUNCTION";
 				functionSymbol.className			= parentScope ? className : null;
 				functionSymbol.classId				= classScope ? classId : null;
 				functionSymbol.extern				= (ast.file=="externs.jspp");
@@ -2042,6 +2049,7 @@ function Compiler(ast)
 				functionSymbol.abstract				= ast.abstract==true || (classSymbol && classSymbol.interface);
 				functionSymbol.ast					= ast;
 				functionSymbol.scope				= methodScope;
+				functionSymbol.scopes 				= [methodScope];
 				functionSymbol.baseSymbol			= baseMethodSymbol;
 				functionSymbol.file					= ast.file;
 				functionSymbol.path					= ast.path;
@@ -2612,7 +2620,7 @@ function Compiler(ast)
 					varSymbol.name			= ast[item].name;
 					varSymbol.value			= (ast.type==jsdef.CONST || ast.type==jsdef.EVENT ? generate(ast[item].initializer) : null);
 					varSymbol.type			= ast[item].type;
-					varSymbol.nodeType		= ast[item].nodeType;
+					varSymbol.nodeType		= "IDENTIFIER";
 					varSymbol.classId		= classId;
 					varSymbol.extern		= (ast.file=="externs.jspp");
 					varSymbol.public		= ast.public;
@@ -2708,6 +2716,10 @@ function Compiler(ast)
 					}
 
 					ast[item].generated_code = generate(ast[item].initializer);
+
+					// Check type
+					var type = _this.getTypeName(ast[item].initializer);
+					_this.typeCheck(ast, varSymbol.vartype, type2, null, true);
 				}
 				else
 				{
@@ -2747,7 +2759,9 @@ function Compiler(ast)
 						// by other classes (aka has derivatives) and the variable is
 						// not an object already. Also, we don't do it for consts.
 
-						if(_this.derivatives[classSymbol.name] && !varSymbol.pointer && ast.type!=jsdef.CONST)
+						//if(_this.derivatives[classSymbol.name] /*&& !varSymbol.pointer*/ && ast.type!=jsdef.CONST)
+
+						if(_this.derivatives[classSymbol.name] && ast.type!=jsdef.CONST)
 						{
 							out.push("__PRIVATE__.__" + varSymbol.name + "__ = " + ast[item].generated_code + ";");
 							var pdefine = "__PDEFINE__(%, '" + varSymbol.name + "', { configurable:false, get: function(){ return __PRIVATE__.__" + varSymbol.name + "__; }, set: function(v) { __PRIVATE__.__" + varSymbol.name + "__ = v; }});";
@@ -2965,7 +2979,7 @@ function Compiler(ast)
 					varSymbol.name					= arg.value;
 					varSymbol.value					= null;
 					varSymbol.type					= arg.type;
-					varSymbol.nodeType				= arg.nodeType;
+					varSymbol.nodeType				= "IDENTIFIER";
 					varSymbol.classId				= classSymbol.clssId;
 					varSymbol.extern				= false
 					varSymbol.public				= true;
@@ -3127,7 +3141,7 @@ function Compiler(ast)
 				classSymbol.__event_unbindings		= [];
 				classSymbol.__event_fire			= [];
 				classSymbol.type					= jsdef.CLASS;
-				classSymbol.nodeType				= "CLASS";
+				classSymbol.nodeType				= "ENUM";
 				classSymbol.control					= false;
 				classSymbol._prototype				= false;
 				classSymbol.enum					= true;
@@ -3182,7 +3196,7 @@ function Compiler(ast)
 					varSymbol.name			= ast[item].name;
 					varSymbol.value			= ast[item].value;
 					varSymbol.type			= ast[item].type;
-					varSymbol.nodeType		= ast[item].nodeType;
+					varSymbol.nodeType		= "ENUM_ITEM";
 					varSymbol.classId		= classId;
 					varSymbol.extern		= classSymbol.extern;
 					varSymbol.enum			= true;
@@ -3269,7 +3283,7 @@ function Compiler(ast)
 				propSymbol.name			= propertyName;
 				propSymbol.value		= null;
 				propSymbol.type			= ast.type;
-				propSymbol.nodeType		= ast.nodeType;
+				propSymbol.nodeType		= "PROPERTY";
 				propSymbol.classId		= classId;
 				propSymbol.extern		= (ast.file=="externs.jspp");
 				propSymbol.public		= ast.public;
@@ -3393,7 +3407,7 @@ function Compiler(ast)
 				stateSymbol.name			= ast.name;
 				stateSymbol.value			= ast.name;
 				stateSymbol.type			= jsdef.STATE;
-				stateSymbol.nodeType		= ast.nodeType;
+				stateSymbol.nodeType		= "STATE";
 				stateSymbol.classId			= classSymbol.classId;
 				stateSymbol.extern			= (ast.file=="externs.jspp");
 				stateSymbol.state			= true;
@@ -4138,15 +4152,18 @@ function Compiler(ast)
 			if(ast.value != "=") out.push("=");
 			out.push(generate(ast[1]));
 
-			if(ast[0].type==jsdef.THIS)
+			if(_this.secondPass)
 			{
-				_this.NewError("Cannot assign to 'this'", ast);
+				if(ast[0].type==jsdef.THIS)
+				{
+					_this.NewError("Cannot assign to 'this'", ast);
+				}
+				else if(ast[0].type != jsdef.IDENTIFIER && ast[0].type != jsdef.DOT && ast[0].type != jsdef.INDEX)
+				{
+					_this.NewError("Invalid left-hand assignment", ast);
+				}
+			    _this.typeCheck(ast, _this.getTypeName(ast[0]), _this.getTypeName(ast[1]));
 			}
-			else if(ast[0].type != jsdef.IDENTIFIER && ast[0].type != jsdef.DOT && ast[0].type != jsdef.INDEX)
-			{
-				_this.NewError("Invalid left-hand assignment", ast);
-			}
-		    _this.typeCheck(ast, _this.getTypeName(ast[0]), _this.getTypeName(ast[1]));
 
 			break;
 
@@ -4404,42 +4421,46 @@ function Compiler(ast)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.AND:					out.push(generate(ast[0])); out.push("&&"); out.push(generate(ast[1])); break;
-		case jsdef.BITWISE_AND:			out.push(generate(ast[0])); out.push("&"); out.push(generate(ast[1])); break;
-		case jsdef.BITWISE_NOT:			out.push("~"); out.push(generate(ast[0])); break;
-		case jsdef.BITWISE_OR:			out.push(generate(ast[0])); out.push("|"); out.push(generate(ast[1])); break;
-		case jsdef.BITWISE_XOR:			out.push(generate(ast[0])); out.push("^"); out.push(generate(ast[1])); break;
+		case jsdef.OR:					out.push(generate(ast[0])); out.push("||"); out.push(generate(ast[1]));	break;
+
+		case jsdef.BITWISE_AND:			out.push(generate(ast[0])); out.push("&"); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
+		case jsdef.BITWISE_NOT:			out.push("~"); out.push(generate(ast[0])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
+		case jsdef.BITWISE_OR:			out.push(generate(ast[0])); out.push("|"); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
+		case jsdef.BITWISE_XOR:			out.push(generate(ast[0])); out.push("^"); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
+
+		case jsdef.EQ: 					out.push(generate(ast[0])); out.push("=="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
+		case jsdef.STRICT_EQ:			out.push(generate(ast[0])); out.push("=="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
+		case jsdef.STRICT_NE:			out.push(generate(ast[0]));	out.push("!="); out.push(generate(ast[1])); break;
+		case jsdef.GE:					out.push(generate(ast[0])); out.push(">="); out.push(generate(ast[1])); break;
+		case jsdef.GT:					out.push(generate(ast[0])); out.push(">");  out.push(generate(ast[1])); break;
+		case jsdef.LE:					out.push(generate(ast[0])); out.push("<="); out.push(generate(ast[1])); break;
+		case jsdef.LT:					out.push(generate(ast[0])); out.push("<");  out.push(generate(ast[1])); break;
+		case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	out.push(generate(ast[1])); break;
+
+		case jsdef.LSH:					out.push(generate(ast[0])); out.push("<<"); out.push(generate(ast[1])); break;
+		case jsdef.RSH:					out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
+		case jsdef.URSH:				out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
+		case jsdef.EXPONENT:			out.push("Math.pow(" + generate(ast[0]) + "," + generate(ast[1]) + ")");break;
+		case jsdef.DECREMENT:			if(ast.postfix) { out.push(generate(ast[0])); out.push("--"); } else { out.push("--"); out.push(generate(ast[0])); } break;
+		case jsdef.INCREMENT:			if(ast.postfix) { out.push(generate(ast[0])); out.push("++"); } else { out.push("++"); out.push(generate(ast[0])); } break;
+		case jsdef.HOOK:				out.push(generate(ast[0])); out.push("?"); out.push(generate(ast[1])); out.push(":"); out.push(generate(ast[2])); break;
+		case jsdef.LABEL:				out.push(ast.label + ":"); out.push(generate(ast.statement)); break;
+		case jsdef.NOT:					out.push("!"); out.push(generate(ast[0])); break;
+		case jsdef.UNARY_MINUS:			out.push(" -"); out.push(generate(ast[0])); break;
+		case jsdef.UNARY_PLUS:			out.push(" +"); out.push(generate(ast[0])); break;
+
 		case jsdef.BREAK:				out.push("break;"); break;
 		case jsdef.CASE:				out.push("case " + generate(ast.caseLabel) + ":"); out.push(generate(ast.statements)); break;
 		case jsdef.CONTINUE:			out.push("continue;"); break;
 		case jsdef.DEBUGGER:			out.push("debugger;"); break;
-		case jsdef.DECREMENT:			if(ast.postfix) { out.push(generate(ast[0])); out.push("--"); } else { out.push("--"); out.push(generate(ast[0])); } break;
 		case jsdef.DEFAULT:				out.push("default:"); out.push(generate(ast.statements)); break;
 		case jsdef.DO: 					ast.body.isLoop = true; out.push("do"); out.push(generate(ast.body)); out.push("while(" + generate(ast.condition) + ");"); break;
-		case jsdef.EQ: 					out.push(generate(ast[0])); out.push("==");	 out.push(generate(ast[1])); break;
-		case jsdef.EXPONENT:			out.push("Math.pow(" + generate(ast[0]) + "," + generate(ast[1]) + ")");break;
 		case jsdef.FALSE:				out.push("false"); break;
-		case jsdef.GE:					out.push(generate(ast[0])); out.push(">=");  out.push(generate(ast[1])); break;
-		case jsdef.GT:					out.push(generate(ast[0])); out.push(">");   out.push(generate(ast[1])); break;
-		case jsdef.HOOK:				out.push(generate(ast[0])); out.push("?"); out.push(generate(ast[1])); out.push(":"); out.push(generate(ast[2])); break;
-		case jsdef.INCREMENT:			if(ast.postfix) { out.push(generate(ast[0])); out.push("++"); } else { out.push("++"); out.push(generate(ast[0])); } break;
-		case jsdef.LABEL:				out.push(ast.label + ":"); out.push(generate(ast.statement)); break;
-		case jsdef.LE:					out.push(generate(ast[0])); out.push("<=");  out.push(generate(ast[1])); break;
-		case jsdef.LSH:					out.push(generate(ast[0])); out.push("<<"); out.push(generate(ast[1])); break;
-		case jsdef.LT:					out.push(generate(ast[0])); out.push("<");   out.push(generate(ast[1])); break;
-		case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	 out.push(generate(ast[1])); break;
-		case jsdef.NOT:					out.push("!"); out.push(generate(ast[0])); break;
+		case jsdef.TRUE:				out.push("true"); break;
 		case jsdef.NULL:				out.push("null"); break;
 		case jsdef.NUMBER:				out.push(ast.value); break;
-		case jsdef.OR:					out.push(generate(ast[0])); out.push("||"); out.push(generate(ast[1]));	break;
 		case jsdef.RETURN:				out.push("return"); if(ast.value) out.push(" " + generate(ast.value)); out.push(";\n"); break;
-		case jsdef.RSH:					out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
-		case jsdef.STRICT_EQ:			out.push(generate(ast[0])); out.push("=="); out.push(generate(ast[1])); break;
-		case jsdef.STRICT_NE:			out.push(generate(ast[0]));	out.push("!="); out.push(generate(ast[1])); break;
 		case jsdef.THROW:				out.push("throw "); out.push(generate(ast.exception)); out.push(";"); break;
-		case jsdef.TRUE:				out.push("true"); break;
-		case jsdef.UNARY_MINUS:			out.push(" -"); out.push(generate(ast[0])); break;
-		case jsdef.UNARY_PLUS:			out.push(" +"); out.push(generate(ast[0])); break;
-		case jsdef.URSH:				out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;
 		case jsdef.WHILE:				ast.body.isLoop=true; out.push("while(" + generate(ast.condition) + ")"); out.push(generate(ast.body)); break;
 		}
 		return out.join("");

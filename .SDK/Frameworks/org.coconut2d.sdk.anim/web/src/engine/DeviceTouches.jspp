@@ -26,59 +26,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	  ______                 __
-//	 /_  __/___  __  _______/ /_
-//	  / / / __ \/ / / / ___/ __ \
-//	 / / / /_/ / /_/ / /__/ / / /
-//	/_/  \____/\__,_/\___/_/ /_/
-//
-// ==================================================================================================================================
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-class Touch
-{
-    public var identifier:Integer;
-    public var screenX:Integer;
-    public var screenY:Integer;
-    public var clientX:Integer;
-    public var clientY:Integer;
-    public var pageX:Integer;
-    public var pageY:Integer;
-    public var target:IEventTarget;
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
-	{
-		identifier	= 0;
-		target		= null;
-		screenX		= 0;
-		screenY		= 0;
-		clientX		= 0;
-		clientY		= 0;
-		pageX		= 0;
-		pageY		= 0;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor()
-	{
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, pageX:Integer, pageY:Integer)
-	{
-		this.identifier	= identifier;
-		this.target		= target;
-		this.screenX	= screenX;
-		this.screenY	= screenY;
-		this.clientX	= clientX;
-		this.clientY	= clientY;
-		this.pageX		= pageX;
-		this.pageY		= pageY;
-	}
-}
-
-// ==================================================================================================================================
 //	  ______                 __    __    _      __
 //	 /_  __/___  __  _______/ /_  / /   (_)____/ /_
 //	  / / / __ \/ / / / ___/ __ \/ /   / / ___/ __/
@@ -107,5 +54,58 @@ class TouchList : Array<Touch>
 	public function item(index:Integer) : Touch
 	{
 		return this[index];
+	}
+}
+
+// ==================================================================================================================================
+//	  ______                 __
+//	 /_  __/___  __  _______/ /_
+//	  / / / __ \/ / / / ___/ __ \
+//	 / / / /_/ / /_/ / /__/ / / /
+//	/_/  \____/\__,_/\___/_/ /_/
+//
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+class Touch
+{
+    public var identifier:Integer;
+    public var screenX:Float;
+    public var screenY:Float;
+    public var clientX:Float;
+    public var clientY:Float;
+    public var pageX:Float;
+    public var pageY:Float;
+    public var target:IEventTarget;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		identifier	= 0;
+		target		= null;
+		screenX		= 0;
+		screenY		= 0;
+		clientX		= 0;
+		clientY		= 0;
+		pageX		= 0;
+		pageY		= 0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Float, screenY:Float, clientX:Float, clientY:Float, pageX:Float, pageY:Float)
+	{
+		this.identifier	= identifier;
+		this.target		= target;
+		this.screenX	= screenX;
+		this.screenY	= screenY;
+		this.clientX	= clientX;
+		this.clientY	= clientY;
+		this.pageX		= pageX;
+		this.pageY		= pageY;
 	}
 }

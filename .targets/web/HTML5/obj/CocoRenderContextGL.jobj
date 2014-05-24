@@ -1,0 +1,662 @@
+"#export web";
+//@line 36
+
+function CocoImageRenderDataGL()
+{
+	var __BASE__ = null;
+
+	function __CocoImageRenderDataGL()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCOIMAGERENDERDATAGL__ = this.__CLASS__COCOIMAGERENDERDATAGL__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoImageRenderDataGL'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 48
+		this.__className = "CocoImageRenderDataGL";
+		//@line 38
+		this.texture = null;
+		//@line 39
+		this.buffer = null;
+		//@line 45
+		this.Destructor = function ()
+		{
+			{
+				//@line 47
+			}
+			{
+				__CLASS__COCOIMAGERENDERDATAGL__.texture = null;
+				__CLASS__COCOIMAGERENDERDATAGL__.buffer = null;
+				__CLASS__COCOIMAGERENDERDATAGL__.__className = null;
+			}
+			return true
+		};
+		//@line 41
+		this.Constructor = function ()
+		{
+			//@line 43
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__CocoImageRenderDataGL.prototype.constructor = CocoImageRenderDataGL;
+	return new __CocoImageRenderDataGL();
+}
+CocoImageRenderDataGL.__PRIVATE__ = {};
+CocoImageRenderDataGL.__PROTECTED__ = {};
+//@line 59
+
+function CocoRenderContextGL(__CLASS__COCORENDERCONTEXTGL__$ctx__)
+{
+	var __BASE__ = null;
+
+	function __CocoRenderContextGL(__CLASS__COCORENDERCONTEXTGL__$ctx__)
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCORENDERCONTEXTGL__ = this.__CLASS__COCORENDERCONTEXTGL__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoRenderContextGL'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 417
+		this.__className = "CocoRenderContextGL";
+		//@line 62
+		__PRIVATE__.__modelViewMatrix = null;
+		//@line 63
+		__PRIVATE__.__projectionMatrix = null;
+		//@line 65
+		__PRIVATE__.__glProgram = null;
+		//@line 66
+		__PRIVATE__.__glProgram_Simple = null;
+		//@line 67
+		__PRIVATE__.__glProgram_SimpleWithAlpha = null;
+		//@line 68
+		__PRIVATE__.__glProgram_SaturationWithAlpha = null;
+		//@line 70
+		__PRIVATE__.__vertex_shader_Common = "";
+		//@line 71
+		__PRIVATE__.__fragment_shader_Simple = "";
+		//@line 72
+		__PRIVATE__.__fragment_shader_SimpleWithAlpha = "";
+		//@line 73
+		__PRIVATE__.__fragment_shader_SaturationWithAlpha = "";
+		//@line 75
+		__PRIVATE__.__boundingBoxVertexShader = "";
+		//@line 76
+		__PRIVATE__.__boundingBoxFragmentShader = "";
+		//@line 77
+		__PRIVATE__.__boundingBoxProgram = null;
+		//@line 78
+		__PRIVATE__.__boundingBoxBuffer = null;
+		//@line 80
+		__PRIVATE__.gl = null;
+		//@line 119
+		this.flush = function ()
+		{
+			//@line 121
+		};
+		//@line 124
+		this.getModelViewMatrix = function ()
+		{
+			//@line 126
+			return __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix;
+			//@line 127
+		};
+		//@line 130
+		this.getProjectionMatrix = function ()
+		{
+			//@line 132
+			return __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix;
+			//@line 133
+		};
+		//@line 136
+		this.getWidth = function ()
+		{
+			//@line 138
+			return __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.width;
+			return 0 //@line 139
+		};
+		//@line 142
+		this.getHeight = function ()
+		{
+			//@line 144
+			return __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.height;
+			return 0 //@line 145
+		};
+		//@line 148
+		this.cls = function ()
+		{
+			//@line 150
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix.identity();
+			//@line 151
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.clearColor(0, 0, 0, 1);
+			//@line 152
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.clear(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.COLOR_BUFFER_BIT);
+			//@line 159
+		};
+		//@line 162
+		this.ready = function ()
+		{
+			//@line 164
+			return true;
+			return false //@line 165
+		};
+		//@line 168
+		this.prepare = function (scene)
+		{
+			//@line 170
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.disable(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.DEPTH_TEST);
+			//@line 171
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.enable(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.BLEND);
+			//@line 172
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.blendFunc(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.SRC_ALPHA, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.ONE_MINUS_SRC_ALPHA);
+			//@line 173
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.disable(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.CULL_FACE);
+			//@line 175
+			if (window.deviceRotation)
+			//@line 176
+			{
+				//@line 177
+				var c = Math.cos(window.deviceRotation);
+				//@line 178
+				var s = Math.sin(window.deviceRotation);
+				//@line 179
+				var orthoWidth = Math.abs(c * (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.width) + s * (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.height));
+				//@line 180
+				var orthoHeight = Math.abs(-s * (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.width) + c * (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.height));
+				//@line 181
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix.ortho(-orthoWidth / 2.0, orthoWidth / 2.0, orthoHeight / 2.0, -orthoHeight / 2.0, -1.0, 1.0);
+				//@line 182
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix.rotateZ(-window.deviceRotation);
+				//@line 183
+			}
+			else
+			//@line 185
+			{
+				//@line 186
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix.ortho(-((__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.width) / 2.0), (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.width) / 2.0, (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.height) / 2.0, -((__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.canvas.height) / 2.0), -1.0, 1.0);
+				//@line 187
+			}
+			//@line 189
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
+			//@line 191
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.makeProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxVertexShader, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxFragmentShader);
+			//@line 192
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.useProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram);
+			//@line 193
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram.GLSLiVec2Coords = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getAttribLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram, "iVec2Coords");
+			//@line 194
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram.GLSLuProjMat = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram, "uProjMat");
+			//@line 195
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.createBuffer();
+			//@line 196
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bindBuffer(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.ARRAY_BUFFER, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer);
+			//@line 197
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bufferData(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.DYNAMIC_DRAW);
+			//@line 199
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.makeProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__vertex_shader_Common, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__fragment_shader_Simple);
+			//@line 200
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.useProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple);
+			//@line 201
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLiVecCoords = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getAttribLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple, "iVecCoords");
+			//@line 202
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLiTexCoords = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getAttribLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple, "iTexCoords");
+			//@line 203
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLuProjMat = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple, "uProjMat");
+			//@line 204
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLuMVMat = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple, "uMVMat");
+			//@line 205
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLuSprSize = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple, "uSprSize");
+			//@line 206
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLuSprFrame = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple, "uSprFrame");
+			//@line 207
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLuSprFlip = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple, "uSprFlip");
+			//@line 208
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLuSampler = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple, "uSampler");
+			//@line 209
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.enableVertexAttribArray(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLiVecCoords);
+			//@line 210
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.enableVertexAttribArray(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLiTexCoords);
+			//@line 211
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.uniform1i(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLuSampler, 0);
+			//@line 212
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.update(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLuMVMat);
+			//@line 213
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.update(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.GLSLuProjMat);
+			//@line 215
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.makeProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__vertex_shader_Common, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__fragment_shader_SimpleWithAlpha);
+			//@line 216
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.useProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha);
+			//@line 217
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLiVecCoords = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getAttribLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha, "iVecCoords");
+			//@line 218
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLiTexCoords = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getAttribLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha, "iTexCoords");
+			//@line 219
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuProjMat = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha, "uProjMat");
+			//@line 220
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuMVMat = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha, "uMVMat");
+			//@line 221
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuSprSize = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha, "uSprSize");
+			//@line 222
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuSprFrame = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha, "uSprFrame");
+			//@line 223
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuSprFlip = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha, "uSprFlip");
+			//@line 224
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuSampler = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha, "uSampler");
+			//@line 225
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuAlpha = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha, "uAlpha");
+			//@line 226
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.enableVertexAttribArray(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLiVecCoords);
+			//@line 227
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.enableVertexAttribArray(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLiTexCoords);
+			//@line 228
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.uniform1i(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuSampler, 0);
+			//@line 229
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.update(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuMVMat);
+			//@line 230
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.update(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.GLSLuProjMat);
+			//@line 232
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.makeProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__vertex_shader_Common, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__fragment_shader_SaturationWithAlpha);
+			//@line 233
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.useProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha);
+			//@line 234
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLiVecCoords = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getAttribLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha, "iVecCoords");
+			//@line 235
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLiTexCoords = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getAttribLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha, "iTexCoords");
+			//@line 236
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuProjMat = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha, "uProjMat");
+			//@line 237
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuMVMat = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha, "uMVMat");
+			//@line 238
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuSprSize = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha, "uSprSize");
+			//@line 239
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuSprFrame = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha, "uSprFrame");
+			//@line 240
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuSprFlip = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha, "uSprFlip");
+			//@line 241
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuSampler = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha, "uSampler");
+			//@line 242
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuColor = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.getUniformLocation(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha, "uColor");
+			//@line 243
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.enableVertexAttribArray(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLiVecCoords);
+			//@line 244
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.enableVertexAttribArray(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLiTexCoords);
+			//@line 245
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.uniform1i(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuSampler, 0);
+			//@line 246
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.update(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuMVMat);
+			//@line 247
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.update(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.GLSLuProjMat);
+			//@line 249
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple;
+			//@line 250
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.useProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram);
+			//@line 251
+		};
+		//@line 254
+		this.__PRIVATE__.makeProgram = function (gl, vs, fs)
+		{
+			//@line 256
+			var vshader = gl.createShader(gl.VERTEX_SHADER);
+			//@line 257
+			var fshader = gl.createShader(gl.FRAGMENT_SHADER);
+			//@line 258
+			gl.shaderSource(vshader, vs);
+			//@line 259
+			gl.shaderSource(fshader, fs);
+			//@line 260
+			gl.compileShader(vshader);
+			//@line 261
+			gl.compileShader(fshader);
+			//@line 262
+			var program = gl.createProgram();
+			//@line 263
+			gl.attachShader(program, vshader);
+			//@line 264
+			gl.attachShader(program, fshader);
+			//@line 265
+			gl.linkProgram(program);
+			//@line 266
+			return program;
+			//@line 267
+		};
+		//@line 270
+		this.prepareImage = function (img)
+		{
+			//@line 272
+			var data = new CocoImageRenderDataGL;
+			//@line 275
+			data.texture = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.createTexture();
+			//@line 276
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bindTexture(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_2D, data.texture);
+			//@line 279
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.texImage2D(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_2D, 0, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.RGBA, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.RGBA, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.UNSIGNED_BYTE, img.image);
+			//@line 284
+			if (!img.skin)
+			//@line 285
+			img.unload();
+			//@line 289
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.texParameteri(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_2D, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_WRAP_S, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.CLAMP_TO_EDGE);
+			//@line 290
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.texParameteri(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_2D, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_WRAP_T, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.CLAMP_TO_EDGE);
+			//@line 293
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.texParameteri(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_2D, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_MAG_FILTER, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.LINEAR);
+			//@line 294
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.texParameteri(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_2D, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_MIN_FILTER, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.LINEAR_MIPMAP_NEAREST);
+			//@line 297
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.generateMipmap(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_2D);
+			//@line 300
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bindTexture(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_2D, null);
+			//@line 302
+			var w2 = img.textureCellWidth / 2.0;
+			//@line 303
+			var h2 = img.textureCellHeight / 2.0;
+			//@line 304
+			var texData = new Float32Array([0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2]);
+			//@line 305
+			data.buffer = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.createBuffer();
+			//@line 306
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bindBuffer(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.ARRAY_BUFFER, data.buffer);
+			//@line 307
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bufferData(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.ARRAY_BUFFER, texData, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.STATIC_DRAW);
+			//@line 308
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bindBuffer(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.ARRAY_BUFFER, null);
+			//@line 309
+			{
+				texData && ((texData.hasOwnProperty('Destructor') && texData.Destructor()) || !texData.hasOwnProperty('Destructor')) && (delete texData);
+				texData = null
+			};
+			//@line 311
+			return data;
+			//@line 312
+		};
+		//@line 315
+		this.__PRIVATE__.update = function (m, ul)
+		{
+			//@line 317
+			if (!ul) return;
+			//@line 318
+			if (m.__dirty) m.refresh();
+			//@line 319
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.uniformMatrix4fv(ul, false, m.__data);
+			//@line 320
+		};
+		//@line 323
+		this.drawFrame = function (scene, image, frame, KF)
+		{
+			//@line 325
+			if (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.setFilter(KF.filter) || __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix.__dirty) __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.update(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram.GLSLuMVMat);
+			//@line 326
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.uniform2f(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram.GLSLuSprSize, image.texSize[0], image.texSize[1]);
+			//@line 327
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.uniform2f(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
+			//@line 328
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.uniform2f(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram.GLSLuSprFlip, (KF.flipH ? 1.0 : 0.0), (KF.flipV ? 1.0 : 0.0));
+			//@line 329
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bindBuffer(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.ARRAY_BUFFER, (image.renderData).buffer);
+			//@line 330
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.vertexAttribPointer(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram.GLSLiTexCoords, 2, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.FLOAT, false, 16, 0);
+			//@line 331
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.vertexAttribPointer(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram.GLSLiVecCoords, 2, __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.FLOAT, false, 16, 8);
+			//@line 332
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bindTexture(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TEXTURE_2D, (image.renderData).texture);
+			//@line 334
+			switch (KF.filter)
+			{
+				//@line 336
+			case COCO_FILTER_ENUM.FILTER_INHERIT:
+				{}
+				break;
+				//@line 337
+			case COCO_FILTER_ENUM.FILTER_SIMPLE:
+				{
+					//@line 338
+					break;
+					//@line NaN
+				}
+				break;
+				//@line 339
+			case COCO_FILTER_ENUM.FILTER_SIMPLE_WITH_ALPHA:
+				{
+					//@line 340
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.uniform1f(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram.GLSLuAlpha, KF.alpha);
+					//@line 341
+					break;
+					//@line NaN
+				}
+				break;
+				//@line 342
+			case COCO_FILTER_ENUM.FILTER_SATURATION_WITH_ALPHA:
+				{
+					//@line 343
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.uniform4f(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram.GLSLuColor, KF.red, KF.green, KF.blue, KF.alpha);
+					//@line 344
+					break;
+					//@line NaN
+				}
+				break;
+			}
+			//@line 347
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.drawArrays(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.TRIANGLE_STRIP, 0, 4);
+			//@line 348
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.bindBuffer(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.ARRAY_BUFFER, null);
+			//@line 349
+		};
+		//@line 352
+		this.__PRIVATE__.setFilter = function (filter)
+		{
+			//@line 354
+			var changed = false;
+			//@line 355
+			switch (filter)
+			{
+				//@line 357
+			case COCO_FILTER_ENUM.FILTER_INHERIT:
+				{
+					//@line 358
+					if (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram != __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple)
+					//@line 359
+					{
+						//@line 360
+						__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple;
+						//@line 361
+						changed = true;
+						//@line 362
+					}
+					//@line 363
+					break;
+					//@line NaN
+				}
+				break;
+				//@line 364
+			case COCO_FILTER_ENUM.FILTER_SIMPLE:
+				{
+					//@line 365
+					if (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram != __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple)
+					//@line 366
+					{
+						//@line 367
+						__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple;
+						//@line 368
+						changed = true;
+						//@line 369
+					}
+					//@line 370
+					break;
+					//@line NaN
+				}
+				break;
+				//@line 371
+			case COCO_FILTER_ENUM.FILTER_SIMPLE_WITH_ALPHA:
+				{
+					//@line 372
+					if (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram != __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha)
+					//@line 373
+					{
+						//@line 374
+						__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha;
+						//@line 375
+						changed = true;
+						//@line 376
+					}
+					//@line 377
+					break;
+					//@line NaN
+				}
+				break;
+				//@line 378
+			case COCO_FILTER_ENUM.FILTER_SATURATION_WITH_ALPHA:
+				{
+					//@line 379
+					if (__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram != __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha)
+					//@line 380
+					{
+						//@line 381
+						__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram = __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha;
+						//@line 382
+						changed = true;
+						//@line 383
+					}
+					//@line 384
+					break;
+					//@line NaN
+				}
+				break;
+			}
+			//@line 386
+			if (changed) __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl.useProgram(__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram);
+			//@line 387
+			return changed;
+			return false //@line 388
+		};
+		//@line 107
+		this.Destructor = function ()
+		{
+			{
+				//@line 109
+				{
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix && ((__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix.hasOwnProperty('Destructor') && __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix.Destructor()) || !__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix);
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix = null
+				};
+				//@line 110
+				{
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix && ((__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix.hasOwnProperty('Destructor') && __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix.Destructor()) || !__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix);
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix = null
+				};
+				//@line 111
+				{
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple && ((__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.hasOwnProperty('Destructor') && __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.Destructor()) || !__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple.hasOwnProperty('Destructor')) && (delete __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple);
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple = null
+				};
+				//@line 112
+				{
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha && ((__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.hasOwnProperty('Destructor') && __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.Destructor()) || !__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha.hasOwnProperty('Destructor')) && (delete __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha);
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha = null
+				};
+				//@line 113
+				{
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha && ((__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.hasOwnProperty('Destructor') && __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.Destructor()) || !__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha.hasOwnProperty('Destructor')) && (delete __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha);
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha = null
+				};
+				//@line 114
+				{
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram && ((__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram.hasOwnProperty('Destructor') && __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram.Destructor()) || !__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram.hasOwnProperty('Destructor')) && (delete __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram);
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram = null
+				};
+				//@line 115
+				{
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer && ((__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer.hasOwnProperty('Destructor') && __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer.Destructor()) || !__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer.hasOwnProperty('Destructor')) && (delete __CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer);
+					__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer = null
+				};
+				//@line 116
+			}
+			{
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__vertex_shader_Common = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__fragment_shader_Simple = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__fragment_shader_SimpleWithAlpha = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__fragment_shader_SaturationWithAlpha = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxVertexShader = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxFragmentShader = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer = null;
+				__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl = null;
+				__CLASS__COCORENDERCONTEXTGL__.__className = null;
+			}
+			return true
+		};
+		//@line 83
+		this.Constructor = function (ctx)
+		{
+			//@line 85
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.gl = ctx;
+			//@line 87
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix = new CocoMatrix;
+			//@line 88
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__modelViewMatrix.identity();
+			//@line 90
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__projectionMatrix = new CocoMatrix;
+			//@line 92
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram = null;
+			//@line 93
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_Simple = null;
+			//@line 94
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SimpleWithAlpha = null;
+			//@line 95
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__glProgram_SaturationWithAlpha = null;
+			//@line 96
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__vertex_shader_Common = "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((abs(iTexCoords.x - uSprFlip.x) + uSprFrame.x) * uSprSize.x), ((abs(iTexCoords.y - uSprFlip.y) + uSprFrame.y) * uSprSize.y));}";
+			//@line 97
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__fragment_shader_Simple = "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n gl_FragColor = texture2D(uSampler, pTexCoord); }";
+			//@line 98
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__fragment_shader_SimpleWithAlpha = "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform float uAlpha;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n vec4 texColor = texture2D(uSampler, pTexCoord);\n gl_FragColor = vec4(texColor.rgb, texColor.a * uAlpha); }";
+			//@line 99
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__fragment_shader_SaturationWithAlpha = "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform vec4 uColor;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n vec4 texColor = texture2D(uSampler, pTexCoord);\n float c = (texColor.r + texColor.g + texColor.b) / 3.0; \n gl_FragColor = vec4((1.0 - uColor.r) * c + texColor.r * uColor.r, (1.0 - uColor.g) * c + texColor.g * uColor.g, (1.0 - uColor.b) * c + texColor.b * uColor.b, texColor.a * uColor.a);}";
+			//@line 100
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxVertexShader = "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
+			//@line 101
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxFragmentShader = "#ifdef GL_ES\nprecision lowp float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
+			//@line 102
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxProgram = null;
+			//@line 103
+			__CLASS__COCORENDERCONTEXTGL__.__PRIVATE__.__boundingBoxBuffer = null;
+			//@line 104
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__COCORENDERCONTEXTGL__$ctx__);
+		return this;
+	}
+	__CocoRenderContextGL.prototype.constructor = CocoRenderContextGL;
+	return new __CocoRenderContextGL(__CLASS__COCORENDERCONTEXTGL__$ctx__);
+}
+CocoRenderContextGL.__PRIVATE__ = {};
+CocoRenderContextGL.__PROTECTED__ = {};

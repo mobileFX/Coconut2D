@@ -104,15 +104,14 @@ class CocoImage
 	public var isSpriteSheet:Boolean;
 	public var __pixelRatioScale:Float;
 
-	// WebGL
-	public var texture:WebGLTexture;
-	public var buffer:WebGLBuffer;
-
 	// Sprite
 	public var sequences:Array<CocoSequence>;
 
 	// Skin
 	public var skin:Float32Array;  // W1, W2, W3, H1, H2, H3
+
+	// Render
+	public var renderData:ICocoImageRenderData;
 
 	// Resolution Siblings
 	public var baseUrl:String;
@@ -124,8 +123,8 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		renderData			= null;
 		baseUrl				= "";
-		buffer				= null;
 		color				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
 		image				= null;
 		isSpriteSheet		= false;
@@ -134,7 +133,6 @@ class CocoImage
 		skin				= null;
 		symbolName			= "";
 		texSize				= new Float32Array([1.0, 1.0]);
-		texture				= null;
 		textureCellHeight	= 0;
 		textureCellWidth	= 0;
 		textureGrid			= new Float32Array([0.0, 0.0]);
@@ -150,11 +148,10 @@ class CocoImage
 		scene = null;
 		delete viewSiblings;
 		delete sequences;
-		delete texture;
 		delete textureGrid;
 		delete color;
 		delete texSize;
-		delete buffer;
+		delete renderData;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,8 +189,8 @@ class CocoImage
 
 		if(scene.__view_width && scene.__view_height)
 		{
-			var w:Float = viewOptimalWidth * scene.__view_scale * window.devicePixelRatio;
-			var h:Float = viewOptimalHeight * scene.__view_scale * window.devicePixelRatio;
+			var w:Float = Float(viewOptimalWidth) * scene.__view_scale * window.devicePixelRatio;
+			var h:Float = Float(viewOptimalHeight) * scene.__view_scale * window.devicePixelRatio;
 			for(var j:Integer = 0; j<viewSiblings.size(); j++)
 			{
 				sibling = viewSiblings[j];
@@ -220,26 +217,11 @@ class CocoImage
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public property loaded
+	public function loaded():Boolean
 	{
-		function get():Boolean
-		{
-			var ok:Boolean = texture || (image!=null && image.complete);
-			if(ok && !texture)
-				prepare(scene, gl);
-			return ok ? true : false;
-		}
-	}
+		if(renderData) return true;
+		if(!image || !image.complete) return false;
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function unload()
-	{
-		delete image;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function prepare(scene:CocoScene, gl:WebGLRenderingContext)
-	{
 		__pixelRatioScale = scene.__view_pixel_ratio / pixelRatio;
 
 		// Calc texture data and size.
@@ -247,38 +229,12 @@ class CocoImage
 		var h2:Float = textureCellHeight / 2.0;
 		texSize = new Float32Array([textureCellWidth / image.naturalWidth, textureCellHeight / image.naturalHeight]);
 
-		// Create a texture and bind it.
-		texture = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_2D, texture);
+		renderData = engine.__ctx.prepareImage(this);
+	}
 
-		// Load image data to texture.
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-		// Unload the HTML Image to save memory.
-		// Works only on native, HTML5 browsers need the image.
-		//#IFDEF [TARGET_EXPORT=="native"]
-		if(!skin)
-			unload();
-		//#ENDIF
-
-		// Instruct WebGL how to wrap the texture.
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-		// Instruct WebGL how to filter the texture when rendering.
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-
-		// Generate mipmaps.
-		gl.generateMipmap(gl.TEXTURE_2D);
-
-		// Done
-		gl.bindTexture(gl.TEXTURE_2D, null);
-
-		var texData:Float32Array = new Float32Array([0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2]);
-		buffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-		gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function unload()
+	{
+		delete image;
 	}
 }

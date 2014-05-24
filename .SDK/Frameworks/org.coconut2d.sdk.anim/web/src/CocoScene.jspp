@@ -49,26 +49,11 @@ class CocoScene
 
 	// Rendering
 	public var __root:CocoClip;
-	public var __modelViewMatrix:CocoMatrix;
-	public var __projectionMatrix:CocoMatrix;
-	public var __glProgram:WebGLProgram;
-	public var __glProgram_Simple:WebGLProgram;
-	public var __glProgram_SimpleWithAlpha:WebGLProgram;
-	public var __glProgram_SaturationWithAlpha:WebGLProgram;
 	public var __levelParents:Array<CocoClip>;
-
-	public var __vertex_shader_Common:String;
-	public var __fragment_shader_Simple:String;
-	public var __fragment_shader_SimpleWithAlpha:String;
-	public var __fragment_shader_SaturationWithAlpha:String;
-
-	public var __boundingBoxVertexShader:String;
-	public var __boundingBoxFragmentShader:String;
-	public var __boundingBoxProgram:WebGLProgram;
-	public var __boundingBoxBuffer:WebGLBuffer;
 
 	public var __ready:Boolean;
 	public var __finished:Boolean;
+
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -79,20 +64,6 @@ class CocoScene
 		__view_pixel_ratio						= 0;
 		__view_scale							= 1;
 		__root 									= null;
-		__modelViewMatrix						= new CocoMatrix();
-		__projectionMatrix 						= new CocoMatrix();
-		__glProgram								= null;
-		__glProgram_Simple						= null;
-		__glProgram_SimpleWithAlpha				= null;
-		__glProgram_SaturationWithAlpha			= null;
-		__vertex_shader_Common					= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((abs(iTexCoords.x - uSprFlip.x) + uSprFrame.x) * uSprSize.x), ((abs(iTexCoords.y - uSprFlip.y) + uSprFrame.y) * uSprSize.y));}";
-		__fragment_shader_Simple    			= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n gl_FragColor = texture2D(uSampler, pTexCoord); }";
-		__fragment_shader_SimpleWithAlpha    	= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform float uAlpha;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n vec4 texColor = texture2D(uSampler, pTexCoord);\n gl_FragColor = vec4(texColor.rgb, texColor.a * uAlpha); }";
-		__fragment_shader_SaturationWithAlpha	= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform vec4 uColor;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n vec4 texColor = texture2D(uSampler, pTexCoord);\n float c = (texColor.r + texColor.g + texColor.b) / 3.0; \n gl_FragColor = vec4((1.0 - uColor.r) * c + texColor.r * uColor.r, (1.0 - uColor.g) * c + texColor.g * uColor.g, (1.0 - uColor.b) * c + texColor.b * uColor.b, texColor.a * uColor.a);}";
-		__boundingBoxVertexShader 				= "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
-		__boundingBoxFragmentShader				= "#ifdef GL_ES\nprecision lowp float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
-		__boundingBoxProgram					= null;
-		__boundingBoxBuffer						= null;
 		__ready 								= false;
 		__finished								= false;
 		__imageSymbols							= new Array<CocoImage>;
@@ -103,13 +74,6 @@ class CocoScene
 	public function Destructor()
 	{
 		delete __root;
-		delete __modelViewMatrix;
-		delete __projectionMatrix;
-		delete __glProgram_Simple;
-		delete __glProgram_SimpleWithAlpha;
-		delete __glProgram_SaturationWithAlpha;
-		delete __boundingBoxProgram;
-		delete __boundingBoxBuffer;
 
 		for(var i:Integer = __imageSymbols.size(); i--;)
 		{
@@ -144,92 +108,11 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function prepare(gl:WebGLRenderingContext)
+	public function prepare(ctx:ICocoRenderContext)
 	{
-		gl.disable(gl.DEPTH_TEST);
-		gl.enable(gl.BLEND);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.disable(gl.CULL_FACE);
+		__view_scale = __view_width > 0 && __view_height > 0 ? Math.min( Float(ctx.getWidth()) / __view_width, Float(ctx.getHeight()) / __view_height) : window.devicePixelRatio;
 
-       __view_scale = __view_width > 0 && __view_height > 0 ? Math.min( Float(gl.canvas.width) / __view_width, Float(gl.canvas.height) / __view_height) : window.devicePixelRatio;
-
-		if(window.deviceRotation)
-		{
-			var c:Float = Math.cos(window.deviceRotation);
-			var s:Float = Math.sin(window.deviceRotation);
-			var orthoWidth:Float = Math.abs(c * Float(gl.canvas.width) + s * Float(gl.canvas.height));
-			var orthoHeight:Float = Math.abs(-s * Float(gl.canvas.width) + c * Float(gl.canvas.height));
-			__projectionMatrix.ortho(-orthoWidth / 2.0, orthoWidth / 2.0, orthoHeight / 2.0,  -orthoHeight / 2.0, -1.0, 1.0);
-			__projectionMatrix.rotateZ(-window.deviceRotation);
-		}
-		else
-		{
-			__projectionMatrix.ortho( -(Float(gl.canvas.width) / 2.0), Float(gl.canvas.width) / 2.0, Float(gl.canvas.height) / 2.0,  -(Float(gl.canvas.height) / 2.0), -1.0, 1.0);
-		}
-
-		__projectionMatrix.scale(__view_scale, __view_scale);
-
-		__boundingBoxProgram = makeProgram(gl, __boundingBoxVertexShader, __boundingBoxFragmentShader);
-		gl.useProgram(__boundingBoxProgram);
-		__boundingBoxProgram.GLSLiVec2Coords	= gl.getAttribLocation(__boundingBoxProgram, "iVec2Coords");
-		__boundingBoxProgram.GLSLuProjMat		= gl.getUniformLocation(__boundingBoxProgram, "uProjMat");
-		__boundingBoxBuffer	= gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, __boundingBoxBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);
-
-		__glProgram_Simple = makeProgram(gl, __vertex_shader_Common, __fragment_shader_Simple);
-		gl.useProgram(__glProgram_Simple);
-		__glProgram_Simple.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_Simple, "iVecCoords");
-		__glProgram_Simple.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram_Simple, "iTexCoords");
-		__glProgram_Simple.GLSLuProjMat 	= gl.getUniformLocation(__glProgram_Simple, "uProjMat");
-		__glProgram_Simple.GLSLuMVMat 		= gl.getUniformLocation(__glProgram_Simple, "uMVMat");
-		__glProgram_Simple.GLSLuSprSize 	= gl.getUniformLocation(__glProgram_Simple, "uSprSize");
-		__glProgram_Simple.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram_Simple, "uSprFrame");
-		__glProgram_Simple.GLSLuSprFlip 	= gl.getUniformLocation(__glProgram_Simple, "uSprFlip");
-		__glProgram_Simple.GLSLuSampler 	= gl.getUniformLocation(__glProgram_Simple, "uSampler");
-		gl.enableVertexAttribArray(__glProgram_Simple.GLSLiVecCoords);
-		gl.enableVertexAttribArray(__glProgram_Simple.GLSLiTexCoords);
-		gl.uniform1i(__glProgram_Simple.GLSLuSampler, 0);
-		__modelViewMatrix.update(gl, __glProgram_Simple.GLSLuMVMat);
-		__projectionMatrix.update(gl, __glProgram_Simple.GLSLuProjMat);
-
-		__glProgram_SimpleWithAlpha = makeProgram(gl, __vertex_shader_Common, __fragment_shader_SimpleWithAlpha);
-		gl.useProgram(__glProgram_SimpleWithAlpha);
-		__glProgram_SimpleWithAlpha.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_SimpleWithAlpha, "iVecCoords");
-		__glProgram_SimpleWithAlpha.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram_SimpleWithAlpha, "iTexCoords");
-		__glProgram_SimpleWithAlpha.GLSLuProjMat 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uProjMat");
-		__glProgram_SimpleWithAlpha.GLSLuMVMat 		= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uMVMat");
-		__glProgram_SimpleWithAlpha.GLSLuSprSize 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uSprSize");
-		__glProgram_SimpleWithAlpha.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uSprFrame");
-		__glProgram_SimpleWithAlpha.GLSLuSprFlip 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uSprFlip");
-		__glProgram_SimpleWithAlpha.GLSLuSampler 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uSampler");
-		__glProgram_SimpleWithAlpha.GLSLuAlpha 		= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uAlpha");
-		gl.enableVertexAttribArray(__glProgram_SimpleWithAlpha.GLSLiVecCoords);
-		gl.enableVertexAttribArray(__glProgram_SimpleWithAlpha.GLSLiTexCoords);
-		gl.uniform1i(__glProgram_SimpleWithAlpha.GLSLuSampler, 0);
-		__modelViewMatrix.update(gl, __glProgram_SimpleWithAlpha.GLSLuMVMat);
-		__projectionMatrix.update(gl, __glProgram_SimpleWithAlpha.GLSLuProjMat)
-
-		__glProgram_SaturationWithAlpha = makeProgram(gl, __vertex_shader_Common, __fragment_shader_SaturationWithAlpha);
-		gl.useProgram(__glProgram_SaturationWithAlpha);
-		__glProgram_SaturationWithAlpha.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_SaturationWithAlpha, "iVecCoords");
-		__glProgram_SaturationWithAlpha.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram_SaturationWithAlpha, "iTexCoords");
-		__glProgram_SaturationWithAlpha.GLSLuProjMat 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uProjMat");
-		__glProgram_SaturationWithAlpha.GLSLuMVMat 		= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uMVMat");
-		__glProgram_SaturationWithAlpha.GLSLuSprSize 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uSprSize");
-		__glProgram_SaturationWithAlpha.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uSprFrame");
-		__glProgram_SaturationWithAlpha.GLSLuSprFlip 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uSprFlip");
-		__glProgram_SaturationWithAlpha.GLSLuSampler 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uSampler");
-		__glProgram_SaturationWithAlpha.GLSLuColor 		= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uColor");
-		gl.enableVertexAttribArray(__glProgram_SaturationWithAlpha.GLSLiVecCoords);
-		gl.enableVertexAttribArray(__glProgram_SaturationWithAlpha.GLSLiTexCoords);
-		gl.uniform1i(__glProgram_SaturationWithAlpha.GLSLuSampler, 0);
-		__modelViewMatrix.update(gl, __glProgram_SaturationWithAlpha.GLSLuMVMat);
-		__projectionMatrix.update(gl, __glProgram_SaturationWithAlpha.GLSLuProjMat)
-
-        __glProgram = __glProgram_Simple;
-        gl.useProgram(__glProgram);
-
+		// Prepare CocoClip and their timelines
 		__root.prepare(this);
 
 		var L:Integer = __imageSymbols.size();
@@ -237,63 +120,20 @@ class CocoScene
 	    {
 	    	__imageSymbols[i].load();
 	    }
+
+	    ctx.prepare(this);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function makeProgram(gl:WebGLRenderingContext, vs:String, fs:String) :WebGLProgram
+	public virtual function paint(ctx:ICocoRenderContext, time:Time)
 	{
-		var vshader:WebGLShader = gl.createShader(gl.VERTEX_SHADER);
-		var fshader:WebGLShader = gl.createShader(gl.FRAGMENT_SHADER);
-		gl.shaderSource(vshader, vs);
-		gl.shaderSource(fshader, fs);
-		gl.compileShader(vshader);
-		gl.compileShader(fshader);
-		var program:WebGLProgram = gl.createProgram();
-		gl.attachShader(program, vshader);
-		gl.attachShader(program, fshader);
-		gl.linkProgram(program);
-		return program;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function resourcesLoaded() :Boolean
-	{
-		if(!__ready)
-		{
-			for (var i:Integer = __imageSymbols.size() - 1; i >= 0; i--)
-				if(!__imageSymbols[i].loaded) return false;
-
-			trace("Resources loaded.");
-			__ready = true;
-		}
-		return __ready;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function paint(gl:WebGLRenderingContext, time:Time)
-	{
-		if(!__glProgram)
-		{
-			prepare(gl);
+		if(!resourcesLoaded(ctx))
 			return;
-		}
-
-		if(!resourcesLoaded())
-		{
-			return;
-		}
 
 	    if(__root)
 	    {
-	    	//gl.useProgram(__glProgram);
-	    	//gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
-			//gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
-	    	//__projectionMatrix.update(gl, __glProgram_Simple.GLSLuProjMat);
-	    	//__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
-	    	//engine.__debug_trace(this, null, "@CYCLE");
-			__modelViewMatrix.identity();
 	    	__levelParents.push(__root);
-			__root.paint(gl, this, null, false, 0);
+			__root.paint(ctx, this, null, false, 0);
 			__levelParents.clear();
 			var max:CocoClip = __root.__childWithMaxTimelineDuration;
 			if(max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
@@ -305,70 +145,20 @@ class CocoScene
 	    }
 	}
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    private function setFilter(filter:Integer) :Boolean
-    {
-    	var changed:Boolean = false;
-		switch(filter)
-		{
-		case COCO_FILTER_ENUM.FILTER_INHERIT:
-			if(__glProgram != __glProgram_Simple)
-			{
-				__glProgram = __glProgram_Simple;
-				changed = true;
-			}
-			break;
-		case COCO_FILTER_ENUM.FILTER_SIMPLE:
-			if(__glProgram != __glProgram_Simple)
-			{
-				__glProgram = __glProgram_Simple;
-				changed = true;
-			}
-			break;
-		case COCO_FILTER_ENUM.FILTER_SIMPLE_WITH_ALPHA:
-			if(__glProgram != __glProgram_SimpleWithAlpha)
-			{
-				__glProgram = __glProgram_SimpleWithAlpha;
-				changed = true;
-			}
-			break;
-		case COCO_FILTER_ENUM.FILTER_SATURATION_WITH_ALPHA:
-		   	if(__glProgram != __glProgram_SaturationWithAlpha)
-		   	{
-		   		__glProgram = __glProgram_SaturationWithAlpha;
-				changed = true;
-		   	}
-			break;
-		}
-		if(changed) gl.useProgram(__glProgram);
-		return changed;
-    }
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function drawFrame(gl:WebGLRenderingContext, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
+	private function resourcesLoaded(ctx:ICocoRenderContext) :Boolean
 	{
-		if(setFilter(KF.filter) || __modelViewMatrix.__dirty) __modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
-		gl.uniform2f(__glProgram.GLSLuSprSize, image.texSize[0], image.texSize[1]);
-		gl.uniform2f(__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
-		gl.uniform2f(__glProgram.GLSLuSprFlip, (KF.flipH ? 1.0 : 0.0), (KF.flipV ? 1.0 : 0.0));
-		gl.bindBuffer(gl.ARRAY_BUFFER, image.buffer);
-		gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0);
-		gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8);
-		gl.bindTexture(gl.TEXTURE_2D, image.texture);
-		switch(KF.filter)
+		if(!__ready)
 		{
-		case COCO_FILTER_ENUM.FILTER_INHERIT:
-		case COCO_FILTER_ENUM.FILTER_SIMPLE:
-			break;
-		case COCO_FILTER_ENUM.FILTER_SIMPLE_WITH_ALPHA:
-            gl.uniform1f(__glProgram.GLSLuAlpha, KF.alpha);
-			break;
-		case COCO_FILTER_ENUM.FILTER_SATURATION_WITH_ALPHA:
-            gl.uniform4f(__glProgram.GLSLuColor, KF.red, KF.green, KF.blue, KF.alpha);
-			break;
+			for (var i:Integer = __imageSymbols.size() - 1; i >= 0; i--)
+			{
+				var img:CocoImage = __imageSymbols[i];
+				if(!img.loaded()) return false;
+			}
+			trace("Resources loaded.");
+			__ready = true;
 		}
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		return __ready;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

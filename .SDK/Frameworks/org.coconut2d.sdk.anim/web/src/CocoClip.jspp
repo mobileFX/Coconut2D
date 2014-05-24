@@ -158,7 +158,6 @@ class CocoClip : CocoEventSource implements IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete __image;
 		delete __children;
 		delete __timeline;
 		delete __vABS_TOP_LEFT;
@@ -362,18 +361,11 @@ class CocoClip : CocoEventSource implements IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
 		__scene = scene;
 
-        // =============================================================================================================
-		// Get touch event
-        // =============================================================================================================
-		var touchEvent:DeviceMessage = engine.getTouchEvent();
-		if(touchEvent && touchEvent.type!="touchend" && touchEvent.type!="mouseup")
-		{
-			touchEvent = null;
-		}
+		var mv:CocoMatrix = ctx.getModelViewMatrix();
 
 		// Calculate the parent timeline duration in time from its children (which are siblings to this clip)
 		var parentClipsDuration:Time = parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__singleFrameDurationTime;
@@ -410,7 +402,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 			// If we need to handle an event or if our parent has asked us to
 			// calc our bounding box **AND** there is an actual event waiting
 			// then we set calcBoundingBox to true.
-			calcBoundingBox = (__currentFrame.handleEvents || calcBoundingBox) && (touchEvent!=null);
+			calcBoundingBox = (__currentFrame.handleEvents || calcBoundingBox) && (engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END, true)!=null);
 		}
 
         // =============================================================================================================
@@ -420,7 +412,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 		{
 			__currentFrame.scaleX *= __image.__pixelRatioScale;
 			__currentFrame.scaleY *= __image.__pixelRatioScale;
-			apply(__currentFrame, scene.__modelViewMatrix);
+			apply(__currentFrame, mv);
 			__currentFrame.scaleX /= __image.__pixelRatioScale;
 			__currentFrame.scaleY /= __image.__pixelRatioScale;
 
@@ -445,12 +437,12 @@ class CocoClip : CocoEventSource implements IEventTarget
 				// Render animation sequence.
 				var sequenceFrameIndex:Integer = __timeline.__paused ? 0 : Math.floor((__currentTime-__currentSequence.sequenceStartTime) / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
 				var frame:Integer = __currentSequence.frames[sequenceFrameIndex];
-				scene.drawFrame(gl, __image, frame, __currentFrame);
+				ctx.drawFrame(scene, __image, frame, __currentFrame);
 			}
 			else
 			{
 				// Render a standard image.
-				scene.drawFrame(gl, __image, 0, __currentFrame);
+				ctx.drawFrame(scene, __image, 0, __currentFrame);
 			}
 		}
 		else
@@ -461,13 +453,13 @@ class CocoClip : CocoEventSource implements IEventTarget
 			{
 				var child:CocoClip;
 				scene.__levelParents.push(this);
-				if(__currentFrame) apply(__currentFrame, scene.__modelViewMatrix);
+				if(__currentFrame) apply(__currentFrame, mv);
 				for (var i:Integer = 0; i < childrenCound; i++)
 				{
-					scene.__modelViewMatrix.push();
+					mv.push();
 					child = __children[i];
-					child.paint(gl, scene, this, calcBoundingBox, level+1);
-					scene.__modelViewMatrix.pop();
+					child.paint(ctx, scene, this, calcBoundingBox, level+1);
+					mv.pop();
 				}
 				scene.__levelParents.pop();
 			}
@@ -482,9 +474,9 @@ class CocoClip : CocoEventSource implements IEventTarget
 			{
 				// Calculate bounding box vertices
 				if(__image)
-					initBoundingBoxFromTexture(scene, __image.textureCellWidth / 2, __image.textureCellHeight / 2);
+					initBoundingBoxFromTexture(scene, mv, __image.textureCellWidth / 2, __image.textureCellHeight / 2);
 				else if(__children.size()>0)
-					initBoundingBoxFromChildren(scene);
+					initBoundingBoxFromChildren(scene, mv);
 			}
 
 	        // =============================================================================================================
@@ -492,14 +484,38 @@ class CocoClip : CocoEventSource implements IEventTarget
 	        // =============================================================================================================
 			if(calcBoundingBox && __currentFrame.handleEvents)
 			{
-				// Point in quad?
-	   	        var x:Float = (touchEvent.__clientX - gl.canvas.width / 2.0) / scene.__view_scale;
-				var y:Float = (touchEvent.__clientY - gl.canvas.height / 2.0) / scene.__view_scale;
-				if(hitTest(x,y))
-	   	        {
-	   	        	engine.pushTouched(this);
-	   	        	//drawBoundingBox(scene, gl);
-	   	        }
+				var deviceMessage:DEVICE_MESSAGE;
+
+				for(var first:Boolean=true;;first=false)
+				{
+					deviceMessage = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK, first);
+					if(!deviceMessage) break;
+
+					// Point in quad?
+		   	        var x:Float = (deviceMessage.x0 - ctx.getWidth() / 2.0) / scene.__view_scale;
+					var y:Float = (deviceMessage.y0 - ctx.getHeight() / 2.0) / scene.__view_scale;
+
+					if(hitTest(x,y))
+		   	        {
+		   	        	switch(deviceMessage.type)
+		   	        	{
+						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START:
+							dispatchEvent(this.OnTouchStart, deviceMessage.x0, deviceMessage.y0);
+							break;
+
+						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE:
+							dispatchEvent(this.OnTouchMove, deviceMessage.x0, deviceMessage.y0);
+							break;
+
+						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END:
+							engine.__pushTouched(this);
+							dispatchEvent(this.OnTouchEnd, deviceMessage.x0, deviceMessage.y0);
+							break;
+		   	        	}
+
+		   	        	//drawBoundingBox(scene, ctx);
+		   	        }
+				}
 			}
 
 	        // =============================================================================================================
@@ -587,7 +603,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function initBoundingBoxFromTexture(scene:CocoScene, W2:Float, H2:Float)
+	public function initBoundingBoxFromTexture(scene:CocoScene, mv:CocoMatrix, W2:Float, H2:Float)
 	{
 		__mTemp.identity();
 
@@ -601,25 +617,25 @@ class CocoClip : CocoEventSource implements IEventTarget
 
 		__vTemp.reset(-W2, -H2, 0, 1);
 		__vREL_TOP_LEFT	= __mTemp.multiplyByVector(__vTemp);
-		__vABS_TOP_LEFT	= scene.__modelViewMatrix.multiplyByVector(__vTemp);
+		__vABS_TOP_LEFT	= mv.multiplyByVector(__vTemp);
 
 		__vTemp.reset(W2, -H2, 0, 1);
 		__vREL_TOP_RIGHT = __mTemp.multiplyByVector(__vTemp);
-		__vABS_TOP_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vTemp);
+		__vABS_TOP_RIGHT = mv.multiplyByVector(__vTemp);
 
 		__vTemp.reset(-W2, H2, 0, 1);
 		__vREL_BOTTOM_LEFT = __mTemp.multiplyByVector(__vTemp);
-		__vABS_BOTTOM_LEFT = scene.__modelViewMatrix.multiplyByVector(__vTemp);
+		__vABS_BOTTOM_LEFT = mv.multiplyByVector(__vTemp);
 
 		__vTemp.reset(W2, H2, 0, 1);
 		__vREL_BOTTOM_RIGHT	= __mTemp.multiplyByVector(__vTemp);
-		__vABS_BOTTOM_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vTemp);
+		__vABS_BOTTOM_RIGHT = mv.multiplyByVector(__vTemp);
 
 	    __hasBoundingBox = true;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function initBoundingBoxFromChildren(scene:CocoScene)
+	public function initBoundingBoxFromChildren(scene:CocoScene, mv:CocoMatrix)
 	{
 	    // This function calculates the bounding box of all our children.
 
@@ -667,10 +683,10 @@ class CocoClip : CocoEventSource implements IEventTarget
 	    __vREL_BOTTOM_RIGHT.X = __vREL_TOP_RIGHT.X;
 	    __vREL_BOTTOM_RIGHT.Y = __vREL_BOTTOM_LEFT.Y;
 
-	    __vABS_TOP_LEFT = scene.__modelViewMatrix.multiplyByVector(__vREL_TOP_LEFT);
-	    __vABS_TOP_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vREL_TOP_RIGHT);
-	    __vABS_BOTTOM_LEFT = scene.__modelViewMatrix.multiplyByVector(__vREL_BOTTOM_LEFT);
-	    __vABS_BOTTOM_RIGHT = scene.__modelViewMatrix.multiplyByVector(__vREL_BOTTOM_RIGHT);
+	    __vABS_TOP_LEFT = mv.multiplyByVector(__vREL_TOP_LEFT);
+	    __vABS_TOP_RIGHT = mv.multiplyByVector(__vREL_TOP_RIGHT);
+	    __vABS_BOTTOM_LEFT = mv.multiplyByVector(__vREL_BOTTOM_LEFT);
+	    __vABS_BOTTOM_RIGHT = mv.multiplyByVector(__vREL_BOTTOM_RIGHT);
 
 		__mTemp.identity();
 
@@ -682,30 +698,5 @@ class CocoClip : CocoEventSource implements IEventTarget
 	    __vREL_BOTTOM_RIGHT = __mTemp.multiplyByVector(__vREL_BOTTOM_RIGHT);
 
 	    __hasBoundingBox = true;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function drawBoundingBox(scene:CocoScene, gl:WebGLRenderingContext)
-	{
-		if(!__hasBoundingBox) return;
-
-		gl.disableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
-		gl.disableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
-
-		gl.useProgram(scene.__boundingBoxProgram);
-		gl.enableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, scene.__boundingBoxBuffer);
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([__vABS_TOP_LEFT.X, __vABS_TOP_LEFT.Y, __vABS_TOP_RIGHT.X, __vABS_TOP_RIGHT.Y, __vABS_BOTTOM_RIGHT.X, __vABS_BOTTOM_RIGHT.Y, __vABS_BOTTOM_LEFT.X, __vABS_BOTTOM_LEFT.Y]));
-		gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);
-		scene.__projectionMatrix.update(gl, scene.__boundingBoxProgram.GLSLuProjMat);
-		gl.drawArrays(gl.LINE_LOOP, 0, 4);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-		gl.disableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
-		gl.useProgram(scene.__glProgram);
-
-		gl.enableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
-		gl.enableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
 	}
 }

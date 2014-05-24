@@ -1549,6 +1549,7 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bMath::sin\\(", "mg", "sin(");
 	buff = RxReplace(buff, "\\bMath::cos\\(", "mg", "cos(");
 	buff = RxReplace(buff, "\\bMath::abs\\(", "mg", "abs(");
+	buff = RxReplace(buff, "\\bMath::sqrt\\(", "mg", "sqrt(");
 	buff = RxReplace(buff, "\\bMath::random\\(\\)", "mg", "((float)rand()/(float)RAND_MAX)");
 	buff = RxReplace(buff, "\\btrace\\s*\\((.*)\\)\\s*;\\s*$", "mg", "trace(($1).c_str());");
 	buff = RxReplace(buff, "([\\x22\\x27])\\x2e\\x2fassets\\x2f", "mg", "$1./");

@@ -1,0 +1,62 @@
+"#export web";
+//@line 36
+
+function CocoRenderContext()
+{
+	var __BASE__ = null;
+
+	function __CocoRenderContext()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCORENDERCONTEXT__ = this.__CLASS__COCORENDERCONTEXT__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoRenderContext'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 59
+		this.__className = "CocoRenderContext";
+		this.Constructor = function () {};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__CocoRenderContext.prototype.constructor = CocoRenderContext;
+	return new __CocoRenderContext();
+}
+CocoRenderContext.__PRIVATE__ = {};
+CocoRenderContext.__PROTECTED__ = {};
+//@line 38
+CocoRenderContext.createContext = function ()
+{
+	//@line 41
+	var canvas = document.body.appendChild(document.createElement("canvas"));
+	//@line 42
+	canvas.width = (window.innerWidth);
+	//@line 43
+	canvas.height = (window.innerHeight);
+	//@line 46
+	var gl = canvas.getContext("webgl");
+	//@line 47
+	if (gl) return new CocoRenderContextGL(gl);
+	//@line 50
+	gl = (canvas.getContext("experimental-webgl"));
+	//@line 51
+	if (gl) return new CocoRenderContextGL(gl);
+	//@line 54
+	var ctx = (canvas.getContext("2d"));
+	//@line 55
+	if (ctx) return new CocoRenderContext2D(ctx);
+	//@line 57
+	throw "Invalid rendering device."; //@line 58
+};

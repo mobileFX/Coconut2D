@@ -272,6 +272,15 @@ function CompilerTypeSystemPlugin(compiler)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getTypeName = function(ast)
 	{
+		if(!_this.secondPass || !_this.currClassName || !ast) return;
+		var type = ast.vartype || _this.getTypeNameResolver(ast);
+		//if(ast.vartype && ast.vartype!=type) debugger;
+		ast.vartype = type;
+		return type;
+	};
+
+	_this.getTypeNameResolver = function(ast)
+	{
 		var _this = this;
 		if(!_this.secondPass || !_this.currClassName || !ast) return;
 
@@ -437,7 +446,7 @@ function CompilerTypeSystemPlugin(compiler)
 
 		//=============================================================================================================================
 		case jsdef.DOT:
-			var symbol = _this.LookupLastDotIdentifier(ast, _this.getCurrentScope());
+			var symbol = ast.identifier_last.symbol || _this.LookupLastDotIdentifier(ast, _this.getCurrentScope());
 			if(!symbol)
 			{
 				_this.NewError("Symbol not found: " + ast.source, ast);
@@ -571,6 +580,15 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		return __searchIncludesForVartype(className, vt);
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.typeCheckItems = function(ast, ast0, ast1)
+	{
+		var type1 = _this.getTypeName(ast0);
+		var type2 = _this.getTypeName(ast1);
+		_this.typeCheck(ast, type1, type2);
+
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

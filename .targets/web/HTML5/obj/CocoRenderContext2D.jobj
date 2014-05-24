@@ -1,0 +1,232 @@
+"#export web";
+//@line 27
+
+function CocoImageRenderData2D()
+{
+	var __BASE__ = null;
+
+	function __CocoImageRenderData2D()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCOIMAGERENDERDATA2D__ = this.__CLASS__COCOIMAGERENDERDATA2D__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoImageRenderData2D'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 36
+		this.__className = "CocoImageRenderData2D";
+		//@line 33
+		this.Destructor = function ()
+		{
+			{
+				//@line 35
+			}
+			{
+				__CLASS__COCOIMAGERENDERDATA2D__.__className = null;
+			}
+			return true
+		};
+		//@line 29
+		this.Constructor = function ()
+		{
+			//@line 31
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__CocoImageRenderData2D.prototype.constructor = CocoImageRenderData2D;
+	return new __CocoImageRenderData2D();
+}
+CocoImageRenderData2D.__PRIVATE__ = {};
+CocoImageRenderData2D.__PROTECTED__ = {};
+//@line 47
+
+function CocoRenderContext2D(__CLASS__COCORENDERCONTEXT2D__$ctx__)
+{
+	var __BASE__ = null;
+
+	function __CocoRenderContext2D(__CLASS__COCORENDERCONTEXT2D__$ctx__)
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCORENDERCONTEXT2D__ = this.__CLASS__COCORENDERCONTEXT2D__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoRenderContext2D'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 144
+		this.__className = "CocoRenderContext2D";
+		//@line 49
+		__PRIVATE__.__modelViewMatrix = null;
+		//@line 50
+		__PRIVATE__.__projectionMatrix = null;
+		//@line 51
+		__PRIVATE__.c2d = null;
+		//@line 70
+		this.flush = function ()
+		{
+			//@line 73
+		};
+		//@line 76
+		this.getModelViewMatrix = function ()
+		{
+			//@line 78
+			return __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix;
+			//@line 79
+		};
+		//@line 82
+		this.getProjectionMatrix = function ()
+		{
+			//@line 84
+			return __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix;
+			//@line 85
+		};
+		//@line 88
+		this.getWidth = function ()
+		{
+			//@line 90
+			return __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.canvas.width;
+			return 0 //@line 91
+		};
+		//@line 94
+		this.getHeight = function ()
+		{
+			//@line 96
+			return __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.canvas.height;
+			return 0 //@line 97
+		};
+		//@line 100
+		this.cls = function ()
+		{
+			//@line 102
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.identity();
+			//@line 103
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.setTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+			//@line 104
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.fillStyle = "#000";
+			//@line 105
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.fillRect(0.0, 0.0, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.canvas.width, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.canvas.height);
+			//@line 106
+		};
+		//@line 109
+		this.ready = function ()
+		{
+			//@line 111
+			return true;
+			return false //@line 112
+		};
+		//@line 115
+		this.prepare = function (scene)
+		{
+			//@line 117
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.identity();
+			//@line 118
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.translate(__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.canvas.width / 2.0, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.canvas.height / 2.0);
+			//@line 119
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
+			//@line 120
+		};
+		//@line 123
+		this.prepareImage = function (img)
+		{
+			//@line 125
+			var data = new CocoImageRenderData2D;
+			//@line 126
+			return data;
+			//@line 127
+		};
+		//@line 130
+		this.drawFrame = function (scene, image, frame, KF)
+		{
+			//@line 132
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.setTransform(__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.rc11, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.rc12, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.rc21, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.rc22, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.rc41, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.rc42);
+			//@line 133
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.transform(__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.rc11, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.rc12, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.rc21, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.rc22, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.rc41, __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.rc42);
+			//@line 134
+			var sx = (((KF.flipH ? 1.0 : 0.0) + image.textureGrid[frame * 2 + 1]) * image.texSize[0]) * image.image.naturalWidth;
+			//@line 135
+			var sy = (((KF.flipV ? 1.0 : 0.0) + image.textureGrid[frame * 2 + 0]) * image.texSize[1]) * image.image.naturalHeight;
+			//@line 136
+			var sw = image.texSize[0] * (image.image.naturalWidth);
+			//@line 137
+			var sh = image.texSize[1] * (image.image.naturalHeight);
+			//@line 138
+			var dx = -sw / 2.0;
+			//@line 139
+			var dy = -sh / 2.0;
+			//@line 140
+			var dw = sw;
+			//@line 141
+			var dh = sh;
+			//@line 142
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
+			//@line 143
+		};
+		//@line 63
+		this.Destructor = function ()
+		{
+			{
+				//@line 65
+				{
+					__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix && ((__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.hasOwnProperty('Destructor') && __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.Destructor()) || !__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix);
+					__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix = null
+				};
+				//@line 66
+				{
+					__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix && ((__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.hasOwnProperty('Destructor') && __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.Destructor()) || !__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix.hasOwnProperty('Destructor')) && (delete __CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix);
+					__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix = null
+				};
+				//@line 67
+			}
+			{
+				__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix = null;
+				__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix = null;
+				__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d = null;
+				__CLASS__COCORENDERCONTEXT2D__.__className = null;
+			}
+			return true
+		};
+		//@line 54
+		this.Constructor = function (ctx)
+		{
+			//@line 56
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.c2d = ctx;
+			//@line 57
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix = new CocoMatrix;
+			//@line 58
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__modelViewMatrix.identity();
+			//@line 59
+			__CLASS__COCORENDERCONTEXT2D__.__PRIVATE__.__projectionMatrix = new CocoMatrix;
+			//@line 60
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__COCORENDERCONTEXT2D__$ctx__);
+		return this;
+	}
+	__CocoRenderContext2D.prototype.constructor = CocoRenderContext2D;
+	return new __CocoRenderContext2D(__CLASS__COCORENDERCONTEXT2D__$ctx__);
+}
+CocoRenderContext2D.__PRIVATE__ = {};
+CocoRenderContext2D.__PROTECTED__ = {};

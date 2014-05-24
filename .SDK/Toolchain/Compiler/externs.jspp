@@ -195,6 +195,7 @@ var __Audio_play = function(id:Integer){};
 var __Audio_pause = function(id:Integer){};
 var __Audio_stop = function(id:Integer){};
 
+var __Canvas2DRenderingContext_flush = function(uid, length, width, height){};
 var __WebGLRenderingContext_activeTexture = function(uid, texture){};
 var __WebGLRenderingContext_attachShader = function(uid, program_uid, shader_uid){};
 var __WebGLRenderingContext_bindAttribLocation = function(uid, program_uid, index, name){};
@@ -372,7 +373,7 @@ class Array
 	public function shift():Array {}
 	public function slice(start:Number, optional end:Number):Array {}
 	public function sort(funct:Function):Array {}
-	public function splice(start:Number, deletecount:Number, optional items:Object):Array {}
+	public function splice(start:Number, deletecount:Number, optional items:Object):Object {}
 	public function unshift(start:Number):Array {}
 	public function forEach(item:Object):Array {}
 	public function size():Number {}
@@ -688,6 +689,4 @@ var global:Global;
 var engine:CocoEngine;
 var window:HTMLWindow;
 var document:HTMLDocument;
-var gl:WebGLRenderingContext;
-var canvas:HTMLCanvasElement;
 var graphics:CocoGraphics;

@@ -94,9 +94,9 @@ int CocoEventSource::dispatchEvent(CocoEvent* Event)
 			bool cancel = ((IEventListener*)cp->Listener)->__dispatch_event__(cp->Listener, cp->DispID, this, Event);
 			if(cancel)
 			{
-				(*__eventListeners)[i]->Event->cancelBubble();
+				cp->Event->cancelBubble();
 			}
-			if((*__eventListeners)[i]->Event->stopPropagation)
+			if(cp->Event->stopPropagation)
 			{
 				break;
 			}

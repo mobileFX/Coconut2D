@@ -101,6 +101,7 @@ class CocoGraphics
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static function createTextTexture(scene:CocoScene, text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) :CocoImage
 	{
+		/*
 		// Create a power-of-two sized canvas and get 2d context
 		var canvas:HTMLCanvasElement = document.createElement("canvas");
 		canvas.width = Math.pow(2, Math.ceil(Math.log(textRectWidth)/Math.log(2)));
@@ -120,12 +121,14 @@ class CocoGraphics
         image.textureCellWidth = Float(textRectWidth);
         image.textureCellHeight = Float(textRectHeight);
         image.textureGrid = new Float32Array([0,0]);
-        image.prepare(scene, gl);
+        ctx.prepareImage(scene, image);
 
 		// Dispose and return
         ctx = null;
         delete canvas;
         return image;
+        */
+        return null;
 	}
 
 	// ==================================================================================================================================
@@ -294,7 +297,7 @@ class CocoGraphics
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __fixedW(v:Array<Float>) :Boolean
+	private static function __fixedW(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean
 	{
 		var R:Boolean = false;
 	    for(var i:Integer=0; i<v.size(); i++)
@@ -303,7 +306,7 @@ class CocoGraphics
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __fixedH(v:Array<Float>) :Boolean
+	private static function __fixedH(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean
 	{
 		var R:Boolean = false;
 	    for(var i:Integer=0; i<v.size(); i++)

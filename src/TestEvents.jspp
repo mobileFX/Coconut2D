@@ -66,120 +66,168 @@ class UITextBoxClass : CocoClip
 
 class UIFormClass : CocoClip implements IEventListener
 {
-	private var body:CocoClip;
 	private var button1:UIButtonClass;
 	private var text1:UITextBoxClass;
 	private var text2:UITextBoxClass;
 	private var scrollLastTime:Time;
-	private var scrollLastPointX:Float;
 	private var scrollLastPointY:Float;
+	private var scrollSpeedY:Float;
+	private var minY:Float;
+	private var maxY:Float;
+	private var bounceY:Boolean;
+	private var KF:CocoKeyFrame;
 
- 	public function Constructor(scene:CocoScene) : CocoClip(null)
+ 	public function Constructor(name:String, scene:CocoScene) : CocoClip(null)
  	{
- 		var img:CocoImage = scene.getImageSymbol("SpriteSymbol_metal_slug");
+		scrollSpeedY = 0.0;
+		minY = 250.0 - window.innerHeight / 2.0 + scene.getImageSymbol("SkinSymbol_iPhone_ActionSheet").textureCellHeight / 2.0;
+		maxY = -5 * 250.0 + window.innerHeight / 2.0 - scene.getImageSymbol("SkinSymbol_iPhone_ActionSheet").textureCellHeight / 2.0;
+		bounceY = false;
 
- 		button1 = new UIButtonClass("button1");
- 		button1.addEventListener(button1.OnClick, HandleOnClick);
- 		button1.addEventListener(button1.OnClick, HandleOnClick);
-
- 		text1 = new UITextBoxClass("text1");
- 		text1.addEventListener(text1.OnClick, HandleOnClick);
- 		text1.addEventListener(text1.OnChange, HandleOnChange);
- 		text1.addEventListener(text1.OnChange, HandleOnValidate);
-
- 		text2 = new UITextBoxClass("text2");
- 		text2.addEventListener(text2.OnClick, HandleOnClick);
- 		text2.addEventListener(text2.OnChange, HandleOnChange);
- 		text2.addEventListener(text2.OnChange, HandleOnValidate);
-
- 		//button1.work();
- 		//text1.work();
- 		__instanceName = "form1";
-		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		__instanceName = name;
+		KF = __timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, minY, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 		scene.__root.addChild(this);
 
+ 		button1 = new UIButtonClass("button1");
  		button1.__instanceName = "button1";
- 		button1.__image = img;
- 		button1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 100, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		button1.__image = scene.getImageSymbol("SkinSymbol_iPhone_AlertButton_Light");
+		button1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 150, 250, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 		addChild(button1);
 
+ 		text1 = new UITextBoxClass("text1");
  		text1.__instanceName = "text1";
- 		text1.__image = img;
- 		text1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, -100, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 		text1.__image = scene.getImageSymbol("SkinSymbol_iPhone_ActionSheet");
+ 		text1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, -250, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 		addChild(text1);
 
+ 		text2 = new UITextBoxClass("text2");
  		text2.__instanceName = "text2";
- 		text2.__image = img;
-		text2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 100, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 		text2.__image = scene.getImageSymbol("SkinSymbol_iPhone_ActionSheet");
+ 		text2.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 5 * 250, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 		addChild(text2);
 
-		body = new CocoClip(null);
- 		body.__instanceName = "body";
- 		body.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 		this.addEventListener(this.OnTouchStart, HandleStart);
+ 		this.addEventListener(this.OnTouchMove, HandleMove);
+ 		this.addEventListener(this.OnTouchEnd, HandleEnd);
 
- 		body.addChild(button1);
- 		body.addChild(text1);
- 		body.addChild(text2);
- 		body.addEventListener(body.OnTouchStart, HandleStart);
- 		body.addEventListener(body.OnTouchMove, HandleMove);
- 		body.addEventListener(body.OnTouchEnd, HandleEnd);
- 		//scene.__root.addChild(body);
+ 		var img:CocoImage = scene.getImageSymbol("SkinSymbol_iPhone_AlertButton_Light");
+ 		var btn:UIButtonClass;
+ 		for(var i = 10; i--;)
+ 		{
+ 			btn = new UIButtonClass("button" + String(i));
+ 			btn.__instanceName = btn.id;
+ 			btn.__image = img;
+ 			btn.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, i * 100, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 			addChild(btn);
+ 		}
  	}
 
  	public function Destructor()
  	{
- 		button1.removeEventListener(button1.OnClick, HandleOnClick);
- 		text1.removeEventListener(text1.OnClick, HandleOnClick);
- 		text1.removeEventListener(text1.OnChange, HandleOnChange);
- 		text1.removeEventListener(text1.OnChange, HandleOnValidate);
- 		text2.removeEventListener(text2.OnClick,  HandleOnClick);
- 		text2.removeEventListener(text2.OnChange, HandleOnChange);
- 		text2.removeEventListener(text2.OnChange, HandleOnValidate);
+ 		this.removeEventListener(this.OnTouchStart, HandleStart);
+ 		this.removeEventListener(this.OnTouchMove, HandleMove);
+ 		this.removeEventListener(this.OnTouchEnd, HandleEnd);
  		delete button1;
  		delete text1;
  		delete text2;
  	}
 
- 	public function HandleStart(sender:CocoEventSource, e:CocoEvent) :Boolean
+ 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+ 	{
+ 		scrollSpeedY *= 0.95;
+ 		//KF.y = Math.max(maxY, Math.min(minY, KF.y + scrollSpeedY));
+ 		KF.y += scrollSpeedY;
+ 		if(bounceY)
+ 		{
+	 		var springY:Float = minY - KF.y;
+	 		if(springY < 0.0)
+	 		{
+	 			scrollSpeedY = 0.0;
+				KF.y += -springY / -Math.sqrt(-springY);
+				if(KF.y < minY)
+				{
+					KF.y = minY;
+					bounceY = false;
+					scrollSpeedY = 0.0;
+				}
+	 		}
+	 		else
+	 		{
+		 		var springY:Float = maxY - KF.y;
+		 		if(springY > 0.0)
+		 		{
+		 			scrollSpeedY = 0.0;
+		 			KF.y += springY / Math.sqrt(springY);
+		 			if(KF.y > maxY)
+		 			{
+		 				KF.y = maxY;
+		 				bounceY = false;
+		 				scrollSpeedY = 0.0;
+		 			}
+		 		}
+	 		}
+ 		}
+ 		super.paint;
+ 	}
+
+ 	public function HandleStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
-		trace(sender.__className + ", " + e.type);
-		//scrollLastTime = engine.__clock;
-		//scrollLastPointX = e.__clientX;
-		//scrollLastPointY = e.__clientY;
+		//trace(sender.__className + ", " + e.type);
+		scrollLastTime = engine.__clock;
+		scrollLastPointY = y;
+		scrollSpeedY = 0.0;
 		return false;
 	}
 
-	public function HandleMove(sender:CocoEventSource, e:CocoEvent) :Boolean
+	public function HandleMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
-		trace(sender.__className + ", " + e.type);
-		var dX:Float = e.__clientX - scrollLastPointX;
-		var dY:Float = e.__clientY - scrollLastPointY;
-		body.__timeline.__keyFrames[0].x += dX;
-		body.__timeline.__keyFrames[0].y += dY;
-		//scrollLastTime = engine.__clock;
-		//scrollLastPointX = e.__clientX;
-		//scrollLastPointY = e.__clientY;
+		//trace(sender.__className + ", " + e.type);
+		var dY:Float = y - scrollLastPointY;
+		//KF.y = Math.max(maxY, Math.min(minY, KF.y + dY));
+		var sY:Float = 1.0;
+ 		var springY:Float = minY - KF.y;
+ 		if(springY < 0.0)
+ 		{
+			sY = engine.__ctx.getHeight() / 2.0 / (engine.__ctx.getHeight() / 2.0 - springY);
+ 		}
+ 		else
+ 		{
+	 		var springY:Float = maxY - KF.y;
+	 		if(springY > 0.0)
+	 		{
+	 			sY = engine.__ctx.getHeight() / 2.0 / (engine.__ctx.getHeight() / 2.0 + springY);
+	 		}
+ 		}
+		KF.y += dY * sY;
+		scrollLastTime = engine.__clock;
+		scrollLastPointY = y;
 		return false;
 	}
 
-	public function HandleEnd(sender:CocoEventSource, e:CocoEvent) :Boolean
+	public function HandleEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
-		trace(sender.__className + ", " + e.type);
+		//trace(sender.__className + ", " + e.type);
+		var dY:Float = y - scrollLastPointY;
+		scrollSpeedY = dY;
+		bounceY = true;
 		return false;
 	}
 
 	public function HandleOnClick(sender:CocoEventSource, e:CocoEvent) :Boolean
 	{
-		trace(sender.__className + ", " + e.type);
+		//trace(sender.__className + ", " + e.type);
 		return false;
 	}
 
 	public function HandleOnChange(sender:UITextBoxClass, e:UITextBoxClassOnChangeEvent) :Boolean
 	{
-		trace(sender.id + ", " + e.type + ", " + e.text);
+		//trace(sender.id + ", " + e.type + ", " + e.text);
 		return false;
 	}
 
 	public function HandleOnValidate(sender:UITextBoxClass, e:CocoEvent, text:String) :Boolean
 	{
-		trace(sender.id + ", " + e.type + ", " + text);
+		//trace(sender.id + ", " + e.type + ", " + text);
 		return false;
 	}
 }

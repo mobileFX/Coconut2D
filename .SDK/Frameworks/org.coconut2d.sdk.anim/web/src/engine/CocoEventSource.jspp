@@ -77,6 +77,9 @@ class CocoEventSource
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function dispatchEvent(Event:CocoEvent, ...) :Integer
 	{
+		var L:Integer = __eventListeners.size();
+		if(L==0) return 0;
+
 		var c:Integer;
 		var i:Integer;
 
@@ -86,7 +89,7 @@ class CocoEventSource
 		for(i=1;i<arguments.size();i++)
 			event_arguments.push(arguments[i]);
 
-		for(i=__eventListeners.size()-1;i>=0;i--)
+		for(i=L-1;i>=0;i--)
 		{
 			var cp:CocoEventConnectionPoint = __eventListeners[i];
 

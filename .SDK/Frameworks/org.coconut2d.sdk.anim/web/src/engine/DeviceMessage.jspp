@@ -34,96 +34,35 @@
 //	                                                        /____/
 // ==================================================================================================================================
 
-class DeviceMessage
+///////////////////////////////////////////////////////////////////////////////////////////////
+enum DEVICE_MESSAGE_ENUM
 {
-	public var type:String;
-	public var target:IEventTarget;
-	public var currentTarget:IEventTarget;
-	public var eventPhase:Integer;
-	public var bubbles:Boolean;
-	public var cancelable:Boolean;
-	public var timeStamp:Integer;
-	public var defaultPrevented:Boolean;
+	MESSAGE_NONE						= 0,
 
-	public var view:HTMLWindow;
-	public var detail:Integer;
+	MESSAGE_TOUCH_MASK					= 0x100,
+	MESSAGE_TOUCH_START					= 0x101,
+	MESSAGE_TOUCH_MOVE					= 0x102,
+	MESSAGE_TOUCH_END					= 0x103,
 
-	public var touches:TouchList;           // all touches
-	public var targetTouches:TouchList;     // all touches in this TouchEvent Target
-	public var changedTouches:TouchList;    // all touches changed in the current event
-	public var scale:Float;     			// distance (since event start) between fingers as multiplier of initial value. Initially 1.0, zoom out (pinch) < 1.0, zoom in > 1.0.
-	public var rotation:Float;  			// rotation delta (since event start) in degrees (clockwise is positive). Initially 0.0.
+	MESSAGE_HTTP_MASK					= 0x200,
+	MESSAGE_HTTP_DONE					= 0x201
+};
 
-	public var clientX:Integer;
-	public var clientY:Integer;
-	public var __clientX:Integer;
-	public var __clientY:Integer;
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
-	{
-		type="";
-		target=null;
-		currentTarget=null;
-		bubbles=true;
-		cancelable=true;
-		timeStamp=0;
-		defaultPrevented=false;
-		scale = 0.0;
-		rotation = 0.0;
-		__clientX = 0;
-		__clientY = 0;
-		touches = new TouchList();
-		targetTouches = new TouchList();
-		changedTouches = new TouchList();
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor()
-	{
-		delete touches;
-		delete targetTouches;
-		delete changedTouches;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function stopPropagation()
-	{
-		bubbles = false;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function preventDefault()
-	{
-		defaultPrevented = true;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function initEvent(type:String, canBubble:Boolean, cancelable:Boolean)
-	{
-		this.type = type;
-		this.bubbles = canBubble;
-		this.cancelable = cancelable;
-		this.timeStamp = (new Date()).getTime();
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function initUIEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer)
-	{
-		this.initEvent(type, canBubble, cancelable);
-		this.view = view;
-		this.detail = detail;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function initTouchEvent(type:String, canBubble:Boolean, cancelable:Boolean, view:HTMLWindow, detail:Integer, screenX:Integer, screenY:Integer, clientX:Integer, clientY:Integer, ctrlKey:Boolean, altKey:Boolean, shiftKey:Boolean, metaKey:Boolean, touches:TouchList, targetTouches:TouchList, changedTouches:TouchList, scale:Float, rotation:Float)
-     {
-     	this.initUIEvent(type, canBubble, cancelable, view, detail);
-     	this.scale = scale;
-     	this.rotation = rotation;
-     	this.touches = touches;
-     	this.targetTouches = targetTouches;
-     	this.changedTouches = changedTouches;
-     }
+///////////////////////////////////////////////////////////////////////////////////////////////
+struct DEVICE_MESSAGE
+{
+	type:DEVICE_MESSAGE_ENUM;
+	timestamp:Time;
+	peeked:Boolean;
+	touches:Integer;
+	x0:Float;
+	x1:Float;
+	x2:Float;
+	x3:Float;
+	x4:Float;
+	y0:Float;
+	y1:Float;
+	y2:Float;
+	y3:Float;
+	y4:Float;
 }
-

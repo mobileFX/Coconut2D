@@ -1,0 +1,69 @@
+"#export web";
+//@line 37
+
+function CocoTickable()
+{
+	var __BASE__ = null;
+
+	function __CocoTickable()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCOTICKABLE__ = this.__CLASS__COCOTICKABLE__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoTickable'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 63
+		this.__className = "CocoTickable";
+		//@line 50
+		this.RegisterTickable = __VIRTUAL__.RegisterTickable = function ()
+		{
+			//@line 52
+			engine.addTickListener(__THIS__);
+			//@line 53
+		};
+		//@line 56
+		this.UnregisterTickable = __VIRTUAL__.UnregisterTickable = function ()
+		{
+			//@line 58
+			engine.removeTickListener(__THIS__);
+			//@line 59
+		};
+		//@line 62
+		this.tick = __VIRTUAL__.tick = function (time) {};
+		//@line 45
+		this.Destructor = function ()
+		{
+			{
+				//@line 47
+			}
+			{
+				__CLASS__COCOTICKABLE__.__className = null;
+			}
+			return true
+		};
+		//@line 40
+		this.Constructor = function ()
+		{
+			//@line 42
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__CocoTickable.prototype.constructor = CocoTickable;
+	return new __CocoTickable();
+}
+CocoTickable.__PRIVATE__ = {};
+CocoTickable.__PROTECTED__ = {};

@@ -130,12 +130,13 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function paint(gl:WebGLRenderingContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
-		if(!__visible || !parentClip || !scene || !gl)
+		if(!__visible || !parentClip || !scene)
 			return;
 
 		// If the texture is invalid we need to recreate it
+		/*
 		if(__textureIsInvalid)
 		{
 			// Create a power-of-two sized temp canvas and get 2d context and call virtual repaint
@@ -158,7 +159,7 @@ class CocoUIView : CocoClip
 	        __image.textureCellWidth = Float(__width);
 	        __image.textureCellHeight = Float(__height);
 	        __image.textureGrid = new Float32Array([0,0]);
-	        __image.prepare(scene, gl);
+	        ctx.prepareImage(scene, __image);
 
 	        // Delete the temp canvas
 	        ctx = null;
@@ -166,6 +167,7 @@ class CocoUIView : CocoClip
 
 	        __textureIsInvalid = false;
 		}
+		*/
 
 		// Paint the clip
 		super.paint;

@@ -87,6 +87,9 @@ function CompilerExportsPlugin(compiler)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	function xtype(vartype)
 	{
+		if(typeof vartype != "string")
+			return vartype;
+
 		return vartype.replace('<','&lt;').replace('>','&gt;');
 	}
 
@@ -343,6 +346,69 @@ function CompilerExportsPlugin(compiler)
 	};
 
 	// ==================================================================================================================================
+	//	         __      _           __ ______     _  __ __  _____
+	//	  ____  / /_    (_)__  _____/ //_  __/___ | |/ //  |/  / /
+	//	 / __ \/ __ \  / / _ \/ ___/ __// / / __ \|   // /|_/ / /
+	//	/ /_/ / /_/ / / /  __/ /__/ /_ / / / /_/ /   |/ /  / / /___
+	//	\____/_.___/_/ /\___/\___/\__//_/  \____/_/|_/_/  /_/_____/
+	//	          /___/
+	// ==================================================================================================================================
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.objectToXML = function(obj, tag, close, more)
+	{
+		var v, xml = [];
+		xml.push("<"+tag);
+		for(var item in obj)
+		{
+			if(typeof obj[item]=="object") continue;
+
+			switch(item)
+			{
+			case "type":
+			case "extern":
+			case "public":
+			case "private":
+			case "protected":
+			case "static":
+			case "optional":
+			case "virtual":
+			case "abstract":
+			case "delegate":
+			case "event":
+			case "constant":
+			case "start":
+			case "end":
+			case "pointer":
+			case "description":
+			case "file":
+				continue;
+
+			case "__cnSignature":
+
+				v = obj[item];
+				if(v==null || v==undefined || v==NaN || v=="NaN") continue;
+				v = xtype(v);
+				xml.push("signature='" + v + "'");
+				continue;
+
+			default:
+				if(item.charAt(0)=="_")
+					continue;
+			}
+
+			v = obj[item];
+			if(v==null || v==undefined || v==NaN || v=="NaN") continue;
+			v = xtype(v);
+			xml.push(item + "='" + v + "'");
+		}
+
+		if(more) xml.push(more);
+		xml.push(close ? "/>\n" : ">\n");
+		return xml.join(" ");
+	};
+
+	// ==================================================================================================================================
 	//	    ______                      __     ____       __                   _____                 __          __
 	//	   / ____/  ______  ____  _____/ /_   / __ \___  / /_  __  ______ _   / ___/__  ______ ___  / /_  ____  / /____
 	//	  / __/ | |/_/ __ \/ __ \/ ___/ __/  / / / / _ \/ __ \/ / / / __ `/   \__ \/ / / / __ `__ \/ __ \/ __ \/ / ___/
@@ -475,7 +541,7 @@ function CompilerExportsPlugin(compiler)
 					var methods_xml2 = [];
 					for(var vitem in scope.methods)
 					{
-						methodSymbol = scope.methods[vitem];
+						var methodSymbol = scope.methods[vitem];
 						exportMethodSymbol(methodSymbol, methods_xml2);
 					}
 					if(methods_xml2.length>0)
@@ -506,25 +572,11 @@ function CompilerExportsPlugin(compiler)
 		{
 			xml.push(_this.objectToXML(methodSymbol, "METHOD", false));
 
-			// Function Arguments
-/*			var arguments = [];
-			for(var arg in methodSymbol.arguments)
-			{
-				arguments.push(_this.objectToXML(methodSymbol.arguments[arg], arg, true));
-			}
-			if(arguments.length>0)
-			{
-				xml.push("<ARGUMENTS>");
-				xml.push(arguments.join(""));
-				xml.push("</ARGUMENTS>");
-			}
-*/
 			// Method scope and child-scopes vars
 			xml.push("<VARS>");
-			var all_scopes = [methodSymbol.scope].concat(methodSymbol.scope.childScopes);
-			for(var i=0;i<all_scopes.length;i++)
+			for(var i=0;i<methodSymbol.scopes.length;i++)
 			{
-				var scope = all_scopes[i];
+				var scope = methodSymbol.scopes[i];
 				for(var vitem in scope.vars)
 				{
 					xml.push(_this.objectToXML(scope.vars[vitem], vitem, true));
@@ -818,10 +870,10 @@ function CompilerExportsPlugin(compiler)
 					for(var arg in methodSymbol.arguments)
 					{
 						var argumentSymbol = methodSymbol.arguments[arg];
-						NCArgs.push(argumentSymbol.ast.vartype.replace("<", "&lt;").replace(">", "&gt;") + " " + argumentSymbol.name);
+						NCArgs.push( xtype(argumentSymbol.ast.vartype) + " " + argumentSymbol.name);
 					}
 
-					var sig = methodSymbol.modifier + " " + (methodSymbol.vartype ? methodSymbol.vartype.replace("<", "&lt;").replace(">", "&gt;") : "void") + " " + methodSymbol.name + "(" + NCArgs.join(", ") + ")";
+					var sig = methodSymbol.modifier + " " + (methodSymbol.vartype ? xtype(methodSymbol.vartype) : "void") + " " + methodSymbol.name + "(" + NCArgs.join(", ") + ")";
 
 					switch(methodSymbol.name)
 					{
@@ -858,7 +910,7 @@ function CompilerExportsPlugin(compiler)
 					switch(varSymbol.type)
 					{
 						case jsdef.PROPERTY:
-							var sig = varSymbol.modifier + " " + varSymbol.vartype.replace("<", "&lt;").replace(">", "&gt;") + " " + varSymbol.name + " { get; set; }";
+							var sig = varSymbol.modifier + " " + xtype(varSymbol.vartype) + " " + varSymbol.name + " { get; set; }";
 							NClassXML.push('<Member type="Property">' + sig + '</Member>');
 							break;
 
@@ -869,7 +921,7 @@ function CompilerExportsPlugin(compiler)
 
 						case jsdef.IDENTIFIER:
 							var value = !isNaN(parseFloat(varSymbol.value)) ? "0x"+parseFloat(varSymbol.value).toString(16) : varSymbol.value;
-							var sig = varSymbol.modifier + " " + (varSymbol.constant ? "const " : "") + varSymbol.vartype.replace("<", "&lt;").replace(">", "&gt;") + " " + varSymbol.name + (varSymbol.constant ? " = " + value : "");
+							var sig = varSymbol.modifier + " " + (varSymbol.constant ? "const " : "") + xtype(varSymbol.vartype) + " " + varSymbol.name + (varSymbol.constant ? " = " + value : "");
 							NClassXML.push('<Member type="Field">' + sig + '</Member>');
 							break;
 
@@ -1253,50 +1305,6 @@ function CompilerExportsPlugin(compiler)
 			IDECallback("setExterns", "", 0, 0, externs);
 			IDECallback("setDebugSymbols", "", 0, 0, debugSymbols);
 		}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.objectToXML = function(obj, tag, close, more)
-	{
-		var v, xml = [];
-		xml.push("<"+tag);
-		for(var item in obj)
-		{
-			if(item.charAt(0)=="_") continue;
-			switch(item)
-			{
-				case "type":
-				case "extern":
-				case "public":
-				case "private":
-				case "protected":
-				case "static":
-				case "optional":
-				case "virtual":
-				case "abstract":
-				case "delegate":
-				case "event":
-				case "constant":
-				case "start":
-				case "end":
-				case "pointer":
-				case "description":
-				case "file":
-					continue;
-			}
-			if(typeof obj[item]=="object") continue;
-			v = obj[item];
-			if(v==null || v==undefined || v==NaN || v=="NaN") continue;
-			if(typeof v == "string" && v.charAt(v.length-1)=='>')
-			{
-				v = v.replace("<", "&lt;");
-				v = v.replace(">", "&gt;");
-			}
-			xml.push(item + "='" + v + "'");
-		}
-		if(more) xml.push(more);
-		xml.push(close ? "/>\n" : ">\n");
-		return xml.join(" ");
 	};
 
 	/*

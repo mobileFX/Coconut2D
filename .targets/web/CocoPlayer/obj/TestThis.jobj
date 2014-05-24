@@ -1,0 +1,184 @@
+"#export web";
+//@line 10
+
+function TestSelf1()
+{
+	var __BASE__ = null;
+
+	function __TestSelf1()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__TESTSELF1__ = this.__CLASS__TESTSELF1__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'TestSelf1'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 20
+		this.__className = "TestSelf1";
+		//@line 12
+		__PRIVATE__.__saved__ = {};
+		__PDEFINE__(this, 'saved', { configurable: false, get: function () { return __PRIVATE__.__saved__; }, set: function (v) { __PRIVATE__.__saved__ = v; } });
+		//@line 16
+		this.save_this = function ()
+		{
+			//@line 18
+			__CLASS__TESTSELF1__.saved = __THIS__;
+			//@line 19
+		};
+		//@line 14
+		this.Destructor = function ()
+		{
+			{}
+			{
+				__CLASS__TESTSELF1__.saved = null;
+				__CLASS__TESTSELF1__.__className = null;
+			}
+			return true
+		};
+		//@line 13
+		this.Constructor = function () {};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__TestSelf1.prototype.constructor = TestSelf1;
+	return new __TestSelf1();
+}
+TestSelf1.__PRIVATE__ = {};
+TestSelf1.__PROTECTED__ = {};
+//@line 23
+
+function TestSelf2()
+{
+	var __BASE__ = null;
+
+	function __TestSelf2()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__TESTSELF2__ = this.__CLASS__TESTSELF2__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'TestSelf2'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__;
+		var __PROTECTED__ = this.__PROTECTED__;
+		var __CLASS__TESTSELF1__ = this.__CLASS__TESTSELF1__ = __CLASS__TESTSELF2__.__CLASS__TESTSELF1__;
+		__CLASS__TESTSELF2__.__CLASS__TESTSELF1__.__THIS__ = __CLASS__TESTSELF2__;
+		//@line 25
+		this.__className = "TestSelf2";
+		this.Constructor = function () {};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__TestSelf2.prototype = new TestSelf1();
+	__TestSelf2.prototype.constructor = TestSelf2;
+	return new __TestSelf2();
+}
+TestSelf2.__PRIVATE__ = {};
+TestSelf2.__PROTECTED__ = {};
+//@line 28
+
+function TestSelf3()
+{
+	var __BASE__ = null;
+
+	function __TestSelf3()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__TESTSELF3__ = this.__CLASS__TESTSELF3__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'TestSelf3'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__;
+		var __PROTECTED__ = this.__PROTECTED__;
+		var __CLASS__TESTSELF1__ = this.__CLASS__TESTSELF1__ = __CLASS__TESTSELF3__.__CLASS__TESTSELF2__.__CLASS__TESTSELF1__;
+		__CLASS__TESTSELF3__.__CLASS__TESTSELF2__.__CLASS__TESTSELF1__.__THIS__ = __CLASS__TESTSELF3__;
+		var __CLASS__TESTSELF2__ = this.__CLASS__TESTSELF2__ = __CLASS__TESTSELF3__.__CLASS__TESTSELF2__;
+		__CLASS__TESTSELF3__.__CLASS__TESTSELF2__.__THIS__ = __CLASS__TESTSELF3__;
+		//@line 30
+		this.__className = "TestSelf3";
+		this.Constructor = function () {};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__TestSelf3.prototype = new TestSelf2(undefined);
+	__TestSelf3.prototype.constructor = TestSelf3;
+	return new __TestSelf3();
+}
+TestSelf3.__PRIVATE__ = {};
+TestSelf3.__PROTECTED__ = {};
+//@line 33
+
+function TestThis()
+{
+	var __BASE__ = null;
+
+	function __TestThis()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__TESTTHIS__ = this.__CLASS__TESTTHIS__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'TestThis'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 41
+		this.__className = "TestThis";
+		//@line 35
+		this.Constructor = function ()
+		{
+			//@line 37
+			var t = new TestSelf3;
+			//@line 38
+			t.save_this();
+			//@line 39
+			trace("Saved instance type: " + t.saved.toString());
+			//@line 40
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__TestThis.prototype.constructor = TestThis;
+	return new __TestThis();
+}
+TestThis.__PRIVATE__ = {};
+TestThis.__PROTECTED__ = {};

@@ -15,6 +15,7 @@
 state class GameEngine : CocoEngine //implements IEventListener
 {
 	public var scene:CocoScene;
+	public var form1:UIFormClass;
 	//public var btn1:CocoUIButton;
 	//public var btn2:CocoUIButton;
 
@@ -39,27 +40,14 @@ state class GameEngine : CocoEngine //implements IEventListener
 			//req.send();
 			//trace(req.getAllResponseHeaders());
 			//trace("Content-Type: " + req.getResponseHeader("Content-Type"));
-
-			//trace(String(window.innerWidth) + " x " + String(window.innerHeight));
-
-			scene = new NewAnimation();
-
+			trace(String(window.innerWidth) + " x " + String(window.innerHeight));
 			//var t1:TestIntegratorClient = new TestIntegratorClient();
-			//var t2:UIFormClass = new UIFormClass(scene);
+			//var t2:UIFormClass = new UIFormClass();
 			//delete t2;
 			//var t3:TestThis = new TestThis();
 
-
-
-			//btn1 = new CocoUIButton("button1");
-			//btn1.move(10, 10, 300, 60);
-			//btn1.addEventListener(btn1.OnTouchStart, this, mousedown);
-			//scene.__root.addChild(btn1);
-
-			//btn2 = new CocoUIButton("button2");
-			//btn2.move(10, 100, 300, 60);
-			//btn2.addEventListener(btn2.OnTouchStart, this, mousedown);
-			//scene.__root.addChild(btn2);
+			scene = new NewAnimation(this);
+			form1 = new UIFormClass("form1", scene);
 		}
 
 		function exit()
@@ -71,9 +59,9 @@ state class GameEngine : CocoEngine //implements IEventListener
 		{
 		}
 
-		function paint(gl:WebGLRenderingContext, time:Time)
+		function paint(ctx:ICocoRenderContext, time:Time)
 		{
-			scene.paint(gl, time);
+			scene.paint(ctx, time);
 		}
 	}
 }

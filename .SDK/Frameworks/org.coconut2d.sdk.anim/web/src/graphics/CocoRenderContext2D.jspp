@@ -1,0 +1,145 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+class CocoImageRenderData2D implements ICocoImageRenderData
+{
+	public function Constructor()
+	{
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+// ==================================================================================================================================
+//	    __________                 ____                 __          ______            __            __
+//	   /  _/ ____/___  _________  / __ \___  ____  ____/ /__  _____/ ____/___  ____  / /____  _  __/ /_
+//	   / // /   / __ \/ ___/ __ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ /   / __ \/ __ \/ __/ _ \| |/_/ __/
+//	 _/ // /___/ /_/ / /__/ /_/ / _, _/  __/ / / / /_/ /  __/ /  / /___/ /_/ / / / / /_/  __/>  </ /_
+//	/___/\____/\____/\___/\____/_/ |_|\___/_/ /_/\__,_/\___/_/   \____/\____/_/ /_/\__/\___/_/|_|\__/
+//
+// ==================================================================================================================================
+
+class CocoRenderContext2D implements ICocoRenderContext
+{
+	private var __modelViewMatrix:CocoMatrix;
+	private var __projectionMatrix:CocoMatrix;
+	private var c2d:CanvasRenderingContext2D;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Constructor(ctx:CanvasRenderingContext2D)
+ 	{
+ 		c2d = ctx;
+ 		__modelViewMatrix						= new CocoMatrix();
+		__modelViewMatrix.identity();
+		__projectionMatrix 						= new CocoMatrix();
+ 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Destructor()
+ 	{
+ 		delete __modelViewMatrix;
+ 		delete __projectionMatrix;
+ 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function flush()
+ 	{
+ 		//__Canvas2DRenderingContext_flush(c2d.canvas.__imageData.data.buffer.__uid, c2d.canvas.__imageData.data.buffer.byteLength, c2d.canvas.__imageData.width, c2d.canvas.__imageData.height);
+ 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getModelViewMatrix():CocoMatrix
+	{
+		return __modelViewMatrix;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getProjectionMatrix():CocoMatrix
+	{
+		return __projectionMatrix;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getWidth():Float
+	{
+		return c2d.canvas.width;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getHeight():Float
+	{
+		return c2d.canvas.height;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function cls()
+	{
+		__modelViewMatrix.identity();
+		c2d.setTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+		c2d.fillStyle = "#000";
+		c2d.fillRect(0.0, 0.0, c2d.canvas.width, c2d.canvas.height);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ready():Boolean
+	{
+		return true;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepare(scene:CocoScene)
+	{
+		__projectionMatrix.identity();
+		__projectionMatrix.translate(c2d.canvas.width / 2.0, c2d.canvas.height / 2.0);
+		__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepareImage(img:CocoImage):ICocoImageRenderData
+	{
+		var data:CocoImageRenderData2D = new CocoImageRenderData2D();
+		return data;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
+	{
+		c2d.setTransform(__projectionMatrix.rc11, __projectionMatrix.rc12, __projectionMatrix.rc21, __projectionMatrix.rc22, __projectionMatrix.rc41, __projectionMatrix.rc42);
+		c2d.transform(__modelViewMatrix.rc11, __modelViewMatrix.rc12, __modelViewMatrix.rc21, __modelViewMatrix.rc22, __modelViewMatrix.rc41, __modelViewMatrix.rc42);
+		var sx:Float = (((KF.flipH ? 1.0 : 0.0) + image.textureGrid[frame * 2 + 1]) * image.texSize[0]) * image.image.naturalWidth;
+		var sy:Float = (((KF.flipV ? 1.0 : 0.0) + image.textureGrid[frame * 2 + 0]) * image.texSize[1]) * image.image.naturalHeight;
+		var sw:Float = image.texSize[0] * Float(image.image.naturalWidth);
+		var sh:Float = image.texSize[1] * Float(image.image.naturalHeight);
+		var dx:Float = -sw / 2.0;
+		var dy:Float = -sh / 2.0;
+		var dw:Float = sw;
+		var dh:Float = sh;
+		c2d.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
+	}
+}

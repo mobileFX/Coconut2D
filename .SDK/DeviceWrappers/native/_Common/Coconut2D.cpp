@@ -64,7 +64,7 @@ void trace(const char* fmt, ...)
 
 	#elif WIN32_APPLICATION
 		printf("%s\n", buff);
-
+		fflush(stdout);
 	#else
 
 	#endif

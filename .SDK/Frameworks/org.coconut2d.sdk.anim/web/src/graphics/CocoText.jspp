@@ -48,9 +48,9 @@ class CocoText
 	public var indices:Array<Integer>;
 	public var mappings:Array<Integer>;
 	public var lineBreaks:Array<Integer>;
-	public var lineWidths:Array<Integer>;
-	public var lineHeights:Array<Integer>;
-	public var totalHeight:Integer;
+	public var lineWidths:Array<Float>;
+	public var lineHeights:Array<Float>;
+	public var totalHeight:Float;
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static function npo2(i:Integer): Integer
@@ -103,8 +103,8 @@ class CocoText
 		lineWidths.clear();
 		lineHeights.clear();
 		totalHeight = 0;
-		var lineWidth:Integer = 0;
-		var lineHeight:Integer = 0;
+		var lineWidth:Float = 0;
+		var lineHeight:Float = 0;
 		var L:Integer = indices.size();
 		for(var i:Integer = 0; i<L; i++)
 		{
@@ -114,7 +114,7 @@ class CocoText
 			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
 			for(var r:Integer = indices[i]; r < to; r++)
 			{
-				var charWidth:Integer = ctx.measureText(String(str.substr(r, 1))).width;
+				var charWidth:Float = ctx.measureText(String(str.substr(r, 1))).width;
 				if(lineWidth + charWidth > width)
 				{
 					if(lineWidth === 0) throw "Too small width!";
@@ -123,7 +123,7 @@ class CocoText
 					lineHeights.push(lineHeight);
 					totalHeight += lineHeight;
 					lineWidth = charWidth;
-					lineHeight = style.fontSizePixels;
+					lineHeight = Float(style.fontSizePixels);
 				}
 				else lineWidth += charWidth;
 			}
@@ -163,7 +163,7 @@ class CocoText
 				prevStop = stop;
 				var sWidth:Float = ctx.measureText(s).width;
 				var left:Float = (width - lineWidths[currentLine]) * halign;
-				var top:Float = lineHeights[currentLine] / 1.125 + (height - totalHeight * 1.25) * valign;
+				var top:Float = (lineHeights[currentLine] / 1.125) + (height - totalHeight * 1.25) * valign;
 				ctx.fillStyle = "rgba(" + String(style.bgcolor[0]) + ", " + String(style.bgcolor[1]) + ", " + String(style.bgcolor[2]) + ", " + String(style.bgcolor[3]) + ")";
 				ctx.fillRect(cx + left, cy + top - Float(style.fontSizePixels) / 1.25, sWidth, Float(style.fontSizePixels) * 1.125);
 				var StyleString:String = "rgba(" + String(style.color[0]) + ", " + String(style.color[1]) + ", " + String(style.color[2]) + ", " + String(style.color[3]) + ")";
