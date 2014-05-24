@@ -1,4 +1,4 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -22,28 +22,20 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef _fxGLWrap_h
-#define _fxGLWrap_h
+#import "CocoDeviceKeyboard.h"
 
-#include "Coconut2D.hpp"
-class CocoDeviceWrapper;
+@implementation CocoDeviceKeyboard
 
-class CocoOpenGLContextWrapper
-{
-private:
-    EGLContext context;
-    EGLDisplay display;
-    EGLSurface surface;
-    fxScreen screen;
-protected:
-public:
-    CocoOpenGLContextWrapper(ANativeWindow*, CocoDeviceWrapper*);
-    ~CocoOpenGLContextWrapper();
-    void SetContext();
-    void ClearContext();
-    void SetBuffers();
-    void SwapBuffers();
-    inline const fxScreen& GetScreen() { return screen; }
-};
+- (BOOL)canBecomeFirstResponder { return YES; }
+- (BOOL)hasText { return YES; }
+- (void)insertText:(NSString *)theText {}
+- (void)deleteBackward { static uint32_t _v = 8; }
+- (UITextAutocapitalizationType)autocapitalizationType { return UITextAutocapitalizationTypeNone; }
+- (UITextAutocorrectionType)autocorrectionType { return UITextAutocorrectionTypeNo; }
+- (UITextSpellCheckingType)spellCheckingType { return UITextSpellCheckingTypeNo; }
+- (BOOL)enablesReturnKeyAutomatically { return NO; }
+- (UIKeyboardAppearance)keyboardAppearance { return UIKeyboardAppearanceDefault; }
+- (UIKeyboardType)keyboardType { return UIKeyboardTypeDefault; }
+- (UIReturnKeyType)returnKeyType { return UIReturnKeyDefault; }
 
-#endif
+@end

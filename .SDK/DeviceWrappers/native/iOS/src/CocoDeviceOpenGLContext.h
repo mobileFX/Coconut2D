@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -22,20 +22,30 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#import "CocoKeyboardDevice.h"
+#ifndef __COCODEVICEOPENGL_HPP__
+#define __COCODEVICEOPENGL_HPP__
 
-@implementation CocoKeyboardDevice
+#import <UIKit/UIView.h>
+#import <UIKit/UIApplication.h>
+#import <QuartzCore/CAEAGLLayer.h>
+#import "Structs.h"
 
-- (BOOL)canBecomeFirstResponder { return YES; }
-- (BOOL)hasText { return YES; }
-- (void)insertText:(NSString *)theText {}
-- (void)deleteBackward { static uint32_t _v = 8; }
-- (UITextAutocapitalizationType)autocapitalizationType { return UITextAutocapitalizationTypeNone; }
-- (UITextAutocorrectionType)autocorrectionType { return UITextAutocorrectionTypeNo; }
-- (UITextSpellCheckingType)spellCheckingType { return UITextSpellCheckingTypeNo; }
-- (BOOL)enablesReturnKeyAutomatically { return NO; }
-- (UIKeyboardAppearance)keyboardAppearance { return UIKeyboardAppearanceDefault; }
-- (UIKeyboardType)keyboardType { return UIKeyboardTypeDefault; }
-- (UIReturnKeyType)returnKeyType { return UIReturnKeyDefault; }
+@interface CocoDeviceOpenGLContext : UIView
+{
+    EAGLContext* context;
+    GLuint fbuff, rbuff;
+    fxScreen screen;
+}
+
+- (id)initWithFrame:(CGRect)rect contentsScale:(CGFloat)scale;
+- (void)InitGL;
+- (void)QuitGL;
+- (void)SetContext;
+- (void)ClearContext;
+- (void)SetBuffers;
+- (void)SwapBuffers;
+- (fxScreen)GetScreen;
 
 @end
+
+#endif

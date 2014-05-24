@@ -22,11 +22,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#include "CocoOpenGLContextWrapper.h"
+#include "CocoDeviceOpenGLContext.h"
 #include "CocoDeviceWrapper.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoOpenGLContextWrapper::CocoOpenGLContextWrapper(ANativeWindow* window, CocoDeviceWrapper* dev)
+CocoDeviceOpenGLContext::CocoDeviceOpenGLContext(ANativeWindow* window, CocoDeviceWrapper* dev)
 {
 	EGLint numConfigs, format;
 	EGLConfig config;
@@ -73,7 +73,7 @@ CocoOpenGLContextWrapper::CocoOpenGLContextWrapper(ANativeWindow* window, CocoDe
     glViewport(0, 0, screen.width * screen.pixelRatio, screen.height * screen.pixelRatio);
 }
 
-CocoOpenGLContextWrapper::~CocoOpenGLContextWrapper()
+CocoDeviceOpenGLContext::~CocoDeviceOpenGLContext()
 {
     if(display != EGL_NO_DISPLAY)
     {
@@ -89,24 +89,24 @@ CocoOpenGLContextWrapper::~CocoOpenGLContextWrapper()
     surface = EGL_NO_SURFACE;
 }
 
-void CocoOpenGLContextWrapper::SetContext()
+void CocoDeviceOpenGLContext::SetContext()
 {
 	if(eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
 	{
-		trace("ERROR(CocoOpenGLContextWrapper.cpp): eglMakeCurrent(%d)", eglGetError());
+		trace("ERROR(CocoDeviceOpenGLContext.cpp): eglMakeCurrent(%d)", eglGetError());
 	}
 }
 
-void CocoOpenGLContextWrapper::ClearContext()
+void CocoDeviceOpenGLContext::ClearContext()
 {
 	eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
-void CocoOpenGLContextWrapper::SetBuffers()
+void CocoDeviceOpenGLContext::SetBuffers()
 {
 }
 
-void CocoOpenGLContextWrapper::SwapBuffers()
+void CocoDeviceOpenGLContext::SwapBuffers()
 {
 	eglSwapBuffers(display, surface);
 }

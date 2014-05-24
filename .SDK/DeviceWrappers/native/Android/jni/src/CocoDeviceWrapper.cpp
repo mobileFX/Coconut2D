@@ -91,7 +91,7 @@ void CocoDeviceWrapper::StateHandler(android_app* app, int32_t state)
 	{
 		case APP_CMD_INIT_WINDOW:
 		{
-			t->glwrap = new CocoOpenGLContextWrapper(app->window, t);
+			t->glwrap = new CocoDeviceOpenGLContext(app->window, t);
 			window = new HTMLWindow();
 			window->innerWidth = t->glwrap->GetScreen().width;
 			window->innerHeight = t->glwrap->GetScreen().height;

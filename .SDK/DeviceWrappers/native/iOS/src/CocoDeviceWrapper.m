@@ -40,7 +40,7 @@
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
 
     // Create an OpenGL View
-    self.glwrap = [[[CocoOpenGLContextWrapper alloc] initWithFrame:[[UIScreen mainScreen] bounds] contentsScale:self.window.screen.scale] autorelease];
+    self.glwrap = [[[CocoDeviceOpenGLContext alloc] initWithFrame:[[UIScreen mainScreen] bounds] contentsScale:self.window.screen.scale] autorelease];
 
     // Set window root view controller
     self.window.backgroundColor = [UIColor whiteColor];

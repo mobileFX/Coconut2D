@@ -1,4 +1,4 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -22,30 +22,15 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef _fxGLWrap_h
-#define _fxGLWrap_h
+#ifndef __COCODEVICEKEYBOARD_HPP__
+#define __COCODEVICEKEYBOARD_HPP__
 
 #import <UIKit/UIView.h>
-#import <UIKit/UIApplication.h>
-#import <QuartzCore/CAEAGLLayer.h>
-#import "Structs.h"
+#import <UIKit/UITextInput.h>
 
-@interface CocoOpenGLContextWrapper : UIView
+@interface CocoDeviceKeyboard : UIView <UIKeyInput>
 {
-    EAGLContext* context;
-    GLuint fbuff, rbuff;
-    fxScreen screen;
 }
-
-- (id)initWithFrame:(CGRect)rect contentsScale:(CGFloat)scale;
-- (void)InitGL;
-- (void)QuitGL;
-- (void)SetContext;
-- (void)ClearContext;
-- (void)SetBuffers;
-- (void)SwapBuffers;
-- (fxScreen)GetScreen;
-
 @end
 
-#endif
+#endif // __COCODEVICEKEYBOARD_HPP__

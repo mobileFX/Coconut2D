@@ -23,9 +23,9 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-#import "CocoOpenGLContextWrapper.h"
+#import "CocoDeviceOpenGLContext.h"
 
-@implementation CocoOpenGLContextWrapper
+@implementation CocoDeviceOpenGLContext
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 + (Class)layerClass

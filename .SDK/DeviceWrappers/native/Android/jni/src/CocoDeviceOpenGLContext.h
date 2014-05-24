@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -22,15 +22,28 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef _fxKeyWrap_h
-#define _fxKeyWrap_h
+#ifndef __COCODEVICEOPENGL_HPP__
+#define __COCODEVICEOPENGL_HPP__
 
-#import <UIKit/UIView.h>
-#import <UIKit/UITextInput.h>
+#include "Coconut2D.hpp"
+class CocoDeviceWrapper;
 
-@interface CocoKeyboardDevice : UIView <UIKeyInput>
+class CocoDeviceOpenGLContext
 {
-}
-@end
+private:
+    EGLContext context;
+    EGLDisplay display;
+    EGLSurface surface;
+    fxScreen screen;
+protected:
+public:
+    CocoDeviceOpenGLContext(ANativeWindow*, CocoDeviceWrapper*);
+    ~CocoDeviceOpenGLContext();
+    void SetContext();
+    void ClearContext();
+    void SetBuffers();
+    void SwapBuffers();
+    inline const fxScreen& GetScreen() { return screen; }
+};
 
 #endif

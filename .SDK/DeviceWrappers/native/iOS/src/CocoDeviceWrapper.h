@@ -26,16 +26,16 @@
 #define _fxDeviceWrapper_h
 
 @class CocoDeviceWrapper;
-@class CocoOpenGLContextWrapper;
-@class CocoKeyboardDevice;
+@class CocoDeviceOpenGLContext;
+@class CocoDeviceKeyboard;
 
 #import <MediaPlayer/MediaPlayer.h>
 #import <QuartzCore/QuartzCore.h>
 #import "Coconut2D.hpp"
 #import "HTMLWindow.hpp"
 #import "HTMLDocument.hpp"
-#import "CocoOpenGLContextWrapper.h"
-#import "CocoKeyboardDevice.h"
+#import "CocoDeviceOpenGLContext.h"
+#import "CocoDeviceKeyboard.h"
 #import "Coconut2D.hpp"
 #import "WebGLRenderingContext.hpp"
 #import "GameEngine.hpp"
@@ -51,8 +51,8 @@
 }
 
 @property (strong, nonatomic) UIWindow* window;
-@property (strong, nonatomic) CocoOpenGLContextWrapper* glwrap;
-@property (strong, nonatomic) CocoKeyboardDevice* keywrap;
+@property (strong, nonatomic) CocoDeviceOpenGLContext* glwrap;
+@property (strong, nonatomic) CocoDeviceKeyboard* keywrap;
 @property (strong, nonatomic) MPMoviePlayerController* player;
 
 - (void)tick;

@@ -26,14 +26,14 @@
 #define _fxDeviceWrapper_h
 
 class CocoDeviceWrapper;
-class CocoOpenGLContextWrapper;
+class CocoDeviceOpenGLContext;
 
 #include "Coconut2D.hpp"
 #include "HTMLWindow.hpp"
 #include "CocoAssetFile.h"
 #include "CocoFontsCache.h"
 #include "CocoAudioStream.h"
-#include "CocoOpenGLContextWrapper.h"
+#include "CocoDeviceOpenGLContext.h"
 #include "WebGLRenderingContext.hpp"
 #include "GameEngine.hpp"
 
@@ -43,7 +43,7 @@ private:
 protected:
 	android_app* app;
 	JNIEnv* jenv;
-	CocoOpenGLContextWrapper* glwrap;
+	CocoDeviceOpenGLContext* glwrap;
 
 	// Java Methods
 	jmethodID jmID_KeyboardShow;
