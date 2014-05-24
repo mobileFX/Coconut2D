@@ -87,7 +87,7 @@
     XMLHttpRequest::tick();
     #endif
 
-	engine->run(gl, 16.0);			// <-- pseudo/fixed clock of 16 ms since last animation
+	engine->run(16.0);			// <-- pseudo/fixed clock of 16 ms since last animation
     [self.glwrap SwapBuffers];
 }
 

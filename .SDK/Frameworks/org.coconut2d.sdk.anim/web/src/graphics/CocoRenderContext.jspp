@@ -44,7 +44,7 @@ class CocoRenderContext
 		canvas.height = Float(window.innerHeight);
 
 		// Get WebGL context if supported by device
-		var gl:WebGLRenderingContext = canvas.getContext("webgl");
+		var gl:WebGLRenderingContext = WebGLRenderingContext(canvas.getContext("webgl"));
 		if(gl) return new CocoRenderContextGL(gl);
 
 		// Get WebGL context if supported by device

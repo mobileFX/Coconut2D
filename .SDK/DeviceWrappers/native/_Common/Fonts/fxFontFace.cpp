@@ -33,7 +33,7 @@
 
 #include "fxFontFace.h"
 
-#include "AssetFile.h"
+#include "AssetFile.h" // <- Device Specific
 
 #ifdef ENABLE_FREETYPE_SUPPORT
 FT_Library fxFontFace::ftLibrary;

@@ -34,9 +34,7 @@
 #ifndef __IMAGEDATA_HPP__
 #define __IMAGEDATA_HPP__
 
-#include <string>
-#include "ArrayBuffer.hpp"
-#include "TypedArray.hpp"
+#include "Coconut2D.hpp"
 
 class ImageData
 {

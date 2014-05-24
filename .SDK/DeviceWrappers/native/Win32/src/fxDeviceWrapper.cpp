@@ -92,6 +92,7 @@ fxDeviceWrapper::fxDeviceWrapper(int width, int height)
 	window->innerHeight = screen.height;
 	window->devicePixelRatio = screen.pixelRatio;
 	window->deviceRotation = 0.0f;
+	global = window;
 	document = new HTMLDocument();
 
 	// Create a WebGL Canvas

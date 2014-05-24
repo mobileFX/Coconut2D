@@ -199,7 +199,7 @@ void fxDeviceWrapper::tick()
         	#ifdef __XMLHTTPREQUEST_HPP__
         	XMLHttpRequest::tick();
         	#endif
-        	engine->run(gl, td);
+        	engine->run(td);
         	glwrap->SwapBuffers();
         	if(count++ == 30)
         	{

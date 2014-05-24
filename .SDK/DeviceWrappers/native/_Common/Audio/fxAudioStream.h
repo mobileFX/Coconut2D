@@ -34,7 +34,7 @@
 #ifndef _fxAudioStream_h
 #define _fxAudioStream_h
 
-#include "AssetFile.h"
+#include "AssetFile.h" // <- Device Specific
 
 class fxAudioStream
 {

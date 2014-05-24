@@ -26,6 +26,124 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
+//	  ______                 __
+//	 /_  __/___  __  _______/ /_
+//	  / / / __ \/ / / / ___/ __ \
+//	 / / / /_/ / /_/ / /__/ / / /
+//	/_/  \____/\__,_/\___/_/ /_/
+//
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+class Touch
+{
+    public var identifier:Integer;
+    public var screenX:Float;
+    public var screenY:Float;
+    public var clientX:Float;
+    public var clientY:Float;
+    public var pageX:Float;
+    public var pageY:Float;
+    public var target:IEventTarget;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		identifier	= 0;
+		target		= null;
+		screenX		= 0;
+		screenY		= 0;
+		clientX		= 0;
+		clientY		= 0;
+		pageX		= 0;
+		pageY		= 0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Float, screenY:Float, clientX:Float, clientY:Float, pageX:Float, pageY:Float)
+	{
+		this.identifier	= identifier;
+		this.target		= target;
+		this.screenX	= screenX;
+		this.screenY	= screenY;
+		this.clientX	= clientX;
+		this.clientY	= clientY;
+		this.pageX		= pageX;
+		this.pageY		= pageY;
+	}
+}
+
+// ==================================================================================================================================
+//	  ______                 __    __    _      __
+//	 /_  __/___  __  _______/ /_  / /   (_)____/ /_
+//	  / / / __ \/ / / / ___/ __ \/ /   / / ___/ __/
+//	 / / / /_/ / /_/ / /__/ / / / /___/ (__  ) /_
+//	/_/  \____/\__,_/\___/_/ /_/_____/_/____/\__/
+//
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+class TouchList : Array<Touch>
+{
+	public var length:Integer;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		for(var i:Integer=0; i<=5; i++)
+		{
+			var touch:Touch = new Touch();
+			touch.initTouch(i, null, 0, 0, 0, 0, 0, 0);
+			push(touch);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function item(index:Integer) : Touch
+	{
+		return this[index];
+	}
+}
+
+// ==================================================================================================================================
+//	    __  __________  _____    ______                 __
+//	   / / / /_  __/  |/  / /   / ____/   _____  ____  / /_
+//	  / /_/ / / / / /|_/ / /   / __/ | | / / _ \/ __ \/ __/
+//	 / __  / / / / /  / / /___/ /___ | |/ /  __/ / / / /_
+//	/_/ /_/ /_/ /_/  /_/_____/_____/ |___/\___/_/ /_/\__/
+//
+// ==================================================================================================================================
+
+// Pseudo-implementation of an HTMLEvent wrapper class for catch-all events.
+
+class HTMLEvent
+{
+	public var type:String;
+	public var timestamp:Time;
+	public var clientX:Float;
+	public var clientY:Float;
+	public var touches:TouchList;
+	public var changedTouches:TouchList;
+
+	public function Constructor()
+	{
+		touches = new TouchList();
+		changedTouches = new TouchList();
+	}
+
+	public function Destructor()
+	{
+		delete touches;
+		delete changedTouches;
+	}
+}
+
+// ==================================================================================================================================
 //	    ____            _           __  ___
 //	   / __ \___ _   __(_)_______  /  |/  /__  ______________ _____ ____
 //	  / / / / _ \ | / / / ___/ _ \/ /|_/ / _ \/ ___/ ___/ __ `/ __ `/ _ \

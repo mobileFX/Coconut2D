@@ -286,7 +286,6 @@ class Global
 	undefined var HTMLElement :HTMLElement;
 	undefined var Image :Image;
 	undefined var HTMLTextMetrics :HTMLTextMetrics;
-	undefined var HTMLEvent :HTMLEvent;
 	undefined var HTMLWindow :HTMLWindow;
 	undefined var ImageData :ImageData;
 	undefined var WebGLObject :WebGLObject;
@@ -337,10 +336,11 @@ class Global
 	undefined var CocoEventSource :CocoEventSource;
 	undefined var State :State;
 	undefined var CocoTickable :CocoTickable;
+	undefined var Touch :Touch;
+	undefined var TouchList :TouchList;
+	undefined var HTMLEvent :HTMLEvent;
 	undefined var DEVICE_MESSAGE_ENUM :DEVICE_MESSAGE_ENUM;
 	undefined var DEVICE_MESSAGE :DEVICE_MESSAGE;
-	undefined var TouchList :TouchList;
-	undefined var Touch :Touch;
 	undefined var CocoAudio :CocoAudio;
 	undefined var CocoHttpRequest :CocoHttpRequest;
 	undefined var CocoUIView :CocoUIView;
@@ -911,19 +911,6 @@ class HTMLTextMetrics
 	public  var width :Float;
 	public  var __className :String;
 } //HTMLTextMetrics
-
-class HTMLEvent
-{
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var type :String;
-	public  var timestamp :Time;
-	public  var clientX :Float;
-	public  var clientY :Float;
-	public  var touches :TouchList;
-	public  var changedTouches :TouchList;
-	public  var __className :String;
-} //HTMLEvent
 
 class HTMLWindow
 {
@@ -2042,6 +2029,43 @@ class CocoTickable
 	public  var __className :String;
 } //CocoTickable
 
+class Touch
+{
+	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Float, screenY:Float, clientX:Float, clientY:Float, pageX:Float, pageY:Float) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var identifier :Integer;
+	public  var screenX :Float;
+	public  var screenY :Float;
+	public  var clientX :Float;
+	public  var clientY :Float;
+	public  var pageX :Float;
+	public  var pageY :Float;
+	public  var target :IEventTarget;
+	public  var __className :String;
+} //Touch
+
+class TouchList : Array
+{
+	public function item(index:Integer) :Touch {}
+	public function Constructor() {}
+	public  var length :Integer;
+	public  var __className :String;
+} //TouchList
+
+class HTMLEvent
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var type :String;
+	public  var timestamp :Time;
+	public  var clientX :Float;
+	public  var clientY :Float;
+	public  var touches :TouchList;
+	public  var changedTouches :TouchList;
+	public  var __className :String;
+} //HTMLEvent
+
 class DEVICE_MESSAGE_ENUM
 {
 	public var MESSAGE_NONE :DEVICE_MESSAGE_ENUM;
@@ -2070,30 +2094,6 @@ class DEVICE_MESSAGE
 	public var y3 :Float;
 	public var y4 :Float;
 } //DEVICE_MESSAGE
-
-class TouchList : Array
-{
-	public function item(index:Integer) :Touch {}
-	public function Constructor() {}
-	public  var length :Integer;
-	public  var __className :String;
-} //TouchList
-
-class Touch
-{
-	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Float, screenY:Float, clientX:Float, clientY:Float, pageX:Float, pageY:Float) {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var identifier :Integer;
-	public  var screenX :Float;
-	public  var screenY :Float;
-	public  var clientX :Float;
-	public  var clientY :Float;
-	public  var pageX :Float;
-	public  var pageY :Float;
-	public  var target :IEventTarget;
-	public  var __className :String;
-} //Touch
 
 class CocoAudio
 {

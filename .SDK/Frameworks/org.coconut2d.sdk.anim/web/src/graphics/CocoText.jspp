@@ -80,8 +80,8 @@ class CocoText
     	indices = new Array<Integer>;
     	mappings = new Array<Integer>;
 		lineBreaks = new Array<Integer>;
-		lineWidths = new Array<Integer>;
-		lineHeights = new Array<Integer>;
+		lineWidths = new Array<Float>;
+		lineHeights = new Array<Float>;
 		totalHeight = 0;
     }
 
@@ -109,7 +109,7 @@ class CocoText
 		for(var i:Integer = 0; i<L; i++)
 		{
 			var style:CocoTextStyle = styles[mappings[i]];
-			lineHeight = Math.max(lineHeight, style.fontSizePixels);
+			lineHeight = Math.max(lineHeight, Float(style.fontSizePixels));
 			ctx.font = style.fontStyle + " normal " + style.fontWeight + " " + String(style.fontSizePixels) + "px " + style.fontFamily;
 			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
 			for(var r:Integer = indices[i]; r < to; r++)

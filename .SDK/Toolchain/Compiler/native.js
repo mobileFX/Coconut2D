@@ -1080,15 +1080,53 @@ function CompilerCppPlugin(compiler)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.SWITCH:
-			CPP.push("switch(" + generate_cpp(ast.discriminant).CPP + "){");
-			for(var _case in ast.cases)
+
+			// Detect if the switch should be converted to if
+			var type = _this.getTypeName(ast.discriminant);
+			ast.__switch_to_if = false;
+			switch(type)
 			{
-				if(!isFinite(_case)) break;
-				CPP.push(generate_cpp(ast.cases[_case]).CPP);
-				CPP.push("break;");
+				case "Number":
+				case "Integer":
+				case "Float":
+				case "Time":
+					break;
+
+				default:
+					ast.__switch_to_if = true;
+					break;
 			}
-			CPP.push("}");
+
+			if(!ast.__switch_to_if)
+			{
+				CPP.push("switch(" + generate_cpp(ast.discriminant).CPP + "){");
+				for(var _case in ast.cases)
+				{
+					if(!isFinite(_case)) break;
+					CPP.push(generate_cpp(ast.cases[_case]).CPP);
+					CPP.push("break;");
+				}
+				CPP.push("}");
+			}
+			else
+			{
+				var cond =  generate_cpp(ast.discriminant).CPP;
+				for(var i=0; i<ast.cases.length; i++)
+				{
+					var label = generate_cpp(ast.cases[i].caseLabel).CPP;
+					CPP.push("if(" + cond + "==" + label + ") { switch(0){case 0:");
+					CPP.push(generate_cpp(ast.cases[i].statements).CPP);
+					CPP.push("}}");
+					if(i<ast.cases.length-1) CPP.push("else ");
+				}
+			}
 			break;
+
+		case jsdef.CASE:
+			CPP.push("case " + generate_cpp(ast.caseLabel).CPP + ":");
+			CPP.push(generate_cpp(ast.statements).CPP);
+			break;
+
 
 		// ==================================================================================================================================
 		//	    ____              __
@@ -1236,7 +1274,6 @@ function CompilerCppPlugin(compiler)
 		case jsdef.BITWISE_OR:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("|"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.BITWISE_XOR:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("^"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.BREAK:				CPP.push("break;"); break;
-		case jsdef.CASE:				CPP.push("case " + generate_cpp(ast.caseLabel).CPP + ":"); CPP.push(generate_cpp(ast.statements).CPP); break;
 		case jsdef.CONTINUE:			CPP.push("continue;"); break;
 		case jsdef.DECREMENT:			if(ast.postfix) { CPP.push(generate_cpp(ast[0]).CPP); CPP.push("--"); } else { CPP.push("--"); CPP.push(generate_cpp(ast[0]).CPP); } break;
 		case jsdef.DEFAULT:				CPP.push("default:"); CPP.push(generate_cpp(ast.statements).CPP); break;

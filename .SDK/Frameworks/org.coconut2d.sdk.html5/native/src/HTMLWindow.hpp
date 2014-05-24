@@ -42,13 +42,14 @@ class HTMLWindow
 {
 public:
 	int __uid;
+	const bool __native = true;
 	HTMLDocument* document;
 	int innerHeight;
 	int innerWidth;
 	float devicePixelRatio;
 	float deviceRotation;
 	fxScreen::Rotation screenRotation;
-	DeviceMessage* __deviceMessage;
+	HTMLEvent* e;
 	CocoEventAction touchstart;
 	CocoEventAction	touchmove;
 	CocoEventAction touchend;

@@ -60,201 +60,6 @@
 #include <cstdarg>
 
 // ==================================================================================================================================
-//	    ______                                   __   ________                   ____            __                 __  _
-//	   / ____/___  ______      ______ __________/ /  / ____/ /___ ___________   / __ \___  _____/ /___ __________ _/ /_(_)___  ____  _____
-//	  / /_  / __ \/ ___/ | /| / / __ `/ ___/ __  /  / /   / / __ `/ ___/ ___/  / / / / _ \/ ___/ / __ `/ ___/ __ `/ __/ / __ \/ __ \/ ___/
-//	 / __/ / /_/ / /   | |/ |/ / /_/ / /  / /_/ /  / /___/ / /_/ (__  |__  )  / /_/ /  __/ /__/ / /_/ / /  / /_/ / /_/ / /_/ / / / (__  )
-//	/_/    \____/_/    |__/|__/\__,_/_/   \__,_/   \____/_/\__,_/____/____/  /_____/\___/\___/_/\__,_/_/   \__,_/\__/_/\____/_/ /_/____/
-//
-// ==================================================================================================================================
-
-//# Generated Classes Begin #//
-class CanvasRenderingContext2D;
-class ClassTestInterfaces;
-class CocoAudio;
-class CocoClip;
-class CocoClipOnClickEvent;
-class CocoClipOnDblClickEvent;
-class CocoClipOnTouchCancelEvent;
-class CocoClipOnTouchEndEvent;
-class CocoClipOnTouchMoveEvent;
-class CocoClipOnTouchStartEvent;
-class CocoEngine;
-class CocoEvent;
-class CocoGraphics;
-class CocoImage;
-class CocoImageSibling;
-class CocoMatrix;
-class CocoRect;
-class CocoRenderContext2D;
-class CocoRenderContext;
-class CocoRenderContextGL;
-class CocoScene;
-class CocoSequence;
-class CocoText;
-class CocoTextStyle;
-class CocoTickable;
-class CocoTimeLabel;
-class CocoTimeline;
-class CocoUIButton;
-class CocoUICheckBox;
-class CocoUIComboBox;
-class CocoUIControl;
-class CocoUILabel;
-class CocoUIPageView;
-class CocoUITextBox;
-class CocoUIView;
-class CocoVector;
-class DeviceMessage;
-class GameEngine;
-class HTMLCanvasElement;
-class HTMLCanvasGradient;
-class HTMLCanvasPattern;
-class HTMLDocument;
-class HTMLElement;
-class HTMLTextMetrics;
-class ICocoImageRenderData;
-class ICocoRenderContext;
-class IEventTarget;
-class ITest1;
-class ITest2;
-class ITest3;
-class ITickable;
-class Image;
-class NewAnimation;
-class Page1;
-class PathLine;
-class Touch;
-class TouchList;
-class UIButtonClass;
-class UIFormClass;
-class UITextBoxClass;
-class UITextBoxClassOnChangeEvent;
-struct CocoKeyFrame;
-//# Generated Classes End #//
-
-//# Native Classes Begin #//
-class ArrayBuffer;
-class ArrayBufferView;
-class AssetFile;;
-class Audio;
-class CocoEventConnectionPoint;
-class CocoEventSource;
-class CocoFont;
-class EventTarget;
-class HTMLEvent;
-class HTMLWindow;
-class IEventListener;
-class ImageData;
-class WebGLBuffer;
-class WebGLFramebuffer;
-class WebGLObject;
-class WebGLProgram;
-class WebGLRenderbuffer;
-class WebGLRenderingContext;
-class WebGLShader;
-class WebGLTexture;
-class WebGLUniformLocation;
-class XMLHttpRequest;
-struct CocoFontChar;
-struct GLany;
-//# Native Classes End #//
-
-template<typename T> class TypedArray;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Enum for HTML5 Events
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum fxEvent
-{
-	LOAD = 0,
-	FOCUS,
-	BLUR,
-	UNLOAD,
-	RESIZE,
-	CLICK,
-	KEYDOWN,
-	KEYPRESS,
-	KEYUP,
-	TOUCHSTART,
-	TOUCHMOVE,
-	TOUCHEND,
-	TOUCHCANCEL,
-	GESTURESTART,
-	GESTURECHANGE,
-	GESTUREEND
-};
-
-// ==================================================================================================================================
-//	  ______                 ____       ____
-//	 /_  __/_  ______  ___  / __ \___  / __/____
-//	  / / / / / / __ \/ _ \/ / / / _ \/ /_/ ___/
-//	 / / / /_/ / /_/ /  __/ /_/ /  __/ __(__  )
-//	/_/  \__, / .___/\___/_____/\___/_/ /____/
-//	    /____/_/
-// ==================================================================================================================================
-
-#define CocoException	std::string
-
-#define JSINTERVAL_MIN 4
-#define JSTOUCHLIST_MAX_LENGTH 5
-#define SHADER_SOURCE_BUFFER_SIZE 4096
-#define INFO_LOG_BUFFER_SIZE 4096
-#define fxObjectUID size_t
-
-#define parseFloat(S) atof((S).c_str())
-#define parseInt(S) atoi((S).c_str())
-
-#define TODO() trace("TODO:%s @ %s:%d", __PRETTY_FUNCTION__, __FILE__, __LINE__)
-template<typename T> struct TYPE_STRING { static constexpr char const* c_str() { return "undefined"; } };
-#define DEF_TYPE(T) template<> struct TYPE_STRING<T> { static constexpr char const* c_str() { return #T; } };
-DEF_TYPE(char);
-DEF_TYPE(unsigned char);
-DEF_TYPE(short);
-DEF_TYPE(unsigned short);
-DEF_TYPE(int);
-DEF_TYPE(unsigned int);
-DEF_TYPE(float);
-DEF_TYPE(double);
-
-typedef int Color;
-
-typedef TypedArray<char> Int8Array;
-typedef TypedArray<unsigned char> Uint8Array;
-typedef TypedArray<unsigned char> Uint8ClampedArray;
-typedef TypedArray<short> Int16Array;
-typedef TypedArray<unsigned short> Uint16Array;
-typedef TypedArray<int> Int32Array;
-typedef TypedArray<unsigned int> Uint32Array;
-typedef TypedArray<float> Float32Array;
-typedef TypedArray<double> Float64Array;
-
-// ==================================================================================================================================
-//	   ______      ______               __
-//	  / ____/___ _/ / / /_  ____ ______/ /_______
-//	 / /   / __ `/ / / __ \/ __ `/ ___/ //_/ ___/
-//	/ /___/ /_/ / / / /_/ / /_/ / /__/ ,< (__  )
-//	\____/\__,_/_/_/_.___/\__,_/\___/_/|_/____/
-//
-// ==================================================================================================================================
-
-typedef void (CocoScene::*CocoAction)();
-typedef void (CocoEngine::*CocoEventAction)(DeviceMessage* e);
-
-// ==================================================================================================================================
-//	  ______                     __      __
-//	 /_  __/__  ____ ___  ____  / /___ _/ /____  _____
-//	  / / / _ \/ __ `__ \/ __ \/ / __ `/ __/ _ \/ ___/
-//	 / / /  __/ / / / / / /_/ / / /_/ / /_/  __(__  )
-//	/_/  \___/_/ /_/ /_/ .___/_/\__,_/\__/\___/____/
-//	                  /_/
-// ==================================================================================================================================
-
-template<class T> using Stack = std::stack<T>;
-template<class T> using Dictionary = std::map<std::string, T>;
-template<class T> using Index = std::map<size_t, T>;
-
-// ==================================================================================================================================
 //	    ___
 //	   /   |  ______________ ___  __
 //	  / /| | / ___/ ___/ __ `/ / / /
@@ -345,6 +150,421 @@ public:
 		return this;
 	}
 };
+
+// ==================================================================================================================================
+//	   _____ __       _
+//	  / ___// /______(_)___  ____ _
+//	  \__ \/ __/ ___/ / __ \/ __ `/
+//	 ___/ / /_/ /  / / / / / /_/ /
+//	/____/\__/_/  /_/_/ /_/\__, /
+//	                      /____/
+// ==================================================================================================================================
+class String : public std::string
+{
+public:
+
+	//////////////////////////////////////////////////////////////////////////////////
+	operator bool() const
+	{
+		return !empty();
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	String& operator =(const char* c_str)
+	{
+		std::string::operator=(c_str);
+		return *this;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	String& operator =(String str)
+	{
+		std::string::operator=(str);
+		return *this;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	String& operator =(std::string str)
+	{
+		std::string::operator=(str);
+		return *this;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	String() = default;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	String(const char* str) : std::string(str)
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	String(const std::string& str) : std::string(str)
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	String substr(size_t start, size_t length = std::string::npos)
+	{
+		return std::string::substr(start, length);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	String substring(size_t start, size_t end = 0)
+	{
+		return std::string::substr(start, end - start);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	size_t indexOf(const String& str, size_t pos = 0)
+	{
+		return find(str, pos);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	Array<String>* split(const String& str, size_t max = -1)
+	{
+		Array<String>* ret = new Array<String>();
+		size_t pos = 0, next = 0;
+		while(ret->size() < max && next != std::string::npos)
+		{
+			next = find(str, pos);
+			ret->push(substring(pos, next));
+			pos = next + str.size();
+		}
+		return ret;
+	}
+};
+
+// ==================================================================================================================================
+//	    ___                          ____        ________
+//	   /   |  ______________ ___  __/ __ )__  __/ __/ __/__  _____
+//	  / /| | / ___/ ___/ __ `/ / / / __  / / / / /_/ /_/ _ \/ ___/
+//	 / ___ |/ /  / /  / /_/ / /_/ / /_/ / /_/ / __/ __/  __/ /
+//	/_/  |_/_/  /_/   \__,_/\__, /_____/\__,_/_/ /_/  \___/_/
+//	                       /____/
+// ==================================================================================================================================
+
+class AssetFile;
+
+class ArrayBuffer
+{
+public:
+	void* data;
+	unsigned long byteLength;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	ArrayBuffer(unsigned long length)
+	{
+		data = malloc(length);
+		byteLength = length;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	~ArrayBuffer()
+	{
+		free(data);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	void* operator[](unsigned long i)
+	{
+		assert(i < byteLength);
+		return reinterpret_cast<void*>(reinterpret_cast<char*>(data) + i);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	static ArrayBuffer* NewFromImage(std::string str, uint32_t& width, uint32_t& height);
+	String encodeAsBase64();
+
+	//////////////////////////////////////////////////////////////////////////////////
+	#ifdef ENABLE_PNG_SUPPORT
+		static ArrayBuffer* NewFromImage_PNG(AssetFile* file, uint32_t& width, uint32_t& height);
+		ArrayBuffer* encodeAsPNG(size_t width, size_t height);
+	#endif
+
+	//////////////////////////////////////////////////////////////////////////////////
+	#ifdef ENABLE_JPG_SUPPORT
+		static ArrayBuffer* NewFromImage_JPG(AssetFile* file, uint32_t& width, uint32_t& height);
+	#endif
+};
+
+// ==================================================================================================================================
+//	    ___                          ____        ________         _    ___
+//	   /   |  ______________ ___  __/ __ )__  __/ __/ __/__  ____| |  / (_)__ _      __
+//	  / /| | / ___/ ___/ __ `/ / / / __  / / / / /_/ /_/ _ \/ ___/ | / / / _ \ | /| / /
+//	 / ___ |/ /  / /  / /_/ / /_/ / /_/ / /_/ / __/ __/  __/ /   | |/ / /  __/ |/ |/ /
+//	/_/  |_/_/  /_/   \__,_/\__, /_____/\__,_/_/ /_/  \___/_/    |___/_/\___/|__/|__/
+//	                       /____/
+// ==================================================================================================================================
+class ArrayBufferView
+{
+public:
+	ArrayBuffer* buffer;
+	unsigned long byteOffset;
+	unsigned long byteLength;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	void* get()
+	{
+		return reinterpret_cast<void*>(reinterpret_cast<char*>(buffer->data) + byteOffset);
+	}
+};
+
+// ==================================================================================================================================
+//	  ______                     _____
+//	 /_  __/_  ______  ___  ____/ /   |  ______________ ___  __
+//	  / / / / / / __ \/ _ \/ __  / /| | / ___/ ___/ __ `/ / / /
+//	 / / / /_/ / /_/ /  __/ /_/ / ___ |/ /  / /  / /_/ / /_/ /
+//	/_/  \__, / .___/\___/\__,_/_/  |_/_/  /_/   \__,_/\__, /
+//	    /____/_/                                      /____/
+// ==================================================================================================================================
+template<typename T> class TypedArray : public ArrayBufferView
+{
+public:
+	const unsigned long BYTES_PER_ELEMENT = sizeof(T);
+	unsigned long length;
+
+	TypedArray(size_t size)
+	{
+		length = size;
+		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
+		byteOffset = 0;
+		byteLength = buffer->byteLength;
+		memset(buffer->data, 0, buffer->byteLength);
+	}
+
+	TypedArray(ArrayBuffer* i_buffer, size_t i_byteOffset = 0, size_t i_length = -1)
+	{
+		buffer = i_buffer;
+		byteOffset = i_byteOffset;
+		length = std::min(size_t((i_buffer->byteLength - i_byteOffset) / sizeof(T)), i_length);
+		byteLength = length * sizeof(T);
+	}
+
+	TypedArray(Array<T>* val, bool preserve = false)
+	{
+		length = val->size();
+		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
+		byteOffset = 0;
+		byteLength = buffer->byteLength;
+		memcpy(buffer->data, val->data(), buffer->byteLength);
+		if(!preserve) delete val;
+	}
+
+	~TypedArray() { delete buffer; }
+
+	T* get() { return reinterpret_cast<T*>(ArrayBufferView::get()); }
+	T& operator [](unsigned long index)
+	{
+		return get()[index];
+	}
+};
+
+// ==================================================================================================================================
+//	  ______                     _____
+//	 /_  __/_  ______  ___  ____/ /   |  ______________ ___  _______
+//	  / / / / / / __ \/ _ \/ __  / /| | / ___/ ___/ __ `/ / / / ___/
+//	 / / / /_/ / /_/ /  __/ /_/ / ___ |/ /  / /  / /_/ / /_/ (__  )
+//	/_/  \__, / .___/\___/\__,_/_/  |_/_/  /_/   \__,_/\__, /____/
+//	    /____/_/                                      /____/
+// ==================================================================================================================================
+
+typedef TypedArray<char> Int8Array;
+typedef TypedArray<unsigned char> Uint8Array;
+typedef TypedArray<unsigned char> Uint8ClampedArray;
+typedef TypedArray<short> Int16Array;
+typedef TypedArray<unsigned short> Uint16Array;
+typedef TypedArray<int> Int32Array;
+typedef TypedArray<unsigned int> Uint32Array;
+typedef TypedArray<float> Float32Array;
+typedef TypedArray<double> Float64Array;
+
+
+// ==================================================================================================================================
+//	    ______                                   __   ________                   ____            __                 __  _
+//	   / ____/___  ______      ______ __________/ /  / ____/ /___ ___________   / __ \___  _____/ /___ __________ _/ /_(_)___  ____  _____
+//	  / /_  / __ \/ ___/ | /| / / __ `/ ___/ __  /  / /   / / __ `/ ___/ ___/  / / / / _ \/ ___/ / __ `/ ___/ __ `/ __/ / __ \/ __ \/ ___/
+//	 / __/ / /_/ / /   | |/ |/ / /_/ / /  / /_/ /  / /___/ / /_/ (__  |__  )  / /_/ /  __/ /__/ / /_/ / /  / /_/ / /_/ / /_/ / / / (__  )
+//	/_/    \____/_/    |__/|__/\__,_/_/   \__,_/   \____/_/\__,_/____/____/  /_____/\___/\___/_/\__,_/_/   \__,_/\__/_/\____/_/ /_/____/
+//
+// ==================================================================================================================================
+
+//# Native Classes Begin #//
+class Audio;
+class CocoEventConnectionPoint;
+class CocoEventSource;
+class CocoFont;
+class EventTarget;
+class HTMLWindow;
+class IEventListener;
+class ImageData;
+class WebGLBuffer;
+class WebGLFramebuffer;
+class WebGLObject;
+class WebGLProgram;
+class WebGLRenderbuffer;
+class WebGLRenderingContext;
+class WebGLShader;
+class WebGLTexture;
+class WebGLUniformLocation;
+class XMLHttpRequest;
+struct CocoFontChar;
+struct GLany;
+//# Native Classes End #//
+
+//# Generated Classes Begin #//
+class CanvasRenderingContext2D;
+class ClassTestInterfaces;
+class CocoAudio;
+class CocoClip;
+class CocoClipOnClickEvent;
+class CocoClipOnDblClickEvent;
+class CocoClipOnTouchCancelEvent;
+class CocoClipOnTouchEndEvent;
+class CocoClipOnTouchMoveEvent;
+class CocoClipOnTouchStartEvent;
+class CocoEngine;
+class CocoEvent;
+class CocoGraphics;
+class CocoImage;
+class CocoImageRenderData2D;
+class CocoImageRenderDataGL;
+class CocoImageSibling;
+class CocoMatrix;
+class CocoRect;
+class CocoRenderContext2D;
+class CocoRenderContext;
+class CocoRenderContextGL;
+class CocoScene;
+class CocoSequence;
+class CocoText;
+class CocoTextStyle;
+class CocoTickable;
+class CocoTimeLabel;
+class CocoTimeline;
+class CocoUIButton;
+class CocoUICheckBox;
+class CocoUIComboBox;
+class CocoUIControl;
+class CocoUILabel;
+class CocoUIPageView;
+class CocoUITextBox;
+class CocoUIView;
+class CocoVector;
+class GameEngine;
+class HTMLCanvasElement;
+class HTMLCanvasGradient;
+class HTMLCanvasPattern;
+class HTMLDocument;
+class HTMLElement;
+class HTMLEvent;
+class HTMLTextMetrics;
+class ICocoImageRenderData;
+class ICocoRenderContext;
+class IEventTarget;
+class ITest1;
+class ITest2;
+class ITest3;
+class ITickable;
+class Image;
+class NewAnimation;
+class Page1;
+class PathLine;
+class Touch;
+class TouchList;
+class UIButtonClass;
+class UIFormClass;
+class UITextBoxClass;
+class UITextBoxClassOnChangeEvent;
+struct CocoKeyFrame;
+struct DEVICE_MESSAGE;
+//# Generated Classes End #//
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for HTML5 Events
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum fxEvent
+{
+	LOAD = 0,
+	FOCUS,
+	BLUR,
+	UNLOAD,
+	RESIZE,
+	CLICK,
+	KEYDOWN,
+	KEYPRESS,
+	KEYUP,
+	TOUCHSTART,
+	TOUCHMOVE,
+	TOUCHEND,
+	TOUCHCANCEL,
+	GESTURESTART,
+	GESTURECHANGE,
+	GESTUREEND
+};
+
+// ==================================================================================================================================
+//	  ______                 ____       ____
+//	 /_  __/_  ______  ___  / __ \___  / __/____
+//	  / / / / / / __ \/ _ \/ / / / _ \/ /_/ ___/
+//	 / / / /_/ / /_/ /  __/ /_/ /  __/ __(__  )
+//	/_/  \__, / .___/\___/_____/\___/_/ /____/
+//	    /____/_/
+// ==================================================================================================================================
+
+#define CocoException	std::string
+
+#define JSINTERVAL_MIN 4
+#define JSTOUCHLIST_MAX_LENGTH 5
+#define SHADER_SOURCE_BUFFER_SIZE 4096
+#define INFO_LOG_BUFFER_SIZE 4096
+#define fxObjectUID size_t
+
+#define parseFloat(S) atof((S).c_str())
+#define parseInt(S) atoi((S).c_str())
+#define TODO() trace("TODO:%s @ %s:%d", __PRETTY_FUNCTION__, __FILE__, __LINE__)
+
+template<typename T> struct TYPE_STRING { static constexpr char const* c_str() { return "undefined"; } };
+#define DEF_TYPE(T) template<> struct TYPE_STRING<T> { static constexpr char const* c_str() { return #T; } };
+
+DEF_TYPE(char);
+DEF_TYPE(unsigned char);
+DEF_TYPE(short);
+DEF_TYPE(unsigned short);
+DEF_TYPE(int);
+DEF_TYPE(unsigned int);
+DEF_TYPE(float);
+DEF_TYPE(double);
+
+typedef int Color;
+
+// ==================================================================================================================================
+//	   ______      ______               __
+//	  / ____/___ _/ / / /_  ____ ______/ /_______
+//	 / /   / __ `/ / / __ \/ __ `/ ___/ //_/ ___/
+//	/ /___/ /_/ / / / /_/ / /_/ / /__/ ,< (__  )
+//	\____/\__,_/_/_/_.___/\__,_/\___/_/|_/____/
+//
+// ==================================================================================================================================
+
+typedef void (CocoScene::*CocoAction)();
+typedef void (CocoEngine::*CocoEventAction)(HTMLEvent* e);
+
+// ==================================================================================================================================
+//	  ______                     __      __
+//	 /_  __/__  ____ ___  ____  / /___ _/ /____  _____
+//	  / / / _ \/ __ `__ \/ __ \/ / __ `/ __/ _ \/ ___/
+//	 / / /  __/ / / / / / /_/ / / /_/ / /_/  __(__  )
+//	/_/  \___/_/ /_/ /_/ .___/_/\__,_/\__/\___/____/
+//	                  /_/
+// ==================================================================================================================================
+
+template<class T> using Stack = std::stack<T>;
+template<class T> using Dictionary = std::map<std::string, T>;
+template<class T> using Index = std::map<size_t, T>;
+
+
 
 // ==================================================================================================================================
 //	    ___                          __    __                ____
@@ -492,90 +712,7 @@ public:
 	}
 };
 
-// ==================================================================================================================================
-//	   _____ __       _
-//	  / ___// /______(_)___  ____ _
-//	  \__ \/ __/ ___/ / __ \/ __ `/
-//	 ___/ / /_/ /  / / / / / /_/ /
-//	/____/\__/_/  /_/_/ /_/\__, /
-//	                      /____/
-// ==================================================================================================================================
-class String : public std::string
-{
-public:
 
-	//////////////////////////////////////////////////////////////////////////////////
-	operator bool() const
-	{
-		return !empty();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	String& operator =(const char* c_str)
-	{
-		std::string::operator=(c_str);
-		return *this;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	String& operator =(String str)
-	{
-		std::string::operator=(str);
-		return *this;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	String& operator =(std::string str)
-	{
-		std::string::operator=(str);
-		return *this;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	String() = default;
-
-	//////////////////////////////////////////////////////////////////////////////////
-	String(const char* str) : std::string(str)
-	{
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	String(const std::string& str) : std::string(str)
-	{
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	String substr(size_t start, size_t length = std::string::npos)
-	{
-		return std::string::substr(start, length);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	String substring(size_t start, size_t end = 0)
-	{
-		return std::string::substr(start, end - start);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	size_t indexOf(const String& str, size_t pos = 0)
-	{
-		return find(str, pos);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array<String>* split(const String& str, size_t max = -1)
-	{
-		Array<String>* ret = new Array<String>();
-		size_t pos = 0, next = 0;
-		while(ret->size() < max && next != std::string::npos)
-		{
-			next = find(str, pos);
-			ret->push(substring(pos, next));
-			pos = next + str.size();
-		}
-		return ret;
-	}
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T> std::string toString(T v)
@@ -601,7 +738,7 @@ struct State
 	virtual void enter() {}
 	virtual void exit() {}
 	virtual void tick(float time) = 0;
-	virtual void paint(WebGLRenderingContext* gl, float time) {}
+	virtual void paint(ICocoRenderContext* ctx, float time) {}
 };
 
 // ==================================================================================================================================
@@ -794,6 +931,7 @@ public:
 	unsigned long long getTime() { return millis; }
 };
 
+
 // ==================================================================================================================================
 //	    ______     __
 //	   / ____/  __/ /____  _________  _____
@@ -807,6 +945,7 @@ extern void trace(const char* fmt, ...);
 extern CocoEngine* engine;
 extern HTMLWindow* window;
 extern HTMLDocument* document;
+extern HTMLWindow* global;
 
 #endif //__COCONUT2D_HPP__
 

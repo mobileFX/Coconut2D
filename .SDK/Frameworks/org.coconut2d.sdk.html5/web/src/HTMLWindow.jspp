@@ -23,39 +23,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	    __  __________  _____    ______                 __
-//	   / / / /_  __/  |/  / /   / ____/   _____  ____  / /_
-//	  / /_/ / / / / /|_/ / /   / __/ | | / / _ \/ __ \/ __/
-//	 / __  / / / / /  / / /___/ /___ | |/ /  __/ / / / /_
-//	/_/ /_/ /_/ /_/  /_/_____/_____/ |___/\___/_/ /_/\__/
-//
-// ==================================================================================================================================
-
-// Pseudo-implementation of an HTMLEvent wrapper class for catch-all events.
-
-class HTMLEvent
-{
-	public var type:String;
-	public var timestamp:Time;
-	public var clientX:Float;
-	public var clientY:Float;
-	public var touches:TouchList;
-	public var changedTouches:TouchList;
-
-	public function Constructor()
-	{
-		touches = new TouchList();
-		changedTouches = new TouchList();
-	}
-
-	public function Destructor()
-	{
-		delete touches;
-		delete changedTouches;
-	}
-}
-
-// ==================================================================================================================================
 //	    __  __________  _____ _       ___           __
 //	   / / / /_  __/  |/  / /| |     / (_)___  ____/ /___ _      __
 //	  / /_/ / / / / /|_/ / / | | /| / / / __ \/ __  / __ \ | /| / /

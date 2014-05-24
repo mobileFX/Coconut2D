@@ -41,7 +41,7 @@ HTMLWindow::HTMLWindow()
 	touchend = nullptr;
 	__uid = 0;
 	document = new HTMLDocument();
-	__deviceMessage = new DeviceMessage();
+	e = new HTMLEvent();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,9 +51,9 @@ HTMLWindow::~HTMLWindow()
 	{
 		document = (delete document, nullptr);
 	}
-	if(__deviceMessage)
+	if(e)
 	{
-		__deviceMessage = (delete __deviceMessage, nullptr);
+		e = (delete e, nullptr);
 	}
 }
 
@@ -99,159 +99,134 @@ void HTMLWindow::removeEventListener(String eventType, CocoEventAction listener,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void HTMLWindow::dispatchEvent(int uid, String eventType)
 {
-	__deviceMessage->type = eventType;
+	e->type = eventType;
 	if(eventType == "touchstart")
-		(engine->*touchstart)(__deviceMessage);
+		(engine->*touchstart)(e);
 	else if(eventType == "touchmove")
-		(engine->*touchmove)(__deviceMessage);
+		(engine->*touchmove)(e);
 	else if(eventType == "touchend")
-		(engine->*touchend)(__deviceMessage);
+		(engine->*touchend)(e);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 {
-	String eventType;
-
-	switch(type)
-	{
-		case fxEvent::LOAD:
-		{
-			eventType = "load";
-			break;
-		}
-
-		case fxEvent::FOCUS:
-		{
-			eventType = "focus";
-			break;
-		}
-
-		case fxEvent::BLUR:
-		{
-			//saveStorage();
-			eventType = "blur";
-			break;
-		}
-
-		case fxEvent::UNLOAD:
-		{
-			//saveStorage();
-			eventType = "unload";
-			break;
-		}
-
-		case fxEvent::RESIZE:
-		{
-			eventType = "resize";
-			break;
-		}
-
-		case fxEvent::CLICK:
-		{
-			eventType = "click";
-			int x, y;
-			switch(screenRotation)
-			{
-				case fxScreen::Rotation::NONE: x = fxAPIGetMouseEventX(data); y = fxAPIGetMouseEventY(data); break;
-				case fxScreen::Rotation::FULL: x = -fxAPIGetMouseEventX(data); y = -fxAPIGetMouseEventY(data); break;
-				case fxScreen::Rotation::RCW: x = -fxAPIGetMouseEventY(data); y = fxAPIGetMouseEventX(data); break;
-				case fxScreen::Rotation::RCCW: x = fxAPIGetMouseEventY(data); y = -fxAPIGetMouseEventX(data); break;
-			}
-			__deviceMessage->__clientX = x;
-			__deviceMessage->__clientY = y;
-			break;
-		}
-
-		case fxEvent::KEYDOWN:
-		{
-			eventType = "keydown";
-			//fxJSSetProperty(js_EventObject, jsStr_which, fxJSMakeNumber(fxAPIGetKey(data)), fxJSPropertyAttributeNone);
-			break;
-		}
-
-		case fxEvent::KEYPRESS:
-		{
-			eventType = "keypress";
-			//fxJSSetProperty(js_EventObject, jsStr_which, fxJSMakeNumber(fxAPIGetKey(data)), fxJSPropertyAttributeNone);
-			break;
-		}
-
-		case fxEvent::KEYUP:
-		{
-			eventType = "keyup";
-			//fxJSSetProperty(js_EventObject, jsStr_which, fxJSMakeNumber(fxAPIGetKey(data)), fxJSPropertyAttributeNone);
-			break;
-		}
-
-		case fxEvent::TOUCHSTART:
-		case fxEvent::TOUCHMOVE:
-		case fxEvent::TOUCHEND:
-		case fxEvent::TOUCHCANCEL:
-		{
-			switch(type)
-			{
-				case fxEvent::TOUCHSTART: eventType = "touchstart"; break;
-				case fxEvent::TOUCHMOVE: eventType = "touchmove"; break;
-				case fxEvent::TOUCHEND: eventType = "touchend"; break;
-				case fxEvent::TOUCHCANCEL: eventType = "touchcancel"; break;
-				default: break;
-			}
-			int x, y;
-			__deviceMessage->touches->length = fxAPIGetTouchesLength(data);
-			for(size_t i = __deviceMessage->touches->length; i--;)
-			{
-				switch(screenRotation)
-				{
-						/*
-						 case fxScreen::Rotation::NONE: x = fxAPIGetTouchEventX(data, i); y = fxAPIGetTouchEventY(data, i) - screen->top; break;
-						 case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetTouchEventX(data, i); y = innerHeight - fxAPIGetTouchEventY(data, i); break;
-						 case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetTouchEventY(data, i); y = fxAPIGetTouchEventX(data, i) - screen->top; break;
-						 case fxScreen::Rotation::RCCW: x = fxAPIGetTouchEventY(data, i); y = innerHeight - fxAPIGetTouchEventX(data, i); break;
-						 */
-					case fxScreen::Rotation::NONE: x = fxAPIGetTouchEventX(data, i); y = fxAPIGetTouchEventY(data, i); break;
-					case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetTouchEventX(data, i); y = innerHeight - fxAPIGetTouchEventY(data, i); break;
-					case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetTouchEventY(data, i); y = fxAPIGetTouchEventX(data, i); break;
-					case fxScreen::Rotation::RCCW: x = fxAPIGetTouchEventY(data, i); y = innerHeight - fxAPIGetTouchEventX(data, i); break;
-				}
-				__deviceMessage->touches->item(i)->clientX = x;
-				__deviceMessage->touches->item(i)->clientY = y;
-				__deviceMessage->touches->item(i)->screenX = x;
-				__deviceMessage->touches->item(i)->screenY = y;
-			}
-
-			__deviceMessage->changedTouches->length = fxAPIGetChangedTouchesLength(data);
-			for(size_t i = __deviceMessage->changedTouches->length; i--;)
-			{
-				switch(screenRotation)
-				{
-						/*
-						 case fxScreen::Rotation::NONE: x = fxAPIGetChangedTouchEventX(data, i); y = fxAPIGetChangedTouchEventY(data, i) - screen->top; break;
-						 case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetChangedTouchEventX(data, i); y = innerHeight - fxAPIGetChangedTouchEventY(data, i); break;
-						 case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetChangedTouchEventY(data, i); y = fxAPIGetChangedTouchEventX(data, i) - screen->top; break;
-						 case fxScreen::Rotation::RCCW: x = fxAPIGetChangedTouchEventY(data, i); y = innerHeight - fxAPIGetChangedTouchEventX(data, i); break;
-						 */
-					case fxScreen::Rotation::NONE: x = fxAPIGetChangedTouchEventX(data, i); y = fxAPIGetChangedTouchEventY(data, i); break;
-					case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetChangedTouchEventX(data, i); y = innerHeight - fxAPIGetChangedTouchEventY(data, i); break;
-					case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetChangedTouchEventY(data, i); y = fxAPIGetChangedTouchEventX(data, i); break;
-					case fxScreen::Rotation::RCCW: x = fxAPIGetChangedTouchEventY(data, i); y = innerHeight - fxAPIGetChangedTouchEventX(data, i); break;
-				}
-				__deviceMessage->changedTouches->item(i)->clientX = x;
-				__deviceMessage->changedTouches->item(i)->clientY = y;
-				__deviceMessage->changedTouches->item(i)->screenX = x;
-				__deviceMessage->changedTouches->item(i)->screenY = y;
-			}
-			break;
-		}
-
-		default:
-			trace("Event not implemented");
-	}
-
-	if(__deviceMessage->touches->length)
-	{
-		trace("Event=%d, x=%d, y=%d", (int)type, __deviceMessage->touches->item(0)->clientX, __deviceMessage->touches->item(0)->clientY);
-	}
-
-	dispatchEvent(uid, eventType);
+//
+//	String eventType;
+//
+//	switch(type)
+//	{
+//		case fxEvent::LOAD:
+//		{
+//			eventType = "load";
+//			break;
+//		}
+//
+//		case fxEvent::CLICK:
+//		{
+//			eventType = "click";
+//			int x, y;
+//			switch(screenRotation)
+//			{
+//				case fxScreen::Rotation::NONE: x = fxAPIGetMouseEventX(data); y = fxAPIGetMouseEventY(data); break;
+//				case fxScreen::Rotation::FULL: x = -fxAPIGetMouseEventX(data); y = -fxAPIGetMouseEventY(data); break;
+//				case fxScreen::Rotation::RCW: x = -fxAPIGetMouseEventY(data); y = fxAPIGetMouseEventX(data); break;
+//				case fxScreen::Rotation::RCCW: x = fxAPIGetMouseEventY(data); y = -fxAPIGetMouseEventX(data); break;
+//			}
+//			e->__clientX = x;
+//			e->__clientY = y;
+//			break;
+//		}
+//
+//		case fxEvent::KEYDOWN:
+//		{
+//			eventType = "keydown";
+//			//fxJSSetProperty(js_EventObject, jsStr_which, fxJSMakeNumber(fxAPIGetKey(data)), fxJSPropertyAttributeNone);
+//			break;
+//		}
+//
+//		case fxEvent::KEYPRESS:
+//		{
+//			eventType = "keypress";
+//			//fxJSSetProperty(js_EventObject, jsStr_which, fxJSMakeNumber(fxAPIGetKey(data)), fxJSPropertyAttributeNone);
+//			break;
+//		}
+//
+//		case fxEvent::KEYUP:
+//		{
+//			eventType = "keyup";
+//			//fxJSSetProperty(js_EventObject, jsStr_which, fxJSMakeNumber(fxAPIGetKey(data)), fxJSPropertyAttributeNone);
+//			break;
+//		}
+//
+//		case fxEvent::TOUCHSTART:
+//		case fxEvent::TOUCHMOVE:
+//		case fxEvent::TOUCHEND:
+//		case fxEvent::TOUCHCANCEL:
+//		{
+//			switch(type)
+//			{
+//				case fxEvent::TOUCHSTART: eventType = "touchstart"; break;
+//				case fxEvent::TOUCHMOVE: eventType = "touchmove"; break;
+//				case fxEvent::TOUCHEND: eventType = "touchend"; break;
+//				case fxEvent::TOUCHCANCEL: eventType = "touchcancel"; break;
+//				default: break;
+//			}
+//			int x, y;
+//			e->touches->length = fxAPIGetTouchesLength(data);
+//			for(size_t i = e->touches->length; i--;)
+//			{
+//				switch(screenRotation)
+//				{
+//						/*
+//						 case fxScreen::Rotation::NONE: x = fxAPIGetTouchEventX(data, i); y = fxAPIGetTouchEventY(data, i) - screen->top; break;
+//						 case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetTouchEventX(data, i); y = innerHeight - fxAPIGetTouchEventY(data, i); break;
+//						 case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetTouchEventY(data, i); y = fxAPIGetTouchEventX(data, i) - screen->top; break;
+//						 case fxScreen::Rotation::RCCW: x = fxAPIGetTouchEventY(data, i); y = innerHeight - fxAPIGetTouchEventX(data, i); break;
+//						 */
+//					case fxScreen::Rotation::NONE: x = fxAPIGetTouchEventX(data, i); y = fxAPIGetTouchEventY(data, i); break;
+//					case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetTouchEventX(data, i); y = innerHeight - fxAPIGetTouchEventY(data, i); break;
+//					case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetTouchEventY(data, i); y = fxAPIGetTouchEventX(data, i); break;
+//					case fxScreen::Rotation::RCCW: x = fxAPIGetTouchEventY(data, i); y = innerHeight - fxAPIGetTouchEventX(data, i); break;
+//				}
+//				e->touches->item(i)->clientX = x;
+//				e->touches->item(i)->clientY = y;
+//				e->touches->item(i)->screenX = x;
+//				e->touches->item(i)->screenY = y;
+//			}
+//
+//			e->changedTouches->length = fxAPIGetChangedTouchesLength(data);
+//			for(size_t i = e->changedTouches->length; i--;)
+//			{
+//				switch(screenRotation)
+//				{
+//						/*
+//						 case fxScreen::Rotation::NONE: x = fxAPIGetChangedTouchEventX(data, i); y = fxAPIGetChangedTouchEventY(data, i) - screen->top; break;
+//						 case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetChangedTouchEventX(data, i); y = innerHeight - fxAPIGetChangedTouchEventY(data, i); break;
+//						 case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetChangedTouchEventY(data, i); y = fxAPIGetChangedTouchEventX(data, i) - screen->top; break;
+//						 case fxScreen::Rotation::RCCW: x = fxAPIGetChangedTouchEventY(data, i); y = innerHeight - fxAPIGetChangedTouchEventX(data, i); break;
+//						 */
+//					case fxScreen::Rotation::NONE: x = fxAPIGetChangedTouchEventX(data, i); y = fxAPIGetChangedTouchEventY(data, i); break;
+//					case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetChangedTouchEventX(data, i); y = innerHeight - fxAPIGetChangedTouchEventY(data, i); break;
+//					case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetChangedTouchEventY(data, i); y = fxAPIGetChangedTouchEventX(data, i); break;
+//					case fxScreen::Rotation::RCCW: x = fxAPIGetChangedTouchEventY(data, i); y = innerHeight - fxAPIGetChangedTouchEventX(data, i); break;
+//				}
+//				e->changedTouches->item(i)->clientX = x;
+//				e->changedTouches->item(i)->clientY = y;
+//				e->changedTouches->item(i)->screenX = x;
+//				e->changedTouches->item(i)->screenY = y;
+//			}
+//			break;
+//		}
+//
+//		default:
+//			trace("Event not implemented");
+//	}
+//
+//	if(e->touches->length)
+//	{
+//		trace("Event=%d, x=%d, y=%d", (int)type, e->touches->item(0)->clientX, e->touches->item(0)->clientY);
+//	}
+//
+//	dispatchEvent(uid, eventType);
 }
