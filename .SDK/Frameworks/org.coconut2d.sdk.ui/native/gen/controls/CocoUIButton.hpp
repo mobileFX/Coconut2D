@@ -10,7 +10,7 @@
 #include "Constants.hpp"
 #include "CocoScene.hpp"
 #include "CocoClip.hpp"
-#include "CanvasRenderingContext2D.hpp"
+#include "HTMLCanvasElement.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,7 @@ public:
 	void __set_Caption(String v);
 	COCO_CONTROL_ANCHOR_ENUM __get_CaptionAlign();
 	void __set_CaptionAlign(COCO_CONTROL_ANCHOR_ENUM v);
-	virtual void repaint(CocoScene* scene, CocoClip* parentClip, CanvasRenderingContext2D* ctx);
+	virtual void repaint(CocoScene* scene, CocoClip* parentClip, HTMLCanvasElement* canvas);
 };
 
 #endif // __COCOUIBUTTON_HPP__

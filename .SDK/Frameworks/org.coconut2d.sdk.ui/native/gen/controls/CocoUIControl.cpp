@@ -5,8 +5,10 @@
 #include "CocoUIControl.hpp"
 #include "Constants.hpp"
 #include "CocoImage.hpp"
+#include "HTMLCanvasElement.hpp"
 #include "CanvasRenderingContext2D.hpp"
 #include "CocoGraphics.hpp"
+#include "CocoTimeline.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -434,6 +436,9 @@ CocoUIControl::CocoUIControl(String Name)
 	__chevronImageSel = nullptr;
 	__chevronLeft = 0;
 	__chevronTop = 0;
+	bool handle_events = true;
+	__timeline->clear();
+	__timeline->addKeyFrameEx(nullptr, nullptr, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_ECHO, handle_events, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, nullptr, false, false, String(""));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -442,7 +447,8 @@ CocoUIControl::~CocoUIControl()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoUIControl::repaint(CocoScene* scene, CocoClip* parentClip, CanvasRenderingContext2D* ctx)
+void CocoUIControl::repaint(CocoScene* scene, CocoClip* parentClip, HTMLCanvasElement* canvas)
 {
-	CocoGraphics::drawSkin(ctx, __get_SkinImage(), __get_PaddingLeft(), __get_PaddingTop(), __get_Width() - __get_PaddingLeft() - __get_PaddingRight(), __get_Height() - __get_PaddingTop() - __get_PaddingBottom(), COCO_CONTROL_ANCHOR_ENUM::ANCHOR_NONE);
+	CanvasRenderingContext2D* ctx = ((CanvasRenderingContext2D*)canvas->getContext(String("2d")));
+	CocoGraphics::drawSkin(ctx, __get_SkinImage(), __get_PaddingLeft(), __get_PaddingTop(), __get_Width() - __get_PaddingLeft() - __get_PaddingRight(), __get_Height() - __get_PaddingTop() - __get_PaddingBottom());
 }

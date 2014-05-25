@@ -2079,27 +2079,6 @@ function __init_narcissus(GLOBAL)
 
         switch(varItem.type)
         {
-    	case jsdef.CALL:
-    		return;
-
-        case jsdef.NEW_WITH_ARGS:
-        case jsdef.NEW:
-            dt = varItem[0].value;
-            break;
-
-    	case jsdef.ARRAY_INIT:
-            dt = "Array";
-            break;
-
-    	case jsdef.OBJECT_INIT:
-            dt = "Object";
-            break;
-
-    	case jsdef.NULL:
-    	case jsdef.OR: // a = a || null;
-            dt = "Object";
-            break;
-
     	case jsdef.STRING:
             dt = "String";
             break;
@@ -2147,20 +2126,6 @@ function __init_narcissus(GLOBAL)
         case jsdef.GE:
         case jsdef.GT:
             dt = "Boolean";
-            break;
-
-    	// ======== DATATYPE HEURISTICS ======== //
-
-        // a = Math.cos(x)
-        case jsdef.CALL:
-            if(varItem.value[0] && varItem.value[0][0] && varItem.value[0][0].value=="Math") dt = "Number";
-            break;
-
-        // a.b
-        case jsdef.DOT:
-            // Enum Heuristics
-            if(varItem.value.length==2 && varItem.value[0].value.indexOf("_ENUM")==0)
-                    dt = varItem.value[0].value;
             break;
         }
 

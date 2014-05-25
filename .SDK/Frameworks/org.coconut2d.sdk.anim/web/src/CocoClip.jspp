@@ -112,8 +112,13 @@ class CocoClip : CocoEventSource implements IEventTarget
 	public var __vREL_TOP_RIGHT:CocoVector;
 	public var __vREL_BOTTOM_LEFT:CocoVector;
 	public var __vREL_BOTTOM_RIGHT:CocoVector;
-	public var __vTemp:CocoVector;
-	public var __mTemp:CocoMatrix;
+	public var __vBBoxVrtx:CocoVector;
+	public var __mBBox:CocoMatrix;
+
+	// Touch Control Variables
+	public var __touch_start_time:Time;
+	public var __touch_start_point: CocoPoint;
+	public var __touch_moved:Boolean;
 
 	// References to objects we do not own (do not delete in destructor)
 	private var __currentSequence:CocoSequence;
@@ -121,11 +126,9 @@ class CocoClip : CocoEventSource implements IEventTarget
 
 	// Define CocoClip events
 	public event OnClick();
-	public event OnDblClick();
 	public event OnTouchStart(x:Float, y:Float);
 	public event OnTouchMove(x:Float, y:Float);
 	public event OnTouchEnd(x:Float, y:Float);
-	public event OnTouchCancel(x:Float, y:Float);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
@@ -145,8 +148,9 @@ class CocoClip : CocoEventSource implements IEventTarget
 		__vREL_TOP_RIGHT				= new CocoVector();
 		__vREL_BOTTOM_LEFT				= new CocoVector();
 		__vREL_BOTTOM_RIGHT				= new CocoVector();
-		__vTemp							= new CocoVector();
-		__mTemp							= new CocoMatrix();
+		__vBBoxVrtx							= new CocoVector();
+		__mBBox							= new CocoMatrix();
+		__touch_start_point 			= new CocoPoint;
 		__childWithMaxTimelineDuration	= null;
 		__currentSequence				= null;
 		__currentAudio					= null;
@@ -168,8 +172,9 @@ class CocoClip : CocoEventSource implements IEventTarget
 		delete __vREL_TOP_RIGHT;
 		delete __vREL_BOTTOM_LEFT;
 		delete __vREL_BOTTOM_RIGHT;
-		delete __vTemp;
-		delete __mTemp;
+		delete __vBBoxVrtx;
+		delete __mBBox;
+		delete __touch_start_point;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -366,6 +371,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 		__scene = scene;
 
 		var mv:CocoMatrix = ctx.getModelViewMatrix();
+		var __pixelRatioScale:Float = 0;
 
 		// Calculate the parent timeline duration in time from its children (which are siblings to this clip)
 		var parentClipsDuration:Time = parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__singleFrameDurationTime;
@@ -402,7 +408,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 			// If we need to handle an event or if our parent has asked us to
 			// calc our bounding box **AND** there is an actual event waiting
 			// then we set calcBoundingBox to true.
-			calcBoundingBox = (__currentFrame.handleEvents || calcBoundingBox) && (engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END, true)!=null);
+			calcBoundingBox = (__currentFrame.handleEvents || calcBoundingBox) && engine.__hasTouchDeviceMessage();
 		}
 
         // =============================================================================================================
@@ -410,11 +416,12 @@ class CocoClip : CocoEventSource implements IEventTarget
         // =============================================================================================================
 		if(__image)
 		{
-			__currentFrame.scaleX *= __image.__pixelRatioScale;
-			__currentFrame.scaleY *= __image.__pixelRatioScale;
+			__pixelRatioScale = scene.__view_pixel_ratio / __image.pixelRatio;
+			__currentFrame.scaleX *= __pixelRatioScale;
+			__currentFrame.scaleY *= __pixelRatioScale;
 			apply(__currentFrame, mv);
-			__currentFrame.scaleX /= __image.__pixelRatioScale;
-			__currentFrame.scaleY /= __image.__pixelRatioScale;
+			__currentFrame.scaleX /= __pixelRatioScale;
+			__currentFrame.scaleY /= __pixelRatioScale;
 
 			// Get sequence name, first from current clip and if not found from parent clip.
 			var sequenceName:String = __currentFrame.spriteSequenceName;
@@ -474,7 +481,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 			{
 				// Calculate bounding box vertices
 				if(__image)
-					initBoundingBoxFromTexture(scene, mv, __image.textureCellWidth / 2, __image.textureCellHeight / 2);
+					initBoundingBoxFromTexture(scene, mv, __image.textureCellWidth / 2, __image.textureCellHeight / 2, __pixelRatioScale);
 				else if(__children.size()>0)
 					initBoundingBoxFromChildren(scene, mv);
 			}
@@ -484,22 +491,21 @@ class CocoClip : CocoEventSource implements IEventTarget
 	        // =============================================================================================================
 			if(calcBoundingBox && __currentFrame.handleEvents)
 			{
-				var deviceMessage:DEVICE_MESSAGE;
-
-				for(var first:Boolean=true;;first=false)
+				var deviceMessage:DEVICE_MESSAGE = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK);
+				if(deviceMessage)
 				{
-					deviceMessage = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK, first);
-					if(!deviceMessage) break;
-
-					// Point in quad?
 		   	        var x:Float = (deviceMessage.x0 - ctx.getWidth() / 2.0) / scene.__view_scale;
 					var y:Float = (deviceMessage.y0 - ctx.getHeight() / 2.0) / scene.__view_scale;
 
+					// Point in quad?
 					if(hitTest(x,y))
 		   	        {
 		   	        	switch(deviceMessage.type)
 		   	        	{
 						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START:
+							__touch_start_time = engine.__clock;
+							__touch_start_point.x = deviceMessage.x0;
+							__touch_start_point.y = deviceMessage.y0;
 							dispatchEvent(this.OnTouchStart, deviceMessage.x0, deviceMessage.y0);
 							break;
 
@@ -508,13 +514,19 @@ class CocoClip : CocoEventSource implements IEventTarget
 							break;
 
 						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END:
-							engine.__pushTouched(this);
 							dispatchEvent(this.OnTouchEnd, deviceMessage.x0, deviceMessage.y0);
+							if(Math.abs(__touch_start_point.x-deviceMessage.x0)<2 && Math.abs(__touch_start_point.y-deviceMessage.y0)<2)
+							{
+								// If the clip hasn't moved significantly, then it is a click
+								trace("click: " + __instanceName);
+								dispatchEvent(this.OnClick);
+								engine.__pushClicked(this);
+							}
+							__touch_start_time = 0;
 							break;
 		   	        	}
-
-		   	        	//drawBoundingBox(scene, ctx);
-		   	        }
+					}
+					//drawBoundingBox(scene, ctx);
 				}
 			}
 
@@ -603,33 +615,33 @@ class CocoClip : CocoEventSource implements IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function initBoundingBoxFromTexture(scene:CocoScene, mv:CocoMatrix, W2:Float, H2:Float)
+	public function initBoundingBoxFromTexture(scene:CocoScene, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)
 	{
-		__mTemp.identity();
+		__mBBox.identity();
 
-		__currentFrame.scaleX *= __image.__pixelRatioScale;
-		__currentFrame.scaleY *= __image.__pixelRatioScale;
-		apply(__currentFrame,__mTemp);
-		__currentFrame.scaleX /= __image.__pixelRatioScale;
-		__currentFrame.scaleY /= __image.__pixelRatioScale;
+		__currentFrame.scaleX *= __pixelRatioScale;
+		__currentFrame.scaleY *= __pixelRatioScale;
+		apply(__currentFrame,__mBBox);
+		__currentFrame.scaleX /= __pixelRatioScale;
+		__currentFrame.scaleY /= __pixelRatioScale;
 
-		//__currentFrame.apply(__mTemp);
+		//__currentFrame.apply(__mBBox);
 
-		__vTemp.reset(-W2, -H2, 0, 1);
-		__vREL_TOP_LEFT	= __mTemp.multiplyByVector(__vTemp);
-		__vABS_TOP_LEFT	= mv.multiplyByVector(__vTemp);
+		__vBBoxVrtx.reset(-W2, -H2, 0, 1);
+		__vREL_TOP_LEFT	= __mBBox.multiplyByVector(__vBBoxVrtx);
+		__vABS_TOP_LEFT	= mv.multiplyByVector(__vBBoxVrtx);
 
-		__vTemp.reset(W2, -H2, 0, 1);
-		__vREL_TOP_RIGHT = __mTemp.multiplyByVector(__vTemp);
-		__vABS_TOP_RIGHT = mv.multiplyByVector(__vTemp);
+		__vBBoxVrtx.reset(W2, -H2, 0, 1);
+		__vREL_TOP_RIGHT = __mBBox.multiplyByVector(__vBBoxVrtx);
+		__vABS_TOP_RIGHT = mv.multiplyByVector(__vBBoxVrtx);
 
-		__vTemp.reset(-W2, H2, 0, 1);
-		__vREL_BOTTOM_LEFT = __mTemp.multiplyByVector(__vTemp);
-		__vABS_BOTTOM_LEFT = mv.multiplyByVector(__vTemp);
+		__vBBoxVrtx.reset(-W2, H2, 0, 1);
+		__vREL_BOTTOM_LEFT = __mBBox.multiplyByVector(__vBBoxVrtx);
+		__vABS_BOTTOM_LEFT = mv.multiplyByVector(__vBBoxVrtx);
 
-		__vTemp.reset(W2, H2, 0, 1);
-		__vREL_BOTTOM_RIGHT	= __mTemp.multiplyByVector(__vTemp);
-		__vABS_BOTTOM_RIGHT = mv.multiplyByVector(__vTemp);
+		__vBBoxVrtx.reset(W2, H2, 0, 1);
+		__vREL_BOTTOM_RIGHT	= __mBBox.multiplyByVector(__vBBoxVrtx);
+		__vABS_BOTTOM_RIGHT = mv.multiplyByVector(__vBBoxVrtx);
 
 	    __hasBoundingBox = true;
 	}
@@ -688,14 +700,14 @@ class CocoClip : CocoEventSource implements IEventTarget
 	    __vABS_BOTTOM_LEFT = mv.multiplyByVector(__vREL_BOTTOM_LEFT);
 	    __vABS_BOTTOM_RIGHT = mv.multiplyByVector(__vREL_BOTTOM_RIGHT);
 
-		__mTemp.identity();
+		__mBBox.identity();
 
-		apply(__currentFrame, __mTemp);
+		apply(__currentFrame, __mBBox);
 
-	    __vREL_TOP_LEFT = __mTemp.multiplyByVector(__vREL_TOP_LEFT);
-	    __vREL_TOP_RIGHT = __mTemp.multiplyByVector(__vREL_TOP_RIGHT);
-	    __vREL_BOTTOM_LEFT = __mTemp.multiplyByVector(__vREL_BOTTOM_LEFT);
-	    __vREL_BOTTOM_RIGHT = __mTemp.multiplyByVector(__vREL_BOTTOM_RIGHT);
+	    __vREL_TOP_LEFT = __mBBox.multiplyByVector(__vREL_TOP_LEFT);
+	    __vREL_TOP_RIGHT = __mBBox.multiplyByVector(__vREL_TOP_RIGHT);
+	    __vREL_BOTTOM_LEFT = __mBBox.multiplyByVector(__vREL_BOTTOM_LEFT);
+	    __vREL_BOTTOM_RIGHT = __mBBox.multiplyByVector(__vREL_BOTTOM_RIGHT);
 
 	    __hasBoundingBox = true;
 	}

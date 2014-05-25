@@ -32,7 +32,10 @@ Image::~Image()
 void Image::load(String url)
 {
 	__imageData = new ImageData(url);
-	src = __imageData->src;
+	if(url.indexOf(String("data:")) == -1)
+	{
+		src = __imageData->src;
+	}
 	width = __imageData->width;
 	height = __imageData->height;
 	naturalWidth = __imageData->width;

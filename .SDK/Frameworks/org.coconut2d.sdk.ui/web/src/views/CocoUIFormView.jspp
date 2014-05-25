@@ -36,27 +36,71 @@
 
 "#include CocoUIView.jspp";
 
-class CocoUIPageView : CocoUIView
+class CocoUIFormView :CocoUIView
 {
+	private var __inlineControls:Array<CocoUIControl>;
+	private var __floatingControls:Array<CocoUIControl>;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	public function Constructor(Name:String)
 	{
+		__instanceName = Name;
+		__textureIsInvalid = false;
+		__inlineControls = new Array<CocoUIControl>;
+		__floatingControls = new Array<CocoUIControl>;
+		__width = Float(window.innerWidth);
+		__height = Float(window.innerHeight);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete __inlineControls;
+		delete __floatingControls;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function addChild(clipInstance:CocoClip) :CocoClip
+	public virtual function invalidate()
 	{
-		invalidate();
-		return super.addChild(clipInstance);
+		__textureIsInvalid = false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D)
+	public function addInlineControl(ctl:CocoUIControl) :CocoClip
+	{
+		if(ctl.Height==0)
+			ctl.Height = (ctl.SkinImage ? ctl.SkinImage.textureCellHeight : 64);
+
+		if(ctl.Width==0)
+			ctl.Width = this.Width - ctl.MarginLeft - ctl.MarginRight;
+
+		ctl.move(ctl.MarginLeft , inlineHeight() + ctl.MarginTop, ctl.Width, ctl.Height);
+		__inlineControls.push(ctl);
+		return super.addChild(ctl);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function inlineHeight() :Float
+	{
+		var h:Float = 0;
+		var ctl:CocoUIControl;
+		for(var i:Integer=__inlineControls.size();i--;)
+		{
+			ctl = __inlineControls[i];
+			h+= ctl.MarginTop + ctl.Height + ctl.MarginBottom;
+		}
+		return h;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addFloatingControl(ctl:CocoUIControl) :CocoClip
+	{
+		__floatingControls.push(ctl);
+		return super.addChild(ctl);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)
 	{
 	}
 }

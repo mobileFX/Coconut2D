@@ -15,16 +15,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoEngine::CocoEngine()
 {
-	__ctx = CocoRenderContext::createContext();
-	__currentState = nullptr;
 	__clock = 0;
-	debugbreak = false;
-	__attachDevice();
+	__currentState = nullptr;
+	__tickables = new Array<ITickable*> ();
+	__ctx = CocoRenderContext::createContext();
+	__attachDevices();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoEngine::~CocoEngine()
 {
+	__dettachDevices();
 	if(__ctx)
 	{
 		__ctx = (delete __ctx, nullptr);
@@ -33,37 +34,9 @@ CocoEngine::~CocoEngine()
 	{
 		__clicked = (delete __clicked, nullptr);
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEngine::addTickListener(ITickable* tickable)
-{
-	__tickables->push(tickable);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-int CocoEngine::getTickableIndex(ITickable* tickable)
-{
-	if(tickable)
+	if(__tickables)
 	{
-		for(int i = __tickables->size() - 1; i >= 0; i--)
-		{
-			if((*__tickables)[i] == tickable)
-			{
-				return i;
-			}
-		}
-	}
-	return  -1;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEngine::removeTickListener(ITickable* tickable)
-{
-	int index = getTickableIndex(tickable);
-	if(index != -1)
-	{
-		__tickables->splice(index, 1);
+		__tickables = (delete __tickables, nullptr);
 	}
 }
 
@@ -97,36 +70,27 @@ void CocoEngine::run(float time)
 	}
 	if(__currentState)
 	{
-		int i = 0;
-		for(i = 0; i < __clicked->size(); i++)
-		{
-			CocoClip* clip = (*__clicked)[i];
-		}
 		__currentState->tick(__clock);
 	}
-	__clicked->clear();
+	__tick(__clock);
 	if(__nextState == nullptr && __currentState != nullptr)
 	{
 		__ctx->cls();
 		__currentState->paint(__ctx, __clock);
 		__ctx->flush();
 	}
-	__deviceMessageQueue->clear();
+	__clicked->clear();
+	__clearDeviceMessageQueue();
 	__clock += TICK_TIME;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEngine::__debug_trace(CocoScene* scene, CocoClip* clip, String message)
+void CocoEngine::__attachDevices()
 {
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEngine::__attachDevice()
-{
-	__track_mouse = false;
-	__device_message_index = 0;
 	__deviceMessageQueue = new Array<DEVICE_MESSAGE*> ();
 	__clicked = new Array<CocoClip*> ();
+	__track_touch = false;
+	__has_touch_device_message = false;
 	if(global->__native)
 	{
 		window->addEventListener(String("touchstart"), &CocoEngine::__translateDeviceMessage);
@@ -142,22 +106,40 @@ void CocoEngine::__attachDevice()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoEngine::__dettachDevices()
+{
+	if(global->__native)
+	{
+		window->removeEventListener(String("touchstart"), &CocoEngine::__translateDeviceMessage);
+		window->removeEventListener(String("touchmove"), &CocoEngine::__translateDeviceMessage);
+		window->removeEventListener(String("touchend"), &CocoEngine::__translateDeviceMessage);
+	}
+	else
+	{
+		window->removeEventListener(String("mousedown"), &CocoEngine::__translateDeviceMessage);
+		window->removeEventListener(String("mousemove"), &CocoEngine::__translateDeviceMessage);
+		window->removeEventListener(String("mouseup"), &CocoEngine::__translateDeviceMessage);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoEngine::__translateDeviceMessage(HTMLEvent* e)
 {
-	DEVICE_MESSAGE* MSG = nullptr;
+	DEVICE_MESSAGE* MSG;
 	if(e->type == String("mousedown"))
 	{
 		switch(0)
 		{
 			case 0:
 			{
-				if(!__track_mouse)
+				if(!__track_touch)
 				{
 					MSG = new DEVICE_MESSAGE();
 					MSG->type = DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_START;
 					MSG->x0 = e->clientX;
 					MSG->y0 = e->clientY;
-					__track_mouse = true;
+					__track_touch = true;
+					__has_touch_device_message = true;
 				}
 				break;
 			}
@@ -169,12 +151,13 @@ void CocoEngine::__translateDeviceMessage(HTMLEvent* e)
 		{
 			case 0:
 			{
-				if(__track_mouse)
+				if(__track_touch)
 				{
 					MSG = new DEVICE_MESSAGE();
 					MSG->type = DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_MOVE;
 					MSG->x0 = e->clientX;
 					MSG->y0 = e->clientY;
+					__has_touch_device_message = true;
 				}
 				break;
 			}
@@ -186,13 +169,15 @@ void CocoEngine::__translateDeviceMessage(HTMLEvent* e)
 		{
 			case 0:
 			{
-				if(__track_mouse)
+				if(__track_touch)
 				{
+					__removeTouchMessages();
 					MSG = new DEVICE_MESSAGE();
 					MSG->type = DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_END;
 					MSG->x0 = e->clientX;
 					MSG->y0 = e->clientY;
-					__track_mouse = false;
+					__track_touch = false;
+					__has_touch_device_message = true;
 				}
 				break;
 			}
@@ -204,13 +189,14 @@ void CocoEngine::__translateDeviceMessage(HTMLEvent* e)
 		{
 			case 0:
 			{
-				if(!__track_mouse)
+				if(!__track_touch)
 				{
 					MSG = new DEVICE_MESSAGE();
 					MSG->type = DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_START;
 					MSG->x0 = (*e->touches)[0]->clientX;
 					MSG->y0 = (*e->touches)[0]->clientY;
-					__track_mouse = true;
+					__track_touch = true;
+					__has_touch_device_message = true;
 				}
 				break;
 			}
@@ -222,12 +208,13 @@ void CocoEngine::__translateDeviceMessage(HTMLEvent* e)
 		{
 			case 0:
 			{
-				if(__track_mouse)
+				if(__track_touch)
 				{
 					MSG = new DEVICE_MESSAGE();
 					MSG->type = DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_MOVE;
 					MSG->x0 = (*e->touches)[0]->clientX;
 					MSG->y0 = (*e->touches)[0]->clientY;
+					__has_touch_device_message = true;
 				}
 				break;
 			}
@@ -239,13 +226,15 @@ void CocoEngine::__translateDeviceMessage(HTMLEvent* e)
 		{
 			case 0:
 			{
-				if(__track_mouse)
+				if(__track_touch)
 				{
+					__removeTouchMessages();
 					MSG = new DEVICE_MESSAGE();
 					MSG->type = DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_END;
 					MSG->x0 = (*e->touches)[0]->clientX;
 					MSG->y0 = (*e->touches)[0]->clientY;
-					__track_mouse = false;
+					__track_touch = false;
+					__has_touch_device_message = true;
 				}
 				break;
 			}
@@ -258,64 +247,100 @@ void CocoEngine::__translateDeviceMessage(HTMLEvent* e)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-DEVICE_MESSAGE* CocoEngine::__peekDeviceMessage(DEVICE_MESSAGE_ENUM mask, bool first)
+bool CocoEngine::__hasTouchDeviceMessage()
 {
-	if(first)
+	return (__has_touch_device_message && __deviceMessageQueue->size() > 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoEngine::__removeTouchMessages()
+{
+	if(!__has_touch_device_message)
 	{
-		__device_message_index = 0;
+		return;
 	}
-	else
-	{
-		__device_message_index++;
-	}
-	int L = __deviceMessageQueue->size();
-	if(__device_message_index < L)
-	{
-		DEVICE_MESSAGE* msg;
-		for(int i = __device_message_index; i < L; i++)
+	for(int i = __deviceMessageQueue->size(); i--;)
+		if(((*__deviceMessageQueue)[i]->type & DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_MASK) != 0)
 		{
-			msg = (*__deviceMessageQueue)[i];
-			if((msg->type & mask) != 0)
-			{
-				__device_message_index = i;
-				msg->peeked = true;
-				return msg;
-			}
+			__deviceMessageQueue->splice(i, 1);
 		}
-	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+DEVICE_MESSAGE* CocoEngine::__peekDeviceMessage(DEVICE_MESSAGE_ENUM mask)
+{
+	int L = __deviceMessageQueue->size();
+	for(int i = 0; i < L; i++)
+		if(((*__deviceMessageQueue)[i]->type & mask) != 0)
+		{
+			return (*__deviceMessageQueue)[i];
+		}
 	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoEngine::__clearDeviceMessageQueue()
 {
-	DEVICE_MESSAGE* msg;
-	int L = __deviceMessageQueue->size();
-	for(int i = L; i < L; i++)
-	{
-		msg = (*__deviceMessageQueue)[i];
-		if(msg->peeked)
-		{
-			__deviceMessageQueue->splice(i, 1);
-		}
-	}
+	__deviceMessageQueue->clear();
+	__has_touch_device_message = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEngine::__pushTouched(CocoClip* clip)
+void CocoEngine::__pushClicked(CocoClip* clip)
 {
-	trace((String("click: ") + clip->__instanceName).c_str());
 	__clicked->push(clip);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 int CocoEngine::isClicked(Array<CocoClip*>* check)
 {
-	for(int i = __clicked->size() - 1; i >= 0; i--)
-		for(int r = check->size() - 1; r >= 0; r--)
+	for(int i = __clicked->size(); i--;)
+		for(int r = check->size(); r--;)
 			if((*check)[r] == (*__clicked)[i])
 			{
 				return r;
 			}
 	return  -1;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoEngine::addTickListener(ITickable* tickable)
+{
+	__tickables->push(tickable);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoEngine::removeTickListener(ITickable* tickable)
+{
+	int index = getTickableIndex(tickable);
+	if(index != -1)
+	{
+		__tickables->splice(index, 1);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+int CocoEngine::getTickableIndex(ITickable* tickable)
+{
+	if(tickable)
+		for(int i = __tickables->size(); i--;)
+			if((*__tickables)[i] == tickable)
+			{
+				return i;
+			}
+	return  -1;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoEngine::__tick(float time)
+{
+	for(int i = __tickables->size(); i--;)
+	{
+		(*__tickables)[i]->tick(time);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoEngine::__debug_trace(CocoScene* scene, CocoClip* clip, String message)
+{
 }

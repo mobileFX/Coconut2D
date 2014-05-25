@@ -37,8 +37,10 @@ class HTMLCanvasElement
 {
 	public var width:Float;
 	public var height:Float;
-
 	public var __imageData:ImageData;
+
+	private var c2d:CanvasRenderingContext2D;
+	private var gl:WebGLRenderingContext;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -46,21 +48,31 @@ class HTMLCanvasElement
 		width = 0.0;
 		height = 0.0;
 		__imageData = null;
+		gl = null;
+		c2d = null;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 		delete __imageData;
+		delete c2d;
+		delete gl;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function getContext(contextId:String) :Object
 	{
 		if(contextId=="2d")
-			return Object(new CanvasRenderingContext2D(this));
+		{
+			if(!c2d) c2d = new CanvasRenderingContext2D(this);
+			return Object(c2d);
+		}
 		else
-			return Object(new WebGLRenderingContext(this));
+		{
+			if(!gl) gl = new WebGLRenderingContext(this);
+			return Object(gl);
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -54,14 +54,16 @@ class CocoUIView : CocoClip
 		__visible = true;
 		__x = 0;
 		__y = 0;
-		__width = 320;
-		__height = 480;
+		__width = 0;
+		__height = 0;
+
+		__timeline.clear();
+		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,6 +126,18 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function move(x:Float, y:Float)
+	{
+		move(x,y,__width,__height)
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function size(width:Float, height:Float)
+	{
+		move(__x,__y,width,height)
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function invalidate()
 	{
 		__textureIsInvalid = true;
@@ -136,47 +150,40 @@ class CocoUIView : CocoClip
 			return;
 
 		// If the texture is invalid we need to recreate it
-		/*
 		if(__textureIsInvalid)
 		{
-			// Create a power-of-two sized temp canvas and get 2d context and call virtual repaint
-			var canvas:HTMLCanvasElement = document.createElement("canvas");
-			canvas.width = Math.pow(2, Math.ceil(Math.log(__width)/Math.log(2)));
-			canvas.height = Math.pow(2, Math.ceil(Math.log(__height)/Math.log(2)));
-			var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+			if(__image)
+				delete __image;
 
-			// Repaint
-			repaint(scene, parentClip, ctx);
+			if(__width>0 && __height>0)
+			{
+				// Create a power-of-two sized temp canvas and get 2d context and call virtual repaint
+				var canvas:HTMLCanvasElement = document.createElement("canvas");
+				canvas.width = Math.pow(2, Math.ceil(Math.log(__width)/Math.log(2)));
+				canvas.height = Math.pow(2, Math.ceil(Math.log(__height)/Math.log(2)));
 
-			// Delete previous image
-			delete __image;
+				// Repaint
+				repaint(scene, parentClip, canvas);
 
-			// Create a texture image from the base64 PNG data of the canvas
-	        __image = new CocoImage();
-	        __image.image = new Image();
-	        var url:String = canvas.toDataURL();
-	        __image.image.load(url);
-	        __image.textureCellWidth = Float(__width);
-	        __image.textureCellHeight = Float(__height);
-	        __image.textureGrid = new Float32Array([0,0]);
-	        ctx.prepareImage(scene, __image);
+				// Create a texture image from the canvas
 
-	        // Delete the temp canvas
-	        ctx = null;
-	        delete canvas;
+		        __image = new CocoImage();
+		        __image.createFromCanvas(scene,canvas,__width,__height);
+		        delete canvas;
+			}
 
 	        __textureIsInvalid = false;
 		}
-		*/
 
-		// Paint the clip
+		// Paint the Clip
+		var mv:CocoMatrix = ctx.getModelViewMatrix();
+		mv.push();
+		mv.translate(__x, __y);
 		super.paint;
+		mv.pop();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual abstract function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D);
+	public virtual abstract function repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement);
 
 }
-
-
-

@@ -11,7 +11,7 @@
 #include "CocoImage.hpp"
 #include "CocoScene.hpp"
 #include "CocoClip.hpp"
-#include "CanvasRenderingContext2D.hpp"
+#include "HTMLCanvasElement.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +111,7 @@ public:
 	void __set_ChevronTop(float v);
 	CocoUIControl(String Name);
 	virtual ~CocoUIControl();
-	virtual void repaint(CocoScene* scene, CocoClip* parentClip, CanvasRenderingContext2D* ctx);
+	virtual void repaint(CocoScene* scene, CocoClip* parentClip, HTMLCanvasElement* canvas);
 };
 
 #endif // __COCOUICONTROL_HPP__

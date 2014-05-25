@@ -34,12 +34,18 @@
 //
 // ==================================================================================================================================
 
-class CocoRect
+struct CocoPoint
 {
-	public var left:Float;
-	public var top:Float;
-	public var right:Float;
-	public var bottom:Float;
+	x:Float;
+	y:Float;
+}
+
+struct CocoRect
+{
+	left:Float;
+	top:Float;
+	right:Float;
+	bottom:Float;
 }
 
 // ==================================================================================================================================
@@ -141,7 +147,7 @@ class CocoGraphics
 	// ==================================================================================================================================
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function drawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float, anchor:COCO_CONTROL_ANCHOR_ENUM)
+	public static function drawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)
 	{
 		if(!skinImage)
 			return;
@@ -159,6 +165,7 @@ class CocoGraphics
 		var H1:Float				  = skinImage.skin[3];
 		var H2:Float				  = skinImage.skin[4];
 		var H3:Float				  = skinImage.skin[5];
+
 		var RW1H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
 		var RW2H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
 		var RW3H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
@@ -168,72 +175,12 @@ class CocoGraphics
 		var RW1H3:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
 		var RW2H3:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
 		var RW3H3:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+
 		var	F:Float;
 		var	RmW:Float;
 		var	RmH:Float;
 		var	R:Array<Float> = [0,0,0];
 		var	C:Array<Float> = [0,0,0];
-
-		/*
-		x 		= Graphics.scale(x, 	 1, r);
-		y 		= Graphics.scale(y, 	 1, r);
-		width 	= Graphics.scale(width,  1, r);
-		height 	= Graphics.scale(height, 1, r);
-		*/
-
-		// Anchor
-		switch(anchor)
-		{
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_NONE:
-				break;
-
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_CENTER:
-				x = cx+(cw-width)/2;
-				y = cy+(ch-height)/2;
-				break;
-
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_LEFT:
-				x = cx;
-				y = cy;
-				break;
-
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_MIDDLE:
-				x = cx+(cw-width)/2;
-				y = cy;
-				break;
-
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_RIGHT:
-				x = cx+(cw-width);
-				y = cy;
-				break;
-
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT:
-				x = cx;
-				y = cy+(ch-height)/2;
-				break;
-
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_RIGHT:
-				x = cx+(cw-width);
-				y = cy+(ch-height)/2;
-				break;
-
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_LEFT:
-				x = cx;
-				y = cy+(ch-height);
-				break;
-
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_MIDDLE:
-				x = cx+(cw-width)/2;
-				y = cy+(ch-height);
-				break;
-
-			case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_RIGHT:
-				x = cx+(cw-width);
-				y = cy+(ch-height);
-				break;
-		}
-
-
 
 	    // Find slices with fixed width or height
 	    if(__fixedH([RW1H1, RW2H1, RW3H1])) R[0] = H1;
@@ -259,8 +206,8 @@ class CocoGraphics
 
 	    // Draw slices
 
-	    //ctx.save();
-	    //ctx.setTransform(1,0,0,1,0,0);
+	    ctx.save();
+	    ctx.setTransform(1,0,0,1,0,0);
 
 	    __drawSlice ( ctx, skinImage, 	x, 					y, 				 	C[0],	R[0], 	0, 			0,			W1, 	H1, 	RW1H1);
 	    __drawSlice ( ctx, skinImage, 	x + C[0], 			y, 				 	C[1],	R[0], 	W1, 		0,			W2, 	H1, 	RW2H1);
@@ -272,8 +219,8 @@ class CocoGraphics
 	    __drawSlice ( ctx, skinImage, 	x + C[0], 			y + R[0] + R[1], 	C[1],	R[2], 	W1, 		H1 + H2, 	W2, 	H3, 	RW2H3);
 	    __drawSlice ( ctx, skinImage, 	x + C[0] + C[1], 	y + R[0] + R[1], 	C[2],	R[2], 	W1 + W2, 	H1 + H2, 	W3, 	H3, 	RW3H3);
 
-	    //ctx.scale(r,r);
-	    //ctx.restore();
+		//ctx.scale(r,r);
+		ctx.restore();
 
 	};
 
@@ -291,7 +238,8 @@ class CocoGraphics
 	private static function __countFixed(v:Array<Float>) :Integer
 	{
 	    var c:Integer = 0;
-	    for(var i:Integer=0; i<v.size(); i++)
+	    var L:Integer = v.size();
+	    for(var i:Integer=0; i<L; i++)
 	    	if(v[i]) c++;
 	    return c;
 	}
@@ -300,7 +248,8 @@ class CocoGraphics
 	private static function __fixedW(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean
 	{
 		var R:Boolean = false;
-	    for(var i:Integer=0; i<v.size(); i++)
+		var L:Integer = v.size();
+	    for(var i:Integer=0; i<L; i++)
 	        R |= ((v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y));
 	    return R;
 	}
@@ -309,7 +258,8 @@ class CocoGraphics
 	private static function __fixedH(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean
 	{
 		var R:Boolean = false;
-	    for(var i:Integer=0; i<v.size(); i++)
+		var L:Integer = v.size();
+	    for(var i:Integer=0; i<L; i++)
 	        R |= ((v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_X));
 	    return R;
 	}
@@ -339,14 +289,7 @@ class CocoGraphics
 	{
 		if(!ctx || !image || !sw || !sh || !dw || !dh)
 			return;
-
-		//try
-		//{
-			ctx.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
-		//}
-		//catch(e)
-		//{
-		//}
+		ctx.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////

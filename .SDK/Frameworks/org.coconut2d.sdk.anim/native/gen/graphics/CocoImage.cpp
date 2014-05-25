@@ -6,9 +6,10 @@
 #include "HTMLImageElement.hpp"
 #include "CocoScene.hpp"
 #include "ICocoImageRenderData.hpp"
-#include "HTMLWindow.hpp"
+#include "HTMLCanvasElement.hpp"
 #include "CocoEngine.hpp"
 #include "ICocoRenderContext.hpp"
+#include "HTMLWindow.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,6 +96,22 @@ CocoImage::~CocoImage()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoImage::createFromCanvas(CocoScene* scene, HTMLCanvasElement* canvas, float width, float height)
+{
+	if(image)
+	{
+		image = (delete image, nullptr);
+	}
+	String url = canvas->toDataURL();
+	image = new Image();
+	image->load(url);
+	textureCellWidth = ((float)width);
+	textureCellHeight = ((float)height);
+	textureGrid = new Float32Array((new Array<float> ())->push(0)->push(0));
+	this->renderData = engine->__ctx->prepareImage(this);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoImageSibling* CocoImage::addSibling(CocoImageSibling* sibling)
 {
 	viewSiblings->push(sibling);
@@ -174,10 +191,6 @@ bool CocoImage::loaded()
 	{
 		return false;
 	}
-	__pixelRatioScale = (float)(scene->__view_pixel_ratio) / (float)(pixelRatio);
-	float w2 = (float)(textureCellWidth) / (float)(2.0);
-	float h2 = (float)(textureCellHeight) / (float)(2.0);
-	texSize = new Float32Array((new Array<float> ())->push((float)(textureCellWidth) / (float)(image->naturalWidth))->push((float)(textureCellHeight) / (float)(image->naturalHeight)));
 	renderData = engine->__ctx->prepareImage(this);
 	return true;
 }

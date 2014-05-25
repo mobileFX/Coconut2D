@@ -7,6 +7,8 @@
 
 #include "Coconut2D.hpp"
 #include "ImageData.hpp"
+#include "CanvasRenderingContext2D.hpp"
+#include "WebGLRenderingContext.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,6 +18,8 @@ public:
 	float width;
 	float height;
 	ImageData* __imageData;
+	CanvasRenderingContext2D* c2d;
+	WebGLRenderingContext* gl;
 	const String __className = String("HTMLCanvasElement");
 	HTMLCanvasElement();
 	virtual ~HTMLCanvasElement();

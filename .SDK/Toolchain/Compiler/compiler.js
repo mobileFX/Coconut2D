@@ -216,11 +216,11 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewWarning = function (e, ast)
 	{
+		if(_this.selectedClass || _this.no_errors>0) return;
 		if(!ast.__warnings) ast.__warnings = {};
 		if(!ast.__warnings[e]) ast.__warnings[e] = 0;
 		ast.__warnings[e]++;
 		if(ast.__warnings[e]>1) return;
-		if(_this.selectedClass || _this.no_errors>0) return;
 		trace(" !WARNING: " + e + "\n " + ast.path + " : line " + ast.line_start + "\n");
 		IDECallback("warning", ast.path, ast.line_start, 0, e);
 	};
@@ -228,11 +228,11 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewError = function (e, ast)
 	{
+		if(_this.selectedClass || _this.no_errors>0) return;
 		if(!ast.__errors) ast.__errors = {};
 		if(!ast.__errors[e]) ast.__errors[e] = 0;
 		ast.__errors[e]++;
 		if(ast.__errors[e]>1) return;
-		if(_this.selectedClass || _this.no_errors>0) return;
 		trace(" !ERROR: " + e + "\n " + ast.path + " : line " + ast.line_start + "\n");
 		IDECallback("error", ast.path, ast.line_start, 0, e);
 	};
@@ -678,10 +678,22 @@ function Compiler(ast)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getNodeScope = function(node)
+	{
+		var p = node;
+		while(p && !p.scope)
+		{
+			p=p.parent;
+		}
+		return (p ? p.scope : null);
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.ExitScope = function()
 	{
 		return _this.scopesStack.pop();
 	};
+
 
 	// ==================================================================================================================================
 	//	   _____                 __          __   __                __
@@ -1214,7 +1226,7 @@ function Compiler(ast)
 			var baseClassId = baseClassSymbol ? baseClassSymbol.ast.symbol.classId : null;
 			var baseConstructor = baseClassSymbol ? baseClassSymbol.methods["Constructor"] : null;
 			var isGlobalClass = (ast.name=="Global");
-			var scope = (isGlobalClass ? _this.scopesStack[0] : _this.NewScope(ast));
+			var scope = ast.scope = (isGlobalClass ? _this.scopesStack[0] : _this.NewScope(ast));
 			var staticMembers = {};
 
 			// Sanity check: is this class reimplemented?
@@ -1697,7 +1709,7 @@ function Compiler(ast)
 				}
 				out.push("__" + ast.name + ".prototype = new " + baseClass + "(" + baseConstructorArguments + ");");
 			}
-			out.push("__" + ast.name + ".prototype.constructor = " + ast.name + ";");
+			out.push("__" + ast.name + ".prototype.constructor = __" + ast.name + ";");
 			out.push("return new __" + ast.name + "(" + thisConstructorArguments + ");}");
 
 			/////////////////////////////////////////////////////////////////////////////////
@@ -1940,7 +1952,7 @@ function Compiler(ast)
 						{
 							var type1 = eventClassSymbol.vars[item].vartype;
 							var type2 = _this.getTypeName(list[j+1]);
-							_this.typeCheck(event_ast, type1, type2, "Event handler argument type mismatch: "+type1+" and "+type2);
+							_this.typeCheck(event_ast, type1, type2, "Event handler argument type mismatch: "+type1+" and "+type2 + " at " + list[j+1].source);
 							j++;
 						}
 					}
@@ -1976,7 +1988,7 @@ function Compiler(ast)
 
 			ast.pointer = _this.isPointer(ast.returntype);
 
-			var methodScope = _this.NewScope(ast);
+			var methodScope = ast.scope = _this.NewScope(ast);
 			var parentScope = methodScope.parentScope;	// Could be State, Property or Class scope
 			var classScope = _this.getClassScope();		// Class scope
 			var classSymbol	=  classScope ? classScope.ast.symbol : null;
@@ -2155,6 +2167,11 @@ function Compiler(ast)
 					varSymbol.description	= ast.jsdoc && ast.jsdoc.args && ast.jsdoc.args[param.name] ? ast.jsdoc.args[param.name].vardescr : null;
 					varSymbol.icon			=  _this.CODE_SYMBOLS_ENUM.SYMBOL_ARGUMENT;
 					varSymbol.modifier		= "";
+				}
+
+				if(_this.secondPass && !param.vartype && classId)
+				{
+					_this.NewError("Missing argument type: " + varSymbol.name, param);
 				}
 
 				// Detect if identifier vartype is a typed array and get its subtype.
@@ -2371,7 +2388,7 @@ function Compiler(ast)
 	            {
 	            	out.push("this.Destructor = function(){");
 	            	out.push(ast.generated_code);
-					if(_this.secondPass)
+					if(_this.secondPass && !functionSymbol.extern)
 					{
 						out.push("{");
 
@@ -2379,7 +2396,10 @@ function Compiler(ast)
 						// is an object, delete it, and set it to null.
 						for(item in classSymbol.vars)
 						{
-							out.push(classSymbol.vars[item].runtime+"=null;");
+							if(classSymbol.vars[item].pointer)
+							{
+								out.push(classSymbol.vars[item].runtime+"=null;");
+							}
 						}
 
 						// If there is a base class, call its destructor.
@@ -2583,10 +2603,10 @@ function Compiler(ast)
 				var extern_symbol = null;
 
                 // Type Checks
-				if(!ast[item].vartype && _this.currClassName)
+				if(_this.secondPass && !ast[item].vartype && _this.currClassName)
 					_this.NewError("Type declaration missing " + ast[item].name, ast[item]);
 
-				if(_this.secondPass && _this.currClassName && !_this.getClass(ast[item].vartype))
+				if(_this.secondPass && _this.currClassName && ast[item].vartype && !_this.getClass(ast[item].vartype))
 					_this.NewError("Class not found: " + ast[item].vartype, ast[item]);
 
 				if(__exists(ast.scope.vars, ast[item].name))
@@ -2719,7 +2739,7 @@ function Compiler(ast)
 
 					// Check type
 					var type = _this.getTypeName(ast[item].initializer);
-					_this.typeCheck(ast, varSymbol.vartype, type2, null, true);
+					_this.typeCheck(ast, varSymbol.vartype, type, null, true);
 				}
 				else
 				{
@@ -3507,13 +3527,23 @@ function Compiler(ast)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.SUPER:
-			if(ast.inClass)
+			if(ast.inFunction && ast.inClass)
 			{
 				ast.symbol = _this.getCurrentClass().baseSymbol;
-				if(ast.symbol)
+				ast.runtime = ast.symbol.classId;
+
+				if(ast.inDot && ast==ast.inDot.identifier_first)
 				{
-					ast.runtime = ast.symbol.classId;
-					out.push(ast.runtime);
+					// *** WE NEED TO FIND THE BASE CLASS THAT IMPLEMENTS THE MEMBER THAT SUPER TRIES TO ACCESS  *** //
+
+					var member = ast.inDot.identifiers_list[1].value;
+					var dot_to_base = _this.isBaseMember(member, ast.inClass.symbol, true);
+					out.push(dot_to_base);
+
+				}
+				else
+				{
+					_this.NewError("Invalid use of super.", ast);
 				}
 			}
 			else
@@ -3524,7 +3554,7 @@ function Compiler(ast)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.THIS:
-			if( ast.inFunction && ast.inClass)
+			if(ast.inFunction && ast.inClass)
 			{
 				ast.symbol = _this.getCurrentClass();
 				ast.runtime = ast.symbol.classId;
@@ -3539,7 +3569,9 @@ function Compiler(ast)
 				}
 			}
 			else
+			{
 				out.push("this");
+			}
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3839,7 +3871,7 @@ function Compiler(ast)
 			// =============================================================
 			else if(ast.inDot && ast.symbol.extern && ast.inClass && (path=_this.isBaseMember(ast.value, ast.inClass.symbol, true)))
 			{
-				out.push(ast.symbol.runtime);
+				out.push(ast.symbol.name);
 			}
 
 			// =============================================================
@@ -4210,7 +4242,8 @@ function Compiler(ast)
 		// ==================================================================================================================================
 
 		case jsdef.FOR:
-			if(ast.setup && ast.setup.type==jsdef.VAR && ast.setup.length>1) _this.NewError("Invalid multiple variable initializers in for.", ast);
+			if(ast.setup && ast.setup.type==jsdef.VAR && ast.setup.length>1)
+				_this.NewError("Invalid multiple variable initializers in for.", ast);
 			var setupFor = ast.setup ? generate(ast.setup) : ";";
 			setupFor=setupFor.trim();
 			out.push("for(" + setupFor + (setupFor.slice(-1) == ";" ? "": ";"));
@@ -4385,7 +4418,7 @@ function Compiler(ast)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.SEMICOLON:
 			var expr = (ast.expression ? generate(ast.expression) : "");
-			if(_this.secondPass && ast.expression && ast.expression[0] && ast.expression[0].type==jsdef.SUPER && ast.expression[1].symbol.type==jsdef.FUNCTION)
+			if(_this.secondPass && ast.expression && ast.expression[0] && ast.expression[0].type==jsdef.SUPER && ast.expression[1].symbol && ast.expression[1].symbol.type==jsdef.FUNCTION)
 			{
 				var params = [];
 				for(item in ast.inFunction.symbol.paramsList)

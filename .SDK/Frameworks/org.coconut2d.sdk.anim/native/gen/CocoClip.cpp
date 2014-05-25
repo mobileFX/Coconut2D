@@ -10,6 +10,7 @@
 #include "CocoMatrix.hpp"
 #include "DeviceMessage.hpp"
 #include "CocoImage.hpp"
+#include "CocoGraphics.hpp"
 #include "CocoAudio.hpp"
 #include "CocoEngine.hpp"
 
@@ -19,11 +20,9 @@
 CocoClip::CocoClip(CocoImage* image)
 {
 	this->OnClick = new CocoClipOnClickEvent;
-	this->OnDblClick = new CocoClipOnDblClickEvent;
 	this->OnTouchStart = new CocoClipOnTouchStartEvent;
 	this->OnTouchMove = new CocoClipOnTouchMoveEvent;
 	this->OnTouchEnd = new CocoClipOnTouchEndEvent;
-	this->OnTouchCancel = new CocoClipOnTouchCancelEvent;
 	__symbolLoop = COCO_CLIP_SYMBOL_LOOP_ENUM::CLIP_SYMBOL_LOOP_CONTINUOUS;
 	__timeline = new CocoTimeline();
 	__children = new Array<CocoClip*> ();
@@ -39,8 +38,9 @@ CocoClip::CocoClip(CocoImage* image)
 	__vREL_TOP_RIGHT = new CocoVector();
 	__vREL_BOTTOM_LEFT = new CocoVector();
 	__vREL_BOTTOM_RIGHT = new CocoVector();
-	__vTemp = new CocoVector();
-	__mTemp = new CocoMatrix();
+	__vBBoxVrtx = new CocoVector();
+	__mBBox = new CocoMatrix();
+	__touch_start_point = new CocoPoint();
 	__childWithMaxTimelineDuration = nullptr;
 	__currentSequence = nullptr;
 	__currentAudio = nullptr;
@@ -55,10 +55,6 @@ CocoClip::~CocoClip()
 	{
 		this->OnClick = (delete this->OnClick, nullptr);
 	}
-	if(this->OnDblClick)
-	{
-		this->OnDblClick = (delete this->OnDblClick, nullptr);
-	}
 	if(this->OnTouchStart)
 	{
 		this->OnTouchStart = (delete this->OnTouchStart, nullptr);
@@ -70,10 +66,6 @@ CocoClip::~CocoClip()
 	if(this->OnTouchEnd)
 	{
 		this->OnTouchEnd = (delete this->OnTouchEnd, nullptr);
-	}
-	if(this->OnTouchCancel)
-	{
-		this->OnTouchCancel = (delete this->OnTouchCancel, nullptr);
 	}
 	if(__children)
 	{
@@ -115,13 +107,17 @@ CocoClip::~CocoClip()
 	{
 		__vREL_BOTTOM_RIGHT = (delete __vREL_BOTTOM_RIGHT, nullptr);
 	}
-	if(__vTemp)
+	if(__vBBoxVrtx)
 	{
-		__vTemp = (delete __vTemp, nullptr);
+		__vBBoxVrtx = (delete __vBBoxVrtx, nullptr);
 	}
-	if(__mTemp)
+	if(__mBBox)
 	{
-		__mTemp = (delete __mTemp, nullptr);
+		__mBBox = (delete __mBBox, nullptr);
+	}
+	if(__touch_start_point)
+	{
+		__touch_start_point = (delete __touch_start_point, nullptr);
 	}
 }
 
@@ -314,6 +310,7 @@ void CocoClip::paint(ICocoRenderContext* ctx, CocoScene* scene, CocoClip* parent
 {
 	__scene = scene;
 	CocoMatrix* mv = ctx->getModelViewMatrix();
+	float __pixelRatioScale = 0;
 	float parentClipsDuration = parentClip ? parentClip->__childWithMaxTimelineDuration->__timeline->__durationInTime : __timeline->__singleFrameDurationTime;
 	if(parentClip)
 	{
@@ -336,15 +333,16 @@ void CocoClip::paint(ICocoRenderContext* ctx, CocoScene* scene, CocoClip* parent
 			__advanceTime(parentClipsDuration);
 			return;
 		}
-		calcBoundingBox = (__currentFrame->handleEvents || calcBoundingBox) && (engine->__peekDeviceMessage(DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_END, true) != nullptr);
+		calcBoundingBox = (__currentFrame->handleEvents || calcBoundingBox) && engine->__hasTouchDeviceMessage();
 	}
 	if(__image)
 	{
-		__currentFrame->scaleX *= __image->__pixelRatioScale;
-		__currentFrame->scaleY *= __image->__pixelRatioScale;
+		__pixelRatioScale = (float)(scene->__view_pixel_ratio) / (float)(__image->pixelRatio);
+		__currentFrame->scaleX *= __pixelRatioScale;
+		__currentFrame->scaleY *= __pixelRatioScale;
 		apply(__currentFrame, mv);
-		__currentFrame->scaleX /= __image->__pixelRatioScale;
-		__currentFrame->scaleY /= __image->__pixelRatioScale;
+		__currentFrame->scaleX /= __pixelRatioScale;
+		__currentFrame->scaleY /= __pixelRatioScale;
 		String sequenceName = __currentFrame->spriteSequenceName;
 		if(!sequenceName && parentClip && parentClip->__currentFrame)
 		{
@@ -397,7 +395,7 @@ void CocoClip::paint(ICocoRenderContext* ctx, CocoScene* scene, CocoClip* parent
 		{
 			if(__image)
 			{
-				initBoundingBoxFromTexture(scene, mv, (float)(__image->textureCellWidth) / (float)(2), (float)(__image->textureCellHeight) / (float)(2));
+				initBoundingBoxFromTexture(scene, mv, (float)(__image->textureCellWidth) / (float)(2), (float)(__image->textureCellHeight) / (float)(2), __pixelRatioScale);
 			}
 			else if(__children->size() > 0)
 			{
@@ -406,14 +404,9 @@ void CocoClip::paint(ICocoRenderContext* ctx, CocoScene* scene, CocoClip* parent
 		}
 		if(calcBoundingBox && __currentFrame->handleEvents)
 		{
-			DEVICE_MESSAGE* deviceMessage;
-			for(bool first = true;; first = false)
+			DEVICE_MESSAGE* deviceMessage = engine->__peekDeviceMessage(DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_MASK);
+			if(deviceMessage)
 			{
-				deviceMessage = engine->__peekDeviceMessage(DEVICE_MESSAGE_ENUM::MESSAGE_TOUCH_MASK, first);
-				if(!deviceMessage)
-				{
-					break;
-				}
 				float x = (float)((deviceMessage->x0 - (float)(ctx->getWidth()) / (float)(2.0))) / (float)(scene->__view_scale);
 				float y = (float)((deviceMessage->y0 - (float)(ctx->getHeight()) / (float)(2.0))) / (float)(scene->__view_scale);
 				if(hitTest(x, y))
@@ -424,6 +417,9 @@ void CocoClip::paint(ICocoRenderContext* ctx, CocoScene* scene, CocoClip* parent
 						{
 							case 0:
 							{
+								__touch_start_time = engine->__clock;
+								__touch_start_point->x = deviceMessage->x0;
+								__touch_start_point->y = deviceMessage->y0;
 								this->OnTouchStart->x = deviceMessage->x0;
 								this->OnTouchStart->y = deviceMessage->y0;
 								dispatchEvent(this->OnTouchStart);
@@ -450,10 +446,16 @@ void CocoClip::paint(ICocoRenderContext* ctx, CocoScene* scene, CocoClip* parent
 						{
 							case 0:
 							{
-								engine->__pushTouched(this);
 								this->OnTouchEnd->x = deviceMessage->x0;
 								this->OnTouchEnd->y = deviceMessage->y0;
 								dispatchEvent(this->OnTouchEnd);
+								if(abs(__touch_start_point->x - deviceMessage->x0) < 2 && abs(__touch_start_point->y - deviceMessage->y0) < 2)
+								{
+									trace((String("click: ") + __instanceName).c_str());
+									dispatchEvent(this->OnClick);
+									engine->__pushClicked(this);
+								}
+								__touch_start_time = 0;
 								break;
 							}
 						}
@@ -545,26 +547,26 @@ bool CocoClip::hitTest(float wx, float wy)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoClip::initBoundingBoxFromTexture(CocoScene* scene, CocoMatrix* mv, float W2, float H2)
+void CocoClip::initBoundingBoxFromTexture(CocoScene* scene, CocoMatrix* mv, float W2, float H2, float __pixelRatioScale)
 {
-	__mTemp->identity();
-	__currentFrame->scaleX *= __image->__pixelRatioScale;
-	__currentFrame->scaleY *= __image->__pixelRatioScale;
-	apply(__currentFrame, __mTemp);
-	__currentFrame->scaleX /= __image->__pixelRatioScale;
-	__currentFrame->scaleY /= __image->__pixelRatioScale;
-	__vTemp->reset(-W2,  -H2, 0, 1);
-	__vREL_TOP_LEFT = __mTemp->multiplyByVector(__vTemp);
-	__vABS_TOP_LEFT = mv->multiplyByVector(__vTemp);
-	__vTemp->reset(W2,  -H2, 0, 1);
-	__vREL_TOP_RIGHT = __mTemp->multiplyByVector(__vTemp);
-	__vABS_TOP_RIGHT = mv->multiplyByVector(__vTemp);
-	__vTemp->reset(-W2, H2, 0, 1);
-	__vREL_BOTTOM_LEFT = __mTemp->multiplyByVector(__vTemp);
-	__vABS_BOTTOM_LEFT = mv->multiplyByVector(__vTemp);
-	__vTemp->reset(W2, H2, 0, 1);
-	__vREL_BOTTOM_RIGHT = __mTemp->multiplyByVector(__vTemp);
-	__vABS_BOTTOM_RIGHT = mv->multiplyByVector(__vTemp);
+	__mBBox->identity();
+	__currentFrame->scaleX *= __pixelRatioScale;
+	__currentFrame->scaleY *= __pixelRatioScale;
+	apply(__currentFrame, __mBBox);
+	__currentFrame->scaleX /= __pixelRatioScale;
+	__currentFrame->scaleY /= __pixelRatioScale;
+	__vBBoxVrtx->reset(-W2,  -H2, 0, 1);
+	__vREL_TOP_LEFT = __mBBox->multiplyByVector(__vBBoxVrtx);
+	__vABS_TOP_LEFT = mv->multiplyByVector(__vBBoxVrtx);
+	__vBBoxVrtx->reset(W2,  -H2, 0, 1);
+	__vREL_TOP_RIGHT = __mBBox->multiplyByVector(__vBBoxVrtx);
+	__vABS_TOP_RIGHT = mv->multiplyByVector(__vBBoxVrtx);
+	__vBBoxVrtx->reset(-W2, H2, 0, 1);
+	__vREL_BOTTOM_LEFT = __mBBox->multiplyByVector(__vBBoxVrtx);
+	__vABS_BOTTOM_LEFT = mv->multiplyByVector(__vBBoxVrtx);
+	__vBBoxVrtx->reset(W2, H2, 0, 1);
+	__vREL_BOTTOM_RIGHT = __mBBox->multiplyByVector(__vBBoxVrtx);
+	__vABS_BOTTOM_RIGHT = mv->multiplyByVector(__vBBoxVrtx);
 	__hasBoundingBox = true;
 }
 
@@ -661,11 +663,11 @@ void CocoClip::initBoundingBoxFromChildren(CocoScene* scene, CocoMatrix* mv)
 	__vABS_TOP_RIGHT = mv->multiplyByVector(__vREL_TOP_RIGHT);
 	__vABS_BOTTOM_LEFT = mv->multiplyByVector(__vREL_BOTTOM_LEFT);
 	__vABS_BOTTOM_RIGHT = mv->multiplyByVector(__vREL_BOTTOM_RIGHT);
-	__mTemp->identity();
-	apply(__currentFrame, __mTemp);
-	__vREL_TOP_LEFT = __mTemp->multiplyByVector(__vREL_TOP_LEFT);
-	__vREL_TOP_RIGHT = __mTemp->multiplyByVector(__vREL_TOP_RIGHT);
-	__vREL_BOTTOM_LEFT = __mTemp->multiplyByVector(__vREL_BOTTOM_LEFT);
-	__vREL_BOTTOM_RIGHT = __mTemp->multiplyByVector(__vREL_BOTTOM_RIGHT);
+	__mBBox->identity();
+	apply(__currentFrame, __mBBox);
+	__vREL_TOP_LEFT = __mBBox->multiplyByVector(__vREL_TOP_LEFT);
+	__vREL_TOP_RIGHT = __mBBox->multiplyByVector(__vREL_TOP_RIGHT);
+	__vREL_BOTTOM_LEFT = __mBBox->multiplyByVector(__vREL_BOTTOM_LEFT);
+	__vREL_BOTTOM_RIGHT = __mBBox->multiplyByVector(__vREL_BOTTOM_RIGHT);
 	__hasBoundingBox = true;
 }

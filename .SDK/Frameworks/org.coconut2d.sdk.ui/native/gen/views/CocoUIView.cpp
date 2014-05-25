@@ -4,7 +4,14 @@
 
 #include "CocoUIView.hpp"
 #include "CocoClip.hpp"
+#include "ICocoRenderContext.hpp"
 #include "CocoScene.hpp"
+#include "HTMLCanvasElement.hpp"
+#include "CocoMatrix.hpp"
+#include "CocoImage.hpp"
+#include "HTMLDocument.hpp"
+#include "CocoTimeline.hpp"
+#include "Constants.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,8 +23,10 @@ CocoUIView::CocoUIView()
 	__visible = true;
 	__x = 0;
 	__y = 0;
-	__width = 320;
-	__height = 480;
+	__width = 0;
+	__height = 0;
+	__timeline->clear();
+	__timeline->addKeyFrameEx(nullptr, nullptr, 0, COCO_KEYFRAME_INTERPOLATION_ENUM::KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, nullptr, false, false, String(""));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,6 +132,18 @@ void CocoUIView::move(float x, float y, float width, float height)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoUIView::move(float x, float y)
+{
+	move(x, y, __width, __height);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoUIView::size(float width, float height)
+{
+	move(__x, __y, width, height);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoUIView::invalidate()
 {
 	__textureIsInvalid = true;
@@ -135,5 +156,31 @@ void CocoUIView::paint(ICocoRenderContext* ctx, CocoScene* scene, CocoClip* pare
 	{
 		return;
 	}
+	if(__textureIsInvalid)
+	{
+		if(__image)
+			if(__image)
+			{
+				__image = (delete __image, nullptr);
+			}
+		if(__width > 0 && __height > 0)
+		{
+			HTMLCanvasElement* canvas = document->createElement(String("canvas"));
+			canvas->width = pow(2, ceil((float)(log(__width)) / (float)(log(2))));
+			canvas->height = pow(2, ceil((float)(log(__height)) / (float)(log(2))));
+			repaint(scene, parentClip, canvas);
+			__image = new CocoImage();
+			__image->createFromCanvas(scene, canvas, __width, __height);
+			if(canvas)
+			{
+				canvas = (delete canvas, nullptr);
+			}
+		}
+		__textureIsInvalid = false;
+	}
+	CocoMatrix* mv = ctx->getModelViewMatrix();
+	mv->push();
+	mv->translate(__x, __y);
 	CocoClip::paint(ctx, scene, parentClip, calcBoundingBox, level);
+	mv->pop();
 }

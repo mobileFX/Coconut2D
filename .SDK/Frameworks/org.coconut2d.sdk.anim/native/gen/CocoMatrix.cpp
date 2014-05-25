@@ -323,7 +323,7 @@ void CocoMatrix::pop()
 {
 	if(__stack->size())
 	{
-		Float32Array* data = __stack->pop();
+		Float32Array* data = ((Float32Array*)__stack->pop());
 		rc11 = (*data)[0];
 		rc12 = (*data)[1];
 		rc13 = (*data)[2];

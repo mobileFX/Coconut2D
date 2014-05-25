@@ -180,6 +180,11 @@ class CocoUIControl : CocoUIView
 		__chevronImageSel			= null;
 		__chevronLeft				= 0;
 		__chevronTop				= 0;
+
+		// Controls are clickable
+		var handle_events:Boolean = true;
+		__timeline.clear();
+		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, handle_events, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,9 +193,10 @@ class CocoUIControl : CocoUIView
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D)
+	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)
 	{
-		CocoGraphics.drawSkin(ctx, SkinImage, PaddingLeft, PaddingTop, Width-PaddingLeft-PaddingRight, Height-PaddingTop-PaddingBottom, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_NONE);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+		CocoGraphics.drawSkin(ctx, SkinImage, PaddingLeft, PaddingTop, Width-PaddingLeft-PaddingRight, Height-PaddingTop-PaddingBottom);
 	}
 }
 

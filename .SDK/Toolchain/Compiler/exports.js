@@ -1305,6 +1305,8 @@ function CompilerExportsPlugin(compiler)
 			IDECallback("setExterns", "", 0, 0, externs);
 			IDECallback("setDebugSymbols", "", 0, 0, debugSymbols);
 		}
+
+		IDECallback("symbolsDone");
 	};
 
 	/*

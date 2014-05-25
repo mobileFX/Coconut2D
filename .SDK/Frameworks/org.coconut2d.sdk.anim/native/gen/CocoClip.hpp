@@ -14,23 +14,8 @@
 #include "CocoMatrix.hpp"
 #include "CocoTimeline.hpp"
 #include "CocoImage.hpp"
+#include "CocoGraphics.hpp"
 #include "CocoAudio.hpp"
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Event CocoClip::OnTouchCancel
-class CocoClipOnTouchCancelEvent : public CocoEvent
-{
-public:
-
-	float x;
-	float y;
-	CocoClipOnTouchCancelEvent() : CocoEvent("OnTouchCancel", true, true)
-	{
-		x = 0.0;
-		y = 0.0;
-	}
-};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -82,17 +67,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Event CocoClip::OnDblClick
-class CocoClipOnDblClickEvent : public CocoEvent
-{
-public:
-	CocoClipOnDblClickEvent() : CocoEvent("OnDblClick", true, true)
-	{
-	}
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Event CocoClip::OnClick
 class CocoClipOnClickEvent : public CocoEvent
 {
@@ -139,16 +113,17 @@ public:
 	CocoVector* __vREL_TOP_RIGHT;
 	CocoVector* __vREL_BOTTOM_LEFT;
 	CocoVector* __vREL_BOTTOM_RIGHT;
-	CocoVector* __vTemp;
-	CocoMatrix* __mTemp;
+	CocoVector* __vBBoxVrtx;
+	CocoMatrix* __mBBox;
+	float __touch_start_time;
+	CocoPoint* __touch_start_point;
+	bool __touch_moved;
 	CocoSequence* __currentSequence;
 	CocoAudio* __currentAudio;
 	CocoClipOnClickEvent* OnClick; // Event
-	CocoClipOnDblClickEvent* OnDblClick; // Event
 	CocoClipOnTouchStartEvent* OnTouchStart; // Event
 	CocoClipOnTouchMoveEvent* OnTouchMove; // Event
 	CocoClipOnTouchEndEvent* OnTouchEnd; // Event
-	CocoClipOnTouchCancelEvent* OnTouchCancel; // Event
 	const String __className = String("CocoClip");
 	CocoClip(CocoImage* image = nullptr);
 	virtual ~CocoClip();
@@ -169,7 +144,7 @@ public:
 	void combine(CocoKeyFrame* F1, CocoKeyFrame* F2);
 	void apply(CocoKeyFrame* F, CocoMatrix* matrix);
 	bool hitTest(float wx, float wy);
-	void initBoundingBoxFromTexture(CocoScene* scene, CocoMatrix* mv, float W2, float H2);
+	void initBoundingBoxFromTexture(CocoScene* scene, CocoMatrix* mv, float W2, float H2, float __pixelRatioScale);
 	void initBoundingBoxFromChildren(CocoScene* scene, CocoMatrix* mv);
 };
 

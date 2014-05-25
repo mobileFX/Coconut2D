@@ -5,8 +5,10 @@
 #include "CocoGraphics.hpp"
 #include "CocoImage.hpp"
 #include "CanvasRenderingContext2D.hpp"
-#include "Constants.hpp"
 #include "HTMLImageElement.hpp"
+#include "Constants.hpp"
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +31,7 @@ CocoImage* CocoGraphics::createTextTexture(CocoScene* scene, String text, String
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoGraphics::drawSkin(CanvasRenderingContext2D* ctx, CocoImage* skinImage, float x, float y, float width, float height, COCO_CONTROL_ANCHOR_ENUM anchor)
+void CocoGraphics::drawSkin(CanvasRenderingContext2D* ctx, CocoImage* skinImage, float x, float y, float width, float height)
 {
 	if(!skinImage)
 	{
@@ -62,124 +64,6 @@ void CocoGraphics::drawSkin(CanvasRenderingContext2D* ctx, CocoImage* skinImage,
 	float RmH = 0.0;
 	Array<float>* R = (new Array<float> ())->push(0)->push(0)->push(0);
 	Array<float>* C = (new Array<float> ())->push(0)->push(0)->push(0);
-	if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_NONE)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				break;
-			}
-		}
-	}
-	else if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_CENTER)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				x = cx + (float)((cw - width)) / (float)(2);
-				y = cy + (float)((ch - height)) / (float)(2);
-				break;
-			}
-		}
-	}
-	else if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_TOP_LEFT)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				x = cx;
-				y = cy;
-				break;
-			}
-		}
-	}
-	else if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_TOP_MIDDLE)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				x = cx + (float)((cw - width)) / (float)(2);
-				y = cy;
-				break;
-			}
-		}
-	}
-	else if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_TOP_RIGHT)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				x = cx + (cw - width);
-				y = cy;
-				break;
-			}
-		}
-	}
-	else if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_MIDDLE_LEFT)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				x = cx;
-				y = cy + (float)((ch - height)) / (float)(2);
-				break;
-			}
-		}
-	}
-	else if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_MIDDLE_RIGHT)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				x = cx + (cw - width);
-				y = cy + (float)((ch - height)) / (float)(2);
-				break;
-			}
-		}
-	}
-	else if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_BOTTOM_LEFT)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				x = cx;
-				y = cy + (ch - height);
-				break;
-			}
-		}
-	}
-	else if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_BOTTOM_MIDDLE)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				x = cx + (float)((cw - width)) / (float)(2);
-				y = cy + (ch - height);
-				break;
-			}
-		}
-	}
-	else if(anchor == COCO_CONTROL_ANCHOR_ENUM::ANCHOR_BOTTOM_RIGHT)
-	{
-		switch(0)
-		{
-			case 0:
-			{
-				x = cx + (cw - width);
-				y = cy + (ch - height);
-				break;
-			}
-		}
-	}
 	if(CocoGraphics::__fixedH((new Array<COCO_SKIN_TILE_ENUM> ())->push(RW1H1)->push(RW2H1)->push(RW3H1)))
 	{
 		(*R)[0] = H1;
@@ -232,6 +116,8 @@ void CocoGraphics::drawSkin(CanvasRenderingContext2D* ctx, CocoImage* skinImage,
 	{
 		(*C)[2] = ((float)(RmW) / (float)(F));
 	}
+	ctx->save();
+	ctx->setTransform(1, 0, 0, 1, 0, 0);
 	CocoGraphics::__drawSlice(ctx, skinImage, x, y, (*C)[0], (*R)[0], 0, 0, W1, H1, RW1H1);
 	CocoGraphics::__drawSlice(ctx, skinImage, x + (*C)[0], y, (*C)[1], (*R)[0], W1, 0, W2, H1, RW2H1);
 	CocoGraphics::__drawSlice(ctx, skinImage, x + (*C)[0] + (*C)[1], y, (*C)[2], (*R)[0], W1 + W2, 0, W3, H1, RW3H1);
@@ -241,6 +127,7 @@ void CocoGraphics::drawSkin(CanvasRenderingContext2D* ctx, CocoImage* skinImage,
 	CocoGraphics::__drawSlice(ctx, skinImage, x, y + (*R)[0] + (*R)[1], (*C)[0], (*R)[2], 0, H1 + H2, W1, H3, RW1H3);
 	CocoGraphics::__drawSlice(ctx, skinImage, x + (*C)[0], y + (*R)[0] + (*R)[1], (*C)[1], (*R)[2], W1, H1 + H2, W2, H3, RW2H3);
 	CocoGraphics::__drawSlice(ctx, skinImage, x + (*C)[0] + (*C)[1], y + (*R)[0] + (*R)[1], (*C)[2], (*R)[2], W1 + W2, H1 + H2, W3, H3, RW3H3);
+	ctx->restore();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -264,7 +151,8 @@ void CocoGraphics::__drawSlice(CanvasRenderingContext2D* ctx, CocoImage* skin, f
 int CocoGraphics::__countFixed(Array<float>* v)
 {
 	int c = 0;
-	for(int i = 0; i < v->size(); i++)
+	int L = v->size();
+	for(int i = 0; i < L; i++)
 		if((*v)[i])
 		{
 			c++;
@@ -276,7 +164,8 @@ int CocoGraphics::__countFixed(Array<float>* v)
 bool CocoGraphics::__fixedW(Array<COCO_SKIN_TILE_ENUM>* v)
 {
 	bool R = false;
-	for(int i = 0; i < v->size(); i++)
+	int L = v->size();
+	for(int i = 0; i < L; i++)
 	{
 		R |= (((*v)[i] == COCO_SKIN_TILE_ENUM::TILE_REPEAT_NONE) || ((*v)[i] == COCO_SKIN_TILE_ENUM::TILE_REPEAT_Y));
 	}
@@ -287,7 +176,8 @@ bool CocoGraphics::__fixedW(Array<COCO_SKIN_TILE_ENUM>* v)
 bool CocoGraphics::__fixedH(Array<COCO_SKIN_TILE_ENUM>* v)
 {
 	bool R = false;
-	for(int i = 0; i < v->size(); i++)
+	int L = v->size();
+	for(int i = 0; i < L; i++)
 	{
 		R |= (((*v)[i] == COCO_SKIN_TILE_ENUM::TILE_REPEAT_NONE) || ((*v)[i] == COCO_SKIN_TILE_ENUM::TILE_REPEAT_X));
 	}

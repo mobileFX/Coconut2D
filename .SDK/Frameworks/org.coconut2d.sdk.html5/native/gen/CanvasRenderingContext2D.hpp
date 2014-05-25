@@ -31,11 +31,11 @@ class CanvasRenderingContext2D
 {
 public:
 	HTMLCanvasElement* canvas;
-	const float DRAWWINDOW_DRAW_CARET = 1;
-	const float DRAWWINDOW_DO_NOT_FLUSH = 2;
-	const float DRAWWINDOW_DRAW_VIEW = 4;
-	const float DRAWWINDOW_USE_WIDGET_LAYERS = 8;
-	const float DRAWWINDOW_ASYNC_DECODE_IMAGES = 16;
+	const int DRAWWINDOW_DRAW_CARET = 1;
+	const int DRAWWINDOW_DO_NOT_FLUSH = 2;
+	const int DRAWWINDOW_DRAW_VIEW = 4;
+	const int DRAWWINDOW_USE_WIDGET_LAYERS = 8;
+	const int DRAWWINDOW_ASYNC_DECODE_IMAGES = 16;
 	float globalAlpha;
 	String lineCap;
 	float lineDashOffset;

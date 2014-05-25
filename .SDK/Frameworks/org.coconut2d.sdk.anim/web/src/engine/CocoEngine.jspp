@@ -42,7 +42,6 @@ state class CocoEngine
 	// constant we choose is for 60 frames per second but
 	// we must use division in order to set the float properly.
 	public const TICK_TIME:Time = (1000.0/60.0);
-	public var debugbreak:Boolean;
 	private var __currentState:State;
 	private var __nextState:State;
 	private var __tickables:Array<ITickable>;
@@ -52,49 +51,30 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		__ctx = CocoRenderContext.createContext();
-		__currentState = null;
 		__clock = 0;
-		debugbreak=false;
-		__attachDevice();
+		__currentState = null;
+		__tickables = new Array<ITickable>;
+		__ctx = CocoRenderContext.createContext();
+		__attachDevices();
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		__dettachDevices();
 		delete __ctx;
 		delete __clicked;
+		delete __tickables;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function addTickListener(tickable:ITickable)
-	{
-		__tickables.push(tickable);
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function getTickableIndex(tickable:ITickable) :Integer
-	{
-		if(tickable)
-		{
-			for(var i:Integer =__tickables.size()-1; i>=0; i--)
-			{
-				if(__tickables[i]==tickable)
-				{
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function removeTickListener(tickable:ITickable)
-	{
-		var index:Integer = getTickableIndex(tickable);
-		if(index!=-1)
-			__tickables.splice(index,1);
-	}
+	// ==================================================================================================================================
+	//	    ______            _               _____ __        __          __  __                _____
+	//	   / ____/___  ____ _(_)___  ___     / ___// /_____ _/ /____     / / / /___ _____  ____/ / (_)___  ____ _
+	//	  / __/ / __ \/ __ `/ / __ \/ _ \    \__ \/ __/ __ `/ __/ _ \   / /_/ / __ `/ __ \/ __  / / / __ \/ __ `/
+	//	 / /___/ / / / /_/ / / / / /  __/   ___/ / /_/ /_/ / /_/  __/  / __  / /_/ / / / / /_/ / / / / / / /_/ /
+	//	/_____/_/ /_/\__, /_/_/ /_/\___/   /____/\__/\__,_/\__/\___/  /_/ /_/\__,_/_/ /_/\__,_/_/_/_/ /_/\__, /
+	//	            /____/                                                                              /____/
+	// ==================================================================================================================================
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function setNextState(s:State)
@@ -107,6 +87,7 @@ state class CocoEngine
 	{
 		if(!__currentState && !__nextState) return;
 
+		// Change current state
 		if(__nextState!=null)
 		{
 			if(__currentState) __currentState.exit();
@@ -117,18 +98,14 @@ state class CocoEngine
 			if(__currentState) __currentState.enter();
 		}
 
+		// Tick current Engine state
 		if(__currentState)
-		{
-			var i:Integer;
-			for(i=0;i<__clicked.size();i++)
-			{
-				var clip:CocoClip = __clicked[i];
-				//clip.dispatchEvent(clip.OnClick);
-			}
 			__currentState.tick(__clock);
-		}
-		__clicked.clear();
 
+		// Tick ITickable objects
+		__tick(__clock);
+
+		// Paint
 		if(__nextState==null && __currentState!=null)
 		{
 			__ctx.cls();
@@ -136,11 +113,278 @@ state class CocoEngine
 			__ctx.flush();
 		}
 
-		__deviceMessageQueue.clear();
+		// Clear Clicked clips
+		__clicked.clear();
+
+		// Clear Device Messages queue
+		__clearDeviceMessageQueue();
 
 		// To avoid frame skipping we enfore a fixed time interval of 16.66~ ms.
 		__clock += TICK_TIME;
 	}
+
+	// ==================================================================================================================================
+	//	    ____            _              __  ___                                   __  __                _____
+	//	   / __ \___ _   __(_)_______     /  |/  /__  ______________ _____ ____     / / / /___ _____  ____/ / (_)___  ____ _
+	//	  / / / / _ \ | / / / ___/ _ \   / /|_/ / _ \/ ___/ ___/ __ `/ __ `/ _ \   / /_/ / __ `/ __ \/ __  / / / __ \/ __ `/
+	//	 / /_/ /  __/ |/ / / /__/  __/  / /  / /  __(__  |__  ) /_/ / /_/ /  __/  / __  / /_/ / / / / /_/ / / / / / / /_/ /
+	//	/_____/\___/|___/_/\___/\___/  /_/  /_/\___/____/____/\__,_/\__, /\___/  /_/ /_/\__,_/_/ /_/\__,_/_/_/_/ /_/\__, /
+	//	                                                           /____/                                          /____/
+	// ==================================================================================================================================
+
+	// Device Messages Queue: should hold 1 event per category (eg. 1 touch event, 1 http event, etc).
+	private var __deviceMessageQueue:Array<DEVICE_MESSAGE>;
+
+	// Stack of clicked clips.
+	private var __clicked:Array<CocoClip>;
+
+	// Touch handling controlor variables
+	private var __track_touch:Boolean;
+	private var __has_touch_device_message:Boolean;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __attachDevices()
+	{
+		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
+		__clicked = new Array<CocoClip>;
+
+		__track_touch = false;
+		__has_touch_device_message = false;
+
+		if(global.__native)
+		{
+			window.addEventListener("touchstart", __translateDeviceMessage);
+			window.addEventListener("touchmove", __translateDeviceMessage);
+			window.addEventListener("touchend", __translateDeviceMessage);
+		}
+		else
+		{
+			window.addEventListener("mousedown", __translateDeviceMessage);
+			window.addEventListener("mousemove", __translateDeviceMessage);
+			window.addEventListener("mouseup", __translateDeviceMessage);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __dettachDevices()
+	{
+		if(global.__native)
+		{
+			window.removeEventListener("touchstart", __translateDeviceMessage);
+			window.removeEventListener("touchmove", __translateDeviceMessage);
+			window.removeEventListener("touchend", __translateDeviceMessage);
+		}
+		else
+		{
+			window.removeEventListener("mousedown", __translateDeviceMessage);
+			window.removeEventListener("mousemove", __translateDeviceMessage);
+			window.removeEventListener("mouseup", __translateDeviceMessage);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __translateDeviceMessage(e:HTMLEvent)
+	{
+		// Convert an HTMLEvent to a DEVICE_MESSAGE structure. DEVICE_MESSAGE is a unified
+		// structure for handling asynchronous device events from HTMLWindow object.
+		// HTMLWindow is our "device" and in native ports such as iOS, Android, desktop and
+		// other pors, HTMLWindow exposes the device capabilities and receives the device
+		// events that wraps then isnide an HTMLEvent object.
+
+		var MSG:DEVICE_MESSAGE;
+
+		switch(e.type)
+		{
+
+		//=============================================================================
+		// We need to latch the mouse down/move/up
+
+		case "mousedown":
+			if(!__track_touch)
+			{
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
+				MSG.x0 = e.clientX;
+				MSG.y0 = e.clientY;
+				__track_touch = true;
+				__has_touch_device_message = true;
+			}
+			break;
+
+		case "mousemove":
+			if(__track_touch)
+			{
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
+				MSG.x0 = e.clientX;
+				MSG.y0 = e.clientY;
+				__has_touch_device_message = true;
+			}
+			break;
+
+		case "mouseup":
+			if(__track_touch)
+			{
+				__removeTouchMessages();
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
+				MSG.x0 = e.clientX;
+				MSG.y0 = e.clientY;
+				__track_touch = false;
+				__has_touch_device_message = true;
+			}
+			break;
+
+		//=============================================================================
+		// We need to latch the touch down/move/up
+
+		case "touchstart":
+			if(!__track_touch)
+			{
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
+				MSG.x0 = e.touches[0].clientX;
+				MSG.y0 = e.touches[0].clientY;
+				__track_touch = true;
+				__has_touch_device_message = true;
+			}
+			break;
+
+		case "touchmove":
+			if(__track_touch)
+			{
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
+				MSG.x0 = e.touches[0].clientX;
+				MSG.y0 = e.touches[0].clientY;
+				__has_touch_device_message = true;
+			}
+			break;
+
+		case "touchend":
+			if(__track_touch)
+			{
+				__removeTouchMessages();
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
+				MSG.x0 = e.touches[0].clientX;
+				MSG.y0 = e.touches[0].clientY;
+				__track_touch = false;
+				__has_touch_device_message = true;
+			}
+			break;
+		}
+
+		//=============================================================================
+		// Add device message in device messages queue so that ITickable objects
+		// can peek and handle those messages during the next tick cycle.
+
+		if(MSG)
+			__deviceMessageQueue.push(MSG);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __hasTouchDeviceMessage():Boolean
+	{
+		return (__has_touch_device_message && __deviceMessageQueue.size()>0);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __removeTouchMessages()
+	{
+		if(!__has_touch_device_message) return;
+		for(var i:Integer=__deviceMessageQueue.size();i--;)
+			if((__deviceMessageQueue[i].type & DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK)!=0)
+				__deviceMessageQueue.splice(i,1);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __peekDeviceMessage(mask:DEVICE_MESSAGE_ENUM) :DEVICE_MESSAGE
+	{
+		// Purpose of the queue is to collect 1 message per category.
+		// Here we use a mask to filter and return that message.
+		// If more than 1 messages per category are placed in the queue
+		// this will result to unpredictable behaviour because the
+		// queue is cleared on every cycle.
+
+		var L:Integer = __deviceMessageQueue.size();
+		for(var i:Integer=0; i<L; i++)
+			if((__deviceMessageQueue[i].type & mask)!=0)
+				return __deviceMessageQueue[i];
+		return null;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __clearDeviceMessageQueue()
+	{
+		__deviceMessageQueue.clear();
+		__has_touch_device_message = false;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __pushClicked(clip:CocoClip)
+	{
+		__clicked.push(clip);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function isClicked(check:Array<CocoClip>):Integer
+	{
+		for(var i:Integer = __clicked.size(); i--;)
+			for(var r:Integer = check.size(); r--;)
+				if(check[r] == __clicked[i])
+					return r;
+		return -1;
+	}
+
+	// ==================================================================================================================================
+	//	    ___________      __         __    __        __  __                _____
+	//	   /  _/_  __(_)____/ /______ _/ /_  / /__     / / / /___ _____  ____/ / (_)___  ____ _
+	//	   / /  / / / / ___/ //_/ __ `/ __ \/ / _ \   / /_/ / __ `/ __ \/ __  / / / __ \/ __ `/
+	//	 _/ /  / / / / /__/ ,< / /_/ / /_/ / /  __/  / __  / /_/ / / / / /_/ / / / / / / /_/ /
+	//	/___/ /_/ /_/\___/_/|_|\__,_/_.___/_/\___/  /_/ /_/\__,_/_/ /_/\__,_/_/_/_/ /_/\__, /
+	//	                                                                              /____/
+	// ==================================================================================================================================
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function addTickListener(tickable:ITickable)
+	{
+		__tickables.push(tickable);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function removeTickListener(tickable:ITickable)
+	{
+		var index:Integer = getTickableIndex(tickable);
+		if(index!=-1)
+			__tickables.splice(index,1);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getTickableIndex(tickable:ITickable) :Integer
+	{
+		if(tickable)
+			for(var i:Integer=__tickables.size();i--;)
+				if(__tickables[i]==tickable)
+					return i;
+		return -1;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __tick(time:Time)
+	{
+		for(var i:Integer=__tickables.size();i--;)
+			__tickables[i].tick(time);
+	}
+
+	// ==================================================================================================================================
+	//	    ____       __                   ______                _
+	//	   / __ \___  / /_  __  ______ _   /_  __/________ ______(_)___  ____ _
+	//	  / / / / _ \/ __ \/ / / / __ `/    / / / ___/ __ `/ ___/ / __ \/ __ `/
+	//	 / /_/ /  __/ /_/ / /_/ / /_/ /    / / / /  / /_/ / /__/ / / / / /_/ /
+	//	/_____/\___/_.___/\__,_/\__, /    /_/ /_/   \__,_/\___/_/_/ /_/\__, /
+	//	                       /____/                                 /____/
+	// ==================================================================================================================================
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __debug_trace(scene:CocoScene, clip:CocoClip, message: String)
@@ -169,188 +413,4 @@ state class CocoEngine
 		*/
 	}
 
-	// ==================================================================================================================================
-	//	    ____                  __     __  __                _____
-	//	   /  _/___  ____  __  __/ /_   / / / /___ _____  ____/ / (_)___  ____ _
-	//	   / // __ \/ __ \/ / / / __/  / /_/ / __ `/ __ \/ __  / / / __ \/ __ `/
-	//	 _/ // / / / /_/ / /_/ / /_   / __  / /_/ / / / / /_/ / / / / / / /_/ /
-	//	/___/_/ /_/ .___/\__,_/\__/  /_/ /_/\__,_/_/ /_/\__,_/_/_/_/ /_/\__, /
-	//	         /_/                                                   /____/
-	// ==================================================================================================================================
-
-	private var __deviceMessageQueue:Array<DEVICE_MESSAGE>;
-	private var __clicked:Array<CocoClip>;
-	private var __device_message_index:Integer;
-	private var __track_mouse:Boolean;
-
-	private function __attachDevice()
-	{
-		__track_mouse = false;
-		__device_message_index = 0;
-		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
-		__clicked = new Array<CocoClip>;
-
-		if(global.__native)
-		{
-			window.addEventListener("touchstart", __translateDeviceMessage);
-			window.addEventListener("touchmove", __translateDeviceMessage);
-			window.addEventListener("touchend", __translateDeviceMessage);
-		}
-		else
-		{
-			window.addEventListener("mousedown", __translateDeviceMessage);
-			window.addEventListener("mousemove", __translateDeviceMessage);
-			window.addEventListener("mouseup", __translateDeviceMessage);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	private function __translateDeviceMessage(e:HTMLEvent)
-	{
-		// Convert an HTMLEvent to a DEVICE_MESSAGE structure. DEVICE_MESSAGE is a unified
-		// structure for handling asynchronous device events from HTMLWindow object.
-		// HTMLWindow is our "device" and in native ports such as iOS, Android, desktop and
-		// other pors, HTMLWindow exposes the device capabilities and receives the device
-		// events that wraps then isnide an HTMLEvent object.
-
-		var MSG:DEVICE_MESSAGE = null;
-
-		switch(e.type)
-		{
-
-		//=============================================================================
-		// We need to latch the mouse down/move/up in order to synchronize it properly.
-
-		case "mousedown":
-			if(!__track_mouse)
-			{
-				MSG = new DEVICE_MESSAGE();
-				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
-				MSG.x0 = e.clientX;
-				MSG.y0 = e.clientY;
-				__track_mouse = true;
-			}
-			break;
-
-		case "mousemove":
-			if(__track_mouse)
-			{
-				MSG = new DEVICE_MESSAGE();
-				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
-				MSG.x0 = e.clientX;
-				MSG.y0 = e.clientY;
-			}
-			break;
-
-		case "mouseup":
-			if(__track_mouse)
-			{
-				MSG = new DEVICE_MESSAGE();
-				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
-				MSG.x0 = e.clientX;
-				MSG.y0 = e.clientY;
-				__track_mouse=false;
-			}
-			break;
-
-		//=============================================================================
-
-		case "touchstart":
-			if(!__track_mouse)
-			{
-				MSG = new DEVICE_MESSAGE();
-				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
-				MSG.x0 = e.touches[0].clientX;
-				MSG.y0 = e.touches[0].clientY;
-				__track_mouse = true;
-			}
-			break;
-
-		case "touchmove":
-			if(__track_mouse)
-			{
-				MSG = new DEVICE_MESSAGE();
-				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
-				MSG.x0 = e.touches[0].clientX;
-				MSG.y0 = e.touches[0].clientY;
-			}
-			break;
-
-		case "touchend":
-			if(__track_mouse)
-			{
-				MSG = new DEVICE_MESSAGE();
-				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
-				MSG.x0 = e.touches[0].clientX;
-				MSG.y0 = e.touches[0].clientY;
-				__track_mouse = false;
-			}
-			break;
-		}
-
-		if(MSG)
-		{
-			// Add device message in the message queue.
-			// ITickable objects will peek and handle
-			// messages during the next tick cycle.
-
-			__deviceMessageQueue.push(MSG);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function __peekDeviceMessage(mask:DEVICE_MESSAGE_ENUM, first:Boolean) :DEVICE_MESSAGE
-	{
-		if(first)
-			__device_message_index = 0;
-		else
-			__device_message_index++;
-
-		var L:Integer =__deviceMessageQueue.size();
-		if(__device_message_index<L)
-		{
-			var msg:DEVICE_MESSAGE;
-			for(var i:Integer=__device_message_index; i<L; i++)
-			{
-				msg = __deviceMessageQueue[i];
-				if((msg.type & mask)!=0)
-				{
-					__device_message_index = i;
-					msg.peeked = true;
-					return msg;
-				}
-			}
-		}
-		return null;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function __clearDeviceMessageQueue()
-	{
-		var msg:DEVICE_MESSAGE;
-		var L:Integer = __deviceMessageQueue.size();
-		for(var i:Integer=L; i<L; i++)
-		{
-			msg = __deviceMessageQueue[i];
-			if(msg.peeked)
-				__deviceMessageQueue.splice(i,1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function __pushTouched(clip:CocoClip)
-	{
-		trace("click: " + clip.__instanceName);
-		__clicked.push(clip);
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function isClicked(check:Array<CocoClip>):Integer
-	{
-		for(var i:Integer = __clicked.size()-1; i>=0; i--)
-			for(var r:Integer = check.size()-1; r>=0; r--)
-				if(check[r] == __clicked[i])
-					return r;
-		return -1;
-	}
 }

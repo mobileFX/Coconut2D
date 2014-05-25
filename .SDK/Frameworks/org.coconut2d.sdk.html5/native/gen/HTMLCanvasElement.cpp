@@ -15,6 +15,8 @@ HTMLCanvasElement::HTMLCanvasElement()
 	width = 0.0;
 	height = 0.0;
 	__imageData = nullptr;
+	gl = nullptr;
+	c2d = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +26,14 @@ HTMLCanvasElement::~HTMLCanvasElement()
 	{
 		__imageData = (delete __imageData, nullptr);
 	}
+	if(c2d)
+	{
+		c2d = (delete c2d, nullptr);
+	}
+	if(gl)
+	{
+		gl = (delete gl, nullptr);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,11 +41,19 @@ void* HTMLCanvasElement::getContext(String contextId)
 {
 	if(contextId == String("2d"))
 	{
-		return ((void*)new CanvasRenderingContext2D(this));
+		if(!c2d)
+		{
+			c2d = new CanvasRenderingContext2D(this);
+		}
+		return ((void*)c2d);
 	}
 	else
 	{
-		return ((void*)new WebGLRenderingContext(this));
+		if(!gl)
+		{
+			gl = new WebGLRenderingContext(this);
+		}
+		return ((void*)gl);
 	}
 }
 

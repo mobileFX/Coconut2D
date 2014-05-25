@@ -9,7 +9,7 @@
 #include "CocoClip.hpp"
 #include "ICocoRenderContext.hpp"
 #include "CocoScene.hpp"
-#include "CanvasRenderingContext2D.hpp"
+#include "HTMLCanvasElement.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,9 +41,11 @@ public:
 	bool __get_Visible();
 	void __set_Visible(bool v);
 	virtual void move(float x, float y, float width, float height);
+	virtual void move(float x, float y);
+	virtual void size(float width, float height);
 	virtual void invalidate();
 	virtual void paint(ICocoRenderContext* ctx, CocoScene* scene, CocoClip* parentClip, bool calcBoundingBox, int level);
-	virtual void repaint(CocoScene* scene, CocoClip* parentClip, CanvasRenderingContext2D* ctx) = 0;
+	virtual void repaint(CocoScene* scene, CocoClip* parentClip, HTMLCanvasElement* canvas) = 0;
 };
 
 #endif // __COCOUIVIEW_HPP__

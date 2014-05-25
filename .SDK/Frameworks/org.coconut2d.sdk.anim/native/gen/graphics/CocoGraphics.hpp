@@ -13,14 +13,34 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class CocoRect
+struct CocoPoint
 {
-public:
+	float x;
+	float y;
+	CocoPoint() {};
+	CocoPoint(CocoPoint* T)
+	{
+		x = T->x;
+		y = T->y;
+	};
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct CocoRect
+{
 	float left;
 	float top;
 	float right;
 	float bottom;
-	const String __className = String("CocoRect");
+	CocoRect() {};
+	CocoRect(CocoRect* T)
+	{
+		left = T->left;
+		top = T->top;
+		right = T->right;
+		bottom = T->bottom;
+	};
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +52,7 @@ public:
 	CocoGraphics();
 	virtual ~CocoGraphics();
 	static CocoImage* createTextTexture(CocoScene* scene, String text, String fontName, int fontSizePixels, COCO_TEXT_ALIGN_ENUM hAlign, COCO_TEXT_ALIGN_ENUM vAlign, bool multiline, COCO_TEXT_TRIMMING_ENUM trimming, String CSSColor, int textRectWidth, int textRectHeight);
-	static void drawSkin(CanvasRenderingContext2D* ctx, CocoImage* skinImage, float x, float y, float width, float height, COCO_CONTROL_ANCHOR_ENUM anchor);
+	static void drawSkin(CanvasRenderingContext2D* ctx, CocoImage* skinImage, float x, float y, float width, float height);
 	static void __drawSlice(CanvasRenderingContext2D* ctx, CocoImage* skin, float cx, float cy, float cw, float ch, float sx, float sy, float sw, float sh, COCO_SKIN_TILE_ENUM r);
 	static int __countFixed(Array<float>* v);
 	static bool __fixedW(Array<COCO_SKIN_TILE_ENUM>* v);

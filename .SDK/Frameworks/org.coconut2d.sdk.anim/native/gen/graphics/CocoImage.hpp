@@ -9,6 +9,7 @@
 #include "HTMLImageElement.hpp"
 #include "CocoScene.hpp"
 #include "ICocoImageRenderData.hpp"
+#include "HTMLCanvasElement.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +51,6 @@ public:
 	Float32Array* color;
 	Float32Array* texSize;
 	bool isSpriteSheet;
-	float __pixelRatioScale;
 	Array<CocoSequence*>* sequences;
 	Float32Array* skin;
 	ICocoImageRenderData* renderData;
@@ -62,6 +62,7 @@ public:
 	const String __className = String("CocoImage");
 	CocoImage();
 	virtual ~CocoImage();
+	void createFromCanvas(CocoScene* scene, HTMLCanvasElement* canvas, float width, float height);
 	CocoImageSibling* addSibling(CocoImageSibling* sibling);
 	CocoSequence* addSequence(CocoSequence* sequence);
 	CocoSequence* getSequence(String name);

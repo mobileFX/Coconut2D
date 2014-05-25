@@ -18,7 +18,6 @@ class CocoEngine
 {
 public:
 	const float TICK_TIME = ((float)(1000.0) / (float)(60.0));
-	bool debugbreak;
 	State* __currentState;
 	State* __nextState;
 	Array<ITickable*>* __tickables;
@@ -26,23 +25,27 @@ public:
 	ICocoRenderContext* __ctx;
 	Array<DEVICE_MESSAGE*>* __deviceMessageQueue;
 	Array<CocoClip*>* __clicked;
-	int __device_message_index;
-	bool __track_mouse;
+	bool __track_touch;
+	bool __has_touch_device_message;
 	const String __className = String("CocoEngine");
 	CocoEngine();
 	virtual ~CocoEngine();
-	void addTickListener(ITickable* tickable);
-	int getTickableIndex(ITickable* tickable);
-	void removeTickListener(ITickable* tickable);
 	void setNextState(State* s);
 	void run(float time);
-	void __debug_trace(CocoScene* scene, CocoClip* clip, String message);
-	void __attachDevice();
+	void __attachDevices();
+	void __dettachDevices();
 	void __translateDeviceMessage(HTMLEvent* e);
-	DEVICE_MESSAGE* __peekDeviceMessage(DEVICE_MESSAGE_ENUM mask, bool first);
+	bool __hasTouchDeviceMessage();
+	void __removeTouchMessages();
+	DEVICE_MESSAGE* __peekDeviceMessage(DEVICE_MESSAGE_ENUM mask);
 	void __clearDeviceMessageQueue();
-	void __pushTouched(CocoClip* clip);
+	void __pushClicked(CocoClip* clip);
 	int isClicked(Array<CocoClip*>* check);
+	void addTickListener(ITickable* tickable);
+	void removeTickListener(ITickable* tickable);
+	int getTickableIndex(ITickable* tickable);
+	void __tick(float time);
+	void __debug_trace(CocoScene* scene, CocoClip* clip, String message);
 };
 
 #endif // __COCOENGINE_HPP__

@@ -273,8 +273,9 @@ function CompilerTypeSystemPlugin(compiler)
 	_this.getTypeName = function(ast)
 	{
 		if(!_this.secondPass || !_this.currClassName || !ast) return;
-		var type = ast.vartype || _this.getTypeNameResolver(ast);
-		//if(ast.vartype && ast.vartype!=type) debugger;
+		if(ast.vartype && ast.vartype!="Untyped")
+			return ast.vartype;
+		var type = _this.getTypeNameResolver(ast);
 		ast.vartype = type;
 		return type;
 	};
@@ -372,7 +373,8 @@ function CompilerTypeSystemPlugin(compiler)
 					_this.NewError("Illegal operation INCREMENT on: "+type, ast);
 				else if (ast.type == jsdef.DECREMENT)
 					_this.NewError("Illegal operation DECREMENT on: "+type, ast);
-				else _this.typeCheck(ast, type, "Number");
+				else
+					_this.typeCheck(ast, type, "Number");
 			}
 			return type;
 
@@ -515,7 +517,7 @@ function CompilerTypeSystemPlugin(compiler)
 				}
 
 				type2 = _this.getTypeName(arg_ast);
-				_this.typeCheck(arg_ast, type1, type2, "Argument type mismatch: "+type1+" and "+type2);
+				_this.typeCheck(arg_ast, type1, type2, "Argument type mismatch: "+type1+" and "+type2 + " at " + arg_ast.source);
 			}
 			else if(!arg.optional)
 			{
@@ -628,6 +630,12 @@ function CompilerTypeSystemPlugin(compiler)
 
   		// Object
 		if(type1=="Object") return type1;
+
+		if(type1!="Object" && type2=="Object")
+		{
+			_this.NewError("Please type-cast to " + type1 + ": " + ast.source, ast);
+			return type1;
+		}
 
 		// Number
 		if(type1=="Number" && type2=="Integer") return type1;

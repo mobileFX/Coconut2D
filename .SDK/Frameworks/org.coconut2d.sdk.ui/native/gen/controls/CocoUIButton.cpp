@@ -10,8 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoUIButton::CocoUIButton(String Name) : CocoUIControl(Name)
 {
-	__width = 320;
-	__height = 48;
 	__caption = String("Caption");
 	__captionAlign = COCO_CONTROL_ANCHOR_ENUM::ANCHOR_CENTER;
 }
@@ -53,7 +51,7 @@ void CocoUIButton::__set_CaptionAlign(COCO_CONTROL_ANCHOR_ENUM v)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoUIButton::repaint(CocoScene* scene, CocoClip* parentClip, CanvasRenderingContext2D* ctx)
+void CocoUIButton::repaint(CocoScene* scene, CocoClip* parentClip, HTMLCanvasElement* canvas)
 {
-	CocoUIControl::repaint(scene, parentClip, ctx);
+	CocoUIControl::repaint(scene, parentClip, canvas);
 }

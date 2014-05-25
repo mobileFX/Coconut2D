@@ -44,8 +44,6 @@ control class CocoUIButton : CocoUIControl
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(Name:String) :CocoUIControl(Name)
 	{
-		__width = 320;
-		__height = 48;
 		__caption = "Caption";
 		__captionAlign = COCO_CONTROL_ANCHOR_ENUM.ANCHOR_CENTER;
 	}
@@ -75,10 +73,8 @@ control class CocoUIButton : CocoUIControl
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, ctx:CanvasRenderingContext2D)
+	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)
 	{
 		super.repaint;
-
-		// Draw caption text
 	}
 }

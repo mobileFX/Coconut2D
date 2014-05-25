@@ -1,0 +1,173 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                 __  ___________                 _____    ___
+//	  / ____/___  _________  / / / /  _/ ___/______________  / / / |  / (_)__ _      __
+//	 / /   / __ \/ ___/ __ \/ / / // / \__ \/ ___/ ___/ __ \/ / /| | / / / _ \ | /| / /
+//	/ /___/ /_/ / /__/ /_/ / /_/ // / ___/ / /__/ /  / /_/ / / / | |/ / /  __/ |/ |/ /
+//	\____/\____/\___/\____/\____/___//____/\___/_/   \____/_/_/  |___/_/\___/|__/|__/
+//
+// ==================================================================================================================================
+
+"#include CocoUIView.jspp";
+
+class CocoUIScrollView : CocoUIView implements IEventListener
+{
+	private var scrollLastTime:Time;
+	private var scrollLastPointY:Float;
+	private var scrollSpeedY:Float;
+	private var minY:Float;
+	private var maxY:Float;
+	private var bounceY:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Constructor(name:String)
+ 	{
+		__instanceName = name;
+		__width = Float(window.innerWidth);
+		__height = Float(window.innerHeight);
+
+		this.addEventListener(this.OnTouchStart, HandleStart);
+ 		this.addEventListener(this.OnTouchMove, HandleMove);
+ 		this.addEventListener(this.OnTouchEnd, HandleEnd);
+
+		var KF:CocoKeyFrame;
+		KF = __timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, minY, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Destructor()
+ 	{
+ 		this.removeEventListener(this.OnTouchStart, HandleStart);
+ 		this.removeEventListener(this.OnTouchMove, HandleMove);
+ 		this.removeEventListener(this.OnTouchEnd, HandleEnd);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)
+	{
+		scrollSpeedY = 0.0;
+		minY = 250.0 - window.innerHeight / 2.0 + scene.getImageSymbol("SkinSymbol_iPhone_ActionSheet").textureCellHeight / 2.0;
+		maxY = -5 * 250.0 + window.innerHeight / 2.0 - scene.getImageSymbol("SkinSymbol_iPhone_ActionSheet").textureCellHeight / 2.0;
+		bounceY = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function getKeyFrame() :CocoKeyFrame
+	{
+		return __timeline.keyFrame(0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+ 	{
+ 		var KF:CocoKeyFrame = getKeyFrame();
+
+ 		scrollSpeedY *= 0.95;
+ 		KF.y += scrollSpeedY;
+ 		if(bounceY)
+ 		{
+	 		var springY:Float = minY - KF.y;
+	 		if(springY < 0.0)
+	 		{
+	 			scrollSpeedY = 0.0;
+				KF.y += -springY / -Math.sqrt(-springY);
+				if(KF.y < minY)
+				{
+					KF.y = minY;
+					bounceY = false;
+					scrollSpeedY = 0.0;
+				}
+	 		}
+	 		else
+	 		{
+		 		var springY:Float = maxY - KF.y;
+		 		if(springY > 0.0)
+		 		{
+		 			scrollSpeedY = 0.0;
+		 			KF.y += springY / Math.sqrt(springY);
+		 			if(KF.y > maxY)
+		 			{
+		 				KF.y = maxY;
+		 				bounceY = false;
+		 				scrollSpeedY = 0.0;
+		 			}
+		 		}
+	 		}
+ 		}
+
+ 		super.paint;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function HandleStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	{
+		scrollLastTime = engine.__clock;
+		scrollLastPointY = y;
+		scrollSpeedY = 0.0;
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function HandleMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	{
+		var KF:CocoKeyFrame = getKeyFrame();
+		var dY:Float = y - scrollLastPointY;
+		var sY:Float = 1.0;
+ 		var springY:Float = minY - KF.y;
+
+ 		if(springY < 0.0)
+ 		{
+			sY = engine.__ctx.getHeight() / 2.0 / (engine.__ctx.getHeight() / 2.0 - springY);
+ 		}
+ 		else
+ 		{
+	 		var springY:Float = maxY - KF.y;
+	 		if(springY > 0.0)
+	 		{
+	 			sY = engine.__ctx.getHeight() / 2.0 / (engine.__ctx.getHeight() / 2.0 + springY);
+	 		}
+ 		}
+
+		KF.y += dY * sY;
+		scrollLastTime = engine.__clock;
+		scrollLastPointY = y;
+
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function HandleEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	{
+		var dY:Float = y - scrollLastPointY;
+		scrollSpeedY = dY;
+		bounceY = true;
+		return false;
+	}
+
+}

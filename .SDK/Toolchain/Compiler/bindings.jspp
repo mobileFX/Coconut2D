@@ -32,6 +32,11 @@ Object.defineProperty(Array.prototype, "clear", { value: function()
 	while(this.length) { this.pop(); }
 }});
 
+Object.defineProperty(Array.prototype, "clone", { value: function()
+{
+	return [].concat(this);
+}});
+
 Object.defineProperty(String.prototype, "size", { value: function()
 {
 	return this.length;

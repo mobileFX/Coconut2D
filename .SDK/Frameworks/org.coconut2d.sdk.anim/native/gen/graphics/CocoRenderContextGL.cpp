@@ -224,13 +224,10 @@ WebGLProgram* CocoRenderContextGL::makeProgram(WebGLRenderingContext* gl, String
 ICocoImageRenderData* CocoRenderContextGL::prepareImage(CocoImage* img)
 {
 	CocoImageRenderDataGL* data = new CocoImageRenderDataGL();
+	img->texSize = new Float32Array((new Array<float> ())->push((float)(img->textureCellWidth) / (float)(img->image->naturalWidth))->push((float)(img->textureCellHeight) / (float)(img->image->naturalHeight)));
 	data->texture = gl->createTexture();
 	gl->bindTexture(gl->TEXTURE_2D, data->texture);
 	gl->texImage2D(gl->TEXTURE_2D, 0, gl->RGBA, gl->RGBA, gl->UNSIGNED_BYTE, img->image);
-	if(!img->skin)
-	{
-		img->unload();
-	}
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_WRAP_S, gl->CLAMP_TO_EDGE);
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_WRAP_T, gl->CLAMP_TO_EDGE);
 	gl->texParameteri(gl->TEXTURE_2D, gl->TEXTURE_MAG_FILTER, gl->LINEAR);
@@ -268,6 +265,10 @@ void CocoRenderContextGL::update(CocoMatrix* m, WebGLUniformLocation* ul)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoRenderContextGL::drawFrame(CocoScene* scene, CocoImage* image, int frame, CocoKeyFrame* KF)
 {
+	if(!image->renderData)
+	{
+		return;
+	}
 	if(setFilter(KF->filter) || __modelViewMatrix->__dirty)
 	{
 		update(__modelViewMatrix, __glProgram->GLSLuMVMat);

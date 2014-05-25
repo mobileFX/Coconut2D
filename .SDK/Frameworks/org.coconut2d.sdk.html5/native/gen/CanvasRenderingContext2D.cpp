@@ -28,6 +28,7 @@ PathLine::PathLine(float _x0, float _y0, float _x1, float _y1)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CanvasRenderingContext2D::CanvasRenderingContext2D(HTMLCanvasElement* canvas)
 {
+	__font = nullptr;
 	__curX = 0.0;
 	__curY = 0.0;
 	__fillColor = new Array<float> ();
@@ -43,6 +44,7 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(HTMLCanvasElement* canvas)
 	__pathLines = new Array<PathLine*> ();
 	this->canvas = canvas;
 	this->canvas->__imageData = new ImageData((String(toString(canvas->width))), (String(toString(canvas->height))));
+	setTransform(1, 0, 0, 1, 0, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -803,11 +805,11 @@ void CanvasRenderingContext2D::putImageData(ImageData* imagedata, float dx, floa
 	}
 	if(dirtyX + dirtyWidth > imagedata->width)
 	{
-		dirtyWidth = imagedata->width - dirtyX;
+		dirtyWidth = ((float)imagedata->width) - dirtyX;
 	}
 	if(dirtyY + dirtyHeight > imagedata->height)
 	{
-		dirtyHeight = imagedata->height - dirtyY;
+		dirtyHeight = ((float)imagedata->height) - dirtyY;
 	}
 	if(dirtyWidth > 0.0 && dirtyHeight > 0.0)
 	{

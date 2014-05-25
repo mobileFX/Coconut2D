@@ -15,9 +15,7 @@
 state class GameEngine : CocoEngine //implements IEventListener
 {
 	public var scene:CocoScene;
-	public var form1:UIFormClass;
-	//public var btn1:CocoUIButton;
-	//public var btn2:CocoUIButton;
+	public var form1:CocoUIFormView;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -40,14 +38,24 @@ state class GameEngine : CocoEngine //implements IEventListener
 			//req.send();
 			//trace(req.getAllResponseHeaders());
 			//trace("Content-Type: " + req.getResponseHeader("Content-Type"));
-			trace(String(window.innerWidth) + " x " + String(window.innerHeight));
+			//trace(String(window.innerWidth) + " x " + String(window.innerHeight));
 			//var t1:TestIntegratorClient = new TestIntegratorClient();
 			//var t2:UIFormClass = new UIFormClass();
 			//delete t2;
 			//var t3:TestThis = new TestThis();
 
 			scene = new NewAnimation(this);
-			form1 = new UIFormClass("form1", scene);
+
+			form1 = new CocoUIFormView("form1");
+			scene.__root.addChild(form1);
+	 		var btn:CocoUIButton;
+	 		for(var i:Integer=0;i<10;i++)
+	 		{
+	 			btn = new CocoUIButton("button" + String(i));
+	 			btn.SkinImage = scene.getImageSymbol("SkinSymbol_iPhone_CommandButton_Black");
+	 			form1.addInlineControl(btn);
+	 		}
+
 		}
 
 		function exit()

@@ -30,8 +30,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	int width = 800;
-	int height = 600;
+	int width = 320;
+	int height = 480;
 
 	curl_global_init(CURL_GLOBAL_ALL);
 	CocoAssetFile::init("./assets/", (std::string(getenv("USERPROFILE")) + "/Coconut2D/").c_str());
