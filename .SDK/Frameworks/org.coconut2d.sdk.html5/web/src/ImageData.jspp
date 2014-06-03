@@ -35,8 +35,8 @@ class ImageData
 {
 	public var data:Uint8Array;
 	public var src:String;
-	public var width:Integer;
-	public var height:Integer;
+	public var width:Float;
+	public var height:Float;
 
 	public function Constructor(a0:String, optional a1:String)
 	{
@@ -58,8 +58,8 @@ class ImageData
 		}
 		else if(!isNaN(a0) && !isNaN(a1))
 		{
-			width = parseInt(a0);
-			height = parseInt(a1);
+			width = parseFloat(a0);
+			height = parseFloat(a1);
 			data = new Uint8Array(width * height * 4);
 		}
 	}

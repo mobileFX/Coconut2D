@@ -41,7 +41,7 @@
 #define APPNAME "Coconut2D"
 #define GLOBAL_FPS 30.0f
 #define COCO_STOP_ON_CURRENT_FRAME -1
-#define RADIANS (M_PI / 180.0f)
+//#define RADIANS (M_PI / 180.0f)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Common Includes
@@ -442,10 +442,17 @@ class CocoTimeline;
 class CocoUIButton;
 class CocoUICheckBox;
 class CocoUIComboBox;
+class CocoUIComboBoxPopup;
+class CocoUIComboBoxSlot;
 class CocoUIControl;
+class CocoUIControlOnChevronClickEvent;
+class CocoUIControlOnGlyphClickEvent;
 class CocoUIFormView;
 class CocoUILabel;
+class CocoUILookupEdit;
+class CocoUINavBar;
 class CocoUIScrollView;
+class CocoUITabBar;
 class CocoUITextBox;
 class CocoUIView;
 class CocoVector;

@@ -1,0 +1,448 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                 __  ____________            __             __
+//	  / ____/___  _________  / / / /  _/ ____/___  ____  / /__________  / /
+//	 / /   / __ \/ ___/ __ \/ / / // // /   / __ \/ __ \/ __/ ___/ __ \/ /
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // /___/ /_/ / / / / /_/ /  / /_/ / /
+//	\____/\____/\___/\____/\____/___/\____/\____/_/ /_/\__/_/   \____/_/
+//
+// ==================================================================================================================================
+
+"#include CocoUIView.jspp";
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoUIControl : CocoUIView
+{
+	// We add Layers to compose the control in its different states
+	// CocoUIControl layers have two keframes: 0 Normal, 1:Selected
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Events
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public event OnGlyphClick();
+	public event OnChevronClick();
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Selection (pressed)
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __selectable:Boolean;
+	protected var __selected:Boolean;
+	protected var __selectionWaitTickCycles:Integer;
+
+	published property Selectable { function get():Boolean { return __selectable; } }
+
+	public property Selected
+	{
+		function get():Boolean { return __selectable && __selected; }
+		function set(v:Boolean) { __selected = (__selectable ? v : false); __selectionWaitTickCycles=0; }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Margins
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __marginLeft:Float;
+	protected var __marginRight:Float;
+	protected var __marginTop:Float;
+	protected var __marginBottom:Float;
+
+	published property MarginLeft		{ function get():Float { return __marginLeft; 		} function set(v:Float) 	{ __marginLeft=v; invalidate(); 	} }
+	published property MarginRight		{ function get():Float { return __marginRight;		} function set(v:Float) 	{ __marginRight=v; invalidate(); 	} }
+	published property MarginTop		{ function get():Float { return __marginTop;		} function set(v:Float)		{ __marginTop=v; invalidate(); 		} }
+	published property MarginBottom 	{ function get():Float { return __marginBottom; 	} function set(v:Float)		{ __marginBottom=v; invalidate(); 	} }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Paddings
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __paddingLeft:Float;
+	protected var __paddingRight:Float;
+	protected var __paddingTop:Float;
+	protected var __paddingBottom:Float;
+
+	published property PaddingLeft		{ function get():Float { return __paddingLeft; 		} function set(v:Float) 	{ __paddingLeft=v; invalidate(); 	} }
+	published property PaddingRight		{ function get():Float { return __paddingRight;		} function set(v:Float) 	{ __paddingRight=v; invalidate(); 	} }
+	published property PaddingTop		{ function get():Float { return __paddingTop;		} function set(v:Float)		{ __paddingTop=v; invalidate(); 	} }
+	published property PaddingBottom 	{ function get():Float { return __paddingBottom; 	} function set(v:Float)		{ __paddingBottom=v; invalidate(); 	} }
+
+	public property PaddingWidth 		{ function get():Float { return Width-PaddingLeft-PaddingRight; } }
+	public property PaddingHeight 		{ function get():Float { return Height-PaddingTop-PaddingBottom; } }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Borders
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __borderStyle:COCO_CONTROL_BORDER_STYLE_ENUM;
+	protected var __borderRadius:Float;
+	protected var __borderColor:Color;
+	protected var __borderColorSel:Color;
+
+	published property BorderStyle		{ function get():COCO_CONTROL_BORDER_STYLE_ENUM { return __borderStyle; }	function set(v:COCO_CONTROL_BORDER_STYLE_ENUM) { __borderStyle = v; invalidate(); }	}
+
+	published property BorderRadius		{ function get():Float { return __borderRadius; 	}	function set(v:Float)	{ __borderRadius = v; invalidate(); }}
+	published property BorderColor		{ function get():Color { return __borderColor; 		}	function set(v:Color)	{ __borderColor = v; invalidate(); } }
+	published property BorderColorSel	{ function get():Color { return __borderColorSel; 	}	function set(v:Color)	{ __borderColorSel = v; invalidate(); } }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Background Gradient
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __backgroundGradient:Gradient;
+	protected var __backgroundGradientSel:Gradient;
+
+	published property BackgroundGradient		{ function get():Gradient { return __backgroundGradient;	} 	function set(v:Gradient) 	{ __backgroundGradient = v; invalidate(); 	}}
+	published property BackgroundGradientSel	{ function get():Gradient { return __backgroundGradientSel; }	function set(v:Gradient) 	{ __backgroundGradientSel = v; invalidate(); }}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Skin Image
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __skinImage:String;
+	protected var __skinImageSel:String;
+
+	published property SkinImage
+	{
+		function get():String 	{ return (__selected && __skinImageSel ? __skinImageSel : __skinImage); }
+		function set(v:String) 	{ __skinImage = v; invalidate(); }
+	}
+
+	published property SkinImageSel
+	{
+		function get():String { return (__skinImageSel ? __skinImageSel: __skinImage); }
+		function set(v:String) 	{ __skinImageSel = v; invalidate();	}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Glyph
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __glyphImage:String;
+	protected var __glyphImageSel:String;
+	protected var __glyphLeft:Float;
+	protected var __glyphTop:Float;
+
+	published property GlyphImage		{ function get():String 	{ return __glyphImage;	 	}	function set(v:String) 	{ __glyphImage = v; invalidate(); 		}}
+	published property GlyphImageSel	{ function get():String 	{ return __glyphImageSel; 	}	function set(v:String) 	{ __glyphImageSel = v; invalidate();	}}
+	published property GlyphLeft		{ function get():Float 		{ return __glyphLeft; 		}	function set(v:Float) 	{ __glyphLeft = v; invalidate();		}}
+	published property GlyphTop			{ function get():Float 		{ return __glyphTop; 		}	function set(v:Float) 	{ __glyphTop = v; invalidate();			}}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Chevron
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __chevronImage:String;
+	protected var __chevronImageSel:String;
+	protected var __chevronLeft:Float;
+	protected var __chevronTop:Float;
+
+	published property ChevronImage		{ function get():String 	{ return __chevronImage;	}	function set(v:String) 	{ __chevronImage = v; invalidate(); 	}}
+	published property ChevronImageSel	{ function get():String 	{ return __chevronImageSel;	}	function set(v:String) 	{ __chevronImageSel = v; invalidate();	}}
+	published property ChevronLeft		{ function get():Float 		{ return __chevronLeft; 	}	function set(v:Float) 	{ __chevronLeft = v; invalidate();		}}
+	published property ChevronTop		{ function get():Float 		{ return __chevronTop; 		}	function set(v:Float) 	{ __chevronTop = v; invalidate();		}}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Texts
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __texts:Array<CocoUITextBlock>;
+	protected var __textsSelected:Array<CocoUITextBlock>;
+
+	// ==================================================================================================================================
+	//	    ____       ____            ____     _____ _       _
+	//	   / __ \___  / __/___ ___  __/ / /_   / ___/(_)___  (_)___  ____ _
+	//	  / / / / _ \/ /_/ __ `/ / / / / __/   \__ \/ /_  / / / __ \/ __ `/
+	//	 / /_/ /  __/ __/ /_/ / /_/ / / /_    ___/ / / / /_/ / / / / /_/ /
+	//	/_____/\___/_/  \__,_/\__,_/_/\__/   /____/_/ /___/_/_/ /_/\__, /
+	//	                                                          /____/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function RefreshLayout()
+	{
+		Height = CalcHeight();
+		invalidate();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function CalcHeight() :Float
+	{
+		var h:Float = 0;
+
+		if(__skinImage) 		h = Math.max(h, __scene.getImageSymbol(__skinImage).textureCellHeight);
+		if(__skinImageSel) 		h = Math.max(h, __scene.getImageSymbol(__skinImageSel).textureCellHeight);
+		if(__glyphImage)		h = Math.max(h, __scene.getImageSymbol(__glyphImage).textureCellHeight);
+		if(__glyphImageSel)		h = Math.max(h, __scene.getImageSymbol(__glyphImageSel).textureCellHeight);
+		if(__chevronImage)		h = Math.max(h, __scene.getImageSymbol(__chevronImage).textureCellHeight);
+		if(__chevronImageSel)	h = Math.max(h, __scene.getImageSymbol(__chevronImageSel).textureCellHeight);
+
+		for(var i:Integer=__texts.size()-1; i>=0; i--)
+		{
+			if(__texts[i].multiline)
+			{
+				__texts[i].toImage(false); // Force text to wrap and calc height
+				h = Math.max(h, __texts[i].Height + PaddingTop + PaddingBottom);
+			}
+			else
+			{
+				h = Math.max(h, __texts[i].fontSize + PaddingTop + PaddingBottom);
+			}
+		}
+
+		return h;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function SetMargins(left:Float, right:Float, top:Float, bottom:Float)
+	{
+		MarginLeft = left;
+		MarginRight = right;
+		MarginTop = top;
+		MarginBottom = bottom;
+		invalidate();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function SetPaddings(left:Float, right:Float, top:Float, bottom:Float)
+	{
+		PaddingLeft = left;
+		PaddingRight = right;
+		PaddingTop = top;
+		PaddingBottom = bottom;
+		invalidate();
+	}
+
+	// ==================================================================================================================================
+	//	   ______                 __                  __
+	//	  / ____/___  ____  _____/ /________  _______/ /_____  _____
+	//	 / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
+	//	/ /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
+	//	\____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
+	//
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(name:String)
+	{
+		__instanceName 				= name;
+
+		__selectable				= true;
+		__selected					= false;
+		__selectionWaitTickCycles	= 0;
+
+		__marginLeft 				= 0;
+		__marginRight 				= 0;
+		__marginTop 				= 4;
+		__marginBottom 				= 4;
+
+		__paddingLeft 				= 0;
+		__paddingRight 				= 0;
+		__paddingTop 				= 0;
+		__paddingBottom 			= 0;
+
+		__borderStyle				= COCO_CONTROL_BORDER_STYLE_ENUM.BORDER_NONE;
+		__borderRadius				= 0;
+		__borderColor				= 0x00000000;
+		__borderColorSel			= 0x00000000;
+
+		__backgroundGradient		= Gradient("");
+		__backgroundGradientSel 	= Gradient("");
+
+		__skinImage					= "";
+		__skinImageSel				= "";
+
+		__glyphImage				= "";
+		__glyphImageSel				= "";
+		__glyphLeft					= 0;
+		__glyphTop					= 0;
+
+		__chevronImage				= "";
+		__chevronImageSel			= "";
+		__chevronLeft				= 0;
+		__chevronTop				= 0;
+
+		__texts = new Array<CocoUITextBlock>;
+		__textsSelected = new Array<CocoUITextBlock>;
+
+		// Controls by default are clickable, so keyframe has handleEvnets = ture
+		__timeline.clear();
+		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+
+		// Hook on touch events
+		this.addEventListener(this.OnTouchStart, HandleTouchStart);
+ 		this.addEventListener(this.OnTouchEnd, HandleTouchEnd);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+ 		this.removeEventListener(this.OnTouchStart, HandleTouchStart);
+ 		this.removeEventListener(this.OnTouchEnd, HandleTouchEnd);
+
+		delete __texts;
+		delete __textsSelected;
+	}
+
+	// ==================================================================================================================================
+	//	   _____      __          __  _                __  __                _____
+	//	  / ___/___  / /__  _____/ /_(_)___  ____     / / / /___ _____  ____/ / (_)___  ____ _
+	//	  \__ \/ _ \/ / _ \/ ___/ __/ / __ \/ __ \   / /_/ / __ `/ __ \/ __  / / / __ \/ __ `/
+	//	 ___/ /  __/ /  __/ /__/ /_/ / /_/ / / / /  / __  / /_/ / / / / /_/ / / / / / / /_/ /
+	//	/____/\___/_/\___/\___/\__/_/\____/_/ /_/  /_/ /_/\__,_/_/ /_/\__,_/_/_/_/ /_/\__, /
+	//	                                                                             /____/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function HandleTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	{
+		if(__selectable)
+			__selectionWaitTickCycles = 5;
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function HandleTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	{
+		Selected = false;
+		return false;
+	}
+
+	// ==================================================================================================================================
+	//	    ____        _       __        __   ______                                 _ __  _
+	//	   / __ \____ _(_)___  / /_     _/_/  / ____/___  ____ ___  ____  ____  _____(_) /_(_)___  ____
+	//	  / /_/ / __ `/ / __ \/ __/   _/_/   / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/ / __/ / __ \/ __ \
+	//	 / ____/ /_/ / / / / / /_   _/_/    / /___/ /_/ / / / / / / /_/ / /_/ (__  ) / /_/ / /_/ / / / /
+	//	/_/    \__,_/_/_/ /_/\__/  /_/      \____/\____/_/ /_/ /_/ .___/\____/____/_/\__/_/\____/_/ /_/
+	//	                                                        /_/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		if(!__visible || !parentClip || !scene)
+			return;
+
+		__scene = scene;
+
+		// It control is invlid, recompose it.
+		if(__invalidated)
+		{
+			ComposeControl();
+			__invalidated = false;
+		}
+
+		// Set normal/selected control state
+		if(__selectable && __selectionWaitTickCycles)
+		{
+			__selectionWaitTickCycles--;
+			if(__selectionWaitTickCycles==0)
+				__selected = true;
+		}
+		gotoFrameByIndex( __selected ? 1 : 0, true);
+
+		super.paint;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function ComposeControl()
+	{
+		if(__width==0 || __height==0 || !__invalidated)
+			return;
+
+		// Clear children clips
+		clear();
+
+		// Add Skin Layer
+		if(__skinImage)
+			NewLayerFromImage(0, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(__skinImage), Width, Height), 0, 0);
+
+		// Add Glyph Layer
+		if(__glyphImage)
+			NewLayerFromImage(0, __scene.getImageSymbol(__glyphImage), __glyphLeft, __glyphTop);
+
+		// Add chevron Layer
+		if(__chevronImage)
+			NewLayerFromImage(0, __scene.getImageSymbol(__chevronImage), __chevronLeft, __chevronTop);
+
+		// Add text Layers
+		for(var i:Integer = __texts.size()-1; i>=0; i--)
+		{
+			__texts[i].ctl = this;
+			var img:CocoImage = __texts[i].toImage(false);
+			NewLayerFromImage(0, img, __texts[i].Left, __texts[i].Top);
+		}
+
+		// SELECTED STATE //
+		if(__selectable)
+		{
+			// Add Skin Layer
+			if(SkinImageSel)
+				NewLayerFromImage(1, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(SkinImageSel), Width, Height), 0, 0);
+
+			// Add Glyph Layer
+			if(GlyphImageSel)
+				NewLayerFromImage(1, __scene.getImageSymbol(GlyphImageSel), __glyphLeft, __glyphTop);
+
+			// Add chevron Layer
+			if(__chevronImage)
+				NewLayerFromImage(1, __scene.getImageSymbol(ChevronImageSel), __chevronLeft, __chevronTop);
+
+			// Add text Layers
+			for(var i:Integer = __texts.size()-1; i>=0; i--)
+			{
+				__texts[i].ctl = this;
+				NewLayerFromImage(1, __texts[i].toImage(true), __texts[i].Left, __texts[i].Top);
+			}
+		}
+	}
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float) :CocoClip
+	{
+		// Composition Layers (skin, texts, glyph, chevron, etc.) are placed
+		// with origin the top-left corner of the control. When we finally
+		// compose the control by adding child-clips for those layers we need
+		// to translate the top-left coordinates to parent coordinates fast.
+		//
+		// So,
+		//
+		// 1. Parent's origin is at center
+		// 2. Child's origin is also at center
+		// 3. (x,y) origin is the top-left corner of the parent.
+		//
+		// Therefore we need to transform as follows:
+		//
+		// 1. We move origin to top-left by subtracting 1/2 of width and height
+		// 2. We add (x,y)
+		// 3. We move origin to clild's center by adding 1/2 of child's width and height
+
+ 		x = -Width/2 + x + image.textureCellWidth/2;
+ 		y = -Height/2 + y + image.textureCellHeight/2;
+
+		var clip:CocoClip = new CocoClip(image);
+		clip.__instanceName = __instanceName + "Layer" + String(__children.size());
+		clip = addChild(clip);
+		clip.__timeline.clear();
+		clip.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		return clip;
+	}
+}

@@ -213,7 +213,7 @@ function CompilerCppPlugin(compiler)
 			}
 
 			// Create events dispatch static function with dispatch switch.
-			if(ast.symbol.interfaces.indexOf("IEventListener")!=-1)
+			if(_this.implementsInterface(ast.symbol, "IEventListener"))
 			{
 				//var local_handler = "__dispatch_event__(IEventListener* __event_listener, int __event_handler_uid, CocoEventSource* __event_source, CocoEvent* __event_object)";
 				var local_handler = "__dispatch_event__(void* __event_listener, int __event_handler_uid, void* __event_source, void* __event_object)";
@@ -242,7 +242,8 @@ function CompilerCppPlugin(compiler)
 						disps[ebd.uid] = true;
 
 						// Create event handler UID constant
-						HPP.push("static const int " + ebd.uid + " = " + ebd.id +";");
+						//HPP.push("static const int " + ebd.uid + " = " + ebd.id +";");
+						_this.native_files['Constants.jspp'].hpp['body'].push("#define " + ebd.uid + " " + ebd.id);
 
 						// Create the dispatch case
 						CPP.push("case " + ebd.uid+ ":\n{\n");
@@ -450,8 +451,11 @@ function CompilerCppPlugin(compiler)
 			{
 				for(i=0;i<ast.length;i++)
 				{
-					val = vartype(ast[i]) + ast[i].name + initializer(ast[i]) + ";";
-					CPP.push(val);
+					//val = "const " + vartype(ast[i]) + ast[i].name + initializer(ast[i]) + ";";
+					val = "#define " + ast[i].name + " " + initializer(ast[i]).replace("=", "");
+					//HPP.push(val);
+					_this.native_files['Constants.jspp'].hpp['body'].push(val);
+					//_this.native_files
 				}
 			}
 

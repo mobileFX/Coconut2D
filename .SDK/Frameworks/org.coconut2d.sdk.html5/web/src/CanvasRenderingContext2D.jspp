@@ -482,7 +482,7 @@ class CanvasRenderingContext2D
 					return;
 			}
            	__fontSetting = v;
-           	__font = new CocoFont(fontSizeInPixels, fontFamily, fontWeight == "bold", fontStyle == "italic" || fontStyle == "oblique");
+           	__font = new CocoFont(fontFamily, fontSizeInPixels, fontWeight == "bold", fontStyle == "italic" || fontStyle == "oblique");
 		}
 	}
 
@@ -509,7 +509,7 @@ class CanvasRenderingContext2D
 					data[idx + 0] += 255.0 * __fillColor[0] * __fillColor[3] - Float(data[idx + 0]) * __fillColor[3];
 					data[idx + 1] += 255.0 * __fillColor[1] * __fillColor[3] - Float(data[idx + 1]) * __fillColor[3];
 					data[idx + 2] += 255.0 * __fillColor[2] * __fillColor[3] - Float(data[idx + 2]) * __fillColor[3];
-					data[idx + 3] += 255.0 * __fillColor[3] * __fillColor[3] - Float(data[idx + 3]) * __fillColor[3];
+					data[idx + 3] += 255.0 * __fillColor[3] - Float(data[idx + 3]) * __fillColor[3];
 				}
 			}
 		}
@@ -542,6 +542,7 @@ class CanvasRenderingContext2D
 	{
 		var scaleW:Float = dw / sw;
 		var scaleH:Float = dh / sh;
+
 		var src:Uint8Array = image.__imageData.data;
 		var data:Uint8Array = canvas.__imageData.data;
 
@@ -549,18 +550,20 @@ class CanvasRenderingContext2D
 		var dMinY:Integer = Math.round(dy);
 		var dMaxX:Integer = Math.round(dx + dw);
 		var dMaxY:Integer = Math.round(dy + dh);
+
 		for(var x:Integer = dMinX; x < dMaxX; x++)
 		{
 			for(var y:Integer = dMinY; y < dMaxY; y++)
 			{
 				var dIdx:Integer = ((__m12 * x + __m22 * y + __dy) * canvas.__imageData.width + (__m11 * x + __m21 * y + __dx)) * 4;
 				var sIdx:Integer = ((sy + Math.round(Float(y - dMinY) / scaleH)) * image.__imageData.width + sx + Math.round(Float(x - dMinX) / scaleW)) * 4; // Nearest interpolation
+
 				if(dIdx < canvas.__imageData.data.length && sIdx < image.__imageData.data.length)
 				{
-					for(var i:Integer = 4; i--;)
-					{
-						data[dIdx + i] += (src[sIdx + i] - data[dIdx + i]) / 255.0 * src[sIdx + 3];
-					}
+					data[dIdx + 0] = src[sIdx + 3] * src[sIdx + 0] / 255.0 + data[dIdx + 3] * data[dIdx + 0] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
+					data[dIdx + 1] = src[sIdx + 3] * src[sIdx + 1] / 255.0 + data[dIdx + 3] * data[dIdx + 1] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
+					data[dIdx + 2] = src[sIdx + 3] * src[sIdx + 2] / 255.0 + data[dIdx + 3] * data[dIdx + 2] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
+					data[dIdx + 3] = src[sIdx + 3] + data[dIdx + 3] * (1.0 - src[sIdx + 3] / 255.0);
 				}
 			}
 		}
@@ -569,13 +572,13 @@ class CanvasRenderingContext2D
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawImage(image:Image, dx:Float, dy:Float)
 	{
-		drawImage(image, 0.0, 0.0, Float(image.naturalWidth), Float(image.naturalHeight), dx, dy, Float(image.naturalWidth), Float(image.naturalHeight));
+		drawImage(image, 0.0, 0.0, image.naturalWidth, image.naturalHeight, dx, dy, image.naturalWidth, image.naturalHeight);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawImage(image:Image, dx:Float, dy:Float, dw:Float, dh:Float)
 	{
-		drawImage(image, 0.0, 0.0, Float(image.naturalWidth), Float(image.naturalHeight), dx, dy, dw, dh);
+		drawImage(image, 0.0, 0.0, image.naturalWidth, image.naturalHeight, dx, dy, dw, dh);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -606,10 +609,10 @@ class CanvasRenderingContext2D
 				var dIdx:Integer = ((y - minY) * ret.width + x - minX) * 4;
 				if(sIdx < canvas.__imageData.data.length)
 				{
-					for(var i:Integer = 4; i--;)
-					{
-						ret.data[dIdx + i] = canvas.__imageData.data[sIdx + i];
-					}
+					ret.data[dIdx + 0] = canvas.__imageData.data[sIdx + 0];
+					ret.data[dIdx + 1] = canvas.__imageData.data[sIdx + 1];
+					ret.data[dIdx + 2] = canvas.__imageData.data[sIdx + 2];
+					ret.data[dIdx + 3] = canvas.__imageData.data[sIdx + 3];
 				}
 			}
 		}

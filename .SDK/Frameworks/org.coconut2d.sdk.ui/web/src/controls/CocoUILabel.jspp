@@ -26,21 +26,75 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	   __  ________          __         ___    ___
-//	  / / / /  _/ /   ____ _/ /_  ___  / / |  / (_)__ _      __
-//	 / / / // // /   / __ `/ __ \/ _ \/ /| | / / / _ \ | /| / /
-//	/ /_/ // // /___/ /_/ / /_/ /  __/ / | |/ / /  __/ |/ |/ /
-//	\____/___/_____/\__,_/_.___/\___/_/  |___/_/\___/|__/|__/
+//	   ______                 __  ________          __         __
+//	  / ____/___  _________  / / / /  _/ /   ____ _/ /_  ___  / /
+//	 / /   / __ \/ ___/ __ \/ / / // // /   / __ `/ __ \/ _ \/ /
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // /___/ /_/ / /_/ /  __/ /
+//	\____/\____/\___/\____/\____/___/_____/\__,_/_.___/\___/_/
 //
 // ==================================================================================================================================
 
 "#include CocoUIControl.jspp";
 
-class CocoUILabel : CocoUIControl
+control class CocoUILabel : CocoUIControl
 {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(Name:String) :CocoUIControl(Name)
+	// Caption
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public var __caption:CocoUITextBlock;
+
+	published property Caption						{ function get():String  { return __caption.text; 						} 	function set(v:String) 		{ __caption.text = v; invalidate(); 					}}
+	published property CaptionAlign					{ function get():COCO_CONTROL_ANCHOR_ENUM { return __caption.anchor; 	}	function set(v:COCO_CONTROL_ANCHOR_ENUM) { __caption.anchor = v; invalidate(); 		}}
+	published property CaptionMultiline				{ function get():Boolean { return __caption.multiline; 					}	function set(v:Boolean) 	{ __caption.multiline = v; invalidate(); 				}}
+	published property CaptionFontName				{ function get():String  { return __caption.fontName; 					} 	function set(v:String) 		{ __caption.fontName = v; invalidate(); 				}}
+	published property CaptionFontSize				{ function get():Float	 { return __caption.fontSize; 					} 	function set(v:Float)	 	{ __caption.fontSize = v; invalidate(); 				}}
+	published property CaptionFontBold				{ function get():Boolean { return __caption.fontBold; 					} 	function set(v:Boolean) 	{ __caption.fontBold = v; invalidate(); 				}}
+	published property CaptionFontItalic			{ function get():Boolean { return __caption.fontItalic; 				} 	function set(v:Boolean) 	{ __caption.fontItalic = v; invalidate(); 				}}
+	published property CaptionFontUnderline			{ function get():Boolean { return __caption.fontUnderline; 				} 	function set(v:Boolean) 	{ __caption.fontUnderline = v; invalidate(); 			}}
+	published property CaptionFontShadowX			{ function get():Integer { return __caption.fontShadowX;				} 	function set(v:Integer) 	{ __caption.fontShadowX = v; invalidate(); 				}}
+	published property CaptionFontShadowY			{ function get():Integer { return __caption.fontShadowY;				} 	function set(v:Integer) 	{ __caption.fontShadowY = v; invalidate(); 				}}
+	published property CaptionFontBlur				{ function get():Integer { return __caption.fontBlur;					} 	function set(v:Integer) 	{ __caption.fontBlur = v; invalidate(); 				}}
+	published property CaptionFontColorSel			{ function get():Color   { return __caption.fontColorSel; 				} 	function set(v:Color) 		{ __caption.fontColorSel = v; invalidate(); 			}}
+	published property CaptionFontShadowColorSel 	{ function get():Color	 { return __caption.fontShadowColorSel;			} 	function set(v:Color) 		{ __caption.fontShadowColorSel = v; invalidate(); 		}}
+	published property CaptionFontColor				{ function get():Color   { return __caption.fontColor;					} 	function set(v:Color) 		{ __caption.fontColor = v; invalidate(); 				}}
+	published property CaptionFontShadowColor 		{ function get():Color	 { return __caption.fontColorSel				}	function set(v:Color) 		{ __caption.fontShadowColor = v; invalidate(); 			}}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(name:String) : CocoUIControl(name)
 	{
+		// Labels are not handling events
+		__timeline.clear();
+		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+
+		// Labels are not selectable
+		__selectable = false;
+
+		// Initial Label size
+		Width = window.innerWidth;
+		Height = Float(COCO_DEFAULT_FONT_SIZE) + PaddingTop + PaddingBottom;
+		SetMargins(0,0,4,4);
+		SetPaddings(5,5,0,0);
+
+		// Set default text block
+		__caption = new CocoUITextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
+		__caption.fontColor = 0xff000000;
+		__caption.fontBold = false;
+		__caption.multiline = false;
+		__caption.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
+		__texts.push(__caption);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function RefreshLayout()
+	{
+		super.RefreshLayout;
+		__caption.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete __caption;
 	}
 }
-

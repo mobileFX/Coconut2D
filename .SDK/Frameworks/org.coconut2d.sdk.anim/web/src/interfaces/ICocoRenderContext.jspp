@@ -34,6 +34,12 @@
 //
 // ==================================================================================================================================
 
+enum COCO_PROJECTION_MODE
+{
+	RENDER_CLIPS = 1,
+	RNDER_USER_INTERFACE =2
+};
+
 interface ICocoRenderContext
 {
 	public function getModelViewMatrix():CocoMatrix;
@@ -46,4 +52,5 @@ interface ICocoRenderContext
 	public function prepare(scene:CocoScene);
 	public function prepareImage(img:CocoImage):ICocoImageRenderData;
 	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame);
+	public function drawBoundingBox(clip:CocoClip);
 }

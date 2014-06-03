@@ -1,0 +1,148 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                 __  ____________          __  ____  __           __
+//	  / ____/___  _________  / / / /  _/_  __/__  _  __/ /_/ __ )/ /___  _____/ /__
+//	 / /   / __ \/ ___/ __ \/ / / // /  / / / _ \| |/_/ __/ __  / / __ \/ ___/ //_/
+//	/ /___/ /_/ / /__/ /_/ / /_/ // /  / / /  __/>  </ /_/ /_/ / / /_/ / /__/ ,<
+//	\____/\____/\___/\____/\____/___/ /_/  \___/_/|_|\__/_____/_/\____/\___/_/|_|
+//
+// ==================================================================================================================================
+
+class CocoUITextBlock
+{
+	public var text:String;
+	public var multiline:Boolean;
+	public var ctl:CocoUIControl;
+
+	// Rectanble to anchor text
+	public var Left:Float;
+	public var Top:Float;
+	public var Width:Float;
+	public var Height:Float;
+	public var anchor:COCO_CONTROL_ANCHOR_ENUM;
+
+	// Font Style
+	public var fontColor:Color;
+	public var fontColorSel:Color;
+	public var fontName:String;
+	public var fontSize:Float;
+	public var fontBold:Boolean;
+	public var fontItalic:Boolean;
+	public var fontUnderline:Boolean;
+	public var fontShadowX:Integer;
+	public var fontShadowY:Integer;
+	public var fontBlur:Integer;
+	public var fontShadowColor:Color;
+	public var fontShadowColorSel:Color;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(Text:String, align:COCO_CONTROL_ANCHOR_ENUM)
+	{
+		ctl					= null;
+		text				= Text;
+		anchor				= align;
+		multiline			= false;
+
+		fontColor			= 0xff000000;
+		fontColorSel		= 0xffffffff;
+
+		fontName			= "Helvetica";
+		fontSize			= COCO_DEFAULT_FONT_SIZE;
+		fontBold			= false;
+		fontItalic			= false;
+		fontUnderline		= false;
+
+		fontShadowX			= 0;
+		fontShadowY			= 0;
+		fontBlur			= 0;
+		fontShadowColor		= 0xff000000;
+		fontShadowColorSel	= 0xff000000;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function SetTextRect(left:Float, top:Float, width:Float, height:Float)
+	{
+		Left = left;
+		Top = top;
+		Width = width;
+		Height = height;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toImage(selected:Boolean):CocoImage
+	{
+		var align:CocoHVAlign;
+		if(multiline)
+		{
+			align = new CocoHVAlign();
+			align.vert = 0.0;
+			align.horiz = 0.0;
+		}
+		else
+		{
+			align = CocoGraphics.AnchorToCocoHVAlign(anchor);
+		}
+
+		var color:String = CocoGraphics.ColorToHtmlRGBA(selected ? fontColorSel : fontColor);
+    	var fontStyle:String = (fontItalic ? "italic" : "normal") + " normal " + (fontBold ? "bold " : "normal ") + String(fontSize) + "px " + fontName;
+
+    	var f:CocoText = new CocoText();
+    	f.str = text;
+    	f.indices.push(0);
+    	f.mappings.push(0);
+
+    	if(multiline)
+    	{
+    		f.wrapSimple(Integer(Width), fontStyle);
+    		if(Height!=f.totalHeight)
+    		{
+	    		Height = f.totalHeight;
+	    		if(ctl)
+	    		{
+	    			ctl.Form.invalidate();
+	    		}
+    		}
+    	}
+
+    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(Width,Height);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+    	f.drawSimple(ctx, fontStyle, fontUnderline, color, 0, 0, Width, Height, align.horiz, align.vert);
+		var image:CocoImage = CocoGraphics.CocoImageFromHTMLCanvas(canvas,Width,Height);
+		delete f;
+		delete canvas;
+
+		return image;
+	}
+}
+

@@ -1,0 +1,103 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                 __  ________                __               ______    ___ __
+//	  / ____/___  _________  / / / /  _/ /   ____  ____  / /____  ______  / ____/___/ (_) /_
+//	 / /   / __ \/ ___/ __ \/ / / // // /   / __ \/ __ \/ //_/ / / / __ \/ __/ / __  / / __/
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // /___/ /_/ / /_/ / ,< / /_/ / /_/ / /___/ /_/ / / /_
+//	\____/\____/\___/\____/\____/___/_____/\____/\____/_/|_|\__,_/ .___/_____/\__,_/_/\__/
+//	                                                            /_/
+// ==================================================================================================================================
+
+"#include CocoUIControl.jspp";
+
+control class CocoUILookupEdit : CocoUIControl
+{
+	private var __label:CocoUILabel;
+	private var __text:CocoUITextEdit;
+	private var __btn:CocoUIButton;
+
+	private const __labelHeight:Float = 31;
+	private const __buttonWidth:Float = 31;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(name:String) :CocoUIControl(name)
+	{
+ 		Height = __labelHeight + __buttonWidth;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function RefreshLayout()
+	{
+		// Clear children clips
+		clear();
+
+		__label = new CocoUILabel(Name+"Label");
+		__label.SetMargins(0,0,0,0);
+		addChild(__label);
+
+		__text = new CocoUITextEdit(Name+"Text");
+		__text.SetMargins(0,0,0,0);
+		__text.SkinImage ="SkinSymbol_iPhone_EditBox";
+		addChild(__text);
+
+		__btn = new CocoUIButton(Name+"Button");
+		__btn.SetMargins(0,0,0,0);
+		__btn.SkinImage = "SkinSymbol_iPhone_NavBar_DefaultButton";
+		__btn.SkinImageSel = "SkinSymbol_iPhone_NavBar_DoneButton";
+		__btn.CaptionFontColor = 0xFFFFFFFF;
+		__btn.CaptionFontColorSel = 0xFFFFFFFF;
+		__btn.Caption = "...";
+		addChild(__btn);
+
+		super.RefreshLayout;
+
+		__label.move(4, 0, Width-4, __labelHeight);
+		__text.move(4, __labelHeight, Width-__buttonWidth-16, __buttonWidth);
+		__btn.move(Width-__buttonWidth-4, __labelHeight, __buttonWidth, __buttonWidth);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete __label;
+		delete __text;
+		delete __btn;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Label { function get():CocoUILabel { return __label; } }
+	public property Text { function get():CocoUITextEdit { return __text; } }
+	public property Button { function get():CocoUIButton { return __btn; } }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		super.paint;
+	}
+}

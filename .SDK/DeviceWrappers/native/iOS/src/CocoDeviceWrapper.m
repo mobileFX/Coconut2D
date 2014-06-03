@@ -54,7 +54,7 @@
     [self.glwrap InitGL];
 
     // Simulate HTML5 Window and Document
-	window = new HTMLWindow();
+	global = window = new HTMLWindow();
 	window->setScreen([self.glwrap GetScreen]);
 	document = new HTMLDocument();
 

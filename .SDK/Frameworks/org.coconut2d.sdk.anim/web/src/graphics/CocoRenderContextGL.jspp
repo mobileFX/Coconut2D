@@ -173,6 +173,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.disable(gl.CULL_FACE);
 
+		// Prepare orthographic projection matrix
 		if(window.deviceRotation)
 		{
 			var c:Float = Math.cos(window.deviceRotation);
@@ -186,9 +187,9 @@ class CocoRenderContextGL implements ICocoRenderContext
 		{
 			__projectionMatrix.ortho( -(Float(gl.canvas.width) / 2.0), Float(gl.canvas.width) / 2.0, Float(gl.canvas.height) / 2.0,  -(Float(gl.canvas.height) / 2.0), -1.0, 1.0);
 		}
-
 		__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
 
+		// Bounding box shader
 		__boundingBoxProgram = makeProgram(gl, __boundingBoxVertexShader, __boundingBoxFragmentShader);
 		gl.useProgram(__boundingBoxProgram);
 		__boundingBoxProgram.GLSLiVec2Coords	= gl.getAttribLocation(__boundingBoxProgram, "iVec2Coords");
@@ -197,6 +198,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		gl.bindBuffer(gl.ARRAY_BUFFER, __boundingBoxBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);
 
+		// Normal shader
 		__glProgram_Simple = makeProgram(gl, __vertex_shader_Common, __fragment_shader_Simple);
 		gl.useProgram(__glProgram_Simple);
 		__glProgram_Simple.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_Simple, "iVecCoords");
@@ -213,6 +215,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		update(__modelViewMatrix, __glProgram_Simple.GLSLuMVMat);
 		update(__projectionMatrix, __glProgram_Simple.GLSLuProjMat);
 
+		// Shader for handling alpha
 		__glProgram_SimpleWithAlpha = makeProgram(gl, __vertex_shader_Common, __fragment_shader_SimpleWithAlpha);
 		gl.useProgram(__glProgram_SimpleWithAlpha);
 		__glProgram_SimpleWithAlpha.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_SimpleWithAlpha, "iVecCoords");
@@ -230,6 +233,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		update(__modelViewMatrix, __glProgram_SimpleWithAlpha.GLSLuMVMat);
 		update(__projectionMatrix, __glProgram_SimpleWithAlpha.GLSLuProjMat)
 
+		// Shader for handling saturation with alpha
 		__glProgram_SaturationWithAlpha = makeProgram(gl, __vertex_shader_Common, __fragment_shader_SaturationWithAlpha);
 		gl.useProgram(__glProgram_SaturationWithAlpha);
 		__glProgram_SaturationWithAlpha.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_SaturationWithAlpha, "iVecCoords");
@@ -388,30 +392,27 @@ class CocoRenderContextGL implements ICocoRenderContext
     }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/*
-	public function drawBoundingBox(scene:CocoScene, ctx:CocoRenderContext)
+	public function drawBoundingBox(clip:CocoClip)
 	{
-		if(!__hasBoundingBox) return;
+		if(!clip.__hasBoundingBox) return;
 
-		gl.disableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
-		gl.disableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
+		gl.disableVertexAttribArray(__glProgram.GLSLiTexCoords);
+		gl.disableVertexAttribArray(__glProgram.GLSLiVecCoords);
 
-		gl.useProgram(scene.__boundingBoxProgram);
-		gl.enableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
+		gl.useProgram(__boundingBoxProgram);
+		gl.enableVertexAttribArray(__boundingBoxProgram.GLSLiVec2Coords);
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, scene.__boundingBoxBuffer);
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([__vABS_TOP_LEFT.X, __vABS_TOP_LEFT.Y, __vABS_TOP_RIGHT.X, __vABS_TOP_RIGHT.Y, __vABS_BOTTOM_RIGHT.X, __vABS_BOTTOM_RIGHT.Y, __vABS_BOTTOM_LEFT.X, __vABS_BOTTOM_LEFT.Y]));
-		gl.vertexAttribPointer(scene.__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);
-		scene.__projectionMatrix.update(gl, scene.__boundingBoxProgram.GLSLuProjMat);
+		gl.bindBuffer(gl.ARRAY_BUFFER, __boundingBoxBuffer);
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([clip.__vABS_TOP_LEFT.X, clip.__vABS_TOP_LEFT.Y, clip.__vABS_TOP_RIGHT.X, clip.__vABS_TOP_RIGHT.Y, clip.__vABS_BOTTOM_RIGHT.X, clip.__vABS_BOTTOM_RIGHT.Y, clip.__vABS_BOTTOM_LEFT.X, clip.__vABS_BOTTOM_LEFT.Y]));
+		gl.vertexAttribPointer(__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);
+		update(__projectionMatrix, __boundingBoxProgram.GLSLuProjMat);
 		gl.drawArrays(gl.LINE_LOOP, 0, 4);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-		gl.disableVertexAttribArray(scene.__boundingBoxProgram.GLSLiVec2Coords);
-		gl.useProgram(scene.__glProgram);
+		gl.disableVertexAttribArray(__boundingBoxProgram.GLSLiVec2Coords);
+		gl.useProgram(__glProgram);
 
-		gl.enableVertexAttribArray(scene.__glProgram.GLSLiTexCoords);
-		gl.enableVertexAttribArray(scene.__glProgram.GLSLiVecCoords);
+		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
+		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
 	}
-	*/
-
 }

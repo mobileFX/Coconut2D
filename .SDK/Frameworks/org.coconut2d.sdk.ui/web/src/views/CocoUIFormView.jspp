@@ -26,82 +26,96 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	   __  __________                 _    ___
-//	  / / / /  _/ __ \____ _____ ____| |  / (_)__ _      __
-//	 / / / // // /_/ / __ `/ __ `/ _ \ | / / / _ \ | /| / /
-//	/ /_/ // // ____/ /_/ / /_/ /  __/ |/ / /  __/ |/ |/ /
-//	\____/___/_/    \__,_/\__, /\___/|___/_/\___/|__/|__/
-//	                     /____/
+//	   ______                 __  ____________                   _    ___
+//	  / ____/___  _________  / / / /  _/ ____/___  _________ ___| |  / (_)__ _      __
+//	 / /   / __ \/ ___/ __ \/ / / // // /_  / __ \/ ___/ __ `__ \ | / / / _ \ | /| / /
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // __/ / /_/ / /  / / / / / / |/ / /  __/ |/ |/ /
+//	\____/\____/\___/\____/\____/___/_/    \____/_/  /_/ /_/ /_/|___/_/\___/|__/|__/
+//
 // ==================================================================================================================================
 
 "#include CocoUIView.jspp";
 
-class CocoUIFormView :CocoUIView
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoUIFormView : CocoUIScrollView
 {
-	private var __inlineControls:Array<CocoUIControl>;
-	private var __floatingControls:Array<CocoUIControl>;
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(Name:String)
+	public function Constructor(name:String, scene:CocoScene) : CocoUIScrollView(name, scene)
 	{
-		__instanceName = Name;
-		__textureIsInvalid = false;
-		__inlineControls = new Array<CocoUIControl>;
-		__floatingControls = new Array<CocoUIControl>;
-		__width = Float(window.innerWidth);
-		__height = Float(window.innerHeight);
+		__instanceName = name;
+ 		__scene = scene;
+ 		__invalidated = true;
+ 		__scene.__root.addChild(this);
+		__container = true;
+		__width = window.innerWidth;
+		__height = window.innerHeight;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete __inlineControls;
-		delete __floatingControls;
+		if(__scene && __scene.__root)
+			__scene.__root.removeChild(this);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function invalidate()
+	public function addInlineControl(ctl:CocoUIControl) :CocoUIControl
 	{
-		__textureIsInvalid = false;
+		ctl.__scene = __scene;
+		ctl.__form = this;
+		ctl.Width = Width - ctl.MarginLeft - ctl.MarginRight;
+		ctl.RefreshLayout();
+		__scrollContainer.addChild(ctl);
+		inlineHeight();
+		invalidate();
+		return ctl;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function addInlineControl(ctl:CocoUIControl) :CocoClip
+	public function addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl
 	{
-		if(ctl.Height==0)
-			ctl.Height = (ctl.SkinImage ? ctl.SkinImage.textureCellHeight : 64);
 
-		if(ctl.Width==0)
-			ctl.Width = this.Width - ctl.MarginLeft - ctl.MarginRight;
-
-		ctl.move(ctl.MarginLeft , inlineHeight() + ctl.MarginTop, ctl.Width, ctl.Height);
-		__inlineControls.push(ctl);
-		return super.addChild(ctl);
+		ctl.__scene = __scene;
+		ctl.__form = this;
+		ctl.RefreshLayout();
+		addChild(ctl);
+		return ctl;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function inlineHeight() :Float
+	public virtual function LayoutRecalc()
 	{
 		var h:Float = 0;
 		var ctl:CocoUIControl;
-		for(var i:Integer=__inlineControls.size();i--;)
+
+		for(var i:Integer=0;i<__scrollContainer.__children.size();i++)
 		{
-			ctl = __inlineControls[i];
-			h+= ctl.MarginTop + ctl.Height + ctl.MarginBottom;
+			ctl = CocoUIControl(__scrollContainer.__children[i]);
+
+			// Set control width
+			ctl.Width = Width - ctl.MarginLeft - ctl.MarginRight;
+			ctl.RefreshLayout();
+
+			// Translate control's position from top-left origin to parent's center.
+			ctl.__timeline.translateTo( -Width/2 + ctl.MarginLeft + ctl.Width/2, -Height/2 + (h+ctl.MarginTop) + ctl.Height/2);
+			h += ctl.MarginTop + ctl.Height + ctl.MarginBottom;
 		}
-		return h;
+
+		inlineHeight();
+
+		__timeline.translateTo(__x, __y);
+		__invalidated = false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function addFloatingControl(ctl:CocoUIControl) :CocoClip
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
-		__floatingControls.push(ctl);
-		return super.addChild(ctl);
-	}
+		if(!__visible || !parentClip || !scene)
+			return;
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)
-	{
+		if(__invalidated)
+			LayoutRecalc();
+
+		super.paint;
 	}
 }
-

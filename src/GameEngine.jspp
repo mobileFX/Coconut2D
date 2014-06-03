@@ -12,15 +12,15 @@
 //	                                      /____/
 // ==================================================================================================================================
 
-state class GameEngine : CocoEngine //implements IEventListener
+state class GameEngine : CocoEngine
 {
 	public var scene:CocoScene;
-	public var form1:CocoUIFormView;
+	public var frm_Reserverations:ReservationsForm;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		setNextState(STATE_GAME);
+		setNextState(STATE_START_APP);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ state class GameEngine : CocoEngine //implements IEventListener
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
-	public state STATE_GAME
+	public state STATE_START_APP
 	{
 		function enter()
 		{
@@ -46,16 +46,7 @@ state class GameEngine : CocoEngine //implements IEventListener
 
 			scene = new NewAnimation(this);
 
-			form1 = new CocoUIFormView("form1");
-			scene.__root.addChild(form1);
-	 		var btn:CocoUIButton;
-	 		for(var i:Integer=0;i<10;i++)
-	 		{
-	 			btn = new CocoUIButton("button" + String(i));
-	 			btn.SkinImage = scene.getImageSymbol("SkinSymbol_iPhone_CommandButton_Black");
-	 			form1.addInlineControl(btn);
-	 		}
-
+			frm_Reserverations = new ReservationsForm("frm_Reserverations", scene);
 		}
 
 		function exit()
@@ -69,6 +60,7 @@ state class GameEngine : CocoEngine //implements IEventListener
 
 		function paint(ctx:ICocoRenderContext, time:Time)
 		{
+			engine.paintCount = 0;
 			scene.paint(ctx, time);
 		}
 	}

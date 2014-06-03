@@ -893,8 +893,17 @@ function make(options)
 	                HTML.push("\t\tfont-weight: bold;");
 	                break;
 
+	            case "italic":
+	                HTML.push("\t\tfont-style: italic;");
+	                break;
+
 	            case "oblique":
-	                HTML.push("\t\tfont-style: italic, oblique;");
+	                HTML.push("\t\tfont-style: oblique;");
+	                break;
+
+	            case "bolditalic":
+	                HTML.push("\t\tfont-weight: bold;");
+	                HTML.push("\t\tfont-style: italic;");
 	                break;
 
 	            case "boldoblique":

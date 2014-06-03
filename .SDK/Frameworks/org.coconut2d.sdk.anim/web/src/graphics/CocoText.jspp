@@ -51,6 +51,7 @@ class CocoText
 	public var lineWidths:Array<Float>;
 	public var lineHeights:Array<Float>;
 	public var totalHeight:Float;
+	public var lineSpacing:Float;
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static function npo2(i:Integer): Integer
@@ -83,6 +84,7 @@ class CocoText
 		lineWidths = new Array<Float>;
 		lineHeights = new Array<Float>;
 		totalHeight = 0;
+		lineSpacing = 1.25;
     }
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,6 +96,29 @@ class CocoText
     	delete lineBreaks;
     	delete lineWidths;
     	delete lineHeights;
+    }
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static function drawSimpleText(ctx:CanvasRenderingContext2D, text:String,
+    									  FontName:String, FontSizePx:Integer, FontBold:Boolean, FontItalic:Boolean, FontUnderline:Boolean, FontColor:Color,
+    									  x:Float, y:Float, width:Float, height:Float,
+    									  halign:Float, valign:Float,
+    									  FontShadowX:Integer, FontShadowY:Integer, FontBlur:Integer, FontShadowColor:Color)
+    {
+		var R:Integer = (FontColor >> 16) & 0xFF;
+		var G:Integer = (FontColor >> 8) & 0xFF;
+		var B:Integer = (FontColor & 0xFF);
+		var A:Integer = (FontColor >> 24) & 0xFF;
+		var color:String = "rgba(" + String(R) + ", " + String(G) + ", " + String(B) + ", " + String(A) + ")";
+    	var fontStyle:String = (FontItalic ? "italic" : "normal") + " normal " + (FontBold ? "bold " : "normal ") + String(FontSizePx) + "px " + FontName;
+
+    	var f:CocoText = new CocoText();
+    	f.str = text;
+    	f.indices.push(0);
+    	f.mappings.push(0);
+    	f.wrapSimple(Integer(width), fontStyle);
+    	f.drawSimple(ctx, fontStyle, FontUnderline, color, x, y, width, height, halign, valign);
+    	delete f;
     }
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +146,7 @@ class CocoText
 					lineBreaks.push(r);
 					lineWidths.push(lineWidth);
 					lineHeights.push(lineHeight);
-					totalHeight += lineHeight;
+					totalHeight += lineHeight * lineSpacing;
 					lineWidth = charWidth;
 					lineHeight = Float(style.fontSizePixels);
 				}
@@ -130,7 +155,124 @@ class CocoText
 		}
 		lineWidths.push(lineWidth);
 		lineHeights.push(lineHeight);
-		totalHeight += lineHeight;
+		totalHeight += lineHeight * lineSpacing;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function wrapSimple(width:Integer, fontStyle:String)
+	{
+		var fontSize:Integer;
+		var spl:Array<String> = fontStyle.split(" ");
+		for(var r:Integer = spl.size(); r--;)
+		{
+			var t:Integer = parseInt(spl[r]);
+			if(t)
+			{
+				fontSize = t;
+				break;
+			}
+		}
+		ctx.font = fontStyle;
+		lineBreaks.clear();
+		lineWidths.clear();
+		lineHeights.clear();
+		totalHeight = 0;
+		var lastSpace:Integer = 0;
+		var lastSpaceWidth:Float = 0;
+		var lineWidth:Float = 0;
+		var lineHeight:Float = 0;
+		var L:Integer = indices.size();
+		for(var i:Integer = 0; i<L; i++)
+		{
+			lineHeight = Math.max(lineHeight, Float(fontSize));
+			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
+			for(var r:Integer = indices[i]; r < to; r++)
+			{
+				var char:String = String(str.substr(r, 1));
+				var charWidth:Float = ctx.measureText(char).width;
+				if(char == " ")
+				{
+					lastSpace = r;
+					lineWidth += lastSpaceWidth;
+					lastSpaceWidth = 0;
+				}
+				if(lineWidth + lastSpaceWidth + charWidth > width)
+				{
+					if(lineWidth === 0) throw "Too small width!";
+					lineBreaks.push(lastSpace);
+					lineWidths.push(lineWidth);
+					lineHeights.push(lineHeight);
+					totalHeight += lineHeight * lineSpacing;
+					lineWidth = 0;
+					lineHeight = Float(fontSize);
+				}
+				lastSpaceWidth += charWidth;
+			}
+		}
+		lineWidths.push(lineWidth);
+		lineHeights.push(lineHeight);
+		totalHeight += lineHeight * lineSpacing;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawSimple(ctx:CanvasRenderingContext2D, fontStyle:String, underline:Boolean, color:String, x:Float, y:Float, width:Float, height:Float, halign:Float, valign:Float)
+	{
+		if(width > ctx.canvas.width || height > ctx.canvas.height) return;
+		ctx.font = fontStyle;
+		ctx.fillStyle = color;
+		ctx.strokeStyle = color;
+		var fontSize:Integer;
+		var spl:Array<String> = fontStyle.split(" ");
+		for(var r:Integer = spl.size(); r--;)
+		{
+			var t:Integer = parseInt(spl[r]);
+			if(t)
+			{
+				fontSize = t;
+				break;
+			}
+		}
+		if(!totalHeight) totalHeight = Float(fontSize);
+		var cx:Float = x;
+		var cy:Float = y;
+		var currentLine:Integer = 0;
+		var prevStop:Integer = 0;
+		var firstChar:Boolean = true;
+		var L:Integer = indices.size();
+		for(var i:Integer = 0; i<L; i++)
+		{
+			var stop:Integer;
+			var nextStop:Integer = ((i + 1 < indices.size()) ? indices[i + 1] : str.size());
+			do
+			{
+				var nextBreak:Integer = currentLine < lineBreaks.size() ? lineBreaks[currentLine] : str.size();
+				stop = Math.min(nextStop, nextBreak);
+				var s:String = str.substring(prevStop, stop);
+				if(firstChar) firstChar = false;
+				prevStop = stop;
+				var sWidth:Float = ctx.measureText(s).width;
+				var left:Float = (width - (lineWidths.size() > currentLine ? lineWidths[currentLine] : sWidth)) * halign;
+				var top:Float = ((lineHeights.size() > currentLine ? lineHeights[currentLine] : totalHeight) / 1.125) + (height - totalHeight) * valign;
+				ctx.fillText(s, cx + left, cy + top);
+				if(underline)
+				{
+					ctx.lineWidth = Float(fontSize) / 12.0;
+					ctx.beginPath();
+					ctx.moveTo(cx + left, cy + top + ctx.lineWidth * 1.5);
+					ctx.lineTo(cx + left + sWidth, cy + top + ctx.lineWidth * 1.5);
+					ctx.stroke();
+				}
+				cx += sWidth;
+				if(stop == nextBreak)
+				{
+					cx = x;
+					cy += Float(lineHeights[currentLine]) * lineSpacing;
+					++currentLine;
+					firstChar = true;
+				}
+			} while(stop != nextStop);
+		}
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,14 +298,11 @@ class CocoText
 				var nextBreak:Integer = currentLine < lineBreaks.size() ? lineBreaks[currentLine] : str.size();
 				stop = Math.min(nextStop, nextBreak);
 				var s:String = str.substring(prevStop, stop);
-				if(firstChar)
-				{
-					firstChar = false;
-				}
+				if(firstChar) firstChar = false;
 				prevStop = stop;
 				var sWidth:Float = ctx.measureText(s).width;
 				var left:Float = (width - lineWidths[currentLine]) * halign;
-				var top:Float = (lineHeights[currentLine] / 1.125) + (height - totalHeight * 1.25) * valign;
+				var top:Float = (lineHeights[currentLine] / 1.125) + (height - totalHeight) * valign;
 				ctx.fillStyle = "rgba(" + String(style.bgcolor[0]) + ", " + String(style.bgcolor[1]) + ", " + String(style.bgcolor[2]) + ", " + String(style.bgcolor[3]) + ")";
 				ctx.fillRect(cx + left, cy + top - Float(style.fontSizePixels) / 1.25, sWidth, Float(style.fontSizePixels) * 1.125);
 				var StyleString:String = "rgba(" + String(style.color[0]) + ", " + String(style.color[1]) + ", " + String(style.color[2]) + ", " + String(style.color[3]) + ")";
@@ -182,7 +321,7 @@ class CocoText
 				if(stop == nextBreak)
 				{
 					cx = 0;
-					cy += Float(lineHeights[currentLine]) * 1.25;
+					cy += Float(lineHeights[currentLine]) * lineSpacing;
 					++currentLine;
 					firstChar = true;
 				}

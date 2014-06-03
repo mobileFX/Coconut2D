@@ -75,14 +75,14 @@ class CocoEventSource
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function dispatchEvent(Event:CocoEvent, ...) :Integer
+	public virtual function dispatchEvent(Event:CocoEvent, ...)
 	{
+		if(Event.stopPropagation) return;
+
 		var L:Integer = __eventListeners.size();
-		if(L==0) return 0;
+		if(L==0) return;
 
-		var c:Integer;
 		var i:Integer;
-
 		var event_arguments:Array<Object>;
 		event_arguments.push(this);
 		event_arguments.push(Event);
@@ -95,20 +95,18 @@ class CocoEventSource
 
 			if(cp.Event.is(Event))
 			{
-				c++;
 				var cancel:Boolean = Boolean(cp.Callback.apply(cp.Listener, event_arguments));
 				if(cancel)
 				{
-					__eventListeners[i].Event.cancelBubble();
+					Event.cancelBubble();
 				}
-				if(__eventListeners[i].Event.stopPropagation)
+				if(Event.stopPropagation)
 				{
-					break;
+					return;
 				}
 			}
 		}
 		delete event_arguments;
-		return c;
 	}
 }
 

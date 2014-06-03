@@ -1,0 +1,85 @@
+﻿"#export native";
+"#export web";
+
+"#include CocoUIFormView.jspp"
+
+class ReservationsForm : CocoUIFormView
+{
+	private var btnSubmit:CocoUIButton;
+	private var btnDelete:CocoUIButton;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Constructor(name:String, scene:CocoScene) : CocoUIFormView(name, scene)
+ 	{
+ 		var nav:CocoUINavBar = new CocoUINavBar("NavBar");
+ 		nav.SkinImage = "SkinSymbol_iPhone_NavBar_Standard";
+ 		addFloatingControl(nav, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_MIDDLE);
+
+ 		addLookup("Name Surname" 		,"CustName"				, true		, false		);
+ 		addLookup("Mobile Phone"		,"CustPhone"			, true		, false		);
+ 		addLookup("email"				,"CustEmail"			, true		, false		);
+ 		addLookup("Date of Event"		,"EventDate"			, false		, true		);
+ 		addLookup("Alcohol Brand"		,"CustAlcoholBrand"		, true		, false		);
+ 		addLookup("Charge"				,"CustCharge"			, false		, false		);
+ 		addLookup("Table Area"			,"TableArea"            , false		, true		);
+ 		addLookup("Name of Assistant"	,"Assistant"            , false		, false		);
+ 		addLookup("Country"				,"CustCountry"          , false		, true		);
+ 		addLookup("Hotel Name"			,"CustHotel"            , true		, false		);
+ 		addLookup("Payment Method"		,"CustPayment"          , false		, true		);
+
+		btnSubmit = new CocoUIButton("btnSubmit");
+		btnSubmit.SkinImage = "SkinSymbol_iPhone_CommandButton_White";
+		btnSubmit.SkinImageSel = "SkinSymbol_iPhone_CommandButtonPressed";
+		btnSubmit.Caption = "Reserve Table";
+		btnSubmit.CaptionFontColor = 0xff000000;
+		addInlineControl(btnSubmit);
+
+		btnDelete = new CocoUIButton("btnDelete");
+		btnDelete.SkinImage = "SkinSymbol_iPhone_CommandButton_Red";
+		btnDelete.SkinImageSel = "SkinSymbol_iPhone_CommandButton_RedPressed";
+		btnDelete.Caption = "Delete Reservation";
+		btnDelete.MarginBottom = 60;
+		addInlineControl(btnDelete);
+
+		__scrollContainer.__timeline.translateTo(0, nav.Height);
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	private function addLookup(Caption:String, FieldName:String, IsLookup:Boolean, IsComboBox:Boolean)
+ 	{
+		var btn:CocoUIButton;
+		var lbl:CocoUILabel;
+		var txt:CocoUITextEdit;
+		var cmb:CocoUIComboBox;
+
+		lbl = new CocoUILabel("Label"+FieldName);
+		lbl.Caption = Caption;
+		lbl.CaptionFontBold = true;
+		addInlineControl(lbl);
+
+		if(IsLookup)
+		{
+			txt = new CocoUITextEdit("Txt"+FieldName);
+			txt.SkinImage = "SkinSymbol_iPhone_EditBox";
+			addInlineControl(txt);
+		}
+		else if(IsComboBox)
+		{
+			cmb = new CocoUIComboBox("Cmb"+FieldName);
+			cmb.SkinImage = "SkinSymbol_iPhone_ComboBox";
+			cmb.SkinImageSel = "SkinSymbol_iPhone_ComboBoxPressed";
+			addInlineControl(cmb);
+		}
+		else
+		{
+			txt = new CocoUITextEdit("Txt"+FieldName);
+			txt.SkinImage = "SkinSymbol_iPhone_EditBox";
+			addInlineControl(txt);
+		}
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Destructor()
+ 	{
+ 	}
+}

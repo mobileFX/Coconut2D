@@ -36,86 +36,136 @@
 
 "#include CocoUIView.jspp";
 
-class CocoUIScrollView : CocoUIView implements IEventListener
+class CocoUIScrollView : CocoUIView
 {
-	private var scrollLastTime:Time;
-	private var scrollLastPointY:Float;
-	private var scrollSpeedY:Float;
-	private var minY:Float;
-	private var maxY:Float;
-	private var bounceY:Boolean;
+	private var __scrollLastTime:Time;
+	private var __scrollFirstPointY:Float;
+	private var __scrollLastPointY:Float;
+	private var __scrollSpeedY:Float;
+	private var __minY:Float;
+	private var __maxY:Float;
+	private var __bounceY:Boolean;
+	protected var __scrollContainer:CocoClip;
+	private var __scrollDeceleration:Float;
+	private var __scrollSpringTension:Float;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function Constructor(name:String)
+ 	public function Constructor(name:String, scene:CocoScene)
  	{
 		__instanceName = name;
-		__width = Float(window.innerWidth);
-		__height = Float(window.innerHeight);
+ 		__scene = scene;
+		__container = true;
+		__scrollSpeedY = 0.0;
+		__minY = 0
+		__maxY = 0;
+		__bounceY = false;
+		__scrollDeceleration = 0.95;
+		__scrollSpringTension = 16.0;
 
-		this.addEventListener(this.OnTouchStart, HandleStart);
- 		this.addEventListener(this.OnTouchMove, HandleMove);
- 		this.addEventListener(this.OnTouchEnd, HandleEnd);
+		// Add a container clip to place all children so that
+		// during scrolling we only scroll this container.
+ 		__scrollContainer = new CocoClip();
+ 		__scrollContainer.__instanceName = "__scrollContainer";
+ 		__scrollContainer.__timeline.clear();
+		__scrollContainer.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 		super.addChild(__scrollContainer);
 
-		var KF:CocoKeyFrame;
-		KF = __timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, minY, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+ 		// We need to be able to handle events
+ 		this.__timeline.keyFrame(0).handleEvents=true;
+		this.addEventListener(this.OnTouchStart, __CocoUIScrollView_OnTouchStart);
+ 		this.addEventListener(this.OnTouchMove, __CocoUIScrollView_OnTouchMove);
+ 		this.addEventListener(this.OnTouchEnd, __CocoUIScrollView_OnTouchEnd);
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Destructor()
  	{
- 		this.removeEventListener(this.OnTouchStart, HandleStart);
- 		this.removeEventListener(this.OnTouchMove, HandleMove);
- 		this.removeEventListener(this.OnTouchEnd, HandleEnd);
+ 		this.removeEventListener(this.OnTouchStart, __CocoUIScrollView_OnTouchStart);
+ 		this.removeEventListener(this.OnTouchMove, __CocoUIScrollView_OnTouchMove);
+ 		this.removeEventListener(this.OnTouchEnd, __CocoUIScrollView_OnTouchEnd);
+ 	}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	published property ScrollDeceleration
+ 	{
+ 		function get():Float { return __scrollDeceleration; }
+ 		function set(v:Float) { __scrollDeceleration = v; }
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)
+	published property ScrollSpringTension
+ 	{
+ 		function get():Float { return __scrollSpringTension; }
+ 		function set(v:Float) { __scrollSpringTension = v; }
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getKeyFrame() :CocoKeyFrame
 	{
-		scrollSpeedY = 0.0;
-		minY = 250.0 - window.innerHeight / 2.0 + scene.getImageSymbol("SkinSymbol_iPhone_ActionSheet").textureCellHeight / 2.0;
-		maxY = -5 * 250.0 + window.innerHeight / 2.0 - scene.getImageSymbol("SkinSymbol_iPhone_ActionSheet").textureCellHeight / 2.0;
-		bounceY = false;
+		return __scrollContainer.__timeline.keyFrame(0);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function getKeyFrame() :CocoKeyFrame
+	public function inlineHeight() :Float
 	{
-		return __timeline.keyFrame(0);
+		var h:Float = 0;
+		var ctl:CocoUIControl;
+		for(var i:Integer=__scrollContainer.__children.size();i--;)
+		{
+			ctl = CocoUIControl(__scrollContainer.__children[i]);
+			h+= ctl.MarginTop + ctl.Height + ctl.MarginBottom;
+		}
+		__maxY = Math.min(__minY, Height - h);
+		__scrollContainer.__height = h;
+		__scrollContainer.__width = __width;
+		return h;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	public function resetSelection()
+	{
+		var h:Float = 0;
+		var ctl:CocoUIControl;
+		for(var i:Integer=__scrollContainer.__children.size();i--;)
+		{
+			ctl = CocoUIControl(__scrollContainer.__children[i]);
+			ctl.Selected = false;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
  	{
  		var KF:CocoKeyFrame = getKeyFrame();
 
- 		scrollSpeedY *= 0.95;
- 		KF.y += scrollSpeedY;
- 		if(bounceY)
+ 		__scrollSpeedY *= __scrollDeceleration;
+ 		KF.y += __scrollSpeedY;
+ 		if(__bounceY)
  		{
-	 		var springY:Float = minY - KF.y;
+	 		var springY:Float = __minY - KF.y;
 	 		if(springY < 0.0)
 	 		{
-	 			scrollSpeedY = 0.0;
+	 			__scrollSpeedY *= __scrollDeceleration;
 				KF.y += -springY / -Math.sqrt(-springY);
-				if(KF.y < minY)
+				if(KF.y < __minY)
 				{
-					KF.y = minY;
-					bounceY = false;
-					scrollSpeedY = 0.0;
+					KF.y = __minY;
+					__bounceY = false;
+					__scrollSpeedY = 0.0;
 				}
 	 		}
 	 		else
 	 		{
-		 		var springY:Float = maxY - KF.y;
+		 		var springY:Float = __maxY - KF.y;
 		 		if(springY > 0.0)
 		 		{
-		 			scrollSpeedY = 0.0;
+		 			__scrollSpeedY *= __scrollDeceleration;
 		 			KF.y += springY / Math.sqrt(springY);
-		 			if(KF.y > maxY)
+		 			if(KF.y > __maxY)
 		 			{
-		 				KF.y = maxY;
-		 				bounceY = false;
-		 				scrollSpeedY = 0.0;
+		 				KF.y = __maxY;
+		 				__bounceY = false;
+		 				__scrollSpeedY = 0.0;
 		 			}
 		 		}
 	 		}
@@ -124,50 +174,53 @@ class CocoUIScrollView : CocoUIView implements IEventListener
  		super.paint;
  	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function HandleStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function __CocoUIScrollView_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
-		scrollLastTime = engine.__clock;
-		scrollLastPointY = y;
-		scrollSpeedY = 0.0;
+		__scrollFirstPointY = y;
+		__scrollLastTime = engine.__clock;
+		__scrollLastPointY = y;
+		__scrollSpeedY = 0.0;
 		return false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function HandleMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	public function __CocoUIScrollView_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
 		var KF:CocoKeyFrame = getKeyFrame();
-		var dY:Float = y - scrollLastPointY;
-		var sY:Float = 1.0;
- 		var springY:Float = minY - KF.y;
 
+		var dY:Float = y - __scrollLastPointY;
+		var sY:Float = 1.0;
+ 		var springY:Float = __minY - KF.y;
  		if(springY < 0.0)
  		{
-			sY = engine.__ctx.getHeight() / 2.0 / (engine.__ctx.getHeight() / 2.0 - springY);
+			sY = Height / (Height - springY * __scrollSpringTension);
  		}
  		else
  		{
-	 		var springY:Float = maxY - KF.y;
+	 		var springY:Float = __maxY - KF.y;
 	 		if(springY > 0.0)
 	 		{
-	 			sY = engine.__ctx.getHeight() / 2.0 / (engine.__ctx.getHeight() / 2.0 + springY);
+	 			sY = Height / (Height + springY * __scrollSpringTension);
 	 		}
  		}
 
-		KF.y += dY * sY;
-		scrollLastTime = engine.__clock;
-		scrollLastPointY = y;
+		if(Math.abs(__scrollFirstPointY-y)>COCO_CONTROL_MOVE_SNAP_PIXELS)
+ 			resetSelection();
 
+		KF.y += dY * sY;
+		__scrollLastTime = engine.__clock;
+		__scrollLastPointY = y;
 		return false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function HandleEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	public function __CocoUIScrollView_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
-		var dY:Float = y - scrollLastPointY;
-		scrollSpeedY = dY;
-		bounceY = true;
+		var dY:Float = y - __scrollLastPointY;
+		__scrollSpeedY = dY;
+		__bounceY = true;
+		resetSelection();
 		return false;
 	}
-
 }

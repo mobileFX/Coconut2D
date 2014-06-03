@@ -100,8 +100,8 @@ public Function::__className:String" image="13"/>
 		<member name="Global" proto="Global:Global" help="Global:Global" image="11"/>
 		<member name="NaN" proto="NaN:Number" help="NaN:Number" image="34"/>
 		<member name="Infinity" proto="Infinity:Number" help="Infinity:Number" image="34"/>
-		<member name="innerWidth" proto="innerWidth:Integer" help="innerWidth:Integer" image="34"/>
-		<member name="innerHeight" proto="innerHeight:Integer" help="innerHeight:Integer" image="34"/>
+		<member name="innerWidth" proto="innerWidth:Float" help="innerWidth:Float" image="34"/>
+		<member name="innerHeight" proto="innerHeight:Float" help="innerHeight:Float" image="34"/>
 		<member name="deviceRotation" proto="deviceRotation:Float" help="deviceRotation:Float" image="34"/>
 		<member name="devicePixelRatio" proto="devicePixelRatio:Float" help="devicePixelRatio:Float" image="34"/>
 		<member name="String" proto="String:String" help="String:String" image="11"/>
@@ -137,6 +137,9 @@ public Function::__className:String" image="13"/>
 		<member name="RADIANS" proto="RADIANS:Float" help="RADIANS:Float" image="34"/>
 		<member name="BOX2D_SCALE" proto="BOX2D_SCALE:Float" help="BOX2D_SCALE:Float" image="34"/>
 		<member name="COCO_STOP_ON_CURRENT_FRAME" proto="COCO_STOP_ON_CURRENT_FRAME:Integer" help="COCO_STOP_ON_CURRENT_FRAME:Integer" image="34"/>
+		<member name="COCO_DEFAULT_CONTROL_HEIGHT" proto="COCO_DEFAULT_CONTROL_HEIGHT:Float" help="COCO_DEFAULT_CONTROL_HEIGHT:Float" image="34"/>
+		<member name="COCO_DEFAULT_FONT_SIZE" proto="COCO_DEFAULT_FONT_SIZE:Float" help="COCO_DEFAULT_FONT_SIZE:Float" image="34"/>
+		<member name="COCO_CONTROL_MOVE_SNAP_PIXELS" proto="COCO_CONTROL_MOVE_SNAP_PIXELS:Float" help="COCO_CONTROL_MOVE_SNAP_PIXELS:Float" image="34"/>
 		<member name="SCREEN_RESOLUTION_DPI_ENUM" proto="SCREEN_RESOLUTION_DPI_ENUM:SCREEN_RESOLUTION_DPI_ENUM" help="SCREEN_RESOLUTION_DPI_ENUM:SCREEN_RESOLUTION_DPI_ENUM" image="15"/>
 		<member name="COCO_CLIP_SYMBOL_LOOP_ENUM" proto="COCO_CLIP_SYMBOL_LOOP_ENUM:COCO_CLIP_SYMBOL_LOOP_ENUM" help="COCO_CLIP_SYMBOL_LOOP_ENUM:COCO_CLIP_SYMBOL_LOOP_ENUM" image="15"/>
 		<member name="COCO_KEYFRAME_INTERPOLATION_ENUM" proto="COCO_KEYFRAME_INTERPOLATION_ENUM:COCO_KEYFRAME_INTERPOLATION_ENUM" help="COCO_KEYFRAME_INTERPOLATION_ENUM:COCO_KEYFRAME_INTERPOLATION_ENUM" image="15"/>
@@ -176,18 +179,22 @@ public Function::__className:String" image="13"/>
 		<member name="CocoClipOnTouchMoveEvent" proto="CocoClipOnTouchMoveEvent:CocoClipOnTouchMoveEvent" help="CocoClipOnTouchMoveEvent:CocoClipOnTouchMoveEvent" image="11"/>
 		<member name="CocoClipOnTouchEndEvent" proto="CocoClipOnTouchEndEvent:CocoClipOnTouchEndEvent" help="CocoClipOnTouchEndEvent:CocoClipOnTouchEndEvent" image="11"/>
 		<member name="CocoVector" proto="CocoVector:CocoVector" help="CocoVector:CocoVector" image="11"/>
+		<member name="CocoMatrixData" proto="CocoMatrixData:CocoMatrixData" help="CocoMatrixData:CocoMatrixData" image="27"/>
 		<member name="CocoMatrix" proto="CocoMatrix:CocoMatrix" help="CocoMatrix:CocoMatrix" image="11"/>
 		<member name="CocoScene" proto="CocoScene:CocoScene" help="CocoScene:CocoScene" image="11"/>
 		<member name="CocoKeyFrame" proto="CocoKeyFrame:CocoKeyFrame" help="CocoKeyFrame:CocoKeyFrame" image="27"/>
 		<member name="CocoTimeLabel" proto="CocoTimeLabel:CocoTimeLabel" help="CocoTimeLabel:CocoTimeLabel" image="11"/>
 		<member name="CocoTimeline" proto="CocoTimeline:CocoTimeline" help="CocoTimeline:CocoTimeline" image="11"/>
 		<member name="ICocoImageRenderData" proto="ICocoImageRenderData:ICocoImageRenderData" help="ICocoImageRenderData:ICocoImageRenderData" image="25"/>
+		<member name="COCO_PROJECTION_MODE" proto="COCO_PROJECTION_MODE:COCO_PROJECTION_MODE" help="COCO_PROJECTION_MODE:COCO_PROJECTION_MODE" image="15"/>
 		<member name="ICocoRenderContext" proto="ICocoRenderContext:ICocoRenderContext" help="ICocoRenderContext:ICocoRenderContext" image="25"/>
 		<member name="IEventListener" proto="IEventListener:IEventListener" help="IEventListener:IEventListener" image="25"/>
 		<member name="IEventTarget" proto="IEventTarget:IEventTarget" help="IEventTarget:IEventTarget" image="25"/>
 		<member name="ITickable" proto="ITickable:ITickable" help="ITickable:ITickable" image="25"/>
 		<member name="CocoPoint" proto="CocoPoint:CocoPoint" help="CocoPoint:CocoPoint" image="27"/>
 		<member name="CocoRect" proto="CocoRect:CocoRect" help="CocoRect:CocoRect" image="27"/>
+		<member name="CocoSkinCacheItem" proto="CocoSkinCacheItem:CocoSkinCacheItem" help="CocoSkinCacheItem:CocoSkinCacheItem" image="27"/>
+		<member name="CocoHVAlign" proto="CocoHVAlign:CocoHVAlign" help="CocoHVAlign:CocoHVAlign" image="27"/>
 		<member name="CocoGraphics" proto="CocoGraphics:CocoGraphics" help="CocoGraphics:CocoGraphics" image="11"/>
 		<member name="CocoSequence" proto="CocoSequence:CocoSequence" help="CocoSequence:CocoSequence" image="11"/>
 		<member name="CocoImageSibling" proto="CocoImageSibling:CocoImageSibling" help="CocoImageSibling:CocoImageSibling" image="11"/>
@@ -213,15 +220,23 @@ public Function::__className:String" image="13"/>
 		<member name="CocoAudio" proto="CocoAudio:CocoAudio" help="CocoAudio:CocoAudio" image="11"/>
 		<member name="CocoHttpRequest" proto="CocoHttpRequest:CocoHttpRequest" help="CocoHttpRequest:CocoHttpRequest" image="11"/>
 		<member name="CocoUIView" proto="CocoUIView:CocoUIView" help="CocoUIView:CocoUIView" image="11"/>
+		<member name="CocoUIControl" proto="CocoUIControl:CocoUIControl" help="CocoUIControl:CocoUIControl" image="11"/>
+		<member name="CocoUIControlOnGlyphClickEvent" proto="CocoUIControlOnGlyphClickEvent:CocoUIControlOnGlyphClickEvent" help="CocoUIControlOnGlyphClickEvent:CocoUIControlOnGlyphClickEvent" image="11"/>
+		<member name="CocoUIControlOnChevronClickEvent" proto="CocoUIControlOnChevronClickEvent:CocoUIControlOnChevronClickEvent" help="CocoUIControlOnChevronClickEvent:CocoUIControlOnChevronClickEvent" image="11"/>
 		<member name="CocoUIFormView" proto="CocoUIFormView:CocoUIFormView" help="CocoUIFormView:CocoUIFormView" image="11"/>
 		<member name="CocoUIScrollView" proto="CocoUIScrollView:CocoUIScrollView" help="CocoUIScrollView:CocoUIScrollView" image="11"/>
-		<member name="CocoUIControl" proto="CocoUIControl:CocoUIControl" help="CocoUIControl:CocoUIControl" image="11"/>
 		<member name="CocoUIButton" proto="CocoUIButton:CocoUIButton" help="CocoUIButton:CocoUIButton" image="11"/>
 		<member name="CocoUICheckBox" proto="CocoUICheckBox:CocoUICheckBox" help="CocoUICheckBox:CocoUICheckBox" image="11"/>
+		<member name="CocoUIComboBoxSlot" proto="CocoUIComboBoxSlot:CocoUIComboBoxSlot" help="CocoUIComboBoxSlot:CocoUIComboBoxSlot" image="11"/>
+		<member name="CocoUIComboBoxPopup" proto="CocoUIComboBoxPopup:CocoUIComboBoxPopup" help="CocoUIComboBoxPopup:CocoUIComboBoxPopup" image="11"/>
 		<member name="CocoUIComboBox" proto="CocoUIComboBox:CocoUIComboBox" help="CocoUIComboBox:CocoUIComboBox" image="11"/>
 		<member name="CocoUILabel" proto="CocoUILabel:CocoUILabel" help="CocoUILabel:CocoUILabel" image="11"/>
+		<member name="CocoUILookupEdit" proto="CocoUILookupEdit:CocoUILookupEdit" help="CocoUILookupEdit:CocoUILookupEdit" image="11"/>
+		<member name="CocoUINavBar" proto="CocoUINavBar:CocoUINavBar" help="CocoUINavBar:CocoUINavBar" image="11"/>
 		<member name="CocoUIPictureList" proto="CocoUIPictureList:CocoUIPictureList" help="CocoUIPictureList:CocoUIPictureList" image="11"/>
-		<member name="CocoUITextBox" proto="CocoUITextBox:CocoUITextBox" help="CocoUITextBox:CocoUITextBox" image="11"/>
+		<member name="CocoUITabBar" proto="CocoUITabBar:CocoUITabBar" help="CocoUITabBar:CocoUITabBar" image="11"/>
+		<member name="CocoUITextBlock" proto="CocoUITextBlock:CocoUITextBlock" help="CocoUITextBlock:CocoUITextBlock" image="11"/>
+		<member name="CocoUITextEdit" proto="CocoUITextEdit:CocoUITextEdit" help="CocoUITextEdit:CocoUITextEdit" image="11"/>
 		<member name="GameEngine" proto="GameEngine:GameEngine" help="GameEngine:GameEngine" image="11"/>
 		<member name="TestOutsourcer" proto="TestOutsourcer:TestOutsourcer" help="TestOutsourcer:TestOutsourcer" image="11"/>
 		<member name="TestIntegrator" proto="TestIntegrator:TestIntegrator" help="TestIntegrator:TestIntegrator" image="11"/>
@@ -237,6 +252,7 @@ public Function::__className:String" image="13"/>
 		<member name="TestSelf2" proto="TestSelf2:TestSelf2" help="TestSelf2:TestSelf2" image="11"/>
 		<member name="TestSelf3" proto="TestSelf3:TestSelf3" help="TestSelf3:TestSelf3" image="11"/>
 		<member name="TestThis" proto="TestThis:TestThis" help="TestThis:TestThis" image="11"/>
+		<member name="ReservationsForm" proto="ReservationsForm:ReservationsForm" help="ReservationsForm:ReservationsForm" image="11"/>
 		<member name="NewAnimation" proto="NewAnimation:NewAnimation" help="NewAnimation:NewAnimation" image="11"/>
 		<member name="Page1" proto="Page1:Page1" help="Page1:Page1" image="11"/>
 	</memberlist>
@@ -573,10 +589,10 @@ public TypeError::__className:String" image="13"/>
 	<memberlist name="Class ImageDataBuffer">
 		<member name="buffer" proto="buffer:ArrayBuffer" help="buffer is member var of class ImageDataBuffer
 public ImageDataBuffer::buffer:ArrayBuffer" image="1"/>
-		<member name="width" proto="width:Integer" help="width is member var of class ImageDataBuffer
-public ImageDataBuffer::width:Integer" image="34"/>
-		<member name="height" proto="height:Integer" help="height is member var of class ImageDataBuffer
-public ImageDataBuffer::height:Integer" image="34"/>
+		<member name="width" proto="width:Float" help="width is member var of class ImageDataBuffer
+public ImageDataBuffer::width:Float" image="34"/>
+		<member name="height" proto="height:Float" help="height is member var of class ImageDataBuffer
+public ImageDataBuffer::height:Float" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class ImageDataBuffer
 public ImageDataBuffer::__className:String" image="13"/>
 	</memberlist>
@@ -623,12 +639,12 @@ public XMLHttpRequest::responseType:Integer" image="34"/>
 public XMLHttpRequest::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoFont">
-		<member name="fillText" proto="fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float)" help="fillText is member function of class CocoFont
-public CocoFont::fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float)" image="35"/>
+		<member name="fillText" proto="fillText(imageDataBuffer:ArrayBuffer, width:Float, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float)" help="fillText is member function of class CocoFont
+public CocoFont::fillText(imageDataBuffer:ArrayBuffer, width:Float, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float)" image="35"/>
 		<member name="measureText" proto="measureText(text:String) :Float" help="measureText is member function of class CocoFont
 public CocoFont::measureText(text:String) :Float" image="35"/>
-		<member name="Constructor" proto="Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean)" help="Constructor is member function of class CocoFont
-public CocoFont::Constructor(fontSize:Float, fontName:String, bold:Boolean, oblique:Boolean)" image="14"/>
+		<member name="Constructor" proto="Constructor(FontName:String, FontSize:Float, Bold:Boolean, Italic:Boolean)" help="Constructor is member function of class CocoFont
+public CocoFont::Constructor(FontName:String, FontSize:Float, Bold:Boolean, Italic:Boolean)" image="14"/>
 		<member name="height" proto="height:Float" help="height is member var of class CocoFont
 public CocoFont::height:Float" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoFont
@@ -986,14 +1002,14 @@ public Image::Constructor()" image="14"/>
 public Image::__imageData:ImageData" image="34"/>
 		<member name="src" proto="src:String" help="src is member var of class Image
 public Image::src:String" image="34"/>
-		<member name="width" proto="width:Integer" help="width is member var of class Image
-public Image::width:Integer" image="34"/>
-		<member name="height" proto="height:Integer" help="height is member var of class Image
-public Image::height:Integer" image="34"/>
-		<member name="naturalWidth" proto="naturalWidth:Integer" help="naturalWidth is member var of class Image
-public Image::naturalWidth:Integer" image="34"/>
-		<member name="naturalHeight" proto="naturalHeight:Integer" help="naturalHeight is member var of class Image
-public Image::naturalHeight:Integer" image="34"/>
+		<member name="width" proto="width:Float" help="width is member var of class Image
+public Image::width:Float" image="34"/>
+		<member name="height" proto="height:Float" help="height is member var of class Image
+public Image::height:Float" image="34"/>
+		<member name="naturalWidth" proto="naturalWidth:Float" help="naturalWidth is member var of class Image
+public Image::naturalWidth:Float" image="34"/>
+		<member name="naturalHeight" proto="naturalHeight:Float" help="naturalHeight is member var of class Image
+public Image::naturalHeight:Float" image="34"/>
 		<member name="__complete" proto="__complete:Boolean" help="__complete is member var of class Image
 private Image::__complete:Boolean" image="29"/>
 		<member name="complete" proto="complete:Boolean" help="complete is property of class Image
@@ -1024,10 +1040,10 @@ public HTMLWindow::Constructor()" image="14"/>
 public HTMLWindow::__uid:Integer" image="34"/>
 		<member name="document" proto="document:HTMLDocument" help="document is member var of class HTMLWindow
 public HTMLWindow::document:HTMLDocument" image="34"/>
-		<member name="innerHeight" proto="innerHeight:Integer" help="innerHeight is member var of class HTMLWindow
-public HTMLWindow::innerHeight:Integer" image="34"/>
-		<member name="innerWidth" proto="innerWidth:Integer" help="innerWidth is member var of class HTMLWindow
-public HTMLWindow::innerWidth:Integer" image="34"/>
+		<member name="innerHeight" proto="innerHeight:Float" help="innerHeight is member var of class HTMLWindow
+public HTMLWindow::innerHeight:Float" image="34"/>
+		<member name="innerWidth" proto="innerWidth:Float" help="innerWidth is member var of class HTMLWindow
+public HTMLWindow::innerWidth:Float" image="34"/>
 		<member name="devicePixelRatio" proto="devicePixelRatio:Float" help="devicePixelRatio is member var of class HTMLWindow
 public HTMLWindow::devicePixelRatio:Float" image="34"/>
 		<member name="__elements" proto="__elements:Array&lt;Function&gt;" help="__elements is member var of class HTMLWindow
@@ -1046,10 +1062,10 @@ public ImageData::Constructor(a0:String, optional a1:String)" image="14"/>
 public ImageData::data:Uint8Array" image="1"/>
 		<member name="src" proto="src:String" help="src is member var of class ImageData
 public ImageData::src:String" image="34"/>
-		<member name="width" proto="width:Integer" help="width is member var of class ImageData
-public ImageData::width:Integer" image="34"/>
-		<member name="height" proto="height:Integer" help="height is member var of class ImageData
-public ImageData::height:Integer" image="34"/>
+		<member name="width" proto="width:Float" help="width is member var of class ImageData
+public ImageData::width:Float" image="34"/>
+		<member name="height" proto="height:Float" help="height is member var of class ImageData
+public ImageData::height:Float" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class ImageData
 public ImageData::__className:String" image="13"/>
 	</memberlist>
@@ -2026,9 +2042,9 @@ public WebGLUniformLocation::__className:String" image="13"/>
 	<memberlist name="Class CocoClip">
 		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoClip
 public CocoClip::prepare(scene:CocoScene)" image="35"/>
-		<member name="setText" proto="setText(text:String)" help="Creates and assigns to a CocoClip a new texture image containing some text. This is a low-level text rendering function and should not be used directly.
+		<member name="setText" proto="setText(text:String)" help="setText is member function of class CocoClip
 public CocoClip::setText(text:String)" image="35"/>
-		<member name="setText" proto="setText(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer)" help="Creates and assigns to a CocoClip a new texture image containing some text. This is a low-level text rendering function and should not be used directly.
+		<member name="setText" proto="setText(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer)" help="setText$1 is member function of class CocoClip
 public CocoClip::setText(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer)" image="35"/>
 		<member name="reset" proto="reset()" help="reset is member function of class CocoClip
 public CocoClip::reset()" image="35"/>
@@ -2055,11 +2071,11 @@ public virtual CocoClip::paint(ctx:ICocoRenderContext, scene:CocoScene, parentCl
 		<member name="combine" proto="combine(F1:CocoKeyFrame, F2:CocoKeyFrame)" help="combine is member function of class CocoClip
 private CocoClip::combine(F1:CocoKeyFrame, F2:CocoKeyFrame)" image="30"/>
 		<member name="apply" proto="apply(F:CocoKeyFrame, matrix:CocoMatrix)" help="apply is member function of class CocoClip
-private CocoClip::apply(F:CocoKeyFrame, matrix:CocoMatrix)" image="30"/>
+protected CocoClip::apply(F:CocoKeyFrame, matrix:CocoMatrix)" image="33"/>
 		<member name="hitTest" proto="hitTest(wx:Float, wy:Float) :Boolean" help="hitTest is member function of class CocoClip
 public CocoClip::hitTest(wx:Float, wy:Float) :Boolean" image="35"/>
-		<member name="initBoundingBoxFromTexture" proto="initBoundingBoxFromTexture(scene:CocoScene, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)" help="initBoundingBoxFromTexture is member function of class CocoClip
-public CocoClip::initBoundingBoxFromTexture(scene:CocoScene, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)" image="35"/>
+		<member name="initBoundingBoxFromRect" proto="initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)" help="initBoundingBoxFromRect is member function of class CocoClip
+public virtual CocoClip::initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)" image="35"/>
 		<member name="initBoundingBoxFromChildren" proto="initBoundingBoxFromChildren(scene:CocoScene, mv:CocoMatrix)" help="initBoundingBoxFromChildren is member function of class CocoClip
 public CocoClip::initBoundingBoxFromChildren(scene:CocoScene, mv:CocoMatrix)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoClip
@@ -2082,6 +2098,8 @@ public CocoClip::__children:Array&lt;CocoClip&gt;" image="1"/>
 public CocoClip::__timeline:CocoTimeline" image="34"/>
 		<member name="__parent" proto="__parent:CocoClip" help="__parent is member var of class CocoClip
 public CocoClip::__parent:CocoClip" image="34"/>
+		<member name="__container" proto="__container:Boolean" help="__container is member var of class CocoClip
+public CocoClip::__container:Boolean" image="34"/>
 		<member name="text" proto="text:String" help="text is member var of class CocoClip
 public CocoClip::text:String" image="34"/>
 		<member name="textFontName" proto="textFontName:String" help="textFontName is member var of class CocoClip
@@ -2112,6 +2130,14 @@ public CocoClip::__loops:Integer" image="34"/>
 public CocoClip::__currentFrame:CocoKeyFrame" image="34"/>
 		<member name="__childWithMaxTimelineDuration" proto="__childWithMaxTimelineDuration:CocoClip" help="__childWithMaxTimelineDuration is member var of class CocoClip
 public CocoClip::__childWithMaxTimelineDuration:CocoClip" image="34"/>
+		<member name="__x" proto="__x:Float" help="__x is member var of class CocoClip
+public CocoClip::__x:Float" image="34"/>
+		<member name="__y" proto="__y:Float" help="__y is member var of class CocoClip
+public CocoClip::__y:Float" image="34"/>
+		<member name="__width" proto="__width:Float" help="__width is member var of class CocoClip
+public CocoClip::__width:Float" image="34"/>
+		<member name="__height" proto="__height:Float" help="__height is member var of class CocoClip
+public CocoClip::__height:Float" image="34"/>
 		<member name="__hasBoundingBox" proto="__hasBoundingBox:Boolean" help="__hasBoundingBox is member var of class CocoClip
 public CocoClip::__hasBoundingBox:Boolean" image="34"/>
 		<member name="__vABS_TOP_LEFT" proto="__vABS_TOP_LEFT:CocoVector" help="__vABS_TOP_LEFT is member var of class CocoClip
@@ -2185,7 +2211,27 @@ public CocoVector::W:Float" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoVector
 public CocoVector::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class CocoMatrixData">
+		<member name="rc11" proto="rc11:Float" help="rc11:Float" image="34"/>
+		<member name="rc12" proto="rc12:Float" help="rc12:Float" image="34"/>
+		<member name="rc13" proto="rc13:Float" help="rc13:Float" image="34"/>
+		<member name="rc14" proto="rc14:Float" help="rc14:Float" image="34"/>
+		<member name="rc21" proto="rc21:Float" help="rc21:Float" image="34"/>
+		<member name="rc22" proto="rc22:Float" help="rc22:Float" image="34"/>
+		<member name="rc23" proto="rc23:Float" help="rc23:Float" image="34"/>
+		<member name="rc24" proto="rc24:Float" help="rc24:Float" image="34"/>
+		<member name="rc31" proto="rc31:Float" help="rc31:Float" image="34"/>
+		<member name="rc32" proto="rc32:Float" help="rc32:Float" image="34"/>
+		<member name="rc33" proto="rc33:Float" help="rc33:Float" image="34"/>
+		<member name="rc34" proto="rc34:Float" help="rc34:Float" image="34"/>
+		<member name="rc41" proto="rc41:Float" help="rc41:Float" image="34"/>
+		<member name="rc42" proto="rc42:Float" help="rc42:Float" image="34"/>
+		<member name="rc43" proto="rc43:Float" help="rc43:Float" image="34"/>
+		<member name="rc44" proto="rc44:Float" help="rc44:Float" image="34"/>
+	</memberlist>
 	<memberlist name="Class CocoMatrix">
+		<member name="Unproject" proto="Unproject(x:Float, y:Float, mv:CocoMatrix, pm:CocoMatrix, viewOriginX:Float, viewOriginY:Float, viewWidth:Float, viewHeight:Float) :CocoVector" help="Unproject is member function of class CocoMatrix
+public static CocoMatrix::Unproject(x:Float, y:Float, mv:CocoMatrix, pm:CocoMatrix, viewOriginX:Float, viewOriginY:Float, viewWidth:Float, viewHeight:Float) :CocoVector" image="35"/>
 		<member name="identity" proto="identity()" help="identity is member function of class CocoMatrix
 public CocoMatrix::identity()" image="35"/>
 		<member name="ortho" proto="ortho(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)" help="ortho is member function of class CocoMatrix
@@ -2198,8 +2244,8 @@ public CocoMatrix::determinant() :Float" image="35"/>
 public CocoMatrix::invert()" image="35"/>
 		<member name="multiplyByVector" proto="multiplyByVector(v:CocoVector) :CocoVector" help="multiplyByVector is member function of class CocoMatrix
 public CocoMatrix::multiplyByVector(v:CocoVector) :CocoVector" image="35"/>
-		<member name="multiplyByMatrix" proto="multiplyByMatrix(v:CocoMatrix) :CocoMatrix" help="multiplyByMatrix is member function of class CocoMatrix
-public CocoMatrix::multiplyByMatrix(v:CocoMatrix) :CocoMatrix" image="35"/>
+		<member name="multiplyByMatrix" proto="multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean) :CocoMatrix" help="multiplyByMatrix is member function of class CocoMatrix
+public CocoMatrix::multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean) :CocoMatrix" image="35"/>
 		<member name="translate" proto="translate(tx:Float, ty:Float)" help="translate is member function of class CocoMatrix
 public CocoMatrix::translate(tx:Float, ty:Float)" image="35"/>
 		<member name="scale" proto="scale(sx:Float, sy:Float)" help="scale is member function of class CocoMatrix
@@ -2216,40 +2262,10 @@ public CocoMatrix::pop()" image="35"/>
 public virtual CocoMatrix::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(optional M:CocoMatrix)" help="Constructor is member function of class CocoMatrix
 public CocoMatrix::Constructor(optional M:CocoMatrix)" image="14"/>
-		<member name="rc11" proto="rc11:Float" help="rc11 is member var of class CocoMatrix
-public CocoMatrix::rc11:Float" image="34"/>
-		<member name="rc12" proto="rc12:Float" help="rc12 is member var of class CocoMatrix
-public CocoMatrix::rc12:Float" image="34"/>
-		<member name="rc13" proto="rc13:Float" help="rc13 is member var of class CocoMatrix
-public CocoMatrix::rc13:Float" image="34"/>
-		<member name="rc14" proto="rc14:Float" help="rc14 is member var of class CocoMatrix
-public CocoMatrix::rc14:Float" image="34"/>
-		<member name="rc21" proto="rc21:Float" help="rc21 is member var of class CocoMatrix
-public CocoMatrix::rc21:Float" image="34"/>
-		<member name="rc22" proto="rc22:Float" help="rc22 is member var of class CocoMatrix
-public CocoMatrix::rc22:Float" image="34"/>
-		<member name="rc23" proto="rc23:Float" help="rc23 is member var of class CocoMatrix
-public CocoMatrix::rc23:Float" image="34"/>
-		<member name="rc24" proto="rc24:Float" help="rc24 is member var of class CocoMatrix
-public CocoMatrix::rc24:Float" image="34"/>
-		<member name="rc31" proto="rc31:Float" help="rc31 is member var of class CocoMatrix
-public CocoMatrix::rc31:Float" image="34"/>
-		<member name="rc32" proto="rc32:Float" help="rc32 is member var of class CocoMatrix
-public CocoMatrix::rc32:Float" image="34"/>
-		<member name="rc33" proto="rc33:Float" help="rc33 is member var of class CocoMatrix
-public CocoMatrix::rc33:Float" image="34"/>
-		<member name="rc34" proto="rc34:Float" help="rc34 is member var of class CocoMatrix
-public CocoMatrix::rc34:Float" image="34"/>
-		<member name="rc41" proto="rc41:Float" help="rc41 is member var of class CocoMatrix
-public CocoMatrix::rc41:Float" image="34"/>
-		<member name="rc42" proto="rc42:Float" help="rc42 is member var of class CocoMatrix
-public CocoMatrix::rc42:Float" image="34"/>
-		<member name="rc43" proto="rc43:Float" help="rc43 is member var of class CocoMatrix
-public CocoMatrix::rc43:Float" image="34"/>
-		<member name="rc44" proto="rc44:Float" help="rc44 is member var of class CocoMatrix
-public CocoMatrix::rc44:Float" image="34"/>
-		<member name="__stack" proto="__stack:Array&lt;Float32Array&gt;" help="__stack is member var of class CocoMatrix
-public CocoMatrix::__stack:Array&lt;Float32Array&gt;" image="1"/>
+		<member name="__m" proto="__m:CocoMatrixData" help="__m is member var of class CocoMatrix
+public CocoMatrix::__m:CocoMatrixData" image="34"/>
+		<member name="__stack" proto="__stack:Array&lt;CocoMatrixData&gt;" help="__stack is member var of class CocoMatrix
+public CocoMatrix::__stack:Array&lt;CocoMatrixData&gt;" image="1"/>
 		<member name="__data" proto="__data:Float32Array" help="__data is member var of class CocoMatrix
 public CocoMatrix::__data:Float32Array" image="1"/>
 		<member name="__dirty" proto="__dirty:Boolean" help="__dirty is member var of class CocoMatrix
@@ -2368,6 +2384,10 @@ public CocoTimeline::addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame" image="35
 public CocoTimeline::addKeyFrameEx(nextState:State, actionCallback:CocoAction, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, filter:Integer, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean, spriteSequenceName:String) :CocoKeyFrame" image="35"/>
 		<member name="normalizetimeline" proto="normalizetimeline()" help="normalizetimeline is member function of class CocoTimeline
 public CocoTimeline::normalizetimeline()" image="35"/>
+		<member name="translateTo" proto="translateTo(x:Float, y:Float)" help="translateTo is member function of class CocoTimeline
+public CocoTimeline::translateTo(x:Float, y:Float)" image="35"/>
+		<member name="translateBy" proto="translateBy(dx:Float, dy:Float)" help="translateBy is member function of class CocoTimeline
+public CocoTimeline::translateBy(dx:Float, dy:Float)" image="35"/>
 		<member name="findKeyFrameBeforeframeIndex" proto="findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame" help="findKeyFrameBeforeframeIndex is member function of class CocoTimeline
 public CocoTimeline::findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame" image="35"/>
 		<member name="findKeyFrameAfterframeIndex" proto="findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame" help="findKeyFrameAfterframeIndex is member function of class CocoTimeline
@@ -2407,6 +2427,10 @@ public CocoTimeline::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class ICocoImageRenderData">
 	</memberlist>
+	<memberlist name="Class COCO_PROJECTION_MODE">
+		<member name="RENDER_CLIPS" proto="RENDER_CLIPS:COCO_PROJECTION_MODE" help="RENDER_CLIPS:COCO_PROJECTION_MODE" image="16"/>
+		<member name="RNDER_USER_INTERFACE" proto="RNDER_USER_INTERFACE:COCO_PROJECTION_MODE" help="RNDER_USER_INTERFACE:COCO_PROJECTION_MODE" image="16"/>
+	</memberlist>
 	<memberlist name="Class ICocoRenderContext">
 		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class ICocoRenderContext
 public abstract virtual ICocoRenderContext::getModelViewMatrix() :CocoMatrix" image="35"/>
@@ -2428,6 +2452,8 @@ public abstract virtual ICocoRenderContext::prepare(scene:CocoScene)" image="35"
 public abstract virtual ICocoRenderContext::prepareImage(img:CocoImage) :ICocoImageRenderData" image="35"/>
 		<member name="drawFrame" proto="drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="drawFrame is member function of class ICocoRenderContext
 public abstract virtual ICocoRenderContext::drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
+		<member name="drawBoundingBox" proto="drawBoundingBox(clip:CocoClip)" help="drawBoundingBox is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::drawBoundingBox(clip:CocoClip)" image="35"/>
 	</memberlist>
 	<memberlist name="Class IEventListener">
 	</memberlist>
@@ -2451,11 +2477,27 @@ public abstract virtual ITickable::tick(time:Time)" image="35"/>
 		<member name="right" proto="right:Float" help="right:Float" image="34"/>
 		<member name="bottom" proto="bottom:Float" help="bottom:Float" image="34"/>
 	</memberlist>
+	<memberlist name="Class CocoSkinCacheItem">
+		<member name="symbolName" proto="symbolName:String" help="symbolName:String" image="34"/>
+		<member name="width" proto="width:Float" help="width:Float" image="34"/>
+		<member name="height" proto="height:Float" help="height:Float" image="34"/>
+		<member name="image" proto="image:CocoImage" help="image:CocoImage" image="34"/>
+	</memberlist>
+	<memberlist name="Class CocoHVAlign">
+		<member name="horiz" proto="horiz:Float" help="horiz:Float" image="34"/>
+		<member name="vert" proto="vert:Float" help="vert:Float" image="34"/>
+	</memberlist>
 	<memberlist name="Class CocoGraphics">
-		<member name="createTextTexture" proto="createTextTexture(scene:CocoScene, text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) :CocoImage" help="Creates and assigns to a CocoClip a new texture image containing some text. This is a low-level text rendering function and should not be used directly.
-public static CocoGraphics::createTextTexture(scene:CocoScene, text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) :CocoImage" image="35"/>
-		<member name="drawSkin" proto="drawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)" help="drawSkin is member function of class CocoGraphics
-public static CocoGraphics::drawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)" image="35"/>
+		<member name="NewCanvas" proto="NewCanvas(width:Float, height:Float) :HTMLCanvasElement" help="NewCanvas is member function of class CocoGraphics
+public static CocoGraphics::NewCanvas(width:Float, height:Float) :HTMLCanvasElement" image="35"/>
+		<member name="ColorToHtmlRGBA" proto="ColorToHtmlRGBA(c:Color) :String" help="ColorToHtmlRGBA is member function of class CocoGraphics
+public static CocoGraphics::ColorToHtmlRGBA(c:Color) :String" image="35"/>
+		<member name="GetSkinFromCache" proto="GetSkinFromCache(skinImage:CocoImage, width:Float, height:Float) :CocoImage" help="GetSkinFromCache is member function of class CocoGraphics
+public static CocoGraphics::GetSkinFromCache(skinImage:CocoImage, width:Float, height:Float) :CocoImage" image="35"/>
+		<member name="CocoImageFromHTMLCanvas" proto="CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float) :CocoImage" help="CocoImageFromHTMLCanvas is member function of class CocoGraphics
+public static CocoGraphics::CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float) :CocoImage" image="35"/>
+		<member name="DrawSkin" proto="DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)" help="DrawSkin is member function of class CocoGraphics
+public static CocoGraphics::DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)" image="35"/>
 		<member name="__drawSlice" proto="__drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Float, cy:Float, cw:Float, ch:Float, sx:Float, sy:Float, sw:Float, sh:Float, r:COCO_SKIN_TILE_ENUM)" help="__drawSlice is member function of class CocoGraphics
 private static CocoGraphics::__drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Float, cy:Float, cw:Float, ch:Float, sx:Float, sy:Float, sw:Float, sh:Float, r:COCO_SKIN_TILE_ENUM)" image="30"/>
 		<member name="__countFixed" proto="__countFixed(v:Array&lt;Float&gt;) :Integer" help="__countFixed is member function of class CocoGraphics
@@ -2468,12 +2510,14 @@ private static CocoGraphics::__fixedH(v:Array&lt;COCO_SKIN_TILE_ENUM&gt;) :Boole
 private static CocoGraphics::__tileSkin(ctx:CanvasRenderingContext2D, image:CocoImage, cellX:Float, cellY:Float, cellWidth:Float, cellHeight:Float, x:Float, y:Float, width:Float, height:Float)" image="30"/>
 		<member name="__drawRegion" proto="__drawRegion(ctx:CanvasRenderingContext2D, image:CocoImage, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)" help="__drawRegion is member function of class CocoGraphics
 private static CocoGraphics::__drawRegion(ctx:CanvasRenderingContext2D, image:CocoImage, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)" image="30"/>
-		<member name="drawImage" proto="drawImage(image:CocoImage, x:Float, y:Float, stretchW:Float, stretchH:Float, anchor:COCO_CONTROL_ANCHOR_ENUM, clear:Boolean)" help="drawImage is member function of class CocoGraphics
-public static CocoGraphics::drawImage(image:CocoImage, x:Float, y:Float, stretchW:Float, stretchH:Float, anchor:COCO_CONTROL_ANCHOR_ENUM, clear:Boolean)" image="35"/>
+		<member name="AnchorToCocoHVAlign" proto="AnchorToCocoHVAlign(anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoHVAlign" help="AnchorToCocoHVAlign is member function of class CocoGraphics
+public static CocoGraphics::AnchorToCocoHVAlign(anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoHVAlign" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGraphics
 public virtual CocoGraphics::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoGraphics
 public CocoGraphics::Constructor()" image="14"/>
+		<member name="skinsCache" proto="skinsCache:Array&lt;CocoSkinCacheItem&gt;" help="skinsCache is member var of class CocoGraphics
+public static CocoGraphics::skinsCache:Array&lt;CocoSkinCacheItem&gt;" image="1"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoGraphics
 public CocoGraphics::__className:String" image="13"/>
 	</memberlist>
@@ -2596,6 +2640,8 @@ public CocoRenderContext2D::prepare(scene:CocoScene)" image="35"/>
 public CocoRenderContext2D::prepareImage(img:CocoImage) :ICocoImageRenderData" image="35"/>
 		<member name="drawFrame" proto="drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="drawFrame is member function of class CocoRenderContext2D
 public CocoRenderContext2D::drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
+		<member name="drawBoundingBox" proto="drawBoundingBox(clip:CocoClip)" help="drawBoundingBox is member function of class CocoRenderContext2D
+public CocoRenderContext2D::drawBoundingBox(clip:CocoClip)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoRenderContext2D
 public virtual CocoRenderContext2D::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(ctx:CanvasRenderingContext2D)" help="Constructor is member function of class CocoRenderContext2D
@@ -2648,6 +2694,8 @@ private CocoRenderContextGL::update(m:CocoMatrix, ul:WebGLUniformLocation)" imag
 public CocoRenderContextGL::drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
 		<member name="setFilter" proto="setFilter(filter:Integer) :Boolean" help="setFilter is member function of class CocoRenderContextGL
 private CocoRenderContextGL::setFilter(filter:Integer) :Boolean" image="30"/>
+		<member name="drawBoundingBox" proto="drawBoundingBox(clip:CocoClip)" help="drawBoundingBox is member function of class CocoRenderContextGL
+public CocoRenderContextGL::drawBoundingBox(clip:CocoClip)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoRenderContextGL
 public virtual CocoRenderContextGL::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(ctx:WebGLRenderingContext)" help="Constructor is member function of class CocoRenderContextGL
@@ -2712,8 +2760,14 @@ public CocoTextStyle::__className:String" image="13"/>
 public static CocoText::npo2(i:Integer) :Integer" image="35"/>
 		<member name="init" proto="init(width:Integer, height:Integer)" help="init is member function of class CocoText
 public static CocoText::init(width:Integer, height:Integer)" image="35"/>
+		<member name="drawSimpleText" proto="drawSimpleText(ctx:CanvasRenderingContext2D, text:String, FontName:String, FontSizePx:Integer, FontBold:Boolean, FontItalic:Boolean, FontUnderline:Boolean, FontColor:Color, x:Float, y:Float, width:Float, height:Float, halign:Float, valign:Float, FontShadowX:Integer, FontShadowY:Integer, FontBlur:Integer, FontShadowColor:Color)" help="drawSimpleText is member function of class CocoText
+public static CocoText::drawSimpleText(ctx:CanvasRenderingContext2D, text:String, FontName:String, FontSizePx:Integer, FontBold:Boolean, FontItalic:Boolean, FontUnderline:Boolean, FontColor:Color, x:Float, y:Float, width:Float, height:Float, halign:Float, valign:Float, FontShadowX:Integer, FontShadowY:Integer, FontBlur:Integer, FontShadowColor:Color)" image="35"/>
 		<member name="wrap" proto="wrap(width:Integer)" help="wrap is member function of class CocoText
 public CocoText::wrap(width:Integer)" image="35"/>
+		<member name="wrapSimple" proto="wrapSimple(width:Integer, fontStyle:String)" help="wrapSimple is member function of class CocoText
+public CocoText::wrapSimple(width:Integer, fontStyle:String)" image="35"/>
+		<member name="drawSimple" proto="drawSimple(ctx:CanvasRenderingContext2D, fontStyle:String, underline:Boolean, color:String, x:Float, y:Float, width:Float, height:Float, halign:Float, valign:Float)" help="drawSimple is member function of class CocoText
+public CocoText::drawSimple(ctx:CanvasRenderingContext2D, fontStyle:String, underline:Boolean, color:String, x:Float, y:Float, width:Float, height:Float, halign:Float, valign:Float)" image="35"/>
 		<member name="draw" proto="draw(width:Float, height:Float, halign:Float, valign:Float, bgR:Integer, bgG:Integer, bgB:Integer, bgA:Integer) :String" help="draw is member function of class CocoText
 public CocoText::draw(width:Float, height:Float, halign:Float, valign:Float, bgR:Integer, bgG:Integer, bgB:Integer, bgA:Integer) :String" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoText
@@ -2738,6 +2792,8 @@ public CocoText::lineWidths:Array&lt;Float&gt;" image="1"/>
 public CocoText::lineHeights:Array&lt;Float&gt;" image="1"/>
 		<member name="totalHeight" proto="totalHeight:Float" help="totalHeight is member var of class CocoText
 public CocoText::totalHeight:Float" image="34"/>
+		<member name="lineSpacing" proto="lineSpacing:Float" help="lineSpacing is member var of class CocoText
+public CocoText::lineSpacing:Float" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoText
 public CocoText::__className:String" image="13"/>
 	</memberlist>
@@ -2755,7 +2811,7 @@ private CocoEngine::__translateDeviceMessage(e:HTMLEvent)" image="30"/>
 		<member name="__hasTouchDeviceMessage" proto="__hasTouchDeviceMessage() :Boolean" help="__hasTouchDeviceMessage is member function of class CocoEngine
 public CocoEngine::__hasTouchDeviceMessage() :Boolean" image="35"/>
 		<member name="__removeTouchMessages" proto="__removeTouchMessages()" help="__removeTouchMessages is member function of class CocoEngine
-private CocoEngine::__removeTouchMessages()" image="30"/>
+public CocoEngine::__removeTouchMessages()" image="35"/>
 		<member name="__peekDeviceMessage" proto="__peekDeviceMessage(mask:DEVICE_MESSAGE_ENUM) :DEVICE_MESSAGE" help="__peekDeviceMessage is member function of class CocoEngine
 public CocoEngine::__peekDeviceMessage(mask:DEVICE_MESSAGE_ENUM) :DEVICE_MESSAGE" image="35"/>
 		<member name="__clearDeviceMessageQueue" proto="__clearDeviceMessageQueue()" help="__clearDeviceMessageQueue is member function of class CocoEngine
@@ -2790,6 +2846,8 @@ private CocoEngine::__tickables:Array&lt;ITickable&gt;" image="1"/>
 public CocoEngine::__clock:Time" image="34"/>
 		<member name="__ctx" proto="__ctx:ICocoRenderContext" help="__ctx is member var of class CocoEngine
 public CocoEngine::__ctx:ICocoRenderContext" image="34"/>
+		<member name="paintCount" proto="paintCount:Integer" help="paintCount is member var of class CocoEngine
+public CocoEngine::paintCount:Integer" image="34"/>
 		<member name="__deviceMessageQueue" proto="__deviceMessageQueue:Array&lt;DEVICE_MESSAGE&gt;" help="__deviceMessageQueue is member var of class CocoEngine
 private CocoEngine::__deviceMessageQueue:Array&lt;DEVICE_MESSAGE&gt;" image="1"/>
 		<member name="__clicked" proto="__clicked:Array&lt;CocoClip&gt;" help="__clicked is member var of class CocoEngine
@@ -2868,8 +2926,8 @@ public CocoEventConnectionPoint::__className:String" image="13"/>
 public virtual CocoEventSource::addEventListener(Event:CocoEvent, Callback:Function, optional Listener:IEventListener)" image="35"/>
 		<member name="removeEventListener" proto="removeEventListener(Event:CocoEvent, Callback:Function, optional Listener:IEventListener) :Boolean" help="removeEventListener is member function of class CocoEventSource
 public virtual CocoEventSource::removeEventListener(Event:CocoEvent, Callback:Function, optional Listener:IEventListener) :Boolean" image="35"/>
-		<member name="dispatchEvent" proto="dispatchEvent(Event:CocoEvent) :Integer" help="dispatchEvent is member function of class CocoEventSource
-public virtual CocoEventSource::dispatchEvent(Event:CocoEvent) :Integer" image="35"/>
+		<member name="dispatchEvent" proto="dispatchEvent(Event:CocoEvent)" help="dispatchEvent is member function of class CocoEventSource
+public virtual CocoEventSource::dispatchEvent(Event:CocoEvent)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoEventSource
 public virtual CocoEventSource::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoEventSource
@@ -2977,6 +3035,7 @@ public HTMLEvent::__className:String" image="13"/>
 		<member name="MESSAGE_HTTP_DONE" proto="MESSAGE_HTTP_DONE:DEVICE_MESSAGE_ENUM" help="MESSAGE_HTTP_DONE:DEVICE_MESSAGE_ENUM" image="16"/>
 	</memberlist>
 	<memberlist name="Class DEVICE_MESSAGE">
+		<member name="handled" proto="handled:Boolean" help="handled:Boolean" image="34"/>
 		<member name="type" proto="type:DEVICE_MESSAGE_ENUM" help="type:DEVICE_MESSAGE_ENUM" image="34"/>
 		<member name="timestamp" proto="timestamp:Time" help="timestamp:Time" image="34"/>
 		<member name="peeked" proto="peeked:Boolean" help="peeked:Boolean" image="34"/>
@@ -3069,32 +3128,30 @@ public virtual CocoUIView::move(x:Float, y:Float)" image="35"/>
 public virtual CocoUIView::size(width:Float, height:Float)" image="35"/>
 		<member name="invalidate" proto="invalidate()" help="invalidate is member function of class CocoUIView
 public virtual CocoUIView::invalidate()" image="35"/>
+		<member name="addChild" proto="addChild(clipInstance:CocoClip) :CocoClip" help="addChild is member function of class CocoUIView
+public virtual CocoUIView::addChild(clipInstance:CocoClip) :CocoClip" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUIView
 public virtual CocoUIView::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
-		<member name="repaint" proto="repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" help="repaint is member function of class CocoUIView
-public abstract virtual CocoUIView::repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIView
 public virtual CocoUIView::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoUIView
 public CocoUIView::Constructor()" image="14"/>
-		<member name="__x" proto="__x:Float" help="__x is member var of class CocoUIView
-protected CocoUIView::__x:Float" image="32"/>
-		<member name="__y" proto="__y:Float" help="__y is member var of class CocoUIView
-protected CocoUIView::__y:Float" image="32"/>
-		<member name="__width" proto="__width:Float" help="__width is member var of class CocoUIView
-protected CocoUIView::__width:Float" image="32"/>
-		<member name="__height" proto="__height:Float" help="__height is member var of class CocoUIView
-protected CocoUIView::__height:Float" image="32"/>
+		<member name="__form" proto="__form:CocoUIFormView" help="__form is member var of class CocoUIView
+public CocoUIView::__form:CocoUIFormView" image="34"/>
+		<member name="Form" proto="Form:CocoUIFormView" help="Form is property of class CocoUIView
+public property CocoUIView::Form:CocoUIFormView" image="31"/>
 		<member name="__visible" proto="__visible:Boolean" help="__visible is member var of class CocoUIView
 protected CocoUIView::__visible:Boolean" image="32"/>
-		<member name="__textureIsInvalid" proto="__textureIsInvalid:Boolean" help="__textureIsInvalid is member var of class CocoUIView
-protected CocoUIView::__textureIsInvalid:Boolean" image="32"/>
 		<member name="__enabled" proto="__enabled:Boolean" help="__enabled is member var of class CocoUIView
 protected CocoUIView::__enabled:Boolean" image="32"/>
+		<member name="__invalidated" proto="__invalidated:Boolean" help="__invalidated is member var of class CocoUIView
+protected CocoUIView::__invalidated:Boolean" image="32"/>
 		<member name="Name" proto="Name:String" help="Name is property of class CocoUIView
 public property CocoUIView::Name:String" image="31"/>
 		<member name="Enabled" proto="Enabled:Boolean" help="Enabled is property of class CocoUIView
 public property CocoUIView::Enabled:Boolean" image="31"/>
+		<member name="Visible" proto="Visible:Boolean" help="Visible is property of class CocoUIView
+public property CocoUIView::Visible:Boolean" image="31"/>
 		<member name="Width" proto="Width:Float" help="Width is property of class CocoUIView
 public property CocoUIView::Width:Float" image="31"/>
 		<member name="Height" proto="Height:Float" help="Height is property of class CocoUIView
@@ -3103,72 +3160,46 @@ public property CocoUIView::Height:Float" image="31"/>
 public property CocoUIView::Left:Float" image="31"/>
 		<member name="Top" proto="Top:Float" help="Top is property of class CocoUIView
 public property CocoUIView::Top:Float" image="31"/>
-		<member name="Visible" proto="Visible:Boolean" help="Visible is property of class CocoUIView
-public property CocoUIView::Visible:Boolean" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIView
 public CocoUIView::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoUIFormView">
-		<member name="invalidate" proto="invalidate()" help="invalidate is member function of class CocoUIFormView
-public virtual CocoUIFormView::invalidate()" image="35"/>
-		<member name="addInlineControl" proto="addInlineControl(ctl:CocoUIControl) :CocoClip" help="addInlineControl is member function of class CocoUIFormView
-public CocoUIFormView::addInlineControl(ctl:CocoUIControl) :CocoClip" image="35"/>
-		<member name="inlineHeight" proto="inlineHeight() :Float" help="inlineHeight is member function of class CocoUIFormView
-public CocoUIFormView::inlineHeight() :Float" image="35"/>
-		<member name="addFloatingControl" proto="addFloatingControl(ctl:CocoUIControl) :CocoClip" help="addFloatingControl is member function of class CocoUIFormView
-public CocoUIFormView::addFloatingControl(ctl:CocoUIControl) :CocoClip" image="35"/>
-		<member name="repaint" proto="repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" help="repaint is member function of class CocoUIFormView
-public virtual CocoUIFormView::repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" image="35"/>
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIFormView
-public virtual CocoUIFormView::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(Name:String)" help="Constructor is member function of class CocoUIFormView
-public CocoUIFormView::Constructor(Name:String)" image="14"/>
-		<member name="__inlineControls" proto="__inlineControls:Array&lt;CocoUIControl&gt;" help="__inlineControls is member var of class CocoUIFormView
-private CocoUIFormView::__inlineControls:Array&lt;CocoUIControl&gt;" image="1"/>
-		<member name="__floatingControls" proto="__floatingControls:Array&lt;CocoUIControl&gt;" help="__floatingControls is member var of class CocoUIFormView
-private CocoUIFormView::__floatingControls:Array&lt;CocoUIControl&gt;" image="1"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIFormView
-public CocoUIFormView::__className:String" image="13"/>
-	</memberlist>
-	<memberlist name="Class CocoUIScrollView">
-		<member name="repaint" proto="repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" help="repaint is member function of class CocoUIScrollView
-public virtual CocoUIScrollView::repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" image="35"/>
-		<member name="getKeyFrame" proto="getKeyFrame() :CocoKeyFrame" help="getKeyFrame is member function of class CocoUIScrollView
-private CocoUIScrollView::getKeyFrame() :CocoKeyFrame" image="30"/>
-		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUIScrollView
-public CocoUIScrollView::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
-		<member name="HandleStart" proto="HandleStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="HandleStart is member function of class CocoUIScrollView
-public CocoUIScrollView::HandleStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
-		<member name="HandleMove" proto="HandleMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="HandleMove is member function of class CocoUIScrollView
-public CocoUIScrollView::HandleMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
-		<member name="HandleEnd" proto="HandleEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="HandleEnd is member function of class CocoUIScrollView
-public CocoUIScrollView::HandleEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIScrollView
-public virtual CocoUIScrollView::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUIScrollView
-public CocoUIScrollView::Constructor(name:String)" image="14"/>
-		<member name="scrollLastTime" proto="scrollLastTime:Time" help="scrollLastTime is member var of class CocoUIScrollView
-private CocoUIScrollView::scrollLastTime:Time" image="29"/>
-		<member name="scrollLastPointY" proto="scrollLastPointY:Float" help="scrollLastPointY is member var of class CocoUIScrollView
-private CocoUIScrollView::scrollLastPointY:Float" image="29"/>
-		<member name="scrollSpeedY" proto="scrollSpeedY:Float" help="scrollSpeedY is member var of class CocoUIScrollView
-private CocoUIScrollView::scrollSpeedY:Float" image="29"/>
-		<member name="minY" proto="minY:Float" help="minY is member var of class CocoUIScrollView
-private CocoUIScrollView::minY:Float" image="29"/>
-		<member name="maxY" proto="maxY:Float" help="maxY is member var of class CocoUIScrollView
-private CocoUIScrollView::maxY:Float" image="29"/>
-		<member name="bounceY" proto="bounceY:Boolean" help="bounceY is member var of class CocoUIScrollView
-private CocoUIScrollView::bounceY:Boolean" image="29"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIScrollView
-public CocoUIScrollView::__className:String" image="13"/>
-	</memberlist>
 	<memberlist name="Class CocoUIControl">
-		<member name="repaint" proto="repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" help="repaint is member function of class CocoUIControl
-public virtual CocoUIControl::repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUIControl
+public virtual CocoUIControl::RefreshLayout()" image="35"/>
+		<member name="CalcHeight" proto="CalcHeight() :Float" help="CalcHeight is member function of class CocoUIControl
+public virtual CocoUIControl::CalcHeight() :Float" image="35"/>
+		<member name="SetMargins" proto="SetMargins(left:Float, right:Float, top:Float, bottom:Float)" help="SetMargins is member function of class CocoUIControl
+public CocoUIControl::SetMargins(left:Float, right:Float, top:Float, bottom:Float)" image="35"/>
+		<member name="SetPaddings" proto="SetPaddings(left:Float, right:Float, top:Float, bottom:Float)" help="SetPaddings is member function of class CocoUIControl
+public CocoUIControl::SetPaddings(left:Float, right:Float, top:Float, bottom:Float)" image="35"/>
+		<member name="HandleTouchStart" proto="HandleTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="HandleTouchStart is member function of class CocoUIControl
+public CocoUIControl::HandleTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="HandleTouchEnd" proto="HandleTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="HandleTouchEnd is member function of class CocoUIControl
+public CocoUIControl::HandleTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUIControl
+public virtual CocoUIControl::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="ComposeControl" proto="ComposeControl()" help="ComposeControl is member function of class CocoUIControl
+public virtual CocoUIControl::ComposeControl()" image="35"/>
+		<member name="NewLayerFromImage" proto="NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float) :CocoClip" help="NewLayerFromImage is member function of class CocoUIControl
+public virtual CocoUIControl::NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float) :CocoClip" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIControl
 public virtual CocoUIControl::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(Name:String)" help="Constructor is member function of class CocoUIControl
-public CocoUIControl::Constructor(Name:String)" image="14"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUIControl
+public CocoUIControl::Constructor(name:String)" image="14"/>
+		<member name="OnGlyphClick" proto="event OnGlyphClick:CocoUIControlOnGlyphClickEvent" help="OnGlyphClick is event of class CocoUIControl
+public event CocoUIControl::OnGlyphClick()" image="18"/>
+		<member name="OnChevronClick" proto="event OnChevronClick:CocoUIControlOnChevronClickEvent" help="OnChevronClick is event of class CocoUIControl
+public event CocoUIControl::OnChevronClick()" image="18"/>
+		<member name="__selectable" proto="__selectable:Boolean" help="__selectable is member var of class CocoUIControl
+protected CocoUIControl::__selectable:Boolean" image="32"/>
+		<member name="__selected" proto="__selected:Boolean" help="__selected is member var of class CocoUIControl
+protected CocoUIControl::__selected:Boolean" image="32"/>
+		<member name="__selectionWaitTickCycles" proto="__selectionWaitTickCycles:Integer" help="__selectionWaitTickCycles is member var of class CocoUIControl
+protected CocoUIControl::__selectionWaitTickCycles:Integer" image="32"/>
+		<member name="Selectable" proto="Selectable:Boolean" help="Selectable is property of class CocoUIControl
+public property CocoUIControl::Selectable:Boolean" image="31"/>
+		<member name="Selected" proto="Selected:Boolean" help="Selected is property of class CocoUIControl
+public property CocoUIControl::Selected:Boolean" image="31"/>
 		<member name="__marginLeft" proto="__marginLeft:Float" help="__marginLeft is member var of class CocoUIControl
 protected CocoUIControl::__marginLeft:Float" image="32"/>
 		<member name="__marginRight" proto="__marginRight:Float" help="__marginRight is member var of class CocoUIControl
@@ -3201,30 +3232,10 @@ public property CocoUIControl::PaddingRight:Float" image="31"/>
 public property CocoUIControl::PaddingTop:Float" image="31"/>
 		<member name="PaddingBottom" proto="PaddingBottom:Float" help="PaddingBottom is property of class CocoUIControl
 public property CocoUIControl::PaddingBottom:Float" image="31"/>
-		<member name="__fontName" proto="__fontName:String" help="__fontName is member var of class CocoUIControl
-protected CocoUIControl::__fontName:String" image="32"/>
-		<member name="__fontSize" proto="__fontSize:Float" help="__fontSize is member var of class CocoUIControl
-protected CocoUIControl::__fontSize:Float" image="32"/>
-		<member name="__fontBold" proto="__fontBold:Boolean" help="__fontBold is member var of class CocoUIControl
-protected CocoUIControl::__fontBold:Boolean" image="32"/>
-		<member name="__fontItalic" proto="__fontItalic:Boolean" help="__fontItalic is member var of class CocoUIControl
-protected CocoUIControl::__fontItalic:Boolean" image="32"/>
-		<member name="__fontUnderline" proto="__fontUnderline:Boolean" help="__fontUnderline is member var of class CocoUIControl
-protected CocoUIControl::__fontUnderline:Boolean" image="32"/>
-		<member name="__fontColor" proto="__fontColor:Color" help="__fontColor is member var of class CocoUIControl
-protected CocoUIControl::__fontColor:Color" image="32"/>
-		<member name="FontName" proto="FontName:String" help="FontName is property of class CocoUIControl
-public property CocoUIControl::FontName:String" image="31"/>
-		<member name="FontSize" proto="FontSize:Float" help="FontSize is property of class CocoUIControl
-public property CocoUIControl::FontSize:Float" image="31"/>
-		<member name="FontBold" proto="FontBold:Boolean" help="FontBold is property of class CocoUIControl
-public property CocoUIControl::FontBold:Boolean" image="31"/>
-		<member name="FontItalic" proto="FontItalic:Boolean" help="FontItalic is property of class CocoUIControl
-public property CocoUIControl::FontItalic:Boolean" image="31"/>
-		<member name="FontUnderline" proto="FontUnderline:Boolean" help="FontUnderline is property of class CocoUIControl
-public property CocoUIControl::FontUnderline:Boolean" image="31"/>
-		<member name="FontColor" proto="FontColor:Color" help="FontColor is property of class CocoUIControl
-public property CocoUIControl::FontColor:Color" image="31"/>
+		<member name="PaddingWidth" proto="PaddingWidth:Float" help="PaddingWidth is property of class CocoUIControl
+public property CocoUIControl::PaddingWidth:Float" image="31"/>
+		<member name="PaddingHeight" proto="PaddingHeight:Float" help="PaddingHeight is property of class CocoUIControl
+public property CocoUIControl::PaddingHeight:Float" image="31"/>
 		<member name="__borderStyle" proto="__borderStyle:COCO_CONTROL_BORDER_STYLE_ENUM" help="__borderStyle is member var of class CocoUIControl
 protected CocoUIControl::__borderStyle:COCO_CONTROL_BORDER_STYLE_ENUM" image="32"/>
 		<member name="__borderRadius" proto="__borderRadius:Float" help="__borderRadius is member var of class CocoUIControl
@@ -3249,134 +3260,548 @@ protected CocoUIControl::__backgroundGradientSel:Gradient" image="32"/>
 public property CocoUIControl::BackgroundGradient:Gradient" image="31"/>
 		<member name="BackgroundGradientSel" proto="BackgroundGradientSel:Gradient" help="BackgroundGradientSel is property of class CocoUIControl
 public property CocoUIControl::BackgroundGradientSel:Gradient" image="31"/>
-		<member name="__skinImage" proto="__skinImage:CocoImage" help="__skinImage is member var of class CocoUIControl
-protected CocoUIControl::__skinImage:CocoImage" image="32"/>
-		<member name="__skinImageSel" proto="__skinImageSel:CocoImage" help="__skinImageSel is member var of class CocoUIControl
-protected CocoUIControl::__skinImageSel:CocoImage" image="32"/>
-		<member name="SkinImage" proto="SkinImage:CocoImage" help="SkinImage is property of class CocoUIControl
-public property CocoUIControl::SkinImage:CocoImage" image="31"/>
-		<member name="SkinImageSel" proto="SkinImageSel:CocoImage" help="SkinImageSel is property of class CocoUIControl
-public property CocoUIControl::SkinImageSel:CocoImage" image="31"/>
-		<member name="__glyphImage" proto="__glyphImage:CocoImage" help="__glyphImage is member var of class CocoUIControl
-protected CocoUIControl::__glyphImage:CocoImage" image="32"/>
-		<member name="__glyphImageSel" proto="__glyphImageSel:CocoImage" help="__glyphImageSel is member var of class CocoUIControl
-protected CocoUIControl::__glyphImageSel:CocoImage" image="32"/>
+		<member name="__skinImage" proto="__skinImage:String" help="__skinImage is member var of class CocoUIControl
+protected CocoUIControl::__skinImage:String" image="32"/>
+		<member name="__skinImageSel" proto="__skinImageSel:String" help="__skinImageSel is member var of class CocoUIControl
+protected CocoUIControl::__skinImageSel:String" image="32"/>
+		<member name="SkinImage" proto="SkinImage:String" help="SkinImage is property of class CocoUIControl
+public property CocoUIControl::SkinImage:String" image="31"/>
+		<member name="SkinImageSel" proto="SkinImageSel:String" help="SkinImageSel is property of class CocoUIControl
+public property CocoUIControl::SkinImageSel:String" image="31"/>
+		<member name="__glyphImage" proto="__glyphImage:String" help="__glyphImage is member var of class CocoUIControl
+protected CocoUIControl::__glyphImage:String" image="32"/>
+		<member name="__glyphImageSel" proto="__glyphImageSel:String" help="__glyphImageSel is member var of class CocoUIControl
+protected CocoUIControl::__glyphImageSel:String" image="32"/>
 		<member name="__glyphLeft" proto="__glyphLeft:Float" help="__glyphLeft is member var of class CocoUIControl
 protected CocoUIControl::__glyphLeft:Float" image="32"/>
 		<member name="__glyphTop" proto="__glyphTop:Float" help="__glyphTop is member var of class CocoUIControl
 protected CocoUIControl::__glyphTop:Float" image="32"/>
-		<member name="GlyphImage" proto="GlyphImage:CocoImage" help="GlyphImage is property of class CocoUIControl
-public property CocoUIControl::GlyphImage:CocoImage" image="31"/>
-		<member name="GlyphImageSel" proto="GlyphImageSel:CocoImage" help="GlyphImageSel is property of class CocoUIControl
-public property CocoUIControl::GlyphImageSel:CocoImage" image="31"/>
+		<member name="GlyphImage" proto="GlyphImage:String" help="GlyphImage is property of class CocoUIControl
+public property CocoUIControl::GlyphImage:String" image="31"/>
+		<member name="GlyphImageSel" proto="GlyphImageSel:String" help="GlyphImageSel is property of class CocoUIControl
+public property CocoUIControl::GlyphImageSel:String" image="31"/>
 		<member name="GlyphLeft" proto="GlyphLeft:Float" help="GlyphLeft is property of class CocoUIControl
 public property CocoUIControl::GlyphLeft:Float" image="31"/>
 		<member name="GlyphTop" proto="GlyphTop:Float" help="GlyphTop is property of class CocoUIControl
 public property CocoUIControl::GlyphTop:Float" image="31"/>
-		<member name="__chevronImage" proto="__chevronImage:CocoImage" help="__chevronImage is member var of class CocoUIControl
-protected CocoUIControl::__chevronImage:CocoImage" image="32"/>
-		<member name="__chevronImageSel" proto="__chevronImageSel:CocoImage" help="__chevronImageSel is member var of class CocoUIControl
-protected CocoUIControl::__chevronImageSel:CocoImage" image="32"/>
+		<member name="__chevronImage" proto="__chevronImage:String" help="__chevronImage is member var of class CocoUIControl
+protected CocoUIControl::__chevronImage:String" image="32"/>
+		<member name="__chevronImageSel" proto="__chevronImageSel:String" help="__chevronImageSel is member var of class CocoUIControl
+protected CocoUIControl::__chevronImageSel:String" image="32"/>
 		<member name="__chevronLeft" proto="__chevronLeft:Float" help="__chevronLeft is member var of class CocoUIControl
 protected CocoUIControl::__chevronLeft:Float" image="32"/>
 		<member name="__chevronTop" proto="__chevronTop:Float" help="__chevronTop is member var of class CocoUIControl
 protected CocoUIControl::__chevronTop:Float" image="32"/>
-		<member name="ChevronImage" proto="ChevronImage:CocoImage" help="ChevronImage is property of class CocoUIControl
-public property CocoUIControl::ChevronImage:CocoImage" image="31"/>
-		<member name="ChevronImageSel" proto="ChevronImageSel:CocoImage" help="ChevronImageSel is property of class CocoUIControl
-public property CocoUIControl::ChevronImageSel:CocoImage" image="31"/>
+		<member name="ChevronImage" proto="ChevronImage:String" help="ChevronImage is property of class CocoUIControl
+public property CocoUIControl::ChevronImage:String" image="31"/>
+		<member name="ChevronImageSel" proto="ChevronImageSel:String" help="ChevronImageSel is property of class CocoUIControl
+public property CocoUIControl::ChevronImageSel:String" image="31"/>
 		<member name="ChevronLeft" proto="ChevronLeft:Float" help="ChevronLeft is property of class CocoUIControl
 public property CocoUIControl::ChevronLeft:Float" image="31"/>
 		<member name="ChevronTop" proto="ChevronTop:Float" help="ChevronTop is property of class CocoUIControl
 public property CocoUIControl::ChevronTop:Float" image="31"/>
+		<member name="__texts" proto="__texts:Array&lt;CocoUITextBlock&gt;" help="__texts is member var of class CocoUIControl
+protected CocoUIControl::__texts:Array&lt;CocoUITextBlock&gt;" image="1"/>
+		<member name="__textsSelected" proto="__textsSelected:Array&lt;CocoUITextBlock&gt;" help="__textsSelected is member var of class CocoUIControl
+protected CocoUIControl::__textsSelected:Array&lt;CocoUITextBlock&gt;" image="1"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIControl
 public CocoUIControl::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class CocoUIControlOnGlyphClickEvent">
+	</memberlist>
+	<memberlist name="Class CocoUIControlOnChevronClickEvent">
+	</memberlist>
+	<memberlist name="Class CocoUIFormView">
+		<member name="addInlineControl" proto="addInlineControl(ctl:CocoUIControl) :CocoUIControl" help="addInlineControl is member function of class CocoUIFormView
+public CocoUIFormView::addInlineControl(ctl:CocoUIControl) :CocoUIControl" image="35"/>
+		<member name="addFloatingControl" proto="addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl" help="addFloatingControl is member function of class CocoUIFormView
+public CocoUIFormView::addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl" image="35"/>
+		<member name="LayoutRecalc" proto="LayoutRecalc()" help="LayoutRecalc is member function of class CocoUIFormView
+public virtual CocoUIFormView::LayoutRecalc()" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUIFormView
+public virtual CocoUIFormView::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIFormView
+public virtual CocoUIFormView::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String, scene:CocoScene)" help="Constructor is member function of class CocoUIFormView
+public CocoUIFormView::Constructor(name:String, scene:CocoScene)" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIFormView
+public CocoUIFormView::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoUIScrollView">
+		<member name="getKeyFrame" proto="getKeyFrame() :CocoKeyFrame" help="getKeyFrame is member function of class CocoUIScrollView
+public CocoUIScrollView::getKeyFrame() :CocoKeyFrame" image="35"/>
+		<member name="inlineHeight" proto="inlineHeight() :Float" help="inlineHeight is member function of class CocoUIScrollView
+public CocoUIScrollView::inlineHeight() :Float" image="35"/>
+		<member name="resetSelection" proto="resetSelection()" help="resetSelection is member function of class CocoUIScrollView
+public CocoUIScrollView::resetSelection()" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUIScrollView
+public virtual CocoUIScrollView::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="__CocoUIScrollView_OnTouchStart" proto="__CocoUIScrollView_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="__CocoUIScrollView_OnTouchStart is member function of class CocoUIScrollView
+public CocoUIScrollView::__CocoUIScrollView_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="__CocoUIScrollView_OnTouchMove" proto="__CocoUIScrollView_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="__CocoUIScrollView_OnTouchMove is member function of class CocoUIScrollView
+public CocoUIScrollView::__CocoUIScrollView_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="__CocoUIScrollView_OnTouchEnd" proto="__CocoUIScrollView_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="__CocoUIScrollView_OnTouchEnd is member function of class CocoUIScrollView
+public CocoUIScrollView::__CocoUIScrollView_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIScrollView
+public virtual CocoUIScrollView::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String, scene:CocoScene)" help="Constructor is member function of class CocoUIScrollView
+public CocoUIScrollView::Constructor(name:String, scene:CocoScene)" image="14"/>
+		<member name="__scrollLastTime" proto="__scrollLastTime:Time" help="__scrollLastTime is member var of class CocoUIScrollView
+private CocoUIScrollView::__scrollLastTime:Time" image="29"/>
+		<member name="__scrollFirstPointY" proto="__scrollFirstPointY:Float" help="__scrollFirstPointY is member var of class CocoUIScrollView
+private CocoUIScrollView::__scrollFirstPointY:Float" image="29"/>
+		<member name="__scrollLastPointY" proto="__scrollLastPointY:Float" help="__scrollLastPointY is member var of class CocoUIScrollView
+private CocoUIScrollView::__scrollLastPointY:Float" image="29"/>
+		<member name="__scrollSpeedY" proto="__scrollSpeedY:Float" help="__scrollSpeedY is member var of class CocoUIScrollView
+private CocoUIScrollView::__scrollSpeedY:Float" image="29"/>
+		<member name="__minY" proto="__minY:Float" help="__minY is member var of class CocoUIScrollView
+private CocoUIScrollView::__minY:Float" image="29"/>
+		<member name="__maxY" proto="__maxY:Float" help="__maxY is member var of class CocoUIScrollView
+private CocoUIScrollView::__maxY:Float" image="29"/>
+		<member name="__bounceY" proto="__bounceY:Boolean" help="__bounceY is member var of class CocoUIScrollView
+private CocoUIScrollView::__bounceY:Boolean" image="29"/>
+		<member name="__scrollContainer" proto="__scrollContainer:CocoClip" help="__scrollContainer is member var of class CocoUIScrollView
+protected CocoUIScrollView::__scrollContainer:CocoClip" image="32"/>
+		<member name="__scrollDeceleration" proto="__scrollDeceleration:Float" help="__scrollDeceleration is member var of class CocoUIScrollView
+private CocoUIScrollView::__scrollDeceleration:Float" image="29"/>
+		<member name="__scrollSpringTension" proto="__scrollSpringTension:Float" help="__scrollSpringTension is member var of class CocoUIScrollView
+private CocoUIScrollView::__scrollSpringTension:Float" image="29"/>
+		<member name="ScrollDeceleration" proto="ScrollDeceleration:Float" help="ScrollDeceleration is property of class CocoUIScrollView
+public property CocoUIScrollView::ScrollDeceleration:Float" image="31"/>
+		<member name="ScrollSpringTension" proto="ScrollSpringTension:Float" help="ScrollSpringTension is property of class CocoUIScrollView
+public property CocoUIScrollView::ScrollSpringTension:Float" image="31"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIScrollView
+public CocoUIScrollView::__className:String" image="13"/>
+	</memberlist>
 	<memberlist name="Class CocoUIButton">
-		<member name="foo" proto="foo()" help="foo is member function of class CocoUIButton
-public CocoUIButton::foo()" image="35"/>
-		<member name="repaint" proto="repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" help="repaint is member function of class CocoUIButton
-public virtual CocoUIButton::repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUIButton
+public virtual CocoUIButton::RefreshLayout()" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUIButton
+public virtual CocoUIButton::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIButton
 public virtual CocoUIButton::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(Name:String)" help="Constructor is member function of class CocoUIButton
-public CocoUIButton::Constructor(Name:String)" image="14"/>
-		<member name="__caption" proto="__caption:String" help="__caption is member var of class CocoUIButton
-protected CocoUIButton::__caption:String" image="32"/>
-		<member name="__captionAlign" proto="__captionAlign:COCO_CONTROL_ANCHOR_ENUM" help="__captionAlign is member var of class CocoUIButton
-protected CocoUIButton::__captionAlign:COCO_CONTROL_ANCHOR_ENUM" image="32"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUIButton
+public CocoUIButton::Constructor(name:String)" image="14"/>
+		<member name="__caption" proto="__caption:CocoUITextBlock" help="__caption is member var of class CocoUIButton
+public CocoUIButton::__caption:CocoUITextBlock" image="34"/>
 		<member name="Caption" proto="Caption:String" help="Caption is property of class CocoUIButton
 public property CocoUIButton::Caption:String" image="31"/>
 		<member name="CaptionAlign" proto="CaptionAlign:COCO_CONTROL_ANCHOR_ENUM" help="CaptionAlign is property of class CocoUIButton
 public property CocoUIButton::CaptionAlign:COCO_CONTROL_ANCHOR_ENUM" image="31"/>
+		<member name="CaptionFontName" proto="CaptionFontName:String" help="CaptionFontName is property of class CocoUIButton
+public property CocoUIButton::CaptionFontName:String" image="31"/>
+		<member name="CaptionFontSize" proto="CaptionFontSize:Float" help="CaptionFontSize is property of class CocoUIButton
+public property CocoUIButton::CaptionFontSize:Float" image="31"/>
+		<member name="CaptionFontBold" proto="CaptionFontBold:Boolean" help="CaptionFontBold is property of class CocoUIButton
+public property CocoUIButton::CaptionFontBold:Boolean" image="31"/>
+		<member name="CaptionFontItalic" proto="CaptionFontItalic:Boolean" help="CaptionFontItalic is property of class CocoUIButton
+public property CocoUIButton::CaptionFontItalic:Boolean" image="31"/>
+		<member name="CaptionFontUnderline" proto="CaptionFontUnderline:Boolean" help="CaptionFontUnderline is property of class CocoUIButton
+public property CocoUIButton::CaptionFontUnderline:Boolean" image="31"/>
+		<member name="CaptionFontShadowX" proto="CaptionFontShadowX:Integer" help="CaptionFontShadowX is property of class CocoUIButton
+public property CocoUIButton::CaptionFontShadowX:Integer" image="31"/>
+		<member name="CaptionFontShadowY" proto="CaptionFontShadowY:Integer" help="CaptionFontShadowY is property of class CocoUIButton
+public property CocoUIButton::CaptionFontShadowY:Integer" image="31"/>
+		<member name="CaptionFontBlur" proto="CaptionFontBlur:Integer" help="CaptionFontBlur is property of class CocoUIButton
+public property CocoUIButton::CaptionFontBlur:Integer" image="31"/>
+		<member name="CaptionFontColorSel" proto="CaptionFontColorSel:Color" help="CaptionFontColorSel is property of class CocoUIButton
+public property CocoUIButton::CaptionFontColorSel:Color" image="31"/>
+		<member name="CaptionFontShadowColorSel" proto="CaptionFontShadowColorSel:Color" help="CaptionFontShadowColorSel is property of class CocoUIButton
+public property CocoUIButton::CaptionFontShadowColorSel:Color" image="31"/>
+		<member name="CaptionFontColor" proto="CaptionFontColor:Color" help="CaptionFontColor is property of class CocoUIButton
+public property CocoUIButton::CaptionFontColor:Color" image="31"/>
+		<member name="CaptionFontShadowColor" proto="CaptionFontShadowColor:Color" help="CaptionFontShadowColor is property of class CocoUIButton
+public property CocoUIButton::CaptionFontShadowColor:Color" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIButton
 public CocoUIButton::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoUICheckBox">
-		<member name="Constructor" proto="Constructor(Name:String)" help="Constructor is member function of class CocoUICheckBox
-public CocoUICheckBox::Constructor(Name:String)" image="14"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUICheckBox
+public CocoUICheckBox::Constructor(name:String)" image="14"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUICheckBox
 public CocoUICheckBox::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class CocoUIComboBoxSlot">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIComboBoxSlot
+public virtual CocoUIComboBoxSlot::Destructor()" image="35"/>
+		<member name="keys" proto="keys:Array&lt;String&gt;" help="keys is member var of class CocoUIComboBoxSlot
+public CocoUIComboBoxSlot::keys:Array&lt;String&gt;" image="1"/>
+		<member name="captions" proto="captions:Array&lt;String&gt;" help="captions is member var of class CocoUIComboBoxSlot
+public CocoUIComboBoxSlot::captions:Array&lt;String&gt;" image="1"/>
+		<member name="width" proto="width:Integer" help="width is member var of class CocoUIComboBoxSlot
+public CocoUIComboBoxSlot::width:Integer" image="34"/>
+		<member name="textWidth" proto="textWidth:Float" help="textWidth is member var of class CocoUIComboBoxSlot
+public CocoUIComboBoxSlot::textWidth:Float" image="34"/>
+		<member name="selected" proto="selected:Integer" help="selected is member var of class CocoUIComboBoxSlot
+public CocoUIComboBoxSlot::selected:Integer" image="34"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIComboBoxSlot
+public CocoUIComboBoxSlot::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoUIComboBoxPopup">
+		<member name="__CocoUIComboBoxPopup_OnTouchStart" proto="__CocoUIComboBoxPopup_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="__CocoUIComboBoxPopup_OnTouchStart is member function of class CocoUIComboBoxPopup
+public CocoUIComboBoxPopup::__CocoUIComboBoxPopup_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="__CocoUIComboBoxPopup_OnTouchMove" proto="__CocoUIComboBoxPopup_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="__CocoUIComboBoxPopup_OnTouchMove is member function of class CocoUIComboBoxPopup
+public CocoUIComboBoxPopup::__CocoUIComboBoxPopup_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="__CocoUIComboBoxPopup_OnTouchEnd" proto="__CocoUIComboBoxPopup_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="__CocoUIComboBoxPopup_OnTouchEnd is member function of class CocoUIComboBoxPopup
+public CocoUIComboBoxPopup::__CocoUIComboBoxPopup_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIComboBoxPopup
+public virtual CocoUIComboBoxPopup::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUIComboBoxPopup
+public CocoUIComboBoxPopup::Constructor(name:String)" image="14"/>
+		<member name="imgFrame" proto="imgFrame:CocoImage" help="imgFrame is member var of class CocoUIComboBoxPopup
+public CocoUIComboBoxPopup::imgFrame:CocoImage" image="34"/>
+		<member name="imgHeader" proto="imgHeader:CocoImage" help="imgHeader is member var of class CocoUIComboBoxPopup
+public CocoUIComboBoxPopup::imgHeader:CocoImage" image="34"/>
+		<member name="imgOK" proto="imgOK:CocoImage" help="imgOK is member var of class CocoUIComboBoxPopup
+public CocoUIComboBoxPopup::imgOK:CocoImage" image="34"/>
+		<member name="slots" proto="slots:Array&lt;CocoUIComboBoxSlot&gt;" help="slots is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::slots:Array&lt;CocoUIComboBoxSlot&gt;" image="1"/>
+		<member name="separator" proto="separator:String" help="separator is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::separator:String" image="29"/>
+		<member name="ROW_HEIGHT" proto="ROW_HEIGHT:Integer" help="ROW_HEIGHT is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::ROW_HEIGHT:Integer" image="29"/>
+		<member name="SELECTION_Y" proto="SELECTION_Y:Integer" help="SELECTION_Y is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::SELECTION_Y:Integer" image="29"/>
+		<member name="PADDING" proto="PADDING:Integer" help="PADDING is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::PADDING:Integer" image="29"/>
+		<member name="HEADER_HEIGHT" proto="HEADER_HEIGHT:Integer" help="HEADER_HEIGHT is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::HEADER_HEIGHT:Integer" image="29"/>
+		<member name="FRAME_HEIGHT" proto="FRAME_HEIGHT:Integer" help="FRAME_HEIGHT is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::FRAME_HEIGHT:Integer" image="29"/>
+		<member name="BUTTON_HEIGHT" proto="BUTTON_HEIGHT:Integer" help="BUTTON_HEIGHT is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::BUTTON_HEIGHT:Integer" image="29"/>
+		<member name="FONT_SIZE" proto="FONT_SIZE:Float" help="FONT_SIZE is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::FONT_SIZE:Float" image="29"/>
+		<member name="my" proto="my:Float" help="my is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::my:Float" image="29"/>
+		<member name="my0" proto="my0:Float" help="my0 is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::my0:Float" image="29"/>
+		<member name="mx0" proto="mx0:Float" help="mx0 is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::mx0:Float" image="29"/>
+		<member name="slotScrolling" proto="slotScrolling:Integer" help="slotScrolling is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::slotScrolling:Integer" image="29"/>
+		<member name="reEnter" proto="reEnter:Boolean" help="reEnter is member var of class CocoUIComboBoxPopup
+private CocoUIComboBoxPopup::reEnter:Boolean" image="29"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIComboBoxPopup
+public CocoUIComboBoxPopup::__className:String" image="13"/>
+	</memberlist>
 	<memberlist name="Class CocoUIComboBox">
-		<member name="Constructor" proto="Constructor(Name:String)" help="Constructor is member function of class CocoUIComboBox
-public CocoUIComboBox::Constructor(Name:String)" image="14"/>
+		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUIComboBox
+public virtual CocoUIComboBox::RefreshLayout()" image="35"/>
+		<member name="__CocoUITextEdit_OnClick" proto="__CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean" help="__CocoUITextEdit_OnClick is member function of class CocoUIComboBox
+public CocoUIComboBox::__CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIComboBox
+public virtual CocoUIComboBox::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUIComboBox
+public CocoUIComboBox::Constructor(name:String)" image="14"/>
+		<member name="__text" proto="__text:CocoUITextBlock" help="__text is member var of class CocoUIComboBox
+public CocoUIComboBox::__text:CocoUITextBlock" image="34"/>
+		<member name="__prompt" proto="__prompt:CocoUITextBlock" help="__prompt is member var of class CocoUIComboBox
+public CocoUIComboBox::__prompt:CocoUITextBlock" image="34"/>
+		<member name="Text" proto="Text:String" help="Text is property of class CocoUIComboBox
+public property CocoUIComboBox::Text:String" image="31"/>
+		<member name="TextFontName" proto="TextFontName:String" help="TextFontName is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontName:String" image="31"/>
+		<member name="TextFontSize" proto="TextFontSize:Float" help="TextFontSize is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontSize:Float" image="31"/>
+		<member name="TextFontBold" proto="TextFontBold:Boolean" help="TextFontBold is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontBold:Boolean" image="31"/>
+		<member name="TextFontItalic" proto="TextFontItalic:Boolean" help="TextFontItalic is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontItalic:Boolean" image="31"/>
+		<member name="TextFontUnderline" proto="TextFontUnderline:Boolean" help="TextFontUnderline is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontUnderline:Boolean" image="31"/>
+		<member name="TextFontShadowX" proto="TextFontShadowX:Integer" help="TextFontShadowX is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontShadowX:Integer" image="31"/>
+		<member name="TextFontShadowY" proto="TextFontShadowY:Integer" help="TextFontShadowY is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontShadowY:Integer" image="31"/>
+		<member name="TextFontBlur" proto="TextFontBlur:Integer" help="TextFontBlur is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontBlur:Integer" image="31"/>
+		<member name="TextFontColorSel" proto="TextFontColorSel:Color" help="TextFontColorSel is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontColorSel:Color" image="31"/>
+		<member name="TextFontShadowColorSel" proto="TextFontShadowColorSel:Color" help="TextFontShadowColorSel is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontShadowColorSel:Color" image="31"/>
+		<member name="TextFontColor" proto="TextFontColor:Color" help="TextFontColor is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontColor:Color" image="31"/>
+		<member name="TextFontShadowColor" proto="TextFontShadowColor:Color" help="TextFontShadowColor is property of class CocoUIComboBox
+public property CocoUIComboBox::TextFontShadowColor:Color" image="31"/>
+		<member name="Prompt" proto="Prompt:String" help="Prompt is property of class CocoUIComboBox
+public property CocoUIComboBox::Prompt:String" image="31"/>
+		<member name="PromptFontName" proto="PromptFontName:String" help="PromptFontName is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontName:String" image="31"/>
+		<member name="PromptFontSize" proto="PromptFontSize:Float" help="PromptFontSize is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontSize:Float" image="31"/>
+		<member name="PromptFontBold" proto="PromptFontBold:Boolean" help="PromptFontBold is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontBold:Boolean" image="31"/>
+		<member name="PromptFontItalic" proto="PromptFontItalic:Boolean" help="PromptFontItalic is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontItalic:Boolean" image="31"/>
+		<member name="PromptFontUnderline" proto="PromptFontUnderline:Boolean" help="PromptFontUnderline is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontUnderline:Boolean" image="31"/>
+		<member name="PromptFontShadowX" proto="PromptFontShadowX:Integer" help="PromptFontShadowX is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontShadowX:Integer" image="31"/>
+		<member name="PromptFontShadowY" proto="PromptFontShadowY:Integer" help="PromptFontShadowY is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontShadowY:Integer" image="31"/>
+		<member name="PromptFontBlur" proto="PromptFontBlur:Integer" help="PromptFontBlur is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontBlur:Integer" image="31"/>
+		<member name="PromptFontColorSel" proto="PromptFontColorSel:Color" help="PromptFontColorSel is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontColorSel:Color" image="31"/>
+		<member name="PromptFontShadowColorSel" proto="PromptFontShadowColorSel:Color" help="PromptFontShadowColorSel is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontShadowColorSel:Color" image="31"/>
+		<member name="PromptFontColor" proto="PromptFontColor:Color" help="PromptFontColor is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontColor:Color" image="31"/>
+		<member name="PromptFontShadowColor" proto="PromptFontShadowColor:Color" help="PromptFontShadowColor is property of class CocoUIComboBox
+public property CocoUIComboBox::PromptFontShadowColor:Color" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIComboBox
 public CocoUIComboBox::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoUILabel">
-		<member name="Constructor" proto="Constructor(Name:String)" help="Constructor is member function of class CocoUILabel
-public CocoUILabel::Constructor(Name:String)" image="14"/>
+		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUILabel
+public virtual CocoUILabel::RefreshLayout()" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUILabel
+public virtual CocoUILabel::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUILabel
+public CocoUILabel::Constructor(name:String)" image="14"/>
+		<member name="__caption" proto="__caption:CocoUITextBlock" help="__caption is member var of class CocoUILabel
+public CocoUILabel::__caption:CocoUITextBlock" image="34"/>
+		<member name="Caption" proto="Caption:String" help="Caption is property of class CocoUILabel
+public property CocoUILabel::Caption:String" image="31"/>
+		<member name="CaptionAlign" proto="CaptionAlign:COCO_CONTROL_ANCHOR_ENUM" help="CaptionAlign is property of class CocoUILabel
+public property CocoUILabel::CaptionAlign:COCO_CONTROL_ANCHOR_ENUM" image="31"/>
+		<member name="CaptionMultiline" proto="CaptionMultiline:Boolean" help="CaptionMultiline is property of class CocoUILabel
+public property CocoUILabel::CaptionMultiline:Boolean" image="31"/>
+		<member name="CaptionFontName" proto="CaptionFontName:String" help="CaptionFontName is property of class CocoUILabel
+public property CocoUILabel::CaptionFontName:String" image="31"/>
+		<member name="CaptionFontSize" proto="CaptionFontSize:Float" help="CaptionFontSize is property of class CocoUILabel
+public property CocoUILabel::CaptionFontSize:Float" image="31"/>
+		<member name="CaptionFontBold" proto="CaptionFontBold:Boolean" help="CaptionFontBold is property of class CocoUILabel
+public property CocoUILabel::CaptionFontBold:Boolean" image="31"/>
+		<member name="CaptionFontItalic" proto="CaptionFontItalic:Boolean" help="CaptionFontItalic is property of class CocoUILabel
+public property CocoUILabel::CaptionFontItalic:Boolean" image="31"/>
+		<member name="CaptionFontUnderline" proto="CaptionFontUnderline:Boolean" help="CaptionFontUnderline is property of class CocoUILabel
+public property CocoUILabel::CaptionFontUnderline:Boolean" image="31"/>
+		<member name="CaptionFontShadowX" proto="CaptionFontShadowX:Integer" help="CaptionFontShadowX is property of class CocoUILabel
+public property CocoUILabel::CaptionFontShadowX:Integer" image="31"/>
+		<member name="CaptionFontShadowY" proto="CaptionFontShadowY:Integer" help="CaptionFontShadowY is property of class CocoUILabel
+public property CocoUILabel::CaptionFontShadowY:Integer" image="31"/>
+		<member name="CaptionFontBlur" proto="CaptionFontBlur:Integer" help="CaptionFontBlur is property of class CocoUILabel
+public property CocoUILabel::CaptionFontBlur:Integer" image="31"/>
+		<member name="CaptionFontColorSel" proto="CaptionFontColorSel:Color" help="CaptionFontColorSel is property of class CocoUILabel
+public property CocoUILabel::CaptionFontColorSel:Color" image="31"/>
+		<member name="CaptionFontShadowColorSel" proto="CaptionFontShadowColorSel:Color" help="CaptionFontShadowColorSel is property of class CocoUILabel
+public property CocoUILabel::CaptionFontShadowColorSel:Color" image="31"/>
+		<member name="CaptionFontColor" proto="CaptionFontColor:Color" help="CaptionFontColor is property of class CocoUILabel
+public property CocoUILabel::CaptionFontColor:Color" image="31"/>
+		<member name="CaptionFontShadowColor" proto="CaptionFontShadowColor:Color" help="CaptionFontShadowColor is property of class CocoUILabel
+public property CocoUILabel::CaptionFontShadowColor:Color" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUILabel
 public CocoUILabel::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class CocoUILookupEdit">
+		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUILookupEdit
+public virtual CocoUILookupEdit::RefreshLayout()" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUILookupEdit
+public virtual CocoUILookupEdit::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUILookupEdit
+public virtual CocoUILookupEdit::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUILookupEdit
+public CocoUILookupEdit::Constructor(name:String)" image="14"/>
+		<member name="__label" proto="__label:CocoUILabel" help="__label is member var of class CocoUILookupEdit
+private CocoUILookupEdit::__label:CocoUILabel" image="29"/>
+		<member name="__text" proto="__text:CocoUITextEdit" help="__text is member var of class CocoUILookupEdit
+private CocoUILookupEdit::__text:CocoUITextEdit" image="29"/>
+		<member name="__btn" proto="__btn:CocoUIButton" help="__btn is member var of class CocoUILookupEdit
+private CocoUILookupEdit::__btn:CocoUIButton" image="29"/>
+		<member name="__labelHeight" proto="__labelHeight:Float" help="__labelHeight is member var of class CocoUILookupEdit
+private CocoUILookupEdit::__labelHeight:Float" image="13"/>
+		<member name="__buttonWidth" proto="__buttonWidth:Float" help="__buttonWidth is member var of class CocoUILookupEdit
+private CocoUILookupEdit::__buttonWidth:Float" image="13"/>
+		<member name="Label" proto="Label:CocoUILabel" help="Label is property of class CocoUILookupEdit
+public property CocoUILookupEdit::Label:CocoUILabel" image="31"/>
+		<member name="Text" proto="Text:CocoUITextEdit" help="Text is property of class CocoUILookupEdit
+public property CocoUILookupEdit::Text:CocoUITextEdit" image="31"/>
+		<member name="Button" proto="Button:CocoUIButton" help="Button is property of class CocoUILookupEdit
+public property CocoUILookupEdit::Button:CocoUIButton" image="31"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoUILookupEdit
+public CocoUILookupEdit::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoUINavBar">
+		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUINavBar
+public virtual CocoUINavBar::RefreshLayout()" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUINavBar
+public virtual CocoUINavBar::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUINavBar
+public virtual CocoUINavBar::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUINavBar
+public CocoUINavBar::Constructor(name:String)" image="14"/>
+		<member name="__caption" proto="__caption:CocoUITextBlock" help="__caption is member var of class CocoUINavBar
+public CocoUINavBar::__caption:CocoUITextBlock" image="34"/>
+		<member name="Caption" proto="Caption:String" help="Caption is property of class CocoUINavBar
+public property CocoUINavBar::Caption:String" image="31"/>
+		<member name="CaptionAlign" proto="CaptionAlign:COCO_CONTROL_ANCHOR_ENUM" help="CaptionAlign is property of class CocoUINavBar
+public property CocoUINavBar::CaptionAlign:COCO_CONTROL_ANCHOR_ENUM" image="31"/>
+		<member name="CaptionFontName" proto="CaptionFontName:String" help="CaptionFontName is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontName:String" image="31"/>
+		<member name="CaptionFontSize" proto="CaptionFontSize:Float" help="CaptionFontSize is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontSize:Float" image="31"/>
+		<member name="CaptionFontBold" proto="CaptionFontBold:Boolean" help="CaptionFontBold is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontBold:Boolean" image="31"/>
+		<member name="CaptionFontItalic" proto="CaptionFontItalic:Boolean" help="CaptionFontItalic is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontItalic:Boolean" image="31"/>
+		<member name="CaptionFontUnderline" proto="CaptionFontUnderline:Boolean" help="CaptionFontUnderline is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontUnderline:Boolean" image="31"/>
+		<member name="CaptionFontShadowX" proto="CaptionFontShadowX:Integer" help="CaptionFontShadowX is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontShadowX:Integer" image="31"/>
+		<member name="CaptionFontShadowY" proto="CaptionFontShadowY:Integer" help="CaptionFontShadowY is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontShadowY:Integer" image="31"/>
+		<member name="CaptionFontBlur" proto="CaptionFontBlur:Integer" help="CaptionFontBlur is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontBlur:Integer" image="31"/>
+		<member name="CaptionFontColorSel" proto="CaptionFontColorSel:Color" help="CaptionFontColorSel is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontColorSel:Color" image="31"/>
+		<member name="CaptionFontShadowColorSel" proto="CaptionFontShadowColorSel:Color" help="CaptionFontShadowColorSel is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontShadowColorSel:Color" image="31"/>
+		<member name="CaptionFontColor" proto="CaptionFontColor:Color" help="CaptionFontColor is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontColor:Color" image="31"/>
+		<member name="CaptionFontShadowColor" proto="CaptionFontShadowColor:Color" help="CaptionFontShadowColor is property of class CocoUINavBar
+public property CocoUINavBar::CaptionFontShadowColor:Color" image="31"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoUINavBar
+public CocoUINavBar::__className:String" image="13"/>
+	</memberlist>
 	<memberlist name="Class CocoUIPictureList">
-		<member name="repaint" proto="repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" help="repaint is member function of class CocoUIPictureList
-public virtual CocoUIPictureList::repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIPictureList
 public virtual CocoUIPictureList::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(Name:String)" help="Constructor is member function of class CocoUIPictureList
 public CocoUIPictureList::Constructor(Name:String)" image="14"/>
-		<member name="__secondCaption" proto="__secondCaption:String" help="__secondCaption is member var of class CocoUIPictureList
-protected CocoUIPictureList::__secondCaption:String" image="32"/>
-		<member name="__secondCaptionAlign" proto="__secondCaptionAlign:COCO_CONTROL_ANCHOR_ENUM" help="__secondCaptionAlign is member var of class CocoUIPictureList
-protected CocoUIPictureList::__secondCaptionAlign:COCO_CONTROL_ANCHOR_ENUM" image="32"/>
-		<member name="SecondCaption" proto="SecondCaption:String" help="SecondCaption is property of class CocoUIPictureList
-public property CocoUIPictureList::SecondCaption:String" image="31"/>
-		<member name="SecondCaptionAlign" proto="SecondCaptionAlign:COCO_CONTROL_ANCHOR_ENUM" help="SecondCaptionAlign is property of class CocoUIPictureList
-public property CocoUIPictureList::SecondCaptionAlign:COCO_CONTROL_ANCHOR_ENUM" image="31"/>
-		<member name="__secondCaptionFontName" proto="__secondCaptionFontName:String" help="__secondCaptionFontName is member var of class CocoUIPictureList
-private CocoUIPictureList::__secondCaptionFontName:String" image="29"/>
-		<member name="__secondCaptionFontSize" proto="__secondCaptionFontSize:Float" help="__secondCaptionFontSize is member var of class CocoUIPictureList
-private CocoUIPictureList::__secondCaptionFontSize:Float" image="29"/>
-		<member name="__secondCaptionFontBold" proto="__secondCaptionFontBold:Boolean" help="__secondCaptionFontBold is member var of class CocoUIPictureList
-private CocoUIPictureList::__secondCaptionFontBold:Boolean" image="29"/>
-		<member name="__secondCaptionFontItalic" proto="__secondCaptionFontItalic:Boolean" help="__secondCaptionFontItalic is member var of class CocoUIPictureList
-private CocoUIPictureList::__secondCaptionFontItalic:Boolean" image="29"/>
-		<member name="__secondCaptionFontUnderline" proto="__secondCaptionFontUnderline:Boolean" help="__secondCaptionFontUnderline is member var of class CocoUIPictureList
-private CocoUIPictureList::__secondCaptionFontUnderline:Boolean" image="29"/>
-		<member name="__secondCaptionFontColor" proto="__secondCaptionFontColor:Color" help="__secondCaptionFontColor is member var of class CocoUIPictureList
-private CocoUIPictureList::__secondCaptionFontColor:Color" image="29"/>
-		<member name="SecondCaptionFontName" proto="SecondCaptionFontName:String" help="SecondCaptionFontName is property of class CocoUIPictureList
-public property CocoUIPictureList::SecondCaptionFontName:String" image="31"/>
-		<member name="SecondCaptionFontSize" proto="SecondCaptionFontSize:Float" help="SecondCaptionFontSize is property of class CocoUIPictureList
-public property CocoUIPictureList::SecondCaptionFontSize:Float" image="31"/>
-		<member name="SecondCaptionFontBold" proto="SecondCaptionFontBold:Boolean" help="SecondCaptionFontBold is property of class CocoUIPictureList
-public property CocoUIPictureList::SecondCaptionFontBold:Boolean" image="31"/>
-		<member name="SecondCaptionFontItalic" proto="SecondCaptionFontItalic:Boolean" help="SecondCaptionFontItalic is property of class CocoUIPictureList
-public property CocoUIPictureList::SecondCaptionFontItalic:Boolean" image="31"/>
-		<member name="SecondCaptionFontUnderline" proto="SecondCaptionFontUnderline:Boolean" help="SecondCaptionFontUnderline is property of class CocoUIPictureList
-public property CocoUIPictureList::SecondCaptionFontUnderline:Boolean" image="31"/>
-		<member name="SecondCaptionFontColor" proto="SecondCaptionFontColor:Color" help="SecondCaptionFontColor is property of class CocoUIPictureList
-public property CocoUIPictureList::SecondCaptionFontColor:Color" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIPictureList
 public CocoUIPictureList::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoUITextBox">
-		<member name="Constructor" proto="Constructor(Name:String)" help="Constructor is member function of class CocoUITextBox
-public CocoUITextBox::Constructor(Name:String)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoUITextBox
-public CocoUITextBox::__className:String" image="13"/>
+	<memberlist name="Class CocoUITabBar">
+		<member name="Composer" proto="Composer()" help="Composer is member function of class CocoUITabBar
+public CocoUITabBar::Composer()" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUITabBar
+public virtual CocoUITabBar::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUITabBar
+public CocoUITabBar::Constructor(name:String)" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoUITabBar
+public CocoUITabBar::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoUITextBlock">
+		<member name="SetTextRect" proto="SetTextRect(left:Float, top:Float, width:Float, height:Float)" help="SetTextRect is member function of class CocoUITextBlock
+public CocoUITextBlock::SetTextRect(left:Float, top:Float, width:Float, height:Float)" image="35"/>
+		<member name="toImage" proto="toImage(selected:Boolean) :CocoImage" help="toImage is member function of class CocoUITextBlock
+public CocoUITextBlock::toImage(selected:Boolean) :CocoImage" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUITextBlock
+public virtual CocoUITextBlock::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(Text:String, align:COCO_CONTROL_ANCHOR_ENUM)" help="Constructor is member function of class CocoUITextBlock
+public CocoUITextBlock::Constructor(Text:String, align:COCO_CONTROL_ANCHOR_ENUM)" image="14"/>
+		<member name="text" proto="text:String" help="text is member var of class CocoUITextBlock
+public CocoUITextBlock::text:String" image="34"/>
+		<member name="multiline" proto="multiline:Boolean" help="multiline is member var of class CocoUITextBlock
+public CocoUITextBlock::multiline:Boolean" image="34"/>
+		<member name="ctl" proto="ctl:CocoUIControl" help="ctl is member var of class CocoUITextBlock
+public CocoUITextBlock::ctl:CocoUIControl" image="34"/>
+		<member name="Left" proto="Left:Float" help="Left is member var of class CocoUITextBlock
+public CocoUITextBlock::Left:Float" image="34"/>
+		<member name="Top" proto="Top:Float" help="Top is member var of class CocoUITextBlock
+public CocoUITextBlock::Top:Float" image="34"/>
+		<member name="Width" proto="Width:Float" help="Width is member var of class CocoUITextBlock
+public CocoUITextBlock::Width:Float" image="34"/>
+		<member name="Height" proto="Height:Float" help="Height is member var of class CocoUITextBlock
+public CocoUITextBlock::Height:Float" image="34"/>
+		<member name="anchor" proto="anchor:COCO_CONTROL_ANCHOR_ENUM" help="anchor is member var of class CocoUITextBlock
+public CocoUITextBlock::anchor:COCO_CONTROL_ANCHOR_ENUM" image="34"/>
+		<member name="fontColor" proto="fontColor:Color" help="fontColor is member var of class CocoUITextBlock
+public CocoUITextBlock::fontColor:Color" image="34"/>
+		<member name="fontColorSel" proto="fontColorSel:Color" help="fontColorSel is member var of class CocoUITextBlock
+public CocoUITextBlock::fontColorSel:Color" image="34"/>
+		<member name="fontName" proto="fontName:String" help="fontName is member var of class CocoUITextBlock
+public CocoUITextBlock::fontName:String" image="34"/>
+		<member name="fontSize" proto="fontSize:Float" help="fontSize is member var of class CocoUITextBlock
+public CocoUITextBlock::fontSize:Float" image="34"/>
+		<member name="fontBold" proto="fontBold:Boolean" help="fontBold is member var of class CocoUITextBlock
+public CocoUITextBlock::fontBold:Boolean" image="34"/>
+		<member name="fontItalic" proto="fontItalic:Boolean" help="fontItalic is member var of class CocoUITextBlock
+public CocoUITextBlock::fontItalic:Boolean" image="34"/>
+		<member name="fontUnderline" proto="fontUnderline:Boolean" help="fontUnderline is member var of class CocoUITextBlock
+public CocoUITextBlock::fontUnderline:Boolean" image="34"/>
+		<member name="fontShadowX" proto="fontShadowX:Integer" help="fontShadowX is member var of class CocoUITextBlock
+public CocoUITextBlock::fontShadowX:Integer" image="34"/>
+		<member name="fontShadowY" proto="fontShadowY:Integer" help="fontShadowY is member var of class CocoUITextBlock
+public CocoUITextBlock::fontShadowY:Integer" image="34"/>
+		<member name="fontBlur" proto="fontBlur:Integer" help="fontBlur is member var of class CocoUITextBlock
+public CocoUITextBlock::fontBlur:Integer" image="34"/>
+		<member name="fontShadowColor" proto="fontShadowColor:Color" help="fontShadowColor is member var of class CocoUITextBlock
+public CocoUITextBlock::fontShadowColor:Color" image="34"/>
+		<member name="fontShadowColorSel" proto="fontShadowColorSel:Color" help="fontShadowColorSel is member var of class CocoUITextBlock
+public CocoUITextBlock::fontShadowColorSel:Color" image="34"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoUITextBlock
+public CocoUITextBlock::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoUITextEdit">
+		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUITextEdit
+public virtual CocoUITextEdit::RefreshLayout()" image="35"/>
+		<member name="__CocoUITextEdit_OnClick" proto="__CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean" help="__CocoUITextEdit_OnClick is member function of class CocoUITextEdit
+public CocoUITextEdit::__CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUITextEdit
+public virtual CocoUITextEdit::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUITextEdit
+public CocoUITextEdit::Constructor(name:String)" image="14"/>
+		<member name="__text" proto="__text:CocoUITextBlock" help="__text is member var of class CocoUITextEdit
+public CocoUITextEdit::__text:CocoUITextBlock" image="34"/>
+		<member name="__prompt" proto="__prompt:CocoUITextBlock" help="__prompt is member var of class CocoUITextEdit
+public CocoUITextEdit::__prompt:CocoUITextBlock" image="34"/>
+		<member name="Text" proto="Text:String" help="Text is property of class CocoUITextEdit
+public property CocoUITextEdit::Text:String" image="31"/>
+		<member name="TextFontName" proto="TextFontName:String" help="TextFontName is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontName:String" image="31"/>
+		<member name="TextFontSize" proto="TextFontSize:Float" help="TextFontSize is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontSize:Float" image="31"/>
+		<member name="TextFontBold" proto="TextFontBold:Boolean" help="TextFontBold is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontBold:Boolean" image="31"/>
+		<member name="TextFontItalic" proto="TextFontItalic:Boolean" help="TextFontItalic is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontItalic:Boolean" image="31"/>
+		<member name="TextFontUnderline" proto="TextFontUnderline:Boolean" help="TextFontUnderline is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontUnderline:Boolean" image="31"/>
+		<member name="TextFontShadowX" proto="TextFontShadowX:Integer" help="TextFontShadowX is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontShadowX:Integer" image="31"/>
+		<member name="TextFontShadowY" proto="TextFontShadowY:Integer" help="TextFontShadowY is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontShadowY:Integer" image="31"/>
+		<member name="TextFontBlur" proto="TextFontBlur:Integer" help="TextFontBlur is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontBlur:Integer" image="31"/>
+		<member name="TextFontColorSel" proto="TextFontColorSel:Color" help="TextFontColorSel is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontColorSel:Color" image="31"/>
+		<member name="TextFontShadowColorSel" proto="TextFontShadowColorSel:Color" help="TextFontShadowColorSel is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontShadowColorSel:Color" image="31"/>
+		<member name="TextFontColor" proto="TextFontColor:Color" help="TextFontColor is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontColor:Color" image="31"/>
+		<member name="TextFontShadowColor" proto="TextFontShadowColor:Color" help="TextFontShadowColor is property of class CocoUITextEdit
+public property CocoUITextEdit::TextFontShadowColor:Color" image="31"/>
+		<member name="Prompt" proto="Prompt:String" help="Prompt is property of class CocoUITextEdit
+public property CocoUITextEdit::Prompt:String" image="31"/>
+		<member name="PromptFontName" proto="PromptFontName:String" help="PromptFontName is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontName:String" image="31"/>
+		<member name="PromptFontSize" proto="PromptFontSize:Float" help="PromptFontSize is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontSize:Float" image="31"/>
+		<member name="PromptFontBold" proto="PromptFontBold:Boolean" help="PromptFontBold is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontBold:Boolean" image="31"/>
+		<member name="PromptFontItalic" proto="PromptFontItalic:Boolean" help="PromptFontItalic is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontItalic:Boolean" image="31"/>
+		<member name="PromptFontUnderline" proto="PromptFontUnderline:Boolean" help="PromptFontUnderline is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontUnderline:Boolean" image="31"/>
+		<member name="PromptFontShadowX" proto="PromptFontShadowX:Integer" help="PromptFontShadowX is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontShadowX:Integer" image="31"/>
+		<member name="PromptFontShadowY" proto="PromptFontShadowY:Integer" help="PromptFontShadowY is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontShadowY:Integer" image="31"/>
+		<member name="PromptFontBlur" proto="PromptFontBlur:Integer" help="PromptFontBlur is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontBlur:Integer" image="31"/>
+		<member name="PromptFontColorSel" proto="PromptFontColorSel:Color" help="PromptFontColorSel is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontColorSel:Color" image="31"/>
+		<member name="PromptFontShadowColorSel" proto="PromptFontShadowColorSel:Color" help="PromptFontShadowColorSel is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontShadowColorSel:Color" image="31"/>
+		<member name="PromptFontColor" proto="PromptFontColor:Color" help="PromptFontColor is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontColor:Color" image="31"/>
+		<member name="PromptFontShadowColor" proto="PromptFontShadowColor:Color" help="PromptFontShadowColor is property of class CocoUITextEdit
+public property CocoUITextEdit::PromptFontShadowColor:Color" image="31"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoUITextEdit
+public CocoUITextEdit::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class GameEngine">
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class GameEngine
@@ -3385,10 +3810,10 @@ public virtual GameEngine::Destructor()" image="35"/>
 public GameEngine::Constructor()" image="14"/>
 		<member name="scene" proto="scene:CocoScene" help="scene is member var of class GameEngine
 public GameEngine::scene:CocoScene" image="34"/>
-		<member name="form1" proto="form1:CocoUIFormView" help="form1 is member var of class GameEngine
-public GameEngine::form1:CocoUIFormView" image="34"/>
-		<member name="STATE_GAME" proto="STATE_GAME:State" help="STATE_GAME is engine state of class GameEngine
-STATE_GAME:State" image="27"/>
+		<member name="frm_Reserverations" proto="frm_Reserverations:ReservationsForm" help="frm_Reserverations is member var of class GameEngine
+public GameEngine::frm_Reserverations:ReservationsForm" image="34"/>
+		<member name="STATE_START_APP" proto="STATE_START_APP:State" help="STATE_START_APP is engine state of class GameEngine
+STATE_START_APP:State" image="27"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class GameEngine
 public GameEngine::__className:String" image="13"/>
 	</memberlist>
@@ -3637,6 +4062,20 @@ public TestSelf3::__className:String" image="13"/>
 public TestThis::Constructor()" image="14"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class TestThis
 public TestThis::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class ReservationsForm">
+		<member name="addLookup" proto="addLookup(Caption:String, FieldName:String, IsLookup:Boolean, IsComboBox:Boolean)" help="addLookup is member function of class ReservationsForm
+private ReservationsForm::addLookup(Caption:String, FieldName:String, IsLookup:Boolean, IsComboBox:Boolean)" image="30"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class ReservationsForm
+public virtual ReservationsForm::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(name:String, scene:CocoScene)" help="Constructor is member function of class ReservationsForm
+public ReservationsForm::Constructor(name:String, scene:CocoScene)" image="14"/>
+		<member name="btnSubmit" proto="btnSubmit:CocoUIButton" help="btnSubmit is member var of class ReservationsForm
+private ReservationsForm::btnSubmit:CocoUIButton" image="29"/>
+		<member name="btnDelete" proto="btnDelete:CocoUIButton" help="btnDelete is member var of class ReservationsForm
+private ReservationsForm::btnDelete:CocoUIButton" image="29"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class ReservationsForm
+public ReservationsForm::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class NewAnimation">
 		<member name="Constructor" proto="Constructor(engine:CocoEngine)" help="Constructor is member function of class NewAnimation

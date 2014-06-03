@@ -288,6 +288,28 @@ class CocoTimeline
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function translateTo(x:Float , y:Float)
+	{
+		var KeyFrame:CocoKeyFrame;
+		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
+		{
+			__keyFrames[i].x = x;
+			__keyFrames[i].y = y;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function translateBy(dx:Float , dy:Float)
+	{
+		var KeyFrame:CocoKeyFrame;
+		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
+		{
+			__keyFrames[i].x += dx;
+			__keyFrames[i].y += dy;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame
 	{
 		var KeyFrame:CocoKeyFrame;

@@ -130,8 +130,8 @@ class CocoRenderContext2D implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
-		c2d.setTransform(__projectionMatrix.rc11, __projectionMatrix.rc12, __projectionMatrix.rc21, __projectionMatrix.rc22, __projectionMatrix.rc41, __projectionMatrix.rc42);
-		c2d.transform(__modelViewMatrix.rc11, __modelViewMatrix.rc12, __modelViewMatrix.rc21, __modelViewMatrix.rc22, __modelViewMatrix.rc41, __modelViewMatrix.rc42);
+		c2d.setTransform(__projectionMatrix.__m.rc11, __projectionMatrix.__m.rc12, __projectionMatrix.__m.rc21, __projectionMatrix.__m.rc22, __projectionMatrix.__m.rc41, __projectionMatrix.__m.rc42);
+		c2d.transform(__modelViewMatrix.__m.rc11, __modelViewMatrix.__m.rc12, __modelViewMatrix.__m.rc21, __modelViewMatrix.__m.rc22, __modelViewMatrix.__m.rc41, __modelViewMatrix.__m.rc42);
 		var sx:Float = (((KF.flipH ? 1.0 : 0.0) + image.textureGrid[frame * 2 + 1]) * image.texSize[0]) * image.image.naturalWidth;
 		var sy:Float = (((KF.flipV ? 1.0 : 0.0) + image.textureGrid[frame * 2 + 0]) * image.texSize[1]) * image.image.naturalHeight;
 		var sw:Float = image.texSize[0] * Float(image.image.naturalWidth);
@@ -141,5 +141,10 @@ class CocoRenderContext2D implements ICocoRenderContext
 		var dw:Float = sw;
 		var dh:Float = sh;
 		c2d.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawBoundingBox(clip:CocoClip)
+	{
 	}
 }

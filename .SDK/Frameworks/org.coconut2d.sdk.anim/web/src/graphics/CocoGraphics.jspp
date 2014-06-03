@@ -48,6 +48,20 @@ struct CocoRect
 	bottom:Float;
 }
 
+struct CocoSkinCacheItem
+{
+	symbolName:String;
+	width:Float;
+	height:Float;
+	image:CocoImage;
+}
+
+struct CocoHVAlign
+{
+	horiz:Float;
+	vert:Float;
+}
+
 // ==================================================================================================================================
 //	   ______                 ______                 __    _
 //	  / ____/___  _________  / ____/________ _____  / /_  (_)_________
@@ -57,19 +71,10 @@ struct CocoRect
 //	                                      /_/
 // ==================================================================================================================================
 
- /**
- * CocoGraphics encapsulate static graphics manipulation functions.
- *
- * @module CocoGraphics.jspp
- * @version 0.1
- * @author Elias Politakis <epolitakis@mobilefx.com>
- * @copyright www.coconut2D.org 2013-2014
- * @tutorial
- * @summary CocoGraphics encapsulate static graphics manipulation functions
- * @description CocoGraphics encapsulate static graphics manipulation functions
- */
 class CocoGraphics
- {
+{
+	public static var skinsCache:Array<CocoSkinCacheItem>;
+
  	public function Constructor()
  	{
  	}
@@ -79,62 +84,38 @@ class CocoGraphics
  	}
 
 	// ==================================================================================================================================
-	//	  ______          __     ______                 __  _
-	//	 /_  __/__  _  __/ /_   / ____/_  ______  _____/ /_(_)___  ____  _____
-	//	  / / / _ \| |/_/ __/  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
-	//	 / / /  __/>  </ /_   / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
-	//	/_/  \___/_/|_|\__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+	//	   ______                               ______                 __  _
+	//	  / ____/___ _____ _   ______ ______   / ____/_  ______  _____/ /_(_)___  ____  _____
+	//	 / /   / __ `/ __ \ | / / __ `/ ___/  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+	//	/ /___/ /_/ / / / / |/ / /_/ (__  )  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+	//	\____/\__,_/_/ /_/|___/\__,_/____/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 	//
 	// ==================================================================================================================================
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Creates and assigns to a CocoClip a new texture image containing some text. This is a low-level
-	 * text rendering function and should not be used directly.
-
-	 * @returns void
-	 * @param {!String} 					text 				- The text to draw
-	 * @param {!String} 					fontName 			- The font name to use for drawing the text
-	 * @param {!Integer} 					fontSizePixels		- The font size in pixels
-	 * @param {!COCO_TEXT_ALIGN_ENUM} 		hAlign 				- Horizontal align of the text
-	 * @param {!COCO_TEXT_ALIGN_ENUM} 		vAlign 				- Vertical align of the text
-	 * @param {!Boolean} 					multiline 			- Text can be multilined
-	 * @param {!COCO_TEXT_TRIMMING_ENUM}	trimming 			- Text trimming method
-	 * @param {!CSSColor} 					CSSColor 			- Text color
-	 * @param {!textRectWidth} 				textRectWidth 		- Surface width available for drawing the text
-	 * @param {!textRectHeight} 			textRectHeight		- Surface height available for drawing the text
-	 */
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function createTextTexture(scene:CocoScene, text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer) :CocoImage
+	public static function NewCanvas(width:Float, height:Float) :HTMLCanvasElement
 	{
-		/*
-		// Create a power-of-two sized canvas and get 2d context
-		var canvas:HTMLCanvasElement = document.createElement("canvas");
-		canvas.width = Math.pow(2, Math.ceil(Math.log(textRectWidth)/Math.log(2)));
-		canvas.height = Math.pow(2, Math.ceil(Math.log(textRectHeight)/Math.log(2)));
-		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+    	var canvas:HTMLCanvasElement = document.createElement("canvas");
+		canvas.width = Math.pow(2, Math.ceil(Math.log(width)/Math.log(2)));
+		canvas.height = Math.pow(2, Math.ceil(Math.log(height)/Math.log(2)));
+		return canvas;
+	}
 
-		// Set the font
-		ctx.font = "normal normal normal " + String(fontSizePixels) + "px / normal " + fontName;
-		ctx.fillStyle = "white";
-		ctx.fillText(text, 0, Float(fontSizePixels));
+	// ==================================================================================================================================
+	//	   ______      __              ______                 __  _
+	//	  / ____/___  / /___  _____   / ____/_  ______  _____/ /_(_)___  ____  _____
+	//	 / /   / __ \/ / __ \/ ___/  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+	//	/ /___/ /_/ / / /_/ / /     / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+	//	\____/\____/_/\____/_/     /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+	//
+	// ==================================================================================================================================
 
-		// Create a texture image from the base64 PNG data of the canvas
-        var image = new CocoImage();
-        image.image = new Image();
-        var url:String = canvas.toDataURL();
-        image.image.load(url);
-        image.textureCellWidth = Float(textRectWidth);
-        image.textureCellHeight = Float(textRectHeight);
-        image.textureGrid = new Float32Array([0,0]);
-        ctx.prepareImage(scene, image);
-
-		// Dispose and return
-        ctx = null;
-        delete canvas;
-        return image;
-        */
-        return null;
+	public static function ColorToHtmlRGBA(c:Color) :String
+	{
+		var R:Integer = (c >> 16) & 0xFF;
+		var G:Integer = (c >> 8) & 0xFF;
+		var B:Integer = (c & 0xFF);
+		var A:Integer = (c >> 24) & 0xFF;
+		return "rgba(" + String(R) + "," + String(G) + "," + String(B) + "," + String(A) + ")";
 	}
 
 	// ==================================================================================================================================
@@ -146,8 +127,58 @@ class CocoGraphics
 	//
 	// ==================================================================================================================================
 
+	public static function GetSkinFromCache(skinImage:CocoImage, width:Float, height:Float) :CocoImage
+	{
+		if(!skinImage || !width || !height)
+			return null;
+
+		// Initialize skin cache array
+		if(!skinsCache)
+			skinsCache = new Array<CocoSkinCacheItem>;
+
+		// Search cache for skin
+		for(var i:Integer = skinsCache.size()-1; i>=0; i--)
+		{
+			var img:CocoSkinCacheItem = skinsCache[i];
+			if(img.symbolName==skinImage.symbolName && img.width==width && img.height==height)
+				return img.image;
+		}
+
+		// Create a skin image
+		var canvas:HTMLCanvasElement = NewCanvas(width,height);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+		CocoGraphics.DrawSkin(ctx, skinImage, 0, 0, width, height);
+		ctx = null;
+		var image:CocoImage = CocoImageFromHTMLCanvas(canvas,width,height);
+		delete canvas;
+
+		// Save skin in cache
+		var item:CocoSkinCacheItem = new CocoSkinCacheItem();
+		item.symbolName = skinImage.symbolName;
+		item.width = width;
+		item.height = height;
+		item.image = image;
+		skinsCache.push(item);
+
+		return image;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function drawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)
+	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float) :CocoImage
+	{
+        var img:CocoImage = new CocoImage();
+        img.image = new Image();
+        var url:String = canvas.toDataURL();
+        img.image.load(url);
+        img.textureCellWidth = textureWidth;
+        img.textureCellHeight = textureHeight;
+        img.textureGrid = new Float32Array([0,0]);
+        img.renderData = engine.__ctx.prepareImage(img);
+        return img;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)
 	{
 		if(!skinImage)
 			return;
@@ -292,87 +323,88 @@ class CocoGraphics
 		ctx.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////
-	public static function drawImage(image:CocoImage, x:Float, y:Float, stretchW:Float, stretchH:Float, anchor:COCO_CONTROL_ANCHOR_ENUM, clear:Boolean)
+	// ==================================================================================================================================
+	//	    ____                        __                        __   ___               __               _
+	//	   / __ )____  __  ______  ____/ /____   ____ _____  ____/ /  /   |  ____  _____/ /_  ____  _____(_)___  ____ _
+	//	  / __  / __ \/ / / / __ \/ __  / ___/  / __ `/ __ \/ __  /  / /| | / __ \/ ___/ __ \/ __ \/ ___/ / __ \/ __ `/
+	//	 / /_/ / /_/ / /_/ / / / / /_/ (__  )  / /_/ / / / / /_/ /  / ___ |/ / / / /__/ / / / /_/ / /  / / / / / /_/ /
+	//	/_____/\____/\__,_/_/ /_/\__,_/____/   \__,_/_/ /_/\__,_/  /_/  |_/_/ /_/\___/_/ /_/\____/_/  /_/_/ /_/\__, /
+	//	                                                                                                      /____/
+	// ==================================================================================================================================
+
+	public static function AnchorToCocoHVAlign(anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoHVAlign
 	{
-		/*
-		if(!image) return { x:0, y:0 };
+		var align:CocoHVAlign = new CocoHVAlign();
 
-		if(x && x.left)
-		{
-			var res = x;
-			x = res.left;
-			y = res.top;
-			stretchW = res.width;
-			stretchH = res.height;
-		}
+		align.horiz = 0.5;
+		align.vert = 0.5;
 
-		var $img = (image.$?image.$:image);
-		if($img.nodeName!='CANVAS') throw new Error('Invalid image');
-		var r = Graphics.screenPixelRatio;
+    	switch(anchor)
+    	{
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_LEFT:
+			align.vert = 0.0;
+			align.horiz = 0.0;
+			break;
 
-		var w = (stretchW==null || stretchW==-1) ? image.width : Graphics.scale(stretchW, 1, r);
-		var h = (stretchH==null || stretchH==-1) ? image.height : Graphics.scale(stretchH, 1, r);
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_MIDDLE:
+			align.vert = 0.0;
+			align.horiz = 0.5;
+			break;
 
-		x = Graphics.scale(x|0, 1, r);
-		y = Graphics.scale(y|0, 1, r);
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_RIGHT:
+			align.vert = 0.0;
+			align.horiz = 1.0;
+			break;
 
-		if(anchor!=null && anchor!=Const.ODP_ANCHOR_NONE)
-		{
-			var fit = Graphics.getBestFitInfo(w, h, width, height, false);
-			w = fit.w;
-			h = fit.h;
-			var pt = calcAnchor(width, height, 0, 0, 0, 0, 0, 0, w, h, anchor);
-			x = pt.x;
-			y = pt.y;
-		}
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT:
+			align.vert = 0.5;
+			align.horiz = 0.0;
+			break;
 
-		x = Math.round(x);
-		y = Math.round(y);
-		w = Math.round(w);
-		h = Math.round(h);
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_RIGHT:
+			align.vert = 0.5;
+			align.horiz = 1.0;
+			break;
 
-		var ctx = beginPaint();
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_LEFT:
+			align.vert = 1.0;
+			align.horiz = 0.0;
+			break;
 
-		var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-								ctx.mozBackingStorePixelRatio ||
-								ctx.msBackingStorePixelRatio ||
-								ctx.oBackingStorePixelRatio ||
-								ctx.backingStorePixelRatio || 1;
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_MIDDLE:
+			align.vert = 1.0;
+			align.horiz = 0.5;
+			break;
 
-		var ratio = r / backingStoreRatio;
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_RIGHT:
+			align.vert = 1.0;
+			align.horiz = 1.0;
+			break;
+    	}
 
-		try
-		{
-			ctx.setTransform(1,0,0,1,0,0);
-			if(clear) ctx.clearRect(0,0,width,height);
-			//ctx.drawImage($img, x, y, w, h);
-			ctx.drawImage($img, 0,0,$img.width, $img.height, x, y, w, h);
-		}
-		finally
-		{
-			//ctx.scale(r,r);
-			endPaint();
-		}
-
-		return { x: x/r, y: y/r };
-		*/
+    	return align;
 	}
 }
 
 
 
-	    /*
-	    CocoText.init(1024, 1024);
-	    var text:CocoText = new CocoText;
-	    text.str = "The quick brown fox jumps over the lazy dog";
-	    text.styles.push(new CocoTextStyle("Helvetica", 48, "normal", "normal", true, 255, 0, 255, 255, 0, 0, 0, 255));
-	    text.styles.push(new CocoTextStyle("Helvetica", 48, "italic", "bold", false, 255, 255, 0, 255, 0, 0, 0, 255));
-	    text.indices.push(0); text.mappings.push(0);
-	    text.indices.push(4); text.mappings.push(1);
-	    text.indices.push(9); text.mappings.push(0);
-	    text.wrap(300);
-	    var image_b64:String = text.draw(600, 1000, 0.5, 0.0, 255, 216, 255, 255);
-	    trace(image_b64);
-		*/
+/*
+CocoText.init(1024, 1024);
+var text:CocoText = new CocoText;
+text.str = "The quick brown fox jumps over the lazy dog";
+text.styles.push(new CocoTextStyle("Helvetica", 48, "normal", "normal", true, 255, 0, 255, 255, 0, 0, 0, 255));
+text.styles.push(new CocoTextStyle("Helvetica", 48, "italic", "bold", false, 255, 255, 0, 255, 0, 0, 0, 255));
+text.indices.push(0); text.mappings.push(0);
+text.indices.push(4); text.mappings.push(1);
+text.indices.push(9); text.mappings.push(0);
+text.wrap(300);
+var image_b64:String = text.draw(600, 1000, 0.5, 0.0, 255, 216, 255, 255);
+trace(image_b64);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+public function ScreenToWorld(x:Float, y:Float) :CocoVector
+{
+y = window.innerHeight - y;
+return CocoMatrix.Unproject(x, y, __modelViewMatrix, __projectionMatrix, 0, 0, window.innerWidth, window.innerHeight);
+}
+*/
 

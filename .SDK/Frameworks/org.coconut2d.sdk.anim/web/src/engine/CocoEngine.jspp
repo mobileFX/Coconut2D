@@ -47,6 +47,7 @@ state class CocoEngine
 	private var __tickables:Array<ITickable>;
 	public var __clock:Time;
 	public var __ctx:ICocoRenderContext;
+	public var paintCount:Integer;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -56,6 +57,7 @@ state class CocoEngine
 		__tickables = new Array<ITickable>;
 		__ctx = CocoRenderContext.createContext();
 		__attachDevices();
+		CocoText.init(1, 1);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +282,10 @@ state class CocoEngine
 		// can peek and handle those messages during the next tick cycle.
 
 		if(MSG)
+		{
+			MSG.handled = false;
 			__deviceMessageQueue.push(MSG);
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -290,7 +295,7 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	private function __removeTouchMessages()
+	public function __removeTouchMessages()
 	{
 		if(!__has_touch_device_message) return;
 		for(var i:Integer=__deviceMessageQueue.size();i--;)
@@ -309,8 +314,17 @@ state class CocoEngine
 
 		var L:Integer = __deviceMessageQueue.size();
 		for(var i:Integer=0; i<L; i++)
+		{
 			if((__deviceMessageQueue[i].type & mask)!=0)
+			{
+				if(__deviceMessageQueue[i].handled)
+				{
+					__has_touch_device_message = false;
+					return null;
+				}
 				return __deviceMessageQueue[i];
+			}
+		}
 		return null;
 	}
 

@@ -113,10 +113,14 @@ void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, fl
 					uint8_t* cp = (uint8_t*)((*imageDataBuffer)[((y + c->rect.pos.y + iy) * width + (x + c->rect.pos.x + ix)) * 4]);
 					if(cp && c->data[iy * c->rect.size.x + ix])
 					{
-						cp[0] += (uint8_t)(0xFF * (R * A) - cp[0] * A);
+						/*cp[0] += (uint8_t)(0xFF * (R * A) - cp[0] * A);
 						cp[1] += (uint8_t)(0xFF * (G * A) - cp[1] * A);
 						cp[2] += (uint8_t)(0xFF * (B * A) - cp[2] * A);
-						cp[3] += (uint8_t)(0xFF * (A * A) - cp[3] * A);
+						cp[3] += (uint8_t)(0xFF * (A * A) - cp[3] * A);*/
+						cp[0] = (uint8_t)(255.0 * A * R + data[dIdx + 3] * cp[0] / 255.0 * (1.0 - A));
+						cp[1] = (uint8_t)(255.0 * A * G + data[dIdx + 3] * cp[1] / 255.0 * (1.0 - A));
+						cp[2] = (uint8_t)(255.0 * A * B + data[dIdx + 3] * cp[2] / 255.0 * (1.0 - A));
+						cp[3] = (uint8_t)(255.0 * A + cp[3] * (1.0 - A));
 					}
 				}
 			}

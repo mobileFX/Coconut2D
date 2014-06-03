@@ -937,6 +937,23 @@ function Compiler(ast)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.implementsInterface = function(classSymbol, IName, basesOnly)
+	{
+		if(!classSymbol || !IName) return false;
+
+		if(!basesOnly && classSymbol.interfaces.indexOf(IName)!=-1)
+			return true;
+
+		for(var i=0;i<classSymbol.bases.length;i++)
+		{
+			if(_this.implementsInterface(classSymbol.bases[i], IName))
+				return true;
+		}
+
+		return false;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.baseClassDot = function(classSymbol, baseSymbol)
 	{
 		var basePath = [];
@@ -974,6 +991,18 @@ function Compiler(ast)
 	{
 		var list = _this.getCallList(ast);
 		if(list) return list[index];
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getDotOrScopeSymbol = function(ast)
+	{
+		if(ast.inDot)
+			return ast.inDot[0].symbol;
+
+		if(ast.inClass)
+			return ast.inClass.symbol;
+
+		debugger;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1318,7 +1347,13 @@ function Compiler(ast)
 
 			// Record interfaces
 			for(i=0;i<classSymbol.interfaces.length;i++)
+			{
 				_this.record_vartype_use(ast, {vartype:classSymbol.interfaces[i]}, classSymbol.scope, _this.INCLUDE_IN_HPP);
+
+				// Check if a base class also implements this interface
+				if(_this.secondPass && _this.implementsInterface(classSymbol, classSymbol.interfaces[i], true))
+					_this.NewError("Interface " + classSymbol.interfaces[i] + " already implemented by base class", ast);
+			}
 
 			if(_this.secondPass)
 			{
@@ -1866,11 +1901,11 @@ function Compiler(ast)
 					for(i=0;i<list.length;i++)
 					{
 						var event_ast = list[i];
-						var eventSourceClassName = event_ast.parent.identifier_first.symbol.vartype;
+						var eventSourceClassName = _this.getDotOrScopeSymbol(event_ast).vartype;  //event_ast.parent.identifier_first.symbol
 						var eventSourceClassSymbol = _this.getClass(eventSourceClassName);
 						var eventClassName = _this.getTypeName(_this.getCallListParam(event_ast,0));
 						var eventClassSymbol = _this.getClass(eventClassName);
-						var eventHandlerFunctionSymbol = event_ast.inDot.parent[1][1].symbol;
+						var eventHandlerFunctionSymbol = _this.getCallListParam(event_ast,1).symbol; // event_ast.inDot.parent[1][1].symbol;
 						var event_handler_uid = "__EH" + _this.eventId + "_" + classSymbol.name + "_" + eventHandlerFunctionSymbol.name + "_L" + event_ast.line_start + "__";
 
 						// Search event bindings for same addEventListener
@@ -2915,6 +2950,10 @@ function Compiler(ast)
 			var baseClass = "CocoEvent";
 			var baseClassSymbol = _this.getClass(baseClass);
 
+			// Check if class or base classes implement IEventListener
+			if(_this.secondPass && !_this.implementsInterface(currentClass, "IEventListener"))
+				_this.NewError("Class " + currentClass.name + " must implement IEventListener", ast);
+
 			// Record vartype usage in class level (used to check #includes)
 			_this.record_vartype_use(ast, {vartype:className, subtype:null}, currentClass.scope, _this.INCLUDE_IN_HPP);
 
@@ -3527,6 +3566,7 @@ function Compiler(ast)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.SUPER:
+			if(!_this.secondPass) break;
 			if(ast.inFunction && ast.inClass)
 			{
 				ast.symbol = _this.getCurrentClass().baseSymbol;
@@ -3841,7 +3881,7 @@ function Compiler(ast)
 			if(ast.symbol.static && ast.inClass && !ast.symbol.extern && !ast.symbol.enum && ast.symbol.type!=jsdef.STATE)
 			{
 				var path = "";
-				if(!ast.inDot) path += _this.currClassName + ".";
+				if(!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast)) path += _this.currClassName + ".";
 				if(ast.symbol.protected) path += "__PROTECTED__.";
 				else if(ast.symbol.private) path += "__PRIVATE__.";
 				path += ast.value;
@@ -3990,7 +4030,7 @@ function Compiler(ast)
 			//==================================================================================
 			if(ast.symbol && ast.symbol.name==_this.ADD_EVENT)
 			{
-				if(_this.isDerivativeOf(ast.inDot[0].symbol.vartype, "CocoEventSource"))
+				if(_this.isDerivativeOf(_this.getDotOrScopeSymbol(ast).vartype, "CocoEventSource"))
 				{
 					ast.__event = true;
 					_this.getCurrentClass().__event_bindings.push(ast);
@@ -3998,7 +4038,7 @@ function Compiler(ast)
 			}
 			if(ast.symbol && ast.symbol.name==_this.REMOVE_EVENT)
 			{
-				if(_this.isDerivativeOf(ast.inDot[0].symbol.vartype, "CocoEventSource"))
+				if(_this.isDerivativeOf(_this.getDotOrScopeSymbol(ast).vartype, "CocoEventSource"))
 				{
 					ast.__event = true;
 					_this.getCurrentClass().__event_unbindings.push(ast);
@@ -4399,7 +4439,8 @@ function Compiler(ast)
 					for(item in ast[0].symbol.vars)
 					{
 						var name = ast[0].symbol.vars[item].name;
-						items.push(name + ":" + ast[1][0].value + "." + name);
+						items.push(name + ":" + ast[1][0].symbol.runtime + "." + name);
+
 					}
 					out.push("{" + items.join(",") + "}");
 				}

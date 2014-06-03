@@ -72,7 +72,10 @@
  * @summary CocoClips encapsulate reusable pieces of animation
  * @description CocoClips encapsulate reusable pieces of animation
  */
-class CocoClip : CocoEventSource implements IEventTarget
+
+var __CLIP_COUNT:Integer = 0;
+
+class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 {
 	public var __instanceName:String;
 	public var __clipPath:String;
@@ -82,6 +85,9 @@ class CocoClip : CocoEventSource implements IEventTarget
 	public var __children:Array<CocoClip>;
 	public var __timeline:CocoTimeline;
 	public var __parent:CocoClip;
+
+	// UI Framework
+	public var __container:Boolean;
 
 	// Text
 	public var text:String;
@@ -103,6 +109,10 @@ class CocoClip : CocoEventSource implements IEventTarget
 	public var __childWithMaxTimelineDuration:CocoClip;
 
 	// Bounding Box & Hit Test
+	public var __x:Float;
+	public var __y:Float;
+	public var __width:Float;
+	public var __height:Float;
 	public var __hasBoundingBox:Boolean;
 	public var __vABS_TOP_LEFT:CocoVector;
 	public var __vABS_TOP_RIGHT:CocoVector;
@@ -133,6 +143,9 @@ class CocoClip : CocoEventSource implements IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
 	{
+		__CLIP_COUNT++;
+		//trace(__CLIP_COUNT);
+
 		__symbolLoop					= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
 		__timeline						= new CocoTimeline();
 		__children						= new Array<CocoClip>;
@@ -148,7 +161,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 		__vREL_TOP_RIGHT				= new CocoVector();
 		__vREL_BOTTOM_LEFT				= new CocoVector();
 		__vREL_BOTTOM_RIGHT				= new CocoVector();
-		__vBBoxVrtx							= new CocoVector();
+		__vBBoxVrtx						= new CocoVector();
 		__mBBox							= new CocoMatrix();
 		__touch_start_point 			= new CocoPoint;
 		__childWithMaxTimelineDuration	= null;
@@ -188,32 +201,11 @@ class CocoClip : CocoEventSource implements IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Creates and assigns to a CocoClip a new texture image containing some text. This is a low-level
-	 * text rendering function and should not be used directly.
-	 * @param {!String} text - The text to draw
-	 */
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function setText(text:String)
 	{
 		setText(text, textFontName, textFontSize, textHAlign, textVAlign, textMultiline, textTrimming, textColor, textWidth, textHeight);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Creates and assigns to a CocoClip a new texture image containing some text. This is a low-level
-	 * text rendering function and should not be used directly.
-	 * @param {!String} 					text 				- The text to draw
-	 * @param {!String} 					fontName 			- The font name to use for drawing the text
-	 * @param {!Integer} 					fontSizePixels		- The font size in pixels
-	 * @param {!COCO_TEXT_ALIGN_ENUM} 		hAlign 				- Horizontal align of the text
-	 * @param {!COCO_TEXT_ALIGN_ENUM} 		vAlign 				- Vertical align of the text
-	 * @param {!Boolean} 					multiline 			- Text can be multilined
-	 * @param {!COCO_TEXT_TRIMMING_ENUM}	trimming 			- Text trimming method
-	 * @param {!CSSColor} 					CSSColor 			- Text color
-	 * @param {!textRectWidth} 				textRectWidth 		- Surface width available for drawing the text
-	 * @param {!textRectHeight} 			textRectHeight		- Surface height available for drawing the text
-	 */
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function setText(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer)
 	{
@@ -227,7 +219,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 		this.textColor      = CSSColor;
 		this.textWidth      = textRectWidth;
 		this.textHeight     = textRectHeight;
-		delete __image;
+		//delete __image;
 		//__image = CocoGraphics.createTextTexture(__scene, text, fontName, fontSizePixels, hAlign, vAlign, multiline, trimming, CSSColor, textRectWidth, textRectHeight);
 	}
 
@@ -249,6 +241,10 @@ class CocoClip : CocoEventSource implements IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function clear()
 	{
+		for(var i:Integer = __children.size()-1; i>=0; i--)
+		{
+			delete __children[i];
+		}
 		__children.clear();
 	}
 
@@ -259,6 +255,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 		if(!clipInstance.__instanceName) throw "Invalid instance name.";
 		__children.push(clipInstance);
 		clipInstance.__parent = this;
+		if(__scene) clipInstance.__scene = __scene;
 		normalize();
 		clipInstance.__clipPath = (__clipPath ? __clipPath : __instanceName) + "/" + clipInstance.__instanceName;
 		return clipInstance;
@@ -368,6 +365,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
+		++engine.paintCount;
 		__scene = scene;
 
 		var mv:CocoMatrix = ctx.getModelViewMatrix();
@@ -414,6 +412,9 @@ class CocoClip : CocoEventSource implements IEventTarget
         // =============================================================================================================
 		// RENDER!
         // =============================================================================================================
+
+		__pixelRatioScale = window.devicePixelRatio;
+
 		if(__image)
 		{
 			__pixelRatioScale = scene.__view_pixel_ratio / __image.pixelRatio;
@@ -454,18 +455,18 @@ class CocoClip : CocoEventSource implements IEventTarget
 		}
 		else
 		{
-			// Render Children
+			if(__currentFrame) apply(__currentFrame, mv);
 			var childrenCound:Integer = __children.size();
 			if(childrenCound>0)
 			{
+				var calcBoundingBoxChildren:Boolean = (calcBoundingBox && __width==0 && __height==0);
 				var child:CocoClip;
 				scene.__levelParents.push(this);
-				if(__currentFrame) apply(__currentFrame, mv);
 				for (var i:Integer = 0; i < childrenCound; i++)
 				{
 					mv.push();
 					child = __children[i];
-					child.paint(ctx, scene, this, calcBoundingBox, level+1);
+					child.paint(ctx, scene, this, calcBoundingBoxChildren, level+1);
 					mv.pop();
 				}
 				scene.__levelParents.pop();
@@ -479,9 +480,15 @@ class CocoClip : CocoEventSource implements IEventTarget
 	        // =============================================================================================================
 			if(calcBoundingBox)
 			{
+				// Calculate bounding box from explicit width x height (eg. skin, CocoUIView, etc.)
+				if(__width > 0 || __height > 0)
+					initBoundingBoxFromRect(ctx, mv, __width/2, __height/2, __pixelRatioScale);
+
 				// Calculate bounding box vertices
-				if(__image)
-					initBoundingBoxFromTexture(scene, mv, __image.textureCellWidth / 2, __image.textureCellHeight / 2, __pixelRatioScale);
+				else if(__image)
+					initBoundingBoxFromRect(ctx, mv, __image.textureCellWidth/2, __image.textureCellHeight/2, __pixelRatioScale);
+
+				// Calculate bounding box from children
 				else if(__children.size()>0)
 					initBoundingBoxFromChildren(scene, mv);
 			}
@@ -492,7 +499,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 			if(calcBoundingBox && __currentFrame.handleEvents)
 			{
 				var deviceMessage:DEVICE_MESSAGE = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK);
-				if(deviceMessage)
+				if(deviceMessage && !deviceMessage.handled)
 				{
 		   	        var x:Float = (deviceMessage.x0 - ctx.getWidth() / 2.0) / scene.__view_scale;
 					var y:Float = (deviceMessage.y0 - ctx.getHeight() / 2.0) / scene.__view_scale;
@@ -500,6 +507,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 					// Point in quad?
 					if(hitTest(x,y))
 		   	        {
+		   	        	//trace("hit: " + __instanceName );
 		   	        	switch(deviceMessage.type)
 		   	        	{
 						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START:
@@ -507,15 +515,27 @@ class CocoClip : CocoEventSource implements IEventTarget
 							__touch_start_point.x = deviceMessage.x0;
 							__touch_start_point.y = deviceMessage.y0;
 							dispatchEvent(this.OnTouchStart, deviceMessage.x0, deviceMessage.y0);
+							if(this.OnTouchStart.stopPropagation)
+							{
+								deviceMessage.handled = true;
+							}
 							break;
 
 						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE:
 							dispatchEvent(this.OnTouchMove, deviceMessage.x0, deviceMessage.y0);
+							if(this.OnTouchMove.stopPropagation)
+							{
+								deviceMessage.handled = true;
+							}
 							break;
 
 						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END:
 							dispatchEvent(this.OnTouchEnd, deviceMessage.x0, deviceMessage.y0);
-							if(Math.abs(__touch_start_point.x-deviceMessage.x0)<2 && Math.abs(__touch_start_point.y-deviceMessage.y0)<2)
+							if(this.OnTouchEnd.stopPropagation)
+							{
+								deviceMessage.handled = true;
+							}
+							else if(Math.abs(__touch_start_point.x-deviceMessage.x0)<COCO_CONTROL_MOVE_SNAP_PIXELS && Math.abs(__touch_start_point.y-deviceMessage.y0)<COCO_CONTROL_MOVE_SNAP_PIXELS)
 							{
 								// If the clip hasn't moved significantly, then it is a click
 								trace("click: " + __instanceName);
@@ -526,9 +546,10 @@ class CocoClip : CocoEventSource implements IEventTarget
 							break;
 		   	        	}
 					}
-					//drawBoundingBox(scene, ctx);
 				}
 			}
+
+			//ctx.drawBoundingBox(this);
 
 	        // =============================================================================================================
 			// Execute KeyFrame
@@ -599,7 +620,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function apply(F:CocoKeyFrame, matrix:CocoMatrix)
+	protected function apply(F:CocoKeyFrame, matrix:CocoMatrix)
 	{
 		if(F.x!=0 || F.y!=0) matrix.translate(F.x, F.y);
 		if(F.rotation!=0) matrix.rotateZ(F.rotation * RADIANS);
@@ -615,7 +636,7 @@ class CocoClip : CocoEventSource implements IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function initBoundingBoxFromTexture(scene:CocoScene, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)
+	public virtual function initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)
 	{
 		__mBBox.identity();
 

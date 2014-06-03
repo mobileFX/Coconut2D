@@ -38,27 +38,30 @@
 
 class CocoUIView : CocoClip
 {
-	protected var __x:Float;
-	protected var __y:Float;
-	protected var __width:Float;
-	protected var __height:Float;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Parent Form
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var __form:CocoUIFormView;
+	public property Form { function get():CocoUIFormView { return __form; } }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	protected var __visible:Boolean;
-	protected var __textureIsInvalid:Boolean;
 	protected var __enabled:Boolean;
+	protected var __invalidated:Boolean;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		__textureIsInvalid = true;
 		__enabled = true;
 		__visible = true;
+		__invalidated = false;
 		__x = 0;
 		__y = 0;
 		__width = 0;
 		__height = 0;
-
 		__timeline.clear();
 		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		move(0,0,window.innerWidth, window.innerHeight);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,34 +84,6 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	published property Width
-	{
-		function get():Float { return __width; }
-		function set(v:Float) { __width=v; invalidate(); }
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	published property Height
-	{
-		function get():Float { return __height; }
-		function set(v:Float) { __height=v; invalidate(); }
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	published property Left
-	{
-		function get():Float { return __x; }
-		function set(v:Float) { __x = v; }
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	published property Top
-	{
-		function get():Float { return __y; }
-		function set(v:Float) { __y = v; }
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	published property Visible
 	{
 		function get():Boolean { return __visible; }
@@ -116,31 +91,76 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	published property Width
+	{
+		function get():Float { return __width; }
+		function set(v:Float) { move(__x, __y, v, __height); }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	published property Height
+	{
+		function get():Float { return __height; }
+		function set(v:Float) { move(__x, __y, __width, v); }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	published property Left
+	{
+		function get():Float { return __x; }
+		function set(v:Float) { move(v, __y, __width, __height); }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	published property Top
+	{
+		function get():Float { return __y; }
+		function set(v:Float) { move(__x, v, __width, __height); }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function move(x:Float, y:Float, width:Float, height:Float)
 	{
 		__x = x;
 		__y = y;
-		__width = width;
-		__height = height;
-		invalidate();
+
+		if(__width != width)
+		{
+			__width = width;
+			invalidate();
+		}
+
+		if(__height != height)
+		{
+			__height = height;
+			invalidate();
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function move(x:Float, y:Float)
 	{
-		move(x,y,__width,__height)
+		move(x,y,__width,__height);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function size(width:Float, height:Float)
 	{
-		move(__x,__y,width,height)
+		move(__x,__y,width,height);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function invalidate()
 	{
-		__textureIsInvalid = true;
+		__invalidated = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function addChild(clipInstance:CocoClip) :CocoClip
+	{
+		var ctl:CocoUIView = CocoUIView(clipInstance);
+		ctl.__form = this.__form;
+		return super.addChild(clipInstance);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,41 +169,17 @@ class CocoUIView : CocoClip
 		if(!__visible || !parentClip || !scene)
 			return;
 
-		// If the texture is invalid we need to recreate it
-		if(__textureIsInvalid)
-		{
-			if(__image)
-				delete __image;
+		// Render if within screen region
+		//if(__form)
+		//{
+		//	var KF:CocoKeyFrame = __form.getKeyFrame();
+		//	if(KF.y + __y + __height < __form.__y || KF.y + __y > __form.__y + __form.__height)
+		//		return;
+		//}
 
-			if(__width>0 && __height>0)
-			{
-				// Create a power-of-two sized temp canvas and get 2d context and call virtual repaint
-				var canvas:HTMLCanvasElement = document.createElement("canvas");
-				canvas.width = Math.pow(2, Math.ceil(Math.log(__width)/Math.log(2)));
-				canvas.height = Math.pow(2, Math.ceil(Math.log(__height)/Math.log(2)));
-
-				// Repaint
-				repaint(scene, parentClip, canvas);
-
-				// Create a texture image from the canvas
-
-		        __image = new CocoImage();
-		        __image.createFromCanvas(scene,canvas,__width,__height);
-		        delete canvas;
-			}
-
-	        __textureIsInvalid = false;
-		}
-
-		// Paint the Clip
-		var mv:CocoMatrix = ctx.getModelViewMatrix();
-		mv.push();
-		mv.translate(__x, __y);
 		super.paint;
-		mv.pop();
+
+		// We assume after paint the control is no more invlid
+		__invalidated = false;
 	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual abstract function repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement);
-
 }

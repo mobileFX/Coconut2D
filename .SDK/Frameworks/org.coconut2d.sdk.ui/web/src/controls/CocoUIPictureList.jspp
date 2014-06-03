@@ -1,57 +1,50 @@
-﻿// CocoUIPictureList.jspp
+﻿"#export native";
+"#export web";
 
- class CocoUIPictureList : CocoUIButton
- {
-	protected var __secondCaption:String;
-	protected var __secondCaptionAlign:COCO_CONTROL_ANCHOR_ENUM;
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
+// ==================================================================================================================================
+//	   ______                 __  __________  _      __                  __    _      __
+//	  / ____/___  _________  / / / /  _/ __ \(_)____/ /___  __________  / /   (_)____/ /_
+//	 / /   / __ \/ ___/ __ \/ / / // // /_/ / / ___/ __/ / / / ___/ _ \/ /   / / ___/ __/
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // ____/ / /__/ /_/ /_/ / /  /  __/ /___/ (__  ) /_
+//	\____/\____/\___/\____/\____/___/_/   /_/\___/\__/\__,_/_/   \___/_____/_/____/\__/
+//
+// ==================================================================================================================================
+
+"#include CocoUIControl.jspp";
+
+control class CocoUIPictureList : CocoUIButton
+{
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(Name:String) : CocoUIButton(Name)
 	{
-		__captionAlign = COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_LEFT;
-		__secondCaption = "Caption";
-		__secondCaptionAlign = COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_LEFT;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
-	{
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	published property SecondCaption
-	{
-		function get():String { return __secondCaption; }
-		function set(v:String) { __secondCaption = v; invalidate(); }
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	published property SecondCaptionAlign
-	{
-		function get():COCO_CONTROL_ANCHOR_ENUM { return __secondCaptionAlign; }
-		function set(v:COCO_CONTROL_ANCHOR_ENUM) { __secondCaptionAlign = v; invalidate(); }
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Font
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private var __secondCaptionFontName:String;
-	private var __secondCaptionFontSize:Float;
-	private var __secondCaptionFontBold:Boolean;
-	private var __secondCaptionFontItalic:Boolean;
-	private var __secondCaptionFontUnderline:Boolean;
-	private var __secondCaptionFontColor:Color;
-
-	published property SecondCaptionFontName		{ function get():String  { return __secondCaptionFontName; 		} function set(v:String) 	{ __secondCaptionFontName = v; invalidate(); 		}}
-	published property SecondCaptionFontSize		{ function get():Float   { return __secondCaptionFontSize; 		} function set(v:Float) 	{ __secondCaptionFontSize = v; invalidate(); 		}}
-	published property SecondCaptionFontBold		{ function get():Boolean { return __secondCaptionFontBold; 		} function set(v:Boolean) 	{ __secondCaptionFontBold = v; invalidate(); 		}}
-	published property SecondCaptionFontItalic		{ function get():Boolean { return __secondCaptionFontItalic; 	} function set(v:Boolean) 	{ __secondCaptionFontItalic = v; invalidate(); 		}}
-	published property SecondCaptionFontUnderline	{ function get():Boolean { return __secondCaptionFontUnderline;	} function set(v:Boolean) 	{ __secondCaptionFontUnderline = v; invalidate(); 	}}
-	published property SecondCaptionFontColor		{ function get():Color   { return __secondCaptionFontColor; 	} function set(v:Color) 	{ __secondCaptionFontColor = v; invalidate(); 		}}
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function repaint(scene:CocoScene, parentClip:CocoClip, canvas:HTMLCanvasElement)
 	{
 	}
 }
