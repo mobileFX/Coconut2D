@@ -42,7 +42,7 @@ control class CocoUINavBar : CocoUIControl
 	// Caption
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public var __caption:CocoUITextBlock;
+	public var __caption:CocoTextBlock;
 
 	published property Caption						{ function get():String  { return __caption.text; 						} 	function set(v:String) 		{ __caption.text = v; invalidate(); 					}}
 	published property CaptionAlign					{ function get():COCO_CONTROL_ANCHOR_ENUM { return __caption.anchor; 	}	function set(v:COCO_CONTROL_ANCHOR_ENUM) { __caption.anchor = v; invalidate(); 	}}
@@ -70,7 +70,7 @@ control class CocoUINavBar : CocoUIControl
 		SetPaddings(0,0,0,0);
 
 		// Set default text block
-		__caption = new CocoUITextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_CENTER);
+		__caption = new CocoTextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_CENTER);
 		__caption.fontColor = 0xffffffff;
 		__caption.fontBold = true;
 		__caption.fontSize = COCO_DEFAULT_FONT_SIZE + 2;
@@ -84,9 +84,9 @@ control class CocoUINavBar : CocoUIControl
 	{
 		super.RefreshLayout;
 		__caption.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
-		Width = window.innerWidth;
+		Width = __scene.__view_width;
 		Height = CalcHeight();
-		__timeline.translateTo(0, -window.innerHeight/2 + Height/2);
+		__timeline.translateTo(0, -__scene.__view_height/2 + Height/2);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

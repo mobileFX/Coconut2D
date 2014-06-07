@@ -73,8 +73,6 @@
  * @description CocoClips encapsulate reusable pieces of animation
  */
 
-var __CLIP_COUNT:Integer = 0;
-
 class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 {
 	public var __instanceName:String;
@@ -85,21 +83,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	public var __children:Array<CocoClip>;
 	public var __timeline:CocoTimeline;
 	public var __parent:CocoClip;
-
-	// UI Framework
-	public var __container:Boolean;
-
-	// Text
-	public var text:String;
-	public var textFontName:String;
-	public var textFontSize:Integer;//pixels
-	public var textHAlign:COCO_TEXT_ALIGN_ENUM;
-	public var textVAlign:COCO_TEXT_ALIGN_ENUM;
-	public var textMultiline:Boolean
-	public var textTrimming:COCO_TEXT_TRIMMING_ENUM;
-	public var textColor:String;
-	public var textWidth:Integer;
-	public var textHeight:Integer;
 
 	// Animation Control Variables
 	public var __currentTime:Time;
@@ -143,9 +126,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
 	{
-		__CLIP_COUNT++;
-		//trace(__CLIP_COUNT);
-
 		__symbolLoop					= COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
 		__timeline						= new CocoTimeline();
 		__children						= new Array<CocoClip>;
@@ -198,29 +178,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		{
 			__children[i].prepare(scene);
 		}
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function setText(text:String)
-	{
-		setText(text, textFontName, textFontSize, textHAlign, textVAlign, textMultiline, textTrimming, textColor, textWidth, textHeight);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function setText(text:String, fontName:String, fontSizePixels:Integer, hAlign:COCO_TEXT_ALIGN_ENUM, vAlign:COCO_TEXT_ALIGN_ENUM, multiline:Boolean, trimming:COCO_TEXT_TRIMMING_ENUM, CSSColor:String, textRectWidth:Integer, textRectHeight:Integer)
-	{
-		this.text			= text;
-		this.textFontName   = fontName;
-		this.textFontSize   = fontSizePixels;
-		this.textHAlign     = hAlign;
-		this.textVAlign     = vAlign;
-		this.textMultiline  = multiline;
-		this.textTrimming   = trimming;
-		this.textColor      = CSSColor;
-		this.textWidth      = textRectWidth;
-		this.textHeight     = textRectHeight;
-		//delete __image;
-		//__image = CocoGraphics.createTextTexture(__scene, text, fontName, fontSizePixels, hAlign, vAlign, multiline, trimming, CSSColor, textRectWidth, textRectHeight);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -290,6 +247,29 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 				__childWithMaxTimelineDuration = __children[i];
 			}
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moveChild(child:CocoClip, zIndex:Integer)
+	{
+		if(zIndex==-1) return;
+
+		var children:Array<CocoClip> = new Array<CocoClip>;
+		var i:Integer;
+		var L:Integer = __children.size();
+
+		for(i=0;i<zIndex;i++)
+			if(child!=__children[i])
+				children.push(__children[i]);
+
+		children.push(child);
+
+		for(i=zIndex;i<L;i++)
+			if(child!=__children[i])
+				children.push(__children[i]);
+
+		delete __children;
+		__children = children.reverse();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

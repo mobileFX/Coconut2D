@@ -145,11 +145,12 @@ class CocoGraphics
 		}
 
 		// Create a skin image
-		var canvas:HTMLCanvasElement = NewCanvas(width,height);
+		var canvas:HTMLCanvasElement = NewCanvas(width*skinImage.pixelRatio,height*skinImage.pixelRatio);
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-		CocoGraphics.DrawSkin(ctx, skinImage, 0, 0, width, height);
+		CocoGraphics.DrawSkin(ctx, skinImage, 0, 0, width*skinImage.pixelRatio, height*skinImage.pixelRatio);
 		ctx = null;
-		var image:CocoImage = CocoImageFromHTMLCanvas(canvas,width,height);
+		var image:CocoImage = CocoImageFromHTMLCanvas(canvas,width*skinImage.pixelRatio,height*skinImage.pixelRatio);
+		image.pixelRatio = skinImage.pixelRatio;
 		delete canvas;
 
 		// Save skin in cache
@@ -190,12 +191,12 @@ class CocoGraphics
 		var cy:Float				  = 0;
 		var cw:Float				  = width;
 		var ch:Float				  = height;
-		var W1:Float				  = skinImage.skin[0];
-		var W2:Float				  = skinImage.skin[1];
-		var W3:Float				  = skinImage.skin[2];
-		var H1:Float				  = skinImage.skin[3];
-		var H2:Float				  = skinImage.skin[4];
-		var H3:Float				  = skinImage.skin[5];
+		var W1:Float				  = skinImage.skin[0] * skinImage.pixelRatio;
+		var W2:Float				  = skinImage.skin[1] * skinImage.pixelRatio;
+		var W3:Float				  = skinImage.skin[2] * skinImage.pixelRatio;
+		var H1:Float				  = skinImage.skin[3] * skinImage.pixelRatio;
+		var H2:Float				  = skinImage.skin[4] * skinImage.pixelRatio;
+		var H3:Float				  = skinImage.skin[5] * skinImage.pixelRatio;
 
 		var RW1H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
 		var RW2H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;

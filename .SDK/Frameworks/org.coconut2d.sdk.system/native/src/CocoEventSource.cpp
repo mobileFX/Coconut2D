@@ -31,28 +31,50 @@
 //
 // ==================================================================================================================================
 
-#ifndef __COCOEVENTSOURCE_HPP__
-#define __COCOEVENTSOURCE_HPP__
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Coconut2D.hpp"
+#include "CocoEventSource.hpp"
 #include "CocoEventConnectionPoint.hpp"
 #include "CocoEvent.hpp"
 #include "IEventListener.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class CocoEventSource
+////////////////////////////////////////////////////////////////////////////////////////////////////
+CocoEventSource::CocoEventSource()
 {
-public:
-	Array<CocoEventConnectionPoint*>* __eventListeners;
-	const String __className = String("CocoEventSource");
-	CocoEventSource();
-	virtual ~CocoEventSource();
-	virtual void addEventListener(CocoEvent* Event, void* Listener, int DispID);
-	virtual bool removeEventListener(CocoEvent* Event, void* Listener, int DispID);
-	virtual int dispatchEvent(CocoEvent* Event);
-};
+	__eventListeners = new Array<CocoEventConnectionPoint*> ();
+}
 
-#endif // __COCOEVENTSOURCE_HPP__
+////////////////////////////////////////////////////////////////////////////////////////////////////
+CocoEventSource::~CocoEventSource()
+{
+	if(__eventListeners)
+	{
+		__eventListeners = (delete __eventListeners, nullptr);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void CocoEventSource::addEventListener(CocoEvent* Event, void* Listener, int DispID)
+{
+	CocoEventConnectionPoint* item = new CocoEventConnectionPoint(Event, Listener, DispID);
+	__eventListeners->push(item);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+bool CocoEventSource::removeEventListener(CocoEvent* Event, void* Listener, int DispID)
+{
+	/*
+	int i = 0;
+	for(i = __eventListeners->size() - 1; i >= 0; i--)
+	{
+		if((*__eventListeners)[i]->Event->is(Event) && (*__eventListeners)[i]->Listener == Listener && (*__eventListeners)[i]->Callback == Callback)
+		{
+			__eventListeners->splice(i, 1);
+			return true;
+		}
+	}
+	*/
+	return false;
+}

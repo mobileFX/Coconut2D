@@ -54,7 +54,6 @@ class CocoUIScrollView : CocoUIView
  	{
 		__instanceName = name;
  		__scene = scene;
-		__container = true;
 		__scrollSpeedY = 0.0;
 		__minY = 0
 		__maxY = 0;
@@ -72,17 +71,17 @@ class CocoUIScrollView : CocoUIView
 
  		// We need to be able to handle events
  		this.__timeline.keyFrame(0).handleEvents=true;
-		this.addEventListener(this.OnTouchStart, __CocoUIScrollView_OnTouchStart);
- 		this.addEventListener(this.OnTouchMove, __CocoUIScrollView_OnTouchMove);
- 		this.addEventListener(this.OnTouchEnd, __CocoUIScrollView_OnTouchEnd);
+		addEventListener(this.OnTouchStart, __CocoUIScrollView_OnTouchStart);
+ 		addEventListener(this.OnTouchMove, __CocoUIScrollView_OnTouchMove);
+ 		addEventListener(this.OnTouchEnd, __CocoUIScrollView_OnTouchEnd);
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Destructor()
  	{
- 		this.removeEventListener(this.OnTouchStart, __CocoUIScrollView_OnTouchStart);
- 		this.removeEventListener(this.OnTouchMove, __CocoUIScrollView_OnTouchMove);
- 		this.removeEventListener(this.OnTouchEnd, __CocoUIScrollView_OnTouchEnd);
+ 		removeEventListener(this.OnTouchStart, __CocoUIScrollView_OnTouchStart);
+ 		removeEventListener(this.OnTouchMove, __CocoUIScrollView_OnTouchMove);
+ 		removeEventListener(this.OnTouchEnd, __CocoUIScrollView_OnTouchEnd);
  	}
 
  	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,7 +188,7 @@ class CocoUIScrollView : CocoUIView
 	{
 		var KF:CocoKeyFrame = getKeyFrame();
 
-		var dY:Float = y - __scrollLastPointY;
+		var dY:Float = (y - __scrollLastPointY) / __scene.__view_scale;
 		var sY:Float = 1.0;
  		var springY:Float = __minY - KF.y;
  		if(springY < 0.0)
@@ -209,6 +208,8 @@ class CocoUIScrollView : CocoUIView
  			resetSelection();
 
 		KF.y += dY * sY;
+		KF.y = Math.round(KF.y);
+
 		__scrollLastTime = engine.__clock;
 		__scrollLastPointY = y;
 		return false;
@@ -217,7 +218,7 @@ class CocoUIScrollView : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function __CocoUIScrollView_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
-		var dY:Float = y - __scrollLastPointY;
+		var dY:Float = (y - __scrollLastPointY) / __scene.__view_scale;
 		__scrollSpeedY = dY;
 		__bounceY = true;
 		resetSelection();

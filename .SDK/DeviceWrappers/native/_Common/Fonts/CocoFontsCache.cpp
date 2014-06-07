@@ -42,9 +42,18 @@ std::map<CocoFontsCache, FT_Face> CocoFontsCache::fonts;
 //////////////////////////////////////////////////////////////////////////////////////////////
 bool CocoFontsCache::operator<(const CocoFontsCache& b) const
 {
+	//*
 	if(name < b.name) return true;
 	if(style < b.style) return true;
 	return false;
+	/*/
+	if(name != b.name)
+		return name < b.name;
+	else if(style != b.style)
+		return style < b.style;
+	else
+		return false;
+	//*/
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +87,7 @@ void CocoFontsCache::add(std::string name, FONT_STYLE style, const char* filenam
 FT_Face CocoFontsCache::get(std::string name, FONT_STYLE style)
 {
 	CocoFontsCache ff(name, style);
-    std::map<CocoFontsCache, FT_Face, CocoFontsCache>::iterator it = fonts.find(ff);
+    std::map<CocoFontsCache, FT_Face>::iterator it = fonts.find(ff);
     if(it != fonts.end()) return it->second;
     return nullptr;
 }

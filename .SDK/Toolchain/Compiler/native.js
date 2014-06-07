@@ -212,63 +212,89 @@ function CompilerCppPlugin(compiler)
 				}
 			}
 
+			/*@@ CLASS:EVENTS @@*/
+
 			// Create events dispatch static function with dispatch switch.
-			if(_this.implementsInterface(ast.symbol, "IEventListener"))
+			if(!ast.interface && _this.implementsInterface(ast.symbol, "IEventListener"))
 			{
-				//var local_handler = "__dispatch_event__(IEventListener* __event_listener, int __event_handler_uid, CocoEventSource* __event_source, CocoEvent* __event_object)";
-				var local_handler = "__dispatch_event__(void* __event_listener, int __event_handler_uid, void* __event_source, void* __event_object)";
-
-				HPP.push("bool " + local_handler + ";");
-
-				// Get the event listener class name, eg. MyFormClass
-				var eventListenerClassName = ast.name;
-
-				CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n" +
-					    "bool " + eventListenerClassName + "::" + local_handler + "\n{");
-
-				// reinterpret_cast __event_listener to this class.
-				CPP.push(eventListenerClassName + "* __this = reinterpret_cast<" + eventListenerClassName + "*>(__event_listener);");
-
-				// Create dispatch switch
-				var disps = {};
-				CPP.push("switch(__event_handler_uid)\n{");
+				// ==================================================================
+				// Create event handler Dispatch ID constants
+				// ==================================================================
+				var classSymbol = ast.symbol;
+				var list = [].concat(classSymbol.__event_bindings).concat(classSymbol.__event_unbindings);
+				for(i=0;i<list.length;i++)
 				{
-					for(var i=0;i<ast.symbol.__event_bindings.length;i++)
-					{
-						var bind_ast = ast.symbol.__event_bindings[i];
-						var ebd = bind_ast.__event_descriptor;
-
-						if(disps[ebd.uid]) continue;
-						disps[ebd.uid] = true;
-
-						// Create event handler UID constant
-						//HPP.push("static const int " + ebd.uid + " = " + ebd.id +";");
-						_this.native_files['Constants.jspp'].hpp['body'].push("#define " + ebd.uid + " " + ebd.id);
-
-						// Create the dispatch case
-						CPP.push("case " + ebd.uid+ ":\n{\n");
-						CPP.push(ebd.event_source.name + "* s = reinterpret_cast<"+ebd.event_source.name+"*>(__event_source);");
-						CPP.push(ebd.event_symbol.name + "* e = reinterpret_cast<"+ebd.event_symbol.name+"*>(__event_object);");
-
-						// Collect event handler flat arguments
-						var flat_arguments = [];
-						for(j=2;j<ebd.event_handler.paramsList.length;j++)
-						{
-							var event_parm = ebd.event_handler.paramsList[j];
-							flat_arguments.push("e->"+event_parm.name);
-							//CPP.push(event_parm.vartype + " " + event_parm.name + " = e->" + event_parm.name + ";");
-						}
-						flat_arguments = (flat_arguments.length>0 ? ", " + flat_arguments.join(", ") : "");
-
-						// Make the call to the event handler
-						CPP.push("return __this->" + ebd.event_handler.name + "(s,e"+flat_arguments+");");
-						CPP.push("}\n");
-						CPP.push("break;\n");
-					}
+					var event_ast = list[i];
+					var ebd = event_ast.__event_descriptor;
+					_this.native_files['Constants.jspp'].hpp.dispIds[ebd.uid] = "#define " + ebd.uid + " " + ebd.id;
 				}
-				CPP.push("\n}");
-				CPP.push("return false;");
-				CPP.push("\n}");
+
+				// ==================================================================
+				// Create dispatchEvent function
+				// ==================================================================
+
+				var local_handler = "dispatchEvent(CocoEvent* Event)";
+
+				HPP.push("virtual void " + local_handler + ";");
+
+				CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+				CPP.push("void " + ast.name + "::" + local_handler + "\n{");
+
+				var hasDispIds = false;
+				for(var uid in classSymbol.__event_descriptors) { hasDispIds=true; break; };
+
+				if(hasDispIds)
+				{
+
+					CPP.push("\tfor(int i = __eventListeners->size() - 1; i>=0; i--)\n\t{\n\t\tCocoEventConnectionPoint* cp = (*__eventListeners)[i];\n");
+					CPP.push("\t\tif(cp->Event->is(Event))\n\t\t{\n\t\tbool cancel = false;");
+
+					// Create dispatch switch:
+
+					CPP.push("switch(cp->DispID)\n{");
+					{
+						for(var uid in classSymbol.__event_descriptors)
+						{
+							var ebd = classSymbol.__event_descriptors[uid];
+							CPP.push("case " + ebd.uid+ ":\n{\n");
+							{
+								CPP.push(ebd.event_listener.name + "* L = reinterpret_cast<"+ebd.event_listener.name+"*>(cp->Listener);");
+								CPP.push("//Event Listener\n");
+
+								CPP.push(ebd.event_handler.paramsList[0].vartype + "* S = reinterpret_cast<"+ebd.event_handler.paramsList[0].vartype+"*>(this);");
+								CPP.push("//Event Source type-casted to what event handler argument needs\n");
+
+								CPP.push(ebd.event_symbol.name + "* E = reinterpret_cast<"+ebd.event_symbol.name+"*>(Event);");
+								CPP.push("//Event object type-casted to what event handler argument needs\n");
+
+								// Collect event handler flat arguments
+								var flat_arguments = [];
+								for(j=2;j<ebd.event_handler.paramsList.length;j++)
+								{
+									var event_parm = ebd.event_handler.paramsList[j];
+									flat_arguments.push("E->"+event_parm.name);
+									CPP.push(event_parm.vartype + " " + event_parm.name + " = E->" + event_parm.name + ";");
+								}
+								flat_arguments = (flat_arguments.length>0 ? ", " + flat_arguments.join(", ") : "");
+
+								// Make the call to the event handler
+								CPP.push("cancel = L->" + ebd.event_handler.name + "(S,E"+flat_arguments+");");
+
+							}
+							CPP.push("}\n");
+							CPP.push("break;\n");
+						}
+						CPP.push("}\n");
+					}
+
+					CPP.push("\tif(cancel)\n\t{\n\t\tcp->Event->cancelBubble();\n\t}\n\tif(cp->Event->stopPropagation)\n\t{\n\t\treturn;\n\t}\n}\n}");
+				}
+
+				// Call base class dispatchEvent
+				if(classSymbol.baseSymbol.name!="CocoEventSource")
+					CPP.push(classSymbol.baseSymbol.name + "::dispatchEvent(Event);\n");
+
+				CPP.push("}\n");
 			}
 
 			HPP.push("};\n");
@@ -451,11 +477,8 @@ function CompilerCppPlugin(compiler)
 			{
 				for(i=0;i<ast.length;i++)
 				{
-					//val = "const " + vartype(ast[i]) + ast[i].name + initializer(ast[i]) + ";";
 					val = "#define " + ast[i].name + " " + initializer(ast[i]).replace("=", "");
-					//HPP.push(val);
-					_this.native_files['Constants.jspp'].hpp['body'].push(val);
-					//_this.native_files
+					_this.native_files['Constants.jspp'].hpp.constants[ast[i].name] = val;
 				}
 			}
 
@@ -829,6 +852,8 @@ function CompilerCppPlugin(compiler)
 			}
 			else
 			{
+				/*@@ CALL:EVENTS @@*/
+
 				// Dectect if we are registering/unregistering/dispatching an event
 				var call_fn = _this.getCallIdentifier(ast);
 				_this.in_event_call = (call_fn.__event && (call_fn.value==_this.DISPATCH_EVENT || call_fn.value==_this.ADD_EVENT || call_fn.value==_this.REMOVE_EVENT)) ? call_fn : null;
@@ -838,10 +863,11 @@ function CompilerCppPlugin(compiler)
 				{
 					var list = _this.getCallList(_this.in_event_call);
 					var event_symbol = _this.in_event_call.__event_descriptor.event_symbol;
+					CPP.push((_this.in_state ? "self" : "this") + "->" + event_symbol.runtime + "->reset();");
 					var i=1;
 					for(item in event_symbol.vars)
 					{
-						CPP.push((_this.in_state ? "self" : "this") + "->" + event_symbol.runtime + "->" + item + " = " + generate_cpp(list[i]).CPP + ";");
+						CPP.push((_this.in_state ? "self" : "this") + "->" + event_symbol.runtime + "->" + item + " = " + generate_cpp(list[i]).CPP + ";\n");
 						i++;
 					}
 				}
@@ -850,6 +876,7 @@ function CompilerCppPlugin(compiler)
 				CPP.push("(");
 				CPP.push(generate_cpp(ast[1]).CPP);
 				CPP.push(")");
+
 				_this.in_event_call = null;
 			}
 			break;
@@ -864,6 +891,8 @@ function CompilerCppPlugin(compiler)
 			// dispatchEvent for Coconut2D native events.
 			if(_this.in_event_call)
 			{
+				/*@@ LIST:EVENTS @@*/
+
 				switch(_this.in_event_call.value)
 				{
 				case _this.DISPATCH_EVENT:
@@ -1087,6 +1116,7 @@ function CompilerCppPlugin(compiler)
 
 			// Detect if the switch should be converted to if
 			var type = _this.getTypeName(ast.discriminant);
+
 			ast.__switch_to_if = false;
 			switch(type)
 			{
@@ -1097,7 +1127,7 @@ function CompilerCppPlugin(compiler)
 					break;
 
 				default:
-					ast.__switch_to_if = true;
+					ast.__switch_to_if = !_this.getClass(type).enum;
 					break;
 			}
 

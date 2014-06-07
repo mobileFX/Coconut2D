@@ -52,6 +52,7 @@ class CocoUIView : CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		__form = null;
 		__enabled = true;
 		__visible = true;
 		__invalidated = false;
@@ -150,6 +151,20 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function bringToFront()
+	{
+		if(__parent)
+			__parent.moveChild(this, 0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function sendToBack()
+	{
+		if(__parent)
+			__parent.moveChild(this, __children.size()-1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function invalidate()
 	{
 		__invalidated = true;
@@ -170,12 +185,13 @@ class CocoUIView : CocoClip
 			return;
 
 		// Render if within screen region
-		//if(__form)
-		//{
-		//	var KF:CocoKeyFrame = __form.getKeyFrame();
-		//	if(KF.y + __y + __height < __form.__y || KF.y + __y > __form.__y + __form.__height)
-		//		return;
-		//}
+		if(__form)
+		{
+			var KF:CocoKeyFrame = __form.getKeyFrame();
+			var myKF:CocoKeyFrame = __timeline.keyFrame(0);
+			if(KF.y + myKF.y + __height / 2 < __form.__y - __form.__height / 2 || KF.y + myKF.y - __height / 2 > __form.__y + __form.__height / 2)
+				return;
+		}
 
 		super.paint;
 

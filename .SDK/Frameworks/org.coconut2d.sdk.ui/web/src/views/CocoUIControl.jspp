@@ -140,11 +140,16 @@ class CocoUIControl : CocoUIView
 	protected var __glyphImageSel:String;
 	protected var __glyphLeft:Float;
 	protected var __glyphTop:Float;
+	protected var __glyphEvents:Boolean;
+
+	private var __glyphClip:CocoClip;
+	private var __glyphSelClip:CocoClip;
 
 	published property GlyphImage		{ function get():String 	{ return __glyphImage;	 	}	function set(v:String) 	{ __glyphImage = v; invalidate(); 		}}
 	published property GlyphImageSel	{ function get():String 	{ return __glyphImageSel; 	}	function set(v:String) 	{ __glyphImageSel = v; invalidate();	}}
 	published property GlyphLeft		{ function get():Float 		{ return __glyphLeft; 		}	function set(v:Float) 	{ __glyphLeft = v; invalidate();		}}
 	published property GlyphTop			{ function get():Float 		{ return __glyphTop; 		}	function set(v:Float) 	{ __glyphTop = v; invalidate();			}}
+	published property GlyphEvents		{ function get():Boolean	{ return __glyphEvents;		}	function set(v:Boolean)	{ __glyphEvents = v; 					}}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Chevron
@@ -153,17 +158,21 @@ class CocoUIControl : CocoUIView
 	protected var __chevronImageSel:String;
 	protected var __chevronLeft:Float;
 	protected var __chevronTop:Float;
+	protected var __chevronEvents:Boolean;
+
+	private var __chevronClip:CocoClip;
+	private var __chevronSelClip:CocoClip;
 
 	published property ChevronImage		{ function get():String 	{ return __chevronImage;	}	function set(v:String) 	{ __chevronImage = v; invalidate(); 	}}
 	published property ChevronImageSel	{ function get():String 	{ return __chevronImageSel;	}	function set(v:String) 	{ __chevronImageSel = v; invalidate();	}}
 	published property ChevronLeft		{ function get():Float 		{ return __chevronLeft; 	}	function set(v:Float) 	{ __chevronLeft = v; invalidate();		}}
 	published property ChevronTop		{ function get():Float 		{ return __chevronTop; 		}	function set(v:Float) 	{ __chevronTop = v; invalidate();		}}
+	published property ChevronEvents	{ function get():Boolean	{ return __chevronEvents;	}	function set(v:Boolean)	{ __chevronEvents = v; 					}}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Texts
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	protected var __texts:Array<CocoUITextBlock>;
-	protected var __textsSelected:Array<CocoUITextBlock>;
+	protected var __texts:Array<CocoTextBlock>;
 
 	// ==================================================================================================================================
 	//	    ____       ____            ____     _____ _       _
@@ -186,18 +195,18 @@ class CocoUIControl : CocoUIView
 	{
 		var h:Float = 0;
 
-		if(__skinImage) 		h = Math.max(h, __scene.getImageSymbol(__skinImage).textureCellHeight);
-		if(__skinImageSel) 		h = Math.max(h, __scene.getImageSymbol(__skinImageSel).textureCellHeight);
-		if(__glyphImage)		h = Math.max(h, __scene.getImageSymbol(__glyphImage).textureCellHeight);
-		if(__glyphImageSel)		h = Math.max(h, __scene.getImageSymbol(__glyphImageSel).textureCellHeight);
-		if(__chevronImage)		h = Math.max(h, __scene.getImageSymbol(__chevronImage).textureCellHeight);
-		if(__chevronImageSel)	h = Math.max(h, __scene.getImageSymbol(__chevronImageSel).textureCellHeight);
+		if(__skinImage) 		h = Math.max(h, __scene.getImageSymbolHeight(__skinImage));
+		if(__skinImageSel) 		h = Math.max(h, __scene.getImageSymbolHeight(__skinImageSel));
+		if(__glyphImage)		h = Math.max(h, __scene.getImageSymbolHeight(__glyphImage));
+		if(__glyphImageSel)		h = Math.max(h, __scene.getImageSymbolHeight(__glyphImageSel));
+		if(__chevronImage)		h = Math.max(h, __scene.getImageSymbolHeight(__chevronImage));
+		if(__chevronImageSel)	h = Math.max(h, __scene.getImageSymbolHeight(__chevronImageSel));
 
 		for(var i:Integer=__texts.size()-1; i>=0; i--)
 		{
 			if(__texts[i].multiline)
 			{
-				__texts[i].toImage(false); // Force text to wrap and calc height
+				__texts[i].toImage(false, __scene.__view_scale); // Force text to wrap and calc height
 				h = Math.max(h, __texts[i].Height + PaddingTop + PaddingBottom);
 			}
 			else
@@ -272,32 +281,43 @@ class CocoUIControl : CocoUIView
 		__glyphImageSel				= "";
 		__glyphLeft					= 0;
 		__glyphTop					= 0;
+		__glyphEvents				= false;
+		__glyphClip					= null;
+		__glyphSelClip				= null;
 
 		__chevronImage				= "";
 		__chevronImageSel			= "";
 		__chevronLeft				= 0;
 		__chevronTop				= 0;
+		__chevronEvents				= false;
+		__chevronClip				= null;
+		__chevronSelClip			= null;
 
-		__texts = new Array<CocoUITextBlock>;
-		__textsSelected = new Array<CocoUITextBlock>;
+
+		__texts = new Array<CocoTextBlock>;
 
 		// Controls by default are clickable, so keyframe has handleEvnets = ture
 		__timeline.clear();
 		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 
 		// Hook on touch events
-		this.addEventListener(this.OnTouchStart, HandleTouchStart);
- 		this.addEventListener(this.OnTouchEnd, HandleTouchEnd);
+		if(__selectable)
+		{
+			addEventListener(this.OnTouchStart, CocoUIControl_OnTouchStart);
+	 		addEventListener(this.OnTouchEnd, CocoUIControl_OnTouchEnd);
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
- 		this.removeEventListener(this.OnTouchStart, HandleTouchStart);
- 		this.removeEventListener(this.OnTouchEnd, HandleTouchEnd);
+ 		if(__selectable)
+ 		{
+ 			removeEventListener(this.OnTouchStart, CocoUIControl_OnTouchStart);
+ 			removeEventListener(this.OnTouchEnd, CocoUIControl_OnTouchEnd);
+ 		}
 
 		delete __texts;
-		delete __textsSelected;
 	}
 
 	// ==================================================================================================================================
@@ -310,7 +330,7 @@ class CocoUIControl : CocoUIView
 	// ==================================================================================================================================
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function HandleTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+ 	public function CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
 		if(__selectable)
 			__selectionWaitTickCycles = 5;
@@ -318,11 +338,26 @@ class CocoUIControl : CocoUIView
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function HandleTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	public function CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
 		Selected = false;
 		return false;
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean
+	{
+		if(sender==__glyphClip || sender == __glyphSelClip)
+		{
+			dispatchEvent(this.OnGlyphClick);
+		}
+		if(sender==__chevronClip || sender == __chevronSelClip)
+		{
+			dispatchEvent(this.OnChevronClick);
+		}
+		return false;
+	}
+
 
 	// ==================================================================================================================================
 	//	    ____        _       __        __   ______                                 _ __  _
@@ -366,27 +401,38 @@ class CocoUIControl : CocoUIView
 		if(__width==0 || __height==0 || !__invalidated)
 			return;
 
+		// Dettach children clip events
+		if(__glyphClip) __glyphClip.removeEventListener(__glyphClip.OnClick, CocoUIControl_Graphic_OnClick);
+		if(__glyphSelClip) __glyphSelClip.removeEventListener(__glyphSelClip.OnClick, CocoUIControl_Graphic_OnClick);
+		if(__chevronClip) __chevronClip.removeEventListener(__chevronClip.OnClick, CocoUIControl_Graphic_OnClick);
+		if(__chevronSelClip) __chevronSelClip.removeEventListener(__chevronSelClip.OnClick, CocoUIControl_Graphic_OnClick);
+
 		// Clear children clips
 		clear();
 
 		// Add Skin Layer
 		if(__skinImage)
-			NewLayerFromImage(0, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(__skinImage), Width, Height), 0, 0);
+			NewLayerFromImage(0, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(__skinImage), Width, Height), 0, 0, false);
 
 		// Add Glyph Layer
 		if(__glyphImage)
-			NewLayerFromImage(0, __scene.getImageSymbol(__glyphImage), __glyphLeft, __glyphTop);
+		{
+			__glyphClip = NewLayerFromImage(0, __scene.getImageSymbol(__glyphImage), __glyphLeft, __glyphTop, __glyphEvents);
+			__glyphClip.addEventListener(__glyphClip.OnClick, CocoUIControl_Graphic_OnClick);
+		}
 
 		// Add chevron Layer
 		if(__chevronImage)
-			NewLayerFromImage(0, __scene.getImageSymbol(__chevronImage), __chevronLeft, __chevronTop);
+		{
+			__chevronClip = NewLayerFromImage(0, __scene.getImageSymbol(__chevronImage), __chevronLeft, __chevronTop, __chevronEvents);
+			__chevronClip.addEventListener(__chevronClip.OnClick, CocoUIControl_Graphic_OnClick);
+		}
 
 		// Add text Layers
 		for(var i:Integer = __texts.size()-1; i>=0; i--)
 		{
-			__texts[i].ctl = this;
-			var img:CocoImage = __texts[i].toImage(false);
-			NewLayerFromImage(0, img, __texts[i].Left, __texts[i].Top);
+			__texts[i].parent = this;
+			NewLayerFromImage(0, __texts[i].toImage(false, __scene.__view_scale), __texts[i].Left, __texts[i].Top, false);
 		}
 
 		// SELECTED STATE //
@@ -394,29 +440,28 @@ class CocoUIControl : CocoUIView
 		{
 			// Add Skin Layer
 			if(SkinImageSel)
-				NewLayerFromImage(1, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(SkinImageSel), Width, Height), 0, 0);
+				NewLayerFromImage(1, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(SkinImageSel), Width, Height), 0, 0, false);
 
 			// Add Glyph Layer
 			if(GlyphImageSel)
-				NewLayerFromImage(1, __scene.getImageSymbol(GlyphImageSel), __glyphLeft, __glyphTop);
+				NewLayerFromImage(1, __scene.getImageSymbol(GlyphImageSel), __glyphLeft, __glyphTop, false);
 
 			// Add chevron Layer
 			if(__chevronImage)
-				NewLayerFromImage(1, __scene.getImageSymbol(ChevronImageSel), __chevronLeft, __chevronTop);
+				NewLayerFromImage(1, __scene.getImageSymbol(ChevronImageSel), __chevronLeft, __chevronTop, false);
 
 			// Add text Layers
 			for(var i:Integer = __texts.size()-1; i>=0; i--)
 			{
-				__texts[i].ctl = this;
-				NewLayerFromImage(1, __texts[i].toImage(true), __texts[i].Left, __texts[i].Top);
+				__texts[i].parent = this;
+				NewLayerFromImage(1, __texts[i].toImage(true, __scene.__view_scale), __texts[i].Left, __texts[i].Top, false);
 			}
 		}
 	}
 
 
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float) :CocoClip
+	public virtual function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float, handleEvents:Boolean) :CocoClip
 	{
 		// Composition Layers (skin, texts, glyph, chevron, etc.) are placed
 		// with origin the top-left corner of the control. When we finally
@@ -435,14 +480,14 @@ class CocoUIControl : CocoUIView
 		// 2. We add (x,y)
 		// 3. We move origin to clild's center by adding 1/2 of child's width and height
 
- 		x = -Width/2 + x + image.textureCellWidth/2;
- 		y = -Height/2 + y + image.textureCellHeight/2;
+ 		x = -Width/2 + x + image.textureCellWidth/2/(image.pixelRatio/__scene.__view_pixel_ratio);
+ 		y = -Height/2 + y + image.textureCellHeight/2/(image.pixelRatio/__scene.__view_pixel_ratio);
 
 		var clip:CocoClip = new CocoClip(image);
 		clip.__instanceName = __instanceName + "Layer" + String(__children.size());
 		clip = addChild(clip);
 		clip.__timeline.clear();
-		clip.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		clip.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, handleEvents, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 		return clip;
 	}
 }

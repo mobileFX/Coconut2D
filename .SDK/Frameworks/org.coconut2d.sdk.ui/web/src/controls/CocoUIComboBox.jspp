@@ -36,105 +36,6 @@
 
 "#include CocoUIControl.jspp";
 
-class CocoUIComboBoxSlot
-{
-	public var keys: Array<String>;
-	public var captions: Array<String>;
-	public var width:Integer;
-	public var textWidth:Float;
-	public var selected:Integer;
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor()
-	{
-	}
-}
-
-// ==================================================================================================================================
-//	   ______                 __  ____________                __          ____             ____
-//	  / ____/___  _________  / / / /  _/ ____/___  ____ ___  / /_  ____  / __ )____  _  __/ __ \____  ____  __  ______
-//	 / /   / __ \/ ___/ __ \/ / / // // /   / __ \/ __ `__ \/ __ \/ __ \/ __  / __ \| |/_/ /_/ / __ \/ __ \/ / / / __ \
-//	/ /___/ /_/ / /__/ /_/ / /_/ // // /___/ /_/ / / / / / / /_/ / /_/ / /_/ / /_/ />  </ ____/ /_/ / /_/ / /_/ / /_/ /
-//	\____/\____/\___/\____/\____/___/\____/\____/_/ /_/ /_/_.___/\____/_____/\____/_/|_/_/    \____/ .___/\__,_/ .___/
-//	                                                                                              /_/         /_/
-// ==================================================================================================================================
-
-class CocoUIComboBoxPopup : CocoUIControl
-{
-	public var imgFrame:CocoImage;
-	public var imgHeader:CocoImage;
-	public var imgOK:CocoImage;
-
-	private var slots:Array<CocoUIComboBoxSlot>;
-	private var separator:String;
-
-	private var ROW_HEIGHT:Integer;
-	private var SELECTION_Y:Integer;
-	private var PADDING:Integer;
-	private var HEADER_HEIGHT:Integer;
-	private var FRAME_HEIGHT:Integer;
-	private var BUTTON_HEIGHT:Integer;
-	private var FONT_SIZE:Float;
-
-	private var my:Float;
-	private var my0:Float;
-	private var mx0:Float;
-	private var slotScrolling:Integer;
-	private var reEnter:Boolean;
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(name:String) :CocoUIControl(name)
-	{
-		slots = new Array<CocoUIComboBoxSlot>;
-
-		this.addEventListener(this.OnTouchStart, __CocoUIComboBoxPopup_OnTouchStart);
- 		this.addEventListener(this.OnTouchMove, __CocoUIComboBoxPopup_OnTouchMove);
- 		this.addEventListener(this.OnTouchEnd, __CocoUIComboBoxPopup_OnTouchEnd);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor()
-	{
-		this.removeEventListener(this.OnTouchStart, __CocoUIComboBoxPopup_OnTouchStart);
- 		this.removeEventListener(this.OnTouchMove, __CocoUIComboBoxPopup_OnTouchMove);
- 		this.removeEventListener(this.OnTouchEnd, __CocoUIComboBoxPopup_OnTouchEnd);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function __CocoUIComboBoxPopup_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
-	{
-		return true;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function __CocoUIComboBoxPopup_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
-	{
-		return true;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function __CocoUIComboBoxPopup_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
-	{
-		return true;
-	}
-
-		//var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-		//ctx.fillStyle = "rgba(255, 255, 255, 255)";
-		//ctx.fillRect(0, 0, Width, Height);
-		//CocoGraphics.drawSkin(ctx, imgHeader, 0, 0, Width, imgHeader.textureCellHeight);
-		//CocoGraphics.drawSkin(ctx, imgFrame, 0, imgHeader.textureCellHeight, Width, imgFrame.textureCellHeight);
-		//FontColor = 0xFFFFFFFF;
-		//FontBold = true;
-		//FontSize = 18;
-    	//CocoText.drawSimpleText(ctx, "Please select", FontName, FontSize, FontBold, FontItalic, FontUnderline, FontColor, PaddingLeft, PaddingTop, PaddingWidth, PaddingHeight, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT, FontShadowX, FontShadowY, FontBlur, FontShadowColor);
-		//var btnWidth:Float = 50.0;
-		//CocoGraphics.drawSkin(ctx, imgOK, Width - btnWidth - 4, (imgHeader.textureCellHeight - imgOK.textureCellHeight) / 2.0, btnWidth, imgOK.textureCellHeight);
-		//FontBold = true;
-		//FontSize = 14;
-		//CocoText.drawSimpleText(ctx, "OK", FontName, FontSize, FontBold, FontItalic, FontUnderline, FontColor, Width - btnWidth - 4,  (imgHeader.textureCellHeight - imgOK.textureCellHeight) / 2.0, btnWidth, imgOK.textureCellHeight, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT, FontShadowX, FontShadowY, FontBlur, FontShadowColor);
-
-}
-
 // ==================================================================================================================================
 //	   ______                 __  ____________                __          ____
 //	  / ____/___  _________  / / / /  _/ ____/___  ____ ___  / /_  ____  / __ )____  _  __
@@ -150,8 +51,8 @@ control class CocoUIComboBox : CocoUIControl
 	// Caption
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public var __text:CocoUITextBlock;
-	public var __prompt:CocoUITextBlock;
+	public var __text:CocoTextBlock;
+	public var __prompt:CocoTextBlock;
 
 	published property Text							{ function get():String  { return __text.text; 						} 	function set(v:String) 		{ __text.text = v; invalidate(); 					}}
 	published property TextFontName					{ function get():String  { return __text.fontName; 					} 	function set(v:String) 		{ __text.fontName = v; invalidate(); 				}}
@@ -194,13 +95,13 @@ control class CocoUIComboBox : CocoUIControl
 		SetMargins(4,4,4,4);
 
 		// Set default text block
-		__text = new CocoUITextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
+		__text = new CocoTextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
 		__text.fontColor = 0xff000000;
 		__text.fontBold = false;
 		__text.multiline = false;
 		__text.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
 
-		__prompt = new CocoUITextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
+		__prompt = new CocoTextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
 		__prompt.text = "Please enter value...";
 		__prompt.fontColor = 0xff444444;
 		__prompt.fontColorSel = 0xff444444;
@@ -233,57 +134,4 @@ control class CocoUIComboBox : CocoUIControl
 	{
 		return false;
 	}
-
-	/*
-	protected var __promptText:String;
-	protected var __promptColor:Color;
-	protected var __promptTextAlign:COCO_CONTROL_ANCHOR_ENUM;
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(name:String) :CocoUIControl(name)
-	{
-		__promptText = "Caption";
-		__promptColor = 0x444444;
-		__promptTextAlign = COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT;
-		PaddingLeft = 9.0;
-		PaddingRight = 26.0;
-		MarginLeft = 2;
-		MarginRight = 2;
-		this.addEventListener(this.OnClick, HandleClick);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor()
-	{
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	published property PromptText
-	{
-		function get():String { return __promptText; }
-		function set(v:String) { __promptText = v; invalidate(); }
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	published property PromptColor
-	{
-		function get():Color { return __promptColor; }
-		function set(v:Color) { __promptColor = v; invalidate(); }
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function HandleClick(sender:CocoEventSource, e:CocoEvent) :Boolean
-	{
-		var popup:CocoUIComboBoxPopup = new CocoUIComboBoxPopup("popup");
-
-		popup.imgFrame = __scene.getImageSymbol("SkinSymbol_iPhone_SpinWheel_Frame");
-		popup.imgHeader = __scene.getImageSymbol("SkinSymbol_iPhone_SpinWheel_Header");
-		popup.imgOK = __scene.getImageSymbol("SkinSymbol_iPhone_SpinWheel_Button_OK");
-		popup.Height = popup.imgFrame.textureCellHeight + popup.imgHeader.textureCellHeight;
-		//popup.__timeline.clear();
-		//popup.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, this.__parent.__height, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
-		//popup.__timeline.addKeyFrameEx(null, CocoAction(__scene.stop), 4, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, Height - ctl.Height, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
-		return false;
-	}
-	*/
 }

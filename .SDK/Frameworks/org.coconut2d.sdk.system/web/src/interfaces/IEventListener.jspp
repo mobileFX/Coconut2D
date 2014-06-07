@@ -1,4 +1,7 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+﻿"#export web";
+
+
+/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -22,33 +25,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef __CocoEngine__CocoFont__
-#define __CocoEngine__CocoFont__
-
-#include "Coconut2D.hpp"
-#include "CocoFontsCache.h"
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct CocoFontChar
+interface IEventListener
 {
-    uint16_t charIndex;
-    fxRect<int16_t> rect;
-    uint16_t horiAdvance;
-    std::map<uint16_t, int> horiKernings;
-    uint8_t *data; // we use 1 byte per pixel (FT_PIXEL_MODE_GRAY)
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-class CocoFont
-{
-public:
-    std::map<uint16_t, CocoFontChar> chars;
-    FT_Face face;
-    uint16_t height;
-	CocoFont(String fontName, float fontSize, bool bold, bool oblique);
-	~CocoFont();
-	void fillText(ArrayBuffer* imageDataBuffer, int width, String text, int x, int y, float R, float G, float B, float A);
-	float measureText(String text);
-};
-
-#endif /* defined(__CocoEngine__CocoFont__) */
+}

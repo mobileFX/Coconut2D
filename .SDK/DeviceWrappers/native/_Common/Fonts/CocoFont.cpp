@@ -27,7 +27,7 @@
 #ifdef ENABLE_FREETYPE_SUPPORT
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoFont::CocoFont(float fontSize, String fontName, bool bold, bool italic) : height(fontSize)
+CocoFont::CocoFont(String fontName, float fontSize, bool bold, bool italic) : height(fontSize)
 {
 	CocoFontsCache::FONT_STYLE style;
 	if(bold)
@@ -55,7 +55,7 @@ CocoFont::~CocoFont()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, float x, float y, float R, float G, float B, float A)
+void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, int x, int y, float R, float G, float B, float A)
 {   // We only use the ArrayBuffer of an Int32Array with byteOffset = 0 (BYTES_PER_ELEMENT = 4) in RGBA format
 	if(FT_Set_Pixel_Sizes(face, 0, height))
 	{
@@ -103,7 +103,7 @@ void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, fl
 	                FT_Get_Kerning(face, c->charIndex, it->second.charIndex, FT_KERNING_DEFAULT, &tk);
 	                kit = c->horiKernings.insert(std::pair<uint16_t, int>(it->second.charIndex, tk.x)).first;
 				}
-				x += kit->second;
+				x += kit->second >> 6;
 			}
 			c = &(it->second);
 			for(size_t ix = c->rect.size.x; ix--;)
@@ -113,14 +113,10 @@ void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, fl
 					uint8_t* cp = (uint8_t*)((*imageDataBuffer)[((y + c->rect.pos.y + iy) * width + (x + c->rect.pos.x + ix)) * 4]);
 					if(cp && c->data[iy * c->rect.size.x + ix])
 					{
-						/*cp[0] += (uint8_t)(0xFF * (R * A) - cp[0] * A);
-						cp[1] += (uint8_t)(0xFF * (G * A) - cp[1] * A);
-						cp[2] += (uint8_t)(0xFF * (B * A) - cp[2] * A);
-						cp[3] += (uint8_t)(0xFF * (A * A) - cp[3] * A);*/
-						cp[0] = (uint8_t)(255.0 * A * R + data[dIdx + 3] * cp[0] / 255.0 * (1.0 - A));
-						cp[1] = (uint8_t)(255.0 * A * G + data[dIdx + 3] * cp[1] / 255.0 * (1.0 - A));
-						cp[2] = (uint8_t)(255.0 * A * B + data[dIdx + 3] * cp[2] / 255.0 * (1.0 - A));
-						cp[3] = (uint8_t)(255.0 * A + cp[3] * (1.0 - A));
+						cp[0] = R;
+						cp[1] = G;
+						cp[2] = B;
+						cp[3] = c->data[iy * c->rect.size.x + ix];
 					}
 				}
 			}
@@ -179,7 +175,7 @@ float CocoFont::measureText(String text)
 	                FT_Get_Kerning(face, c->charIndex, it->second.charIndex, FT_KERNING_DEFAULT, &tk);
 	                kit = c->horiKernings.insert(std::pair<uint16_t, int>(it->second.charIndex, tk.x)).first;
 				}
-				ret += kit->second;
+				ret += kit->second >> 6;
 			}
 			c = &(it->second);
 			ret += c->horiAdvance;

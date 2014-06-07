@@ -96,6 +96,13 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getImageSymbolHeight(symbolName:String):Float
+	{
+		var img:CocoImage = getImageSymbol(symbolName);
+		return img.textureCellHeight / (img.pixelRatio / __view_pixel_ratio);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage
 	{
 		if(getImageSymbol(symbolName)) throw "Resource image " + symbolName + " already exists.";

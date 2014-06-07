@@ -189,9 +189,9 @@ class CocoText
 			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
 			for(var r:Integer = indices[i]; r < to; r++)
 			{
-				var char:String = String(str.substr(r, 1));
-				var charWidth:Float = ctx.measureText(char).width;
-				if(char == " ")
+				var chr:String = String(str.substr(r, 1));
+				var charWidth:Float = ctx.measureText(chr).width;
+				if(chr == " ")
 				{
 					lastSpace = r;
 					lineWidth += lastSpaceWidth;
@@ -267,7 +267,7 @@ class CocoText
 				if(stop == nextBreak)
 				{
 					cx = x;
-					cy += Float(lineHeights[currentLine]) * lineSpacing;
+					cy += Float((lineHeights.size() > currentLine ? lineHeights[currentLine] : totalHeight)) * lineSpacing;
 					++currentLine;
 					firstChar = true;
 				}

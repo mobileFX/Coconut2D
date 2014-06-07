@@ -34,11 +34,11 @@
 //
 // ==================================================================================================================================
 
-class CocoUITextBlock
+class CocoTextBlock
 {
 	public var text:String;
 	public var multiline:Boolean;
-	public var ctl:CocoUIControl;
+	public var parent:CocoClip;
 
 	// Rectanble to anchor text
 	public var Left:Float;
@@ -64,7 +64,7 @@ class CocoUITextBlock
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(Text:String, align:COCO_CONTROL_ANCHOR_ENUM)
 	{
-		ctl					= null;
+		parent				= null;
 		text				= Text;
 		anchor				= align;
 		multiline			= false;
@@ -100,7 +100,7 @@ class CocoUITextBlock
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function toImage(selected:Boolean):CocoImage
+	public function toImage(selected:Boolean, scale:Float):CocoImage
 	{
 		var align:CocoHVAlign;
 		if(multiline)
@@ -115,7 +115,7 @@ class CocoUITextBlock
 		}
 
 		var color:String = CocoGraphics.ColorToHtmlRGBA(selected ? fontColorSel : fontColor);
-    	var fontStyle:String = (fontItalic ? "italic" : "normal") + " normal " + (fontBold ? "bold " : "normal ") + String(fontSize) + "px " + fontName;
+    	var fontStyle:String = (fontItalic ? "italic" : "normal") + " normal " + (fontBold ? "bold " : "normal ") + String(fontSize * scale) + "px " + fontName;
 
     	var f:CocoText = new CocoText();
     	f.str = text;
@@ -124,21 +124,22 @@ class CocoUITextBlock
 
     	if(multiline)
     	{
-    		f.wrapSimple(Integer(Width), fontStyle);
+    		f.wrapSimple(Integer(Width * scale), fontStyle);
     		if(Height!=f.totalHeight)
     		{
-	    		Height = f.totalHeight;
-	    		if(ctl)
-	    		{
-	    			ctl.Form.invalidate();
-	    		}
+	    		Height = f.totalHeight / scale;
+	    		//if(ctl)
+	    		//{
+	    		//	ctl.Form.invalidate();
+	    		//}
     		}
     	}
 
-    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(Width,Height);
+    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(Width * scale,Height * scale);
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-    	f.drawSimple(ctx, fontStyle, fontUnderline, color, 0, 0, Width, Height, align.horiz, align.vert);
-		var image:CocoImage = CocoGraphics.CocoImageFromHTMLCanvas(canvas,Width,Height);
+    	f.drawSimple(ctx, fontStyle, fontUnderline, color, 0, 0, Width * scale, Height * scale, align.horiz, align.vert);
+		var image:CocoImage = CocoGraphics.CocoImageFromHTMLCanvas(canvas,Width * scale,Height * scale);
+		image.pixelRatio = scale;
 		delete f;
 		delete canvas;
 

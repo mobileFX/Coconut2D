@@ -42,8 +42,8 @@ control class CocoUITextEdit : CocoUIControl
 	// Caption
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public var __text:CocoUITextBlock;
-	public var __prompt:CocoUITextBlock;
+	public var __text:CocoTextBlock;
+	public var __prompt:CocoTextBlock;
 
 	published property Text							{ function get():String  { return __text.text; 						} 	function set(v:String) 		{ __text.text = v; invalidate(); 					}}
 	published property TextFontName					{ function get():String  { return __text.fontName; 					} 	function set(v:String) 		{ __text.fontName = v; invalidate(); 				}}
@@ -86,13 +86,13 @@ control class CocoUITextEdit : CocoUIControl
 		SetMargins(4,4,4,4);
 
 		// Set default text block
-		__text = new CocoUITextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
+		__text = new CocoTextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
 		__text.fontColor = 0xff000000;
 		__text.fontBold = false;
 		__text.multiline = false;
 		__text.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
 
-		__prompt = new CocoUITextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
+		__prompt = new CocoTextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
 		__prompt.text = "Please enter value...";
 		__prompt.fontColor = 0xff444444;
 		__prompt.fontBold = false;

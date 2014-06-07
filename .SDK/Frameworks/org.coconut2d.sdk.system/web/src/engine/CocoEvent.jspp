@@ -36,38 +36,32 @@
 //
 // ==================================================================================================================================
 
+// This is the base class for all Coconut2D events declared in classes.
+
 class CocoEvent
 {
 	public var type:String;
-
-	public var target:IEventTarget;
-	public var currentTarget:IEventTarget;
-
 	public var bubbles:Boolean;
 	public var cancelable:Boolean;
-
 	public var timeStamp:Integer;
 	public var stopPropagation:Boolean;
 	public var defaultPrevented:Boolean;
 
-	public var detail:Integer;
-
-	public var touches:TouchList;           // all touches
-	public var changedTouches:TouchList;    // all touches changed in the current event
-	public var scale:Float;     			// distance (since event start) between fingers as multiplier of initial value. Initially 1.0, zoom out (pinch) < 1.0, zoom in > 1.0.
-	public var rotation:Float;  			// rotation delta (since event start) in degrees (clockwise is positive). Initially 0.0.
-
-	public var clientX:Integer;
-	public var clientY:Integer;
-	public var __clientX:Integer;
-	public var __clientY:Integer;
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(type:String, cancelable:Boolean, bubbles:Boolean)
 	{
+		reset();
 		this.type = type;
 		this.cancelable = cancelable;
 		this.bubbles = bubbles;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function reset()
+	{
+		timeStamp 			= 0;
+		stopPropagation 	= false;
+		defaultPrevented 	= false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

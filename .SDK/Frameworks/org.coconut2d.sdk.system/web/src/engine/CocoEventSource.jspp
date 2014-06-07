@@ -50,7 +50,7 @@ class CocoEventSource
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function addEventListener(Event:CocoEvent, Callback:Function, optional Listener:IEventListener)
+	public function addEventListener(Event:CocoEvent, Callback:Function, optional Listener:IEventListener)
 	{
 		// If we din't have the "__THIS__" implementation in our inheritance mechanism,
 		// the following code would never work. It would store the CocoEventSource
@@ -60,7 +60,7 @@ class CocoEventSource
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function removeEventListener(Event:CocoEvent, Callback:Function, optional Listener:IEventListener) :Boolean
+	public function removeEventListener(Event:CocoEvent, Callback:Function, optional Listener:IEventListener) :Boolean
 	{
 		var i:Integer;
 		for(i=__eventListeners.size()-1;i>=0;i--)
@@ -75,7 +75,7 @@ class CocoEventSource
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function dispatchEvent(Event:CocoEvent, ...)
+	public function dispatchEvent(Event:CocoEvent, ...)
 	{
 		if(Event.stopPropagation) return;
 

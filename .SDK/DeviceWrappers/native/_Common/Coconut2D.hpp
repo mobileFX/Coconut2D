@@ -144,6 +144,13 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
+	Array<T>* reverse()
+	{
+		std::reverse(std::vector<T>::begin(), std::vector<T>::end());
+		return this;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
 	Array<T>* operator()(T v)
 	{
 		this->push(v);
@@ -305,6 +312,12 @@ public:
 	unsigned long byteLength;
 
 	//////////////////////////////////////////////////////////////////////////////////
+	void clear()
+	{
+		memset((*buffer)[byteOffset], 0, byteLength);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
 	void* get()
 	{
 		return reinterpret_cast<void*>(reinterpret_cast<char*>(buffer->data) + byteOffset);
@@ -415,12 +428,14 @@ struct GLany;
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
 class ClassTestInterfaces;
+class CocoAppController;
 class CocoAudio;
 class CocoClip;
 class CocoClipOnClickEvent;
 class CocoClipOnTouchEndEvent;
 class CocoClipOnTouchMoveEvent;
 class CocoClipOnTouchStartEvent;
+class CocoDataSource;
 class CocoEngine;
 class CocoEvent;
 class CocoGraphics;
@@ -428,13 +443,16 @@ class CocoImage;
 class CocoImageRenderData2D;
 class CocoImageRenderDataGL;
 class CocoImageSibling;
+class CocoLocalStorage;
 class CocoMatrix;
+class CocoRecordset;
 class CocoRenderContext2D;
 class CocoRenderContext;
 class CocoRenderContextGL;
 class CocoScene;
 class CocoSequence;
 class CocoText;
+class CocoTextBlock;
 class CocoTextStyle;
 class CocoTickable;
 class CocoTimeLabel;
@@ -442,18 +460,16 @@ class CocoTimeline;
 class CocoUIButton;
 class CocoUICheckBox;
 class CocoUIComboBox;
-class CocoUIComboBoxPopup;
-class CocoUIComboBoxSlot;
 class CocoUIControl;
 class CocoUIControlOnChevronClickEvent;
 class CocoUIControlOnGlyphClickEvent;
 class CocoUIFormView;
 class CocoUILabel;
-class CocoUILookupEdit;
 class CocoUINavBar;
+class CocoUIPictureList;
 class CocoUIScrollView;
 class CocoUITabBar;
-class CocoUITextBox;
+class CocoUITextEdit;
 class CocoUIView;
 class CocoVector;
 class GameEngine;
@@ -475,11 +491,18 @@ class Image;
 class NewAnimation;
 class Page1;
 class PathLine;
+class ReservationsForm;
 class Touch;
 class TouchList;
+struct CocoDataField;
+struct CocoDataRecord;
+struct CocoHVAlign;
 struct CocoKeyFrame;
+struct CocoMatrixData;
 struct CocoPoint;
 struct CocoRect;
+struct CocoRequestNameValuePair;
+struct CocoSkinCacheItem;
 struct DEVICE_MESSAGE;
 //# Generated Classes End #//
 

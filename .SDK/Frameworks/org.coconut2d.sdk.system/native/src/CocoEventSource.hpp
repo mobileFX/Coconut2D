@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -23,27 +23,36 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	    __________                 __  __    _      __
-//	   /  _/ ____/   _____  ____  / /_/ /   (_)____/ /____  ____  ___  _____
-//	   / // __/ | | / / _ \/ __ \/ __/ /   / / ___/ __/ _ \/ __ \/ _ \/ ___/
-//	 _/ // /___ | |/ /  __/ / / / /_/ /___/ (__  ) /_/  __/ / / /  __/ /
-//	/___/_____/ |___/\___/_/ /_/\__/_____/_/____/\__/\___/_/ /_/\___/_/
+//	   ______                 ______                 __  _____
+//	  / ____/___  _________  / ____/   _____  ____  / /_/ ___/____  __  _______________
+//	 / /   / __ \/ ___/ __ \/ __/ | | / / _ \/ __ \/ __/\__ \/ __ \/ / / / ___/ ___/ _ \
+//	/ /___/ /_/ / /__/ /_/ / /___ | |/ /  __/ / / / /_ ___/ / /_/ / /_/ / /  / /__/  __/
+//	\____/\____/\___/\____/_____/ |___/\___/_/ /_/\__//____/\____/\__,_/_/   \___/\___/
 //
 // ==================================================================================================================================
 
-#ifndef __IEVENTLISTENER_HPP__
-#define __IEVENTLISTENER_HPP__
+#ifndef __COCOEVENTSOURCE_HPP__
+#define __COCOEVENTSOURCE_HPP__
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Coconut2D.hpp"
+#include "CocoEventConnectionPoint.hpp"
+#include "CocoEvent.hpp"
+#include "IEventListener.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IEventListener
+class CocoEventSource
 {
 public:
-	virtual bool __dispatch_event__(void* __event_listener, int __event_handler_uid, void* __event_source, void* __event_object)=0;
+	Array<CocoEventConnectionPoint*>* __eventListeners;
+	const String __className = String("CocoEventSource");
+	CocoEventSource();
+	virtual ~CocoEventSource();
+	virtual void addEventListener(CocoEvent* Event, void* Listener, int DispID);
+	virtual bool removeEventListener(CocoEvent* Event, void* Listener, int DispID);
+	virtual void dispatchEvent(CocoEvent* Event)=0;
 };
 
-#endif // __IEVENTLISTENER_HPP__
+#endif // __COCOEVENTSOURCE_HPP__

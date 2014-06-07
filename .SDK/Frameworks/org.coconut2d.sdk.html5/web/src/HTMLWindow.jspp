@@ -34,7 +34,11 @@
 // HTMLWindow is our "device wrapper" and in native ports such as iOS, Android, desktop
 // and other pors, HTMLWindow exposes the device capabilities and receives the device
 // events. Device Events are wrapped isnide an HTMLEvent object and passed to the game
-// engine for further processing.
+// engine for further processing. In CocoEngine an HTMLEvent is processed and converted
+// to a DEVICE_MESSAGE structure. Device messages stay available for 1 tick cycle before
+// they are dismissed. During that tick cycle ITickable objects can retreive device
+// messages directly from CocoEngine and handle them. Such handling can produce a CocoEvent
+// which is the Coconut2D internal event mechanism.
 
 class HTMLWindow
 {

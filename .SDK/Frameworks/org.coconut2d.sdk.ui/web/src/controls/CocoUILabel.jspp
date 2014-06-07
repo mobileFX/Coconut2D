@@ -42,7 +42,7 @@ control class CocoUILabel : CocoUIControl
 	// Caption
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public var __caption:CocoUITextBlock;
+	public var __caption:CocoTextBlock;
 
 	published property Caption						{ function get():String  { return __caption.text; 						} 	function set(v:String) 		{ __caption.text = v; invalidate(); 					}}
 	published property CaptionAlign					{ function get():COCO_CONTROL_ANCHOR_ENUM { return __caption.anchor; 	}	function set(v:COCO_CONTROL_ANCHOR_ENUM) { __caption.anchor = v; invalidate(); 		}}
@@ -77,7 +77,7 @@ control class CocoUILabel : CocoUIControl
 		SetPaddings(5,5,0,0);
 
 		// Set default text block
-		__caption = new CocoUITextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
+		__caption = new CocoTextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
 		__caption.fontColor = 0xff000000;
 		__caption.fontBold = false;
 		__caption.multiline = false;

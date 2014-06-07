@@ -15,7 +15,7 @@
 state class GameEngine : CocoEngine
 {
 	public var scene:CocoScene;
-	public var frm_Reserverations:ReservationsForm;
+	public var app:CocoAppController;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -46,7 +46,10 @@ state class GameEngine : CocoEngine
 
 			scene = new NewAnimation(this);
 
-			frm_Reserverations = new ReservationsForm("frm_Reserverations", scene);
+			app = new CocoAppController("MyApp", scene);
+			app.addForm(new ReservationsForm("frm_Reserverations", scene));
+			app.addForm(new ReservationsForm("frm_Reserverations", scene));
+			app.showForm(app.Forms[0], COCO_UIFORM_ANIMATION.SHOW_NORMAL);
 		}
 
 		function exit()

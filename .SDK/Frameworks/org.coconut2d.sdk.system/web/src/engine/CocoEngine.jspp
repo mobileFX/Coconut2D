@@ -107,6 +107,9 @@ state class CocoEngine
 		// Tick ITickable objects
 		__tick(__clock);
 
+		// Clear Clicked clips
+		__clicked.clear();
+
 		// Paint
 		if(__nextState==null && __currentState!=null)
 		{
@@ -114,9 +117,6 @@ state class CocoEngine
 			__currentState.paint(__ctx, __clock);
 			__ctx.flush();
 		}
-
-		// Clear Clicked clips
-		__clicked.clear();
 
 		// Clear Device Messages queue
 		__clearDeviceMessageQueue();

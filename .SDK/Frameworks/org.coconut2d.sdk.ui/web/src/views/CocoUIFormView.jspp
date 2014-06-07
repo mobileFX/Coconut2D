@@ -45,8 +45,6 @@ class CocoUIFormView : CocoUIScrollView
 		__instanceName = name;
  		__scene = scene;
  		__invalidated = true;
- 		__scene.__root.addChild(this);
-		__container = true;
 		__width = window.innerWidth;
 		__height = window.innerHeight;
 	}
@@ -74,7 +72,6 @@ class CocoUIFormView : CocoUIScrollView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl
 	{
-
 		ctl.__scene = __scene;
 		ctl.__form = this;
 		ctl.RefreshLayout();

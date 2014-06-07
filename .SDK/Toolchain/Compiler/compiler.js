@@ -937,6 +937,23 @@ function Compiler(ast)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getAllDerivatives = function(classSymbol)
+	{
+		var list = {};
+		function __derivatives(classSymbol)
+		{
+			for(var item in classSymbol.derivatives)
+			{
+				var derivative = classSymbol.derivatives[item];
+				list[item] = derivative;
+				__derivatives(derivative);
+			}
+		}
+		__derivatives(classSymbol);
+		return list;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.implementsInterface = function(classSymbol, IName, basesOnly)
 	{
 		if(!classSymbol || !IName) return false;
@@ -978,7 +995,7 @@ function Compiler(ast)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.getCallList = function(ast, index)
+	_this.getCallList = function(ast)
 	{
 		var list = null;
 		if(ast.inCall) list = ast.inCall[1];
@@ -1119,7 +1136,7 @@ function Compiler(ast)
 				classSymbol.events					= {};
 				classSymbol.__event_bindings		= [];
 				classSymbol.__event_unbindings		= [];
-				classSymbol.__event_fire			= [];
+				classSymbol.__event_dispatches		= [];
 				classSymbol.type					= jsdef.CLASS;
 				classSymbol.nodeType				= "STRUCT";
 				classSymbol.extern					= (ast.file=="externs.jspp");
@@ -1295,13 +1312,13 @@ function Compiler(ast)
 				classSymbol.base					= baseClass;
 				classSymbol.baseSymbol				= baseClassSymbol;
 				classSymbol.bases 					= [baseClassSymbol];//Must be filled with all the base classes
-				classSymbol.derivatives				= {};
+				classSymbol.derivatives				= (_this.secondPass ? _this.getClass(ast.name).derivatives : {});
 				classSymbol.interfaces				= ast.interfaces;
 				classSymbol.events					= {};
-				classSymbol.__event_descriptors		= [];
+				classSymbol.__event_descriptors		= {};
 				classSymbol.__event_bindings		= [];
 				classSymbol.__event_unbindings		= [];
-				classSymbol.__event_fire			= [];
+				classSymbol.__event_dispatches		= [];
 				classSymbol.type					= jsdef.CLASS;
 				classSymbol.nodeType				= "CLASS";
 				classSymbol.extern					= (ast.file=="externs.jspp");
@@ -1348,6 +1365,7 @@ function Compiler(ast)
 			// Record interfaces
 			for(i=0;i<classSymbol.interfaces.length;i++)
 			{
+				// Record vartype usage in class level (used to check #includes)
 				_this.record_vartype_use(ast, {vartype:classSymbol.interfaces[i]}, classSymbol.scope, _this.INCLUDE_IN_HPP);
 
 				// Check if a base class also implements this interface
@@ -1895,44 +1913,25 @@ function Compiler(ast)
 				// ================================================================
 				// Check Events
 				// ================================================================
+				/*@@ CLASS:EVENTS @@*/
+
 				if(_this.secondPass)
 				{
-					var list = [].concat(classSymbol.__event_bindings).concat(classSymbol.__event_unbindings);
-					for(i=0;i<list.length;i++)
+					// -------------------------------------------------
+					// Process Event Bidnings (addEventListener)
+					// -------------------------------------------------
+					for(i=0;i<classSymbol.__event_bindings.length;i++)
 					{
-						var event_ast = list[i];
-						var eventSourceClassName = _this.getDotOrScopeSymbol(event_ast).vartype;  //event_ast.parent.identifier_first.symbol
+						var event_ast = classSymbol.__event_bindings[i];
+						var eventSourceClassName = _this.getDotOrScopeSymbol(event_ast).vartype;
 						var eventSourceClassSymbol = _this.getClass(eventSourceClassName);
 						var eventClassName = _this.getTypeName(_this.getCallListParam(event_ast,0));
 						var eventClassSymbol = _this.getClass(eventClassName);
-						var eventHandlerFunctionSymbol = _this.getCallListParam(event_ast,1).symbol; // event_ast.inDot.parent[1][1].symbol;
-						var event_handler_uid = "__EH" + _this.eventId + "_" + classSymbol.name + "_" + eventHandlerFunctionSymbol.name + "_L" + event_ast.line_start + "__";
+						var eventHandlerFunctionSymbol = _this.getCallListParam(event_ast,1).symbol;
+						var event_handler_uid = "__EH" + _this.eventId + "_" + classSymbol.name + "_" + eventHandlerFunctionSymbol.name + "__";
 
-						// Search event bindings for same addEventListener
-						if(event_ast.value==_this.ADD_EVENT || event_ast.value==_this.REMOVE_EVENT)
-						{
-							for(j=0;j<classSymbol.__event_bindings.length;j++)
-							{
-								var eb = classSymbol.__event_bindings[j];
-								if(eb==event_ast) continue;
-								if(!eb.__event_descriptor) continue;
-								var ed = eb.__event_descriptor;
-								if(ed.event_source==eventSourceClassSymbol &&
-								   ed.event_symbol==eventClassSymbol &&
-								   ed.event_handler==eventHandlerFunctionSymbol)
-								{
-									ed.uid += "L" + event_ast.line_start + "__";
-									ed.uid = ed.uid.replace(/__L/g, "_L");
-									event_handler_uid = ed.event_handler_uid;
-									event_ast.__event_descriptor = ed;
-									if(!ed.event_source)	ed.event_source		= eventSourceClassSymbol;
-									if(!ed.event_symbol)	ed.event_symbol		= eventClassSymbol;
-									if(!ed.event_listener)	ed.event_listener	= classSymbol;
-									if(!ed.event_handler)	ed.event_handler	= eventHandlerFunctionSymbol;
-									break;
-								}
-							}
-						}
+						if(eventHandlerFunctionSymbol.vartype!="Boolean")
+							_this.NewError("Event Handlers must return Boolean", eventHandlerFunctionSymbol.ast);
 
 						if(!eventClassSymbol)
 						{
@@ -1940,31 +1939,87 @@ function Compiler(ast)
 							continue;
 						}
 
-						if(!event_ast.__event_descriptor)
+						event_ast.__event_descriptor =
 						{
-							event_ast.__event_descriptor =
-							{
-								id					: _this.eventId++,
-								uid					: event_handler_uid,
-								event_source		: eventSourceClassSymbol,
-								event_symbol		: eventClassSymbol,
-								event_listener		: classSymbol,
-								event_handler		: eventHandlerFunctionSymbol,
-								type				: event_ast.value
-							};
-						}
+							id					: _this.eventId++,
+							uid					: event_handler_uid,
+							event_source		: eventSourceClassSymbol,
+							event_symbol		: eventClassSymbol,
+							event_listener		: classSymbol,
+							event_handler		: eventHandlerFunctionSymbol,
+							type				: event_ast.value
+						};
+
+						// We need to update the event source class for helping generation of dispatchEvent in C++
+						eventSourceClassSymbol.__event_descriptors[event_ast.__event_descriptor.id] = event_ast.__event_descriptor;
+
+						// Record vartype usage in class level (used to check #includes)
+						// (UIButton will need #include of UIForm if UIForm is hooking UIButton events)
+						_this.record_vartype_use(eventSourceClassSymbol.ast, {vartype:classSymbol.name, subtype:null}, eventSourceClassSymbol.scope, _this.INCLUDE_IN_CPP);
 					}
 
-					// Check dispatchEvent that matches event descriptor
-					for(i=0;i<classSymbol.__event_fire.length;i++)
+					// -------------------------------------------------
+					// Process Event Unbidnings (removeEventListener)
+					// -------------------------------------------------
+					for(i=0;i<classSymbol.__event_unbindings.length;i++)
 					{
-						var event_ast = classSymbol.__event_fire[i];
+						var event_ast = classSymbol.__event_unbindings[i];
+						var eventSourceClassName = _this.getDotOrScopeSymbol(event_ast).vartype;
+						var eventSourceClassSymbol = _this.getClass(eventSourceClassName);
+						var eventClassName = _this.getTypeName(_this.getCallListParam(event_ast,0));
+						var eventClassSymbol = _this.getClass(eventClassName);
+						var eventHandlerFunctionSymbol = _this.getCallListParam(event_ast,1).symbol;
+
+						if(eventHandlerFunctionSymbol.vartype!="Boolean")
+							_this.NewError("Event Handlers must return Boolean", eventHandlerFunctionSymbol.ast);
+
+						if(!eventClassSymbol)
+						{
+							_this.NewError("Event class " + eventName + " not found", event_ast);
+							continue;
+						}
+
+						// There should be an addEventListener for this removeEventListener
+						var found = false;
+						for(j=0;j<classSymbol.__event_bindings.length;j++)
+						{
+							var ed = classSymbol.__event_bindings[j].__event_descriptor;
+							if(ed.event_source==eventSourceClassSymbol &&
+							   ed.event_symbol==eventClassSymbol &&
+							   ed.event_listener==classSymbol &&
+							   ed.event_handler==eventHandlerFunctionSymbol &&
+							   ed.type==_this.ADD_EVENT)
+							{
+								found = true;
+								event_ast.__event_descriptor = ed;
+							}
+						}
+
+						// No addEventListener for this removeEventListener?
+						if(!found)
+							_this.NewError(_this.REMOVE_EVENT + " without " + _this.ADD_EVENT, event_ast);
+					}
+
+					// -------------------------------------------------
+					// Process Event Firing (dispatchEvent)
+					// -------------------------------------------------
+					for(i=0;i<classSymbol.__event_dispatches.length;i++)
+					{
+						var event_ast = classSymbol.__event_dispatches[i];
 						var eventSourceClassName = classSymbol.name;
 						var eventSourceClassSymbol = classSymbol;
 						var eventClassName = _this.getTypeName(_this.getCallListParam(event_ast,0));
 						var eventClassSymbol = _this.getClass(eventClassName);
 						var list = _this.getCallList(event_ast);
 
+						// Dispatch must not be in a DOT
+						if(event_ast.inDot)
+						{
+							_this.NewError(_this.DISPATCH_EVENT + " can not be in a Dot", event_ast);
+							continue;
+						}
+
+						// No event class?
 						if(!eventClassSymbol)
 						{
 							_this.NewError("Event class not found", event_ast);
@@ -1982,6 +2037,7 @@ function Compiler(ast)
 							type				: event_ast.value
 						};
 
+						// Check for event handler argument type mismatch
 						j=0;
 						for(item in eventClassSymbol.vars)
 						{
@@ -1992,6 +2048,7 @@ function Compiler(ast)
 						}
 					}
 				}
+
 			}
 
 			/////////////////////////////////////////////////////////////////////////////////
@@ -2883,7 +2940,7 @@ function Compiler(ast)
 				classSymbol.events					= {};
 				classSymbol.__event_bindings		= [];
 				classSymbol.__event_unbindings		= [];
-				classSymbol.__event_fire			= [];
+				classSymbol.__event_dispatches		= [];
 				classSymbol.type					= jsdef.CLASS;
 				classSymbol.nodeType				= "CALLBACK";
 				classSymbol.control					= false;
@@ -3000,7 +3057,7 @@ function Compiler(ast)
 				classSymbol.events					= {};
 				classSymbol.__event_bindings		= [];
 				classSymbol.__event_unbindings		= [];
-				classSymbol.__event_fire			= [];
+				classSymbol.__event_dispatches		= [];
 				classSymbol.type					= jsdef.CLASS;
 				classSymbol.nodeType				= "CLASS";
 				classSymbol.control					= false;
@@ -3198,7 +3255,7 @@ function Compiler(ast)
 				classSymbol.events					= {};
 				classSymbol.__event_bindings		= [];
 				classSymbol.__event_unbindings		= [];
-				classSymbol.__event_fire			= [];
+				classSymbol.__event_dispatches		= [];
 				classSymbol.type					= jsdef.CLASS;
 				classSymbol.nodeType				= "ENUM";
 				classSymbol.control					= false;
@@ -4049,7 +4106,7 @@ function Compiler(ast)
 				if(_this.isDerivativeOf(_this.getCurrentClass().name, "CocoEventSource"))
 				{
 					ast.__event = true;
-					_this.getCurrentClass().__event_fire.push(ast);
+					_this.getCurrentClass().__event_dispatches.push(ast);
 				}
 			}
 
@@ -4113,22 +4170,24 @@ function Compiler(ast)
 			var call1 = generate(ast[1]);
 			var cls = _this.getClass(call0);
 			if(!_this.secondPass) break;
+			var call = _this.getCallIdentifier(ast);
 
 			// EVENT HACK: for Coconut2D events append execution context __THIS__ to arguments.
-			if(ast[0][1] && ast[0][1].__event && (ast[0][1].value==_this.ADD_EVENT || ast[0][1].value==_this.REMOVE_EVENT))
+			if(call.__event && (call.value==_this.ADD_EVENT || call.value==_this.REMOVE_EVENT))
 			{
 				call1+=", __THIS__";
 			}
 
 			// EVENT HACK: dispatchEvent loads values to event prior to firing
-			if(ast[0][1] && ast[0][1].__event && ast[0][1].value==_this.DISPATCH_EVENT)
+			if(call.__event && call.value==_this.DISPATCH_EVENT)
 			{
-				var call = _this.isInside(ast[0][1], jsdef.CALL);
-				var evCls = _this.getClass(_this.getTypeName(call[1][0]));
-				var evObj = generate(call[1][0]);
+				var list = _this.getCallList(ast);
+				var evCls = _this.getClass(_this.getTypeName(list[0]));
+				var evObj = generate(list[0]);
+				out.push(evObj+".reset();");
 				var index = 1;
 				for(item in evCls.vars)
-					out.push(evObj+"."+item+"="+generate(call[1][index++])+";");
+					out.push(evObj+"."+item+"="+generate(list[index++])+";");
 			}
 
 			// Detect callbacks from variables or maybe we should call everything with ".call(scope"

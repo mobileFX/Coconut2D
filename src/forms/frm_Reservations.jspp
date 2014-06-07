@@ -11,10 +11,6 @@ class ReservationsForm : CocoUIFormView
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Constructor(name:String, scene:CocoScene) : CocoUIFormView(name, scene)
  	{
- 		var nav:CocoUINavBar = new CocoUINavBar("NavBar");
- 		nav.SkinImage = "SkinSymbol_iPhone_NavBar_Standard";
- 		addFloatingControl(nav, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_MIDDLE);
-
  		addLookup("Name Surname" 		,"CustName"				, true		, false		);
  		addLookup("Mobile Phone"		,"CustPhone"			, true		, false		);
  		addLookup("email"				,"CustEmail"			, true		, false		);
@@ -33,6 +29,10 @@ class ReservationsForm : CocoUIFormView
 		btnSubmit.Caption = "Reserve Table";
 		btnSubmit.CaptionFontColor = 0xff000000;
 		addInlineControl(btnSubmit);
+		btnSubmit.GlyphImage = "ImageSymbol_iPhone_icon_Add";
+		btnSubmit.GlyphLeft = 5;
+		btnSubmit.GlyphTop = (btnSubmit.Height - scene.getImageSymbol(btnSubmit.GlyphImage).textureCellHeight)/2;
+		btnSubmit.addEventListener(btnSubmit.OnClick, btnSubmit_OnClick);
 
 		btnDelete = new CocoUIButton("btnDelete");
 		btnDelete.SkinImage = "SkinSymbol_iPhone_CommandButton_Red";
@@ -40,8 +40,11 @@ class ReservationsForm : CocoUIFormView
 		btnDelete.Caption = "Delete Reservation";
 		btnDelete.MarginBottom = 60;
 		addInlineControl(btnDelete);
+ 	}
 
-		__scrollContainer.__timeline.translateTo(0, nav.Height);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Destructor()
+ 	{
  	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +82,8 @@ class ReservationsForm : CocoUIFormView
  	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function Destructor()
+ 	public function btnSubmit_OnClick(sender:CocoUIButton, e:CocoClipOnClickEvent) :Boolean
  	{
+ 		return false;
  	}
 }
