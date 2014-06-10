@@ -3255,6 +3255,8 @@ public virtual CocoAppController::Destructor()" image="35"/>
 public CocoAppController::Constructor(Name:String, scene:CocoScene)" image="14"/>
 		<member name="NavBar" proto="NavBar:CocoUINavBar" help="NavBar is member var of class CocoAppController
 public CocoAppController::NavBar:CocoUINavBar" image="34"/>
+		<member name="ActiveForm" proto="ActiveForm:CocoUIFormView" help="ActiveForm is member var of class CocoAppController
+public CocoAppController::ActiveForm:CocoUIFormView" image="34"/>
 		<member name="Forms" proto="Forms:Array&lt;CocoUIFormView&gt;" help="Forms is member var of class CocoAppController
 public CocoAppController::Forms:Array&lt;CocoUIFormView&gt;" image="1"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoAppController
@@ -3271,6 +3273,8 @@ public virtual CocoUIView::size(width:Float, height:Float)" image="35"/>
 public CocoUIView::bringToFront()" image="35"/>
 		<member name="sendToBack" proto="sendToBack()" help="sendToBack is member function of class CocoUIView
 public CocoUIView::sendToBack()" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout(parent:CocoUIView)" help="RefreshLayout is member function of class CocoUIView
+public virtual CocoUIView::RefreshLayout(parent:CocoUIView)" image="35"/>
 		<member name="invalidate" proto="invalidate()" help="invalidate is member function of class CocoUIView
 public virtual CocoUIView::invalidate()" image="35"/>
 		<member name="addChild" proto="addChild(clipInstance:CocoClip) :CocoClip" help="addChild is member function of class CocoUIView
@@ -3305,24 +3309,26 @@ public property CocoUIView::Height:Float" image="31"/>
 public property CocoUIView::Left:Float" image="31"/>
 		<member name="Top" proto="Top:Float" help="Top is property of class CocoUIView
 public property CocoUIView::Top:Float" image="31"/>
+		<member name="Bounds" proto="Bounds:CocoRect" help="Bounds is property of class CocoUIView
+public property CocoUIView::Bounds:CocoRect" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIView
 public CocoUIView::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoUIControl">
-		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUIControl
-public virtual CocoUIControl::RefreshLayout()" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout(parent:CocoUIView)" help="RefreshLayout is member function of class CocoUIControl
+public virtual CocoUIControl::RefreshLayout(parent:CocoUIView)" image="35"/>
 		<member name="CalcHeight" proto="CalcHeight() :Float" help="CalcHeight is member function of class CocoUIControl
 public virtual CocoUIControl::CalcHeight() :Float" image="35"/>
 		<member name="SetMargins" proto="SetMargins(left:Float, right:Float, top:Float, bottom:Float)" help="SetMargins is member function of class CocoUIControl
 public CocoUIControl::SetMargins(left:Float, right:Float, top:Float, bottom:Float)" image="35"/>
 		<member name="SetPaddings" proto="SetPaddings(left:Float, right:Float, top:Float, bottom:Float)" help="SetPaddings is member function of class CocoUIControl
 public CocoUIControl::SetPaddings(left:Float, right:Float, top:Float, bottom:Float)" image="35"/>
-		<member name="CocoUIControl_OnTouchStart" proto="CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="CocoUIControl_OnTouchStart is member function of class CocoUIControl
-public CocoUIControl::CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
-		<member name="CocoUIControl_OnTouchEnd" proto="CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="CocoUIControl_OnTouchEnd is member function of class CocoUIControl
-public CocoUIControl::CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
-		<member name="CocoUIControl_Graphic_OnClick" proto="CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean" help="CocoUIControl_Graphic_OnClick is member function of class CocoUIControl
-public CocoUIControl::CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean" image="35"/>
+		<member name="__CocoUIControl_OnTouchStart" proto="__CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="__CocoUIControl_OnTouchStart is member function of class CocoUIControl
+public CocoUIControl::__CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="__CocoUIControl_OnTouchEnd" proto="__CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="__CocoUIControl_OnTouchEnd is member function of class CocoUIControl
+public CocoUIControl::__CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" image="35"/>
+		<member name="__CocoUIControl_Graphic_OnClick" proto="__CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean" help="__CocoUIControl_Graphic_OnClick is member function of class CocoUIControl
+public CocoUIControl::__CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUIControl
 public virtual CocoUIControl::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="ComposeControl" proto="ComposeControl()" help="ComposeControl is member function of class CocoUIControl
@@ -3473,18 +3479,20 @@ public CocoUIControl::__className:String" image="13"/>
 	<memberlist name="Class CocoUIControlOnChevronClickEvent">
 	</memberlist>
 	<memberlist name="Class CocoUIFormView">
+		<member name="moveScrollView" proto="moveScrollView(left:Float, top:Float, width:Float, height:Float)" help="moveScrollView is member function of class CocoUIFormView
+public CocoUIFormView::moveScrollView(left:Float, top:Float, width:Float, height:Float)" image="35"/>
 		<member name="addInlineControl" proto="addInlineControl(ctl:CocoUIControl) :CocoUIControl" help="addInlineControl is member function of class CocoUIFormView
 public CocoUIFormView::addInlineControl(ctl:CocoUIControl) :CocoUIControl" image="35"/>
 		<member name="addFloatingControl" proto="addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl" help="addFloatingControl is member function of class CocoUIFormView
 public CocoUIFormView::addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl" image="35"/>
-		<member name="LayoutRecalc" proto="LayoutRecalc()" help="LayoutRecalc is member function of class CocoUIFormView
-public virtual CocoUIFormView::LayoutRecalc()" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUIFormView
 public virtual CocoUIFormView::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIFormView
 public virtual CocoUIFormView::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(name:String, scene:CocoScene)" help="Constructor is member function of class CocoUIFormView
 public CocoUIFormView::Constructor(name:String, scene:CocoScene)" image="14"/>
+		<member name="__scrollView" proto="__scrollView:CocoUIScrollView" help="__scrollView is member var of class CocoUIFormView
+private CocoUIFormView::__scrollView:CocoUIScrollView" image="29"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUIFormView
 public CocoUIFormView::__className:String" image="13"/>
 	</memberlist>
@@ -3495,6 +3503,10 @@ public CocoUIScrollView::getKeyFrame() :CocoKeyFrame" image="35"/>
 public CocoUIScrollView::inlineHeight() :Float" image="35"/>
 		<member name="resetSelection" proto="resetSelection()" help="resetSelection is member function of class CocoUIScrollView
 public CocoUIScrollView::resetSelection()" image="35"/>
+		<member name="addChild" proto="addChild(ctl:CocoUIControl) :CocoUIControl" help="addChild is member function of class CocoUIScrollView
+public virtual CocoUIScrollView::addChild(ctl:CocoUIControl) :CocoUIControl" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout(parent:CocoUIView)" help="RefreshLayout is member function of class CocoUIScrollView
+public virtual CocoUIScrollView::RefreshLayout(parent:CocoUIView)" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUIScrollView
 public virtual CocoUIScrollView::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="__CocoUIScrollView_OnTouchStart" proto="__CocoUIScrollView_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean" help="__CocoUIScrollView_OnTouchStart is member function of class CocoUIScrollView
@@ -3522,7 +3534,7 @@ private CocoUIScrollView::__maxY:Float" image="29"/>
 		<member name="__bounceY" proto="__bounceY:Boolean" help="__bounceY is member var of class CocoUIScrollView
 private CocoUIScrollView::__bounceY:Boolean" image="29"/>
 		<member name="__scrollContainer" proto="__scrollContainer:CocoClip" help="__scrollContainer is member var of class CocoUIScrollView
-protected CocoUIScrollView::__scrollContainer:CocoClip" image="32"/>
+private CocoUIScrollView::__scrollContainer:CocoClip" image="29"/>
 		<member name="__scrollDeceleration" proto="__scrollDeceleration:Float" help="__scrollDeceleration is member var of class CocoUIScrollView
 private CocoUIScrollView::__scrollDeceleration:Float" image="29"/>
 		<member name="__scrollSpringTension" proto="__scrollSpringTension:Float" help="__scrollSpringTension is member var of class CocoUIScrollView
@@ -3535,8 +3547,8 @@ public property CocoUIScrollView::ScrollSpringTension:Float" image="31"/>
 public CocoUIScrollView::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoUIButton">
-		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUIButton
-public virtual CocoUIButton::RefreshLayout()" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout(parent:CocoUIView)" help="RefreshLayout is member function of class CocoUIButton
+public virtual CocoUIButton::RefreshLayout(parent:CocoUIView)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIButton
 public virtual CocoUIButton::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUIButton
@@ -3581,8 +3593,8 @@ public CocoUICheckBox::Constructor(name:String)" image="14"/>
 public CocoUICheckBox::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoUIComboBox">
-		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUIComboBox
-public virtual CocoUIComboBox::RefreshLayout()" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout(parent:CocoUIView)" help="RefreshLayout is member function of class CocoUIComboBox
+public virtual CocoUIComboBox::RefreshLayout(parent:CocoUIView)" image="35"/>
 		<member name="__CocoUITextEdit_OnClick" proto="__CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean" help="__CocoUITextEdit_OnClick is member function of class CocoUIComboBox
 public CocoUIComboBox::__CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUIComboBox
@@ -3649,8 +3661,8 @@ public property CocoUIComboBox::PromptFontShadowColor:Color" image="31"/>
 public CocoUIComboBox::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoUILabel">
-		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUILabel
-public virtual CocoUILabel::RefreshLayout()" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout(parent:CocoUIView)" help="RefreshLayout is member function of class CocoUILabel
+public virtual CocoUILabel::RefreshLayout(parent:CocoUIView)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUILabel
 public virtual CocoUILabel::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(name:String)" help="Constructor is member function of class CocoUILabel
@@ -3691,8 +3703,8 @@ public property CocoUILabel::CaptionFontShadowColor:Color" image="31"/>
 public CocoUILabel::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoUINavBar">
-		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUINavBar
-public virtual CocoUINavBar::RefreshLayout()" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout(parent:CocoUIView)" help="RefreshLayout is member function of class CocoUINavBar
+public virtual CocoUINavBar::RefreshLayout(parent:CocoUIView)" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoUINavBar
 public virtual CocoUINavBar::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUINavBar
@@ -3751,8 +3763,8 @@ public CocoUITabBar::Constructor(name:String)" image="14"/>
 public CocoUITabBar::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoUITextEdit">
-		<member name="RefreshLayout" proto="RefreshLayout()" help="RefreshLayout is member function of class CocoUITextEdit
-public virtual CocoUITextEdit::RefreshLayout()" image="35"/>
+		<member name="RefreshLayout" proto="RefreshLayout(parent:CocoUIView)" help="RefreshLayout is member function of class CocoUITextEdit
+public virtual CocoUITextEdit::RefreshLayout(parent:CocoUIView)" image="35"/>
 		<member name="__CocoUITextEdit_OnClick" proto="__CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean" help="__CocoUITextEdit_OnClick is member function of class CocoUITextEdit
 public CocoUITextEdit::__CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoUITextEdit

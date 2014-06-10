@@ -1148,9 +1148,9 @@ function CompilerCppPlugin(compiler)
 				for(var i=0; i<ast.cases.length; i++)
 				{
 					var label = generate_cpp(ast.cases[i].caseLabel).CPP;
-					CPP.push("if(" + cond + "==" + label + ") { switch(0){case 0:");
+					CPP.push("if(" + cond + "==" + label + ") { while(true)");
 					CPP.push(generate_cpp(ast.cases[i].statements).CPP);
-					CPP.push("}}");
+					CPP.push("}");
 					if(i<ast.cases.length-1) CPP.push("else ");
 				}
 			}

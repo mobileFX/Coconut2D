@@ -37,16 +37,22 @@
 "#include CocoUIView.jspp";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-class CocoUIFormView : CocoUIScrollView
+class CocoUIFormView : CocoUIView
 {
+	private var __scrollView:CocoUIScrollView;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(name:String, scene:CocoScene) : CocoUIScrollView(name, scene)
+	public function Constructor(name:String, scene:CocoScene)
 	{
 		__instanceName = name;
  		__scene = scene;
  		__invalidated = true;
 		__width = window.innerWidth;
 		__height = window.innerHeight;
+
+		__scrollView = new CocoUIScrollView(name + "ScrollView", scene);
+		addChild(__scrollView);
+		__scrollView.move(0,0,scene.__view_width,scene.__view_height);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,14 +63,16 @@ class CocoUIFormView : CocoUIScrollView
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moveScrollView(left:Float, top:Float, width:Float, height:Float)
+	{
+		__scrollView.move(left, top, width, height);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addInlineControl(ctl:CocoUIControl) :CocoUIControl
 	{
-		ctl.__scene = __scene;
 		ctl.__form = this;
-		ctl.Width = Width - ctl.MarginLeft - ctl.MarginRight;
-		ctl.RefreshLayout();
-		__scrollContainer.addChild(ctl);
-		inlineHeight();
+		__scrollView.addChild(ctl);
 		invalidate();
 		return ctl;
 	}
@@ -72,36 +80,10 @@ class CocoUIFormView : CocoUIScrollView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl
 	{
-		ctl.__scene = __scene;
 		ctl.__form = this;
-		ctl.RefreshLayout();
+		ctl.RefreshLayout(this);
 		addChild(ctl);
 		return ctl;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function LayoutRecalc()
-	{
-		var h:Float = 0;
-		var ctl:CocoUIControl;
-
-		for(var i:Integer=0;i<__scrollContainer.__children.size();i++)
-		{
-			ctl = CocoUIControl(__scrollContainer.__children[i]);
-
-			// Set control width
-			ctl.Width = Width - ctl.MarginLeft - ctl.MarginRight;
-			ctl.RefreshLayout();
-
-			// Translate control's position from top-left origin to parent's center.
-			ctl.__timeline.translateTo( -Width/2 + ctl.MarginLeft + ctl.Width/2, -Height/2 + (h+ctl.MarginTop) + ctl.Height/2);
-			h += ctl.MarginTop + ctl.Height + ctl.MarginBottom;
-		}
-
-		inlineHeight();
-
-		__timeline.translateTo(__x, __y);
-		__invalidated = false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +93,9 @@ class CocoUIFormView : CocoUIScrollView
 			return;
 
 		if(__invalidated)
-			LayoutRecalc();
+		{
+			__scrollView.RefreshLayout(this);
+		}
 
 		super.paint;
 	}

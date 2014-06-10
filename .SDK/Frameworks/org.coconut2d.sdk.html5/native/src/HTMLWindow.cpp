@@ -128,10 +128,10 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 			int x, y;
 			switch(screenRotation)
 			{
-				case fxScreen::Rotation::NONE: x = fxAPIGetMouseEventX(data); y = fxAPIGetMouseEventY(data); break;
+				case fxScreen::Rotation::NONE: x =  fxAPIGetMouseEventX(data); y =  fxAPIGetMouseEventY(data); break;
 				case fxScreen::Rotation::FULL: x = -fxAPIGetMouseEventX(data); y = -fxAPIGetMouseEventY(data); break;
-				case fxScreen::Rotation::RCW: x = -fxAPIGetMouseEventY(data); y = fxAPIGetMouseEventX(data); break;
-				case fxScreen::Rotation::RCCW: x = fxAPIGetMouseEventY(data); y = -fxAPIGetMouseEventX(data); break;
+				case fxScreen::Rotation::RCW:  x = -fxAPIGetMouseEventY(data); y =  fxAPIGetMouseEventX(data); break;
+				case fxScreen::Rotation::RCCW: x =  fxAPIGetMouseEventY(data); y = -fxAPIGetMouseEventX(data); break;
 			}
 			e->clientX = x;
 			e->clientY = y;
@@ -221,11 +221,6 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 
 		default:
 			trace("Event not implemented");
-	}
-
-	if(e->touches->length)
-	{
-		trace("Event=%d, x=%d, y=%d", (int)type, e->touches->item(0)->clientX, e->touches->item(0)->clientY);
 	}
 
 	dispatchEvent(uid, eventType);

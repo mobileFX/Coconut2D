@@ -60,8 +60,10 @@ class CocoUIView : CocoClip
 		__y = 0;
 		__width = 0;
 		__height = 0;
+
 		__timeline.clear();
 		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+
 		move(0,0,window.innerWidth, window.innerHeight);
 	}
 
@@ -120,6 +122,20 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Bounds
+	{
+		function get():CocoRect
+		{
+			var r:CocoRect = new CocoRect();
+			r.left = __x;
+			r.top = __y;
+			r.right = __x + __width - 1;
+			r.bottom = __y + __height - 1;
+			return r;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function move(x:Float, y:Float, width:Float, height:Float)
 	{
 		__x = x;
@@ -165,6 +181,12 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function RefreshLayout(parent:CocoUIView)
+	{
+		invalidate();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function invalidate()
 	{
 		__invalidated = true;
@@ -185,6 +207,7 @@ class CocoUIView : CocoClip
 			return;
 
 		// Render if within screen region
+		/**
 		if(__form)
 		{
 			var KF:CocoKeyFrame = __form.getKeyFrame();
@@ -192,6 +215,7 @@ class CocoUIView : CocoClip
 			if(KF.y + myKF.y + __height / 2 < __form.__y - __form.__height / 2 || KF.y + myKF.y - __height / 2 > __form.__y + __form.__height / 2)
 				return;
 		}
+		*/
 
 		super.paint;
 

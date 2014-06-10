@@ -45,7 +45,7 @@ class CocoUIScrollView : CocoUIView
 	private var __minY:Float;
 	private var __maxY:Float;
 	private var __bounceY:Boolean;
-	protected var __scrollContainer:CocoClip;
+	private var __scrollContainer:CocoClip;
 	private var __scrollDeceleration:Float;
 	private var __scrollSpringTension:Float;
 
@@ -133,12 +133,50 @@ class CocoUIScrollView : CocoUIView
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function addChild(ctl:CocoUIControl) :CocoUIControl
+	{
+		ctl.__scene = __scene;
+		__scrollContainer.addChild(ctl);
+		ctl.Width = Width - ctl.MarginLeft - ctl.MarginRight;
+		ctl.RefreshLayout(this);
+		inlineHeight();
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function RefreshLayout(parent:CocoUIView)
+	{
+		var h:Float = 0;
+		var ctl:CocoUIControl;
+
+		for(var i:Integer=0; i<__scrollContainer.__children.size(); i++)
+		{
+			ctl = CocoUIControl(__scrollContainer.__children[i]);
+
+			// Set control width
+			ctl.Width = Width - ctl.MarginLeft - ctl.MarginRight;
+			ctl.RefreshLayout(this);
+
+			// Translate control's position from top-left origin to parent's center.
+			ctl.__timeline.translateTo( -Width/2 + ctl.MarginLeft + ctl.Width/2, -Height/2 + (h+ctl.MarginTop) + ctl.Height/2);
+			h += ctl.MarginTop + ctl.Height + ctl.MarginBottom;
+		}
+
+		inlineHeight();
+
+		__timeline.translateTo(-parent.Width/2 + __x + Width/2, -parent.Height/2 + __y + Height/2);
+		__invalidated = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
  	{
  		var KF:CocoKeyFrame = getKeyFrame();
 
  		__scrollSpeedY *= __scrollDeceleration;
+
  		KF.y += __scrollSpeedY;
+
  		if(__bounceY)
  		{
 	 		var springY:Float = __minY - KF.y;
@@ -169,6 +207,8 @@ class CocoUIScrollView : CocoUIView
 		 		}
 	 		}
  		}
+
+ 		KF.y = Math.round(KF.y);
 
  		super.paint;
  	}
@@ -208,7 +248,6 @@ class CocoUIScrollView : CocoUIView
  			resetSelection();
 
 		KF.y += dY * sY;
-		KF.y = Math.round(KF.y);
 
 		__scrollLastTime = engine.__clock;
 		__scrollLastPointY = y;

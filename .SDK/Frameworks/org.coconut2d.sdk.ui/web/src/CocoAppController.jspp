@@ -47,6 +47,7 @@ enum COCO_UIFORM_ANIMATION
 class CocoAppController : CocoClip
 {
  	public var NavBar:CocoUINavBar;
+ 	public var ActiveForm:CocoUIFormView;
  	public var Forms:Array<CocoUIFormView>;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +66,7 @@ class CocoAppController : CocoClip
  		NavBar.SkinImage = "SkinSymbol_iPhone_NavBar_Standard";
  		addChild(NavBar);
  		NavBar.move(0,0,scene.__view_width, NavBar.CalcHeight());
- 		NavBar.RefreshLayout();
+ 		NavBar.RefreshLayout(null);
  	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,12 +88,15 @@ class CocoAppController : CocoClip
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function showForm(Form:CocoUIFormView, animation:COCO_UIFORM_ANIMATION)
  	{
+ 		ActiveForm=Form;
+
  		switch(animation)
  		{
  		case COCO_UIFORM_ANIMATION.SHOW_NORMAL:
-	 		Form.Visible = true;
-	 		Form.move(0,0,__scene.__view_width, __scene.__view_height);
-			NavBar.bringToFront();
+	 		ActiveForm.Visible = true;
+	 		ActiveForm.move(0,0,__scene.__view_width,__scene.__view_height);
+	 		NavBar.bringToFront();
+			ActiveForm.moveScrollView(0, NavBar.Height, ActiveForm.__scene.__view_width, ActiveForm.__scene.__view_height-NavBar.Height);
 			break;
 
  		case COCO_UIFORM_ANIMATION.SHOW_NEXT:
@@ -106,6 +110,7 @@ class CocoAppController : CocoClip
 	{
 		if(!parentClip || !scene)
 			return;
+
 
 		super.paint;
 	}

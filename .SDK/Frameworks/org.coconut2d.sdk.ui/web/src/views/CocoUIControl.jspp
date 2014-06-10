@@ -184,10 +184,10 @@ class CocoUIControl : CocoUIView
 	// ==================================================================================================================================
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function RefreshLayout()
+	public virtual function RefreshLayout(parent:CocoUIView)
 	{
+		super.RefreshLayout;
 		Height = CalcHeight();
-		invalidate();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -303,8 +303,8 @@ class CocoUIControl : CocoUIView
 		// Hook on touch events
 		if(__selectable)
 		{
-			addEventListener(this.OnTouchStart, CocoUIControl_OnTouchStart);
-	 		addEventListener(this.OnTouchEnd, CocoUIControl_OnTouchEnd);
+			addEventListener(this.OnTouchStart, __CocoUIControl_OnTouchStart);
+	 		addEventListener(this.OnTouchEnd, __CocoUIControl_OnTouchEnd);
 		}
 	}
 
@@ -313,8 +313,8 @@ class CocoUIControl : CocoUIView
 	{
  		if(__selectable)
  		{
- 			removeEventListener(this.OnTouchStart, CocoUIControl_OnTouchStart);
- 			removeEventListener(this.OnTouchEnd, CocoUIControl_OnTouchEnd);
+ 			removeEventListener(this.OnTouchStart, __CocoUIControl_OnTouchStart);
+ 			removeEventListener(this.OnTouchEnd, __CocoUIControl_OnTouchEnd);
  		}
 
 		delete __texts;
@@ -330,22 +330,23 @@ class CocoUIControl : CocoUIView
 	// ==================================================================================================================================
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+ 	public function __CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
-		if(__selectable)
+		if(__selectable && __selectionWaitTickCycles==0)
 			__selectionWaitTickCycles = 5;
 		return false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	public function __CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
+		__selectionWaitTickCycles=0;
 		Selected = false;
 		return false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean
+	public function __CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean
 	{
 		if(sender==__glyphClip || sender == __glyphSelClip)
 		{
@@ -402,10 +403,10 @@ class CocoUIControl : CocoUIView
 			return;
 
 		// Dettach children clip events
-		if(__glyphClip) __glyphClip.removeEventListener(__glyphClip.OnClick, CocoUIControl_Graphic_OnClick);
-		if(__glyphSelClip) __glyphSelClip.removeEventListener(__glyphSelClip.OnClick, CocoUIControl_Graphic_OnClick);
-		if(__chevronClip) __chevronClip.removeEventListener(__chevronClip.OnClick, CocoUIControl_Graphic_OnClick);
-		if(__chevronSelClip) __chevronSelClip.removeEventListener(__chevronSelClip.OnClick, CocoUIControl_Graphic_OnClick);
+		if(__glyphClip) __glyphClip.removeEventListener(__glyphClip.OnClick, __CocoUIControl_Graphic_OnClick);
+		if(__glyphSelClip) __glyphSelClip.removeEventListener(__glyphSelClip.OnClick, __CocoUIControl_Graphic_OnClick);
+		if(__chevronClip) __chevronClip.removeEventListener(__chevronClip.OnClick, __CocoUIControl_Graphic_OnClick);
+		if(__chevronSelClip) __chevronSelClip.removeEventListener(__chevronSelClip.OnClick, __CocoUIControl_Graphic_OnClick);
 
 		// Clear children clips
 		clear();
@@ -418,14 +419,14 @@ class CocoUIControl : CocoUIView
 		if(__glyphImage)
 		{
 			__glyphClip = NewLayerFromImage(0, __scene.getImageSymbol(__glyphImage), __glyphLeft, __glyphTop, __glyphEvents);
-			__glyphClip.addEventListener(__glyphClip.OnClick, CocoUIControl_Graphic_OnClick);
+			__glyphClip.addEventListener(__glyphClip.OnClick, __CocoUIControl_Graphic_OnClick);
 		}
 
 		// Add chevron Layer
 		if(__chevronImage)
 		{
 			__chevronClip = NewLayerFromImage(0, __scene.getImageSymbol(__chevronImage), __chevronLeft, __chevronTop, __chevronEvents);
-			__chevronClip.addEventListener(__chevronClip.OnClick, CocoUIControl_Graphic_OnClick);
+			__chevronClip.addEventListener(__chevronClip.OnClick, __CocoUIControl_Graphic_OnClick);
 		}
 
 		// Add text Layers
@@ -487,7 +488,7 @@ class CocoUIControl : CocoUIView
 		clip.__instanceName = __instanceName + "Layer" + String(__children.size());
 		clip = addChild(clip);
 		clip.__timeline.clear();
-		clip.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, handleEvents, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		clip.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, handleEvents, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
 		return clip;
 	}
 }

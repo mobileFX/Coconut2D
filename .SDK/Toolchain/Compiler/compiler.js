@@ -1897,7 +1897,7 @@ function Compiler(ast)
 							else
 							{
 								var localMethod = classSymbol.methods[interfaceMethod.name];
-								if(localMethod.__signature!=interfaceMethod.__signature)
+								if(!_this.compareMethodSignatures(localMethod,interfaceMethod))
 									_this.NewError("Invalid interface method signature: " + interfaceName + "::" + interfaceMethod.name, localMethod.ast);
 							}
 						}
@@ -2560,7 +2560,7 @@ function Compiler(ast)
 	  					var baseClass = _this.getClass(baseMethodSymbol.className);
 
 	  					// Check if the virtual method has the right signature
-	  					if(ast.symbol.__signature != baseMethodSymbol.__signature)
+	  					if(!_this.compareMethodSignatures(ast.symbol,baseMethodSymbol))
 	  					{
 	  						_this.NewError("Invalid virtual method signature: " + ast.name, ast);
 	  						_this.NewError("Invalid virtual method signature: " + ast.name, baseMethodSymbol.ast);

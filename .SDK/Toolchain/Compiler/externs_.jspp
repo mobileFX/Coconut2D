@@ -2316,6 +2316,7 @@ class CocoAppController : CocoClip
 	public function Destructor() {}
 	public function Constructor(Name:String, scene:CocoScene) {}
 	public  var NavBar :CocoUINavBar;
+	public  var ActiveForm :CocoUIFormView;
 	public  var Forms :Array<CocoUIFormView>;
 	public  var __className :String;
 } //CocoAppController
@@ -2327,6 +2328,7 @@ class CocoUIView : CocoClip
 	public function size(width:Float, height:Float) {}
 	public function bringToFront() {}
 	public function sendToBack() {}
+	public function RefreshLayout(parent:CocoUIView) {}
 	public function invalidate() {}
 	public function addChild(clipInstance:CocoClip) :CocoClip {}
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
@@ -2344,18 +2346,19 @@ class CocoUIView : CocoClip
 	public  var Height :Float;
 	public  var Left :Float;
 	public  var Top :Float;
+	public  var Bounds :CocoRect;
 	public  var __className :String;
 } //CocoUIView
 
 class CocoUIControl : CocoUIView
 {
-	public function RefreshLayout() {}
+	public function RefreshLayout(parent:CocoUIView) {}
 	public function CalcHeight() :Float {}
 	public function SetMargins(left:Float, right:Float, top:Float, bottom:Float) {}
 	public function SetPaddings(left:Float, right:Float, top:Float, bottom:Float) {}
-	public function CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
-	public function CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
-	public function CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean {}
+	public function __CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean {}
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function ComposeControl() {}
 	public function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float, handleEvents:Boolean) :CocoClip {}
@@ -2438,14 +2441,15 @@ class CocoUIControlOnChevronClickEvent : CocoEvent
 {
 } //CocoUIControlOnChevronClickEvent
 
-class CocoUIFormView : CocoUIScrollView
+class CocoUIFormView : CocoUIView
 {
+	public function moveScrollView(left:Float, top:Float, width:Float, height:Float) {}
 	public function addInlineControl(ctl:CocoUIControl) :CocoUIControl {}
 	public function addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl {}
-	public function LayoutRecalc() {}
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function Destructor() {}
 	public function Constructor(name:String, scene:CocoScene) {}
+	private  var __scrollView :CocoUIScrollView;
 	public  var __className :String;
 } //CocoUIFormView
 
@@ -2454,6 +2458,8 @@ class CocoUIScrollView : CocoUIView
 	public function getKeyFrame() :CocoKeyFrame {}
 	public function inlineHeight() :Float {}
 	public function resetSelection() {}
+	public function addChild(ctl:CocoUIControl) :CocoUIControl {}
+	public function RefreshLayout(parent:CocoUIView) {}
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function __CocoUIScrollView_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
 	public function __CocoUIScrollView_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
@@ -2467,7 +2473,7 @@ class CocoUIScrollView : CocoUIView
 	private  var __minY :Float;
 	private  var __maxY :Float;
 	private  var __bounceY :Boolean;
-	protected  var __scrollContainer :CocoClip;
+	private  var __scrollContainer :CocoClip;
 	private  var __scrollDeceleration :Float;
 	private  var __scrollSpringTension :Float;
 	public  var ScrollDeceleration :Float;
@@ -2477,7 +2483,7 @@ class CocoUIScrollView : CocoUIView
 
 class CocoUIButton : CocoUIControl
 {
-	public function RefreshLayout() {}
+	public function RefreshLayout(parent:CocoUIView) {}
 	public function Destructor() {}
 	public function Constructor(name:String) {}
 	public  var __caption :CocoTextBlock;
@@ -2506,7 +2512,7 @@ class CocoUICheckBox : CocoUIControl
 
 class CocoUIComboBox : CocoUIControl
 {
-	public function RefreshLayout() {}
+	public function RefreshLayout(parent:CocoUIView) {}
 	public function __CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
 	public function Destructor() {}
 	public function Constructor(name:String) {}
@@ -2543,7 +2549,7 @@ class CocoUIComboBox : CocoUIControl
 
 class CocoUILabel : CocoUIControl
 {
-	public function RefreshLayout() {}
+	public function RefreshLayout(parent:CocoUIView) {}
 	public function Destructor() {}
 	public function Constructor(name:String) {}
 	public  var __caption :CocoTextBlock;
@@ -2567,7 +2573,7 @@ class CocoUILabel : CocoUIControl
 
 class CocoUINavBar : CocoUIControl
 {
-	public function RefreshLayout() {}
+	public function RefreshLayout(parent:CocoUIView) {}
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function Destructor() {}
 	public function Constructor(name:String) {}
@@ -2606,7 +2612,7 @@ class CocoUITabBar : CocoUIControl
 
 class CocoUITextEdit : CocoUIControl
 {
-	public function RefreshLayout() {}
+	public function RefreshLayout(parent:CocoUIView) {}
 	public function __CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
 	public function Destructor() {}
 	public function Constructor(name:String) {}

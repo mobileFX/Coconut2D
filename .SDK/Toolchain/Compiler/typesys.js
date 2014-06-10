@@ -528,6 +528,33 @@ function CompilerTypeSystemPlugin(compiler)
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.compareMethodSignatures = function(methodSymbol, baseMethodSymbol, strict)
+	{
+		if(!_this.secondPass)
+			return true;
+
+		if(methodSymbol.paramsList.length!=baseMethodSymbol.paramsList.length)
+			return false;
+
+		for(var i=0;i<methodSymbol.paramsList.length;i++)
+		{
+			var type1 = baseMethodSymbol.paramsList[i].vartype;
+			var type2 = methodSymbol.paramsList[i].vartype;
+
+			if(strict && type1!=type2)
+				return false;
+
+			if(!_this.typeCheck(methodSymbol.paramsList[i].ast, type1, type2, null, true))
+			{
+				// Types are incompatible
+				return false;
+			}
+		}
+
+		return true;
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.searchIncludesForVartype = function(className, vt)
 	{
 		var already_searched = {};

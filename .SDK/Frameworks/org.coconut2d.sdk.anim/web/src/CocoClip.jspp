@@ -436,13 +436,13 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		else
 		{
 			if(__currentFrame) apply(__currentFrame, mv);
-			var childrenCound:Integer = __children.size();
-			if(childrenCound>0)
+			var childrenCount:Integer = __children.size();
+			if(childrenCount>0)
 			{
 				var calcBoundingBoxChildren:Boolean = (calcBoundingBox && __width==0 && __height==0);
 				var child:CocoClip;
 				scene.__levelParents.push(this);
-				for (var i:Integer = 0; i < childrenCound; i++)
+				for (var i:Integer = 0; i < childrenCount; i++)
 				{
 					mv.push();
 					child = __children[i];
@@ -529,6 +529,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 				}
 			}
 
+			//if(__clipPath=="frm_Reserverations/frm_ReserverationsScrollView")//frm_ReserverationsScrollView/__scrollContainer
 			//ctx.drawBoundingBox(this);
 
 	        // =============================================================================================================
