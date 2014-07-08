@@ -101,6 +101,8 @@ function CompilerTypeSystemPlugin(compiler)
 		if(_this.isECMA(vartype))
 			return;
 
+		if(vartype == "CocoDataset" && parentScope.file == "CocoDataField.jspp") include = 1;
+
 		// Record vartype usage
 		if(!__exists(parentScope.vartypes, vartype))
 			parentScope.vartypes[vartype] = include;

@@ -190,8 +190,6 @@ public Function::__className:String" image="13"/>
 		<member name="HTMLEvent" proto="HTMLEvent:HTMLEvent" help="HTMLEvent:HTMLEvent" image="11"/>
 		<member name="DEVICE_MESSAGE_ENUM" proto="DEVICE_MESSAGE_ENUM:DEVICE_MESSAGE_ENUM" help="DEVICE_MESSAGE_ENUM:DEVICE_MESSAGE_ENUM" image="15"/>
 		<member name="DEVICE_MESSAGE" proto="DEVICE_MESSAGE:DEVICE_MESSAGE" help="DEVICE_MESSAGE:DEVICE_MESSAGE" image="27"/>
-		<member name="COCO_RECORD_STATUS" proto="COCO_RECORD_STATUS:COCO_RECORD_STATUS" help="COCO_RECORD_STATUS:COCO_RECORD_STATUS" image="15"/>
-		<member name="CocoDataset" proto="CocoDataset:CocoDataset" help="CocoDataset:CocoDataset" image="11"/>
 		<member name="COCO_DATA_PROVIDER_ENUM" proto="COCO_DATA_PROVIDER_ENUM:COCO_DATA_PROVIDER_ENUM" help="COCO_DATA_PROVIDER_ENUM:COCO_DATA_PROVIDER_ENUM" image="15"/>
 		<member name="COCO_REQUEST_DATA_FORMAT_ENUM" proto="COCO_REQUEST_DATA_FORMAT_ENUM:COCO_REQUEST_DATA_FORMAT_ENUM" help="COCO_REQUEST_DATA_FORMAT_ENUM:COCO_REQUEST_DATA_FORMAT_ENUM" image="15"/>
 		<member name="COCO_PERSISTENT_STORAGE_ENUM" proto="COCO_PERSISTENT_STORAGE_ENUM:COCO_PERSISTENT_STORAGE_ENUM" help="COCO_PERSISTENT_STORAGE_ENUM:COCO_PERSISTENT_STORAGE_ENUM" image="15"/>
@@ -200,6 +198,8 @@ public Function::__className:String" image="13"/>
 		<member name="CocoDataStream" proto="CocoDataStream:CocoDataStream" help="CocoDataStream:CocoDataStream" image="11"/>
 		<member name="COCO_FIELD_DATATYPE" proto="COCO_FIELD_DATATYPE:COCO_FIELD_DATATYPE" help="COCO_FIELD_DATATYPE:COCO_FIELD_DATATYPE" image="15"/>
 		<member name="CocoDataField" proto="CocoDataField:CocoDataField" help="CocoDataField:CocoDataField" image="11"/>
+		<member name="COCO_RECORD_STATUS" proto="COCO_RECORD_STATUS:COCO_RECORD_STATUS" help="COCO_RECORD_STATUS:COCO_RECORD_STATUS" image="15"/>
+		<member name="CocoDataset" proto="CocoDataset:CocoDataset" help="CocoDataset:CocoDataset" image="11"/>
 		<member name="CocoLocalStorage" proto="CocoLocalStorage:CocoLocalStorage" help="CocoLocalStorage:CocoLocalStorage" image="11"/>
 		<member name="CocoVector" proto="CocoVector:CocoVector" help="CocoVector:CocoVector" image="11"/>
 		<member name="CocoMatrixData" proto="CocoMatrixData:CocoMatrixData" help="CocoMatrixData:CocoMatrixData" image="27"/>
@@ -2088,8 +2088,8 @@ public WebGLUniformLocation::__className:String" image="13"/>
 	<memberlist name="Class IPersistable">
 		<member name="save" proto="save(ds:CocoDataStream)" help="save is member function of class IPersistable
 public abstract virtual IPersistable::save(ds:CocoDataStream)" image="35"/>
-		<member name="load" proto="load(ds:CocoDataStream) :Boolean" help="load is member function of class IPersistable
-public abstract virtual IPersistable::load(ds:CocoDataStream) :Boolean" image="35"/>
+		<member name="load" proto="load(ds:CocoDataStream)" help="load is member function of class IPersistable
+public abstract virtual IPersistable::load(ds:CocoDataStream)" image="35"/>
 	</memberlist>
 	<memberlist name="Class ITickable">
 		<member name="RegisterTickable" proto="RegisterTickable()" help="RegisterTickable is member function of class ITickable
@@ -2333,60 +2333,6 @@ public HTMLEvent::__className:String" image="13"/>
 		<member name="y3" proto="y3:Float" help="y3:Float" image="34"/>
 		<member name="y4" proto="y4:Float" help="y4:Float" image="34"/>
 	</memberlist>
-	<memberlist name="Class COCO_RECORD_STATUS">
-		<member name="RECORD_UNCHANGED" proto="RECORD_UNCHANGED:COCO_RECORD_STATUS" help="RECORD_UNCHANGED:COCO_RECORD_STATUS" image="16"/>
-		<member name="RECORD_CREATED" proto="RECORD_CREATED:COCO_RECORD_STATUS" help="RECORD_CREATED:COCO_RECORD_STATUS" image="16"/>
-		<member name="RECORD_UPDATED" proto="RECORD_UPDATED:COCO_RECORD_STATUS" help="RECORD_UPDATED:COCO_RECORD_STATUS" image="16"/>
-		<member name="RECORD_DELETED" proto="RECORD_DELETED:COCO_RECORD_STATUS" help="RECORD_DELETED:COCO_RECORD_STATUS" image="16"/>
-	</memberlist>
-	<memberlist name="Class CocoDataset">
-		<member name="load" proto="load(ds:CocoDataStream)" help="load is member function of class CocoDataset
-public CocoDataset::load(ds:CocoDataStream)" image="35"/>
-		<member name="save" proto="save(ds:CocoDataStream) :Boolean" help="save is member function of class CocoDataset
-public CocoDataset::save(ds:CocoDataStream) :Boolean" image="35"/>
-		<member name="Open" proto="Open()" help="Open is member function of class CocoDataset
-public CocoDataset::Open()" image="35"/>
-		<member name="Close" proto="Close()" help="Close is member function of class CocoDataset
-public CocoDataset::Close()" image="35"/>
-		<member name="AddField" proto="AddField(Name:String, Type:COCO_FIELD_DATATYPE, optional Size:Integer) :CocoDataField" help="AddField is member function of class CocoDataset
-public CocoDataset::AddField(Name:String, Type:COCO_FIELD_DATATYPE, optional Size:Integer) :CocoDataField" image="35"/>
-		<member name="__fieldIndex" proto="__fieldIndex(Name:String) :Integer" help="__fieldIndex is member function of class CocoDataset
-private CocoDataset::__fieldIndex(Name:String) :Integer" image="30"/>
-		<member name="__gotoFieldOffset" proto="__gotoFieldOffset(f:CocoDataField)" help="__gotoFieldOffset is member function of class CocoDataset
-public CocoDataset::__gotoFieldOffset(f:CocoDataField)" image="35"/>
-		<member name="Fields" proto="Fields(Name:String) :CocoDataField" help="Fields is member function of class CocoDataset
-public CocoDataset::Fields(Name:String) :CocoDataField" image="35"/>
-		<member name="RecordCount" proto="RecordCount() :Integer" help="RecordCount is member function of class CocoDataset
-public CocoDataset::RecordCount() :Integer" image="35"/>
-		<member name="bof" proto="bof() :Boolean" help="bof is member function of class CocoDataset
-public CocoDataset::bof() :Boolean" image="35"/>
-		<member name="eof" proto="eof() :Boolean" help="eof is member function of class CocoDataset
-public CocoDataset::eof() :Boolean" image="35"/>
-		<member name="MoveNext" proto="MoveNext()" help="MoveNext is member function of class CocoDataset
-public CocoDataset::MoveNext()" image="35"/>
-		<member name="MovePrev" proto="MovePrev()" help="MovePrev is member function of class CocoDataset
-public CocoDataset::MovePrev()" image="35"/>
-		<member name="MoveFirst" proto="MoveFirst()" help="MoveFirst is member function of class CocoDataset
-public CocoDataset::MoveFirst()" image="35"/>
-		<member name="MoveLast" proto="MoveLast()" help="MoveLast is member function of class CocoDataset
-public CocoDataset::MoveLast()" image="35"/>
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoDataset
-public virtual CocoDataset::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoDataset
-public CocoDataset::Constructor()" image="14"/>
-		<member name="__ds" proto="__ds:CocoDataStream" help="__ds is member var of class CocoDataset
-public CocoDataset::__ds:CocoDataStream" image="34"/>
-		<member name="__fields" proto="__fields:Array&lt;CocoDataField&gt;" help="__fields is member var of class CocoDataset
-private CocoDataset::__fields:Array&lt;CocoDataField&gt;" image="1"/>
-		<member name="__recordOffsets" proto="__recordOffsets:Int32Array" help="__recordOffsets is member var of class CocoDataset
-private CocoDataset::__recordOffsets:Int32Array" image="1"/>
-		<member name="__recordIndex" proto="__recordIndex:Integer" help="__recordIndex is member var of class CocoDataset
-private CocoDataset::__recordIndex:Integer" image="29"/>
-		<member name="__opened" proto="__opened:Boolean" help="__opened is member var of class CocoDataset
-private CocoDataset::__opened:Boolean" image="29"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoDataset
-public CocoDataset::__className:String" image="13"/>
-	</memberlist>
 	<memberlist name="Class COCO_DATA_PROVIDER_ENUM">
 		<member name="PROVIDER_HTTP_POST" proto="PROVIDER_HTTP_POST:COCO_DATA_PROVIDER_ENUM" help="PROVIDER_HTTP_POST:COCO_DATA_PROVIDER_ENUM" image="16"/>
 		<member name="PROVIDER_HTTP_GET" proto="PROVIDER_HTTP_GET:COCO_DATA_PROVIDER_ENUM" help="PROVIDER_HTTP_GET:COCO_DATA_PROVIDER_ENUM" image="16"/>
@@ -2437,62 +2383,60 @@ public CocoDataSource::__className:String" image="13"/>
 	<memberlist name="Class CocoDataStream">
 		<member name="increaseSize" proto="increaseSize(s:Integer)" help="increaseSize is member function of class CocoDataStream
 public CocoDataStream::increaseSize(s:Integer)" image="35"/>
+		<member name="shrink" proto="shrink()" help="shrink is member function of class CocoDataStream
+public CocoDataStream::shrink()" image="35"/>
 		<member name="load" proto="load(URL:String)" help="load is member function of class CocoDataStream
 public CocoDataStream::load(URL:String)" image="35"/>
 		<member name="save" proto="save(URL:String)" help="save is member function of class CocoDataStream
 public CocoDataStream::save(URL:String)" image="35"/>
 		<member name="clone" proto="clone() :CocoDataStream" help="clone is member function of class CocoDataStream
 public CocoDataStream::clone() :CocoDataStream" image="35"/>
-		<member name="write" proto="write(v:CocoDataStream)" help="write is member function of class CocoDataStream
-public CocoDataStream::write(v:CocoDataStream)" image="35"/>
-		<member name="write" proto="write(v:Integer)" help="write$1 is member function of class CocoDataStream
-public CocoDataStream::write(v:Integer)" image="35"/>
-		<member name="write" proto="write(v:Float)" help="write$2 is member function of class CocoDataStream
-public CocoDataStream::write(v:Float)" image="35"/>
-		<member name="write" proto="write(v:String)" help="write$3 is member function of class CocoDataStream
-public CocoDataStream::write(v:String)" image="35"/>
-		<member name="write" proto="write(v:Date)" help="write$4 is member function of class CocoDataStream
-public CocoDataStream::write(v:Date)" image="35"/>
-		<member name="write" proto="write(v:Boolean)" help="write$5 is member function of class CocoDataStream
-public CocoDataStream::write(v:Boolean)" image="35"/>
-		<member name="write" proto="write(v:Int32Array)" help="write$6 is member function of class CocoDataStream
-public CocoDataStream::write(v:Int32Array)" image="35"/>
-		<member name="write" proto="write(v:Float32Array)" help="write$7 is member function of class CocoDataStream
-public CocoDataStream::write(v:Float32Array)" image="35"/>
-		<member name="write" proto="write(v:Image)" help="write$8 is member function of class CocoDataStream
-public CocoDataStream::write(v:Image)" image="35"/>
-		<member name="write" proto="write(v:HTMLCanvasElement)" help="write$9 is member function of class CocoDataStream
-public CocoDataStream::write(v:HTMLCanvasElement)" image="35"/>
+		<member name="writeInteger" proto="writeInteger(v:Integer)" help="writeInteger is member function of class CocoDataStream
+public CocoDataStream::writeInteger(v:Integer)" image="35"/>
+		<member name="writeFloat" proto="writeFloat(v:Float)" help="writeFloat is member function of class CocoDataStream
+public CocoDataStream::writeFloat(v:Float)" image="35"/>
+		<member name="writeString" proto="writeString(v:String)" help="writeString is member function of class CocoDataStream
+public CocoDataStream::writeString(v:String)" image="35"/>
+		<member name="writeBoolean" proto="writeBoolean(v:Boolean)" help="writeBoolean is member function of class CocoDataStream
+public CocoDataStream::writeBoolean(v:Boolean)" image="35"/>
+		<member name="writeInt32Array" proto="writeInt32Array(v:Int32Array)" help="writeInt32Array is member function of class CocoDataStream
+public CocoDataStream::writeInt32Array(v:Int32Array)" image="35"/>
+		<member name="writeFloat32Array" proto="writeFloat32Array(v:Float32Array)" help="writeFloat32Array is member function of class CocoDataStream
+public CocoDataStream::writeFloat32Array(v:Float32Array)" image="35"/>
+		<member name="writeDataStream" proto="writeDataStream(v:CocoDataStream)" help="writeDataStream is member function of class CocoDataStream
+public CocoDataStream::writeDataStream(v:CocoDataStream)" image="35"/>
+		<member name="writeDate" proto="writeDate(v:Date)" help="writeDate is member function of class CocoDataStream
+public CocoDataStream::writeDate(v:Date)" image="35"/>
+		<member name="readCocoDataStream" proto="readCocoDataStream() :CocoDataStream" help="readCocoDataStream is member function of class CocoDataStream
+public CocoDataStream::readCocoDataStream() :CocoDataStream" image="35"/>
+		<member name="set" proto="set(v:Int32Array)" help="set is member function of class CocoDataStream
+protected CocoDataStream::set(v:Int32Array)" image="33"/>
+		<member name="readUint8Array" proto="readUint8Array() :Uint8Array" help="readUint8Array is member function of class CocoDataStream
+public CocoDataStream::readUint8Array() :Uint8Array" image="35"/>
+		<member name="readInt32Array" proto="readInt32Array() :Int32Array" help="readInt32Array is member function of class CocoDataStream
+public CocoDataStream::readInt32Array() :Int32Array" image="35"/>
+		<member name="readFloat32Array" proto="readFloat32Array() :Float32Array" help="readFloat32Array is member function of class CocoDataStream
+public CocoDataStream::readFloat32Array() :Float32Array" image="35"/>
 		<member name="readInteger" proto="readInteger() :Integer" help="readInteger is member function of class CocoDataStream
 public CocoDataStream::readInteger() :Integer" image="35"/>
 		<member name="readFloat" proto="readFloat() :Float" help="readFloat is member function of class CocoDataStream
 public CocoDataStream::readFloat() :Float" image="35"/>
 		<member name="readString" proto="readString() :String" help="readString is member function of class CocoDataStream
 public CocoDataStream::readString() :String" image="35"/>
-		<member name="readDate" proto="readDate() :Date" help="readDate is member function of class CocoDataStream
-public CocoDataStream::readDate() :Date" image="35"/>
 		<member name="readBoolean" proto="readBoolean() :Boolean" help="readBoolean is member function of class CocoDataStream
 public CocoDataStream::readBoolean() :Boolean" image="35"/>
-		<member name="readInt32Array" proto="readInt32Array() :Int32Array" help="readInt32Array is member function of class CocoDataStream
-public CocoDataStream::readInt32Array() :Int32Array" image="35"/>
-		<member name="readFloat32Array" proto="readFloat32Array() :Float32Array" help="readFloat32Array is member function of class CocoDataStream
-public CocoDataStream::readFloat32Array() :Float32Array" image="35"/>
-		<member name="readImage" proto="readImage() :Image" help="readImage is member function of class CocoDataStream
-public CocoDataStream::readImage() :Image" image="35"/>
+		<member name="readDate" proto="readDate() :Date" help="readDate is member function of class CocoDataStream
+public CocoDataStream::readDate() :Date" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoDataStream
 public virtual CocoDataStream::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoDataStream
 public CocoDataStream::Constructor()" image="14"/>
-		<member name="defaultSize" proto="defaultSize:Integer" help="defaultSize is member var of class CocoDataStream
-private CocoDataStream::defaultSize:Integer" image="13"/>
-		<member name="b" proto="b:Uint8Array" help="b is member var of class CocoDataStream
-private CocoDataStream::b:Uint8Array" image="1"/>
+		<member name="ELEMENTS_INCREMENT" proto="ELEMENTS_INCREMENT:Integer" help="ELEMENTS_INCREMENT is member var of class CocoDataStream
+private CocoDataStream::ELEMENTS_INCREMENT:Integer" image="13"/>
 		<member name="bi" proto="bi:Int32Array" help="bi is member var of class CocoDataStream
 private CocoDataStream::bi:Int32Array" image="1"/>
 		<member name="bf" proto="bf:Float32Array" help="bf is member var of class CocoDataStream
 private CocoDataStream::bf:Float32Array" image="1"/>
-		<member name="d" proto="d:DataView" help="d is member var of class CocoDataStream
-private CocoDataStream::d:DataView" image="29"/>
 		<member name="__offset" proto="__offset:Integer" help="__offset is member var of class CocoDataStream
 private CocoDataStream::__offset:Integer" image="29"/>
 		<member name="__length" proto="__length:Integer" help="__length is member var of class CocoDataStream
@@ -2503,16 +2447,16 @@ public property CocoDataStream::offset:Integer" image="31"/>
 public CocoDataStream::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class COCO_FIELD_DATATYPE">
-		<member name="FT_STRING" proto="FT_STRING:COCO_FIELD_DATATYPE" help="FT_STRING:COCO_FIELD_DATATYPE" image="16"/>
-		<member name="FT_INTEGER" proto="FT_INTEGER:COCO_FIELD_DATATYPE" help="FT_INTEGER:COCO_FIELD_DATATYPE" image="16"/>
-		<member name="FT_FLOAT" proto="FT_FLOAT:COCO_FIELD_DATATYPE" help="FT_FLOAT:COCO_FIELD_DATATYPE" image="16"/>
-		<member name="FT_DATE" proto="FT_DATE:COCO_FIELD_DATATYPE" help="FT_DATE:COCO_FIELD_DATATYPE" image="16"/>
+		<member name="FIELD_TYPE_STRING" proto="FIELD_TYPE_STRING:COCO_FIELD_DATATYPE" help="FIELD_TYPE_STRING:COCO_FIELD_DATATYPE" image="16"/>
+		<member name="FIELD_TYPE_INTEGER" proto="FIELD_TYPE_INTEGER:COCO_FIELD_DATATYPE" help="FIELD_TYPE_INTEGER:COCO_FIELD_DATATYPE" image="16"/>
+		<member name="FIELD_TYPE_FLOAT" proto="FIELD_TYPE_FLOAT:COCO_FIELD_DATATYPE" help="FIELD_TYPE_FLOAT:COCO_FIELD_DATATYPE" image="16"/>
+		<member name="FIELD_TYPE_DATE" proto="FIELD_TYPE_DATE:COCO_FIELD_DATATYPE" help="FIELD_TYPE_DATE:COCO_FIELD_DATATYPE" image="16"/>
 	</memberlist>
 	<memberlist name="Class CocoDataField">
 		<member name="save" proto="save(ds:CocoDataStream)" help="save is member function of class CocoDataField
 public CocoDataField::save(ds:CocoDataStream)" image="35"/>
-		<member name="load" proto="load(ds:CocoDataStream) :Boolean" help="load is member function of class CocoDataField
-public CocoDataField::load(ds:CocoDataStream) :Boolean" image="35"/>
+		<member name="load" proto="load(ds:CocoDataStream)" help="load is member function of class CocoDataField
+public CocoDataField::load(ds:CocoDataStream)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoDataField
 public virtual CocoDataField::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoDataField
@@ -2581,6 +2525,60 @@ public property CocoDataField::OldIntegerValue:Integer" image="31"/>
 public property CocoDataField::OldFloatValue:Float" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoDataField
 public CocoDataField::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class COCO_RECORD_STATUS">
+		<member name="RECORD_UNCHANGED" proto="RECORD_UNCHANGED:COCO_RECORD_STATUS" help="RECORD_UNCHANGED:COCO_RECORD_STATUS" image="16"/>
+		<member name="RECORD_CREATED" proto="RECORD_CREATED:COCO_RECORD_STATUS" help="RECORD_CREATED:COCO_RECORD_STATUS" image="16"/>
+		<member name="RECORD_UPDATED" proto="RECORD_UPDATED:COCO_RECORD_STATUS" help="RECORD_UPDATED:COCO_RECORD_STATUS" image="16"/>
+		<member name="RECORD_DELETED" proto="RECORD_DELETED:COCO_RECORD_STATUS" help="RECORD_DELETED:COCO_RECORD_STATUS" image="16"/>
+	</memberlist>
+	<memberlist name="Class CocoDataset">
+		<member name="load" proto="load(ds:CocoDataStream)" help="load is member function of class CocoDataset
+public CocoDataset::load(ds:CocoDataStream)" image="35"/>
+		<member name="save" proto="save(ds:CocoDataStream)" help="save is member function of class CocoDataset
+public CocoDataset::save(ds:CocoDataStream)" image="35"/>
+		<member name="Open" proto="Open()" help="Open is member function of class CocoDataset
+public CocoDataset::Open()" image="35"/>
+		<member name="Close" proto="Close()" help="Close is member function of class CocoDataset
+public CocoDataset::Close()" image="35"/>
+		<member name="AddField" proto="AddField(Name:String, Type:COCO_FIELD_DATATYPE, optional Size:Integer) :CocoDataField" help="AddField is member function of class CocoDataset
+public CocoDataset::AddField(Name:String, Type:COCO_FIELD_DATATYPE, optional Size:Integer) :CocoDataField" image="35"/>
+		<member name="__fieldIndex" proto="__fieldIndex(Name:String) :Integer" help="__fieldIndex is member function of class CocoDataset
+private CocoDataset::__fieldIndex(Name:String) :Integer" image="30"/>
+		<member name="__gotoFieldOffset" proto="__gotoFieldOffset(f:CocoDataField)" help="__gotoFieldOffset is member function of class CocoDataset
+public CocoDataset::__gotoFieldOffset(f:CocoDataField)" image="35"/>
+		<member name="Fields" proto="Fields(Name:String) :CocoDataField" help="Fields is member function of class CocoDataset
+public CocoDataset::Fields(Name:String) :CocoDataField" image="35"/>
+		<member name="RecordCount" proto="RecordCount() :Integer" help="RecordCount is member function of class CocoDataset
+public CocoDataset::RecordCount() :Integer" image="35"/>
+		<member name="bof" proto="bof() :Boolean" help="bof is member function of class CocoDataset
+public CocoDataset::bof() :Boolean" image="35"/>
+		<member name="eof" proto="eof() :Boolean" help="eof is member function of class CocoDataset
+public CocoDataset::eof() :Boolean" image="35"/>
+		<member name="MoveNext" proto="MoveNext()" help="MoveNext is member function of class CocoDataset
+public CocoDataset::MoveNext()" image="35"/>
+		<member name="MovePrev" proto="MovePrev()" help="MovePrev is member function of class CocoDataset
+public CocoDataset::MovePrev()" image="35"/>
+		<member name="MoveFirst" proto="MoveFirst()" help="MoveFirst is member function of class CocoDataset
+public CocoDataset::MoveFirst()" image="35"/>
+		<member name="MoveLast" proto="MoveLast()" help="MoveLast is member function of class CocoDataset
+public CocoDataset::MoveLast()" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoDataset
+public virtual CocoDataset::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoDataset
+public CocoDataset::Constructor()" image="14"/>
+		<member name="__ds" proto="__ds:CocoDataStream" help="__ds is member var of class CocoDataset
+public CocoDataset::__ds:CocoDataStream" image="34"/>
+		<member name="__fields" proto="__fields:Array&lt;CocoDataField&gt;" help="__fields is member var of class CocoDataset
+private CocoDataset::__fields:Array&lt;CocoDataField&gt;" image="1"/>
+		<member name="__recordOffsets" proto="__recordOffsets:Int32Array" help="__recordOffsets is member var of class CocoDataset
+private CocoDataset::__recordOffsets:Int32Array" image="1"/>
+		<member name="__recordIndex" proto="__recordIndex:Integer" help="__recordIndex is member var of class CocoDataset
+private CocoDataset::__recordIndex:Integer" image="29"/>
+		<member name="__opened" proto="__opened:Boolean" help="__opened is member var of class CocoDataset
+private CocoDataset::__opened:Boolean" image="29"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoDataset
+public CocoDataset::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoLocalStorage">
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoLocalStorage

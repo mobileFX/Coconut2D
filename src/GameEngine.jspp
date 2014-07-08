@@ -50,6 +50,20 @@ state class GameEngine : CocoEngine
 			app.addForm(new ReservationsForm("frm_Reserverations", scene));
 			app.addForm(new ReservationsForm("frm_Reserverations", scene));
 			app.showForm(app.Forms[0], COCO_UIFORM_ANIMATION.SHOW_NORMAL);
+
+			var ds:CocoDataStream = new CocoDataStream();
+			ds.writeString("test με Ελληνικά!!");
+			ds.writeInteger(5);
+			ds.writeFloat(3.14);
+			ds.writeBoolean(true);
+			ds.writeBoolean(false);
+			ds.offset = 0;
+			trace(ds.readString());
+			trace(String(ds.readInteger()));
+			trace(String(ds.readFloat()));
+			trace(String(ds.readBoolean()));
+			trace(String(ds.readBoolean()));
+
 		}
 
 		function exit()

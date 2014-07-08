@@ -112,10 +112,9 @@ class CocoDataset implements IPersistable
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function save(ds:CocoDataStream):Boolean
+ 	public function save(ds:CocoDataStream)
  	{
-		ds.write(__ds);
- 		return true;
+		ds.writeDataStream(__ds);
  	}
 
 	// ==================================================================================================================================
@@ -184,16 +183,16 @@ class CocoDataset implements IPersistable
 		{
 			switch(__fields[i].Type)
 			{
-			case COCO_FIELD_DATATYPE.FT_STRING:
+			case COCO_FIELD_DATATYPE.FIELD_TYPE_STRING:
 				__ds.offset += __ds.readInteger();
 				__ds.offset += __ds.readInteger();
 				break;
 
-			case COCO_FIELD_DATATYPE.FT_INTEGER:
+			case COCO_FIELD_DATATYPE.FIELD_TYPE_INTEGER:
 				__ds.offset += 8;
 				break;
 
-			case COCO_FIELD_DATATYPE.FT_FLOAT:
+			case COCO_FIELD_DATATYPE.FIELD_TYPE_FLOAT:
 				__ds.offset += 8;
 				break;
 			}

@@ -1521,7 +1521,7 @@ class IEventTarget
 class IPersistable
 {
 	public function save(ds:CocoDataStream) {}
-	public function load(ds:CocoDataStream) :Boolean {}
+	public function load(ds:CocoDataStream) {}
 } //IPersistable
 
 class ITickable
@@ -1739,34 +1739,33 @@ class CocoDataSource : CocoEventSource
 class CocoDataStream
 {
 	public function increaseSize(s:Integer) {}
+	public function shrink() {}
 	public function load(URL:String) {}
 	public function save(URL:String) {}
 	public function clone() :CocoDataStream {}
-	public function write(v:CocoDataStream) {}
-	public function write$1(v:Integer) {}
-	public function write$2(v:Float) {}
-	public function write$3(v:String) {}
-	public function write$4(v:Date) {}
-	public function write$5(v:Boolean) {}
-	public function write$6(v:Int32Array) {}
-	public function write$7(v:Float32Array) {}
-	public function write$8(v:Image) {}
-	public function write$9(v:HTMLCanvasElement) {}
+	public function writeInteger(v:Integer) {}
+	public function writeFloat(v:Float) {}
+	public function writeString(v:String) {}
+	public function writeBoolean(v:Boolean) {}
+	public function writeInt32Array(v:Int32Array) {}
+	public function writeFloat32Array(v:Float32Array) {}
+	public function writeDataStream(v:CocoDataStream) {}
+	public function writeDate(v:Date) {}
+	public function readCocoDataStream() :CocoDataStream {}
+	protected function set(v:Int32Array) {}
+	public function readUint8Array() :Uint8Array {}
+	public function readInt32Array() :Int32Array {}
+	public function readFloat32Array() :Float32Array {}
 	public function readInteger() :Integer {}
 	public function readFloat() :Float {}
 	public function readString() :String {}
-	public function readDate() :Date {}
 	public function readBoolean() :Boolean {}
-	public function readInt32Array() :Int32Array {}
-	public function readFloat32Array() :Float32Array {}
-	public function readImage() :Image {}
+	public function readDate() :Date {}
 	public function Destructor() {}
 	public function Constructor() {}
-	private  var defaultSize :Integer;
-	private  var b :Uint8Array;
+	private  var ELEMENTS_INCREMENT :Integer;
 	private  var bi :Int32Array;
 	private  var bf :Float32Array;
-	private  var d :DataView;
 	private  var __offset :Integer;
 	private  var __length :Integer;
 	public  var offset :Integer;
@@ -1775,16 +1774,16 @@ class CocoDataStream
 
 class COCO_FIELD_DATATYPE
 {
-	public var FT_STRING :COCO_FIELD_DATATYPE;
-	public var FT_INTEGER :COCO_FIELD_DATATYPE;
-	public var FT_FLOAT :COCO_FIELD_DATATYPE;
-	public var FT_DATE :COCO_FIELD_DATATYPE;
+	public var FIELD_TYPE_STRING :COCO_FIELD_DATATYPE;
+	public var FIELD_TYPE_INTEGER :COCO_FIELD_DATATYPE;
+	public var FIELD_TYPE_FLOAT :COCO_FIELD_DATATYPE;
+	public var FIELD_TYPE_DATE :COCO_FIELD_DATATYPE;
 } //COCO_FIELD_DATATYPE
 
 class CocoDataField
 {
 	public function save(ds:CocoDataStream) {}
-	public function load(ds:CocoDataStream) :Boolean {}
+	public function load(ds:CocoDataStream) {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var __recordset :CocoDataset;
@@ -1832,7 +1831,7 @@ class COCO_RECORD_STATUS
 class CocoDataset
 {
 	public function load(ds:CocoDataStream) {}
-	public function save(ds:CocoDataStream) :Boolean {}
+	public function save(ds:CocoDataStream) {}
 	public function Open() {}
 	public function Close() {}
 	public function AddField(Name:String, Type:COCO_FIELD_DATATYPE, Size:Integer) :CocoDataField {}

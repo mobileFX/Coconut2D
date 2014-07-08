@@ -502,12 +502,12 @@ class CocoClipOnClickEvent;
 class CocoClipOnTouchEndEvent;
 class CocoClipOnTouchMoveEvent;
 class CocoClipOnTouchStartEvent;
-class CocoDataRecord;
+class CocoDataField;
 class CocoDataSource;
 class CocoDataStream;
+class CocoDataset;
 class CocoEngine;
 class CocoEvent;
-class CocoField;
 class CocoGraphics;
 class CocoImage;
 class CocoImageRenderData2D;
@@ -515,7 +515,6 @@ class CocoImageRenderDataGL;
 class CocoImageSibling;
 class CocoLocalStorage;
 class CocoMatrix;
-class CocoRecordset;
 class CocoRenderContext2D;
 class CocoRenderContext;
 class CocoRenderContextGL;
@@ -574,7 +573,6 @@ struct CocoRect;
 struct CocoRequestNameValuePair;
 struct CocoSkinCacheItem;
 struct DEVICE_MESSAGE;
-struct FIELD_DATA;
 //# Generated Classes End #//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
