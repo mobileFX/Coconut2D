@@ -421,7 +421,7 @@ class Global
 class String
 {
 	public var length:Number;
-	public function fromCharCode(charCode:Number):String {}
+	public static function fromCharCode(charCode:Number):String {}
 	public function charAt(position:Number):String {}
 	public function charCodeAt(position:Number):Number {}
 	public function concat(value:String):String {}
@@ -508,6 +508,7 @@ class Date
 	public function setFullYear(year:Number, month:Number, date:Number):Number {}
 	public function setUTCFullYear(year:Number, month:Number, date:Number){};
 	public function toUTCString():String {}
+	public function toJSON():String {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -567,36 +568,33 @@ class ArrayBuffer
 class ArrayBufferView
 {
 	public var buffer:ArrayBuffer;
-	public var byteLength:Number;
+	public var byteOffset:Integer;
+	public var byteLength:Integer;
 	public var __uid:Integer;
 	public function Destructor() {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class Float32Array : ArrayBufferView
+class TypedArray : ArrayBufferView
 {
-	public var length:Number;
-	public var byteOffset:Number;
-	public var BYTES_PER_ELEMENT:Number;
-	public var __uid:Integer;
+	public var length:Integer;
+	public var BYTES_PER_ELEMENT:Integer;
+	public function set(array:TypedArray, optional offset:Integer) {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class Int32Array : ArrayBufferView
+class Float32Array : TypedArray
 {
-	public var length:Number;
-	public var byteOffset:Number;
-	public var BYTES_PER_ELEMENT:Number;
-	public var __uid:Integer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class Uint8Array : ArrayBufferView
+class Int32Array : TypedArray
 {
-	public var length:Number;
-	public var byteOffset:Number;
-	public var BYTES_PER_ELEMENT:Number;
-	public var __uid:Integer;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class Uint8Array : TypedArray
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -618,6 +616,32 @@ class ImageDataBuffer
 	public var buffer:ArrayBuffer;
 	public var width:Float;
 	public var height:Float;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class DataView : ArrayBufferView
+{
+	public function Constructor(buffer:ArrayBuffer, optional byteOffset:Integer, optional byteLength:Integer)
+	{
+	}
+
+    public function getInt8(byteOffset:Integer):Integer {}
+    public function getUint8(byteOffset:Integer):Integer {}
+    public function getInt16(byteOffset:Integer, optional littleEndian:Boolean):Integer {}
+    public function getUint16(byteOffset:Integer, optional littleEndian:Boolean):Integer {}
+    public function getInt32(byteOffset:Integer, optional littleEndian:Boolean):Integer {}
+    public function getUint32(byteOffset:Integer, optional littleEndian:Boolean):Integer {}
+    public function getFloat32(byteOffset:Integer, optional littleEndian:Boolean):Float {}
+    public function getFloat64(byteOffset:Integer, optional littleEndian:Boolean):Float {}
+
+    public function setInt8(byteOffset:Integer, value:Integer) {}
+    public function setUint8(byteOffset:Integer, value:Integer) {}
+    public function setInt16(byteOffset:Integer, value:Integer, optional littleEndian:Boolean) {}
+    public function setUint16(byteOffset:Integer, value:Integer, optional littleEndian:Boolean) {}
+    public function setInt32(byteOffset:Integer, value:Integer, optional littleEndian:Boolean) {}
+    public function setUint32(byteOffset:Integer, value:Integer, optional littleEndian:Boolean) {}
+    public function setFloat32(byteOffset:Integer, value:Float, optional littleEndian:Boolean) {}
+    public function setFloat64(byteOffset:Integer, value:Float, optional littleEndian:Boolean) {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

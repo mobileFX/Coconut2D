@@ -246,6 +246,7 @@ class Global
 	undefined var RegExp :RegExp;
 	undefined var ArrayBuffer :ArrayBuffer;
 	undefined var ArrayBufferView :ArrayBufferView;
+	undefined var TypedArray :TypedArray;
 	undefined var Float32Array :Float32Array;
 	undefined var Int32Array :Int32Array;
 	undefined var Uint8Array :Uint8Array;
@@ -256,6 +257,7 @@ class Global
 	undefined var SyntaxError :SyntaxError;
 	undefined var TypeError :TypeError;
 	undefined var ImageDataBuffer :ImageDataBuffer;
+	undefined var DataView :DataView;
 	undefined var XMLHttpRequest :XMLHttpRequest;
 	undefined var CocoFont :CocoFont;
 	undefined var Color :Color;
@@ -306,6 +308,7 @@ class Global
 	undefined var WebGLUniformLocation :WebGLUniformLocation;
 	undefined var IEventListener :IEventListener;
 	undefined var IEventTarget :IEventTarget;
+	undefined var IPersistable :IPersistable;
 	undefined var ITickable :ITickable;
 	undefined var CocoEngine :CocoEngine;
 	undefined var CocoEvent :CocoEvent;
@@ -321,18 +324,14 @@ class Global
 	undefined var COCO_DATA_PROVIDER_ENUM :COCO_DATA_PROVIDER_ENUM;
 	undefined var COCO_REQUEST_DATA_FORMAT_ENUM :COCO_REQUEST_DATA_FORMAT_ENUM;
 	undefined var COCO_PERSISTENT_STORAGE_ENUM :COCO_PERSISTENT_STORAGE_ENUM;
-	undefined var COCO_RECORD_STATUS :COCO_RECORD_STATUS;
 	undefined var CocoRequestNameValuePair :CocoRequestNameValuePair;
 	undefined var CocoDataSource :CocoDataSource;
+	undefined var CocoDataStream :CocoDataStream;
+	undefined var COCO_FIELD_DATATYPE :COCO_FIELD_DATATYPE;
 	undefined var CocoDataField :CocoDataField;
-	undefined var CocoDataRecord :CocoDataRecord;
-	undefined var CocoRecordset :CocoRecordset;
+	undefined var COCO_RECORD_STATUS :COCO_RECORD_STATUS;
+	undefined var CocoDataset :CocoDataset;
 	undefined var CocoLocalStorage :CocoLocalStorage;
-	undefined var CocoClip :CocoClip;
-	undefined var CocoClipOnClickEvent :CocoClipOnClickEvent;
-	undefined var CocoClipOnTouchStartEvent :CocoClipOnTouchStartEvent;
-	undefined var CocoClipOnTouchMoveEvent :CocoClipOnTouchMoveEvent;
-	undefined var CocoClipOnTouchEndEvent :CocoClipOnTouchEndEvent;
 	undefined var CocoVector :CocoVector;
 	undefined var CocoMatrixData :CocoMatrixData;
 	undefined var CocoMatrix :CocoMatrix;
@@ -340,6 +339,11 @@ class Global
 	undefined var CocoKeyFrame :CocoKeyFrame;
 	undefined var CocoTimeLabel :CocoTimeLabel;
 	undefined var CocoTimeline :CocoTimeline;
+	undefined var CocoClip :CocoClip;
+	undefined var CocoClipOnClickEvent :CocoClipOnClickEvent;
+	undefined var CocoClipOnTouchStartEvent :CocoClipOnTouchStartEvent;
+	undefined var CocoClipOnTouchMoveEvent :CocoClipOnTouchMoveEvent;
+	undefined var CocoClipOnTouchEndEvent :CocoClipOnTouchEndEvent;
 	undefined var ICocoImageRenderData :ICocoImageRenderData;
 	undefined var COCO_PROJECTION_MODE :COCO_PROJECTION_MODE;
 	undefined var ICocoRenderContext :ICocoRenderContext;
@@ -361,9 +365,9 @@ class Global
 	undefined var CocoTextBlock :CocoTextBlock;
 	undefined var CocoAudio :CocoAudio;
 	undefined var CocoHttpRequest :CocoHttpRequest;
+	undefined var CocoUIView :CocoUIView;
 	undefined var COCO_UIFORM_ANIMATION :COCO_UIFORM_ANIMATION;
 	undefined var CocoAppController :CocoAppController;
-	undefined var CocoUIView :CocoUIView;
 	undefined var CocoUIControl :CocoUIControl;
 	undefined var CocoUIControlOnGlyphClickEvent :CocoUIControlOnGlyphClickEvent;
 	undefined var CocoUIControlOnChevronClickEvent :CocoUIControlOnChevronClickEvent;
@@ -394,6 +398,7 @@ class Global
 	undefined var TestThis :TestThis;
 	undefined var ReservationsForm :ReservationsForm;
 	undefined var NewAnimation :NewAnimation;
+	undefined var NewAnimation1 :NewAnimation1;
 	undefined var Page1 :Page1;
 } //Global
 
@@ -498,6 +503,7 @@ class Date
 	public function setFullYear(year:Number, month:Number, date:Number) :Number {}
 	public function setUTCFullYear(year:Number, month:Number, date:Number) {}
 	public function toUTCString() :String {}
+	public function toJSON() :String {}
 	public  var __className :String;
 } //Date
 
@@ -558,35 +564,32 @@ class ArrayBufferView
 {
 	public function Destructor() {}
 	public  var buffer :ArrayBuffer;
-	public  var byteLength :Number;
+	public  var byteOffset :Integer;
+	public  var byteLength :Integer;
 	public  var __uid :Integer;
 	public  var __className :String;
 } //ArrayBufferView
 
-class Float32Array : ArrayBufferView
+class TypedArray : ArrayBufferView
 {
-	public  var length :Number;
-	public  var byteOffset :Number;
-	public  var BYTES_PER_ELEMENT :Number;
-	public  var __uid :Integer;
+	public function set(array:TypedArray, offset:Integer) {}
+	public  var length :Integer;
+	public  var BYTES_PER_ELEMENT :Integer;
+	public  var __className :String;
+} //TypedArray
+
+class Float32Array : TypedArray
+{
 	public  var __className :String;
 } //Float32Array
 
-class Int32Array : ArrayBufferView
+class Int32Array : TypedArray
 {
-	public  var length :Number;
-	public  var byteOffset :Number;
-	public  var BYTES_PER_ELEMENT :Number;
-	public  var __uid :Integer;
 	public  var __className :String;
 } //Int32Array
 
-class Uint8Array : ArrayBufferView
+class Uint8Array : TypedArray
 {
-	public  var length :Number;
-	public  var byteOffset :Number;
-	public  var BYTES_PER_ELEMENT :Number;
-	public  var __uid :Integer;
 	public  var __className :String;
 } //Uint8Array
 
@@ -629,6 +632,28 @@ class ImageDataBuffer
 	public  var height :Float;
 	public  var __className :String;
 } //ImageDataBuffer
+
+class DataView : ArrayBufferView
+{
+	public function getInt8(byteOffset:Integer) :Integer {}
+	public function getUint8(byteOffset:Integer) :Integer {}
+	public function getInt16(byteOffset:Integer, littleEndian:Boolean) :Integer {}
+	public function getUint16(byteOffset:Integer, littleEndian:Boolean) :Integer {}
+	public function getInt32(byteOffset:Integer, littleEndian:Boolean) :Integer {}
+	public function getUint32(byteOffset:Integer, littleEndian:Boolean) :Integer {}
+	public function getFloat32(byteOffset:Integer, littleEndian:Boolean) :Float {}
+	public function getFloat64(byteOffset:Integer, littleEndian:Boolean) :Float {}
+	public function setInt8(byteOffset:Integer, value:Integer) {}
+	public function setUint8(byteOffset:Integer, value:Integer) {}
+	public function setInt16(byteOffset:Integer, value:Integer, littleEndian:Boolean) {}
+	public function setUint16(byteOffset:Integer, value:Integer, littleEndian:Boolean) {}
+	public function setInt32(byteOffset:Integer, value:Integer, littleEndian:Boolean) {}
+	public function setUint32(byteOffset:Integer, value:Integer, littleEndian:Boolean) {}
+	public function setFloat32(byteOffset:Integer, value:Float, littleEndian:Boolean) {}
+	public function setFloat64(byteOffset:Integer, value:Float, littleEndian:Boolean) {}
+	public function Constructor(buffer:ArrayBuffer, byteOffset:Integer, byteLength:Integer) {}
+	public  var __className :String;
+} //DataView
 
 class XMLHttpRequest
 {
@@ -1493,6 +1518,12 @@ class IEventTarget
 {
 } //IEventTarget
 
+class IPersistable
+{
+	public function save(ds:CocoDataStream) {}
+	public function load(ds:CocoDataStream) :Boolean {}
+} //IPersistable
+
 class ITickable
 {
 	public function RegisterTickable() {}
@@ -1682,14 +1713,6 @@ class COCO_PERSISTENT_STORAGE_ENUM
 	public var PERSIST_IN_LOCAL_STORAGE :COCO_PERSISTENT_STORAGE_ENUM;
 } //COCO_PERSISTENT_STORAGE_ENUM
 
-class COCO_RECORD_STATUS
-{
-	public var RECORD_UNCHANGED :COCO_RECORD_STATUS;
-	public var RECORD_CREATED :COCO_RECORD_STATUS;
-	public var RECORD_UPDATED :COCO_RECORD_STATUS;
-	public var RECORD_DELETED :COCO_RECORD_STATUS;
-} //COCO_RECORD_STATUS
-
 class CocoRequestNameValuePair
 {
 	public var Name :String;
@@ -1698,7 +1721,7 @@ class CocoRequestNameValuePair
 
 class CocoDataSource : CocoEventSource
 {
-	public function open() :CocoRecordset {}
+	public function open() :CocoDataset {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var Name :String;
@@ -1713,20 +1736,109 @@ class CocoDataSource : CocoEventSource
 	public  var __className :String;
 } //CocoDataSource
 
+class CocoDataStream
+{
+	public function increaseSize(s:Integer) {}
+	public function load(URL:String) {}
+	public function save(URL:String) {}
+	public function clone() :CocoDataStream {}
+	public function write(v:CocoDataStream) {}
+	public function write$1(v:Integer) {}
+	public function write$2(v:Float) {}
+	public function write$3(v:String) {}
+	public function write$4(v:Date) {}
+	public function write$5(v:Boolean) {}
+	public function write$6(v:Int32Array) {}
+	public function write$7(v:Float32Array) {}
+	public function write$8(v:Image) {}
+	public function write$9(v:HTMLCanvasElement) {}
+	public function readInteger() :Integer {}
+	public function readFloat() :Float {}
+	public function readString() :String {}
+	public function readDate() :Date {}
+	public function readBoolean() :Boolean {}
+	public function readInt32Array() :Int32Array {}
+	public function readFloat32Array() :Float32Array {}
+	public function readImage() :Image {}
+	public function Destructor() {}
+	public function Constructor() {}
+	private  var defaultSize :Integer;
+	private  var b :Uint8Array;
+	private  var bi :Int32Array;
+	private  var bf :Float32Array;
+	private  var d :DataView;
+	private  var __offset :Integer;
+	private  var __length :Integer;
+	public  var offset :Integer;
+	public  var __className :String;
+} //CocoDataStream
+
+class COCO_FIELD_DATATYPE
+{
+	public var FT_STRING :COCO_FIELD_DATATYPE;
+	public var FT_INTEGER :COCO_FIELD_DATATYPE;
+	public var FT_FLOAT :COCO_FIELD_DATATYPE;
+	public var FT_DATE :COCO_FIELD_DATATYPE;
+} //COCO_FIELD_DATATYPE
+
 class CocoDataField
 {
-	public var Name :String;
-	public var Value :String;
+	public function save(ds:CocoDataStream) {}
+	public function load(ds:CocoDataStream) :Boolean {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __recordset :CocoDataset;
+	public  var Name :String;
+	public  var Index :Integer;
+	public  var Type :COCO_FIELD_DATATYPE;
+	public  var Size :Integer;
+	public  var BaseCatalog :String;
+	public  var BaseTable :String;
+	public  var BaseColumn :String;
+	public  var IsKeyField :Boolean;
+	public  var IsPrimaryKey :Boolean;
+	public  var IsForeignKey :Boolean;
+	public  var CanBeNull :Boolean;
+	public  var LookupKeyField :String;
+	public  var LookupDisplayField :String;
+	public  var LookupListFields :String;
+	public  var LookupCached :Boolean;
+	public  var LookupSQL :String;
+	public  var Caption :String;
+	public  var ReadOnly :Boolean;
+	public  var Required :Boolean;
+	public  var Hidden :Boolean;
+	public  var SearchAreaHidden :Boolean;
+	public  var FormHidden :Boolean;
+	public  var GridHidden :Boolean;
+	public  var Password :Boolean;
+	public  var StringValue :String;
+	public  var IntegerValue :Integer;
+	public  var FloatValue :Float;
+	public  var OldStringValue :String;
+	public  var OldIntegerValue :Integer;
+	public  var OldFloatValue :Float;
+	public  var __className :String;
 } //CocoDataField
 
-class CocoDataRecord
+class COCO_RECORD_STATUS
 {
-	public var Fields :Array<CocoDataField>;
-	public var Status :COCO_RECORD_STATUS;
-} //CocoDataRecord
+	public var RECORD_UNCHANGED :COCO_RECORD_STATUS;
+	public var RECORD_CREATED :COCO_RECORD_STATUS;
+	public var RECORD_UPDATED :COCO_RECORD_STATUS;
+	public var RECORD_DELETED :COCO_RECORD_STATUS;
+} //COCO_RECORD_STATUS
 
-class CocoRecordset
+class CocoDataset
 {
+	public function load(ds:CocoDataStream) {}
+	public function save(ds:CocoDataStream) :Boolean {}
+	public function Open() {}
+	public function Close() {}
+	public function AddField(Name:String, Type:COCO_FIELD_DATATYPE, Size:Integer) :CocoDataField {}
+	private function __fieldIndex(Name:String) :Integer {}
+	public function __gotoFieldOffset(f:CocoDataField) {}
+	public function Fields(Name:String) :CocoDataField {}
 	public function RecordCount() :Integer {}
 	public function bof() :Boolean {}
 	public function eof() :Boolean {}
@@ -1734,14 +1846,15 @@ class CocoRecordset
 	public function MovePrev() {}
 	public function MoveFirst() {}
 	public function MoveLast() {}
-	public function Fields(Name:String) :CocoDataField {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public  var CatalogueID :String;
-	private  var Records :Array<CocoDataRecord>;
-	private  var RecordIndex :Integer;
+	public  var __ds :CocoDataStream;
+	private  var __fields :Array<CocoDataField>;
+	private  var __recordOffsets :Int32Array;
+	private  var __recordIndex :Integer;
+	private  var __opened :Boolean;
 	public  var __className :String;
-} //CocoRecordset
+} //CocoDataset
 
 class CocoLocalStorage
 {
@@ -1749,90 +1862,6 @@ class CocoLocalStorage
 	public function Constructor() {}
 	public  var __className :String;
 } //CocoLocalStorage
-
-class CocoClip : CocoEventSource
-{
-	public function prepare(scene:CocoScene) {}
-	public function reset() {}
-	public function clear() {}
-	public function addChild(clipInstance:CocoClip) :CocoClip {}
-	public function removeChild(clipInstance:CocoClip) :CocoClip {}
-	private function normalize() {}
-	public function moveChild(child:CocoClip, zIndex:Integer) {}
-	public function getChildByName(instanceName:String) :CocoClip {}
-	public function getChildIndex(child:CocoClip) :Integer {}
-	public function gotoFrameByName(LabelName:String, pause:Boolean) :Boolean {}
-	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean) :Boolean {}
-	private function __advanceTime(parentClipsDuration:Time) {}
-	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame) {}
-	protected function apply(F:CocoKeyFrame, matrix:CocoMatrix) {}
-	public function hitTest(wx:Float, wy:Float) :Boolean {}
-	public function initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float) {}
-	public function initBoundingBoxFromChildren(scene:CocoScene, mv:CocoMatrix) {}
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __instanceName :String;
-	public  var __clipPath :String;
-	public  var __scene :CocoScene;
-	public  var __image :CocoImage;
-	public  var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
-	public  var __children :Array<CocoClip>;
-	public  var __timeline :CocoTimeline;
-	public  var __parent :CocoClip;
-	public  var __currentTime :Time;
-	public  var __loopTime :Time;
-	public  var __loops :Integer;
-	public  var __currentFrame :CocoKeyFrame;
-	public  var __childWithMaxTimelineDuration :CocoClip;
-	public  var __x :Float;
-	public  var __y :Float;
-	public  var __width :Float;
-	public  var __height :Float;
-	public  var __hasBoundingBox :Boolean;
-	public  var __vABS_TOP_LEFT :CocoVector;
-	public  var __vABS_TOP_RIGHT :CocoVector;
-	public  var __vABS_BOTTOM_LEFT :CocoVector;
-	public  var __vABS_BOTTOM_RIGHT :CocoVector;
-	public  var __vREL_TOP_LEFT :CocoVector;
-	public  var __vREL_TOP_RIGHT :CocoVector;
-	public  var __vREL_BOTTOM_LEFT :CocoVector;
-	public  var __vREL_BOTTOM_RIGHT :CocoVector;
-	public  var __vBBoxVrtx :CocoVector;
-	public  var __mBBox :CocoMatrix;
-	public  var __touch_start_time :Time;
-	public  var __touch_start_point :CocoPoint;
-	public  var __touch_moved :Boolean;
-	private  var __currentSequence :CocoSequence;
-	private  var __currentAudio :CocoAudio;
-	public var OnClick :CocoClipOnClickEvent;
-	public var OnTouchStart :CocoClipOnTouchStartEvent;
-	public var OnTouchMove :CocoClipOnTouchMoveEvent;
-	public var OnTouchEnd :CocoClipOnTouchEndEvent;
-	public  var __className :String;
-} //CocoClip
-
-class CocoClipOnClickEvent : CocoEvent
-{
-} //CocoClipOnClickEvent
-
-class CocoClipOnTouchStartEvent : CocoEvent
-{
-	public var x :Float;
-	public var y :Float;
-} //CocoClipOnTouchStartEvent
-
-class CocoClipOnTouchMoveEvent : CocoEvent
-{
-	public var x :Float;
-	public var y :Float;
-} //CocoClipOnTouchMoveEvent
-
-class CocoClipOnTouchEndEvent : CocoEvent
-{
-	public var x :Float;
-	public var y :Float;
-} //CocoClipOnTouchEndEvent
 
 class CocoVector
 {
@@ -1990,6 +2019,90 @@ class CocoTimeline
 	public  var __lastKeyFrameIndex :Integer;
 	public  var __className :String;
 } //CocoTimeline
+
+class CocoClip : CocoEventSource
+{
+	public function prepare(scene:CocoScene) {}
+	public function reset() {}
+	public function clear() {}
+	public function addChild(clipInstance:CocoClip) :CocoClip {}
+	public function removeChild(clipInstance:CocoClip) :CocoClip {}
+	private function normalize() {}
+	public function moveChild(child:CocoClip, zIndex:Integer) {}
+	public function getChildByName(instanceName:String) :CocoClip {}
+	public function getChildIndex(child:CocoClip) :Integer {}
+	public function gotoFrameByName(LabelName:String, pause:Boolean) :Boolean {}
+	public function gotoFrameByIndex(FrameIndex:Integer, pause:Boolean) :Boolean {}
+	private function __advanceTime(parentClipsDuration:Time) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame) {}
+	protected function apply(F:CocoKeyFrame, matrix:CocoMatrix) {}
+	public function hitTest(wx:Float, wy:Float) :Boolean {}
+	public function initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float) {}
+	public function initBoundingBoxFromChildren(scene:CocoScene, mv:CocoMatrix) {}
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
+	public  var __instanceName :String;
+	public  var __clipPath :String;
+	public  var __scene :CocoScene;
+	public  var __image :CocoImage;
+	public  var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
+	public  var __children :Array<CocoClip>;
+	public  var __timeline :CocoTimeline;
+	public  var __parent :CocoClip;
+	public  var __currentTime :Time;
+	public  var __loopTime :Time;
+	public  var __loops :Integer;
+	public  var __currentFrame :CocoKeyFrame;
+	public  var __childWithMaxTimelineDuration :CocoClip;
+	public  var __x :Float;
+	public  var __y :Float;
+	public  var __width :Float;
+	public  var __height :Float;
+	public  var __hasBoundingBox :Boolean;
+	public  var __vABS_TOP_LEFT :CocoVector;
+	public  var __vABS_TOP_RIGHT :CocoVector;
+	public  var __vABS_BOTTOM_LEFT :CocoVector;
+	public  var __vABS_BOTTOM_RIGHT :CocoVector;
+	public  var __vREL_TOP_LEFT :CocoVector;
+	public  var __vREL_TOP_RIGHT :CocoVector;
+	public  var __vREL_BOTTOM_LEFT :CocoVector;
+	public  var __vREL_BOTTOM_RIGHT :CocoVector;
+	public  var __vBBoxVrtx :CocoVector;
+	public  var __mBBox :CocoMatrix;
+	public  var __touch_start_time :Time;
+	public  var __touch_start_point :CocoPoint;
+	public  var __touch_moved :Boolean;
+	private  var __currentSequence :CocoSequence;
+	private  var __currentAudio :CocoAudio;
+	public var OnClick :CocoClipOnClickEvent;
+	public var OnTouchStart :CocoClipOnTouchStartEvent;
+	public var OnTouchMove :CocoClipOnTouchMoveEvent;
+	public var OnTouchEnd :CocoClipOnTouchEndEvent;
+	public  var __className :String;
+} //CocoClip
+
+class CocoClipOnClickEvent : CocoEvent
+{
+} //CocoClipOnClickEvent
+
+class CocoClipOnTouchStartEvent : CocoEvent
+{
+	public var x :Float;
+	public var y :Float;
+} //CocoClipOnTouchStartEvent
+
+class CocoClipOnTouchMoveEvent : CocoEvent
+{
+	public var x :Float;
+	public var y :Float;
+} //CocoClipOnTouchMoveEvent
+
+class CocoClipOnTouchEndEvent : CocoEvent
+{
+	public var x :Float;
+	public var y :Float;
+} //CocoClipOnTouchEndEvent
 
 class ICocoImageRenderData
 {
@@ -2301,26 +2414,6 @@ class CocoHttpRequest : CocoTickable
 	public  var __className :String;
 } //CocoHttpRequest
 
-class COCO_UIFORM_ANIMATION
-{
-	public var SHOW_NORMAL :COCO_UIFORM_ANIMATION;
-	public var SHOW_NEXT :COCO_UIFORM_ANIMATION;
-	public var SHOW_PREVIOUS :COCO_UIFORM_ANIMATION;
-} //COCO_UIFORM_ANIMATION
-
-class CocoAppController : CocoClip
-{
-	public function addForm(Form:CocoUIFormView) :CocoUIFormView {}
-	public function showForm(Form:CocoUIFormView, animation:COCO_UIFORM_ANIMATION) {}
-	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	public function Destructor() {}
-	public function Constructor(Name:String, scene:CocoScene) {}
-	public  var NavBar :CocoUINavBar;
-	public  var ActiveForm :CocoUIFormView;
-	public  var Forms :Array<CocoUIFormView>;
-	public  var __className :String;
-} //CocoAppController
-
 class CocoUIView : CocoClip
 {
 	public function move(x:Float, y:Float, width:Float, height:Float) {}
@@ -2349,6 +2442,26 @@ class CocoUIView : CocoClip
 	public  var Bounds :CocoRect;
 	public  var __className :String;
 } //CocoUIView
+
+class COCO_UIFORM_ANIMATION
+{
+	public var SHOW_NORMAL :COCO_UIFORM_ANIMATION;
+	public var SHOW_NEXT :COCO_UIFORM_ANIMATION;
+	public var SHOW_PREVIOUS :COCO_UIFORM_ANIMATION;
+} //COCO_UIFORM_ANIMATION
+
+class CocoAppController : CocoClip
+{
+	public function addForm(Form:CocoUIFormView) :CocoUIFormView {}
+	public function showForm(Form:CocoUIFormView, animation:COCO_UIFORM_ANIMATION) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(Name:String, scene:CocoScene) {}
+	public  var NavBar :CocoUINavBar;
+	public  var ActiveForm :CocoUIFormView;
+	public  var Forms :Array<CocoUIFormView>;
+	public  var __className :String;
+} //CocoAppController
 
 class CocoUIControl : CocoUIView
 {
@@ -2838,6 +2951,12 @@ class NewAnimation : CocoScene
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
 } //NewAnimation
+
+class NewAnimation1 : CocoScene
+{
+	public function Constructor(engine:CocoEngine) {}
+	public  var __className :String;
+} //NewAnimation1
 
 class Page1 : CocoScene
 {

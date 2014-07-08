@@ -171,7 +171,7 @@ function CompilerTypeSystemPlugin(compiler)
 
 		case "ArrayBuffer":
 		case "ArrayBufferView":
-
+		case "DataView":
 		case "Int8Array":
 		case "Int16Array":
 		case "Int32Array":

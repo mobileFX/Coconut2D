@@ -229,6 +229,17 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
+	unsigned char charCodeAt(size_t index)
+	{
+		return std::string::at(index);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	static String fromCharCode(unsigned char c)
+	{
+		return std::string(1, c);
+	}
+
 	Array<String>* split(const String& str, size_t max = -1)
 	{
 		Array<String>* ret = new Array<String>();
@@ -365,6 +376,12 @@ public:
 		if(!preserve) delete val;
 	}
 
+	void set(TypedArray<T>* val, unsigned long offset = 0)
+	{
+		if(val->length + offset > this->length) return;
+		memcpy(&(*this)[offset], val->ArrayBufferView::get(), val->length);
+	}
+
 	~TypedArray() { delete buffer; }
 
 	T* get() { return reinterpret_cast<T*>(ArrayBufferView::get()); }
@@ -393,6 +410,56 @@ typedef TypedArray<unsigned int> Uint32Array;
 typedef TypedArray<float> Float32Array;
 typedef TypedArray<double> Float64Array;
 
+class DataView : ArrayBufferView
+{
+public:
+	DataView(ArrayBuffer* i_buffer, unsigned long i_byteOffset = 0, unsigned long i_byteLength = -1)
+	{
+		buffer = i_buffer;
+		byteOffset = i_byteOffset;
+		byteLength = std::min(i_byteLength, buffer->byteLength);
+	}
+
+	template<class T> T* get(unsigned long offset) { return reinterpret_cast<T*>(reinterpret_cast<unsigned char*>(ArrayBufferView::get()) + offset); }
+	template<class T> T flip(T val, bool littleEndian)
+	{
+		#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+			if(littleEndian) return val;
+		#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+			if(!littleEndian) return val;
+		#else
+			#error "Platform not supported!"
+		#endif
+		unsigned char t;
+		unsigned char* v = reinterpret_cast<unsigned char*>(&val);
+		for(uint8_t i = 0; i < sizeof(T) / 2; i++)
+		{
+			t = *(v + i);
+			*(v + i) = *(v + sizeof(T) - 1 - i);
+			*(v + sizeof(T) - 1 - i) = t;
+		}
+		return val;
+	}
+
+	char getInt8(unsigned long offset) { return *get<char>(offset); }
+	unsigned char getUint8(unsigned long offset) { return *get<unsigned char>(offset); }
+	short getInt16(unsigned long offset, bool littleEndian = false) { return flip(*get<short>(offset), littleEndian); }
+	unsigned short getUint16(unsigned long offset, bool littleEndian = false) { return flip(*get<short>(offset), littleEndian); }
+	long getInt32(unsigned long offset, bool littleEndian = false) { return flip(*get<long>(offset), littleEndian); }
+	unsigned long getUint32(unsigned long offset, bool littleEndian = false) { return flip(*get<unsigned long>(offset), littleEndian); }
+	float getFloat32(unsigned long offset, bool littleEndian = false) { return flip(*get<float>(offset), littleEndian); }
+	double getFloat64(unsigned long offset, bool littleEndian = false) { return flip(*get<double>(offset), littleEndian); }
+
+	void setInt8(unsigned long offset, char val) { *get<char>(offset) = val; }
+	void setUint8(unsigned long offset, unsigned char val) { *get<unsigned char>(offset) = val; }
+	void setInt16(unsigned long offset, short val, bool littleEndian = false) { *get<short>(offset) = flip(val, littleEndian); }
+	void setUint16(unsigned long offset, unsigned short val, bool littleEndian = false) { *get<unsigned short>(offset) = flip(val, littleEndian); }
+	void setInt32(unsigned long offset, long val, bool littleEndian = false) { *get<long>(offset) = flip(val, littleEndian); }
+	void setUint32(unsigned long offset, unsigned long val, bool littleEndian = false) { *get<unsigned long>(offset) = flip(val, littleEndian); }
+	void setFloat32(unsigned long offset, float val, bool littleEndian = false) { *get<float>(offset) = flip(val, littleEndian); }
+	void setFloat64(unsigned long offset, double val, bool littleEndian = false) { *get<double>(offset) = flip(val, littleEndian); }
+
+};
 
 // ==================================================================================================================================
 //	    ______                                   __   ________                   ____            __                 __  _
@@ -435,9 +502,12 @@ class CocoClipOnClickEvent;
 class CocoClipOnTouchEndEvent;
 class CocoClipOnTouchMoveEvent;
 class CocoClipOnTouchStartEvent;
+class CocoDataRecord;
 class CocoDataSource;
+class CocoDataStream;
 class CocoEngine;
 class CocoEvent;
+class CocoField;
 class CocoGraphics;
 class CocoImage;
 class CocoImageRenderData2D;
@@ -483,19 +553,19 @@ class HTMLTextMetrics;
 class ICocoImageRenderData;
 class ICocoRenderContext;
 class IEventTarget;
+class IPersistable;
 class ITest1;
 class ITest2;
 class ITest3;
 class ITickable;
 class Image;
+class NewAnimation1;
 class NewAnimation;
 class Page1;
 class PathLine;
 class ReservationsForm;
 class Touch;
 class TouchList;
-struct CocoDataField;
-struct CocoDataRecord;
 struct CocoHVAlign;
 struct CocoKeyFrame;
 struct CocoMatrixData;
@@ -504,6 +574,7 @@ struct CocoRect;
 struct CocoRequestNameValuePair;
 struct CocoSkinCacheItem;
 struct DEVICE_MESSAGE;
+struct FIELD_DATA;
 //# Generated Classes End #//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -939,7 +1010,7 @@ struct State
 // ==================================================================================================================================
 class Date
 {
-	unsigned long long millis;
+	long long millis;
 public:
 	Date()
 	{
@@ -950,10 +1021,10 @@ public:
 		#else
 			struct timeval tv;
 			gettimeofday(&tv, nullptr);
-			millis = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
+			millis = (long long)(tv.tv_sec) * 1000 + (long long)(tv.tv_usec) / 1000;
 		#endif
 	}
-	unsigned long long getTime() { return millis; }
+	long long getTime() { return millis; }
 };
 
 

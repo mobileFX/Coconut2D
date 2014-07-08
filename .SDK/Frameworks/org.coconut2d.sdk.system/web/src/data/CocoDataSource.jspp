@@ -58,14 +58,6 @@ enum COCO_PERSISTENT_STORAGE_ENUM
 	PERSIST_IN_LOCAL_STORAGE	= 1
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-enum COCO_RECORD_STATUS
-{
-	RECORD_UNCHANGED	= 0,
-	RECORD_CREATED		= 1,
-	RECORD_UPDATED		= 2,
-	RECORD_DELETED		= 3
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 struct CocoRequestNameValuePair
@@ -104,94 +96,9 @@ class CocoDataSource : CocoEventSource
  	{
  	}
 
- 	public function open() :CocoRecordset
+ 	public function open() :CocoDataset
  	{
  		return null;
  	}
 
 }
-
-// ==================================================================================================================================
-//	   ______                 ____                           __          __
-//	  / ____/___  _________  / __ \___  _________  _________/ /_______  / /_
-//	 / /   / __ \/ ___/ __ \/ /_/ / _ \/ ___/ __ \/ ___/ __  / ___/ _ \/ __/
-//	/ /___/ /_/ / /__/ /_/ / _, _/  __/ /__/ /_/ / /  / /_/ (__  )  __/ /_
-//	\____/\____/\___/\____/_/ |_|\___/\___/\____/_/   \__,_/____/\___/\__/
-//
-// ==================================================================================================================================
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-struct CocoDataField
-{
-	Name:String;
-	Value:String;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-struct CocoDataRecord
-{
-	Fields:Array<CocoDataField>;
-	Status:COCO_RECORD_STATUS;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-class CocoRecordset
-{
- 	public var CatalogueID:String;
-
- 	private var Records:Array<CocoDataRecord>;
- 	private var RecordIndex:Integer;
-
- 	public function Constructor()
- 	{
- 		Records = new Array<CocoDataRecord>;
- 	}
-
- 	public function Destructor()
- 	{
- 		delete Records;
- 	}
-
- 	public function RecordCount():Integer
- 	{
- 		return Records.size();
- 	}
-
- 	public function bof() :Boolean
- 	{
- 		return RecordCount()>0 && RecordIndex==0;
- 	}
-
- 	public function eof() :Boolean
- 	{
- 		return RecordIndex==RecordCount();
- 	}
-
- 	public function MoveNext()
- 	{
- 		RecordIndex = Math.max(RecordCount()+1,RecordCount());
- 	}
-
- 	public function MovePrev()
- 	{
- 		RecordIndex = Math.min(RecordCount()-1,0);
- 	}
-
- 	public function MoveFirst()
- 	{
- 		RecordIndex = 0;
- 	}
-
- 	public function MoveLast()
- 	{
- 		RecordIndex = RecordCount();
- 	}
-
- 	public function Fields(Name:String) :CocoDataField
- 	{
- 		return null;
- 	}
-
-}
-

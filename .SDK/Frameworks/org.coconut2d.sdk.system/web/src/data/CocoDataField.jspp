@@ -1,0 +1,245 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                 ____        __        _______      __    __
+//	  / ____/___  _________  / __ \____ _/ /_____ _/ ____(_)__  / /___/ /
+//	 / /   / __ \/ ___/ __ \/ / / / __ `/ __/ __ `/ /_  / / _ \/ / __  /
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /_/ /_/ / __/ / /  __/ / /_/ /
+//	\____/\____/\___/\____/_____/\__,_/\__/\__,_/_/   /_/\___/_/\__,_/
+//
+// ==================================================================================================================================
+
+"#include CocoDataStream.jspp";
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_FIELD_DATATYPE
+{
+	FT_STRING		= 0,
+	FT_INTEGER		= 1,
+	FT_FLOAT		= 2,
+	FT_DATE			= 3
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoDataField implements IPersistable
+{
+	public var __recordset:CocoDataset;
+
+	// Field Metadata
+	public var Name:String;
+	public var Index:Integer;
+	public var Type:COCO_FIELD_DATATYPE;
+	public var Size:Integer;
+
+	// DataBase Metadata
+	public var BaseCatalog:String;
+	public var BaseTable:String;
+	public var BaseColumn:String;
+	public var IsKeyField:Boolean;
+	public var IsPrimaryKey:Boolean;
+	public var IsForeignKey:Boolean;
+	public var CanBeNull:Boolean;
+
+	// Lookup Metadata
+	public var LookupKeyField:String;
+	public var LookupDisplayField:String;
+	public var LookupListFields:String;
+	public var LookupCached:Boolean;
+	public var LookupSQL:String;
+
+	// DataBinding Metadata
+	public var Caption:String;
+	public var ReadOnly:Boolean;
+	public var Required:Boolean;
+	public var Hidden:Boolean;
+	public var SearchAreaHidden:Boolean;
+	public var FormHidden:Boolean;
+	public var GridHidden:Boolean;
+	public var Password:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Constructor()
+ 	{
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Destructor()
+ 	{
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function save(ds:CocoDataStream)
+ 	{
+		ds.write(Name);
+		ds.write(Index);
+		ds.write(Integer(Type));
+		ds.write(Size);
+		ds.write(BaseCatalog);
+		ds.write(BaseTable);
+		ds.write(BaseColumn);
+		ds.write(IsKeyField);
+		ds.write(IsPrimaryKey);
+		ds.write(IsForeignKey);
+		ds.write(CanBeNull);
+		ds.write(LookupKeyField);
+		ds.write(LookupDisplayField);
+		ds.write(LookupListFields);
+		ds.write(LookupCached);
+		ds.write(LookupSQL);
+		ds.write(Caption);
+		ds.write(ReadOnly);
+		ds.write(Required);
+		ds.write(Hidden);
+		ds.write(SearchAreaHidden);
+		ds.write(FormHidden);
+		ds.write(GridHidden);
+		ds.write(Password);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function load(ds:CocoDataStream):Boolean
+ 	{
+ 		try
+ 		{
+			Name 				= ds.readString();
+			Index 				= ds.readInteger();
+			Type 				= COCO_FIELD_DATATYPE(ds.readInteger());
+			Size 				= ds.readInteger();
+			BaseCatalog 		= ds.readString();
+			BaseTable 			= ds.readString();
+			BaseColumn 			= ds.readString();
+			IsKeyField 			= ds.readBoolean();
+			IsPrimaryKey 		= ds.readBoolean();
+			IsForeignKey 		= ds.readBoolean();
+			CanBeNull 			= ds.readBoolean();
+			LookupKeyField 		= ds.readString();
+			LookupDisplayField 	= ds.readString();
+			LookupListFields 	= ds.readString();
+			LookupCached 		= ds.readBoolean();
+			LookupSQL 			= ds.readString();
+			Caption 			= ds.readString();
+			ReadOnly 			= ds.readBoolean();
+			Required 			= ds.readBoolean();
+			Hidden 				= ds.readBoolean();
+			SearchAreaHidden 	= ds.readBoolean();
+			FormHidden 			= ds.readBoolean();
+			GridHidden 			= ds.readBoolean();
+			Password 			= ds.readBoolean();
+
+ 			return true;
+ 		}
+ 		catch(e)
+ 		{
+ 		}
+ 		return false;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public property StringValue
+ 	{
+ 		function get():String
+ 		{
+ 			__recordset.__gotoFieldOffset(this);
+ 			__recordset.__ds.offset += __recordset.__ds.readInteger();
+ 			return __recordset.__ds.readString();
+ 		}
+
+ 		function set(v:String)
+ 		{
+ 			__recordset.__gotoFieldOffset(this);
+ 			__recordset.__ds.offset += __recordset.__ds.readInteger();
+ 			__recordset.__ds.write(v);
+ 		}
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public property IntegerValue
+ 	{
+ 		function get():Integer
+ 		{
+ 			__recordset.__gotoFieldOffset(this);
+ 			__recordset.__ds.offset += 4;
+ 			return __recordset.__ds.readInteger();
+ 		}
+
+ 		function set(v:Integer)
+ 		{
+ 			__recordset.__gotoFieldOffset(this);
+ 			__recordset.__ds.offset += 4;
+ 			__recordset.__ds.write(v);
+ 		}
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public property FloatValue
+ 	{
+ 		function get():Float
+ 		{
+ 			__recordset.__gotoFieldOffset(this);
+ 			__recordset.__ds.offset += 4;
+ 			return __recordset.__ds.readFloat();
+ 		}
+
+ 		function set(v:Float)
+ 		{
+ 			__recordset.__gotoFieldOffset(this);
+ 			__recordset.__ds.offset += 4;
+ 			__recordset.__ds.write(v);
+ 		}
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public property OldStringValue
+ 	{
+ 		function get():String
+ 		{
+ 			__recordset.__gotoFieldOffset(this);
+ 			return __recordset.__ds.readString();
+ 		}
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public property OldIntegerValue
+ 	{
+ 		function get():Integer
+ 		{
+ 			__recordset.__gotoFieldOffset(this);
+ 			return __recordset.__ds.readInteger();
+ 		}
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public property OldFloatValue
+ 	{
+ 		function get():Float
+ 		{
+ 			__recordset.__gotoFieldOffset(this);
+ 			return __recordset.__ds.readFloat();
+ 		}
+ 	}
+}

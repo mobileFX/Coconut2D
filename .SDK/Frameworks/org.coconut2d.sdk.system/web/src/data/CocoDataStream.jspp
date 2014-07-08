@@ -1,0 +1,255 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// ==================================================================================================================================
+//	   ______                 ____        __        _____ __
+//	  / ____/___  _________  / __ \____ _/ /_____ _/ ___// /_________  ____ _____ ___
+//	 / /   / __ \/ ___/ __ \/ / / / __ `/ __/ __ `/\__ \/ __/ ___/ _ \/ __ `/ __ `__ \
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /_/ /_/ /___/ / /_/ /  /  __/ /_/ / / / / / /
+//	\____/\____/\___/\____/_____/\__,_/\__/\__,_//____/\__/_/   \___/\__,_/_/ /_/ /_/
+//
+// ==================================================================================================================================
+
+class CocoDataStream
+{
+	private const defaultSize:Integer = 4096;
+	private var b:Uint8Array;
+	private var bi:Int32Array;
+	private var bf:Float32Array;
+	private var d:DataView;
+	private var __offset:Integer;
+	private var __length:Integer;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Constructor()
+ 	{
+		b = new Uint8Array(defaultSize);
+		bi = new Int32Array(b.buffer);
+		bf = new Float32Array(b.buffer);
+		d = new DataView(b.buffer);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Destructor()
+ 	{
+ 		delete d;
+ 		delete bf;
+ 		delete bi;
+ 		delete b;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function increaseSize(s:Integer)
+	{
+		if(__offset + s <= __length) return;
+		__length = __offset + s;
+		if(__offset + s <= b.byteLength) return;
+		var nb:Uint8Array = new Uint8Array(b.byteLength + defaultSize + s + 4 - s % 4);
+		nb.set(b);
+		delete d;
+		delete bf;
+		delete bi;
+		delete b;
+		b = nb;
+		bi = new Int32Array(b.buffer);
+		bf = new Float32Array(b.buffer);
+		d = new DataView(b.buffer);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function load(URL:String)
+ 	{
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function save(URL:String)
+ 	{
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public property offset
+ 	{
+ 		function get():Integer
+ 		{
+ 			return __offset;
+ 		}
+
+ 		function set(v:Integer)
+ 		{
+ 			__offset = v;
+ 		}
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function clone():CocoDataStream
+ 	{
+ 		return null;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function write(v:CocoDataStream)
+ 	{
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function write(v:Integer)
+ 	{
+ 		increaseSize(4);
+ 		d.setInt32(__offset, v);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function write(v:Float)
+ 	{
+ 		increaseSize(4);
+ 		d.setFloat32(__offset, v);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function write(v:String)
+ 	{
+ 		var L:Integer = v.length;
+ 		write(L);
+ 		for(var i:Integer=0; i<L; i++)
+ 		{
+ 			var c:Integer = v.charCodeAt(i);
+ 			write(c);
+ 		}
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function write(v:Date)
+ 	{
+ 		write(v.toJSON());
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function write(v:Boolean)
+ 	{
+ 		increaseSize(1);
+ 		b[__offset++] = (v==true ? 1 : 0);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function write(v:Int32Array)
+ 	{
+ 		write(v.length);
+ 		increaseSize(v.byteLength);
+ 		bi.set(v, __offset / 4);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function write(v:Float32Array)
+ 	{
+ 		write(v.length);
+ 		increaseSize(v.byteLength);
+ 		bf.set(v, __offset / 4);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function write(v:Image)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function write(v:HTMLCanvasElement)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readInteger():Integer
+	{
+		if(__offset + 4 > __length) return 0;
+		var ret:Integer = bi[__offset / 4];
+		__offset += 4;
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readFloat():Float
+	{
+		if(__offset + 4 > __length) return 0.0;
+		var ret:Float = bf[__offset / 4];
+		__offset += 4;
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readString():String
+	{
+		if(__offset + 4 > __length) return "";
+		var L:Integer = readInteger();
+		if(__offset + L * 4 > __length) return "";
+		var ret:String = "";
+		for(var i:Integer=0; i<L; i++)
+ 		{
+ 			var c:Integer = readInteger();
+ 			ret += String.fromCharCode(c);
+ 		}
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readDate():Date
+	{
+		var s:String = readString();
+		return new Date(s);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readBoolean():Boolean
+	{
+		if(__offset + 1 > __length) return false;
+		return b[__offset++]==0 ? false : true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readInt32Array():Int32Array
+	{
+		if(__offset + 4 > __length) return null;
+		var L:Integer = readInteger();
+		if(__offset + L * 4 > __length) return null;
+		__offset += L * 4;
+		return new Int32Array(b.buffer, __offset, L);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readFloat32Array():Float32Array
+	{
+		if(__offset + 4 > __length) return null;
+		var L:Integer = readInteger();
+		if(__offset + L * 4 > __length) return null;
+		__offset += L * 4;
+		return new Float32Array(b.buffer, __offset, L);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readImage():Image
+	{
+		return null;
+	}
+}

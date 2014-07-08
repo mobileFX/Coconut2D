@@ -1018,8 +1018,6 @@ function Compiler(ast)
 
 		if(ast.inClass)
 			return ast.inClass.symbol;
-
-		debugger;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3796,6 +3794,16 @@ function Compiler(ast)
 			//
 			//==================================================================================
 
+			if(ast.symbol.ast.overloads && ast.symbol.ast.overloads!=ast.symbol.overloads)
+			{
+				// Overloads are not synced between ast and symbol, this means that a class
+				// with overloaded functions is being used by some other class before it had
+				// the chance to fully process its overloads. This should be controlled by
+				// the acyclic graph by adding the proper #includes.
+
+				_this.NewError("Module " + ast.file + " requires \"#include " + ast.symbol.file + "\";", ast);
+			}
+
 			if(ast.symbol.overloads)
 			{
 				var astCALL=null;
@@ -3870,7 +3878,9 @@ function Compiler(ast)
 					}
 
 					if(!overload_matched)
+					{
 						_this.NewError("Invalid call to overloaded method.", ast);
+					}
 				}
 			}
 
@@ -4166,6 +4176,7 @@ function Compiler(ast)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CALL:
+
 			var call0 = generate(ast[0]);
 			var call1 = generate(ast[1]);
 			var cls = _this.getClass(call0);
