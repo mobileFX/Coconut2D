@@ -937,7 +937,7 @@ function Compiler(ast)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.getAllDerivatives = function(classSymbol)
+	_this.getAllDerivatives = function(classSymbol, array)
 	{
 		var list = {};
 		function __derivatives(classSymbol)
@@ -950,6 +950,15 @@ function Compiler(ast)
 			}
 		}
 		__derivatives(classSymbol);
+		if(array)
+		{
+			var a=[];
+			for(i in list)
+			{
+				a.push(i);
+			}
+			list = a;
+		}
 		return list;
 	};
 
@@ -1188,6 +1197,7 @@ function Compiler(ast)
 					varSymbol.public		= true;
 					varSymbol.private		= false;
 					varSymbol.protected		= false;
+					varSymbol.published		= false;
 					varSymbol.static		= false;
 					varSymbol.optional		= false;
 					varSymbol.virtual		= false;
@@ -2233,6 +2243,7 @@ function Compiler(ast)
 					varSymbol.public		= false;
 					varSymbol.private		= false;
 					varSymbol.protected		= false;
+					varSymbol.published		= false;
 					varSymbol.static		= false;
 					varSymbol.optional		= param.optional;
 					varSymbol.virtual		= false;
@@ -2300,6 +2311,7 @@ function Compiler(ast)
 				varSymbol.public		= false;
 				varSymbol.private		= false;
 				varSymbol.protected		= false;
+				varSymbol.published		= false;
 				varSymbol.static		= false;
 				varSymbol.optional		= false;
 				varSymbol.virtual		= false;
@@ -2736,6 +2748,7 @@ function Compiler(ast)
 					varSymbol.public		= ast.public;
 					varSymbol.private		= ast.private;
 					varSymbol.protected		= ast.protected;
+					varSymbol.published		= ast.published;
 					varSymbol.static		= ast.static;
 					varSymbol.optional		= false;
 					varSymbol.virtual		= false;
@@ -3099,6 +3112,7 @@ function Compiler(ast)
 					varSymbol.public				= true;
 					varSymbol.private				= false;
 					varSymbol.protected				= false;
+					varSymbol.published				= false;
 					varSymbol.static				= false;
 					varSymbol.optional				= false;
 					varSymbol.virtual				= false;
@@ -3152,6 +3166,7 @@ function Compiler(ast)
 				varSymbol.public				= true;
 				varSymbol.private				= false;
 				varSymbol.protected				= false;
+				varSymbol.published				= false;
 				varSymbol.static				= false;
 				varSymbol.optional				= false;
 				varSymbol.virtual				= false;
@@ -3317,6 +3332,7 @@ function Compiler(ast)
 					varSymbol.public		= true;
 					varSymbol.private		= false;
 					varSymbol.protected		= false;
+					varSymbol.published		= false;
 					varSymbol.static		= true;
 					varSymbol.optional		= false;
 					varSymbol.virtual		= false;
@@ -3403,6 +3419,7 @@ function Compiler(ast)
 				propSymbol.public		= ast.public;
 				propSymbol.private		= ast.private;
 				propSymbol.protected	= ast.protected;
+				propSymbol.published	= ast.published;
 				propSymbol.static		= ast.static;
 				propSymbol.optional		= false;
 				propSymbol.virtual		= ast.virtual;

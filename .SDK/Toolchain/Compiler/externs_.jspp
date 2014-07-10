@@ -381,6 +381,17 @@ class Global
 	undefined var CocoUIPictureList :CocoUIPictureList;
 	undefined var CocoUITabBar :CocoUITabBar;
 	undefined var CocoUITextEdit :CocoUITextEdit;
+	undefined var CocoSprite :CocoSprite;
+	undefined var CocoSpriteActor :CocoSpriteActor;
+	undefined var CocoSpriteBonus :CocoSpriteBonus;
+	undefined var CocoSpriteBullet :CocoSpriteBullet;
+	undefined var CocoSpriteEnemy :CocoSpriteEnemy;
+	undefined var CocoSpritePlayer :CocoSpritePlayer;
+	undefined var CocoSpriteVisual :CocoSpriteVisual;
+	undefined var CocoTiledLayer :CocoTiledLayer;
+	undefined var CocoTiledLayerMaze :CocoTiledLayerMaze;
+	undefined var CocoTiledLayerPlatform :CocoTiledLayerPlatform;
+	undefined var CocoCasinoSlotReel :CocoCasinoSlotReel;
 	undefined var GameEngine :GameEngine;
 	undefined var TestOutsourcer :TestOutsourcer;
 	undefined var TestIntegrator :TestIntegrator;
@@ -2758,6 +2769,77 @@ class CocoUITextEdit : CocoUIControl
 	public  var PromptFontShadowColor :Color;
 	public  var __className :String;
 } //CocoUITextEdit
+
+class CocoSprite : CocoClip
+{
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoSprite
+
+class CocoSpriteActor : CocoSprite
+{
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoSpriteActor
+
+class CocoSpriteBonus : CocoSprite
+{
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoSpriteBonus
+
+class CocoSpriteBullet : CocoSprite
+{
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoSpriteBullet
+
+class CocoSpriteEnemy : CocoSpriteActor
+{
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoSpriteEnemy
+
+class CocoSpritePlayer : CocoSpriteActor
+{
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoSpritePlayer
+
+class CocoSpriteVisual : CocoSprite
+{
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoSpriteVisual
+
+class CocoTiledLayer
+{
+	public function collidesWith(sprite:CocoSprite) :Boolean {}
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoTiledLayer
+
+class CocoTiledLayerMaze : CocoTiledLayer
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoTiledLayerMaze
+
+class CocoTiledLayerPlatform : CocoTiledLayer
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoTiledLayerPlatform
+
+class CocoCasinoSlotReel : CocoClip
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var Prefix :String;
+	public  var __className :String;
+} //CocoCasinoSlotReel
 
 class GameEngine : CocoEngine
 {

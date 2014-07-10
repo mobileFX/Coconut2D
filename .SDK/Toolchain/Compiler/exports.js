@@ -528,6 +528,11 @@ function CompilerExportsPlugin(compiler)
 		{
 			if(_this.selectedClass && _this.selectedClass!=cls) continue;
 			var classSymbol = _this.classes[cls];
+
+			var derivatives = _this.getAllDerivatives(classSymbol, true);
+			if(derivatives.length)
+				classSymbol.classes = derivatives.join(";");
+
 			xml.push(_this.objectToXML(classSymbol, classSymbol.name, false));
 
 			// Class methods
