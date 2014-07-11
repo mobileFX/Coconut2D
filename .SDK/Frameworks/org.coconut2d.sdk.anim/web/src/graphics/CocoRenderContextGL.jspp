@@ -67,11 +67,13 @@ class CocoRenderContextGL implements ICocoRenderContext
 	private var __glProgram_Simple:WebGLProgram;
 	private var __glProgram_SimpleWithAlpha:WebGLProgram;
 	private var __glProgram_SaturationWithAlpha:WebGLProgram;
+	private var __glProgram_ParallaxHor:WebGLProgram;
 
 	private var __vertex_shader_Common:String;
 	private var __fragment_shader_Simple:String;
 	private var __fragment_shader_SimpleWithAlpha:String;
 	private var __fragment_shader_SaturationWithAlpha:String;
+	private var __fragment_shader_ParallaxHor:String;
 
 	private var __boundingBoxVertexShader:String;
 	private var __boundingBoxFragmentShader:String;
@@ -94,10 +96,12 @@ class CocoRenderContextGL implements ICocoRenderContext
 		__glProgram_Simple						= null;
 		__glProgram_SimpleWithAlpha				= null;
 		__glProgram_SaturationWithAlpha			= null;
+		__glProgram_ParallaxHor					= null;
 		__vertex_shader_Common					= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((abs(iTexCoords.x - uSprFlip.x) + uSprFrame.x) * uSprSize.x), ((abs(iTexCoords.y - uSprFlip.y) + uSprFrame.y) * uSprSize.y));}";
 		__fragment_shader_Simple    			= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n gl_FragColor = texture2D(uSampler, pTexCoord); }";
 		__fragment_shader_SimpleWithAlpha    	= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform float uAlpha;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n vec4 texColor = texture2D(uSampler, pTexCoord);\n gl_FragColor = vec4(texColor.rgb, texColor.a * uAlpha); }";
 		__fragment_shader_SaturationWithAlpha	= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform vec4 uColor;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n vec4 texColor = texture2D(uSampler, pTexCoord);\n float c = (texColor.r + texColor.g + texColor.b) / 3.0; \n gl_FragColor = vec4((1.0 - uColor.r) * c + texColor.r * uColor.r, (1.0 - uColor.g) * c + texColor.g * uColor.g, (1.0 - uColor.b) * c + texColor.b * uColor.b, texColor.a * uColor.a);}";
+		__fragment_shader_ParallaxHor  			= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform vec2 uSprSize;\nuniform vec4 uColor;\nvarying vec2 pTexCoord;\nvoid main(void) {\n gl_FragColor = texture2D(uSampler, vec2(pTexCoord.x + uColor.r * uSprSize.x - floor(pTexCoord.x / uSprSize.x + uColor.r) * uSprSize.x, pTexCoord.y));\n}";
 		__boundingBoxVertexShader 				= "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
 		__boundingBoxFragmentShader				= "#ifdef GL_ES\nprecision lowp float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
 		__boundingBoxProgram					= null;
@@ -112,6 +116,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		delete __glProgram_Simple;
 		delete __glProgram_SimpleWithAlpha;
 		delete __glProgram_SaturationWithAlpha;
+		delete __glProgram_ParallaxHor;
 		delete __boundingBoxProgram;
 		delete __boundingBoxBuffer;
  	}
@@ -251,6 +256,24 @@ class CocoRenderContextGL implements ICocoRenderContext
 		update(__modelViewMatrix, __glProgram_SaturationWithAlpha.GLSLuMVMat);
 		update(__projectionMatrix, __glProgram_SaturationWithAlpha.GLSLuProjMat)
 
+		// Shader for handling Horizontal Parallax effects
+		__glProgram_ParallaxHor = makeProgram(gl, __vertex_shader_Common, __fragment_shader_ParallaxHor);
+		gl.useProgram(__glProgram_ParallaxHor);
+		__glProgram_ParallaxHor.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_ParallaxHor, "iVecCoords");
+		__glProgram_ParallaxHor.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram_ParallaxHor, "iTexCoords");
+		__glProgram_ParallaxHor.GLSLuProjMat 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uProjMat");
+		__glProgram_ParallaxHor.GLSLuMVMat 		= gl.getUniformLocation(__glProgram_ParallaxHor, "uMVMat");
+		__glProgram_ParallaxHor.GLSLuSprSize 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uSprSize");
+		__glProgram_ParallaxHor.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uSprFrame");
+		__glProgram_ParallaxHor.GLSLuSprFlip 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uSprFlip");
+		__glProgram_ParallaxHor.GLSLuSampler 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uSampler");
+		__glProgram_ParallaxHor.GLSLuColor 		= gl.getUniformLocation(__glProgram_ParallaxHor, "uColor");
+		gl.enableVertexAttribArray(__glProgram_ParallaxHor.GLSLiVecCoords);
+		gl.enableVertexAttribArray(__glProgram_ParallaxHor.GLSLiTexCoords);
+		gl.uniform1i(__glProgram_ParallaxHor.GLSLuSampler, 0);
+		update(__modelViewMatrix, __glProgram_ParallaxHor.GLSLuMVMat);
+		update(__projectionMatrix, __glProgram_ParallaxHor.GLSLuProjMat)
+
         __glProgram = __glProgram_Simple;
         gl.useProgram(__glProgram);
 	}
@@ -294,10 +317,10 @@ class CocoRenderContextGL implements ICocoRenderContext
 
 		// Instruct WebGL how to filter the texture when rendering.
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
 		// Generate mipmaps.
-		gl.generateMipmap(gl.TEXTURE_2D);
+		//gl.generateMipmap(gl.TEXTURE_2D);
 
 		// Done
 		gl.bindTexture(gl.TEXTURE_2D, null);
@@ -346,6 +369,9 @@ class CocoRenderContextGL implements ICocoRenderContext
 		case COCO_FILTER_ENUM.FILTER_SATURATION_WITH_ALPHA:
             gl.uniform4f(__glProgram.GLSLuColor, KF.red, KF.green, KF.blue, KF.alpha);
 			break;
+		case COCO_FILTER_ENUM.FILTER_PARALLAX_HOR:
+			gl.uniform4f(__glProgram.GLSLuColor, KF.red, KF.green, KF.blue, KF.alpha);
+			break;
 		}
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -383,6 +409,13 @@ class CocoRenderContextGL implements ICocoRenderContext
 		   	if(__glProgram != __glProgram_SaturationWithAlpha)
 		   	{
 		   		__glProgram = __glProgram_SaturationWithAlpha;
+				changed = true;
+		   	}
+			break;
+		case COCO_FILTER_ENUM.FILTER_PARALLAX_HOR:
+		   	if(__glProgram != __glProgram_ParallaxHor)
+		   	{
+		   		__glProgram = __glProgram_ParallaxHor;
 				changed = true;
 		   	}
 			break;

@@ -25,20 +25,35 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// ==================================================================================================================================
-//	   ______               _______ __         ____
-//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____
-//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/
-//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /
-//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/
-//	                                                     /____/
-// ==================================================================================================================================
+ class CocoParallaxPoint : CocoClip
+ {
+ 	public function Constructor()
+ 	{
+ 	}
 
-"#include CocoClip.jspp";
+ 	public function Destructor()
+ 	{
+ 	}
+ }
 
-class CocoTiledLayer : CocoClip
-{
-	public function Constructor()
+ class CocoTiledLayerParallax : CocoTiledLayer
+ {
+ 	public function Constructor()
+ 	{
+ 	}
+
+ 	public function Destructor()
+ 	{
+ 	}
+
+	published property ParallaxPoint
 	{
+		function get():CocoParallaxPoint
+		{
+			return null;
+		}
+		function set(v:CocoClip)
+		{
+		}
 	}
 }

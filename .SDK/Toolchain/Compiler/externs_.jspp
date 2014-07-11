@@ -353,7 +353,7 @@ class Global
 	undefined var CocoHVAlign :CocoHVAlign;
 	undefined var CocoGraphics :CocoGraphics;
 	undefined var CocoSequence :CocoSequence;
-	undefined var CocoImageSibling :CocoImageSibling;
+	undefined var CocoImageResolution :CocoImageResolution;
 	undefined var CocoImage :CocoImage;
 	undefined var CocoRenderContext :CocoRenderContext;
 	undefined var CocoImageRenderData2D :CocoImageRenderData2D;
@@ -390,6 +390,8 @@ class Global
 	undefined var CocoSpriteVisual :CocoSpriteVisual;
 	undefined var CocoTiledLayer :CocoTiledLayer;
 	undefined var CocoTiledLayerMaze :CocoTiledLayerMaze;
+	undefined var CocoParallaxPoint :CocoParallaxPoint;
+	undefined var CocoTiledLayerParallax :CocoTiledLayerParallax;
 	undefined var CocoTiledLayerPlatform :CocoTiledLayerPlatform;
 	undefined var CocoCasinoSlotReel :CocoCasinoSlotReel;
 	undefined var GameEngine :GameEngine;
@@ -410,7 +412,6 @@ class Global
 	undefined var ReservationsForm :ReservationsForm;
 	undefined var NewAnimation :NewAnimation;
 	undefined var NewAnimation1 :NewAnimation1;
-	undefined var Page1 :Page1;
 } //Global
 
 class String
@@ -742,6 +743,7 @@ class COCO_FILTER_ENUM
 	public var FILTER_SIMPLE :COCO_FILTER_ENUM;
 	public var FILTER_SIMPLE_WITH_ALPHA :COCO_FILTER_ENUM;
 	public var FILTER_SATURATION_WITH_ALPHA :COCO_FILTER_ENUM;
+	public var FILTER_PARALLAX_HOR :COCO_FILTER_ENUM;
 } //COCO_FILTER_ENUM
 
 class COCO_TEXT_ALIGN_ENUM
@@ -1568,7 +1570,6 @@ class CocoEngine
 	private  var __tickables :Array<ITickable>;
 	public  var __clock :Time;
 	public  var __ctx :ICocoRenderContext;
-	public  var paintCount :Integer;
 	private  var __deviceMessageQueue :Array<DEVICE_MESSAGE>;
 	private  var __clicked :Array<CocoClip>;
 	private  var __track_touch :Boolean;
@@ -1936,7 +1937,7 @@ class CocoScene
 	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage {}
 	public function prepare(ctx:ICocoRenderContext) {}
 	public function paint(ctx:ICocoRenderContext, time:Time) {}
-	private function resourcesLoaded(ctx:ICocoRenderContext) :Boolean {}
+	public function resourcesLoaded(ctx:ICocoRenderContext) :Boolean {}
 	public function gotoAndPlayByName(LabelName:String) {}
 	public function gotoAndStopByName(LabelName:String) {}
 	public function gotoAndPlayByIndex(FrameIndex:Integer) {}
@@ -2197,7 +2198,7 @@ class CocoSequence
 	public  var __className :String;
 } //CocoSequence
 
-class CocoImageSibling
+class CocoImageResolution
 {
 	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float) {}
 	public  var url :String;
@@ -2205,12 +2206,12 @@ class CocoImageSibling
 	public  var textureWidth :Float;
 	public  var textureHeight :Float;
 	public  var __className :String;
-} //CocoImageSibling
+} //CocoImageResolution
 
 class CocoImage
 {
 	public function createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float) {}
-	public function addSibling(sibling:CocoImageSibling) :CocoImageSibling {}
+	public function addResolution(sibling:CocoImageResolution) :CocoImageResolution {}
 	public function addSequence(sequence:CocoSequence) :CocoSequence {}
 	public function getSequence(name:String) :CocoSequence {}
 	public function load() {}
@@ -2233,7 +2234,7 @@ class CocoImage
 	public  var baseUrl :String;
 	public  var viewOptimalWidth :Integer;
 	public  var viewOptimalHeight :Integer;
-	public  var viewSiblings :Array<CocoImageSibling>;
+	public  var viewSiblings :Array<CocoImageResolution>;
 	public  var pixelRatio :Float;
 	public  var __className :String;
 } //CocoImage
@@ -2305,10 +2306,12 @@ class CocoRenderContextGL
 	private  var __glProgram_Simple :WebGLProgram;
 	private  var __glProgram_SimpleWithAlpha :WebGLProgram;
 	private  var __glProgram_SaturationWithAlpha :WebGLProgram;
+	private  var __glProgram_ParallaxHor :WebGLProgram;
 	private  var __vertex_shader_Common :String;
 	private  var __fragment_shader_Simple :String;
 	private  var __fragment_shader_SimpleWithAlpha :String;
 	private  var __fragment_shader_SaturationWithAlpha :String;
+	private  var __fragment_shader_ParallaxHor :String;
 	private  var __boundingBoxVertexShader :String;
 	private  var __boundingBoxFragmentShader :String;
 	private  var __boundingBoxProgram :WebGLProgram;
@@ -2812,9 +2815,8 @@ class CocoSpriteVisual : CocoSprite
 	public  var __className :String;
 } //CocoSpriteVisual
 
-class CocoTiledLayer
+class CocoTiledLayer : CocoClip
 {
-	public function collidesWith(sprite:CocoSprite) :Boolean {}
 	public function Constructor() {}
 	public  var __className :String;
 } //CocoTiledLayer
@@ -2825,6 +2827,21 @@ class CocoTiledLayerMaze : CocoTiledLayer
 	public function Constructor() {}
 	public  var __className :String;
 } //CocoTiledLayerMaze
+
+class CocoParallaxPoint : CocoClip
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoParallaxPoint
+
+class CocoTiledLayerParallax : CocoTiledLayer
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var ParallaxPoint :CocoParallaxPoint;
+	public  var __className :String;
+} //CocoTiledLayerParallax
 
 class CocoTiledLayerPlatform : CocoTiledLayer
 {
@@ -3038,10 +3055,4 @@ class NewAnimation1 : CocoScene
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
 } //NewAnimation1
-
-class Page1 : CocoScene
-{
-	public function Constructor(engine:CocoEngine) {}
-	public  var __className :String;
-} //Page1
 

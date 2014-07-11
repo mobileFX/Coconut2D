@@ -180,12 +180,15 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		{
 			__children[i].prepare(scene);
 		}
+		normalize();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
-		if(__currentFrame) delete __currentFrame;
+		if(__currentFrame)
+			delete __currentFrame;
+
 		__currentFrame = null;
 		__currentTime = 0.0;
 		__timeline.reset();
@@ -194,7 +197,9 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		{
 			__children[i].reset();
 		}
-		if(__currentAudio) __currentAudio.reset();
+
+		if(__currentAudio)
+			__currentAudio.reset();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -347,7 +352,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
-		++engine.paintCount;
 		__scene = scene;
 
 		var mv:CocoMatrix = ctx.getModelViewMatrix();

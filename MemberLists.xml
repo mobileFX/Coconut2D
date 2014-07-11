@@ -222,7 +222,7 @@ public Function::__className:String" image="13"/>
 		<member name="CocoHVAlign" proto="CocoHVAlign:CocoHVAlign" help="CocoHVAlign:CocoHVAlign" image="27"/>
 		<member name="CocoGraphics" proto="CocoGraphics:CocoGraphics" help="CocoGraphics:CocoGraphics" image="11"/>
 		<member name="CocoSequence" proto="CocoSequence:CocoSequence" help="CocoSequence:CocoSequence" image="11"/>
-		<member name="CocoImageSibling" proto="CocoImageSibling:CocoImageSibling" help="CocoImageSibling:CocoImageSibling" image="11"/>
+		<member name="CocoImageResolution" proto="CocoImageResolution:CocoImageResolution" help="CocoImageResolution:CocoImageResolution" image="11"/>
 		<member name="CocoImage" proto="CocoImage:CocoImage" help="CocoImage:CocoImage" image="11"/>
 		<member name="CocoRenderContext" proto="CocoRenderContext:CocoRenderContext" help="CocoRenderContext:CocoRenderContext" image="11"/>
 		<member name="CocoImageRenderData2D" proto="CocoImageRenderData2D:CocoImageRenderData2D" help="CocoImageRenderData2D:CocoImageRenderData2D" image="11"/>
@@ -259,6 +259,8 @@ public Function::__className:String" image="13"/>
 		<member name="CocoSpriteVisual" proto="CocoSpriteVisual:CocoSpriteVisual" help="CocoSpriteVisual:CocoSpriteVisual" image="11"/>
 		<member name="CocoTiledLayer" proto="CocoTiledLayer:CocoTiledLayer" help="CocoTiledLayer:CocoTiledLayer" image="11"/>
 		<member name="CocoTiledLayerMaze" proto="CocoTiledLayerMaze:CocoTiledLayerMaze" help="CocoTiledLayerMaze:CocoTiledLayerMaze" image="11"/>
+		<member name="CocoParallaxPoint" proto="CocoParallaxPoint:CocoParallaxPoint" help="CocoParallaxPoint:CocoParallaxPoint" image="11"/>
+		<member name="CocoTiledLayerParallax" proto="CocoTiledLayerParallax:CocoTiledLayerParallax" help="CocoTiledLayerParallax:CocoTiledLayerParallax" image="11"/>
 		<member name="CocoTiledLayerPlatform" proto="CocoTiledLayerPlatform:CocoTiledLayerPlatform" help="CocoTiledLayerPlatform:CocoTiledLayerPlatform" image="11"/>
 		<member name="CocoCasinoSlotReel" proto="CocoCasinoSlotReel:CocoCasinoSlotReel" help="CocoCasinoSlotReel:CocoCasinoSlotReel" image="11"/>
 		<member name="GameEngine" proto="GameEngine:GameEngine" help="GameEngine:GameEngine" image="11"/>
@@ -737,6 +739,7 @@ public Gradient::__className:String" image="13"/>
 		<member name="FILTER_SIMPLE" proto="FILTER_SIMPLE:COCO_FILTER_ENUM" help="FILTER_SIMPLE:COCO_FILTER_ENUM" image="16"/>
 		<member name="FILTER_SIMPLE_WITH_ALPHA" proto="FILTER_SIMPLE_WITH_ALPHA:COCO_FILTER_ENUM" help="FILTER_SIMPLE_WITH_ALPHA:COCO_FILTER_ENUM" image="16"/>
 		<member name="FILTER_SATURATION_WITH_ALPHA" proto="FILTER_SATURATION_WITH_ALPHA:COCO_FILTER_ENUM" help="FILTER_SATURATION_WITH_ALPHA:COCO_FILTER_ENUM" image="16"/>
+		<member name="FILTER_PARALLAX_HOR" proto="FILTER_PARALLAX_HOR:COCO_FILTER_ENUM" help="FILTER_PARALLAX_HOR:COCO_FILTER_ENUM" image="16"/>
 	</memberlist>
 	<memberlist name="Class COCO_TEXT_ALIGN_ENUM">
 		<member name="TEXT_ALIGN_NEAR" proto="TEXT_ALIGN_NEAR:COCO_TEXT_ALIGN_ENUM" help="TEXT_ALIGN_NEAR:COCO_TEXT_ALIGN_ENUM" image="16"/>
@@ -2159,8 +2162,6 @@ private CocoEngine::__tickables:Array&lt;ITickable&gt;" image="1"/>
 public CocoEngine::__clock:Time" image="34"/>
 		<member name="__ctx" proto="__ctx:ICocoRenderContext" help="__ctx is member var of class CocoEngine
 public CocoEngine::__ctx:ICocoRenderContext" image="34"/>
-		<member name="paintCount" proto="paintCount:Integer" help="paintCount is member var of class CocoEngine
-public CocoEngine::paintCount:Integer" image="34"/>
 		<member name="__deviceMessageQueue" proto="__deviceMessageQueue:Array&lt;DEVICE_MESSAGE&gt;" help="__deviceMessageQueue is member var of class CocoEngine
 private CocoEngine::__deviceMessageQueue:Array&lt;DEVICE_MESSAGE&gt;" image="1"/>
 		<member name="__clicked" proto="__clicked:Array&lt;CocoClip&gt;" help="__clicked is member var of class CocoEngine
@@ -2689,7 +2690,7 @@ public CocoScene::prepare(ctx:ICocoRenderContext)" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, time:Time)" help="paint is member function of class CocoScene
 public virtual CocoScene::paint(ctx:ICocoRenderContext, time:Time)" image="35"/>
 		<member name="resourcesLoaded" proto="resourcesLoaded(ctx:ICocoRenderContext) :Boolean" help="resourcesLoaded is member function of class CocoScene
-private CocoScene::resourcesLoaded(ctx:ICocoRenderContext) :Boolean" image="30"/>
+public CocoScene::resourcesLoaded(ctx:ICocoRenderContext) :Boolean" image="35"/>
 		<member name="gotoAndPlayByName" proto="gotoAndPlayByName(LabelName:String)" help="gotoAndPlayByName is member function of class CocoScene
 public CocoScene::gotoAndPlayByName(LabelName:String)" image="35"/>
 		<member name="gotoAndStopByName" proto="gotoAndStopByName(LabelName:String)" help="gotoAndStopByName is member function of class CocoScene
@@ -3061,25 +3062,25 @@ public CocoSequence::sequenceStartTime:Time" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoSequence
 public CocoSequence::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoImageSibling">
-		<member name="Constructor" proto="Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float)" help="Constructor is member function of class CocoImageSibling
-public CocoImageSibling::Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float)" image="14"/>
-		<member name="url" proto="url:String" help="url is member var of class CocoImageSibling
-public CocoImageSibling::url:String" image="34"/>
-		<member name="pixelRatio" proto="pixelRatio:Float" help="pixelRatio is member var of class CocoImageSibling
-public CocoImageSibling::pixelRatio:Float" image="34"/>
-		<member name="textureWidth" proto="textureWidth:Float" help="textureWidth is member var of class CocoImageSibling
-public CocoImageSibling::textureWidth:Float" image="34"/>
-		<member name="textureHeight" proto="textureHeight:Float" help="textureHeight is member var of class CocoImageSibling
-public CocoImageSibling::textureHeight:Float" image="34"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoImageSibling
-public CocoImageSibling::__className:String" image="13"/>
+	<memberlist name="Class CocoImageResolution">
+		<member name="Constructor" proto="Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float)" help="Constructor is member function of class CocoImageResolution
+public CocoImageResolution::Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float)" image="14"/>
+		<member name="url" proto="url:String" help="url is member var of class CocoImageResolution
+public CocoImageResolution::url:String" image="34"/>
+		<member name="pixelRatio" proto="pixelRatio:Float" help="pixelRatio is member var of class CocoImageResolution
+public CocoImageResolution::pixelRatio:Float" image="34"/>
+		<member name="textureWidth" proto="textureWidth:Float" help="textureWidth is member var of class CocoImageResolution
+public CocoImageResolution::textureWidth:Float" image="34"/>
+		<member name="textureHeight" proto="textureHeight:Float" help="textureHeight is member var of class CocoImageResolution
+public CocoImageResolution::textureHeight:Float" image="34"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoImageResolution
+public CocoImageResolution::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoImage">
 		<member name="createFromCanvas" proto="createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float)" help="createFromCanvas is member function of class CocoImage
 public CocoImage::createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float)" image="35"/>
-		<member name="addSibling" proto="addSibling(sibling:CocoImageSibling) :CocoImageSibling" help="addSibling is member function of class CocoImage
-public CocoImage::addSibling(sibling:CocoImageSibling) :CocoImageSibling" image="35"/>
+		<member name="addResolution" proto="addResolution(sibling:CocoImageResolution) :CocoImageResolution" help="addResolution is member function of class CocoImage
+public CocoImage::addResolution(sibling:CocoImageResolution) :CocoImageResolution" image="35"/>
 		<member name="addSequence" proto="addSequence(sequence:CocoSequence) :CocoSequence" help="addSequence is member function of class CocoImage
 public CocoImage::addSequence(sequence:CocoSequence) :CocoSequence" image="35"/>
 		<member name="getSequence" proto="getSequence(name:String) :CocoSequence" help="getSequence is member function of class CocoImage
@@ -3124,8 +3125,8 @@ public CocoImage::baseUrl:String" image="34"/>
 public CocoImage::viewOptimalWidth:Integer" image="34"/>
 		<member name="viewOptimalHeight" proto="viewOptimalHeight:Integer" help="viewOptimalHeight is member var of class CocoImage
 public CocoImage::viewOptimalHeight:Integer" image="34"/>
-		<member name="viewSiblings" proto="viewSiblings:Array&lt;CocoImageSibling&gt;" help="viewSiblings is member var of class CocoImage
-public CocoImage::viewSiblings:Array&lt;CocoImageSibling&gt;" image="1"/>
+		<member name="viewSiblings" proto="viewSiblings:Array&lt;CocoImageResolution&gt;" help="viewSiblings is member var of class CocoImage
+public CocoImage::viewSiblings:Array&lt;CocoImageResolution&gt;" image="1"/>
 		<member name="pixelRatio" proto="pixelRatio:Float" help="pixelRatio is member var of class CocoImage
 public CocoImage::pixelRatio:Float" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoImage
@@ -3238,6 +3239,8 @@ private CocoRenderContextGL::__glProgram_Simple:WebGLProgram" image="29"/>
 private CocoRenderContextGL::__glProgram_SimpleWithAlpha:WebGLProgram" image="29"/>
 		<member name="__glProgram_SaturationWithAlpha" proto="__glProgram_SaturationWithAlpha:WebGLProgram" help="__glProgram_SaturationWithAlpha is member var of class CocoRenderContextGL
 private CocoRenderContextGL::__glProgram_SaturationWithAlpha:WebGLProgram" image="29"/>
+		<member name="__glProgram_ParallaxHor" proto="__glProgram_ParallaxHor:WebGLProgram" help="__glProgram_ParallaxHor is member var of class CocoRenderContextGL
+private CocoRenderContextGL::__glProgram_ParallaxHor:WebGLProgram" image="29"/>
 		<member name="__vertex_shader_Common" proto="__vertex_shader_Common:String" help="__vertex_shader_Common is member var of class CocoRenderContextGL
 private CocoRenderContextGL::__vertex_shader_Common:String" image="29"/>
 		<member name="__fragment_shader_Simple" proto="__fragment_shader_Simple:String" help="__fragment_shader_Simple is member var of class CocoRenderContextGL
@@ -3246,6 +3249,8 @@ private CocoRenderContextGL::__fragment_shader_Simple:String" image="29"/>
 private CocoRenderContextGL::__fragment_shader_SimpleWithAlpha:String" image="29"/>
 		<member name="__fragment_shader_SaturationWithAlpha" proto="__fragment_shader_SaturationWithAlpha:String" help="__fragment_shader_SaturationWithAlpha is member var of class CocoRenderContextGL
 private CocoRenderContextGL::__fragment_shader_SaturationWithAlpha:String" image="29"/>
+		<member name="__fragment_shader_ParallaxHor" proto="__fragment_shader_ParallaxHor:String" help="__fragment_shader_ParallaxHor is member var of class CocoRenderContextGL
+private CocoRenderContextGL::__fragment_shader_ParallaxHor:String" image="29"/>
 		<member name="__boundingBoxVertexShader" proto="__boundingBoxVertexShader:String" help="__boundingBoxVertexShader is member var of class CocoRenderContextGL
 private CocoRenderContextGL::__boundingBoxVertexShader:String" image="29"/>
 		<member name="__boundingBoxFragmentShader" proto="__boundingBoxFragmentShader:String" help="__boundingBoxFragmentShader is member var of class CocoRenderContextGL
@@ -4079,8 +4084,6 @@ public CocoSpriteVisual::Constructor()" image="14"/>
 public CocoSpriteVisual::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoTiledLayer">
-		<member name="collidesWith" proto="collidesWith(sprite:CocoSprite) :Boolean" help="collidesWith is member function of class CocoTiledLayer
-public CocoTiledLayer::collidesWith(sprite:CocoSprite) :Boolean" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoTiledLayer
 public CocoTiledLayer::Constructor()" image="14"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoTiledLayer
@@ -4093,6 +4096,24 @@ public virtual CocoTiledLayerMaze::Destructor()" image="35"/>
 public CocoTiledLayerMaze::Constructor()" image="14"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoTiledLayerMaze
 public CocoTiledLayerMaze::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoParallaxPoint">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoParallaxPoint
+public virtual CocoParallaxPoint::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoParallaxPoint
+public CocoParallaxPoint::Constructor()" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoParallaxPoint
+public CocoParallaxPoint::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoTiledLayerParallax">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoTiledLayerParallax
+public virtual CocoTiledLayerParallax::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoTiledLayerParallax
+public CocoTiledLayerParallax::Constructor()" image="14"/>
+		<member name="ParallaxPoint" proto="ParallaxPoint:CocoParallaxPoint" help="ParallaxPoint is property of class CocoTiledLayerParallax
+public property CocoTiledLayerParallax::ParallaxPoint:CocoParallaxPoint" image="31"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoTiledLayerParallax
+public CocoTiledLayerParallax::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoTiledLayerPlatform">
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoTiledLayerPlatform

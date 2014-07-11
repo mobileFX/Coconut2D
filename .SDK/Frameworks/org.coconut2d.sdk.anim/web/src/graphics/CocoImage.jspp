@@ -64,7 +64,7 @@ class CocoSequence
 //	                                          /____/                            /____/
 // ==================================================================================================================================
 
-class CocoImageSibling
+class CocoImageResolution
 {
 	public var url:String;
 	public var pixelRatio:Float;
@@ -116,7 +116,7 @@ class CocoImage
 	public var baseUrl:String;
 	public var viewOptimalWidth:Integer;
 	public var viewOptimalHeight:Integer;
-	public var viewSiblings:Array<CocoImageSibling>;
+	public var viewSiblings:Array<CocoImageResolution>;
 	public var pixelRatio:Float;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ class CocoImage
 		textureGrid			= new Float32Array([0.0]);
 		viewOptimalHeight	= 0;
 		viewOptimalWidth	= 0;
-		viewSiblings		= new Array<CocoImageSibling>;
+		viewSiblings		= new Array<CocoImageResolution>;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +168,7 @@ class CocoImage
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function addSibling(sibling:CocoImageSibling) :CocoImageSibling
+	public function addResolution(sibling:CocoImageResolution) :CocoImageResolution
 	{
 		viewSiblings.push(sibling);
 		return sibling;
@@ -198,7 +198,7 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function load()
 	{
-		var sibling:CocoImageSibling;
+		var sibling:CocoImageResolution;
 
 		if(scene.__view_width && scene.__view_height)
 		{
@@ -221,11 +221,14 @@ class CocoImage
 		if(!image)
 		{
 			sibling = viewSiblings[viewSiblings.size()-1];
-			image = new Image();
-			image.load(baseUrl + sibling.url);
-			textureCellWidth = sibling.textureWidth;
-			textureCellHeight = sibling.textureHeight;
-			pixelRatio = sibling.pixelRatio;
+			if(sibling)
+			{
+				image = new Image();
+				image.load(baseUrl + sibling.url);
+				textureCellWidth = sibling.textureWidth;
+				textureCellHeight = sibling.textureHeight;
+				pixelRatio = sibling.pixelRatio;
+			}
 		}
 	}
 

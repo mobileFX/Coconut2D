@@ -2504,10 +2504,11 @@ function Compiler(ast)
 							}
 						}
 
+						var baseClass = ast.inClass.symbol.baseSymbol;
 						// If there is a base class, call its destructor.
 						if(baseClass)
 						{
-							out.push(_this.DELETE_BASE.replace(/__BASE__/g, classId+"."+baseClassId));
+							out.push(_this.DELETE_BASE.replace(/__BASE__/g, classId+"."+baseClass.classId));
 						}
 
 						out.push("}");
