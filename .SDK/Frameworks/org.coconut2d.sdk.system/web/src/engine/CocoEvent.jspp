@@ -50,7 +50,12 @@ class CocoEvent
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(type:String, cancelable:Boolean, bubbles:Boolean)
 	{
+		timeStamp = 0;
+		stopPropagation = false;
+		defaultPrevented = false;
+
 		reset();
+
 		this.type = type;
 		this.cancelable = cancelable;
 		this.bubbles = bubbles;

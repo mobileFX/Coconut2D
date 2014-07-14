@@ -44,7 +44,7 @@ class Touch
     public var clientY:Float;
     public var pageX:Float;
     public var pageY:Float;
-    public var target:IEventTarget;
+    public reference var target:IEventTarget;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -101,6 +101,12 @@ class TouchList : Array<Touch>
 			touch.initTouch(i, null, 0, 0, 0, 0, 0, 0);
 			push(touch);
 		}
+
+		length=5;
+	}
+
+	public function Destructor()
+	{
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +138,10 @@ class HTMLEvent
 
 	public function Constructor()
 	{
+		type = "";
+		timestamp = 0;
+		clientX = 0.0;
+		clientY = 0.0;
 		touches = new TouchList();
 		changedTouches = new TouchList();
 	}

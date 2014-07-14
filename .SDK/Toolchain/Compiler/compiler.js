@@ -2057,6 +2057,65 @@ function Compiler(ast)
 					}
 				}
 
+				// ----------------------------------------------------------------------
+				// Check object members of this class for initialization and destruction
+				// ----------------------------------------------------------------------
+
+				// In C++ class member variables must be initialized in constructor and deleted in destructor.
+				// We need to examine the class ast that complies otherwise we should issue warninds.
+
+				if(!classSymbol.extern && !classSymbol.interface)
+				{
+					var fnConstructor = classSymbol.methods["Constructor"];
+					var fnDestructor = classSymbol.methods["Destructor"];
+
+					if(!fnConstructor) _this.NewError("Missing Constructor in " + classSymbol.name, ast);
+					if(!fnDestructor) _this.NewError("Missing Destructor in " + classSymbol.name, ast);
+
+					if(fnConstructor)
+					{
+						_this.descend("initializer_check", fnConstructor.ast, function(node)
+						{
+							if(node.type==jsdef.ASSIGN)
+							{
+								var identifier = _this.getCallIdentifier(node);
+								identifier.symbol.__constructor_initializer = true;
+							}
+						});
+					}
+
+					if(fnDestructor)
+					{
+						_this.descend("memory_leak_check", fnDestructor.ast, function(node)
+						{
+							if(node.type==jsdef.DELETE)
+							{
+								var identifier = _this.getCallIdentifier(node);
+								if(!identifier) return;
+								identifier.symbol.__destructor_deinitializer = true;
+							}
+						});
+					}
+
+					for(var item in classSymbol.vars)
+					{
+						var varSymbol = classSymbol.vars[item];
+
+						if(varSymbol.constant) continue;
+						if(varSymbol.static) continue;
+						if(varSymbol.event) continue;
+						if(varSymbol.type==jsdef.PROPERTY) continue;
+						if(varSymbol.type==jsdef.STATE) continue;
+						if(varSymbol.reference) continue;
+
+						if(!varSymbol.__constructor_initializer)
+							_this.NewError("Missing class member initializer: " + varSymbol.name, varSymbol.ast);
+
+						if(varSymbol.pointer && !varSymbol.__destructor_deinitializer)
+							_this.NewError("Detected potential memory leak, member variable is not deleted in destructor: " + varSymbol.name, varSymbol.ast);
+					}
+				}
+
 			}
 
 			/////////////////////////////////////////////////////////////////////////////////
@@ -2751,6 +2810,7 @@ function Compiler(ast)
 					varSymbol.protected		= ast.protected;
 					varSymbol.published		= ast.published;
 					varSymbol.static		= ast.static;
+					varSymbol.reference		= ast.reference;
 					varSymbol.optional		= false;
 					varSymbol.virtual		= false;
 					varSymbol.abstract		= false;

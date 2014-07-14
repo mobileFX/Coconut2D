@@ -60,6 +60,9 @@ class CocoUIScrollView : CocoUIView
 		__bounceY = false;
 		__scrollDeceleration = 0.95;
 		__scrollSpringTension = 16.0;
+		__scrollLastTime = 0;
+		__scrollFirstPointY = 0.0;
+		__scrollLastPointY = 0.0;
 
 		// Add a container clip to place all children so that
 		// during scrolling we only scroll this container.
@@ -82,6 +85,8 @@ class CocoUIScrollView : CocoUIView
  		removeEventListener(this.OnTouchStart, __CocoUIScrollView_OnTouchStart);
  		removeEventListener(this.OnTouchMove, __CocoUIScrollView_OnTouchMove);
  		removeEventListener(this.OnTouchEnd, __CocoUIScrollView_OnTouchEnd);
+
+ 		delete __scrollContainer;
  	}
 
  	////////////////////////////////////////////////////////////////////////////////////////////////////

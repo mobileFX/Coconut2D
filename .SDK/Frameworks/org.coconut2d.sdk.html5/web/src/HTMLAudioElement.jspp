@@ -47,6 +47,14 @@ class Audio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(url:String)
 	{
+		__currentTime=0;
+		duration=0.0;
+		paused=false;
+		ended=false;
+		autoplay=false;
+		loop=false;
+		src="";
+
 		__uid = __Audio_load(url, this);
 		if(__uid) src = url;
 	}

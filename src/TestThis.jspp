@@ -10,9 +10,18 @@
 ///////////////////////////////////////////////////////
 class TestSelf1
 {
-	public var saved:Object;
+	public reference var saved:Object;
 	public function Constructor(){}
 	public function Destructor(){}
+
+	public function Constructor()
+	{
+		saved=null;
+	}
+
+	public function Destructor()
+	{
+	}
 
 	public function save_this()
 	{
@@ -23,11 +32,26 @@ class TestSelf1
 ///////////////////////////////////////////////////////
 class TestSelf2 : TestSelf1
 {
+	public function Constructor()
+	{
+	}
+
+	public function Destructor()
+	{
+	}
+
 }
 
 ///////////////////////////////////////////////////////
 class TestSelf3 : TestSelf2
 {
+	public function Constructor()
+	{
+	}
+
+	public function Destructor()
+	{
+	}
 }
 
 ///////////////////////////////////////////////////////
@@ -39,5 +63,10 @@ class TestThis
 		t.save_this();
 		trace( "Saved instance type: " + t.saved.toString() );
 	}
+
+	public function Destructor()
+	{
+	}
+
 }
 

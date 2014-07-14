@@ -66,6 +66,8 @@ class CocoDataset implements IPersistable
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Constructor()
  	{
+ 		__ds = null;
+ 		__recordOffsets = null;
  		__fields = new Array<CocoDataField>;
  		__recordIndex = -1;
  		__opened = false;
@@ -76,6 +78,7 @@ class CocoDataset implements IPersistable
  	{
  		delete __fields;
  		delete __ds;
+ 		delete __recordOffsets;
  	}
 
 	// ==================================================================================================================================

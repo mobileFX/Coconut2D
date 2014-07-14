@@ -127,6 +127,7 @@ function __init_narcissus(GLOBAL)
 		"static",
 		"abstract",
 		"virtual",
+		"reference",
 
 		"delegate",
 		"optional",
@@ -575,6 +576,7 @@ function __init_narcissus(GLOBAL)
 		copyModifiers: function(t, n)
 		{
 			n.static 	= t.static;
+			n.reference	= t.reference;
 			n.public 	= t.public;
 			n.private 	= t.private;
 			n.protected = t.protected;
@@ -588,6 +590,7 @@ function __init_narcissus(GLOBAL)
 		setModifiers: function(n)
 		{
 			n.static 	= this.static;
+			n.reference = this.reference;
 			n.public 	= this.public;
 			n.private 	= this.private;
 			n.protected = this.protected;
@@ -602,6 +605,7 @@ function __init_narcissus(GLOBAL)
 		resetModifiers: function()
 		{
 			this.static 	= false;
+			this.reference	= false;
 			this.private 	= false;
 			this.public 	= false;
 			this.protected 	= false;
@@ -914,6 +918,7 @@ function __init_narcissus(GLOBAL)
 					jsdef.PROPERTY,
 					jsdef.STATE,
 					jsdef.STATIC,
+					jsdef.REFERENCE,
 					jsdef.VIRTUAL,
 					jsdef.ABSTRACT,
 					jsdef.DELEGATE,
@@ -940,6 +945,7 @@ function __init_narcissus(GLOBAL)
 						throw t.newSyntaxError("Invalid class initialization");
 
 					if(t.match(jsdef.STATIC)) t.static = true;
+					if(t.match(jsdef.REFERENCE)) t.reference = true;
 					if(t.match(jsdef.VIRTUAL)) t.virtual = true;
 					if(t.match(jsdef.ABSTRACT)) t.abstract = true;
 					if(t.match(jsdef.DELEGATE)) t.delegate = true;
@@ -1018,6 +1024,11 @@ function __init_narcissus(GLOBAL)
 				{
 					t.protected = true;
 					t.static = true;
+					recognizeStatement(n);
+				}
+				else if(t.token().type == jsdef.REFERENCE)
+				{
+					t.reference = true;
 					recognizeStatement(n);
 				}
 				else if(t.token().type == jsdef.CLASS)
@@ -2199,7 +2210,9 @@ function __init_narcissus(GLOBAL)
 		PUBLIC: 16,
 		PRIVATE: 16,
 		PROTECTED: 16,
+		PUBLISHED: 16,
 		STATIC: 16,
+		REFERENCE:16,
 		NEW: 17,
 		DOT: 18
 	};
@@ -2263,7 +2276,9 @@ function __init_narcissus(GLOBAL)
 		PUBLIC: 1,
 		PRIVATE: 1,
 		PROTECTED: 1,
-		STATIC: 1
+		PUBLISHED: 1,
+		STATIC: 1,
+		REFERENCE: 1
 	};
 
 	// Map operator type code to arity.

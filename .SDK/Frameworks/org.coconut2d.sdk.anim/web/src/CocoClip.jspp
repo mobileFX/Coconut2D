@@ -79,19 +79,24 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 {
 	public var __instanceName:String;
 	public var __clipPath:String;
-	public var __scene:CocoScene;
-	public var __image:CocoImage;
 	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var __children:Array<CocoClip>;
 	public var __timeline:CocoTimeline;
-	public var __parent:CocoClip;
+
+	// References to objects we do not own (do not delete in destructor)
+
+	public reference var __scene:CocoScene;
+	public reference var __image:CocoImage;
+	public reference var __parent:CocoClip;
+	public reference var __currentFrame:CocoKeyFrame;
+	public reference var __childWithMaxTimelineDuration:CocoClip;
+	public reference var __currentSequence:CocoSequence;
+	public reference var __currentAudio:CocoAudio;
 
 	// Animation Control Variables
 	public var __currentTime:Time;
 	public var __loopTime:Time;
 	public var __loops:Integer;
-	public var __currentFrame:CocoKeyFrame;
-	public var __childWithMaxTimelineDuration:CocoClip;
 
 	// Bounding Box & Hit Test
 	public var __x:Float;
@@ -114,10 +119,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	public var __touch_start_time:Time;
 	public var __touch_start_point: CocoPoint;
 	public var __touch_moved:Boolean;
-
-	// References to objects we do not own (do not delete in destructor)
-	private var __currentSequence:CocoSequence;
-	private var __currentAudio:CocoAudio;
 
 	// Define CocoClip events
 	public event OnClick();
@@ -150,7 +151,16 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		__currentSequence				= null;
 		__currentAudio					= null;
 		__clipPath						= "";
-
+		__instanceName					= "";
+		__scene							= null;
+		__loopTime						= 0;
+		__loops							= 0;
+		__x								= 0.0;
+		__y								= 0.0;
+		__width							= 0.0;
+		__height						= 0.0;
+		__touch_start_time				= 0;
+		__touch_moved					= false;
 		__image = image;
 	}
 
@@ -170,6 +180,9 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		delete __vBBoxVrtx;
 		delete __mBBox;
 		delete __touch_start_point;
+
+		if(__currentFrame && __currentFrame.__isCloned)
+			delete __currentFrame;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

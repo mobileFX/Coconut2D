@@ -58,6 +58,7 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		__fps									= 0;
 		__sceneName 							= "";
 		__view_width							= 0;
 		__view_height							= 0;
@@ -100,6 +101,20 @@ class CocoScene
 	{
 		var img:CocoImage = getImageSymbol(symbolName);
 		return img.textureCellHeight / (img.pixelRatio / __view_pixel_ratio);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getClipByPath(ClipPath:String) :CocoClip
+	{
+		var vPath:Array<String> = ClipPath.split('/');
+		var clip:CocoClip = __root;
+		for(var i:Integer=1; i<vPath.size(); i++)
+		{
+			clip = clip.getChildByName(vPath[i]);
+			if(!clip)
+				return null;
+		}
+		return clip;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

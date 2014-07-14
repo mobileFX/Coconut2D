@@ -42,8 +42,8 @@ state class CocoEngine
 	// constant we choose is for 60 frames per second but
 	// we must use division in order to set the float properly.
 	public const TICK_TIME:Time = (1000.0/60.0);
-	private var __currentState:State;
-	private var __nextState:State;
+	private reference var __currentState:State;
+	private reference var __nextState:State;
 	private var __tickables:Array<ITickable>;
 	public var __clock:Time;
 	public var __ctx:ICocoRenderContext;
@@ -53,7 +53,12 @@ state class CocoEngine
 	{
 		__clock = 0;
 		__currentState = null;
+		__nextState = null;
 		__tickables = new Array<ITickable>;
+		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
+		__clicked = new Array<CocoClip>;
+		__track_touch = false;
+		__has_touch_device_message = false;
 		__ctx = CocoRenderContext.createContext();
 		__attachDevices();
 		CocoText.init(1, 1);
@@ -63,9 +68,12 @@ state class CocoEngine
 	public function Destructor()
 	{
 		__dettachDevices();
+
 		delete __ctx;
 		delete __clicked;
 		delete __tickables;
+
+		delete __deviceMessageQueue;
 	}
 
 	// ==================================================================================================================================

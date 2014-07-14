@@ -47,13 +47,15 @@ enum COCO_UIFORM_ANIMATION
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoAppController : CocoClip
 {
- 	public var NavBar:CocoUINavBar;
- 	public var ActiveForm:CocoUIFormView;
+ 	public reference var NavBar:CocoUINavBar;
+ 	public reference var ActiveForm:CocoUIFormView;
  	public var Forms:Array<CocoUIFormView>;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Constructor(Name:String, scene:CocoScene) : CocoClip(null)
  	{
+ 		ActiveForm = null;
+
  		__instanceName = Name;
  		__scene = scene;
  		__scene.__root.addChild(this);

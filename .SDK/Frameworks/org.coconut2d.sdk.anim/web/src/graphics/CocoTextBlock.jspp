@@ -38,7 +38,7 @@ class CocoTextBlock
 {
 	public var text:String;
 	public var multiline:Boolean;
-	public var parent:CocoClip;
+	public reference var parent:CocoClip;
 
 	// Rectanble to anchor text
 	public var Left:Float;
@@ -64,6 +64,11 @@ class CocoTextBlock
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(Text:String, align:COCO_CONTROL_ANCHOR_ENUM)
 	{
+		Left				= 0.0;
+		Top					= 0.0;
+		Width				= 0.0;
+		Height				= 0.0;
+
 		parent				= null;
 		text				= Text;
 		anchor				= align;

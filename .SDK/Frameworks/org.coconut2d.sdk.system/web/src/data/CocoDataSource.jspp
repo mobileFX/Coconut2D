@@ -90,10 +90,21 @@ class CocoDataSource : CocoEventSource
 
  	public function Constructor()
  	{
+		Name = "";
+		Blocking = false;
+		Type = COCO_DATA_PROVIDER_ENUM.PROVIDER_HTTP_POST;
+		ConnectionString = "";
+		RequestDataFormat = COCO_REQUEST_DATA_FORMAT_ENUM.REQUEST_URL_QUERY_STRING;
+		RequestDataPacket = new Array<String>;
+		RequestHeaders = new Array<String>;
+		PersistentStorage = COCO_PERSISTENT_STORAGE_ENUM.PERSIST_IN_SESSION;
+		PersistentDataID = "";
  	}
 
  	public function Destructor()
  	{
+ 		delete RequestDataPacket;
+ 		delete RequestHeaders;
  	}
 
  	public function open() :CocoDataset

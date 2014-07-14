@@ -81,6 +81,9 @@ class CocoTimeLabel
 		frameIndex = FrameIndex;
 		name = LabelName;
 	}
+	public function Destructor()
+	{
+	}
 }
 
 // ==================================================================================================================================
@@ -108,6 +111,8 @@ class CocoTimeline
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		__firstKeyFrameIndex 		= 0;
+		__lastKeyFrameIndex			= 0;
 		__labels					= new Array<CocoTimeLabel>;
 		__keyFrames					= new Array<CocoKeyFrame>;
 		__singleFrameDurationTime	= 0.0;

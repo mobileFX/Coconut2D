@@ -38,7 +38,36 @@
 
 class CocoTiledLayer : CocoClip
 {
-	public function Constructor()
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
 	{
+		__cellRows=0;
+		__cellCols=0;
+		__collisionRectangle=null;
 	}
+
+ 	public function Destructor()
+ 	{
+ 		delete __collisionRectangle;
+ 	}
+
+ 	public var __cellRows:Integer;
+ 	published property CellRows
+ 	{
+ 		function get():Integer { return __cellRows; }
+ 		function set(v:Integer) { __cellRows = v; }
+ 	}
+
+ 	public var __cellCols:Integer;
+ 	published property CellCols
+ 	{
+ 		function get():Integer { return __cellCols; }
+ 		function set(v:Integer) { __cellCols = v; }
+ 	}
+
+ 	public var __collisionRectangle:CocoRect;
+ 	published property CollisionRectangle
+ 	{
+ 		function get():CocoRect { return __collisionRectangle; }
+ 		function set(v:CocoRect) { __collisionRectangle = v; }
+ 	}
 }

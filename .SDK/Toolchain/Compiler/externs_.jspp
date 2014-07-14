@@ -412,6 +412,7 @@ class Global
 	undefined var ReservationsForm :ReservationsForm;
 	undefined var NewAnimation :NewAnimation;
 	undefined var NewAnimation1 :NewAnimation1;
+	undefined var TestAnimation :TestAnimation;
 } //Global
 
 class String
@@ -794,6 +795,7 @@ class COCO_SKIN_TILE_ENUM
 
 class PathLine
 {
+	public function Destructor() {}
 	public function Constructor(_x0:Float, _y0:Float, _x1:Float, _y1:Float) {}
 	public  var x0 :Float;
 	public  var y0 :Float;
@@ -925,12 +927,14 @@ class HTMLCanvasElement
 
 class HTMLCanvasGradient
 {
+	public function Destructor() {}
 	public function Constructor() {}
 	public  var __className :String;
 } //HTMLCanvasGradient
 
 class HTMLCanvasPattern
 {
+	public function Destructor() {}
 	public function Constructor() {}
 	public  var __className :String;
 } //HTMLCanvasPattern
@@ -947,6 +951,7 @@ class HTMLDocument
 class HTMLElement
 {
 	public function appendChild(node:HTMLCanvasElement) :HTMLCanvasElement {}
+	public function Destructor() {}
 	public function Constructor() {}
 	public  var __className :String;
 } //HTMLElement
@@ -969,6 +974,7 @@ class Image
 
 class HTMLTextMetrics
 {
+	public function Destructor() {}
 	public function Constructor() {}
 	public  var width :Float;
 	public  var __className :String;
@@ -1004,6 +1010,7 @@ class ImageData
 
 class WebGLObject
 {
+	public function Destructor() {}
 	public function Constructor(uid:Integer) {}
 	public  var __uid :Integer;
 	public  var __className :String;
@@ -1011,24 +1018,28 @@ class WebGLObject
 
 class WebGLActiveInfo : WebGLObject
 {
+	public function Destructor() {}
 	public function Constructor(uid:Integer, program_uid:Integer, index:Integer) {}
 	public  var __className :String;
 } //WebGLActiveInfo
 
 class WebGLBuffer : WebGLObject
 {
+	public function Destructor() {}
 	public function Constructor(uid:Integer) {}
 	public  var __className :String;
 } //WebGLBuffer
 
 class WebGLContextAttributes : WebGLObject
 {
+	public function Destructor() {}
 	public function Constructor(uid:Integer) {}
 	public  var __className :String;
 } //WebGLContextAttributes
 
 class WebGLFramebuffer : WebGLObject
 {
+	public function Destructor() {}
 	public function Constructor(uid:Integer) {}
 	public  var __className :String;
 } //WebGLFramebuffer
@@ -1053,6 +1064,7 @@ class WebGLProgram : WebGLObject
 
 class WebGLRenderbuffer : WebGLObject
 {
+	public function Destructor() {}
 	public function Constructor(uid:Integer) {}
 	public  var __className :String;
 } //WebGLRenderbuffer
@@ -1499,6 +1511,7 @@ class WebGLRenderingContext
 
 class WebGLShader : WebGLObject
 {
+	public function Destructor() {}
 	public function Constructor(uid:Integer, type:Integer) {}
 	protected  var type :Integer;
 	public  var __className :String;
@@ -1506,6 +1519,7 @@ class WebGLShader : WebGLObject
 
 class WebGLShaderPrecisionFormat : WebGLObject
 {
+	public function Destructor() {}
 	public function Constructor(uid:Integer, shadertype:Integer, precisiontype:Integer) {}
 	public  var __className :String;
 } //WebGLShaderPrecisionFormat
@@ -1519,6 +1533,7 @@ class WebGLTexture : WebGLObject
 
 class WebGLUniformLocation : WebGLObject
 {
+	public function Destructor() {}
 	public function Constructor(uid:Integer, program_uid:Integer, name:String) {}
 	public  var __className :String;
 } //WebGLUniformLocation
@@ -1622,6 +1637,7 @@ class State
 	public function tick(time:Time) {}
 	public function paint(ctx:ICocoRenderContext, time:Time) {}
 	public function Destructor() {}
+	public function Constructor() {}
 	public  var __name :String;
 	public  var params :Object;
 	public  var __className :String;
@@ -1656,6 +1672,7 @@ class Touch
 class TouchList : Array
 {
 	public function item(index:Integer) :Touch {}
+	public function Destructor() {}
 	public function Constructor() {}
 	public  var length :Integer;
 	public  var __className :String;
@@ -1877,6 +1894,7 @@ class CocoLocalStorage
 class CocoVector
 {
 	public function reset(x:Float, y:Float, z:Float, w:Float) {}
+	public function Destructor() {}
 	public function Constructor() {}
 	public  var X :Float;
 	public  var Y :Float;
@@ -1934,6 +1952,7 @@ class CocoScene
 {
 	public function getImageSymbol(symbolName:String) :CocoImage {}
 	public function getImageSymbolHeight(symbolName:String) :Float {}
+	public function getClipByPath(ClipPath:String) :CocoClip {}
 	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage {}
 	public function prepare(ctx:ICocoRenderContext) {}
 	public function paint(ctx:ICocoRenderContext, time:Time) {}
@@ -1989,6 +2008,7 @@ class CocoKeyFrame
 
 class CocoTimeLabel
 {
+	public function Destructor() {}
 	public function Constructor(FrameIndex:Integer, LabelName:String) {}
 	public  var frameIndex :Integer;
 	public  var name :String;
@@ -2055,17 +2075,19 @@ class CocoClip : CocoEventSource
 	public function Constructor(image:CocoImage) {}
 	public  var __instanceName :String;
 	public  var __clipPath :String;
-	public  var __scene :CocoScene;
-	public  var __image :CocoImage;
 	public  var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public  var __children :Array<CocoClip>;
 	public  var __timeline :CocoTimeline;
+	public  var __scene :CocoScene;
+	public  var __image :CocoImage;
 	public  var __parent :CocoClip;
+	public  var __currentFrame :CocoKeyFrame;
+	public  var __childWithMaxTimelineDuration :CocoClip;
+	public  var __currentSequence :CocoSequence;
+	public  var __currentAudio :CocoAudio;
 	public  var __currentTime :Time;
 	public  var __loopTime :Time;
 	public  var __loops :Integer;
-	public  var __currentFrame :CocoKeyFrame;
-	public  var __childWithMaxTimelineDuration :CocoClip;
 	public  var __x :Float;
 	public  var __y :Float;
 	public  var __width :Float;
@@ -2084,8 +2106,6 @@ class CocoClip : CocoEventSource
 	public  var __touch_start_time :Time;
 	public  var __touch_start_point :CocoPoint;
 	public  var __touch_moved :Boolean;
-	private  var __currentSequence :CocoSequence;
-	private  var __currentAudio :CocoAudio;
 	public var OnClick :CocoClipOnClickEvent;
 	public var OnTouchStart :CocoClipOnTouchStartEvent;
 	public var OnTouchMove :CocoClipOnTouchMoveEvent;
@@ -2200,6 +2220,7 @@ class CocoSequence
 
 class CocoImageResolution
 {
+	public function Destructor() {}
 	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float) {}
 	public  var url :String;
 	public  var pixelRatio :Float;
@@ -2242,6 +2263,8 @@ class CocoImage
 class CocoRenderContext
 {
 	public function createContext() :ICocoRenderContext {}
+	public function Destructor() {}
+	public function Constructor() {}
 	public  var __className :String;
 } //CocoRenderContext
 
@@ -2632,6 +2655,7 @@ class CocoUIButton : CocoUIControl
 
 class CocoUICheckBox : CocoUIControl
 {
+	public function Destructor() {}
 	public function Constructor(name:String) {}
 	public  var __className :String;
 } //CocoUICheckBox
@@ -2775,70 +2799,84 @@ class CocoUITextEdit : CocoUIControl
 
 class CocoSprite : CocoClip
 {
-	public function Constructor() {}
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoSprite
 
 class CocoSpriteActor : CocoSprite
 {
-	public function Constructor() {}
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoSpriteActor
 
 class CocoSpriteBonus : CocoSprite
 {
-	public function Constructor() {}
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoSpriteBonus
 
 class CocoSpriteBullet : CocoSprite
 {
-	public function Constructor() {}
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoSpriteBullet
 
 class CocoSpriteEnemy : CocoSpriteActor
 {
-	public function Constructor() {}
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoSpriteEnemy
 
 class CocoSpritePlayer : CocoSpriteActor
 {
-	public function Constructor() {}
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoSpritePlayer
 
 class CocoSpriteVisual : CocoSprite
 {
-	public function Constructor() {}
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoSpriteVisual
 
 class CocoTiledLayer : CocoClip
 {
-	public function Constructor() {}
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
+	public  var __cellRows :Integer;
+	public  var CellRows :Integer;
+	public  var __cellCols :Integer;
+	public  var CellCols :Integer;
+	public  var __collisionRectangle :CocoRect;
+	public  var CollisionRectangle :CocoRect;
 	public  var __className :String;
 } //CocoTiledLayer
 
 class CocoTiledLayerMaze : CocoTiledLayer
 {
 	public function Destructor() {}
-	public function Constructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoTiledLayerMaze
 
 class CocoParallaxPoint : CocoClip
 {
 	public function Destructor() {}
-	public function Constructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoParallaxPoint
 
 class CocoTiledLayerParallax : CocoTiledLayer
 {
 	public function Destructor() {}
-	public function Constructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var ParallaxPoint :CocoParallaxPoint;
 	public  var __className :String;
 } //CocoTiledLayerParallax
@@ -2846,7 +2884,7 @@ class CocoTiledLayerParallax : CocoTiledLayer
 class CocoTiledLayerPlatform : CocoTiledLayer
 {
 	public function Destructor() {}
-	public function Constructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoTiledLayerPlatform
 
@@ -2975,6 +3013,7 @@ class Class2 : Class1
 {
 	public function test() {}
 	public function cls2_public_function() :String {}
+	public function Destructor() {}
 	public function Constructor(arg1:String) {}
 	public  var x :String;
 	private  var y :String;
@@ -2995,6 +3034,7 @@ class Class3 : Class2
 {
 	public function test_virtual() {}
 	public function test() {}
+	public function Destructor() {}
 	public function Constructor() {}
 	public  var __className :String;
 	public static  var static_public_var :String;
@@ -3019,16 +3059,21 @@ class TestSelf1
 
 class TestSelf2 : TestSelf1
 {
+	public function Destructor() {}
+	public function Constructor() {}
 	public  var __className :String;
 } //TestSelf2
 
 class TestSelf3 : TestSelf2
 {
+	public function Destructor() {}
+	public function Constructor() {}
 	public  var __className :String;
 } //TestSelf3
 
 class TestThis
 {
+	public function Destructor() {}
 	public function Constructor() {}
 	public  var __className :String;
 } //TestThis
@@ -3046,13 +3091,22 @@ class ReservationsForm : CocoUIFormView
 
 class NewAnimation : CocoScene
 {
+	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
 } //NewAnimation
 
 class NewAnimation1 : CocoScene
 {
+	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
 } //NewAnimation1
+
+class TestAnimation : CocoScene
+{
+	public function Destructor() {}
+	public function Constructor(engine:CocoEngine) {}
+	public  var __className :String;
+} //TestAnimation
 

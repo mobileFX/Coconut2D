@@ -46,6 +46,10 @@ state class Class1
 	{
 		trace( "Class1::Constructor(" + arg1 + "," + arg2 + ")");
 
+		__public_property = "";
+		__private_property = "";
+		__protected_property = "";
+
 		public_var 			= "Class1_public_var+" + arg1;
 		private_var 		= "Class1_private_var+" + arg2;
 		protected_var		= "Class1_protected_var";
@@ -257,6 +261,11 @@ state class Class2 : Class1
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function test()
 	{
 		trace("========================== Class2::test() (before super) ==========================");
@@ -303,6 +312,11 @@ state class Class3 : Class2
 	public function Constructor() : Class2("::arg1_from_Class3")
 	{
 		trace("Class3::Constructor");
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////

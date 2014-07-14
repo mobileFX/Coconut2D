@@ -36,11 +36,13 @@
 
 class CocoImageRenderDataGL implements ICocoImageRenderData
 {
-	public var texture: WebGLTexture;
-	public var buffer: WebGLBuffer;
+	public reference var texture: WebGLTexture;
+	public reference var buffer: WebGLBuffer;
 
 	public function Constructor()
 	{
+		texture = null;
+		buffer = null;
 	}
 
 	public function Destructor()
@@ -63,7 +65,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 	private var __modelViewMatrix:CocoMatrix;
 	private var __projectionMatrix:CocoMatrix;
 
-	private var __glProgram:WebGLProgram;
+	private reference var __glProgram:WebGLProgram;
+
 	private var __glProgram_Simple:WebGLProgram;
 	private var __glProgram_SimpleWithAlpha:WebGLProgram;
 	private var __glProgram_SaturationWithAlpha:WebGLProgram;
@@ -80,7 +83,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 	private var __boundingBoxProgram:WebGLProgram;
 	private var __boundingBoxBuffer:WebGLBuffer;
 
-	private var gl:WebGLRenderingContext;
+	private reference var gl:WebGLRenderingContext;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function Constructor(ctx:WebGLRenderingContext)

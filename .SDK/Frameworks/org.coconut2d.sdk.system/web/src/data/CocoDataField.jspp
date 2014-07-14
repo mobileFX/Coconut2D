@@ -48,7 +48,7 @@ enum COCO_FIELD_DATATYPE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoDataField implements IPersistable
 {
-	public var __recordset:CocoDataset;
+	public reference var __recordset:CocoDataset;
 
 	// Field Metadata
 	public var Name:String;
@@ -85,6 +85,31 @@ class CocoDataField implements IPersistable
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Constructor()
  	{
+		__recordset = null;
+		Name="";
+		Index=0;
+		Type=COCO_FIELD_DATATYPE.FIELD_TYPE_INTEGER;
+		Size=0;
+		BaseCatalog="";
+		BaseTable="";
+		BaseColumn="";
+		IsKeyField=false;
+		IsPrimaryKey=false;
+		IsForeignKey=false;
+		CanBeNull=false;
+		LookupKeyField="";
+		LookupDisplayField="";
+		LookupListFields="";
+		LookupCached=false;
+		LookupSQL="";
+		Caption="";
+		ReadOnly=false;
+		Required=false;
+		Hidden=false;
+		SearchAreaHidden=false;
+		FormHidden=false;
+		GridHidden=false;
+		Password=false;
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
