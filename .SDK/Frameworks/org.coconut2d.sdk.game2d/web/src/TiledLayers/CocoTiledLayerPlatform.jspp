@@ -25,35 +25,22 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-class CocoParallaxPoint : CocoClip
+// ==================================================================================================================================
+//	   ______               _______ __         ____                          ____  __      __  ____
+//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____/ __ \/ /___ _/ /_/ __/___  _________ ___
+//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/ /_/ / / __ `/ __/ /_/ __ \/ ___/ __ `__ \
+//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /  / ____/ / /_/ / /_/ __/ /_/ / /  / / / / / /
+//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/  /_/   /_/\__,_/\__/_/  \____/_/  /_/ /_/ /_/
+//	                                                     /____/
+// ==================================================================================================================================
+
+class CocoTiledLayerPlatform : CocoTiledLayer
 {
- 	public function Constructor(optional image:CocoImage) : CocoClip(image)
+ 	public function Constructor(optional image:CocoImage) :CocoTiledLayer(image)
  	{
  	}
 
  	public function Destructor()
  	{
  	}
- }
-
-class CocoTiledLayerParallax : CocoTiledLayer
-{
-	public function Constructor(optional image:CocoImage) : CocoTiledLayer(image)
-	{
-	}
-
- 	public function Destructor()
- 	{
- 	}
-
-	published property ParallaxPoint
-	{
-		function get():CocoParallaxPoint
-		{
-			return null;
-		}
-		function set(v:CocoClip)
-		{
-		}
-	}
 }

@@ -381,38 +381,20 @@ class Global
 	undefined var CocoUIPictureList :CocoUIPictureList;
 	undefined var CocoUITabBar :CocoUITabBar;
 	undefined var CocoUITextEdit :CocoUITextEdit;
-	undefined var CocoSprite :CocoSprite;
-	undefined var CocoSpriteActor :CocoSpriteActor;
-	undefined var CocoSpriteBonus :CocoSpriteBonus;
-	undefined var CocoSpriteBullet :CocoSpriteBullet;
-	undefined var CocoSpriteEnemy :CocoSpriteEnemy;
-	undefined var CocoSpritePlayer :CocoSpritePlayer;
-	undefined var CocoSpriteVisual :CocoSpriteVisual;
+	undefined var CocoCollisionRegion :CocoCollisionRegion;
+	undefined var CocoGameStage :CocoGameStage;
 	undefined var CocoTiledLayer :CocoTiledLayer;
 	undefined var CocoTiledLayerMaze :CocoTiledLayerMaze;
-	undefined var CocoParallaxPoint :CocoParallaxPoint;
+	undefined var CocoParallaxFollowPoint :CocoParallaxFollowPoint;
 	undefined var CocoTiledLayerParallax :CocoTiledLayerParallax;
 	undefined var CocoTiledLayerPlatform :CocoTiledLayerPlatform;
-	undefined var CocoCasinoSlotReel :CocoCasinoSlotReel;
+	undefined var CocoSprite :CocoSprite;
+	undefined var OBSTACLE_TYPE :OBSTACLE_TYPE;
+	undefined var Obstacle :Obstacle;
 	undefined var GameEngine :GameEngine;
-	undefined var TestOutsourcer :TestOutsourcer;
-	undefined var TestIntegrator :TestIntegrator;
-	undefined var TestIntegratorClient :TestIntegratorClient;
-	undefined var ITest1 :ITest1;
-	undefined var ITest2 :ITest2;
-	undefined var ITest3 :ITest3;
-	undefined var ClassTestInterfaces :ClassTestInterfaces;
-	undefined var Class1 :Class1;
-	undefined var Class2 :Class2;
-	undefined var Class3 :Class3;
-	undefined var TestSelf1 :TestSelf1;
-	undefined var TestSelf2 :TestSelf2;
-	undefined var TestSelf3 :TestSelf3;
-	undefined var TestThis :TestThis;
-	undefined var ReservationsForm :ReservationsForm;
-	undefined var NewAnimation :NewAnimation;
-	undefined var NewAnimation1 :NewAnimation1;
-	undefined var TestAnimation :TestAnimation;
+	undefined var GameScreen :GameScreen;
+	undefined var LoadingScreen :LoadingScreen;
+	undefined var TitleScreen :TitleScreen;
 } //Global
 
 class String
@@ -2246,6 +2228,7 @@ class CocoImage
 	public  var textureCellWidth :Float;
 	public  var textureCellHeight :Float;
 	public  var textureGrid :Float32Array;
+	public  var textureTileMap :Float32Array;
 	public  var color :Float32Array;
 	public  var texSize :Float32Array;
 	public  var isSpriteSheet :Boolean;
@@ -2797,65 +2780,30 @@ class CocoUITextEdit : CocoUIControl
 	public  var __className :String;
 } //CocoUITextEdit
 
-class CocoSprite : CocoClip
+class CocoCollisionRegion
 {
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
+	public function Constructor() {}
+	public  var Left :Float;
+	public  var Right :Float;
+	public  var Top :Float;
+	public  var Bottom :Float;
 	public  var __className :String;
-} //CocoSprite
+} //CocoCollisionRegion
 
-class CocoSpriteActor : CocoSprite
+class CocoGameStage : CocoScene
 {
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
+	public function Constructor() {}
 	public  var __className :String;
-} //CocoSpriteActor
-
-class CocoSpriteBonus : CocoSprite
-{
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //CocoSpriteBonus
-
-class CocoSpriteBullet : CocoSprite
-{
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //CocoSpriteBullet
-
-class CocoSpriteEnemy : CocoSpriteActor
-{
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //CocoSpriteEnemy
-
-class CocoSpritePlayer : CocoSpriteActor
-{
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //CocoSpritePlayer
-
-class CocoSpriteVisual : CocoSprite
-{
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //CocoSpriteVisual
+} //CocoGameStage
 
 class CocoTiledLayer : CocoClip
 {
 	public function Destructor() {}
 	public function Constructor(image:CocoImage) {}
-	public  var __cellRows :Integer;
-	public  var CellRows :Integer;
-	public  var __cellCols :Integer;
-	public  var CellCols :Integer;
-	public  var __collisionRectangle :CocoRect;
-	public  var CollisionRectangle :CocoRect;
+	public  var CellWidth :Integer;
+	public  var CellHeight :Integer;
 	public  var __className :String;
 } //CocoTiledLayer
 
@@ -2866,18 +2814,18 @@ class CocoTiledLayerMaze : CocoTiledLayer
 	public  var __className :String;
 } //CocoTiledLayerMaze
 
-class CocoParallaxPoint : CocoClip
+class CocoParallaxFollowPoint : CocoClip
 {
 	public function Destructor() {}
 	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
-} //CocoParallaxPoint
+} //CocoParallaxFollowPoint
 
 class CocoTiledLayerParallax : CocoTiledLayer
 {
 	public function Destructor() {}
 	public function Constructor(image:CocoImage) {}
-	public  var ParallaxPoint :CocoParallaxPoint;
+	public  var FollowPoint :CocoParallaxFollowPoint;
 	public  var __className :String;
 } //CocoTiledLayerParallax
 
@@ -2888,225 +2836,67 @@ class CocoTiledLayerPlatform : CocoTiledLayer
 	public  var __className :String;
 } //CocoTiledLayerPlatform
 
-class CocoCasinoSlotReel : CocoClip
+class CocoSprite : CocoClip
 {
 	public function Destructor() {}
-	public function Constructor() {}
-	public  var Prefix :String;
+	public function Constructor(image:CocoImage) {}
+	public  var CollisionRegion :CocoCollisionRegion;
 	public  var __className :String;
-} //CocoCasinoSlotReel
+} //CocoSprite
+
+class OBSTACLE_TYPE
+{
+	public var GROUND :OBSTACLE_TYPE;
+	public var PLT_SMALL :OBSTACLE_TYPE;
+	public var PLT_BIG :OBSTACLE_TYPE;
+	public var WATER :OBSTACLE_TYPE;
+	public var COIN :OBSTACLE_TYPE;
+	public var CRAB_HAT :OBSTACLE_TYPE;
+	public var CRAB_PATCH :OBSTACLE_TYPE;
+} //OBSTACLE_TYPE
+
+class Obstacle
+{
+	public var type :OBSTACLE_TYPE;
+	public var x :Float;
+	public var y :Float;
+	public var minX :Float;
+	public var maxX :Float;
+	public var clip :CocoClip;
+} //Obstacle
 
 class GameEngine : CocoEngine
 {
 	public function Destructor() {}
 	public function Constructor() {}
-	public  var scene :CocoScene;
-	public  var app :CocoAppController;
-	public var STATE_START_APP :State;
+	public  var rndSndJumpVoice :Array<CocoAudio>;
+	public  var rndSndCoin :Array<CocoAudio>;
+	public  var gameScreen :CocoScene;
+	public  var titleScreen :CocoScene;
+	public var STATE_LOADING :State;
+	public var STATE_TITLE :State;
+	public var STATE_GAME :State;
 	public  var __className :String;
 } //GameEngine
 
-class TestOutsourcer
-{
-	public function work() {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var __className :String;
-} //TestOutsourcer
-
-class TestIntegrator
-{
-	public function Destructor() {}
-	public function Constructor() {}
-	private function work() {}
-	private  var delegator :TestOutsourcer;
-	public  var __className :String;
-} //TestIntegrator
-
-class TestIntegratorClient
-{
-	public function Destructor() {}
-	public function Constructor() {}
-	private  var integrator :TestIntegrator;
-	public  var __className :String;
-} //TestIntegratorClient
-
-class ITest1
-{
-	public function foo() {}
-} //ITest1
-
-class ITest2 : ITest1
-{
-	public function goo() {}
-} //ITest2
-
-class ITest3
-{
-	public function zoo() {}
-} //ITest3
-
-class ClassTestInterfaces
-{
-	public function foo() {}
-	public function goo() {}
-	public function zoo() {}
-	public function interface_test1(obj:ITest1) {}
-	public function interface_test2(obj:ITest2) {}
-	public function interface_test3(obj:ITest3) {}
-	public function interface_class(obj:ClassTestInterfaces) {}
-	public function interface_tests() {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var __className :String;
-} //ClassTestInterfaces
-
-class Class1
-{
-	public function test_virtual() {}
-	public function test() {}
-	public function public_static_function(b:String) :String {}
-	private function private_static_function(b:String) :String {}
-	protected function protected_static_function(b:String) :String {}
-	public function public_function(b:String) :String {}
-	private function private_function(b:String) :String {}
-	protected function protected_function(b:String) :String {}
-	public function public_overload() :String {}
-	public function public_overload$1(arg:String) :String {}
-	public function public_overload$2(arg1:String, arg2:String) :String {}
-	private function private_overload() :String {}
-	private function private_overload$1(arg:String) :String {}
-	private function private_overload$2(arg1:String, arg2:String) :String {}
-	protected function protected_overload() :String {}
-	protected function protected_overload$1(arg:String) :String {}
-	protected function protected_overload$2(arg1:String, arg2:String) :String {}
-	public function Destructor() {}
-	public function Constructor(arg1:String, arg2:String) {}
-	public  var public_var :String;
-	private  var private_var :String;
-	protected  var protected_var :String;
-	public  var public_const :String;
-	private  var private_const :String;
-	protected  var protected_const :String;
-	public static  var static_public_var :String;
-	private static  var static_private_var :String;
-	protected static  var static_protected_var :String;
-	private  var __public_property :String;
-	private  var __private_property :String;
-	private  var __protected_property :String;
-	private static  var __public_static_property :String;
-	private static  var __private_static_property :String;
-	private static  var __protected_static_property :String;
-	public var public_state :State;
-	private var private_state :State;
-	protected var protected_state :State;
-	public  var public_property :String;
-	private  var private_property :String;
-	protected  var protected_property :String;
-	public static  var public_static_property :String;
-	private static  var private_static_property :String;
-	protected static  var protected_static_property :String;
-	public  var __className :String;
-} //Class1
-
-class Class2 : Class1
-{
-	public function test() {}
-	public function cls2_public_function() :String {}
-	public function Destructor() {}
-	public function Constructor(arg1:String) {}
-	public  var x :String;
-	private  var y :String;
-	protected  var z :String;
-	public  var __className :String;
-	public static  var static_public_var :String;
-	private static  var static_private_var :String;
-	protected static  var static_protected_var :String;
-	private static  var __public_static_property :String;
-	private static  var __private_static_property :String;
-	private static  var __protected_static_property :String;
-	public static  var public_static_property :String;
-	private static  var private_static_property :String;
-	protected static  var protected_static_property :String;
-} //Class2
-
-class Class3 : Class2
-{
-	public function test_virtual() {}
-	public function test() {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var __className :String;
-	public static  var static_public_var :String;
-	private static  var static_private_var :String;
-	protected static  var static_protected_var :String;
-	private static  var __public_static_property :String;
-	private static  var __private_static_property :String;
-	private static  var __protected_static_property :String;
-	public static  var public_static_property :String;
-	private static  var private_static_property :String;
-	protected static  var protected_static_property :String;
-} //Class3
-
-class TestSelf1
-{
-	public function save_this() {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var saved :Object;
-	public  var __className :String;
-} //TestSelf1
-
-class TestSelf2 : TestSelf1
-{
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var __className :String;
-} //TestSelf2
-
-class TestSelf3 : TestSelf2
-{
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var __className :String;
-} //TestSelf3
-
-class TestThis
-{
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var __className :String;
-} //TestThis
-
-class ReservationsForm : CocoUIFormView
-{
-	private function addLookup(Caption:String, FieldName:String, IsLookup:Boolean, IsComboBox:Boolean) {}
-	public function btnSubmit_OnClick(sender:CocoUIButton, e:CocoClipOnClickEvent) :Boolean {}
-	public function Destructor() {}
-	public function Constructor(name:String, scene:CocoScene) {}
-	private  var btnSubmit :CocoUIButton;
-	private  var btnDelete :CocoUIButton;
-	public  var __className :String;
-} //ReservationsForm
-
-class NewAnimation : CocoScene
+class GameScreen : CocoScene
 {
 	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
-} //NewAnimation
+} //GameScreen
 
-class NewAnimation1 : CocoScene
+class LoadingScreen : CocoScene
 {
 	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
-} //NewAnimation1
+} //LoadingScreen
 
-class TestAnimation : CocoScene
+class TitleScreen : CocoScene
 {
 	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
-} //TestAnimation
+} //TitleScreen
 

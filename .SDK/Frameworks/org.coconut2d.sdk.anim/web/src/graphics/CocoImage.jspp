@@ -104,6 +104,7 @@ class CocoImage
 	public var textureCellWidth:Float;
 	public var textureCellHeight:Float;
 	public var textureGrid:Float32Array;
+	public var textureTileMap:Float32Array;
 	public var color:Float32Array;
 	public var texSize:Float32Array;
 	public var isSpriteSheet:Boolean;
@@ -142,6 +143,7 @@ class CocoImage
 		textureCellWidth	= 0;
 		textureGrid			= new Float32Array([0.0, 0.0]);
 		textureGrid			= new Float32Array([0.0]);
+		textureTileMap		= new Float32Array([0.0, 0.0]);
 		viewOptimalHeight	= 0;
 		viewOptimalWidth	= 0;
 		viewSiblings		= new Array<CocoImageResolution>;
@@ -154,6 +156,7 @@ class CocoImage
 		delete viewSiblings;
 		delete sequences;
 		delete textureGrid;
+		delete textureTileMap;
 		delete color;
 		delete texSize;
 		delete renderData;

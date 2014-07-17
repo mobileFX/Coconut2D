@@ -330,7 +330,8 @@ function CompilerTypeSystemPlugin(compiler)
 			if(!ast[0].symbol)
 			{
 				_this.NewError("Symbol not found: " + ast[0].value, ast[0]);
-				throw new Error("Compiler Error");
+				//throw new Error("Compiler Error");
+				return null;
 			}
 			return ast[0].symbol.name;
 

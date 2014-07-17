@@ -25,14 +25,31 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+// ==================================================================================================================================
+//	   ______                _____            _ __
+//	  / ____/___  _________ / ___/____  _____(_) /____
+//	 / /   / __ \/ ___/ __ \\__ \/ __ \/ ___/ / __/ _ \
+//	/ /___/ /_/ / /__/ /_/ /__/ / /_/ / /  / / /_/  __/
+//	\____/\____/\___/\____/____/ .___/_/  /_/\__/\___/
+//	                          /_/
+// ==================================================================================================================================
 
-class CocoTiledLayerPlatform : CocoTiledLayer
+"#include CocoClip.jspp";
+
+class CocoSprite : CocoClip
 {
- 	public function Constructor(optional image:CocoImage) :CocoTiledLayer(image)
- 	{
- 	}
+	published var CollisionRegion:CocoCollisionRegion;
+
+	public function Constructor(optional image:CocoImage) :CocoClip(image)
+	{
+		CollisionRegion=null;
+	}
 
  	public function Destructor()
  	{
+ 		delete CollisionRegion;
  	}
+
+
 }
+

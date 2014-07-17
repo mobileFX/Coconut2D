@@ -130,7 +130,7 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function prepare(ctx:ICocoRenderContext)
+	public virtual function prepare(ctx:ICocoRenderContext)
 	{
 		__view_scale = __view_width > 0 && __view_height > 0 ? Math.min( Float(ctx.getWidth()) / __view_width, Float(ctx.getHeight()) / __view_height) : window.devicePixelRatio;
 

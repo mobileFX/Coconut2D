@@ -2079,7 +2079,8 @@ function Compiler(ast)
 							if(node.type==jsdef.ASSIGN)
 							{
 								var identifier = _this.getCallIdentifier(node);
-								identifier.symbol.__constructor_initializer = true;
+								if(identifier && identifier.symbol)
+									identifier.symbol.__constructor_initializer = true;
 							}
 						});
 					}
@@ -2091,8 +2092,8 @@ function Compiler(ast)
 							if(node.type==jsdef.DELETE)
 							{
 								var identifier = _this.getCallIdentifier(node);
-								if(!identifier) return;
-								identifier.symbol.__destructor_deinitializer = true;
+								if(identifier && identifier.symbol)
+									identifier.symbol.__destructor_deinitializer = true;
 							}
 						});
 					}
