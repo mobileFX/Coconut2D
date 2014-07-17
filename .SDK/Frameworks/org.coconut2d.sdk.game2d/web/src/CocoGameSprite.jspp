@@ -25,22 +25,40 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// ==================================================================================================================================
-//	   ______               _______ __         ____                          __  ___
-//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____/  |/  /___ _____  ___
-//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/ /|_/ / __ `/_  / / _ \
-//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /  / /  / / /_/ / / /_/  __/
-//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/  /_/  /_/\__,_/ /___/\___/
-//	                                                     /____/
-// ==================================================================================================================================
+"#include CocoClip.jspp";
 
- class CocoTiledLayerMaze : CocoTiledLayer
- {
- 	public function Constructor(optional image:CocoImage) : CocoTiledLayer(image)
- 	{
- 	}
+class CocoGameSprite : CocoClip
+{
+	published var CollisionRectangle:CocoRect;
 
- 	public function Destructor()
- 	{
- 	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	{
+		CollisionRectangle=null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete CollisionRectangle;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+		super.tick;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		super.paint;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function collidesWith(sprite:CocoGameSprite) :Boolean
+	{
+		// Collision detection between Sprites using rectangles
+		return false;
+	}
 }

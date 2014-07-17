@@ -250,18 +250,19 @@ public Function::__className:String" image="13"/>
 		<member name="CocoUIPictureList" proto="CocoUIPictureList:CocoUIPictureList" help="CocoUIPictureList:CocoUIPictureList" image="11"/>
 		<member name="CocoUITabBar" proto="CocoUITabBar:CocoUITabBar" help="CocoUITabBar:CocoUITabBar" image="11"/>
 		<member name="CocoUITextEdit" proto="CocoUITextEdit:CocoUITextEdit" help="CocoUITextEdit:CocoUITextEdit" image="11"/>
-		<member name="CocoSprite" proto="CocoSprite:CocoSprite" help="CocoSprite:CocoSprite" image="11"/>
-		<member name="CocoSpriteActor" proto="CocoSpriteActor:CocoSpriteActor" help="CocoSpriteActor:CocoSpriteActor" image="11"/>
-		<member name="CocoSpriteBonus" proto="CocoSpriteBonus:CocoSpriteBonus" help="CocoSpriteBonus:CocoSpriteBonus" image="11"/>
-		<member name="CocoSpriteBullet" proto="CocoSpriteBullet:CocoSpriteBullet" help="CocoSpriteBullet:CocoSpriteBullet" image="11"/>
-		<member name="CocoSpriteEnemy" proto="CocoSpriteEnemy:CocoSpriteEnemy" help="CocoSpriteEnemy:CocoSpriteEnemy" image="11"/>
-		<member name="CocoSpritePlayer" proto="CocoSpritePlayer:CocoSpritePlayer" help="CocoSpritePlayer:CocoSpritePlayer" image="11"/>
-		<member name="CocoSpriteVisual" proto="CocoSpriteVisual:CocoSpriteVisual" help="CocoSpriteVisual:CocoSpriteVisual" image="11"/>
-		<member name="CocoTiledLayer" proto="CocoTiledLayer:CocoTiledLayer" help="CocoTiledLayer:CocoTiledLayer" image="11"/>
-		<member name="CocoTiledLayerMaze" proto="CocoTiledLayerMaze:CocoTiledLayerMaze" help="CocoTiledLayerMaze:CocoTiledLayerMaze" image="11"/>
-		<member name="CocoParallaxPoint" proto="CocoParallaxPoint:CocoParallaxPoint" help="CocoParallaxPoint:CocoParallaxPoint" image="11"/>
-		<member name="CocoTiledLayerParallax" proto="CocoTiledLayerParallax:CocoTiledLayerParallax" help="CocoTiledLayerParallax:CocoTiledLayerParallax" image="11"/>
-		<member name="CocoTiledLayerPlatform" proto="CocoTiledLayerPlatform:CocoTiledLayerPlatform" help="CocoTiledLayerPlatform:CocoTiledLayerPlatform" image="11"/>
+		<member name="CocoGameBonusesLayer" proto="CocoGameBonusesLayer:CocoGameBonusesLayer" help="CocoGameBonusesLayer:CocoGameBonusesLayer" image="11"/>
+		<member name="CocoGameEnemiesLayer" proto="CocoGameEnemiesLayer:CocoGameEnemiesLayer" help="CocoGameEnemiesLayer:CocoGameEnemiesLayer" image="11"/>
+		<member name="CocoGameEngine" proto="CocoGameEngine:CocoGameEngine" help="CocoGameEngine:CocoGameEngine" image="11"/>
+		<member name="CocoGameSprite" proto="CocoGameSprite:CocoGameSprite" help="CocoGameSprite:CocoGameSprite" image="11"/>
+		<member name="CocoGamePlayerSprite" proto="CocoGamePlayerSprite:CocoGamePlayerSprite" help="CocoGamePlayerSprite:CocoGamePlayerSprite" image="11"/>
+		<member name="CocoGameStage" proto="CocoGameStage:CocoGameStage" help="CocoGameStage:CocoGameStage" image="11"/>
+		<member name="CocoGameTiledLayer" proto="CocoGameTiledLayer:CocoGameTiledLayer" help="CocoGameTiledLayer:CocoGameTiledLayer" image="11"/>
+		<member name="CocoGameTiledLayerMaze" proto="CocoGameTiledLayerMaze:CocoGameTiledLayerMaze" help="CocoGameTiledLayerMaze:CocoGameTiledLayerMaze" image="11"/>
+		<member name="CocoParallaxFollowPoint" proto="CocoParallaxFollowPoint:CocoParallaxFollowPoint" help="CocoParallaxFollowPoint:CocoParallaxFollowPoint" image="11"/>
+		<member name="CocoGameTiledLayerParallax" proto="CocoGameTiledLayerParallax:CocoGameTiledLayerParallax" help="CocoGameTiledLayerParallax:CocoGameTiledLayerParallax" image="11"/>
+		<member name="CocoGameTiledLayerPlatform" proto="CocoGameTiledLayerPlatform:CocoGameTiledLayerPlatform" help="CocoGameTiledLayerPlatform:CocoGameTiledLayerPlatform" image="11"/>
+		<member name="CocoSideScrollingPlayer" proto="CocoSideScrollingPlayer:CocoSideScrollingPlayer" help="CocoSideScrollingPlayer:CocoSideScrollingPlayer" image="11"/>
+		<member name="CocoSideScrollingStage" proto="CocoSideScrollingStage:CocoSideScrollingStage" help="CocoSideScrollingStage:CocoSideScrollingStage" image="11"/>
 		<member name="CocoCasinoSlotReel" proto="CocoCasinoSlotReel:CocoCasinoSlotReel" help="CocoCasinoSlotReel:CocoCasinoSlotReel" image="11"/>
 		<member name="GameEngine" proto="GameEngine:GameEngine" help="GameEngine:GameEngine" image="11"/>
 		<member name="TestOutsourcer" proto="TestOutsourcer:TestOutsourcer" help="TestOutsourcer:TestOutsourcer" image="11"/>
@@ -974,8 +975,8 @@ public virtual Audio::Destructor()" image="35"/>
 public Audio::Constructor(url:String)" image="14"/>
 		<member name="__uid" proto="__uid:Integer" help="__uid is member var of class Audio
 private Audio::__uid:Integer" image="29"/>
-		<member name="__currentTime" proto="__currentTime:Float" help="__currentTime is member var of class Audio
-private Audio::__currentTime:Float" image="29"/>
+		<member name="__currentTime" proto="__currentTime:Time" help="__currentTime is member var of class Audio
+private Audio::__currentTime:Time" image="29"/>
 		<member name="duration" proto="duration:Float" help="duration is member var of class Audio
 public Audio::duration:Float" image="34"/>
 		<member name="paused" proto="paused:Boolean" help="paused is member var of class Audio
@@ -2722,7 +2723,9 @@ public CocoScene::getClipByPath(ClipPath:String) :CocoClip" image="35"/>
 		<member name="newResourceImage" proto="newResourceImage(symbolName:String, baseUrl:String) :CocoImage" help="newResourceImage is member function of class CocoScene
 public CocoScene::newResourceImage(symbolName:String, baseUrl:String) :CocoImage" image="35"/>
 		<member name="prepare" proto="prepare(ctx:ICocoRenderContext)" help="prepare is member function of class CocoScene
-public CocoScene::prepare(ctx:ICocoRenderContext)" image="35"/>
+public virtual CocoScene::prepare(ctx:ICocoRenderContext)" image="35"/>
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoScene
+public virtual CocoScene::tick(time:Time)" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, time:Time)" help="paint is member function of class CocoScene
 public virtual CocoScene::paint(ctx:ICocoRenderContext, time:Time)" image="35"/>
 		<member name="resourcesLoaded" proto="resourcesLoaded(ctx:ICocoRenderContext) :Boolean" help="resourcesLoaded is member function of class CocoScene
@@ -2872,7 +2875,7 @@ public CocoTimeline::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoClip">
 		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoClip
-public CocoClip::prepare(scene:CocoScene)" image="35"/>
+public virtual CocoClip::prepare(scene:CocoScene)" image="35"/>
 		<member name="reset" proto="reset()" help="reset is member function of class CocoClip
 public CocoClip::reset()" image="35"/>
 		<member name="clear" proto="clear()" help="clear is member function of class CocoClip
@@ -2889,12 +2892,16 @@ public CocoClip::moveChild(child:CocoClip, zIndex:Integer)" image="35"/>
 public CocoClip::getChildByName(instanceName:String) :CocoClip" image="35"/>
 		<member name="getChildIndex" proto="getChildIndex(child:CocoClip) :Integer" help="getChildIndex is member function of class CocoClip
 public CocoClip::getChildIndex(child:CocoClip) :Integer" image="35"/>
+		<member name="getChildrenByClassName" proto="getChildrenByClassName(className:String) :Array&lt;CocoClip&gt;" help="getChildrenByClassName is member function of class CocoClip
+public CocoClip::getChildrenByClassName(className:String) :Array&lt;CocoClip&gt;" image="35"/>
 		<member name="gotoFrameByName" proto="gotoFrameByName(LabelName:String, optional pause:Boolean) :Boolean" help="gotoFrameByName is member function of class CocoClip
 public CocoClip::gotoFrameByName(LabelName:String, optional pause:Boolean) :Boolean" image="35"/>
 		<member name="gotoFrameByIndex" proto="gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean" help="gotoFrameByIndex is member function of class CocoClip
 public CocoClip::gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean" image="35"/>
 		<member name="__advanceTime" proto="__advanceTime(parentClipsDuration:Time)" help="__advanceTime is member function of class CocoClip
 private CocoClip::__advanceTime(parentClipsDuration:Time)" image="30"/>
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoClip
+public virtual CocoClip::tick(time:Time)" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoClip
 public virtual CocoClip::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="combine" proto="combine(F1:CocoKeyFrame, F2:CocoKeyFrame)" help="combine is member function of class CocoClip
@@ -3147,6 +3154,8 @@ public CocoImage::textureCellWidth:Float" image="34"/>
 public CocoImage::textureCellHeight:Float" image="34"/>
 		<member name="textureGrid" proto="textureGrid:Float32Array" help="textureGrid is member var of class CocoImage
 public CocoImage::textureGrid:Float32Array" image="1"/>
+		<member name="textureTileMap" proto="textureTileMap:Float32Array" help="textureTileMap is member var of class CocoImage
+public CocoImage::textureTileMap:Float32Array" image="1"/>
 		<member name="color" proto="color:Float32Array" help="color is member var of class CocoImage
 public CocoImage::color:Float32Array" image="1"/>
 		<member name="texSize" proto="texSize:Float32Array" help="texSize is member var of class CocoImage
@@ -4087,123 +4096,233 @@ public property CocoUITextEdit::PromptFontShadowColor:Color" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUITextEdit
 public CocoUITextEdit::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoSprite">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSprite
-public virtual CocoSprite::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoSprite
-public CocoSprite::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoSprite
-public CocoSprite::__className:String" image="13"/>
+	<memberlist name="Class CocoGameBonusesLayer">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGameBonusesLayer
+public virtual CocoGameBonusesLayer::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoGameBonusesLayer
+public CocoGameBonusesLayer::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGameBonusesLayer
+public CocoGameBonusesLayer::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoSpriteActor">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSpriteActor
-public virtual CocoSpriteActor::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoSpriteActor
-public CocoSpriteActor::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoSpriteActor
-public CocoSpriteActor::__className:String" image="13"/>
+	<memberlist name="Class CocoGameEnemiesLayer">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGameEnemiesLayer
+public virtual CocoGameEnemiesLayer::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoGameEnemiesLayer
+public CocoGameEnemiesLayer::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGameEnemiesLayer
+public CocoGameEnemiesLayer::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoSpriteBonus">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSpriteBonus
-public virtual CocoSpriteBonus::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoSpriteBonus
-public CocoSpriteBonus::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoSpriteBonus
-public CocoSpriteBonus::__className:String" image="13"/>
+	<memberlist name="Class CocoGameEngine">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGameEngine
+public virtual CocoGameEngine::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoGameEngine
+public CocoGameEngine::Constructor()" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGameEngine
+public CocoGameEngine::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoSpriteBullet">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSpriteBullet
-public virtual CocoSpriteBullet::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoSpriteBullet
-public CocoSpriteBullet::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoSpriteBullet
-public CocoSpriteBullet::__className:String" image="13"/>
+	<memberlist name="Class CocoGameSprite">
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoGameSprite
+public virtual CocoGameSprite::tick(time:Time)" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoGameSprite
+public virtual CocoGameSprite::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="collidesWith" proto="collidesWith(sprite:CocoGameSprite) :Boolean" help="collidesWith is member function of class CocoGameSprite
+public virtual CocoGameSprite::collidesWith(sprite:CocoGameSprite) :Boolean" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGameSprite
+public virtual CocoGameSprite::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoGameSprite
+public CocoGameSprite::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="CollisionRectangle" proto="CollisionRectangle:CocoRect" help="CollisionRectangle is member var of class CocoGameSprite
+public CocoGameSprite::CollisionRectangle:CocoRect" image="34"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGameSprite
+public CocoGameSprite::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoSpriteEnemy">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSpriteEnemy
-public virtual CocoSpriteEnemy::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoSpriteEnemy
-public CocoSpriteEnemy::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoSpriteEnemy
-public CocoSpriteEnemy::__className:String" image="13"/>
+	<memberlist name="Class CocoGamePlayerSprite">
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoGamePlayerSprite
+public virtual CocoGamePlayerSprite::tick(time:Time)" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoGamePlayerSprite
+public virtual CocoGamePlayerSprite::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGamePlayerSprite
+public virtual CocoGamePlayerSprite::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoGamePlayerSprite
+public CocoGamePlayerSprite::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGamePlayerSprite
+public CocoGamePlayerSprite::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoSpritePlayer">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSpritePlayer
-public virtual CocoSpritePlayer::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoSpritePlayer
-public CocoSpritePlayer::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoSpritePlayer
-public CocoSpritePlayer::__className:String" image="13"/>
+	<memberlist name="Class CocoGameStage">
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoGameStage
+public virtual CocoGameStage::tick(time:Time)" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, time:Time)" help="paint is member function of class CocoGameStage
+public virtual CocoGameStage::paint(ctx:ICocoRenderContext, time:Time)" image="35"/>
+		<member name="scrollStage" proto="scrollStage()" help="scrollStage is member function of class CocoGameStage
+public virtual CocoGameStage::scrollStage()" image="35"/>
+		<member name="collisionDetection" proto="collisionDetection()" help="collisionDetection is member function of class CocoGameStage
+public virtual CocoGameStage::collisionDetection()" image="35"/>
+		<member name="removeDeadSprites" proto="removeDeadSprites()" help="removeDeadSprites is member function of class CocoGameStage
+public virtual CocoGameStage::removeDeadSprites()" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGameStage
+public virtual CocoGameStage::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoGameStage
+public CocoGameStage::Constructor()" image="14"/>
+		<member name="PlayerSprite" proto="PlayerSprite:CocoGamePlayerSprite" help="PlayerSprite is member var of class CocoGameStage
+public CocoGameStage::PlayerSprite:CocoGamePlayerSprite" image="34"/>
+		<member name="EnemiesLayer" proto="EnemiesLayer:CocoGameEnemiesLayer" help="EnemiesLayer is member var of class CocoGameStage
+public CocoGameStage::EnemiesLayer:CocoGameEnemiesLayer" image="34"/>
+		<member name="BonusesLayer" proto="BonusesLayer:CocoGameBonusesLayer" help="BonusesLayer is member var of class CocoGameStage
+public CocoGameStage::BonusesLayer:CocoGameBonusesLayer" image="34"/>
+		<member name="MazeLayer" proto="MazeLayer:CocoGameTiledLayerMaze" help="MazeLayer is member var of class CocoGameStage
+public CocoGameStage::MazeLayer:CocoGameTiledLayerMaze" image="34"/>
+		<member name="PlatformLayer" proto="PlatformLayer:CocoGameTiledLayerPlatform" help="PlatformLayer is member var of class CocoGameStage
+public CocoGameStage::PlatformLayer:CocoGameTiledLayerPlatform" image="34"/>
+		<member name="__spritesToRemove" proto="__spritesToRemove:Array&lt;CocoGameSprite&gt;" help="__spritesToRemove is member var of class CocoGameStage
+private CocoGameStage::__spritesToRemove:Array&lt;CocoGameSprite&gt;" image="1"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGameStage
+public CocoGameStage::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoSpriteVisual">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSpriteVisual
-public virtual CocoSpriteVisual::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoSpriteVisual
-public CocoSpriteVisual::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoSpriteVisual
-public CocoSpriteVisual::__className:String" image="13"/>
+	<memberlist name="Class CocoGameTiledLayer">
+		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoGameTiledLayer
+public virtual CocoGameTiledLayer::prepare(scene:CocoScene)" image="35"/>
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoGameTiledLayer
+public virtual CocoGameTiledLayer::tick(time:Time)" image="35"/>
+		<member name="collidesWith" proto="collidesWith(sprite:CocoGameSprite) :Boolean" help="collidesWith is member function of class CocoGameTiledLayer
+public virtual CocoGameTiledLayer::collidesWith(sprite:CocoGameSprite) :Boolean" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoGameTiledLayer
+public virtual CocoGameTiledLayer::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGameTiledLayer
+public virtual CocoGameTiledLayer::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoGameTiledLayer
+public CocoGameTiledLayer::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="EnableCollisions" proto="EnableCollisions:Boolean" help="EnableCollisions is member var of class CocoGameTiledLayer
+public CocoGameTiledLayer::EnableCollisions:Boolean" image="34"/>
+		<member name="RigidBodiesClassName" proto="RigidBodiesClassName:String" help="RigidBodiesClassName is member var of class CocoGameTiledLayer
+public CocoGameTiledLayer::RigidBodiesClassName:String" image="34"/>
+		<member name="CellWidth" proto="CellWidth:Integer" help="CellWidth is member var of class CocoGameTiledLayer
+public CocoGameTiledLayer::CellWidth:Integer" image="34"/>
+		<member name="CellHeight" proto="CellHeight:Integer" help="CellHeight is member var of class CocoGameTiledLayer
+public CocoGameTiledLayer::CellHeight:Integer" image="34"/>
+		<member name="RigidBodies" proto="RigidBodies:Array&lt;CocoGameSprite&gt;" help="RigidBodies is member var of class CocoGameTiledLayer
+public CocoGameTiledLayer::RigidBodies:Array&lt;CocoGameSprite&gt;" image="1"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGameTiledLayer
+public CocoGameTiledLayer::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoTiledLayer">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoTiledLayer
-public virtual CocoTiledLayer::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoTiledLayer
-public CocoTiledLayer::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__cellRows" proto="__cellRows:Integer" help="__cellRows is member var of class CocoTiledLayer
-public CocoTiledLayer::__cellRows:Integer" image="34"/>
-		<member name="CellRows" proto="CellRows:Integer" help="CellRows is property of class CocoTiledLayer
-public property CocoTiledLayer::CellRows:Integer" image="31"/>
-		<member name="__cellCols" proto="__cellCols:Integer" help="__cellCols is member var of class CocoTiledLayer
-public CocoTiledLayer::__cellCols:Integer" image="34"/>
-		<member name="CellCols" proto="CellCols:Integer" help="CellCols is property of class CocoTiledLayer
-public property CocoTiledLayer::CellCols:Integer" image="31"/>
-		<member name="__collisionRectangle" proto="__collisionRectangle:CocoRect" help="__collisionRectangle is member var of class CocoTiledLayer
-public CocoTiledLayer::__collisionRectangle:CocoRect" image="34"/>
-		<member name="CollisionRectangle" proto="CollisionRectangle:CocoRect" help="CollisionRectangle is property of class CocoTiledLayer
-public property CocoTiledLayer::CollisionRectangle:CocoRect" image="31"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoTiledLayer
-public CocoTiledLayer::__className:String" image="13"/>
+	<memberlist name="Class CocoGameTiledLayerMaze">
+		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoGameTiledLayerMaze
+public virtual CocoGameTiledLayerMaze::prepare(scene:CocoScene)" image="35"/>
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoGameTiledLayerMaze
+public virtual CocoGameTiledLayerMaze::tick(time:Time)" image="35"/>
+		<member name="collisionDetection" proto="collisionDetection()" help="collisionDetection is member function of class CocoGameTiledLayerMaze
+public virtual CocoGameTiledLayerMaze::collisionDetection()" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoGameTiledLayerMaze
+public virtual CocoGameTiledLayerMaze::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGameTiledLayerMaze
+public virtual CocoGameTiledLayerMaze::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoGameTiledLayerMaze
+public CocoGameTiledLayerMaze::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGameTiledLayerMaze
+public CocoGameTiledLayerMaze::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoTiledLayerMaze">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoTiledLayerMaze
-public virtual CocoTiledLayerMaze::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoTiledLayerMaze
-public CocoTiledLayerMaze::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoTiledLayerMaze
-public CocoTiledLayerMaze::__className:String" image="13"/>
+	<memberlist name="Class CocoParallaxFollowPoint">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoParallaxFollowPoint
+public virtual CocoParallaxFollowPoint::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoParallaxFollowPoint
+public CocoParallaxFollowPoint::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoParallaxFollowPoint
+public CocoParallaxFollowPoint::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoParallaxPoint">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoParallaxPoint
-public virtual CocoParallaxPoint::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoParallaxPoint
-public CocoParallaxPoint::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoParallaxPoint
-public CocoParallaxPoint::__className:String" image="13"/>
+	<memberlist name="Class CocoGameTiledLayerParallax">
+		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoGameTiledLayerParallax
+public CocoGameTiledLayerParallax::prepare(scene:CocoScene)" image="35"/>
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoGameTiledLayerParallax
+public virtual CocoGameTiledLayerParallax::tick(time:Time)" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoGameTiledLayerParallax
+public virtual CocoGameTiledLayerParallax::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGameTiledLayerParallax
+public virtual CocoGameTiledLayerParallax::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoGameTiledLayerParallax
+public CocoGameTiledLayerParallax::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="FollowPoint" proto="FollowPoint:CocoParallaxFollowPoint" help="FollowPoint is member var of class CocoGameTiledLayerParallax
+public CocoGameTiledLayerParallax::FollowPoint:CocoParallaxFollowPoint" image="34"/>
+		<member name="ParallaxDistance" proto="ParallaxDistance:Float" help="ParallaxDistance is member var of class CocoGameTiledLayerParallax
+public CocoGameTiledLayerParallax::ParallaxDistance:Float" image="34"/>
+		<member name="kf" proto="kf:CocoKeyFrame" help="kf is member var of class CocoGameTiledLayerParallax
+private CocoGameTiledLayerParallax::kf:CocoKeyFrame" image="29"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGameTiledLayerParallax
+public CocoGameTiledLayerParallax::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoTiledLayerParallax">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoTiledLayerParallax
-public virtual CocoTiledLayerParallax::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoTiledLayerParallax
-public CocoTiledLayerParallax::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="ParallaxPoint" proto="ParallaxPoint:CocoParallaxPoint" help="ParallaxPoint is property of class CocoTiledLayerParallax
-public property CocoTiledLayerParallax::ParallaxPoint:CocoParallaxPoint" image="31"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoTiledLayerParallax
-public CocoTiledLayerParallax::__className:String" image="13"/>
+	<memberlist name="Class CocoGameTiledLayerPlatform">
+		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoGameTiledLayerPlatform
+public virtual CocoGameTiledLayerPlatform::prepare(scene:CocoScene)" image="35"/>
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoGameTiledLayerPlatform
+public virtual CocoGameTiledLayerPlatform::tick(time:Time)" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoGameTiledLayerPlatform
+public virtual CocoGameTiledLayerPlatform::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoGameTiledLayerPlatform
+public virtual CocoGameTiledLayerPlatform::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoGameTiledLayerPlatform
+public CocoGameTiledLayerPlatform::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoGameTiledLayerPlatform
+public CocoGameTiledLayerPlatform::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class CocoTiledLayerPlatform">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoTiledLayerPlatform
-public virtual CocoTiledLayerPlatform::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoTiledLayerPlatform
-public CocoTiledLayerPlatform::Constructor(optional image:CocoImage)" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class CocoTiledLayerPlatform
-public CocoTiledLayerPlatform::__className:String" image="13"/>
+	<memberlist name="Class CocoSideScrollingPlayer">
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoSideScrollingPlayer
+public virtual CocoSideScrollingPlayer::tick(time:Time)" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoSideScrollingPlayer
+public virtual CocoSideScrollingPlayer::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSideScrollingPlayer
+public virtual CocoSideScrollingPlayer::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoSideScrollingPlayer
+public CocoSideScrollingPlayer::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoSideScrollingPlayer
+public CocoSideScrollingPlayer::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoSideScrollingStage">
+		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoSideScrollingStage
+public virtual CocoSideScrollingStage::tick(time:Time)" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, time:Time)" help="paint is member function of class CocoSideScrollingStage
+public virtual CocoSideScrollingStage::paint(ctx:ICocoRenderContext, time:Time)" image="35"/>
+		<member name="scrollStage" proto="scrollStage()" help="scrollStage is member function of class CocoSideScrollingStage
+public virtual CocoSideScrollingStage::scrollStage()" image="35"/>
+		<member name="collisionDetection" proto="collisionDetection()" help="collisionDetection is member function of class CocoSideScrollingStage
+public virtual CocoSideScrollingStage::collisionDetection()" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSideScrollingStage
+public virtual CocoSideScrollingStage::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoSideScrollingStage
+public CocoSideScrollingStage::Constructor()" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoSideScrollingStage
+public CocoSideScrollingStage::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoCasinoSlotReel">
+		<member name="randomTileRepetitionInRange" proto="randomTileRepetitionInRange(min:Integer, max:Integer) :Integer" help="randomTileRepetitionInRange is member function of class CocoCasinoSlotReel
+private CocoCasinoSlotReel::randomTileRepetitionInRange(min:Integer, max:Integer) :Integer" image="30"/>
+		<member name="Spin" proto="Spin()" help="Spin is member function of class CocoCasinoSlotReel
+public CocoCasinoSlotReel::Spin()" image="35"/>
+		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoCasinoSlotReel
+public virtual CocoCasinoSlotReel::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoCasinoSlotReel
 public virtual CocoCasinoSlotReel::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoCasinoSlotReel
-public CocoCasinoSlotReel::Constructor()" image="14"/>
+		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoCasinoSlotReel
+public CocoCasinoSlotReel::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="__prefix" proto="__prefix:String" help="__prefix is member var of class CocoCasinoSlotReel
+public CocoCasinoSlotReel::__prefix:String" image="34"/>
+		<member name="__No_Of_Tiles_In_Reel" proto="__No_Of_Tiles_In_Reel:Integer" help="__No_Of_Tiles_In_Reel is member var of class CocoCasinoSlotReel
+public CocoCasinoSlotReel::__No_Of_Tiles_In_Reel:Integer" image="34"/>
+		<member name="__TileWidth" proto="__TileWidth:Integer" help="__TileWidth is member var of class CocoCasinoSlotReel
+public CocoCasinoSlotReel::__TileWidth:Integer" image="34"/>
+		<member name="__TileHeight" proto="__TileHeight:Integer" help="__TileHeight is member var of class CocoCasinoSlotReel
+public CocoCasinoSlotReel::__TileHeight:Integer" image="34"/>
+		<member name="__reelSpeed" proto="__reelSpeed:Float" help="__reelSpeed is member var of class CocoCasinoSlotReel
+public CocoCasinoSlotReel::__reelSpeed:Float" image="34"/>
+		<member name="__reelRepetition" proto="__reelRepetition:Integer" help="__reelRepetition is member var of class CocoCasinoSlotReel
+private CocoCasinoSlotReel::__reelRepetition:Integer" image="29"/>
+		<member name="__stopY" proto="__stopY:Float" help="__stopY is member var of class CocoCasinoSlotReel
+private CocoCasinoSlotReel::__stopY:Float" image="29"/>
 		<member name="Prefix" proto="Prefix:String" help="Prefix is property of class CocoCasinoSlotReel
 public property CocoCasinoSlotReel::Prefix:String" image="31"/>
+		<member name="No_Of_Tiles_In_Reel" proto="No_Of_Tiles_In_Reel:Integer" help="No_Of_Tiles_In_Reel is property of class CocoCasinoSlotReel
+public property CocoCasinoSlotReel::No_Of_Tiles_In_Reel:Integer" image="31"/>
+		<member name="TileWidth" proto="TileWidth:Integer" help="TileWidth is property of class CocoCasinoSlotReel
+public property CocoCasinoSlotReel::TileWidth:Integer" image="31"/>
+		<member name="TileHeight" proto="TileHeight:Integer" help="TileHeight is property of class CocoCasinoSlotReel
+public property CocoCasinoSlotReel::TileHeight:Integer" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoCasinoSlotReel
 public CocoCasinoSlotReel::__className:String" image="13"/>
 	</memberlist>

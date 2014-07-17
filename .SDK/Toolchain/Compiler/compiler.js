@@ -1023,7 +1023,7 @@ function Compiler(ast)
 	_this.getDotOrScopeSymbol = function(ast)
 	{
 		if(ast.inDot)
-			return ast.inDot[0].symbol;
+			return ast.inDot[0].symbol ? ast.inDot[0].symbol : ast.inDot[0].identifier_last.symbol;
 
 		if(ast.inClass)
 			return ast.inClass.symbol;

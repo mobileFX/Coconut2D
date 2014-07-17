@@ -1,4 +1,7 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -23,81 +26,48 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	    __  __________  _____    ___             ___       ________                          __
-//	   / / / /_  __/  |/  / /   /   | __  ______/ (_)___  / ____/ /__  ____ ___  ___  ____  / /_
-//	  / /_/ / / / / /|_/ / /   / /| |/ / / / __  / / __ \/ __/ / / _ \/ __ `__ \/ _ \/ __ \/ __/
-//	 / __  / / / / /  / / /___/ ___ / /_/ / /_/ / / /_/ / /___/ /  __/ / / / / /  __/ / / / /_
-//	/_/ /_/ /_/ /_/  /_/_____/_/  |_\__,_/\__,_/_/\____/_____/_/\___/_/ /_/ /_/\___/_/ /_/\__/
-//
+//	   ______               _______ __         ____                          __  ___
+//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____/  |/  /___ _____  ___
+//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/ /|_/ / __ `/_  / / _ \
+//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /  / /  / / /_/ / / /_/  __/
+//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/  /_/  /_/\__,_/ /___/\___/
+//	                                                     /____/
 // ==================================================================================================================================
 
-class Audio
-{
-	private var __uid:Integer;
-	private var __currentTime:Time;
+"#include CocoGameTiledLayer.jspp";
 
-	// Playback state
-	public var duration:Float;
-	public var paused:Boolean;
-	public var ended:Boolean;
-	public var autoplay:Boolean;
-	public var loop:Boolean;
-	public var src:String;
+ class CocoGameTiledLayerMaze : CocoGameTiledLayer
+ {
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Constructor(optional image:CocoImage) : CocoGameTiledLayer(image)
+ 	{
+ 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(url:String)
-	{
-		__currentTime=0;
-		duration=0.0;
-		paused=false;
-		ended=false;
-		autoplay=false;
-		loop=false;
-		src="";
+ 	public function Destructor()
+ 	{
+ 	}
 
-		__uid = __Audio_load(url, this);
-		if(__uid) src = url;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public virtual function prepare(scene:CocoScene)
+ 	{
+ 		super.prepare;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+		super.tick;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor()
+	public virtual function collisionDetection()
 	{
-		trace("Delete Audio " + src);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function play()
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
-		__Audio_play(__uid);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function pause()
-	{
-		__Audio_pause(__uid);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public property currentTime
-	{
-		function get():Float
-		{
-			return __Audio_get_position(__uid);
-		}
-
-		function set(time:Time)
-		{
-			__Audio_set_position(__uid, time);
-		}
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public property readyState
-	{
-		function get():Integer
-		{
-			//return __Audio_get_readystate(__uid);
-			return 4;
-		}
+		super.paint;
 	}
 }

@@ -34,6 +34,8 @@
 //	                                                     /____/
 // ==================================================================================================================================
 
+"#include CocoClip.jspp";
+
 class CocoParallaxFollowPoint : CocoClip
 {
  	public function Constructor(optional image:CocoImage) : CocoClip(image)
@@ -45,17 +47,53 @@ class CocoParallaxFollowPoint : CocoClip
  	}
  }
 
-class CocoTiledLayerParallax : CocoTiledLayer
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+"#include CocoGameTiledLayer.jspp";
+
+class CocoGameTiledLayerParallax : CocoGameTiledLayer
 {
 	published var FollowPoint:CocoParallaxFollowPoint;
+	published var ParallaxDistance:Float;
 
-	public function Constructor(optional image:CocoImage) : CocoTiledLayer(image)
+	private reference var kf:CocoKeyFrame;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(optional image:CocoImage) : CocoGameTiledLayer(image)
 	{
 		FollowPoint = null;
+		ParallaxDistance = 0.0;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Destructor()
  	{
  		delete FollowPoint;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function prepare(scene:CocoScene)
+ 	{
+ 		super.prepare;
+ 		kf = __timeline.keyFrame(0);
+ 		kf.filter = Integer(COCO_FILTER_ENUM.FILTER_PARALLAX_HOR);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+		super.tick;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+ 	{
+ 		if(FollowPoint && FollowPoint.__parent.__currentFrame)
+ 		{
+ 			var img:CocoImage = __children[0].__image;
+ 			var d:Float = FollowPoint.__parent.__currentFrame.x * 1.0 / img.image.naturalWidth * ParallaxDistance / 1000.0;
+ 			kf.red = d - Float(Math.floor(d));
+ 		}
+ 		super.paint;
  	}
 }

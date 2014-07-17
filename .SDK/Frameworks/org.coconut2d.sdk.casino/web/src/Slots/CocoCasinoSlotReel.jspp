@@ -28,20 +28,113 @@
 //
 // ==================================================================================================================================
 
+"#include CocoClip.jspp";
+
 class CocoCasinoSlotReel : CocoClip
 {
-	public function Constructor()
+	public function Constructor(optional image:CocoImage):CocoClip(image)
 	{
+		__prefix = "";
+		__No_Of_Tiles_In_Reel = 9;
+		__TileWidth = 357;
+		__TileHeight= 272;
+		 __reelRepetition = 1;
+         __stopY = 0.0;
+
+         __reelSpeed = 1.0 / 1000;
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 	}
 
+	// ==================================================================================================================================
+	//	    ____                             __  _
+	//	   / __ \_________  ____  ___  _____/ /_(_)__  _____
+	//	  / /_/ / ___/ __ \/ __ \/ _ \/ ___/ __/ / _ \/ ___/
+	//	 / ____/ /  / /_/ / /_/ /  __/ /  / /_/ /  __(__  )
+	//	/_/   /_/   \____/ .___/\___/_/   \__/_/\___/____/
+	//	                /_/
+	// ==================================================================================================================================
+
+	public var __prefix:String;
+	public var __No_Of_Tiles_In_Reel:Integer;
+	public var __TileWidth:Integer;
+	public var __TileHeight:Integer;
+	public var __reelSpeed:Float;
+
+	private var __reelRepetition:Integer;
+	private var __stopY:Float;
+
+
 	published property Prefix
+ 	{
+ 		function get():String  { return __prefix; }
+ 		function set(v:String) { __prefix = v; }
+ 	}
+
+	published property No_Of_Tiles_In_Reel
+ 	{
+ 		function get():Integer  { return __No_Of_Tiles_In_Reel; }
+ 		function set(v:Integer) { __No_Of_Tiles_In_Reel = v; }
+ 	}
+
+	published property TileWidth
+ 	{
+ 		function get():Integer  { return __TileWidth; }
+ 		function set(v:Integer) { __TileWidth = v; }
+ 	}
+
+	published property TileHeight
+ 	{
+ 		function get():Integer  { return __TileHeight; }
+ 		function set(v:Integer) { __TileHeight = v; }
+ 	}
+
+
+	// ==================================================================================================================================
+	//	    ______                 __  _
+	//	   / ____/_  ______  _____/ /_(_)___  ____  _____
+	//	  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+	//	 / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+	//	/_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+	//
+	// ==================================================================================================================================
+
+	private function randomTileRepetitionInRange(min:Integer, max:Integer):Integer
 	{
-		function get():String { return ""; }
-		function set(v:String) { }
+		return Integer(Math.floor(Math.random()) * (max - min + 1) + min);
 	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Spin()
+	{
+		__reelRepetition = 5;//randomTileRepetitionInRange(1, 5);
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+ 	{
+ 		var KF:CocoKeyFrame = this.__timeline.__keyFrames[0];
+		var T:Time = this.__currentTime;
+ 		super.paint;
+ 		var dt:Float = Float(this.__currentTime - T);
+
+ 		if(__reelRepetition)
+ 		{
+ 			KF.y -= Float(this.__TileHeight * this.__No_Of_Tiles_In_Reel) * __reelSpeed * dt;
+ 			if(KF.y <= -this.__TileHeight * this.__No_Of_Tiles_In_Reel)
+ 			{
+ 				//if(--reelRepetition) KF.y = -this.__TileHeight * 5;
+ 				//else KF.y = 0;
+ 			}
+ 		}
+ 	}
+
+
+
 
 }

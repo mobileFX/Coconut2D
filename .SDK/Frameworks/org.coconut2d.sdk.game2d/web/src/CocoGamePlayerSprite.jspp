@@ -25,15 +25,30 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include CocoClip.jspp";
+"#include CocoGameSprite.jspp";
 
-class $(FILENAME) : CocoClip
+class CocoGamePlayerSprite : CocoGameSprite
 {
-	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(optional image:CocoImage) : CocoGameSprite(image)
 	{
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+		super.tick;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		super.paint;
+	}
+
 }

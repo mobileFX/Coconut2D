@@ -1,4 +1,7 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -23,81 +26,74 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	    __  __________  _____    ___             ___       ________                          __
-//	   / / / /_  __/  |/  / /   /   | __  ______/ (_)___  / ____/ /__  ____ ___  ___  ____  / /_
-//	  / /_/ / / / / /|_/ / /   / /| |/ / / / __  / / __ \/ __/ / / _ \/ __ `__ \/ _ \/ __ \/ __/
-//	 / __  / / / / /  / / /___/ ___ / /_/ / /_/ / / /_/ / /___/ /  __/ / / / / /  __/ / / / /_
-//	/_/ /_/ /_/ /_/  /_/_____/_/  |_\__,_/\__,_/_/\____/_____/_/\___/_/ /_/ /_/\___/_/ /_/\__/
-//
+//	   ______               _______ __         ____
+//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____
+//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /
+//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/
+//	                                                     /____/
 // ==================================================================================================================================
 
-class Audio
+"#include CocoClip.jspp";
+
+class CocoGameTiledLayer : CocoClip
 {
-	private var __uid:Integer;
-	private var __currentTime:Time;
+	published var EnableCollisions:Boolean;
+ 	published var RigidBodiesClassName:String;
 
-	// Playback state
-	public var duration:Float;
-	public var paused:Boolean;
-	public var ended:Boolean;
-	public var autoplay:Boolean;
-	public var loop:Boolean;
-	public var src:String;
+ 	// Compile-time Image Compressions using Sprite Atlas
+	published var CellWidth:Integer;
+	published var CellHeight:Integer;
+
+	// Array of Rigit Bodies (Sprites)
+ 	public var RigidBodies:Array<CocoGameSprite>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(url:String)
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
 	{
-		__currentTime=0;
-		duration=0.0;
-		paused=false;
-		ended=false;
-		autoplay=false;
-		loop=false;
-		src="";
-
-		__uid = __Audio_load(url, this);
-		if(__uid) src = url;
+		CellWidth=0;
+		CellHeight=0;
+		RigidBodiesClassName = "CocoGameSprite";
+ 		RigidBodies = null;
+ 		EnableCollisions = false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Destructor()
+ 	public function Destructor()
+ 	{
+ 		delete RigidBodies;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public virtual function prepare(scene:CocoScene)
+ 	{
+ 		RigidBodies = getChildrenByClassName(RigidBodiesClassName);
+ 		super.prepare;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
 	{
-		trace("Delete Audio " + src);
+		super.tick;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function play()
+	public virtual function collidesWith(sprite:CocoGameSprite) :Boolean
 	{
-		__Audio_play(__uid);
-	}
+		if(!EnableCollisions)
+			return false;
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function pause()
-	{
-		__Audio_pause(__uid);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public property currentTime
-	{
-		function get():Float
+		// Collision detection between Tiled Layer Rigid Bodies against the input sprite.
+		for(var i:Integer=RigidBodies.size()-1; i>=0; i--)
 		{
-			return __Audio_get_position(__uid);
-		}
-
-		function set(time:Time)
-		{
-			__Audio_set_position(__uid, time);
+			if(RigidBodies[i].collidesWith(sprite))
+				return true;
 		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public property readyState
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
-		function get():Integer
-		{
-			//return __Audio_get_readystate(__uid);
-			return 4;
-		}
+		super.paint;
 	}
 }

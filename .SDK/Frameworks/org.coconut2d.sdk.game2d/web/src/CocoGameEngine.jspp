@@ -3,7 +3,7 @@
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2014 www.yourcompany.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,31 +25,17 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// ==================================================================================================================================
-//	   ______                _____            _ __
-//	  / ____/___  _________ / ___/____  _____(_) /____
-//	 / /   / __ \/ ___/ __ \\__ \/ __ \/ ___/ / __/ _ \
-//	/ /___/ /_/ / /__/ /_/ /__/ / /_/ / /  / / /_/  __/
-//	\____/\____/\___/\____/____/ .___/_/  /_/\__/\___/
-//	                          /_/
-// ==================================================================================================================================
+"#include CocoEngine.jspp";
 
-"#include CocoClip.jspp";
-
-class CocoSprite : CocoClip
+class CocoGameEngine : CocoEngine
 {
-	published var CollisionRegion:CocoCollisionRegion;
-
-	public function Constructor(optional image:CocoImage) :CocoClip(image)
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
 	{
-		CollisionRegion=null;
 	}
 
- 	public function Destructor()
- 	{
- 		delete CollisionRegion;
- 	}
-
-
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
 }
-

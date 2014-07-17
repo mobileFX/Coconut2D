@@ -186,7 +186,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function prepare(scene:CocoScene)
+	public virtual function prepare(scene:CocoScene)
 	{
 		__timeline.prepare(scene, this);
 		for(var i:Integer =__children.size()-1; i>=0; i--)
@@ -322,6 +322,21 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getChildrenByClassName(className:String) :Array<CocoClip>
+	{
+		var arr:Array<CocoClip> = new Array<CocoClip>;
+		for(var i:Integer =__children.size()-1; i>=0; i--)
+		{
+			if(__children[i].__className==className)
+			{
+				arr.concat(__children[i].getChildrenByClassName(className));
+				arr.push(__children[i]);
+			}
+		}
+		return arr;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function gotoFrameByName(LabelName:String, optional pause:Boolean) :Boolean
 	{
 		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
@@ -360,6 +375,11 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	{
 		if(__timeline.__paused) return;
 		__currentTime += engine.TICK_TIME;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
