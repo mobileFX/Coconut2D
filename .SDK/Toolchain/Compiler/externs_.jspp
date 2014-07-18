@@ -386,6 +386,10 @@ class Global
 	undefined var CocoGameEngine :CocoGameEngine;
 	undefined var CocoGameSprite :CocoGameSprite;
 	undefined var CocoGamePlayerSprite :CocoGamePlayerSprite;
+	undefined var CocoGameSpriteBonus :CocoGameSpriteBonus;
+	undefined var CocoGameSpriteEnemy :CocoGameSpriteEnemy;
+	undefined var CocoGameSpriteMaze :CocoGameSpriteMaze;
+	undefined var CocoGameSpritePlatform :CocoGameSpritePlatform;
 	undefined var CocoGameStage :CocoGameStage;
 	undefined var CocoGameTiledLayer :CocoGameTiledLayer;
 	undefined var CocoGameTiledLayerMaze :CocoGameTiledLayerMaze;
@@ -395,6 +399,7 @@ class Global
 	undefined var CocoSideScrollingPlayer :CocoSideScrollingPlayer;
 	undefined var CocoSideScrollingStage :CocoSideScrollingStage;
 	undefined var CocoCasinoSlotReel :CocoCasinoSlotReel;
+	undefined var CocoCasinoSlotReelOnSpinEndEvent :CocoCasinoSlotReelOnSpinEndEvent;
 	undefined var GameEngine :GameEngine;
 	undefined var TestOutsourcer :TestOutsourcer;
 	undefined var TestIntegrator :TestIntegrator;
@@ -2843,20 +2848,44 @@ class CocoGamePlayerSprite : CocoGameSprite
 	public  var __className :String;
 } //CocoGamePlayerSprite
 
-class CocoGameStage : CocoScene
+class CocoGameSpriteBonus : CocoClip
+{
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
+	public  var __className :String;
+} //CocoGameSpriteBonus
+
+class CocoGameSpriteEnemy : CocoClip
+{
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
+	public  var __className :String;
+} //CocoGameSpriteEnemy
+
+class CocoGameSpriteMaze : CocoClip
+{
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
+	public  var __className :String;
+} //CocoGameSpriteMaze
+
+class CocoGameSpritePlatform : CocoClip
+{
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
+	public  var __className :String;
+} //CocoGameSpritePlatform
+
+class CocoGameStage : CocoClip
 {
 	public function tick(time:Time) {}
-	public function paint(ctx:ICocoRenderContext, time:Time) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function scrollStage() {}
 	public function collisionDetection() {}
 	public function removeDeadSprites() {}
 	public function Destructor() {}
-	public function Constructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var PlayerSprite :CocoGamePlayerSprite;
-	public  var EnemiesLayer :CocoGameEnemiesLayer;
-	public  var BonusesLayer :CocoGameBonusesLayer;
-	public  var MazeLayer :CocoGameTiledLayerMaze;
-	public  var PlatformLayer :CocoGameTiledLayerPlatform;
 	private  var __spritesToRemove :Array<CocoGameSprite>;
 	public  var __className :String;
 } //CocoGameStage
@@ -2930,34 +2959,39 @@ class CocoSideScrollingPlayer : CocoGamePlayerSprite
 class CocoSideScrollingStage : CocoGameStage
 {
 	public function tick(time:Time) {}
-	public function paint(ctx:ICocoRenderContext, time:Time) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function scrollStage() {}
 	public function collisionDetection() {}
 	public function Destructor() {}
-	public function Constructor() {}
+	public function Constructor(image:CocoImage) {}
 	public  var __className :String;
 } //CocoSideScrollingStage
 
 class CocoCasinoSlotReel : CocoClip
 {
-	private function randomTileRepetitionInRange(min:Integer, max:Integer) :Integer {}
-	public function Spin() {}
+	public function randomTileRepetitionInRange(min:Integer, max:Integer) :Integer {}
+	public function Spin(repetition:Integer) {}
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function Destructor() {}
 	public function Constructor(image:CocoImage) {}
-	public  var __prefix :String;
-	public  var __No_Of_Tiles_In_Reel :Integer;
 	public  var __TileWidth :Integer;
-	public  var __TileHeight :Integer;
-	public  var __reelSpeed :Float;
-	private  var __reelRepetition :Integer;
-	private  var __stopY :Float;
-	public  var Prefix :String;
-	public  var No_Of_Tiles_In_Reel :Integer;
 	public  var TileWidth :Integer;
+	public  var __TileHeight :Integer;
 	public  var TileHeight :Integer;
+	public  var __No_Of_Tiles_In_Reel :Integer;
+	public  var No_Of_Tiles_In_Reel :Integer;
+	public  var __Visible_Reel_Rows :Integer;
+	public  var Visible_Reel_Rows :Integer;
+	public  var __reelSpeed :Float;
+	public  var ReelSpeed :Float;
+	private  var __reelRepetition :Integer;
+	public var OnSpinEnd :CocoCasinoSlotReelOnSpinEndEvent;
 	public  var __className :String;
 } //CocoCasinoSlotReel
+
+class CocoCasinoSlotReelOnSpinEndEvent : CocoEvent
+{
+} //CocoCasinoSlotReelOnSpinEndEvent
 
 class GameEngine : CocoEngine
 {

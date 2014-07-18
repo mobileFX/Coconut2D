@@ -25,29 +25,19 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include CocoScene.jspp";
+"#include CocoClip.jspp";
 
-class CocoGameStage : CocoScene
+class CocoGameStage : CocoClip
 {
 	// Special Game Sprites
 	published reference var PlayerSprite:CocoGamePlayerSprite;
 
-	// Special Game Sprite Groups
-	published reference var EnemiesLayer:CocoGameEnemiesLayer;
-	published reference var BonusesLayer:CocoGameBonusesLayer;
-
-	// Common Game Tiled Layers
-	published reference var MazeLayer:CocoGameTiledLayerMaze;
-	published reference var PlatformLayer:CocoGameTiledLayerPlatform;
-
 	private var __spritesToRemove:Array<CocoGameSprite>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor() : CocoScene()
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
 	{
 		PlayerSprite=null;
-		EnemiesLayer=null;
-		BonusesLayer=null;
 		__spritesToRemove=null;
 	}
 
@@ -55,8 +45,6 @@ class CocoGameStage : CocoScene
 	public function Destructor()
 	{
 		PlayerSprite=null;
-		EnemiesLayer=null;
-		BonusesLayer=null;
 		delete __spritesToRemove;
 	}
 
@@ -73,7 +61,8 @@ class CocoGameStage : CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function paint(ctx:ICocoRenderContext, time:Time)
+	//public virtual function paint(ctx:ICocoRenderContext, time:Time)
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
 		super.paint;
 	}
