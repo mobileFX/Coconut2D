@@ -116,6 +116,7 @@ function __init_narcissus(GLOBAL)
 		"class",
 		"interface",
 		"control",
+		"emscripten",
 
 		"implements",
 
@@ -1702,6 +1703,13 @@ function __init_narcissus(GLOBAL)
 			t.get();
 			var n = ClassDefinition(t, x, true);
 			n.control = true;
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.EMSCRIPTEN:
+			t.get();
+			var n = ClassDefinition(t, x, true);
+			n.emscripten = true;
 			return n;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

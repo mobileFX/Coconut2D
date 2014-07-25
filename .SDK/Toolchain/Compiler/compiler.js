@@ -1148,6 +1148,7 @@ function Compiler(ast)
 				classSymbol.nodeType				= "STRUCT";
 				classSymbol.extern					= (ast.file=="externs.jspp");
 				classSymbol.control					= false;
+				classSymbol.emscripten				= false;
 				classSymbol._prototype				= false;
 				classSymbol.enum					= false;
 				classSymbol.state					= false;
@@ -1331,6 +1332,7 @@ function Compiler(ast)
 				classSymbol.nodeType				= "CLASS";
 				classSymbol.extern					= (ast.file=="externs.jspp");
 				classSymbol.control					= ast.control;
+				classSymbol.emscripten				= ast.emscripten;
 				classSymbol._prototype				= false;
 				classSymbol.enum					= false;
 				classSymbol.state					= ast.state;
@@ -3017,6 +3019,7 @@ function Compiler(ast)
 				classSymbol.type					= jsdef.CLASS;
 				classSymbol.nodeType				= "CALLBACK";
 				classSymbol.control					= false;
+				classSymbol.emscripten				= false;
 				classSymbol._prototype				= false;
 				classSymbol.enum					= false;
 				classSymbol.state					= false;
@@ -3134,6 +3137,7 @@ function Compiler(ast)
 				classSymbol.type					= jsdef.CLASS;
 				classSymbol.nodeType				= "CLASS";
 				classSymbol.control					= false;
+				classSymbol.emscripten				= false;
 				classSymbol._prototype	 			= false;
 				classSymbol.enum					= false;
 				classSymbol.state					= false;
@@ -3334,6 +3338,7 @@ function Compiler(ast)
 				classSymbol.type					= jsdef.CLASS;
 				classSymbol.nodeType				= "ENUM";
 				classSymbol.control					= false;
+				classSymbol.emscripten				= false;
 				classSymbol._prototype				= false;
 				classSymbol.enum					= true;
 				classSymbol.state					= false;

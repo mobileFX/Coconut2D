@@ -51,4 +51,19 @@ class CocoGamePlayerSprite : CocoGameSprite
 		super.paint;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function initBody(world:b2World)
+	{
+		var playerBodyDef:b2BodyDef = new b2BodyDef();
+		playerBodyDef.set_type(b2BodyType.b2_dynamicBody);
+		body = b2Body(world.CreateBody(playerBodyDef));
+		body.SetTransform(new b2Vec2(__parent.__parent.__timeline.keyFrame(0).x / BOX2D_SCALE, __parent.__parent.__timeline.keyFrame(0).y / BOX2D_SCALE), 0.0);
+		body.SetLinearVelocity(new b2Vec2(4.0, 0.0));
+		var playerShape:b2PolygonShape = createPolygonShape(calculateCollisionRectangleVertices());
+		var playerFixtureDef:b2FixtureDef = new b2FixtureDef();
+		playerFixtureDef.set_restitution(1.0);
+		playerFixtureDef.set_shape(playerShape);
+		body.CreateFixture(playerFixtureDef);
+	}
+
 }

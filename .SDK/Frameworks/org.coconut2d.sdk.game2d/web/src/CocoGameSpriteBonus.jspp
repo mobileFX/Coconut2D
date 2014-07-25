@@ -25,15 +25,40 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include CocoClip.jspp";
+"#include CocoGameSprite.jspp";
 
-class CocoGameSpriteBonus : CocoClip
+class CocoGameSpriteBonus : CocoGameSprite
 {
-	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	public function Constructor(optional image:CocoImage) : CocoGameSprite(image)
 	{
+		CollisionRectangle = new CocoRect();
+		CollisionRectangle.left = -20.0;
+		CollisionRectangle.top = -30.0;
+		CollisionRectangle.right = 20.0;
+		CollisionRectangle.bottom = 30.0;
 	}
 
 	public function Destructor()
 	{
+	}
+
+	public virtual function initBody(world:b2World)
+	{
+		if(!CollisionRectangle) return;
+		var bodyDef:b2BodyDef = new b2BodyDef();
+		bodyDef.set_type(b2BodyType.b2_staticBody);
+		body = b2Body(world.CreateBody(bodyDef));
+		var kf:CocoKeyFrame = __parent.__parent.__timeline.keyFrame(0);
+		body.SetTransform(new b2Vec2(kf.x / BOX2D_SCALE, kf.y / BOX2D_SCALE), 0.0);
+		var shape:b2PolygonShape = createPolygonShape(calculateCollisionRectangleVertices());
+		var fixtureDef:b2FixtureDef = new b2FixtureDef();
+		fixtureDef.set_isSensor(true);
+		fixtureDef.set_shape(shape);
+		body.CreateFixture(fixtureDef);
+	}
+
+	public virtual function acquire()
+	{
+		__parent.__parent.gotoFrameByName("play", false);
 	}
 }

@@ -31,6 +31,7 @@
 //
 // ==================================================================================================================================
 
+var __global = this;
 if(!this['window']) this.window = {};
 if(!this['console']) console = {log:function(m){}}
 if(!this['IDECallback']) this.IDECallback = function(){};
@@ -62,9 +63,10 @@ Object.defineProperty(Array.prototype, "switch", { value: function(v)
 }});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function make(options)
+function CocoMake(command , params)
 {
 	var _this = this;
+	__global.__coco_make = this;
 	var TARGET = makefile.Config.TARGETS[makefile.Vars.TARGET];
 	makefile.Vars["UCONFIGURATION"] = makefile.Vars.CONFIGURATION.toUpperCase();
 
@@ -88,6 +90,7 @@ function make(options)
   		_this.generate_icons();
   		_this.copy_assets();
   		_this.generate_javascript();
+  		_this.copy_framework_libs();
   		_this.create_payload_js();
   		_this.closure();
   	};
@@ -102,6 +105,7 @@ function make(options)
   		_this.generate_icons();
   		_this.copy_assets();
   		_this.generate_javascript();
+  		_this.copy_framework_libs();
   		_this.create_payload_js();
   		_this.closure();
   		_this.create_index_html();
@@ -821,6 +825,44 @@ function make(options)
 	// ==================================================================================================================================
 
     // =====================================================================
+    // Copy Framework JavaScript Libraries to target/out
+    // =====================================================================
+	_this.copy_framework_libs = function()
+	{
+		var FileMasks = "*.js";
+		var vFrameworksSrcSubPaths = "/$(PATH_SDK_FRAMEWORKS_WEB)/$(PATH_SDK_FRAMEWORKS_LIB)";
+
+	    trace("\nCollecting JavaScript Libraries ...\n+ pattern: " + FileMasks);
+
+	    // Collect source paths from frameworks
+	    trace("+ scanning frameworks ...");
+	    var vFrameworks = makefile.Config.PROJECT_FRAMEWORKS;
+	    if(TARGET.TARGET_ADDITIONAL_FRAMEWORKS) vFrameworks += (";"+TARGET.TARGET_ADDITIONAL_FRAMEWORKS)
+	    vFrameworks = vFrameworks.split(";");
+	    vFrameworksSrcSubPaths = vFrameworksSrcSubPaths.split(";");
+	    for(var i=0; i<vFrameworks.length; i++)
+	    {
+	    	if(!vFrameworks[i]) continue;
+	    	var framework = makefile.Components.Frameworks[vFrameworks[i]];
+	    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
+	    	{
+	        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
+	        	if(folderExists(path))
+	        	{
+		    		trace("  + " + vFrameworks[i] + " -> " + path);
+		        	var Files = _this.FindFiles(path, FileMasks, true);
+			        for(var j=0;j<Files.length;j++)
+			        {
+			        	var file = Files[j];
+			        	var fileName = file.substr(file.lastIndexOf("/")+1);
+			     		copyFile(file, TARGET.TARGET_ROOT + "/obj/" + fileName);
+			        }
+	        	}
+	    	}
+	    }
+	};
+
+    // =====================================================================
     // Read compiled CocoScript code and create JavaScript payload.js
     // =====================================================================
 	_this.create_payload_js = function()
@@ -831,7 +873,7 @@ function make(options)
 	    var BUFFER = ["if(!this['include']) this.include=function(f){};\n"];
 
 	    // Collect scripts
-	    var scripts = _this.FindFiles(TARGET.TARGET_ROOT, "*.jobj", true);
+	    var scripts = _this.FindFiles(TARGET.TARGET_ROOT + "/obj", "*.js;*.jobj", true);
 
 	    // Order scripts
 	    scripts = _this.calculateDependencies(scripts, true);
@@ -1270,24 +1312,31 @@ function make(options)
 	}
 
     // =====================================================================
+	// Load Plugins
+    // =====================================================================
+
+	__make_plugin_emscripten(this);
+
+    // =====================================================================
     // Make!
     // =====================================================================
     /*@@ make @@*/
     try
     {
 		var builder = null;
-		if(options)
+		if(command)
 		{
-			alert(options);
-			builder = this[options];
+			builder = this[command];
 		}
 		else
 		{
 			builder = this["Build_" + makefile.Vars.TARGET];
 		}
+
 		if(!builder)
 			throw new Error("Build function not found for [" + makefile.Vars.TARGET + "] target");
-	    builder();
+
+	    builder(params);
 	    trace("\nDone.\n");
 	}
 	catch(e)
@@ -1566,3 +1615,31 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "__currentFrame\\->action\\.call\\(scene\\);", "mg", "(scene->*__currentFrame->action)();");
 	return buff;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function figlet(text)
+{
+	if(!__global.makefile) return "";
+
+	try
+	{
+		if(!__global.__figlet)
+		{
+			include(makefile.Vars.PATH_3RD_PARTY_FIGLET + "/figlet.js");
+			__global.__figlet = new Figlet();
+			__global.__figlet.load(read(makefile.Vars.PATH_3RD_PARTY_FIGLET + "/slant.flf"));
+		}
+
+	    var v = __figlet.getText(text).split('\n');
+	    for(var i = 0; i<v.length; i++)
+	        v[i] = "//\t" + v[i];
+	    v = v.join('\n');
+	    v = "\n// ==================================================================================================================================\n" + v + "\n// ==================================================================================================================================\n\n"
+	    return v;
+	}
+	catch(e)
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,264 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * This is a private Framework of Coconut2D product and you should explicitly
+ * own a license for using. Use of any portions or material related with this
+ * Framework is prohibited. Please contact mobileFX for licensing inquiries.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+
+"#include CocoClip.jspp";
+
+// Slot Paytable
+struct CocoCasinoSlotPaytable
+{
+	symbolReferenceName1:String;
+	minRepeatsToWin1:Integer;
+	isFreeSpin1:Boolean;
+	image1:CocoImage;
+	price1_1:Number;
+	price1_2:Number;
+	price1_3:Number;
+
+	symbolReferenceName2:String;
+	minRepeatsToWin2:Integer;
+	isFreeSpin2:Boolean;
+	image2:CocoImage;
+	price2_1:Number;
+	price2_2:Number;
+	price2_3:Number;
+
+	symbolReferenceName3:String;
+	minRepeatsToWin3:Integer;
+	isFreeSpin3:Boolean;
+	image3:CocoImage;
+	price3_1:Number;
+	price3_2:Number;
+	price3_3:Number;
+
+	symbolReferenceName4:String;
+	minRepeatsToWin4:Integer;
+	isFreeSpin4:Boolean;
+	image4:CocoImage;
+	price4_1:Number;
+	price4_2:Number;
+	price4_3:Number;
+
+	symbolReferenceName5:String;
+	minRepeatsToWin5:Integer;
+	isFreeSpin5:Boolean;
+	image5:CocoImage;
+	price5_1:Number;
+	price5_2:Number;
+	price5_3:Number;
+
+	symbolReferenceName6:String;
+	minRepeatsToWin6:Integer;
+	isFreeSpin6:Boolean;
+	image6:CocoImage;
+	price6_1:Number;
+	price6_2:Number;
+	price6_3:Number;
+
+	symbolReferenceName7:String;
+	minRepeatsToWin7:Integer;
+	isFreeSpin7:Boolean;
+	image7:CocoImage;
+	price7_1:Number;
+	price7_2:Number;
+	price7_3:Number;
+
+	symbolReferenceName8:String;
+	minRepeatsToWin8:Integer;
+	isFreeSpin8:Boolean;
+	image8:CocoImage;
+	price8_1:Number;
+	price8_2:Number;
+	price8_3:Number;
+}
+
+
+// ==================================================================================================================================
+//	   ______                 ______           _            _____ __      __
+//	  / ____/___  _________  / ____/___ ______(_)___  ____ / ___// /___  / /_
+//	 / /   / __ \/ ___/ __ \/ /   / __ `/ ___/ / __ \/ __ \\__ \/ / __ \/ __/
+//	/ /___/ /_/ / /__/ /_/ / /___/ /_/ (__  ) / / / / /_/ /__/ / / /_/ / /_
+//	\____/\____/\___/\____/\____/\__,_/____/_/_/ /_/\____/____/_/\____/\__/
+//
+// ==================================================================================================================================
+
+class CocoCasinoSlot : CocoClip
+{
+	public var __CocoCasinoPayTable: CocoCasinoSlotPaytable;
+	published property CocoCasinoPayTable
+	{
+		function get():CocoCasinoSlotPaytable  { return __CocoCasinoPayTable; }
+		function set(v:CocoCasinoSlotPaytable) { __CocoCasinoPayTable = v;  }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var TICKET:Array<Integer>;
+	published var repeater:Integer;
+	published var progressiveReelStops:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var __minReelRepeats:Integer;
+	published property MinReelRepeats
+ 	{
+ 		function get():Integer  { return __minReelRepeats; }
+ 		function set(v:Integer) { __minReelRepeats = v; }
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var __maxReelRepeats:Integer;
+	published property MaxReelRepeats
+ 	{
+ 		function get():Integer  { return __maxReelRepeats; }
+ 		function set(v:Integer) { __maxReelRepeats = v; }
+ 	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var __NumberOfReels:Integer;
+	published property NumberOfReels
+ 	{
+ 		function get():Integer  { return __NumberOfReels; }
+ 		function set(v:Integer) { __NumberOfReels = v; }
+ 	}
+
+ 	private var StopTile:Integer;
+	private var __EventCounter:Integer;
+
+	// Events
+	public event OnSpinEnd();					// Notify whoever is listening that spin is over.
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(optional image:CocoImage):CocoClip(image)
+	{
+		TICKET = new Array<Integer>;
+		__CocoCasinoPayTable = new CocoCasinoSlotPaytable();
+		InitCocoCasinoPayTable();
+
+		progressiveReelStops 	= true;
+		repeater 				= 2;
+		__minReelRepeats 		= 2
+		__maxReelRepeats 		= 5;
+		__NumberOfReels  		= 3;
+
+		StopTile 				= 0;
+		__EventCounter			= 0;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete TICKET;
+		delete __CocoCasinoPayTable;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function InitCocoCasinoPayTable()
+	{
+		__CocoCasinoPayTable.symbolReferenceName1 = "CellScatter";
+		__CocoCasinoPayTable.minRepeatsToWin1 = 2;
+		__CocoCasinoPayTable.isFreeSpin1 = true;
+		__CocoCasinoPayTable.price1_1 =  5;
+		__CocoCasinoPayTable.price1_2 = 10;
+
+		__CocoCasinoPayTable.symbolReferenceName2 = "CellCoconut";
+		__CocoCasinoPayTable.minRepeatsToWin2 = 3;
+		__CocoCasinoPayTable.isFreeSpin2 = false;
+		__CocoCasinoPayTable.price2_1 = 300;
+
+		__CocoCasinoPayTable.symbolReferenceName3 = "CellCherry";
+		__CocoCasinoPayTable.minRepeatsToWin3 = 3;
+		__CocoCasinoPayTable.isFreeSpin3 = false;
+		__CocoCasinoPayTable.price3_1 = 200;
+
+		__CocoCasinoPayTable.symbolReferenceName4 = "CellPineaple";
+		__CocoCasinoPayTable.minRepeatsToWin4 = 3;
+		__CocoCasinoPayTable.isFreeSpin4 = false;
+		__CocoCasinoPayTable.price4_1 = 100;
+
+		__CocoCasinoPayTable.symbolReferenceName5 = "CellOrange";
+		__CocoCasinoPayTable.minRepeatsToWin5 = 3;
+		__CocoCasinoPayTable.isFreeSpin5 = false;
+		__CocoCasinoPayTable.price5_1 = 50;
+
+		__CocoCasinoPayTable.symbolReferenceName6 = "CellPapaya";
+		__CocoCasinoPayTable.minRepeatsToWin6 = 3;
+		__CocoCasinoPayTable.isFreeSpin6 = false;
+		__CocoCasinoPayTable.price6_1 = 30;
+
+		__CocoCasinoPayTable.symbolReferenceName7 = "CellKiwi";
+		__CocoCasinoPayTable.minRepeatsToWin7 = 3;
+		__CocoCasinoPayTable.isFreeSpin7 = false;
+		__CocoCasinoPayTable.price7_1 = 20;
+
+		__CocoCasinoPayTable.symbolReferenceName8 = "CellWatermelon";
+		__CocoCasinoPayTable.minRepeatsToWin8 = 3;
+		__CocoCasinoPayTable.isFreeSpin8 = false;
+		__CocoCasinoPayTable.price8_1 = 10;
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Spin()
+	{
+		var counter:Integer  = this.__NumberOfReels;
+		if(!counter)
+		{
+			counter = this.getChildrenByClassName("CocoCasinoSlotReel").size();
+			this.__NumberOfReels = counter;
+		}
+
+		if(!this.repeater) this.repeater = this.randomNumberInRange(2, 5);
+
+		for(var i:Integer=counter-1; i>=0; i--)
+    	{
+    		var s:CocoCasinoSlotReel = CocoCasinoSlotReel(this.__children[i]);
+			s.addEventListener(s.OnReelSpinEnd, __CocoCasinoSlotSpinOver);
+			StopTile = 0;
+    		s.Spin();
+    		if(this.progressiveReelStops) this.repeater--;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function randomNumberInRange(min:Integer, max:Integer):Integer
+	{
+		return Integer(Math.floor(Math.random() * Float(max - min + 1) + Float(min)));
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __CocoCasinoSlotSpinOver(sender:CocoEventSource, e:CocoEvent):Boolean
+	{
+		__EventCounter++;
+		if(this.__EventCounter == this.__NumberOfReels)
+		{
+			for(var i:Integer=this.__NumberOfReels-1; i>=0; i--)
+			{
+				var s:CocoCasinoSlotReel = CocoCasinoSlotReel(this.__children[i]);
+				s.removeEventListener(s.OnReelSpinEnd, __CocoCasinoSlotSpinOver);
+			}
+			dispatchEvent(this.OnSpinEnd);
+		}
+		return false;
+	}
+
+}

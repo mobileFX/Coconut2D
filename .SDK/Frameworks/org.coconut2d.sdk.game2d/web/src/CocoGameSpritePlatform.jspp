@@ -25,15 +25,21 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include CocoClip.jspp";
+"#include CocoGameSprite.jspp";
 
-class CocoGameSpritePlatform : CocoClip
+class CocoGameSpritePlatform : CocoGameSprite
 {
-	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	public function Constructor(optional image:CocoImage) : CocoGameSprite(image)
 	{
 	}
 
 	public function Destructor()
 	{
+	}
+
+	public function initBody(world:b2World)
+	{
+		super.initBody;
+		if(body) body.SetActive(false);
 	}
 }

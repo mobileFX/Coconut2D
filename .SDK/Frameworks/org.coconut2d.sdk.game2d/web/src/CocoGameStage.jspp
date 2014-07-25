@@ -31,21 +31,85 @@ class CocoGameStage : CocoClip
 {
 	// Special Game Sprites
 	published reference var PlayerSprite:CocoGamePlayerSprite;
+	published var enemiesClassName:String;
+	published var bonusesClassName:String;
+	published var mazesClassName:String;
+	published var platformsClassName:String;
+	published reference var touchHandlerClip:CocoClip;
+
+	public var enemiesSprites:Array<CocoGameSpriteEnemy>;
+	public var bonusesSprites:Array<CocoGameSpriteBonus>;
+	public var mazesSprites:Array<CocoGameSpriteMaze>;
+	public var platformsSprites:Array<CocoGameSpritePlatform>;
+
+	// Physics
+	public var world:b2World;
+	public var worldTick:Float;
 
 	private var __spritesToRemove:Array<CocoGameSprite>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage) : CocoClip(image)
 	{
+		enemiesClassName = "CocoGameSpriteEnemy";
+		bonusesClassName = "CocoGameSpriteBonus";
+		mazesClassName = "CocoGameSpriteMaze";
+		platformsClassName = "CocoGameSpritePlatform";
+
+		enemiesSprites = null;
+		bonusesSprites = null;
+		mazesSprites = null;
+		platformsSprites = null;
+		worldTick=0.016;
+
 		PlayerSprite=null;
+		world = new b2World(new b2Vec2(0.0, 20.0));
 		__spritesToRemove=null;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete enemiesSprites;
+		delete bonusesSprites;
+		delete mazesSprites;
+		delete platformsSprites;
 		PlayerSprite=null;
+		//world.__destroy__();
+		delete world;
 		delete __spritesToRemove;
+	}
+
+	public virtual function prepare(scene:CocoScene)
+	{
+		worldTick = 0.02;// (( Float(engine.TICK_TIME) * scene.__fps / 60.0) /1000.0);
+
+		PlayerSprite = CocoGamePlayerSprite(scene.getClipByPath("Root/Layer1/Stage/Player/Coconut/:: ImageSymbol_CoconutIdle"));
+		touchHandlerClip = scene.getClipByPath("Root/TouchLayer");
+
+		enemiesSprites = getChildrenByClassName(enemiesClassName);
+		bonusesSprites = getChildrenByClassName(bonusesClassName);
+		mazesSprites = getChildrenByClassName(mazesClassName);
+		platformsSprites = getChildrenByClassName(platformsClassName);
+
+		PlayerSprite.initBody(world);
+		var i:Integer;
+		for(i = mazesSprites.size(); i--;)
+		{
+			mazesSprites[i].initBody(world);
+		}
+		for(i = platformsSprites.size(); i--;)
+		{
+			platformsSprites[i].initBody(world);
+		}
+		for(i = bonusesSprites.size(); i--;)
+		{
+			bonusesSprites[i].initBody(world);
+		}
+
+		touchHandlerClip.addEventListener(touchHandlerClip.OnTouchStart, Jump);
+
+		super.prepare;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,15 +134,52 @@ class CocoGameStage : CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function scrollStage()
 	{
+		if(!__currentFrame) return;
+		var kf:CocoKeyFrame = __timeline.keyFrame(__currentFrame.frameIndex);
+		kf.x = -PlayerSprite.__parent.__parent.__currentFrame.x;
+		kf.y = -Math.min(0.0, PlayerSprite.__parent.__parent.__currentFrame.y + 100.0);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function collisionDetection()
 	{
+		world.Step(worldTick, 2, 2);
+
+		if(PlayerSprite.__parent.__parent.__currentFrame)
+		{
+			var pos:b2Vec2 = b2Vec2(PlayerSprite.body.GetPosition());
+			var kf:CocoKeyFrame = PlayerSprite.__parent.__parent.__timeline.keyFrame(PlayerSprite.__parent.__parent.__currentFrame.frameIndex);
+			kf.x = Float(pos.get_x() * BOX2D_SCALE);
+			kf.y = Float(pos.get_y() * BOX2D_SCALE);
+			var i:Integer;
+			for(i = platformsSprites.size(); i--;)
+			{
+				if(!platformsSprites[i].body) continue;
+				var active:Boolean = kf.y + PlayerSprite.CollisionRectangle.bottom < b2Vec2(platformsSprites[i].body.GetPosition()).get_y() * BOX2D_SCALE;
+				platformsSprites[i].body.SetActive(active);
+				if(PlayerSprite.collidesWith(platformsSprites[i]))
+					PlayerSprite.body.SetLinearVelocity(new b2Vec2(4.0, -8.0));
+			}
+
+			for(i = bonusesSprites.size(); i--;)
+				if(PlayerSprite.collidesWith(bonusesSprites[i]))
+					bonusesSprites[i].acquire();
+
+			for(i = mazesSprites.size(); i--;)
+				if(PlayerSprite.collidesWith(mazesSprites[i]))
+					PlayerSprite.body.SetLinearVelocity(new b2Vec2(4.0, -8.0));
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function removeDeadSprites()
 	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Jump(sender:CocoEventSource, e:CocoEvent) : Boolean
+	{
+		PlayerSprite.body.SetLinearVelocity(new b2Vec2(4.0, -10.0));
+		return false;
 	}
 }

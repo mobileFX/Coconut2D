@@ -91,8 +91,10 @@ class CocoGameTiledLayerParallax : CocoGameTiledLayer
  		if(FollowPoint && FollowPoint.__parent.__currentFrame)
  		{
  			var img:CocoImage = __children[0].__image;
- 			var d:Float = FollowPoint.__parent.__currentFrame.x * 1.0 / img.image.naturalWidth * ParallaxDistance / 1000.0;
+ 			var fkf:CocoKeyFrame = FollowPoint.__parent.__currentFrame;
+ 			var d:Float = fkf.x * 1.0 / img.image.naturalWidth * ParallaxDistance / 1000.0;
  			kf.red = d - Float(Math.floor(d));
+ 			kf.y = -Math.min(0.0, fkf.y + 400.0) * ParallaxDistance / 1000.0;
  		}
  		super.paint;
  	}

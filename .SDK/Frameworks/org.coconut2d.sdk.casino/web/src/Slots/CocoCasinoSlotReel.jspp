@@ -32,35 +32,10 @@
 
 class CocoCasinoSlotReel : CocoClip
 {
-	public var  __TileWidth:Integer;
-	published property TileWidth
- 	{
- 		function get():Integer  { return __TileWidth; }
- 		function set(v:Integer) { __TileWidth = v; }
- 	}
-
-	public var  __TileHeight:Integer;
-	published property TileHeight
- 	{
- 		function get():Integer  { return __TileHeight; }
- 		function set(v:Integer) { __TileHeight = v; }
- 	}
-
-	// Number of Tiles in Reel.
-	public var  __No_Of_Tiles_In_Reel:Integer;
-	published property No_Of_Tiles_In_Reel
- 	{
- 		function get():Integer  { return __No_Of_Tiles_In_Reel; }
- 		function set(v:Integer) { __No_Of_Tiles_In_Reel = v; }
- 	}
-
-	// Number of visible rows in Reel.
-	public var  __Visible_Reel_Rows:Integer;
-	published property Visible_Reel_Rows
- 	{
- 		function get():Integer  { return __Visible_Reel_Rows; }
- 		function set(v:Integer) { __Visible_Reel_Rows = v; }
- 	}
+	published var TileWidth:Integer;
+ 	published var TileHeight:Integer;
+	published var No_Of_Tiles_In_Reel:Integer; 	// Number of Tiles in Reel.
+	published var Visible_Reel_Rows:Integer;	// Number of visible rows in Reel.
 
     // Time for a complet repetition in msec.
 	public var  __reelSpeed:Float;
@@ -70,12 +45,14 @@ class CocoCasinoSlotReel : CocoClip
  		function set(v:Float) { __reelSpeed = v; }
  	}
 
+	published var HiddenSlotCells:Integer;
+
+	private var ReelSymbols:Array<CocoClip>;
 	private var __reelRepetition:Integer;		// Number of Reel Spins.
 
 
 	// Events
-	public event OnSpinEnd();					// Notify whoever is listening that spin is over.
-
+	public event OnReelSpinEnd();				// Notify parent that reel spin is over.
 
 	// ==================================================================================================================================
 	//	    ______                 __  _
@@ -87,21 +64,37 @@ class CocoCasinoSlotReel : CocoClip
 	// ==================================================================================================================================
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(optional image:CocoImage):CocoClip(image)
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
 	{
-		__TileWidth = 179;				// Tile width
-		__TileHeight= 136;				// Tile height
-		__No_Of_Tiles_In_Reel = 12;		// Number of Tiles in Reel
-		__Visible_Reel_Rows = 3;		// Number of visible rows in Reel
-		__reelRepetition = 2;			// Number of Reel Spins
-		__reelSpeed = 1 / 500;			// Time for a complet repetition in msec
+		ReelSymbols 			= new Array<CocoClip>;
+		TileWidth 				= 179;					// Tile width
+		TileHeight				= 136;					// Tile height
+		No_Of_Tiles_In_Reel 	= 15;					// Number of Tiles in Reel
+		Visible_Reel_Rows 		= 3;					// Number of visible rows in Reel
+		__reelRepetition 		= 0;					// Number of Reel Spins
+		__reelSpeed				= 1 / 500;				// Time for a complet repetition in msec
+		HiddenSlotCells 		= 4;
+		InitReelSymbols();
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete ReelSymbols;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	function InitReelSymbols()
+	{
+		if(this.__children)
+		{
+			for(var i=__children.size()-1; i>=0; i--)
+			{
+				this.ReelSymbols
+			}
+		}
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function randomTileRepetitionInRange(min:Integer, max:Integer):Integer
@@ -111,9 +104,9 @@ class CocoCasinoSlotReel : CocoClip
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Spin(repetition:Integer)
+	public virtual function Spin()
 	{
-		__reelRepetition = repetition;	//randomTileRepetitionInRange(2, 5);
+		__reelRepetition = 5;//this.repeater;
 	}
 
 
@@ -124,22 +117,26 @@ class CocoCasinoSlotReel : CocoClip
 		var T:Time = this.__currentTime;
  		super.paint;
  		var dt:Float = Float(this.__currentTime - T);
+ 		var d:Integer = -(this.No_Of_Tiles_In_Reel-this.Visible_Reel_Rows-this.HiddenSlotCells);
 
  		if(__reelRepetition)
  		{
- 			KF.y += Float(this.__TileHeight * this.__No_Of_Tiles_In_Reel) * __reelSpeed * dt;
+ 			KF.y += Float(this.TileHeight * this.No_Of_Tiles_In_Reel) * __reelSpeed * dt;
+ 			//trace("===================================   KF.y = "+String(KF.y));
  			if(KF.y > 0)
  			{
- 				if(--__reelRepetition) KF.y = -Float(this.__TileHeight) * Float(this.__No_Of_Tiles_In_Reel - 3.0);
+ 				if(--__reelRepetition) {
+ 					KF.y = -Float(this.TileHeight) * Float(this.No_Of_Tiles_In_Reel-this.HiddenSlotCells);
+ 					//trace("RESTART ===================================   KF.y = "+String(KF.y));
+ 				}
  				else
  				{
  					// Choose randomly the tile where the spin stops.
  					// Since the first tile's y is set to 0, and we show 3 tiles in the slot, we need to
  					// choose a number between 0 and (the number of tiles minus the number of visible tiles)
- 					var d:Integer = -(this.__No_Of_Tiles_In_Reel-this.__Visible_Reel_Rows);
- 					KF.y = Float(randomTileRepetitionInRange(0, d) * this.__TileHeight);
- 					dispatchEvent(this.OnSpinEnd);
-
+ 					KF.y = Float(randomTileRepetitionInRange(0, d) * this.TileHeight);
+ 					//KF.y = Float(this.StopTile * this.TileHeight);
+ 					dispatchEvent(this.OnReelSpinEnd);
  				}
  			}
  		}

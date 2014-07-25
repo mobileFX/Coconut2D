@@ -174,6 +174,18 @@ function CompilerExportsPlugin(compiler)
 
 		// *** NOTE ***: hpp could only have includes for bases
 
+
+		// ==========================================================================================
+		// Parse all C++ files to create a vartype (class/struct/enum) to header file map.
+		// We need all native common and device wrapper files, along with any native framework files
+		// such as Emscripten libraries (eg. Box2D C++ headers).
+		// IMPORTANT: We must NOT process the C++ files generated from CocoScript.
+		// ( we need to be able to find fast the declaration C++ header file for a vartype )
+		// ==========================================================================================
+
+		//files = __coco_make.collectSources(Sources, FileMasks, vFrameworksSrcSubPaths);
+		//var cppSymbols = CPPParser(files);
+
 		// ==========================================================================================
 		// Organize classes per native file
 		// ==========================================================================================
@@ -373,6 +385,9 @@ function CompilerExportsPlugin(compiler)
 			// Nasty hack for State.
 			//TODO: Should change this with detection code
 			if(vartype=="State") return null;
+
+			// Check if the vartype is defined in C++ frameworks (or Emscripten)
+
 
 			// Vartype not found anywhere.
 			for(item in native_file.classes){break;}

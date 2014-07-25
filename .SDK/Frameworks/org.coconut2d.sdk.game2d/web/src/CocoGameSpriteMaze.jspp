@@ -25,15 +25,25 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-"#include CocoClip.jspp";
+"#include CocoGameSprite.jspp";
 
-class CocoGameSpriteMaze : CocoClip
+class CocoGameSpriteMaze : CocoGameSprite
 {
-	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	public function Constructor(optional image:CocoImage) : CocoGameSprite(image)
 	{
+		CollisionRectangle = new CocoRect();
+		CollisionRectangle.left = -450.0;
+		CollisionRectangle.top = -60.0;
+		CollisionRectangle.right = 450.0;
+		CollisionRectangle.bottom = 60.0;
 	}
 
 	public function Destructor()
 	{
+	}
+
+	public function initBody(world:b2World)
+	{
+		super.initBody;
 	}
 }

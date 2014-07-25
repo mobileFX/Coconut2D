@@ -329,9 +329,9 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		{
 			if(__children[i].__className==className)
 			{
-				arr.concat(__children[i].getChildrenByClassName(className));
 				arr.push(__children[i]);
 			}
+			arr = arr.concat(__children[i].getChildrenByClassName(className));
 		}
 		return arr;
 	}
@@ -380,6 +380,8 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function tick(time:Time)
 	{
+		for(var i:Integer = __children.size(); i--;)
+			__children[i].tick(time);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -753,3 +755,64 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	    __hasBoundingBox = true;
 	}
 }
+
+// ==================================================================================================================================
+//	   ______                _____      ____________          __                      ___________
+//	  / ____/___  _________ / ___/___  / / __/_  __/__  _  __/ /___  __________  ____/ / ____/ (_)___
+//	 / /   / __ \/ ___/ __ \\__ \/ _ \/ / /_  / / / _ \| |/_/ __/ / / / ___/ _ \/ __  / /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ /__/ /  __/ / __/ / / /  __/>  </ /_/ /_/ / /  /  __/ /_/ / /___/ / / /_/ /
+//	\____/\____/\___/\____/____/\___/_/_/   /_/  \___/_/|_|\__/\__,_/_/   \___/\__,_/\____/_/_/ .___/
+//	                                                                                         /_/
+// ==================================================================================================================================
+
+class CocoSelfTexturedClip : CocoClip
+{
+	public function Constructor() :CocoClip(null)
+	{
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+// ==================================================================================================================================
+//	   ______               ______          __  _________
+//	  / ____/___  _________/_  __/__  _  __/ /_/ ____/ (_)___
+//	 / /   / __ \/ ___/ __ \/ / / _ \| |/_/ __/ /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ / / /  __/>  </ /_/ /___/ / / /_/ /
+//	\____/\____/\___/\____/_/  \___/_/|_|\__/\____/_/_/ .___/
+//	                                                 /_/
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoTextClip : CocoSelfTexturedClip
+{
+	published var Text:String;
+	published var FontFamily:String;
+	published var FontSizePixels:Integer;
+	published var FontBold:Boolean;
+	published var FontItalic:Boolean;
+	published var FontUnderline:Boolean;
+	published var FontColor:Color;
+	published var TextHorizAlign:COCO_TEXT_ALIGN_ENUM;
+	published var TextVertAlign:COCO_TEXT_ALIGN_ENUM;
+
+	public function Constructor()
+	{
+		Text			= "";
+		FontFamily		= "Helvetica";
+		FontSizePixels 	= 15;
+		FontBold		= false;
+		FontItalic		= false;
+		FontUnderline	= false;
+		FontColor		= 0xff000000;
+		TextHorizAlign	= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
+		TextVertAlign	= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
+	}
+
+	public function Destructor()
+	{
+	}
+}
+

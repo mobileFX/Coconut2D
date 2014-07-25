@@ -8,6 +8,39 @@ global.__native = false;
 if(!global.window) 		{ global.window = new HTMLWindow(); global.__native = true; }
 if(!global.document)	global.document = window.document;
 if(!global.trace)		global.trace = function(msg) { console.log(msg); };
+if(!global.console)		global.console = { log: trace };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Required for Box2D
+////////////////////////////////////////////////////////////////////////////////////////////////////
+if(global.Module)
+{
+	var b2_staticBody = 0;
+	var b2_kinematicBody = 1;
+	var b2_dynamicBody = 2;
+
+	this['Box2D'] = Module;
+	Module['b2_staticBody']    = 0;
+	Module['b2_kinematicBody'] = 1;
+	Module['b2_dynamicBody']   = 2;
+
+	function importScripts(){}
+
+	function createPolygonShape(vertices)
+	{
+	    var shape = new b2PolygonShape();
+	    var buffer = allocate(vertices.length * 8, 'float', ALLOC_STACK);
+	    var offset = 0;
+	    for (var i=0;i<vertices.length;i++) {
+	        setValue(buffer+(offset), vertices[i].get_x(), 'float'); // x
+	        setValue(buffer+(offset+4), vertices[i].get_y(), 'float'); // y
+	        offset += 8;
+	    }
+	    var ptr_wrapped = wrapPointer(buffer, b2Vec2);
+	    shape.Set(ptr_wrapped, vertices.length);
+	    return shape;
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 if(global["EventTarget"]) global.EventTarget = function() {};
