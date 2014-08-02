@@ -38,7 +38,7 @@
 
 #include "Coconut2D.hpp"
 #include "CocoEventConnectionPoint.hpp"
-#include "CocoEvent.hpp"
+#include "engine/CocoEvent.hpp"
 #include "IEventListener.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ class CocoEventSource
 {
 public:
 	Array<CocoEventConnectionPoint*>* __eventListeners;
-	const String __className = String("CocoEventSource");
+	String __className;
 	CocoEventSource();
 	virtual ~CocoEventSource();
 	virtual void addEventListener(CocoEvent* Event, void* Listener, int DispID);

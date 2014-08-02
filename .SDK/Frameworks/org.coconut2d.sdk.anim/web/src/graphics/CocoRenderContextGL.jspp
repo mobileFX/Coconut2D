@@ -38,9 +38,13 @@ class CocoImageRenderDataGL implements ICocoImageRenderData
 {
 	public reference var texture: WebGLTexture;
 	public reference var buffer: WebGLBuffer;
+	public var drawType:Integer;
+	public var vertexCount:Integer;
 
 	public function Constructor()
 	{
+		drawType = 0;
+		vertexCount = 0;
 		texture = null;
 		buffer = null;
 	}
@@ -61,29 +65,20 @@ class CocoImageRenderDataGL implements ICocoImageRenderData
 
 class CocoRenderContextGL implements ICocoRenderContext
 {
+	private reference var gl:WebGLRenderingContext;
 
 	private var __modelViewMatrix:CocoMatrix;
 	private var __projectionMatrix:CocoMatrix;
 
-	private reference var __glProgram:WebGLProgram;
+	private var maskDraw:Boolean;
 
-	private var __glProgram_Simple:WebGLProgram;
-	private var __glProgram_SimpleWithAlpha:WebGLProgram;
-	private var __glProgram_SaturationWithAlpha:WebGLProgram;
-	private var __glProgram_ParallaxHor:WebGLProgram;
+	private reference var activeShader:CocoShaderCommon;
+	private var shaderSimple:Array<CocoShaderSimple>;
+	private var shaderSimpleWithAlpha:Array<CocoShaderSimpleWithAlpha>;
+	private var shaderSaturationWithAlpha:Array<CocoShaderSaturationWithAlpha>;
+	private var shaderParallaxHor:Array<CocoShaderParallaxHor>;
 
-	private var __vertex_shader_Common:String;
-	private var __fragment_shader_Simple:String;
-	private var __fragment_shader_SimpleWithAlpha:String;
-	private var __fragment_shader_SaturationWithAlpha:String;
-	private var __fragment_shader_ParallaxHor:String;
-
-	private var __boundingBoxVertexShader:String;
-	private var __boundingBoxFragmentShader:String;
-	private var __boundingBoxProgram:WebGLProgram;
-	private var __boundingBoxBuffer:WebGLBuffer;
-
-	private reference var gl:WebGLRenderingContext;
+	private var shaderBoundingBox:CocoShaderBoundingBox;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function Constructor(ctx:WebGLRenderingContext)
@@ -92,23 +87,25 @@ class CocoRenderContextGL implements ICocoRenderContext
 
 		__modelViewMatrix						= new CocoMatrix();
 		__modelViewMatrix.identity();
-
 		__projectionMatrix 						= new CocoMatrix();
 
-		__glProgram								= null;
-		__glProgram_Simple						= null;
-		__glProgram_SimpleWithAlpha				= null;
-		__glProgram_SaturationWithAlpha			= null;
-		__glProgram_ParallaxHor					= null;
-		__vertex_shader_Common					= "attribute vec2 iVecCoords;attribute vec2 iTexCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords, 0.0, 1.0); pTexCoord = vec2(((abs(iTexCoords.x - uSprFlip.x) + uSprFrame.x) * uSprSize.x), ((abs(iTexCoords.y - uSprFlip.y) + uSprFrame.y) * uSprSize.y));}";
-		__fragment_shader_Simple    			= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n gl_FragColor = texture2D(uSampler, pTexCoord); }";
-		__fragment_shader_SimpleWithAlpha    	= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform float uAlpha;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n vec4 texColor = texture2D(uSampler, pTexCoord);\n gl_FragColor = vec4(texColor.rgb, texColor.a * uAlpha); }";
-		__fragment_shader_SaturationWithAlpha	= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform vec4 uColor;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n vec4 texColor = texture2D(uSampler, pTexCoord);\n float c = (texColor.r + texColor.g + texColor.b) / 3.0; \n gl_FragColor = vec4((1.0 - uColor.r) * c + texColor.r * uColor.r, (1.0 - uColor.g) * c + texColor.g * uColor.g, (1.0 - uColor.b) * c + texColor.b * uColor.b, texColor.a * uColor.a);}";
-		__fragment_shader_ParallaxHor  			= "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nuniform vec2 uSprSize;\nuniform vec4 uColor;\nvarying vec2 pTexCoord;\nvoid main(void) {\n gl_FragColor = texture2D(uSampler, vec2(pTexCoord.x + uColor.r * uSprSize.x - floor(pTexCoord.x / uSprSize.x + uColor.r) * uSprSize.x, pTexCoord.y));\n}";
-		__boundingBoxVertexShader 				= "attribute vec2 iVec2Coords;uniform mat4 uProjMat;void main(void) { gl_Position = uProjMat * vec4(iVec2Coords, 0.0, 1.0);}";
-		__boundingBoxFragmentShader				= "#ifdef GL_ES\nprecision lowp float;\n#endif\nvoid main(void) { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);}";
-		__boundingBoxProgram					= null;
-		__boundingBoxBuffer						= null;
+		maskDraw = false;
+
+		activeShader = null;
+		shaderSimple = new Array<CocoShaderSimple>();
+		shaderSimple.push(new CocoShaderSimple());
+		shaderSimple.push(new CocoShaderSimple(true));
+		shaderSimpleWithAlpha = new Array<CocoShaderSimpleWithAlpha>();
+		shaderSimpleWithAlpha.push(new CocoShaderSimpleWithAlpha());
+		shaderSimpleWithAlpha.push(new CocoShaderSimpleWithAlpha(true));
+		shaderSaturationWithAlpha = new Array<CocoShaderSaturationWithAlpha>();
+		shaderSaturationWithAlpha.push(new CocoShaderSaturationWithAlpha());
+		shaderSaturationWithAlpha.push(new CocoShaderSaturationWithAlpha(true));
+		shaderParallaxHor = new Array<CocoShaderParallaxHor>();
+		shaderParallaxHor.push(new CocoShaderParallaxHor());
+		shaderParallaxHor.push(new CocoShaderParallaxHor(true));
+
+		shaderBoundingBox = new CocoShaderBoundingBox();
  	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,12 +113,11 @@ class CocoRenderContextGL implements ICocoRenderContext
  	{
 		delete __modelViewMatrix;
 		delete __projectionMatrix;
-		delete __glProgram_Simple;
-		delete __glProgram_SimpleWithAlpha;
-		delete __glProgram_SaturationWithAlpha;
-		delete __glProgram_ParallaxHor;
-		delete __boundingBoxProgram;
-		delete __boundingBoxBuffer;
+		delete shaderSimple;
+		delete shaderSimpleWithAlpha;
+		delete shaderSaturationWithAlpha;
+		delete shaderParallaxHor;
+		delete shaderBoundingBox;
  	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +154,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 	{
 		__modelViewMatrix.identity();
 		gl.clearColor(0,0,0,1);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+ 		gl.clear(gl.COLOR_BUFFER_BIT);
+ 		gl.stencilMask(0x00);
     	//gl.useProgram(__glProgram);
     	//gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
 		//gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
@@ -176,6 +173,10 @@ class CocoRenderContextGL implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(scene:CocoScene)
 	{
+		gl.enable(gl.STENCIL_TEST);
+		gl.stencilFunc(gl.EQUAL, 0, 0xFF);
+		gl.stencilMask(0x00);
+		gl.stencilOp(gl.REPLACE, gl.KEEP, gl.KEEP);
 		gl.disable(gl.DEPTH_TEST);
 		gl.enable(gl.BLEND);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -197,104 +198,52 @@ class CocoRenderContextGL implements ICocoRenderContext
 		}
 		__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
 
-		// Bounding box shader
-		__boundingBoxProgram = makeProgram(gl, __boundingBoxVertexShader, __boundingBoxFragmentShader);
-		gl.useProgram(__boundingBoxProgram);
-		__boundingBoxProgram.GLSLiVec2Coords	= gl.getAttribLocation(__boundingBoxProgram, "iVec2Coords");
-		__boundingBoxProgram.GLSLuProjMat		= gl.getUniformLocation(__boundingBoxProgram, "uProjMat");
-		__boundingBoxBuffer	= gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, __boundingBoxBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);
 
-		// Normal shader
-		__glProgram_Simple = makeProgram(gl, __vertex_shader_Common, __fragment_shader_Simple);
-		gl.useProgram(__glProgram_Simple);
-		__glProgram_Simple.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_Simple, "iVecCoords");
-		__glProgram_Simple.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram_Simple, "iTexCoords");
-		__glProgram_Simple.GLSLuProjMat 	= gl.getUniformLocation(__glProgram_Simple, "uProjMat");
-		__glProgram_Simple.GLSLuMVMat 		= gl.getUniformLocation(__glProgram_Simple, "uMVMat");
-		__glProgram_Simple.GLSLuSprSize 	= gl.getUniformLocation(__glProgram_Simple, "uSprSize");
-		__glProgram_Simple.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram_Simple, "uSprFrame");
-		__glProgram_Simple.GLSLuSprFlip 	= gl.getUniformLocation(__glProgram_Simple, "uSprFlip");
-		__glProgram_Simple.GLSLuSampler 	= gl.getUniformLocation(__glProgram_Simple, "uSampler");
-		gl.enableVertexAttribArray(__glProgram_Simple.GLSLiVecCoords);
-		gl.enableVertexAttribArray(__glProgram_Simple.GLSLiTexCoords);
-		gl.uniform1i(__glProgram_Simple.GLSLuSampler, 0);
-		update(__modelViewMatrix, __glProgram_Simple.GLSLuMVMat);
-		update(__projectionMatrix, __glProgram_Simple.GLSLuProjMat);
+		shaderBoundingBox.init(gl);
+		update(__projectionMatrix, shaderBoundingBox.uProjMat);
 
-		// Shader for handling alpha
-		__glProgram_SimpleWithAlpha = makeProgram(gl, __vertex_shader_Common, __fragment_shader_SimpleWithAlpha);
-		gl.useProgram(__glProgram_SimpleWithAlpha);
-		__glProgram_SimpleWithAlpha.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_SimpleWithAlpha, "iVecCoords");
-		__glProgram_SimpleWithAlpha.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram_SimpleWithAlpha, "iTexCoords");
-		__glProgram_SimpleWithAlpha.GLSLuProjMat 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uProjMat");
-		__glProgram_SimpleWithAlpha.GLSLuMVMat 		= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uMVMat");
-		__glProgram_SimpleWithAlpha.GLSLuSprSize 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uSprSize");
-		__glProgram_SimpleWithAlpha.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uSprFrame");
-		__glProgram_SimpleWithAlpha.GLSLuSprFlip 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uSprFlip");
-		__glProgram_SimpleWithAlpha.GLSLuSampler 	= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uSampler");
-		__glProgram_SimpleWithAlpha.GLSLuAlpha 		= gl.getUniformLocation(__glProgram_SimpleWithAlpha, "uAlpha");
-		gl.enableVertexAttribArray(__glProgram_SimpleWithAlpha.GLSLiVecCoords);
-		gl.enableVertexAttribArray(__glProgram_SimpleWithAlpha.GLSLiTexCoords);
-		gl.uniform1i(__glProgram_SimpleWithAlpha.GLSLuSampler, 0);
-		update(__modelViewMatrix, __glProgram_SimpleWithAlpha.GLSLuMVMat);
-		update(__projectionMatrix, __glProgram_SimpleWithAlpha.GLSLuProjMat)
+		activeShader = shaderSimple[0];
+		activeShader.init(gl);
+		update(__modelViewMatrix, activeShader.uMVMat);
+		update(__projectionMatrix, activeShader.uProjMat);
 
-		// Shader for handling saturation with alpha
-		__glProgram_SaturationWithAlpha = makeProgram(gl, __vertex_shader_Common, __fragment_shader_SaturationWithAlpha);
-		gl.useProgram(__glProgram_SaturationWithAlpha);
-		__glProgram_SaturationWithAlpha.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_SaturationWithAlpha, "iVecCoords");
-		__glProgram_SaturationWithAlpha.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram_SaturationWithAlpha, "iTexCoords");
-		__glProgram_SaturationWithAlpha.GLSLuProjMat 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uProjMat");
-		__glProgram_SaturationWithAlpha.GLSLuMVMat 		= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uMVMat");
-		__glProgram_SaturationWithAlpha.GLSLuSprSize 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uSprSize");
-		__glProgram_SaturationWithAlpha.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uSprFrame");
-		__glProgram_SaturationWithAlpha.GLSLuSprFlip 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uSprFlip");
-		__glProgram_SaturationWithAlpha.GLSLuSampler 	= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uSampler");
-		__glProgram_SaturationWithAlpha.GLSLuColor 		= gl.getUniformLocation(__glProgram_SaturationWithAlpha, "uColor");
-		gl.enableVertexAttribArray(__glProgram_SaturationWithAlpha.GLSLiVecCoords);
-		gl.enableVertexAttribArray(__glProgram_SaturationWithAlpha.GLSLiTexCoords);
-		gl.uniform1i(__glProgram_SaturationWithAlpha.GLSLuSampler, 0);
-		update(__modelViewMatrix, __glProgram_SaturationWithAlpha.GLSLuMVMat);
-		update(__projectionMatrix, __glProgram_SaturationWithAlpha.GLSLuProjMat)
+		activeShader = shaderSimple[1];
+		activeShader.init(gl);
+		update(__modelViewMatrix, activeShader.uMVMat);
+		update(__projectionMatrix, activeShader.uProjMat);
 
-		// Shader for handling Horizontal Parallax effects
-		__glProgram_ParallaxHor = makeProgram(gl, __vertex_shader_Common, __fragment_shader_ParallaxHor);
-		gl.useProgram(__glProgram_ParallaxHor);
-		__glProgram_ParallaxHor.GLSLiVecCoords 	= gl.getAttribLocation(__glProgram_ParallaxHor, "iVecCoords");
-		__glProgram_ParallaxHor.GLSLiTexCoords 	= gl.getAttribLocation(__glProgram_ParallaxHor, "iTexCoords");
-		__glProgram_ParallaxHor.GLSLuProjMat 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uProjMat");
-		__glProgram_ParallaxHor.GLSLuMVMat 		= gl.getUniformLocation(__glProgram_ParallaxHor, "uMVMat");
-		__glProgram_ParallaxHor.GLSLuSprSize 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uSprSize");
-		__glProgram_ParallaxHor.GLSLuSprFrame 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uSprFrame");
-		__glProgram_ParallaxHor.GLSLuSprFlip 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uSprFlip");
-		__glProgram_ParallaxHor.GLSLuSampler 	= gl.getUniformLocation(__glProgram_ParallaxHor, "uSampler");
-		__glProgram_ParallaxHor.GLSLuColor 		= gl.getUniformLocation(__glProgram_ParallaxHor, "uColor");
-		gl.enableVertexAttribArray(__glProgram_ParallaxHor.GLSLiVecCoords);
-		gl.enableVertexAttribArray(__glProgram_ParallaxHor.GLSLiTexCoords);
-		gl.uniform1i(__glProgram_ParallaxHor.GLSLuSampler, 0);
-		update(__modelViewMatrix, __glProgram_ParallaxHor.GLSLuMVMat);
-		update(__projectionMatrix, __glProgram_ParallaxHor.GLSLuProjMat)
+		activeShader = shaderSimpleWithAlpha[0];
+		activeShader.init(gl);
+		update(__modelViewMatrix, activeShader.uMVMat);
+		update(__projectionMatrix, activeShader.uProjMat);
 
-        __glProgram = __glProgram_Simple;
-        gl.useProgram(__glProgram);
-	}
+		activeShader = shaderSimpleWithAlpha[1];
+		activeShader.init(gl);
+		update(__modelViewMatrix, activeShader.uMVMat);
+		update(__projectionMatrix, activeShader.uProjMat);
 
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	private function makeProgram(gl:WebGLRenderingContext, vs:String, fs:String) :WebGLProgram
-	{
-		var vshader:WebGLShader = gl.createShader(gl.VERTEX_SHADER);
-		var fshader:WebGLShader = gl.createShader(gl.FRAGMENT_SHADER);
-		gl.shaderSource(vshader, vs);
-		gl.shaderSource(fshader, fs);
-		gl.compileShader(vshader);
-		gl.compileShader(fshader);
-		var program:WebGLProgram = gl.createProgram();
-		gl.attachShader(program, vshader);
-		gl.attachShader(program, fshader);
-		gl.linkProgram(program);
-		return program;
+		activeShader = shaderSaturationWithAlpha[0];
+		activeShader.init(gl);
+		update(__modelViewMatrix, activeShader.uMVMat);
+		update(__projectionMatrix, activeShader.uProjMat);
+
+		activeShader = shaderSaturationWithAlpha[1];
+		activeShader.init(gl);
+		update(__modelViewMatrix, activeShader.uMVMat);
+		update(__projectionMatrix, activeShader.uProjMat);
+
+		activeShader = shaderParallaxHor[0];
+		activeShader.init(gl);
+		update(__modelViewMatrix, activeShader.uMVMat);
+		update(__projectionMatrix, activeShader.uProjMat);
+
+		activeShader = shaderParallaxHor[1];
+		activeShader.init(gl);
+		update(__modelViewMatrix, activeShader.uMVMat);
+		update(__projectionMatrix, activeShader.uProjMat);
+
+		activeShader = shaderSimple[0];
+		activeShader.begin(gl);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -302,14 +251,27 @@ class CocoRenderContextGL implements ICocoRenderContext
 	{
 		var data:CocoImageRenderDataGL = new CocoImageRenderDataGL();
 
-		img.texSize = new Float32Array([img.textureCellWidth / img.image.naturalWidth, img.textureCellHeight / img.image.naturalHeight]);
+
 
 		// Create a texture and bind it.
 		data.texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, data.texture);
 
+		var sImg:Image = img.image;
+		if(img.scaleX > 0.0 && img.scaleY > 0.0)
+		{
+			var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
+			canvas.width = Math.floor(img.image.naturalWidth * img.scaleX / img.pixelRatio);
+			canvas.height = Math.floor(img.image.naturalHeight * img.scaleY / img.pixelRatio);
+			trace("Scaling image to " + String(canvas.width) + "x" + String(canvas.height) + " (x" + String(img.scaleX / img.pixelRatio) + ", x" + String(img.scaleY / img.pixelRatio) + ", @" + String(img.pixelRatio) + "): " + img.symbolName);
+			var c2d:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+			c2d.drawImage(img.image, 0.0, 0.0, canvas.width, canvas.height);
+			sImg = new Image();
+			sImg.load(canvas.toDataURL());
+		}
+
 		// Load image data to texture.
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img.image);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sImg);
 
 		// Unload the HTML Image to save memory.
 		// Works only on native, HTML5 browsers need the image.
@@ -319,8 +281,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 		// Instruct WebGL how to filter the texture when rendering.
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
 		// Generate mipmaps.
 		//gl.generateMipmap(gl.TEXTURE_2D);
@@ -330,7 +292,45 @@ class CocoRenderContextGL implements ICocoRenderContext
 
 		var w2:Float = img.textureCellWidth / 2.0;
 		var h2:Float = img.textureCellHeight / 2.0;
-		var texData:Float32Array = new Float32Array([0.0, 0.0, -w2, -h2, 0.0, 1.0, -w2, h2, 1.0, 0.0, w2, -h2, 1.0, 1.0, w2, h2]);
+		var texData:Float32Array = null;
+		if(img.tileMap)
+		{
+			img.texSize = new Float32Array([img.tileWidth / img.image.naturalWidth, img.tileHeight / img.image.naturalHeight]);
+			var d:Array<Float> = new Array<Float>();
+			var tileCountX:Integer = img.image.naturalWidth / img.tileWidth;
+			var tileMapCols:Integer = img.tileMap[0];
+			var tileMapRows:Integer = img.tileMap[1];
+			var vCount:Integer = Math.min(tileMapCols, Integer(Math.ceil(img.textureCellWidth / img.tileWidth)));
+			var hCount:Integer = Math.min(tileMapRows, Integer(Math.ceil(img.textureCellHeight / img.tileHeight)));
+			var tileCount:Integer = 0;
+			for(var y:Integer = 0; y < hCount; y++)
+			{
+				for(var x:Integer = 0; x < vCount; x++)
+				{
+					var idx:Integer = img.tileMap[2 + y * tileMapCols + x];
+					if(idx == -1) continue;
+					var texX:Integer = idx % tileCountX;
+					var texY:Integer = Math.floor(idx / tileCountX);
+					d.push(texX); d.push(texY); d.push(0.0); d.push(0.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(0.0); d.push(1.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(1.0); d.push(1.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(0.0); d.push(0.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(1.0); d.push(1.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(1.0); d.push(0.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
+					++tileCount;
+				}
+			}
+			texData = new Float32Array(d);
+			data.drawType = gl.TRIANGLES;
+			data.vertexCount = tileCount * 6;
+		}
+		else
+		{
+			img.texSize = new Float32Array([img.textureCellWidth / img.image.naturalWidth, img.textureCellHeight / img.image.naturalHeight]);
+			texData = new Float32Array([0.0, 0.0, 0.0, 0.0, -w2, -h2, 0.0, 0.0, 0.0, 1.0, -w2, h2, 0.0, 0.0, 1.0, 0.0, w2, -h2, 0.0, 0.0, 1.0, 1.0, w2, h2]);
+			data.drawType = gl.TRIANGLE_STRIP;
+			data.vertexCount = 4;
+		}
 		data.buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, data.buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
@@ -352,103 +352,62 @@ class CocoRenderContextGL implements ICocoRenderContext
 	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
 		if(!image.renderData) return;
-		if(setFilter(KF.filter) || __modelViewMatrix.__dirty) update(__modelViewMatrix, __glProgram.GLSLuMVMat);
-		gl.uniform2f(__glProgram.GLSLuSprSize, image.texSize[0], image.texSize[1]);
-		gl.uniform2f(__glProgram.GLSLuSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
-		gl.uniform2f(__glProgram.GLSLuSprFlip, (KF.flipH ? 1.0 : 0.0), (KF.flipV ? 1.0 : 0.0));
-		gl.bindBuffer(gl.ARRAY_BUFFER, CocoImageRenderDataGL(image.renderData).buffer);
-		gl.vertexAttribPointer(__glProgram.GLSLiTexCoords, 2, gl.FLOAT, false, 16, 0);
-		gl.vertexAttribPointer(__glProgram.GLSLiVecCoords, 2, gl.FLOAT, false, 16, 8);
-		gl.bindTexture(gl.TEXTURE_2D, CocoImageRenderDataGL(image.renderData).texture);
-
-		switch(KF.filter)
-		{
-		case COCO_FILTER_ENUM.FILTER_INHERIT:
-		case COCO_FILTER_ENUM.FILTER_SIMPLE:
-			break;
-		case COCO_FILTER_ENUM.FILTER_SIMPLE_WITH_ALPHA:
-            gl.uniform1f(__glProgram.GLSLuAlpha, KF.alpha);
-			break;
-		case COCO_FILTER_ENUM.FILTER_SATURATION_WITH_ALPHA:
-            gl.uniform4f(__glProgram.GLSLuColor, KF.red, KF.green, KF.blue, KF.alpha);
-			break;
-		case COCO_FILTER_ENUM.FILTER_PARALLAX_HOR:
-			gl.uniform4f(__glProgram.GLSLuColor, KF.red, KF.green, KF.blue, KF.alpha);
-			break;
-		}
-
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		if(setFilter(KF.filter) || __modelViewMatrix.__dirty) update(__modelViewMatrix, activeShader.uMVMat);
+		activeShader.drawFrame(gl, scene, image, frame, KF);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
     private function setFilter(filter:Integer) :Boolean
     {
-    	var changed:Boolean = false;
+    	var nextShader:CocoShaderCommon = activeShader;
 		switch(filter)
 		{
-		case COCO_FILTER_ENUM.FILTER_INHERIT:
-			if(__glProgram != __glProgram_Simple)
-			{
-				__glProgram = __glProgram_Simple;
-				changed = true;
-			}
-			break;
-		case COCO_FILTER_ENUM.FILTER_SIMPLE:
-			if(__glProgram != __glProgram_Simple)
-			{
-				__glProgram = __glProgram_Simple;
-				changed = true;
-			}
-			break;
-		case COCO_FILTER_ENUM.FILTER_SIMPLE_WITH_ALPHA:
-			if(__glProgram != __glProgram_SimpleWithAlpha)
-			{
-				__glProgram = __glProgram_SimpleWithAlpha;
-				changed = true;
-			}
-			break;
-		case COCO_FILTER_ENUM.FILTER_SATURATION_WITH_ALPHA:
-		   	if(__glProgram != __glProgram_SaturationWithAlpha)
-		   	{
-		   		__glProgram = __glProgram_SaturationWithAlpha;
-				changed = true;
-		   	}
-			break;
-		case COCO_FILTER_ENUM.FILTER_PARALLAX_HOR:
-		   	if(__glProgram != __glProgram_ParallaxHor)
-		   	{
-		   		__glProgram = __glProgram_ParallaxHor;
-				changed = true;
-		   	}
-			break;
+		case COCO_FILTER_ENUM.FILTER_INHERIT: nextShader = shaderSimple[maskDraw ? 1 : 0]; break;
+		case COCO_FILTER_ENUM.FILTER_SIMPLE: nextShader = shaderSimple[maskDraw ? 1 : 0]; break;
+		case COCO_FILTER_ENUM.FILTER_SIMPLE_WITH_ALPHA: nextShader = shaderSimpleWithAlpha[maskDraw ? 1 : 0]; break;
+		case COCO_FILTER_ENUM.FILTER_SATURATION_WITH_ALPHA: nextShader = shaderSaturationWithAlpha[maskDraw ? 1 : 0]; break;
+		case COCO_FILTER_ENUM.FILTER_PARALLAX_HOR: nextShader = shaderParallaxHor[maskDraw ? 1 : 0]; break;
 		}
-		if(changed) gl.useProgram(__glProgram);
-		return changed;
+		if(nextShader != activeShader)
+		{
+			activeShader.end(gl);
+			activeShader = nextShader;
+			activeShader.begin(gl);
+			return true;
+		}
+		return false;
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawMaskBegin()
+	{
+		if(maskDraw) return;
+		maskDraw = true;
+		gl.colorMask(false, false, false, false);
+		gl.stencilMask(0xFF);
+		gl.stencilFunc(gl.EQUAL, 1, 0xFF);
+		gl.clear(gl.STENCIL_BUFFER_BIT);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawMaskEnd(invert:Boolean)
+	{
+		if(!maskDraw) return;
+		maskDraw = false;
+		gl.colorMask(true, true, true, true);
+		gl.stencilMask(0x00);
+		gl.stencilFunc(gl.EQUAL, invert ? 0 : 1, 0xFF);
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawBoundingBox(clip:CocoClip)
 	{
 		if(!clip.__hasBoundingBox) return;
 
-		gl.disableVertexAttribArray(__glProgram.GLSLiTexCoords);
-		gl.disableVertexAttribArray(__glProgram.GLSLiVecCoords);
-
-		gl.useProgram(__boundingBoxProgram);
-		gl.enableVertexAttribArray(__boundingBoxProgram.GLSLiVec2Coords);
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, __boundingBoxBuffer);
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([clip.__vABS_TOP_LEFT.X, clip.__vABS_TOP_LEFT.Y, clip.__vABS_TOP_RIGHT.X, clip.__vABS_TOP_RIGHT.Y, clip.__vABS_BOTTOM_RIGHT.X, clip.__vABS_BOTTOM_RIGHT.Y, clip.__vABS_BOTTOM_LEFT.X, clip.__vABS_BOTTOM_LEFT.Y]));
-		gl.vertexAttribPointer(__boundingBoxProgram.GLSLiVec2Coords, 2, gl.FLOAT, false, 0, 0);
-		update(__projectionMatrix, __boundingBoxProgram.GLSLuProjMat);
-		gl.drawArrays(gl.LINE_LOOP, 0, 4);
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-		gl.disableVertexAttribArray(__boundingBoxProgram.GLSLiVec2Coords);
-		gl.useProgram(__glProgram);
-
-		gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
-		gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
+		activeShader.end(gl);
+		shaderBoundingBox.begin(gl);
+		shaderBoundingBox.draw(gl, new Float32Array([clip.__vABS_TOP_LEFT.X, clip.__vABS_TOP_LEFT.Y, clip.__vABS_TOP_RIGHT.X, clip.__vABS_TOP_RIGHT.Y, clip.__vABS_BOTTOM_RIGHT.X, clip.__vABS_BOTTOM_RIGHT.Y, clip.__vABS_BOTTOM_LEFT.X, clip.__vABS_BOTTOM_LEFT.Y]));
+		shaderBoundingBox.end(gl);
+		activeShader.begin(gl);
 	}
 }

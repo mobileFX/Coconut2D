@@ -45,6 +45,7 @@ function CompilerCppPlugin(compiler)
 	_this.in_event_call = false;
 	_this.NULL_GEN 		= { CPP:"", HPP:"" };
 	_this.currClass 	= null;
+	_this.__CPP_0X__	= false;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.cpp_types =
@@ -58,18 +59,6 @@ function CompilerCppPlugin(compiler)
 		"Object"	: { "default": "nullptr" },
 		"String"	: { "default": '""' }
 	};
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Add * to subtype in an Array vartype.
-	// eg. "Array<Object>" to "Array<Object*>"
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.VTCPP = function(vartype)
-	{
-		if(vartype.charAt(vartype.length-1)!='>') return vartype;
-		var subtype = /<(\w+)(?:\*)*>/.exec(vartype)[1];
-		if(_this.isPointer(subtype)) subtype+="*";
-		return "Array<" + subtype + ">";
-	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.generate_cpp = function(ast)
@@ -118,7 +107,7 @@ function CompilerCppPlugin(compiler)
 			{
 				if(!isFinite(item)) break;
 				var field =  ast[item];
-				items.push("\t" + field.vartype + (field.pointer ? "*" : "") + " " + field.name + ";");
+				items.push("\t" + _this.VTCPP(field.vartype) + field.name + ";");
 				var value = field.symbol.value;
 				if(value==null) value = "nullptr";
 				if(value=='""') value = 'String("")';
@@ -212,15 +201,25 @@ function CompilerCppPlugin(compiler)
 				}
 			}
 
+			//TODO: Derivative Casting Helper for STL container tranformations
+			//if(ast.symbol.base && !ast.symbol.subtype)
+			//{
+			//	var cast = "D* __convert_B_to_D(B* in) { return dynamic_cast<D*>(in); }\n" +
+			//			   "transform(VB->begin(), VB->end(), back_insert_iterator<vector<D*> >(*VD), __convert_B_to_D);";
+			//}
+
 			/*@@ CLASS:EVENTS @@*/
 
 			// Create events dispatch static function with dispatch switch.
 			if(!ast.interface && _this.implementsInterface(ast.symbol, "IEventListener"))
 			{
+				var hasDispIds = false;
+				var classSymbol = ast.symbol;
+				for(var uid in classSymbol.__event_descriptors) { hasDispIds=true; break; };
+
 				// ==================================================================
 				// Create event handler Dispatch ID constants
 				// ==================================================================
-				var classSymbol = ast.symbol;
 				var list = [].concat(classSymbol.__event_bindings).concat(classSymbol.__event_unbindings);
 				for(i=0;i<list.length;i++)
 				{
@@ -229,76 +228,82 @@ function CompilerCppPlugin(compiler)
 					_this.native_files['Constants.jspp'].hpp.dispIds[ebd.uid] = "#define " + ebd.uid + " " + ebd.id;
 				}
 
-				// ==================================================================
-				// Create dispatchEvent function
-				// ==================================================================
+				// ========================================================================
+				// Create dispatchEvent function:
+				// ------------------------------------------------------------------------
+				// It is the "bridge" function called from event source to pass the
+				// event to event listener and it is implemented in the event listener.
+				// ========================================================================
 
 				var local_handler = "dispatchEvent(CocoEvent* Event)";
-
 				HPP.push("virtual void " + local_handler + ";");
 
-				CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-				CPP.push("void " + ast.name + "::" + local_handler + "\n{");
-
-				var hasDispIds = false;
-				for(var uid in classSymbol.__event_descriptors) { hasDispIds=true; break; };
-
-				if(hasDispIds)
+				if(!hasDispIds)
 				{
+					CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+					CPP.push("void " + ast.name + "::" + local_handler + "\n{}");
+				}
+				else
+				{
+					CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+					CPP.push("void " + ast.name + "::" + local_handler + "\n{");
 
-					CPP.push("\tfor(int i = __eventListeners->size() - 1; i>=0; i--)\n\t{\n\t\tCocoEventConnectionPoint* cp = (*__eventListeners)[i];\n");
-					CPP.push("\t\tif(cp->Event->is(Event))\n\t\t{\n\t\tbool cancel = false;");
-
-					// Create dispatch switch:
-
-					CPP.push("switch(cp->DispID)\n{");
+					if(hasDispIds)
 					{
-						for(var uid in classSymbol.__event_descriptors)
+
+						CPP.push("\tfor(int i = __eventListeners->size() - 1; i>=0; i--)\n\t{\n\t\tCocoEventConnectionPoint* cp = (*__eventListeners)[i];\n");
+						CPP.push("\t\tif(cp->Event->is(Event))\n\t\t{\n\t\tbool cancel = false;");
+
+						// Create dispatch switch:
+
+						CPP.push("switch(cp->DispID)\n{");
 						{
-							var ebd = classSymbol.__event_descriptors[uid];
-							CPP.push("case " + ebd.uid+ ":\n{\n");
+							for(var uid in classSymbol.__event_descriptors)
 							{
-								CPP.push(ebd.event_listener.name + "* L = reinterpret_cast<"+ebd.event_listener.name+"*>(cp->Listener);");
-								CPP.push("//Event Listener\n");
-
-								CPP.push(ebd.event_handler.paramsList[0].vartype + "* S = reinterpret_cast<"+ebd.event_handler.paramsList[0].vartype+"*>(this);");
-								CPP.push("//Event Source type-casted to what event handler argument needs\n");
-
-								CPP.push(ebd.event_symbol.name + "* E = reinterpret_cast<"+ebd.event_symbol.name+"*>(Event);");
-								CPP.push("//Event object type-casted to what event handler argument needs\n");
-
-								// Collect event handler flat arguments
-								var flat_arguments = [];
-								for(j=2;j<ebd.event_handler.paramsList.length;j++)
+								var ebd = classSymbol.__event_descriptors[uid];
+								CPP.push("case " + ebd.uid+ ":\n{\n");
 								{
-									var event_parm = ebd.event_handler.paramsList[j];
-									flat_arguments.push("E->"+event_parm.name);
-									CPP.push(event_parm.vartype + " " + event_parm.name + " = E->" + event_parm.name + ";");
+									CPP.push(ebd.event_listener.name + "* L = reinterpret_cast<"+ebd.event_listener.name+"*>(cp->Listener);");
+									CPP.push("//Event Listener\n");
+
+									CPP.push(ebd.event_handler.paramsList[0].vartype + "* S = reinterpret_cast<"+ebd.event_handler.paramsList[0].vartype+"*>(this);");
+									CPP.push("//Event Source type-casted to what event handler argument needs\n");
+
+									CPP.push(ebd.event_symbol.name + "* E = reinterpret_cast<"+ebd.event_symbol.name+"*>(Event);");
+									CPP.push("//Event object type-casted to what event handler argument needs\n");
+
+									// Collect event handler flat arguments
+									var flat_arguments = [];
+									for(j=2;j<ebd.event_handler.paramsList.length;j++)
+									{
+										var event_parm = ebd.event_handler.paramsList[j];
+										flat_arguments.push("E->"+event_parm.name);
+										CPP.push(event_parm.vartype + " " + event_parm.name + " = E->" + event_parm.name + ";");
+									}
+									flat_arguments = (flat_arguments.length>0 ? ", " + flat_arguments.join(", ") : "");
+
+									// Make the call to the event handler
+									CPP.push("cancel = L->" + ebd.event_handler.name + "(S,E"+flat_arguments+");");
+
 								}
-								flat_arguments = (flat_arguments.length>0 ? ", " + flat_arguments.join(", ") : "");
-
-								// Make the call to the event handler
-								CPP.push("cancel = L->" + ebd.event_handler.name + "(S,E"+flat_arguments+");");
-
+								CPP.push("}\n");
+								CPP.push("break;\n");
 							}
 							CPP.push("}\n");
-							CPP.push("break;\n");
 						}
-						CPP.push("}\n");
+
+						CPP.push("\tif(cancel)\n\t{\n\t\tcp->Event->cancelBubble();\n\t}\n\tif(cp->Event->stopPropagation)\n\t{\n\t\treturn;\n\t}\n}\n}");
 					}
 
-					CPP.push("\tif(cancel)\n\t{\n\t\tcp->Event->cancelBubble();\n\t}\n\tif(cp->Event->stopPropagation)\n\t{\n\t\treturn;\n\t}\n}\n}");
+					// Call base class dispatchEvent
+					if(classSymbol.baseSymbol.name!="CocoEventSource")
+						CPP.push(classSymbol.baseSymbol.name + "::dispatchEvent(Event);\n");
+
+					CPP.push("}\n");
 				}
-
-				// Call base class dispatchEvent
-				if(classSymbol.baseSymbol.name!="CocoEventSource")
-					CPP.push(classSymbol.baseSymbol.name + "::dispatchEvent(Event);\n");
-
-				CPP.push("}\n");
 			}
 
 			HPP.push("};\n");
-
 			_this.currClassName = null;
 
 			// Push code into native file node
@@ -322,16 +327,16 @@ function CompilerCppPlugin(compiler)
 			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
 			if(!_this.currClassName) return _this.NULL_GEN;
 
-			if(!ast.returntype) ast.returntype = "void";
 			var name = (ast.isConstructor ? _this.currClassName : (ast.isDestructor ? "~" + _this.currClassName : ast.name ));
 			var param, cppParamsList = "(", hppParamList = "(";
 
 			for(var i=0; i<ast.paramsList.length; i++)
 			{
 				param = ast.paramsList[i];
-				cppParamsList += _this.VTCPP(param.vartype) + (param.pointer ? "*" : "") + " " + param.name;
+				var cpp_param = _this.VTCPP(param.vartype) + param.name;
 				var def = (_this.cpp_types.hasOwnProperty(param.vartype) ? _this.cpp_types[param.vartype].default : "nullptr");
-				hppParamList += _this.VTCPP(param.vartype) + (param.pointer ? "*" : "") + " " + param.name + (param.optional ? "=" + def : "");
+				cppParamsList += cpp_param
+				hppParamList += cpp_param + (param.optional ? "=" + def : "");
 				if(i!=ast.paramsList.length-1)
 				{
 					cppParamsList +=", ";
@@ -349,13 +354,13 @@ function CompilerCppPlugin(compiler)
 			cppParamsList += ")";
 			hppParamList += ")";
 
-			var fn = (ast.static ? "static " :"") + (ast.symbol.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : ast.returntype + (ast.pointer ? "*" : "") + " ") + name + hppParamList + (ast.symbol.abstract ? "=0":"") +";";
+			var fn = (ast.static ? "static " :"") + (ast.symbol.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : _this.VTCPP(ast.returntype)) + name + hppParamList + (ast.symbol.abstract ? "=0":"") +";";
 			HPP.push(fn);
 
 			if(!ast.symbol.abstract && ast.inClass && !ast.inClass.symbol.interface)
 			{
 		        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-				CPP.push( (ast.isConstructor || ast.isDestructor ? "" : ast.returntype +(ast.pointer?"*":"") + " ") + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
+				CPP.push( (ast.isConstructor || ast.isDestructor ? "" : _this.VTCPP(ast.returntype)) + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
 
 				if(ast.isConstructor && ast.inClass.base_init)
 				{
@@ -381,10 +386,11 @@ function CompilerCppPlugin(compiler)
 
 		        if(ast.isConstructor)
 		        {
+		        	CPP.push('__className = String("' + ast.inClass.symbol.name + '");');
 		        	for(item in ast.inClass.symbol.events)
 		        	{
 		        		var ev = ast.inClass.symbol.events[item];
-		        		CPP.push("this->"+ev.runtime+" = new " + ev.vartype+";");
+		        		CPP.push("this->"+ev.runtime+" = new " + ev.vartype + ";");
 		        	}
 		        }
 
@@ -419,57 +425,66 @@ function CompilerCppPlugin(compiler)
 		case jsdef.CONST:
 
 			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
-	        var isConst = (ast.type == jsdef.CONST);
+	        var isConst = (ast.type == jsdef.CONST) && !(ast.__rtti && ast[0].name == "__className");
 
 			// Var as class member
 			if(ast.inClass && !ast.inFunction && !ast.scope.isState)
 			{
 				for(i=0;i<ast.length;i++)
 				{
+					if(ast[i].name == "__className" && ast.inClass.symbol.base)	continue;
+
 					if(isConst)
 					{
-						val = "const " + vartype(ast[i]) + ast[i].name + initializer(ast[i]) + ";";
+						val = "const " + _this.VTCPP(ast[i].vartype) + ast[i].name + initializer(ast[i]) + ";";
 						HPP.push(val);
 					}
 					else if(ast.static)
 					{
 						// static var needs to be defined in .cpp as well
-						val = vartype(ast[i]) + _this.currClassName + "::" + ast[i].name + ";";
+						val = _this.VTCPP(ast[i].vartype) + _this.currClassName + "::" + ast[i].name + ";";
 						CPP.push(val);
 
-						val = "static " + (isConst ? "constexpr " : "") + vartype(ast[i]) + ast[i].name + ";";
+						val = "static " + (isConst ? "constexpr " : "") + _this.VTCPP(ast[i].vartype) + ast[i].name + ";";
 						HPP.push(val);
 					}
 					else
 					{
-						val = vartype(ast[i]) + ast[i].name + ";";
+						val = _this.VTCPP(ast[i].vartype) + ast[i].name + ";";
 						HPP.push(val);
 					}
+				}
+			}
+
+			// Var in for(;;)
+			else if(_this.__inFor)
+			{
+				CPP.push(_this.VTCPP(ast[0].vartype));
+				for(i=0;i<ast.length;i++)
+				{
+					val = ast[i].name + initializer(ast[i]) + (i<ast.length-1 ? ", " : "");
+					CPP.push(val);
 				}
 			}
 
 			// Var in state
 			else if(ast.scope.isState)
 			{
-				HPP.push(vartype(ast[0]));
 				for(i=0;i<ast.length;i++)
 				{
-					val = ast[i].name + initializer(ast[i]) + (i<ast.length-1 ? ", " : "");
+					val = _this.VTCPP(ast[i].vartype) + ast[i].name + initializer(ast[i]) + ";";
 					HPP.push(val);
 				}
-				HPP.push(";");
 			}
 
 			// Var in function
 			else if(ast.inFunction)
 			{
-				CPP.push(vartype(ast[0]));
 				for(i=0;i<ast.length;i++)
 				{
-					val = ast[i].name + initializer(ast[i]) + (i<ast.length-1 ? ", " : "");
+					val = _this.VTCPP(ast[i].vartype) + ast[i].name + initializer(ast[i]) + ";";
 					CPP.push(val);
 				}
-				CPP.push(";");
 			}
 
 			// Var in global
@@ -483,13 +498,6 @@ function CompilerCppPlugin(compiler)
 			}
 
 			//==================================================================
-			// Return vartype in C++ form and handle typed-arrays
-			function vartype(vitem)
-			{
-				return _this.VTCPP(vitem.vartype) + (vitem.pointer ? "* " : " ");
-			}
-
-			//==================================================================
 			// Get value initializer or default value
 			function initializer(vitem)
 			{
@@ -500,9 +508,7 @@ function CompilerCppPlugin(compiler)
 				}
 				else
 				{
-					var vartype = vitem.vartype;
-					if(vartype && vartype.indexOf("<")!=-1)
-						vartype = vartype.substr(0, vartype.indexOf("<"));
+					var vartype = _this.getVarType(vitem.vartype);
 					if(_this.cpp_types.hasOwnProperty(vartype))
 						return " = " + _this.cpp_types[vartype].default;
 					else if(ast.scope.isClass)
@@ -551,7 +557,7 @@ function CompilerCppPlugin(compiler)
 			for(item in ast.event_class_symbol.vars)
 			{
 				var field = ast.event_class_symbol.vars[item].ast;
-				HPP.push("\n\t"+ _this.VTCPP(field.vartype) + " " + field.name +";");
+				HPP.push("\n\t"+ _this.VTCPP(field.vartype) + field.name +";");
 			}
 
 			// Event constructor and initialization of params
@@ -559,7 +565,7 @@ function CompilerCppPlugin(compiler)
 			for(item in ast.event_class_symbol.vars)
 			{
 				var field = ast.event_class_symbol.vars[item].ast;
-				HPP.push(field.name + " = " + (_this.cpp_types.hasOwnProperty(field.vartype) ? _this.cpp_types[field.vartype].default : "nullptr") + ";");
+				HPP.push(field.name + " = " + (_this.cpp_types.hasOwnProperty(_this.getVarType(field.vartype)) ? _this.cpp_types[field.vartype].default : "nullptr") + ";");
 			}
 			HPP.push("\n}");
 
@@ -622,7 +628,7 @@ function CompilerCppPlugin(compiler)
 	    	if(ast.getter)
 	    	{
 				var name = "__get_" + ast.name;
-				var ret = (ast.getter.returntype + (ast.getter.pointer ? "*" : "") + " ");
+				var ret = _this.VTCPP(ast.getter.returntype);
 				HPP.push((ast.symbol.virtual ? "virtual " : "") + ret + name + "();");
 		        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 				CPP.push( ret + _this.currClassName + "::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + "()");
@@ -633,7 +639,7 @@ function CompilerCppPlugin(compiler)
 	    	if(ast.setter)
 	    	{
 				var name = "__set_" + ast.name;
-				var param = "(" + ast.vartype + (ast.pointer?"*":"") + " v)";
+				var param = "(" + _this.VTCPP(ast.vartype) + "v)";
 				HPP.push((ast.symbol.virtual ? "virtual " : "") + ("void ") + name + param + ";");
 		        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 				CPP.push( "void " + _this.currClassName + "::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + param);
@@ -797,21 +803,19 @@ function CompilerCppPlugin(compiler)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CALLBACK:
 
-			if(!ast.returntype) ast.returntype = "void";
-
 			var name = ast.name;
 			var param, ParamList = "(";
 
 			for(var i=0; i < ast.paramsList.length; i++)
 			{
 				param = ast.paramsList[i];
-				ParamList += param.vartype + (_this.isPointer(param.vartype) ? "*" : "");
+				ParamList += _this.VTCPP(param.vartype);
 				if(i!=ast.paramsList.length-1)
 					ParamList +=", ";
 			}
 			ParamList += ")";
 
-			var fn = "typedef " + (ast.returntype + (ast.pointer ? "*" : "") + " ") + "(" + name + ")" + ParamList + ";";
+			var fn = "typedef " + _this.VTCPP(ast.returntype) + "(" + name + ")" + ParamList + ";";
 			HPP.push(fn);
 
 			break;
@@ -937,7 +941,7 @@ function CompilerCppPlugin(compiler)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.ARRAY_INIT:
 
-			// Case1: new Float32Arra([...])
+			// Case1: new Float32Array([...])
 			// Case2: new CocoSequence(params, [...]) or foo([...])
 			// Case3: a = [...]
 			// Case4: var x:Array<T> = [...]
@@ -946,17 +950,47 @@ function CompilerCppPlugin(compiler)
 
 			var fnSymbol = null;
 			var vartype = null;
-			var subtype = null;
+			var out=[];
 
 	        if(ast.parent.parent.type==jsdef.VAR)
 	        {
+	        	//Case4
 	        	vartype = ast.parent.parent[0].symbol.vartype;
-	        	subtype = ast.parent.parent[0].symbol.subtype;
+	        	if(_this.__CPP_0X__)
+	        	{
+			 		out.push("(new " + _this.VTCPP(vartype, true)+"({");
+					for(var i=0;i<ast.length;i++){ if(i) out.push(", "); out.push(generate_cpp(ast[i]).CPP); };
+					out.push("}))");
+	        	}
+	        	else
+	        	{
+			 		out.push("(new " + _this.VTCPP(vartype, true)+")");
+					for(var i=0;i<ast.length;i++){ out.push("->push("+generate_cpp(ast[i]).CPP+")"); };
+	        	}
 	        }
 			else if(ast.parent.type==jsdef.ASSIGN)
 			{
-				vartype = ast.parent.parent.expression[0].symbol.vartype;
-				subtype = ast.parent.parent.expression[0].symbol.subtype;
+				//Case3
+				if(ast.parent.parent.expression[0].symbol)
+				{
+					vartype = ast.parent.parent.expression[0].symbol.vartype;
+				}
+				else
+				{
+					_this.NewWarning("Untyped array initialization, defaulting to Array<Integer>", ast);
+					vartype = "Array<Integer>";
+				}
+				if(_this.__CPP_0X__)
+				{
+				 	out.push("(new " + _this.VTCPP(vartype, true)+"({");
+					for(var i=0;i<ast.length;i++){ if(i) out.push(", "); out.push(generate_cpp(ast[i]).CPP); };
+					out.push("}))");
+				}
+				else
+				{
+				 	out.push("(new " + _this.VTCPP(vartype, true)+")");
+					for(var i=0;i<ast.length;i++){ out.push("->push("+generate_cpp(ast[i]).CPP+")"); };
+				}
 			}
 			else if(ast.parent.type==jsdef.LIST)
 			{
@@ -971,6 +1005,7 @@ function CompilerCppPlugin(compiler)
 				switch(ast.parent.parent.type)
 				{
 				case jsdef.CALL:
+					//Case2
 					switch(ast.inCall[0].type)
 					{
 					case jsdef.IDENTIFIER:
@@ -983,6 +1018,7 @@ function CompilerCppPlugin(compiler)
 					break;
 
 				case jsdef.NEW_WITH_ARGS:
+					//Case1
 					for(item in ast.parent.parent[0].symbol.methods)
 					{
 						if(item=="Constructor")
@@ -993,12 +1029,18 @@ function CompilerCppPlugin(compiler)
 					}
 					if(!fnSymbol)
 					{
-						// Float32Array, etc.
-						item = ast.parent.parent[0].symbol;
-						if(item.name.indexOf("Array")!=-1)
+						// TypedArrays
+						if(_this.__CPP_0X__)
 						{
-							vartype = "Array<" + item.subtype + (_this.isPointer(item.subtype) ? "*":"") +">";
-							subtype = item.subtype;
+							out.push("(new Array<" + _this.getSubType(ast.parent.parent.vartype) + ">({" );
+							for(var i=0;i<ast.length;i++){ if(i) out.push(", "); out.push(generate_cpp(ast[i]).CPP); };
+							out.push("}))");
+							out.push("))");
+						}
+						else
+						{
+							out.push("(new Array<" + _this.getSubType(ast.parent.parent.vartype) + ">)" );
+							for(var i=0;i<ast.length;i++){ out.push("->push("+generate_cpp(ast[i]).CPP+")"); };
 						}
 					}
 					break;
@@ -1009,19 +1051,20 @@ function CompilerCppPlugin(compiler)
 				{
 					var arg = fnSymbol.paramsList[index];
 					vartype = arg.vartype;
-					subtype = arg.subtype;
+					if(_this.__CPP_0X__)
+					{
+					 	out.push("(new " + _this.VTCPP(vartype, true)+"({");
+						for(var i=0;i<ast.length;i++){ if(i) out.push(", "); out.push(generate_cpp(ast[i]).CPP); };
+						out.push("}))");
+					}
+					else
+					{
+					 	out.push("(new " + _this.VTCPP(vartype, true)+")");
+						for(var i=0;i<ast.length;i++){ out.push("->push("+generate_cpp(ast[i]).CPP+")"); };
+					}
 				}
 			}
 
-			vartype = _this.VTCPP(vartype);
-
-			var out=[];
-		 	out.push("(new " + vartype.trim()+"())");
-			for(var item in ast)
-			{
-				if(!isFinite(item)) break;
-				out.push("->push("+generate_cpp(ast[item]).CPP+")");
-			}
 			out = out.join("");
 			CPP.push(out);
 			break;
@@ -1049,6 +1092,7 @@ function CompilerCppPlugin(compiler)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.ASSIGN:
+
 			if(ast[1].type==jsdef.ARRAY_INIT)
 			{
 				var isEmpty = true;
@@ -1061,33 +1105,34 @@ function CompilerCppPlugin(compiler)
 				if(isEmpty) return _this.NULL_GEN;
 			}
 
-	     	if(ast[0].symbol && ast[0].symbol.type == jsdef.PROPERTY)
+	     	if((ast[0].symbol && ast[0].symbol.type == jsdef.PROPERTY && ast[0].symbol.ast.setter) ||
+	     	   (ast[0].type == jsdef.DOT && ast[0].identifier_last.symbol && ast[0].identifier_last.symbol.type == jsdef.PROPERTY && ast[0].identifier_last.symbol.ast.setter))
 	     	{
-	     		if(ast[0].symbol.ast.setter)
-	     		{
 					_this.in_setter = true;
 					CPP.push(generate_cpp(ast[0]).CPP);
 					_this.in_setter = false;
-					CPP.push("(" + generate_cpp(ast[1]).CPP + ")");
-	     		}
 	     	}
-	     	else if(ast[0].type == jsdef.DOT && ast[0].identifier_last.symbol && ast[0].identifier_last.symbol.type == jsdef.PROPERTY)
-			{
-				if(ast[0].identifier_last.symbol.ast.setter)
-	     		{
-					_this.in_setter = true;
-					CPP.push(generate_cpp(ast[0]).CPP);
-					_this.in_setter = false;
-					CPP.push("(" + generate_cpp(ast[1]).CPP + ")");
-	     		}
-			}
-			else
-			{
+	     	else
+	     	{
 				CPP.push(generate_cpp(ast[0]).CPP);
 				CPP.push(ast.value);
 				if(ast.value != "=") CPP.push("=");
-				CPP.push(generate_cpp(ast[1]).CPP);
+	     	}
+
+			var type1 = _this.getTypeName(ast[0]);
+			var type2 = _this.getTypeName(ast[1]);
+			if(_this.secondPass && type1 && type2 && type1!=type2 && type1!="Array<Object>" && type2!="Array<Object>" && type1.indexOf("<")!=-1 && type2.indexOf("<")!=-1)
+			{
+				var stype1 = _this.getSubType(type1);
+				var stype2 = _this.getSubType(type2);
+				if(_this.isDerivativeOf(stype1, stype2))
+				{
+					CPP.push("(reinterpret_cast<Array<" + stype1 + "*>*>(" + generate_cpp(ast[1]).CPP + "))");
+					_this.NewWarning("Arbitrary array coversion from " + type2 + " to " + type1, ast);
+					break;
+				}
 			}
+	     	CPP.push( "("+generate_cpp(ast[1]).CPP+")" );
 			break;
 
 		// ==================================================================================================================================
@@ -1172,7 +1217,9 @@ function CompilerCppPlugin(compiler)
 		// ==================================================================================================================================
 
 		case jsdef.FOR:
+			_this.__inFor = true;
 			var setupFor = ast.setup ? generate_cpp(ast.setup).CPP : ";";
+			_this.__inFor = false;
 			setupFor=setupFor.trim();
 			CPP.push("for(" + setupFor + (setupFor.slice(-1) == ";" ? "": ";"));
 			CPP.push((ast.condition ? generate_cpp(ast.condition).CPP : "") + ";");
@@ -1227,7 +1274,7 @@ function CompilerCppPlugin(compiler)
 		case jsdef.INDEX:
 			var out = [];
 			var type = ast[0].vartype;
-			var pointerAccess = true;// !__isVector(type);
+			var pointerAccess = true;
 			if(pointerAccess) out.push("(*");
 			out.push(generate_cpp(ast[0]).CPP);
 			if(pointerAccess) out.push(")");
@@ -1283,21 +1330,17 @@ function CompilerCppPlugin(compiler)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NEW:
+			if(!ast[0].vartype)	ast[0].vartype = ast[0].value;
+			CPP.push("new " + _this.VTCPP(ast[0].vartype, true)+"()");
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NEW_WITH_ARGS:
-			CPP.push("new ");
-			CPP.push(generate_cpp(ast[0]).CPP);
 
-			if(ast.subtype)
-			{
-				CPP.push("<" + (ast.subtype + (_this.isPointer(ast.subtype) ? "*":"")) + ">");
-			}
+			if(!ast[0].vartype)
+				ast[0].vartype = ast[0].value;
 
-			CPP.push("(");
-
-			if(ast[1])
-				CPP.push(generate_cpp(ast[1]).CPP);
-
-			CPP.push(")");
+			CPP.push("(new " + _this.VTCPP(ast[0].vartype, true) + "(" + generate_cpp(ast[1]).CPP + "))");
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

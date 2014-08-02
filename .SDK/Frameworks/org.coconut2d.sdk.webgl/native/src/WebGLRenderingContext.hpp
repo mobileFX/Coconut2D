@@ -80,7 +80,8 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	GLenum getError();
 	GLany getProgramParameter(WebGLProgram* program, GLenum pname);
-	GLany getShaderParameter(WebGLShader* shader, GLenum pname);
+	GLenum getShaderParameter_enum(WebGLShader* shader, GLenum pname);
+	GLboolean getShaderParameter_boolean(WebGLShader* shader, GLenum pname);
 	GLint getAttribLocation(WebGLProgram* program, std::string name);
 
 	std::string getShaderInfoLog(WebGLShader* shader);
@@ -147,6 +148,11 @@ public:
 	void useProgram(WebGLProgram* program);
 	void validateProgram(WebGLProgram* program);
 	void vertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLintptr offset);
+
+	void colorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+	void stencilMask(GLuint mask);
+	void stencilFunc(GLenum func, GLint ref, GLuint mask);
+	void stencilOp(GLenum fail, GLenum zfail, GLenum zpass);
 
 	WebGLBuffer* createBuffer();
 	WebGLFramebuffer* createFramebuffer();

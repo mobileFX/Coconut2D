@@ -49,10 +49,12 @@ state class CocoEngine
 	private var __tickables:Array<ITickable>;
 	public var __clock:Time;
 	public var __ctx:ICocoRenderContext;
+	public var __RESIZE_IMAGES_AT_RUNTIME:Boolean;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		__RESIZE_IMAGES_AT_RUNTIME = false;
 		__clock = 0;
 		__currentState = null;
 		__nextState = null;

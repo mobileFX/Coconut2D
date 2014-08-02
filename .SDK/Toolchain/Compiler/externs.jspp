@@ -186,7 +186,7 @@ function __WebGLRenderingContext_viewport(uid, x, y, width, height) {};
 var __registerManager = function(manager){};
 var __registerCallback = function(uid, type){};
 var __unRegisterCallback = function(uid, type){};
-var __ImageData_loadImage = function(data){};
+var __ImageData_loadImage:ImageDataBuffer = function(data){};
 
 function __Audio_load(url:String,obj:Audio) :Integer {}
 var __Audio_get_position:Float = function(id:Integer) {}
@@ -265,7 +265,8 @@ var __WebGLRenderingContext_getProgramInfoLog:String = function(uid, program_uid
 var __WebGLRenderingContext_getProgramParameter:Boolean = function(uid, program_uid, pname){};
 var __WebGLRenderingContext_getRenderbufferParameter:String = function(uid, target, pname){};
 var __WebGLRenderingContext_getShaderInfoLog:String = function(uid, shader_uid){};
-var __WebGLRenderingContext_getShaderParameter:Boolean = function(uid, shader_uid, pname){};
+var __WebGLRenderingContext_getShaderParameter_boolean:Boolean = function(uid, shader_uid, pname){};
+var __WebGLRenderingContext_getShaderParameter_enum:Integer = function(uid, shader_uid, pname){};
 var __WebGLRenderingContext_getShaderPrecisionFormat:Integer = function(uid, shadertype, precisiontype){};
 var __WebGLRenderingContext_getShaderSource:String = function(uid, shader_uid){};
 var __WebGLRenderingContext_getSupportedExtensions:Array<String> = function(uid){};
@@ -365,18 +366,17 @@ class Object
 class Array
 {
 	public var length:Number;
-	public function clone():Array {}
-	public function concat(args:Array):Array {}
+	public function concat(args:Array):Array<Object> {}
 	public function join(seperator:String):String {}
 	public function pop():Object {}
 	public function push(args:Object):Object {}
-	public function reverse():Array {}
-	public function shift():Array {}
-	public function slice(start:Number, optional end:Number):Array {}
-	public function sort(funct:Function):Array {}
+	public function reverse():Array<Object> {}
+	public function shift():Array<Object> {}
+	public function slice(start:Number, optional end:Number):Array<Object> {}
+	public function sort(funct:Function):Array<Object> {}
 	public function splice(start:Number, deletecount:Number, optional items:Object):Object {}
-	public function unshift(start:Number):Array {}
-	public function forEach(item:Object):Array {}
+	public function unshift(start:Number):Array<Object> {}
+	public function forEach(item:Object):Array<Object> {}
 	public function size():Number {}
 	public function clear() {}
 }
@@ -385,7 +385,7 @@ class Array
 class Function
 {
 	public var length:Number;
-	public function apply(thisObject:Object, optional args:Array):Object {}
+	public function apply(thisObject:Object, optional args:Array<Object>):Object {}
 	public function call(thisObject:Object, ...):Object {}
 }
 
@@ -428,7 +428,7 @@ class String
 	public function indexOf(searchString:String, optional startPosition:Number):Number {}
 	public function lastIndexOf(searchString:String, startPosition:Number):Number {}
 	public function localeCompare(otherString:String):Number {}
-	public function match(regexp:RegExp):Array {}
+	public function match(regexp:RegExp):Array<Object> {}
 	public function replace(regexp:RegExp, replaceValue:String):String {}
 	public function search(regexp:RegExp):Number {}
 	public function slice(start:Number, end:Number):String {}
@@ -550,7 +550,7 @@ class RegExp
 	public var ignoreCase:Boolean;
 	public var multiline:Boolean;
 	public var lastIndex:Number;
-	public function exec(string:String):Array {}
+	public function exec(string:String):Array<Object> {}
 	public function test(string:String):Boolean {}
 }
 
@@ -797,6 +797,7 @@ class b2ContactFilter
 };
 
 var createPolygonShape:b2PolygonShape = function(vertices:Array<b2Vec2>) {};
+
 
 // BEGIN EMSCRIPTEN EXTERNS FOR EMS_BOX2D //
 

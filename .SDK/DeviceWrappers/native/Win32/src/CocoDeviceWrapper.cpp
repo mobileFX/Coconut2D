@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -85,19 +85,6 @@ CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
 	screen.isPortrait = (screen.height > screen.width);
 	screen.rotation = fxScreen::Rotation::NONE;
 
-	// Create the HTMLWindow and HTMLDocument
-	window = new HTMLWindow();
-	window->setScreen(screen);
-	window->innerWidth = screen.width;
-	window->innerHeight = screen.height;
-	window->devicePixelRatio = screen.pixelRatio;
-	window->deviceRotation = 0.0f;
-	global = window;
-	document = new HTMLDocument();
-
-	// Create a WebGL Canvas
-	engine = new GameEngine();
-
 	// Initialize OpenGL
 	PIXELFORMATDESCRIPTOR pdf;
 	pdf.nSize = sizeof(PIXELFORMATDESCRIPTOR);
@@ -129,6 +116,20 @@ CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
 	}
 
 	glewInit();
+
+	// Create the HTMLWindow and HTMLDocument
+	window = new HTMLWindow();
+	window->setScreen(screen);
+	window->innerWidth = screen.width;
+	window->innerHeight = screen.height;
+	window->devicePixelRatio = screen.pixelRatio;
+	window->deviceRotation = 0.0f;
+	global = window;
+	document = new HTMLDocument();
+
+	// Create a WebGL Canvas
+	engine = new GameEngine();
+
 	alive = true;
 	EventLoop();
 };

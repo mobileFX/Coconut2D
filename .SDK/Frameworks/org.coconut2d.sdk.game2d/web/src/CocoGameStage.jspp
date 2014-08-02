@@ -37,10 +37,10 @@ class CocoGameStage : CocoClip
 	published var platformsClassName:String;
 	published reference var touchHandlerClip:CocoClip;
 
-	public var enemiesSprites:Array<CocoGameSpriteEnemy>;
-	public var bonusesSprites:Array<CocoGameSpriteBonus>;
-	public var mazesSprites:Array<CocoGameSpriteMaze>;
-	public var platformsSprites:Array<CocoGameSpritePlatform>;
+	public var enemiesSprites:Array<CocoClip>;
+	public var bonusesSprites:Array<CocoClip>;
+	public var mazesSprites:Array<CocoClip>;
+	public var platformsSprites:Array<CocoClip>;
 
 	// Physics
 	public var world:b2World;
@@ -96,15 +96,15 @@ class CocoGameStage : CocoClip
 		var i:Integer;
 		for(i = mazesSprites.size(); i--;)
 		{
-			mazesSprites[i].initBody(world);
+			CocoGameSpriteMaze(mazesSprites[i]).initBody(world);
 		}
 		for(i = platformsSprites.size(); i--;)
 		{
-			platformsSprites[i].initBody(world);
+			CocoGameSpritePlatform(platformsSprites[i]).initBody(world);
 		}
 		for(i = bonusesSprites.size(); i--;)
 		{
-			bonusesSprites[i].initBody(world);
+			CocoGameSpriteBonus(bonusesSprites[i]).initBody(world);
 		}
 
 		touchHandlerClip.addEventListener(touchHandlerClip.OnTouchStart, Jump);
@@ -154,19 +154,19 @@ class CocoGameStage : CocoClip
 			var i:Integer;
 			for(i = platformsSprites.size(); i--;)
 			{
-				if(!platformsSprites[i].body) continue;
-				var active:Boolean = kf.y + PlayerSprite.CollisionRectangle.bottom < b2Vec2(platformsSprites[i].body.GetPosition()).get_y() * BOX2D_SCALE;
-				platformsSprites[i].body.SetActive(active);
-				if(PlayerSprite.collidesWith(platformsSprites[i]))
+				if(!CocoGameSpritePlatform(platformsSprites[i]).body) continue;
+				var active:Boolean = kf.y + PlayerSprite.CollisionRectangle.bottom < b2Vec2(CocoGameSpritePlatform(platformsSprites[i]).body.GetPosition()).get_y() * BOX2D_SCALE;
+				CocoGameSpritePlatform(platformsSprites[i]).body.SetActive(active);
+				if(PlayerSprite.collidesWith(CocoGameSprite(platformsSprites[i])))
 					PlayerSprite.body.SetLinearVelocity(new b2Vec2(4.0, -8.0));
 			}
 
 			for(i = bonusesSprites.size(); i--;)
-				if(PlayerSprite.collidesWith(bonusesSprites[i]))
-					bonusesSprites[i].acquire();
+				if(PlayerSprite.collidesWith(CocoGameSprite(bonusesSprites[i])))
+					CocoGameSpriteBonus(bonusesSprites[i]).acquire();
 
 			for(i = mazesSprites.size(); i--;)
-				if(PlayerSprite.collidesWith(mazesSprites[i]))
+				if(PlayerSprite.collidesWith(CocoGameSprite(mazesSprites[i])))
 					PlayerSprite.body.SetLinearVelocity(new b2Vec2(4.0, -8.0));
 		}
 	}

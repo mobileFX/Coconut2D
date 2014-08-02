@@ -162,36 +162,38 @@ function Compiler(ast)
 
 	var _this = this;
 
-	_this.ast = ast;                        // The Abstract Syntax Tree root node (jsdef.SCRIPT)
-	_this.classes = {};                     // Map of class symbols
-	_this.classFiles = {};					// Used in order to have multiple classes in one file
-	_this.currClassName = null;             // The current class being processed (also indicates whether a JS++ class is being processed or just plain JavaScript code)
-	_this.currFile = null;                  // Current File being processed
-	_this.exportSymbols = false;		    // Flag that indicates whether symbols should be exported or not
-	_this.fileClasses = {};                 // Map of classes per file (usage: _this.fileClasses[file][class] = ast; )
-	_this.in_property = false;    			// Flag that indicates we are processing a property
-	_this.in_state = false;    				// Flag that indicates we are processing a state
-	_this.includes = [];                    // List of include files for current file being processed (resets per file)
-	_this.line_start = -1;                  // Souce Line counter: source code lines "//@line xxx" are emitted in generated code for IDE debugger
-	_this.lineNumbers = true;				// Supress line-number generation
-	_this.no_errors = 0;                    // Semaphore that controls errors generation (used by ""#ignore_errors" directive)
-	_this.scopeId = -1;                     // Scopes Counter (resets per file)
-	_this.scopesStack = [];                 // Stack of Scopes (scopes are pushed and popped from it during generation)
-	_this.scopesTable = [];                 // Table of Scopes (scopes are only pushed)
-	_this.secondPass = false;               // Flag that indicates compiler's second pass
-	_this.selectedClass = null;			    // If set it indicates that we only need to process a single class (used by IDE intelliSence for parsing classes as you type them)
-	_this.states = {};						// Map of states
-	_this.symbolId = -1;					// Symbols Counter
-	_this.tokenizer = null;                 // Reference to tokenizer (reserved for future use)
-	_this.UNTYPED = "Untyped";              // Untyped identifier vartype, used in Type Check System
-	_this.eventId = 0;						// Counter for UID of events
-	_this.derivatives = {};					// Classes with derivatives (base classes)
+	_this.ast = ast;                        			// The Abstract Syntax Tree root node (jsdef.SCRIPT)
+	_this.classes = {};                     			// Map of class symbols
+	_this.classFiles = {};								// Used in order to have multiple classes in one file
+	_this.currClassName = null;             			// The current class being processed (also indicates whether a JS++ class is being processed or just plain JavaScript code)
+	_this.currFile = null;                  			// Current File being processed
+	_this.exportSymbols = false;		    			// Flag that indicates whether symbols should be exported or not
+	_this.fileClasses = {};                 			// Map of classes per file (usage: _this.fileClasses[file][class] = ast; )
+	_this.in_property = false;    						// Flag that indicates we are processing a property
+	_this.in_state = false;    							// Flag that indicates we are processing a state
+	_this.includes = [];                    			// List of include files for current file being processed (resets per file)
+	_this.line_start = -1;                  			// Souce Line counter: source code lines "//@line xxx" are emitted in generated code for IDE debugger
+	_this.lineNumbers = true;							// Supress line-number generation
+	_this.no_errors = 0;                    			// Semaphore that controls errors generation (used by ""#ignore_errors" directive)
+	_this.scopeId = -1;                     			// Scopes Counter (resets per file)
+	_this.scopesStack = [];                 			// Stack of Scopes (scopes are pushed and popped from it during generation)
+	_this.scopesTable = [];                 			// Table of Scopes (scopes are only pushed)
+	_this.secondPass = false;               			// Flag that indicates compiler's second pass
+	_this.selectedClass = null;			    			// If set it indicates that we only need to process a single class (used by IDE intelliSence for parsing classes as you type them)
+	_this.states = {};									// Map of states
+	_this.symbolId = -1;								// Symbols Counter
+	_this.tokenizer = null;                 			// Reference to tokenizer (reserved for future use)
+	_this.UNTYPED = "Untyped";              			// Untyped identifier vartype, used in Type Check System
+	_this.eventId = 0;									// Counter for UID of events
+	_this.derivatives = {};								// Classes with derivatives (base classes)
+	_this.__contains_counter=0;
 
 	// Include priority (1: needed in .cpp, 2: needed in .hpp)
 	_this.INCLUDE_IN_CPP = 1;
 	_this.INCLUDE_IN_HPP = 2;
 
 	_this.DELETE_BASE = "__BASE__ && ((__BASE__.hasOwnProperty('Destructor') && __BASE__.Destructor()) || !__BASE__.hasOwnProperty('Destructor')) && (delete __BASE__);";
+	_this.IDENTIFIER = /^[a-z_][\w$]*(?:\<\w+\>)?$/i;
 	_this.SEPARATOR = "\n\n///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n\n";
 	_this.ADD_EVENT = "addEventListener";
 	_this.REMOVE_EVENT = "removeEventListener";
@@ -713,7 +715,23 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.LookupIdentifier = function(scope, identifier, ast, noWarning)
 	{
-		if(!identifier || !scope) return;
+		if(!identifier || !scope || !ast) return;
+
+		switch(ast.type)
+		{
+		case jsdef.IDENTIFIER:
+		case jsdef.FUNCTION:
+			break;
+
+		default:
+			return null;
+		}
+
+		if(!_this.IDENTIFIER.test(identifier))
+		{
+			trace("Invalid identifier lookup: " + identifier + ", please contact support@mobilefx.com");
+			debugger;
+		}
 
 		function __doLookupSymbol(scope, identifier, ast)
 		{
@@ -722,7 +740,8 @@ function Compiler(ast)
 			// If the identifier is not in a DOT or if the identifier
 			// is the first item in a DOT then we perform a scope lookup.
 			// Otherwise, we perform a dot symbol Lookup.
-			var searchScope = (!ast || (!ast.inDot || (ast.inDot && ast.inDot.identifiers_list[0].value==identifier)));
+
+			var searchScope = (!ast || (!ast.inDot || (ast.inDot && ast.inDot.identifier_first==ast)));
 
 			// Lookup scope chain (classes, base clasees, methods, base class methods, variables, etc.)
 			if(searchScope)
@@ -775,7 +794,7 @@ function Compiler(ast)
 		{
 			var vartype = null;
 			var identifier = ast.identifiers_list[i].value;
-			var nodeSymbol = _this.LookupIdentifier(scope, identifier, null, true);
+			var nodeSymbol = _this.getClass(identifier) || _this.LookupScopeChain(identifier, scope, true);
 			if(!nodeSymbol) break;
 			if(i==ast.identifiers_list.length-1)
 			{
@@ -877,6 +896,8 @@ function Compiler(ast)
 	_this.getClass = function(vartype)
 	{
 		if(!vartype) return null;
+		if(vartype=="@@THIS@@") return _this.getCurrentClass();
+		if(vartype=="@@SUPER@@") return _this.getCurrentClass().baseSymbol;
 		vartype = _this.getVarType(vartype);
 		var cls = (vartype && _this.classes.hasOwnProperty(vartype) ? _this.classes[vartype] : null);
 		return cls;
@@ -929,6 +950,9 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.isDerivativeOf = function(derivateClassName, baseClassName)
 	{
+		if(derivateClassName==baseClassName)
+			return true;
+
 		var cls = _this.getClass(derivateClassName);
 		for(i=0;i<cls.bases.length;i++)
 			if(cls.bases[i].name==baseClassName)
@@ -960,6 +984,17 @@ function Compiler(ast)
 			list = a;
 		}
 		return list;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getAllBaseClasses = function(classSymbol)
+	{
+		var bases = [];
+		for(var baseSymbol=_this.getClass(classSymbol.base);baseSymbol!=null;baseSymbol=_this.getClass(baseSymbol.base))
+		{
+			bases.push(baseSymbol);
+		}
+		return bases.reverse();
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1057,6 +1092,22 @@ function Compiler(ast)
 			}
 		}
 		return false;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.contains = function(ast, jsdefType)
+	{
+		var found = null;
+		_this.__contains_counter++;
+		_this.descend("__contains" + _this.__contains_counter, ast, function(node)
+		{
+			if(node.type==jsdefType)
+			{
+				found=node;
+				return true;
+			}
+		});
+		return found;
 	};
 
 	// ==================================================================================================================================
@@ -1310,6 +1361,9 @@ function Compiler(ast)
 				return;
 			}
 
+			// Some information derived from first-pass must be retained.
+			var firstPassClassSymbol = _this.secondPass ? _this.getClass(ast.name) : null;
+
 			// Class Symbol
 			var classSymbol = new ClassSymbol();
 			{
@@ -1320,7 +1374,7 @@ function Compiler(ast)
 				classSymbol.classId					= classId;
 				classSymbol.base					= baseClass;
 				classSymbol.baseSymbol				= baseClassSymbol;
-				classSymbol.bases 					= [baseClassSymbol];//Must be filled with all the base classes
+				classSymbol.bases 					= firstPassClassSymbol && firstPassClassSymbol.bases ? firstPassClassSymbol.bases : (baseClassSymbol ? [baseClassSymbol] : []); //Must be filled with all the base classes
 				classSymbol.derivatives				= (_this.secondPass ? _this.getClass(ast.name).derivatives : {});
 				classSymbol.interfaces				= ast.interfaces;
 				classSymbol.events					= {};
@@ -1383,21 +1437,11 @@ function Compiler(ast)
 					_this.NewError("Interface " + classSymbol.interfaces[i] + " already implemented by base class", ast);
 			}
 
-			if(_this.secondPass)
-			{
-				if(baseClass && !baseClassSymbol)
-					_this.NewError("Base class not found: " + baseClass, ast);
+			if(_this.secondPass && baseClass && !baseClassSymbol)
+				_this.NewError("Base class not found: " + baseClass, ast);
 
-				// Collect all base classes (in reverse order from bottom to top)
-				var base = classSymbol;
-
-				classSymbol.bases=[];
-				while(((base=base.baseSymbol)!=null))
-				{
-					classSymbol.bases.push(base);
-				}
-				classSymbol.bases = classSymbol.bases.reverse();
-			}
+			// Collect all base classes (in reverse order from bottom to top)
+			classSymbol.bases = _this.getAllBaseClasses(classSymbol);
 
 			// Generate constructor arguments list for this class
 			var thisConstructorArguments = [];
@@ -1938,10 +1982,17 @@ function Compiler(ast)
 						var eventClassName = _this.getTypeName(_this.getCallListParam(event_ast,0));
 						var eventClassSymbol = _this.getClass(eventClassName);
 						var eventHandlerFunctionSymbol = _this.getCallListParam(event_ast,1).symbol;
+						var eventListenerClassSymbol = classSymbol;
 						var event_handler_uid = "__EH" + _this.eventId + "_" + classSymbol.name + "_" + eventHandlerFunctionSymbol.name + "__";
 
 						if(eventHandlerFunctionSymbol.vartype!="Boolean")
 							_this.NewError("Event Handlers must return Boolean", eventHandlerFunctionSymbol.ast);
+
+						if(!eventHandlerFunctionSymbol.public)
+							_this.NewError("Event Handler functions must have public access modifier", eventHandlerFunctionSymbol.ast);
+
+						if(!_this.implementsInterface(eventListenerClassSymbol, "IEventListener"))
+							_this.NewError("Event Listener Classes must implement IEventListener interface", eventListenerClassSymbol.ast);
 
 						if(!eventClassSymbol)
 						{
@@ -1979,9 +2030,16 @@ function Compiler(ast)
 						var eventClassName = _this.getTypeName(_this.getCallListParam(event_ast,0));
 						var eventClassSymbol = _this.getClass(eventClassName);
 						var eventHandlerFunctionSymbol = _this.getCallListParam(event_ast,1).symbol;
+						var eventListenerClassSymbol = classSymbol;
 
 						if(eventHandlerFunctionSymbol.vartype!="Boolean")
 							_this.NewError("Event Handlers must return Boolean", eventHandlerFunctionSymbol.ast);
+
+						if(!eventHandlerFunctionSymbol.public)
+							_this.NewError("Event Handler functions must have public access modifier", eventHandlerFunctionSymbol.ast);
+
+						if(!_this.implementsInterface(eventListenerClassSymbol, "IEventListener"))
+							_this.NewError("Event Listener Classes must implement IEventListener interface", eventListenerClassSymbol.ast);
 
 						if(!eventClassSymbol)
 						{
@@ -1997,7 +2055,7 @@ function Compiler(ast)
 							if(ed.event_source==eventSourceClassSymbol &&
 							   ed.event_symbol==eventClassSymbol &&
 							   ed.event_listener==classSymbol &&
-							   ed.event_handler==eventHandlerFunctionSymbol &&
+							   ed.event_handler.__cnSignature==eventHandlerFunctionSymbol.__cnSignature &&
 							   ed.type==_this.ADD_EVENT)
 							{
 								found = true;
@@ -2894,19 +2952,20 @@ function Compiler(ast)
 				if(ast[item].initializer)
 				{
 					// Generate initializer
-					if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction && !ast.static)
-					{
-						if(_this.in_state)
-							_this.NewError("Invalid state variable initializer, should be in state enter() function : " + ast[item].name, ast[item]);
-						else if(ast.type!=jsdef.EVENT)
-							_this.NewError("Invalid class member initializer, should be in constructor: " + ast[item].name, ast[item]);
+						if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction && !ast.static)
+						{
+							if(_this.in_state)
+								_this.NewError("Invalid state variable initializer, should be in state enter() function : " + ast[item].name, ast[item]);
+							else if(ast.type!=jsdef.EVENT)
+								_this.NewError("Invalid class member initializer, should be in constructor: " + ast[item].name, ast[item]);
 					}
 
 					ast[item].generated_code = generate(ast[item].initializer);
 
 					// Check type
 					var type = _this.getTypeName(ast[item].initializer);
-					_this.typeCheck(ast, varSymbol.vartype, type, null, true);
+
+					_this.typeCheck(ast, varSymbol.vartype, type);
 				}
 				else
 				{
@@ -3764,20 +3823,41 @@ function Compiler(ast)
 				out.push(gen);
 				out.push(".");
 			}
+
 			out.push(generate(ast[1]));
+
 			if(_this.secondPass)
 			{
-				_this.addDebugSymbol(ast, out.join(""));
 				ast[0].vartype = _this.getTypeName(ast[0]);
+				_this.addDebugSymbol(ast, out.join(""));
 			}
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.INDEX:
+
 			out.push(generate(ast[0]));
 			ast.generated_index = "[" + generate(ast[1]) + "]";
 			out.push(ast.generated_index);
-			if(_this.secondPass) ast[0].vartype = _this.getTypeName(ast[0]);
+
+			if(_this.secondPass)
+			{
+				ast[0].vartype = _this.getTypeName(ast[0]);
+				ast[1].vartype = _this.getTypeName(ast[1]);
+
+				// Nasty Hack to allow non-Integer array indexes in
+				// purely JavaScript classes such as Window Callbacks.
+
+				if(ast.EXPORT_NATIVE)
+				{
+					if(!(_this.isTypedArray(ast[0].vartype) || _this.isVector(ast[0].vartype)))
+					{
+						_this.NewError("Illegal index access: " + out[0] + " is not an array.", ast[0]);
+					}
+
+					_this.typeCheck(ast[1], "Integer", ast[1].vartype, "Illegal array index type, must be Integer.", null, false);
+				}
+			}
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4343,6 +4423,10 @@ function Compiler(ast)
 				firstItem = false;
 			}
 			out.push("]");
+
+			//if(_this.secondPass && ast.parent.type==jsdef.ASSIGN)
+			//	_this.NewError("Untyped array initialization", ast);
+
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4373,6 +4457,7 @@ function Compiler(ast)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.ASSIGN:
+
 			out.push(generate(ast[0]));
 			out.push(ast.value);
 			if(ast.value != "=") out.push("=");
@@ -4390,7 +4475,6 @@ function Compiler(ast)
 				}
 			    _this.typeCheck(ast, _this.getTypeName(ast[0]), _this.getTypeName(ast[1]));
 			}
-
 			break;
 
 		// ==================================================================================================================================
@@ -4436,9 +4520,12 @@ function Compiler(ast)
 		// ==================================================================================================================================
 
 		case jsdef.FOR:
+
 			if(ast.setup && ast.setup.type==jsdef.VAR && ast.setup.length>1)
 				_this.NewError("Invalid multiple variable initializers in for.", ast);
+
 			var setupFor = ast.setup ? generate(ast.setup) : ";";
+
 			setupFor=setupFor.trim();
 			out.push("for(" + setupFor + (setupFor.slice(-1) == ";" ? "": ";"));
 			out.push((ast.condition ? generate(ast.condition) : "") + ";");
@@ -4656,14 +4743,14 @@ function Compiler(ast)
 		case jsdef.BITWISE_OR:			out.push(generate(ast[0])); out.push("|"); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
 		case jsdef.BITWISE_XOR:			out.push(generate(ast[0])); out.push("^"); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
 
-		case jsdef.EQ: 					out.push(generate(ast[0])); out.push("=="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
-		case jsdef.STRICT_EQ:			out.push(generate(ast[0])); out.push("=="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1]); break;
-		case jsdef.STRICT_NE:			out.push(generate(ast[0]));	out.push("!="); out.push(generate(ast[1])); break;
-		case jsdef.GE:					out.push(generate(ast[0])); out.push(">="); out.push(generate(ast[1])); break;
-		case jsdef.GT:					out.push(generate(ast[0])); out.push(">");  out.push(generate(ast[1])); break;
-		case jsdef.LE:					out.push(generate(ast[0])); out.push("<="); out.push(generate(ast[1])); break;
-		case jsdef.LT:					out.push(generate(ast[0])); out.push("<");  out.push(generate(ast[1])); break;
-		case jsdef.NE:					out.push(generate(ast[0])); out.push("!=");	out.push(generate(ast[1])); break;
+		case jsdef.EQ: 					out.push(generate(ast[0])); out.push("=="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1], false); break;
+		case jsdef.STRICT_EQ:			out.push(generate(ast[0])); out.push("=="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1], false); break;
+		case jsdef.STRICT_NE:			out.push(generate(ast[0]));	out.push("!="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1], false); break;
+		case jsdef.GE:					out.push(generate(ast[0])); out.push(">="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1], false); break;
+		case jsdef.GT:					out.push(generate(ast[0])); out.push(">");  out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1], false); break;
+		case jsdef.LE:					out.push(generate(ast[0])); out.push("<="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1], false); break;
+		case jsdef.LT:					out.push(generate(ast[0])); out.push("<");  out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1], false); break;
+		case jsdef.NE:					out.push(generate(ast[0])); out.push("!="); out.push(generate(ast[1])); _this.typeCheckItems(ast, ast[0], ast[1], false); break;
 
 		case jsdef.LSH:					out.push(generate(ast[0])); out.push("<<"); out.push(generate(ast[1])); break;
 		case jsdef.RSH:					out.push(generate(ast[0])); out.push(">>"); out.push(generate(ast[1])); break;

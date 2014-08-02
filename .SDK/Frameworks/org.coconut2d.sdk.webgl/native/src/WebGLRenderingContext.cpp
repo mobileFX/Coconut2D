@@ -346,28 +346,23 @@ GLany WebGLRenderingContext::getProgramParameter(WebGLProgram* program, GLenum p
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-GLany WebGLRenderingContext::getShaderParameter(WebGLShader* shader, GLenum pname)
+GLboolean WebGLRenderingContext::getShaderParameter_boolean(WebGLShader* shader, GLenum pname)
 {
 	assert(shader);
-	GLany ret;
 	GLint params;
 	glGetShaderiv(shader->__uid, pname, &params);
 	ASSERT_GL();
-	switch(pname)
-	{
-	case GL_SHADER_TYPE:
-		ret.type = GLany::typeEnum;
-		ret.valEnum = params;
-		break;
-	case GL_DELETE_STATUS:
-	case GL_COMPILE_STATUS:
-		ret.type = GLany::typeBool;
-		ret.valBool = params;
-		break;
-	default:
-		assert(false);
-	}
-	return ret;
+	return GLenum(params);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+GLenum WebGLRenderingContext::getShaderParameter_enum(WebGLShader* shader, GLenum pname)
+{
+	assert(shader);
+	GLint params;
+	glGetShaderiv(shader->__uid, pname, &params);
+	ASSERT_GL();
+	return GLenum(params);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -660,6 +655,7 @@ void WebGLRenderingContext::vertexAttribPointer(GLuint index, GLint size, GLenum
 	ASSERT_GL();
 }
 
+/*
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 WebGLProgram* makeProgram(WebGLRenderingContext* gl, std::string vs, std::string fs)
 {
@@ -681,4 +677,28 @@ WebGLProgram* makeProgram(WebGLRenderingContext* gl, std::string vs, std::string
 	gl->linkProgram(program);
 
 	return program;
+}*/
+
+void WebGLRenderingContext::colorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+{
+	glColorMask(red, green, blue, alpha);
+	ASSERT_GL();
+}
+
+void WebGLRenderingContext::stencilMask(GLuint mask)
+{
+	glStencilMask(mask);
+	ASSERT_GL();
+}
+
+void WebGLRenderingContext::stencilFunc(GLenum func, GLint ref, GLuint mask)
+{
+	glStencilFunc(func,ref,mask);
+	ASSERT_GL();
+}
+
+void WebGLRenderingContext::stencilOp(GLenum fail, GLenum zfail, GLenum zpass)
+{
+	glStencilOp(fail,zfail,zpass);
+	ASSERT_GL();
 }

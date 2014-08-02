@@ -35,8 +35,8 @@
 #define __HTMLWINDOW_HPP__
 
 #include "HTMLDocument.hpp"
-#include "DeviceMessage.hpp"
-#include "CocoEngine.hpp"
+#include "engine/DeviceMessage.hpp"
+#include "engine/CocoEngine.hpp"
 
 class HTMLWindow
 {

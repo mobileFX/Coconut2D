@@ -137,6 +137,9 @@ class CocoScene
 		// Prepare CocoClip and their timelines
 		__root.prepare(this);
 
+		if(engine.__RESIZE_IMAGES_AT_RUNTIME)
+			__root.analyze(__view_scale / __view_pixel_ratio, __view_scale / __view_pixel_ratio);
+
 		var L:Integer = __imageSymbols.size();
 		for(var i:Integer = 0; i < L ; i++)
 	    {

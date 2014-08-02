@@ -48,16 +48,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Structs.h"
-#include <cassert>
 #include <algorithm>
-#include <cmath>
 #include <stack>
 #include <string>
 #include <sstream>
 #include <vector>
 #include <map>
+#include <cmath>
 #include <cstdlib>
 #include <cstdarg>
+#include <cassert>
+
+#ifdef __CPP_0X__
+	#include <initializer_list>
+#endif
 
 // ==================================================================================================================================
 //	    ___
@@ -70,10 +74,12 @@
 template<class T> class Array : public std::vector<T>
 {
 public:
+	std::string __className;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	Array() : std::vector<T>()
 	{
+		__className = "Array";
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +87,13 @@ public:
 	{
 		return std::vector<T>::size();
 	}
+
+	#ifdef __CPP_0X__
+	//////////////////////////////////////////////////////////////////////////////////
+	Array(std::initializer_list<T> v) : std::vector<T>(v)
+	{
+	}
+	#endif
 
 	//////////////////////////////////////////////////////////////////////////////////
 	Array(size_t size, ...) : std::vector<T>(size)
@@ -122,6 +135,14 @@ public:
 	Array<T>* slice(int first, int last)
 	{
 		return new Array<T>(std::vector<T>(std::vector<T>::begin() + first, (last > 0 ? std::vector<T>::begin() : std::vector<T>::end()) + last));
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	Array<T>* concat(Array<T>* arr)
+	{
+		Array<T>* n = new Array<T>(std::vector<T>(std::vector<T>::begin(), std::vector<T>::end()));
+		n->insert(n->end(), arr->begin(), arr->end());
+		return n;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -208,6 +229,14 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	String(const std::string& str) : std::string(str)
 	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	String slice(size_t start, size_t end = std::string::npos)
+	{
+		if(end==0) end = this->size();
+		size_t length = end - start;
+		return std::string::substr(start, length);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -400,15 +429,20 @@ public:
 //	    /____/_/                                      /____/
 // ==================================================================================================================================
 
-typedef TypedArray<char> Int8Array;
 typedef TypedArray<unsigned char> Uint8Array;
-typedef TypedArray<unsigned char> Uint8ClampedArray;
-typedef TypedArray<short> Int16Array;
 typedef TypedArray<unsigned short> Uint16Array;
-typedef TypedArray<int> Int32Array;
 typedef TypedArray<unsigned int> Uint32Array;
+typedef TypedArray<unsigned int> Uint64Array;
+
+typedef TypedArray<char> Int8Array;
+typedef TypedArray<short> Int16Array;
+typedef TypedArray<int> Int32Array;
+typedef TypedArray<int> Int64Array;
+
 typedef TypedArray<float> Float32Array;
 typedef TypedArray<double> Float64Array;
+
+typedef TypedArray<unsigned char> Uint8ClampedArray;
 
 class DataView : ArrayBufferView
 {
@@ -471,30 +505,13 @@ public:
 // ==================================================================================================================================
 
 //# Native Classes Begin #//
-class Audio;
-class CocoEventConnectionPoint;
-class CocoEventSource;
-class CocoFont;
 class HTMLWindow;
-class IEventListener;
-class ImageData;
-class WebGLBuffer;
-class WebGLFramebuffer;
-class WebGLObject;
-class WebGLProgram;
-class WebGLRenderbuffer;
 class WebGLRenderingContext;
-class WebGLShader;
-class WebGLTexture;
-class WebGLUniformLocation;
-class XMLHttpRequest;
-struct CocoFontChar;
-struct GLany;
+class CocoEventConnectionPoint;
 //# Native Classes End #//
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
-class CocoAppController;
 class CocoAudio;
 class CocoClip;
 class CocoClipOnClickEvent;
@@ -507,36 +524,27 @@ class CocoDataStream;
 class CocoDataset;
 class CocoEngine;
 class CocoEvent;
-class CocoGameBonusesLayer;
-class CocoGameEnemiesLayer;
-class CocoGameEngine;
-class CocoGamePlayerSprite;
-class CocoGameSprite;
-class CocoGameSpriteBonus;
-class CocoGameSpriteEnemy;
-class CocoGameSpriteMaze;
-class CocoGameSpritePlatform;
-class CocoGameStage;
-class CocoGameTiledLayer;
-class CocoGameTiledLayerMaze;
-class CocoGameTiledLayerParallax;
-class CocoGameTiledLayerPlatform;
 class CocoGraphics;
 class CocoImage;
 class CocoImageRenderData2D;
 class CocoImageRenderDataGL;
 class CocoImageResolution;
 class CocoLocalStorage;
+class CocoMaskClip;
 class CocoMatrix;
-class CocoParallaxFollowPoint;
 class CocoRenderContext2D;
 class CocoRenderContext;
 class CocoRenderContextGL;
 class CocoScene;
 class CocoSelfTexturedClip;
 class CocoSequence;
-class CocoSideScrollingPlayer;
-class CocoSideScrollingStage;
+class CocoShader;
+class CocoShaderBoundingBox;
+class CocoShaderCommon;
+class CocoShaderParallaxHor;
+class CocoShaderSaturationWithAlpha;
+class CocoShaderSimple;
+class CocoShaderSimpleWithAlpha;
 class CocoText;
 class CocoTextBlock;
 class CocoTextClip;
@@ -544,23 +552,9 @@ class CocoTextStyle;
 class CocoTickable;
 class CocoTimeLabel;
 class CocoTimeline;
-class CocoUIButton;
-class CocoUICheckBox;
-class CocoUIComboBox;
-class CocoUIControl;
-class CocoUIControlOnChevronClickEvent;
-class CocoUIControlOnGlyphClickEvent;
-class CocoUIFormView;
-class CocoUILabel;
-class CocoUINavBar;
-class CocoUIPictureList;
-class CocoUIScrollView;
-class CocoUITabBar;
-class CocoUITextEdit;
-class CocoUIView;
 class CocoVector;
 class GameEngine;
-class GameScreen;
+class GridSymbol;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
 class HTMLCanvasPattern;
@@ -574,9 +568,9 @@ class IEventTarget;
 class IPersistable;
 class ITickable;
 class Image;
-class LoadingScreen;
 class PathLine;
-class TitleScreen;
+class SceneGameBoard;
+class SceneTitle;
 class Touch;
 class TouchList;
 struct CocoHVAlign;
@@ -586,6 +580,7 @@ struct CocoPoint;
 struct CocoRect;
 struct CocoRequestNameValuePair;
 struct CocoSkinCacheItem;
+struct ContextArguments;
 struct DEVICE_MESSAGE;
 //# Generated Classes End #//
 
@@ -672,7 +667,17 @@ template<class T> using Stack = std::stack<T>;
 template<class T> using Dictionary = std::map<std::string, T>;
 template<class T> using Index = std::map<size_t, T>;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T> std::string toString(T v)
+{
+	std::stringstream ss;
+	ss<<v;
+	return ss.str();
+}
 
+typedef String Gradient;
+
+#ifndef __CPP_0X__
 
 // ==================================================================================================================================
 //	    ___                          __    __                ____
@@ -820,17 +825,7 @@ public:
 	}
 };
 
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-template<class T> std::string toString(T v)
-{
-	std::stringstream ss;
-	ss<<v;
-	return ss.str();
-}
-
-typedef String Gradient;
+#endif
 
 // ==================================================================================================================================
 //	   _____ __        __

@@ -490,13 +490,17 @@ function __init_narcissus(GLOBAL)
 				if(token.value && token.value.indexOf(this.__EXPORT_NATIVE) != -1)
 				{
 					this.EXPORT_NATIVE = true;
+					if(match.input.substr(match.index + match[0].length, 1)!=";")
+						throw this.newSyntaxError("Missing ; after include directive.");
 				}
 
 				///////////////////////////////////////////////////////////////////
 				// "#export web";
 				if(token.value && token.value.indexOf(this.__EXPORT_WEB) != -1)
 				{
-					this.EXPORT_WEB = true;
+					this.__EXPORT_WEB = true;
+					if(match.input.substr(match.index + match[0].length, 1)!=";")
+						throw this.newSyntaxError("Missing ; after include directive.");
 				}
 
 				///////////////////////////////////////////////////////////////////
@@ -996,9 +1000,7 @@ function __init_narcissus(GLOBAL)
 
                 if(t.token().type == jsdef.FUNCTION)
                 {
-                	// Function without modifier in a class is private
-                	t.private = true;
-                	n.push(FunctionDefinition(t, x, false, DECLARED_FORM))
+                	throw t.newSyntaxError("Missing function access modifier");
                 }
 				else if(t.token().type == jsdef.PUBLIC)
 				{
@@ -1060,7 +1062,7 @@ function __init_narcissus(GLOBAL)
 		// Add public var __className to all classes
 		if(!isInterface)
 		{
-			f.body.push(add_var_string_node(t, "__className", f.name))
+			f.body.push(add_var_string_node(t, "__className", f.name));
 		}
 
 		f.end = t.cursor;
@@ -1081,6 +1083,7 @@ function __init_narcissus(GLOBAL)
 		var clsId = new Node(t, jsdef.CONST);
 		clsId.value="var";
 		clsId.public=true;
+		clsId.__rtti = true;
 		var vt = new Node(t, jsdef.IDENTIFIER);
 		vt.name = vt.value = varName;
 		vt.vartype = "String";
@@ -1422,6 +1425,8 @@ function __init_narcissus(GLOBAL)
 			node.subtype = subtype;
 			t.mustMatch(jsdef.GT);
 			node[typeProp] = vartype + "<" + subtype + ">";
+			if(typeProp=="returntype")
+				node["vartype"] = vartype + "<" + subtype + ">";
 		}
 	}
 
@@ -2056,15 +2061,6 @@ function __init_narcissus(GLOBAL)
 
 			n.end = t.cursor;// n.expression.end;
 			n.line_end = t.line_start;// n.expression.line_end;
-
-			// Heuristics to detect vartype from jsdef.NEW operator in expression
-
-			// Case 1: Assuming a DOT
-			if(n.expression && n.expression[0] && n.expression[0][1] && n.expression[0][1].type==jsdef.IDENTIFIER && !n.expression[0][1].vartype && n.expression[1] && n.expression[1].type==jsdef.NEW)
-			{
-				n.expression[0][1].vartype = n.expression[1][0].value;
-			}
-
 			break;
 		}
 		if(t.line_start == t.token().line_start)
@@ -2397,9 +2393,10 @@ function __init_narcissus(GLOBAL)
 				if(tt==jsdef.LT && operators.top().type==jsdef.NEW && operands.top().value=="Array")
 				{
 					matchVartype(t, operators.top(), "subtype", true);
-					operators.top().vartype = "Array<" + operands.top().subtype + ">";
+					operators.top().vartype = "Array<" + operators.top().subtype + ">";
 					operands.top().subtype = operators.top().subtype;
 					operands.top().vartype = operators.top().vartype;
+					//operands.top().value = operands.top().vartype;
 					t.mustMatch(jsdef.GT);
 					break;
 				}

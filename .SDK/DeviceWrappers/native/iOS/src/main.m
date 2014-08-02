@@ -31,12 +31,12 @@
 
 #import "Coconut2D.hpp"
 #import "CocoAssetFile.h"
-#import "CocoFontsCache.h"
-#import "CocoAudioStream.h"
+#import "Fonts/CocoFontsCache.h"
+#import "Audio/CocoAudioStream.h"
 #import "CocoDeviceWrapper.h"
 
-extern char* CocoAssetFile::filesPath;
-extern char* CocoAssetFile::assetPath;
+char* CocoAssetFile::filesPath;
+char* CocoAssetFile::assetPath;
 
 #define CONFIGURATION_$(UCONFIGURATION)
 #define DEBUG_HOST_IP 	"$(DEBUG_HOST_IP)"
@@ -82,23 +82,7 @@ int main(int argc, char *argv[])
 	CocoAssetFile::init(documentsDir.c_str(), bundleDir.c_str());
 
 	CocoFontsCache::init();
-	CocoFontsCache::add("Helvetica", CocoFontsCache::FONT_STYLE::Regular, "./fonts/Helvetica.ttf");
-	CocoFontsCache::add("Helvetica", CocoFontsCache::FONT_STYLE::Bold, "./fonts/Helvetica-Bold.ttf");
-	CocoFontsCache::add("Helvetica", CocoFontsCache::FONT_STYLE::Italic, "./fonts/Helvetica-Italic.ttf");
-	CocoFontsCache::add("Helvetica", CocoFontsCache::FONT_STYLE::BoldItalic, "./fonts/Helvetica-BoldItalic.ttf");
-	CocoFontsCache::add("HelveticaNeue", CocoFontsCache::FONT_STYLE::Regular, "./fonts/HelveticaNeue.ttf");
-	CocoFontsCache::add("HelveticaNeue", CocoFontsCache::FONT_STYLE::Bold, "./fonts/HelveticaNeue-Bold.ttf");
-	CocoFontsCache::add("HelveticaNeue", CocoFontsCache::FONT_STYLE::Italic, "./fonts/HelveticaNeue-Italic.ttf");
-	CocoFontsCache::add("HelveticaNeue", CocoFontsCache::FONT_STYLE::BoldItalic, "./fonts/HelveticaNeue-BoldItalic.ttf");
-	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::Regular, "./fonts/Arial.ttf");
-	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::Bold, "./fonts/Arial-Bold.ttf");
-	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::Italic, "./fonts/Arial-Italic.ttf");
-	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::BoldItalic, "./fonts/Arial-BoldItalic.ttf");
-	CocoFontsCache::add("Consolas", CocoFontsCache::FONT_STYLE::Regular, "./fonts/Consolas.ttf");
-	CocoFontsCache::add("Consolas", CocoFontsCache::FONT_STYLE::Bold, "./fonts/Consolas-Bold.ttf");
-	CocoFontsCache::add("Consolas", CocoFontsCache::FONT_STYLE::Italic, "./fonts/Consolas-Italic.ttf");
-	CocoFontsCache::add("Consolas", CocoFontsCache::FONT_STYLE::BoldItalic, "./fonts/Consolas-BoldItalic.ttf");
-
+	$(IOS_FONTS_LIST)
 	CocoAudioStream::init();
 
 	#ifdef __XMLHTTPREQUEST_HPP__

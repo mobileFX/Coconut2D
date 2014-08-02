@@ -34,7 +34,7 @@
 #ifndef __HTMLAUDIOELEMENT_HPP__
 #define __HTMLAUDIOELEMENT_HPP__
 
-#include "CocoAudioStream.h"
+#include "Audio/CocoAudioStream.h"
 
 class Audio
 {

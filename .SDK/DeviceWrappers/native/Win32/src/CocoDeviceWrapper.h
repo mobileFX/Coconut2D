@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -30,8 +30,8 @@ class CocoDeviceWrapper;
 #include "Coconut2D.hpp"
 #include "HTMLWindow.hpp"
 #include "CocoAssetFile.h"
-#include "CocoFontsCache.h"
-#include "CocoAudioStream.h"
+#include "Fonts/CocoFontsCache.h"
+#include "Audio/CocoAudioStream.h"
 #include "WebGLRenderingContext.hpp"
 #include "GameEngine.hpp"
 

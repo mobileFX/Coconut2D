@@ -113,7 +113,10 @@ function CompilerTypeSystemPlugin(compiler)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.isPointer = function (vartype)
 	{
-		if(!vartype) return false;
+		if(!vartype)
+			return false;
+
+		vartype = _this.getVarType(vartype);
 
 		switch(vartype)
 		{
@@ -192,7 +195,8 @@ function CompilerTypeSystemPlugin(compiler)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.isTypedArray = function(vartype)
 	{
-		if(!vartype) return false;
+		if(!vartype)
+			return false;
 
 		switch(vartype)
 		{
@@ -201,27 +205,52 @@ function CompilerTypeSystemPlugin(compiler)
 		case "Int8Array":
 		case "Int16Array":
 		case "Int32Array":
+		case "Int64Array":
 		case "Uint8Array":
 		case "Uint16Array":
 		case "Uint32Array":
+		case "Uint64Array":
 		case "Float32Array":
 		case "Float64Array":
 			return true;
 		}
-		return true;
+		return false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.isVector = function(vartype)
 	{
-		return vartype && vartype.indexOf("<")!=-1 ? true : false;
-	}
+		if(!vartype) return false;
+		if(vartype.indexOf("<")!=-1) return true;
+
+		if(_this.isDerivativeOf(vartype, "Array"))
+			return true;
+
+		return false;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isNumber = function(vartype)
+	{
+		switch(vartype)
+		{
+		case 'Number':
+		case 'Float':
+		case 'Integer':
+		case 'Time':
+			return true;
+		}
+
+		if(_this.isEnum(vartype))
+			return true;
+
+		return false;
+	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getVarType = function(vartype)
 	{
 		if(!vartype) return null;
-		// Detect typed arrays Array<String>, Array<Float>, etc.
 		if(vartype.charAt(vartype.length-1)!='>') return vartype;
 		vartype = vartype.substr(0, vartype.indexOf('<'));
 		return vartype;
@@ -259,9 +288,11 @@ function CompilerTypeSystemPlugin(compiler)
 		case "Int8Array":		return "Integer";
 		case "Int16Array":		return "Integer";
 		case "Int32Array":		return "Integer";
+		case "Int64Array":		return "Integer";
 		case "Uint8Array":		return "Integer";
 		case "Uint16Array":		return "Integer";
 		case "Uint32Array":		return "Integer";
+		case "Uint64Array":		return "Integer";
 		case "Float32Array":	return "Float";
 		case "Float64Array":	return "Float";
 		}
@@ -272,11 +303,33 @@ function CompilerTypeSystemPlugin(compiler)
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.VTCPP = function(vartype, jsdef_NEW)
+	{
+		if(!vartype) return "void ";
+
+		if(_this.isTypedArray(vartype))
+			return vartype+(jsdef_NEW?"":"*");
+
+		var v = _this.getVarType(vartype);
+		var s = _this.getSubType(vartype);
+
+		if(s && _this.isPointer(s))
+			s += "*";
+
+		v = v + (s ? "<"+s+">" : "");
+
+		if(!jsdef_NEW)
+			v += (_this.isPointer(v) || s!=null ? "* " :" ");
+
+		return v;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getTypeName = function(ast)
 	{
 		if(!_this.secondPass || !_this.currClassName || !ast) return;
-		if(ast.vartype && ast.vartype!="Untyped")
-			return ast.vartype;
+		//if(ast.vartype && ast.vartype!="Untyped")
+		//	return ast.vartype;
 		var type = _this.getTypeNameResolver(ast);
 		ast.vartype = type;
 		return type;
@@ -330,7 +383,6 @@ function CompilerTypeSystemPlugin(compiler)
 			if(!ast[0].symbol)
 			{
 				_this.NewError("Symbol not found: " + ast[0].value, ast[0]);
-				//throw new Error("Compiler Error");
 				return null;
 			}
 			return ast[0].symbol.name;
@@ -615,16 +667,18 @@ function CompilerTypeSystemPlugin(compiler)
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typeCheckItems = function(ast, ast0, ast1)
+	_this.typeCheckItems = function(ast, ast0, ast1, strictNumbers)
 	{
+		if(strictNumbers==null)
+			strictNumbers = true;
+
 		var type1 = _this.getTypeName(ast0);
 		var type2 = _this.getTypeName(ast1);
-		_this.typeCheck(ast, type1, type2);
-
+		_this.typeCheck(ast, type1, type2, null, null, strictNumbers);
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typeCheck = function(ast, type1, type2, customError, checkOnly)
+	_this.typeCheck = function(ast, _type1, _type2, customError, checkOnly, strictNumbers)
 	{
 		//** Need to rewrite using Roger's convertion tables
 
@@ -632,12 +686,40 @@ function CompilerTypeSystemPlugin(compiler)
 		if(!_this.currClassName || !_this.secondPass) return;
 
 		// Fast type checking
-		if(type1==type2) return type1;
+		if(_type1==_type2) return _type1;
 
-		// Resolve vartype and retry
-		type1=_this.getVarType(type1);
-		type2=_this.getVarType(type2);
-		if(type1==type2) return type1;
+		// Resolve vartype and subtypes
+		var type1  = _this.getVarType(_type1);
+		var type2  = _this.getVarType(_type2);
+		var stype1 = _this.getSubType(_type1);
+		var stype2 = _this.getSubType(_type2);
+
+		// Direct match?
+		if(type1==type2 && stype1==stype2)
+			return type1;
+
+		// Arrays?
+		if(type1==type2 && stype1!=stype2)
+		{
+			if(!_this.isDerivativeOf(type1, "Array"))
+				_this.NewError("Class is not an Array derivative: " + _type1, ast);
+
+			if(!_this.isDerivativeOf(type2, "Array"))
+				_this.NewError("Class is not an Array derivative: " + _type2, ast);
+
+			// Nasty hack for arrays used by ECMA objects
+			if(stype1=="Object")
+				return type2;
+
+ 			if(stype2=="Object")
+ 				return type1;
+
+			// Subtypes must have inheritance relation
+ 			if(!_this.isDerivativeOf(stype1, stype2))
+				_this.NewError(customError || "Cannot convert " + _type2 + " to " + _type1 + ": " + (ast[0] ? ast[0] : ast).source, ast);
+
+			return _type1;
+		}
 
 		// Invalid left/right type
 		if(!type1 || type1=="null" || type1==this.UNTYPED)
@@ -666,6 +748,9 @@ function CompilerTypeSystemPlugin(compiler)
 			_this.NewError("Please type-cast to " + type1 + ": " + ast.source, ast);
 			return type1;
 		}
+
+		if(!strictNumbers && _this.isNumber(type1) && _this.isNumber(type2))
+			return type1;
 
 		// Number
 		if(type1=="Number" && type2=="Integer") return type1;

@@ -197,6 +197,33 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function analyze(sx:Float, sy:Float)
+	{
+		var maxSX:Float = 0.0;
+		var maxSY:Float = 0.0;
+		var i:Integer;
+		for(i = __timeline.__keyFrames.size(); i--;)
+		{
+			var kf:CocoKeyFrame = __timeline.__keyFrames[i];
+			if(kf.scaleX > maxSX) maxSX = kf.scaleX;
+			if(kf.scaleY > maxSY) maxSY = kf.scaleY;
+		}
+		sx *= maxSX;
+		sy *= maxSY;
+
+		if(__image)
+		{
+			if(__image.scaleX < sx) __image.scaleX = sx;
+			if(__image.scaleY < sy) __image.scaleY = sy;
+		}
+		else
+		{
+			for(i = __children.size(); i--;)
+				__children[i].analyze(sx, sy);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function reset()
 	{
 		if(__currentFrame)
@@ -239,7 +266,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function removeChild(clipInstance:CocoClip) :CocoClip
+	public virtual function removeChild(clipInstance:CocoClip) :CocoClip
 	{
 		if(!clipInstance) return null;
 		var index:Integer = getChildIndex(clipInstance);
@@ -248,25 +275,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		__children.splice(index, 1);
 		normalize();
 		return clipInstance;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function normalize()
-	{
-		// Find clip with max timeline duration.
-		__childWithMaxTimelineDuration = null;
-		for(var i:Integer =__children.size()-1; i>=0; i--)
-		{
-			if(!__childWithMaxTimelineDuration)
-			{
-				__childWithMaxTimelineDuration = __children[i];
-				continue;
-			}
-			if(__children[i].__timeline.__durationInTime > __childWithMaxTimelineDuration.__timeline.__durationInTime)
-			{
-				__childWithMaxTimelineDuration = __children[i];
-			}
-		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -334,6 +342,25 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			arr = arr.concat(__children[i].getChildrenByClassName(className));
 		}
 		return arr;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function normalize()
+	{
+		// Find clip with max timeline duration.
+		__childWithMaxTimelineDuration = null;
+		for(var i:Integer =__children.size()-1; i>=0; i--)
+		{
+			if(!__childWithMaxTimelineDuration)
+			{
+				__childWithMaxTimelineDuration = __children[i];
+				continue;
+			}
+			if(__children[i].__timeline.__durationInTime > __childWithMaxTimelineDuration.__timeline.__durationInTime)
+			{
+				__childWithMaxTimelineDuration = __children[i];
+			}
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -816,3 +843,23 @@ class CocoTextClip : CocoSelfTexturedClip
 	}
 }
 
+class CocoMaskClip : CocoClip
+{
+	published var Invert:Boolean;
+
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	{
+		Invert = false;
+	}
+
+	public function Destructor()
+	{
+	}
+
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		ctx.drawMaskBegin();
+		super.paint;
+		ctx.drawMaskEnd(Invert);
+	}
+}

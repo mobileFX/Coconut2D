@@ -1,4 +1,5 @@
 LOCAL_PATH := $(call my-dir)
+LOCAL_PATH := $(TARGET_ROOT)/jni
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := freetype

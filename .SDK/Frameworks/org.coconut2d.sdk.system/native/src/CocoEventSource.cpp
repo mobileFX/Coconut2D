@@ -35,7 +35,7 @@
 
 #include "CocoEventSource.hpp"
 #include "CocoEventConnectionPoint.hpp"
-#include "CocoEvent.hpp"
+#include "engine/CocoEvent.hpp"
 #include "IEventListener.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoEventSource::CocoEventSource()
 {
+	__className = String("CocoEventSource");
 	__eventListeners = new Array<CocoEventConnectionPoint*> ();
 }
 

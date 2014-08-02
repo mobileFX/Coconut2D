@@ -115,6 +115,11 @@ class CocoImage
 	// Skin
 	public var skin:Float32Array;  // W1, W2, W3, H1, H2, H3
 
+	// Tiled Layer
+	public var tileWidth:Integer;
+	public var tileHeight:Integer;
+	public var tileMap:Int32Array;
+
 	// Render
 	public var renderData:ICocoImageRenderData;
 
@@ -124,6 +129,8 @@ class CocoImage
 	public var viewOptimalHeight:Integer;
 	public var viewSiblings:Array<CocoImageResolution>;
 	public var pixelRatio:Float;
+	public var scaleX:Float;
+	public var scaleY:Float;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -135,8 +142,13 @@ class CocoImage
 		image				= null;
 		isSpriteSheet		= false;
 		pixelRatio			= 1.0;
+		scaleX				= 0.0;
+		scaleY				= 0.0;
 		sequences			= new Array<CocoSequence>;
 		skin				= null;
+		tileWidth			= 0;
+		tileHeight			= 0;
+		tileMap				= null;
 		symbolName			= "";
 		texSize				= new Float32Array([1.0, 1.0]);
 		textureCellHeight	= 0;
@@ -162,6 +174,7 @@ class CocoImage
 		delete renderData;
 		delete image;
 		delete skin;
+		delete tileMap;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

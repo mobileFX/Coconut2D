@@ -762,9 +762,15 @@ class WebGLRenderingContext
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function getShaderParameter(shader:WebGLShader, pname:Integer) :Boolean
+	public function getShaderParameter_boolean(shader:WebGLShader, pname:Integer) :Boolean
 	{
-		return __WebGLRenderingContext_getShaderParameter(__uid, shader.__uid, pname);
+		return __WebGLRenderingContext_getShaderParameter_boolean(__uid, shader.__uid, pname);
+	}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getShaderParameter_enum(shader:WebGLShader, pname:Integer) :Integer
+	{
+		return __WebGLRenderingContext_getShaderParameter_enum(__uid, shader.__uid, pname);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

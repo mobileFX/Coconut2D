@@ -34,6 +34,7 @@
 //
 // ==================================================================================================================================
 
+
 class CocoRenderContext
 {
 
@@ -52,12 +53,15 @@ class CocoRenderContext
 		canvas.width = Float(window.innerWidth);
 		canvas.height = Float(window.innerHeight);
 
+		var args:ContextArguments = new ContextArguments();
+		args.stencil = true;
+
 		// Get WebGL context if supported by device
-		var gl:WebGLRenderingContext = WebGLRenderingContext(canvas.getContext("webgl"));
+		var gl:WebGLRenderingContext = WebGLRenderingContext(canvas.getContext("webgl", args));
 		if(gl) return new CocoRenderContextGL(gl);
 
 		// Get WebGL context if supported by device
-		gl = WebGLRenderingContext(canvas.getContext("experimental-webgl"));
+		gl = WebGLRenderingContext(canvas.getContext("experimental-webgl", args));
 		if(gl) return new CocoRenderContextGL(gl);
 
 		// Fallback to CanvasRenderingContext2D

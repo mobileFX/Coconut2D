@@ -34,7 +34,7 @@
 #include "CocoAudioStream.h"
 
 #ifdef ENABLE_OGG_SUPPORT
-extern ov_callbacks CocoAudioStream::ovc;
+ov_callbacks CocoAudioStream::ovc;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 size_t CocoAudioStream::ogg_from_memory_read(void* ptr, size_t size, size_t nmemb, void* datasource)
@@ -66,12 +66,12 @@ long CocoAudioStream::ogg_from_memory_tell(void* datasource)
 #endif /* ENABLE_OGG_SUPPORT */
 
 #ifdef ENABLE_OPENAL_SUPPORT
-	extern ALCdevice* CocoAudioStream::alcDevice;
-	extern ALCcontext* CocoAudioStream::alcContext;
-	extern std::map<std::string, ALuint>* CocoAudioStream::buffers;
+	ALCdevice* CocoAudioStream::alcDevice;
+	ALCcontext* CocoAudioStream::alcContext;
+	std::map<std::string, ALuint>* CocoAudioStream::buffers;
 #endif /* ENABLE_OPENAL_SUPPORT */
 
-extern std::map<fxObjectUID, CocoAudioStream*>* CocoAudioStream::audios;
+std::map<fxObjectUID, CocoAudioStream*>* CocoAudioStream::audios;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 void CocoAudioStream::init()

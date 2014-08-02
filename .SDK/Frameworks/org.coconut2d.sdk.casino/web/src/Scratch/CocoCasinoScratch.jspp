@@ -1,0 +1,160 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * This is a private Framework of Coconut2D product and you should explicitly
+ * own a license for using. Use of any portions or material related with this
+ * Framework is prohibited. Please contact mobileFX for licensing inquiries.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+
+// ==================================================================================================================================
+//	   ______                 ______           _            _____                 __       __
+//	  / ____/___  _________  / ____/___ ______(_)___  ____ / ___/______________ _/ /______/ /_
+//	 / /   / __ \/ ___/ __ \/ /   / __ `/ ___/ / __ \/ __ \\__ \/ ___/ ___/ __ `/ __/ ___/ __ \
+//	/ /___/ /_/ / /__/ /_/ / /___/ /_/ (__  ) / / / / /_/ /__/ / /__/ /  / /_/ / /_/ /__/ / / /
+//	\____/\____/\___/\____/\____/\__,_/____/_/_/ /_/\____/____/\___/_/   \__,_/\__/\___/_/ /_/
+//
+// ==================================================================================================================================
+
+
+"#include CocoClip.jspp";
+
+
+class CocoCasinoScratch: CocoClip
+{
+	public  var winSymbolAppearances:Integer;	//win appearances from ticket
+	private var cloneCounter:Integer;
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	{
+		cloneCounter 		 = 1;
+		winSymbolAppearances = 0;
+	}
+
+	//----------------------------------------------------------------------
+	public function Destructor()
+	{
+	}
+
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createPlaceHolder():CocoClip
+	{
+		var placeholder:CocoClip = new CocoClip(null);
+		placeholder.__instanceName = 'Placeholder';
+		placeholder.__timeline.clear();
+		placeholder.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN, false, true, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, null, false, false, '');
+		return placeholder;
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createCellSymbol(originalClip:CocoClip):CocoClip
+	{
+		//var placeholder:CocoClip = createPlaceHolder();
+		//var clip:CocoClip = cloneObject(originalClip, 0, 0, "Placeholder");
+		//placeholder.addChild(clip);
+
+		var placeholder:CocoClip = cloneObject(originalClip, 0, 0, "Placeholder");
+		return placeholder;
+	}
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function randomBinaryValGenerator(arrayLen:Integer):Array<Integer>
+	{
+		var arr:Array<Integer>;
+
+		for(var i:Integer=arrayLen; i>0;  i--)
+		{
+			var temp:Integer = Integer(Math.floor(Math.random()*2)) % 2;
+			arr.push(temp);
+			if(temp == 1) winSymbolAppearances++;
+		}
+		return arr;
+	}
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function cloneObject(originalClip:CocoClip, x:Float, y:Float, optional cloneName:String) : CocoClip
+	{
+		var clone:CocoClip = new CocoClip();
+		clone.__instanceName					= cloneName || originalClip.__instanceName +"_cl_"+ String(cloneCounter);
+
+		clone.__symbolLoop						= originalClip.__symbolLoop;
+
+		clone.__timeline						= new CocoTimeline();
+		clone.__timeline.__keyFrames = clone.__timeline.__keyFrames.concat(originalClip.__timeline.__keyFrames);
+		clone.__timeline.__labels	 = clone.__timeline.__labels.concat(originalClip.__timeline.__labels);
+		clone.__timeline.__keyFrames[0].x		= x;
+		clone.__timeline.__keyFrames[0].y		= y;
+
+		clone.__children						= new Array<CocoClip>;
+		clone.__children = clone.__children.concat(originalClip.__children);
+
+		clone.__currentTime						= originalClip.__currentTime;
+		clone.__currentFrame					= originalClip.__currentFrame;
+		clone.__hasBoundingBox					= originalClip.__hasBoundingBox;
+/*
+		clone.__vABS_TOP_LEFT					= new CocoVector();
+		clone.__vABS_TOP_RIGHT					= new CocoVector();
+		clone.__vABS_BOTTOM_LEFT				= new CocoVector();
+		clone.__vABS_BOTTOM_RIGHT				= new CocoVector();
+		clone.__vREL_TOP_LEFT					= new CocoVector();
+		clone.__vREL_TOP_RIGHT					= new CocoVector();
+		clone.__vREL_BOTTOM_LEFT				= new CocoVector();
+		clone.__vREL_BOTTOM_RIGHT				= new CocoVector();
+		clone.__vBBoxVrtx						= new CocoVector();
+		clone.__vABS_TOP_LEFT					= originalClip.__vABS_TOP_LEFT;
+		clone.__vABS_TOP_RIGHT					= originalClip.__vABS_TOP_RIGHT;
+		clone.__vABS_BOTTOM_LEFT				= originalClip.__vABS_BOTTOM_LEFT;
+		clone.__vABS_BOTTOM_RIGHT				= originalClip.__vABS_BOTTOM_RIGHT;
+		clone.__vREL_TOP_LEFT					= originalClip.__vREL_TOP_LEFT;
+		clone.__vREL_TOP_RIGHT					= originalClip.__vREL_TOP_RIGHT;
+		clone.__vREL_BOTTOM_LEFT				= originalClip.__vREL_BOTTOM_LEFT;
+		clone.__vREL_BOTTOM_RIGHT				= originalClip.__vREL_BOTTOM_RIGHT;
+		clone.__vBBoxVrtx						= originalClip.__vBBoxVrtx;
+
+
+		__mBBox									= new CocoMatrix();
+		__touch_start_point 					= new CocoPoint;
+		clone.__mBBox							= originalClip.__mBBox;
+		clone.__touch_start_point 				= originalClip.__touch_start_point;
+
+		clone.__childWithMaxTimelineDuration	= originalClip.__childWithMaxTimelineDuration;
+		clone.__currentSequence					= originalClip.__currentSequence;
+		clone.__currentAudio					= originalClip.__currentAudio;
+		clone.__clipPath						= originalClip.__clipPath;
+		clone.__loopTime						= originalClip.__loopTime;
+		clone.__loops							= originalClip.__loops;
+		clone.__x								= x;
+		clone.__y								= y;
+		clone.__width							= originalClip.__width;
+		clone.__height							= originalClip.__height;
+		clone.__touch_start_time				= originalClip.__touch_start_time;
+		clone.__touch_moved						= originalClip.__touch_moved;*/
+		clone.__image			                = originalClip.__image;
+
+		cloneCounter++;
+
+		return clone;
+	}
+
+}
+
+
+

@@ -33,6 +33,11 @@
 //
 // ==================================================================================================================================
 
+struct ContextArguments
+{
+	stencil:Boolean;
+}
+
 class HTMLCanvasElement
 {
 	public var width:Float;
@@ -61,7 +66,7 @@ class HTMLCanvasElement
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function getContext(contextId:String) :Object
+	public function getContext(contextId:String, optional args:ContextArguments) :Object
 	{
 		if(contextId=="2d")
 		{

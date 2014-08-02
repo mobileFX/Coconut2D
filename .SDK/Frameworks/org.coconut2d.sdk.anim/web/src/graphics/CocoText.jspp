@@ -107,10 +107,10 @@ class CocoText
     									  halign:Float, valign:Float,
     									  FontShadowX:Integer, FontShadowY:Integer, FontBlur:Integer, FontShadowColor:Color)
     {
-		var R:Integer = (FontColor >> 16) & 0xFF;
-		var G:Integer = (FontColor >> 8) & 0xFF;
-		var B:Integer = (FontColor & 0xFF);
-		var A:Integer = (FontColor >> 24) & 0xFF;
+		var R:Integer = Integer((FontColor >> 16) & 0xFF);
+		var G:Integer = Integer((FontColor >> 8) & 0xFF);
+		var B:Integer = Integer(FontColor & 0xFF);
+		var A:Integer = Integer((FontColor >> 24) & 0xFF);
 		var color:String = "rgba(" + String(R) + ", " + String(G) + ", " + String(B) + ", " + String(A) + ")";
     	var fontStyle:String = (FontItalic ? "italic" : "normal") + " normal " + (FontBold ? "bold " : "normal ") + String(FontSizePx) + "px " + FontName;
 

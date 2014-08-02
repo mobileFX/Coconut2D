@@ -23,8 +23,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "CocoAssetFile.h"
-#include "CocoFontsCache.h"
-#include "CocoAudioStream.h"
+#include "Fonts/CocoFontsCache.h"
+#include "Audio/CocoAudioStream.h"
 #include "CocoDeviceWrapper.h"
 
 extern AAssetManager* CocoAssetFile::manager;

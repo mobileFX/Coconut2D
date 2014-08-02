@@ -30,6 +30,16 @@
 
 "#include CocoClip.jspp";
 
+
+struct CocoCasinoTilePositionsInReel
+{
+	tileReferenceName 	 : String;
+	tileSymbolInChildren : Array<Integer>;		//	Index in children corresponding the symbol.
+	tileInstanceName  	 : Array<String>;		//  Instance Name of the symbol.
+	tilePositionInReel	 : Array<Integer>;		//  Since we have dummy tiles as weel we need to know the corresponding position in reel
+}
+
+//----------------------------------------------------------------------------------------
 class CocoCasinoSlotReel : CocoClip
 {
 	published var TileWidth:Integer;
@@ -45,11 +55,30 @@ class CocoCasinoSlotReel : CocoClip
  		function set(v:Float) { __reelSpeed = v; }
  	}
 
+	// Number of dummy slots.  These are the tiles that won't be a part of the slot
+	// but has to be added in order for the first and last tiles to be visible on screen
+	// without any leading or following spaces before or after them when the spin stops on either tile.
+	// Example: If spin ends in the last tile and this tile must be visible in the middle row of the slot,
+	// then empty spaces will be shown under this tile in the slot area. To prevent this, we add dummy
+	// tiles on top and bottom of the reel tiles. The number of dummy tiles is the HiddenSlotCells.
 	published var HiddenSlotCells:Integer;
 
-	private var ReelSymbols:Array<CocoClip>;
+	public var ReelSymbolsCombinations:Array<CocoCasinoTilePositionsInReel>
+	private var stopOnTile:Integer;
 	private var __reelRepetition:Integer;		// Number of Reel Spins.
+	private var __initialKeyFrameY:Float;
 
+	// We have to inform the Game Engine of the chosen child to play the win animation.
+	// Since we save the symbolReferenceName and the position of each occurance in the reel
+	// we need to have a return value with the actual index of the symbol to play it's animation.
+	// ex. We have 2 layers in the reel with symbolReferenceName = "Coconut".
+	// Their index in __children are [ 8, 13 ] and their position in Reel are [5, 10];
+	// Values saved in ReelSymbolsCombinations for "Coconut" are:
+	// ReelSymbolsCombinations[i].tileReferenceName		= "Coconut";
+	// ReelSymbolsCombinations[i].tileInstanceName		= ["Coconut1", "Coconut2"];
+	// ReelSymbolsCombinations[i].tileSymbolInChildren  = [ 8, 13 ];
+	// ReelSymbolsCombinations[i].tilePositionInReel    = [ 5, 10 ];
+	public var tileIndexInChildren:Integer;	// Reel symbol actual index in children collection.
 
 	// Events
 	public event OnReelSpinEnd();				// Notify parent that reel spin is over.
@@ -66,34 +95,60 @@ class CocoCasinoSlotReel : CocoClip
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage) : CocoClip(image)
 	{
-		ReelSymbols 			= new Array<CocoClip>;
-		TileWidth 				= 179;					// Tile width
-		TileHeight				= 136;					// Tile height
-		No_Of_Tiles_In_Reel 	= 15;					// Number of Tiles in Reel
-		Visible_Reel_Rows 		= 3;					// Number of visible rows in Reel
-		__reelRepetition 		= 0;					// Number of Reel Spins
-		__reelSpeed				= 1 / 500;				// Time for a complet repetition in msec
-		HiddenSlotCells 		= 4;
-		InitReelSymbols();
+		TileWidth 				= 179;					// Tile width.
+		TileHeight				= 136;					// Tile height.
+		No_Of_Tiles_In_Reel 	= 19;					// Number of Tiles in Reel.
+		Visible_Reel_Rows 		= 3;					// Number of visible rows in Reel.
+		__reelRepetition 		= 0;					// Number of Reel Spins.
+		__reelSpeed				= 10 / 1000;			// Time for a complet repetition in msec.
+		HiddenSlotCells 		= 4;					// Number of dummy slots.
+		stopOnTile				= 0;					// Stop spinning on this tile.
+		tileIndexInChildren		= -1;
+		__initialKeyFrameY		= 0;
+		ReelSymbolsCombinations	= new Array<CocoCasinoTilePositionsInReel>;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete ReelSymbols;
+		delete ReelSymbolsCombinations;
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
-	function InitReelSymbols()
+	public function InitReelSymbols()
 	{
-		if(this.__children)
+		var childs:Array<CocoClip> = this.__children;
+		var reelComb:Array<CocoCasinoTilePositionsInReel> = this.ReelSymbolsCombinations;
+
+		// Eclude the dummy children from selection
+		var dummy:Integer = Integer(HiddenSlotCells/2);
+		var pos:Integer = dummy-1;
+
+
+		if(childs)
 		{
-			for(var i=__children.size()-1; i>=0; i--)
+			for(var i:Integer=childs.size()-dummy-1; i>dummy; i--)
 			{
-				this.ReelSymbols
+				var nm:String = childs[i].__instanceName;
+				nm = nm.slice(0, -1);
+				for(var j=reelComb.size()-1; j>=0; j--)
+				{
+					if(reelComb[j].tileReferenceName == nm)
+					{
+						//trace(nm+" pos= "+String(pos) + " i = " + String(i) + "    instanceName= "+childs[i].__instanceName);
+						reelComb[j].tileInstanceName.push(childs[i].__instanceName);
+						reelComb[j].tileSymbolInChildren.push(i);
+						reelComb[j].tilePositionInReel.push(pos);
+						pos++;
+						break;
+					}
+				}
 			}
 		}
+
+		//for(var j=reelComb.size()-1; j>=0; j--)
+		//	trace(reelComb[j].tileReferenceName + " [" + reelComb[j].tilePositionInReel.join(",") + "]");
+
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,9 +159,9 @@ class CocoCasinoSlotReel : CocoClip
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function Spin()
+	public virtual function Spin(repeater:Integer)
 	{
-		__reelRepetition = 5;//this.repeater;
+		__reelRepetition = repeater;
 	}
 
 
@@ -114,38 +169,53 @@ class CocoCasinoSlotReel : CocoClip
  	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
  	{
  		var KF:CocoKeyFrame = this.__timeline.__keyFrames[0];
-		var T:Time = this.__currentTime;
- 		super.paint;
+ 		var T:Time = this.__currentTime;
+		super.paint;
  		var dt:Float = Float(this.__currentTime - T);
- 		var d:Integer = -(this.No_Of_Tiles_In_Reel-this.Visible_Reel_Rows-this.HiddenSlotCells);
+		var dummy:Integer = Integer(HiddenSlotCells/2);
 
  		if(__reelRepetition)
  		{
- 			KF.y += Float(this.TileHeight * this.No_Of_Tiles_In_Reel) * __reelSpeed * dt;
- 			//trace("===================================   KF.y = "+String(KF.y));
+ 			KF.y += Float(this.TileHeight * (this.No_Of_Tiles_In_Reel - this.HiddenSlotCells)) * __reelSpeed * dt;
  			if(KF.y > 0)
  			{
- 				if(--__reelRepetition) {
- 					KF.y = -Float(this.TileHeight) * Float(this.No_Of_Tiles_In_Reel-this.HiddenSlotCells);
- 					//trace("RESTART ===================================   KF.y = "+String(KF.y));
+ 				if(--__reelRepetition)
+ 				{
+ 					KF.y = -Float(this.TileHeight) * Float(this.No_Of_Tiles_In_Reel - this.HiddenSlotCells - 1);
  				}
  				else
  				{
  					// Choose randomly the tile where the spin stops.
  					// Since the first tile's y is set to 0, and we show 3 tiles in the slot, we need to
  					// choose a number between 0 and (the number of tiles minus the number of visible tiles)
- 					KF.y = Float(randomTileRepetitionInRange(0, d) * this.TileHeight);
- 					//KF.y = Float(this.StopTile * this.TileHeight);
+ 					KF.y = -Float((stopOnTile - dummy) * TileHeight);
  					dispatchEvent(this.OnReelSpinEnd);
  				}
  			}
  		}
+
+ 		//if(!__initialKeyFrameY) __initialKeyFrameY=KF.y;
+
  	}
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
+	// Randomly selects a symbol in Reel and saves the corresponding index in the children collection./
+	public function stopReelOnTile(symbolNm:String, lineOffset:Integer):Boolean
+	{
+		var stopTile:Integer;
+		var reelComb:Array<CocoCasinoTilePositionsInReel> = this.ReelSymbolsCombinations;
+		var pos:Integer;
+		for(var j=reelComb.size()-1; j>=0; j--)
+		{
+			if(reelComb[j].tileReferenceName == symbolNm)
+			{
+				pos = randomTileRepetitionInRange(0, reelComb[j].tilePositionInReel.size()-1);
+				tileIndexInChildren = reelComb[j].tileSymbolInChildren[pos];
+				stopOnTile = reelComb[j].tilePositionInReel[pos] - lineOffset;
+				break;
+			}
+		}
+		return true;
+	}
 }
