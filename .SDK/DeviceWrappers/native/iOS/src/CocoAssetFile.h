@@ -259,6 +259,7 @@ public:
             std::string temps(assetPath);
             temps += str + 2;
             file = strdup(temps.c_str());
+            trace("Loading file %s", file);
             fd = fopen(file, "rb");
             if(fd)
 			{

@@ -398,7 +398,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function __advanceTime(parentClipsDuration:Time)
+	private function __advanceTime()
 	{
 		if(__timeline.__paused) return;
 		__currentTime += engine.TICK_TIME;
@@ -435,9 +435,10 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			var frameIndex:Float = __loopTime / __timeline.__singleFrameDurationTime;
 
 			// Interpolate
-			if(__currentFrame)
-				delete __currentFrame;
+			if(__currentFrame) delete __currentFrame;
 			__currentFrame = __timeline.interpolate(frameIndex);
+
+			// If interpolation didn't return a frame, do not advance time and exit.
 			if(!__currentFrame) return;
 
 			// Combine parent clip currentframe values with this clip's interpolated frame values.
@@ -447,7 +448,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			if(__currentFrame.alpha == 0 || !__currentFrame.visible)
 			{
 				// Propagate clip's timeline.
-				__advanceTime(parentClipsDuration);
+				__advanceTime();
 				return;
 			}
 
@@ -597,9 +598,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 				}
 			}
 
-			//if(__clipPath=="frm_Reserverations/frm_ReserverationsScrollView")//frm_ReserverationsScrollView/__scrollContainer
-			//ctx.drawBoundingBox(this);
-
 	        // =============================================================================================================
 			// Execute KeyFrame
 	        // =============================================================================================================
@@ -651,7 +649,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		// =============================================================================================================
 		// Propagate clip's timeline.
 		// =============================================================================================================
-		__advanceTime(parentClipsDuration);
+		__advanceTime();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -70,17 +70,24 @@ class CocoImageResolution
 	public var pixelRatio:Float;
 	public var textureWidth:Float;
 	public var textureHeight:Float;
+	public var tileWidth:Float;
+	public var tileHeight:Float;
+	public var tileMap:Int32Array;
 
-	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float)
+	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)
 	{
 		this.url = url;
 		this.pixelRatio = pixelRatio;
 		this.textureWidth = textureWidth;
 		this.textureHeight = textureHeight;
+		this.tileWidth = tileWidth;
+		this.tileHeight = tileHeight;
+		this.tileMap = tileMap;
 	}
 
 	public function Destructor()
 	{
+		delete tileMap;
 	}
 }
 
@@ -238,6 +245,9 @@ class CocoImage
 					textureCellWidth = sibling.textureWidth;
 					textureCellHeight = sibling.textureHeight;
 					pixelRatio = sibling.pixelRatio;
+					tileWidth = sibling.tileWidth;
+					tileHeight = sibling.tileHeight;
+					tileMap = sibling.tileMap;
 					break;
 				}
 			}
@@ -252,6 +262,9 @@ class CocoImage
 				textureCellWidth = sibling.textureWidth;
 				textureCellHeight = sibling.textureHeight;
 				pixelRatio = sibling.pixelRatio;
+				tileWidth = sibling.tileWidth;
+				tileHeight = sibling.tileHeight;
+				tileMap = sibling.tileMap;
 			}
 		}
 	}

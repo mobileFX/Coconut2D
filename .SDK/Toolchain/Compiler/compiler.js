@@ -326,9 +326,6 @@ function Compiler(ast)
 			_this.export_cpp_files();
 		}
 
-		// Detect memory leaks
-		_this.detectMemoryLeaks();
-
 		// Post-process to extract code and debug symbols
 		_this.EXPORT_TO_IDE();
 	};
@@ -1855,7 +1852,9 @@ function Compiler(ast)
 								break;
 
 							case jsdef.IDENTIFIER: // of jsdef.VAR
-								staticMembers[member.ast.nodeId] = generate(member.ast.parent);
+								//staticMembers[member.ast.nodeId] = generate(member.ast.parent);
+								//YiamiYo Edit
+								staticMembers[member.ast.nodeId] = "Object.defineProperty(" + ast.name + (member.private ? ".__PRIVATE__" : (member.protected ? ".__PROTECTED__" : "")) + ", '" + member.name + "', { get: function() { return " + base.name + (member.private ? ".__PRIVATE__." : (member.protected ? ".__PROTECTED__." : ".")) + member.name + "; }, set: function(v) { " + base.name + (member.private ? ".__PRIVATE__." : (member.protected ? ".__PROTECTED__." : ".")) + member.name + " = v; } });";
 								break;
 						}
 					}

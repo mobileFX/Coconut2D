@@ -45,7 +45,6 @@ function CompilerCppPlugin(compiler)
 	_this.in_event_call = false;
 	_this.NULL_GEN 		= { CPP:"", HPP:"" };
 	_this.currClass 	= null;
-	_this.__CPP_0X__	= false;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.cpp_types =
@@ -950,23 +949,14 @@ function CompilerCppPlugin(compiler)
 
 			var fnSymbol = null;
 			var vartype = null;
+			var subtype = null;
 			var out=[];
 
 	        if(ast.parent.parent.type==jsdef.VAR)
 	        {
 	        	//Case4
 	        	vartype = ast.parent.parent[0].symbol.vartype;
-	        	if(_this.__CPP_0X__)
-	        	{
-			 		out.push("(new " + _this.VTCPP(vartype, true)+"({");
-					for(var i=0;i<ast.length;i++){ if(i) out.push(", "); out.push(generate_cpp(ast[i]).CPP); };
-					out.push("}))");
-	        	}
-	        	else
-	        	{
-			 		out.push("(new " + _this.VTCPP(vartype, true)+")");
-					for(var i=0;i<ast.length;i++){ out.push("->push("+generate_cpp(ast[i]).CPP+")"); };
-	        	}
+	        	subtype = _this.getSubType(vartype);
 	        }
 			else if(ast.parent.type==jsdef.ASSIGN)
 			{
@@ -974,22 +964,13 @@ function CompilerCppPlugin(compiler)
 				if(ast.parent.parent.expression[0].symbol)
 				{
 					vartype = ast.parent.parent.expression[0].symbol.vartype;
+					subtype = _this.getSubType(vartype);
 				}
 				else
 				{
 					_this.NewWarning("Untyped array initialization, defaulting to Array<Integer>", ast);
 					vartype = "Array<Integer>";
-				}
-				if(_this.__CPP_0X__)
-				{
-				 	out.push("(new " + _this.VTCPP(vartype, true)+"({");
-					for(var i=0;i<ast.length;i++){ if(i) out.push(", "); out.push(generate_cpp(ast[i]).CPP); };
-					out.push("}))");
-				}
-				else
-				{
-				 	out.push("(new " + _this.VTCPP(vartype, true)+")");
-					for(var i=0;i<ast.length;i++){ out.push("->push("+generate_cpp(ast[i]).CPP+")"); };
+					subtype = _this.getSubType(vartype);
 				}
 			}
 			else if(ast.parent.type==jsdef.LIST)
@@ -1030,18 +1011,8 @@ function CompilerCppPlugin(compiler)
 					if(!fnSymbol)
 					{
 						// TypedArrays
-						if(_this.__CPP_0X__)
-						{
-							out.push("(new Array<" + _this.getSubType(ast.parent.parent.vartype) + ">({" );
-							for(var i=0;i<ast.length;i++){ if(i) out.push(", "); out.push(generate_cpp(ast[i]).CPP); };
-							out.push("}))");
-							out.push("))");
-						}
-						else
-						{
-							out.push("(new Array<" + _this.getSubType(ast.parent.parent.vartype) + ">)" );
-							for(var i=0;i<ast.length;i++){ out.push("->push("+generate_cpp(ast[i]).CPP+")"); };
-						}
+						subtype = _this.getSubType(ast.parent.parent.vartype);
+						vartype = "Array<" + subtype +">";
 					}
 					break;
 				}
@@ -1051,18 +1022,32 @@ function CompilerCppPlugin(compiler)
 				{
 					var arg = fnSymbol.paramsList[index];
 					vartype = arg.vartype;
-					if(_this.__CPP_0X__)
-					{
-					 	out.push("(new " + _this.VTCPP(vartype, true)+"({");
-						for(var i=0;i<ast.length;i++){ if(i) out.push(", "); out.push(generate_cpp(ast[i]).CPP); };
-						out.push("}))");
-					}
-					else
-					{
-					 	out.push("(new " + _this.VTCPP(vartype, true)+")");
-						for(var i=0;i<ast.length;i++){ out.push("->push("+generate_cpp(ast[i]).CPP+")"); };
-					}
+					subtype = _this.getSubType(vartype);
 				}
+			}
+
+			// Special case when having Array<ENUM> because C++11 without experimental features fails.
+			if(_this.isEnum(subtype) || ast.length<250)
+			{
+				out.push("((new " + _this.VTCPP(vartype, true) + ")");
+				for(var i=0;i<ast.length;i++)
+				{
+					var v = generate_cpp(ast[i]).CPP;
+					v = _this.VALUECPP(v, subtype);
+					out.push("->push(" + v + ")");
+				};
+				out.push(")");
+			}
+			else
+			{
+				out.push("(new " + _this.VTCPP(vartype, true) + "(" + ast.length);
+				for(var i=0;i<ast.length;i++)
+				{
+					var v = generate_cpp(ast[i]).CPP;
+					v = _this.VALUECPP(v, subtype);
+					out.push(", " + v);
+				};
+				out.push("))");
 			}
 
 			out = out.join("");

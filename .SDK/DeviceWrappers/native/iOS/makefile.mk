@@ -17,22 +17,29 @@ SRC = $(NATIVE_CPP_SOURCES)
 RES = $(NATIVE_RESOURCES)
 
 #==============================================================================
+#http://marshall.calepin.co/llvmclang-and-standard-libraries-on-mac-os-x.html
+#http://libcxx.llvm.org/
+#==============================================================================
 VSCOMPILE 	= yes
 NAME		= $(shell "$(IOSBUILDENV_PATH)/Toolchain/plconvert" "Info.plist" -query CFBundleExecutable)
 PAYLOAD		= Payload
 BIN			= bin
 OUTDIR		= $(PAYLOAD)\$(NAME).app
 CFLAGS		+= -DIOS_APPLICATION -DENABLE_OPENGL_SUPPORT -DENABLE_PNG_SUPPORT -DENABLE_JPG_SUPPORT -DENABLE_OGG_SUPPORT -DENABLE_OPENAL_SUPPORT -DENABLE_FREETYPE_SUPPORT -DENABLE_CURL_SUPPORT -DNGLDEBUG
-CFLAGS		+= -O2 -w -x objective-c++ -std=c++11 -std=gnu++11
+CFLAGS		+= -g -O0 -DDEBUG=1
+CFLAGS		+= -x objective-c++ -std=c++11 -stdlib=libc++ -w -I $(IOSBUILDENV_PATH)/SDK/lib/c++/v1
+CFLAGS      += -frtti -fmessage-length=0 -fdiagnostics-show-note-include-stack -fpascal-strings -fexceptions -fasm-blocks -fstrict-aliasing -fvisibility-inlines-hidden -fobjc-abi-version=2 -fobjc-legacy-dispatch -fmacro-backtrace-limit=0
 CFLAGS		+= -target $(CPUSET)-apple-ios$(IOSMINVER).0.0 --sysroot "$(IOSBUILDENV_PATH)/SDK" -integrated-as -fdiagnostics-format=msvc -fconstant-cfstrings -miphoneos-version-min=$(IOSMINVER).0.0 -DIPHONE -D__IPHONE_OS_VERSION_MIN_REQUIRED=$(IOSMINVER)0000
-LDFLAGS 	+= -lbz2 -lfreetype -lTremolo -lcurl -ljpeg -lz -lpng
+LDFLAGS 	+= -lc++ -lc++abi -lm -lc -lbz2 -lfreetype -lTremolo -lcurl -ljpeg -lz -lpng
 LDFLAGS 	+= -ios_version_min $(IOSMINVER).0 -syslibroot "$(IOSBUILDENV_PATH)/SDK" -lSystem -lcrt1.o -lgcc_s.1 -lstdc++ -F"$(IOSBUILDENV_PATH)/SDK/System/Library/Frameworks" $(shell "$(IOSBUILDENV_PATH)/Toolchain/cat" "$(IOSBUILDENV_PATH)/Frameworks.iOS$(IOSMINVER)")
-OBJDIR		= obj
-OBJ			= $(addsuffix .obj, $(basename $(SRC)))
-OBJ_OBJ		= $(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $(SRC)))))
+OBJ			= obj
+OBJS		= $(addsuffix .obj, $(basename $(SRC)))
+OBJ_OBJ		= $(addprefix $(OBJ)/, $(addsuffix .obj, $(basename $(notdir $(SRC)))))
+
+$(foreach o,$(SRC),$(eval $(addprefix $(OBJ)/, $(addsuffix .obj, $(basename $(notdir $o)))) = $o))
 
 #==============================================================================
-compile:	$(OBJ)
+compile:	$(OBJ_OBJ)
 
 #link codesign ipa end
 
@@ -48,7 +55,7 @@ prepare:
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" *.successfulbuild
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" *.unsuccessfulbuild
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(BIN)\$(NAME).ipa"
-	@"$(IOSBUILDENV_PATH)/Toolchain/mkdir" "$(OBJDIR)"
+	@"$(IOSBUILDENV_PATH)/Toolchain/mkdir" "$(OBJ)"
 	@"$(IOSBUILDENV_PATH)/Toolchain/mkdir" "$(OUTDIR)"
 	@"$(IOSBUILDENV_PATH)/Toolchain/mkdir" "$(BIN)"
 
@@ -74,33 +81,9 @@ resources:
 #==============================================================================
 # Compile C/C++ and Objective-C files
 #==============================================================================
-%.obj:	%.c
-	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Compiling $< ..."
-	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $@))))" -c "$<"
-%.obj:	%.cc
-	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Compiling $< ..."
-	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $@))))" -c "$<"
-%.obj: %.cpp
-	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Compiling $< ..."
-	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $@))))" -c "$<"
-%.obj:	%.cxx
-	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Compiling $< ..."
-	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $@))))" -c "$<"
-%.obj:	%.m
-	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Compiling $< ..."
-	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $@))))" -c "$<"
-%.obj:	%.mm
-	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Compiling $< ..."
-	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $@))))" -c "$<"
-%.obj:	%.mx
-	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Compiling $< ..."
-	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $@))))" -c "$<"
-%.obj:	%.mxx
-	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Compiling $< ..."
-	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $@))))" -c "$<"
-%.obj:	%.s
-	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Assembling $< ..."
-	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$(addprefix $(OBJDIR)/, $(addsuffix .obj, $(basename $(notdir $@))))" -c "$<"
+%.obj:
+	@"$(IOSBUILDENV_PATH)/Toolchain/echo" " + Compiling $($@) ..."
+	@"$(IOSBUILDENV_PATH)/Toolchain/clang" $(CFLAGS) -o "$@" -c "$($@)"
 
 #==============================================================================
 # Hack: static libs are treated like source files, except that they aren't
@@ -141,4 +124,4 @@ ipa:
 end:
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(OUTDIR)"
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(PAYLOAD)"
-	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(OBJDIR)"
+#@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(OBJ)"

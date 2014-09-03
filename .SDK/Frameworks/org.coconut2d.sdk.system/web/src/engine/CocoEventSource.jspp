@@ -65,6 +65,7 @@ class CocoEventSource
 		var i:Integer;
 		for(i=__eventListeners.size()-1;i>=0;i--)
 		{
+			//FIX: if(__eventListeners[i].Event.is(Event) && __eventListeners[i].Listener.__THIS__==Listener.__THIS__ && __eventListeners[i].Callback==Callback)
 			if(__eventListeners[i].Event.is(Event) && __eventListeners[i].Listener==Listener && __eventListeners[i].Callback==Callback)
 			{
 				__eventListeners.splice(i, 1);

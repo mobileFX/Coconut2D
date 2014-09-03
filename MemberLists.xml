@@ -5068,8 +5068,8 @@ private CocoClip::normalize()" image="30"/>
 public CocoClip::gotoFrameByName(LabelName:String, optional pause:Boolean) :Boolean" image="35"/>
 		<member name="gotoFrameByIndex" proto="gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean" help="gotoFrameByIndex is member function of class CocoClip
 public CocoClip::gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean" image="35"/>
-		<member name="__advanceTime" proto="__advanceTime(parentClipsDuration:Time)" help="__advanceTime is member function of class CocoClip
-private CocoClip::__advanceTime(parentClipsDuration:Time)" image="30"/>
+		<member name="__advanceTime" proto="__advanceTime()" help="__advanceTime is member function of class CocoClip
+private CocoClip::__advanceTime()" image="30"/>
 		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoClip
 public virtual CocoClip::tick(time:Time)" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoClip
@@ -5326,8 +5326,8 @@ public CocoSequence::__className:String" image="13"/>
 	<memberlist name="Class CocoImageResolution">
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoImageResolution
 public virtual CocoImageResolution::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float)" help="Constructor is member function of class CocoImageResolution
-public CocoImageResolution::Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float)" image="14"/>
+		<member name="Constructor" proto="Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)" help="Constructor is member function of class CocoImageResolution
+public CocoImageResolution::Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)" image="14"/>
 		<member name="url" proto="url:String" help="url is member var of class CocoImageResolution
 public CocoImageResolution::url:String" image="34"/>
 		<member name="pixelRatio" proto="pixelRatio:Float" help="pixelRatio is member var of class CocoImageResolution
@@ -5336,6 +5336,12 @@ public CocoImageResolution::pixelRatio:Float" image="34"/>
 public CocoImageResolution::textureWidth:Float" image="34"/>
 		<member name="textureHeight" proto="textureHeight:Float" help="textureHeight is member var of class CocoImageResolution
 public CocoImageResolution::textureHeight:Float" image="34"/>
+		<member name="tileWidth" proto="tileWidth:Float" help="tileWidth is member var of class CocoImageResolution
+public CocoImageResolution::tileWidth:Float" image="34"/>
+		<member name="tileHeight" proto="tileHeight:Float" help="tileHeight is member var of class CocoImageResolution
+public CocoImageResolution::tileHeight:Float" image="34"/>
+		<member name="tileMap" proto="tileMap:Int32Array" help="tileMap is member var of class CocoImageResolution
+public CocoImageResolution::tileMap:Int32Array" image="1"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoImageResolution
 public CocoImageResolution::__className:String" image="13"/>
 	</memberlist>
@@ -5522,6 +5528,8 @@ private CocoRenderContextGL::gl:WebGLRenderingContext" image="29"/>
 private CocoRenderContextGL::__modelViewMatrix:CocoMatrix" image="29"/>
 		<member name="__projectionMatrix" proto="__projectionMatrix:CocoMatrix" help="__projectionMatrix is member var of class CocoRenderContextGL
 private CocoRenderContextGL::__projectionMatrix:CocoMatrix" image="29"/>
+		<member name="__viewportVector" proto="__viewportVector:CocoVector" help="__viewportVector is member var of class CocoRenderContextGL
+private CocoRenderContextGL::__viewportVector:CocoVector" image="29"/>
 		<member name="maskDraw" proto="maskDraw:Boolean" help="maskDraw is member var of class CocoRenderContextGL
 private CocoRenderContextGL::maskDraw:Boolean" image="29"/>
 		<member name="activeShader" proto="activeShader:CocoShaderCommon" help="activeShader is member var of class CocoRenderContextGL
@@ -5564,6 +5572,8 @@ public CocoShader::__className:String" image="13"/>
 	<memberlist name="Class CocoShaderBoundingBox">
 		<member name="init" proto="init(gl:WebGLRenderingContext)" help="init is member function of class CocoShaderBoundingBox
 public virtual CocoShaderBoundingBox::init(gl:WebGLRenderingContext)" image="35"/>
+		<member name="initialize" proto="initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix)" help="initialize is member function of class CocoShaderBoundingBox
+public CocoShaderBoundingBox::initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix)" image="35"/>
 		<member name="quit" proto="quit(gl:WebGLRenderingContext)" help="quit is member function of class CocoShaderBoundingBox
 public virtual CocoShaderBoundingBox::quit(gl:WebGLRenderingContext)" image="35"/>
 		<member name="begin" proto="begin(gl:WebGLRenderingContext)" help="begin is member function of class CocoShaderBoundingBox
@@ -5590,8 +5600,8 @@ public CocoShaderBoundingBox::__className:String" image="13"/>
 public virtual CocoShaderCommon::init(gl:WebGLRenderingContext)" image="35"/>
 		<member name="begin" proto="begin(gl:WebGLRenderingContext)" help="begin is member function of class CocoShaderCommon
 public virtual CocoShaderCommon::begin(gl:WebGLRenderingContext)" image="35"/>
-		<member name="setValues" proto="setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="setValues is member function of class CocoShaderCommon
-public virtual CocoShaderCommon::setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
+		<member name="updateValues" proto="updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="updateValues is member function of class CocoShaderCommon
+public virtual CocoShaderCommon::updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
 		<member name="drawFrame" proto="drawFrame(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="drawFrame is member function of class CocoShaderCommon
 public CocoShaderCommon::drawFrame(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
 		<member name="end" proto="end(gl:WebGLRenderingContext)" help="end is member function of class CocoShaderCommon
@@ -5620,8 +5630,10 @@ public CocoShaderCommon::uSampler:WebGLUniformLocation" image="34"/>
 public CocoShaderCommon::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoShaderSimple">
-		<member name="setValues" proto="setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="setValues is member function of class CocoShaderSimple
-public virtual CocoShaderSimple::setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
+		<member name="initialize" proto="initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix)" help="initialize is member function of class CocoShaderSimple
+public CocoShaderSimple::initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix)" image="35"/>
+		<member name="updateValues" proto="updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="updateValues is member function of class CocoShaderSimple
+public virtual CocoShaderSimple::updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoShaderSimple
 public virtual CocoShaderSimple::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(optional discard:Boolean)" help="Constructor is member function of class CocoShaderSimple
@@ -5632,8 +5644,10 @@ public CocoShaderSimple::__className:String" image="13"/>
 	<memberlist name="Class CocoShaderSimpleWithAlpha">
 		<member name="init" proto="init(gl:WebGLRenderingContext)" help="init is member function of class CocoShaderSimpleWithAlpha
 public virtual CocoShaderSimpleWithAlpha::init(gl:WebGLRenderingContext)" image="35"/>
-		<member name="setValues" proto="setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="setValues is member function of class CocoShaderSimpleWithAlpha
-public virtual CocoShaderSimpleWithAlpha::setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
+		<member name="initialize" proto="initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix)" help="initialize is member function of class CocoShaderSimpleWithAlpha
+public CocoShaderSimpleWithAlpha::initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix)" image="35"/>
+		<member name="updateValues" proto="updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="updateValues is member function of class CocoShaderSimpleWithAlpha
+public virtual CocoShaderSimpleWithAlpha::updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoShaderSimpleWithAlpha
 public virtual CocoShaderSimpleWithAlpha::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(optional discard:Boolean)" help="Constructor is member function of class CocoShaderSimpleWithAlpha
@@ -5646,8 +5660,10 @@ public CocoShaderSimpleWithAlpha::__className:String" image="13"/>
 	<memberlist name="Class CocoShaderSaturationWithAlpha">
 		<member name="init" proto="init(gl:WebGLRenderingContext)" help="init is member function of class CocoShaderSaturationWithAlpha
 public virtual CocoShaderSaturationWithAlpha::init(gl:WebGLRenderingContext)" image="35"/>
-		<member name="setValues" proto="setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="setValues is member function of class CocoShaderSaturationWithAlpha
-public virtual CocoShaderSaturationWithAlpha::setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
+		<member name="initialize" proto="initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix)" help="initialize is member function of class CocoShaderSaturationWithAlpha
+public CocoShaderSaturationWithAlpha::initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix)" image="35"/>
+		<member name="updateValues" proto="updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="updateValues is member function of class CocoShaderSaturationWithAlpha
+public virtual CocoShaderSaturationWithAlpha::updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoShaderSaturationWithAlpha
 public virtual CocoShaderSaturationWithAlpha::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(optional discard:Boolean)" help="Constructor is member function of class CocoShaderSaturationWithAlpha
@@ -5660,8 +5676,10 @@ public CocoShaderSaturationWithAlpha::__className:String" image="13"/>
 	<memberlist name="Class CocoShaderParallaxHor">
 		<member name="init" proto="init(gl:WebGLRenderingContext)" help="init is member function of class CocoShaderParallaxHor
 public virtual CocoShaderParallaxHor::init(gl:WebGLRenderingContext)" image="35"/>
-		<member name="setValues" proto="setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="setValues is member function of class CocoShaderParallaxHor
-public virtual CocoShaderParallaxHor::setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
+		<member name="initialize" proto="initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix, viewportVector:CocoVector)" help="initialize is member function of class CocoShaderParallaxHor
+public CocoShaderParallaxHor::initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix, viewportVector:CocoVector)" image="35"/>
+		<member name="updateValues" proto="updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="updateValues is member function of class CocoShaderParallaxHor
+public virtual CocoShaderParallaxHor::updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoShaderParallaxHor
 public virtual CocoShaderParallaxHor::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(optional discard:Boolean)" help="Constructor is member function of class CocoShaderParallaxHor
@@ -5670,6 +5688,8 @@ public CocoShaderParallaxHor::Constructor(optional discard:Boolean)" image="14"/
 public CocoShaderParallaxHor::uTextureSize:WebGLUniformLocation" image="34"/>
 		<member name="uDelta" proto="uDelta:WebGLUniformLocation" help="uDelta is member var of class CocoShaderParallaxHor
 public CocoShaderParallaxHor::uDelta:WebGLUniformLocation" image="34"/>
+		<member name="uViewport" proto="uViewport:WebGLUniformLocation" help="uViewport is member var of class CocoShaderParallaxHor
+public CocoShaderParallaxHor::uViewport:WebGLUniformLocation" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoShaderParallaxHor
 public CocoShaderParallaxHor::__className:String" image="13"/>
 	</memberlist>
@@ -6641,18 +6661,6 @@ private Class2::y:String" image="29"/>
 protected Class2::z:String" image="32"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class Class2
 public Class2::__className:String" image="13"/>
-		<member name="static_public_var" proto="static_public_var:String" help="static_public_var is member var of class Class2
-public static Class2::static_public_var:String" image="34"/>
-		<member name="static_private_var" proto="static_private_var:String" help="static_private_var is member var of class Class2
-private static Class2::static_private_var:String" image="29"/>
-		<member name="static_protected_var" proto="static_protected_var:String" help="static_protected_var is member var of class Class2
-protected static Class2::static_protected_var:String" image="32"/>
-		<member name="__public_static_property" proto="__public_static_property:String" help="__public_static_property is member var of class Class2
-private static Class2::__public_static_property:String" image="29"/>
-		<member name="__private_static_property" proto="__private_static_property:String" help="__private_static_property is member var of class Class2
-private static Class2::__private_static_property:String" image="29"/>
-		<member name="__protected_static_property" proto="__protected_static_property:String" help="__protected_static_property is member var of class Class2
-private static Class2::__protected_static_property:String" image="29"/>
 		<member name="public_static_property" proto="public_static_property:String" help="public_static_property is property of class Class2
 public static property Class2::public_static_property:String" image="31"/>
 		<member name="private_static_property" proto="private_static_property:String" help="private_static_property is property of class Class2
@@ -6671,18 +6679,6 @@ public virtual Class3::Destructor()" image="35"/>
 public Class3::Constructor()" image="14"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class Class3
 public Class3::__className:String" image="13"/>
-		<member name="static_public_var" proto="static_public_var:String" help="static_public_var is member var of class Class3
-public static Class3::static_public_var:String" image="34"/>
-		<member name="static_private_var" proto="static_private_var:String" help="static_private_var is member var of class Class3
-private static Class3::static_private_var:String" image="29"/>
-		<member name="static_protected_var" proto="static_protected_var:String" help="static_protected_var is member var of class Class3
-protected static Class3::static_protected_var:String" image="32"/>
-		<member name="__public_static_property" proto="__public_static_property:String" help="__public_static_property is member var of class Class3
-private static Class3::__public_static_property:String" image="29"/>
-		<member name="__private_static_property" proto="__private_static_property:String" help="__private_static_property is member var of class Class3
-private static Class3::__private_static_property:String" image="29"/>
-		<member name="__protected_static_property" proto="__protected_static_property:String" help="__protected_static_property is member var of class Class3
-private static Class3::__protected_static_property:String" image="29"/>
 		<member name="public_static_property" proto="public_static_property:String" help="public_static_property is property of class Class3
 public static property Class3::public_static_property:String" image="31"/>
 		<member name="private_static_property" proto="private_static_property:String" help="private_static_property is property of class Class3

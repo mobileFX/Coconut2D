@@ -131,6 +131,13 @@ class CocoShaderBoundingBox : CocoShader
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);
 	}
 
+	public function initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix)
+	{
+		init(gl);
+		projectionMatrix.refresh();
+		gl.uniformMatrix4fv(uProjMat, false, projectionMatrix.__data);
+	}
+
 	public virtual function quit(gl:WebGLRenderingContext)
 	{
 		if(vbo)
@@ -237,7 +244,7 @@ class CocoShaderCommon : CocoShader
 		gl.enableVertexAttribArray(iTexCoords);
 	}
 
-	public virtual function setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame) {}
+	public virtual function updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame) {}
 
 	public function drawFrame(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
@@ -249,7 +256,7 @@ class CocoShaderCommon : CocoShader
 		gl.vertexAttribPointer(iTexCoords, 4, gl.FLOAT, false, 24, 0);
 		gl.vertexAttribPointer(iVecCoords, 2, gl.FLOAT, false, 24, 16);
 		gl.bindTexture(gl.TEXTURE_2D, data.texture);
-		setValues(gl, scene, image, frame, KF);
+		updateValues(gl, scene, image, frame, KF);
 		gl.drawArrays(data.drawType, 0, data.vertexCount);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
@@ -282,12 +289,19 @@ class CocoShaderSimple : CocoShaderCommon
 	{
 	}
 
-	public virtual function setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
+	public function initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix)
+	{
+		init(gl);
+		projectionMatrix.refresh();
+		modelviewMatrix.refresh();
+		gl.uniformMatrix4fv(uProjMat, false, projectionMatrix.__data);
+		gl.uniformMatrix4fv(uMVMat, false, modelviewMatrix.__data);
+	}
+
+	public virtual function updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
 	}
 }
-
-
 
 // ==================================================================================================================================
 //	   ______                _____ __              __          _____ _                 __   _       ___ __  __    ___    __      __
@@ -319,7 +333,16 @@ class CocoShaderSimpleWithAlpha : CocoShaderCommon
 		uAlpha = gl.getUniformLocation(program, "uAlpha");
 	}
 
-	public virtual function setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
+	public function initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix)
+	{
+		init(gl);
+		projectionMatrix.refresh();
+		modelviewMatrix.refresh();
+		gl.uniformMatrix4fv(uProjMat, false, projectionMatrix.__data);
+		gl.uniformMatrix4fv(uMVMat, false, modelviewMatrix.__data);
+	}
+
+	public virtual function updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
 		gl.uniform1f(uAlpha, KF.alpha);
 	}
@@ -356,7 +379,16 @@ class CocoShaderSaturationWithAlpha : CocoShaderCommon
 		uColor = gl.getUniformLocation(program, "uColor");
 	}
 
-	public virtual function setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
+	public function initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix)
+	{
+		init(gl);
+		projectionMatrix.refresh();
+		modelviewMatrix.refresh();
+		gl.uniformMatrix4fv(uProjMat, false, projectionMatrix.__data);
+		gl.uniformMatrix4fv(uMVMat, false, modelviewMatrix.__data);
+	}
+
+	public virtual function updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
 		gl.uniform4f(uColor, KF.red, KF.green, KF.blue, KF.alpha);
 	}
@@ -372,23 +404,26 @@ class CocoShaderSaturationWithAlpha : CocoShaderCommon
 //
 // ==================================================================================================================================
 
-class CocoShaderParallaxHor : CocoShaderSimple
+class CocoShaderParallaxHor : CocoShaderCommon
 {
 	public var uTextureSize:WebGLUniformLocation;
 	public var uDelta:WebGLUniformLocation;
+	public var uViewport:WebGLUniformLocation;
 
-	public function Constructor(optional discard:Boolean) : CocoShaderSimple(discard)
+	public function Constructor(optional discard:Boolean)
 	{
-		// TODO
-		vertex_shader = "attribute vec4 iTexCoords;attribute vec2 iVecCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;uniform vec4 uDelta;uniform vec2 uTextureSize;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords * uSprFlip - vec2(uDelta.x * uTextureSize.x, 0.0), 0.0, 1.0); vec4 worldTex = uProjMat * uMVMat * vec4(uTextureSize, 0.0, 0.0); vec4 worldSpr = uProjMat * uMVMat * vec4(uSprSize * uTextureSize, 0.0, 0.0); if(gl_Position.x < - 1.0 - (1.0 - iTexCoords.z) * (worldSpr.x)) gl_Position.x += worldTex.x; /*gl_Position.x += (vec4(1.0) - step(-worldSpr.x, gl_Position.x) - step(vec4(1.0).x + worldSpr.x, gl_Position.x)) * worldTex.x; */pTexCoord = vec2(((iTexCoords.x + iTexCoords.z + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + iTexCoords.w + uSprFrame.y) * uSprSize.y));}";
+		vertex_shader = "attribute vec4 iTexCoords;attribute vec2 iVecCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;uniform vec4 uDelta;uniform vec4 uTextureSize;uniform vec4 uViewport;varying vec2 pTexCoord;void main(void){ vec4 viewPos = uMVMat * (vec4(iVecCoords * uSprFlip, 0.0, 1.0) - vec4(uDelta.x * uTextureSize.z, 0.0, 0.0, 0.0)); float texWidth = (uMVMat * vec4(uTextureSize.x, 0.0, 0.0, 0.0)).x; float imgWidth = (uMVMat * vec4(uTextureSize.z, 0.0, 0.0, 0.0)).x; viewPos.x += step(viewPos.x, uViewport.x - texWidth * (1.0 - iTexCoords.z)) * imgWidth; gl_Position = uProjMat * viewPos; pTexCoord = vec2(((iTexCoords.x + iTexCoords.z + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + iTexCoords.w + uSprFrame.y) * uSprSize.y));}";
+		fragment_shader = "#ifdef GL_ES\nprecision lowp float;\n#endif\nuniform sampler2D uSampler;\nvarying vec2 pTexCoord; \n \nvoid main(void)\n{\n gl_FragColor = texture2D(uSampler, pTexCoord); " + (discard ? "if(gl_FragColor.a < 0.005) discard;" : "") + "}";
 		uDelta = null;
 		uTextureSize = null;
+		uViewport = null;
 	}
 
 	public function Destructor()
 	{
 		delete uDelta;
 		delete uTextureSize;
+		delete uViewport;
 	}
 
 	public virtual function init(gl:WebGLRenderingContext)
@@ -396,12 +431,23 @@ class CocoShaderParallaxHor : CocoShaderSimple
 		super.init(gl);
 		uDelta = gl.getUniformLocation(program, "uDelta");
 		uTextureSize = gl.getUniformLocation(program, "uTextureSize");
+		uViewport = gl.getUniformLocation(program, "uViewport");
 	}
 
-	public virtual function setValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
+	public function initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix, modelviewMatrix:CocoMatrix, viewportVector:CocoVector)
+	{
+		init(gl);
+		projectionMatrix.refresh();
+		modelviewMatrix.refresh();
+		gl.uniformMatrix4fv(uProjMat, false, projectionMatrix.__data);
+		gl.uniformMatrix4fv(uMVMat, false, modelviewMatrix.__data);
+		gl.uniform4f(uViewport, viewportVector.X, viewportVector.Y, viewportVector.Z, viewportVector.W);
+	}
+
+	public virtual function updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
 		gl.uniform4f(uDelta, KF.red, KF.green, KF.blue, KF.alpha);
-		gl.uniform2f(uTextureSize, image.textureCellWidth, image.textureCellHeight);
+		gl.uniform4f(uTextureSize, image.tileWidth ? image.tileWidth : image.textureCellWidth, image.tileHeight ? image.tileHeight : image.textureCellHeight, image.textureCellWidth, image.textureCellHeight);
 	}
 }
 

@@ -65,19 +65,22 @@ class CocoImageRenderDataGL implements ICocoImageRenderData
 
 class CocoRenderContextGL implements ICocoRenderContext
 {
+	// WebGL Context
 	private reference var gl:WebGLRenderingContext;
 
+	// Matrx
 	private var __modelViewMatrix:CocoMatrix;
 	private var __projectionMatrix:CocoMatrix;
+	private var __viewportVector:CocoVector;
 
 	private var maskDraw:Boolean;
 
+	// Shaders
 	private reference var activeShader:CocoShaderCommon;
 	private var shaderSimple:Array<CocoShaderSimple>;
 	private var shaderSimpleWithAlpha:Array<CocoShaderSimpleWithAlpha>;
 	private var shaderSaturationWithAlpha:Array<CocoShaderSaturationWithAlpha>;
 	private var shaderParallaxHor:Array<CocoShaderParallaxHor>;
-
 	private var shaderBoundingBox:CocoShaderBoundingBox;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,22 +88,26 @@ class CocoRenderContextGL implements ICocoRenderContext
  	{
  		gl = ctx;
 
-		__modelViewMatrix						= new CocoMatrix();
-		__modelViewMatrix.identity();
-		__projectionMatrix 						= new CocoMatrix();
+		__modelViewMatrix = new CocoMatrix();
+		__projectionMatrix = new CocoMatrix();
+		__viewportVector = new CocoVector();
 
 		maskDraw = false;
 
 		activeShader = null;
+
 		shaderSimple = new Array<CocoShaderSimple>();
 		shaderSimple.push(new CocoShaderSimple());
 		shaderSimple.push(new CocoShaderSimple(true));
+
 		shaderSimpleWithAlpha = new Array<CocoShaderSimpleWithAlpha>();
 		shaderSimpleWithAlpha.push(new CocoShaderSimpleWithAlpha());
 		shaderSimpleWithAlpha.push(new CocoShaderSimpleWithAlpha(true));
+
 		shaderSaturationWithAlpha = new Array<CocoShaderSaturationWithAlpha>();
 		shaderSaturationWithAlpha.push(new CocoShaderSaturationWithAlpha());
 		shaderSaturationWithAlpha.push(new CocoShaderSaturationWithAlpha(true));
+
 		shaderParallaxHor = new Array<CocoShaderParallaxHor>();
 		shaderParallaxHor.push(new CocoShaderParallaxHor());
 		shaderParallaxHor.push(new CocoShaderParallaxHor(true));
@@ -113,6 +120,7 @@ class CocoRenderContextGL implements ICocoRenderContext
  	{
 		delete __modelViewMatrix;
 		delete __projectionMatrix;
+		delete __viewportVector;
 		delete shaderSimple;
 		delete shaderSimpleWithAlpha;
 		delete shaderSaturationWithAlpha;
@@ -198,49 +206,20 @@ class CocoRenderContextGL implements ICocoRenderContext
 		}
 		__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
 
+		__modelViewMatrix.identity();
 
-		shaderBoundingBox.init(gl);
-		update(__projectionMatrix, shaderBoundingBox.uProjMat);
+		//__viewportVector.reset(-scene.__view_width / 2.0, -scene.__view_height / 2.0, scene.__view_width / 2.0, scene.__view_height / 2.0);
+		__viewportVector.reset(-(Float(gl.canvas.width) / 2.0) / scene.__view_scale, Float(gl.canvas.width) / 2.0 / scene.__view_scale, Float(gl.canvas.height) / 2.0 / scene.__view_scale, -(Float(gl.canvas.height) / 2.0 / scene.__view_scale));
 
-		activeShader = shaderSimple[0];
-		activeShader.init(gl);
-		update(__modelViewMatrix, activeShader.uMVMat);
-		update(__projectionMatrix, activeShader.uProjMat);
-
-		activeShader = shaderSimple[1];
-		activeShader.init(gl);
-		update(__modelViewMatrix, activeShader.uMVMat);
-		update(__projectionMatrix, activeShader.uProjMat);
-
-		activeShader = shaderSimpleWithAlpha[0];
-		activeShader.init(gl);
-		update(__modelViewMatrix, activeShader.uMVMat);
-		update(__projectionMatrix, activeShader.uProjMat);
-
-		activeShader = shaderSimpleWithAlpha[1];
-		activeShader.init(gl);
-		update(__modelViewMatrix, activeShader.uMVMat);
-		update(__projectionMatrix, activeShader.uProjMat);
-
-		activeShader = shaderSaturationWithAlpha[0];
-		activeShader.init(gl);
-		update(__modelViewMatrix, activeShader.uMVMat);
-		update(__projectionMatrix, activeShader.uProjMat);
-
-		activeShader = shaderSaturationWithAlpha[1];
-		activeShader.init(gl);
-		update(__modelViewMatrix, activeShader.uMVMat);
-		update(__projectionMatrix, activeShader.uProjMat);
-
-		activeShader = shaderParallaxHor[0];
-		activeShader.init(gl);
-		update(__modelViewMatrix, activeShader.uMVMat);
-		update(__projectionMatrix, activeShader.uProjMat);
-
-		activeShader = shaderParallaxHor[1];
-		activeShader.init(gl);
-		update(__modelViewMatrix, activeShader.uMVMat);
-		update(__projectionMatrix, activeShader.uProjMat);
+		shaderBoundingBox.initialize(gl, __projectionMatrix);
+		shaderSimple[0].initialize(gl, __projectionMatrix, __modelViewMatrix);
+		shaderSimple[1].initialize(gl, __projectionMatrix, __modelViewMatrix);
+		shaderSimpleWithAlpha[0].initialize(gl, __projectionMatrix, __modelViewMatrix);
+		shaderSimpleWithAlpha[1].initialize(gl, __projectionMatrix, __modelViewMatrix);
+		shaderSaturationWithAlpha[0].initialize(gl, __projectionMatrix, __modelViewMatrix);
+		shaderSaturationWithAlpha[1].initialize(gl, __projectionMatrix, __modelViewMatrix);
+		shaderParallaxHor[0].initialize(gl, __projectionMatrix, __modelViewMatrix, __viewportVector);
+		shaderParallaxHor[1].initialize(gl, __projectionMatrix, __modelViewMatrix, __viewportVector);
 
 		activeShader = shaderSimple[0];
 		activeShader.begin(gl);
@@ -250,8 +229,6 @@ class CocoRenderContextGL implements ICocoRenderContext
 	public function prepareImage(img:CocoImage):ICocoImageRenderData
 	{
 		var data:CocoImageRenderDataGL = new CocoImageRenderDataGL();
-
-
 
 		// Create a texture and bind it.
 		data.texture = gl.createTexture();
@@ -281,11 +258,11 @@ class CocoRenderContextGL implements ICocoRenderContext
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 		// Instruct WebGL how to filter the texture when rendering.
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
 		// Generate mipmaps.
-		//gl.generateMipmap(gl.TEXTURE_2D);
+		gl.generateMipmap(gl.TEXTURE_2D);
 
 		// Done
 		gl.bindTexture(gl.TEXTURE_2D, null);
@@ -297,20 +274,24 @@ class CocoRenderContextGL implements ICocoRenderContext
 		{
 			img.texSize = new Float32Array([img.tileWidth / img.image.naturalWidth, img.tileHeight / img.image.naturalHeight]);
 			var d:Array<Float> = new Array<Float>();
-			var tileCountX:Integer = img.image.naturalWidth / img.tileWidth;
-			var tileMapCols:Integer = img.tileMap[0];
-			var tileMapRows:Integer = img.tileMap[1];
+			//var tileCountX:Integer = img.image.naturalWidth / img.tileWidth;
+			var tileCountX:Integer = img.tileMap[0];
+			var tileMapCols:Integer = img.tileMap[1];
+			var tileMapRows:Integer = img.tileMap[2];
 			var vCount:Integer = Math.min(tileMapCols, Integer(Math.ceil(img.textureCellWidth / img.tileWidth)));
 			var hCount:Integer = Math.min(tileMapRows, Integer(Math.ceil(img.textureCellHeight / img.tileHeight)));
 			var tileCount:Integer = 0;
-			for(var y:Integer = 0; y < hCount; y++)
+			var paddingSize:Float = img.pixelRatio;
+			for(var y:Integer = hCount; y--;)
 			{
-				for(var x:Integer = 0; x < vCount; x++)
+				for(var x:Integer = vCount; x--;)
 				{
-					var idx:Integer = img.tileMap[2 + y * tileMapCols + x];
+					var idx:Integer = img.tileMap[3 + y * tileMapCols + x];
 					if(idx == -1) continue;
-					var texX:Integer = idx % tileCountX;
-					var texY:Integer = Math.floor(idx / tileCountX);
+					var texX:Float = idx % tileCountX;
+					var texY:Float = Math.floor(idx / tileCountX);
+					texX += (2.0 * texX + 1.0) * paddingSize / img.tileWidth;
+					texY += (2.0 * texY + 1.0) * paddingSize / img.tileHeight;
 					d.push(texX); d.push(texY); d.push(0.0); d.push(0.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
 					d.push(texX); d.push(texY); d.push(0.0); d.push(1.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
 					d.push(texX); d.push(texY); d.push(1.0); d.push(1.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);

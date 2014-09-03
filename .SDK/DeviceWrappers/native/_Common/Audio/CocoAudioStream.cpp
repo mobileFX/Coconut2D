@@ -204,8 +204,9 @@ CocoAudioStream::CocoAudioStream(const char* str) : loop(false), playCount(1), t
 				long i;
 				long total = 0;
 				ov_pcm_seek(&ovf, 0);
-				while((i = ov_read(&ovf, (char*)buffer + total, 4096, &ovSection)))
+				while((total < size) && (i = ov_read(&ovf, (char*)buffer + total, std::min(size - total, 4096LL), &ovSection)))
 					total += i;
+				if(i) trace("WARNING(CocoAudioStream.cpp): ov_read returned more data than we anticipated!");
 				ov_clear(&ovf);
 
 				alGenBuffers(1, &alBuffer);

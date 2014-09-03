@@ -163,7 +163,7 @@ function CocoMake(command , params)
   		}
   		else
   		{
-	  		_this.clean();
+	  		//_this.clean();
 	  		_this.apply_device_wrapper();
 	  		_this.generate_icons();
 	  		_this.copy_assets();
@@ -183,7 +183,7 @@ function CocoMake(command , params)
   		}
   		else
   		{
-	  		_this.clean();
+	  		//_this.clean();
 	  		_this.apply_device_wrapper();
 	  		_this.generate_icons();
 	  		_this.copy_assets();
@@ -333,7 +333,7 @@ function CocoMake(command , params)
   		trace("\nCompiling Android JNI Static Library ...");
 
 		// Collect all C++ sources
-  		var files = _this.collectSources(null,
+  		var files = _this.collectSources(TARGET.TARGET_ROOT + "/jni",
   										 [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
   										 TARGET.TARGET_NATIVE_MASK,
   										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
@@ -342,7 +342,7 @@ function CocoMake(command , params)
 		// Make all paths relative to JNI folder
 		files = _this.get_relative_cpp_hpp(files, TARGET.TARGET_ROOT + "/jni");
 		makefile.Vars["NATIVE_CPP_SOURCES"] = files.CPP.join(" \\\n");
-		makefile.Vars["NATIVE_CPP_INCLUDES"] = files.HPP.join(" \\\n");
+		makefile.Vars["NATIVE_CPP_INCLUDES"] = makefile.Vars.INCLUDE_PATHS.join(" \\\n");//files.HPP.join(" \\\n");
 
         // Create Android.mk
 		var file = TARGET.TARGET_ROOT+"/jni/Android.mk";
@@ -505,7 +505,7 @@ function CocoMake(command , params)
         trace("\nCalling iOS make ...");
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
         _this.DeleteFile(make_cmd);
-        _this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
+        //_this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
         _this.DeleteFolder(TARGET.TARGET_ROOT+"/assets");
 
         // Sanity check

@@ -47,6 +47,8 @@
 // Common Includes
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+extern void trace(const char* fmt, ...);
+
 #include "Structs.h"
 #include <algorithm>
 #include <stack>
@@ -88,20 +90,17 @@ public:
 		return std::vector<T>::size();
 	}
 
-	#ifdef __CPP_0X__
-	//////////////////////////////////////////////////////////////////////////////////
-	Array(std::initializer_list<T> v) : std::vector<T>(v)
-	{
-	}
-	#endif
-
 	//////////////////////////////////////////////////////////////////////////////////
 	Array(size_t size, ...) : std::vector<T>(size)
 	{
+		// This fails with Enums even in C++11.
 		va_list vl;
 		va_start(vl, size);
-		for(size_t i = 0; i < size; i++)
-			this->at(i) = (T)va_arg(vl, T);
+		for(size_t i=0; i<size; i++)
+		{
+			T v = (T) va_arg(vl, T);
+			this->at(i) = v;
+		}
 		va_end(vl);
 	}
 
@@ -377,9 +376,11 @@ template<typename T> class TypedArray : public ArrayBufferView
 public:
 	const unsigned long BYTES_PER_ELEMENT = sizeof(T);
 	unsigned long length;
+	bool owner;
 
 	TypedArray(size_t size)
 	{
+		owner = true;
 		length = size;
 		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
 		byteOffset = 0;
@@ -389,6 +390,7 @@ public:
 
 	TypedArray(ArrayBuffer* i_buffer, size_t i_byteOffset = 0, size_t i_length = -1)
 	{
+		owner = false;
 		buffer = i_buffer;
 		byteOffset = i_byteOffset;
 		length = std::min(size_t((i_buffer->byteLength - i_byteOffset) / sizeof(T)), i_length);
@@ -397,6 +399,7 @@ public:
 
 	TypedArray(Array<T>* val, bool preserve = false)
 	{
+		owner = true;
 		length = val->size();
 		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
 		byteOffset = 0;
@@ -411,7 +414,7 @@ public:
 		memcpy(&(*this)[offset], val->ArrayBufferView::get(), val->length);
 	}
 
-	~TypedArray() { delete buffer; }
+	~TypedArray() { if(owner) delete buffer; }
 
 	T* get() { return reinterpret_cast<T*>(ArrayBufferView::get()); }
 	T& operator [](unsigned long index)
@@ -512,6 +515,8 @@ class CocoEventConnectionPoint;
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
+class ClassTestInterfaces;
+class CocoAppController;
 class CocoAudio;
 class CocoClip;
 class CocoClipOnClickEvent;
@@ -552,9 +557,22 @@ class CocoTextStyle;
 class CocoTickable;
 class CocoTimeLabel;
 class CocoTimeline;
+class CocoUIButton;
+class CocoUICheckBox;
+class CocoUIComboBox;
+class CocoUIControl;
+class CocoUIControlOnChevronClickEvent;
+class CocoUIControlOnGlyphClickEvent;
+class CocoUIFormView;
+class CocoUILabel;
+class CocoUINavBar;
+class CocoUIPictureList;
+class CocoUIScrollView;
+class CocoUITabBar;
+class CocoUITextEdit;
+class CocoUIView;
 class CocoVector;
 class GameEngine;
-class GridSymbol;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
 class HTMLCanvasPattern;
@@ -566,11 +584,14 @@ class ICocoImageRenderData;
 class ICocoRenderContext;
 class IEventTarget;
 class IPersistable;
+class ITest1;
+class ITest2;
+class ITest3;
 class ITickable;
 class Image;
+class NewAnimation;
 class PathLine;
-class SceneGameBoard;
-class SceneTitle;
+class ReservationsForm;
 class Touch;
 class TouchList;
 struct CocoHVAlign;
@@ -705,6 +726,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	Array(size_t size, ...) : std::vector<bool>(size)
 	{
+		//this->resize(size);
 		va_list vl;
 		va_start(vl, size);
 		for(size_t i = 0; i < size; i++)
@@ -778,6 +800,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	Array(size_t size, ...) : std::vector<float>(size)
 	{
+		//this->resize(size);
 		va_list vl;
 		va_start(vl, size);
 		for(size_t i = 0; i < size; i++)
@@ -1044,7 +1067,6 @@ public:
 //
 // =================================================================================================================================
 
-extern void trace(const char* fmt, ...);
 extern CocoEngine* engine;
 extern HTMLWindow* window;
 extern HTMLDocument* document;

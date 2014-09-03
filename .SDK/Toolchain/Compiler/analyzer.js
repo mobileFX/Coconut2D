@@ -62,23 +62,5 @@ function CompilerAnalyzerPlugin(compiler)
 			}
 		}
 	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Analyze CocoScript code for potential memory leaks.
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.detectMemoryLeaks = function()
-	{
-		// Memory leaks from jsdef.NEW inside a function that is node returned and not deleted
-		/*
-		_this.descend("memory_leaks_check", _this.ast, function(node)
-		{
-			if(node.type==jsdef.FUNCTION)
-			{
-
-			}
-		});
-		*/
-
-	};
 }
 
