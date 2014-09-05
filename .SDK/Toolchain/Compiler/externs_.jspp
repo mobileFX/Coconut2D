@@ -455,10 +455,11 @@ class Global
 	undefined var CocoUIPictureList :CocoUIPictureList;
 	undefined var CocoUITabBar :CocoUITabBar;
 	undefined var CocoUITextEdit :CocoUITextEdit;
-	undefined var GameEngine :GameEngine;
+	undefined var TestDataStream :TestDataStream;
 	undefined var TestOutsourcer :TestOutsourcer;
 	undefined var TestIntegrator :TestIntegrator;
 	undefined var TestIntegratorClient :TestIntegratorClient;
+	undefined var TestHTTP :TestHTTP;
 	undefined var ITest1 :ITest1;
 	undefined var ITest2 :ITest2;
 	undefined var ITest3 :ITest3;
@@ -470,6 +471,7 @@ class Global
 	undefined var TestSelf2 :TestSelf2;
 	undefined var TestSelf3 :TestSelf3;
 	undefined var TestThis :TestThis;
+	undefined var GameEngine :GameEngine;
 	undefined var ReservationsForm :ReservationsForm;
 	undefined var NewAnimation :NewAnimation;
 } //Global
@@ -3416,6 +3418,7 @@ class CocoClip : CocoEventSource
 	public  var __currentTime :Time;
 	public  var __loopTime :Time;
 	public  var __loops :Integer;
+	public  var __currentSequenceStartTime :Time;
 	public  var __x :Float;
 	public  var __y :Float;
 	public  var __width :Float;
@@ -3570,7 +3573,6 @@ class CocoSequence
 	public function Constructor(name:String, framesArray:Array<Integer>) {}
 	public  var name :String;
 	public  var frames :Array<Integer>;
-	public  var sequenceStartTime :Time;
 	public  var __className :String;
 } //CocoSequence
 
@@ -4255,15 +4257,12 @@ class CocoUITextEdit : CocoUIControl
 	public  var __className :String;
 } //CocoUITextEdit
 
-class GameEngine : CocoEngine
+class TestDataStream
 {
 	public function Destructor() {}
 	public function Constructor() {}
-	public  var scene :CocoScene;
-	public  var app :CocoAppController;
-	public var STATE_START_APP :State;
 	public  var __className :String;
-} //GameEngine
+} //TestDataStream
 
 class TestOutsourcer
 {
@@ -4289,6 +4288,13 @@ class TestIntegratorClient
 	private  var integrator :TestIntegrator;
 	public  var __className :String;
 } //TestIntegratorClient
+
+class TestHTTP
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //TestHTTP
 
 class ITest1
 {
@@ -4424,6 +4430,16 @@ class TestThis
 	public function Constructor() {}
 	public  var __className :String;
 } //TestThis
+
+class GameEngine : CocoEngine
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var scene :CocoScene;
+	public  var app :CocoAppController;
+	public var STATE_START_APP :State;
+	public  var __className :String;
+} //GameEngine
 
 class ReservationsForm : CocoUIFormView
 {

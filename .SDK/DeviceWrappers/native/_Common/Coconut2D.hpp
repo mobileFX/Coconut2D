@@ -515,6 +515,9 @@ class CocoEventConnectionPoint;
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
+class Class1;
+class Class2;
+class Class3;
 class ClassTestInterfaces;
 class CocoAppController;
 class CocoAudio;
@@ -592,6 +595,15 @@ class Image;
 class NewAnimation;
 class PathLine;
 class ReservationsForm;
+class TestDataStream;
+class TestHTTP;
+class TestIntegrator;
+class TestIntegratorClient;
+class TestOutsourcer;
+class TestSelf1;
+class TestSelf2;
+class TestSelf3;
+class TestThis;
 class Touch;
 class TouchList;
 struct CocoHVAlign;

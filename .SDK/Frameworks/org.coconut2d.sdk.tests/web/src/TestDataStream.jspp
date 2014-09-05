@@ -1,0 +1,26 @@
+﻿"#export native";
+"#export web";
+
+class TestDataStream
+{
+	public function Constructor()
+	{
+		var ds:CocoDataStream = new CocoDataStream();
+		ds.writeString("test με Ελληνικά!!");
+		ds.writeInteger(5);
+		ds.writeFloat(3.14);
+		ds.writeBoolean(true);
+		ds.writeBoolean(false);
+		ds.offset = 0;
+		trace(ds.readString());
+		trace(String(ds.readInteger()));
+		trace(String(ds.readFloat()));
+		trace(String(ds.readBoolean()));
+		trace(String(ds.readBoolean()));
+		delete ds;
+	}
+
+	public function Destructor()
+	{
+	}
+}

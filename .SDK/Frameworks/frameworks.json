@@ -79,6 +79,19 @@
 			"Dependencies": "org.coconut2d.sdk.anim",
 			"FSM": true
 		},
+		"org.emscripten.box2d":
+		{
+			"Name": "Box2D Physics Engine",
+			"Version": "2.1",
+			"Type": "Emscripten Library",
+			"Copyright": "Copyright (c) 2006-2010 Erin Catto - http://www.gphysics.com",
+			"License": "zlib license + acknowledgement",
+			"PrecompilerVarName": "EMS_BOX2D",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.emscripten.box2d",
+			"Description": "Box2D is an open source C++ engine for simulating rigid bodies in 2D. Box2D is developed by Erin Catto and has the zlib license. While the zlib license does not require acknowledgement, we encourage you to give credit to Box2D in your product.",
+			"Dependencies": "org.coconut2d.sdk.anim",
+			"FSM": false
+		},
 		"org.coconut2d.sdk.game2d":
 		{
 			"Name": "Coconut2D Core 2D Game Framework",
@@ -92,31 +105,83 @@
 			"Dependencies": "org.coconut2d.sdk.anim",
 			"FSM": true
 		},
-		"org.coconut2d.sdk.casino":
+		"org.coconut2d.sdk.game2d.casino":
 		{
 			"Name": "Coconut2D Core Casino Games Framework",
 			"Version": "0.1",
 			"Type": "CocoScript",
 			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
 			"License": "Private",
-			"PrecompilerVarName": "COCONUT2D_CASINO",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.casino",
+			"PrecompilerVarName": "COCONUT2D_GAME_CASINO",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.casino",
 			"Description": "",
-			"Dependencies": "org.coconut2d.sdk.anim",
+			"Dependencies": "org.coconut2d.sdk.game2d",
 			"FSM": true
 		},
-		"org.emscripten.box2d":
+		"org.coconut2d.sdk.game2d.physics":
 		{
-			"Name": "Box2D Physics Engine",
-			"Version": "2.1",
-			"Type": "Emscripten Library",
-			"Copyright": "Copyright (c) 2006-2010 Erin Catto - http://www.gphysics.com",
-			"License": "zlib license + acknowledgement",
-			"PrecompilerVarName": "EMS_BOX2D",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/org.emscripten.box2d",
-			"Description": "Box2D is an open source C++ engine for simulating rigid bodies in 2D. Box2D is developed by Erin Catto and has the zlib license. While the zlib license does not require acknowledgement, we encourage you to give credit to Box2D in your product.",
-			"Dependencies": "org.coconut2d.sdk.anim",
-			"FSM": false
+			"Name": "Coconut2D Core 2D Physics Games Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"License": "Private",
+			"PrecompilerVarName": "COCONUT2D_GAME_PHYSICS",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.physics",
+			"Description": "",
+			"Dependencies": "org.coconut2d.sdk.game2d",
+			"FSM": true
+		},
+		"org.coconut2d.sdk.game2d.platform":
+		{
+			"Name": "Coconut2D Core Platform Games Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"License": "Private",
+			"PrecompilerVarName": "COCONUT2D_GAME_PLATFORM",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.platform",
+			"Description": "",
+			"Dependencies": "org.coconut2d.sdk.game2d",
+			"FSM": true
+		},
+		"org.coconut2d.sdk.game2d.puzzle":
+		{
+			"Name": "Coconut2D Core Puzzle Games Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"License": "Private",
+			"PrecompilerVarName": "COCONUT2D_GAME_PUZZLE",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.puzzle",
+			"Description": "",
+			"Dependencies": "org.coconut2d.sdk.game2d",
+			"FSM": true
+		},
+		"org.coconut2d.sdk.game2d.tower":
+		{
+			"Name": "Coconut2D Core Tower Defence Games Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"License": "Private",
+			"PrecompilerVarName": "COCONUT2D_GAME_TOWER_DEFENCE",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.tower",
+			"Description": "",
+			"Dependencies": "org.coconut2d.sdk.game2d",
+			"FSM": true
+		},
+		"org.coconut2d.sdk.tests":
+		{
+			"Name": "Coconut2D Tests Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"License": "MIT",
+			"PrecompilerVarName": "COCONUT2D_ANIMATION",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.tests",
+			"Description": "",
+			"Dependencies": "",
+			"FSM": true
 		}
 	}
 }

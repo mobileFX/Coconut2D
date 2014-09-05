@@ -1,4 +1,5 @@
-﻿"#export web";
+﻿"#export native";
+"#export web";
 
 // The following code demonstrates how "this" is
 // manipulated by the inheritance code in CocoScript.
@@ -11,8 +12,6 @@
 class TestSelf1
 {
 	public reference var saved:Object;
-	public function Constructor(){}
-	public function Destructor(){}
 
 	public function Constructor()
 	{
@@ -61,7 +60,7 @@ class TestThis
 	{
 		var t:TestSelf3 = new TestSelf3();
 		t.save_this();
-		trace( "Saved instance type: " + t.saved.toString() );
+		//trace( "Saved instance type: " + t.saved.toString() );
 	}
 
 	public function Destructor()

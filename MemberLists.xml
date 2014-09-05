@@ -322,10 +322,11 @@ public Function::__className:String" image="13"/>
 		<member name="CocoUIPictureList" proto="CocoUIPictureList:CocoUIPictureList" help="CocoUIPictureList:CocoUIPictureList" image="11"/>
 		<member name="CocoUITabBar" proto="CocoUITabBar:CocoUITabBar" help="CocoUITabBar:CocoUITabBar" image="11"/>
 		<member name="CocoUITextEdit" proto="CocoUITextEdit:CocoUITextEdit" help="CocoUITextEdit:CocoUITextEdit" image="11"/>
-		<member name="GameEngine" proto="GameEngine:GameEngine" help="GameEngine:GameEngine" image="11"/>
+		<member name="TestDataStream" proto="TestDataStream:TestDataStream" help="TestDataStream:TestDataStream" image="11"/>
 		<member name="TestOutsourcer" proto="TestOutsourcer:TestOutsourcer" help="TestOutsourcer:TestOutsourcer" image="11"/>
 		<member name="TestIntegrator" proto="TestIntegrator:TestIntegrator" help="TestIntegrator:TestIntegrator" image="11"/>
 		<member name="TestIntegratorClient" proto="TestIntegratorClient:TestIntegratorClient" help="TestIntegratorClient:TestIntegratorClient" image="11"/>
+		<member name="TestHTTP" proto="TestHTTP:TestHTTP" help="TestHTTP:TestHTTP" image="11"/>
 		<member name="ITest1" proto="ITest1:ITest1" help="ITest1:ITest1" image="25"/>
 		<member name="ITest2" proto="ITest2:ITest2" help="ITest2:ITest2" image="25"/>
 		<member name="ITest3" proto="ITest3:ITest3" help="ITest3:ITest3" image="25"/>
@@ -337,6 +338,7 @@ public Function::__className:String" image="13"/>
 		<member name="TestSelf2" proto="TestSelf2:TestSelf2" help="TestSelf2:TestSelf2" image="11"/>
 		<member name="TestSelf3" proto="TestSelf3:TestSelf3" help="TestSelf3:TestSelf3" image="11"/>
 		<member name="TestThis" proto="TestThis:TestThis" help="TestThis:TestThis" image="11"/>
+		<member name="GameEngine" proto="GameEngine:GameEngine" help="GameEngine:GameEngine" image="11"/>
 		<member name="ReservationsForm" proto="ReservationsForm:ReservationsForm" help="ReservationsForm:ReservationsForm" image="11"/>
 		<member name="NewAnimation" proto="NewAnimation:NewAnimation" help="NewAnimation:NewAnimation" image="11"/>
 	</memberlist>
@@ -5118,6 +5120,8 @@ public CocoClip::__currentTime:Time" image="34"/>
 public CocoClip::__loopTime:Time" image="34"/>
 		<member name="__loops" proto="__loops:Integer" help="__loops is member var of class CocoClip
 public CocoClip::__loops:Integer" image="34"/>
+		<member name="__currentSequenceStartTime" proto="__currentSequenceStartTime:Time" help="__currentSequenceStartTime is member var of class CocoClip
+public CocoClip::__currentSequenceStartTime:Time" image="34"/>
 		<member name="__x" proto="__x:Float" help="__x is member var of class CocoClip
 public CocoClip::__x:Float" image="34"/>
 		<member name="__y" proto="__y:Float" help="__y is member var of class CocoClip
@@ -5318,8 +5322,6 @@ public CocoSequence::Constructor(name:String, framesArray:Array&lt;Integer&gt;)"
 public CocoSequence::name:String" image="34"/>
 		<member name="frames" proto="frames:Array&lt;Integer&gt;" help="frames is member var of class CocoSequence
 public CocoSequence::frames:Array&lt;Integer&gt;" image="1"/>
-		<member name="sequenceStartTime" proto="sequenceStartTime:Time" help="sequenceStartTime is member var of class CocoSequence
-public CocoSequence::sequenceStartTime:Time" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoSequence
 public CocoSequence::__className:String" image="13"/>
 	</memberlist>
@@ -6472,19 +6474,13 @@ public property CocoUITextEdit::PromptFontShadowColor:Color" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoUITextEdit
 public CocoUITextEdit::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class GameEngine">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class GameEngine
-public virtual GameEngine::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class GameEngine
-public GameEngine::Constructor()" image="14"/>
-		<member name="scene" proto="scene:CocoScene" help="scene is member var of class GameEngine
-public GameEngine::scene:CocoScene" image="34"/>
-		<member name="app" proto="app:CocoAppController" help="app is member var of class GameEngine
-public GameEngine::app:CocoAppController" image="34"/>
-		<member name="STATE_START_APP" proto="STATE_START_APP:State" help="STATE_START_APP is engine state of class GameEngine
-STATE_START_APP:State" image="27"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class GameEngine
-public GameEngine::__className:String" image="13"/>
+	<memberlist name="Class TestDataStream">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class TestDataStream
+public virtual TestDataStream::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class TestDataStream
+public TestDataStream::Constructor()" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class TestDataStream
+public TestDataStream::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class TestOutsourcer">
 		<member name="work" proto="work()" help="work is member function of class TestOutsourcer
@@ -6517,6 +6513,14 @@ public TestIntegratorClient::Constructor()" image="14"/>
 private TestIntegratorClient::integrator:TestIntegrator" image="29"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class TestIntegratorClient
 public TestIntegratorClient::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class TestHTTP">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class TestHTTP
+public virtual TestHTTP::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class TestHTTP
+public TestHTTP::Constructor()" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class TestHTTP
+public TestHTTP::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class ITest1">
 		<member name="foo" proto="foo()" help="foo is member function of class ITest1
@@ -6721,6 +6725,20 @@ public virtual TestThis::Destructor()" image="35"/>
 public TestThis::Constructor()" image="14"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class TestThis
 public TestThis::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class GameEngine">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class GameEngine
+public virtual GameEngine::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class GameEngine
+public GameEngine::Constructor()" image="14"/>
+		<member name="scene" proto="scene:CocoScene" help="scene is member var of class GameEngine
+public GameEngine::scene:CocoScene" image="34"/>
+		<member name="app" proto="app:CocoAppController" help="app is member var of class GameEngine
+public GameEngine::app:CocoAppController" image="34"/>
+		<member name="STATE_START_APP" proto="STATE_START_APP:State" help="STATE_START_APP is engine state of class GameEngine
+STATE_START_APP:State" image="27"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class GameEngine
+public GameEngine::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class ReservationsForm">
 		<member name="addLookup" proto="addLookup(Caption:String, FieldName:String, IsLookup:Boolean, IsComboBox:Boolean)" help="addLookup is member function of class ReservationsForm

@@ -35,37 +35,11 @@ state class GameEngine : CocoEngine
 	{
 		function enter()
 		{
-			//var req:XMLHttpRequest = new XMLHttpRequest();
-			//req.open("get", "http://freaklore.com/wp-content/uploads/2014/04/Unicorn-pic.jpg", false);
-			//req.send();
-			//trace(req.getAllResponseHeaders());
-			//trace("Content-Type: " + req.getResponseHeader("Content-Type"));
-			//trace(String(window.innerWidth) + " x " + String(window.innerHeight));
-			//var t1:TestIntegratorClient = new TestIntegratorClient();
-			//var t2:UIFormClass = new UIFormClass();
-			//delete t2;
-			//var t3:TestThis = new TestThis();
-
 			scene = new NewAnimation(this);
-
 			app = new CocoAppController("MyApp", scene);
 			app.addForm(new ReservationsForm("frm_Reserverations", scene));
 			app.addForm(new ReservationsForm("frm_Reserverations", scene));
 			app.showForm(app.Forms[0], COCO_UIFORM_ANIMATION.SHOW_NORMAL);
-
-			//var ds:CocoDataStream = new CocoDataStream();
-			//ds.writeString("test με Ελληνικά!!");
-			//ds.writeInteger(5);
-			//ds.writeFloat(3.14);
-			//ds.writeBoolean(true);
-			//ds.writeBoolean(false);
-			//ds.offset = 0;
-			//trace(ds.readString());
-			//trace(String(ds.readInteger()));
-			//trace(String(ds.readFloat()));
-			//trace(String(ds.readBoolean()));
-			//trace(String(ds.readBoolean()));
-
 		}
 
 		function exit()

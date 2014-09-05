@@ -343,6 +343,9 @@ function CompilerCppPlugin(compiler)
 				}
 			}
 
+			if(!ast.symbol)
+				ast.symbol = _this.LookupScopeChain(ast.name, ast.inClass.scope, true);
+
 			// Rest arguments
 			if(ast.symbol.restArguments)
 			{

@@ -6,7 +6,7 @@
         "PROJECT_PACKAGE": "com.mobilefx.Coconut2D",
         "PROJECT_VERSION": "1.0.0",
         "PROJECT_VERSION_SHORT": "1.0",
-        "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.system;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui",
+        "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.system;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui;org.coconut2d.sdk.tests",
         "CONFIGURATION": "Debug",
         "DEBUG_HOST_IP": "192.168.1.168",
         "DEBUG_HOST_PORT": "9999",
@@ -105,7 +105,7 @@
         "PROJECT_PACKAGE": "com.mobilefx.Coconut2D",
         "PROJECT_VERSION": "1.0.0",
         "PROJECT_VERSION_SHORT": "1.0",
-        "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.system;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui",
+        "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.system;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui;org.coconut2d.sdk.tests",
         "CONFIGURATION": "Debug",
         "DEBUG_HOST_IP": "192.168.1.168",
         "DEBUG_HOST_PORT": "9999",
@@ -343,9 +343,14 @@
         "ORG.COCONUT2D.SDK.ANIM": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.anim",
         "ORG.COCONUT2D.SDK.NET": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.net",
         "ORG.COCONUT2D.SDK.UI": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.ui",
-        "ORG.COCONUT2D.SDK.GAME2D": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.game2d",
-        "ORG.COCONUT2D.SDK.CASINO": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.casino",
         "ORG.EMSCRIPTEN.BOX2D": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.emscripten.box2d",
+        "ORG.COCONUT2D.SDK.GAME2D": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.game2d",
+        "ORG.COCONUT2D.SDK.GAME2D.CASINO": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.game2d.casino",
+        "ORG.COCONUT2D.SDK.GAME2D.PHYSICS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.game2d.physics",
+        "ORG.COCONUT2D.SDK.GAME2D.PLATFORM": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.game2d.platform",
+        "ORG.COCONUT2D.SDK.GAME2D.PUZZLE": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.game2d.puzzle",
+        "ORG.COCONUT2D.SDK.GAME2D.TOWER": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.game2d.tower",
+        "ORG.COCONUT2D.SDK.TESTS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.tests",
         "TEXT_FILES": "*.mk;*.asp;*.c;*.cc;*.cpp;*.css;*.csv;*.cxx;*.doc;*.gdl;*.h;*.hh;*.hpp;*.hta;*.htc;*.htm;*.html;*.inc;*.include;*.j;*.java;*.javascript;*.jspp;*.js;*.jscript;*.glsl;*.json;*.jx;*.log;*.m;*.makefile;*.mx;*.mxx;*.pbxproj;*.pch;*.plist;*.strings;*.txt;*.xhtml;*.xml;*.xsd;*.xslt;*.bat;*.cmd;*.ini;*.mm;*.settings;*.jobj;*.md;*.lst;*.properties;*.conf;*.gdb;*.gitignore"
     },
     "Components": {
@@ -422,6 +427,18 @@
                 "Dependencies": "org.coconut2d.sdk.anim",
                 "FSM": true
             },
+            "org.emscripten.box2d": {
+                "Name": "Box2D Physics Engine",
+                "Version": "2.1",
+                "Type": "Emscripten Library",
+                "Copyright": "Copyright (c) 2006-2010 Erin Catto - http://www.gphysics.com",
+                "License": "zlib license + acknowledgement",
+                "PrecompilerVarName": "EMS_BOX2D",
+                "Path": "$(PATH_SDK_FRAMEWORKS)/org.emscripten.box2d",
+                "Description": "Box2D is an open source C++ engine for simulating rigid bodies in 2D. Box2D is developed by Erin Catto and has the zlib license. While the zlib license does not require acknowledgement, we encourage you to give credit to Box2D in your product.",
+                "Dependencies": "org.coconut2d.sdk.anim",
+                "FSM": false
+            },
             "org.coconut2d.sdk.game2d": {
                 "Name": "Coconut2D Core 2D Game Framework",
                 "Version": "0.1",
@@ -434,29 +451,77 @@
                 "Dependencies": "org.coconut2d.sdk.anim",
                 "FSM": true
             },
-            "org.coconut2d.sdk.casino": {
+            "org.coconut2d.sdk.game2d.casino": {
                 "Name": "Coconut2D Core Casino Games Framework",
                 "Version": "0.1",
                 "Type": "CocoScript",
                 "Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
                 "License": "Private",
-                "PrecompilerVarName": "COCONUT2D_CASINO",
-                "Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.casino",
+                "PrecompilerVarName": "COCONUT2D_GAME_CASINO",
+                "Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.casino",
                 "Description": "",
-                "Dependencies": "org.coconut2d.sdk.anim",
+                "Dependencies": "org.coconut2d.sdk.game2d",
                 "FSM": true
             },
-            "org.emscripten.box2d": {
-                "Name": "Box2D Physics Engine",
-                "Version": "2.1",
-                "Type": "Emscripten Library",
-                "Copyright": "Copyright (c) 2006-2010 Erin Catto - http://www.gphysics.com",
-                "License": "zlib license + acknowledgement",
-                "PrecompilerVarName": "EMS_BOX2D",
-                "Path": "$(PATH_SDK_FRAMEWORKS)/org.emscripten.box2d",
-                "Description": "Box2D is an open source C++ engine for simulating rigid bodies in 2D. Box2D is developed by Erin Catto and has the zlib license. While the zlib license does not require acknowledgement, we encourage you to give credit to Box2D in your product.",
-                "Dependencies": "org.coconut2d.sdk.anim",
-                "FSM": false
+            "org.coconut2d.sdk.game2d.physics": {
+                "Name": "Coconut2D Core 2D Physics Games Framework",
+                "Version": "0.1",
+                "Type": "CocoScript",
+                "Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+                "License": "Private",
+                "PrecompilerVarName": "COCONUT2D_GAME_PHYSICS",
+                "Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.physics",
+                "Description": "",
+                "Dependencies": "org.coconut2d.sdk.game2d",
+                "FSM": true
+            },
+            "org.coconut2d.sdk.game2d.platform": {
+                "Name": "Coconut2D Core Platform Games Framework",
+                "Version": "0.1",
+                "Type": "CocoScript",
+                "Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+                "License": "Private",
+                "PrecompilerVarName": "COCONUT2D_GAME_PLATFORM",
+                "Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.platform",
+                "Description": "",
+                "Dependencies": "org.coconut2d.sdk.game2d",
+                "FSM": true
+            },
+            "org.coconut2d.sdk.game2d.puzzle": {
+                "Name": "Coconut2D Core Puzzle Games Framework",
+                "Version": "0.1",
+                "Type": "CocoScript",
+                "Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+                "License": "Private",
+                "PrecompilerVarName": "COCONUT2D_GAME_PUZZLE",
+                "Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.puzzle",
+                "Description": "",
+                "Dependencies": "org.coconut2d.sdk.game2d",
+                "FSM": true
+            },
+            "org.coconut2d.sdk.game2d.tower": {
+                "Name": "Coconut2D Core Tower Defence Games Framework",
+                "Version": "0.1",
+                "Type": "CocoScript",
+                "Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+                "License": "Private",
+                "PrecompilerVarName": "COCONUT2D_GAME_TOWER_DEFENCE",
+                "Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d.tower",
+                "Description": "",
+                "Dependencies": "org.coconut2d.sdk.game2d",
+                "FSM": true
+            },
+            "org.coconut2d.sdk.tests": {
+                "Name": "Coconut2D Tests Framework",
+                "Version": "0.1",
+                "Type": "CocoScript",
+                "Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+                "License": "MIT",
+                "PrecompilerVarName": "COCONUT2D_ANIMATION",
+                "Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.tests",
+                "Description": "",
+                "Dependencies": "",
+                "FSM": true
             }
         }
     }

@@ -97,6 +97,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	public var __currentTime:Time;
 	public var __loopTime:Time;
 	public var __loops:Integer;
+	public var __currentSequenceStartTime:Time;
 
 	// Bounding Box & Hit Test
 	public var __x:Float;
@@ -134,6 +135,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		__children						= new Array<CocoClip>;
 		__parent						= null;
 		__currentTime					= 0.0;
+		__currentSequenceStartTime		= 0.0;
 		__currentFrame					= null;
 		__hasBoundingBox				= false;
 		__vABS_TOP_LEFT					= new CocoVector();
@@ -486,13 +488,13 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			{
 				//trace("Loading sprite animation sequence: " + __clipPath + " -> " + sequenceName);
 				__currentSequence = __image.getSequence(sequenceName);
-				__currentSequence.sequenceStartTime = __currentTime;
+				__currentSequenceStartTime = __currentTime;
 			}
 
 			if(__image.isSpriteSheet && __currentSequence)
 			{
 				// Render animation sequence.
-				var sequenceFrameIndex:Integer = __timeline.__paused ? 0 : Math.floor((__currentTime-__currentSequence.sequenceStartTime) / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
+				var sequenceFrameIndex:Integer = __timeline.__paused ? 0 : Math.floor((__currentTime-__currentSequenceStartTime) / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
 				var frame:Integer = __currentSequence.frames[sequenceFrameIndex];
 				ctx.drawFrame(scene, __image, frame, __currentFrame);
 			}
