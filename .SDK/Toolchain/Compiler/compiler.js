@@ -1811,6 +1811,7 @@ function Compiler(ast)
 						baseConstructorArguments = thisConstructorArguments;
 					}
 				}
+				if(!baseConstructorArguments) baseConstructorArguments = "";
 				out.push("__" + ast.name + ".prototype = new " + baseClass + "(" + baseConstructorArguments + ");");
 			}
 			out.push("__" + ast.name + ".prototype.constructor = __" + ast.name + ";");
@@ -4373,7 +4374,17 @@ function Compiler(ast)
 				ast.typecasting = true;
 				ast.castFromType = _this.getTypeName(ast[1][0]);
 				ast.castToType = call0;
-				out.push("("+call1+")");
+				switch(ast.castToType)
+				{
+				case "String":
+					out.push(ast.castToType + "("+call1+")");
+					break;
+
+				default:
+					_this.typeCheck(ast, ast.castToType, ast.castFromType);
+					out.push("("+call1+")");
+					break;
+				}
 			}
 			else
 			{

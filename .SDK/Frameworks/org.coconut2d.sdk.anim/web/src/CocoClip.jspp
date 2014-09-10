@@ -437,8 +437,17 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			var frameIndex:Float = __loopTime / __timeline.__singleFrameDurationTime;
 
 			// Interpolate
-			if(__currentFrame) delete __currentFrame;
-			__currentFrame = __timeline.interpolate(frameIndex);
+			if(__currentFrame && __currentFrame.__Preserve)
+			{
+				// Skip frame interpolation this time
+				__currentFrame.__Preserve = false;
+			}
+			else
+			{
+				if(__currentFrame) delete __currentFrame;
+				__currentFrame = __timeline.interpolate(frameIndex);
+			}
+
 
 			// If interpolation didn't return a frame, do not advance time and exit.
 			if(!__currentFrame) return;
@@ -794,12 +803,35 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 
 class CocoSelfTexturedClip : CocoClip
 {
-	public function Constructor() :CocoClip(null)
+	public var InvalidTexture:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		InvalidTexture=true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
 	{
 	}
 
-	public function Destructor()
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(scene:CocoScene)
 	{
+		InvalidTexture = false;
+		super.prepare;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		if(InvalidTexture)
+		{
+			prepare(scene);
+		}
+
+		super.paint;
 	}
 }
 
@@ -812,50 +844,143 @@ class CocoSelfTexturedClip : CocoClip
 //	                                                 /_/
 // ==================================================================================================================================
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoTextClip : CocoSelfTexturedClip
 {
-	published var Text:String;
-	published var FontFamily:String;
-	published var FontSizePixels:Integer;
-	published var FontBold:Boolean;
-	published var FontItalic:Boolean;
-	published var FontUnderline:Boolean;
-	published var FontColor:Color;
-	published var TextHorizAlign:COCO_TEXT_ALIGN_ENUM;
-	published var TextVertAlign:COCO_TEXT_ALIGN_ENUM;
+	private var m_Text:String;
+	private var m_FontFamily:String;
+	private var m_FontSizePixels:Integer;
+	private var m_FontBold:Boolean;
+	private var m_FontItalic:Boolean;
+	private var m_FontUnderline:Boolean;
+	private var m_FontColor:Color;
+	private var m_TextHorizAlign:COCO_TEXT_ALIGN_ENUM;
+	private var m_TextVertAlign:COCO_TEXT_ALIGN_ENUM;
 
-	public function Constructor()
+	published property Text
 	{
-		Text			= "";
-		FontFamily		= "Helvetica";
-		FontSizePixels 	= 15;
-		FontBold		= false;
-		FontItalic		= false;
-		FontUnderline	= false;
-		FontColor		= 0xff000000;
-		TextHorizAlign	= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
-		TextVertAlign	= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
+		function get():String 		{ return m_Text; }
+		function set(v:String)		{ m_Text = v; InvalidTexture = true; }
 	}
 
+	published property FontFamily
+	{
+		function get():String 		{ return m_FontFamily; }
+		function set(v:String)		{ m_FontFamily = v; InvalidTexture = true; }
+	}
+
+	published property FontSizePixels
+	{
+		function get():Integer		{ return m_FontSizePixels; }
+		function set(v:Integer)		{ m_FontSizePixels = v; InvalidTexture = true; }
+	}
+
+	published property FontBold
+	{
+		function get():Boolean		{ return m_FontBold; }
+		function set(v:Boolean)		{ m_FontBold = v; InvalidTexture = true; }
+	}
+
+	published property FontItalic
+	{
+		function get():Boolean		{ return m_FontItalic; }
+		function set(v:Boolean)		{ m_FontItalic = v; InvalidTexture = true; }
+	}
+
+	published property FontUnderline
+	{
+		function get():Boolean		{ return m_FontUnderline; }
+		function set(v:Boolean)		{ m_FontUnderline = v; InvalidTexture = true; }
+	}
+
+	published property FontColor
+	{
+		function get():Color		{ return m_FontColor; }
+		function set(v:Color)		{ m_FontColor = v; InvalidTexture = true; }
+	}
+
+	published property TextHorizAlign
+	{
+		function get():COCO_TEXT_ALIGN_ENUM		{ return m_TextHorizAlign; }
+		function set(v:COCO_TEXT_ALIGN_ENUM)	{ m_TextHorizAlign = v; InvalidTexture = true; }
+	}
+
+	published property TextVertAlign
+	{
+		function get():COCO_TEXT_ALIGN_ENUM		{ return m_TextVertAlign; }
+		function set(v:COCO_TEXT_ALIGN_ENUM)	{ m_TextVertAlign = v; InvalidTexture = true; }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		m_Text				= "";
+		m_FontFamily		= "Helvetica";
+		m_FontSizePixels 	= 15;
+		m_FontBold			= false;
+		m_FontItalic		= false;
+		m_FontUnderline		= false;
+		m_FontColor			= 0xff000000;
+		m_TextHorizAlign	= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
+		m_TextVertAlign		= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(scene:CocoScene)
+	{
+		delete __image;
+
+		var scale:Float = 1.0;
+		var align:CocoHVAlign = CocoGraphics.AlignToCocoHVAlign(TextHorizAlign, TextVertAlign);
+		var color:String = CocoGraphics.ColorToHtmlRGBA(FontColor);
+    	var fontStyle:String = (FontItalic ? "italic" : "normal") + " normal " + (FontBold ? "bold " : "normal ") + String(FontSizePixels * scale) + "px " + FontFamily;
+
+    	var f:CocoText = new CocoText();
+    	f.str = Text;
+    	f.indices.push(0);
+    	f.mappings.push(0);
+
+    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(__width * scale, __height * scale);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+    	f.drawSimple(ctx, fontStyle, FontUnderline, color, 0, 0, __width * scale, __height * scale, align.horiz, align.vert);
+		__image = CocoGraphics.CocoImageFromHTMLCanvas(canvas, __width * scale, __height * scale);
+		__image.pixelRatio = scale;
+		delete f;
+		delete canvas;
+
+		super.prepare;
+	}
 }
+
+// ==================================================================================================================================
+//	   ______                 __  ___           __   _________
+//	  / ____/___  _________  /  |/  /___ ______/ /__/ ____/ (_)___
+//	 / /   / __ \/ ___/ __ \/ /|_/ / __ `/ ___/ //_/ /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ / /  / / /_/ (__  ) ,< / /___/ / / /_/ /
+//	\____/\____/\___/\____/_/  /_/\__,_/____/_/|_|\____/_/_/ .___/
+//	                                                      /_/
+// ==================================================================================================================================
 
 class CocoMaskClip : CocoClip
 {
 	published var Invert:Boolean;
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage) : CocoClip(image)
 	{
 		Invert = false;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
 		ctx.drawMaskBegin();

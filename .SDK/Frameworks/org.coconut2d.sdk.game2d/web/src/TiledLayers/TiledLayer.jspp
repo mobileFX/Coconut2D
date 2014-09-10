@@ -26,57 +26,49 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	   ______               _______ __         ____                          ____                   ____
-//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____/ __ \____ __________ _/ / /___ __  __
-//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/ /_/ / __ `/ ___/ __ `/ / / __ `/ |/_/
-//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /  / ____/ /_/ / /  / /_/ / / / /_/ />  <
-//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/  /_/    \__,_/_/   \__,_/_/_/\__,_/_/|_|
+//	   ______               _______ __         ____
+//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____
+//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /
+//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/
 //	                                                     /____/
 // ==================================================================================================================================
 
 "#include CocoClip.jspp";
 
-class CocoParallaxFollowPoint : CocoClip
+class TiledLayer : CocoClip
 {
- 	public function Constructor(optional image:CocoImage) : CocoClip(image)
- 	{
- 	}
+	published var EnableCollisions:Boolean;
+ 	published var RigidBodiesClassName:String;
 
- 	public function Destructor()
- 	{
- 	}
- }
+ 	// Compile-time Image Compressions using Sprite Atlas
+	published var CellWidth:Integer;
+	published var CellHeight:Integer;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-"#include CocoGameTiledLayer.jspp";
-
-class CocoGameTiledLayerParallax : CocoGameTiledLayer
-{
-	published var FollowPoint:CocoParallaxFollowPoint;
-	published var ParallaxDistance:Float;
-
-	private reference var kf:CocoKeyFrame;
+	// Array of Rigit Bodies (Sprites)
+ 	public var RigidBodies:Array<CocoClip>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(optional image:CocoImage) : CocoGameTiledLayer(image)
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
 	{
-		FollowPoint = null;
-		ParallaxDistance = 0.0;
+		CellWidth=0;
+		CellHeight=0;
+		RigidBodiesClassName = "Sprite";
+ 		RigidBodies = null;
+ 		EnableCollisions = false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Destructor()
  	{
- 		delete FollowPoint;
+ 		delete RigidBodies;
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function prepare(scene:CocoScene)
+ 	public virtual function prepare(scene:CocoScene)
  	{
+ 		RigidBodies = getChildrenByClassName(RigidBodiesClassName);
  		super.prepare;
- 		kf = __timeline.keyFrame(0);
- 		kf.filter = Integer(COCO_FILTER_ENUM.FILTER_PARALLAX_HOR);
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,15 +79,23 @@ class CocoGameTiledLayerParallax : CocoGameTiledLayer
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
- 	{
- 		if(FollowPoint && FollowPoint.__parent.__currentFrame)
- 		{
- 			var img:CocoImage = __children[0].__image;
- 			var fkf:CocoKeyFrame = FollowPoint.__parent.__currentFrame;
- 			var d:Float = fkf.x * img.pixelRatio / img.textureCellWidth * ParallaxDistance / 1000.0;
- 			kf.red = (d - Float(Math.floor(d)));
- 			kf.y = -Math.min(0.0, fkf.y + 400.0) * ParallaxDistance / 1000.0;
- 		}
- 		super.paint;
- 	}
+	{
+		super.paint;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function collidesWith(sprite:Sprite) :Boolean
+	{
+		if(!EnableCollisions)
+			return false;
+
+		for(var i:Integer=RigidBodies.size()-1; i>=0; i--)
+		{
+			var tile:Sprite = Sprite(RigidBodies[i]);
+			if(tile.collidesWith(sprite))
+				return true;
+		}
+
+		return false;
+	}
 }

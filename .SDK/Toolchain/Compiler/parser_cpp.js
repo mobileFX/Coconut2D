@@ -1,6 +1,6 @@
 ﻿// parser_cpp.js
 
-function CPPParser(files)
+function CPPParser()
 {
 	// ==========================================================================================
 	// Parse native non-generated C++ headers and record external classes (Externs)
@@ -41,12 +41,14 @@ function CPPParser(files)
 				data = data.substring(0, cls.idx) + data.substring(reg.lastIndex);
 				reg.lastIndex = cls.idx;
 
-				trace("\t\t" + (cls.struct ? "Struct" : (cls.enum ? "Enum" : "Class")) + ": " + cls.name);
+				//trace("\t\t" + (cls.struct ? "Struct" : (cls.enum ? "Enum" : "Class")) + ": " + cls.name);
+				cls.file = framework.Include ? framework.Include : file;
 				classes[cls.name] = cls;
-				classes[cls.name].file = file;
 			}
 		}
 	}
+
+	return classes;
 
 	function get_block(data, idx)
 	{
@@ -167,7 +169,7 @@ function CPPParser(files)
 				data = skip_block(data, enu.idx, reg.lastIndex - 1);
 				reg.lastIndex = enu.idx;
 
-				trace("\t\t\tEnum Value: " + enu.name);
+				//trace("\t\t\tEnum Value: " + enu.name);
 				smb.members.push(enu);
 			}
 		}
@@ -179,7 +181,7 @@ function CPPParser(files)
 				data = skip_block(data, con.idx, reg.lastIndex - 1);
 				reg.lastIndex = con.idx;
 
-				trace("\t\t\tConstructor: " + con.name);
+				//trace("\t\t\tConstructor: " + con.name);
 				smb.methods.push(con);
 			}
 
@@ -189,7 +191,7 @@ function CPPParser(files)
 				data = skip_block(data, des.idx, reg.lastIndex - 1);
 				reg.lastIndex = des.idx;
 
-				trace("\t\t\tDestructor: " + des.name);
+				//trace("\t\t\tDestructor: " + des.name);
 				smb.methods.push(des);
 			}
 
@@ -199,7 +201,7 @@ function CPPParser(files)
 				data = skip_block(data, mth.idx, reg.lastIndex - 1);
 				reg.lastIndex = mth.idx;
 
-				trace("\t\t\tMethod: " + mth.name);
+				//trace("\t\t\tMethod: " + mth.name);
 				smb.methods.push(mth);
 			}
 
@@ -209,7 +211,7 @@ function CPPParser(files)
 				data = data.substring(0, mbr.idx) + data.substring(reg.lastIndex);
 				reg.lastIndex = mbr.idx;
 
-				trace("\t\t\tMember: " + mbr.name);
+				//trace("\t\t\tMember: " + mbr.name);
 				smb.members.push(mbr);
 			}
 		}

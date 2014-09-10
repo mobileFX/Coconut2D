@@ -1732,6 +1732,9 @@ function Graph()
 	var m = null;
 	var o = null;
 
+	var _this = this;
+	_this.errors = [];
+
 	this.addV = function(n)
 	{
 		v.push(n);
@@ -1752,7 +1755,7 @@ function Graph()
 			}
 		}
 	    var s = v2i(v1);
-    	var e = v2i(v2)
+    	var e = v2i(v2);
     	if(s!=-1 && e!=-1)
         	m[s][e] = 1;
 	}
@@ -1807,9 +1810,12 @@ function Graph()
     			path.push(last);
     			if(!first) first = last;
     		}
-        	var t = "Cyclic reference between " + first + " and " + last + "\n" +
-	        	 	"Cyclic reference resolution path:\n" + path.join("\n") + "\n" + v[i];
-        	throw new Error(t);
+
+    		path = path.reverse().concat(last);
+			var msg = "Cyclic reference between [" + first + "] and [" + last + "]. References Cycle: " + path.join(" -> ");
+			_this.errors.push( { file:last, cylce:path, error:msg } );
+			IDECallback("warning", path.join(" -> "), 0, 0, msg);
+        	return;
     	}
     	Dic[v[i]] = true;
     	for(var j=0; j<v.length; j++)
@@ -1820,7 +1826,6 @@ function Graph()
             	if(!Dic) return;
         	}
     	}
-    	throw new Error("Cyclic reference detected processing " + v[i]);
 	}
 
 	this.sort = function()
@@ -1830,11 +1835,14 @@ function Graph()
 	    {
 	        var e = ni();
 	        if(e == -1) cy(i);
-	        o[i] = v[e];
-	        for(var j=0; j<v.length; j++)
+	        if(e != -1)
 	        {
-	            m[j][e] = 2;
-	            m[e][j] = 2;
+		        o[i] = v[e];
+		        for(var j=0; j<v.length; j++)
+		        {
+		            m[j][e] = 2;
+		            m[e][j] = 2;
+		        }
 	        }
 	    }
     	return o||[];

@@ -79,6 +79,7 @@ struct b2BodyDef
 	/// The world position of the body. Avoid creating bodies at the origin
 	/// since this can lead to many overlapping shapes.
 	b2Vec2 position;
+    void set_position(b2Vec2* v) { position.x = v->x; position.y = v->y; }
 
 	/// The world angle of the body in radians.
 	float32 angle;

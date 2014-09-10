@@ -26,32 +26,59 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
-//	   ______               _______ __         ____                          ____  __      __  ____
-//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____/ __ \/ /___ _/ /_/ __/___  _________ ___
-//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/ /_/ / / __ `/ __/ /_/ __ \/ ___/ __ `__ \
-//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /  / ____/ / /_/ / /_/ __/ /_/ / /  / / / / / /
-//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/  /_/   /_/\__,_/\__/_/  \____/_/  /_/ /_/ /_/
+//	   ______               _______ __         ____                          ____                   ____
+//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____/ __ \____ __________ _/ / /___ __  __
+//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/ /_/ / __ `/ ___/ __ `/ / / __ `/ |/_/
+//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /  / ____/ /_/ / /  / /_/ / / / /_/ />  <
+//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/  /_/    \__,_/_/   \__,_/_/_/\__,_/_/|_|
 //	                                                     /____/
 // ==================================================================================================================================
 
-"#include CocoGameTiledLayer.jspp";
+"#include CocoClip.jspp";
 
-class CocoGameTiledLayerPlatform : CocoGameTiledLayer
+class ParallaxFollowPoint : CocoClip
 {
-	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function Constructor(optional image:CocoImage) :CocoGameTiledLayer(image)
+ 	public function Constructor(optional image:CocoImage) : CocoClip(image)
  	{
  	}
+
+ 	public function Destructor()
+ 	{
+ 	}
+ }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+"#include TiledLayer.jspp";
+
+class ParallaxLayer : TiledLayer
+{
+	published var FollowPoint:ParallaxFollowPoint;
+	published var ParallaxDistance:Float;
+
+	private reference var kf:CocoKeyFrame;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(optional image:CocoImage) : TiledLayer(image)
+	{
+		FollowPoint = null;
+		ParallaxDistance = 0.0;
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Destructor()
  	{
+ 		delete FollowPoint;
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public virtual function prepare(scene:CocoScene)
+ 	public function prepare(scene:CocoScene)
  	{
  		super.prepare;
+
+ 		// Change Shader to Parallax
+ 		kf = __timeline.keyFrame(0);
+ 		kf.filter = Integer(COCO_FILTER_ENUM.FILTER_PARALLAX_HOR);
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +89,15 @@ class CocoGameTiledLayerPlatform : CocoGameTiledLayer
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
-	{
-		super.paint;
-	}
+ 	{
+ 		if(FollowPoint && FollowPoint.__parent.__currentFrame)
+ 		{
+ 			var img:CocoImage = __children.size()>0 ?  __children[0].__image : __image;
+ 			var fkf:CocoKeyFrame = FollowPoint.__parent.__currentFrame;
+ 			var d:Float = fkf.x * img.pixelRatio / img.textureCellWidth * ParallaxDistance / 1000.0;
+ 			kf.red = (d - Float(Math.floor(d)));
+ 			kf.y = -Math.min(0.0, fkf.y + 400.0) * ParallaxDistance / 1000.0;
+ 		}
+ 		super.paint;
+ 	}
 }

@@ -76,13 +76,15 @@ struct b2FixtureDef
 
 	/// The friction coefficient, usually in the range [0,1].
 	float32 friction;
+    void set_friction(float32 v) { friction = v; }
 
 	/// The restitution (elasticity) usually in the range [0,1].
 	float32 restitution;
-	void set_restitution(float32 v) { restitution = v; }
+    void set_restitution(float32 v) { restitution = v; }
 
 	/// The density, usually in kg/m^2.
 	float32 density;
+    void set_density(float32 v) { density = v; }
 
 	/// A sensor shape collects contact information but never generates a collision
 	/// response.

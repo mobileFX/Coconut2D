@@ -333,6 +333,28 @@ class CocoGraphics
 	//	                                                                                                      /____/
 	// ==================================================================================================================================
 
+	public static function AlignToCocoHVAlign(h:COCO_TEXT_ALIGN_ENUM, v:COCO_TEXT_ALIGN_ENUM) :CocoHVAlign
+	{
+		var align:CocoHVAlign = new CocoHVAlign();
+
+		switch(h)
+		{
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_NEAR:		align.horiz = 0; break;
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER:	align.horiz = 0.5; break;
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_FAR:		align.horiz = 1; break;
+		}
+
+		switch(v)
+		{
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_NEAR:		align.vert = 0; break;
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER:	align.vert = 0.5; break;
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_FAR:		align.vert = 1; break;
+		}
+
+		return align;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
 	public static function AnchorToCocoHVAlign(anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoHVAlign
 	{
 		var align:CocoHVAlign = new CocoHVAlign();

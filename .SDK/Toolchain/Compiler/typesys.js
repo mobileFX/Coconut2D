@@ -754,7 +754,7 @@ function CompilerTypeSystemPlugin(compiler)
 
 		if(type1!="Object" && type2=="Object")
 		{
-			_this.NewError("Please type-cast to " + type1 + ": " + ast.source, ast);
+			//_this.NewError("Please type-cast to " + type1 + ": " + ast.source, ast);
 			return type1;
 		}
 
@@ -775,6 +775,7 @@ function CompilerTypeSystemPlugin(compiler)
 
 		// Integer
 		if(type1=="Integer" && type2=="Number") return type1;
+		if(type1=="Integer" && type2=="Color") return type1;
 		if(type1=="Integer")
 		{
 			if(checkOnly) return false;
@@ -802,6 +803,7 @@ function CompilerTypeSystemPlugin(compiler)
 
 		// Color
 		if(type1=="Color" && type2=="Number") return type1;
+		if(type1=="Color" && type2=="Integer") return type1;
 		if(type1=="Color")
 		{
 			if(checkOnly) return false;
@@ -876,6 +878,18 @@ function CompilerTypeSystemPlugin(compiler)
 				if(base.name==cls1.name)
 					return cls1.name;
 			}
+
+			// This should be allowed but it might produce runtime error.
+			for(var base=cls1;base!=null;base=base.baseSymbol)
+			{
+				if(base.name==cls2.name)
+				{
+					if(!ast.typecasting)
+						_this.NewWarning("Possible runtime error converting from " + cls2.name + " to " + cls1.name + ": " + ast.source, ast);
+
+					return cls2.name;
+				}
+			}
 		}
 
 		// Check interface inheritance
@@ -902,7 +916,10 @@ function CompilerTypeSystemPlugin(compiler)
 		// Check casting interface to class
 		if(!cls1.interface && cls2.interface)
 		{
-			_this.NewError("Ambiguous casting of interface to class", ast);
+			if(!ast.typecasting)
+				_this.NewError("Ambiguous casting of interface to class", ast);
+			else
+				return cls1.name;
 		}
 	}
 }

@@ -185,8 +185,7 @@ function CompilerExportsPlugin(compiler)
 		// ( we need to be able to find fast the declaration C++ header file for a vartype )
 		// ==========================================================================================
 
-		//files = __coco_make.collectSources(Sources, FileMasks, vFrameworksSrcSubPaths);
-		//var cppSymbols = CPPParser(files);
+		var cppSymbols = CPPParser(null);
 
 		// ==========================================================================================
 		// Organize classes per native file
@@ -196,6 +195,7 @@ function CompilerExportsPlugin(compiler)
 		{
 			// Get class symbol
 			var cls = _this.classes[item];
+
 			if(!cls.EXPORT_NATIVE) continue;
 
 			// Get source file node
@@ -288,6 +288,17 @@ function CompilerExportsPlugin(compiler)
 
 			for(vartype in native_file.hpp.vartypes)
 			{
+				if(cppSymbols[vartype])
+				{
+					include = cppSymbols[vartype].file;
+					if(include)
+					{
+						include = '#include "' + include + '"';
+						native_file.hpp.includes[include] = true;
+						continue;
+					}
+				}
+
 				if(!__exists(native_file.classes, vartype))
 				{
 					// Find the .hpp file where this vartype is defined
@@ -298,12 +309,91 @@ function CompilerExportsPlugin(compiler)
 
 			for(vartype in native_file.cpp.vartypes)
 			{
+				if(cppSymbols[vartype])
+				{
+					include = cppSymbols[vartype].file;
+					if(include)
+					{
+						include = '#include "' + include + '"';
+						native_file.hpp.includes[include] = true;
+						continue;
+					}
+				}
+
 				if(!__exists(native_file.classes, vartype))
 				{
 					// Find the .hpp file where this vartype is defined
 					include = find_include_file_where_vartype_is_defined(vartype, native_file);
 					if(include)	native_file.cpp.includes[include] = true;
 				}
+			}
+		}
+
+		// ==========================================================================================
+		// At this stage we need to create an Acyclic Graph and check includes for cyclic-references
+		// ==========================================================================================
+		trace("+ Breaking cyclic-references between includes ...");
+
+		var g = new Graph();
+
+		// Load verticies
+		for(var file in _this.native_files)
+		{
+			var V =  _this.native_files[file].name;
+			g.addV(V);
+		}
+
+		// Load edges
+		for(var file in _this.native_files)
+		{
+			var itm = _this.native_files[file];
+			var V = itm.name;
+			for(var inc in itm.hpp.includes)
+			{
+				var E = file_from_include(inc);
+				E = E.substr(0, E.indexOf("."));
+				g.addE(E, V);
+			}
+		}
+
+		// Sort the graph
+		g.sort();
+
+		// Check for errors
+		if(g.errors.length)
+		{
+			// Attempt to break cyclic references by removing the include.
+			// Since all classes have forward declarations in Coconut2D.hpp,
+			// the trick of removing the include file should work.
+
+			for(var i=g.errors.length;i--;)
+			{
+				var fixed = false;
+				var error = g.errors[i];
+				var native_file = _this.native_files[error.file+".jspp"];
+				if(!native_file) break;
+
+				for(var j=error.cylce.length;j--;)
+				{
+					var include_to_remove = '#include "' + error.cylce[j] + '.hpp"';
+					fixed = fixed | (native_file.hpp.includes[include_to_remove]!=null);
+					delete native_file.hpp.includes[include_to_remove];
+				}
+
+				if(fixed)
+				{
+					// Error resolved!
+					g.errors.splice(i,1);
+				}
+			}
+
+			if(g.errors.length)
+			{
+				// Unfortunately there are still cyclic references.
+				for(var i=0;i<g.errors.length;i++)
+					trace("ERROR: " + g.errors[i].error);
+
+				//throw "ERROR: Cyclic references detected in source code. Please break cyclic references to continue compilation.";
 			}
 		}
 
@@ -400,6 +490,12 @@ function CompilerExportsPlugin(compiler)
 		}
 
 		// ==========================================================================================
+		function file_from_include(inc)
+		{
+			return /#include \x22(?:[\w\.]+\x2f)?([^\x22]+)\x22/.exec(inc)[1];
+		}
+
+		// ==========================================================================================
 		function find_include_file_where_vartype_is_defined(vartype)
 		{
 			// Search for vartype in a generated file.
@@ -428,6 +524,11 @@ function CompilerExportsPlugin(compiler)
 			if(vartype=="State") return null;
 
 			// Check if the vartype is defined in C++ frameworks (or Emscripten)
+			var cls = cppSymbols[vartype];
+			if(cls)
+			{
+				return '#include "' + cls.file + '.hpp"';
+			}
 
 			// Vartype not found anywhere.
 			for(item in native_file.classes){break;}
@@ -517,7 +618,7 @@ function CompilerExportsPlugin(compiler)
 		if(ast.type==jsdef.IDENTIFIER && !ast.inDot)
 		{
 			identifier = ast.value;
-			if(identifier==runtime) return;
+			//if(identifier==runtime) return;
 			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
 		}
 		else if(ast.type==jsdef.IDENTIFIER && ast.inDot)
@@ -556,7 +657,7 @@ function CompilerExportsPlugin(compiler)
 
 				identifier = v_identifiers.join(".");
 				runtime = v_runtime.join(".")
-				if(identifier==runtime) continue;
+				//if(identifier==runtime) continue;
 
 				buff.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + f.start + "' end='" + f.end + "' line='" + f.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
 			}
@@ -582,8 +683,8 @@ function CompilerExportsPlugin(compiler)
 		for(var cls in _this.classes)
 		{
 			if(_this.selectedClass && _this.selectedClass!=cls) continue;
-			var classSymbol = _this.classes[cls];
 
+			var classSymbol = _this.classes[cls];
 			var derivatives = _this.getAllDerivatives(classSymbol, true);
 			if(derivatives.length)
 				classSymbol.classes = derivatives.join(";");

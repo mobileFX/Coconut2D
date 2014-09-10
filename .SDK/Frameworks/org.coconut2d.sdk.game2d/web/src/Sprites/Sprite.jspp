@@ -25,51 +25,57 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// ==================================================================================================================================
-//	   ______               _______ __         ____
-//	  / ____/___  _________/_  __(_) /__  ____/ / /   ____ ___  _____  _____
-//	 / /   / __ \/ ___/ __ \/ / / / / _ \/ __  / /   / __ `/ / / / _ \/ ___/
-//	/ /___/ /_/ / /__/ /_/ / / / / /  __/ /_/ / /___/ /_/ / /_/ /  __/ /
-//	\____/\____/\___/\____/_/ /_/_/\___/\__,_/_____/\__,_/\__, /\___/_/
-//	                                                     /____/
-// ==================================================================================================================================
-
 "#include CocoClip.jspp";
 
-class CocoGameTiledLayer : CocoClip
+class Sprite : CocoClip
 {
-	published var EnableCollisions:Boolean;
- 	published var RigidBodiesClassName:String;
+	// Box2D Physics of this Sprite
+	// ============================
+	// restitution	- How bouncy the fixture is, values from 0 to 1
+	// friction 	- How slippery it is, values from 0 to 1
+	// density 		- How heavy it is in relation to its area, density multiplied by area becomes the mass
 
- 	// Compile-time Image Compressions using Sprite Atlas
-	published var CellWidth:Integer;
-	published var CellHeight:Integer;
+	published var EnablePhysics:Boolean;
+	published var BodyType:b2BodyType;
+	published var PhysicsDensity:Float;
+	published var PhysicsRestitution:Float;
+	published var PhysicsFriction:Float;
+	published var CollisionShapes: Shapes;
 
-	// Array of Rigit Bodies (Sprites)
- 	public var RigidBodies:Array<CocoGameSprite>;
+	public var body:b2Body;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage) : CocoClip(image)
 	{
-		CellWidth=0;
-		CellHeight=0;
-		RigidBodiesClassName = "CocoGameSprite";
- 		RigidBodies = null;
- 		EnableCollisions = false;
+		EnablePhysics = false;
+		BodyType = b2BodyType.b2_staticBody;
+		PhysicsDensity = 1.0;
+		PhysicsRestitution = 0.5;
+		PhysicsFriction = 0.5;
+		CollisionShapes = new Shapes();
+		body = null;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function Destructor()
- 	{
- 		delete RigidBodies;
- 	}
+	public function Destructor()
+	{
+		delete CollisionShapes;
+		delete body;
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public virtual function prepare(scene:CocoScene)
- 	{
- 		RigidBodies = getChildrenByClassName(RigidBodiesClassName);
- 		super.prepare;
- 	}
+	public virtual function prepare(scene:CocoScene)
+	{
+		if(EnablePhysics && CollisionShapes.size()>0)
+		{
+			if(body) delete body;
+			var kf:CocoKeyFrame = __parent.__timeline.keyFrame(0);
+			var x:Float = kf.x / BOX2D_SCALE;
+			var y:Float	=  kf.y / BOX2D_SCALE;
+			var stage:Stage = Stage(scene);
+			body = CollisionShapes.toBody(stage.world, BodyType, x, y, PhysicsDensity, PhysicsRestitution, PhysicsFriction);
+		}
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function tick(time:Time)
@@ -78,24 +84,31 @@ class CocoGameTiledLayer : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function collidesWith(sprite:CocoGameSprite) :Boolean
-	{
-		if(!EnableCollisions)
-			return false;
-
-		// Collision detection between Tiled Layer Rigid Bodies against the input sprite.
-		for(var i:Integer=RigidBodies.size()-1; i>=0; i--)
-		{
-			if(RigidBodies[i].collidesWith(sprite))
-				return true;
-		}
-
-		return false;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
 		super.paint;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function collidesWith(sprite:Sprite) :Boolean
+	{
+		if(!EnablePhysics || !sprite || !body || !sprite.body) return false;
+
+		// Collision Detection using Box2D
+		var first:b2ContactEdge = b2ContactEdge(body.GetContactList());
+		var ce:b2ContactEdge = first;
+		while(ce);
+		{
+			if(ce.get_other() == sprite.body && b2Contact(ce.get_contact()).IsTouching())
+				return true;
+
+			if(ce == b2ContactEdge(ce.get_next()))
+				return false
+
+			ce = b2ContactEdge(ce.get_next());
+			if(ce == first)
+				return false;
+		}
+		return false;
 	}
 }

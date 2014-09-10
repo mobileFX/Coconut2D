@@ -1,0 +1,93 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.yourcompany.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+"#include CocoClip.jspp";
+
+struct TestPublishedStruct
+{
+	pString:String;
+	pInteger:Integer;
+	pFloat:Float;
+	pCocoClip:CocoClip;
+	pTestPublished:TestPublished;
+}
+
+class TestPublished : CocoClip
+{
+	published var pString:String;
+	published var pInteger:Integer;
+	published var pFloat:Float;
+
+	published var pStruct:TestPublishedStruct;
+
+	published reference var pCocoClip:CocoClip;
+	published reference var pTestPublished:TestPublished;
+
+	published reference var pArrayInteger:Array<Integer>;
+	published reference var pArrayCocoClip:Array<CocoClip>;
+
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	{
+		pString = "";
+		pInteger = 0;
+		pFloat = 0;
+		pStruct = null;
+	}
+
+	public function Destructor()
+	{
+		delete pStruct;
+	}
+}
+
+class TestPublishedDerived : TestPublished
+{
+	published var mString:String;
+	published var mInteger:Integer;
+	published var mFloat:Float;
+
+	published var mStruct:TestPublishedStruct;
+
+	published reference var mCocoClip:CocoClip;
+	published reference var mTestPublished:TestPublished;
+
+	published reference var mArrayInteger:Array<Integer>;
+	published reference var mArrayCocoClip:Array<CocoClip>;
+
+	public function Constructor(optional image:CocoImage) : TestPublished(image)
+	{
+		mString = "";
+		mInteger = 0;
+		mFloat = 0;
+		mStruct = null;
+	}
+
+	public function Destructor()
+	{
+		delete mStruct;
+	}
+}

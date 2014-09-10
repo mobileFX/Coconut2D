@@ -118,6 +118,14 @@ class CocoScene
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getClipsByClassName(className:String) :Array<CocoClip>
+	{
+		var arr:Array<CocoClip> = new Array<CocoClip>;
+		arr = arr.concat(__root.getChildrenByClassName(className));
+		return arr;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage
 	{
 		if(getImageSymbol(symbolName)) throw "Resource image " + symbolName + " already exists.";
