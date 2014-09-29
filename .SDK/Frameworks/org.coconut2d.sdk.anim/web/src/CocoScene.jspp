@@ -140,7 +140,14 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function prepare(ctx:ICocoRenderContext)
 	{
-		__view_scale = __view_width > 0 && __view_height > 0 ? Math.min( Float(ctx.getWidth()) / __view_width, Float(ctx.getHeight()) / __view_height) : window.devicePixelRatio;
+		if(__view_width > 0 && __view_height > 0)
+		{
+			__view_scale = Math.min( Float(ctx.getWidth()) / __view_width, Float(ctx.getHeight()) / __view_height);
+		}
+		else
+		{
+			__view_scale = window.devicePixelRatio;
+		}
 
 		// Prepare CocoClip and their timelines
 		__root.prepare(this);

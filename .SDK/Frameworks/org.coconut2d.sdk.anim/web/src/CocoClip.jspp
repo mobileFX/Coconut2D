@@ -965,26 +965,40 @@ class CocoTextClip : CocoSelfTexturedClip
 //	                                                      /_/
 // ==================================================================================================================================
 
-class CocoMaskClip : CocoClip
+enum COCO_MASK_TYPE
 {
+	MASK_SHAPE = 0,
+	MASK_IMAGE = 1
+};
+
+class CocoMaskClip : CocoSelfTexturedClip
+{
+	published var MaskType:COCO_MASK_TYPE;
+	published var FillColor:Color;
 	published var Invert:Boolean;
 
+	public var Rectangles:Array<Float>;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	public function Constructor()
 	{
+		MaskType = COCO_MASK_TYPE.MASK_SHAPE;
 		Invert = false;
+		FillColor = 0xff000000;
+		Rectangles = null;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete Rectangles;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
-		ctx.drawMaskBegin();
+		//ctx.drawMaskBegin();
 		super.paint;
-		ctx.drawMaskEnd(Invert);
+		//ctx.drawMaskEnd(Invert);
 	}
 }

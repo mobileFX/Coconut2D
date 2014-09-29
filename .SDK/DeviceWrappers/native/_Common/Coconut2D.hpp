@@ -42,6 +42,7 @@
 #define GLOBAL_FPS 30.0f
 #define COCO_STOP_ON_CURRENT_FRAME -1
 //#define RADIANS (M_PI / 180.0f)
+#define NGLDEBUG
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Common Includes
@@ -514,10 +515,7 @@ class CocoEventConnectionPoint;
 //# Native Classes End #//
 
 //# Generated Classes Begin #//
-class BonusSprite;
-class BulletSprite;
 class CanvasRenderingContext2D;
-class CarrierSprite;
 class CocoAudio;
 class CocoClip;
 class CocoClipOnClickEvent;
@@ -559,9 +557,8 @@ class CocoTickable;
 class CocoTimeLabel;
 class CocoTimeline;
 class CocoVector;
-class EnemySprite;
 class GameEngine;
-class GameScreen;
+class GridSymbol;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
 class HTMLCanvasPattern;
@@ -575,25 +572,11 @@ class IEventTarget;
 class IPersistable;
 class ITickable;
 class Image;
-class Ladder;
-class MazeLayer;
-class MazeSprite;
-class ParallaxFollowPoint;
-class ParallaxLayer;
 class PathLine;
-class PlatformLayer;
-class PlatformSprite;
-class PlayerSprite;
-class Polygon;
-class Shape;
-class Shapes;
-class Sprite;
-class Stage;
-class TiledLayer;
+class SceneGameBoard;
+class SceneTitle;
 class Touch;
 class TouchList;
-class Trigger;
-class Weapon;
 struct CocoHVAlign;
 struct CocoKeyFrame;
 struct CocoMatrixData;

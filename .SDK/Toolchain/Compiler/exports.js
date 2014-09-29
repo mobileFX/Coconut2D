@@ -390,9 +390,8 @@ function CompilerExportsPlugin(compiler)
 			if(g.errors.length)
 			{
 				// Unfortunately there are still cyclic references.
-				for(var i=0;i<g.errors.length;i++)
-					trace("ERROR: " + g.errors[i].error);
-
+				//for(var i=0;i<g.errors.length;i++)
+				//	trace("ERROR: " + g.errors[i].error);
 				//throw "ERROR: Cyclic references detected in source code. Please break cyclic references to continue compilation.";
 			}
 		}

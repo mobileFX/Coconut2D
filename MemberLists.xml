@@ -278,6 +278,7 @@ public Function::__className:String" image="13"/>
 		<member name="CocoClipOnTouchEndEvent" proto="CocoClipOnTouchEndEvent:CocoClipOnTouchEndEvent" help="CocoClipOnTouchEndEvent:CocoClipOnTouchEndEvent" image="11"/>
 		<member name="CocoSelfTexturedClip" proto="CocoSelfTexturedClip:CocoSelfTexturedClip" help="CocoSelfTexturedClip:CocoSelfTexturedClip" image="11"/>
 		<member name="CocoTextClip" proto="CocoTextClip:CocoTextClip" help="CocoTextClip:CocoTextClip" image="11"/>
+		<member name="COCO_MASK_TYPE" proto="COCO_MASK_TYPE:COCO_MASK_TYPE" help="COCO_MASK_TYPE:COCO_MASK_TYPE" image="15"/>
 		<member name="CocoMaskClip" proto="CocoMaskClip:CocoMaskClip" help="CocoMaskClip:CocoMaskClip" image="11"/>
 		<member name="ICocoImageRenderData" proto="ICocoImageRenderData:ICocoImageRenderData" help="ICocoImageRenderData:ICocoImageRenderData" image="25"/>
 		<member name="ICocoRenderContext" proto="ICocoRenderContext:ICocoRenderContext" help="ICocoRenderContext:ICocoRenderContext" image="25"/>
@@ -5249,15 +5250,25 @@ public property CocoTextClip::TextVertAlign:COCO_TEXT_ALIGN_ENUM" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoTextClip
 public CocoTextClip::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class COCO_MASK_TYPE">
+		<member name="MASK_SHAPE" proto="MASK_SHAPE:COCO_MASK_TYPE" help="MASK_SHAPE:COCO_MASK_TYPE" image="16"/>
+		<member name="MASK_IMAGE" proto="MASK_IMAGE:COCO_MASK_TYPE" help="MASK_IMAGE:COCO_MASK_TYPE" image="16"/>
+	</memberlist>
 	<memberlist name="Class CocoMaskClip">
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoMaskClip
 public virtual CocoMaskClip::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoMaskClip
 public virtual CocoMaskClip::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoMaskClip
-public CocoMaskClip::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoMaskClip
+public CocoMaskClip::Constructor()" image="14"/>
+		<member name="MaskType" proto="MaskType:COCO_MASK_TYPE" help="MaskType is member var of class CocoMaskClip
+public CocoMaskClip::MaskType:COCO_MASK_TYPE" image="34"/>
+		<member name="FillColor" proto="FillColor:Color" help="FillColor is member var of class CocoMaskClip
+public CocoMaskClip::FillColor:Color" image="34"/>
 		<member name="Invert" proto="Invert:Boolean" help="Invert is member var of class CocoMaskClip
 public CocoMaskClip::Invert:Boolean" image="34"/>
+		<member name="Rectangles" proto="Rectangles:Array&lt;Float&gt;" help="Rectangles is member var of class CocoMaskClip
+public CocoMaskClip::Rectangles:Array&lt;Float&gt;" image="1"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoMaskClip
 public CocoMaskClip::__className:String" image="13"/>
 	</memberlist>
@@ -5384,6 +5395,8 @@ public CocoImageResolution::__className:String" image="13"/>
 	<memberlist name="Class CocoImage">
 		<member name="createFromCanvas" proto="createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float)" help="createFromCanvas is member function of class CocoImage
 public CocoImage::createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float)" image="35"/>
+		<member name="createFromBase64" proto="createFromBase64(url:String, optional width:Float, optional height:Float)" help="createFromBase64 is member function of class CocoImage
+public CocoImage::createFromBase64(url:String, optional width:Float, optional height:Float)" image="35"/>
 		<member name="addResolution" proto="addResolution(sibling:CocoImageResolution) :CocoImageResolution" help="addResolution is member function of class CocoImage
 public CocoImage::addResolution(sibling:CocoImageResolution) :CocoImageResolution" image="35"/>
 		<member name="addSequence" proto="addSequence(sequence:CocoSequence) :CocoSequence" help="addSequence is member function of class CocoImage

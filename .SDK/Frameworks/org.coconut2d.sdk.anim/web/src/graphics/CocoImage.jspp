@@ -185,13 +185,19 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float)
 	{
-		delete image;
-
-        var url:String = canvas.toDataURL();
-        image = new Image();
-        image.load(url);
+		createFromBase64(canvas.toDataURL());
         textureCellWidth = Float(width);
         textureCellHeight = Float(height);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createFromBase64(url:String, optional width:Float, optional height:Float)
+	{
+		delete image;
+        image = new Image();
+        image.load(url);
+        textureCellWidth = width ? width : image.width;
+        textureCellHeight = height ? height : image.height;
         textureGrid = new Float32Array([0,0]);
 		this.renderData = engine.__ctx.prepareImage(this);
 	}
@@ -231,13 +237,14 @@ class CocoImage
 
 		if(scene.__view_width && scene.__view_height)
 		{
-			var w:Float = Float(viewOptimalWidth) * scene.__view_scale * window.devicePixelRatio;
-			var h:Float = Float(viewOptimalHeight) * scene.__view_scale * window.devicePixelRatio;
+			var w:Float = Float(viewOptimalWidth) * scene.__view_scale;// / window.devicePixelRatio;
+			var h:Float = Float(viewOptimalHeight) * scene.__view_scale;// / window.devicePixelRatio;
 			for(var j:Integer = 0; j<viewSiblings.size(); j++)
 			{
 				sibling = viewSiblings[j];
 				if(sibling.textureWidth>=w && sibling.textureHeight>=h)
 				{
+					trace("Loading " + baseUrl + sibling.url);
 					image = new Image();
 					image.load(baseUrl + sibling.url);
 					textureCellWidth = sibling.textureWidth;
@@ -250,11 +257,13 @@ class CocoImage
 				}
 			}
 		}
+
 		if(!image)
 		{
 			sibling = viewSiblings[viewSiblings.size()-1];
 			if(sibling)
 			{
+				trace("Loading " + baseUrl + sibling.url);
 				image = new Image();
 				image.load(baseUrl + sibling.url);
 				textureCellWidth = sibling.textureWidth;
@@ -265,6 +274,8 @@ class CocoImage
 				tileMap = sibling.tileMap;
 			}
 		}
+
+		loaded();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -273,6 +284,8 @@ class CocoImage
 		if(renderData) return true;
 		if(!image || !image.complete) return false;
 		renderData = engine.__ctx.prepareImage(this);
+		if(isSpriteSheet)
+			delete image;
 		return true;
 	}
 

@@ -411,6 +411,7 @@ class Global
 	undefined var CocoClipOnTouchEndEvent :CocoClipOnTouchEndEvent;
 	undefined var CocoSelfTexturedClip :CocoSelfTexturedClip;
 	undefined var CocoTextClip :CocoTextClip;
+	undefined var COCO_MASK_TYPE :COCO_MASK_TYPE;
 	undefined var CocoMaskClip :CocoMaskClip;
 	undefined var ICocoImageRenderData :ICocoImageRenderData;
 	undefined var ICocoRenderContext :ICocoRenderContext;
@@ -438,28 +439,45 @@ class Global
 	undefined var CocoText :CocoText;
 	undefined var CocoTextBlock :CocoTextBlock;
 	undefined var CocoAudio :CocoAudio;
-	undefined var Stage :Stage;
-	undefined var TiledLayer :TiledLayer;
-	undefined var MazeLayer :MazeLayer;
-	undefined var ParallaxFollowPoint :ParallaxFollowPoint;
-	undefined var ParallaxLayer :ParallaxLayer;
-	undefined var PlatformLayer :PlatformLayer;
-	undefined var Shapes :Shapes;
-	undefined var Shape :Shape;
-	undefined var Polygon :Polygon;
-	undefined var Sprite :Sprite;
-	undefined var BonusSprite :BonusSprite;
-	undefined var BulletSprite :BulletSprite;
-	undefined var CarrierSprite :CarrierSprite;
-	undefined var EnemySprite :EnemySprite;
-	undefined var MazeSprite :MazeSprite;
-	undefined var PlatformSprite :PlatformSprite;
-	undefined var PlayerSprite :PlayerSprite;
-	undefined var Ladder :Ladder;
-	undefined var Trigger :Trigger;
-	undefined var Weapon :Weapon;
+	undefined var CocoHttpRequest :CocoHttpRequest;
+	undefined var CocoUIView :CocoUIView;
+	undefined var COCO_UIFORM_ANIMATION :COCO_UIFORM_ANIMATION;
+	undefined var CocoAppController :CocoAppController;
+	undefined var CocoUIControl :CocoUIControl;
+	undefined var CocoUIControlOnGlyphClickEvent :CocoUIControlOnGlyphClickEvent;
+	undefined var CocoUIControlOnChevronClickEvent :CocoUIControlOnChevronClickEvent;
+	undefined var CocoUIFormView :CocoUIFormView;
+	undefined var CocoUIScrollView :CocoUIScrollView;
+	undefined var CocoUIButton :CocoUIButton;
+	undefined var CocoUICheckBox :CocoUICheckBox;
+	undefined var CocoUIComboBox :CocoUIComboBox;
+	undefined var CocoUILabel :CocoUILabel;
+	undefined var CocoUINavBar :CocoUINavBar;
+	undefined var CocoUIPictureList :CocoUIPictureList;
+	undefined var CocoUITabBar :CocoUITabBar;
+	undefined var CocoUITextEdit :CocoUITextEdit;
+	undefined var TestDataStream :TestDataStream;
+	undefined var TestOutsourcer :TestOutsourcer;
+	undefined var TestIntegrator :TestIntegrator;
+	undefined var TestIntegratorClient :TestIntegratorClient;
+	undefined var TestHTTP :TestHTTP;
+	undefined var ITest1 :ITest1;
+	undefined var ITest2 :ITest2;
+	undefined var ITest3 :ITest3;
+	undefined var ClassTestInterfaces :ClassTestInterfaces;
+	undefined var TestPublishedStruct :TestPublishedStruct;
+	undefined var TestPublished :TestPublished;
+	undefined var TestPublishedDerived :TestPublishedDerived;
+	undefined var Class1 :Class1;
+	undefined var Class2 :Class2;
+	undefined var Class3 :Class3;
+	undefined var TestSelf1 :TestSelf1;
+	undefined var TestSelf2 :TestSelf2;
+	undefined var TestSelf3 :TestSelf3;
+	undefined var TestThis :TestThis;
 	undefined var GameEngine :GameEngine;
-	undefined var GameScreen :GameScreen;
+	undefined var ReservationsForm :ReservationsForm;
+	undefined var NewAnimation :NewAnimation;
 } //Global
 
 class String
@@ -3490,12 +3508,21 @@ class CocoTextClip : CocoSelfTexturedClip
 	public  var __className :String;
 } //CocoTextClip
 
-class CocoMaskClip : CocoClip
+class COCO_MASK_TYPE
+{
+	public var MASK_SHAPE :COCO_MASK_TYPE;
+	public var MASK_IMAGE :COCO_MASK_TYPE;
+} //COCO_MASK_TYPE
+
+class CocoMaskClip : CocoSelfTexturedClip
 {
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
+	public function Constructor() {}
+	public  var MaskType :COCO_MASK_TYPE;
+	public  var FillColor :Color;
 	public  var Invert :Boolean;
+	public  var Rectangles :Array<Float>;
 	public  var __className :String;
 } //CocoMaskClip
 
@@ -3595,6 +3622,7 @@ class CocoImageResolution
 class CocoImage
 {
 	public function createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float) {}
+	public function createFromBase64(url:String, width:Float, height:Float) {}
 	public function addResolution(sibling:CocoImageResolution) :CocoImageResolution {}
 	public function addSequence(sequence:CocoSequence) :CocoSequence {}
 	public function getSequence(name:String) :CocoSequence {}
@@ -3895,211 +3923,608 @@ class CocoAudio
 	public  var __className :String;
 } //CocoAudio
 
-class Stage : CocoScene
+class CocoHttpRequest : CocoTickable
 {
-	public function prepare(ctx:ICocoRenderContext) {}
 	public function tick(time:Time) {}
-	public function paint(ctx:ICocoRenderContext, time:Time) {}
-	public function scrollStage() {}
-	public function collisionDetection() {}
-	public function removeDeadSprites() {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public  var StageClip :CocoClip;
-	public  var Player :PlayerSprite;
-	public  var TouchHandlerClip :CocoClip;
-	public  var EnemiesClassName :String;
-	public  var BonusesClassName :String;
-	public  var EnemiesSprites :Array<CocoClip>;
-	public  var BonusesSprites :Array<CocoClip>;
-	public  var MazesSprites :Array<CocoClip>;
-	public  var PlatformsSprites :Array<CocoClip>;
-	public  var DeadSprites :Array<CocoClip>;
-	public  var EnablePhysics :Boolean;
-	public  var PhysicsGravity :Float;
-	public  var PhysicsVelocityIterations :Integer;
-	public  var PhysicsPositionIterations :Integer;
-	public  var world :b2World;
-	public  var worldTick :Float;
+	private function open(method:String, url:String, async:Boolean) {}
+	private function setRequestHeader(header:String, value:String) {}
+	private function send() {}
+	private function send$1(data:String) {}
+	private function send$2(data:ArrayBufferView) {}
+	private function abort() {}
+	private function getAllResponseHeaders() :String {}
+	private function getResponseHeader(header:String) :String {}
+	private  var request :XMLHttpRequest;
 	public  var __className :String;
-} //Stage
+} //CocoHttpRequest
 
-class TiledLayer : CocoClip
+class CocoUIView : CocoClip
 {
-	public function prepare(scene:CocoScene) {}
-	public function tick(time:Time) {}
-	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	public function collidesWith(sprite:Sprite) :Boolean {}
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var EnableCollisions :Boolean;
-	public  var RigidBodiesClassName :String;
-	public  var CellWidth :Integer;
-	public  var CellHeight :Integer;
-	public  var RigidBodies :Array<CocoClip>;
-	public  var __className :String;
-} //TiledLayer
-
-class MazeLayer : TiledLayer
-{
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //MazeLayer
-
-class ParallaxFollowPoint : CocoClip
-{
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //ParallaxFollowPoint
-
-class ParallaxLayer : TiledLayer
-{
-	public function prepare(scene:CocoScene) {}
-	public function tick(time:Time) {}
+	public function move(x:Float, y:Float, width:Float, height:Float) {}
+	public function move$1(x:Float, y:Float) {}
+	public function size(width:Float, height:Float) {}
+	public function bringToFront() {}
+	public function sendToBack() {}
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function invalidate() {}
+	public function addChild(clipInstance:CocoClip) :CocoClip {}
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var FollowPoint :ParallaxFollowPoint;
-	public  var ParallaxDistance :Float;
-	private  var kf :CocoKeyFrame;
+	public function Constructor() {}
+	public  var __form :CocoUIFormView;
+	public  var Form :CocoUIFormView;
+	protected  var __visible :Boolean;
+	protected  var __enabled :Boolean;
+	protected  var __invalidated :Boolean;
+	public  var Name :String;
+	public  var Enabled :Boolean;
+	public  var Visible :Boolean;
+	public  var Width :Float;
+	public  var Height :Float;
+	public  var Left :Float;
+	public  var Top :Float;
+	public  var Bounds :CocoRect;
 	public  var __className :String;
-} //ParallaxLayer
+} //CocoUIView
 
-class PlatformLayer : TiledLayer
+class COCO_UIFORM_ANIMATION
+{
+	public var SHOW_NORMAL :COCO_UIFORM_ANIMATION;
+	public var SHOW_NEXT :COCO_UIFORM_ANIMATION;
+	public var SHOW_PREVIOUS :COCO_UIFORM_ANIMATION;
+} //COCO_UIFORM_ANIMATION
+
+class CocoAppController : CocoClip
+{
+	public function addForm(Form:CocoUIFormView) :CocoUIFormView {}
+	public function showForm(Form:CocoUIFormView, animation:COCO_UIFORM_ANIMATION) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(Name:String, scene:CocoScene) {}
+	public  var NavBar :CocoUINavBar;
+	public  var ActiveForm :CocoUIFormView;
+	public  var Forms :Array<CocoUIFormView>;
+	public  var __className :String;
+} //CocoAppController
+
+class CocoUIControl : CocoUIView
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function CalcHeight() :Float {}
+	public function SetMargins(left:Float, right:Float, top:Float, bottom:Float) {}
+	public function SetPaddings(left:Float, right:Float, top:Float, bottom:Float) {}
+	public function __CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function ComposeControl() {}
+	public function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float, handleEvents:Boolean) :CocoClip {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public var OnGlyphClick :CocoUIControlOnGlyphClickEvent;
+	public var OnChevronClick :CocoUIControlOnChevronClickEvent;
+	protected  var __selectable :Boolean;
+	protected  var __selected :Boolean;
+	protected  var __selectionWaitTickCycles :Integer;
+	public  var Selectable :Boolean;
+	public  var Selected :Boolean;
+	protected  var __marginLeft :Float;
+	protected  var __marginRight :Float;
+	protected  var __marginTop :Float;
+	protected  var __marginBottom :Float;
+	public  var MarginLeft :Float;
+	public  var MarginRight :Float;
+	public  var MarginTop :Float;
+	public  var MarginBottom :Float;
+	protected  var __paddingLeft :Float;
+	protected  var __paddingRight :Float;
+	protected  var __paddingTop :Float;
+	protected  var __paddingBottom :Float;
+	public  var PaddingLeft :Float;
+	public  var PaddingRight :Float;
+	public  var PaddingTop :Float;
+	public  var PaddingBottom :Float;
+	public  var PaddingWidth :Float;
+	public  var PaddingHeight :Float;
+	protected  var __borderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	protected  var __borderRadius :Float;
+	protected  var __borderColor :Color;
+	protected  var __borderColorSel :Color;
+	public  var BorderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	public  var BorderRadius :Float;
+	public  var BorderColor :Color;
+	public  var BorderColorSel :Color;
+	protected  var __backgroundGradient :Gradient;
+	protected  var __backgroundGradientSel :Gradient;
+	public  var BackgroundGradient :Gradient;
+	public  var BackgroundGradientSel :Gradient;
+	protected  var __skinImage :String;
+	protected  var __skinImageSel :String;
+	public  var SkinImage :String;
+	public  var SkinImageSel :String;
+	protected  var __glyphImage :String;
+	protected  var __glyphImageSel :String;
+	protected  var __glyphLeft :Float;
+	protected  var __glyphTop :Float;
+	protected  var __glyphEvents :Boolean;
+	private  var __glyphClip :CocoClip;
+	private  var __glyphSelClip :CocoClip;
+	public  var GlyphImage :String;
+	public  var GlyphImageSel :String;
+	public  var GlyphLeft :Float;
+	public  var GlyphTop :Float;
+	public  var GlyphEvents :Boolean;
+	protected  var __chevronImage :String;
+	protected  var __chevronImageSel :String;
+	protected  var __chevronLeft :Float;
+	protected  var __chevronTop :Float;
+	protected  var __chevronEvents :Boolean;
+	private  var __chevronClip :CocoClip;
+	private  var __chevronSelClip :CocoClip;
+	public  var ChevronImage :String;
+	public  var ChevronImageSel :String;
+	public  var ChevronLeft :Float;
+	public  var ChevronTop :Float;
+	public  var ChevronEvents :Boolean;
+	protected  var __texts :Array<CocoTextBlock>;
+	public  var __className :String;
+} //CocoUIControl
+
+class CocoUIControlOnGlyphClickEvent : CocoEvent
+{
+} //CocoUIControlOnGlyphClickEvent
+
+class CocoUIControlOnChevronClickEvent : CocoEvent
+{
+} //CocoUIControlOnChevronClickEvent
+
+class CocoUIFormView : CocoUIView
+{
+	public function moveScrollView(left:Float, top:Float, width:Float, height:Float) {}
+	public function addInlineControl(ctl:CocoUIControl) :CocoUIControl {}
+	public function addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(name:String, scene:CocoScene) {}
+	private  var __scrollView :CocoUIScrollView;
+	public  var __className :String;
+} //CocoUIFormView
+
+class CocoUIScrollView : CocoUIView
+{
+	public function getKeyFrame() :CocoKeyFrame {}
+	public function inlineHeight() :Float {}
+	public function resetSelection() {}
+	public function addChild(ctl:CocoUIControl) :CocoUIControl {}
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function __CocoUIScrollView_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIScrollView_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIScrollView_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String, scene:CocoScene) {}
+	private  var __scrollLastTime :Time;
+	private  var __scrollFirstPointY :Float;
+	private  var __scrollLastPointY :Float;
+	private  var __scrollSpeedY :Float;
+	private  var __minY :Float;
+	private  var __maxY :Float;
+	private  var __bounceY :Boolean;
+	private  var __scrollContainer :CocoClip;
+	private  var __scrollDeceleration :Float;
+	private  var __scrollSpringTension :Float;
+	public  var ScrollDeceleration :Float;
+	public  var ScrollSpringTension :Float;
+	public  var __className :String;
+} //CocoUIScrollView
+
+class CocoUIButton : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __caption :CocoTextBlock;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var CaptionFontName :String;
+	public  var CaptionFontSize :Float;
+	public  var CaptionFontBold :Boolean;
+	public  var CaptionFontItalic :Boolean;
+	public  var CaptionFontUnderline :Boolean;
+	public  var CaptionFontShadowX :Integer;
+	public  var CaptionFontShadowY :Integer;
+	public  var CaptionFontBlur :Integer;
+	public  var CaptionFontColorSel :Color;
+	public  var CaptionFontShadowColorSel :Color;
+	public  var CaptionFontColor :Color;
+	public  var CaptionFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUIButton
+
+class CocoUICheckBox : CocoUIControl
 {
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
+	public function Constructor(name:String) {}
 	public  var __className :String;
-} //PlatformLayer
+} //CocoUICheckBox
 
-class Shapes : Array
+class CocoUIComboBox : CocoUIControl
 {
-	public function toBody(world:b2World, BodyType:b2BodyType, x:Float, y:Float, Density:Float, Restitution:Float, Friction:Float) :b2Body {}
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function __CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __text :CocoTextBlock;
+	public  var __prompt :CocoTextBlock;
+	public  var Text :String;
+	public  var TextFontName :String;
+	public  var TextFontSize :Float;
+	public  var TextFontBold :Boolean;
+	public  var TextFontItalic :Boolean;
+	public  var TextFontUnderline :Boolean;
+	public  var TextFontShadowX :Integer;
+	public  var TextFontShadowY :Integer;
+	public  var TextFontBlur :Integer;
+	public  var TextFontColorSel :Color;
+	public  var TextFontShadowColorSel :Color;
+	public  var TextFontColor :Color;
+	public  var TextFontShadowColor :Color;
+	public  var Prompt :String;
+	public  var PromptFontName :String;
+	public  var PromptFontSize :Float;
+	public  var PromptFontBold :Boolean;
+	public  var PromptFontItalic :Boolean;
+	public  var PromptFontUnderline :Boolean;
+	public  var PromptFontShadowX :Integer;
+	public  var PromptFontShadowY :Integer;
+	public  var PromptFontBlur :Integer;
+	public  var PromptFontColorSel :Color;
+	public  var PromptFontShadowColorSel :Color;
+	public  var PromptFontColor :Color;
+	public  var PromptFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUIComboBox
+
+class CocoUILabel : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __caption :CocoTextBlock;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var CaptionMultiline :Boolean;
+	public  var CaptionFontName :String;
+	public  var CaptionFontSize :Float;
+	public  var CaptionFontBold :Boolean;
+	public  var CaptionFontItalic :Boolean;
+	public  var CaptionFontUnderline :Boolean;
+	public  var CaptionFontShadowX :Integer;
+	public  var CaptionFontShadowY :Integer;
+	public  var CaptionFontBlur :Integer;
+	public  var CaptionFontColorSel :Color;
+	public  var CaptionFontShadowColorSel :Color;
+	public  var CaptionFontColor :Color;
+	public  var CaptionFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUILabel
+
+class CocoUINavBar : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __caption :CocoTextBlock;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var CaptionFontName :String;
+	public  var CaptionFontSize :Float;
+	public  var CaptionFontBold :Boolean;
+	public  var CaptionFontItalic :Boolean;
+	public  var CaptionFontUnderline :Boolean;
+	public  var CaptionFontShadowX :Integer;
+	public  var CaptionFontShadowY :Integer;
+	public  var CaptionFontBlur :Integer;
+	public  var CaptionFontColorSel :Color;
+	public  var CaptionFontShadowColorSel :Color;
+	public  var CaptionFontColor :Color;
+	public  var CaptionFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUINavBar
+
+class CocoUIPictureList : CocoUIButton
+{
+	public function Destructor() {}
+	public function Constructor(Name:String) {}
+	public  var __className :String;
+} //CocoUIPictureList
+
+class CocoUITabBar : CocoUIControl
+{
+	public function Composer() {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __className :String;
+} //CocoUITabBar
+
+class CocoUITextEdit : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function __CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __text :CocoTextBlock;
+	public  var __prompt :CocoTextBlock;
+	public  var Text :String;
+	public  var TextFontName :String;
+	public  var TextFontSize :Float;
+	public  var TextFontBold :Boolean;
+	public  var TextFontItalic :Boolean;
+	public  var TextFontUnderline :Boolean;
+	public  var TextFontShadowX :Integer;
+	public  var TextFontShadowY :Integer;
+	public  var TextFontBlur :Integer;
+	public  var TextFontColorSel :Color;
+	public  var TextFontShadowColorSel :Color;
+	public  var TextFontColor :Color;
+	public  var TextFontShadowColor :Color;
+	public  var Prompt :String;
+	public  var PromptFontName :String;
+	public  var PromptFontSize :Float;
+	public  var PromptFontBold :Boolean;
+	public  var PromptFontItalic :Boolean;
+	public  var PromptFontUnderline :Boolean;
+	public  var PromptFontShadowX :Integer;
+	public  var PromptFontShadowY :Integer;
+	public  var PromptFontBlur :Integer;
+	public  var PromptFontColorSel :Color;
+	public  var PromptFontShadowColorSel :Color;
+	public  var PromptFontColor :Color;
+	public  var PromptFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUITextEdit
+
+class TestDataStream
+{
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var __className :String;
-} //Shapes
+} //TestDataStream
 
-class Shape
+class TestOutsourcer
 {
-	public function toFloat32Array() :Float32Array {}
-	public function toB2PolygonShape() :b2PolygonShape {}
+	public function work() {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public  var Vertices :Array<CocoVector>;
 	public  var __className :String;
-} //Shape
+} //TestOutsourcer
 
-class Polygon : Shape
+class TestIntegrator
 {
 	public function Destructor() {}
-	public function Constructor(v:Float32Array) {}
+	public function Constructor() {}
+	private function work() {}
+	private  var delegator :TestOutsourcer;
 	public  var __className :String;
-} //Polygon
+} //TestIntegrator
 
-class Sprite : CocoClip
-{
-	public function prepare(scene:CocoScene) {}
-	public function tick(time:Time) {}
-	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
-	public function collidesWith(sprite:Sprite) :Boolean {}
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var EnablePhysics :Boolean;
-	public  var BodyType :b2BodyType;
-	public  var PhysicsDensity :Float;
-	public  var PhysicsRestitution :Float;
-	public  var PhysicsFriction :Float;
-	public  var CollisionShapes :Shapes;
-	public  var body :b2Body;
-	public  var __className :String;
-} //Sprite
-
-class BonusSprite : Sprite
+class TestIntegratorClient
 {
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
+	public function Constructor() {}
+	private  var integrator :TestIntegrator;
 	public  var __className :String;
-} //BonusSprite
+} //TestIntegratorClient
 
-class BulletSprite : Sprite
+class TestHTTP
 {
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
+	public function Constructor() {}
 	public  var __className :String;
-} //BulletSprite
+} //TestHTTP
 
-class CarrierSprite : Sprite
+class ITest1
 {
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //CarrierSprite
+	public function foo() {}
+} //ITest1
 
-class EnemySprite : Sprite
+class ITest2 : ITest1
 {
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //EnemySprite
+	public function goo() {}
+} //ITest2
 
-class MazeSprite : Sprite
+class ITest3
 {
-	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
-	public  var __className :String;
-} //MazeSprite
+	public function zoo() {}
+} //ITest3
 
-class PlatformSprite : Sprite
+class ClassTestInterfaces
 {
+	public function foo() {}
+	public function goo() {}
+	public function zoo() {}
+	public function interface_test1(obj:ITest1) {}
+	public function interface_test2(obj:ITest2) {}
+	public function interface_test3(obj:ITest3) {}
+	public function interface_class(obj:ClassTestInterfaces) {}
+	public function interface_tests() {}
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
+	public function Constructor() {}
 	public  var __className :String;
-} //PlatformSprite
+} //ClassTestInterfaces
 
-class PlayerSprite : Sprite
+class TestPublishedStruct
+{
+	public var pString :String;
+	public var pInteger :Integer;
+	public var pFloat :Float;
+	public var pCocoClip :CocoClip;
+	public var pTestPublished :TestPublished;
+} //TestPublishedStruct
+
+class TestPublished : CocoClip
 {
 	public function Destructor() {}
 	public function Constructor(image:CocoImage) {}
+	public  var pString :String;
+	public  var pInteger :Integer;
+	public  var pFloat :Float;
+	public  var pStruct :TestPublishedStruct;
+	public  var pCocoClip :CocoClip;
+	public  var pTestPublished :TestPublished;
+	public  var pArrayInteger :Array<Integer>;
+	public  var pArrayCocoClip :Array<CocoClip>;
 	public  var __className :String;
-} //PlayerSprite
+} //TestPublished
 
-class Ladder : CocoClip
+class TestPublishedDerived : TestPublished
 {
 	public function Destructor() {}
 	public function Constructor(image:CocoImage) {}
+	public  var mString :String;
+	public  var mInteger :Integer;
+	public  var mFloat :Float;
+	public  var mStruct :TestPublishedStruct;
+	public  var mCocoClip :CocoClip;
+	public  var mTestPublished :TestPublished;
+	public  var mArrayInteger :Array<Integer>;
+	public  var mArrayCocoClip :Array<CocoClip>;
 	public  var __className :String;
-} //Ladder
+} //TestPublishedDerived
 
-class Trigger : CocoClip
+class Class1
+{
+	public function test_virtual() {}
+	public function test() {}
+	public function public_static_function(b:String) :String {}
+	private function private_static_function(b:String) :String {}
+	protected function protected_static_function(b:String) :String {}
+	public function public_function(b:String) :String {}
+	private function private_function(b:String) :String {}
+	protected function protected_function(b:String) :String {}
+	public function public_overload() :String {}
+	public function public_overload$1(arg:String) :String {}
+	public function public_overload$2(arg1:String, arg2:String) :String {}
+	private function private_overload() :String {}
+	private function private_overload$1(arg:String) :String {}
+	private function private_overload$2(arg1:String, arg2:String) :String {}
+	protected function protected_overload() :String {}
+	protected function protected_overload$1(arg:String) :String {}
+	protected function protected_overload$2(arg1:String, arg2:String) :String {}
+	public function Destructor() {}
+	public function Constructor(arg1:String, arg2:String) {}
+	public  var public_var :String;
+	private  var private_var :String;
+	protected  var protected_var :String;
+	public  var public_const :String;
+	private  var private_const :String;
+	protected  var protected_const :String;
+	public static  var static_public_var :String;
+	private static  var static_private_var :String;
+	protected static  var static_protected_var :String;
+	private  var __public_property :String;
+	private  var __private_property :String;
+	private  var __protected_property :String;
+	private static  var __public_static_property :String;
+	private static  var __private_static_property :String;
+	private static  var __protected_static_property :String;
+	public var public_state :State;
+	private var private_state :State;
+	protected var protected_state :State;
+	public  var public_property :String;
+	private  var private_property :String;
+	protected  var protected_property :String;
+	public static  var public_static_property :String;
+	private static  var private_static_property :String;
+	protected static  var protected_static_property :String;
+	public  var __className :String;
+} //Class1
+
+class Class2 : Class1
+{
+	public function test() {}
+	public function cls2_public_function() :String {}
+	public function Destructor() {}
+	public function Constructor(arg1:String) {}
+	public  var x :String;
+	private  var y :String;
+	protected  var z :String;
+	public  var __className :String;
+	public static  var public_static_property :String;
+	private static  var private_static_property :String;
+	protected static  var protected_static_property :String;
+} //Class2
+
+class Class3 : Class2
+{
+	public function test_virtual() {}
+	public function test() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+	public static  var public_static_property :String;
+	private static  var private_static_property :String;
+	protected static  var protected_static_property :String;
+} //Class3
+
+class TestSelf1
+{
+	public function save_this() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var saved :Object;
+	public  var __className :String;
+} //TestSelf1
+
+class TestSelf2 : TestSelf1
 {
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
+	public function Constructor() {}
 	public  var __className :String;
-} //Trigger
+} //TestSelf2
 
-class Weapon : CocoClip
+class TestSelf3 : TestSelf2
 {
 	public function Destructor() {}
-	public function Constructor(image:CocoImage) {}
+	public function Constructor() {}
 	public  var __className :String;
-} //Weapon
+} //TestSelf3
+
+class TestThis
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //TestThis
 
 class GameEngine : CocoEngine
 {
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var scene :CocoScene;
-	public var STATE_GAME :State;
+	public  var app :CocoAppController;
+	public var STATE_START_APP :State;
 	public  var __className :String;
 } //GameEngine
 
-class GameScreen : Stage
+class ReservationsForm : CocoUIFormView
+{
+	private function addLookup(Caption:String, FieldName:String, IsLookup:Boolean, IsComboBox:Boolean) {}
+	public function btnSubmit_OnClick(sender:CocoUIButton, e:CocoClipOnClickEvent) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String, scene:CocoScene) {}
+	private  var btnSubmit :CocoUIButton;
+	private  var btnDelete :CocoUIButton;
+	public  var __className :String;
+} //ReservationsForm
+
+class NewAnimation : CocoScene
 {
 	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
-} //GameScreen
+} //NewAnimation
 
