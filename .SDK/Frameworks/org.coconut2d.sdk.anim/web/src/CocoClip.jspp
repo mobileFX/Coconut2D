@@ -98,6 +98,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	public var __loopTime:Time;
 	public var __loops:Integer;
 	public var __currentSequenceStartTime:Time;
+	public var __pauseTicks:Integer;
 
 	// Bounding Box & Hit Test
 	public var __x:Float;
@@ -163,7 +164,8 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		__height						= 0.0;
 		__touch_start_time				= 0;
 		__touch_moved					= false;
-		__image = image;
+		__image 						= image;
+		__pauseTicks					= 0;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -346,6 +348,28 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		return arr;
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Append keyframes from current position to new position
+	public function moveTo(x:Float, y:Float, frames:Integer)
+	{
+		var frameIndex:Integer = __timeline.__lastKeyFrameIndex+1;
+
+		var kf:CocoKeyFrame = CocoTimeline.NewKeyFrame();
+		kf.frameIndex = frameIndex;
+		kf.x = __currentFrame.x;
+		kf.y = __currentFrame.y;
+		__timeline.addKeyFrame(kf);
+
+		kf = CocoTimeline.NewKeyFrame();
+		kf.frameIndex = frameIndex+frames;
+		kf.x = x;
+		kf.y = y;
+		kf.action = __scene.stop;
+		__timeline.addKeyFrame(kf);
+
+		__parent.gotoFrameByIndex(frameIndex,false);
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	private function normalize()
 	{
@@ -389,6 +413,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			if(FrameIndex==COCO_STOP_ON_CURRENT_FRAME)
 				FrameIndex = clip.__currentFrame ? clip.__currentFrame.frameIndex : 0;
 
+			clip.__pauseTicks = 0;
 			clip.__timeline.__paused = pause;
 			clip.__timeline.__currentFrameIndex = -1;
 
@@ -400,8 +425,19 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function paused():Boolean
+	{
+		var clip:CocoClip;
+		for(var i:Integer = __children.size() - 1; i >= 0; i--)
+			if(!__children[i].__timeline.__paused)
+				return false;
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	private function __advanceTime()
 	{
+		__pauseTicks++;
 		if(__timeline.__paused) return;
 		__currentTime += engine.TICK_TIME;
 	}
@@ -561,20 +597,25 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 				var deviceMessage:DEVICE_MESSAGE = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK);
 				if(deviceMessage && !deviceMessage.handled)
 				{
-		   	        var x:Float = (deviceMessage.x0 - ctx.getWidth() / 2.0) / scene.__view_scale;
-					var y:Float = (deviceMessage.y0 - ctx.getHeight() / 2.0) / scene.__view_scale;
+		   	        var x:Float = scene.worldX(deviceMessage.x0);
+					var y:Float = scene.worldY(deviceMessage.y0);
 
 					// Point in quad?
 					if(hitTest(x,y))
 		   	        {
+
+		   	        	// We need the same x,y regardless of view port and screen aspect ratio.
+			 			x = scene.viewX(x);
+			 			y = scene.viewY(y);
+
 		   	        	//trace("hit: " + __instanceName );
 		   	        	switch(deviceMessage.type)
 		   	        	{
 						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START:
 							__touch_start_time = engine.__clock;
-							__touch_start_point.x = deviceMessage.x0;
-							__touch_start_point.y = deviceMessage.y0;
-							dispatchEvent(this.OnTouchStart, deviceMessage.x0, deviceMessage.y0);
+							__touch_start_point.x = x;
+							__touch_start_point.y = y;
+							dispatchEvent(this.OnTouchStart, x, y);
 							if(this.OnTouchStart.stopPropagation)
 							{
 								deviceMessage.handled = true;
@@ -582,7 +623,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 							break;
 
 						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE:
-							dispatchEvent(this.OnTouchMove, deviceMessage.x0, deviceMessage.y0);
+							dispatchEvent(this.OnTouchMove, x, y);
 							if(this.OnTouchMove.stopPropagation)
 							{
 								deviceMessage.handled = true;
@@ -590,12 +631,12 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 							break;
 
 						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END:
-							dispatchEvent(this.OnTouchEnd, deviceMessage.x0, deviceMessage.y0);
+							dispatchEvent(this.OnTouchEnd, x, y);
 							if(this.OnTouchEnd.stopPropagation)
 							{
 								deviceMessage.handled = true;
 							}
-							else if(Math.abs(__touch_start_point.x-deviceMessage.x0)<COCO_CONTROL_MOVE_SNAP_PIXELS && Math.abs(__touch_start_point.y-deviceMessage.y0)<COCO_CONTROL_MOVE_SNAP_PIXELS)
+							else if(Math.abs(__touch_start_point.x-x)<COCO_CONTROL_MOVE_SNAP_PIXELS && Math.abs(__touch_start_point.y-y)<COCO_CONTROL_MOVE_SNAP_PIXELS)
 							{
 								// If the clip hasn't moved significantly, then it is a click
 								trace("click: " + __instanceName);

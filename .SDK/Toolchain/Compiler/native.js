@@ -235,15 +235,22 @@ function CompilerCppPlugin(compiler)
 				// ========================================================================
 
 				var local_handler = "dispatchEvent(CocoEvent* Event)";
-				HPP.push("virtual void " + local_handler + ";");
 
 				if(!hasDispIds)
 				{
-					CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-					CPP.push("void " + ast.name + "::" + local_handler + "\n{}");
+					if(ast.name=="CocoClip")
+					{
+						HPP.push("virtual void " + local_handler + ";");
+
+						CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
+						CPP.push("void " + ast.name + "::" + local_handler + "\n{");
+						CPP.push("}");
+					}
 				}
 				else
 				{
+					HPP.push("virtual void " + local_handler + ";");
+
 					CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 					CPP.push("void " + ast.name + "::" + local_handler + "\n{");
 
@@ -971,8 +978,8 @@ function CompilerCppPlugin(compiler)
 				}
 				else
 				{
-					_this.NewWarning("Untyped array initialization, defaulting to Array<Integer>", ast);
-					vartype = "Array<Integer>";
+					_this.NewWarning("Untyped array initialization, defaulting to Array<Float>", ast);
+					vartype = "Array<Float>";
 					subtype = _this.getSubType(vartype);
 				}
 			}
@@ -1109,6 +1116,14 @@ function CompilerCppPlugin(compiler)
 
 			var type1 = _this.getTypeName(ast[0]);
 			var type2 = _this.getTypeName(ast[1]);
+
+			if(type1=="CocoAction" && type2!="Null" && type2!="CocoAction")
+			{
+				var idf = ast[1].type==jsdef.DOT ? ast[1].identifier_last : ast[1];
+				CPP.push("&" + idf.symbol.scope.className + "::" + idf.symbol.name);
+				break;
+			}
+
 			if(_this.secondPass && type1 && type2 && type1!=type2 && type1!="Array<Object>" && type2!="Array<Object>" && type1.indexOf("<")!=-1 && type2.indexOf("<")!=-1)
 			{
 				var stype1 = _this.getSubType(type1);

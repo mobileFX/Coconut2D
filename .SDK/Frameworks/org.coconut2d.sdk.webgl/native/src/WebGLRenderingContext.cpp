@@ -54,6 +54,13 @@ void WebGLRenderingContext::blendFunc(GLenum sfactor, GLenum dfactor)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+void WebGLRenderingContext::blendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+{
+	glBlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
+	ASSERT_GL();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void WebGLRenderingContext::bufferData(GLenum target, ArrayBufferView* data, GLenum usage)
 {
 	assert(data);
@@ -654,6 +661,7 @@ void WebGLRenderingContext::vertexAttribPointer(GLuint index, GLint size, GLenum
 	glVertexAttribPointer(index, size, type, normalized, stride, reinterpret_cast<GLvoid*>(offset));
 	ASSERT_GL();
 }
+
 
 /*
 ////////////////////////////////////////////////////////////////////////////////////////////////////

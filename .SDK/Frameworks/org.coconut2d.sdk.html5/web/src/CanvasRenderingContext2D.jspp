@@ -579,11 +579,21 @@ class CanvasRenderingContext2D
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawImage(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)
 	{
-		var scaleW:Float = dw / sw;
-		var scaleH:Float = dh / sh;
+		if(!image) return;
+
+		var img_width:Float  = image.width;
+		var img_height:Float = image.height;
+		var canvas_width:Float = canvas.width;
+		var canvas_height:Float = canvas.height;
 
 		var src:Uint8Array = image.__imageData.data;
-		var data:Uint8Array = canvas.__imageData.data;
+		var src_len:Integer = image.__imageData.data.length;
+
+		var dst:Uint8Array = canvas.__imageData.data;
+		var dst_len:Integer = canvas.__imageData.data.length;
+
+		var scaleW:Float = dw / sw;
+		var scaleH:Float = dh / sh;
 
 		var dMinX:Integer = Math.round(dx);
 		var dMinY:Integer = Math.round(dy);
@@ -594,15 +604,25 @@ class CanvasRenderingContext2D
 		{
 			for(var y:Integer = dMinY; y < dMaxY; y++)
 			{
-				var dIdx:Integer = ((__m12 * x + __m22 * y + __dy) * canvas.__imageData.width + (__m11 * x + __m21 * y + __dx)) * 4;
-				var sIdx:Integer = ((sy + Math.round(Float(y - dMinY) / scaleH)) * image.__imageData.width + sx + Math.round(Float(x - dMinX) / scaleW)) * 4; // Nearest interpolation
+				var dIdx:Integer = ((__m12 * x + __m22 * y + __dy) * canvas_width + (__m11 * x + __m21 * y + __dx)) * 4;
+				var sIdx:Integer = ((sy + Math.round(Float(y - dMinY) / scaleH)) * img_width + sx + Math.round(Float(x - dMinX) / scaleW)) * 4; // Nearest interpolation
 
-				if(dIdx < canvas.__imageData.data.length && sIdx < image.__imageData.data.length)
+				if(dIdx>=0 && (dIdx+3)<dst_len && sIdx>=0 && (sIdx+3)<src_len)
 				{
-					data[dIdx + 0] = src[sIdx + 3] * src[sIdx + 0] / 255.0 + data[dIdx + 3] * data[dIdx + 0] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
-					data[dIdx + 1] = src[sIdx + 3] * src[sIdx + 1] / 255.0 + data[dIdx + 3] * data[dIdx + 1] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
-					data[dIdx + 2] = src[sIdx + 3] * src[sIdx + 2] / 255.0 + data[dIdx + 3] * data[dIdx + 2] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
-					data[dIdx + 3] = src[sIdx + 3] + data[dIdx + 3] * (1.0 - src[sIdx + 3] / 255.0);
+					var sr:Integer = src[sIdx + 0];
+					var sg:Integer = src[sIdx + 1];
+					var sb:Integer = src[sIdx + 2];
+					var sa:Integer = src[sIdx + 3];
+
+					var dr:Integer = dst[sIdx + 0];
+					var dg:Integer = dst[sIdx + 1];
+					var db:Integer = dst[sIdx + 2];
+					var da:Integer = dst[sIdx + 3];
+
+					dst[dIdx + 0] = sa * sr / 255.0 + da * dr / 255.0 * (1.0 - sa / 255.0);
+					dst[dIdx + 1] = sa * sg / 255.0 + da * dg / 255.0 * (1.0 - sa / 255.0);
+					dst[dIdx + 2] = sa * sb / 255.0 + da * db / 255.0 * (1.0 - sa / 255.0);
+					dst[dIdx + 3] = sa + da * (1.0 - sa / 255.0);
 				}
 			}
 		}

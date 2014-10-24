@@ -4916,6 +4916,14 @@ public CocoScene::gotoAndPlayByIndex(FrameIndex:Integer)" image="35"/>
 public CocoScene::gotoAndStopyByIndex(FrameIndex:Integer)" image="35"/>
 		<member name="stop" proto="stop()" help="stop is member function of class CocoScene
 public CocoScene::stop()" image="35"/>
+		<member name="worldX" proto="worldX(deviceX:Float) :Float" help="worldX is member function of class CocoScene
+public CocoScene::worldX(deviceX:Float) :Float" image="35"/>
+		<member name="worldY" proto="worldY(deviceY:Float) :Float" help="worldY is member function of class CocoScene
+public CocoScene::worldY(deviceY:Float) :Float" image="35"/>
+		<member name="viewX" proto="viewX(worldX:Float) :Float" help="viewX is member function of class CocoScene
+public CocoScene::viewX(worldX:Float) :Float" image="35"/>
+		<member name="viewY" proto="viewY(worldY:Float) :Float" help="viewY is member function of class CocoScene
+public CocoScene::viewY(worldY:Float) :Float" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoScene
 public virtual CocoScene::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoScene
@@ -4942,6 +4950,8 @@ public CocoScene::__levelParents:Array&lt;CocoClip&gt;" image="1"/>
 public CocoScene::__ready:Boolean" image="34"/>
 		<member name="__finished" proto="__finished:Boolean" help="__finished is member var of class CocoScene
 public CocoScene::__finished:Boolean" image="34"/>
+		<member name="m_ctx" proto="m_ctx:ICocoRenderContext" help="m_ctx is member var of class CocoScene
+private CocoScene::m_ctx:ICocoRenderContext" image="29"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoScene
 public CocoScene::__className:String" image="13"/>
 	</memberlist>
@@ -4985,6 +4995,10 @@ public CocoTimeLabel::name:String" image="34"/>
 public CocoTimeLabel::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoTimeline">
+		<member name="NewKeyFrame" proto="NewKeyFrame() :CocoKeyFrame" help="NewKeyFrame is member function of class CocoTimeline
+public static CocoTimeline::NewKeyFrame() :CocoKeyFrame" image="35"/>
+		<member name="CloneKeyFrame" proto="CloneKeyFrame(F:CocoKeyFrame, exact:Boolean) :CocoKeyFrame" help="CloneKeyFrame is member function of class CocoTimeline
+public static CocoTimeline::CloneKeyFrame(F:CocoKeyFrame, exact:Boolean) :CocoKeyFrame" image="35"/>
 		<member name="prepare" proto="prepare(scene:CocoScene, clip:CocoClip)" help="prepare is member function of class CocoTimeline
 public CocoTimeline::prepare(scene:CocoScene, clip:CocoClip)" image="35"/>
 		<member name="clear" proto="clear()" help="clear is member function of class CocoTimeline
@@ -5019,8 +5033,6 @@ public CocoTimeline::findKeyFrameBeforeframeIndex(frameIndex:Float, inclusive:Bo
 public CocoTimeline::findKeyFrameAfterframeIndex(frameIndex:Float, inclusive:Boolean, excludeListIndex:Float) :CocoKeyFrame" image="35"/>
 		<member name="interpolate" proto="interpolate(frameIndex:Float) :CocoKeyFrame" help="interpolate is member function of class CocoTimeline
 public CocoTimeline::interpolate(frameIndex:Float) :CocoKeyFrame" image="35"/>
-		<member name="CloneKeyFrame" proto="CloneKeyFrame(F:CocoKeyFrame, exact:Boolean) :CocoKeyFrame" help="CloneKeyFrame is member function of class CocoTimeline
-private CocoTimeline::CloneKeyFrame(F:CocoKeyFrame, exact:Boolean) :CocoKeyFrame" image="30"/>
 		<member name="interpolate" proto="interpolate(F:CocoKeyFrame, F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float)" help="interpolate$1 is member function of class CocoTimeline
 private CocoTimeline::interpolate(F:CocoKeyFrame, F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float)" image="30"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoTimeline
@@ -5071,12 +5083,16 @@ public CocoClip::getChildByName(instanceName:String) :CocoClip" image="35"/>
 public CocoClip::getChildIndex(child:CocoClip) :Integer" image="35"/>
 		<member name="getChildrenByClassName" proto="getChildrenByClassName(className:String) :Array&lt;CocoClip&gt;" help="getChildrenByClassName is member function of class CocoClip
 public CocoClip::getChildrenByClassName(className:String) :Array&lt;CocoClip&gt;" image="35"/>
+		<member name="moveTo" proto="moveTo(x:Float, y:Float, frames:Integer)" help="moveTo is member function of class CocoClip
+public CocoClip::moveTo(x:Float, y:Float, frames:Integer)" image="35"/>
 		<member name="normalize" proto="normalize()" help="normalize is member function of class CocoClip
 private CocoClip::normalize()" image="30"/>
 		<member name="gotoFrameByName" proto="gotoFrameByName(LabelName:String, optional pause:Boolean) :Boolean" help="gotoFrameByName is member function of class CocoClip
 public CocoClip::gotoFrameByName(LabelName:String, optional pause:Boolean) :Boolean" image="35"/>
 		<member name="gotoFrameByIndex" proto="gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean" help="gotoFrameByIndex is member function of class CocoClip
 public CocoClip::gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean" image="35"/>
+		<member name="paused" proto="paused() :Boolean" help="paused is member function of class CocoClip
+public CocoClip::paused() :Boolean" image="35"/>
 		<member name="__advanceTime" proto="__advanceTime()" help="__advanceTime is member function of class CocoClip
 private CocoClip::__advanceTime()" image="30"/>
 		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoClip
@@ -5129,6 +5145,8 @@ public CocoClip::__loopTime:Time" image="34"/>
 public CocoClip::__loops:Integer" image="34"/>
 		<member name="__currentSequenceStartTime" proto="__currentSequenceStartTime:Time" help="__currentSequenceStartTime is member var of class CocoClip
 public CocoClip::__currentSequenceStartTime:Time" image="34"/>
+		<member name="__pauseTicks" proto="__pauseTicks:Integer" help="__pauseTicks is member var of class CocoClip
+public CocoClip::__pauseTicks:Integer" image="34"/>
 		<member name="__x" proto="__x:Float" help="__x is member var of class CocoClip
 public CocoClip::__x:Float" image="34"/>
 		<member name="__y" proto="__y:Float" help="__y is member var of class CocoClip
@@ -5273,6 +5291,10 @@ public CocoMaskClip::Rectangles:Array&lt;Float&gt;" image="1"/>
 public CocoMaskClip::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class ICocoImageRenderData">
+		<member name="castRenderDataGL" proto="castRenderDataGL() :CocoImageRenderDataGL" help="castRenderDataGL is member function of class ICocoImageRenderData
+public abstract virtual ICocoImageRenderData::castRenderDataGL() :CocoImageRenderDataGL" image="35"/>
+		<member name="castRenderData2D" proto="castRenderData2D() :CocoImageRenderData2D" help="castRenderData2D is member function of class ICocoImageRenderData
+public abstract virtual ICocoImageRenderData::castRenderData2D() :CocoImageRenderData2D" image="35"/>
 	</memberlist>
 	<memberlist name="Class ICocoRenderContext">
 		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class ICocoRenderContext
@@ -5301,6 +5323,8 @@ public abstract virtual ICocoRenderContext::drawMaskBegin()" image="35"/>
 public abstract virtual ICocoRenderContext::drawMaskEnd(invert:Boolean)" image="35"/>
 		<member name="drawBoundingBox" proto="drawBoundingBox(clip:CocoClip)" help="drawBoundingBox is member function of class ICocoRenderContext
 public abstract virtual ICocoRenderContext::drawBoundingBox(clip:CocoClip)" image="35"/>
+		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::getGLContext() :WebGLRenderingContext" image="35"/>
 	</memberlist>
 	<memberlist name="Class CocoPoint">
 		<member name="x" proto="x:Float" help="x:Float" image="34"/>
@@ -5473,14 +5497,22 @@ public CocoRenderContext::Constructor()" image="14"/>
 public CocoRenderContext::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoImageRenderData2D">
+		<member name="castRenderDataGL" proto="castRenderDataGL() :CocoImageRenderDataGL" help="castRenderDataGL is member function of class CocoImageRenderData2D
+public CocoImageRenderData2D::castRenderDataGL() :CocoImageRenderDataGL" image="35"/>
+		<member name="castRenderData2D" proto="castRenderData2D() :CocoImageRenderData2D" help="castRenderData2D is member function of class CocoImageRenderData2D
+public CocoImageRenderData2D::castRenderData2D() :CocoImageRenderData2D" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoImageRenderData2D
 public virtual CocoImageRenderData2D::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoImageRenderData2D
 public CocoImageRenderData2D::Constructor()" image="14"/>
+		<member name="imageData" proto="imageData:ImageData" help="imageData is member var of class CocoImageRenderData2D
+public CocoImageRenderData2D::imageData:ImageData" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoImageRenderData2D
 public CocoImageRenderData2D::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoRenderContext2D">
+		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class CocoRenderContext2D
+public CocoRenderContext2D::getGLContext() :WebGLRenderingContext" image="35"/>
 		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContext2D
 public CocoRenderContext2D::flush()" image="35"/>
 		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class CocoRenderContext2D
@@ -5521,10 +5553,16 @@ private CocoRenderContext2D::c2d:CanvasRenderingContext2D" image="29"/>
 public CocoRenderContext2D::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoImageRenderDataGL">
+		<member name="castRenderDataGL" proto="castRenderDataGL() :CocoImageRenderDataGL" help="castRenderDataGL is member function of class CocoImageRenderDataGL
+public CocoImageRenderDataGL::castRenderDataGL() :CocoImageRenderDataGL" image="35"/>
+		<member name="castRenderData2D" proto="castRenderData2D() :CocoImageRenderData2D" help="castRenderData2D is member function of class CocoImageRenderDataGL
+public CocoImageRenderDataGL::castRenderData2D() :CocoImageRenderData2D" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoImageRenderDataGL
 public virtual CocoImageRenderDataGL::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoImageRenderDataGL
 public CocoImageRenderDataGL::Constructor()" image="14"/>
+		<member name="gl" proto="gl:WebGLRenderingContext" help="gl is member var of class CocoImageRenderDataGL
+private CocoImageRenderDataGL::gl:WebGLRenderingContext" image="29"/>
 		<member name="texture" proto="texture:WebGLTexture" help="texture is member var of class CocoImageRenderDataGL
 public CocoImageRenderDataGL::texture:WebGLTexture" image="34"/>
 		<member name="buffer" proto="buffer:WebGLBuffer" help="buffer is member var of class CocoImageRenderDataGL
@@ -5537,6 +5575,8 @@ public CocoImageRenderDataGL::vertexCount:Integer" image="34"/>
 public CocoImageRenderDataGL::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoRenderContextGL">
+		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class CocoRenderContextGL
+public CocoRenderContextGL::getGLContext() :WebGLRenderingContext" image="35"/>
 		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContextGL
 public CocoRenderContextGL::flush()" image="35"/>
 		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class CocoRenderContextGL

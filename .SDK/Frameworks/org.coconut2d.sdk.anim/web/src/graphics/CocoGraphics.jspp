@@ -114,7 +114,7 @@ class CocoGraphics
 		var R:Integer = Integer((c >> 16) & 0xFF);
 		var G:Integer = Integer((c >> 8) & 0xFF);
 		var B:Integer = Integer((c & 0xFF));
-		var A:Integer = Integer((c >> 24) & 0xFF);
+		var A:Float = Integer((c >> 24) & 0xFF) / 255.0;
 		return "rgba(" + String(R) + "," + String(G) + "," + String(B) + "," + String(A) + ")";
 	}
 

@@ -25,17 +25,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-class CocoImageRenderData2D implements ICocoImageRenderData
-{
-	public function Constructor()
-	{
-	}
-
-	public function Destructor()
-	{
-	}
-}
-
 // ==================================================================================================================================
 //	    __________                 ____                 __          ______            __            __
 //	   /  _/ ____/___  _________  / __ \___  ____  ____/ /__  _____/ ____/___  ____  / /____  _  __/ /_
@@ -47,17 +36,23 @@ class CocoImageRenderData2D implements ICocoImageRenderData
 
 class CocoRenderContext2D implements ICocoRenderContext
 {
+	// Canvas 2D Rendering Context
+	private reference var c2d:CanvasRenderingContext2D;
+
+	// Matrix
 	private var __modelViewMatrix:CocoMatrix;
 	private var __projectionMatrix:CocoMatrix;
-	private reference var c2d:CanvasRenderingContext2D;
+	private var __viewportVector:CocoVector;
+
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function Constructor(ctx:CanvasRenderingContext2D)
  	{
  		c2d = ctx;
- 		__modelViewMatrix						= new CocoMatrix();
-		__modelViewMatrix.identity();
-		__projectionMatrix 						= new CocoMatrix();
+
+ 		__modelViewMatrix = new CocoMatrix();
+		__projectionMatrix = new CocoMatrix();
+		__viewportVector = new CocoVector();
  	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +60,13 @@ class CocoRenderContext2D implements ICocoRenderContext
  	{
  		delete __modelViewMatrix;
  		delete __projectionMatrix;
+ 		delete __viewportVector;
+ 	}
+
+ 	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function getGLContext():WebGLRenderingContext
+ 	{
+ 		return null;
  	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,18 +120,79 @@ class CocoRenderContext2D implements ICocoRenderContext
 		__projectionMatrix.identity();
 		__projectionMatrix.translate(c2d.canvas.width / 2.0, c2d.canvas.height / 2.0);
 		__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
+
+		__modelViewMatrix.identity();
+		__viewportVector.reset(-(Float(getWidth()) / 2.0) / scene.__view_scale, Float(getWidth()) / 2.0 / scene.__view_scale, Float(getHeight()) / 2.0 / scene.__view_scale, -(Float(getHeight()) / 2.0 / scene.__view_scale));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepareImage(img:CocoImage):ICocoImageRenderData
 	{
 		var data:CocoImageRenderData2D = new CocoImageRenderData2D();
+
+		var sImg:Image = img.image;
+		if(img.scaleX > 0.0 && img.scaleY > 0.0)
+		{
+			var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
+			canvas.width = Math.floor(img.image.naturalWidth * img.scaleX / img.pixelRatio);
+			canvas.height = Math.floor(img.image.naturalHeight * img.scaleY / img.pixelRatio);
+			trace("Scaling image to " + String(canvas.width) + "x" + String(canvas.height) + " (x" + String(img.scaleX / img.pixelRatio) + ", x" + String(img.scaleY / img.pixelRatio) + ", @" + String(img.pixelRatio) + "): " + img.symbolName);
+			var c2d:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+			c2d.drawImage(img.image, 0.0, 0.0, canvas.width, canvas.height);
+			sImg = new Image();
+			sImg.load(canvas.toDataURL());
+		}
+
+		var w2:Float = img.textureCellWidth / 2.0;
+		var h2:Float = img.textureCellHeight / 2.0;
+		var texData:Float32Array = null;
+
+		if(img.tileMap)
+		{
+			img.texSize = new Float32Array([img.tileWidth / img.image.naturalWidth, img.tileHeight / img.image.naturalHeight]);
+			var d:Array<Float> = new Array<Float>();
+			var tileCountX:Integer = img.tileMap[0];
+			var tileMapCols:Integer = img.tileMap[1];
+			var tileMapRows:Integer = img.tileMap[2];
+			var vCount:Integer = Math.min(tileMapCols, Integer(Math.ceil(img.textureCellWidth / img.tileWidth)));
+			var hCount:Integer = Math.min(tileMapRows, Integer(Math.ceil(img.textureCellHeight / img.tileHeight)));
+			var tileCount:Integer = 0;
+			var paddingSize:Float = img.pixelRatio;
+			for(var y:Integer = hCount; y--;)
+			{
+				for(var x:Integer = vCount; x--;)
+				{
+					var idx:Integer = img.tileMap[3 + y * tileMapCols + x];
+					if(idx == -1) continue;
+					var texX:Float = idx % tileCountX;
+					var texY:Float = Math.floor(idx / tileCountX);
+					texX += (2.0 * texX + 1.0) * paddingSize / img.tileWidth;
+					texY += (2.0 * texY + 1.0) * paddingSize / img.tileHeight;
+					d.push(texX); d.push(texY); d.push(0.0); d.push(0.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(0.0); d.push(1.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(1.0); d.push(1.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(0.0); d.push(0.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(1.0); d.push(1.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(1.0); d.push(0.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
+					++tileCount;
+				}
+			}
+			texData = new Float32Array(d);
+		}
+		else
+		{
+			img.texSize = new Float32Array([img.textureCellWidth / img.image.naturalWidth, img.textureCellHeight / img.image.naturalHeight]);
+			texData = new Float32Array([0.0, 0.0, 0.0, 0.0, -w2, -h2, 0.0, 0.0, 0.0, 1.0, -w2, h2, 0.0, 0.0, 1.0, 0.0, w2, -h2, 0.0, 0.0, 1.0, 1.0, w2, h2]);
+		}
+		delete texData;
+
 		return data;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
+		if(!image || !image.image) return;
 		c2d.setTransform(__projectionMatrix.__m.rc11, __projectionMatrix.__m.rc12, __projectionMatrix.__m.rc21, __projectionMatrix.__m.rc22, __projectionMatrix.__m.rc41, __projectionMatrix.__m.rc42);
 		c2d.transform(__modelViewMatrix.__m.rc11, __modelViewMatrix.__m.rc12, __modelViewMatrix.__m.rc21, __modelViewMatrix.__m.rc22, __modelViewMatrix.__m.rc41, __modelViewMatrix.__m.rc42);
 		var sx:Float = (((KF.flipH ? 1.0 : 0.0) + image.textureGrid[frame * 2 + 1]) * image.texSize[0]) * image.image.naturalWidth;

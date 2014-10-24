@@ -565,7 +565,7 @@ function CocoMake(command , params)
         // Build the static libraries for arm and x86
         trace("\nCalling Windows x86 make ...");
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
-        _this.DeleteFile(make_cmd);
+        //_this.DeleteFile(make_cmd);
 
         // Sanity check
         if(!fileExists(TARGET.TARGET_OUTPUT))

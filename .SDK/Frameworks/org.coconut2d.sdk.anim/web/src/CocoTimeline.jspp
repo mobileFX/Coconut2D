@@ -110,6 +110,52 @@ class CocoTimeline
 	public var __lastKeyFrameIndex:Integer;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function NewKeyFrame():CocoKeyFrame
+	{
+		var kf:CocoKeyFrame = new CocoKeyFrame();
+		kf.frameIndex			=-1;
+		kf.__frameIndex			= -1;
+		kf.frameInterpolation	= COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_MOTION_TWEEN;
+		kf.handleEvents			= false;
+		kf.visible				= true;
+		kf.filter				= 0;
+		kf.red					= 1;
+		kf.green				= 1;
+		kf.blue					= 1;
+		kf.alpha				= 1;
+		kf.x					= 0;
+		kf.y					= 0;
+		kf.pivotX				= 0;
+		kf.pivotY				= 0;
+		kf.scaleX				= 1;
+		kf.scaleY				= 1;
+		kf.rotation				= 0;
+		kf.action				= null;
+		kf.nextState			= null;
+		kf.audio				= null;
+		kf.flipH				= false;
+		kf.flipV				= false;
+		kf.spriteSequenceName	= "";
+		kf.__isCloned			= false;
+		kf.__Preserve			= false;
+		return kf;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function CloneKeyFrame(F:CocoKeyFrame, exact:Boolean) :CocoKeyFrame
+	{
+		var c:CocoKeyFrame = new CocoKeyFrame(F);
+		if(!exact)
+		{
+			c.action	= null;
+			c.nextState	= null;
+			c.audio		= null;
+		}
+		c.__isCloned = true;
+		return c;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
 		__firstKeyFrameIndex 		= 0;
@@ -402,7 +448,7 @@ class CocoTimeline
 
 	    	if(F1.frameIndex==iFrameIndex)
 	    	{
-	    		F1 = CloneKeyFrame(F1, exact);
+	    		F1 = CocoTimeline.CloneKeyFrame(F1, exact);
 	    		F1.__frameIndex = frameIndex;
 	    		return F1;
 	    	}
@@ -411,14 +457,14 @@ class CocoTimeline
 	        {
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO:
 
-	            F = CloneKeyFrame(F1, exact);
+	            F = CocoTimeline.CloneKeyFrame(F1, exact);
 	            F.frameIndex = iFrameIndex;
 	            F.__frameIndex = frameIndex;
 	            return F;
 
 	        case COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE:
 
-	            F = CloneKeyFrame(F1, exact);
+	            F = CocoTimeline.CloneKeyFrame(F1, exact);
 	            F.frameIndex = iFrameIndex;
 	            F.__frameIndex = frameIndex;
 	            F.visible = false;
@@ -432,7 +478,7 @@ class CocoTimeline
 	            if(!F2)
 	            {
 	                // Fallback to echo
-	                F = CloneKeyFrame(F1, exact);
+	                F = CocoTimeline.CloneKeyFrame(F1, exact);
 	                F.frameIndex = iFrameIndex;
 	                F.__frameIndex = frameIndex;
 	                return F;
@@ -440,7 +486,7 @@ class CocoTimeline
 	            else
 	            {
 	                // Interpolate between frames
-	                F = CloneKeyFrame(F1, exact);
+	                F = CocoTimeline.CloneKeyFrame(F1, exact);
 	                F.frameIndex = iFrameIndex;
 	                F.__frameIndex = frameIndex;
 	                s = (frameIndex - Float(F1.frameIndex)) / Float(F2.frameIndex - F1.frameIndex);
@@ -453,20 +499,6 @@ class CocoTimeline
 	        }
 	    }
 	    return null;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function CloneKeyFrame(F:CocoKeyFrame, exact:Boolean) :CocoKeyFrame
-	{
-		var c:CocoKeyFrame = new CocoKeyFrame(F);
-		if(!exact)
-		{
-			c.action	= null;
-			c.nextState	= null;
-			c.audio		= null;
-		}
-		c.__isCloned = true;
-		return c;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

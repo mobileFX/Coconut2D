@@ -91,6 +91,7 @@ public:
 	void bindBuffer(GLenum target, WebGLBuffer* buffer);
 	void bindTexture(GLenum target, WebGLTexture* texture);
 	void blendFunc(GLenum sfactor, GLenum dfactor);
+	void blendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
 	void bufferData(GLenum target, ArrayBuffer* data, GLenum usage);
 	void bufferData(GLenum target, ArrayBufferView* data, GLenum usage);
 	void bufferSubData(GLenum target, GLintptr offset, ArrayBuffer* data);

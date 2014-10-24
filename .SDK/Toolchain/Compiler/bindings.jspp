@@ -84,3 +84,23 @@ WebGLRenderingContext.prototype.getShaderParameter_boolean = function(shader, pn
 {
 	return this.getShaderParameter(shader, pname);
 }
+
+function show_stack()
+{
+	try
+	{
+		throw true;
+	}
+	catch(e)
+	{
+		var e = new Error();
+		trace(e.stack);
+	}
+}
+
+Object.defineProperty(HTMLCanvasElement.prototype, "getImage", { value: function()
+{
+	var img = new Image();
+	img.src = this.toDataURL();
+	return img;
+}});

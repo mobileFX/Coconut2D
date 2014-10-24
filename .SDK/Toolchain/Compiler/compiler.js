@@ -4483,7 +4483,19 @@ function Compiler(ast)
 				{
 					_this.NewError("Invalid left-hand assignment", ast);
 				}
-			    _this.typeCheck(ast, _this.getTypeName(ast[0]), _this.getTypeName(ast[1]));
+
+				// Callback Function Assignment
+				if(ast[1].identifier_last && ast[1].identifier_last.symbol && ast[1].identifier_last.symbol.type==jsdef.FUNCTION)
+				{
+					var type1 = _this.getTypeName(ast[0]);
+				    _this.typeCheck(ast, type1, "CocoAction");
+				}
+				else
+				{
+					var type1 = _this.getTypeName(ast[0]);
+					var type2 = _this.getTypeName(ast[1]);
+				    _this.typeCheck(ast, type1, type2);
+				}
 			}
 			break;
 

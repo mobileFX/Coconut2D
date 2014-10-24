@@ -54,6 +54,8 @@ class CocoScene
 	public var __ready:Boolean;
 	public var __finished:Boolean;
 
+	private reference var m_ctx:ICocoRenderContext;
+
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -140,6 +142,8 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function prepare(ctx:ICocoRenderContext)
 	{
+		m_ctx = ctx;
+
 		if(__view_width > 0 && __view_height > 0)
 		{
 			__view_scale = Math.min( Float(ctx.getWidth()) / __view_width, Float(ctx.getHeight()) / __view_height);
@@ -242,4 +246,29 @@ class CocoScene
 		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
 		scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true);
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function worldX(deviceX:Float):Float
+	{
+		return (deviceX - m_ctx.getWidth() / 2.0) / __view_scale;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function worldY(deviceY:Float):Float
+	{
+		return (deviceY - m_ctx.getHeight() / 2.0) / __view_scale;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function viewX(worldX:Float):Float
+	{
+		return worldX + (m_ctx.getWidth()/2)/__view_scale-(((m_ctx.getWidth()/__view_scale)-__view_width)/2);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function viewY(worldY:Float):Float
+	{
+		return worldY + (m_ctx.getHeight()/2)/__view_scale-(((m_ctx.getHeight()/__view_scale)-__view_height)/2);
+	}
+
 }

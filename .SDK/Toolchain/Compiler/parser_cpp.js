@@ -19,8 +19,12 @@ function CPPParser()
 
 	var classes = {};
 
-	for(var item in makefile.Components.Frameworks)
+	// Get project framworks
+	var frameworks = makefile.Config.PROJECT_FRAMEWORKS.split(";");
+	for(item in makefile.Components.Frameworks)
 	{
+		if(frameworks.indexOf(item)==-1) continue;
+
 		var framework = makefile.Components.Frameworks[item];
 		if(framework.Type!="Emscripten Library") continue;
 
