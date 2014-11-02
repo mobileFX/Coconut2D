@@ -1,4 +1,7 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
  *
  * Copyright (C) 2013-2014 www.coconut2D.org
  *
@@ -31,9 +34,9 @@
 //	                                   /_/                  /_/
 // ==================================================================================================================================
 
-class CocoHttpRequest : CocoTickable
+class CocoHttpRequest
 {
-	private delegate var request:XMLHttpRequest;
+	public delegate var request:XMLHttpRequest;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -48,7 +51,13 @@ class CocoHttpRequest : CocoTickable
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function tick(time:Time)
+	public function Ready():Boolean
 	{
+		return request.status!=0;
+	}
+
+	public function Success():Boolean
+	{
+		return request.status==200;
 	}
 }

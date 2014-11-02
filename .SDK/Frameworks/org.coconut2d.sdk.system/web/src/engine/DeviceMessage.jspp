@@ -135,11 +135,19 @@ class HTMLEvent
 	public var clientY:Float;
 	public var touches:TouchList;
 	public var changedTouches:TouchList;
+	public var keyCode:Integer;
+	public var ctrlKey:Boolean;
+	public var altKey:Boolean;
+	public var shiftKey:Boolean;
 
 	public function Constructor()
 	{
 		type = "";
 		timestamp = 0;
+		keyCode = 0;
+		ctrlKey = false;
+		altKey = false;
+		shiftKey = false;
 		clientX = 0.0;
 		clientY = 0.0;
 		touches = new TouchList();
@@ -172,8 +180,11 @@ enum DEVICE_MESSAGE_ENUM
 	MESSAGE_TOUCH_MOVE					= 0x102,
 	MESSAGE_TOUCH_END					= 0x103,
 
-	MESSAGE_HTTP_MASK					= 0x200,
-	MESSAGE_HTTP_DONE					= 0x201
+	MESSAGE_KEY_DOWN					= 0x200,
+	MESSAGE_KEY_UP						= 0x201,
+
+	MESSAGE_HTTP_MASK					= 0x500,
+	MESSAGE_HTTP_DONE					= 0x501
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,4 +205,8 @@ struct DEVICE_MESSAGE
 	y2:Float;
 	y3:Float;
 	y4:Float;
+	keyCode:Integer;
+	ctrlKey:Boolean;
+	altKey:Boolean;
+	shiftKey:Boolean;
 }

@@ -98,6 +98,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	public var __loopTime:Time;
 	public var __loops:Integer;
 	public var __currentSequenceStartTime:Time;
+	public var __currentSequenceFrameIndex:Integer;
 	public var __pauseTicks:Integer;
 
 	// Bounding Box & Hit Test
@@ -127,6 +128,8 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	public event OnTouchStart(x:Float, y:Float);
 	public event OnTouchMove(x:Float, y:Float);
 	public event OnTouchEnd(x:Float, y:Float);
+	public event OnAnimationSequenceBegin(sequence:CocoSequence);
+	public event OnAnimationSequenceEnd(sequence:CocoSequence);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
@@ -137,6 +140,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		__parent						= null;
 		__currentTime					= 0.0;
 		__currentSequenceStartTime		= 0.0;
+		__currentSequenceFrameIndex		= 0;
 		__currentFrame					= null;
 		__hasBoundingBox				= false;
 		__vABS_TOP_LEFT					= new CocoVector();
@@ -455,7 +459,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		__scene = scene;
 
 		var mv:CocoMatrix = ctx.getModelViewMatrix();
-		var __pixelRatioScale:Float = 0;
 
 		// Calculate the parent timeline duration in time from its children (which are siblings to this clip)
 		var parentClipsDuration:Time = parentClip ? parentClip.__childWithMaxTimelineDuration.__timeline.__durationInTime : __timeline.__singleFrameDurationTime;
@@ -509,16 +512,22 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		// RENDER!
         // =============================================================================================================
 
-		__pixelRatioScale = window.devicePixelRatio;
-
 		if(__image)
 		{
-			__pixelRatioScale = scene.__view_pixel_ratio / __image.pixelRatio;
-			__currentFrame.scaleX *= __pixelRatioScale;
-			__currentFrame.scaleY *= __pixelRatioScale;
+			if(!__image.renderData && __image.image && __image.image.complete)
+			{
+				debugger;
+				__image.renderData = engine.__ctx.prepareImage(__image);
+			}
+
+			// Failed to create image render data or image is not ready yet.
+			if(!__image.renderData)
+			{
+				__advanceTime();
+				return;
+			}
+
 			apply(__currentFrame, mv);
-			__currentFrame.scaleX /= __pixelRatioScale;
-			__currentFrame.scaleY /= __pixelRatioScale;
 
 			// Get sequence name, first from current clip and if not found from parent clip.
 			var sequenceName:String = __currentFrame.spriteSequenceName;
@@ -528,20 +537,28 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			if(!sequenceName)
 			{
 				__currentSequence = null;
+				__currentSequenceFrameIndex = -1;
 			}
 			else if(!__currentSequence || __currentSequence.name!=sequenceName)
 			{
-				//trace("Loading sprite animation sequence: " + __clipPath + " -> " + sequenceName);
 				__currentSequence = __image.getSequence(sequenceName);
 				__currentSequenceStartTime = __currentTime;
+				__currentSequenceFrameIndex = -1;
+				dispatchEvent(this.OnAnimationSequenceBegin, __currentSequence);
 			}
 
 			if(__image.isSpriteSheet && __currentSequence)
 			{
 				// Render animation sequence.
-				var sequenceFrameIndex:Integer = __timeline.__paused ? 0 : Math.floor((__currentTime-__currentSequenceStartTime) / (1000.0 / scene.__fps)) % __currentSequence.frames.size();
+				var sequenceFPS:Float = __currentFrame.spriteSequenceFPS>0 ? __currentFrame.spriteSequenceFPS : scene.__fps;
+				var sequenceFrameIndex:Integer = __timeline.__paused ? 0 : Math.floor((__currentTime-__currentSequenceStartTime) / (1000.0 / sequenceFPS)) % __currentSequence.frames.size();
 				var frame:Integer = __currentSequence.frames[sequenceFrameIndex];
 				ctx.drawFrame(scene, __image, frame, __currentFrame);
+				if(__currentSequenceFrameIndex!=-1 && sequenceFrameIndex<__currentSequenceFrameIndex)
+				{
+					dispatchEvent(this.OnAnimationSequenceEnd, __currentSequence);
+				}
+				__currentSequenceFrameIndex = sequenceFrameIndex;
 			}
 			else
 			{
@@ -578,11 +595,14 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			{
 				// Calculate bounding box from explicit width x height (eg. skin, CocoUIView, etc.)
 				if(__width > 0 || __height > 0)
-					initBoundingBoxFromRect(ctx, mv, __width/2, __height/2, __pixelRatioScale);
+					initBoundingBoxFromRect(ctx, mv, __width/2, __height/2);
 
 				// Calculate bounding box vertices
 				else if(__image)
-					initBoundingBoxFromRect(ctx, mv, __image.textureCellWidth/2, __image.textureCellHeight/2, __pixelRatioScale);
+				{
+					var s:Float = (scene.__view_pixel_ratio/__image.pixelRatio)/2.0;
+					initBoundingBoxFromRect(ctx, mv, __image.textureCellWidth*s, __image.textureCellHeight*s);
+				}
 
 				// Calculate bounding box from children
 				else if(__children.size()>0)
@@ -639,7 +659,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 							else if(Math.abs(__touch_start_point.x-x)<COCO_CONTROL_MOVE_SNAP_PIXELS && Math.abs(__touch_start_point.y-y)<COCO_CONTROL_MOVE_SNAP_PIXELS)
 							{
 								// If the clip hasn't moved significantly, then it is a click
-								trace("click: " + __instanceName);
+								//trace("click: " + __instanceName);
 								dispatchEvent(this.OnClick);
 								engine.__pushClicked(this);
 							}
@@ -653,6 +673,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	        // =============================================================================================================
 			// Execute KeyFrame
 	        // =============================================================================================================
+
 			if(!__timeline.__paused)
 			{
 				if(__currentFrame.action)
@@ -721,10 +742,10 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	protected function apply(F:CocoKeyFrame, matrix:CocoMatrix)
 	{
-		if(F.x!=0 || F.y!=0) matrix.translate(F.x, F.y);
-		if(F.rotation!=0) matrix.rotateZ(F.rotation * RADIANS);
-		if(F.scaleX!=1 ||F.scaleY!=1) matrix.scale(F.scaleX, F.scaleY);
-		if(F.pivotX!=0 || F.pivotY!=0) matrix.translate(-F.pivotX, -F.pivotY);
+	 	if(F.x!=0 || F.y!=0) 			matrix.translate(F.x, F.y);
+	 	if(F.scaleX!=1 ||F.scaleY!=1) 	matrix.scale(F.scaleX, F.scaleY);
+	 	if(F.rotation!=0) 				matrix.rotateZ(F.rotation * RADIANS);
+	 	if(F.pivotX!=0 || F.pivotY!=0) 	matrix.translate(-F.pivotX, -F.pivotY);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -735,17 +756,11 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)
+	public virtual function initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float)
 	{
 		__mBBox.identity();
 
-		__currentFrame.scaleX *= __pixelRatioScale;
-		__currentFrame.scaleY *= __pixelRatioScale;
 		apply(__currentFrame,__mBBox);
-		__currentFrame.scaleX /= __pixelRatioScale;
-		__currentFrame.scaleY /= __pixelRatioScale;
-
-		//__currentFrame.apply(__mBBox);
 
 		__vBBoxVrtx.reset(-W2, -H2, 0, 1);
 		__vREL_TOP_LEFT	= __mBBox.multiplyByVector(__vBBoxVrtx);
@@ -844,17 +859,27 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 
 class CocoSelfTexturedClip : CocoClip
 {
+	// IMPORTANT //
+
+	// Self-textured Clips have the ability to self-generate a texture.
+	// You must ALWAYS assume that the generated image will take some
+	// time to load either from the internet or from base64 data, so
+	// we need to use double-buffering.
+
 	public var InvalidTexture:Boolean;
+	protected var buffer:CocoImage;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		InvalidTexture=true;
+		buffer = null;
+		InvalidTexture = true;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete buffer;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -867,9 +892,44 @@ class CocoSelfTexturedClip : CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
 	{
+		// If the self-textured object is invalid, we call prepare() to regenerate the texture.
 		if(InvalidTexture)
 		{
 			prepare(scene);
+		}
+
+		// If there is a worker buffer image available we will try to swap it with clip's __image.
+		if(buffer)
+		{
+			// First chech if the worker buffer has render data.
+			// That means that it has a valid texture.
+			if(buffer.renderData)
+			{
+				// Delete the old image (to release texture from GPU)
+				delete __image;
+
+				// Swap images
+				__image = buffer;
+
+				// Make sure the worker buffer is null.
+				buffer = null;
+			}
+
+			// The worker buffer does not have render data.
+			// Check if the buffer's HTML Image has completed loading.
+			else if(buffer.image.complete)
+			{
+				// OK, the HTML image is loaded. Now we need
+				// to create the Texture and render data for it.
+				buffer.renderData = ctx.prepareImage(buffer);
+
+				if(ctx.getGLContext())
+				{
+					// Since the image is texturized and its copy exists
+					// on the GPU, we can safely delete the HTML image
+					delete buffer.image;
+				}
+			}
 		}
 
 		super.paint;
@@ -900,55 +960,55 @@ class CocoTextClip : CocoSelfTexturedClip
 	published property Text
 	{
 		function get():String 		{ return m_Text; }
-		function set(v:String)		{ m_Text = v; InvalidTexture = true; }
+		function set(v:String)		{ if(m_Text!=v) { m_Text = v; InvalidTexture = true; } }
 	}
 
 	published property FontFamily
 	{
 		function get():String 		{ return m_FontFamily; }
-		function set(v:String)		{ m_FontFamily = v; InvalidTexture = true; }
+		function set(v:String)		{ if(m_FontFamily!=v) { m_FontFamily = v; InvalidTexture = true; } }
 	}
 
 	published property FontSizePixels
 	{
 		function get():Integer		{ return m_FontSizePixels; }
-		function set(v:Integer)		{ m_FontSizePixels = v; InvalidTexture = true; }
+		function set(v:Integer)		{ if(m_FontSizePixels!=v) { m_FontSizePixels = v; InvalidTexture = true; } }
 	}
 
 	published property FontBold
 	{
 		function get():Boolean		{ return m_FontBold; }
-		function set(v:Boolean)		{ m_FontBold = v; InvalidTexture = true; }
+		function set(v:Boolean)		{ if(m_FontBold!=v) { m_FontBold = v; InvalidTexture = true; } }
 	}
 
 	published property FontItalic
 	{
 		function get():Boolean		{ return m_FontItalic; }
-		function set(v:Boolean)		{ m_FontItalic = v; InvalidTexture = true; }
+		function set(v:Boolean)		{ if(m_FontItalic!=v) { m_FontItalic = v; InvalidTexture = true; } }
 	}
 
 	published property FontUnderline
 	{
 		function get():Boolean		{ return m_FontUnderline; }
-		function set(v:Boolean)		{ m_FontUnderline = v; InvalidTexture = true; }
+		function set(v:Boolean)		{ if(m_FontUnderline!=v) { m_FontUnderline = v; InvalidTexture = true; } }
 	}
 
 	published property FontColor
 	{
 		function get():Color		{ return m_FontColor; }
-		function set(v:Color)		{ m_FontColor = v; InvalidTexture = true; }
+		function set(v:Color)		{ if(m_FontColor!=v) { m_FontColor = v; InvalidTexture = true; } }
 	}
 
 	published property TextHorizAlign
 	{
 		function get():COCO_TEXT_ALIGN_ENUM		{ return m_TextHorizAlign; }
-		function set(v:COCO_TEXT_ALIGN_ENUM)	{ m_TextHorizAlign = v; InvalidTexture = true; }
+		function set(v:COCO_TEXT_ALIGN_ENUM)	{ if(m_TextHorizAlign!=v) { m_TextHorizAlign = v; InvalidTexture = true; } }
 	}
 
 	published property TextVertAlign
 	{
 		function get():COCO_TEXT_ALIGN_ENUM		{ return m_TextVertAlign; }
-		function set(v:COCO_TEXT_ALIGN_ENUM)	{ m_TextVertAlign = v; InvalidTexture = true; }
+		function set(v:COCO_TEXT_ALIGN_ENUM)	{ if(m_TextVertAlign!=v) { m_TextVertAlign = v; InvalidTexture = true; } }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -973,23 +1033,22 @@ class CocoTextClip : CocoSelfTexturedClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function prepare(scene:CocoScene)
 	{
-		delete __image;
+		delete buffer;
 
-		var scale:Float = window.devicePixelRatio;
 		var align:CocoHVAlign = CocoGraphics.AlignToCocoHVAlign(TextHorizAlign, TextVertAlign);
 		var color:String = CocoGraphics.ColorToHtmlRGBA(FontColor);
-    	var fontStyle:String = (FontItalic ? "italic" : "normal") + " normal " + (FontBold ? "bold " : "normal ") + String(FontSizePixels * scale) + "px " + FontFamily;
+    	var fontStyle:String = (FontItalic ? "italic" : "normal") + " normal " + (FontBold ? "bold " : "normal ") + String(FontSizePixels) + "px " + FontFamily;
+    	var w:Integer = Math.max(1.0, Math.floor(__width));
+    	var h:Integer = Math.max(1.0, Math.floor(__height));
+    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, true);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 
     	var f:CocoText = new CocoText();
     	f.str = Text;
     	f.indices.push(0);
     	f.mappings.push(0);
-
-    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(__width * scale, __height * scale);
-		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-    	f.drawSimple(ctx, fontStyle, FontUnderline, color, 0, 0, __width * scale, __height * scale, align.horiz, align.vert);
-		__image = CocoGraphics.CocoImageFromHTMLCanvas(canvas, __width * scale, __height * scale);
-		__image.pixelRatio = scale;
+    	f.drawSimple(ctx, fontStyle, FontUnderline, color, 0, 0, w, h, align.horiz, align.vert);
+		buffer = CocoGraphics.CocoImageFromHTMLCanvas(canvas, w, h);
 		delete f;
 		delete canvas;
 

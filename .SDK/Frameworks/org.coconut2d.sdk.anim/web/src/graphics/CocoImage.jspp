@@ -68,16 +68,18 @@ class CocoImageResolution
 	public var pixelRatio:Float;
 	public var textureWidth:Float;
 	public var textureHeight:Float;
+	public var textureScale:Float;
 	public var tileWidth:Float;
 	public var tileHeight:Float;
 	public var tileMap:Int32Array;
 
-	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)
+	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, textureScale:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)
 	{
 		this.url = url;
 		this.pixelRatio = pixelRatio;
 		this.textureWidth = textureWidth;
 		this.textureHeight = textureHeight;
+		this.textureScale = textureScale;
 		this.tileWidth = tileWidth;
 		this.tileHeight = tileHeight;
 		this.tileMap = tileMap;
@@ -108,6 +110,7 @@ class CocoImage
 	// Texture
 	public var textureCellWidth:Float;
 	public var textureCellHeight:Float;
+	public var textureScale:Float;
 	public var textureGrid:Float32Array;
 	public var textureTileMap:Float32Array;
 	public var color:Float32Array;
@@ -158,6 +161,7 @@ class CocoImage
 		texSize				= new Float32Array([1.0, 1.0]);
 		textureCellHeight	= 0;
 		textureCellWidth	= 0;
+		textureScale		= 1;
 		textureGrid			= new Float32Array([0.0, 0.0]);
 		textureGrid			= new Float32Array([0.0]);
 		textureTileMap		= new Float32Array([0.0, 0.0]);
@@ -183,9 +187,9 @@ class CocoImage
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float)
+	public function createFromCanvas(canvas:HTMLCanvasElement, width:Float, height:Float)
 	{
-		createFromBase64(canvas.toDataURL());
+		createFromBase64(canvas.toDataURL("image/png"));
         textureCellWidth = Float(width);
         textureCellHeight = Float(height);
 	}
@@ -237,18 +241,19 @@ class CocoImage
 
 		if(scene.__view_width && scene.__view_height)
 		{
-			var w:Float = Float(viewOptimalWidth) * scene.__view_scale;// / window.devicePixelRatio;
-			var h:Float = Float(viewOptimalHeight) * scene.__view_scale;// / window.devicePixelRatio;
+			var tollerance:Float = 1.49;
+			var w:Float = tollerance * Float(viewOptimalWidth) * scene.__view_scale;
+			var h:Float = tollerance * Float(viewOptimalHeight) * scene.__view_scale;
 			for(var j:Integer = 0; j<viewSiblings.size(); j++)
 			{
 				sibling = viewSiblings[j];
 				if(sibling.textureWidth>=w && sibling.textureHeight>=h)
 				{
-					trace("Loading " + baseUrl + sibling.url);
 					image = new Image();
 					image.load(baseUrl + sibling.url);
 					textureCellWidth = sibling.textureWidth;
 					textureCellHeight = sibling.textureHeight;
+					textureScale = sibling.textureScale;
 					pixelRatio = sibling.pixelRatio;
 					tileWidth = sibling.tileWidth;
 					tileHeight = sibling.tileHeight;
@@ -263,17 +268,20 @@ class CocoImage
 			sibling = viewSiblings[viewSiblings.size()-1];
 			if(sibling)
 			{
-				trace("FALLBACK! Loading " + baseUrl + sibling.url);
 				image = new Image();
 				image.load(baseUrl + sibling.url);
 				textureCellWidth = sibling.textureWidth;
 				textureCellHeight = sibling.textureHeight;
+				textureScale = sibling.textureScale;
 				pixelRatio = sibling.pixelRatio;
 				tileWidth = sibling.tileWidth;
 				tileHeight = sibling.tileHeight;
 				tileMap = sibling.tileMap;
 			}
 		}
+
+		if(image)
+			trace("Loading image " + image.src);
 
 		loaded();
 	}

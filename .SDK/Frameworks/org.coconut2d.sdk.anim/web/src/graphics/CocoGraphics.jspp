@@ -92,11 +92,13 @@ class CocoGraphics
 	//
 	// ==================================================================================================================================
 
-	public static function NewCanvas(width:Float, height:Float) :HTMLCanvasElement
+	public static function NewCanvas(width:Float, height:Float, POT:Boolean) :HTMLCanvasElement
 	{
     	var canvas:HTMLCanvasElement = document.createElement("canvas");
-		canvas.width = Math.pow(2, Math.ceil(Math.log(width)/Math.log(2)));
-		canvas.height = Math.pow(2, Math.ceil(Math.log(height)/Math.log(2)));
+    	width = Math.max(1.0, Math.floor(width));
+    	height = Math.max(1.0, Math.floor(height));
+		canvas.width = Math.max(1.0, Math.floor(POT ? Math.pow(2.0, Math.ceil(Math.log(width)/Math.log(2.0))) : width));
+		canvas.height = Math.max(1.0, Math.floor(POT ? Math.pow(2.0, Math.ceil(Math.log(height)/Math.log(2.0))) : height));
 		return canvas;
 	}
 
@@ -111,11 +113,18 @@ class CocoGraphics
 
 	public static function ColorToHtmlRGBA(c:Color) :String
 	{
-		var R:Integer = Integer((c >> 16) & 0xFF);
-		var G:Integer = Integer((c >> 8) & 0xFF);
-		var B:Integer = Integer((c & 0xFF));
-		var A:Float = Integer((c >> 24) & 0xFF) / 255.0;
-		return "rgba(" + String(R) + "," + String(G) + "," + String(B) + "," + String(A) + ")";
+		try
+		{
+			var R:Integer = Integer((c >> 16) & 0xFF);
+			var G:Integer = Integer((c >> 8) & 0xFF);
+			var B:Integer = Integer((c & 0xFF));
+			var A:Float = Integer((c >> 24) & 0xFF) / 255.0;
+			return "rgba(" + String(R) + "," + String(G) + "," + String(B) + "," + String(A) + ")";
+		}
+		catch(e)
+		{
+			return "rgba(0,0,0,0)";
+		}
 	}
 
 	// ==================================================================================================================================
@@ -145,11 +154,11 @@ class CocoGraphics
 		}
 
 		// Create a skin image
-		var canvas:HTMLCanvasElement = NewCanvas(width*skinImage.pixelRatio,height*skinImage.pixelRatio);
+		var canvas:HTMLCanvasElement = NewCanvas(width*skinImage.pixelRatio, height*skinImage.pixelRatio, true);
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 		CocoGraphics.DrawSkin(ctx, skinImage, 0, 0, width*skinImage.pixelRatio, height*skinImage.pixelRatio);
 		ctx = null;
-		var image:CocoImage = CocoImageFromHTMLCanvas(canvas,width*skinImage.pixelRatio,height*skinImage.pixelRatio);
+		var image:CocoImage = CocoImageFromHTMLCanvas(canvas, width*skinImage.pixelRatio, height*skinImage.pixelRatio);
 		image.pixelRatio = skinImage.pixelRatio;
 		delete canvas;
 
@@ -165,16 +174,15 @@ class CocoGraphics
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float) :CocoImage
+	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float, optional mime:String) :CocoImage
 	{
         var img:CocoImage = new CocoImage();
         img.image = new Image();
-        var url:String = canvas.toDataURL();
-        img.image.load(url);
         img.textureCellWidth = textureWidth;
         img.textureCellHeight = textureHeight;
         img.textureGrid = new Float32Array([0,0]);
-        img.renderData = engine.__ctx.prepareImage(img);
+        if(mime=="") mime = "image/png";
+        img.image.load(canvas.toDataURL(mime));
         return img;
 	}
 

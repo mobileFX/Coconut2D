@@ -69,6 +69,13 @@ class CocoRenderContext2D implements ICocoRenderContext
  		return null;
  	}
 
+ 	///////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function get2DContext():CanvasRenderingContext2D
+	{
+		return c2d;
+	}
+
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function flush()
  	{
@@ -130,21 +137,9 @@ class CocoRenderContext2D implements ICocoRenderContext
 	{
 		var data:CocoImageRenderData2D = new CocoImageRenderData2D();
 
-		var sImg:Image = img.image;
-		if(img.scaleX > 0.0 && img.scaleY > 0.0)
-		{
-			var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
-			canvas.width = Math.floor(img.image.naturalWidth * img.scaleX / img.pixelRatio);
-			canvas.height = Math.floor(img.image.naturalHeight * img.scaleY / img.pixelRatio);
-			trace("Scaling image to " + String(canvas.width) + "x" + String(canvas.height) + " (x" + String(img.scaleX / img.pixelRatio) + ", x" + String(img.scaleY / img.pixelRatio) + ", @" + String(img.pixelRatio) + "): " + img.symbolName);
-			var c2d:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-			c2d.drawImage(img.image, 0.0, 0.0, canvas.width, canvas.height);
-			sImg = new Image();
-			sImg.load(canvas.toDataURL());
-		}
+		var w2:Float = img.textureScale * (img.textureCellWidth  / 2.0) / img.pixelRatio;
+		var h2:Float = img.textureScale * (img.textureCellHeight / 2.0) / img.pixelRatio;
 
-		var w2:Float = img.textureCellWidth / 2.0;
-		var h2:Float = img.textureCellHeight / 2.0;
 		var texData:Float32Array = null;
 
 		if(img.tileMap)

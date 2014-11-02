@@ -81,7 +81,7 @@ class HTMLCanvasElement
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function toDataURL():String
+	public function toDataURL(mime:String):String
 	{
 		return "data:image/png;base64," + (__imageData ? __imageData.data.buffer.encodeAsPNG(__imageData.width, __imageData.height).encodeAsBase64() : "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC");
 	}

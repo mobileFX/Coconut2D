@@ -26,6 +26,34 @@
  * ***** END LICENSE BLOCK ***** */
 
 // ==================================================================================================================================
+//	    __________                 ____                 __          ______            __            __
+//	   /  _/ ____/___  _________  / __ \___  ____  ____/ /__  _____/ ____/___  ____  / /____  _  __/ /_
+//	   / // /   / __ \/ ___/ __ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ /   / __ \/ __ \/ __/ _ \| |/_/ __/
+//	 _/ // /___/ /_/ / /__/ /_/ / _, _/  __/ / / / /_/ /  __/ /  / /___/ /_/ / / / / /_/  __/>  </ /_
+//	/___/\____/\____/\___/\____/_/ |_|\___/_/ /_/\__,_/\___/_/   \____/\____/_/ /_/\__/\___/_/|_|\__/
+//
+// ==================================================================================================================================
+
+interface ICocoRenderContext
+{
+	public function getModelViewMatrix():CocoMatrix;
+	public function getProjectionMatrix():CocoMatrix;
+	public function getWidth():Float;
+	public function getHeight():Float;
+	public function cls();
+	public function flush();
+	public function ready():Boolean;
+	public function prepare(scene:CocoScene);
+	public function prepareImage(img:CocoImage):ICocoImageRenderData;
+	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame);
+	public function drawMaskBegin();
+	public function drawMaskEnd(invert:Boolean);
+	public function drawBoundingBox(clip:CocoClip);
+	public virtual function getGLContext():WebGLRenderingContext;
+	public virtual function get2DContext():CanvasRenderingContext2D;
+}
+
+// ==================================================================================================================================
 //	   ______                 ____                 __          ______            __            __
 //	  / ____/___  _________  / __ \___  ____  ____/ /__  _____/ ____/___  ____  / /____  _  __/ /_
 //	 / /   / __ \/ ___/ __ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ /   / __ \/ __ \/ __/ _ \| |/_/ __/
@@ -37,7 +65,6 @@
 
 class CocoRenderContext
 {
-
 	public function Constructor()
 	{
 	}
@@ -58,16 +85,29 @@ class CocoRenderContext
 
 		// Get WebGL context if supported by device
 		var gl:WebGLRenderingContext = WebGLRenderingContext(canvas.getContext("webgl", args));
-		if(gl) return new CocoRenderContextGL(gl);
+		if(gl)
+		{
+			trace("Rendering with HTML5 WebGL Canvas API");
+			return new CocoRenderContextGL(gl);
+		}
 
 		// Get WebGL context if supported by device
 		gl = WebGLRenderingContext(canvas.getContext("experimental-webgl", args));
-		if(gl) return new CocoRenderContextGL(gl);
+		if(gl)
+		{
+			trace("Rendering with HTML5 WebGL Experimental Canvas API");
+			return new CocoRenderContextGL(gl);
+		}
 
 		// Fallback to CanvasRenderingContext2D
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-		if(ctx) return new CocoRenderContext2D(ctx);
+		if(ctx)
+		{
+			trace("Rendering with HTML5 2D Canvas API");
+			return new CocoRenderContext2D(ctx);
+		}
 
+		//alert("Please use an HTML5 Browser to view this page.");
 		throw "Invalid rendering device.";
 	}
 }

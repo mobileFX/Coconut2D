@@ -43,6 +43,7 @@ class HTMLWindow
 public:
 	int __uid;
 	const bool __native = true;
+	bool __touchEvents;
 	HTMLDocument* document;
 	int innerHeight;
 	int innerWidth;

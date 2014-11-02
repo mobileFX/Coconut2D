@@ -105,6 +105,12 @@ class CocoRenderContextGL implements ICocoRenderContext
 		return gl;
 	}
 
+ 	///////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function get2DContext():CanvasRenderingContext2D
+	{
+		return null;
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function flush()
  	{
@@ -141,12 +147,6 @@ class CocoRenderContextGL implements ICocoRenderContext
 		gl.clearColor(0,0,0,1);
  		gl.clear(gl.COLOR_BUFFER_BIT);
  		gl.stencilMask(0x00);
-    	//gl.useProgram(__glProgram);
-    	//gl.enableVertexAttribArray(__glProgram.GLSLiVecCoords);
-		//gl.enableVertexAttribArray(__glProgram.GLSLiTexCoords);
-    	//__projectionMatrix.update(gl, __glProgram_Simple.GLSLuProjMat);
-    	//__modelViewMatrix.update(gl, __glProgram.GLSLuMVMat);
-    	//engine.__debug_trace(this, null, "@CYCLE");
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,6 +158,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(scene:CocoScene)
 	{
+		// Set OpenGL Flags
 		gl.enable(gl.STENCIL_TEST);
 		gl.stencilFunc(gl.EQUAL, 0, 0xFF);
 		gl.stencilMask(0x00);
@@ -176,16 +177,21 @@ class CocoRenderContextGL implements ICocoRenderContext
 			var orthoHeight:Float = Math.abs(-s * Float(gl.canvas.width) + c * Float(gl.canvas.height));
 			__projectionMatrix.ortho(-orthoWidth / 2.0, orthoWidth / 2.0, orthoHeight / 2.0,  -orthoHeight / 2.0, -1.0, 1.0);
 			__projectionMatrix.rotateZ(-window.deviceRotation);
+			__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
 		}
 		else
 		{
-			__projectionMatrix.ortho( -(Float(gl.canvas.width) / 2.0), Float(gl.canvas.width) / 2.0, Float(gl.canvas.height) / 2.0,  -(Float(gl.canvas.height) / 2.0), -1.0, 1.0);
+			__projectionMatrix.ortho(-gl.canvas.width/2.0, gl.canvas.width/2.0, gl.canvas.height/2.0, -gl.canvas.height/2.0, -1.0, 1.0);
+			__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
 		}
-		__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
 
+		// Initialize Model View Matrix
 		__modelViewMatrix.identity();
+
+		// Initialize Viewport Vector
 		__viewportVector.reset(-(Float(gl.canvas.width) / 2.0) / scene.__view_scale, Float(gl.canvas.width) / 2.0 / scene.__view_scale, Float(gl.canvas.height) / 2.0 / scene.__view_scale, -(Float(gl.canvas.height) / 2.0 / scene.__view_scale));
 
+		// Initialize Shaders
 		shaderBoundingBox.initialize(gl, __projectionMatrix);
 		shaderSimple[0].initialize(gl, __projectionMatrix, __modelViewMatrix);
 		shaderSimple[1].initialize(gl, __projectionMatrix, __modelViewMatrix);
@@ -196,6 +202,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		shaderParallaxHor[0].initialize(gl, __projectionMatrix, __modelViewMatrix, __viewportVector);
 		shaderParallaxHor[1].initialize(gl, __projectionMatrix, __modelViewMatrix, __viewportVector);
 
+		// Set Active Shader
 		activeShader = shaderSimple[0];
 		activeShader.begin(gl);
 	}
@@ -203,60 +210,50 @@ class CocoRenderContextGL implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepareImage(img:CocoImage):ICocoImageRenderData
 	{
+		if(!img || !img.image)
+			return null;
+
+		// Create an Image Rendering Data structure.
 		var data:CocoImageRenderDataGL = new CocoImageRenderDataGL();
 
-		// Create a texture and bind it.
+		// Keep WebGLRenderingContext on Image Rendering Data for deleting the texture
+		data.gl = gl;
+
+		// Create a WebGL Texture and bind it.
 		data.texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, data.texture);
 
-		var sImg:Image = img.image;
-		if(img.scaleX > 0.0 && img.scaleY > 0.0)
-		{
-			var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
-			canvas.width = Math.floor(img.image.naturalWidth * img.scaleX / img.pixelRatio);
-			canvas.height = Math.floor(img.image.naturalHeight * img.scaleY / img.pixelRatio);
-			trace("Scaling image to " + String(canvas.width) + "x" + String(canvas.height) + " (x" + String(img.scaleX / img.pixelRatio) + ", x" + String(img.scaleY / img.pixelRatio) + ", @" + String(img.pixelRatio) + "): " + img.symbolName);
-			var c2d:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-			c2d.drawImage(img.image, 0.0, 0.0, canvas.width, canvas.height);
-			sImg = new Image();
-			sImg.load(canvas.toDataURL());
-		}
-
-		// Load image data to texture.
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sImg);
-
-		// Unload the HTML Image to save memory.
-		// Works only on native, HTML5 browsers need the image.
+		// Create Texture from HTML Image
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img.image);
+		if(gl.getError()!=0) trace("ERROR: CocoRenderContextGL::prepareImage() gl.texImage2D failed for image " + img.image.src);
 
 		// Instruct WebGL how to wrap the texture.
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		if(img.isSpriteSheet)
+		{
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		}
 
 		// Instruct WebGL how to filter the texture when rendering.
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST_MIPMAP_NEAREST);
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 
-		// Generate mipmaps.
+		// Generate Texture FROM iMAGE
 		gl.generateMipmap(gl.TEXTURE_2D);
+		if(gl.getError()!=0) trace("ERROR: CocoRenderContextGL::prepareImage() gl.generateMipmap failed for image " + img.image.src);
 
-		// Done
+		// Unbind Texture
 		gl.bindTexture(gl.TEXTURE_2D, null);
 
-		var w2:Float = img.textureCellWidth / 2.0;
-		var h2:Float = img.textureCellHeight / 2.0;
+		// Adjust image size to design-time viewport and take into account texture scaling.
+		var w2:Float = img.textureScale * (img.textureCellWidth  / 2.0) / img.pixelRatio;
+		var h2:Float = img.textureScale * (img.textureCellHeight / 2.0) / img.pixelRatio;
 		var texData:Float32Array = null;
+
 		if(img.tileMap)
 		{
+			// Decode Compressed TiledLayer data
+
 			img.texSize = new Float32Array([img.tileWidth / img.image.naturalWidth, img.tileHeight / img.image.naturalHeight]);
 			var d:Array<Float> = new Array<Float>();
 			//var tileCountX:Integer = img.image.naturalWidth / img.tileWidth;
@@ -297,12 +294,15 @@ class CocoRenderContextGL implements ICocoRenderContext
 			data.drawType = gl.TRIANGLE_STRIP;
 			data.vertexCount = 4;
 		}
+
+		// Set texture map to a WebGL Buffer
 		data.buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, data.buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		delete texData;
 
+		// Return Rendering Data to CocoImage
 		return data;
 	}
 
@@ -369,7 +369,6 @@ class CocoRenderContextGL implements ICocoRenderContext
 	public function drawBoundingBox(clip:CocoClip)
 	{
 		if(!clip.__hasBoundingBox) return;
-
 		activeShader.end(gl);
 		shaderBoundingBox.begin(gl);
 		shaderBoundingBox.draw(gl, new Float32Array([clip.__vABS_TOP_LEFT.X, clip.__vABS_TOP_LEFT.Y, clip.__vABS_TOP_RIGHT.X, clip.__vABS_TOP_RIGHT.Y, clip.__vABS_BOTTOM_RIGHT.X, clip.__vABS_BOTTOM_RIGHT.Y, clip.__vABS_BOTTOM_LEFT.X, clip.__vABS_BOTTOM_LEFT.Y]));

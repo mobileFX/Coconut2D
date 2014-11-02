@@ -96,6 +96,18 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getCurrentState():State
+	{
+		return __currentState;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getNextState():State
+	{
+		return __nextState;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function run(time:Time)
 	{
 		if(!__currentState && !__nextState) return;
@@ -116,7 +128,15 @@ state class CocoEngine
 			__currentState.tick(__clock);
 
 		// Tick ITickable objects
-		__tick(__clock);
+		try
+		{
+			__tick(__clock);
+		}
+		catch(e)
+		{
+			trace("ERROR: CocoEngine::tick() at state " + __currentState.__name);
+		}
+
 
 		// Clear Clicked clips
 		__clicked.clear();
@@ -125,7 +145,14 @@ state class CocoEngine
 		if(__nextState==null && __currentState!=null)
 		{
 			__ctx.cls();
-			__currentState.paint(__ctx, __clock);
+			try
+			{
+				__currentState.paint(__ctx, __clock);
+			}
+			catch(e)
+			{
+				trace("ERROR: CocoEngine::paint() at state " + __currentState.__name);
+			}
 			__ctx.flush();
 		}
 
@@ -164,7 +191,7 @@ state class CocoEngine
 		__track_touch = false;
 		__has_touch_device_message = false;
 
-		if(global.__native)
+		if(global.__native || global.__touchEvents)
 		{
 			window.addEventListener("touchstart", __translateDeviceMessage);
 			window.addEventListener("touchmove", __translateDeviceMessage);
@@ -176,12 +203,15 @@ state class CocoEngine
 			window.addEventListener("mousemove", __translateDeviceMessage);
 			window.addEventListener("mouseup", __translateDeviceMessage);
 		}
+
+		window.addEventListener("keydown", __translateDeviceMessage);
+		window.addEventListener("keyup", __translateDeviceMessage);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function __dettachDevices()
 	{
-		if(global.__native)
+		if(global.__native || global.__touchEvents)
 		{
 			window.removeEventListener("touchstart", __translateDeviceMessage);
 			window.removeEventListener("touchmove", __translateDeviceMessage);
@@ -193,10 +223,25 @@ state class CocoEngine
 			window.removeEventListener("mousemove", __translateDeviceMessage);
 			window.removeEventListener("mouseup", __translateDeviceMessage);
 		}
+
+		window.removeEventListener("keydown", __translateDeviceMessage);
+		window.removeEventListener("keyup", __translateDeviceMessage);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function __translateDeviceMessage(e:HTMLEvent)
+	{
+		try
+		{
+			__translateDeviceMessageImpl(e);
+		}
+		catch(e)
+		{
+			trace("ERROR: CocoEngine::__translateDeviceMessage");
+		}
+	}
+
+	private function __translateDeviceMessageImpl(e:HTMLEvent)
 	{
 		// Convert an HTMLEvent to a DEVICE_MESSAGE structure. DEVICE_MESSAGE is a unified
 		// structure for handling asynchronous device events from HTMLWindow object.
@@ -254,10 +299,12 @@ state class CocoEngine
 		case "touchstart":
 			if(!__track_touch)
 			{
+				var touch:Touch = e.touches[0];
+				if(global.__touchEvents) fixTouch(touch);
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
-				MSG.x0 = e.touches[0].clientX;
-				MSG.y0 = e.touches[0].clientY;
+				MSG.x0 = touch.clientX;
+				MSG.y0 = touch.clientY;
 				__track_touch = true;
 				__has_touch_device_message = true;
 			}
@@ -266,10 +313,12 @@ state class CocoEngine
 		case "touchmove":
 			if(__track_touch)
 			{
+				var touch:Touch = e.touches[0];
+				if(global.__touchEvents) fixTouch(touch);
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
-				MSG.x0 = e.touches[0].clientX;
-				MSG.y0 = e.touches[0].clientY;
+				MSG.x0 = touch.clientX;
+				MSG.y0 = touch.clientY;
 				__has_touch_device_message = true;
 			}
 			break;
@@ -277,15 +326,36 @@ state class CocoEngine
 		case "touchend":
 			if(__track_touch)
 			{
+				var touch:Touch = e.changedTouches[0];
+				if(global.__touchEvents) fixTouch(touch);
 				__removeTouchMessages();
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
-				MSG.x0 = e.touches[0].clientX;
-				MSG.y0 = e.touches[0].clientY;
+				MSG.x0 = touch.clientX;
+				MSG.y0 = touch.clientY;
 				__track_touch = false;
 				__has_touch_device_message = true;
 			}
 			break;
+
+		//=============================================================================
+		case "keydown":
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_DOWN;
+				MSG.keyCode = e.keyCode;
+				MSG.ctrlKey = e.ctrlKey;
+				MSG.altKey = e.altKey;
+				MSG.shiftKey = e.shiftKey;
+				break;
+
+		case "keyup":
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_UP;
+				MSG.keyCode = e.keyCode;
+				MSG.ctrlKey = e.ctrlKey;
+				MSG.altKey = e.altKey;
+				MSG.shiftKey = e.shiftKey;
+				break;
 		}
 
 		//=============================================================================
@@ -359,6 +429,24 @@ state class CocoEngine
 			for(var r:Integer = check.size(); r--;)
 				if(check[r] == __clicked[i])
 					return r;
+		return -1;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function isKeyDown(check:Int32Array):Integer
+	{
+		var L:Integer = __deviceMessageQueue.size();
+		for(var i:Integer=0; i<L; i++)
+		{
+			if(__deviceMessageQueue[i].type==DEVICE_MESSAGE_ENUM.MESSAGE_KEY_DOWN)
+			{
+				for(var j:Integer=check.length-1; j>=0; j--)
+				{
+					if(check[j]==__deviceMessageQueue[i].keyCode)
+						return check[j];
+				}
+			}
+		}
 		return -1;
 	}
 

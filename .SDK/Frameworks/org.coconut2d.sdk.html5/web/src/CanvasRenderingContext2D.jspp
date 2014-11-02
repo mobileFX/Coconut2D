@@ -148,9 +148,6 @@ class CanvasRenderingContext2D
 		this.canvas = canvas;
 		this.canvas.__imageData = new ImageData(String(canvas.width), String(canvas.height));
 		setTransform(1,0,0,1,0,0);
-
-
-
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,12 +194,14 @@ class CanvasRenderingContext2D
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)
 	{
-		__m11 = m11;
-		__m12 = m12;
-		__m21 = m21;
-		__m22 = m22;
-		__dx = dx;
-		__dy = dy;
+		__m11 = 1;
+		__m12 = 0;
+		__m21 = 0;
+		__m22 = 1;
+		__dx = 0;
+		__dy = 0;
+
+		transform(m11,m12,m21,m22,dx,dy);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

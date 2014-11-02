@@ -32,7 +32,7 @@
 	<meta name="apple-mobile-web-app-title" 			content="$(PROJECT_DISPLAY_NAME)"/>
 	<meta name="apple-touch-fullscreen" 				content="yes"/>
 	<meta name="format-detection" 						content="telephone=no"/>
-	<meta name="viewport" 								content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no; target-densitydpi=160dpi"/>
+	<meta name="viewport" 								content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, user-scalable=no, maximum-scale=1.0"/>
 
 	<!-- Apple Touch Icon for iPad and iPhone Meta Tag -->
 	<link rel="apple-touch-icon-precomposed" type="image/png" media="screen" 				 href="apple-touch-icon.png"/>
@@ -57,6 +57,7 @@
 	<meta name="robots" content="index, follow, noodp, noydir, noarchive"/>
 
 	<!-- Open Graph Protocol OG Meta Tags (Facebook Opengraph Meta Tags) -->
+	<meta property="fb:app_id" 			content="$(FACEBOOK.APPID)"/>
 	<meta property="og:image" 			content="$(TAGS.OG_HOST)/$(PROJECT_NAME).jpg"/> <!--used for Facebook Share thumbnail-->
 	<meta property="og:title" 			content="$(TAGS.OG_TITLE)"/>
 	<meta property="og:description" 	content="$(TAGS.OG_DESCRIPTION)"/>
@@ -82,7 +83,7 @@
 
 </head>
 
-<body style="border:none;padding:0;margin:0;overflow:hidden;width:$(SURFACE_WIDTH)px;height:$(SURFACE_HEIGHT)px">
+<body style="border:none;padding:0;margin:0;overflow:hidden;width:$(TARGETS.HTML5.APP_SETTINGS.HTML_BODY_WIDTH);height:$(TARGETS.HTML5.APP_SETTINGS.HTML_BODY_HEIGHT)">
 </body>
 
 </html>

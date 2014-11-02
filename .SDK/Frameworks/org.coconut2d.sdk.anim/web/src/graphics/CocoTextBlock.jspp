@@ -140,7 +140,7 @@ class CocoTextBlock
     		}
     	}
 
-    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(Width * scale,Height * scale);
+    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(Width * scale,Height * scale, true);
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
     	f.drawSimple(ctx, fontStyle, fontUnderline, color, 0, 0, Width * scale, Height * scale, align.horiz, align.vert);
 		var image:CocoImage = CocoGraphics.CocoImageFromHTMLCanvas(canvas,Width * scale,Height * scale);

@@ -1267,7 +1267,8 @@ function CompilerCppPlugin(compiler)
 			for(var catchClause in ast.catchClauses)
 			{
 				if(!isFinite(catchClause)) break;
-				CPP.push("catch(" + ast.catchClauses[catchClause].varName + ")");
+				//CPP.push("catch(" + ast.catchClauses[catchClause].varName + ")");
+				CPP.push("catch(...)");
 				CPP.push(generate_cpp(ast.catchClauses[catchClause].block).CPP);
 				ast.finallyBlock && CPP.push("finally" + generate_cpp(ast.finallyBlock).CPP);
 			}

@@ -1217,6 +1217,26 @@ function CocoMake(command , params)
 	    // Order scripts
 	    scripts = _this.calculateDependencies(scripts, true);
 
+	    // Embed Images
+	    /*
+	    if(TARGET.APP_SETTINGS.EMBED_BASE64_IMAGES)
+	    {
+	    	var html_images = [];
+	    	var images = _this.FindFiles(TARGET.TARGET_ROOT + "/assets", "*_mdpi.png", true);
+	    	for(var i=0; i<images.length; i++)
+	    	{
+	    		// Read the image as Base64
+				var b64 = "data:image/png;base64," + read(images[i], true);
+				var name = images[i].substr(images[i].lastIndexOf("/")+1);
+				html_images.push('\t"' + name + '":"' + b64 + '"');
+	    	}
+	    	html_images =  "var __HTML_IMAGES__ = {\n" + html_images.join(",\n") + "\n};";
+	    	write(TARGET.TARGET_ROOT + "/images.js", html_images);
+	    	delete html_images;
+	    	BUFFER.push("include('images.js');");
+	    }
+	    */
+
 	    // === RELEASE MODE ===
 	    if(makefile.Config.CONFIGURATION=="Release")
 	    {
@@ -1297,6 +1317,20 @@ function CocoMake(command , params)
 	    }
 	    HTML.push("\t</style>\n");
 
+	    // Embed Images
+	    /*
+	    var html_images = [];
+	    if(TARGET.APP_SETTINGS.EMBED_BASE64_IMAGES)
+	    {
+	    	var images = _this.FindFiles(TARGET.TARGET_ROOT + "/assets", "*.png", true);
+	    	for(var i=0; i<images.length; i++)
+	    	{
+	    		var image = relativePath(TARGET.TARGET_ROOT, images[i]);
+	    		html_images.push("\t<img src='" + image + "' style='display:block;position:absolute;left:2000px;top:2000px;visibility:hidden'>");
+	    	}
+	    }
+	    */
+
 	    // Add Scripts
 	    var scripts = _this.FindFiles(TARGET.TARGET_ROOT, "*.js;*.jobj", true);
 	    scripts = _this.calculateDependencies(scripts, true);
@@ -1309,7 +1343,10 @@ function CocoMake(command , params)
 
        	// Get index.html template (copied from device wrapper)
 	    var template = read(TARGET.TARGET_ROOT + "/index.html");
+
 	    HTML = template.replace("$(SCRIPTS)", HTML.join("\n"));
+	    //HTML = HTML.replace("$(IMAGES)", html_images.join("\n"));
+
 	    _this.module(TARGET.TARGET_ROOT + "/index.html", HTML, false);
 
 	    trace("+ created: " + TARGET.TARGET_ROOT + "/index.html");

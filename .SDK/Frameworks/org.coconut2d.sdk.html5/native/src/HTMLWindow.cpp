@@ -39,6 +39,7 @@ HTMLWindow::HTMLWindow()
 	touchstart = nullptr;
 	touchmove = nullptr;
 	touchend = nullptr;
+	__touchEvents = false;
 	__uid = 0;
 	document = new HTMLDocument();
 	e = new HTMLEvent();

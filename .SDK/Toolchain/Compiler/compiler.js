@@ -1294,6 +1294,8 @@ function Compiler(ast)
 				items.push(ast[item].name + ": null");
 			}
 
+			_this.addFunctionSymbol(ast, "toJSON", "String", classSymbol);
+
 			out.push(items.join(",") + "};");
 
 			_this.ExitScope();
@@ -3815,21 +3817,68 @@ function Compiler(ast)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DOT:
 
-			// jsdef.THIS does not produce output,
-			// so we have to be carefull with ast[0]
-			var gen = generate(ast[0]);
-			if(gen)
+			var gen0 = generate(ast[0]);
+
+			// Special Case: struct.toJSON()
+			if(_this.secondPass && ast[1].value=="toJSON" && _this.getClass(ast[0].symbol.vartype).struct)
 			{
-				out.push(gen);
-				out.push(".");
+			 	var cls = _this.getClass(ast[0].symbol.vartype);
+			 	var jsonExpr = ['"{"'];
+			 	var i=0;
+			 	for(var item in cls.vars)
+			 	{
+					var v = "";
+					var mbr = "";
+
+					switch(cls.vars[item].vartype)
+					{
+					case "String":
+						v = " + " + gen0 + "." + item;
+						mbr = '"' + (i>0?",":"") + '\\\"' + item + '\\\":\\\""' + v + ' + "\\\""';
+						jsonExpr.push(mbr);
+						break;
+
+					case "Integer":
+					case "Float":
+					case "Boolean":
+					case "Number":
+					case "Time":
+						v = " + String(" + gen0 + "." + item + ")";
+						mbr = '"' + (i>0?",":"") + '\\\"' + item + '\\\":"' + v;
+						jsonExpr.push(mbr);
+						break;
+
+					default:
+					}
+
+					i++;
+			 	}
+			 	jsonExpr.push('"}"');
+			 	jsonExpr = jsonExpr.join("+");
+				out.push(jsonExpr);
+
+				ast[0].vartype = "String";
+				ast.__toJSON = true;
+				_this.addDebugSymbol(ast, "<Runtime JSON String>");
 			}
-
-			out.push(generate(ast[1]));
-
-			if(_this.secondPass)
+			else
 			{
-				ast[0].vartype = _this.getTypeName(ast[0]);
-				_this.addDebugSymbol(ast, out.join(""));
+				// jsdef.THIS does not produce output,
+				// so we have to be carefull with ast[0]
+				if(gen0)
+				{
+					out.push(gen0);
+					out.push(".");
+				}
+
+				var gen1 = generate(ast[1]);
+				out.push(gen1);
+
+				if(_this.secondPass)
+				{
+					ast[0].vartype = _this.getTypeName(ast[0]);
+					_this.addDebugSymbol(ast, out.join(""));
+				}
 			}
 			break;
 
@@ -3951,6 +4000,9 @@ function Compiler(ast)
 			// If the identifier's symbol is an overloaded function we need
 			// to determine from the execution context which overload to use.
 			//
+			// Also, we need to determine is the class with the overloaded function is
+			// native or script. Native classes DO NOT emit $<index>.
+			//
 			// We need to consider the places where an overloaded function might appear:
 			// 1) as right-value in an assignment (function pointer):	var fn:Function = foo;
 			// 2) as an argument in a function call					: 	goo(foo);
@@ -4044,6 +4096,16 @@ function Compiler(ast)
 					if(!overload_matched)
 					{
 						_this.NewError("Invalid call to overloaded method.", ast);
+					}
+					else
+					{
+						// The identifier symbol does not export for web, therefore it is a native symbol and we should not use $<index> overload accees.
+						if(!ast.symbol.ast.EXPORT_WEB && ast.value.indexOf("$")!=-1)
+						{
+							ast.value = ast.symbol.ast.name;
+							ast.symbol.runtime = ast.symbol.runtime.substr(0, ast.symbol.runtime.indexOf("$"))
+							//trace("Overload Fix: " + ast.symbol.runtime);
+						}
 					}
 				}
 			}
@@ -4342,6 +4404,14 @@ function Compiler(ast)
 		case jsdef.CALL:
 
 			var call0 = generate(ast[0]);
+
+			// toJSON hack
+			if(ast[0].__toJSON)
+			{
+				out.push(call0);
+				break;
+			}
+
 			var call1 = generate(ast[1]);
 			var cls = _this.getClass(call0);
 			if(!_this.secondPass) break;
@@ -4811,5 +4881,63 @@ function Compiler(ast)
 		out.push(g0);
 		out.push(op);
 		out.push(g1);
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Purpose of this function is to append compiler symbols to classes and structs.
+	// For example, this method is used for adding "toJSON" to all struct entitites.
+	_this.addFunctionSymbol = function(ast, fnName, returntype, classSymbol)
+	{
+		var methodScope = _this.NewScope(ast, false, jsdef.FUNCTION);
+
+		var functionSymbol = new FunctionSymbol();
+		{
+			functionSymbol.symbolId				= (++_this.symbolId);
+			functionSymbol.name					= fnName;
+			functionSymbol.type					= jsdef.FUNCTION;
+			functionSymbol.nodeType				= "FUNCTION";
+			functionSymbol.className			= classSymbol.className;
+			functionSymbol.classId				= classSymbol.classId;
+			functionSymbol.extern				= "externs.jspp";
+			functionSymbol.restArguments		= null;
+			functionSymbol.public				= true;
+			functionSymbol.private				= false;
+			functionSymbol.protected			= false;
+			functionSymbol.static				= false;
+			functionSymbol.optional				= false;
+			functionSymbol.virtual				= false;
+			functionSymbol.abstract				= false;
+			functionSymbol.ast					= ast;
+			functionSymbol.scope				= methodScope;
+			functionSymbol.scopes 				= [methodScope];
+			functionSymbol.baseSymbol			= null;
+			functionSymbol.file					= ast.file;
+			functionSymbol.path					= ast.path;
+			functionSymbol.start				= ast.start;
+			functionSymbol.end					= ast.end;
+			functionSymbol.line_start			= ast.line_start;
+			functionSymbol.line_end				= ast.line_end;
+			functionSymbol.scopeId				= methodScope.scopeId;
+			functionSymbol.vartype				= returntype;
+			functionSymbol.subtype				= _this.getSubType(returntype);
+			functionSymbol.paramsList			= []
+			functionSymbol.overloads			= [];
+			functionSymbol.arguments			= {};
+			functionSymbol.description			= null;
+			functionSymbol.icon 				= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+			functionSymbol.modifier 			= "public";
+			functionSymbol.runtime 				= classSymbol.classId + "." + fnName;
+
+			functionSymbol.__typedParamsList 	= "()";
+			functionSymbol.__untypedParamsList 	= "";
+			functionSymbol.__cnSignature 		= "public " + classSymbol.name+"::" + fnName + "()" + " :" +  functionSymbol.vartype;
+			functionSymbol.__signature 			= fnName + "()" + " :" +  functionSymbol.vartype;
+		}
+
+		classSymbol.methods[functionSymbol.name] = functionSymbol;
+
+		_this.ExitScope();
+
+		return functionSymbol;
 	};
 }

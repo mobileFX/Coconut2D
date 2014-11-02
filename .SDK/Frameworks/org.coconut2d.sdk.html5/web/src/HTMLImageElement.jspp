@@ -41,6 +41,7 @@ class Image
 	public var height:Float;
 	public var naturalWidth:Float;
 	public var naturalHeight:Float;
+	public var crossOrigin:String;
 
 	private var __complete:Boolean;
 
@@ -50,6 +51,7 @@ class Image
 		__imageData = null;
 		__complete = false;
 		src = "";
+		crossOrigin = "anonymous";
 		width = 0;
 		height = 0;
 		naturalWidth = 0;
@@ -66,12 +68,15 @@ class Image
 	public function load(url:String)
 	{
 		__imageData = new ImageData(url);
+
 		if(url.indexOf("data:")==-1)
 			src = __imageData.src;
+
 		width = __imageData.width;
 		height = __imageData.height;
 		naturalWidth = __imageData.width;
 		naturalHeight = __imageData.height;
+
 		__complete = true;
 	}
 

@@ -74,6 +74,11 @@ void trace(const char* fmt, ...)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+void fixTouch(Touch* touch)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 ArrayBuffer* ArrayBuffer::NewFromImage(std::string str, uint32_t& width, uint32_t& height)
 {
 	CocoAssetFile* file = CocoAssetFile::open(str.c_str());
@@ -287,5 +292,6 @@ ArrayBuffer* ArrayBuffer::NewFromImage_JPG(CocoAssetFile* file, uint32_t& width,
 	delete file;
 	return ret;
 }
+
 #endif /* ENABLE_JPG_SUPPORT */
 

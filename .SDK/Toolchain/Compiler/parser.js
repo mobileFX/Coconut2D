@@ -498,7 +498,7 @@ function __init_narcissus(GLOBAL)
 				// "#export web";
 				if(token.value && token.value.indexOf(this.__EXPORT_WEB) != -1)
 				{
-					this.__EXPORT_WEB = true;
+					this.EXPORT_WEB = true;
 					if(match.input.substr(match.index + match[0].length, 1)!=";")
 						throw this.newSyntaxError("Missing ; after include directive.");
 				}

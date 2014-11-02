@@ -59,6 +59,7 @@ struct CocoKeyFrame
 	flipH:Boolean;
 	flipV:Boolean;
 	spriteSequenceName:String;
+	spriteSequenceFPS:Float;
 	__isCloned:Boolean;
 	__Preserve:Boolean;
 }
@@ -136,6 +137,7 @@ class CocoTimeline
 		kf.flipH				= false;
 		kf.flipV				= false;
 		kf.spriteSequenceName	= "";
+		kf.spriteSequenceFPS	= 0;
 		kf.__isCloned			= false;
 		kf.__Preserve			= false;
 		return kf;
@@ -293,7 +295,8 @@ class CocoTimeline
 								  audio:CocoAudio,
 								  flipH:Boolean,
 								  flipV:Boolean,
-								  spriteSequenceName:String) :CocoKeyFrame
+								  spriteSequenceName:String,
+								  spriteSequenceFPS:Float) :CocoKeyFrame
 	{
 	    var KeyFrame:CocoKeyFrame = new CocoKeyFrame();
 
@@ -319,6 +322,7 @@ class CocoTimeline
 	    KeyFrame.flipH				= flipH;
 	    KeyFrame.flipV				= flipV;
 	    KeyFrame.spriteSequenceName	= spriteSequenceName;
+	    KeyFrame.spriteSequenceFPS	= spriteSequenceFPS;
 
 	    return addKeyFrame(KeyFrame);
 	}

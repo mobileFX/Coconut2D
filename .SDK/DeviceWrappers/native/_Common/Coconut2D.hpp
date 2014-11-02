@@ -518,6 +518,8 @@ class CocoEventConnectionPoint;
 class CanvasRenderingContext2D;
 class CocoAudio;
 class CocoClip;
+class CocoClipOnAnimationSequenceBeginEvent;
+class CocoClipOnAnimationSequenceEndEvent;
 class CocoClipOnClickEvent;
 class CocoClipOnTouchEndEvent;
 class CocoClipOnTouchMoveEvent;
@@ -558,6 +560,7 @@ class CocoTimeLabel;
 class CocoTimeline;
 class CocoVector;
 class GameEngine;
+class GridSymbol;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
 class HTMLCanvasPattern;
@@ -573,10 +576,10 @@ class ITickable;
 class Image;
 class PathLine;
 class SceneGameBoard;
-class SceneGameLoading;
-class SceneTest;
+class SceneTitle;
 class Touch;
 class TouchList;
+struct COCO_DEVICE_WRAPPER;
 struct CocoHVAlign;
 struct CocoKeyFrame;
 struct CocoMatrixData;
@@ -1054,6 +1057,8 @@ extern CocoEngine* engine;
 extern HTMLWindow* window;
 extern HTMLDocument* document;
 extern HTMLWindow* global;
+
+extern void fixTouch(Touch* touch);
 
 #endif //__COCONUT2D_HPP__
 

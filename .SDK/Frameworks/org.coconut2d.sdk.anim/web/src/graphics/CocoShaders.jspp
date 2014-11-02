@@ -193,6 +193,7 @@ class CocoShaderCommon : CocoShader
 
 	public var uSampler:WebGLUniformLocation;
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
 		 vertex_shader = "attribute vec4 iTexCoords;attribute vec2 iVecCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords.xy * uSprFlip, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + iTexCoords.z + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + iTexCoords.w + uSprFrame.y) * uSprSize.y));}";
@@ -209,6 +210,7 @@ class CocoShaderCommon : CocoShader
 		 uSampler = null;
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 		delete uProjMat;
@@ -219,6 +221,7 @@ class CocoShaderCommon : CocoShader
 		delete uSampler;
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function init(gl:WebGLRenderingContext)
 	{
 		super.init;
@@ -237,6 +240,7 @@ class CocoShaderCommon : CocoShader
 		gl.uniform1i(uSampler, 0);
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function begin(gl:WebGLRenderingContext)
 	{
 		super.begin;
@@ -244,8 +248,10 @@ class CocoShaderCommon : CocoShader
 		gl.enableVertexAttribArray(iTexCoords);
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame) {}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawFrame(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
 		var data:CocoImageRenderDataGL = CocoImageRenderDataGL(image.renderData);
@@ -261,6 +267,7 @@ class CocoShaderCommon : CocoShader
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function end(gl:WebGLRenderingContext)
 	{
 		gl.disableVertexAttribArray(iTexCoords);

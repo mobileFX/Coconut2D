@@ -4,11 +4,204 @@ var engine = null;
 var gl = null;
 
 global.__native = false;
+global.__touchEvents = false;
+global.__iOS = false;
 
 if(!global.window) 		{ global.window = new HTMLWindow(); global.__native = true; }
 if(!global.document)	global.document = window.document;
 if(!global.trace)		global.trace = function(msg) { console.log(msg); };
 if(!global.console)		global.console = { log: trace };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+if(global && global.navigator && navigator.userAgent && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+{
+	global.__touchEvents = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+if(global && global.navigator && navigator.userAgent && /iPhone|iPad|iPod/i.test(navigator.userAgent))
+{
+	global.__iOS = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+var DEVICE_WRAPPER = new COCO_DEVICE_WRAPPER();
+
+DEVICE_WRAPPER.DeviceName 				= "CocoPlayer";
+DEVICE_WRAPPER.DeviceVersion			= "1.0";
+DEVICE_WRAPPER.is_Native				= true;;
+DEVICE_WRAPPER.is_Web					= false;;
+DEVICE_WRAPPER.is_CocoPlayer			= true;
+DEVICE_WRAPPER.is_iPhone				= false;
+DEVICE_WRAPPER.is_iPad					= false;
+DEVICE_WRAPPER.is_Android               = false;
+DEVICE_WRAPPER.is_Chrome                = false;
+DEVICE_WRAPPER.is_Safari                = false;
+DEVICE_WRAPPER.is_FireFox               = false;
+DEVICE_WRAPPER.is_iOS                   = false;
+DEVICE_WRAPPER.Version_iOS				= 0;
+DEVICE_WRAPPER.Version_Android			= 0;
+DEVICE_WRAPPER.HasTouchEvents			= true;
+DEVICE_WRAPPER.HasKeyBoard				= false;
+DEVICE_WRAPPER.HasOpenGL				= false;
+DEVICE_WRAPPER.ScreenWidth				= window.innerWidth;
+DEVICE_WRAPPER.ScreenHeight				= window.innerHeight;
+DEVICE_WRAPPER.OrientationHorizontal	= false;
+DEVICE_WRAPPER.OrientationVertical		= false;
+
+// Detect Platform
+
+__mobileFX.__iPhone  			= (navigator.userAgent.indexOf("iPhone")!=-1);
+__mobileFX.__iPad  				= (navigator.userAgent.indexOf("iPad")!=-1);
+__mobileFX.__Android 			= (navigator.userAgent.indexOf("Android")!=-1);
+__mobileFX.__Chrome  			= (navigator.userAgent.indexOf("Chrome")!=-1);
+
+// Detect iOS Version
+__mobileFX.__iOS 				= __mobileFX.__iPhone ? navigator.userAgent.match(/iPhone OS (\d+)/)[1] : 0;
+__mobileFX.__iOS3 				= (navigator.userAgent.indexOf(" OS 3")!=-1);
+__mobileFX.__iOS4 				= (navigator.userAgent.indexOf(" OS 4")!=-1);
+__mobileFX.__iOS5 				= (navigator.userAgent.indexOf(" OS 5")!=-1);
+
+// Detect Android Version
+__mobileFX.__AndroidSDK			= __mobileFX.__Android ? navigator.userAgent.match(/Android (\d+\.\d+\.\d+)/)[1] : 0;
+__mobileFX.__VirtualBox			= __mobileFX.__Android && (navigator.userAgent.indexOf("eeepc Build")!=-1);
+
+// Detect advanced features and APIs
+__mobileFX.__webkitTouchScroll 	= Res.application.style.enableWebkitTouchScrolling && (__mobileFX.__iOS>=5);
+__mobileFX.__hasTouch 			= 'ontouchstart' in window;
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+if(global["EventTarget"]) global.EventTarget = function() {};
+global.EventTarget = function() {};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+if(!window.requestAnimationFrame)
+{
+	window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function (callback)
+	{
+		window.setTimeout(callback, 1000 / 60);
+	};
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function fixTouch(touch)
+{
+    if(!global.__touchEvents) return;
+
+    var winPageX = window.pageXOffset,
+        winPageY = window.pageYOffset,
+        x = touch.clientX,
+        y = touch.clientY;
+
+    if (touch.pageY === 0 && Math.floor(y) > Math.floor(touch.pageY) || touch.pageX === 0 && Math.floor(x) > Math.floor(touch.pageX))
+    {
+        // iOS4 clientX/clientY have the value that should have been
+        // in pageX/pageY. While pageX/page/ have the value 0
+        x = x - winPageX;
+        y = y - winPageY;
+    }
+    else if (y < (touch.pageY - winPageY) || x < (touch.pageX - winPageX) )
+    {
+        // Some Android browsers have totally bogus values for clientX/Y
+        // when scrolling/zooming a page. Detectable since clientX/clientY
+        // should never be smaller than pageX/pageY minus page scroll
+        x = touch.pageX - winPageX;
+        y = touch.pageY - winPageY;
+    }
+
+    touch.clientX = x;
+    touch.clientY = y;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function __close_window()
+{
+	try
+	{
+		window.parent.jQuery.fancybox.close();
+	}
+	catch(e)
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function show_stack()
+{
+	try
+	{
+		throw true;
+	}
+	catch(e)
+	{
+		var _e = new Error();
+		trace(_e.stack);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function State(){};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+Image.prototype.load = function(src)
+{
+	this.__src = src;
+
+	this.onerror = function(e)
+	{
+		alert("Image failed to load: " + this.__src);
+		this.src = this.__src;
+	};
+
+	this.src = src;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Extensions of JavaScript Array and Object classes to match C++ Vector and Map.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Object.defineProperty(Array.prototype, "size", { value: function()
+{
+	return this.length;
+}});
+
+Object.defineProperty(Array.prototype, "clear", { value: function()
+{
+	while(this.length) { this.pop(); }
+}});
+
+Object.defineProperty(Array.prototype, "clone", { value: function()
+{
+	return [].concat(this);
+}});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+Object.defineProperty(String.prototype, "size", { value: function()
+{
+	return this.length;
+}});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+WebGLRenderingContext.prototype.getShaderParameter_enum = function(shader, pname)
+{
+	return this.getShaderParameter(shader, pname);
+}
+
+WebGLRenderingContext.prototype.getShaderParameter_boolean = function(shader, pname)
+{
+	return this.getShaderParameter(shader, pname);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+Object.defineProperty(HTMLCanvasElement.prototype, "getImage", { value: function()
+{
+	var img = new Image();
+	img.src = this.toDataURL();
+	return img;
+}});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Required for Box2D
@@ -41,66 +234,3 @@ if(global.Module)
 	    return shape;
 	}
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-if(global["EventTarget"]) global.EventTarget = function() {};
-global.EventTarget = function() {};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-function State(){};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-Image.prototype.load = function(src) { this.src = src; };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Extensions of JavaScript Array and Object classes to match C++ Vector and Map.
-
-Object.defineProperty(Array.prototype, "size", { value: function()
-{
-	return this.length;
-}});
-
-Object.defineProperty(Array.prototype, "clear", { value: function()
-{
-	while(this.length) { this.pop(); }
-}});
-
-Object.defineProperty(Array.prototype, "clone", { value: function()
-{
-	return [].concat(this);
-}});
-
-Object.defineProperty(String.prototype, "size", { value: function()
-{
-	return this.length;
-}});
-
-WebGLRenderingContext.prototype.getShaderParameter_enum = function(shader, pname)
-{
-	return this.getShaderParameter(shader, pname);
-}
-
-WebGLRenderingContext.prototype.getShaderParameter_boolean = function(shader, pname)
-{
-	return this.getShaderParameter(shader, pname);
-}
-
-function show_stack()
-{
-	try
-	{
-		throw true;
-	}
-	catch(e)
-	{
-		var e = new Error();
-		trace(e.stack);
-	}
-}
-
-Object.defineProperty(HTMLCanvasElement.prototype, "getImage", { value: function()
-{
-	var img = new Image();
-	img.src = this.toDataURL();
-	return img;
-}});

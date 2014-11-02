@@ -95,12 +95,32 @@ class HTMLWindow
 		var Callback:Function = __elements[eventType];
 		if(Callback)
 		{
-			e.type 					= String(arguments[1]);
-			e.timestamp 			= Time(arguments[2]);
-			e.clientX				= Float(arguments[4]);
-			e.clientY				= Float(arguments[5]);
-			e.touches[0].clientX 	= e.clientX;
-			e.touches[0].clientY 	= e.clientY;
+			e.type 		= String(arguments[1]);
+			e.timestamp = Time(arguments[2]);
+
+			if(e.type=="keydown" || e.type=="keyup")
+			{
+				var keys:Array<Object> = arguments[3];
+				e.keyCode = keys[0];
+				e.shiftKey = keys[1];
+				e.altKey = keys[2];
+				e.ctrlKey = keys[3];
+			}
+			else if(e.type=="keypress")
+			{
+				var keys:Array<Integer> = arguments[3];
+				e.keyCode = keys[0];
+			}
+			else
+			{
+				e.clientX					= Float(arguments[4]);
+				e.clientY					= Float(arguments[5]);
+				e.touches[0].clientX 		= e.clientX;
+				e.touches[0].clientY 		= e.clientY;
+				e.changedTouches[0].clientX	= e.clientX;
+				e.changedTouches[0].clientY	= e.clientY;
+			}
+
 			Callback(e);
 		}
 	}
