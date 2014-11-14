@@ -65,6 +65,7 @@ void HTMLWindow::setScreen(fxScreen screen)
 	innerHeight = screen.height;
 	devicePixelRatio = screen.pixelRatio;
 	screenRotation = screen.rotation;
+	orientation = screen.rotation;
 
 	switch(screenRotation)
 	{

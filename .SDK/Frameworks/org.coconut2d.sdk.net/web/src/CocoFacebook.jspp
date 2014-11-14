@@ -120,7 +120,12 @@ class CocoFacebook
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static function Login()
 	{
-		if(CocoFacebook.DebugMode) return;
+		if(CocoFacebook.DebugMode)
+		{
+			__ready = true;
+			__success = true;
+			return;
+		}
 
 		// Login user to Facebook
 		if(!CocoFacebook.UserData)
@@ -155,7 +160,7 @@ class CocoFacebook
 					c2d.drawImage(CocoFacebook.__tempImage, CocoFacebook.ImagePadding, CocoFacebook.ImagePadding, CocoFacebook.ImageSize-2*CocoFacebook.ImagePadding, CocoFacebook.ImageSize-2*CocoFacebook.ImagePadding);
 				}
 				UserData.image = CocoGraphics.CocoImageFromHTMLCanvas(canvas, CocoFacebook.ImageSize, CocoFacebook.ImageSize, "image/jpeg");
-				UserData.image_b64 = UserData.image.image.src;
+				UserData.image_b64 = UserData.image.hImage.src;
 				delete canvas;
 				return false;
 			}
@@ -163,7 +168,7 @@ class CocoFacebook
 			return false;
 		}
 
-		if(UserData.image && UserData.image.image.complete && !UserData.image.renderData)
+		if(UserData.image && UserData.image.hImage.complete && !UserData.image.renderData)
 		{
 			UserData.image.textureScale = TextureScale;
 			UserData.image.textureCellWidth = CocoFacebook.ImageSize;
@@ -181,15 +186,24 @@ class CocoFacebook
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static function Like(URL:String):Boolean
 	{
-		if(CocoFacebook.DebugMode) return true;
-
+		if(CocoFacebook.DebugMode)
+		{
+			__ready = true;
+			__success = true;
+			return true;
+		}
 		return true;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static function Post(toUserID:String, URL:String):Boolean
 	{
-		if(CocoFacebook.DebugMode) return true;
+		if(CocoFacebook.DebugMode)
+		{
+			__ready = true;
+			__success = true;
+			return true;
+		}
 		__ready = false;
 		__success = false;
 		__Facebook_Post(toUserID, URL);
@@ -199,10 +213,30 @@ class CocoFacebook
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static function Share(URL:String):Boolean
 	{
-		if(CocoFacebook.DebugMode) return true;
+		if(CocoFacebook.DebugMode)
+		{
+			__ready = true;
+			__success = true;
+			return true;
+		}
 		__ready = false;
 		__success = false;
 		__Facebook_Share(URL);
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function Invite(message:String):Boolean
+	{
+		if(CocoFacebook.DebugMode)
+		{
+			__ready = true;
+			__success = true;
+			return true;
+		}
+		__ready = false;
+		__success = false;
+		__Facebook_Invite(message);
 		return true;
 	}
 

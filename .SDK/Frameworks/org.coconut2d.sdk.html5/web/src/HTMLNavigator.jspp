@@ -1,0 +1,111 @@
+﻿"#export native";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.yourcompany.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLLocation
+{
+	public var href:String;
+	public var search:String;
+
+	public function Constructor()
+	{
+		href="";
+		search="";
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLScreen
+{
+	public var width:Float;
+	public var height:Float;
+	public var availWidth:Float;
+	public var availHeight:Float;
+	public var colorDepth:Float;
+	public var pixelDepth:Float;
+
+	public function Constructor()
+	{
+		width = global.innerWidth;
+		height = global.innerHeight;
+		availWidth = global.innerWidth;
+		availHeight = global.innerHeight;
+		colorDepth = 0;
+		pixelDepth = 0;
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLNavigator
+{
+	public var appCodeName:String;
+	public var appName:String;
+	public var appVersion:String;
+	public var language:String;
+	public var languages:String;
+	public var battery:Object;
+	public var connection:Object;
+	public var geolocation:Object;
+	public var mimeTypes:Array<String>;
+	public var onLine:Boolean;
+	public var oscpu:String;
+	public var platform:String;
+	public var userAgent:String;
+
+	public function Constructor()
+	{
+		appCodeName = "";
+		appName = "";
+		appVersion = "";
+		battery = null;
+		language = "";
+		languages = "";
+		connection = null;
+		geolocation = null;
+		mimeTypes = new Array<String>;
+		onLine = true;
+		oscpu = "";
+		platform ="";
+		userAgent="";
+	}
+
+	public function Destructor()
+	{
+		delete battery;
+		delete geolocation;
+		delete connection;
+		delete mimeTypes;
+	}
+}

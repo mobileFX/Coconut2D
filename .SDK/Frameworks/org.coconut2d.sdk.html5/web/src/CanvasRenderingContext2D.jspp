@@ -56,6 +56,42 @@ class PathLine
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLCanvasPattern
+{
+	public function Constructor()
+	{
+	}
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLCanvasGradient
+{
+	public function Constructor()
+	{
+	}
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLTextMetrics
+{
+	public var width:Float;
+	public function Constructor()
+	{
+		width=0.0;
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class CanvasRenderingContext2D
 {
 	public reference var canvas:HTMLCanvasElement;
@@ -78,6 +114,9 @@ class CanvasRenderingContext2D
 	public var textAlign:String;						// ossible values: start (default), end, left, right or center.
 	public var textBaseline:String;						// Possible values: top, hanging, middle, alphabetic (default), ideographic, bottom
 	public var globalCompositeOperation:String;			// With globalAlpha applied this sets how shapes and images are drawn onto the existing bitmap. Possible values: "source-atop", "source-in", "source-out", "source-over", "destination-atop", "destination-in", "destination-out", "destination-over", "lighter", "darker", "copy", "xor"
+ 	public var imageSmoothingEnabled:Boolean;
+ 	public var webkitImageSmoothingEnabled:Boolean;
+ 	public var mozImageSmoothingEnabled:Boolean;
 
 	private var __lineWidth:Float;
 	private var __fillStyle:String;
@@ -112,6 +151,10 @@ class CanvasRenderingContext2D
 		textAlign = "";
 		textBaseline = "";
 		globalCompositeOperation = "";
+		imageSmoothingEnabled = false;
+		imageSmoothingEnabled=true;
+		webkitImageSmoothingEnabled=true;
+		mozImageSmoothingEnabled=true;
 
 		__font = null;
 		__curX = 0.0;
@@ -510,11 +553,11 @@ class CanvasRenderingContext2D
 				}
 				else if(fontSize.indexOf("in") != -1)
 				{
-					fontSizeInPixels = parseFloat(fontSize) * window.devicePixelRatio * 160.0;
+					fontSizeInPixels = parseFloat(fontSize) * engine.device.devicePixelRatio * 160.0;
 				}
 				else if(fontSize.indexOf("cm") != -1)
 				{
-					fontSizeInPixels = parseFloat(fontSize) * window.devicePixelRatio * 160.0 / 2.54;
+					fontSizeInPixels = parseFloat(fontSize) * engine.device.devicePixelRatio * 160.0 / 2.54;
 				}
 				else
 					return;
@@ -575,24 +618,15 @@ class CanvasRenderingContext2D
 		return ret;
 	}
 
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawImage(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)
 	{
-		if(!image) return;
-
-		var img_width:Float  = image.width;
-		var img_height:Float = image.height;
-		var canvas_width:Float = canvas.width;
-		var canvas_height:Float = canvas.height;
-
-		var src:Uint8Array = image.__imageData.data;
-		var src_len:Integer = image.__imageData.data.length;
-
-		var dst:Uint8Array = canvas.__imageData.data;
-		var dst_len:Integer = canvas.__imageData.data.length;
-
 		var scaleW:Float = dw / sw;
 		var scaleH:Float = dh / sh;
+
+		var src:Uint8Array = image.__imageData.data;
+		var data:Uint8Array = canvas.__imageData.data;
 
 		var dMinX:Integer = Math.round(dx);
 		var dMinY:Integer = Math.round(dy);
@@ -603,25 +637,15 @@ class CanvasRenderingContext2D
 		{
 			for(var y:Integer = dMinY; y < dMaxY; y++)
 			{
-				var dIdx:Integer = ((__m12 * x + __m22 * y + __dy) * canvas_width + (__m11 * x + __m21 * y + __dx)) * 4;
-				var sIdx:Integer = ((sy + Math.round(Float(y - dMinY) / scaleH)) * img_width + sx + Math.round(Float(x - dMinX) / scaleW)) * 4; // Nearest interpolation
+				var dIdx:Integer = ((__m12 * x + __m22 * y + __dy) * canvas.__imageData.width + (__m11 * x + __m21 * y + __dx)) * 4;
+				var sIdx:Integer = ((sy + Math.round(Float(y - dMinY) / scaleH)) * image.__imageData.width + sx + Math.round(Float(x - dMinX) / scaleW)) * 4; // Nearest interpolation
 
-				if(dIdx>=0 && (dIdx+3)<dst_len && sIdx>=0 && (sIdx+3)<src_len)
+				if(dIdx < canvas.__imageData.data.length && sIdx < image.__imageData.data.length)
 				{
-					var sr:Integer = src[sIdx + 0];
-					var sg:Integer = src[sIdx + 1];
-					var sb:Integer = src[sIdx + 2];
-					var sa:Integer = src[sIdx + 3];
-
-					var dr:Integer = dst[sIdx + 0];
-					var dg:Integer = dst[sIdx + 1];
-					var db:Integer = dst[sIdx + 2];
-					var da:Integer = dst[sIdx + 3];
-
-					dst[dIdx + 0] = sa * sr / 255.0 + da * dr / 255.0 * (1.0 - sa / 255.0);
-					dst[dIdx + 1] = sa * sg / 255.0 + da * dg / 255.0 * (1.0 - sa / 255.0);
-					dst[dIdx + 2] = sa * sb / 255.0 + da * db / 255.0 * (1.0 - sa / 255.0);
-					dst[dIdx + 3] = sa + da * (1.0 - sa / 255.0);
+					data[dIdx + 0] = src[sIdx + 3] * src[sIdx + 0] / 255.0 + data[dIdx + 3] * data[dIdx + 0] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
+					data[dIdx + 1] = src[sIdx + 3] * src[sIdx + 1] / 255.0 + data[dIdx + 3] * data[dIdx + 1] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
+					data[dIdx + 2] = src[sIdx + 3] * src[sIdx + 2] / 255.0 + data[dIdx + 3] * data[dIdx + 2] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
+					data[dIdx + 3] = src[sIdx + 3] + data[dIdx + 3] * (1.0 - src[sIdx + 3] / 255.0);
 				}
 			}
 		}
@@ -637,6 +661,11 @@ class CanvasRenderingContext2D
 	public function drawImage(image:Image, dx:Float, dy:Float, dw:Float, dh:Float)
 	{
 		drawImage(image, 0.0, 0.0, image.naturalWidth, image.naturalHeight, dx, dy, dw, dh);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:HTMLCanvasElement, dx:Float, dy:Float, dw:Float, dh:Float)
+	{
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

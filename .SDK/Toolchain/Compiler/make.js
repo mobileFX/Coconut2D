@@ -904,15 +904,33 @@ function CocoMake(command , params)
 	{
 		var src = makefile.Config.PROJECT_PATHS.ASSETS;
 		var dst = optDestination||TARGET.TARGET_ASSETS;
+
 		trace("\nCopying assets ...");
 		trace("+ source: " + src);
 		trace("+ destination: " + dst);
+
 	  	if(!folderExists(src))
 	  		throw new Error("Assets folder not found " + src);
+
 	  	buildPath(dst);
 		copyFolder(src, dst);
 		deleteFolder(dst + "/animations"); // Contains binary animation files
 		IDECallback("folder", dst);
+
+		// Super-Compress PNG images
+		/*
+		if(makefile.Config.CONFIGURATION=="Release")
+		{
+			trace("\nCompressing PNG images ...");
+	    	var html_images = [];
+	    	var images = _this.FindFiles(TARGET.TARGET_ROOT + "/assets", "*.png", true);
+	    	for(var i=0; i<images.length; i++)
+	    	{
+	    		trace("+ compressing: " + images[i]);
+	    		compressPNG(images[i]);
+	    	}
+		}
+		*/
 	};
 
     // =====================================================================

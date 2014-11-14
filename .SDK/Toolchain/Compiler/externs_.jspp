@@ -62,6 +62,8 @@ class Global
 	 function __Facebook_Login(Permissions:String, ImageSize:Integer) {}
 	 function __Facebook_Share(URL:String) {}
 	 function __Facebook_Post(toUserID:String, URL:String) {}
+	 function __Facebook_Invite(message:String) {}
+	 function __Twitter_Share(URL:String) {}
 	 function __close_window() {}
 	 function fixTouch(touch:Touch) {}
 	public function eval(s:String) :Object {}
@@ -263,6 +265,7 @@ class Global
 	undefined var ReferenceError :ReferenceError;
 	undefined var SyntaxError :SyntaxError;
 	undefined var TypeError :TypeError;
+	undefined var JSON :JSON;
 	undefined var ImageDataBuffer :ImageDataBuffer;
 	undefined var DataView :DataView;
 	undefined var XMLHttpRequest :XMLHttpRequest;
@@ -273,6 +276,7 @@ class Global
 	 var engine :CocoEngine;
 	 var window :HTMLWindow;
 	 var document :HTMLDocument;
+	 var location :HTMLLocation;
 	 var graphics :CocoGraphics;
 	 var DEVICE_WRAPPER :COCO_DEVICE_WRAPPER;
 	undefined var b2ManifoldType :b2ManifoldType;
@@ -345,7 +349,6 @@ class Global
 	 var COCO_DEFAULT_CONTROL_HEIGHT :Float;
 	 var COCO_DEFAULT_FONT_SIZE :Float;
 	 var COCO_CONTROL_MOVE_SNAP_PIXELS :Float;
-	undefined var COCO_DEVICE_WRAPPER :COCO_DEVICE_WRAPPER;
 	undefined var SCREEN_RESOLUTION_DPI_ENUM :SCREEN_RESOLUTION_DPI_ENUM;
 	undefined var COCO_CLIP_SYMBOL_LOOP_ENUM :COCO_CLIP_SYMBOL_LOOP_ENUM;
 	undefined var COCO_KEYFRAME_INTERPOLATION_ENUM :COCO_KEYFRAME_INTERPOLATION_ENUM;
@@ -356,16 +359,22 @@ class Global
 	undefined var COCO_CONTROL_ANCHOR_ENUM :COCO_CONTROL_ANCHOR_ENUM;
 	undefined var COCO_SKIN_TILE_ENUM :COCO_SKIN_TILE_ENUM;
 	undefined var PathLine :PathLine;
+	undefined var HTMLCanvasPattern :HTMLCanvasPattern;
+	undefined var HTMLCanvasGradient :HTMLCanvasGradient;
+	undefined var HTMLTextMetrics :HTMLTextMetrics;
 	undefined var CanvasRenderingContext2D :CanvasRenderingContext2D;
 	undefined var Audio :Audio;
 	undefined var ContextArguments :ContextArguments;
 	undefined var HTMLCanvasElement :HTMLCanvasElement;
-	undefined var HTMLCanvasGradient :HTMLCanvasGradient;
-	undefined var HTMLCanvasPattern :HTMLCanvasPattern;
 	undefined var HTMLDocument :HTMLDocument;
 	undefined var HTMLElement :HTMLElement;
+	undefined var HTMLStyleElement :HTMLStyleElement;
+	undefined var HTMLDivElement :HTMLDivElement;
+	undefined var HTMLAnchorElement :HTMLAnchorElement;
 	undefined var Image :Image;
-	undefined var HTMLTextMetrics :HTMLTextMetrics;
+	undefined var HTMLLocation :HTMLLocation;
+	undefined var HTMLScreen :HTMLScreen;
+	undefined var HTMLNavigator :HTMLNavigator;
 	undefined var HTMLWindow :HTMLWindow;
 	undefined var ImageData :ImageData;
 	undefined var WebGLObject :WebGLObject;
@@ -424,6 +433,8 @@ class Global
 	undefined var CocoTextClip :CocoTextClip;
 	undefined var COCO_MASK_TYPE :COCO_MASK_TYPE;
 	undefined var CocoMaskClip :CocoMaskClip;
+	undefined var COCO_SCREEN_ORIENTATION :COCO_SCREEN_ORIENTATION;
+	undefined var CocoDeviceWrapper :CocoDeviceWrapper;
 	undefined var CocoPoint :CocoPoint;
 	undefined var CocoRect :CocoRect;
 	undefined var CocoSkinCacheItem :CocoSkinCacheItem;
@@ -450,11 +461,48 @@ class Global
 	undefined var CocoText :CocoText;
 	undefined var CocoTextBlock :CocoTextBlock;
 	undefined var CocoAudio :CocoAudio;
-	undefined var SYMBOL_ENUM :SYMBOL_ENUM;
-	undefined var GridSymbol :GridSymbol;
+	undefined var FACEBOOK_LOGIN :FACEBOOK_LOGIN;
+	undefined var CocoFacebook :CocoFacebook;
+	undefined var CocoJSON :CocoJSON;
+	undefined var CocoHttpRequest :CocoHttpRequest;
+	undefined var CocoUIView :CocoUIView;
+	undefined var COCO_UIFORM_ANIMATION :COCO_UIFORM_ANIMATION;
+	undefined var CocoAppController :CocoAppController;
+	undefined var CocoUIControl :CocoUIControl;
+	undefined var CocoUIControlOnGlyphClickEvent :CocoUIControlOnGlyphClickEvent;
+	undefined var CocoUIControlOnChevronClickEvent :CocoUIControlOnChevronClickEvent;
+	undefined var CocoUIFormView :CocoUIFormView;
+	undefined var CocoUIScrollView :CocoUIScrollView;
+	undefined var CocoUIButton :CocoUIButton;
+	undefined var CocoUICheckBox :CocoUICheckBox;
+	undefined var CocoUIComboBox :CocoUIComboBox;
+	undefined var CocoUILabel :CocoUILabel;
+	undefined var CocoUINavBar :CocoUINavBar;
+	undefined var CocoUIPictureList :CocoUIPictureList;
+	undefined var CocoUITabBar :CocoUITabBar;
+	undefined var CocoUITextEdit :CocoUITextEdit;
+	undefined var TestDataStream :TestDataStream;
+	undefined var TestOutsourcer :TestOutsourcer;
+	undefined var TestIntegrator :TestIntegrator;
+	undefined var TestIntegratorClient :TestIntegratorClient;
+	undefined var TestHTTP :TestHTTP;
+	undefined var ITest1 :ITest1;
+	undefined var ITest2 :ITest2;
+	undefined var ITest3 :ITest3;
+	undefined var ClassTestInterfaces :ClassTestInterfaces;
+	undefined var TestPublishedStruct :TestPublishedStruct;
+	undefined var TestPublished :TestPublished;
+	undefined var TestPublishedDerived :TestPublishedDerived;
+	undefined var Class1 :Class1;
+	undefined var Class2 :Class2;
+	undefined var Class3 :Class3;
+	undefined var TestSelf1 :TestSelf1;
+	undefined var TestSelf2 :TestSelf2;
+	undefined var TestSelf3 :TestSelf3;
+	undefined var TestThis :TestThis;
 	undefined var GameEngine :GameEngine;
-	undefined var SceneGameBoard :SceneGameBoard;
-	undefined var SceneTitle :SceneTitle;
+	undefined var ReservationsForm :ReservationsForm;
+	undefined var NewAnimation :NewAnimation;
 } //Global
 
 class String
@@ -679,6 +727,13 @@ class TypeError : Error
 {
 	public  var __className :String;
 } //TypeError
+
+class JSON
+{
+	public function parse(json:String) :Array<Object> {}
+	public function stringify(obj:Array<Object>) :String {}
+	public  var __className :String;
+} //JSON
 
 class ImageDataBuffer
 {
@@ -2016,32 +2071,6 @@ class b2ContactEdge
 	public  var __className :String;
 } //b2ContactEdge
 
-class COCO_DEVICE_WRAPPER
-{
-	public function toJSON() :String {}
-	public var DeviceName :String;
-	public var DeviceVersion :String;
-	public var is_Native :Boolean;
-	public var is_Web :Boolean;
-	public var is_CocoPlayer :Boolean;
-	public var is_iPhone :Boolean;
-	public var is_iPad :Boolean;
-	public var is_Android :Boolean;
-	public var is_Chrome :Boolean;
-	public var is_Safari :Boolean;
-	public var is_FireFox :Boolean;
-	public var is_iOS :Boolean;
-	public var Version_iOS :Integer;
-	public var Version_Android :Integer;
-	public var HasTouchEvents :Boolean;
-	public var HasKeyBoard :Boolean;
-	public var HasOpenGL :Boolean;
-	public var ScreenWidth :Integer;
-	public var ScreenHeight :Integer;
-	public var OrientationHorizontal :Boolean;
-	public var OrientationVertical :Boolean;
-} //COCO_DEVICE_WRAPPER
-
 class SCREEN_RESOLUTION_DPI_ENUM
 {
 	public var RESOLUTION_nodpi :SCREEN_RESOLUTION_DPI_ENUM;
@@ -2135,6 +2164,28 @@ class PathLine
 	public  var __className :String;
 } //PathLine
 
+class HTMLCanvasPattern
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //HTMLCanvasPattern
+
+class HTMLCanvasGradient
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //HTMLCanvasGradient
+
+class HTMLTextMetrics
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var width :Float;
+	public  var __className :String;
+} //HTMLTextMetrics
+
 class CanvasRenderingContext2D
 {
 	public function clip() {}
@@ -2175,6 +2226,7 @@ class CanvasRenderingContext2D
 	public function drawImage(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float) {}
 	public function drawImage$1(image:Image, dx:Float, dy:Float) {}
 	public function drawImage$2(image:Image, dx:Float, dy:Float, dw:Float, dh:Float) {}
+	public function drawImage$3(image:HTMLCanvasElement, dx:Float, dy:Float, dw:Float, dh:Float) {}
 	public function createImageData(sw:Float, sh:Float) :ImageData {}
 	public function createImageData$1(imagedata:ImageData) :ImageData {}
 	public function getImageData(sx:Float, sy:Float, sw:Float, sh:Float) :ImageData {}
@@ -2200,6 +2252,9 @@ class CanvasRenderingContext2D
 	public  var textAlign :String;
 	public  var textBaseline :String;
 	public  var globalCompositeOperation :String;
+	public  var imageSmoothingEnabled :Boolean;
+	public  var webkitImageSmoothingEnabled :Boolean;
+	public  var mozImageSmoothingEnabled :Boolean;
 	private  var __lineWidth :Float;
 	private  var __fillStyle :String;
 	private  var __fillColor :Array<Float>;
@@ -2248,7 +2303,7 @@ class ContextArguments
 	public var stencil :Boolean;
 } //ContextArguments
 
-class HTMLCanvasElement
+class HTMLCanvasElement : HTMLElement
 {
 	public function getContext(contextId:String, args:ContextArguments) :Object {}
 	public function toDataURL(mime:String) :String {}
@@ -2262,40 +2317,430 @@ class HTMLCanvasElement
 	public  var __className :String;
 } //HTMLCanvasElement
 
-class HTMLCanvasGradient
-{
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var __className :String;
-} //HTMLCanvasGradient
-
-class HTMLCanvasPattern
-{
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var __className :String;
-} //HTMLCanvasPattern
-
 class HTMLDocument
 {
-	public function createElement(tagName:String) :HTMLCanvasElement {}
+	public function __add(el:HTMLElement) {}
+	public function __remove(el:HTMLElement) {}
+	public function createElement(tagName:String) :HTMLElement {}
+	public function getElementById(id:String) :HTMLElement {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var body :HTMLElement;
+	public  var all :Array<HTMLElement>;
 	public  var __className :String;
 } //HTMLDocument
 
 class HTMLElement
 {
-	public function appendChild(node:HTMLCanvasElement) :HTMLCanvasElement {}
+	public function appendChild(node:HTMLElement) :HTMLElement {}
+	public function replaceChild(newChild:HTMLElement, oldChild:HTMLElement) :HTMLElement {}
+	public function removeChild(node:HTMLElement) :HTMLElement {}
+	public function setAttribute(name:String, value:String) {}
+	public function getAttribute(name:String) :String {}
 	public function Destructor() {}
 	public function Constructor() {}
+	public  var id :String;
+	public  var offsetWidth :Float;
+	public  var offsetHeight :Float;
+	public  var innerHTML :String;
+	public  var style :HTMLStyleElement;
+	public  var parentNode :HTMLElement;
+	public  var document :HTMLDocument;
+	public  var onclick :Function;
 	public  var __className :String;
 } //HTMLElement
 
-class Image
+class HTMLStyleElement
 {
-	public function load(url:String) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var cssText :String;
+	public  var backfaceVisibility :String;
+	public  var background :String;
+	public  var backgroundAttachment :String;
+	public  var backgroundBlendMode :String;
+	public  var backgroundClip :String;
+	public  var backgroundColor :String;
+	public  var backgroundImage :String;
+	public  var backgroundOrigin :String;
+	public  var backgroundPosition :String;
+	public  var backgroundPositionX :String;
+	public  var backgroundPositionY :String;
+	public  var backgroundRepeat :String;
+	public  var backgroundRepeatX :String;
+	public  var backgroundRepeatY :String;
+	public  var backgroundSize :String;
+	public  var baselineShift :String;
+	public  var border :String;
+	public  var borderBottom :String;
+	public  var borderBottomColor :String;
+	public  var borderBottomLeftRadius :String;
+	public  var borderBottomRightRadius :String;
+	public  var borderBottomStyle :String;
+	public  var borderBottomWidth :String;
+	public  var borderCollapse :String;
+	public  var borderColor :String;
+	public  var borderImage :String;
+	public  var borderImageOutset :String;
+	public  var borderImageRepeat :String;
+	public  var borderImageSlice :String;
+	public  var borderImageSource :String;
+	public  var borderImageWidth :String;
+	public  var borderLeft :String;
+	public  var borderLeftColor :String;
+	public  var borderLeftStyle :String;
+	public  var borderLeftWidth :String;
+	public  var borderRadius :String;
+	public  var borderRight :String;
+	public  var borderRightColor :String;
+	public  var borderRightStyle :String;
+	public  var borderRightWidth :String;
+	public  var borderSpacing :Float;
+	public  var borderStyle :String;
+	public  var borderTop :String;
+	public  var borderTopColor :String;
+	public  var borderTopLeftRadius :String;
+	public  var borderTopRightRadius :String;
+	public  var borderTopStyle :String;
+	public  var borderTopWidth :String;
+	public  var borderWidth :Float;
+	public  var bottom :String;
+	public  var boxShadow :String;
+	public  var boxSizing :String;
+	public  var bufferedRendering :String;
+	public  var captionSide :String;
+	public  var clear :String;
+	public  var clip :String;
+	public  var clipPath :String;
+	public  var clipRule :String;
+	public  var color :String;
+	public  var colorInterpolation :String;
+	public  var colorInterpolationFilters :String;
+	public  var colorRendering :String;
+	public  var content :String;
+	public  var counterIncrement :String;
+	public  var counterReset :String;
+	public  var cursor :String;
+	public  var direction :String;
+	public  var display :String;
+	public  var dominantBaseline :String;
+	public  var emptyCells :String;
+	public  var enableBackground :String;
+	public  var fill :String;
+	public  var fillOpacity :String;
+	public  var fillRule :String;
+	public  var filter :String;
+	public  var flex :String;
+	public  var flexBasis :String;
+	public  var flexDirection :String;
+	public  var flexFlow :String;
+	public  var flexGrow :String;
+	public  var flexShrink :String;
+	public  var flexWrap :String;
+	public  var float :String;
+	public  var floodColor :String;
+	public  var floodOpacity :String;
+	public  var font :String;
+	public  var fontFamily :String;
+	public  var fontKerning :String;
+	public  var fontSize :String;
+	public  var fontStretch :String;
+	public  var fontStyle :String;
+	public  var fontVariant :String;
+	public  var fontVariantLigatures :String;
+	public  var fontWeight :String;
+	public  var glyphOrientationHorizontal :String;
+	public  var glyphOrientationVertical :String;
+	public  var height :String;
+	public  var imageRendering :String;
+	public  var justifyContent :String;
+	public  var left :String;
+	public  var letterSpacing :String;
+	public  var lightingColor :String;
+	public  var lineHeight :String;
+	public  var listStyle :String;
+	public  var listStyleImage :String;
+	public  var listStylePosition :String;
+	public  var listStyleType :String;
+	public  var margin :String;
+	public  var marginBottom :String;
+	public  var marginLeft :String;
+	public  var marginRight :String;
+	public  var marginTop :String;
+	public  var marker :String;
+	public  var markerEnd :String;
+	public  var markerMid :String;
+	public  var markerStart :String;
+	public  var mask :String;
+	public  var maskType :String;
+	public  var maxHeight :String;
+	public  var maxWidth :String;
+	public  var maxZoom :String;
+	public  var minHeight :String;
+	public  var minWidth :String;
+	public  var minZoom :String;
+	public  var objectFit :String;
+	public  var objectPosition :String;
+	public  var opacity :Float;
+	public  var order :String;
+	public  var orientation :String;
+	public  var orphans :String;
+	public  var outline :String;
+	public  var outlineColor :String;
+	public  var outlineOffset :String;
+	public  var outlineStyle :String;
+	public  var outlineWidth :String;
+	public  var overflow :String;
+	public  var overflowWrap :String;
+	public  var overflowX :String;
+	public  var overflowY :String;
+	public  var padding :String;
+	public  var paddingBottom :String;
+	public  var paddingLeft :String;
+	public  var paddingRight :String;
+	public  var paddingTop :String;
+	public  var page :String;
+	public  var pageBreakAfter :String;
+	public  var pageBreakBefore :String;
+	public  var pageBreakInside :String;
+	public  var paintOrder :String;
+	public  var perspective :String;
+	public  var perspectiveOrigin :String;
+	public  var pointerEvents :String;
+	public  var position :String;
+	public  var quotes :String;
+	public  var resize :String;
+	public  var right :String;
+	public  var shapeImageThreshold :String;
+	public  var shapeMargin :String;
+	public  var shapeOutside :String;
+	public  var shapeRendering :String;
+	public  var size :String;
+	public  var speak :String;
+	public  var src :String;
+	public  var stopColor :String;
+	public  var stopOpacity :String;
+	public  var stroke :String;
+	public  var strokeDasharray :String;
+	public  var strokeDashoffset :String;
+	public  var strokeLinecap :String;
+	public  var strokeLinejoin :String;
+	public  var strokeMiterlimit :String;
+	public  var strokeOpacity :String;
+	public  var strokeWidth :String;
+	public  var tabSize :String;
+	public  var tableLayout :String;
+	public  var textAlign :String;
+	public  var textAnchor :String;
+	public  var textDecoration :String;
+	public  var textIndent :String;
+	public  var textLineThroughColor :String;
+	public  var textLineThroughMode :String;
+	public  var textLineThroughStyle :String;
+	public  var textLineThroughWidth :String;
+	public  var textOverflow :String;
+	public  var textOverlineColor :String;
+	public  var textOverlineMode :String;
+	public  var textOverlineStyle :String;
+	public  var textOverlineWidth :String;
+	public  var textRendering :String;
+	public  var textShadow :String;
+	public  var textTransform :String;
+	public  var textUnderlineColor :String;
+	public  var textUnderlineMode :String;
+	public  var textUnderlineStyle :String;
+	public  var textUnderlineWidth :String;
+	public  var top :String;
+	public  var touchAction :String;
+	public  var transform :String;
+	public  var transformOrigin :String;
+	public  var transformStyle :String;
+	public  var transition :String;
+	public  var transitionDelay :String;
+	public  var transitionDuration :String;
+	public  var transitionProperty :String;
+	public  var transitionTimingFunction :String;
+	public  var unicodeBidi :String;
+	public  var unicodeRange :String;
+	public  var userZoom :String;
+	public  var vectorEffect :String;
+	public  var verticalAlign :String;
+	public  var visibility :String;
+	public  var webkitAnimation :String;
+	public  var webkitAnimationDelay :String;
+	public  var webkitAnimationDirection :String;
+	public  var webkitAnimationDuration :String;
+	public  var webkitAnimationFillMode :String;
+	public  var webkitAnimationIterationCount :String;
+	public  var webkitAnimationName :String;
+	public  var webkitAnimationPlayState :String;
+	public  var webkitAnimationTimingFunction :String;
+	public  var webkitAppRegion :String;
+	public  var webkitAppearance :String;
+	public  var webkitAspectRatio :String;
+	public  var webkitBackfaceVisibility :String;
+	public  var webkitBackgroundClip :String;
+	public  var webkitBackgroundComposite :String;
+	public  var webkitBackgroundOrigin :String;
+	public  var webkitBackgroundSize :String;
+	public  var webkitBorderAfter :String;
+	public  var webkitBorderAfterColor :String;
+	public  var webkitBorderAfterStyle :String;
+	public  var webkitBorderAfterWidth :String;
+	public  var webkitBorderBefore :String;
+	public  var webkitBorderBeforeColor :String;
+	public  var webkitBorderBeforeStyle :String;
+	public  var webkitBorderBeforeWidth :String;
+	public  var webkitBorderEnd :String;
+	public  var webkitBorderEndColor :String;
+	public  var webkitBorderEndStyle :String;
+	public  var webkitBorderEndWidth :String;
+	public  var webkitBorderFit :String;
+	public  var webkitBorderHorizontalSpacing :String;
+	public  var webkitBorderImage :String;
+	public  var webkitBorderRadius :String;
+	public  var webkitBorderStart :String;
+	public  var webkitBorderStartColor :String;
+	public  var webkitBorderStartStyle :String;
+	public  var webkitBorderStartWidth :String;
+	public  var webkitBorderVerticalSpacing :String;
+	public  var webkitBoxAlign :String;
+	public  var webkitBoxDecorationBreak :String;
+	public  var webkitBoxDirection :String;
+	public  var webkitBoxFlex :String;
+	public  var webkitBoxFlexGroup :String;
+	public  var webkitBoxLines :String;
+	public  var webkitBoxOrdinalGroup :String;
+	public  var webkitBoxOrient :String;
+	public  var webkitBoxPack :String;
+	public  var webkitBoxReflect :String;
+	public  var webkitBoxShadow :String;
+	public  var webkitClipPath :String;
+	public  var webkitColumnBreakAfter :String;
+	public  var webkitColumnBreakBefore :String;
+	public  var webkitColumnBreakInside :String;
+	public  var webkitColumnCount :String;
+	public  var webkitColumnGap :String;
+	public  var webkitColumnRule :String;
+	public  var webkitColumnRuleColor :String;
+	public  var webkitColumnRuleStyle :String;
+	public  var webkitColumnRuleWidth :String;
+	public  var webkitColumnSpan :String;
+	public  var webkitColumnWidth :String;
+	public  var webkitColumns :String;
+	public  var webkitFilter :String;
+	public  var webkitFontFeatureSettings :String;
+	public  var webkitFontSizeDelta :String;
+	public  var webkitFontSmoothing :String;
+	public  var webkitHighlight :String;
+	public  var webkitHyphenateCharacter :String;
+	public  var webkitLineBoxContain :String;
+	public  var webkitLineBreak :String;
+	public  var webkitLineClamp :String;
+	public  var webkitLocale :String;
+	public  var webkitLogicalHeight :String;
+	public  var webkitLogicalWidth :String;
+	public  var webkitMarginAfter :String;
+	public  var webkitMarginAfterCollapse :String;
+	public  var webkitMarginBefore :String;
+	public  var webkitMarginBeforeCollapse :String;
+	public  var webkitMarginBottomCollapse :String;
+	public  var webkitMarginCollapse :String;
+	public  var webkitMarginEnd :String;
+	public  var webkitMarginStart :String;
+	public  var webkitMarginTopCollapse :String;
+	public  var webkitMask :String;
+	public  var webkitMaskBoxImage :String;
+	public  var webkitMaskBoxImageOutset :String;
+	public  var webkitMaskBoxImageRepeat :String;
+	public  var webkitMaskBoxImageSlice :String;
+	public  var webkitMaskBoxImageSource :String;
+	public  var webkitMaskBoxImageWidth :String;
+	public  var webkitMaskClip :String;
+	public  var webkitMaskComposite :String;
+	public  var webkitMaskImage :String;
+	public  var webkitMaskOrigin :String;
+	public  var webkitMaskPosition :String;
+	public  var webkitMaskPositionX :String;
+	public  var webkitMaskPositionY :String;
+	public  var webkitMaskRepeat :String;
+	public  var webkitMaskRepeatX :String;
+	public  var webkitMaskRepeatY :String;
+	public  var webkitMaskSize :String;
+	public  var webkitMaxLogicalHeight :String;
+	public  var webkitMaxLogicalWidth :String;
+	public  var webkitMinLogicalHeight :String;
+	public  var webkitMinLogicalWidth :String;
+	public  var webkitPaddingAfter :String;
+	public  var webkitPaddingBefore :String;
+	public  var webkitPaddingEnd :String;
+	public  var webkitPaddingStart :String;
+	public  var webkitPerspective :String;
+	public  var webkitPerspectiveOrigin :String;
+	public  var webkitPerspectiveOriginX :String;
+	public  var webkitPerspectiveOriginY :String;
+	public  var webkitPrintColorAdjust :String;
+	public  var webkitRtlOrdering :String;
+	public  var webkitRubyPosition :String;
+	public  var webkitTapHighlightColor :String;
+	public  var webkitTextCombine :String;
+	public  var webkitTextDecorationsInEffect :String;
+	public  var webkitTextEmphasis :String;
+	public  var webkitTextEmphasisColor :String;
+	public  var webkitTextEmphasisPosition :String;
+	public  var webkitTextEmphasisStyle :String;
+	public  var webkitTextFillColor :String;
+	public  var webkitTextOrientation :String;
+	public  var webkitTextSecurity :String;
+	public  var webkitTextStroke :String;
+	public  var webkitTextStrokeColor :String;
+	public  var webkitTextStrokeWidth :String;
+	public  var webkitTransform :String;
+	public  var webkitTransformOrigin :String;
+	public  var webkitTransformOriginX :String;
+	public  var webkitTransformOriginY :String;
+	public  var webkitTransformOriginZ :String;
+	public  var webkitTransformStyle :String;
+	public  var webkitTransition :String;
+	public  var webkitTransitionDelay :String;
+	public  var webkitTransitionDuration :String;
+	public  var webkitTransitionProperty :String;
+	public  var webkitTransitionTimingFunction :String;
+	public  var webkitUserDrag :String;
+	public  var webkitUserModify :String;
+	public  var webkitUserSelect :String;
+	public  var webkitWritingMode :String;
+	public  var whiteSpace :String;
+	public  var widows :String;
+	public  var width :String;
+	public  var willChange :String;
+	public  var wordBreak :String;
+	public  var wordSpacing :String;
+	public  var wordWrap :String;
+	public  var writingMode :String;
+	public  var zIndex :Integer;
+	public  var zoom :String;
+	public  var __className :String;
+} //HTMLStyleElement
+
+class HTMLDivElement : HTMLElement
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //HTMLDivElement
+
+class HTMLAnchorElement : HTMLElement
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //HTMLAnchorElement
+
+class Image : HTMLElement
+{
+	public function load(url:String, cocoimage:CocoImage) {}
+	public function cloneNode(deep:Boolean) :Image {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var __imageData :ImageData;
@@ -2310,13 +2755,47 @@ class Image
 	public  var __className :String;
 } //Image
 
-class HTMLTextMetrics
+class HTMLLocation
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var href :String;
+	public  var search :String;
+	public  var __className :String;
+} //HTMLLocation
+
+class HTMLScreen
 {
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var width :Float;
+	public  var height :Float;
+	public  var availWidth :Float;
+	public  var availHeight :Float;
+	public  var colorDepth :Float;
+	public  var pixelDepth :Float;
 	public  var __className :String;
-} //HTMLTextMetrics
+} //HTMLScreen
+
+class HTMLNavigator
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var appCodeName :String;
+	public  var appName :String;
+	public  var appVersion :String;
+	public  var language :String;
+	public  var languages :String;
+	public  var battery :Object;
+	public  var connection :Object;
+	public  var geolocation :Object;
+	public  var mimeTypes :Array<String>;
+	public  var onLine :Boolean;
+	public  var oscpu :String;
+	public  var platform :String;
+	public  var userAgent :String;
+	public  var __className :String;
+} //HTMLNavigator
 
 class HTMLWindow
 {
@@ -2327,9 +2806,13 @@ class HTMLWindow
 	public function Constructor() {}
 	public  var __uid :Integer;
 	public  var document :HTMLDocument;
+	public  var location :HTMLLocation;
+	public  var navigator :HTMLNavigator;
+	public  var screen :HTMLScreen;
 	public  var innerHeight :Float;
 	public  var innerWidth :Float;
 	public  var devicePixelRatio :Float;
+	public  var orientation :Integer;
 	public  var __elements :Array<Function>;
 	public  var e :HTMLEvent;
 	public  var __className :String;
@@ -2919,10 +3402,10 @@ class CocoEngine
 	public function removeTickListener(tickable:ITickable) {}
 	public function getTickableIndex(tickable:ITickable) :Integer {}
 	private function __tick(time:Time) {}
-	public function __debug_trace(scene:CocoScene, clip:CocoClip, message:String) {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var TICK_TIME :Time;
+	public  var device :CocoDeviceWrapper;
 	private  var __currentState :State;
 	private  var __nextState :State;
 	private  var __tickables :Array<ITickable>;
@@ -2932,6 +3415,7 @@ class CocoEngine
 	private  var __deviceMessageQueue :Array<DEVICE_MESSAGE>;
 	private  var __clicked :Array<CocoClip>;
 	private  var __track_touch :Boolean;
+	private  var __track_key :Boolean;
 	private  var __has_touch_device_message :Boolean;
 	public  var __className :String;
 } //CocoEngine
@@ -3024,6 +3508,7 @@ class TouchList : Array
 
 class HTMLEvent
 {
+	public function preventDefault() {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var type :String;
@@ -3296,6 +3781,8 @@ class CocoMatrix
 	public function refresh() {}
 	public function push() {}
 	public function pop() {}
+	public function toCSS3D(identity:Boolean) :String {}
+	public function toCSS2D(identity:Boolean) :String {}
 	public function Destructor() {}
 	public function Constructor(M:CocoMatrix) {}
 	public  var __m :CocoMatrixData;
@@ -3316,6 +3803,7 @@ class CocoScene
 	public function tick(time:Time) {}
 	public function paint(ctx:ICocoRenderContext, time:Time) {}
 	public function resourcesLoaded(ctx:ICocoRenderContext) :Boolean {}
+	public function loadingProgress() :Integer {}
 	public function gotoAndPlayByName(LabelName:String) {}
 	public function gotoAndStopByName(LabelName:String) {}
 	public function gotoAndPlayByIndex(FrameIndex:Integer) {}
@@ -3337,8 +3825,11 @@ class CocoScene
 	public  var __root :CocoClip;
 	public  var __levelParents :Array<CocoClip>;
 	public  var __ready :Boolean;
+	public  var __loaded_assets :Float;
 	public  var __finished :Boolean;
 	private  var m_ctx :ICocoRenderContext;
+	private  var m_width :Float;
+	private  var m_height :Float;
 	public  var __className :String;
 } //CocoScene
 
@@ -3421,7 +3912,7 @@ class CocoTimeline
 
 class CocoClip : CocoEventSource
 {
-	public function prepare(scene:CocoScene) {}
+	public function prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer) {}
 	public function analyze(sx:Float, sy:Float) {}
 	public function reset() {}
 	public function clear() {}
@@ -3440,12 +3931,15 @@ class CocoClip : CocoEventSource
 	public function tick(time:Time) {}
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	private function combine(F1:CocoKeyFrame, F2:CocoKeyFrame) {}
-	protected function apply(F:CocoKeyFrame, matrix:CocoMatrix) {}
 	public function hitTest(wx:Float, wy:Float) :Boolean {}
 	public function initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float) {}
-	public function initBoundingBoxFromChildren(scene:CocoScene, mv:CocoMatrix) {}
+	public function initBoundingBoxFromChildren(ctx:ICocoRenderContext, scene:CocoScene, mv:CocoMatrix) {}
+	public function createInplaceHTML(update:Boolean, tag:String, href:String) :HTMLDivElement {}
+	public function destroyInplaceHTML() {}
 	public function Destructor() {}
 	public function Constructor(image:CocoImage) {}
+	public  var __uniqueID :String;
+	public  var __zIndex :Integer;
 	public  var __instanceName :String;
 	public  var __clipPath :String;
 	public  var __symbolLoop :COCO_CLIP_SYMBOL_LOOP_ENUM;
@@ -3458,12 +3952,14 @@ class CocoClip : CocoEventSource
 	public  var __childWithMaxTimelineDuration :CocoClip;
 	public  var __currentSequence :CocoSequence;
 	public  var __currentAudio :CocoAudio;
+	public  var __ANCHOR :HTMLDivElement;
 	public  var __currentTime :Time;
 	public  var __loopTime :Time;
 	public  var __loops :Integer;
 	public  var __currentSequenceStartTime :Time;
 	public  var __currentSequenceFrameIndex :Integer;
 	public  var __pauseTicks :Integer;
+	public  var __visible :Boolean;
 	public  var __x :Float;
 	public  var __y :Float;
 	public  var __width :Float;
@@ -3488,6 +3984,7 @@ class CocoClip : CocoEventSource
 	public var OnTouchEnd :CocoClipOnTouchEndEvent;
 	public var OnAnimationSequenceBegin :CocoClipOnAnimationSequenceBeginEvent;
 	public var OnAnimationSequenceEnd :CocoClipOnAnimationSequenceEndEvent;
+	public static  var __uniqueIDCounter :Integer;
 	public  var __className :String;
 } //CocoClip
 
@@ -3525,7 +4022,7 @@ class CocoClipOnAnimationSequenceEndEvent : CocoEvent
 
 class CocoSelfTexturedClip : CocoClip
 {
-	public function prepare(scene:CocoScene) {}
+	public function prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer) {}
 	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
 	public function Destructor() {}
 	public function Constructor() {}
@@ -3536,7 +4033,7 @@ class CocoSelfTexturedClip : CocoClip
 
 class CocoTextClip : CocoSelfTexturedClip
 {
-	public function prepare(scene:CocoScene) {}
+	public function prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer) {}
 	public function Destructor() {}
 	public function Constructor() {}
 	private  var m_Text :String;
@@ -3577,6 +4074,51 @@ class CocoMaskClip : CocoSelfTexturedClip
 	public  var Rectangles :Array<Float>;
 	public  var __className :String;
 } //CocoMaskClip
+
+class COCO_SCREEN_ORIENTATION
+{
+	public var SCREEN_ORIENTATION_PORTRAIT :COCO_SCREEN_ORIENTATION;
+	public var SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN :COCO_SCREEN_ORIENTATION;
+	public var SCREEN_ORIENTATION_LANDSCAPE_CLOCKWISE :COCO_SCREEN_ORIENTATION;
+	public var SCREEN_ORIENTATION_LANDSCAPE_COUNTER_CLOCKWISE :COCO_SCREEN_ORIENTATION;
+} //COCO_SCREEN_ORIENTATION
+
+class CocoDeviceWrapper
+{
+	public function report() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var Force2D :Boolean;
+	public  var ForceCSS3 :Boolean;
+	public  var pixelRatio :Float;
+	public  var screenWidth :Float;
+	public  var screenHeight :Float;
+	public  var unorientedScreenWidth :Float;
+	public  var unorientedScreenHeight :Float;
+	public  var screenOrientation :COCO_SCREEN_ORIENTATION;
+	public  var isNative :Boolean;
+	public  var isHTML5Browser :Boolean;
+	public  var isChrome :Boolean;
+	public  var isFirefox :Boolean;
+	public  var isSafari :Boolean;
+	public  var isIOS :Boolean;
+	public  var isIPhone :Boolean;
+	public  var isIPad :Boolean;
+	public  var isIPad1 :Boolean;
+	public  var isIPad2 :Boolean;
+	public  var isIPad3 :Boolean;
+	public  var isIPhone3 :Boolean;
+	public  var isIPhone4 :Boolean;
+	public  var isIPhone5 :Boolean;
+	public  var isIPhone6 :Boolean;
+	public  var isIPhone6Plus :Boolean;
+	public  var isDesktopSafari :Boolean;
+	public  var iOSVersion :String;
+	public  var isAndroid :Boolean;
+	public  var AndroidSDKVersion :String;
+	public  var HasTouchscreen :Boolean;
+	public  var __className :String;
+} //CocoDeviceWrapper
 
 class CocoPoint
 {
@@ -3657,6 +4199,9 @@ class CocoImageResolution
 
 class CocoImage
 {
+	public function createFromURL(url:String, resizeWidth:Float, resizeHeight:Float) :CocoImage {}
+	public function __error(hImage:Image) :Boolean {}
+	public function __loaded(hImage:Image) {}
 	public function createFromCanvas(canvas:HTMLCanvasElement, width:Float, height:Float) {}
 	public function createFromBase64(url:String, width:Float, height:Float) {}
 	public function addResolution(sibling:CocoImageResolution) :CocoImageResolution {}
@@ -3668,7 +4213,7 @@ class CocoImage
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var symbolName :String;
-	public  var image :Image;
+	public  var hImage :Image;
 	public  var scene :CocoScene;
 	public  var textureCellWidth :Float;
 	public  var textureCellHeight :Float;
@@ -3684,6 +4229,8 @@ class CocoImage
 	public  var tileHeight :Integer;
 	public  var tileMap :Int32Array;
 	public  var renderData :ICocoImageRenderData;
+	public  var onLoadResizeWidth :Float;
+	public  var onLoadResizeHeight :Float;
 	public  var baseUrl :String;
 	public  var viewOptimalWidth :Integer;
 	public  var viewOptimalHeight :Integer;
@@ -3728,17 +4275,24 @@ class ICocoRenderContext
 {
 	public function getModelViewMatrix() :CocoMatrix {}
 	public function getProjectionMatrix() :CocoMatrix {}
-	public function getWidth() :Float {}
-	public function getHeight() :Float {}
+	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix) {}
+	public function getDisplayWidth() :Float {}
+	public function getDisplayHeight() :Float {}
+	public function getBufferWidth() :Float {}
+	public function getBufferHeight() :Float {}
 	public function cls() {}
+	public function clip(x:Float, y:Float, w:Float, h:Float) {}
 	public function flush() {}
 	public function ready() :Boolean {}
-	public function prepare(scene:CocoScene) {}
+	public function prepare(viewScale:Float) {}
+	public function prepareClip(clip:CocoClip) {}
 	public function prepareImage(img:CocoImage) :ICocoImageRenderData {}
-	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame) {}
+	public function drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer) {}
 	public function drawMaskBegin() {}
 	public function drawMaskEnd(invert:Boolean) {}
 	public function drawBoundingBox(clip:CocoClip) {}
+	public function hide() {}
+	public function show() {}
 	public function getGLContext() :WebGLRenderingContext {}
 	public function get2DContext() :CanvasRenderingContext2D {}
 } //ICocoRenderContext
@@ -3755,25 +4309,33 @@ class CocoRenderContext2D
 {
 	public function getGLContext() :WebGLRenderingContext {}
 	public function get2DContext() :CanvasRenderingContext2D {}
-	public function flush() {}
+	public function getDisplayWidth() :Float {}
+	public function getDisplayHeight() :Float {}
+	public function getBufferWidth() :Float {}
+	public function getBufferHeight() :Float {}
 	public function getModelViewMatrix() :CocoMatrix {}
 	public function getProjectionMatrix() :CocoMatrix {}
-	public function getWidth() :Float {}
-	public function getHeight() :Float {}
-	public function cls() {}
+	public function hide() {}
+	public function show() {}
 	public function ready() :Boolean {}
-	public function prepare(scene:CocoScene) {}
+	public function flush() {}
+	public function cls() {}
+	public function clip(x:Float, y:Float, w:Float, h:Float) {}
+	public function prepare(viewScale:Float) {}
 	public function prepareImage(img:CocoImage) :ICocoImageRenderData {}
-	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame) {}
+	public function prepareClip(clip:CocoClip) {}
+	public function apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix) {}
+	private function hideClipCanvas(clip:CocoClip) {}
+	public function drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer) {}
 	public function drawMaskBegin() {}
 	public function drawMaskEnd(invert:Boolean) {}
 	public function drawBoundingBox(clip:CocoClip) {}
 	public function Destructor() {}
-	public function Constructor(ctx:CanvasRenderingContext2D) {}
+	public function Constructor(ctx:CanvasRenderingContext2D, css3:Boolean) {}
 	private  var c2d :CanvasRenderingContext2D;
 	private  var __modelViewMatrix :CocoMatrix;
 	private  var __projectionMatrix :CocoMatrix;
-	private  var __viewportVector :CocoVector;
+	private  var __css3 :Boolean;
 	public  var __className :String;
 } //CocoRenderContext2D
 
@@ -3781,17 +4343,24 @@ class CocoRenderContextGL
 {
 	public function getGLContext() :WebGLRenderingContext {}
 	public function get2DContext() :CanvasRenderingContext2D {}
-	public function flush() {}
+	public function getDisplayWidth() :Float {}
+	public function getDisplayHeight() :Float {}
+	public function getBufferWidth() :Float {}
+	public function getBufferHeight() :Float {}
 	public function getModelViewMatrix() :CocoMatrix {}
 	public function getProjectionMatrix() :CocoMatrix {}
-	public function getWidth() :Float {}
-	public function getHeight() :Float {}
-	public function cls() {}
+	public function hide() {}
+	public function show() {}
 	public function ready() :Boolean {}
-	public function prepare(scene:CocoScene) {}
+	public function flush() {}
+	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix) {}
+	public function cls() {}
+	public function clip(x:Float, y:Float, w:Float, h:Float) {}
+	public function prepare(viewScale:Float) {}
 	public function prepareImage(img:CocoImage) :ICocoImageRenderData {}
+	public function prepareClip(clip:CocoClip) {}
 	private function update(m:CocoMatrix, ul:WebGLUniformLocation) {}
-	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame) {}
+	public function drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer) {}
 	private function setFilter(filter:Integer) :Boolean {}
 	public function drawMaskBegin() {}
 	public function drawMaskEnd(invert:Boolean) {}
@@ -3801,6 +4370,7 @@ class CocoRenderContextGL
 	private  var gl :WebGLRenderingContext;
 	private  var __modelViewMatrix :CocoMatrix;
 	private  var __projectionMatrix :CocoMatrix;
+	private  var __projectionMatrix2D :CocoMatrix;
 	private  var __viewportVector :CocoVector;
 	private  var maskDraw :Boolean;
 	private  var activeShader :CocoShaderCommon;
@@ -3975,8 +4545,8 @@ class CocoTextBlock
 
 class CocoAudio
 {
-	public function tick() {}
 	public function reset() {}
+	public function tick() {}
 	public function play() {}
 	public function pause() {}
 	public function stop() {}
@@ -3987,6 +4557,7 @@ class CocoAudio
 	public function setCurrentTime(t:Float) {}
 	public function Destructor() {}
 	public function Constructor(url:String, autoplay:Boolean, loops:Integer) {}
+	public static  var __muted :Boolean;
 	public  var src :String;
 	public  var audio :Audio;
 	public  var autoplay :Boolean;
@@ -3996,86 +4567,670 @@ class CocoAudio
 	public  var __className :String;
 } //CocoAudio
 
-class SYMBOL_ENUM
+class FACEBOOK_LOGIN
 {
-	public var SYMBOL_LEONIDAS :SYMBOL_ENUM;
-	public var SYMBOL_XERXES :SYMBOL_ENUM;
-	public var SYMBOL_SPARTAN :SYMBOL_ENUM;
-	public var SYMBOL_PERSIAN :SYMBOL_ENUM;
-	public var SYMBOL_SWORDS :SYMBOL_ENUM;
-	public var SYMBOL_ARMOR :SYMBOL_ENUM;
-} //SYMBOL_ENUM
+	public function toJSON() :String {}
+	public var id :String;
+	public var email :String;
+	public var first_name :String;
+	public var gender :String;
+	public var last_name :String;
+	public var link :String;
+	public var locale :String;
+	public var name :String;
+	public var timezone :Float;
+	public var updated_time :String;
+	public var verified :Boolean;
+	public var image :CocoImage;
+	public var image_is_silhouette :Boolean;
+	public var image_url :String;
+	public var image_b64 :String;
+} //FACEBOOK_LOGIN
 
-class GridSymbol
+class CocoFacebook
 {
-	public function getRandom() :Integer {}
-	public function createSymbol(symbol:Integer) :CocoClip {}
-	public function initPlaceholder() :CocoClip {}
-	public function initLeonidas() :CocoClip {}
-	public function initXerxes() :CocoClip {}
-	public function initSpartan() :CocoClip {}
-	public function initPersian() :CocoClip {}
-	public function initSwords() :CocoClip {}
-	public function initArmor() :CocoClip {}
+	public function Init(AppID:Integer) {}
+	public function CreateDummyData() {}
+	public function Login() {}
+	public function isUserLoggedOn() :Boolean {}
+	public function Like(URL:String) :Boolean {}
+	public function Post(toUserID:String, URL:String) :Boolean {}
+	public function Share(URL:String) :Boolean {}
+	public function Invite(message:String) :Boolean {}
+	public function __Facebook_Login_Callback(response:FACEBOOK_LOGIN) {}
+	public function __Facebook_Action_Callback(success:Boolean) {}
+	public function Ready() :Boolean {}
+	public function Success() :Boolean {}
 	public function Destructor() {}
-	public function Constructor(scene:CocoScene) {}
-	public  var scene :CocoScene;
+	public function Constructor() {}
+	public static  var DebugMode :Boolean;
+	public static  var Permissions :String;
+	public static  var ImageSize :Integer;
+	public static  var TextureScale :Float;
+	public static  var ImagePadding :Float;
+	public static  var ImageBkColor :String;
+	public static  var AppID :Integer;
+	public static  var UserData :FACEBOOK_LOGIN;
+	public static  var UserDenied :Boolean;
+	private static  var __ready :Boolean;
+	private static  var __success :Boolean;
+	private static  var __tempImage :Image;
 	public  var __className :String;
-} //GridSymbol
+} //CocoFacebook
+
+class CocoJSON
+{
+	public function read(dot:String) :String {}
+	public function Destructor() {}
+	public function Constructor(json:String) {}
+	private  var json :Array<Object>;
+	public  var __className :String;
+} //CocoJSON
+
+class CocoHttpRequest
+{
+	public function Ready() :Boolean {}
+	public function Success() :Boolean {}
+	public function responseText() :String {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public function open(method:String, url:String, async:Boolean) {}
+	public function setRequestHeader(header:String, value:String) {}
+	public function send(data:String) {}
+	public function send$1(data:ArrayBufferView) {}
+	public function send$2() {}
+	public function abort() {}
+	public function getAllResponseHeaders() :String {}
+	public function getResponseHeader(header:String) :String {}
+	public  var xhttp :XMLHttpRequest;
+	public  var __className :String;
+} //CocoHttpRequest
+
+class CocoUIView : CocoClip
+{
+	public function move(x:Float, y:Float, width:Float, height:Float) {}
+	public function move$1(x:Float, y:Float) {}
+	public function size(width:Float, height:Float) {}
+	public function bringToFront() {}
+	public function sendToBack() {}
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function invalidate() {}
+	public function addChild(clipInstance:CocoClip) :CocoClip {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __form :CocoUIFormView;
+	public  var Form :CocoUIFormView;
+	protected  var __enabled :Boolean;
+	protected  var __invalidated :Boolean;
+	public  var Name :String;
+	public  var Enabled :Boolean;
+	public  var Visible :Boolean;
+	public  var Width :Float;
+	public  var Height :Float;
+	public  var Left :Float;
+	public  var Top :Float;
+	public  var Bounds :CocoRect;
+	public  var __className :String;
+} //CocoUIView
+
+class COCO_UIFORM_ANIMATION
+{
+	public var SHOW_NORMAL :COCO_UIFORM_ANIMATION;
+	public var SHOW_NEXT :COCO_UIFORM_ANIMATION;
+	public var SHOW_PREVIOUS :COCO_UIFORM_ANIMATION;
+} //COCO_UIFORM_ANIMATION
+
+class CocoAppController : CocoClip
+{
+	public function addForm(Form:CocoUIFormView) :CocoUIFormView {}
+	public function showForm(Form:CocoUIFormView, animation:COCO_UIFORM_ANIMATION) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(Name:String, scene:CocoScene) {}
+	public  var NavBar :CocoUINavBar;
+	public  var ActiveForm :CocoUIFormView;
+	public  var Forms :Array<CocoUIFormView>;
+	public  var __className :String;
+} //CocoAppController
+
+class CocoUIControl : CocoUIView
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function CalcHeight() :Float {}
+	public function SetMargins(left:Float, right:Float, top:Float, bottom:Float) {}
+	public function SetPaddings(left:Float, right:Float, top:Float, bottom:Float) {}
+	public function __CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function ComposeControl() {}
+	public function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float, handleEvents:Boolean) :CocoClip {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public var OnGlyphClick :CocoUIControlOnGlyphClickEvent;
+	public var OnChevronClick :CocoUIControlOnChevronClickEvent;
+	protected  var __selectable :Boolean;
+	protected  var __selected :Boolean;
+	protected  var __selectionWaitTickCycles :Integer;
+	public  var Selectable :Boolean;
+	public  var Selected :Boolean;
+	protected  var __marginLeft :Float;
+	protected  var __marginRight :Float;
+	protected  var __marginTop :Float;
+	protected  var __marginBottom :Float;
+	public  var MarginLeft :Float;
+	public  var MarginRight :Float;
+	public  var MarginTop :Float;
+	public  var MarginBottom :Float;
+	protected  var __paddingLeft :Float;
+	protected  var __paddingRight :Float;
+	protected  var __paddingTop :Float;
+	protected  var __paddingBottom :Float;
+	public  var PaddingLeft :Float;
+	public  var PaddingRight :Float;
+	public  var PaddingTop :Float;
+	public  var PaddingBottom :Float;
+	public  var PaddingWidth :Float;
+	public  var PaddingHeight :Float;
+	protected  var __borderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	protected  var __borderRadius :Float;
+	protected  var __borderColor :Color;
+	protected  var __borderColorSel :Color;
+	public  var BorderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	public  var BorderRadius :Float;
+	public  var BorderColor :Color;
+	public  var BorderColorSel :Color;
+	protected  var __backgroundGradient :Gradient;
+	protected  var __backgroundGradientSel :Gradient;
+	public  var BackgroundGradient :Gradient;
+	public  var BackgroundGradientSel :Gradient;
+	protected  var __skinImage :String;
+	protected  var __skinImageSel :String;
+	public  var SkinImage :String;
+	public  var SkinImageSel :String;
+	protected  var __glyphImage :String;
+	protected  var __glyphImageSel :String;
+	protected  var __glyphLeft :Float;
+	protected  var __glyphTop :Float;
+	protected  var __glyphEvents :Boolean;
+	private  var __glyphClip :CocoClip;
+	private  var __glyphSelClip :CocoClip;
+	public  var GlyphImage :String;
+	public  var GlyphImageSel :String;
+	public  var GlyphLeft :Float;
+	public  var GlyphTop :Float;
+	public  var GlyphEvents :Boolean;
+	protected  var __chevronImage :String;
+	protected  var __chevronImageSel :String;
+	protected  var __chevronLeft :Float;
+	protected  var __chevronTop :Float;
+	protected  var __chevronEvents :Boolean;
+	private  var __chevronClip :CocoClip;
+	private  var __chevronSelClip :CocoClip;
+	public  var ChevronImage :String;
+	public  var ChevronImageSel :String;
+	public  var ChevronLeft :Float;
+	public  var ChevronTop :Float;
+	public  var ChevronEvents :Boolean;
+	protected  var __texts :Array<CocoTextBlock>;
+	public  var __className :String;
+} //CocoUIControl
+
+class CocoUIControlOnGlyphClickEvent : CocoEvent
+{
+} //CocoUIControlOnGlyphClickEvent
+
+class CocoUIControlOnChevronClickEvent : CocoEvent
+{
+} //CocoUIControlOnChevronClickEvent
+
+class CocoUIFormView : CocoUIView
+{
+	public function moveScrollView(left:Float, top:Float, width:Float, height:Float) {}
+	public function addInlineControl(ctl:CocoUIControl) :CocoUIControl {}
+	public function addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(name:String, scene:CocoScene) {}
+	private  var __scrollView :CocoUIScrollView;
+	public  var __className :String;
+} //CocoUIFormView
+
+class CocoUIScrollView : CocoUIView
+{
+	public function getKeyFrame() :CocoKeyFrame {}
+	public function inlineHeight() :Float {}
+	public function resetSelection() {}
+	public function addChild(ctl:CocoUIControl) :CocoUIControl {}
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function __CocoUIScrollView_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIScrollView_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIScrollView_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String, scene:CocoScene) {}
+	private  var __scrollLastTime :Time;
+	private  var __scrollFirstPointY :Float;
+	private  var __scrollLastPointY :Float;
+	private  var __scrollSpeedY :Float;
+	private  var __minY :Float;
+	private  var __maxY :Float;
+	private  var __bounceY :Boolean;
+	private  var __scrollContainer :CocoClip;
+	private  var __scrollDeceleration :Float;
+	private  var __scrollSpringTension :Float;
+	public  var ScrollDeceleration :Float;
+	public  var ScrollSpringTension :Float;
+	public  var __className :String;
+} //CocoUIScrollView
+
+class CocoUIButton : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __caption :CocoTextBlock;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var CaptionFontName :String;
+	public  var CaptionFontSize :Float;
+	public  var CaptionFontBold :Boolean;
+	public  var CaptionFontItalic :Boolean;
+	public  var CaptionFontUnderline :Boolean;
+	public  var CaptionFontShadowX :Integer;
+	public  var CaptionFontShadowY :Integer;
+	public  var CaptionFontBlur :Integer;
+	public  var CaptionFontColorSel :Color;
+	public  var CaptionFontShadowColorSel :Color;
+	public  var CaptionFontColor :Color;
+	public  var CaptionFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUIButton
+
+class CocoUICheckBox : CocoUIControl
+{
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __className :String;
+} //CocoUICheckBox
+
+class CocoUIComboBox : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function __CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __text :CocoTextBlock;
+	public  var __prompt :CocoTextBlock;
+	public  var Text :String;
+	public  var TextFontName :String;
+	public  var TextFontSize :Float;
+	public  var TextFontBold :Boolean;
+	public  var TextFontItalic :Boolean;
+	public  var TextFontUnderline :Boolean;
+	public  var TextFontShadowX :Integer;
+	public  var TextFontShadowY :Integer;
+	public  var TextFontBlur :Integer;
+	public  var TextFontColorSel :Color;
+	public  var TextFontShadowColorSel :Color;
+	public  var TextFontColor :Color;
+	public  var TextFontShadowColor :Color;
+	public  var Prompt :String;
+	public  var PromptFontName :String;
+	public  var PromptFontSize :Float;
+	public  var PromptFontBold :Boolean;
+	public  var PromptFontItalic :Boolean;
+	public  var PromptFontUnderline :Boolean;
+	public  var PromptFontShadowX :Integer;
+	public  var PromptFontShadowY :Integer;
+	public  var PromptFontBlur :Integer;
+	public  var PromptFontColorSel :Color;
+	public  var PromptFontShadowColorSel :Color;
+	public  var PromptFontColor :Color;
+	public  var PromptFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUIComboBox
+
+class CocoUILabel : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __caption :CocoTextBlock;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var CaptionMultiline :Boolean;
+	public  var CaptionFontName :String;
+	public  var CaptionFontSize :Float;
+	public  var CaptionFontBold :Boolean;
+	public  var CaptionFontItalic :Boolean;
+	public  var CaptionFontUnderline :Boolean;
+	public  var CaptionFontShadowX :Integer;
+	public  var CaptionFontShadowY :Integer;
+	public  var CaptionFontBlur :Integer;
+	public  var CaptionFontColorSel :Color;
+	public  var CaptionFontShadowColorSel :Color;
+	public  var CaptionFontColor :Color;
+	public  var CaptionFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUILabel
+
+class CocoUINavBar : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __caption :CocoTextBlock;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var CaptionFontName :String;
+	public  var CaptionFontSize :Float;
+	public  var CaptionFontBold :Boolean;
+	public  var CaptionFontItalic :Boolean;
+	public  var CaptionFontUnderline :Boolean;
+	public  var CaptionFontShadowX :Integer;
+	public  var CaptionFontShadowY :Integer;
+	public  var CaptionFontBlur :Integer;
+	public  var CaptionFontColorSel :Color;
+	public  var CaptionFontShadowColorSel :Color;
+	public  var CaptionFontColor :Color;
+	public  var CaptionFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUINavBar
+
+class CocoUIPictureList : CocoUIButton
+{
+	public function Destructor() {}
+	public function Constructor(Name:String) {}
+	public  var __className :String;
+} //CocoUIPictureList
+
+class CocoUITabBar : CocoUIControl
+{
+	public function Composer() {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __className :String;
+} //CocoUITabBar
+
+class CocoUITextEdit : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function __CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __text :CocoTextBlock;
+	public  var __prompt :CocoTextBlock;
+	public  var Text :String;
+	public  var TextFontName :String;
+	public  var TextFontSize :Float;
+	public  var TextFontBold :Boolean;
+	public  var TextFontItalic :Boolean;
+	public  var TextFontUnderline :Boolean;
+	public  var TextFontShadowX :Integer;
+	public  var TextFontShadowY :Integer;
+	public  var TextFontBlur :Integer;
+	public  var TextFontColorSel :Color;
+	public  var TextFontShadowColorSel :Color;
+	public  var TextFontColor :Color;
+	public  var TextFontShadowColor :Color;
+	public  var Prompt :String;
+	public  var PromptFontName :String;
+	public  var PromptFontSize :Float;
+	public  var PromptFontBold :Boolean;
+	public  var PromptFontItalic :Boolean;
+	public  var PromptFontUnderline :Boolean;
+	public  var PromptFontShadowX :Integer;
+	public  var PromptFontShadowY :Integer;
+	public  var PromptFontBlur :Integer;
+	public  var PromptFontColorSel :Color;
+	public  var PromptFontShadowColorSel :Color;
+	public  var PromptFontColor :Color;
+	public  var PromptFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUITextEdit
+
+class TestDataStream
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //TestDataStream
+
+class TestOutsourcer
+{
+	public function work() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //TestOutsourcer
+
+class TestIntegrator
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	private function work() {}
+	private  var delegator :TestOutsourcer;
+	public  var __className :String;
+} //TestIntegrator
+
+class TestIntegratorClient
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	private  var integrator :TestIntegrator;
+	public  var __className :String;
+} //TestIntegratorClient
+
+class TestHTTP
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //TestHTTP
+
+class ITest1
+{
+	public function foo() {}
+} //ITest1
+
+class ITest2 : ITest1
+{
+	public function goo() {}
+} //ITest2
+
+class ITest3
+{
+	public function zoo() {}
+} //ITest3
+
+class ClassTestInterfaces
+{
+	public function foo() {}
+	public function goo() {}
+	public function zoo() {}
+	public function interface_test1(obj:ITest1) {}
+	public function interface_test2(obj:ITest2) {}
+	public function interface_test3(obj:ITest3) {}
+	public function interface_class(obj:ClassTestInterfaces) {}
+	public function interface_tests() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //ClassTestInterfaces
+
+class TestPublishedStruct
+{
+	public function toJSON() :String {}
+	public var pString :String;
+	public var pInteger :Integer;
+	public var pFloat :Float;
+	public var pCocoClip :CocoClip;
+	public var pTestPublished :TestPublished;
+} //TestPublishedStruct
+
+class TestPublished : CocoClip
+{
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
+	public  var pString :String;
+	public  var pInteger :Integer;
+	public  var pFloat :Float;
+	public  var pStruct :TestPublishedStruct;
+	public  var pCocoClip :CocoClip;
+	public  var pTestPublished :TestPublished;
+	public  var pArrayInteger :Array<Integer>;
+	public  var pArrayCocoClip :Array<CocoClip>;
+	public  var __className :String;
+} //TestPublished
+
+class TestPublishedDerived : TestPublished
+{
+	public function Destructor() {}
+	public function Constructor(image:CocoImage) {}
+	public  var mString :String;
+	public  var mInteger :Integer;
+	public  var mFloat :Float;
+	public  var mStruct :TestPublishedStruct;
+	public  var mCocoClip :CocoClip;
+	public  var mTestPublished :TestPublished;
+	public  var mArrayInteger :Array<Integer>;
+	public  var mArrayCocoClip :Array<CocoClip>;
+	public  var __className :String;
+} //TestPublishedDerived
+
+class Class1
+{
+	public function test_virtual() {}
+	public function test() {}
+	public function public_static_function(b:String) :String {}
+	private function private_static_function(b:String) :String {}
+	protected function protected_static_function(b:String) :String {}
+	public function public_function(b:String) :String {}
+	private function private_function(b:String) :String {}
+	protected function protected_function(b:String) :String {}
+	public function public_overload() :String {}
+	public function public_overload$1(arg:String) :String {}
+	public function public_overload$2(arg1:String, arg2:String) :String {}
+	private function private_overload() :String {}
+	private function private_overload$1(arg:String) :String {}
+	private function private_overload$2(arg1:String, arg2:String) :String {}
+	protected function protected_overload() :String {}
+	protected function protected_overload$1(arg:String) :String {}
+	protected function protected_overload$2(arg1:String, arg2:String) :String {}
+	public function Destructor() {}
+	public function Constructor(arg1:String, arg2:String) {}
+	public  var public_var :String;
+	private  var private_var :String;
+	protected  var protected_var :String;
+	public  var public_const :String;
+	private  var private_const :String;
+	protected  var protected_const :String;
+	public static  var static_public_var :String;
+	private static  var static_private_var :String;
+	protected static  var static_protected_var :String;
+	private  var __public_property :String;
+	private  var __private_property :String;
+	private  var __protected_property :String;
+	private static  var __public_static_property :String;
+	private static  var __private_static_property :String;
+	private static  var __protected_static_property :String;
+	public var public_state :State;
+	private var private_state :State;
+	protected var protected_state :State;
+	public  var public_property :String;
+	private  var private_property :String;
+	protected  var protected_property :String;
+	public static  var public_static_property :String;
+	private static  var private_static_property :String;
+	protected static  var protected_static_property :String;
+	public  var __className :String;
+} //Class1
+
+class Class2 : Class1
+{
+	public function test() {}
+	public function cls2_public_function() :String {}
+	public function Destructor() {}
+	public function Constructor(arg1:String) {}
+	public  var x :String;
+	private  var y :String;
+	protected  var z :String;
+	public  var __className :String;
+	public static  var public_static_property :String;
+	private static  var private_static_property :String;
+	protected static  var protected_static_property :String;
+} //Class2
+
+class Class3 : Class2
+{
+	public function test_virtual() {}
+	public function test() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+	public static  var public_static_property :String;
+	private static  var private_static_property :String;
+	protected static  var protected_static_property :String;
+} //Class3
+
+class TestSelf1
+{
+	public function save_this() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var saved :Object;
+	public  var __className :String;
+} //TestSelf1
+
+class TestSelf2 : TestSelf1
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //TestSelf2
+
+class TestSelf3 : TestSelf2
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //TestSelf3
+
+class TestThis
+{
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //TestThis
 
 class GameEngine : CocoEngine
 {
-	public function setTexts() {}
-	public function createGUID() :String {}
-	public function hasClosedCells() :Boolean {}
-	public function OpenCell(i:Integer) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	private  var scene :CocoScene;
-	private  var balance :Number;
-	private  var winnings :Number;
-	private  var avatars :Array<CocoClip>;
-	private  var avatar_leo :CocoClip;
-	private  var avatar_xerxes :CocoClip;
-	private  var avatar_spartan :CocoClip;
-	private  var avatar_persian :CocoClip;
-	private  var avatar_swords :CocoClip;
-	private  var avatar_armor :CocoClip;
-	private  var btnOpenAll :CocoClip;
-	private  var btnBuyTicket :CocoClip;
-	private  var cells :Array<CocoClip>;
-	private  var cellsOpen :Array<Boolean>;
-	private  var selectedAvatar :Integer;
-	private  var selAvatarAppearances :Integer;
-	private  var counter :Number;
-	private  var TICKET_TicketID :String;
-	private  var TICKET_cells :Array<Integer>;
-	private  var TICKET_price :Integer;
-	private  var TICKET_winCount :Integer;
-	private  var WIN_PRIZES :Array<Integer>;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_JUMPING_AVATARS :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public  var scene :CocoScene;
+	public  var app :CocoAppController;
+	public var STATE_START_APP :State;
 	public  var __className :String;
 } //GameEngine
 
-class SceneGameBoard : CocoScene
+class ReservationsForm : CocoUIFormView
 {
+	private function addLookup(Caption:String, FieldName:String, IsLookup:Boolean, IsComboBox:Boolean) {}
+	public function btnSubmit_OnClick(sender:CocoUIButton, e:CocoClipOnClickEvent) :Boolean {}
 	public function Destructor() {}
-	public function Constructor(engine:CocoEngine) {}
+	public function Constructor(name:String, scene:CocoScene) {}
+	private  var btnSubmit :CocoUIButton;
+	private  var btnDelete :CocoUIButton;
 	public  var __className :String;
-} //SceneGameBoard
+} //ReservationsForm
 
-class SceneTitle : CocoScene
+class NewAnimation : CocoScene
 {
 	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
-} //SceneTitle
+} //NewAnimation
 

@@ -36,6 +36,8 @@
 
 class CocoAudio
 {
+	public static var __muted:Boolean = false;
+
 	public var src: String;
 	public var audio: Audio;
 	public var autoplay: Boolean;
@@ -102,7 +104,7 @@ class CocoAudio
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function play()
 	{
-		if(!audio) return;
+		if(!audio || CocoAudio.__muted) return;
 		audio.ended = false;
 		audio.paused = false;
 		setCurrentTime(0);

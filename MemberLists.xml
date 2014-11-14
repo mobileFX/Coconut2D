@@ -75,6 +75,7 @@ public Function::__className:String" image="13"/>
 	<memberlist name="Class CocoAction">
 	</memberlist>
 	<memberlist name="Class Global">
+		<member name="fixTouch" proto="fixTouch(touch)" help="fixTouch(touch)" image="35"/>
 		<member name="eval" proto="eval(s)" help="eval(s)" image="35"/>
 		<member name="parseInt" proto="parseInt(s, radix)" help="parseInt(s, radix)" image="35"/>
 		<member name="parseFloat" proto="parseFloat(s)" help="parseFloat(s)" image="35"/>
@@ -123,6 +124,7 @@ public Function::__className:String" image="13"/>
 		<member name="ReferenceError" proto="ReferenceError:ReferenceError" help="ReferenceError:ReferenceError" image="11"/>
 		<member name="SyntaxError" proto="SyntaxError:SyntaxError" help="SyntaxError:SyntaxError" image="11"/>
 		<member name="TypeError" proto="TypeError:TypeError" help="TypeError:TypeError" image="11"/>
+		<member name="JSON" proto="JSON:JSON" help="JSON:JSON" image="11"/>
 		<member name="ImageDataBuffer" proto="ImageDataBuffer:ImageDataBuffer" help="ImageDataBuffer:ImageDataBuffer" image="11"/>
 		<member name="DataView" proto="DataView:DataView" help="DataView:DataView" image="11"/>
 		<member name="XMLHttpRequest" proto="XMLHttpRequest:XMLHttpRequest" help="XMLHttpRequest:XMLHttpRequest" image="11"/>
@@ -133,7 +135,9 @@ public Function::__className:String" image="13"/>
 		<member name="engine" proto="engine:CocoEngine" help="engine:CocoEngine" image="34"/>
 		<member name="window" proto="window:HTMLWindow" help="window:HTMLWindow" image="34"/>
 		<member name="document" proto="document:HTMLDocument" help="document:HTMLDocument" image="34"/>
+		<member name="location" proto="location:HTMLLocation" help="location:HTMLLocation" image="34"/>
 		<member name="graphics" proto="graphics:CocoGraphics" help="graphics:CocoGraphics" image="34"/>
+		<member name="DEVICE_WRAPPER" proto="DEVICE_WRAPPER:COCO_DEVICE_WRAPPER" help="DEVICE_WRAPPER:COCO_DEVICE_WRAPPER" image="34"/>
 		<member name="b2ManifoldType" proto="b2ManifoldType:b2ManifoldType" help="b2ManifoldType:b2ManifoldType" image="15"/>
 		<member name="b2BodyType" proto="b2BodyType:b2BodyType" help="b2BodyType:b2BodyType" image="15"/>
 		<member name="b2JointType" proto="b2JointType:b2JointType" help="b2JointType:b2JointType" image="15"/>
@@ -214,16 +218,22 @@ public Function::__className:String" image="13"/>
 		<member name="COCO_CONTROL_ANCHOR_ENUM" proto="COCO_CONTROL_ANCHOR_ENUM:COCO_CONTROL_ANCHOR_ENUM" help="COCO_CONTROL_ANCHOR_ENUM:COCO_CONTROL_ANCHOR_ENUM" image="15"/>
 		<member name="COCO_SKIN_TILE_ENUM" proto="COCO_SKIN_TILE_ENUM:COCO_SKIN_TILE_ENUM" help="COCO_SKIN_TILE_ENUM:COCO_SKIN_TILE_ENUM" image="15"/>
 		<member name="PathLine" proto="PathLine:PathLine" help="PathLine:PathLine" image="11"/>
+		<member name="HTMLCanvasPattern" proto="HTMLCanvasPattern:HTMLCanvasPattern" help="HTMLCanvasPattern:HTMLCanvasPattern" image="11"/>
+		<member name="HTMLCanvasGradient" proto="HTMLCanvasGradient:HTMLCanvasGradient" help="HTMLCanvasGradient:HTMLCanvasGradient" image="11"/>
+		<member name="HTMLTextMetrics" proto="HTMLTextMetrics:HTMLTextMetrics" help="HTMLTextMetrics:HTMLTextMetrics" image="11"/>
 		<member name="CanvasRenderingContext2D" proto="CanvasRenderingContext2D:CanvasRenderingContext2D" help="CanvasRenderingContext2D:CanvasRenderingContext2D" image="11"/>
 		<member name="Audio" proto="Audio:Audio" help="Audio:Audio" image="11"/>
 		<member name="ContextArguments" proto="ContextArguments:ContextArguments" help="ContextArguments:ContextArguments" image="27"/>
 		<member name="HTMLCanvasElement" proto="HTMLCanvasElement:HTMLCanvasElement" help="HTMLCanvasElement:HTMLCanvasElement" image="11"/>
-		<member name="HTMLCanvasGradient" proto="HTMLCanvasGradient:HTMLCanvasGradient" help="HTMLCanvasGradient:HTMLCanvasGradient" image="11"/>
-		<member name="HTMLCanvasPattern" proto="HTMLCanvasPattern:HTMLCanvasPattern" help="HTMLCanvasPattern:HTMLCanvasPattern" image="11"/>
 		<member name="HTMLDocument" proto="HTMLDocument:HTMLDocument" help="HTMLDocument:HTMLDocument" image="11"/>
 		<member name="HTMLElement" proto="HTMLElement:HTMLElement" help="HTMLElement:HTMLElement" image="11"/>
+		<member name="HTMLStyleElement" proto="HTMLStyleElement:HTMLStyleElement" help="HTMLStyleElement:HTMLStyleElement" image="11"/>
+		<member name="HTMLDivElement" proto="HTMLDivElement:HTMLDivElement" help="HTMLDivElement:HTMLDivElement" image="11"/>
+		<member name="HTMLAnchorElement" proto="HTMLAnchorElement:HTMLAnchorElement" help="HTMLAnchorElement:HTMLAnchorElement" image="11"/>
 		<member name="Image" proto="Image:Image" help="Image:Image" image="11"/>
-		<member name="HTMLTextMetrics" proto="HTMLTextMetrics:HTMLTextMetrics" help="HTMLTextMetrics:HTMLTextMetrics" image="11"/>
+		<member name="HTMLLocation" proto="HTMLLocation:HTMLLocation" help="HTMLLocation:HTMLLocation" image="11"/>
+		<member name="HTMLScreen" proto="HTMLScreen:HTMLScreen" help="HTMLScreen:HTMLScreen" image="11"/>
+		<member name="HTMLNavigator" proto="HTMLNavigator:HTMLNavigator" help="HTMLNavigator:HTMLNavigator" image="11"/>
 		<member name="HTMLWindow" proto="HTMLWindow:HTMLWindow" help="HTMLWindow:HTMLWindow" image="11"/>
 		<member name="ImageData" proto="ImageData:ImageData" help="ImageData:ImageData" image="11"/>
 		<member name="WebGLObject" proto="WebGLObject:WebGLObject" help="WebGLObject:WebGLObject" image="11"/>
@@ -276,12 +286,14 @@ public Function::__className:String" image="13"/>
 		<member name="CocoClipOnTouchStartEvent" proto="CocoClipOnTouchStartEvent:CocoClipOnTouchStartEvent" help="CocoClipOnTouchStartEvent:CocoClipOnTouchStartEvent" image="11"/>
 		<member name="CocoClipOnTouchMoveEvent" proto="CocoClipOnTouchMoveEvent:CocoClipOnTouchMoveEvent" help="CocoClipOnTouchMoveEvent:CocoClipOnTouchMoveEvent" image="11"/>
 		<member name="CocoClipOnTouchEndEvent" proto="CocoClipOnTouchEndEvent:CocoClipOnTouchEndEvent" help="CocoClipOnTouchEndEvent:CocoClipOnTouchEndEvent" image="11"/>
+		<member name="CocoClipOnAnimationSequenceBeginEvent" proto="CocoClipOnAnimationSequenceBeginEvent:CocoClipOnAnimationSequenceBeginEvent" help="CocoClipOnAnimationSequenceBeginEvent:CocoClipOnAnimationSequenceBeginEvent" image="11"/>
+		<member name="CocoClipOnAnimationSequenceEndEvent" proto="CocoClipOnAnimationSequenceEndEvent:CocoClipOnAnimationSequenceEndEvent" help="CocoClipOnAnimationSequenceEndEvent:CocoClipOnAnimationSequenceEndEvent" image="11"/>
 		<member name="CocoSelfTexturedClip" proto="CocoSelfTexturedClip:CocoSelfTexturedClip" help="CocoSelfTexturedClip:CocoSelfTexturedClip" image="11"/>
 		<member name="CocoTextClip" proto="CocoTextClip:CocoTextClip" help="CocoTextClip:CocoTextClip" image="11"/>
 		<member name="COCO_MASK_TYPE" proto="COCO_MASK_TYPE:COCO_MASK_TYPE" help="COCO_MASK_TYPE:COCO_MASK_TYPE" image="15"/>
 		<member name="CocoMaskClip" proto="CocoMaskClip:CocoMaskClip" help="CocoMaskClip:CocoMaskClip" image="11"/>
-		<member name="ICocoImageRenderData" proto="ICocoImageRenderData:ICocoImageRenderData" help="ICocoImageRenderData:ICocoImageRenderData" image="25"/>
-		<member name="ICocoRenderContext" proto="ICocoRenderContext:ICocoRenderContext" help="ICocoRenderContext:ICocoRenderContext" image="25"/>
+		<member name="COCO_SCREEN_ORIENTATION" proto="COCO_SCREEN_ORIENTATION:COCO_SCREEN_ORIENTATION" help="COCO_SCREEN_ORIENTATION:COCO_SCREEN_ORIENTATION" image="15"/>
+		<member name="CocoDeviceWrapper" proto="CocoDeviceWrapper:CocoDeviceWrapper" help="CocoDeviceWrapper:CocoDeviceWrapper" image="11"/>
 		<member name="CocoPoint" proto="CocoPoint:CocoPoint" help="CocoPoint:CocoPoint" image="27"/>
 		<member name="CocoRect" proto="CocoRect:CocoRect" help="CocoRect:CocoRect" image="27"/>
 		<member name="CocoSkinCacheItem" proto="CocoSkinCacheItem:CocoSkinCacheItem" help="CocoSkinCacheItem:CocoSkinCacheItem" image="27"/>
@@ -290,8 +302,10 @@ public Function::__className:String" image="13"/>
 		<member name="CocoSequence" proto="CocoSequence:CocoSequence" help="CocoSequence:CocoSequence" image="11"/>
 		<member name="CocoImageResolution" proto="CocoImageResolution:CocoImageResolution" help="CocoImageResolution:CocoImageResolution" image="11"/>
 		<member name="CocoImage" proto="CocoImage:CocoImage" help="CocoImage:CocoImage" image="11"/>
+		<member name="ICocoImageRenderData" proto="ICocoImageRenderData:ICocoImageRenderData" help="ICocoImageRenderData:ICocoImageRenderData" image="25"/>
 		<member name="CocoImageRenderDataGL" proto="CocoImageRenderDataGL:CocoImageRenderDataGL" help="CocoImageRenderDataGL:CocoImageRenderDataGL" image="11"/>
 		<member name="CocoImageRenderData2D" proto="CocoImageRenderData2D:CocoImageRenderData2D" help="CocoImageRenderData2D:CocoImageRenderData2D" image="11"/>
+		<member name="ICocoRenderContext" proto="ICocoRenderContext:ICocoRenderContext" help="ICocoRenderContext:ICocoRenderContext" image="25"/>
 		<member name="CocoRenderContext" proto="CocoRenderContext:CocoRenderContext" help="CocoRenderContext:CocoRenderContext" image="11"/>
 		<member name="CocoRenderContext2D" proto="CocoRenderContext2D:CocoRenderContext2D" help="CocoRenderContext2D:CocoRenderContext2D" image="11"/>
 		<member name="CocoRenderContextGL" proto="CocoRenderContextGL:CocoRenderContextGL" help="CocoRenderContextGL:CocoRenderContextGL" image="11"/>
@@ -306,6 +320,9 @@ public Function::__className:String" image="13"/>
 		<member name="CocoText" proto="CocoText:CocoText" help="CocoText:CocoText" image="11"/>
 		<member name="CocoTextBlock" proto="CocoTextBlock:CocoTextBlock" help="CocoTextBlock:CocoTextBlock" image="11"/>
 		<member name="CocoAudio" proto="CocoAudio:CocoAudio" help="CocoAudio:CocoAudio" image="11"/>
+		<member name="FACEBOOK_LOGIN" proto="FACEBOOK_LOGIN:FACEBOOK_LOGIN" help="FACEBOOK_LOGIN:FACEBOOK_LOGIN" image="27"/>
+		<member name="CocoFacebook" proto="CocoFacebook:CocoFacebook" help="CocoFacebook:CocoFacebook" image="11"/>
+		<member name="CocoJSON" proto="CocoJSON:CocoJSON" help="CocoJSON:CocoJSON" image="11"/>
 		<member name="CocoHttpRequest" proto="CocoHttpRequest:CocoHttpRequest" help="CocoHttpRequest:CocoHttpRequest" image="11"/>
 		<member name="CocoUIView" proto="CocoUIView:CocoUIView" help="CocoUIView:CocoUIView" image="11"/>
 		<member name="COCO_UIFORM_ANIMATION" proto="COCO_UIFORM_ANIMATION:COCO_UIFORM_ANIMATION" help="COCO_UIFORM_ANIMATION:COCO_UIFORM_ANIMATION" image="15"/>
@@ -666,6 +683,14 @@ public SyntaxError::__className:String" image="13"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class TypeError
 public TypeError::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class JSON">
+		<member name="parse" proto="parse(json:String) :Array&lt;Object&gt;" help="parse is member function of class JSON
+public static JSON::parse(json:String) :Array&lt;Object&gt;" image="35"/>
+		<member name="stringify" proto="stringify(obj:Array&lt;Object&gt;) :String" help="stringify is member function of class JSON
+public static JSON::stringify(obj:Array&lt;Object&gt;) :String" image="35"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class JSON
+public JSON::__className:String" image="13"/>
+	</memberlist>
 	<memberlist name="Class ImageDataBuffer">
 		<member name="buffer" proto="buffer:ArrayBuffer" help="buffer is member var of class ImageDataBuffer
 public ImageDataBuffer::buffer:ArrayBuffer" image="1"/>
@@ -719,12 +744,12 @@ public DataView::__className:String" image="13"/>
 public XMLHttpRequest::open(method:String, url:String, optional async:Boolean)" image="35"/>
 		<member name="setRequestHeader" proto="setRequestHeader(header:String, value:String)" help="setRequestHeader is member function of class XMLHttpRequest
 public XMLHttpRequest::setRequestHeader(header:String, value:String)" image="35"/>
-		<member name="send" proto="send()" help="send is member function of class XMLHttpRequest
-public XMLHttpRequest::send()" image="35"/>
-		<member name="send" proto="send(data:String)" help="send$1 is member function of class XMLHttpRequest
+		<member name="send" proto="send(data:String)" help="send is member function of class XMLHttpRequest
 public XMLHttpRequest::send(data:String)" image="35"/>
-		<member name="send" proto="send(data:ArrayBufferView)" help="send$2 is member function of class XMLHttpRequest
+		<member name="send" proto="send(data:ArrayBufferView)" help="send$1 is member function of class XMLHttpRequest
 public XMLHttpRequest::send(data:ArrayBufferView)" image="35"/>
+		<member name="send" proto="send()" help="send$2 is member function of class XMLHttpRequest
+public XMLHttpRequest::send()" image="35"/>
 		<member name="abort" proto="abort()" help="abort is member function of class XMLHttpRequest
 public XMLHttpRequest::abort()" image="35"/>
 		<member name="getAllResponseHeaders" proto="getAllResponseHeaders() :String" help="getAllResponseHeaders is member function of class XMLHttpRequest
@@ -800,6 +825,7 @@ public Gradient::__className:String" image="13"/>
 		<member name="e_ropeJoint" proto="e_ropeJoint:b2JointType" help="e_ropeJoint:b2JointType" image="16"/>
 	</memberlist>
 	<memberlist name="Class b2Manifold">
+		<member name="toJSON" proto="toJSON() :String" help="public b2Manifold::toJSON() :String" image="35"/>
 		<member name="points" proto="points:Array&lt;b2ManifoldPoint&gt;" help="points:Array&lt;b2ManifoldPoint&gt;" image="34"/>
 		<member name="localNormal" proto="localNormal:b2Vec2" help="localNormal:b2Vec2" image="34"/>
 		<member name="localPoint" proto="localPoint:b2Vec2" help="localPoint:b2Vec2" image="34"/>
@@ -807,20 +833,24 @@ public Gradient::__className:String" image="13"/>
 		<member name="pointCount" proto="pointCount:Integer" help="pointCount:Integer" image="34"/>
 	</memberlist>
 	<memberlist name="Class b2MassData">
+		<member name="toJSON" proto="toJSON() :String" help="public b2MassData::toJSON() :String" image="35"/>
 		<member name="mass" proto="mass:Float" help="mass:Float" image="34"/>
 		<member name="center" proto="center:b2Vec2" help="center:b2Vec2" image="34"/>
 		<member name="I" proto="I:Float" help="I:Float" image="34"/>
 	</memberlist>
 	<memberlist name="Class b2RayCastInput">
+		<member name="toJSON" proto="toJSON() :String" help="public b2RayCastInput::toJSON() :String" image="35"/>
 		<member name="p1" proto="p1:b2Vec2" help="p1:b2Vec2" image="34"/>
 		<member name="p2" proto="p2:b2Vec2" help="p2:b2Vec2" image="34"/>
 		<member name="maxFraction" proto="maxFraction:Float" help="maxFraction:Float" image="34"/>
 	</memberlist>
 	<memberlist name="Class b2RayCastOutput">
+		<member name="toJSON" proto="toJSON() :String" help="public b2RayCastOutput::toJSON() :String" image="35"/>
 		<member name="normal" proto="normal:b2Vec2" help="normal:b2Vec2" image="34"/>
 		<member name="fraction" proto="fraction:Float" help="fraction:Float" image="34"/>
 	</memberlist>
 	<memberlist name="Class b2ContactImpulse">
+		<member name="toJSON" proto="toJSON() :String" help="public b2ContactImpulse::toJSON() :String" image="35"/>
 		<member name="normalImpulses" proto="normalImpulses:Array&lt;Float&gt;" help="normalImpulses:Array&lt;Float&gt;" image="34"/>
 		<member name="tangentImpulses" proto="tangentImpulses:Array&lt;Float&gt;" help="tangentImpulses:Array&lt;Float&gt;" image="34"/>
 		<member name="count" proto="count:Integer" help="count:Integer" image="34"/>
@@ -2961,6 +2991,32 @@ public PathLine::y1:Float" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class PathLine
 public PathLine::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class HTMLCanvasPattern">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLCanvasPattern
+public virtual HTMLCanvasPattern::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLCanvasPattern
+public HTMLCanvasPattern::Constructor()" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class HTMLCanvasPattern
+public HTMLCanvasPattern::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class HTMLCanvasGradient">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLCanvasGradient
+public virtual HTMLCanvasGradient::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLCanvasGradient
+public HTMLCanvasGradient::Constructor()" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class HTMLCanvasGradient
+public HTMLCanvasGradient::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class HTMLTextMetrics">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLTextMetrics
+public virtual HTMLTextMetrics::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLTextMetrics
+public HTMLTextMetrics::Constructor()" image="14"/>
+		<member name="width" proto="width:Float" help="width is member var of class HTMLTextMetrics
+public HTMLTextMetrics::width:Float" image="34"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class HTMLTextMetrics
+public HTMLTextMetrics::__className:String" image="13"/>
+	</memberlist>
 	<memberlist name="Class CanvasRenderingContext2D">
 		<member name="clip" proto="clip()" help="clip is member function of class CanvasRenderingContext2D
 public CanvasRenderingContext2D::clip()" image="35"/>
@@ -3038,6 +3094,8 @@ public CanvasRenderingContext2D::drawImage(image:Image, sx:Float, sy:Float, sw:F
 public CanvasRenderingContext2D::drawImage(image:Image, dx:Float, dy:Float)" image="35"/>
 		<member name="drawImage" proto="drawImage(image:Image, dx:Float, dy:Float, dw:Float, dh:Float)" help="drawImage$2 is member function of class CanvasRenderingContext2D
 public CanvasRenderingContext2D::drawImage(image:Image, dx:Float, dy:Float, dw:Float, dh:Float)" image="35"/>
+		<member name="drawImage" proto="drawImage(image:HTMLCanvasElement, dx:Float, dy:Float, dw:Float, dh:Float)" help="drawImage$3 is member function of class CanvasRenderingContext2D
+public CanvasRenderingContext2D::drawImage(image:HTMLCanvasElement, dx:Float, dy:Float, dw:Float, dh:Float)" image="35"/>
 		<member name="createImageData" proto="createImageData(sw:Float, sh:Float) :ImageData" help="createImageData is member function of class CanvasRenderingContext2D
 public CanvasRenderingContext2D::createImageData(sw:Float, sh:Float) :ImageData" image="35"/>
 		<member name="createImageData" proto="createImageData(imagedata:ImageData) :ImageData" help="createImageData$1 is member function of class CanvasRenderingContext2D
@@ -3088,6 +3146,12 @@ public CanvasRenderingContext2D::textAlign:String" image="34"/>
 public CanvasRenderingContext2D::textBaseline:String" image="34"/>
 		<member name="globalCompositeOperation" proto="globalCompositeOperation:String" help="globalCompositeOperation is member var of class CanvasRenderingContext2D
 public CanvasRenderingContext2D::globalCompositeOperation:String" image="34"/>
+		<member name="imageSmoothingEnabled" proto="imageSmoothingEnabled:Boolean" help="imageSmoothingEnabled is member var of class CanvasRenderingContext2D
+public CanvasRenderingContext2D::imageSmoothingEnabled:Boolean" image="34"/>
+		<member name="webkitImageSmoothingEnabled" proto="webkitImageSmoothingEnabled:Boolean" help="webkitImageSmoothingEnabled is member var of class CanvasRenderingContext2D
+public CanvasRenderingContext2D::webkitImageSmoothingEnabled:Boolean" image="34"/>
+		<member name="mozImageSmoothingEnabled" proto="mozImageSmoothingEnabled:Boolean" help="mozImageSmoothingEnabled is member var of class CanvasRenderingContext2D
+public CanvasRenderingContext2D::mozImageSmoothingEnabled:Boolean" image="34"/>
 		<member name="__lineWidth" proto="__lineWidth:Float" help="__lineWidth is member var of class CanvasRenderingContext2D
 private CanvasRenderingContext2D::__lineWidth:Float" image="29"/>
 		<member name="__fillStyle" proto="__fillStyle:String" help="__fillStyle is member var of class CanvasRenderingContext2D
@@ -3164,13 +3228,14 @@ public property Audio::readyState:Integer" image="31"/>
 public Audio::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class ContextArguments">
+		<member name="toJSON" proto="toJSON() :String" help="public ContextArguments::toJSON() :String" image="35"/>
 		<member name="stencil" proto="stencil:Boolean" help="stencil:Boolean" image="34"/>
 	</memberlist>
 	<memberlist name="Class HTMLCanvasElement">
 		<member name="getContext" proto="getContext(contextId:String, optional args:ContextArguments) :Object" help="getContext is member function of class HTMLCanvasElement
 public HTMLCanvasElement::getContext(contextId:String, optional args:ContextArguments) :Object" image="35"/>
-		<member name="toDataURL" proto="toDataURL() :String" help="toDataURL is member function of class HTMLCanvasElement
-public HTMLCanvasElement::toDataURL() :String" image="35"/>
+		<member name="toDataURL" proto="toDataURL(mime:String) :String" help="toDataURL is member function of class HTMLCanvasElement
+public HTMLCanvasElement::toDataURL(mime:String) :String" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLCanvasElement
 public virtual HTMLCanvasElement::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLCanvasElement
@@ -3188,47 +3253,821 @@ private HTMLCanvasElement::gl:WebGLRenderingContext" image="29"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class HTMLCanvasElement
 public HTMLCanvasElement::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class HTMLCanvasGradient">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLCanvasGradient
-public virtual HTMLCanvasGradient::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLCanvasGradient
-public HTMLCanvasGradient::Constructor()" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class HTMLCanvasGradient
-public HTMLCanvasGradient::__className:String" image="13"/>
-	</memberlist>
-	<memberlist name="Class HTMLCanvasPattern">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLCanvasPattern
-public virtual HTMLCanvasPattern::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLCanvasPattern
-public HTMLCanvasPattern::Constructor()" image="14"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class HTMLCanvasPattern
-public HTMLCanvasPattern::__className:String" image="13"/>
-	</memberlist>
 	<memberlist name="Class HTMLDocument">
-		<member name="createElement" proto="createElement(tagName:String) :HTMLCanvasElement" help="createElement is member function of class HTMLDocument
-public HTMLDocument::createElement(tagName:String) :HTMLCanvasElement" image="35"/>
+		<member name="__add" proto="__add(el:HTMLElement)" help="__add is member function of class HTMLDocument
+public HTMLDocument::__add(el:HTMLElement)" image="35"/>
+		<member name="__remove" proto="__remove(el:HTMLElement)" help="__remove is member function of class HTMLDocument
+public HTMLDocument::__remove(el:HTMLElement)" image="35"/>
+		<member name="createElement" proto="createElement(tagName:String) :HTMLElement" help="createElement is member function of class HTMLDocument
+public HTMLDocument::createElement(tagName:String) :HTMLElement" image="35"/>
+		<member name="getElementById" proto="getElementById(id:String) :HTMLElement" help="getElementById is member function of class HTMLDocument
+public HTMLDocument::getElementById(id:String) :HTMLElement" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLDocument
 public virtual HTMLDocument::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLDocument
 public HTMLDocument::Constructor()" image="14"/>
 		<member name="body" proto="body:HTMLElement" help="body is member var of class HTMLDocument
 public HTMLDocument::body:HTMLElement" image="34"/>
+		<member name="all" proto="all:Array&lt;HTMLElement&gt;" help="all is member var of class HTMLDocument
+public HTMLDocument::all:Array&lt;HTMLElement&gt;" image="1"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class HTMLDocument
 public HTMLDocument::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class HTMLElement">
-		<member name="appendChild" proto="appendChild(node:HTMLCanvasElement) :HTMLCanvasElement" help="appendChild is member function of class HTMLElement
-public HTMLElement::appendChild(node:HTMLCanvasElement) :HTMLCanvasElement" image="35"/>
+		<member name="appendChild" proto="appendChild(node:HTMLElement) :HTMLElement" help="appendChild is member function of class HTMLElement
+public HTMLElement::appendChild(node:HTMLElement) :HTMLElement" image="35"/>
+		<member name="replaceChild" proto="replaceChild(newChild:HTMLElement, oldChild:HTMLElement) :HTMLElement" help="replaceChild is member function of class HTMLElement
+public HTMLElement::replaceChild(newChild:HTMLElement, oldChild:HTMLElement) :HTMLElement" image="35"/>
+		<member name="removeChild" proto="removeChild(node:HTMLElement) :HTMLElement" help="removeChild is member function of class HTMLElement
+public HTMLElement::removeChild(node:HTMLElement) :HTMLElement" image="35"/>
+		<member name="setAttribute" proto="setAttribute(name:String, value:String)" help="setAttribute is member function of class HTMLElement
+public HTMLElement::setAttribute(name:String, value:String)" image="35"/>
+		<member name="getAttribute" proto="getAttribute(name:String) :String" help="getAttribute is member function of class HTMLElement
+public HTMLElement::getAttribute(name:String) :String" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLElement
 public virtual HTMLElement::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLElement
 public HTMLElement::Constructor()" image="14"/>
+		<member name="id" proto="id:String" help="id is member var of class HTMLElement
+public HTMLElement::id:String" image="34"/>
+		<member name="offsetWidth" proto="offsetWidth:Float" help="offsetWidth is member var of class HTMLElement
+public HTMLElement::offsetWidth:Float" image="34"/>
+		<member name="offsetHeight" proto="offsetHeight:Float" help="offsetHeight is member var of class HTMLElement
+public HTMLElement::offsetHeight:Float" image="34"/>
+		<member name="innerHTML" proto="innerHTML:String" help="innerHTML is member var of class HTMLElement
+public HTMLElement::innerHTML:String" image="34"/>
+		<member name="style" proto="style:HTMLStyleElement" help="style is member var of class HTMLElement
+public HTMLElement::style:HTMLStyleElement" image="34"/>
+		<member name="parentNode" proto="parentNode:HTMLElement" help="parentNode is member var of class HTMLElement
+public HTMLElement::parentNode:HTMLElement" image="34"/>
+		<member name="document" proto="document:HTMLDocument" help="document is member var of class HTMLElement
+public HTMLElement::document:HTMLDocument" image="34"/>
+		<member name="onclick" proto="onclick:Function" help="onclick is member var of class HTMLElement
+public HTMLElement::onclick:Function" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class HTMLElement
 public HTMLElement::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class HTMLStyleElement">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLStyleElement
+public virtual HTMLStyleElement::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLStyleElement
+public HTMLStyleElement::Constructor()" image="14"/>
+		<member name="cssText" proto="cssText:String" help="cssText is member var of class HTMLStyleElement
+public HTMLStyleElement::cssText:String" image="34"/>
+		<member name="backfaceVisibility" proto="backfaceVisibility:String" help="backfaceVisibility is member var of class HTMLStyleElement
+public HTMLStyleElement::backfaceVisibility:String" image="34"/>
+		<member name="background" proto="background:String" help="background is member var of class HTMLStyleElement
+public HTMLStyleElement::background:String" image="34"/>
+		<member name="backgroundAttachment" proto="backgroundAttachment:String" help="backgroundAttachment is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundAttachment:String" image="34"/>
+		<member name="backgroundBlendMode" proto="backgroundBlendMode:String" help="backgroundBlendMode is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundBlendMode:String" image="34"/>
+		<member name="backgroundClip" proto="backgroundClip:String" help="backgroundClip is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundClip:String" image="34"/>
+		<member name="backgroundColor" proto="backgroundColor:String" help="backgroundColor is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundColor:String" image="34"/>
+		<member name="backgroundImage" proto="backgroundImage:String" help="backgroundImage is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundImage:String" image="34"/>
+		<member name="backgroundOrigin" proto="backgroundOrigin:String" help="backgroundOrigin is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundOrigin:String" image="34"/>
+		<member name="backgroundPosition" proto="backgroundPosition:String" help="backgroundPosition is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundPosition:String" image="34"/>
+		<member name="backgroundPositionX" proto="backgroundPositionX:String" help="backgroundPositionX is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundPositionX:String" image="34"/>
+		<member name="backgroundPositionY" proto="backgroundPositionY:String" help="backgroundPositionY is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundPositionY:String" image="34"/>
+		<member name="backgroundRepeat" proto="backgroundRepeat:String" help="backgroundRepeat is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundRepeat:String" image="34"/>
+		<member name="backgroundRepeatX" proto="backgroundRepeatX:String" help="backgroundRepeatX is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundRepeatX:String" image="34"/>
+		<member name="backgroundRepeatY" proto="backgroundRepeatY:String" help="backgroundRepeatY is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundRepeatY:String" image="34"/>
+		<member name="backgroundSize" proto="backgroundSize:String" help="backgroundSize is member var of class HTMLStyleElement
+public HTMLStyleElement::backgroundSize:String" image="34"/>
+		<member name="baselineShift" proto="baselineShift:String" help="baselineShift is member var of class HTMLStyleElement
+public HTMLStyleElement::baselineShift:String" image="34"/>
+		<member name="border" proto="border:String" help="border is member var of class HTMLStyleElement
+public HTMLStyleElement::border:String" image="34"/>
+		<member name="borderBottom" proto="borderBottom:String" help="borderBottom is member var of class HTMLStyleElement
+public HTMLStyleElement::borderBottom:String" image="34"/>
+		<member name="borderBottomColor" proto="borderBottomColor:String" help="borderBottomColor is member var of class HTMLStyleElement
+public HTMLStyleElement::borderBottomColor:String" image="34"/>
+		<member name="borderBottomLeftRadius" proto="borderBottomLeftRadius:String" help="borderBottomLeftRadius is member var of class HTMLStyleElement
+public HTMLStyleElement::borderBottomLeftRadius:String" image="34"/>
+		<member name="borderBottomRightRadius" proto="borderBottomRightRadius:String" help="borderBottomRightRadius is member var of class HTMLStyleElement
+public HTMLStyleElement::borderBottomRightRadius:String" image="34"/>
+		<member name="borderBottomStyle" proto="borderBottomStyle:String" help="borderBottomStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::borderBottomStyle:String" image="34"/>
+		<member name="borderBottomWidth" proto="borderBottomWidth:String" help="borderBottomWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::borderBottomWidth:String" image="34"/>
+		<member name="borderCollapse" proto="borderCollapse:String" help="borderCollapse is member var of class HTMLStyleElement
+public HTMLStyleElement::borderCollapse:String" image="34"/>
+		<member name="borderColor" proto="borderColor:String" help="borderColor is member var of class HTMLStyleElement
+public HTMLStyleElement::borderColor:String" image="34"/>
+		<member name="borderImage" proto="borderImage:String" help="borderImage is member var of class HTMLStyleElement
+public HTMLStyleElement::borderImage:String" image="34"/>
+		<member name="borderImageOutset" proto="borderImageOutset:String" help="borderImageOutset is member var of class HTMLStyleElement
+public HTMLStyleElement::borderImageOutset:String" image="34"/>
+		<member name="borderImageRepeat" proto="borderImageRepeat:String" help="borderImageRepeat is member var of class HTMLStyleElement
+public HTMLStyleElement::borderImageRepeat:String" image="34"/>
+		<member name="borderImageSlice" proto="borderImageSlice:String" help="borderImageSlice is member var of class HTMLStyleElement
+public HTMLStyleElement::borderImageSlice:String" image="34"/>
+		<member name="borderImageSource" proto="borderImageSource:String" help="borderImageSource is member var of class HTMLStyleElement
+public HTMLStyleElement::borderImageSource:String" image="34"/>
+		<member name="borderImageWidth" proto="borderImageWidth:String" help="borderImageWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::borderImageWidth:String" image="34"/>
+		<member name="borderLeft" proto="borderLeft:String" help="borderLeft is member var of class HTMLStyleElement
+public HTMLStyleElement::borderLeft:String" image="34"/>
+		<member name="borderLeftColor" proto="borderLeftColor:String" help="borderLeftColor is member var of class HTMLStyleElement
+public HTMLStyleElement::borderLeftColor:String" image="34"/>
+		<member name="borderLeftStyle" proto="borderLeftStyle:String" help="borderLeftStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::borderLeftStyle:String" image="34"/>
+		<member name="borderLeftWidth" proto="borderLeftWidth:String" help="borderLeftWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::borderLeftWidth:String" image="34"/>
+		<member name="borderRadius" proto="borderRadius:String" help="borderRadius is member var of class HTMLStyleElement
+public HTMLStyleElement::borderRadius:String" image="34"/>
+		<member name="borderRight" proto="borderRight:String" help="borderRight is member var of class HTMLStyleElement
+public HTMLStyleElement::borderRight:String" image="34"/>
+		<member name="borderRightColor" proto="borderRightColor:String" help="borderRightColor is member var of class HTMLStyleElement
+public HTMLStyleElement::borderRightColor:String" image="34"/>
+		<member name="borderRightStyle" proto="borderRightStyle:String" help="borderRightStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::borderRightStyle:String" image="34"/>
+		<member name="borderRightWidth" proto="borderRightWidth:String" help="borderRightWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::borderRightWidth:String" image="34"/>
+		<member name="borderSpacing" proto="borderSpacing:Float" help="borderSpacing is member var of class HTMLStyleElement
+public HTMLStyleElement::borderSpacing:Float" image="34"/>
+		<member name="borderStyle" proto="borderStyle:String" help="borderStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::borderStyle:String" image="34"/>
+		<member name="borderTop" proto="borderTop:String" help="borderTop is member var of class HTMLStyleElement
+public HTMLStyleElement::borderTop:String" image="34"/>
+		<member name="borderTopColor" proto="borderTopColor:String" help="borderTopColor is member var of class HTMLStyleElement
+public HTMLStyleElement::borderTopColor:String" image="34"/>
+		<member name="borderTopLeftRadius" proto="borderTopLeftRadius:String" help="borderTopLeftRadius is member var of class HTMLStyleElement
+public HTMLStyleElement::borderTopLeftRadius:String" image="34"/>
+		<member name="borderTopRightRadius" proto="borderTopRightRadius:String" help="borderTopRightRadius is member var of class HTMLStyleElement
+public HTMLStyleElement::borderTopRightRadius:String" image="34"/>
+		<member name="borderTopStyle" proto="borderTopStyle:String" help="borderTopStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::borderTopStyle:String" image="34"/>
+		<member name="borderTopWidth" proto="borderTopWidth:String" help="borderTopWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::borderTopWidth:String" image="34"/>
+		<member name="borderWidth" proto="borderWidth:Float" help="borderWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::borderWidth:Float" image="34"/>
+		<member name="bottom" proto="bottom:String" help="bottom is member var of class HTMLStyleElement
+public HTMLStyleElement::bottom:String" image="34"/>
+		<member name="boxShadow" proto="boxShadow:String" help="boxShadow is member var of class HTMLStyleElement
+public HTMLStyleElement::boxShadow:String" image="34"/>
+		<member name="boxSizing" proto="boxSizing:String" help="boxSizing is member var of class HTMLStyleElement
+public HTMLStyleElement::boxSizing:String" image="34"/>
+		<member name="bufferedRendering" proto="bufferedRendering:String" help="bufferedRendering is member var of class HTMLStyleElement
+public HTMLStyleElement::bufferedRendering:String" image="34"/>
+		<member name="captionSide" proto="captionSide:String" help="captionSide is member var of class HTMLStyleElement
+public HTMLStyleElement::captionSide:String" image="34"/>
+		<member name="clear" proto="clear:String" help="clear is member var of class HTMLStyleElement
+public HTMLStyleElement::clear:String" image="34"/>
+		<member name="clip" proto="clip:String" help="clip is member var of class HTMLStyleElement
+public HTMLStyleElement::clip:String" image="34"/>
+		<member name="clipPath" proto="clipPath:String" help="clipPath is member var of class HTMLStyleElement
+public HTMLStyleElement::clipPath:String" image="34"/>
+		<member name="clipRule" proto="clipRule:String" help="clipRule is member var of class HTMLStyleElement
+public HTMLStyleElement::clipRule:String" image="34"/>
+		<member name="color" proto="color:String" help="color is member var of class HTMLStyleElement
+public HTMLStyleElement::color:String" image="34"/>
+		<member name="colorInterpolation" proto="colorInterpolation:String" help="colorInterpolation is member var of class HTMLStyleElement
+public HTMLStyleElement::colorInterpolation:String" image="34"/>
+		<member name="colorInterpolationFilters" proto="colorInterpolationFilters:String" help="colorInterpolationFilters is member var of class HTMLStyleElement
+public HTMLStyleElement::colorInterpolationFilters:String" image="34"/>
+		<member name="colorRendering" proto="colorRendering:String" help="colorRendering is member var of class HTMLStyleElement
+public HTMLStyleElement::colorRendering:String" image="34"/>
+		<member name="content" proto="content:String" help="content is member var of class HTMLStyleElement
+public HTMLStyleElement::content:String" image="34"/>
+		<member name="counterIncrement" proto="counterIncrement:String" help="counterIncrement is member var of class HTMLStyleElement
+public HTMLStyleElement::counterIncrement:String" image="34"/>
+		<member name="counterReset" proto="counterReset:String" help="counterReset is member var of class HTMLStyleElement
+public HTMLStyleElement::counterReset:String" image="34"/>
+		<member name="cursor" proto="cursor:String" help="cursor is member var of class HTMLStyleElement
+public HTMLStyleElement::cursor:String" image="34"/>
+		<member name="direction" proto="direction:String" help="direction is member var of class HTMLStyleElement
+public HTMLStyleElement::direction:String" image="34"/>
+		<member name="display" proto="display:String" help="display is member var of class HTMLStyleElement
+public HTMLStyleElement::display:String" image="34"/>
+		<member name="dominantBaseline" proto="dominantBaseline:String" help="dominantBaseline is member var of class HTMLStyleElement
+public HTMLStyleElement::dominantBaseline:String" image="34"/>
+		<member name="emptyCells" proto="emptyCells:String" help="emptyCells is member var of class HTMLStyleElement
+public HTMLStyleElement::emptyCells:String" image="34"/>
+		<member name="enableBackground" proto="enableBackground:String" help="enableBackground is member var of class HTMLStyleElement
+public HTMLStyleElement::enableBackground:String" image="34"/>
+		<member name="fill" proto="fill:String" help="fill is member var of class HTMLStyleElement
+public HTMLStyleElement::fill:String" image="34"/>
+		<member name="fillOpacity" proto="fillOpacity:String" help="fillOpacity is member var of class HTMLStyleElement
+public HTMLStyleElement::fillOpacity:String" image="34"/>
+		<member name="fillRule" proto="fillRule:String" help="fillRule is member var of class HTMLStyleElement
+public HTMLStyleElement::fillRule:String" image="34"/>
+		<member name="filter" proto="filter:String" help="filter is member var of class HTMLStyleElement
+public HTMLStyleElement::filter:String" image="34"/>
+		<member name="flex" proto="flex:String" help="flex is member var of class HTMLStyleElement
+public HTMLStyleElement::flex:String" image="34"/>
+		<member name="flexBasis" proto="flexBasis:String" help="flexBasis is member var of class HTMLStyleElement
+public HTMLStyleElement::flexBasis:String" image="34"/>
+		<member name="flexDirection" proto="flexDirection:String" help="flexDirection is member var of class HTMLStyleElement
+public HTMLStyleElement::flexDirection:String" image="34"/>
+		<member name="flexFlow" proto="flexFlow:String" help="flexFlow is member var of class HTMLStyleElement
+public HTMLStyleElement::flexFlow:String" image="34"/>
+		<member name="flexGrow" proto="flexGrow:String" help="flexGrow is member var of class HTMLStyleElement
+public HTMLStyleElement::flexGrow:String" image="34"/>
+		<member name="flexShrink" proto="flexShrink:String" help="flexShrink is member var of class HTMLStyleElement
+public HTMLStyleElement::flexShrink:String" image="34"/>
+		<member name="flexWrap" proto="flexWrap:String" help="flexWrap is member var of class HTMLStyleElement
+public HTMLStyleElement::flexWrap:String" image="34"/>
+		<member name="float" proto="float:String" help="float is member var of class HTMLStyleElement
+public HTMLStyleElement::float:String" image="34"/>
+		<member name="floodColor" proto="floodColor:String" help="floodColor is member var of class HTMLStyleElement
+public HTMLStyleElement::floodColor:String" image="34"/>
+		<member name="floodOpacity" proto="floodOpacity:String" help="floodOpacity is member var of class HTMLStyleElement
+public HTMLStyleElement::floodOpacity:String" image="34"/>
+		<member name="font" proto="font:String" help="font is member var of class HTMLStyleElement
+public HTMLStyleElement::font:String" image="34"/>
+		<member name="fontFamily" proto="fontFamily:String" help="fontFamily is member var of class HTMLStyleElement
+public HTMLStyleElement::fontFamily:String" image="34"/>
+		<member name="fontKerning" proto="fontKerning:String" help="fontKerning is member var of class HTMLStyleElement
+public HTMLStyleElement::fontKerning:String" image="34"/>
+		<member name="fontSize" proto="fontSize:String" help="fontSize is member var of class HTMLStyleElement
+public HTMLStyleElement::fontSize:String" image="34"/>
+		<member name="fontStretch" proto="fontStretch:String" help="fontStretch is member var of class HTMLStyleElement
+public HTMLStyleElement::fontStretch:String" image="34"/>
+		<member name="fontStyle" proto="fontStyle:String" help="fontStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::fontStyle:String" image="34"/>
+		<member name="fontVariant" proto="fontVariant:String" help="fontVariant is member var of class HTMLStyleElement
+public HTMLStyleElement::fontVariant:String" image="34"/>
+		<member name="fontVariantLigatures" proto="fontVariantLigatures:String" help="fontVariantLigatures is member var of class HTMLStyleElement
+public HTMLStyleElement::fontVariantLigatures:String" image="34"/>
+		<member name="fontWeight" proto="fontWeight:String" help="fontWeight is member var of class HTMLStyleElement
+public HTMLStyleElement::fontWeight:String" image="34"/>
+		<member name="glyphOrientationHorizontal" proto="glyphOrientationHorizontal:String" help="glyphOrientationHorizontal is member var of class HTMLStyleElement
+public HTMLStyleElement::glyphOrientationHorizontal:String" image="34"/>
+		<member name="glyphOrientationVertical" proto="glyphOrientationVertical:String" help="glyphOrientationVertical is member var of class HTMLStyleElement
+public HTMLStyleElement::glyphOrientationVertical:String" image="34"/>
+		<member name="height" proto="height:String" help="height is member var of class HTMLStyleElement
+public HTMLStyleElement::height:String" image="34"/>
+		<member name="imageRendering" proto="imageRendering:String" help="imageRendering is member var of class HTMLStyleElement
+public HTMLStyleElement::imageRendering:String" image="34"/>
+		<member name="justifyContent" proto="justifyContent:String" help="justifyContent is member var of class HTMLStyleElement
+public HTMLStyleElement::justifyContent:String" image="34"/>
+		<member name="left" proto="left:String" help="left is member var of class HTMLStyleElement
+public HTMLStyleElement::left:String" image="34"/>
+		<member name="letterSpacing" proto="letterSpacing:String" help="letterSpacing is member var of class HTMLStyleElement
+public HTMLStyleElement::letterSpacing:String" image="34"/>
+		<member name="lightingColor" proto="lightingColor:String" help="lightingColor is member var of class HTMLStyleElement
+public HTMLStyleElement::lightingColor:String" image="34"/>
+		<member name="lineHeight" proto="lineHeight:String" help="lineHeight is member var of class HTMLStyleElement
+public HTMLStyleElement::lineHeight:String" image="34"/>
+		<member name="listStyle" proto="listStyle:String" help="listStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::listStyle:String" image="34"/>
+		<member name="listStyleImage" proto="listStyleImage:String" help="listStyleImage is member var of class HTMLStyleElement
+public HTMLStyleElement::listStyleImage:String" image="34"/>
+		<member name="listStylePosition" proto="listStylePosition:String" help="listStylePosition is member var of class HTMLStyleElement
+public HTMLStyleElement::listStylePosition:String" image="34"/>
+		<member name="listStyleType" proto="listStyleType:String" help="listStyleType is member var of class HTMLStyleElement
+public HTMLStyleElement::listStyleType:String" image="34"/>
+		<member name="margin" proto="margin:String" help="margin is member var of class HTMLStyleElement
+public HTMLStyleElement::margin:String" image="34"/>
+		<member name="marginBottom" proto="marginBottom:String" help="marginBottom is member var of class HTMLStyleElement
+public HTMLStyleElement::marginBottom:String" image="34"/>
+		<member name="marginLeft" proto="marginLeft:String" help="marginLeft is member var of class HTMLStyleElement
+public HTMLStyleElement::marginLeft:String" image="34"/>
+		<member name="marginRight" proto="marginRight:String" help="marginRight is member var of class HTMLStyleElement
+public HTMLStyleElement::marginRight:String" image="34"/>
+		<member name="marginTop" proto="marginTop:String" help="marginTop is member var of class HTMLStyleElement
+public HTMLStyleElement::marginTop:String" image="34"/>
+		<member name="marker" proto="marker:String" help="marker is member var of class HTMLStyleElement
+public HTMLStyleElement::marker:String" image="34"/>
+		<member name="markerEnd" proto="markerEnd:String" help="markerEnd is member var of class HTMLStyleElement
+public HTMLStyleElement::markerEnd:String" image="34"/>
+		<member name="markerMid" proto="markerMid:String" help="markerMid is member var of class HTMLStyleElement
+public HTMLStyleElement::markerMid:String" image="34"/>
+		<member name="markerStart" proto="markerStart:String" help="markerStart is member var of class HTMLStyleElement
+public HTMLStyleElement::markerStart:String" image="34"/>
+		<member name="mask" proto="mask:String" help="mask is member var of class HTMLStyleElement
+public HTMLStyleElement::mask:String" image="34"/>
+		<member name="maskType" proto="maskType:String" help="maskType is member var of class HTMLStyleElement
+public HTMLStyleElement::maskType:String" image="34"/>
+		<member name="maxHeight" proto="maxHeight:String" help="maxHeight is member var of class HTMLStyleElement
+public HTMLStyleElement::maxHeight:String" image="34"/>
+		<member name="maxWidth" proto="maxWidth:String" help="maxWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::maxWidth:String" image="34"/>
+		<member name="maxZoom" proto="maxZoom:String" help="maxZoom is member var of class HTMLStyleElement
+public HTMLStyleElement::maxZoom:String" image="34"/>
+		<member name="minHeight" proto="minHeight:String" help="minHeight is member var of class HTMLStyleElement
+public HTMLStyleElement::minHeight:String" image="34"/>
+		<member name="minWidth" proto="minWidth:String" help="minWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::minWidth:String" image="34"/>
+		<member name="minZoom" proto="minZoom:String" help="minZoom is member var of class HTMLStyleElement
+public HTMLStyleElement::minZoom:String" image="34"/>
+		<member name="objectFit" proto="objectFit:String" help="objectFit is member var of class HTMLStyleElement
+public HTMLStyleElement::objectFit:String" image="34"/>
+		<member name="objectPosition" proto="objectPosition:String" help="objectPosition is member var of class HTMLStyleElement
+public HTMLStyleElement::objectPosition:String" image="34"/>
+		<member name="opacity" proto="opacity:Float" help="opacity is member var of class HTMLStyleElement
+public HTMLStyleElement::opacity:Float" image="34"/>
+		<member name="order" proto="order:String" help="order is member var of class HTMLStyleElement
+public HTMLStyleElement::order:String" image="34"/>
+		<member name="orientation" proto="orientation:String" help="orientation is member var of class HTMLStyleElement
+public HTMLStyleElement::orientation:String" image="34"/>
+		<member name="orphans" proto="orphans:String" help="orphans is member var of class HTMLStyleElement
+public HTMLStyleElement::orphans:String" image="34"/>
+		<member name="outline" proto="outline:String" help="outline is member var of class HTMLStyleElement
+public HTMLStyleElement::outline:String" image="34"/>
+		<member name="outlineColor" proto="outlineColor:String" help="outlineColor is member var of class HTMLStyleElement
+public HTMLStyleElement::outlineColor:String" image="34"/>
+		<member name="outlineOffset" proto="outlineOffset:String" help="outlineOffset is member var of class HTMLStyleElement
+public HTMLStyleElement::outlineOffset:String" image="34"/>
+		<member name="outlineStyle" proto="outlineStyle:String" help="outlineStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::outlineStyle:String" image="34"/>
+		<member name="outlineWidth" proto="outlineWidth:String" help="outlineWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::outlineWidth:String" image="34"/>
+		<member name="overflow" proto="overflow:String" help="overflow is member var of class HTMLStyleElement
+public HTMLStyleElement::overflow:String" image="34"/>
+		<member name="overflowWrap" proto="overflowWrap:String" help="overflowWrap is member var of class HTMLStyleElement
+public HTMLStyleElement::overflowWrap:String" image="34"/>
+		<member name="overflowX" proto="overflowX:String" help="overflowX is member var of class HTMLStyleElement
+public HTMLStyleElement::overflowX:String" image="34"/>
+		<member name="overflowY" proto="overflowY:String" help="overflowY is member var of class HTMLStyleElement
+public HTMLStyleElement::overflowY:String" image="34"/>
+		<member name="padding" proto="padding:String" help="padding is member var of class HTMLStyleElement
+public HTMLStyleElement::padding:String" image="34"/>
+		<member name="paddingBottom" proto="paddingBottom:String" help="paddingBottom is member var of class HTMLStyleElement
+public HTMLStyleElement::paddingBottom:String" image="34"/>
+		<member name="paddingLeft" proto="paddingLeft:String" help="paddingLeft is member var of class HTMLStyleElement
+public HTMLStyleElement::paddingLeft:String" image="34"/>
+		<member name="paddingRight" proto="paddingRight:String" help="paddingRight is member var of class HTMLStyleElement
+public HTMLStyleElement::paddingRight:String" image="34"/>
+		<member name="paddingTop" proto="paddingTop:String" help="paddingTop is member var of class HTMLStyleElement
+public HTMLStyleElement::paddingTop:String" image="34"/>
+		<member name="page" proto="page:String" help="page is member var of class HTMLStyleElement
+public HTMLStyleElement::page:String" image="34"/>
+		<member name="pageBreakAfter" proto="pageBreakAfter:String" help="pageBreakAfter is member var of class HTMLStyleElement
+public HTMLStyleElement::pageBreakAfter:String" image="34"/>
+		<member name="pageBreakBefore" proto="pageBreakBefore:String" help="pageBreakBefore is member var of class HTMLStyleElement
+public HTMLStyleElement::pageBreakBefore:String" image="34"/>
+		<member name="pageBreakInside" proto="pageBreakInside:String" help="pageBreakInside is member var of class HTMLStyleElement
+public HTMLStyleElement::pageBreakInside:String" image="34"/>
+		<member name="paintOrder" proto="paintOrder:String" help="paintOrder is member var of class HTMLStyleElement
+public HTMLStyleElement::paintOrder:String" image="34"/>
+		<member name="perspective" proto="perspective:String" help="perspective is member var of class HTMLStyleElement
+public HTMLStyleElement::perspective:String" image="34"/>
+		<member name="perspectiveOrigin" proto="perspectiveOrigin:String" help="perspectiveOrigin is member var of class HTMLStyleElement
+public HTMLStyleElement::perspectiveOrigin:String" image="34"/>
+		<member name="pointerEvents" proto="pointerEvents:String" help="pointerEvents is member var of class HTMLStyleElement
+public HTMLStyleElement::pointerEvents:String" image="34"/>
+		<member name="position" proto="position:String" help="position is member var of class HTMLStyleElement
+public HTMLStyleElement::position:String" image="34"/>
+		<member name="quotes" proto="quotes:String" help="quotes is member var of class HTMLStyleElement
+public HTMLStyleElement::quotes:String" image="34"/>
+		<member name="resize" proto="resize:String" help="resize is member var of class HTMLStyleElement
+public HTMLStyleElement::resize:String" image="34"/>
+		<member name="right" proto="right:String" help="right is member var of class HTMLStyleElement
+public HTMLStyleElement::right:String" image="34"/>
+		<member name="shapeImageThreshold" proto="shapeImageThreshold:String" help="shapeImageThreshold is member var of class HTMLStyleElement
+public HTMLStyleElement::shapeImageThreshold:String" image="34"/>
+		<member name="shapeMargin" proto="shapeMargin:String" help="shapeMargin is member var of class HTMLStyleElement
+public HTMLStyleElement::shapeMargin:String" image="34"/>
+		<member name="shapeOutside" proto="shapeOutside:String" help="shapeOutside is member var of class HTMLStyleElement
+public HTMLStyleElement::shapeOutside:String" image="34"/>
+		<member name="shapeRendering" proto="shapeRendering:String" help="shapeRendering is member var of class HTMLStyleElement
+public HTMLStyleElement::shapeRendering:String" image="34"/>
+		<member name="size" proto="size:String" help="size is member var of class HTMLStyleElement
+public HTMLStyleElement::size:String" image="34"/>
+		<member name="speak" proto="speak:String" help="speak is member var of class HTMLStyleElement
+public HTMLStyleElement::speak:String" image="34"/>
+		<member name="src" proto="src:String" help="src is member var of class HTMLStyleElement
+public HTMLStyleElement::src:String" image="34"/>
+		<member name="stopColor" proto="stopColor:String" help="stopColor is member var of class HTMLStyleElement
+public HTMLStyleElement::stopColor:String" image="34"/>
+		<member name="stopOpacity" proto="stopOpacity:String" help="stopOpacity is member var of class HTMLStyleElement
+public HTMLStyleElement::stopOpacity:String" image="34"/>
+		<member name="stroke" proto="stroke:String" help="stroke is member var of class HTMLStyleElement
+public HTMLStyleElement::stroke:String" image="34"/>
+		<member name="strokeDasharray" proto="strokeDasharray:String" help="strokeDasharray is member var of class HTMLStyleElement
+public HTMLStyleElement::strokeDasharray:String" image="34"/>
+		<member name="strokeDashoffset" proto="strokeDashoffset:String" help="strokeDashoffset is member var of class HTMLStyleElement
+public HTMLStyleElement::strokeDashoffset:String" image="34"/>
+		<member name="strokeLinecap" proto="strokeLinecap:String" help="strokeLinecap is member var of class HTMLStyleElement
+public HTMLStyleElement::strokeLinecap:String" image="34"/>
+		<member name="strokeLinejoin" proto="strokeLinejoin:String" help="strokeLinejoin is member var of class HTMLStyleElement
+public HTMLStyleElement::strokeLinejoin:String" image="34"/>
+		<member name="strokeMiterlimit" proto="strokeMiterlimit:String" help="strokeMiterlimit is member var of class HTMLStyleElement
+public HTMLStyleElement::strokeMiterlimit:String" image="34"/>
+		<member name="strokeOpacity" proto="strokeOpacity:String" help="strokeOpacity is member var of class HTMLStyleElement
+public HTMLStyleElement::strokeOpacity:String" image="34"/>
+		<member name="strokeWidth" proto="strokeWidth:String" help="strokeWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::strokeWidth:String" image="34"/>
+		<member name="tabSize" proto="tabSize:String" help="tabSize is member var of class HTMLStyleElement
+public HTMLStyleElement::tabSize:String" image="34"/>
+		<member name="tableLayout" proto="tableLayout:String" help="tableLayout is member var of class HTMLStyleElement
+public HTMLStyleElement::tableLayout:String" image="34"/>
+		<member name="textAlign" proto="textAlign:String" help="textAlign is member var of class HTMLStyleElement
+public HTMLStyleElement::textAlign:String" image="34"/>
+		<member name="textAnchor" proto="textAnchor:String" help="textAnchor is member var of class HTMLStyleElement
+public HTMLStyleElement::textAnchor:String" image="34"/>
+		<member name="textDecoration" proto="textDecoration:String" help="textDecoration is member var of class HTMLStyleElement
+public HTMLStyleElement::textDecoration:String" image="34"/>
+		<member name="textIndent" proto="textIndent:String" help="textIndent is member var of class HTMLStyleElement
+public HTMLStyleElement::textIndent:String" image="34"/>
+		<member name="textLineThroughColor" proto="textLineThroughColor:String" help="textLineThroughColor is member var of class HTMLStyleElement
+public HTMLStyleElement::textLineThroughColor:String" image="34"/>
+		<member name="textLineThroughMode" proto="textLineThroughMode:String" help="textLineThroughMode is member var of class HTMLStyleElement
+public HTMLStyleElement::textLineThroughMode:String" image="34"/>
+		<member name="textLineThroughStyle" proto="textLineThroughStyle:String" help="textLineThroughStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::textLineThroughStyle:String" image="34"/>
+		<member name="textLineThroughWidth" proto="textLineThroughWidth:String" help="textLineThroughWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::textLineThroughWidth:String" image="34"/>
+		<member name="textOverflow" proto="textOverflow:String" help="textOverflow is member var of class HTMLStyleElement
+public HTMLStyleElement::textOverflow:String" image="34"/>
+		<member name="textOverlineColor" proto="textOverlineColor:String" help="textOverlineColor is member var of class HTMLStyleElement
+public HTMLStyleElement::textOverlineColor:String" image="34"/>
+		<member name="textOverlineMode" proto="textOverlineMode:String" help="textOverlineMode is member var of class HTMLStyleElement
+public HTMLStyleElement::textOverlineMode:String" image="34"/>
+		<member name="textOverlineStyle" proto="textOverlineStyle:String" help="textOverlineStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::textOverlineStyle:String" image="34"/>
+		<member name="textOverlineWidth" proto="textOverlineWidth:String" help="textOverlineWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::textOverlineWidth:String" image="34"/>
+		<member name="textRendering" proto="textRendering:String" help="textRendering is member var of class HTMLStyleElement
+public HTMLStyleElement::textRendering:String" image="34"/>
+		<member name="textShadow" proto="textShadow:String" help="textShadow is member var of class HTMLStyleElement
+public HTMLStyleElement::textShadow:String" image="34"/>
+		<member name="textTransform" proto="textTransform:String" help="textTransform is member var of class HTMLStyleElement
+public HTMLStyleElement::textTransform:String" image="34"/>
+		<member name="textUnderlineColor" proto="textUnderlineColor:String" help="textUnderlineColor is member var of class HTMLStyleElement
+public HTMLStyleElement::textUnderlineColor:String" image="34"/>
+		<member name="textUnderlineMode" proto="textUnderlineMode:String" help="textUnderlineMode is member var of class HTMLStyleElement
+public HTMLStyleElement::textUnderlineMode:String" image="34"/>
+		<member name="textUnderlineStyle" proto="textUnderlineStyle:String" help="textUnderlineStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::textUnderlineStyle:String" image="34"/>
+		<member name="textUnderlineWidth" proto="textUnderlineWidth:String" help="textUnderlineWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::textUnderlineWidth:String" image="34"/>
+		<member name="top" proto="top:String" help="top is member var of class HTMLStyleElement
+public HTMLStyleElement::top:String" image="34"/>
+		<member name="touchAction" proto="touchAction:String" help="touchAction is member var of class HTMLStyleElement
+public HTMLStyleElement::touchAction:String" image="34"/>
+		<member name="transform" proto="transform:String" help="transform is member var of class HTMLStyleElement
+public HTMLStyleElement::transform:String" image="34"/>
+		<member name="transformOrigin" proto="transformOrigin:String" help="transformOrigin is member var of class HTMLStyleElement
+public HTMLStyleElement::transformOrigin:String" image="34"/>
+		<member name="transformStyle" proto="transformStyle:String" help="transformStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::transformStyle:String" image="34"/>
+		<member name="transition" proto="transition:String" help="transition is member var of class HTMLStyleElement
+public HTMLStyleElement::transition:String" image="34"/>
+		<member name="transitionDelay" proto="transitionDelay:String" help="transitionDelay is member var of class HTMLStyleElement
+public HTMLStyleElement::transitionDelay:String" image="34"/>
+		<member name="transitionDuration" proto="transitionDuration:String" help="transitionDuration is member var of class HTMLStyleElement
+public HTMLStyleElement::transitionDuration:String" image="34"/>
+		<member name="transitionProperty" proto="transitionProperty:String" help="transitionProperty is member var of class HTMLStyleElement
+public HTMLStyleElement::transitionProperty:String" image="34"/>
+		<member name="transitionTimingFunction" proto="transitionTimingFunction:String" help="transitionTimingFunction is member var of class HTMLStyleElement
+public HTMLStyleElement::transitionTimingFunction:String" image="34"/>
+		<member name="unicodeBidi" proto="unicodeBidi:String" help="unicodeBidi is member var of class HTMLStyleElement
+public HTMLStyleElement::unicodeBidi:String" image="34"/>
+		<member name="unicodeRange" proto="unicodeRange:String" help="unicodeRange is member var of class HTMLStyleElement
+public HTMLStyleElement::unicodeRange:String" image="34"/>
+		<member name="userZoom" proto="userZoom:String" help="userZoom is member var of class HTMLStyleElement
+public HTMLStyleElement::userZoom:String" image="34"/>
+		<member name="vectorEffect" proto="vectorEffect:String" help="vectorEffect is member var of class HTMLStyleElement
+public HTMLStyleElement::vectorEffect:String" image="34"/>
+		<member name="verticalAlign" proto="verticalAlign:String" help="verticalAlign is member var of class HTMLStyleElement
+public HTMLStyleElement::verticalAlign:String" image="34"/>
+		<member name="visibility" proto="visibility:String" help="visibility is member var of class HTMLStyleElement
+public HTMLStyleElement::visibility:String" image="34"/>
+		<member name="webkitAnimation" proto="webkitAnimation:String" help="webkitAnimation is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAnimation:String" image="34"/>
+		<member name="webkitAnimationDelay" proto="webkitAnimationDelay:String" help="webkitAnimationDelay is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAnimationDelay:String" image="34"/>
+		<member name="webkitAnimationDirection" proto="webkitAnimationDirection:String" help="webkitAnimationDirection is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAnimationDirection:String" image="34"/>
+		<member name="webkitAnimationDuration" proto="webkitAnimationDuration:String" help="webkitAnimationDuration is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAnimationDuration:String" image="34"/>
+		<member name="webkitAnimationFillMode" proto="webkitAnimationFillMode:String" help="webkitAnimationFillMode is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAnimationFillMode:String" image="34"/>
+		<member name="webkitAnimationIterationCount" proto="webkitAnimationIterationCount:String" help="webkitAnimationIterationCount is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAnimationIterationCount:String" image="34"/>
+		<member name="webkitAnimationName" proto="webkitAnimationName:String" help="webkitAnimationName is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAnimationName:String" image="34"/>
+		<member name="webkitAnimationPlayState" proto="webkitAnimationPlayState:String" help="webkitAnimationPlayState is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAnimationPlayState:String" image="34"/>
+		<member name="webkitAnimationTimingFunction" proto="webkitAnimationTimingFunction:String" help="webkitAnimationTimingFunction is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAnimationTimingFunction:String" image="34"/>
+		<member name="webkitAppRegion" proto="webkitAppRegion:String" help="webkitAppRegion is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAppRegion:String" image="34"/>
+		<member name="webkitAppearance" proto="webkitAppearance:String" help="webkitAppearance is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAppearance:String" image="34"/>
+		<member name="webkitAspectRatio" proto="webkitAspectRatio:String" help="webkitAspectRatio is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitAspectRatio:String" image="34"/>
+		<member name="webkitBackfaceVisibility" proto="webkitBackfaceVisibility:String" help="webkitBackfaceVisibility is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBackfaceVisibility:String" image="34"/>
+		<member name="webkitBackgroundClip" proto="webkitBackgroundClip:String" help="webkitBackgroundClip is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBackgroundClip:String" image="34"/>
+		<member name="webkitBackgroundComposite" proto="webkitBackgroundComposite:String" help="webkitBackgroundComposite is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBackgroundComposite:String" image="34"/>
+		<member name="webkitBackgroundOrigin" proto="webkitBackgroundOrigin:String" help="webkitBackgroundOrigin is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBackgroundOrigin:String" image="34"/>
+		<member name="webkitBackgroundSize" proto="webkitBackgroundSize:String" help="webkitBackgroundSize is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBackgroundSize:String" image="34"/>
+		<member name="webkitBorderAfter" proto="webkitBorderAfter:String" help="webkitBorderAfter is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderAfter:String" image="34"/>
+		<member name="webkitBorderAfterColor" proto="webkitBorderAfterColor:String" help="webkitBorderAfterColor is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderAfterColor:String" image="34"/>
+		<member name="webkitBorderAfterStyle" proto="webkitBorderAfterStyle:String" help="webkitBorderAfterStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderAfterStyle:String" image="34"/>
+		<member name="webkitBorderAfterWidth" proto="webkitBorderAfterWidth:String" help="webkitBorderAfterWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderAfterWidth:String" image="34"/>
+		<member name="webkitBorderBefore" proto="webkitBorderBefore:String" help="webkitBorderBefore is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderBefore:String" image="34"/>
+		<member name="webkitBorderBeforeColor" proto="webkitBorderBeforeColor:String" help="webkitBorderBeforeColor is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderBeforeColor:String" image="34"/>
+		<member name="webkitBorderBeforeStyle" proto="webkitBorderBeforeStyle:String" help="webkitBorderBeforeStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderBeforeStyle:String" image="34"/>
+		<member name="webkitBorderBeforeWidth" proto="webkitBorderBeforeWidth:String" help="webkitBorderBeforeWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderBeforeWidth:String" image="34"/>
+		<member name="webkitBorderEnd" proto="webkitBorderEnd:String" help="webkitBorderEnd is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderEnd:String" image="34"/>
+		<member name="webkitBorderEndColor" proto="webkitBorderEndColor:String" help="webkitBorderEndColor is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderEndColor:String" image="34"/>
+		<member name="webkitBorderEndStyle" proto="webkitBorderEndStyle:String" help="webkitBorderEndStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderEndStyle:String" image="34"/>
+		<member name="webkitBorderEndWidth" proto="webkitBorderEndWidth:String" help="webkitBorderEndWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderEndWidth:String" image="34"/>
+		<member name="webkitBorderFit" proto="webkitBorderFit:String" help="webkitBorderFit is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderFit:String" image="34"/>
+		<member name="webkitBorderHorizontalSpacing" proto="webkitBorderHorizontalSpacing:String" help="webkitBorderHorizontalSpacing is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderHorizontalSpacing:String" image="34"/>
+		<member name="webkitBorderImage" proto="webkitBorderImage:String" help="webkitBorderImage is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderImage:String" image="34"/>
+		<member name="webkitBorderRadius" proto="webkitBorderRadius:String" help="webkitBorderRadius is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderRadius:String" image="34"/>
+		<member name="webkitBorderStart" proto="webkitBorderStart:String" help="webkitBorderStart is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderStart:String" image="34"/>
+		<member name="webkitBorderStartColor" proto="webkitBorderStartColor:String" help="webkitBorderStartColor is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderStartColor:String" image="34"/>
+		<member name="webkitBorderStartStyle" proto="webkitBorderStartStyle:String" help="webkitBorderStartStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderStartStyle:String" image="34"/>
+		<member name="webkitBorderStartWidth" proto="webkitBorderStartWidth:String" help="webkitBorderStartWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderStartWidth:String" image="34"/>
+		<member name="webkitBorderVerticalSpacing" proto="webkitBorderVerticalSpacing:String" help="webkitBorderVerticalSpacing is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBorderVerticalSpacing:String" image="34"/>
+		<member name="webkitBoxAlign" proto="webkitBoxAlign:String" help="webkitBoxAlign is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxAlign:String" image="34"/>
+		<member name="webkitBoxDecorationBreak" proto="webkitBoxDecorationBreak:String" help="webkitBoxDecorationBreak is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxDecorationBreak:String" image="34"/>
+		<member name="webkitBoxDirection" proto="webkitBoxDirection:String" help="webkitBoxDirection is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxDirection:String" image="34"/>
+		<member name="webkitBoxFlex" proto="webkitBoxFlex:String" help="webkitBoxFlex is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxFlex:String" image="34"/>
+		<member name="webkitBoxFlexGroup" proto="webkitBoxFlexGroup:String" help="webkitBoxFlexGroup is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxFlexGroup:String" image="34"/>
+		<member name="webkitBoxLines" proto="webkitBoxLines:String" help="webkitBoxLines is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxLines:String" image="34"/>
+		<member name="webkitBoxOrdinalGroup" proto="webkitBoxOrdinalGroup:String" help="webkitBoxOrdinalGroup is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxOrdinalGroup:String" image="34"/>
+		<member name="webkitBoxOrient" proto="webkitBoxOrient:String" help="webkitBoxOrient is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxOrient:String" image="34"/>
+		<member name="webkitBoxPack" proto="webkitBoxPack:String" help="webkitBoxPack is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxPack:String" image="34"/>
+		<member name="webkitBoxReflect" proto="webkitBoxReflect:String" help="webkitBoxReflect is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxReflect:String" image="34"/>
+		<member name="webkitBoxShadow" proto="webkitBoxShadow:String" help="webkitBoxShadow is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitBoxShadow:String" image="34"/>
+		<member name="webkitClipPath" proto="webkitClipPath:String" help="webkitClipPath is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitClipPath:String" image="34"/>
+		<member name="webkitColumnBreakAfter" proto="webkitColumnBreakAfter:String" help="webkitColumnBreakAfter is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnBreakAfter:String" image="34"/>
+		<member name="webkitColumnBreakBefore" proto="webkitColumnBreakBefore:String" help="webkitColumnBreakBefore is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnBreakBefore:String" image="34"/>
+		<member name="webkitColumnBreakInside" proto="webkitColumnBreakInside:String" help="webkitColumnBreakInside is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnBreakInside:String" image="34"/>
+		<member name="webkitColumnCount" proto="webkitColumnCount:String" help="webkitColumnCount is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnCount:String" image="34"/>
+		<member name="webkitColumnGap" proto="webkitColumnGap:String" help="webkitColumnGap is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnGap:String" image="34"/>
+		<member name="webkitColumnRule" proto="webkitColumnRule:String" help="webkitColumnRule is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnRule:String" image="34"/>
+		<member name="webkitColumnRuleColor" proto="webkitColumnRuleColor:String" help="webkitColumnRuleColor is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnRuleColor:String" image="34"/>
+		<member name="webkitColumnRuleStyle" proto="webkitColumnRuleStyle:String" help="webkitColumnRuleStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnRuleStyle:String" image="34"/>
+		<member name="webkitColumnRuleWidth" proto="webkitColumnRuleWidth:String" help="webkitColumnRuleWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnRuleWidth:String" image="34"/>
+		<member name="webkitColumnSpan" proto="webkitColumnSpan:String" help="webkitColumnSpan is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnSpan:String" image="34"/>
+		<member name="webkitColumnWidth" proto="webkitColumnWidth:String" help="webkitColumnWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumnWidth:String" image="34"/>
+		<member name="webkitColumns" proto="webkitColumns:String" help="webkitColumns is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitColumns:String" image="34"/>
+		<member name="webkitFilter" proto="webkitFilter:String" help="webkitFilter is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitFilter:String" image="34"/>
+		<member name="webkitFontFeatureSettings" proto="webkitFontFeatureSettings:String" help="webkitFontFeatureSettings is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitFontFeatureSettings:String" image="34"/>
+		<member name="webkitFontSizeDelta" proto="webkitFontSizeDelta:String" help="webkitFontSizeDelta is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitFontSizeDelta:String" image="34"/>
+		<member name="webkitFontSmoothing" proto="webkitFontSmoothing:String" help="webkitFontSmoothing is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitFontSmoothing:String" image="34"/>
+		<member name="webkitHighlight" proto="webkitHighlight:String" help="webkitHighlight is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitHighlight:String" image="34"/>
+		<member name="webkitHyphenateCharacter" proto="webkitHyphenateCharacter:String" help="webkitHyphenateCharacter is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitHyphenateCharacter:String" image="34"/>
+		<member name="webkitLineBoxContain" proto="webkitLineBoxContain:String" help="webkitLineBoxContain is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitLineBoxContain:String" image="34"/>
+		<member name="webkitLineBreak" proto="webkitLineBreak:String" help="webkitLineBreak is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitLineBreak:String" image="34"/>
+		<member name="webkitLineClamp" proto="webkitLineClamp:String" help="webkitLineClamp is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitLineClamp:String" image="34"/>
+		<member name="webkitLocale" proto="webkitLocale:String" help="webkitLocale is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitLocale:String" image="34"/>
+		<member name="webkitLogicalHeight" proto="webkitLogicalHeight:String" help="webkitLogicalHeight is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitLogicalHeight:String" image="34"/>
+		<member name="webkitLogicalWidth" proto="webkitLogicalWidth:String" help="webkitLogicalWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitLogicalWidth:String" image="34"/>
+		<member name="webkitMarginAfter" proto="webkitMarginAfter:String" help="webkitMarginAfter is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMarginAfter:String" image="34"/>
+		<member name="webkitMarginAfterCollapse" proto="webkitMarginAfterCollapse:String" help="webkitMarginAfterCollapse is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMarginAfterCollapse:String" image="34"/>
+		<member name="webkitMarginBefore" proto="webkitMarginBefore:String" help="webkitMarginBefore is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMarginBefore:String" image="34"/>
+		<member name="webkitMarginBeforeCollapse" proto="webkitMarginBeforeCollapse:String" help="webkitMarginBeforeCollapse is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMarginBeforeCollapse:String" image="34"/>
+		<member name="webkitMarginBottomCollapse" proto="webkitMarginBottomCollapse:String" help="webkitMarginBottomCollapse is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMarginBottomCollapse:String" image="34"/>
+		<member name="webkitMarginCollapse" proto="webkitMarginCollapse:String" help="webkitMarginCollapse is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMarginCollapse:String" image="34"/>
+		<member name="webkitMarginEnd" proto="webkitMarginEnd:String" help="webkitMarginEnd is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMarginEnd:String" image="34"/>
+		<member name="webkitMarginStart" proto="webkitMarginStart:String" help="webkitMarginStart is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMarginStart:String" image="34"/>
+		<member name="webkitMarginTopCollapse" proto="webkitMarginTopCollapse:String" help="webkitMarginTopCollapse is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMarginTopCollapse:String" image="34"/>
+		<member name="webkitMask" proto="webkitMask:String" help="webkitMask is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMask:String" image="34"/>
+		<member name="webkitMaskBoxImage" proto="webkitMaskBoxImage:String" help="webkitMaskBoxImage is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskBoxImage:String" image="34"/>
+		<member name="webkitMaskBoxImageOutset" proto="webkitMaskBoxImageOutset:String" help="webkitMaskBoxImageOutset is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskBoxImageOutset:String" image="34"/>
+		<member name="webkitMaskBoxImageRepeat" proto="webkitMaskBoxImageRepeat:String" help="webkitMaskBoxImageRepeat is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskBoxImageRepeat:String" image="34"/>
+		<member name="webkitMaskBoxImageSlice" proto="webkitMaskBoxImageSlice:String" help="webkitMaskBoxImageSlice is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskBoxImageSlice:String" image="34"/>
+		<member name="webkitMaskBoxImageSource" proto="webkitMaskBoxImageSource:String" help="webkitMaskBoxImageSource is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskBoxImageSource:String" image="34"/>
+		<member name="webkitMaskBoxImageWidth" proto="webkitMaskBoxImageWidth:String" help="webkitMaskBoxImageWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskBoxImageWidth:String" image="34"/>
+		<member name="webkitMaskClip" proto="webkitMaskClip:String" help="webkitMaskClip is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskClip:String" image="34"/>
+		<member name="webkitMaskComposite" proto="webkitMaskComposite:String" help="webkitMaskComposite is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskComposite:String" image="34"/>
+		<member name="webkitMaskImage" proto="webkitMaskImage:String" help="webkitMaskImage is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskImage:String" image="34"/>
+		<member name="webkitMaskOrigin" proto="webkitMaskOrigin:String" help="webkitMaskOrigin is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskOrigin:String" image="34"/>
+		<member name="webkitMaskPosition" proto="webkitMaskPosition:String" help="webkitMaskPosition is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskPosition:String" image="34"/>
+		<member name="webkitMaskPositionX" proto="webkitMaskPositionX:String" help="webkitMaskPositionX is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskPositionX:String" image="34"/>
+		<member name="webkitMaskPositionY" proto="webkitMaskPositionY:String" help="webkitMaskPositionY is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskPositionY:String" image="34"/>
+		<member name="webkitMaskRepeat" proto="webkitMaskRepeat:String" help="webkitMaskRepeat is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskRepeat:String" image="34"/>
+		<member name="webkitMaskRepeatX" proto="webkitMaskRepeatX:String" help="webkitMaskRepeatX is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskRepeatX:String" image="34"/>
+		<member name="webkitMaskRepeatY" proto="webkitMaskRepeatY:String" help="webkitMaskRepeatY is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskRepeatY:String" image="34"/>
+		<member name="webkitMaskSize" proto="webkitMaskSize:String" help="webkitMaskSize is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaskSize:String" image="34"/>
+		<member name="webkitMaxLogicalHeight" proto="webkitMaxLogicalHeight:String" help="webkitMaxLogicalHeight is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaxLogicalHeight:String" image="34"/>
+		<member name="webkitMaxLogicalWidth" proto="webkitMaxLogicalWidth:String" help="webkitMaxLogicalWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMaxLogicalWidth:String" image="34"/>
+		<member name="webkitMinLogicalHeight" proto="webkitMinLogicalHeight:String" help="webkitMinLogicalHeight is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMinLogicalHeight:String" image="34"/>
+		<member name="webkitMinLogicalWidth" proto="webkitMinLogicalWidth:String" help="webkitMinLogicalWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitMinLogicalWidth:String" image="34"/>
+		<member name="webkitPaddingAfter" proto="webkitPaddingAfter:String" help="webkitPaddingAfter is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitPaddingAfter:String" image="34"/>
+		<member name="webkitPaddingBefore" proto="webkitPaddingBefore:String" help="webkitPaddingBefore is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitPaddingBefore:String" image="34"/>
+		<member name="webkitPaddingEnd" proto="webkitPaddingEnd:String" help="webkitPaddingEnd is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitPaddingEnd:String" image="34"/>
+		<member name="webkitPaddingStart" proto="webkitPaddingStart:String" help="webkitPaddingStart is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitPaddingStart:String" image="34"/>
+		<member name="webkitPerspective" proto="webkitPerspective:String" help="webkitPerspective is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitPerspective:String" image="34"/>
+		<member name="webkitPerspectiveOrigin" proto="webkitPerspectiveOrigin:String" help="webkitPerspectiveOrigin is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitPerspectiveOrigin:String" image="34"/>
+		<member name="webkitPerspectiveOriginX" proto="webkitPerspectiveOriginX:String" help="webkitPerspectiveOriginX is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitPerspectiveOriginX:String" image="34"/>
+		<member name="webkitPerspectiveOriginY" proto="webkitPerspectiveOriginY:String" help="webkitPerspectiveOriginY is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitPerspectiveOriginY:String" image="34"/>
+		<member name="webkitPrintColorAdjust" proto="webkitPrintColorAdjust:String" help="webkitPrintColorAdjust is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitPrintColorAdjust:String" image="34"/>
+		<member name="webkitRtlOrdering" proto="webkitRtlOrdering:String" help="webkitRtlOrdering is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitRtlOrdering:String" image="34"/>
+		<member name="webkitRubyPosition" proto="webkitRubyPosition:String" help="webkitRubyPosition is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitRubyPosition:String" image="34"/>
+		<member name="webkitTapHighlightColor" proto="webkitTapHighlightColor:String" help="webkitTapHighlightColor is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTapHighlightColor:String" image="34"/>
+		<member name="webkitTextCombine" proto="webkitTextCombine:String" help="webkitTextCombine is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextCombine:String" image="34"/>
+		<member name="webkitTextDecorationsInEffect" proto="webkitTextDecorationsInEffect:String" help="webkitTextDecorationsInEffect is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextDecorationsInEffect:String" image="34"/>
+		<member name="webkitTextEmphasis" proto="webkitTextEmphasis:String" help="webkitTextEmphasis is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextEmphasis:String" image="34"/>
+		<member name="webkitTextEmphasisColor" proto="webkitTextEmphasisColor:String" help="webkitTextEmphasisColor is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextEmphasisColor:String" image="34"/>
+		<member name="webkitTextEmphasisPosition" proto="webkitTextEmphasisPosition:String" help="webkitTextEmphasisPosition is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextEmphasisPosition:String" image="34"/>
+		<member name="webkitTextEmphasisStyle" proto="webkitTextEmphasisStyle:String" help="webkitTextEmphasisStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextEmphasisStyle:String" image="34"/>
+		<member name="webkitTextFillColor" proto="webkitTextFillColor:String" help="webkitTextFillColor is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextFillColor:String" image="34"/>
+		<member name="webkitTextOrientation" proto="webkitTextOrientation:String" help="webkitTextOrientation is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextOrientation:String" image="34"/>
+		<member name="webkitTextSecurity" proto="webkitTextSecurity:String" help="webkitTextSecurity is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextSecurity:String" image="34"/>
+		<member name="webkitTextStroke" proto="webkitTextStroke:String" help="webkitTextStroke is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextStroke:String" image="34"/>
+		<member name="webkitTextStrokeColor" proto="webkitTextStrokeColor:String" help="webkitTextStrokeColor is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextStrokeColor:String" image="34"/>
+		<member name="webkitTextStrokeWidth" proto="webkitTextStrokeWidth:String" help="webkitTextStrokeWidth is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTextStrokeWidth:String" image="34"/>
+		<member name="webkitTransform" proto="webkitTransform:String" help="webkitTransform is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransform:String" image="34"/>
+		<member name="webkitTransformOrigin" proto="webkitTransformOrigin:String" help="webkitTransformOrigin is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransformOrigin:String" image="34"/>
+		<member name="webkitTransformOriginX" proto="webkitTransformOriginX:String" help="webkitTransformOriginX is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransformOriginX:String" image="34"/>
+		<member name="webkitTransformOriginY" proto="webkitTransformOriginY:String" help="webkitTransformOriginY is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransformOriginY:String" image="34"/>
+		<member name="webkitTransformOriginZ" proto="webkitTransformOriginZ:String" help="webkitTransformOriginZ is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransformOriginZ:String" image="34"/>
+		<member name="webkitTransformStyle" proto="webkitTransformStyle:String" help="webkitTransformStyle is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransformStyle:String" image="34"/>
+		<member name="webkitTransition" proto="webkitTransition:String" help="webkitTransition is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransition:String" image="34"/>
+		<member name="webkitTransitionDelay" proto="webkitTransitionDelay:String" help="webkitTransitionDelay is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransitionDelay:String" image="34"/>
+		<member name="webkitTransitionDuration" proto="webkitTransitionDuration:String" help="webkitTransitionDuration is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransitionDuration:String" image="34"/>
+		<member name="webkitTransitionProperty" proto="webkitTransitionProperty:String" help="webkitTransitionProperty is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransitionProperty:String" image="34"/>
+		<member name="webkitTransitionTimingFunction" proto="webkitTransitionTimingFunction:String" help="webkitTransitionTimingFunction is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitTransitionTimingFunction:String" image="34"/>
+		<member name="webkitUserDrag" proto="webkitUserDrag:String" help="webkitUserDrag is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitUserDrag:String" image="34"/>
+		<member name="webkitUserModify" proto="webkitUserModify:String" help="webkitUserModify is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitUserModify:String" image="34"/>
+		<member name="webkitUserSelect" proto="webkitUserSelect:String" help="webkitUserSelect is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitUserSelect:String" image="34"/>
+		<member name="webkitWritingMode" proto="webkitWritingMode:String" help="webkitWritingMode is member var of class HTMLStyleElement
+public HTMLStyleElement::webkitWritingMode:String" image="34"/>
+		<member name="whiteSpace" proto="whiteSpace:String" help="whiteSpace is member var of class HTMLStyleElement
+public HTMLStyleElement::whiteSpace:String" image="34"/>
+		<member name="widows" proto="widows:String" help="widows is member var of class HTMLStyleElement
+public HTMLStyleElement::widows:String" image="34"/>
+		<member name="width" proto="width:String" help="width is member var of class HTMLStyleElement
+public HTMLStyleElement::width:String" image="34"/>
+		<member name="willChange" proto="willChange:String" help="willChange is member var of class HTMLStyleElement
+public HTMLStyleElement::willChange:String" image="34"/>
+		<member name="wordBreak" proto="wordBreak:String" help="wordBreak is member var of class HTMLStyleElement
+public HTMLStyleElement::wordBreak:String" image="34"/>
+		<member name="wordSpacing" proto="wordSpacing:String" help="wordSpacing is member var of class HTMLStyleElement
+public HTMLStyleElement::wordSpacing:String" image="34"/>
+		<member name="wordWrap" proto="wordWrap:String" help="wordWrap is member var of class HTMLStyleElement
+public HTMLStyleElement::wordWrap:String" image="34"/>
+		<member name="writingMode" proto="writingMode:String" help="writingMode is member var of class HTMLStyleElement
+public HTMLStyleElement::writingMode:String" image="34"/>
+		<member name="zIndex" proto="zIndex:Integer" help="zIndex is member var of class HTMLStyleElement
+public HTMLStyleElement::zIndex:Integer" image="34"/>
+		<member name="zoom" proto="zoom:String" help="zoom is member var of class HTMLStyleElement
+public HTMLStyleElement::zoom:String" image="34"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class HTMLStyleElement
+public HTMLStyleElement::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class HTMLDivElement">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLDivElement
+public virtual HTMLDivElement::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLDivElement
+public HTMLDivElement::Constructor()" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class HTMLDivElement
+public HTMLDivElement::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class HTMLAnchorElement">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLAnchorElement
+public virtual HTMLAnchorElement::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLAnchorElement
+public HTMLAnchorElement::Constructor()" image="14"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class HTMLAnchorElement
+public HTMLAnchorElement::__className:String" image="13"/>
+	</memberlist>
 	<memberlist name="Class Image">
-		<member name="load" proto="load(url:String)" help="load is member function of class Image
-public Image::load(url:String)" image="35"/>
+		<member name="load" proto="load(url:String, optional cocoimage:CocoImage)" help="load is member function of class Image
+public Image::load(url:String, optional cocoimage:CocoImage)" image="35"/>
+		<member name="cloneNode" proto="cloneNode(deep:Boolean) :Image" help="cloneNode is member function of class Image
+public Image::cloneNode(deep:Boolean) :Image" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class Image
 public virtual Image::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class Image
@@ -3245,6 +4084,8 @@ public Image::height:Float" image="34"/>
 public Image::naturalWidth:Float" image="34"/>
 		<member name="naturalHeight" proto="naturalHeight:Float" help="naturalHeight is member var of class Image
 public Image::naturalHeight:Float" image="34"/>
+		<member name="crossOrigin" proto="crossOrigin:String" help="crossOrigin is member var of class Image
+public Image::crossOrigin:String" image="34"/>
 		<member name="__complete" proto="__complete:Boolean" help="__complete is member var of class Image
 private Image::__complete:Boolean" image="29"/>
 		<member name="complete" proto="complete:Boolean" help="complete is property of class Image
@@ -3252,15 +4093,71 @@ public property Image::complete:Boolean" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class Image
 public Image::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class HTMLTextMetrics">
-		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLTextMetrics
-public virtual HTMLTextMetrics::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLTextMetrics
-public HTMLTextMetrics::Constructor()" image="14"/>
-		<member name="width" proto="width:Float" help="width is member var of class HTMLTextMetrics
-public HTMLTextMetrics::width:Float" image="34"/>
-		<member name="__className" proto="__className:String" help="__className is member var of class HTMLTextMetrics
-public HTMLTextMetrics::__className:String" image="13"/>
+	<memberlist name="Class HTMLLocation">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLLocation
+public virtual HTMLLocation::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLLocation
+public HTMLLocation::Constructor()" image="14"/>
+		<member name="href" proto="href:String" help="href is member var of class HTMLLocation
+public HTMLLocation::href:String" image="34"/>
+		<member name="search" proto="search:String" help="search is member var of class HTMLLocation
+public HTMLLocation::search:String" image="34"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class HTMLLocation
+public HTMLLocation::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class HTMLScreen">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLScreen
+public virtual HTMLScreen::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLScreen
+public HTMLScreen::Constructor()" image="14"/>
+		<member name="width" proto="width:Float" help="width is member var of class HTMLScreen
+public HTMLScreen::width:Float" image="34"/>
+		<member name="height" proto="height:Float" help="height is member var of class HTMLScreen
+public HTMLScreen::height:Float" image="34"/>
+		<member name="availWidth" proto="availWidth:Float" help="availWidth is member var of class HTMLScreen
+public HTMLScreen::availWidth:Float" image="34"/>
+		<member name="availHeight" proto="availHeight:Float" help="availHeight is member var of class HTMLScreen
+public HTMLScreen::availHeight:Float" image="34"/>
+		<member name="colorDepth" proto="colorDepth:Float" help="colorDepth is member var of class HTMLScreen
+public HTMLScreen::colorDepth:Float" image="34"/>
+		<member name="pixelDepth" proto="pixelDepth:Float" help="pixelDepth is member var of class HTMLScreen
+public HTMLScreen::pixelDepth:Float" image="34"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class HTMLScreen
+public HTMLScreen::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class HTMLNavigator">
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLNavigator
+public virtual HTMLNavigator::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLNavigator
+public HTMLNavigator::Constructor()" image="14"/>
+		<member name="appCodeName" proto="appCodeName:String" help="appCodeName is member var of class HTMLNavigator
+public HTMLNavigator::appCodeName:String" image="34"/>
+		<member name="appName" proto="appName:String" help="appName is member var of class HTMLNavigator
+public HTMLNavigator::appName:String" image="34"/>
+		<member name="appVersion" proto="appVersion:String" help="appVersion is member var of class HTMLNavigator
+public HTMLNavigator::appVersion:String" image="34"/>
+		<member name="language" proto="language:String" help="language is member var of class HTMLNavigator
+public HTMLNavigator::language:String" image="34"/>
+		<member name="languages" proto="languages:String" help="languages is member var of class HTMLNavigator
+public HTMLNavigator::languages:String" image="34"/>
+		<member name="battery" proto="battery:Object" help="battery is member var of class HTMLNavigator
+public HTMLNavigator::battery:Object" image="34"/>
+		<member name="connection" proto="connection:Object" help="connection is member var of class HTMLNavigator
+public HTMLNavigator::connection:Object" image="34"/>
+		<member name="geolocation" proto="geolocation:Object" help="geolocation is member var of class HTMLNavigator
+public HTMLNavigator::geolocation:Object" image="34"/>
+		<member name="mimeTypes" proto="mimeTypes:Array&lt;String&gt;" help="mimeTypes is member var of class HTMLNavigator
+public HTMLNavigator::mimeTypes:Array&lt;String&gt;" image="1"/>
+		<member name="onLine" proto="onLine:Boolean" help="onLine is member var of class HTMLNavigator
+public HTMLNavigator::onLine:Boolean" image="34"/>
+		<member name="oscpu" proto="oscpu:String" help="oscpu is member var of class HTMLNavigator
+public HTMLNavigator::oscpu:String" image="34"/>
+		<member name="platform" proto="platform:String" help="platform is member var of class HTMLNavigator
+public HTMLNavigator::platform:String" image="34"/>
+		<member name="userAgent" proto="userAgent:String" help="userAgent is member var of class HTMLNavigator
+public HTMLNavigator::userAgent:String" image="34"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class HTMLNavigator
+public HTMLNavigator::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class HTMLWindow">
 		<member name="addEventListener" proto="addEventListener(eventType:String, listener:Function, optional useCapture:Boolean)" help="addEventListener is member function of class HTMLWindow
@@ -3277,12 +4174,20 @@ public HTMLWindow::Constructor()" image="14"/>
 public HTMLWindow::__uid:Integer" image="34"/>
 		<member name="document" proto="document:HTMLDocument" help="document is member var of class HTMLWindow
 public HTMLWindow::document:HTMLDocument" image="34"/>
+		<member name="location" proto="location:HTMLLocation" help="location is member var of class HTMLWindow
+public HTMLWindow::location:HTMLLocation" image="34"/>
+		<member name="navigator" proto="navigator:HTMLNavigator" help="navigator is member var of class HTMLWindow
+public HTMLWindow::navigator:HTMLNavigator" image="34"/>
+		<member name="screen" proto="screen:HTMLScreen" help="screen is member var of class HTMLWindow
+public HTMLWindow::screen:HTMLScreen" image="34"/>
 		<member name="innerHeight" proto="innerHeight:Float" help="innerHeight is member var of class HTMLWindow
 public HTMLWindow::innerHeight:Float" image="34"/>
 		<member name="innerWidth" proto="innerWidth:Float" help="innerWidth is member var of class HTMLWindow
 public HTMLWindow::innerWidth:Float" image="34"/>
 		<member name="devicePixelRatio" proto="devicePixelRatio:Float" help="devicePixelRatio is member var of class HTMLWindow
 public HTMLWindow::devicePixelRatio:Float" image="34"/>
+		<member name="orientation" proto="orientation:Integer" help="orientation is member var of class HTMLWindow
+public HTMLWindow::orientation:Integer" image="34"/>
 		<member name="__elements" proto="__elements:Array&lt;Function&gt;" help="__elements is member var of class HTMLWindow
 public HTMLWindow::__elements:Array&lt;Function&gt;" image="1"/>
 		<member name="e" proto="e:HTMLEvent" help="e is member var of class HTMLWindow
@@ -4317,6 +5222,10 @@ public abstract virtual ITickable::tick(time:Time)" image="35"/>
 	<memberlist name="Class CocoEngine">
 		<member name="setNextState" proto="setNextState(s:State)" help="setNextState is member function of class CocoEngine
 public CocoEngine::setNextState(s:State)" image="35"/>
+		<member name="getCurrentState" proto="getCurrentState() :State" help="getCurrentState is member function of class CocoEngine
+public CocoEngine::getCurrentState() :State" image="35"/>
+		<member name="getNextState" proto="getNextState() :State" help="getNextState is member function of class CocoEngine
+public CocoEngine::getNextState() :State" image="35"/>
 		<member name="run" proto="run(time:Time)" help="run is member function of class CocoEngine
 public CocoEngine::run(time:Time)" image="35"/>
 		<member name="__attachDevices" proto="__attachDevices()" help="__attachDevices is member function of class CocoEngine
@@ -4325,6 +5234,8 @@ private CocoEngine::__attachDevices()" image="30"/>
 private CocoEngine::__dettachDevices()" image="30"/>
 		<member name="__translateDeviceMessage" proto="__translateDeviceMessage(e:HTMLEvent)" help="__translateDeviceMessage is member function of class CocoEngine
 private CocoEngine::__translateDeviceMessage(e:HTMLEvent)" image="30"/>
+		<member name="__translateDeviceMessageImpl" proto="__translateDeviceMessageImpl(e:HTMLEvent)" help="__translateDeviceMessageImpl is member function of class CocoEngine
+private CocoEngine::__translateDeviceMessageImpl(e:HTMLEvent)" image="30"/>
 		<member name="__hasTouchDeviceMessage" proto="__hasTouchDeviceMessage() :Boolean" help="__hasTouchDeviceMessage is member function of class CocoEngine
 public CocoEngine::__hasTouchDeviceMessage() :Boolean" image="35"/>
 		<member name="__removeTouchMessages" proto="__removeTouchMessages()" help="__removeTouchMessages is member function of class CocoEngine
@@ -4337,6 +5248,8 @@ public CocoEngine::__clearDeviceMessageQueue()" image="35"/>
 public CocoEngine::__pushClicked(clip:CocoClip)" image="35"/>
 		<member name="isClicked" proto="isClicked(check:Array&lt;CocoClip&gt;) :Integer" help="isClicked is member function of class CocoEngine
 public CocoEngine::isClicked(check:Array&lt;CocoClip&gt;) :Integer" image="35"/>
+		<member name="isKeyDown" proto="isKeyDown(check:Int32Array) :Integer" help="isKeyDown is member function of class CocoEngine
+public CocoEngine::isKeyDown(check:Int32Array) :Integer" image="35"/>
 		<member name="addTickListener" proto="addTickListener(tickable:ITickable)" help="addTickListener is member function of class CocoEngine
 public CocoEngine::addTickListener(tickable:ITickable)" image="35"/>
 		<member name="removeTickListener" proto="removeTickListener(tickable:ITickable)" help="removeTickListener is member function of class CocoEngine
@@ -4345,14 +5258,14 @@ public CocoEngine::removeTickListener(tickable:ITickable)" image="35"/>
 public CocoEngine::getTickableIndex(tickable:ITickable) :Integer" image="35"/>
 		<member name="__tick" proto="__tick(time:Time)" help="__tick is member function of class CocoEngine
 private CocoEngine::__tick(time:Time)" image="30"/>
-		<member name="__debug_trace" proto="__debug_trace(scene:CocoScene, clip:CocoClip, message:String)" help="__debug_trace is member function of class CocoEngine
-public CocoEngine::__debug_trace(scene:CocoScene, clip:CocoClip, message:String)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoEngine
 public virtual CocoEngine::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoEngine
 public CocoEngine::Constructor()" image="14"/>
 		<member name="TICK_TIME" proto="TICK_TIME:Time" help="TICK_TIME is member var of class CocoEngine
 public CocoEngine::TICK_TIME:Time" image="13"/>
+		<member name="device" proto="device:CocoDeviceWrapper" help="device is member var of class CocoEngine
+public CocoEngine::device:CocoDeviceWrapper" image="34"/>
 		<member name="__currentState" proto="__currentState:State" help="__currentState is member var of class CocoEngine
 private CocoEngine::__currentState:State" image="29"/>
 		<member name="__nextState" proto="__nextState:State" help="__nextState is member var of class CocoEngine
@@ -4371,6 +5284,8 @@ private CocoEngine::__deviceMessageQueue:Array&lt;DEVICE_MESSAGE&gt;" image="1"/
 private CocoEngine::__clicked:Array&lt;CocoClip&gt;" image="1"/>
 		<member name="__track_touch" proto="__track_touch:Boolean" help="__track_touch is member var of class CocoEngine
 private CocoEngine::__track_touch:Boolean" image="29"/>
+		<member name="__track_key" proto="__track_key:Boolean" help="__track_key is member var of class CocoEngine
+private CocoEngine::__track_key:Boolean" image="29"/>
 		<member name="__has_touch_device_message" proto="__has_touch_device_message:Boolean" help="__has_touch_device_message is member var of class CocoEngine
 private CocoEngine::__has_touch_device_message:Boolean" image="29"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoEngine
@@ -4507,6 +5422,8 @@ public TouchList::length:Integer" image="34"/>
 public TouchList::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class HTMLEvent">
+		<member name="preventDefault" proto="preventDefault()" help="preventDefault is member function of class HTMLEvent
+public HTMLEvent::preventDefault()" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class HTMLEvent
 public virtual HTMLEvent::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class HTMLEvent
@@ -4523,6 +5440,14 @@ public HTMLEvent::clientY:Float" image="34"/>
 public HTMLEvent::touches:TouchList" image="34"/>
 		<member name="changedTouches" proto="changedTouches:TouchList" help="changedTouches is member var of class HTMLEvent
 public HTMLEvent::changedTouches:TouchList" image="34"/>
+		<member name="keyCode" proto="keyCode:Integer" help="keyCode is member var of class HTMLEvent
+public HTMLEvent::keyCode:Integer" image="34"/>
+		<member name="ctrlKey" proto="ctrlKey:Boolean" help="ctrlKey is member var of class HTMLEvent
+public HTMLEvent::ctrlKey:Boolean" image="34"/>
+		<member name="altKey" proto="altKey:Boolean" help="altKey is member var of class HTMLEvent
+public HTMLEvent::altKey:Boolean" image="34"/>
+		<member name="shiftKey" proto="shiftKey:Boolean" help="shiftKey is member var of class HTMLEvent
+public HTMLEvent::shiftKey:Boolean" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class HTMLEvent
 public HTMLEvent::__className:String" image="13"/>
 	</memberlist>
@@ -4532,10 +5457,13 @@ public HTMLEvent::__className:String" image="13"/>
 		<member name="MESSAGE_TOUCH_START" proto="MESSAGE_TOUCH_START:DEVICE_MESSAGE_ENUM" help="MESSAGE_TOUCH_START:DEVICE_MESSAGE_ENUM" image="16"/>
 		<member name="MESSAGE_TOUCH_MOVE" proto="MESSAGE_TOUCH_MOVE:DEVICE_MESSAGE_ENUM" help="MESSAGE_TOUCH_MOVE:DEVICE_MESSAGE_ENUM" image="16"/>
 		<member name="MESSAGE_TOUCH_END" proto="MESSAGE_TOUCH_END:DEVICE_MESSAGE_ENUM" help="MESSAGE_TOUCH_END:DEVICE_MESSAGE_ENUM" image="16"/>
+		<member name="MESSAGE_KEY_DOWN" proto="MESSAGE_KEY_DOWN:DEVICE_MESSAGE_ENUM" help="MESSAGE_KEY_DOWN:DEVICE_MESSAGE_ENUM" image="16"/>
+		<member name="MESSAGE_KEY_UP" proto="MESSAGE_KEY_UP:DEVICE_MESSAGE_ENUM" help="MESSAGE_KEY_UP:DEVICE_MESSAGE_ENUM" image="16"/>
 		<member name="MESSAGE_HTTP_MASK" proto="MESSAGE_HTTP_MASK:DEVICE_MESSAGE_ENUM" help="MESSAGE_HTTP_MASK:DEVICE_MESSAGE_ENUM" image="16"/>
 		<member name="MESSAGE_HTTP_DONE" proto="MESSAGE_HTTP_DONE:DEVICE_MESSAGE_ENUM" help="MESSAGE_HTTP_DONE:DEVICE_MESSAGE_ENUM" image="16"/>
 	</memberlist>
 	<memberlist name="Class DEVICE_MESSAGE">
+		<member name="toJSON" proto="toJSON() :String" help="public DEVICE_MESSAGE::toJSON() :String" image="35"/>
 		<member name="handled" proto="handled:Boolean" help="handled:Boolean" image="34"/>
 		<member name="type" proto="type:DEVICE_MESSAGE_ENUM" help="type:DEVICE_MESSAGE_ENUM" image="34"/>
 		<member name="timestamp" proto="timestamp:Time" help="timestamp:Time" image="34"/>
@@ -4551,6 +5479,10 @@ public HTMLEvent::__className:String" image="13"/>
 		<member name="y2" proto="y2:Float" help="y2:Float" image="34"/>
 		<member name="y3" proto="y3:Float" help="y3:Float" image="34"/>
 		<member name="y4" proto="y4:Float" help="y4:Float" image="34"/>
+		<member name="keyCode" proto="keyCode:Integer" help="keyCode:Integer" image="34"/>
+		<member name="ctrlKey" proto="ctrlKey:Boolean" help="ctrlKey:Boolean" image="34"/>
+		<member name="altKey" proto="altKey:Boolean" help="altKey:Boolean" image="34"/>
+		<member name="shiftKey" proto="shiftKey:Boolean" help="shiftKey:Boolean" image="34"/>
 	</memberlist>
 	<memberlist name="Class COCO_DATA_PROVIDER_ENUM">
 		<member name="PROVIDER_HTTP_POST" proto="PROVIDER_HTTP_POST:COCO_DATA_PROVIDER_ENUM" help="PROVIDER_HTTP_POST:COCO_DATA_PROVIDER_ENUM" image="16"/>
@@ -4568,6 +5500,7 @@ public HTMLEvent::__className:String" image="13"/>
 		<member name="PERSIST_IN_LOCAL_STORAGE" proto="PERSIST_IN_LOCAL_STORAGE:COCO_PERSISTENT_STORAGE_ENUM" help="PERSIST_IN_LOCAL_STORAGE:COCO_PERSISTENT_STORAGE_ENUM" image="16"/>
 	</memberlist>
 	<memberlist name="Class CocoRequestNameValuePair">
+		<member name="toJSON" proto="toJSON() :String" help="public CocoRequestNameValuePair::toJSON() :String" image="35"/>
 		<member name="Name" proto="Name:String" help="Name:String" image="34"/>
 		<member name="Value" proto="Value:String" help="Value:String" image="34"/>
 	</memberlist>
@@ -4826,6 +5759,7 @@ public CocoVector::W:Float" image="34"/>
 public CocoVector::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoMatrixData">
+		<member name="toJSON" proto="toJSON() :String" help="public CocoMatrixData::toJSON() :String" image="35"/>
 		<member name="rc11" proto="rc11:Float" help="rc11:Float" image="34"/>
 		<member name="rc12" proto="rc12:Float" help="rc12:Float" image="34"/>
 		<member name="rc13" proto="rc13:Float" help="rc13:Float" image="34"/>
@@ -4872,6 +5806,10 @@ public CocoMatrix::refresh()" image="35"/>
 public CocoMatrix::push()" image="35"/>
 		<member name="pop" proto="pop()" help="pop is member function of class CocoMatrix
 public CocoMatrix::pop()" image="35"/>
+		<member name="toCSS3D" proto="toCSS3D(optional identity:Boolean) :String" help="toCSS3D is member function of class CocoMatrix
+public CocoMatrix::toCSS3D(optional identity:Boolean) :String" image="35"/>
+		<member name="toCSS2D" proto="toCSS2D(optional identity:Boolean) :String" help="toCSS2D is member function of class CocoMatrix
+public CocoMatrix::toCSS2D(optional identity:Boolean) :String" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoMatrix
 public virtual CocoMatrix::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(optional M:CocoMatrix)" help="Constructor is member function of class CocoMatrix
@@ -4906,6 +5844,8 @@ public virtual CocoScene::tick(time:Time)" image="35"/>
 public virtual CocoScene::paint(ctx:ICocoRenderContext, time:Time)" image="35"/>
 		<member name="resourcesLoaded" proto="resourcesLoaded(ctx:ICocoRenderContext) :Boolean" help="resourcesLoaded is member function of class CocoScene
 public CocoScene::resourcesLoaded(ctx:ICocoRenderContext) :Boolean" image="35"/>
+		<member name="loadingProgress" proto="loadingProgress() :Integer" help="loadingProgress is member function of class CocoScene
+public CocoScene::loadingProgress() :Integer" image="35"/>
 		<member name="gotoAndPlayByName" proto="gotoAndPlayByName(LabelName:String)" help="gotoAndPlayByName is member function of class CocoScene
 public CocoScene::gotoAndPlayByName(LabelName:String)" image="35"/>
 		<member name="gotoAndStopByName" proto="gotoAndStopByName(LabelName:String)" help="gotoAndStopByName is member function of class CocoScene
@@ -4948,14 +5888,21 @@ public CocoScene::__root:CocoClip" image="34"/>
 public CocoScene::__levelParents:Array&lt;CocoClip&gt;" image="1"/>
 		<member name="__ready" proto="__ready:Boolean" help="__ready is member var of class CocoScene
 public CocoScene::__ready:Boolean" image="34"/>
+		<member name="__loaded_assets" proto="__loaded_assets:Float" help="__loaded_assets is member var of class CocoScene
+public CocoScene::__loaded_assets:Float" image="34"/>
 		<member name="__finished" proto="__finished:Boolean" help="__finished is member var of class CocoScene
 public CocoScene::__finished:Boolean" image="34"/>
 		<member name="m_ctx" proto="m_ctx:ICocoRenderContext" help="m_ctx is member var of class CocoScene
 private CocoScene::m_ctx:ICocoRenderContext" image="29"/>
+		<member name="m_width" proto="m_width:Float" help="m_width is member var of class CocoScene
+private CocoScene::m_width:Float" image="29"/>
+		<member name="m_height" proto="m_height:Float" help="m_height is member var of class CocoScene
+private CocoScene::m_height:Float" image="29"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoScene
 public CocoScene::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoKeyFrame">
+		<member name="toJSON" proto="toJSON() :String" help="public CocoKeyFrame::toJSON() :String" image="35"/>
 		<member name="frameIndex" proto="frameIndex:Integer" help="frameIndex:Integer" image="34"/>
 		<member name="__frameIndex" proto="__frameIndex:Float" help="__frameIndex:Float" image="34"/>
 		<member name="frameInterpolation" proto="frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM" help="frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM" image="34"/>
@@ -4979,6 +5926,7 @@ public CocoScene::__className:String" image="13"/>
 		<member name="flipH" proto="flipH:Boolean" help="flipH:Boolean" image="34"/>
 		<member name="flipV" proto="flipV:Boolean" help="flipV:Boolean" image="34"/>
 		<member name="spriteSequenceName" proto="spriteSequenceName:String" help="spriteSequenceName:String" image="34"/>
+		<member name="spriteSequenceFPS" proto="spriteSequenceFPS:Float" help="spriteSequenceFPS:Float" image="34"/>
 		<member name="__isCloned" proto="__isCloned:Boolean" help="__isCloned:Boolean" image="34"/>
 		<member name="__Preserve" proto="__Preserve:Boolean" help="__Preserve:Boolean" image="34"/>
 	</memberlist>
@@ -5019,8 +5967,8 @@ public CocoTimeline::firstKeyFrame() :CocoKeyFrame" image="35"/>
 public CocoTimeline::lastKeyFrame() :CocoKeyFrame" image="35"/>
 		<member name="addKeyFrame" proto="addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame" help="addKeyFrame is member function of class CocoTimeline
 public CocoTimeline::addKeyFrame(KeyFrame:CocoKeyFrame) :CocoKeyFrame" image="35"/>
-		<member name="addKeyFrameEx" proto="addKeyFrameEx(nextState:State, actionCallback:CocoAction, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, filter:Integer, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean, spriteSequenceName:String) :CocoKeyFrame" help="addKeyFrameEx is member function of class CocoTimeline
-public CocoTimeline::addKeyFrameEx(nextState:State, actionCallback:CocoAction, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, filter:Integer, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean, spriteSequenceName:String) :CocoKeyFrame" image="35"/>
+		<member name="addKeyFrameEx" proto="addKeyFrameEx(nextState:State, actionCallback:CocoAction, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, filter:Integer, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean, spriteSequenceName:String, spriteSequenceFPS:Float) :CocoKeyFrame" help="addKeyFrameEx is member function of class CocoTimeline
+public CocoTimeline::addKeyFrameEx(nextState:State, actionCallback:CocoAction, frameIndex:Integer, frameInterpolation:COCO_KEYFRAME_INTERPOLATION_ENUM, handleEvents:Boolean, visible:Boolean, x:Float, y:Float, scaleX:Float, scaleY:Float, rotation:Float, pivotX:Float, pivotY:Float, filter:Integer, red:Float, green:Float, blue:Float, alpha:Float, audio:CocoAudio, flipH:Boolean, flipV:Boolean, spriteSequenceName:String, spriteSequenceFPS:Float) :CocoKeyFrame" image="35"/>
 		<member name="normalizetimeline" proto="normalizetimeline()" help="normalizetimeline is member function of class CocoTimeline
 public CocoTimeline::normalizetimeline()" image="35"/>
 		<member name="translateTo" proto="translateTo(x:Float, y:Float)" help="translateTo is member function of class CocoTimeline
@@ -5063,8 +6011,8 @@ public CocoTimeline::__lastKeyFrameIndex:Integer" image="34"/>
 public CocoTimeline::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoClip">
-		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoClip
-public virtual CocoClip::prepare(scene:CocoScene)" image="35"/>
+		<member name="prepare" proto="prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" help="prepare is member function of class CocoClip
+public virtual CocoClip::prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" image="35"/>
 		<member name="analyze" proto="analyze(sx:Float, sy:Float)" help="analyze is member function of class CocoClip
 public virtual CocoClip::analyze(sx:Float, sy:Float)" image="35"/>
 		<member name="reset" proto="reset()" help="reset is member function of class CocoClip
@@ -5101,18 +6049,24 @@ public virtual CocoClip::tick(time:Time)" image="35"/>
 public virtual CocoClip::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="combine" proto="combine(F1:CocoKeyFrame, F2:CocoKeyFrame)" help="combine is member function of class CocoClip
 private CocoClip::combine(F1:CocoKeyFrame, F2:CocoKeyFrame)" image="30"/>
-		<member name="apply" proto="apply(F:CocoKeyFrame, matrix:CocoMatrix)" help="apply is member function of class CocoClip
-protected CocoClip::apply(F:CocoKeyFrame, matrix:CocoMatrix)" image="33"/>
 		<member name="hitTest" proto="hitTest(wx:Float, wy:Float) :Boolean" help="hitTest is member function of class CocoClip
 public CocoClip::hitTest(wx:Float, wy:Float) :Boolean" image="35"/>
-		<member name="initBoundingBoxFromRect" proto="initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)" help="initBoundingBoxFromRect is member function of class CocoClip
-public virtual CocoClip::initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float, __pixelRatioScale:Float)" image="35"/>
-		<member name="initBoundingBoxFromChildren" proto="initBoundingBoxFromChildren(scene:CocoScene, mv:CocoMatrix)" help="initBoundingBoxFromChildren is member function of class CocoClip
-public CocoClip::initBoundingBoxFromChildren(scene:CocoScene, mv:CocoMatrix)" image="35"/>
+		<member name="initBoundingBoxFromRect" proto="initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float)" help="initBoundingBoxFromRect is member function of class CocoClip
+public virtual CocoClip::initBoundingBoxFromRect(ctx:ICocoRenderContext, mv:CocoMatrix, W2:Float, H2:Float)" image="35"/>
+		<member name="initBoundingBoxFromChildren" proto="initBoundingBoxFromChildren(ctx:ICocoRenderContext, scene:CocoScene, mv:CocoMatrix)" help="initBoundingBoxFromChildren is member function of class CocoClip
+public CocoClip::initBoundingBoxFromChildren(ctx:ICocoRenderContext, scene:CocoScene, mv:CocoMatrix)" image="35"/>
+		<member name="createInplaceHTML" proto="createInplaceHTML(optional update:Boolean, optional tag:String, optional href:String) :HTMLDivElement" help="createInplaceHTML is member function of class CocoClip
+public CocoClip::createInplaceHTML(optional update:Boolean, optional tag:String, optional href:String) :HTMLDivElement" image="35"/>
+		<member name="destroyInplaceHTML" proto="destroyInplaceHTML()" help="destroyInplaceHTML is member function of class CocoClip
+public CocoClip::destroyInplaceHTML()" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoClip
 public virtual CocoClip::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(optional image:CocoImage)" help="Constructor is member function of class CocoClip
 public CocoClip::Constructor(optional image:CocoImage)" image="14"/>
+		<member name="__uniqueID" proto="__uniqueID:String" help="__uniqueID is member var of class CocoClip
+public CocoClip::__uniqueID:String" image="34"/>
+		<member name="__zIndex" proto="__zIndex:Integer" help="__zIndex is member var of class CocoClip
+public CocoClip::__zIndex:Integer" image="34"/>
 		<member name="__instanceName" proto="__instanceName:String" help="__instanceName is member var of class CocoClip
 public CocoClip::__instanceName:String" image="34"/>
 		<member name="__clipPath" proto="__clipPath:String" help="__clipPath is member var of class CocoClip
@@ -5137,6 +6091,8 @@ public CocoClip::__childWithMaxTimelineDuration:CocoClip" image="34"/>
 public CocoClip::__currentSequence:CocoSequence" image="34"/>
 		<member name="__currentAudio" proto="__currentAudio:CocoAudio" help="__currentAudio is member var of class CocoClip
 public CocoClip::__currentAudio:CocoAudio" image="34"/>
+		<member name="__ANCHOR" proto="__ANCHOR:HTMLDivElement" help="__ANCHOR is member var of class CocoClip
+public CocoClip::__ANCHOR:HTMLDivElement" image="34"/>
 		<member name="__currentTime" proto="__currentTime:Time" help="__currentTime is member var of class CocoClip
 public CocoClip::__currentTime:Time" image="34"/>
 		<member name="__loopTime" proto="__loopTime:Time" help="__loopTime is member var of class CocoClip
@@ -5145,8 +6101,12 @@ public CocoClip::__loopTime:Time" image="34"/>
 public CocoClip::__loops:Integer" image="34"/>
 		<member name="__currentSequenceStartTime" proto="__currentSequenceStartTime:Time" help="__currentSequenceStartTime is member var of class CocoClip
 public CocoClip::__currentSequenceStartTime:Time" image="34"/>
+		<member name="__currentSequenceFrameIndex" proto="__currentSequenceFrameIndex:Integer" help="__currentSequenceFrameIndex is member var of class CocoClip
+public CocoClip::__currentSequenceFrameIndex:Integer" image="34"/>
 		<member name="__pauseTicks" proto="__pauseTicks:Integer" help="__pauseTicks is member var of class CocoClip
 public CocoClip::__pauseTicks:Integer" image="34"/>
+		<member name="__visible" proto="__visible:Boolean" help="__visible is member var of class CocoClip
+public CocoClip::__visible:Boolean" image="34"/>
 		<member name="__x" proto="__x:Float" help="__x is member var of class CocoClip
 public CocoClip::__x:Float" image="34"/>
 		<member name="__y" proto="__y:Float" help="__y is member var of class CocoClip
@@ -5191,6 +6151,12 @@ public event CocoClip::OnTouchStart(x:Float, y:Float)" image="18"/>
 public event CocoClip::OnTouchMove(x:Float, y:Float)" image="18"/>
 		<member name="OnTouchEnd" proto="event OnTouchEnd:CocoClipOnTouchEndEvent" help="OnTouchEnd is event of class CocoClip
 public event CocoClip::OnTouchEnd(x:Float, y:Float)" image="18"/>
+		<member name="OnAnimationSequenceBegin" proto="event OnAnimationSequenceBegin:CocoClipOnAnimationSequenceBeginEvent" help="OnAnimationSequenceBegin is event of class CocoClip
+public event CocoClip::OnAnimationSequenceBegin(sequence:CocoSequence)" image="18"/>
+		<member name="OnAnimationSequenceEnd" proto="event OnAnimationSequenceEnd:CocoClipOnAnimationSequenceEndEvent" help="OnAnimationSequenceEnd is event of class CocoClip
+public event CocoClip::OnAnimationSequenceEnd(sequence:CocoSequence)" image="18"/>
+		<member name="__uniqueIDCounter" proto="__uniqueIDCounter:Integer" help="__uniqueIDCounter is member var of class CocoClip
+public static CocoClip::__uniqueIDCounter:Integer" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoClip
 public CocoClip::__className:String" image="13"/>
 	</memberlist>
@@ -5208,9 +6174,15 @@ public CocoClip::__className:String" image="13"/>
 		<member name="x" proto="x:Float" help="x:Float" image="34"/>
 		<member name="y" proto="y:Float" help="y:Float" image="34"/>
 	</memberlist>
+	<memberlist name="Class CocoClipOnAnimationSequenceBeginEvent">
+		<member name="sequence" proto="sequence:CocoSequence" help="sequence:CocoSequence" image="34"/>
+	</memberlist>
+	<memberlist name="Class CocoClipOnAnimationSequenceEndEvent">
+		<member name="sequence" proto="sequence:CocoSequence" help="sequence:CocoSequence" image="34"/>
+	</memberlist>
 	<memberlist name="Class CocoSelfTexturedClip">
-		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoSelfTexturedClip
-public virtual CocoSelfTexturedClip::prepare(scene:CocoScene)" image="35"/>
+		<member name="prepare" proto="prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" help="prepare is member function of class CocoSelfTexturedClip
+public virtual CocoSelfTexturedClip::prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoSelfTexturedClip
 public virtual CocoSelfTexturedClip::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSelfTexturedClip
@@ -5219,12 +6191,14 @@ public virtual CocoSelfTexturedClip::Destructor()" image="35"/>
 public CocoSelfTexturedClip::Constructor()" image="14"/>
 		<member name="InvalidTexture" proto="InvalidTexture:Boolean" help="InvalidTexture is member var of class CocoSelfTexturedClip
 public CocoSelfTexturedClip::InvalidTexture:Boolean" image="34"/>
+		<member name="buffer" proto="buffer:CocoImage" help="buffer is member var of class CocoSelfTexturedClip
+protected CocoSelfTexturedClip::buffer:CocoImage" image="32"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoSelfTexturedClip
 public CocoSelfTexturedClip::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoTextClip">
-		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoTextClip
-public virtual CocoTextClip::prepare(scene:CocoScene)" image="35"/>
+		<member name="prepare" proto="prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" help="prepare is member function of class CocoTextClip
+public virtual CocoTextClip::prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoTextClip
 public virtual CocoTextClip::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoTextClip
@@ -5290,71 +6264,113 @@ public CocoMaskClip::Rectangles:Array&lt;Float&gt;" image="1"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoMaskClip
 public CocoMaskClip::__className:String" image="13"/>
 	</memberlist>
-	<memberlist name="Class ICocoImageRenderData">
-		<member name="castRenderDataGL" proto="castRenderDataGL() :CocoImageRenderDataGL" help="castRenderDataGL is member function of class ICocoImageRenderData
-public abstract virtual ICocoImageRenderData::castRenderDataGL() :CocoImageRenderDataGL" image="35"/>
-		<member name="castRenderData2D" proto="castRenderData2D() :CocoImageRenderData2D" help="castRenderData2D is member function of class ICocoImageRenderData
-public abstract virtual ICocoImageRenderData::castRenderData2D() :CocoImageRenderData2D" image="35"/>
+	<memberlist name="Class COCO_SCREEN_ORIENTATION">
+		<member name="SCREEN_ORIENTATION_PORTRAIT" proto="SCREEN_ORIENTATION_PORTRAIT:COCO_SCREEN_ORIENTATION" help="SCREEN_ORIENTATION_PORTRAIT:COCO_SCREEN_ORIENTATION" image="16"/>
+		<member name="SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN" proto="SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN:COCO_SCREEN_ORIENTATION" help="SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN:COCO_SCREEN_ORIENTATION" image="16"/>
+		<member name="SCREEN_ORIENTATION_LANDSCAPE_CLOCKWISE" proto="SCREEN_ORIENTATION_LANDSCAPE_CLOCKWISE:COCO_SCREEN_ORIENTATION" help="SCREEN_ORIENTATION_LANDSCAPE_CLOCKWISE:COCO_SCREEN_ORIENTATION" image="16"/>
+		<member name="SCREEN_ORIENTATION_LANDSCAPE_COUNTER_CLOCKWISE" proto="SCREEN_ORIENTATION_LANDSCAPE_COUNTER_CLOCKWISE:COCO_SCREEN_ORIENTATION" help="SCREEN_ORIENTATION_LANDSCAPE_COUNTER_CLOCKWISE:COCO_SCREEN_ORIENTATION" image="16"/>
 	</memberlist>
-	<memberlist name="Class ICocoRenderContext">
-		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::getModelViewMatrix() :CocoMatrix" image="35"/>
-		<member name="getProjectionMatrix" proto="getProjectionMatrix() :CocoMatrix" help="getProjectionMatrix is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::getProjectionMatrix() :CocoMatrix" image="35"/>
-		<member name="getWidth" proto="getWidth() :Float" help="getWidth is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::getWidth() :Float" image="35"/>
-		<member name="getHeight" proto="getHeight() :Float" help="getHeight is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::getHeight() :Float" image="35"/>
-		<member name="cls" proto="cls()" help="cls is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::cls()" image="35"/>
-		<member name="flush" proto="flush()" help="flush is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::flush()" image="35"/>
-		<member name="ready" proto="ready() :Boolean" help="ready is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::ready() :Boolean" image="35"/>
-		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::prepare(scene:CocoScene)" image="35"/>
-		<member name="prepareImage" proto="prepareImage(img:CocoImage) :ICocoImageRenderData" help="prepareImage is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::prepareImage(img:CocoImage) :ICocoImageRenderData" image="35"/>
-		<member name="drawFrame" proto="drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="drawFrame is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
-		<member name="drawMaskBegin" proto="drawMaskBegin()" help="drawMaskBegin is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::drawMaskBegin()" image="35"/>
-		<member name="drawMaskEnd" proto="drawMaskEnd(invert:Boolean)" help="drawMaskEnd is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::drawMaskEnd(invert:Boolean)" image="35"/>
-		<member name="drawBoundingBox" proto="drawBoundingBox(clip:CocoClip)" help="drawBoundingBox is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::drawBoundingBox(clip:CocoClip)" image="35"/>
-		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::getGLContext() :WebGLRenderingContext" image="35"/>
+	<memberlist name="Class CocoDeviceWrapper">
+		<member name="report" proto="report()" help="report is member function of class CocoDeviceWrapper
+public CocoDeviceWrapper::report()" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoDeviceWrapper
+public virtual CocoDeviceWrapper::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoDeviceWrapper
+public CocoDeviceWrapper::Constructor()" image="14"/>
+		<member name="Force2D" proto="Force2D:Boolean" help="Force2D is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::Force2D:Boolean" image="31"/>
+		<member name="ForceCSS3" proto="ForceCSS3:Boolean" help="ForceCSS3 is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::ForceCSS3:Boolean" image="31"/>
+		<member name="pixelRatio" proto="pixelRatio:Float" help="pixelRatio is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::pixelRatio:Float" image="31"/>
+		<member name="screenWidth" proto="screenWidth:Float" help="screenWidth is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::screenWidth:Float" image="31"/>
+		<member name="screenHeight" proto="screenHeight:Float" help="screenHeight is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::screenHeight:Float" image="31"/>
+		<member name="unorientedScreenWidth" proto="unorientedScreenWidth:Float" help="unorientedScreenWidth is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::unorientedScreenWidth:Float" image="31"/>
+		<member name="unorientedScreenHeight" proto="unorientedScreenHeight:Float" help="unorientedScreenHeight is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::unorientedScreenHeight:Float" image="31"/>
+		<member name="screenOrientation" proto="screenOrientation:COCO_SCREEN_ORIENTATION" help="screenOrientation is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::screenOrientation:COCO_SCREEN_ORIENTATION" image="31"/>
+		<member name="isNative" proto="isNative:Boolean" help="isNative is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isNative:Boolean" image="31"/>
+		<member name="isHTML5Browser" proto="isHTML5Browser:Boolean" help="isHTML5Browser is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isHTML5Browser:Boolean" image="31"/>
+		<member name="isChrome" proto="isChrome:Boolean" help="isChrome is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isChrome:Boolean" image="31"/>
+		<member name="isFirefox" proto="isFirefox:Boolean" help="isFirefox is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isFirefox:Boolean" image="31"/>
+		<member name="isSafari" proto="isSafari:Boolean" help="isSafari is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isSafari:Boolean" image="31"/>
+		<member name="isIOS" proto="isIOS:Boolean" help="isIOS is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIOS:Boolean" image="31"/>
+		<member name="isIPhone" proto="isIPhone:Boolean" help="isIPhone is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPhone:Boolean" image="31"/>
+		<member name="isIPad" proto="isIPad:Boolean" help="isIPad is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPad:Boolean" image="31"/>
+		<member name="isIPad1" proto="isIPad1:Boolean" help="isIPad1 is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPad1:Boolean" image="31"/>
+		<member name="isIPad2" proto="isIPad2:Boolean" help="isIPad2 is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPad2:Boolean" image="31"/>
+		<member name="isIPad3" proto="isIPad3:Boolean" help="isIPad3 is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPad3:Boolean" image="31"/>
+		<member name="isIPhone3" proto="isIPhone3:Boolean" help="isIPhone3 is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPhone3:Boolean" image="31"/>
+		<member name="isIPhone4" proto="isIPhone4:Boolean" help="isIPhone4 is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPhone4:Boolean" image="31"/>
+		<member name="isIPhone5" proto="isIPhone5:Boolean" help="isIPhone5 is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPhone5:Boolean" image="31"/>
+		<member name="isIPhone6" proto="isIPhone6:Boolean" help="isIPhone6 is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPhone6:Boolean" image="31"/>
+		<member name="isIPhone6Plus" proto="isIPhone6Plus:Boolean" help="isIPhone6Plus is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isIPhone6Plus:Boolean" image="31"/>
+		<member name="isDesktopSafari" proto="isDesktopSafari:Boolean" help="isDesktopSafari is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isDesktopSafari:Boolean" image="31"/>
+		<member name="iOSVersion" proto="iOSVersion:String" help="iOSVersion is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::iOSVersion:String" image="31"/>
+		<member name="isAndroid" proto="isAndroid:Boolean" help="isAndroid is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::isAndroid:Boolean" image="31"/>
+		<member name="AndroidSDKVersion" proto="AndroidSDKVersion:String" help="AndroidSDKVersion is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::AndroidSDKVersion:String" image="31"/>
+		<member name="HasTouchscreen" proto="HasTouchscreen:Boolean" help="HasTouchscreen is property of class CocoDeviceWrapper
+public property CocoDeviceWrapper::HasTouchscreen:Boolean" image="31"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoDeviceWrapper
+public CocoDeviceWrapper::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoPoint">
+		<member name="toJSON" proto="toJSON() :String" help="public CocoPoint::toJSON() :String" image="35"/>
 		<member name="x" proto="x:Float" help="x:Float" image="34"/>
 		<member name="y" proto="y:Float" help="y:Float" image="34"/>
 	</memberlist>
 	<memberlist name="Class CocoRect">
+		<member name="toJSON" proto="toJSON() :String" help="public CocoRect::toJSON() :String" image="35"/>
 		<member name="left" proto="left:Float" help="left:Float" image="34"/>
 		<member name="top" proto="top:Float" help="top:Float" image="34"/>
 		<member name="right" proto="right:Float" help="right:Float" image="34"/>
 		<member name="bottom" proto="bottom:Float" help="bottom:Float" image="34"/>
 	</memberlist>
 	<memberlist name="Class CocoSkinCacheItem">
+		<member name="toJSON" proto="toJSON() :String" help="public CocoSkinCacheItem::toJSON() :String" image="35"/>
 		<member name="symbolName" proto="symbolName:String" help="symbolName:String" image="34"/>
 		<member name="width" proto="width:Float" help="width:Float" image="34"/>
 		<member name="height" proto="height:Float" help="height:Float" image="34"/>
 		<member name="image" proto="image:CocoImage" help="image:CocoImage" image="34"/>
 	</memberlist>
 	<memberlist name="Class CocoHVAlign">
+		<member name="toJSON" proto="toJSON() :String" help="public CocoHVAlign::toJSON() :String" image="35"/>
 		<member name="horiz" proto="horiz:Float" help="horiz:Float" image="34"/>
 		<member name="vert" proto="vert:Float" help="vert:Float" image="34"/>
 	</memberlist>
 	<memberlist name="Class CocoGraphics">
-		<member name="NewCanvas" proto="NewCanvas(width:Float, height:Float) :HTMLCanvasElement" help="NewCanvas is member function of class CocoGraphics
-public static CocoGraphics::NewCanvas(width:Float, height:Float) :HTMLCanvasElement" image="35"/>
+		<member name="NewCanvas" proto="NewCanvas(width:Float, height:Float, POT:Boolean) :HTMLCanvasElement" help="NewCanvas is member function of class CocoGraphics
+public static CocoGraphics::NewCanvas(width:Float, height:Float, POT:Boolean) :HTMLCanvasElement" image="35"/>
 		<member name="ColorToHtmlRGBA" proto="ColorToHtmlRGBA(c:Color) :String" help="ColorToHtmlRGBA is member function of class CocoGraphics
 public static CocoGraphics::ColorToHtmlRGBA(c:Color) :String" image="35"/>
 		<member name="GetSkinFromCache" proto="GetSkinFromCache(skinImage:CocoImage, width:Float, height:Float) :CocoImage" help="GetSkinFromCache is member function of class CocoGraphics
 public static CocoGraphics::GetSkinFromCache(skinImage:CocoImage, width:Float, height:Float) :CocoImage" image="35"/>
-		<member name="CocoImageFromHTMLCanvas" proto="CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float) :CocoImage" help="CocoImageFromHTMLCanvas is member function of class CocoGraphics
-public static CocoGraphics::CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float) :CocoImage" image="35"/>
+		<member name="CocoImageFromHTMLCanvas" proto="CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float, optional mime:String) :CocoImage" help="CocoImageFromHTMLCanvas is member function of class CocoGraphics
+public static CocoGraphics::CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float, optional mime:String) :CocoImage" image="35"/>
 		<member name="DrawSkin" proto="DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)" help="DrawSkin is member function of class CocoGraphics
 public static CocoGraphics::DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)" image="35"/>
 		<member name="__drawSlice" proto="__drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Float, cy:Float, cw:Float, ch:Float, sx:Float, sy:Float, sw:Float, sh:Float, r:COCO_SKIN_TILE_ENUM)" help="__drawSlice is member function of class CocoGraphics
@@ -5397,8 +6413,8 @@ public CocoSequence::__className:String" image="13"/>
 	<memberlist name="Class CocoImageResolution">
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoImageResolution
 public virtual CocoImageResolution::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)" help="Constructor is member function of class CocoImageResolution
-public CocoImageResolution::Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)" image="14"/>
+		<member name="Constructor" proto="Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, textureScale:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)" help="Constructor is member function of class CocoImageResolution
+public CocoImageResolution::Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, textureScale:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)" image="14"/>
 		<member name="url" proto="url:String" help="url is member var of class CocoImageResolution
 public CocoImageResolution::url:String" image="34"/>
 		<member name="pixelRatio" proto="pixelRatio:Float" help="pixelRatio is member var of class CocoImageResolution
@@ -5407,6 +6423,8 @@ public CocoImageResolution::pixelRatio:Float" image="34"/>
 public CocoImageResolution::textureWidth:Float" image="34"/>
 		<member name="textureHeight" proto="textureHeight:Float" help="textureHeight is member var of class CocoImageResolution
 public CocoImageResolution::textureHeight:Float" image="34"/>
+		<member name="textureScale" proto="textureScale:Float" help="textureScale is member var of class CocoImageResolution
+public CocoImageResolution::textureScale:Float" image="34"/>
 		<member name="tileWidth" proto="tileWidth:Float" help="tileWidth is member var of class CocoImageResolution
 public CocoImageResolution::tileWidth:Float" image="34"/>
 		<member name="tileHeight" proto="tileHeight:Float" help="tileHeight is member var of class CocoImageResolution
@@ -5417,8 +6435,14 @@ public CocoImageResolution::tileMap:Int32Array" image="1"/>
 public CocoImageResolution::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoImage">
-		<member name="createFromCanvas" proto="createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float)" help="createFromCanvas is member function of class CocoImage
-public CocoImage::createFromCanvas(scene:CocoScene, canvas:HTMLCanvasElement, width:Float, height:Float)" image="35"/>
+		<member name="createFromURL" proto="createFromURL(url:String, optional resizeWidth:Float, optional resizeHeight:Float) :CocoImage" help="createFromURL is member function of class CocoImage
+public static CocoImage::createFromURL(url:String, optional resizeWidth:Float, optional resizeHeight:Float) :CocoImage" image="35"/>
+		<member name="__error" proto="__error(hImage:Image) :Boolean" help="__error is member function of class CocoImage
+public CocoImage::__error(hImage:Image) :Boolean" image="35"/>
+		<member name="__loaded" proto="__loaded(hImage:Image)" help="__loaded is member function of class CocoImage
+public CocoImage::__loaded(hImage:Image)" image="35"/>
+		<member name="createFromCanvas" proto="createFromCanvas(canvas:HTMLCanvasElement, width:Float, height:Float)" help="createFromCanvas is member function of class CocoImage
+public CocoImage::createFromCanvas(canvas:HTMLCanvasElement, width:Float, height:Float)" image="35"/>
 		<member name="createFromBase64" proto="createFromBase64(url:String, optional width:Float, optional height:Float)" help="createFromBase64 is member function of class CocoImage
 public CocoImage::createFromBase64(url:String, optional width:Float, optional height:Float)" image="35"/>
 		<member name="addResolution" proto="addResolution(sibling:CocoImageResolution) :CocoImageResolution" help="addResolution is member function of class CocoImage
@@ -5439,14 +6463,16 @@ public virtual CocoImage::Destructor()" image="35"/>
 public CocoImage::Constructor()" image="14"/>
 		<member name="symbolName" proto="symbolName:String" help="symbolName is member var of class CocoImage
 public CocoImage::symbolName:String" image="34"/>
-		<member name="image" proto="image:Image" help="image is member var of class CocoImage
-public CocoImage::image:Image" image="34"/>
+		<member name="hImage" proto="hImage:Image" help="hImage is member var of class CocoImage
+public CocoImage::hImage:Image" image="34"/>
 		<member name="scene" proto="scene:CocoScene" help="scene is member var of class CocoImage
 public CocoImage::scene:CocoScene" image="34"/>
 		<member name="textureCellWidth" proto="textureCellWidth:Float" help="textureCellWidth is member var of class CocoImage
 public CocoImage::textureCellWidth:Float" image="34"/>
 		<member name="textureCellHeight" proto="textureCellHeight:Float" help="textureCellHeight is member var of class CocoImage
 public CocoImage::textureCellHeight:Float" image="34"/>
+		<member name="textureScale" proto="textureScale:Float" help="textureScale is member var of class CocoImage
+public CocoImage::textureScale:Float" image="34"/>
 		<member name="textureGrid" proto="textureGrid:Float32Array" help="textureGrid is member var of class CocoImage
 public CocoImage::textureGrid:Float32Array" image="1"/>
 		<member name="textureTileMap" proto="textureTileMap:Float32Array" help="textureTileMap is member var of class CocoImage
@@ -5469,6 +6495,10 @@ public CocoImage::tileHeight:Integer" image="34"/>
 public CocoImage::tileMap:Int32Array" image="1"/>
 		<member name="renderData" proto="renderData:ICocoImageRenderData" help="renderData is member var of class CocoImage
 public CocoImage::renderData:ICocoImageRenderData" image="34"/>
+		<member name="onLoadResizeWidth" proto="onLoadResizeWidth:Float" help="onLoadResizeWidth is member var of class CocoImage
+public CocoImage::onLoadResizeWidth:Float" image="34"/>
+		<member name="onLoadResizeHeight" proto="onLoadResizeHeight:Float" help="onLoadResizeHeight is member var of class CocoImage
+public CocoImage::onLoadResizeHeight:Float" image="34"/>
 		<member name="baseUrl" proto="baseUrl:String" help="baseUrl is member var of class CocoImage
 public CocoImage::baseUrl:String" image="34"/>
 		<member name="viewOptimalWidth" proto="viewOptimalWidth:Integer" help="viewOptimalWidth is member var of class CocoImage
@@ -5486,6 +6516,12 @@ public CocoImage::scaleY:Float" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoImage
 public CocoImage::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class ICocoImageRenderData">
+		<member name="castRenderDataGL" proto="castRenderDataGL() :CocoImageRenderDataGL" help="castRenderDataGL is member function of class ICocoImageRenderData
+public abstract virtual ICocoImageRenderData::castRenderDataGL() :CocoImageRenderDataGL" image="35"/>
+		<member name="castRenderData2D" proto="castRenderData2D() :CocoImageRenderData2D" help="castRenderData2D is member function of class ICocoImageRenderData
+public abstract virtual ICocoImageRenderData::castRenderData2D() :CocoImageRenderData2D" image="35"/>
+	</memberlist>
 	<memberlist name="Class CocoImageRenderDataGL">
 		<member name="castRenderDataGL" proto="castRenderDataGL() :CocoImageRenderDataGL" help="castRenderDataGL is member function of class CocoImageRenderDataGL
 public CocoImageRenderDataGL::castRenderDataGL() :CocoImageRenderDataGL" image="35"/>
@@ -5496,7 +6532,7 @@ public virtual CocoImageRenderDataGL::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoImageRenderDataGL
 public CocoImageRenderDataGL::Constructor()" image="14"/>
 		<member name="gl" proto="gl:WebGLRenderingContext" help="gl is member var of class CocoImageRenderDataGL
-private CocoImageRenderDataGL::gl:WebGLRenderingContext" image="29"/>
+public CocoImageRenderDataGL::gl:WebGLRenderingContext" image="34"/>
 		<member name="texture" proto="texture:WebGLTexture" help="texture is member var of class CocoImageRenderDataGL
 public CocoImageRenderDataGL::texture:WebGLTexture" image="34"/>
 		<member name="buffer" proto="buffer:WebGLBuffer" help="buffer is member var of class CocoImageRenderDataGL
@@ -5522,6 +6558,52 @@ public CocoImageRenderData2D::imageData:ImageData" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoImageRenderData2D
 public CocoImageRenderData2D::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class ICocoRenderContext">
+		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::getModelViewMatrix() :CocoMatrix" image="35"/>
+		<member name="getProjectionMatrix" proto="getProjectionMatrix() :CocoMatrix" help="getProjectionMatrix is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::getProjectionMatrix() :CocoMatrix" image="35"/>
+		<member name="apply" proto="apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)" help="apply is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)" image="35"/>
+		<member name="getDisplayWidth" proto="getDisplayWidth() :Float" help="getDisplayWidth is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::getDisplayWidth() :Float" image="35"/>
+		<member name="getDisplayHeight" proto="getDisplayHeight() :Float" help="getDisplayHeight is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::getDisplayHeight() :Float" image="35"/>
+		<member name="getBufferWidth" proto="getBufferWidth() :Float" help="getBufferWidth is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::getBufferWidth() :Float" image="35"/>
+		<member name="getBufferHeight" proto="getBufferHeight() :Float" help="getBufferHeight is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::getBufferHeight() :Float" image="35"/>
+		<member name="cls" proto="cls()" help="cls is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::cls()" image="35"/>
+		<member name="clip" proto="clip(x:Float, y:Float, w:Float, h:Float)" help="clip is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::clip(x:Float, y:Float, w:Float, h:Float)" image="35"/>
+		<member name="flush" proto="flush()" help="flush is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::flush()" image="35"/>
+		<member name="ready" proto="ready() :Boolean" help="ready is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::ready() :Boolean" image="35"/>
+		<member name="prepare" proto="prepare(viewScale:Float)" help="prepare is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::prepare(viewScale:Float)" image="35"/>
+		<member name="prepareClip" proto="prepareClip(clip:CocoClip)" help="prepareClip is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::prepareClip(clip:CocoClip)" image="35"/>
+		<member name="prepareImage" proto="prepareImage(img:CocoImage) :ICocoImageRenderData" help="prepareImage is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::prepareImage(img:CocoImage) :ICocoImageRenderData" image="35"/>
+		<member name="drawFrame" proto="drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" help="drawFrame is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" image="35"/>
+		<member name="drawMaskBegin" proto="drawMaskBegin()" help="drawMaskBegin is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::drawMaskBegin()" image="35"/>
+		<member name="drawMaskEnd" proto="drawMaskEnd(invert:Boolean)" help="drawMaskEnd is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::drawMaskEnd(invert:Boolean)" image="35"/>
+		<member name="drawBoundingBox" proto="drawBoundingBox(clip:CocoClip)" help="drawBoundingBox is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::drawBoundingBox(clip:CocoClip)" image="35"/>
+		<member name="hide" proto="hide()" help="hide is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::hide()" image="35"/>
+		<member name="show" proto="show()" help="show is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::show()" image="35"/>
+		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::getGLContext() :WebGLRenderingContext" image="35"/>
+		<member name="get2DContext" proto="get2DContext() :CanvasRenderingContext2D" help="get2DContext is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::get2DContext() :CanvasRenderingContext2D" image="35"/>
+	</memberlist>
 	<memberlist name="Class CocoRenderContext">
 		<member name="createContext" proto="createContext() :ICocoRenderContext" help="createContext is member function of class CocoRenderContext
 public static CocoRenderContext::createContext() :ICocoRenderContext" image="35"/>
@@ -5535,26 +6617,44 @@ public CocoRenderContext::__className:String" image="13"/>
 	<memberlist name="Class CocoRenderContext2D">
 		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class CocoRenderContext2D
 public CocoRenderContext2D::getGLContext() :WebGLRenderingContext" image="35"/>
-		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContext2D
-public CocoRenderContext2D::flush()" image="35"/>
+		<member name="get2DContext" proto="get2DContext() :CanvasRenderingContext2D" help="get2DContext is member function of class CocoRenderContext2D
+public CocoRenderContext2D::get2DContext() :CanvasRenderingContext2D" image="35"/>
+		<member name="getDisplayWidth" proto="getDisplayWidth() :Float" help="getDisplayWidth is member function of class CocoRenderContext2D
+public CocoRenderContext2D::getDisplayWidth() :Float" image="35"/>
+		<member name="getDisplayHeight" proto="getDisplayHeight() :Float" help="getDisplayHeight is member function of class CocoRenderContext2D
+public CocoRenderContext2D::getDisplayHeight() :Float" image="35"/>
+		<member name="getBufferWidth" proto="getBufferWidth() :Float" help="getBufferWidth is member function of class CocoRenderContext2D
+public CocoRenderContext2D::getBufferWidth() :Float" image="35"/>
+		<member name="getBufferHeight" proto="getBufferHeight() :Float" help="getBufferHeight is member function of class CocoRenderContext2D
+public CocoRenderContext2D::getBufferHeight() :Float" image="35"/>
 		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class CocoRenderContext2D
 public CocoRenderContext2D::getModelViewMatrix() :CocoMatrix" image="35"/>
 		<member name="getProjectionMatrix" proto="getProjectionMatrix() :CocoMatrix" help="getProjectionMatrix is member function of class CocoRenderContext2D
 public CocoRenderContext2D::getProjectionMatrix() :CocoMatrix" image="35"/>
-		<member name="getWidth" proto="getWidth() :Float" help="getWidth is member function of class CocoRenderContext2D
-public CocoRenderContext2D::getWidth() :Float" image="35"/>
-		<member name="getHeight" proto="getHeight() :Float" help="getHeight is member function of class CocoRenderContext2D
-public CocoRenderContext2D::getHeight() :Float" image="35"/>
-		<member name="cls" proto="cls()" help="cls is member function of class CocoRenderContext2D
-public CocoRenderContext2D::cls()" image="35"/>
+		<member name="hide" proto="hide()" help="hide is member function of class CocoRenderContext2D
+public CocoRenderContext2D::hide()" image="35"/>
+		<member name="show" proto="show()" help="show is member function of class CocoRenderContext2D
+public CocoRenderContext2D::show()" image="35"/>
 		<member name="ready" proto="ready() :Boolean" help="ready is member function of class CocoRenderContext2D
 public CocoRenderContext2D::ready() :Boolean" image="35"/>
-		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoRenderContext2D
-public CocoRenderContext2D::prepare(scene:CocoScene)" image="35"/>
+		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContext2D
+public CocoRenderContext2D::flush()" image="35"/>
+		<member name="cls" proto="cls()" help="cls is member function of class CocoRenderContext2D
+public CocoRenderContext2D::cls()" image="35"/>
+		<member name="clip" proto="clip(x:Float, y:Float, w:Float, h:Float)" help="clip is member function of class CocoRenderContext2D
+public CocoRenderContext2D::clip(x:Float, y:Float, w:Float, h:Float)" image="35"/>
+		<member name="prepare" proto="prepare(viewScale:Float)" help="prepare is member function of class CocoRenderContext2D
+public CocoRenderContext2D::prepare(viewScale:Float)" image="35"/>
 		<member name="prepareImage" proto="prepareImage(img:CocoImage) :ICocoImageRenderData" help="prepareImage is member function of class CocoRenderContext2D
 public CocoRenderContext2D::prepareImage(img:CocoImage) :ICocoImageRenderData" image="35"/>
-		<member name="drawFrame" proto="drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="drawFrame is member function of class CocoRenderContext2D
-public CocoRenderContext2D::drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
+		<member name="prepareClip" proto="prepareClip(clip:CocoClip)" help="prepareClip is member function of class CocoRenderContext2D
+public CocoRenderContext2D::prepareClip(clip:CocoClip)" image="35"/>
+		<member name="apply" proto="apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix)" help="apply is member function of class CocoRenderContext2D
+public CocoRenderContext2D::apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix)" image="35"/>
+		<member name="hideClipCanvas" proto="hideClipCanvas(clip:CocoClip)" help="hideClipCanvas is member function of class CocoRenderContext2D
+private CocoRenderContext2D::hideClipCanvas(clip:CocoClip)" image="30"/>
+		<member name="drawFrame" proto="drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" help="drawFrame is member function of class CocoRenderContext2D
+public CocoRenderContext2D::drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" image="35"/>
 		<member name="drawMaskBegin" proto="drawMaskBegin()" help="drawMaskBegin is member function of class CocoRenderContext2D
 public CocoRenderContext2D::drawMaskBegin()" image="35"/>
 		<member name="drawMaskEnd" proto="drawMaskEnd(invert:Boolean)" help="drawMaskEnd is member function of class CocoRenderContext2D
@@ -5563,44 +6663,60 @@ public CocoRenderContext2D::drawMaskEnd(invert:Boolean)" image="35"/>
 public CocoRenderContext2D::drawBoundingBox(clip:CocoClip)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoRenderContext2D
 public virtual CocoRenderContext2D::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(ctx:CanvasRenderingContext2D)" help="Constructor is member function of class CocoRenderContext2D
-public CocoRenderContext2D::Constructor(ctx:CanvasRenderingContext2D)" image="14"/>
+		<member name="Constructor" proto="Constructor(ctx:CanvasRenderingContext2D, css3:Boolean)" help="Constructor is member function of class CocoRenderContext2D
+public CocoRenderContext2D::Constructor(ctx:CanvasRenderingContext2D, css3:Boolean)" image="14"/>
 		<member name="c2d" proto="c2d:CanvasRenderingContext2D" help="c2d is member var of class CocoRenderContext2D
 private CocoRenderContext2D::c2d:CanvasRenderingContext2D" image="29"/>
 		<member name="__modelViewMatrix" proto="__modelViewMatrix:CocoMatrix" help="__modelViewMatrix is member var of class CocoRenderContext2D
 private CocoRenderContext2D::__modelViewMatrix:CocoMatrix" image="29"/>
 		<member name="__projectionMatrix" proto="__projectionMatrix:CocoMatrix" help="__projectionMatrix is member var of class CocoRenderContext2D
 private CocoRenderContext2D::__projectionMatrix:CocoMatrix" image="29"/>
-		<member name="__viewportVector" proto="__viewportVector:CocoVector" help="__viewportVector is member var of class CocoRenderContext2D
-private CocoRenderContext2D::__viewportVector:CocoVector" image="29"/>
+		<member name="__css3" proto="__css3:Boolean" help="__css3 is member var of class CocoRenderContext2D
+private CocoRenderContext2D::__css3:Boolean" image="29"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoRenderContext2D
 public CocoRenderContext2D::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoRenderContextGL">
 		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class CocoRenderContextGL
 public CocoRenderContextGL::getGLContext() :WebGLRenderingContext" image="35"/>
-		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContextGL
-public CocoRenderContextGL::flush()" image="35"/>
+		<member name="get2DContext" proto="get2DContext() :CanvasRenderingContext2D" help="get2DContext is member function of class CocoRenderContextGL
+public CocoRenderContextGL::get2DContext() :CanvasRenderingContext2D" image="35"/>
+		<member name="getDisplayWidth" proto="getDisplayWidth() :Float" help="getDisplayWidth is member function of class CocoRenderContextGL
+public CocoRenderContextGL::getDisplayWidth() :Float" image="35"/>
+		<member name="getDisplayHeight" proto="getDisplayHeight() :Float" help="getDisplayHeight is member function of class CocoRenderContextGL
+public CocoRenderContextGL::getDisplayHeight() :Float" image="35"/>
+		<member name="getBufferWidth" proto="getBufferWidth() :Float" help="getBufferWidth is member function of class CocoRenderContextGL
+public CocoRenderContextGL::getBufferWidth() :Float" image="35"/>
+		<member name="getBufferHeight" proto="getBufferHeight() :Float" help="getBufferHeight is member function of class CocoRenderContextGL
+public CocoRenderContextGL::getBufferHeight() :Float" image="35"/>
 		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class CocoRenderContextGL
 public CocoRenderContextGL::getModelViewMatrix() :CocoMatrix" image="35"/>
 		<member name="getProjectionMatrix" proto="getProjectionMatrix() :CocoMatrix" help="getProjectionMatrix is member function of class CocoRenderContextGL
 public CocoRenderContextGL::getProjectionMatrix() :CocoMatrix" image="35"/>
-		<member name="getWidth" proto="getWidth() :Float" help="getWidth is member function of class CocoRenderContextGL
-public CocoRenderContextGL::getWidth() :Float" image="35"/>
-		<member name="getHeight" proto="getHeight() :Float" help="getHeight is member function of class CocoRenderContextGL
-public CocoRenderContextGL::getHeight() :Float" image="35"/>
-		<member name="cls" proto="cls()" help="cls is member function of class CocoRenderContextGL
-public CocoRenderContextGL::cls()" image="35"/>
+		<member name="hide" proto="hide()" help="hide is member function of class CocoRenderContextGL
+public CocoRenderContextGL::hide()" image="35"/>
+		<member name="show" proto="show()" help="show is member function of class CocoRenderContextGL
+public CocoRenderContextGL::show()" image="35"/>
 		<member name="ready" proto="ready() :Boolean" help="ready is member function of class CocoRenderContextGL
 public CocoRenderContextGL::ready() :Boolean" image="35"/>
-		<member name="prepare" proto="prepare(scene:CocoScene)" help="prepare is member function of class CocoRenderContextGL
-public CocoRenderContextGL::prepare(scene:CocoScene)" image="35"/>
+		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContextGL
+public CocoRenderContextGL::flush()" image="35"/>
+		<member name="apply" proto="apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)" help="apply is member function of class CocoRenderContextGL
+public CocoRenderContextGL::apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)" image="35"/>
+		<member name="cls" proto="cls()" help="cls is member function of class CocoRenderContextGL
+public CocoRenderContextGL::cls()" image="35"/>
+		<member name="clip" proto="clip(x:Float, y:Float, w:Float, h:Float)" help="clip is member function of class CocoRenderContextGL
+public CocoRenderContextGL::clip(x:Float, y:Float, w:Float, h:Float)" image="35"/>
+		<member name="prepare" proto="prepare(viewScale:Float)" help="prepare is member function of class CocoRenderContextGL
+public CocoRenderContextGL::prepare(viewScale:Float)" image="35"/>
 		<member name="prepareImage" proto="prepareImage(img:CocoImage) :ICocoImageRenderData" help="prepareImage is member function of class CocoRenderContextGL
 public CocoRenderContextGL::prepareImage(img:CocoImage) :ICocoImageRenderData" image="35"/>
+		<member name="prepareClip" proto="prepareClip(clip:CocoClip)" help="prepareClip is member function of class CocoRenderContextGL
+public CocoRenderContextGL::prepareClip(clip:CocoClip)" image="35"/>
 		<member name="update" proto="update(m:CocoMatrix, ul:WebGLUniformLocation)" help="update is member function of class CocoRenderContextGL
 private CocoRenderContextGL::update(m:CocoMatrix, ul:WebGLUniformLocation)" image="30"/>
-		<member name="drawFrame" proto="drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" help="drawFrame is member function of class CocoRenderContextGL
-public CocoRenderContextGL::drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)" image="35"/>
+		<member name="drawFrame" proto="drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" help="drawFrame is member function of class CocoRenderContextGL
+public CocoRenderContextGL::drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" image="35"/>
 		<member name="setFilter" proto="setFilter(filter:Integer) :Boolean" help="setFilter is member function of class CocoRenderContextGL
 private CocoRenderContextGL::setFilter(filter:Integer) :Boolean" image="30"/>
 		<member name="drawMaskBegin" proto="drawMaskBegin()" help="drawMaskBegin is member function of class CocoRenderContextGL
@@ -5619,6 +6735,8 @@ private CocoRenderContextGL::gl:WebGLRenderingContext" image="29"/>
 private CocoRenderContextGL::__modelViewMatrix:CocoMatrix" image="29"/>
 		<member name="__projectionMatrix" proto="__projectionMatrix:CocoMatrix" help="__projectionMatrix is member var of class CocoRenderContextGL
 private CocoRenderContextGL::__projectionMatrix:CocoMatrix" image="29"/>
+		<member name="__projectionMatrix2D" proto="__projectionMatrix2D:CocoMatrix" help="__projectionMatrix2D is member var of class CocoRenderContextGL
+private CocoRenderContextGL::__projectionMatrix2D:CocoMatrix" image="29"/>
 		<member name="__viewportVector" proto="__viewportVector:CocoVector" help="__viewportVector is member var of class CocoRenderContextGL
 private CocoRenderContextGL::__viewportVector:CocoVector" image="29"/>
 		<member name="maskDraw" proto="maskDraw:Boolean" help="maskDraw is member var of class CocoRenderContextGL
@@ -5925,6 +7043,8 @@ public CocoAudio::setCurrentTime(t:Float)" image="35"/>
 public virtual CocoAudio::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor(url:String, autoplay:Boolean, loops:Integer)" help="Constructor is member function of class CocoAudio
 public CocoAudio::Constructor(url:String, autoplay:Boolean, loops:Integer)" image="14"/>
+		<member name="__muted" proto="__muted:Boolean" help="__muted is member var of class CocoAudio
+public static CocoAudio::__muted:Boolean" image="34"/>
 		<member name="src" proto="src:String" help="src is member var of class CocoAudio
 public CocoAudio::src:String" image="34"/>
 		<member name="audio" proto="audio:Audio" help="audio is member var of class CocoAudio
@@ -5940,9 +7060,99 @@ private CocoAudio::__loopCount:Integer" image="29"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoAudio
 public CocoAudio::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class FACEBOOK_LOGIN">
+		<member name="toJSON" proto="toJSON() :String" help="public FACEBOOK_LOGIN::toJSON() :String" image="35"/>
+		<member name="id" proto="id:String" help="id:String" image="34"/>
+		<member name="email" proto="email:String" help="email:String" image="34"/>
+		<member name="first_name" proto="first_name:String" help="first_name:String" image="34"/>
+		<member name="gender" proto="gender:String" help="gender:String" image="34"/>
+		<member name="last_name" proto="last_name:String" help="last_name:String" image="34"/>
+		<member name="link" proto="link:String" help="link:String" image="34"/>
+		<member name="locale" proto="locale:String" help="locale:String" image="34"/>
+		<member name="name" proto="name:String" help="name:String" image="34"/>
+		<member name="timezone" proto="timezone:Float" help="timezone:Float" image="34"/>
+		<member name="updated_time" proto="updated_time:String" help="updated_time:String" image="34"/>
+		<member name="verified" proto="verified:Boolean" help="verified:Boolean" image="34"/>
+		<member name="image" proto="image:CocoImage" help="image:CocoImage" image="34"/>
+		<member name="image_is_silhouette" proto="image_is_silhouette:Boolean" help="image_is_silhouette:Boolean" image="34"/>
+		<member name="image_url" proto="image_url:String" help="image_url:String" image="34"/>
+		<member name="image_b64" proto="image_b64:String" help="image_b64:String" image="34"/>
+	</memberlist>
+	<memberlist name="Class CocoFacebook">
+		<member name="Init" proto="Init(AppID:Integer)" help="Init is member function of class CocoFacebook
+public static CocoFacebook::Init(AppID:Integer)" image="35"/>
+		<member name="CreateDummyData" proto="CreateDummyData()" help="CreateDummyData is member function of class CocoFacebook
+public static CocoFacebook::CreateDummyData()" image="35"/>
+		<member name="Login" proto="Login()" help="Login is member function of class CocoFacebook
+public static CocoFacebook::Login()" image="35"/>
+		<member name="isUserLoggedOn" proto="isUserLoggedOn() :Boolean" help="isUserLoggedOn is member function of class CocoFacebook
+public static CocoFacebook::isUserLoggedOn() :Boolean" image="35"/>
+		<member name="Like" proto="Like(URL:String) :Boolean" help="Like is member function of class CocoFacebook
+public static CocoFacebook::Like(URL:String) :Boolean" image="35"/>
+		<member name="Post" proto="Post(toUserID:String, URL:String) :Boolean" help="Post is member function of class CocoFacebook
+public static CocoFacebook::Post(toUserID:String, URL:String) :Boolean" image="35"/>
+		<member name="Share" proto="Share(URL:String) :Boolean" help="Share is member function of class CocoFacebook
+public static CocoFacebook::Share(URL:String) :Boolean" image="35"/>
+		<member name="Invite" proto="Invite(message:String) :Boolean" help="Invite is member function of class CocoFacebook
+public static CocoFacebook::Invite(message:String) :Boolean" image="35"/>
+		<member name="__Facebook_Login_Callback" proto="__Facebook_Login_Callback(response:FACEBOOK_LOGIN)" help="__Facebook_Login_Callback is member function of class CocoFacebook
+public static CocoFacebook::__Facebook_Login_Callback(response:FACEBOOK_LOGIN)" image="35"/>
+		<member name="__Facebook_Action_Callback" proto="__Facebook_Action_Callback(success:Boolean)" help="__Facebook_Action_Callback is member function of class CocoFacebook
+public static CocoFacebook::__Facebook_Action_Callback(success:Boolean)" image="35"/>
+		<member name="Ready" proto="Ready() :Boolean" help="Ready is member function of class CocoFacebook
+public static CocoFacebook::Ready() :Boolean" image="35"/>
+		<member name="Success" proto="Success() :Boolean" help="Success is member function of class CocoFacebook
+public static CocoFacebook::Success() :Boolean" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoFacebook
+public virtual CocoFacebook::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoFacebook
+public CocoFacebook::Constructor()" image="14"/>
+		<member name="DebugMode" proto="DebugMode:Boolean" help="DebugMode is member var of class CocoFacebook
+public static CocoFacebook::DebugMode:Boolean" image="34"/>
+		<member name="Permissions" proto="Permissions:String" help="Permissions is member var of class CocoFacebook
+public static CocoFacebook::Permissions:String" image="34"/>
+		<member name="ImageSize" proto="ImageSize:Integer" help="ImageSize is member var of class CocoFacebook
+public static CocoFacebook::ImageSize:Integer" image="34"/>
+		<member name="TextureScale" proto="TextureScale:Float" help="TextureScale is member var of class CocoFacebook
+public static CocoFacebook::TextureScale:Float" image="34"/>
+		<member name="ImagePadding" proto="ImagePadding:Float" help="ImagePadding is member var of class CocoFacebook
+public static CocoFacebook::ImagePadding:Float" image="34"/>
+		<member name="ImageBkColor" proto="ImageBkColor:String" help="ImageBkColor is member var of class CocoFacebook
+public static CocoFacebook::ImageBkColor:String" image="34"/>
+		<member name="AppID" proto="AppID:Integer" help="AppID is member var of class CocoFacebook
+public static CocoFacebook::AppID:Integer" image="34"/>
+		<member name="UserData" proto="UserData:FACEBOOK_LOGIN" help="UserData is member var of class CocoFacebook
+public static CocoFacebook::UserData:FACEBOOK_LOGIN" image="34"/>
+		<member name="UserDenied" proto="UserDenied:Boolean" help="UserDenied is member var of class CocoFacebook
+public static CocoFacebook::UserDenied:Boolean" image="34"/>
+		<member name="__ready" proto="__ready:Boolean" help="__ready is member var of class CocoFacebook
+private static CocoFacebook::__ready:Boolean" image="29"/>
+		<member name="__success" proto="__success:Boolean" help="__success is member var of class CocoFacebook
+private static CocoFacebook::__success:Boolean" image="29"/>
+		<member name="__tempImage" proto="__tempImage:Image" help="__tempImage is member var of class CocoFacebook
+private static CocoFacebook::__tempImage:Image" image="29"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoFacebook
+public CocoFacebook::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoJSON">
+		<member name="read" proto="read(dot:String) :String" help="read is member function of class CocoJSON
+public CocoJSON::read(dot:String) :String" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoJSON
+public virtual CocoJSON::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(json:String)" help="Constructor is member function of class CocoJSON
+public CocoJSON::Constructor(json:String)" image="14"/>
+		<member name="json" proto="json:Array&lt;Object&gt;" help="json is member var of class CocoJSON
+private CocoJSON::json:Array&lt;Object&gt;" image="1"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoJSON
+public CocoJSON::__className:String" image="13"/>
+	</memberlist>
 	<memberlist name="Class CocoHttpRequest">
-		<member name="tick" proto="tick(time:Time)" help="tick is member function of class CocoHttpRequest
-public virtual CocoHttpRequest::tick(time:Time)" image="35"/>
+		<member name="Ready" proto="Ready() :Boolean" help="Ready is member function of class CocoHttpRequest
+public CocoHttpRequest::Ready() :Boolean" image="35"/>
+		<member name="Success" proto="Success() :Boolean" help="Success is member function of class CocoHttpRequest
+public CocoHttpRequest::Success() :Boolean" image="35"/>
+		<member name="responseText" proto="responseText() :String" help="responseText is member function of class CocoHttpRequest
+public CocoHttpRequest::responseText() :String" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoHttpRequest
 public virtual CocoHttpRequest::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoHttpRequest
@@ -5951,20 +7161,20 @@ public CocoHttpRequest::Constructor()" image="14"/>
 public XMLHttpRequest::open(method:String, url:String, optional async:Boolean)" image="35"/>
 		<member name="setRequestHeader" proto="setRequestHeader(header:String, value:String)" help="setRequestHeader is member function of class XMLHttpRequest
 public XMLHttpRequest::setRequestHeader(header:String, value:String)" image="35"/>
-		<member name="send" proto="send()" help="send is member function of class XMLHttpRequest
-public XMLHttpRequest::send()" image="35"/>
-		<member name="send" proto="send(data:String)" help="send$1 is member function of class XMLHttpRequest
+		<member name="send" proto="send(data:String)" help="send is member function of class XMLHttpRequest
 public XMLHttpRequest::send(data:String)" image="35"/>
-		<member name="send" proto="send(data:ArrayBufferView)" help="send$2 is member function of class XMLHttpRequest
+		<member name="send" proto="send(data:ArrayBufferView)" help="send$1 is member function of class XMLHttpRequest
 public XMLHttpRequest::send(data:ArrayBufferView)" image="35"/>
+		<member name="send" proto="send()" help="send$2 is member function of class XMLHttpRequest
+public XMLHttpRequest::send()" image="35"/>
 		<member name="abort" proto="abort()" help="abort is member function of class XMLHttpRequest
 public XMLHttpRequest::abort()" image="35"/>
 		<member name="getAllResponseHeaders" proto="getAllResponseHeaders() :String" help="getAllResponseHeaders is member function of class XMLHttpRequest
 public XMLHttpRequest::getAllResponseHeaders() :String" image="35"/>
 		<member name="getResponseHeader" proto="getResponseHeader(header:String) :String" help="getResponseHeader is member function of class XMLHttpRequest
 public XMLHttpRequest::getResponseHeader(header:String) :String" image="35"/>
-		<member name="request" proto="request:XMLHttpRequest" help="request is member var of class CocoHttpRequest
-private CocoHttpRequest::request:XMLHttpRequest" image="29"/>
+		<member name="xhttp" proto="xhttp:XMLHttpRequest" help="xhttp is member var of class CocoHttpRequest
+public CocoHttpRequest::xhttp:XMLHttpRequest" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoHttpRequest
 public CocoHttpRequest::__className:String" image="13"/>
 	</memberlist>
@@ -5995,8 +7205,6 @@ public CocoUIView::Constructor()" image="14"/>
 public CocoUIView::__form:CocoUIFormView" image="34"/>
 		<member name="Form" proto="Form:CocoUIFormView" help="Form is property of class CocoUIView
 public property CocoUIView::Form:CocoUIFormView" image="31"/>
-		<member name="__visible" proto="__visible:Boolean" help="__visible is member var of class CocoUIView
-protected CocoUIView::__visible:Boolean" image="32"/>
 		<member name="__enabled" proto="__enabled:Boolean" help="__enabled is member var of class CocoUIView
 protected CocoUIView::__enabled:Boolean" image="32"/>
 		<member name="__invalidated" proto="__invalidated:Boolean" help="__invalidated is member var of class CocoUIView
@@ -6648,6 +7856,7 @@ public ClassTestInterfaces::Constructor()" image="14"/>
 public ClassTestInterfaces::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class TestPublishedStruct">
+		<member name="toJSON" proto="toJSON() :String" help="public TestPublishedStruct::toJSON() :String" image="35"/>
 		<member name="pString" proto="pString:String" help="pString:String" image="34"/>
 		<member name="pInteger" proto="pInteger:Integer" help="pInteger:Integer" image="34"/>
 		<member name="pFloat" proto="pFloat:Float" help="pFloat:Float" image="34"/>

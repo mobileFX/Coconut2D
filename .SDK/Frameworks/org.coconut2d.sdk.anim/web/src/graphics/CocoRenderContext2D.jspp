@@ -42,17 +42,38 @@ class CocoRenderContext2D implements ICocoRenderContext
 	// Matrix
 	private var __modelViewMatrix:CocoMatrix;
 	private var __projectionMatrix:CocoMatrix;
-	private var __viewportVector:CocoVector;
 
+	// CSS3 + HTML5 Rendering
+	private var __css3:Boolean;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
- 	public function Constructor(ctx:CanvasRenderingContext2D)
+ 	public function Constructor(ctx:CanvasRenderingContext2D, css3:Boolean)
  	{
+ 		__css3 = css3;
+ 		if(css3)
+ 		{
+ 			ctx.canvas.style.display="none";
+ 		}
+
  		c2d = ctx;
+
+ 		c2d.globalCompositeOperation="source-atop";
+ 		c2d.imageSmoothingEnabled = false;
+ 		c2d.webkitImageSmoothingEnabled = false;
+ 		c2d.mozImageSmoothingEnabled = false;
+
+		// set the size of the drawingBuffer
+		c2d.canvas.width 		= Math.round(engine.device.screenWidth * engine.device.pixelRatio);
+		c2d.canvas.height 		= Math.round(engine.device.screenHeight * engine.device.pixelRatio);
+
+		// set the display size of the canvas
+		c2d.canvas.style.width 	= String(engine.device.screenWidth)  + 'px';
+		c2d.canvas.style.height = String(engine.device.screenHeight) + 'px';
+
+		c2d.scale(engine.device.pixelRatio, engine.device.pixelRatio);
 
  		__modelViewMatrix = new CocoMatrix();
 		__projectionMatrix = new CocoMatrix();
-		__viewportVector = new CocoVector();
  	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,145 +81,280 @@ class CocoRenderContext2D implements ICocoRenderContext
  	{
  		delete __modelViewMatrix;
  		delete __projectionMatrix;
- 		delete __viewportVector;
  	}
 
  	///////////////////////////////////////////////////////////////////////////////////////////////
- 	public function getGLContext():WebGLRenderingContext
- 	{
- 		return null;
- 	}
-
- 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function get2DContext():CanvasRenderingContext2D
-	{
-		return c2d;
-	}
-
+	public function getGLContext():WebGLRenderingContext				{ return null; }
+	public function get2DContext():CanvasRenderingContext2D				{ return c2d; }
+	public function getDisplayWidth():Float								{ return c2d.canvas.width / engine.device.pixelRatio; }
+	public function getDisplayHeight():Float							{ return c2d.canvas.height / engine.device.pixelRatio; }
+	public function getBufferWidth():Float								{ return c2d.canvas.width; }
+	public function getBufferHeight():Float								{ return c2d.canvas.height; }
+	public function getModelViewMatrix():CocoMatrix						{ return __modelViewMatrix; }
+	public function getProjectionMatrix():CocoMatrix					{ return __projectionMatrix; }
+	public function hide()												{ c2d.canvas.style.visibility="hidden"; }
+	public function show()												{ c2d.canvas.style.visibility="visible"; }
+	public function ready():Boolean										{ return true; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function flush()
  	{
- 		//__Canvas2DRenderingContext_flush(c2d.canvas.__imageData.data.buffer.__uid, c2d.canvas.__imageData.data.buffer.byteLength, c2d.canvas.__imageData.width, c2d.canvas.__imageData.height);
  	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function getModelViewMatrix():CocoMatrix
-	{
-		return __modelViewMatrix;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function getProjectionMatrix():CocoMatrix
-	{
-		return __projectionMatrix;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function getWidth():Float
-	{
-		return c2d.canvas.width;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function getHeight():Float
-	{
-		return c2d.canvas.height;
-	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function cls()
 	{
 		__modelViewMatrix.identity();
 		c2d.setTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
-		c2d.fillStyle = "#000";
-		c2d.fillRect(0.0, 0.0, c2d.canvas.width, c2d.canvas.height);
+		c2d.fillStyle = "#ffffff";
+		c2d.fillRect(0.0, 0.0, getDisplayWidth(), getDisplayHeight());
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function ready():Boolean
+	public function clip(x:Float, y:Float, w:Float, h:Float)
 	{
-		return true;
+		try
+		{
+			c2d.rect(x,y,w,h);
+			c2d.clip();
+		}
+		catch(e)
+		{
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function prepare(scene:CocoScene)
+	public function prepare(viewScale:Float)
 	{
+		clip(0,0,0,0);
+
+		// set the display size of the canvas.
+		c2d.canvas.style.width 	= String(engine.device.screenWidth) + "px";
+		c2d.canvas.style.height = String(engine.device.screenHeight) + "px";
+
+		// set the size of the drawingBuffer
+		c2d.canvas.width 		= Math.round(engine.device.screenWidth * engine.device.pixelRatio);
+		c2d.canvas.height 		= Math.round(engine.device.screenHeight * engine.device.pixelRatio);
+
+		c2d.setTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+		c2d.scale(engine.device.pixelRatio, engine.device.pixelRatio);
+
 		__projectionMatrix.identity();
-		__projectionMatrix.translate(c2d.canvas.width / 2.0, c2d.canvas.height / 2.0);
-		__projectionMatrix.scale(scene.__view_scale, scene.__view_scale);
+		__projectionMatrix.translate(getBufferWidth()/2.0, getBufferHeight()/2.0);
+		__projectionMatrix.scale(viewScale*engine.device.pixelRatio, viewScale*engine.device.pixelRatio);
 
 		__modelViewMatrix.identity();
-		__viewportVector.reset(-(Float(getWidth()) / 2.0) / scene.__view_scale, Float(getWidth()) / 2.0 / scene.__view_scale, Float(getHeight()) / 2.0 / scene.__view_scale, -(Float(getHeight()) / 2.0 / scene.__view_scale));
+
+		engine.device.report();
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepareImage(img:CocoImage):ICocoImageRenderData
 	{
-		var data:CocoImageRenderData2D = new CocoImageRenderData2D();
-
-		var w2:Float = img.textureScale * (img.textureCellWidth  / 2.0) / img.pixelRatio;
-		var h2:Float = img.textureScale * (img.textureCellHeight / 2.0) / img.pixelRatio;
-
-		var texData:Float32Array = null;
-
-		if(img.tileMap)
-		{
-			img.texSize = new Float32Array([img.tileWidth / img.image.naturalWidth, img.tileHeight / img.image.naturalHeight]);
-			var d:Array<Float> = new Array<Float>();
-			var tileCountX:Integer = img.tileMap[0];
-			var tileMapCols:Integer = img.tileMap[1];
-			var tileMapRows:Integer = img.tileMap[2];
-			var vCount:Integer = Math.min(tileMapCols, Integer(Math.ceil(img.textureCellWidth / img.tileWidth)));
-			var hCount:Integer = Math.min(tileMapRows, Integer(Math.ceil(img.textureCellHeight / img.tileHeight)));
-			var tileCount:Integer = 0;
-			var paddingSize:Float = img.pixelRatio;
-			for(var y:Integer = hCount; y--;)
-			{
-				for(var x:Integer = vCount; x--;)
-				{
-					var idx:Integer = img.tileMap[3 + y * tileMapCols + x];
-					if(idx == -1) continue;
-					var texX:Float = idx % tileCountX;
-					var texY:Float = Math.floor(idx / tileCountX);
-					texX += (2.0 * texX + 1.0) * paddingSize / img.tileWidth;
-					texY += (2.0 * texY + 1.0) * paddingSize / img.tileHeight;
-					d.push(texX); d.push(texY); d.push(0.0); d.push(0.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
-					d.push(texX); d.push(texY); d.push(0.0); d.push(1.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
-					d.push(texX); d.push(texY); d.push(1.0); d.push(1.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
-					d.push(texX); d.push(texY); d.push(0.0); d.push(0.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
-					d.push(texX); d.push(texY); d.push(1.0); d.push(1.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
-					d.push(texX); d.push(texY); d.push(1.0); d.push(0.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
-					++tileCount;
-				}
-			}
-			texData = new Float32Array(d);
-		}
-		else
-		{
-			img.texSize = new Float32Array([img.textureCellWidth / img.image.naturalWidth, img.textureCellHeight / img.image.naturalHeight]);
-			texData = new Float32Array([0.0, 0.0, 0.0, 0.0, -w2, -h2, 0.0, 0.0, 0.0, 1.0, -w2, h2, 0.0, 0.0, 1.0, 0.0, w2, -h2, 0.0, 0.0, 1.0, 1.0, w2, h2]);
-		}
-		delete texData;
-
-		return data;
+		return new CocoImageRenderData2D();
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
+	public function prepareClip(clip:CocoClip)
 	{
-		if(!image || !image.image) return;
-		c2d.setTransform(__projectionMatrix.__m.rc11, __projectionMatrix.__m.rc12, __projectionMatrix.__m.rc21, __projectionMatrix.__m.rc22, __projectionMatrix.__m.rc41, __projectionMatrix.__m.rc42);
-		c2d.transform(__modelViewMatrix.__m.rc11, __modelViewMatrix.__m.rc12, __modelViewMatrix.__m.rc21, __modelViewMatrix.__m.rc22, __modelViewMatrix.__m.rc41, __modelViewMatrix.__m.rc42);
-		var sx:Float = (((KF.flipH ? 1.0 : 0.0) + image.textureGrid[frame * 2 + 1]) * image.texSize[0]) * image.image.naturalWidth;
-		var sy:Float = (((KF.flipV ? 1.0 : 0.0) + image.textureGrid[frame * 2 + 0]) * image.texSize[1]) * image.image.naturalHeight;
-		var sw:Float = image.texSize[0] * Float(image.image.naturalWidth);
-		var sh:Float = image.texSize[1] * Float(image.image.naturalHeight);
-		var dx:Float = -sw / 2.0;
-		var dy:Float = -sh / 2.0;
-		var dw:Float = sw;
-		var dh:Float = sh;
-		c2d.drawImage(image.image, sx, sy, sw, sh, dx, dy, dw, dh);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix)
+	{
+		if(!clip || !keyFrame || !matrix) return;
+
+	 	if(keyFrame.x!=0 || keyFrame.y!=0)	 			matrix.translate(keyFrame.x, keyFrame.y);
+	 	if(keyFrame.scaleX!=1 ||keyFrame.scaleY!=1) 	matrix.scale(keyFrame.scaleX, keyFrame.scaleY);
+	 	if(keyFrame.rotation!=0) 						matrix.rotateZ(keyFrame.rotation * RADIANS);
+	 	if(keyFrame.pivotX!=0 || keyFrame.pivotY!=0) 	matrix.translate(-keyFrame.pivotX, -keyFrame.pivotY);
+
+		// This is used for in-place HTML5 DIVs that we inject in order to by-pass popup blockers for Facebook/Twitter
+		if(clip.__ANCHOR && matrix==__modelViewMatrix)
+		{
+			clip.__ANCHOR.style.opacity = keyFrame.visible ? keyFrame.alpha : 0;
+
+			var m:CocoMatrix = new CocoMatrix(__modelViewMatrix);
+			m.scale(clip.__image.textureScale, clip.__image.textureScale);
+			m.translate(-(clip.__image.textureCellWidth/clip.__image.pixelRatio)/2, -(clip.__image.textureCellHeight/clip.__image.pixelRatio)/2);
+			m = __projectionMatrix.multiplyByMatrix(m);
+			m.__m.rc34 = clip.__zIndex;
+			clip.__ANCHOR.style.webkitTransform = clip.__ANCHOR.style.transform = m.toCSS3D(true);
+		}
+
+		// This is used in HTML5 CSS3 Mode
+	 	if(__css3 && matrix==__modelViewMatrix)
+	 	{
+	 		var DIV:HTMLDivElement = document.getElementById(clip.__uniqueID);
+	 		if(DIV)
+	 		{
+				DIV.style.opacity = DIV.getAttribute("ready")=="true" && keyFrame.visible ? keyFrame.alpha : 0;
+				if(DIV.style.opacity==0)
+				{
+					DIV.parentNode.removeChild(DIV);
+				}
+				else
+				{
+					var m:CocoMatrix = new CocoMatrix(__modelViewMatrix);
+					m.scale(clip.__image.textureScale, clip.__image.textureScale);
+					m.translate(-(clip.__image.textureCellWidth/clip.__image.pixelRatio)/2, -(clip.__image.textureCellHeight/clip.__image.pixelRatio)/2);
+					m = __projectionMatrix.multiplyByMatrix(m);
+					m.__m.rc34 = clip.__zIndex;
+					var tm:String = m.toCSS3D(true);// + " translateZ(" + String(clip.__zIndex) + ")";
+					if(DIV.style.transform != tm)
+					{
+						DIV.style.webkitTransform = DIV.style.transform = tm;
+					}
+				}
+	 		}
+	 		if((!keyFrame.visible || keyFrame.alpha==0) && clip.__children.size()>0)
+	 		{
+	 			hideClipCanvas(clip);
+	 		}
+	 	}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function hideClipCanvas(clip:CocoClip)
+	{
+		for(var i:Integer=clip.__children.size()-1; i>=0; i--)
+		{
+			var DIV:HTMLDivElement = document.getElementById(clip.__children[i].__uniqueID);
+			if(DIV) DIV.parentNode.removeChild(DIV);
+			hideClipCanvas(clip.__children[i]);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)
+	{
+		// ===================================================
+		// Using HTML5 CSS3 technique
+		// ===================================================
+
+		if(!image || !image.hImage) return;
+
+		if(__css3)
+		{
+			var DIV:HTMLDivElement = document.getElementById(clip.__uniqueID);
+
+			if(!DIV)
+			{
+				DIV = document.createElement("div");
+				DIV.id = clip.__uniqueID;
+				DIV.setAttribute("instanceName", clip.__instanceName);
+
+				DIV.style.position				= "absolute";
+				DIV.style.top					= "0px";
+				DIV.style.left					= "0px";
+				DIV.style.width					= String(image.textureCellWidth/image.pixelRatio) + "px";
+				DIV.style.height				= String(image.textureCellHeight/image.pixelRatio) + "px";
+				DIV.style.opacity				= 0;
+				DIV.style.margin				= "0px";
+				DIV.style.padding				= "0px";
+				DIV.style.visibility			= "visible";
+				DIV.style.backfaceVisibility	= "hidden";
+				DIV.style.overflow				= "hidden";
+				DIV.style.backgroundColor		= "transparent";
+				DIV.style.transformStyle		= "preserve-3d";
+				DIV.style.webkitTransformStyle	= "preserve-3d";
+				DIV.style.transformOrigin		= "0% 0% 0px";
+				DIV.style.webkitTransformOrigin	= "0% 0% 0px";
+				DIV.style.transform				= "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
+				DIV.style.webkitTransformStyle	= "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
+				DIV.style.borderSpacing			= 0;
+				DIV.style.borderWidth			= 0;
+
+				// If pointer events are disabled (recommended) then you won't
+				// be able to mix HTML5 elements and expect to receive events.
+				//DIV.style.pointerEvents			= "none";
+
+				// Set DIV background image
+				DIV.style.backgroundImage 		= "url(" + image.hImage.src + ")";
+				DIV.style.backgroundPosition	= "0px 0px";
+				DIV.style.backgroundRepeat		= "no-repeat";
+				DIV.style.backgroundSize		= String(image.hImage.naturalWidth/image.pixelRatio) + "px " + String(image.hImage.naturalHeight/image.pixelRatio) + "px";
+				DIV.style.backgroundBlendMode	= "normal";
+				//DIV.style.backgroundAttachment	= "fixed";
+				DIV.style.backgroundClip		= "border-box";
+				DIV.style.backgroundOrigin		= "border-box";
+
+				DIV = document.body.appendChild(DIV);
+				DIV.setAttribute("ready", "true");
+			}
+
+			if(DIV.style.backgroundImage != "url(" + image.hImage.src + ")")
+				DIV.style.backgroundImage = "url(" + image.hImage.src + ")";
+
+			// Spritesheet Animation in pure HTML5 with CSS3!!
+			var tx:Float = -(image.textureGrid[textureIndex * 2 + 1] * image.textureCellWidth/image.pixelRatio);
+			var ty:Float = -(image.textureGrid[textureIndex * 2 + 0] * image.textureCellHeight/image.pixelRatio);
+			DIV.style.backgroundPosition	= String(tx) + "px " + String(ty) + "px";
+		}
+
+		// ===================================================
+		// Using a single HTML5 Canvas 2D Context
+		// ===================================================
+		else
+		{
+			if(keyFrame.alpha==0 || !keyFrame.visible) return;
+
+			c2d.save();
+
+			// Initialize Canvas transformation from Projection Matrix
+			c2d.setTransform(__projectionMatrix.__m.rc11,
+							 __projectionMatrix.__m.rc12,
+							 __projectionMatrix.__m.rc21,
+							 __projectionMatrix.__m.rc22,
+							 __projectionMatrix.__m.rc41,
+							 __projectionMatrix.__m.rc42);
+
+			// Load Model View Matrix
+			c2d.transform(__modelViewMatrix.__m.rc11,
+						  __modelViewMatrix.__m.rc12,
+						  __modelViewMatrix.__m.rc21,
+						  __modelViewMatrix.__m.rc22,
+						  Math.floor(__modelViewMatrix.__m.rc41),
+						  Math.floor(__modelViewMatrix.__m.rc42));
+
+			// Sprite textures might need additional scaling
+			if(image.textureScale>0 && image.textureScale!=1.0)
+			{
+				c2d.scale(image.textureScale, image.textureScale);
+			}
+
+			// Scale for image pixel ratio
+			if(image.pixelRatio!=1)
+			{
+				c2d.scale(1/image.pixelRatio, 1/image.pixelRatio);
+			}
+
+			// Calculate image copy rectangles
+			var sw:Float = Math.floor( image.textureCellWidth															);
+			var sh:Float = Math.floor( image.textureCellHeight				                                        	);
+			var sx:Float = Math.floor( ((keyFrame.flipH ? 1.0 : 0.0) + image.textureGrid[textureIndex * 2 + 1]) * sw   	);
+			var sy:Float = Math.floor( ((keyFrame.flipV ? 1.0 : 0.0) + image.textureGrid[textureIndex * 2 + 0]) * sh   	);
+			var dx:Float = Math.floor( -sw / 2.0                                                                       	);
+			var dy:Float = Math.floor( -sh / 2.0                                                                       	);
+			var dw:Float = Math.floor( sw                                                                              	);
+			var dh:Float = Math.floor( sh                                                                              	);
+
+			// Set global alpha
+			c2d.globalAlpha = keyFrame.alpha;
+
+			// Some mobile browsers produce DOM errors if parameters are out of bounds.
+			try
+			{
+				if(sx >= 0 && sy >= 0 && sw > 0 && sh > 0 && sx + sw <= image.hImage.naturalWidth && sy + sh <= image.hImage.naturalHeight && sx + sw > 0 && sy + sh > 0)
+					c2d.drawImage(image.hImage, sx, sy, sw, sh, dx, dy, dw, dh);
+			}
+			catch(e)
+			{
+				trace("ERROR: c2d.drawImage()");
+			}
+
+			c2d.restore();
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////

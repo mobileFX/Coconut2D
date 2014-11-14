@@ -103,7 +103,7 @@ class CocoImageResolution
 class CocoImage
 {
 	public var symbolName:String;
-	public var image:Image;
+	public var hImage:Image;
 
 	public reference var scene:CocoScene;
 
@@ -130,6 +130,8 @@ class CocoImage
 
 	// Render
 	public var renderData:ICocoImageRenderData;
+	public var onLoadResizeWidth:Float;
+	public var onLoadResizeHeight:Float;
 
 	// Resolution Siblings
 	public var baseUrl:String;
@@ -141,13 +143,31 @@ class CocoImage
 	public var scaleY:Float;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function createFromURL(url:String, optional resizeWidth:Float, optional resizeHeight:Float):CocoImage
+	{
+		var img:CocoImage = new CocoImage();
+		img.textureCellWidth = 0;
+		img.textureCellHeight = 0;
+		img.textureScale = 1;
+		img.pixelRatio = 1;
+		img.tileWidth = 0;
+		img.tileHeight = 0;
+		img.tileMap = null;
+		img.hImage = new Image();
+		img.hImage.load(url, img);
+		img.onLoadResizeWidth = resizeWidth;
+		img.onLoadResizeHeight = resizeHeight;
+		return img;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
 		scene				= null;
 		renderData			= null;
 		baseUrl				= "";
 		color				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
-		image				= null;
+		hImage				= null;
 		isSpriteSheet		= false;
 		pixelRatio			= 1.0;
 		scaleX				= 0.0;
@@ -167,6 +187,8 @@ class CocoImage
 		textureTileMap		= new Float32Array([0.0, 0.0]);
 		viewOptimalHeight	= 0;
 		viewOptimalWidth	= 0;
+		onLoadResizeWidth	= 0;
+		onLoadResizeHeight	= 0;
 		viewSiblings		= new Array<CocoImageResolution>;
 	}
 
@@ -181,9 +203,37 @@ class CocoImage
 		delete color;
 		delete texSize;
 		delete renderData;
-		delete image;
+		delete hImage;
 		delete skin;
 		delete tileMap;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __error(hImage:Image):Boolean
+	{
+		return true; // Retry
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __loaded(hImage:Image)
+	{
+		if(onLoadResizeWidth>0 || onLoadResizeHeight>0 || textureCellWidth==0 || textureCellHeight==0)
+		{
+			var w:Float = onLoadResizeWidth ? onLoadResizeWidth : hImage.naturalWidth;
+			var h:Float = onLoadResizeHeight ? onLoadResizeHeight : hImage.naturalHeight;
+			var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, engine.__ctx.getGLContext()!=null);
+			var ctx:CanvasRenderingContext2D = canvas.getContext("2d");
+			ctx.drawImage(hImage, 0, 0, hImage.naturalWidth, hImage.naturalHeight, 0, 0, w, h);
+			delete hImage;
+			onLoadResizeWidth = 0;
+			onLoadResizeHeight = 0;
+			this.createFromCanvas(canvas, w, h);
+			delete canvas;
+		}
+		else
+		{
+			loaded();
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,13 +247,14 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function createFromBase64(url:String, optional width:Float, optional height:Float)
 	{
-		delete image;
-        image = new Image();
-        image.load(url);
-        textureCellWidth = width ? width : image.width;
-        textureCellHeight = height ? height : image.height;
+		delete hImage;
+        hImage = new Image();
+        hImage.load(url, this);
+        textureCellWidth = width ? width : hImage.width;
+        textureCellHeight = height ? height : hImage.height;
         textureGrid = new Float32Array([0,0]);
-		this.renderData = engine.__ctx.prepareImage(this);
+        if(hImage.complete)
+			this.renderData = engine.__ctx.prepareImage(this);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -239,9 +290,30 @@ class CocoImage
 	{
 		var sibling:CocoImageResolution;
 
-		if(scene.__view_width && scene.__view_height)
+		// For mobile browsers we use mdpi
+		if(engine.device.isHTML5Browser)
 		{
-			var tollerance:Float = 1.49;
+			for(var j:Integer = 0; j<viewSiblings.size(); j++)
+			{
+				sibling = viewSiblings[j];
+				if(sibling.pixelRatio==1)
+				{
+					hImage = new Image();
+					hImage.load(baseUrl + sibling.url);
+					textureCellWidth = sibling.textureWidth;
+					textureCellHeight = sibling.textureHeight;
+					textureScale = sibling.textureScale;
+					pixelRatio = sibling.pixelRatio;
+					tileWidth = sibling.tileWidth;
+					tileHeight = sibling.tileHeight;
+					tileMap = sibling.tileMap;
+					break;
+				}
+			}
+		}
+		else if(scene.__view_width && scene.__view_height)
+		{
+			var tollerance:Float = 1.20;
 			var w:Float = tollerance * Float(viewOptimalWidth) * scene.__view_scale;
 			var h:Float = tollerance * Float(viewOptimalHeight) * scene.__view_scale;
 			for(var j:Integer = 0; j<viewSiblings.size(); j++)
@@ -249,8 +321,8 @@ class CocoImage
 				sibling = viewSiblings[j];
 				if(sibling.textureWidth>=w && sibling.textureHeight>=h)
 				{
-					image = new Image();
-					image.load(baseUrl + sibling.url);
+					hImage = new Image();
+					hImage.load(baseUrl + sibling.url);
 					textureCellWidth = sibling.textureWidth;
 					textureCellHeight = sibling.textureHeight;
 					textureScale = sibling.textureScale;
@@ -263,13 +335,14 @@ class CocoImage
 			}
 		}
 
-		if(!image)
+		// Fallback to best image
+		if(!hImage)
 		{
 			sibling = viewSiblings[viewSiblings.size()-1];
 			if(sibling)
 			{
-				image = new Image();
-				image.load(baseUrl + sibling.url);
+				hImage = new Image();
+				hImage.load(baseUrl + sibling.url);
 				textureCellWidth = sibling.textureWidth;
 				textureCellHeight = sibling.textureHeight;
 				textureScale = sibling.textureScale;
@@ -280,8 +353,8 @@ class CocoImage
 			}
 		}
 
-		if(image)
-			trace("Loading image " + image.src);
+		//if(hImage)
+		//	trace("Loading image " + hImage.src);
 
 		loaded();
 	}
@@ -290,16 +363,19 @@ class CocoImage
 	public function loaded():Boolean
 	{
 		if(renderData) return true;
-		if(!image || !image.complete) return false;
+		if(!hImage || !hImage.complete) return false;
 		renderData = engine.__ctx.prepareImage(this);
-		if(isSpriteSheet)
-			delete image;
+
+		// On WebGL we can safely delete the image to save memory.
+		if(isSpriteSheet && engine.__ctx.getGLContext()!=null)
+			 delete hImage;
+
 		return true;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function unload()
 	{
-		delete image;
+		delete hImage;
 	}
 }

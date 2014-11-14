@@ -38,19 +38,27 @@ interface ICocoRenderContext
 {
 	public function getModelViewMatrix():CocoMatrix;
 	public function getProjectionMatrix():CocoMatrix;
-	public function getWidth():Float;
-	public function getHeight():Float;
+	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix);
+	public function getDisplayWidth():Float;
+	public function getDisplayHeight():Float;
+	public function getBufferWidth():Float;
+	public function getBufferHeight():Float;
 	public function cls();
+	public function clip(x:Float, y:Float, w:Float, h:Float);
 	public function flush();
 	public function ready():Boolean;
-	public function prepare(scene:CocoScene);
+	public function prepare(viewScale:Float);
+	public function prepareClip(clip:CocoClip);
 	public function prepareImage(img:CocoImage):ICocoImageRenderData;
-	public function drawFrame(scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame);
+	public function drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer);
 	public function drawMaskBegin();
 	public function drawMaskEnd(invert:Boolean);
 	public function drawBoundingBox(clip:CocoClip);
+	public function hide();
+	public function show();
 	public virtual function getGLContext():WebGLRenderingContext;
 	public virtual function get2DContext():CanvasRenderingContext2D;
+
 }
 
 // ==================================================================================================================================
@@ -76,35 +84,47 @@ class CocoRenderContext
 	public static function createContext():ICocoRenderContext
 	{
 		// Create a CANVAS element in document BODY.
-		var canvas:HTMLCanvasElement = document.body.appendChild(document.createElement("canvas"));
-		canvas.width = Float(window.innerWidth);
-		canvas.height = Float(window.innerHeight);
+		var canvas:HTMLCanvasElement = HTMLCanvasElement(document.body.appendChild(document.createElement("canvas")));
+
+		// set the display size of the canvas
+		canvas.style.width 		= String(engine.device.screenWidth) + "px";
+		canvas.style.height 	= String(engine.device.screenHeight) + "px";
+
+		// set the size of the drawingBuffer
+		canvas.width 			= Math.round(engine.device.screenWidth * engine.device.pixelRatio);
+		canvas.height 			= Math.round(engine.device.screenHeight * engine.device.pixelRatio);
 
 		var args:ContextArguments = new ContextArguments();
 		args.stencil = true;
 
-		// Get WebGL context if supported by device
-		var gl:WebGLRenderingContext = WebGLRenderingContext(canvas.getContext("webgl", args));
-		if(gl)
+		if(!engine.device.Force2D && !engine.device.ForceCSS3 && !engine.device.isIPad2)
 		{
-			trace("Rendering with HTML5 WebGL Canvas API");
-			return new CocoRenderContextGL(gl);
-		}
-
-		// Get WebGL context if supported by device
-		gl = WebGLRenderingContext(canvas.getContext("experimental-webgl", args));
-		if(gl)
-		{
-			trace("Rendering with HTML5 WebGL Experimental Canvas API");
-			return new CocoRenderContextGL(gl);
+			// WebGL advantage is that it is hardware accelerated and animates much faster than other solutions.
+			var implementation:Array<String> = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+			for(var i:Integer=0; i<implementation.size(); i++)
+			{
+				var gl:WebGLRenderingContext = WebGLRenderingContext(canvas.getContext(implementation[i], args));
+				if(gl)
+				{
+					trace("Rendering with HTML5 WebGL Canvas API (" + implementation[i] + ")");
+					delete implementation;
+					return new CocoRenderContextGL(gl);
+				}
+			}
 		}
 
 		// Fallback to CanvasRenderingContext2D
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 		if(ctx)
 		{
-			trace("Rendering with HTML5 2D Canvas API");
-			return new CocoRenderContext2D(ctx);
+			var css3:Boolean = engine.device.isDesktopSafari || engine.device.isIPad2 || engine.device.ForceCSS3;
+
+			trace(css3 ? "Rendering with HTML5 CSS3" : "Rendering with HTML5 2D Canvas API");
+
+			// Confirmed cases where HTML5 DIVs are faster than HTML5 Canvas:
+			// 1. Desktop safari for Windows
+
+			return new CocoRenderContext2D(ctx, css3);
 		}
 
 		//alert("Please use an HTML5 Browser to view this page.");

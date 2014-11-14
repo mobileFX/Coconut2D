@@ -33,7 +33,7 @@
 //	                                             /____/
 // ==================================================================================================================================
 
-class Image
+class Image : HTMLElement
 {
 	public var __imageData:ImageData;
 	public var src:String;
@@ -42,7 +42,6 @@ class Image
 	public var naturalWidth:Float;
 	public var naturalHeight:Float;
 	public var crossOrigin:String;
-
 	private var __complete:Boolean;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +64,7 @@ class Image
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function load(url:String)
+	public function load(url:String, optional cocoimage:CocoImage)
 	{
 		__imageData = new ImageData(url);
 
@@ -87,6 +86,12 @@ class Image
 		{
 			return __complete;
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function cloneNode(deep:Boolean):Image
+	{
+		return this;
 	}
 }
 

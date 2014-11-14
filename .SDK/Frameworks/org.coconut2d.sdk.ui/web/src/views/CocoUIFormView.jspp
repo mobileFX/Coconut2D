@@ -47,8 +47,8 @@ class CocoUIFormView : CocoUIView
 		__instanceName = name;
  		__scene = scene;
  		__invalidated = true;
-		__width = window.innerWidth;
-		__height = window.innerHeight;
+		__width = engine.device.screenWidth;
+		__height = engine.device.screenHeight;
 
 		__scrollView = new CocoUIScrollView(name + "ScrollView", scene);
 		addChild(__scrollView);

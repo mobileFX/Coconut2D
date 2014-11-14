@@ -504,6 +504,24 @@ function __init_narcissus(GLOBAL)
 				}
 
 				///////////////////////////////////////////////////////////////////
+				// // "#define NO_COMPILER_ERRORS";
+				if(token.value && token.value.indexOf(this.__ENABLE_ERRORS) != -1)
+				{
+					this.DISABLE_ERRORS = false;
+					if(match.input.substr(match.index + match[0].length, 1)!=";")
+						throw this.newSyntaxError("Missing ; after include directive.");
+				}
+
+				///////////////////////////////////////////////////////////////////
+				// // "#undefine NO_COMPILER_ERRORS";
+				if(token.value && token.value.indexOf(this.__DISABLE_ERRORS) != -1)
+				{
+					this.DISABLE_ERRORS = true;
+					if(match.input.substr(match.index + match[0].length, 1)!=";")
+						throw this.newSyntaxError("Missing ; after include directive.");
+				}
+
+				///////////////////////////////////////////////////////////////////
 				// File
 				if(token.value && token.value.indexOf(this.__FILE_DELIM) != -1)
 				{
@@ -515,6 +533,7 @@ function __init_narcissus(GLOBAL)
 					this.__filePosOffset = this.cursor + token.value.length + 4;
 					this.EXPORT_NATIVE = false;
 					this.EXPORT_WEB = false;
+					this.DISABLE_ERRORS = false;
 					trace("+ parsing: " + this.__file);
 
 				}
@@ -637,6 +656,8 @@ function __init_narcissus(GLOBAL)
 
 	Tokenizer.prototype.__EXPORT_WEB = "#export web";
 	Tokenizer.prototype.__EXPORT_NATIVE = "#export native";
+	Tokenizer.prototype.__DISABLE_ERRORS = "#define NO_COMPILER_ERRORS";
+	Tokenizer.prototype.__ENABLE_ERRORS = "#undefine NO_COMPILER_ERRORS";
 	Tokenizer.prototype.__FILE_DELIM = "script_begin:///";
 	Tokenizer.prototype.__file = "";
 	Tokenizer.prototype.__path = "";
@@ -689,6 +710,7 @@ function __init_narcissus(GLOBAL)
 		this.xmlvartype="";
 		this.EXPORT_NATIVE = t.EXPORT_NATIVE;
 		this.EXPORT_WEB = t.EXPORT_WEB;
+		this.DISABLE_ERRORS = t.DISABLE_ERRORS;
 
 		if(token)
 		{

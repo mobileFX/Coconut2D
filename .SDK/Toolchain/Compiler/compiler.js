@@ -218,6 +218,7 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewWarning = function (e, ast)
 	{
+		if(ast && ast.DISABLE_ERRORS) return;
 		if(_this.selectedClass || _this.no_errors>0) return;
 		if(!ast.__warnings) ast.__warnings = {};
 		if(!ast.__warnings[e]) ast.__warnings[e] = 0;
@@ -230,6 +231,7 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewError = function (e, ast)
 	{
+		if(ast && ast.DISABLE_ERRORS) return;
 		if(_this.selectedClass || _this.no_errors>0) return;
 		if(!ast.__errors) ast.__errors = {};
 		if(!ast.__errors[e]) ast.__errors[e] = 0;
@@ -2327,6 +2329,7 @@ function Compiler(ast)
 			// Process the Arguments List
 			var paramsList = "";
 			var typedParamsList = "";
+			var paramListInits = [];
 			for(var i=0; i<ast.paramsList.length; i++)
 			{
 				var param = ast.paramsList[i];
@@ -2336,6 +2339,15 @@ function Compiler(ast)
 
 				typedParamsList += (param.optional ? "optional " : "") +
 								   param.name + ":" + param.vartype;
+
+				if(param.optional && param.file!="externs.jspp")
+				{
+					var vartype = _this.getVarType(param.vartype);
+					if(_this.types.hasOwnProperty(vartype))
+						paramListInits.push(param.name+"="+param.name+"||"+_this.types[vartype].default+";");
+					else
+						paramListInits.push(param.name+"="+param.name+"||null;");
+				}
 
 				if(i!=ast.paramsList.length-1)
 				{
@@ -2513,11 +2525,11 @@ function Compiler(ast)
 				if(classSymbol.interface && ast.body)
 					_this.NewError("Invalid interface function: " + fnName, ast);
 
-				ast.generated_code =  "{" + rest_arguments_array;
+				ast.generated_code =  "{" + rest_arguments_array + paramListInits.join("\n");
 			}
 			else
 			{
-				ast.generated_code = "{" + rest_arguments_array + generate(ast.body);
+				ast.generated_code = "{" + rest_arguments_array + paramListInits.join("\n") + generate(ast.body);
 			}
 
 			// Generate default return value

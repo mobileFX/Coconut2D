@@ -298,7 +298,7 @@ class CocoUIControl : CocoUIView
 
 		// Controls by default are clickable, so keyframe has handleEvnets = ture
 		__timeline.clear();
-		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, true, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
 
 		// Hook on touch events
 		if(__selectable)
@@ -492,7 +492,7 @@ class CocoUIControl : CocoUIView
 		clip.__instanceName = __instanceName + "Layer" + String(__children.size());
 		clip = addChild(clip);
 		clip.__timeline.clear();
-		clip.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, handleEvents, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		clip.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, handleEvents, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
 		return clip;
 	}
 }

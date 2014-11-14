@@ -44,9 +44,12 @@ state class CocoEngine
 
 	public const TICK_TIME:Time = (1000.0/60.0);
 
+	public var device:CocoDeviceWrapper;
+
 	private reference var __currentState:State;
 	private reference var __nextState:State;
 	private var __tickables:Array<ITickable>;
+
 	public var __clock:Time;
 	public var __ctx:ICocoRenderContext;
 	public var __RESIZE_IMAGES_AT_RUNTIME:Boolean;
@@ -62,7 +65,12 @@ state class CocoEngine
 		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
 		__clicked = new Array<CocoClip>;
 		__track_touch = false;
+		__track_key = false;
 		__has_touch_device_message = false;
+
+		engine = this;
+		device = new CocoDeviceWrapper();
+
 		__ctx = CocoRenderContext.createContext();
 		__attachDevices();
 		CocoText.init(1, 1);
@@ -76,8 +84,8 @@ state class CocoEngine
 		delete __ctx;
 		delete __clicked;
 		delete __tickables;
-
 		delete __deviceMessageQueue;
+		delete device;
 	}
 
 	// ==================================================================================================================================
@@ -118,7 +126,7 @@ state class CocoEngine
 			if(__currentState) __currentState.exit();
 			__currentState = __nextState;
 			__nextState = null;
-			//trace("\n@@STATE " + __currentState.__name);
+			trace("\n@@STATE " + __currentState.__name);
 			__clicked.clear();
 			if(__currentState) __currentState.enter();
 		}
@@ -142,7 +150,7 @@ state class CocoEngine
 		__clicked.clear();
 
 		// Paint
-		if(__nextState==null && __currentState!=null)
+		if(__currentState!=null)
 		{
 			__ctx.cls();
 			try
@@ -180,6 +188,7 @@ state class CocoEngine
 
 	// Touch handling controlor variables
 	private var __track_touch:Boolean;
+	private var __track_key:Boolean;
 	private var __has_touch_device_message:Boolean;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,6 +235,9 @@ state class CocoEngine
 
 		window.removeEventListener("keydown", __translateDeviceMessage);
 		window.removeEventListener("keyup", __translateDeviceMessage);
+
+
+		window.addEventListener("orientationchange", __translateDeviceMessage);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -253,6 +265,9 @@ state class CocoEngine
 
 		switch(e.type)
 		{
+
+		case "orientationchange":
+			break;
 
 		//=============================================================================
 		// We need to latch the mouse down/move/up
@@ -311,6 +326,7 @@ state class CocoEngine
 			break;
 
 		case "touchmove":
+			e.preventDefault();
 			if(__track_touch)
 			{
 				var touch:Touch = e.touches[0];
@@ -340,22 +356,30 @@ state class CocoEngine
 
 		//=============================================================================
 		case "keydown":
+			if(!__track_key)
+			{
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_DOWN;
 				MSG.keyCode = e.keyCode;
 				MSG.ctrlKey = e.ctrlKey;
 				MSG.altKey = e.altKey;
 				MSG.shiftKey = e.shiftKey;
-				break;
+				__track_key = true;
+			}
+			break;
 
 		case "keyup":
+			if(__track_key)
+			{
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_UP;
 				MSG.keyCode = e.keyCode;
 				MSG.ctrlKey = e.ctrlKey;
 				MSG.altKey = e.altKey;
 				MSG.shiftKey = e.shiftKey;
-				break;
+				__track_key = false;
+			}
+			break;
 		}
 
 		//=============================================================================
@@ -489,41 +513,4 @@ state class CocoEngine
 		for(var i:Integer=__tickables.size();i--;)
 			__tickables[i].tick(time);
 	}
-
-	// ==================================================================================================================================
-	//	    ____       __                   ______                _
-	//	   / __ \___  / /_  __  ______ _   /_  __/________ ______(_)___  ____ _
-	//	  / / / / _ \/ __ \/ / / / __ `/    / / / ___/ __ `/ ___/ / __ \/ __ `/
-	//	 / /_/ /  __/ /_/ / /_/ / /_/ /    / / / /  / /_/ / /__/ / / / / /_/ /
-	//	/_____/\___/_.___/\__,_/\__, /    /_/ /_/   \__,_/\___/_/_/ /_/\__, /
-	//	                       /____/                                 /____/
-	// ==================================================================================================================================
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function __debug_trace(scene:CocoScene, clip:CocoClip, message: String)
-	{
-		/*
-		if(scene && clip)
-		{
-			var rf:Float = scene.__root.__childWithMaxTimelineDuration.__timeline.__currentFrameIndex;
-			var rt:Float = scene.__root.__currentTime;
-			var cf:Float = clip.__timeline.__currentFrameIndex;
-			var ct:Float = clip.__currentTime;
-
-			message = message +
-					  " R(f:" + rf.toFixed(2) +
-					  ", t:" + rt.toFixed(2) +
-					  ", L:" + scene.__root.__loops.toFixed(2) +
-					  ")\tC(f:" + cf.toFixed(2) +
-					  ", t:" + ct.toFixed(2) +
-					  ", L:" + clip.__loops.toFixed(2) +
-					  ", P:" + String(clip.__timeline.__paused) +
-					  ")\tstate: " + __currentState.__name +
-					  "\tclip: " + scene.__sceneName + clip.__clipPath;
-
-		}
-		trace(message);
-		*/
-	}
-
 }

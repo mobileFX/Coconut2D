@@ -45,7 +45,6 @@ class CocoUIView : CocoClip
 	public property Form { function get():CocoUIFormView { return __form; } }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	protected var __visible:Boolean;
 	protected var __enabled:Boolean;
 	protected var __invalidated:Boolean;
 
@@ -62,9 +61,9 @@ class CocoUIView : CocoClip
 		__height = 0;
 
 		__timeline.clear();
-		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
 
-		move(0,0,window.innerWidth, window.innerHeight);
+		move(0,0,engine.device.screenWidth,engine.device.screenHeight);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

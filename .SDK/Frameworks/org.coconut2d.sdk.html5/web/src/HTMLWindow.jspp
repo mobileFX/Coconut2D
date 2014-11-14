@@ -44,9 +44,13 @@ class HTMLWindow
 {
 	public var __uid:Integer;
 	public var document:HTMLDocument;
+	public var location:HTMLLocation;
+	public var navigator:HTMLNavigator;
+	public var screen:HTMLScreen;
 	public var innerHeight:Float;
 	public var innerWidth:Float;
 	public var devicePixelRatio:Float;
+	public var orientation:Integer;
 	public var __elements:Array<Function>;
 	public var e:HTMLEvent;
 
@@ -56,7 +60,11 @@ class HTMLWindow
 		e = new HTMLEvent;
 		__elements = new Array<Function>;
 		__uid = 0;
+		orientation=0;
 		document = new HTMLDocument();
+		location = new HTMLLocation();
+		navigator = new HTMLNavigator();
+		screen = new HTMLScreen();
 		innerHeight = global.innerHeight;
 		innerWidth = global.innerWidth;
 		devicePixelRatio = global.devicePixelRatio;
@@ -66,7 +74,10 @@ class HTMLWindow
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete location;
 		delete document;
+		delete navigator;
+		delete screen;
 		delete __elements;
 		delete e;
 	}

@@ -52,14 +52,19 @@ class CocoScene
 	public var __levelParents:Array<CocoClip>;
 
 	public var __ready:Boolean;
+	public var __loaded_assets:Float;
 	public var __finished:Boolean;
 
 	private reference var m_ctx:ICocoRenderContext;
-
+	private var m_width:Float;
+	private var m_height:Float;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		m_width = 0;
+		m_height = 0;
+
 		__fps									= 0;
 		__sceneName 							= "";
 		__view_width							= 0;
@@ -71,6 +76,7 @@ class CocoScene
 		__finished								= false;
 		__imageSymbols							= new Array<CocoImage>;
 		__levelParents							= new Array<CocoClip>;
+		__loaded_assets							= 0;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,29 +149,35 @@ class CocoScene
 	public virtual function prepare(ctx:ICocoRenderContext)
 	{
 		m_ctx = ctx;
+		m_width = engine.device.screenWidth;
+		m_height = engine.device.screenHeight;
 
 		if(__view_width > 0 && __view_height > 0)
 		{
-			__view_scale = Math.min( Float(ctx.getWidth()) / __view_width, Float(ctx.getHeight()) / __view_height);
+			__view_scale = Math.min( Float(m_width) / __view_width, Float(m_height) / __view_height);
 		}
 		else
 		{
-			__view_scale = window.devicePixelRatio;
+			__view_scale = engine.device.devicePixelRatio;
 		}
 
 		// Prepare CocoClip and their timelines
-		__root.prepare(this);
+		__root.prepare(ctx, this, 1000);
 
-		if(engine.__RESIZE_IMAGES_AT_RUNTIME)
-			__root.analyze(__view_scale / __view_pixel_ratio, __view_scale / __view_pixel_ratio);
+		if(!__ready)
+		{
+			if(engine.__RESIZE_IMAGES_AT_RUNTIME)
+				__root.analyze(__view_scale / __view_pixel_ratio, __view_scale / __view_pixel_ratio);
 
-		var L:Integer = __imageSymbols.size();
-		for(var i:Integer = 0; i < L ; i++)
-	    {
-	    	__imageSymbols[i].load();
-	    }
+			var L:Integer = __imageSymbols.size();
+			for(var i:Integer = 0; i < L ; i++)
+		    {
+		    	__imageSymbols[i].load();
+		    }
+		}
 
-	    ctx.prepare(this);
+	    ctx.prepare(__view_scale);
+	    ctx.clip(m_width/2.0 - (__view_width/2.0) * __view_scale, (m_height/2.0) - (__view_height/2.0) * __view_scale, __view_width*__view_scale, __view_height*__view_scale);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,17 +193,24 @@ class CocoScene
 		if(!resourcesLoaded(ctx))
 			return;
 
+		// Orientation change or resize results in change of the drawing surface.
+		// Therefore we need to detect such changes and re-initialize the rendering context.
+		if(m_width != engine.device.screenWidth || m_height != engine.device.screenHeight)
+		{
+			prepare(ctx);
+		}
+
+		// Paint!
 	    if(__root)
 	    {
 	    	__levelParents.push(__root);
 			__root.paint(ctx, this, null, false, 0);
 			__levelParents.clear();
+
 			var max:CocoClip = __root.__childWithMaxTimelineDuration;
 			if(max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
 			{
 				__finished=true;
-				//__root.reset();
-				//__startTime = -1;
 			}
 	    }
 	}
@@ -201,15 +220,25 @@ class CocoScene
 	{
 		if(!__ready)
 		{
-			for (var i:Integer = __imageSymbols.size() - 1; i >= 0; i--)
+			for (var i:Integer=0; i<__imageSymbols.size(); i++)
 			{
 				var img:CocoImage = __imageSymbols[i];
-				if(!img.loaded()) return false;
+				if(!img.loaded())
+				{
+					__loaded_assets = i;
+					return false;
+				}
 			}
-			//trace("Resources loaded.");
 			__ready = true;
 		}
+		__loaded_assets = __imageSymbols.size();
 		return __ready;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function loadingProgress():Integer
+	{
+		return Math.floor((Math.min(__loaded_assets,__imageSymbols.size())/__imageSymbols.size())*100.0);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -250,25 +279,25 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function worldX(deviceX:Float):Float
 	{
-		return (deviceX - m_ctx.getWidth() / 2.0) / __view_scale;
+		return (deviceX - m_ctx.getDisplayWidth() / 2.0) / __view_scale;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function worldY(deviceY:Float):Float
 	{
-		return (deviceY - m_ctx.getHeight() / 2.0) / __view_scale;
+		return (deviceY - m_ctx.getDisplayHeight() / 2.0) / __view_scale;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function viewX(worldX:Float):Float
 	{
-		return worldX + (m_ctx.getWidth()/2)/__view_scale-(((m_ctx.getWidth()/__view_scale)-__view_width)/2);
+		return worldX + (m_ctx.getDisplayWidth()/2)/__view_scale-(((m_ctx.getDisplayWidth()/__view_scale)-__view_width)/2);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function viewY(worldY:Float):Float
 	{
-		return worldY + (m_ctx.getHeight()/2)/__view_scale-(((m_ctx.getHeight()/__view_scale)-__view_height)/2);
+		return worldY + (m_ctx.getDisplayHeight()/2)/__view_scale-(((m_ctx.getDisplayHeight()/__view_scale)-__view_height)/2);
 	}
 
 }

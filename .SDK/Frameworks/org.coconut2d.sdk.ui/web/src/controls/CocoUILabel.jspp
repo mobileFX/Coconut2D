@@ -65,13 +65,13 @@ control class CocoUILabel : CocoUIControl
 	{
 		// Labels are not handling events
 		__timeline.clear();
-		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '');
+		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
 
 		// Labels are not selectable
 		__selectable = false;
 
 		// Initial Label size
-		Width = window.innerWidth;
+		Width = engine.device.screenWidth;
 		Height = Float(COCO_DEFAULT_FONT_SIZE) + PaddingTop + PaddingBottom;
 		SetMargins(0,0,4,4);
 		SetPaddings(5,5,0,0);

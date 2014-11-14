@@ -30,6 +30,9 @@ function __Facebook_Initialize(FacebookAppID, ImageSize)
 		            });
 	            });
 			}
+			else
+			{
+			}
 		}
 
 		FB.init({appId:FacebookAppID, cookie:true, status:true, oauth:true, xfbml:false, frictionlessRequests:true, version:'v2.1'});
@@ -82,6 +85,15 @@ function __Facebook_Share(URL)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+function __Facebook_Invite(message)
+{
+	FB.ui({method:'apprequests', message:message}, function(response)
+	{
+		CocoFacebook.__Facebook_Action_Callback(response && !response.error_code);
+	});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function __Facebook_Post(toUserID, URL)
 {
 	FB.ui({method:'send', to:toUserID, link: URL}, function(response)
@@ -89,6 +101,26 @@ function __Facebook_Post(toUserID, URL)
 		CocoFacebook.__Facebook_Action_Callback(true);
 	});
 }
+
+// ==================================================================================================================================
+//	  ______         _ __  __               ____      __                        __  _
+//	 /_  __/      __(_) /_/ /____  _____   /  _/___  / /____  ____ __________ _/ /_(_)___  ____
+//	  / / | | /| / / / __/ __/ _ \/ ___/   / // __ \/ __/ _ \/ __ `/ ___/ __ `/ __/ / __ \/ __ \
+//	 / /  | |/ |/ / / /_/ /_/  __/ /     _/ // / / / /_/  __/ /_/ / /  / /_/ / /_/ / /_/ / / / /
+//	/_/   |__/|__/_/\__/\__/\___/_/     /___/_/ /_/\__/\___/\__, /_/   \__,_/\__/_/\____/_/ /_/
+//	                                                       /____/
+// ==================================================================================================================================
+
+window.twttr = (function (d, s, id)
+{
+  var t, js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src= "https://platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+  return window.twttr || (t = { _e: [], ready: function (f) { t._e.push(f) } });
+}(document, "script", "twitter-wjs"));
+
 
 // ==================================================================================================================================
 //	    ____                 ____
@@ -102,12 +134,6 @@ function __Facebook_Post(toUserID, URL)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function main()
 {
-	// Explicitly set a background image on BODY.
-	// This should be either a Splash screen or
-	// a "Please Wait" loading image.
-
-	document.body.style.cssText += ";background-repeat:no-repeat;background-size:100% auto;background-image:url(./assets/images/splash.jpg);width:"+window.innerWidth+"px;height:"+window.innerHeight+"px";
-
 	// Create a new Engine
 	engine = new GameEngine();
 
@@ -126,12 +152,43 @@ function tickAndPaint(time)
 // We give the browser 3 sec to resize properly.
 // We need this especially for Fancy Box.
 
+/////////////////////////////////////////////////////////////////////////////////////
+function __cancelEvent(e)
+{
+	if(e==null && window.event) e = window.event;
+	if(e && !e.__cancelled)
+	{
+		e.preventDefault();
+		e.stopPropagation();
+		e.cancelBubble=true;
+		e.returnValue=false;
+		e.__cancelled = true;
+	}
+	return false;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////
 function wait_fancy_box_to_resize()
 {
-	window.setTimeout(main, 3000);
+	// Disable Window Scrolling
+	document.ontouchmove = function(e)
+	{
+		e.preventDefault();
+	}
+
+	// Reposition window to (0,0)
+	document.ontouchend = function(e)
+	{
+		try { window.scrollTo(0,0); } catch(e) {}
+	}
+
+	window.scrollTo(0,0);
+	window.setTimeout(main, 1000);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
 window.addEventListener("load", wait_fancy_box_to_resize);
 
+/////////////////////////////////////////////////////////////////////////////////////
 // For mobile browsers, hide the address bar
 window.setTimeout(function(){ try { window.scrollTo(0,0); } catch(e) {} }, 1);

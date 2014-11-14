@@ -9,7 +9,27 @@ global.__iOS = false;
 
 if(!global.window) 		{ global.window = new HTMLWindow(); global.__native = true; }
 if(!global.document)	global.document = window.document;
-if(!global.trace)		global.trace = function(msg) { console.log(msg); };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+if(!global.trace) global.trace = function(msg)
+{
+	console.log(msg);
+
+	/*
+	try
+	{
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("POST", "http://192.168.1.168/__trace", true);
+		xhttp.setRequestHeader("Content-Type", "text/plain; charset=UTF-8");
+		xhttp.send(msg);
+	}
+	catch(e)
+	{
+	}
+	*/
+
+};
+
 if(!global.console)		global.console = { log: trace };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,55 +43,6 @@ if(global && global.navigator && navigator.userAgent && /iPhone|iPad|iPod/i.test
 {
 	global.__iOS = true;
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-var DEVICE_WRAPPER = new COCO_DEVICE_WRAPPER();
-
-DEVICE_WRAPPER.DeviceName 				= "CocoPlayer";
-DEVICE_WRAPPER.DeviceVersion			= "1.0";
-DEVICE_WRAPPER.is_Native				= true;;
-DEVICE_WRAPPER.is_Web					= false;;
-DEVICE_WRAPPER.is_CocoPlayer			= true;
-DEVICE_WRAPPER.is_iPhone				= false;
-DEVICE_WRAPPER.is_iPad					= false;
-DEVICE_WRAPPER.is_Android               = false;
-DEVICE_WRAPPER.is_Chrome                = false;
-DEVICE_WRAPPER.is_Safari                = false;
-DEVICE_WRAPPER.is_FireFox               = false;
-DEVICE_WRAPPER.is_iOS                   = false;
-DEVICE_WRAPPER.Version_iOS				= 0;
-DEVICE_WRAPPER.Version_Android			= 0;
-DEVICE_WRAPPER.HasTouchEvents			= true;
-DEVICE_WRAPPER.HasKeyBoard				= false;
-DEVICE_WRAPPER.HasOpenGL				= false;
-DEVICE_WRAPPER.ScreenWidth				= window.innerWidth;
-DEVICE_WRAPPER.ScreenHeight				= window.innerHeight;
-DEVICE_WRAPPER.OrientationHorizontal	= false;
-DEVICE_WRAPPER.OrientationVertical		= false;
-
-// Detect Platform
-
-__mobileFX.__iPhone  			= (navigator.userAgent.indexOf("iPhone")!=-1);
-__mobileFX.__iPad  				= (navigator.userAgent.indexOf("iPad")!=-1);
-__mobileFX.__Android 			= (navigator.userAgent.indexOf("Android")!=-1);
-__mobileFX.__Chrome  			= (navigator.userAgent.indexOf("Chrome")!=-1);
-
-// Detect iOS Version
-__mobileFX.__iOS 				= __mobileFX.__iPhone ? navigator.userAgent.match(/iPhone OS (\d+)/)[1] : 0;
-__mobileFX.__iOS3 				= (navigator.userAgent.indexOf(" OS 3")!=-1);
-__mobileFX.__iOS4 				= (navigator.userAgent.indexOf(" OS 4")!=-1);
-__mobileFX.__iOS5 				= (navigator.userAgent.indexOf(" OS 5")!=-1);
-
-// Detect Android Version
-__mobileFX.__AndroidSDK			= __mobileFX.__Android ? navigator.userAgent.match(/Android (\d+\.\d+\.\d+)/)[1] : 0;
-__mobileFX.__VirtualBox			= __mobileFX.__Android && (navigator.userAgent.indexOf("eeepc Build")!=-1);
-
-// Detect advanced features and APIs
-__mobileFX.__webkitTouchScroll 	= Res.application.style.enableWebkitTouchScrolling && (__mobileFX.__iOS>=5);
-__mobileFX.__hasTouch 			= 'ontouchstart' in window;
-*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 if(global["EventTarget"]) global.EventTarget = function() {};
@@ -146,17 +117,36 @@ function show_stack()
 function State(){};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-Image.prototype.load = function(src)
+Image.prototype.load = function(src, cocoimage)
 {
 	this.__src = src;
 
 	this.onerror = function(e)
 	{
-		alert("Image failed to load: " + this.__src);
-		this.src = this.__src;
+		trace("ERROR: image failed to download: " + this.__src);
+		this.__failed_to_download = this.__failed_to_download ? this.__failed_to_download+1 : 1;
+		if(this.__failed_to_download==3)
+		{
+			alert("Image keeps failing to download: " + this.__src);
+		}
+
+		if(!cocoimage || (cocoimage && cocoimage.__error(this)))
+			this.src = this.__src;
+	};
+
+	this.onload = function(e)
+	{
+		if(cocoimage)
+			cocoimage.__loaded(this);
 	};
 
 	this.src = src;
+};
+
+if(!window.__Facebook_Initialize) __Facebook_Initialize = function(a,b)
+{
+	CocoFacebook.DebugMode = true;
+	CocoFacebook.Init(294194444062993);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

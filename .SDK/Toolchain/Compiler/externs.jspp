@@ -47,6 +47,9 @@ function __Facebook_Initialize(AppID:Integer, ImageSize:Integer){};
 function __Facebook_Login(Permissions:String, ImageSize:Integer){};
 function __Facebook_Share(URL:String){};
 function __Facebook_Post(toUserID:String, URL:String){};
+function __Facebook_Invite(message:String){};
+
+function __Twitter_Share(URL:String){};
 
 function __close_window(){};
 function fixTouch(touch:Touch){};
@@ -468,6 +471,13 @@ class SyntaxError :Error {}
 class TypeError :Error {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+class JSON
+{
+	public static function parse(json:String):Array<Object> { return null; };
+	public static function stringify(obj:Array<Object>):String { return null; };
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class ImageDataBuffer
 {
 	public var buffer:ArrayBuffer;
@@ -571,6 +581,7 @@ var global:Global;
 var engine:CocoEngine;
 var window:HTMLWindow;
 var document:HTMLDocument;
+var location:HTMLLocation;
 var graphics:CocoGraphics;
 var DEVICE_WRAPPER:COCO_DEVICE_WRAPPER;
 

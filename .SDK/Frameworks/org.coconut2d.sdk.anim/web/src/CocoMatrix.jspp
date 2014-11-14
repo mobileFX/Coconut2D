@@ -486,5 +486,17 @@ class CocoMatrix
 			delete mm;
 		}
 	}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toCSS3D(optional identity:Boolean):String
+	{
+		return (identity ? "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1) " : "") + "matrix3d("+String(__m.rc11)+","+String(__m.rc12)+","+String(__m.rc13)+","+String(__m.rc14)+","+String(__m.rc21)+","+String(__m.rc22)+","+String(__m.rc23)+","+String(__m.rc24)+","+String(__m.rc31)+","+String(__m.rc32)+","+String(__m.rc33)+","+String(__m.rc34)+","+String(__m.rc41)+","+String(__m.rc42)+","+String(__m.rc43)+","+String(__m.rc44)+")";
+	}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toCSS2D(optional identity:Boolean):String
+	{
+		return (identity ? "matrix(1,0,0,1,0,0) " : "") + "matrix("+String(__m.rc11)+","+String(__m.rc12)+","+String(__m.rc21)+","+String(__m.rc22)+","+String(__m.rc41)+","+String(__m.rc42)+")";
+	}
 }
 

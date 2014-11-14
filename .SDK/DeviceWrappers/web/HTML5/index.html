@@ -79,11 +79,104 @@
 	<meta property="og:video:width" 	content="$(TAGS.OG_DEMO_VIDEO_HEIGHT)"/>
 	<meta property="og:video:type" 		content="application/x-shockwave-flash"/>
 
+   <style type="text/css">
+    #prbar
+    {
+        visibility:hidden;
+        margin:5px;
+        background-color:#dddddd;
+        overflow:hidden;
+
+        /* Rounded Border */
+        border: 1px solid #bbbbbb;
+        -moz-border-radius: 15px;
+        border-radius: 15px;
+
+        /* Adding some shadow to the progress bar */
+        -webkit-box-shadow: 0px 2px 4px #555555;
+        -moz-box-shadow: 0px 2px 4px #555555;
+        box-shadow: 0px 2px 4px #555555;
+    }
+
+    /* No rounded corners for Opera, because the overflow:hidden dont work with rounded corners */
+    doesnotexist:-o-prefocus, #prbar
+    {
+      border-radius:0px;
+    }
+
+    #prpos
+    {
+        background-color:#3399ff;
+        width:0%;
+        height:30px;
+
+        /* CSS3 Progress Bar Transitions */
+        transition: width 2s ease;
+        -moz-transition: width 2s ease;
+        -webkit-transition: width 2s ease;
+        -o-transition: width 2s ease;
+        -ms-transition: width 2s ease;
+
+        /* CSS3 Stripes */
+        background-image: linear-gradient(135deg,#3399ff 25%,#99ccff 25%,#99ccff 50%, #3399ff 50%, #3399ff 75%,#99ccff 75%,#99ccff 100%);
+        background-image: -moz-linear-gradient(135deg,#3399ff 25%,#99ccff 25%,#99ccff 50%, #3399ff 50%, #3399ff 75%,#99ccff 75%,#99ccff 100%);
+        background-image: -ms-linear-gradient(135deg,#3399ff 25%,#99ccff 25%,#99ccff 50%, #3399ff 50%, #3399ff 75%,#99ccff 75%,#99ccff 100%);
+        background-image: -o-linear-gradient(135deg,#3399ff 25%,#99ccff 25%,#99ccff 50%, #3399ff 50%, #3399ff 75%,#99ccff 75%,#99ccff 100%);
+        background-image: -webkit-gradient(linear, 100% 100%, 0 0,color-stop(.25, #99ccff), color-stop(.25, #3399ff),color-stop(.5, #3399ff),color-stop(.5, #99ccff),color-stop(.75, #99ccff),color-stop(.75, #3399ff),color-stop(1, #3399ff));
+        background-image: -webkit-linear-gradient(135deg,#3399ff 25%,#99ccff 25%,#99ccff 50%, #3399ff 50%, #3399ff 75%,#99ccff 75%,#99ccff 100%);
+        background-size: 40px 40px;
+
+        /* Background stripes animation */
+        animation: bganim 3s linear 2s infinite;
+        -moz-animation: bganim 3s linear 2s infinite;
+        -webkit-animation: bganim 3s linear 2s infinite;
+        -o-animation: bganim 3s linear 2s infinite;
+        -ms-animation: bganim 3s linear 2s infinite;
+    }
+
+    @keyframes bganim
+    {
+    	from {background-position:0px;} to { background-position:40px;}
+    }
+    @-moz-keyframes bganim
+    {
+    	from {background-position:0px;} to { background-position:40px;}
+    }
+    @-webkit-keyframes bganim
+    {
+    	from {background-position:0px;} to { background-position:40px;}
+    }
+    @-o-keyframes bganim
+    {
+    	from {background-position:0px;} to { background-position:40px;}
+    }
+    @-ms-keyframes bganim
+    {
+    	from {background-position:0px;} to { background-position:40px;}
+    }
+
+    body
+    {
+		overflow: hidden;
+		margin: 0;
+		padding: 0;
+		border: none;
+		width:$(TARGETS.HTML5.APP_SETTINGS.HTML_BODY_WIDTH)px;
+		height:$(TARGETS.HTML5.APP_SETTINGS.HTML_BODY_HEIGHT)px;
+		text-rendering: optimizeLegibility;
+		font-smooth: always;
+		-webkit-font-smoothing: antialiased;
+		image-rendering: -webkit-optimize-contrast;
+		-webkit-transform-style: preserve-3d;
+    }
+     </style>
+
 	$(SCRIPTS)
 
 </head>
 
-<body style="border:none;padding:0;margin:0;overflow:hidden;width:$(TARGETS.HTML5.APP_SETTINGS.HTML_BODY_WIDTH);height:$(TARGETS.HTML5.APP_SETTINGS.HTML_BODY_HEIGHT)">
+<body>
+	<div id="prbar"><div id="prpos"></div></div>
 </body>
 
 </html>

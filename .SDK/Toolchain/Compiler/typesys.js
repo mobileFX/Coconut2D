@@ -885,7 +885,16 @@ function CompilerTypeSystemPlugin(compiler)
 				if(base.name==cls2.name)
 				{
 					if(!ast.typecasting)
-						_this.NewWarning("Possible runtime error converting from " + cls2.name + " to " + cls1.name + ": " + ast.source, ast);
+					{
+						if(cls2.name=="HTMLElement" || cls1.name=="HTMLElement")
+						{
+							return cls1.name;
+						}
+						else
+						{
+							_this.NewWarning("Possible runtime error converting from " + cls2.name + " to " + cls1.name + ": " + ast.source, ast);
+						}
+					}
 
 					return cls2.name;
 				}

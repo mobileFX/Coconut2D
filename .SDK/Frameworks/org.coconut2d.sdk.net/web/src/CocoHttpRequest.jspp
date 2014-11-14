@@ -34,30 +34,83 @@
 //	                                   /_/                  /_/
 // ==================================================================================================================================
 
-class CocoHttpRequest
+class CocoJSON
 {
-	public delegate var request:XMLHttpRequest;
+	private var json:Array<Object>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	public function Constructor(json:String)
 	{
-		request = new XMLHttpRequest();
+		this.json = JSON.parse(json);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete request;
+		delete json;
+	}
+
+	public function read(dot:String) :String
+	{
+		"#define NO_COMPILER_ERRORS";
+		var p:Array<Object> = json;
+		var d:Array<String> = dot.split(".");
+		for(var i:Integer=0; i<d.size()-1; i++)
+		{
+			p = p[d[i]];
+		}
+		return p[d[d.size()-1]];
+		"#undefine NO_COMPILER_ERRORS";
+	}
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoHttpRequest
+{
+	public delegate var xhttp:XMLHttpRequest;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		xhttp = new XMLHttpRequest();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete xhttp;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Ready():Boolean
 	{
-		return request.status!=0;
+		try
+		{
+			return xhttp!=null && xhttp.status!=0;
+		}
+		catch(e)
+		{
+			return false;
+		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Success():Boolean
 	{
-		return request.status==200;
+		try
+		{
+			return xhttp!=null && xhttp.status==200;
+		}
+		catch(e)
+		{
+			return false;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function responseText() :String
+	{
+		return xhttp ? xhttp.responseText : "";
 	}
 }
