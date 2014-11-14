@@ -94,7 +94,9 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	public reference var __childWithMaxTimelineDuration:CocoClip;
 	public reference var __currentSequence:CocoSequence;
 	public reference var __currentAudio:CocoAudio;
-	public reference var __ANCHOR:HTMLDivElement;
+
+	// HTML5 Element
+	public var __ANCHOR:HTMLElement;
 
 	// Animation Control Variables
 	public var __currentTime:Time;
@@ -180,6 +182,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		__pauseTicks					= 0;
 		__visible						= true;
 		__zIndex						= 0;
+		__ANCHOR						= null;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,6 +201,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		delete __vBBoxVrtx;
 		delete __mBBox;
 		delete __touch_start_point;
+		delete __ANCHOR;
 
 		if(__currentFrame && __currentFrame.__isCloned)
 			delete __currentFrame;
@@ -866,9 +870,9 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function createInplaceHTML(optional update:Boolean, optional tag:String, optional href:String) :HTMLDivElement
+	public function createInplaceHTML(optional update:Boolean, optional tag:String, optional href:String) :HTMLElement
 	{
-		var ANCHOR:HTMLDivElement = document.getElementById(__uniqueID);
+		var ANCHOR:HTMLElement = document.getElementById(__uniqueID);
 
 		if(!ANCHOR || update)
 		{

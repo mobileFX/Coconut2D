@@ -222,7 +222,7 @@ class CocoImage
 			var w:Float = onLoadResizeWidth ? onLoadResizeWidth : hImage.naturalWidth;
 			var h:Float = onLoadResizeHeight ? onLoadResizeHeight : hImage.naturalHeight;
 			var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, engine.__ctx.getGLContext()!=null);
-			var ctx:CanvasRenderingContext2D = canvas.getContext("2d");
+			var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 			ctx.drawImage(hImage, 0, 0, hImage.naturalWidth, hImage.naturalHeight, 0, 0, w, h);
 			delete hImage;
 			onLoadResizeWidth = 0;

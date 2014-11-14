@@ -94,7 +94,7 @@ class CocoText
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static function init(width:Integer, height:Integer)
     {
-    	var canvas:HTMLCanvasElement = document.createElement("canvas");
+    	var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
     	canvas.width = Float(Math.max(1.0, Math.floor(npo2(width))));
     	canvas.height = Float(Math.max(1.0, Math.floor(npo2(height))));
     	ctx = CanvasRenderingContext2D(canvas.getContext("2d"));

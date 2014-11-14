@@ -44,7 +44,7 @@ state class CocoEngine
 
 	public const TICK_TIME:Time = (1000.0/60.0);
 
-	public var device:CocoDeviceWrapper;
+	public var device:CocoDevice;
 
 	private reference var __currentState:State;
 	private reference var __nextState:State;
@@ -69,7 +69,7 @@ state class CocoEngine
 		__has_touch_device_message = false;
 
 		engine = this;
-		device = new CocoDeviceWrapper();
+		device = new CocoDevice();
 
 		__ctx = CocoRenderContext.createContext();
 		__attachDevices();

@@ -710,3 +710,23 @@ void WebGLRenderingContext::stencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 	glStencilOp(fail,zfail,zpass);
 	ASSERT_GL();
 }
+
+void WebGLRenderingContext::scissor(GLfloat x, GLfloat y, GLfloat w, GLfloat h)
+{
+	glScissor(x,y,w,h);
+	ASSERT_GL();
+}
+
+void WebGLRenderingContext::viewport(GLfloat x, GLfloat y, GLfloat w, GLfloat h)
+{
+	glViewport(x,y,w,h);
+	ASSERT_GL();
+}
+
+void WebGLRenderingContext::blendEquationSeparate(GLenum a, GLenum b)
+{
+	glBlendEquationSeparate(a,b);
+}
+
+
+

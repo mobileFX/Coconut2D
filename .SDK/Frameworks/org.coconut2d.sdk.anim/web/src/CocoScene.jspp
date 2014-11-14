@@ -158,7 +158,7 @@ class CocoScene
 		}
 		else
 		{
-			__view_scale = engine.device.devicePixelRatio;
+			__view_scale = engine.device.pixelRatio;
 		}
 
 		// Prepare CocoClip and their timelines
@@ -238,7 +238,8 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function loadingProgress():Integer
 	{
-		return Math.floor((Math.min(__loaded_assets,__imageSymbols.size())/__imageSymbols.size())*100.0);
+		var assets:Float = Float(__imageSymbols.size());
+		return Math.floor((Math.min(__loaded_assets, assets)/assets)*100.0);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

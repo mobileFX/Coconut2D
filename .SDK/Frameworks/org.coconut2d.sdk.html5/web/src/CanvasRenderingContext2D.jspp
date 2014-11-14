@@ -116,6 +116,7 @@ class CanvasRenderingContext2D
 	public var globalCompositeOperation:String;			// With globalAlpha applied this sets how shapes and images are drawn onto the existing bitmap. Possible values: "source-atop", "source-in", "source-out", "source-over", "destination-atop", "destination-in", "destination-out", "destination-over", "lighter", "darker", "copy", "xor"
  	public var imageSmoothingEnabled:Boolean;
  	public var webkitImageSmoothingEnabled:Boolean;
+ 	public var oImageSmoothingEnabled:Boolean;
  	public var mozImageSmoothingEnabled:Boolean;
 
 	private var __lineWidth:Float;
@@ -151,10 +152,10 @@ class CanvasRenderingContext2D
 		textAlign = "";
 		textBaseline = "";
 		globalCompositeOperation = "";
-		imageSmoothingEnabled = false;
 		imageSmoothingEnabled=true;
 		webkitImageSmoothingEnabled=true;
 		mozImageSmoothingEnabled=true;
+		oImageSmoothingEnabled=true;
 
 		__font = null;
 		__curX = 0.0;
@@ -553,11 +554,11 @@ class CanvasRenderingContext2D
 				}
 				else if(fontSize.indexOf("in") != -1)
 				{
-					fontSizeInPixels = parseFloat(fontSize) * engine.device.devicePixelRatio * 160.0;
+					fontSizeInPixels = parseFloat(fontSize) * engine.device.pixelRatio * 160.0;
 				}
 				else if(fontSize.indexOf("cm") != -1)
 				{
-					fontSizeInPixels = parseFloat(fontSize) * engine.device.devicePixelRatio * 160.0 / 2.54;
+					fontSizeInPixels = parseFloat(fontSize) * engine.device.pixelRatio * 160.0 / 2.54;
 				}
 				else
 					return;

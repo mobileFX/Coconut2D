@@ -99,7 +99,7 @@ void CocoDeviceWrapper::StateHandler(android_app* app, int32_t state)
 
 			window->deviceRotation = 0.0f;
 			document = new HTMLDocument();
-			HTMLCanvasElement* canvas = document->createElement("canvas");
+			HTMLCanvasElement* canvas = (HTMLCanvasElement*) document->createElement("canvas");
 			gl = (WebGLRenderingContext*)canvas->getContext("webgl");
 			gl->canvas->width = window->innerWidth;
 			gl->canvas->height = window->innerHeight;

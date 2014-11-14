@@ -1,5 +1,4 @@
-﻿"#export native";
-"#export web";
+﻿"#export web";
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -25,19 +24,33 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
-// ==================================================================================================================================
-//	    __________                 ____                           ____                 __          ____        __
-//	   /  _/ ____/___  _________  /  _/___ ___  ____ _____ ____  / __ \___  ____  ____/ /__  _____/ __ \____ _/ /_____ _
-//	   / // /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ / / / __ `/ __/ __ `/
-//	 _/ // /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/ _, _/  __/ / / / /_/ /  __/ /  / /_/ / /_/ / /_/ /_/ /
-//	/___/\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/_/ |_|\___/_/ /_/\__,_/\___/_/  /_____/\__,_/\__/\__,_/
-//	                                               /____/
-// ==================================================================================================================================
-
-interface ICocoImageRenderData
+class CocoJSON
 {
-	public virtual function castRenderDataGL():CocoImageRenderDataGL;
-	public virtual function castRenderData2D():CocoImageRenderData2D;
-}
+	private var json:Array<Object>;
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(json:String)
+	{
+		this.json = JSON.parse(json);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete json;
+	}
+
+	public function read(dot:String) :String
+	{
+		"#define NO_COMPILER_ERRORS";
+		var p:Array<Object> = json;
+		var d:Array<String> = dot.split(".");
+		for(var i:Integer=0; i<d.size()-1; i++)
+		{
+			p = p[d[i]];
+		}
+		return p[d[d.size()-1]];
+		"#undefine NO_COMPILER_ERRORS";
+	}
+
+}

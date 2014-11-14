@@ -152,7 +152,7 @@ class CocoFacebook
 			if(CocoFacebook.__tempImage && CocoFacebook.__tempImage.complete)
 			{
 				var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(CocoFacebook.ImageSize, CocoFacebook.ImageSize, true);
-				var c2d:CanvasRenderingContext2D = canvas.getContext("2d");
+				var c2d:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 				c2d.fillStyle = CocoFacebook.ImageBkColor;
 				if(CocoFacebook.ImagePadding)
 				{

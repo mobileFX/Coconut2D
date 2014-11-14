@@ -61,7 +61,7 @@
 	NSLog(@"Orientation: %@", UIInterfaceOrientationIsLandscape(self.window.rootViewController.interfaceOrientation) ? @"Landscape" : @"Portrait");
 
 	// Simulate HTML5 OpenGL Canvas and set its size
-	HTMLCanvasElement* canvas = document->createElement("canvas");
+	HTMLCanvasElement* canvas = (HTMLCanvasElement*) document->createElement("canvas");
 	gl = (WebGLRenderingContext*)canvas->getContext("webgl");
 	gl->canvas->width = window->innerWidth;
 	gl->canvas->height = window->innerHeight;

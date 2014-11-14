@@ -57,6 +57,10 @@ class HTMLWindow
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		innerHeight = global.innerHeight;
+		innerWidth = global.innerWidth;
+		devicePixelRatio = global.devicePixelRatio;
+
 		e = new HTMLEvent;
 		__elements = new Array<Function>;
 		__uid = 0;
@@ -64,10 +68,11 @@ class HTMLWindow
 		document = new HTMLDocument();
 		location = new HTMLLocation();
 		navigator = new HTMLNavigator();
+
 		screen = new HTMLScreen();
-		innerHeight = global.innerHeight;
-		innerWidth = global.innerWidth;
-		devicePixelRatio = global.devicePixelRatio;
+		screen.availWidth = screen.width = innerWidth;
+		screen.availHeight = screen.height = innerHeight;
+
 		__registerManager(this, dispatchEvent);
 	}
 

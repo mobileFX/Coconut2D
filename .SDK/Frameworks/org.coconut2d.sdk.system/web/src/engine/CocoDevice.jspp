@@ -38,7 +38,7 @@ enum COCO_SCREEN_ORIENTATION
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-class CocoDeviceWrapper
+class CocoDevice
 {
 	public function Constructor()
 	{
@@ -142,11 +142,12 @@ class CocoDeviceWrapper
 		{
 			switch (window.orientation)
 			{
-			case 0: 	return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_PORTRAIT;
 			case 180:  	return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN;
 			case -90:	return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_LANDSCAPE_CLOCKWISE;
 			case 90:  	return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_LANDSCAPE_COUNTER_CLOCKWISE;
+			case 0: 	return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_PORTRAIT;
 			}
+			return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_PORTRAIT;
 		}
 	}
 

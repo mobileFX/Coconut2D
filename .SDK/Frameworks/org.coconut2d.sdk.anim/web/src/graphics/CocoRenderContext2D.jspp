@@ -58,9 +58,11 @@ class CocoRenderContext2D implements ICocoRenderContext
  		c2d = ctx;
 
  		c2d.globalCompositeOperation="source-atop";
- 		c2d.imageSmoothingEnabled = false;
- 		c2d.webkitImageSmoothingEnabled = false;
- 		c2d.mozImageSmoothingEnabled = false;
+
+		ctx.imageSmoothingEnabled       = false;
+		ctx.mozImageSmoothingEnabled    = false;
+		ctx.oImageSmoothingEnabled      = false;
+		ctx.webkitImageSmoothingEnabled = false;
 
 		// set the size of the drawingBuffer
 		c2d.canvas.width 		= Math.round(engine.device.screenWidth * engine.device.pixelRatio);
@@ -185,7 +187,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 		// This is used in HTML5 CSS3 Mode
 	 	if(__css3 && matrix==__modelViewMatrix)
 	 	{
-	 		var DIV:HTMLDivElement = document.getElementById(clip.__uniqueID);
+	 		var DIV:HTMLElement = document.getElementById(clip.__uniqueID);
 	 		if(DIV)
 	 		{
 				DIV.style.opacity = DIV.getAttribute("ready")=="true" && keyFrame.visible ? keyFrame.alpha : 0;
@@ -219,7 +221,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 	{
 		for(var i:Integer=clip.__children.size()-1; i>=0; i--)
 		{
-			var DIV:HTMLDivElement = document.getElementById(clip.__children[i].__uniqueID);
+			var DIV:HTMLElement = document.getElementById(clip.__children[i].__uniqueID);
 			if(DIV) DIV.parentNode.removeChild(DIV);
 			hideClipCanvas(clip.__children[i]);
 		}
@@ -236,7 +238,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 
 		if(__css3)
 		{
-			var DIV:HTMLDivElement = document.getElementById(clip.__uniqueID);
+			var DIV:HTMLElement = document.getElementById(clip.__uniqueID);
 
 			if(!DIV)
 			{

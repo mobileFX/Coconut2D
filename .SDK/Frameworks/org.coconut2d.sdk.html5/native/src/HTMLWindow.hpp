@@ -35,6 +35,8 @@
 #define __HTMLWINDOW_HPP__
 
 #include "HTMLDocument.hpp"
+#include "HTMLWindowHelpers.hpp"
+
 #include "engine/DeviceMessage.hpp"
 #include "engine/CocoEngine.hpp"
 
@@ -45,11 +47,15 @@ public:
 	const bool __native = true;
 	bool __touchEvents;
 	HTMLDocument* document;
+	HTMLLocation* location;
+	HTMLNavigator* navigator;
+	HTMLScreen* screen;
 	int innerHeight;
 	int innerWidth;
 	float devicePixelRatio;
 	float deviceRotation;
 	fxScreen::Rotation screenRotation;
+	int orientation;
 	HTMLEvent* e;
 	CocoEventAction touchstart;
 	CocoEventAction	touchmove;

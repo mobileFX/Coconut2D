@@ -42,37 +42,40 @@ HTMLWindow::HTMLWindow()
 	__touchEvents = false;
 	__uid = 0;
 	document = new HTMLDocument();
+	location = new HTMLLocation();
+	navigator = new HTMLNavigator();
+	screen = new HTMLScreen();
 	e = new HTMLEvent();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 HTMLWindow::~HTMLWindow()
 {
-	if(document)
-	{
-		document = (delete document, nullptr);
-	}
-	if(e)
-	{
-		e = (delete e, nullptr);
-	}
+	if(document) document = (delete document, nullptr);
+	if(location) location = (delete location, nullptr);
+	if(navigator) navigator = (delete navigator, nullptr);
+	if(screen) screen = (delete screen, nullptr);
+	if(e) e = (delete e, nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void HTMLWindow::setScreen(fxScreen screen)
+void HTMLWindow::setScreen(fxScreen __screen)
 {
-	innerWidth = screen.width;
-	innerHeight = screen.height;
-	devicePixelRatio = screen.pixelRatio;
-	screenRotation = screen.rotation;
-	orientation = screen.rotation;
+	innerWidth = __screen.width;
+	innerHeight = __screen.height;
+	devicePixelRatio = __screen.pixelRatio;
+	screenRotation = __screen.rotation;
+	screen->width = innerWidth;
+	screen->height = innerHeight;
+	screen->availWidth = innerWidth;
+	screen->availHeight = innerHeight;
 
 	switch(screenRotation)
 	{
-		case fxScreen::Rotation::NONE: deviceRotation = 0.0f; break;
-		case fxScreen::Rotation::RCW: deviceRotation = M_PI_2; break;
-		case fxScreen::Rotation::RCCW: deviceRotation = -M_PI_2; break;
-		case fxScreen::Rotation::FULL: deviceRotation = M_PI; break;
+		case fxScreen::Rotation::NONE: 	orientation =   0;	deviceRotation = 0.0f; 		break;
+		case fxScreen::Rotation::RCW: 	orientation =  90;	deviceRotation =  M_PI_2; 	break;
+		case fxScreen::Rotation::RCCW: 	orientation = -90;	deviceRotation = -M_PI_2; 	break;
+		case fxScreen::Rotation::FULL: 	orientation = 180;	deviceRotation = M_PI; 		break;
 	}
 }
 

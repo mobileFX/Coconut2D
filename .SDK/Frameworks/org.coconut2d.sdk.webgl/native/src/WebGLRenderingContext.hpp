@@ -98,6 +98,7 @@ public:
 	void bufferSubData(GLenum target, GLintptr offset, ArrayBufferView* data);
 	void clear(GLbitfield mask);
 	void clearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+	void colorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 	void compileShader(WebGLShader* shader);
 	void cullFace(GLenum mode);
 	void deleteBuffer(WebGLBuffer* buffer);
@@ -120,7 +121,11 @@ public:
 	void generateMipmap(GLenum target);
 	void linkProgram(WebGLProgram* program);
 	void pixelStorei(GLenum pname, GLint param);
+	void scissor(GLfloat x, GLfloat y, GLfloat width, GLfloat height);
 	void shaderSource(WebGLShader* shader, std::string source);
+	void stencilFunc(GLenum func, GLint ref, GLuint mask);
+	void stencilMask(GLuint mask);
+	void stencilOp(GLenum fail, GLenum zfail, GLenum zpass);
 	void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, GLenum type, Image* image);
 	void texImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, ArrayBufferView* pixels);
 	void texParameteri(GLenum target, GLenum pname, GLint param);
@@ -148,12 +153,9 @@ public:
 	void uniformMatrix4fv(WebGLUniformLocation* location, GLboolean transpose, std::vector<GLfloat> value);
 	void useProgram(WebGLProgram* program);
 	void validateProgram(WebGLProgram* program);
+	void viewport(GLfloat x, GLfloat y, GLfloat width, GLfloat height);
 	void vertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLintptr offset);
-
-	void colorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-	void stencilMask(GLuint mask);
-	void stencilFunc(GLenum func, GLint ref, GLuint mask);
-	void stencilOp(GLenum fail, GLenum zfail, GLenum zpass);
+	void blendEquationSeparate(GLenum a, GLenum b);
 
 	WebGLBuffer* createBuffer();
 	WebGLFramebuffer* createFramebuffer();

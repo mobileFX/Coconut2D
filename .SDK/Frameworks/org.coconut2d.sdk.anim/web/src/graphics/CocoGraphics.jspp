@@ -96,7 +96,7 @@ class CocoGraphics
 
 	public static function NewCanvas(width:Float, height:Float, POT:Boolean) :HTMLCanvasElement
 	{
-    	var canvas:HTMLCanvasElement = document.createElement("canvas");
+    	var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
     	width = Math.max(1.0, Math.floor(width));
     	height = Math.max(1.0, Math.floor(height));
 		canvas.width = Math.max(1.0, Math.floor(POT ? Math.pow(2.0, Math.ceil(Math.log(width)/Math.log(2.0))) : width));
