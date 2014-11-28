@@ -45,6 +45,7 @@ class HTMLWindow
 public:
 	int __uid;
 	const bool __native = true;
+	const bool __Coconut2DPlayer = false;
 	bool __touchEvents;
 	HTMLDocument* document;
 	HTMLLocation* location;

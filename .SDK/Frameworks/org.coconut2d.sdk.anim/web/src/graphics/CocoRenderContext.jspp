@@ -36,6 +36,7 @@
 
 interface ICocoRenderContext
 {
+	public function getName():String;
 	public function getModelViewMatrix():CocoMatrix;
 	public function getProjectionMatrix():CocoMatrix;
 	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix);
@@ -58,6 +59,7 @@ interface ICocoRenderContext
 	public function show();
 	public virtual function getGLContext():WebGLRenderingContext;
 	public virtual function get2DContext():CanvasRenderingContext2D;
+	public function getCanvas():HTMLCanvasElement;
 
 }
 
@@ -117,7 +119,7 @@ class CocoRenderContext
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 		if(ctx)
 		{
-			var css3:Boolean = engine.device.isDesktopSafari || engine.device.isIPad2 || engine.device.ForceCSS3;
+			var css3:Boolean = !engine.device.Force2D && (engine.device.isDesktopSafari || engine.device.isIPad2 || engine.device.ForceCSS3);
 
 			trace(css3 ? "Rendering with HTML5 CSS3" : "Rendering with HTML5 2D Canvas API");
 

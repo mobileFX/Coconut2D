@@ -111,6 +111,7 @@ class CocoRenderContextGL implements ICocoRenderContext
  	}
 
  	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function getName():String									{ return "WebGL"; };
 	public function getGLContext():WebGLRenderingContext				{ return gl; }
 	public function get2DContext():CanvasRenderingContext2D				{ return null; }
 	public function getDisplayWidth():Float								{ return getBufferWidth() / engine.device.pixelRatio; }
@@ -122,6 +123,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 	public function hide()												{ gl.canvas.style.visibility="hidden"; }
 	public function show()												{ gl.canvas.style.visibility="visible"; }
 	public function ready():Boolean										{ return true; }
+	public function getCanvas():HTMLCanvasElement						{ return gl.canvas; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function flush()
@@ -162,10 +164,14 @@ class CocoRenderContextGL implements ICocoRenderContext
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Clip against physical pixels
 	public function clip(x:Float, y:Float, w:Float, h:Float)
 	{
-		gl.enable(gl.SCISSOR_TEST);
-		gl.scissor(x*engine.device.pixelRatio, y*engine.device.pixelRatio, w*engine.device.pixelRatio, h*engine.device.pixelRatio);
+		if(!(engine.device.isNative && engine.device.isIOS))
+		{
+			gl.enable(gl.SCISSOR_TEST);
+			gl.scissor(x*engine.device.pixelRatio, y*engine.device.pixelRatio, w*engine.device.pixelRatio, h*engine.device.pixelRatio);
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,8 +184,6 @@ class CocoRenderContextGL implements ICocoRenderContext
 		// set the size of the drawingBuffer
 		gl.canvas.width 		= Math.round(engine.device.screenWidth * engine.device.pixelRatio);
 		gl.canvas.height 		= Math.round(engine.device.screenHeight * engine.device.pixelRatio);
-
-		gl.viewport(0, 0, getBufferWidth(), getBufferHeight());
 
 		// Set OpenGL Flags
 		gl.enable(gl.STENCIL_TEST);
@@ -206,12 +210,13 @@ class CocoRenderContextGL implements ICocoRenderContext
 			var orthoHeight:Float = Math.abs(-s * Float(getBufferWidth()) + c * Float(getBufferHeight()));
 			__projectionMatrix.ortho(-orthoWidth / 2.0, orthoWidth / 2.0, orthoHeight / 2.0,  -orthoHeight / 2.0, -1.0, 1.0);
 			__projectionMatrix.rotateZ(-window.deviceRotation);
-			__projectionMatrix.scale(viewScale* engine.device.pixelRatio, viewScale* engine.device.pixelRatio);
+			__projectionMatrix.scale(viewScale*engine.device.pixelRatio, viewScale*engine.device.pixelRatio);
 		}
 		else
 		{
+			gl.viewport(0, 0, getBufferWidth(), getBufferHeight());
 			__projectionMatrix.ortho(-getBufferWidth()/2.0, getBufferWidth()/2.0, getBufferHeight()/2.0, -getBufferHeight()/2.0, -1.0, 1.0);
-			__projectionMatrix.scale(viewScale* engine.device.pixelRatio, viewScale* engine.device.pixelRatio);
+			__projectionMatrix.scale(viewScale*engine.device.pixelRatio, viewScale*engine.device.pixelRatio);
 
 			__projectionMatrix2D.identity();
 			__projectionMatrix2D.translate(getDisplayWidth()/2.0, getDisplayHeight()/2.0);
@@ -254,6 +259,19 @@ class CocoRenderContextGL implements ICocoRenderContext
 		// Keep WebGLRenderingContext on Image Rendering Data for deleting the texture
 		data.gl = gl;
 
+		var w2:Float = (img.textureScale * (img.textureCellWidth / 2.0) / img.pixelRatio);
+		var h2:Float = (img.textureScale * (img.textureCellHeight / 2.0) / img.pixelRatio);
+
+		// Apply image scaling
+		img.resizeToOptimalTextureSize();
+
+		// Adjust image size to design-time viewport and take into account texture scaling.
+		var ox:Float = (img.binpackX / img.hImage.naturalWidth);
+		var oy:Float = (img.binpackY / img.hImage.naturalHeight);
+		var tx:Float = (img.textureCellWidth / img.hImage.naturalWidth);
+		var ty:Float = (img.textureCellHeight / img.hImage.naturalHeight);
+		var texData:Float32Array = null;
+
 		// Create a WebGL Texture and bind it.
 		data.texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, data.texture);
@@ -275,16 +293,11 @@ class CocoRenderContextGL implements ICocoRenderContext
 		// Unbind Texture
 		gl.bindTexture(gl.TEXTURE_2D, null);
 
-		// Adjust image size to design-time viewport and take into account texture scaling.
-		var w2:Float = (img.textureScale * (img.textureCellWidth  / 2.0) / img.pixelRatio);
-		var h2:Float = (img.textureScale * (img.textureCellHeight / 2.0) / img.pixelRatio);
-		var texData:Float32Array = null;
-
 		if(img.tileMap)
 		{
 			// Decode Compressed TiledLayer data
 
-			img.texSize = new Float32Array([img.tileWidth / img.hImage.naturalWidth, img.tileHeight / img.hImage.naturalHeight]);
+			img.texSize = new Float32Array([ox, oy, img.tileWidth / img.hImage.naturalWidth, img.tileHeight / img.hImage.naturalHeight]);
 			var d:Array<Float> = new Array<Float>();
 			//var tileCountX:Integer = img.image.naturalWidth / img.tileWidth;
 			var tileCountX:Integer = img.tileMap[0];
@@ -319,7 +332,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		}
 		else
 		{
-			img.texSize = new Float32Array([img.textureCellWidth / img.hImage.naturalWidth, img.textureCellHeight / img.hImage.naturalHeight]);
+			img.texSize = new Float32Array([ox, oy, tx, ty]);
 			texData = new Float32Array([0.0, 0.0, 0.0, 0.0, -w2, -h2, 0.0, 0.0, 0.0, 1.0, -w2, h2, 0.0, 0.0, 1.0, 0.0, w2, -h2, 0.0, 0.0, 1.0, 1.0, w2, h2]);
 			data.drawType = gl.TRIANGLE_STRIP;
 			data.vertexCount = 4;

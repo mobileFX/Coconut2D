@@ -32,6 +32,7 @@ function __Facebook_Initialize(FacebookAppID, ImageSize)
 			}
 			else
 			{
+				CocoFacebook.__Facebook_Login_Callback(null);
 			}
 		}
 

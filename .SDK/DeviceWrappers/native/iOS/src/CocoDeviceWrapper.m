@@ -50,6 +50,9 @@
     [self.window addSubview:self.glwrap];
     [self.window makeKeyAndVisible];
 
+  	// Hide Status Bar
+  	[[UIApplication sharedApplication] setStatusBarHidden:YES];
+
 	// Initialize OpenGL Context
     [self.glwrap InitGL];
 

@@ -316,7 +316,12 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void* operator[](unsigned long i)
 	{
-		assert(i < byteLength);
+		if(i>=byteLength)
+		{
+			trace("Invalid Array Access");
+			return reinterpret_cast<void*>(0);
+		}
+		assert(i<byteLength);
 		return reinterpret_cast<void*>(reinterpret_cast<char*>(data) + i);
 	}
 
@@ -512,14 +517,11 @@ public:
 class HTMLWindow;
 class WebGLRenderingContext;
 class CocoEventConnectionPoint;
+class XMLHttpRequest;
 //# Native Classes End #//
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
-class Class1;
-class Class2;
-class Class3;
-class ClassTestInterfaces;
 class CocoAppController;
 class CocoAudio;
 class CocoClip;
@@ -599,25 +601,12 @@ class ICocoImageRenderData;
 class ICocoRenderContext;
 class IEventTarget;
 class IPersistable;
-class ITest1;
-class ITest2;
-class ITest3;
 class ITickable;
 class Image;
 class NewAnimation;
+class OnClickHandler;
 class PathLine;
 class ReservationsForm;
-class TestDataStream;
-class TestHTTP;
-class TestIntegrator;
-class TestIntegratorClient;
-class TestOutsourcer;
-class TestPublished;
-class TestPublishedDerived;
-class TestSelf1;
-class TestSelf2;
-class TestSelf3;
-class TestThis;
 class Touch;
 class TouchList;
 struct CocoHVAlign;
@@ -630,7 +619,6 @@ struct CocoSkinCacheItem;
 struct ContextArguments;
 struct DEVICE_MESSAGE;
 struct FACEBOOK_LOGIN;
-struct TestPublishedStruct;
 //# Generated Classes End #//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1100,12 +1088,13 @@ extern HTMLWindow* window;
 extern HTMLDocument* document;
 extern HTMLWindow* global;
 
-extern void __Facebook_Initialize(int AppID, int ImageSize);
+extern void __Facebook_Initialize(String AppID, int ImageSize);
 extern void __Facebook_Login(String Permissions, int ImageSize);
 extern void __Facebook_Post(String toUserID, String URL);
 extern void __Facebook_Share(String URL);
 extern void __Facebook_Invite(String message);
 
+extern String encodeURIComponent(String uri);
 extern void fixTouch(Touch* touch);
 
 #endif //__COCONUT2D_HPP__

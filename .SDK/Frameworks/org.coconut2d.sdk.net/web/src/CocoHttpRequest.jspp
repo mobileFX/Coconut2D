@@ -37,18 +37,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoHttpRequest
 {
-	//public delegate var xhttp:XMLHttpRequest;
+	public delegate var xhttp:XMLHttpRequest;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		//xhttp = new XMLHttpRequest();
+		xhttp = new XMLHttpRequest();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		//delete xhttp;
+		delete xhttp;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,8 +56,7 @@ class CocoHttpRequest
 	{
 		try
 		{
-			//return xhttp!=null && xhttp.status!=0;
-			return true;
+			return xhttp!=null && xhttp.status!=0;
 		}
 		catch(e)
 		{
@@ -70,8 +69,7 @@ class CocoHttpRequest
 	{
 		try
 		{
-			//return xhttp!=null && xhttp.status==200;
-			return true;
+			return xhttp!=null && xhttp.status==200;
 		}
 		catch(e)
 		{
@@ -82,7 +80,6 @@ class CocoHttpRequest
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function responseText() :String
 	{
-		//return xhttp ? xhttp.responseText : "";
-		return "";
+		return xhttp ? xhttp.responseText : "";
 	}
 }

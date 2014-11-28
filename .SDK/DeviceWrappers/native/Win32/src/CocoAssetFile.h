@@ -249,6 +249,7 @@ public:
         {
             ld++;
             if(!strncmp(ld, "jpg", 3)) mime = IMAGE_JPG;
+            else if(!strncmp(ld, "jpeg", 4)) mime = IMAGE_JPG;
             else if(!strncmp(ld, "png", 3)) mime = IMAGE_PNG;
 			else if(!strncmp(ld, "ogg", 3)) mime = AUDIO_OGG;
 			else if(!strncmp(ld, "ttf", 3)) mime = FONT_TTF;

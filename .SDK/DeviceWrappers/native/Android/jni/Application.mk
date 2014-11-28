@@ -1,6 +1,7 @@
 APP_ABI := armeabi armeabi-v7a x86
 APP_PLATFORM := android-9
 APP_STL := gnustl_static
+APP_OPTIM := debug
 #Don't optimize code and don't include debug information
 #for some reason the application doesn't launch/crashes at launch with -O2/s but works with -O0/1/3
 APP_CFLAGS := -O0 -g0
@@ -14,5 +15,6 @@ APP_CPPFLAGS += -DENABLE_JPG_SUPPORT
 APP_CPPFLAGS += -DENABLE_OGG_SUPPORT
 APP_CPPFLAGS += -DENABLE_CURL_SUPPORT
 APP_CPPFLAGS += -DENABLE_FX_DEBUG
+
 #APP_OPTIM := debug
 NDK_TOOLCHAIN_VERSION := 4.8

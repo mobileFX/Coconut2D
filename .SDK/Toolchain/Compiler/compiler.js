@@ -215,6 +215,218 @@ function Compiler(ast)
 	var VarSymbol 		= _this.VarSymbol 		= function VarSymbol()			{}
 	var StateSymbol 	= _this.StateSymbol 	= function StateSymbol() 		{}
 
+	var ClassSymbol = _this.ClassSymbol = function()
+	{
+		this.__event_bindings = [];
+		this.__event_descriptors = null;
+		this.__event_dispatches = [];
+		this.__event_unbindings = [];
+		this.__typedParamsList = "";
+		this._prototype = false;
+		this.ast = null;
+		this.base = "";
+		this.bases = [];
+		this.baseSymbol = null;
+		this.callback = false;
+		this.classId = "";
+		this.control = null;
+		this.derivatives = null;
+		this.emscripten = null;
+		this.end = 0;
+		this.enum = false;
+		this.event = false;
+		this.events = null;
+		this.EXPORT_NATIVE = false;
+		this.EXPORT_WEB = false;
+		this.extern = false;
+		this.file = "";
+		this.icon = 0;
+		this.interface = false;
+		this.interfaces = [];
+		this.line_end = 0;
+		this.line_start = 0;
+		this.methods = null;
+		this.name = "";
+		this.nodeType = "";
+		this.path = "";
+		this.runtime = "";
+		this.scope = null;
+		this.scopeId = 0;
+		this.start = 0;
+		this.state = null;
+		this.struct = false;
+		this.subtype = null;
+		this.symbolId = 0;
+		this.type = 0;
+		this.vars = null;
+		this.vartype = "";
+		this.vartypes = null;
+	};
+
+	var FunctionSymbol = _this.FunctionSymbol = function()
+	{
+		this.__cnSignature = "";
+		this.__signature = "";
+		this.__typedParamsList = "";
+		this.__untypedParamsList = "";
+		this.abstract = false;
+		this.arguments = null;
+		this.ast = null;
+		this.baseSymbol = null;
+		this.classId = "";
+		this.className = "";
+		this.delegated = null;
+		this.description = "";
+		this.end = 0;
+		this.extern = false;
+		this.file = "";
+		this.icon = 0;
+		this.line_end = 0;
+		this.line_start = 0;
+		this.modifier = "";
+		this.name = "";
+		this.nodeType = "";
+		this.optional = false;
+		this.overloads = null;
+		this.paramsList = [];
+		this.path = "";
+		this.private = false;
+		this.protected = false;
+		this.public = false;
+		this.restArguments = null;
+		this.runtime = "";
+		this.runtime_delegated = "";
+		this.scope = null;
+		this.scopeId = 0;
+		this.scopes = [];
+		this.start = 0;
+		this.static = false;
+		this.subtype = null;
+		this.symbolId = 0;
+		this.type = 0;
+		this.vartype = null;
+		this.virtual = false;
+	};
+
+	var PropSymbol = _this.PropSymbol = function()
+	{
+		this.__cnSignature = "";
+		this.__signature = "";
+		this.abstract = false;
+		this.ast = null;
+		this.baseSymbol = null;
+		this.classId = "";
+		this.constant = false;
+		this.description = "";
+		this.end = 0;
+		this.extern = false;
+		this.file = "";
+		this.icon = 0;
+		this.line_end = 0;
+		this.line_start = 0;
+		this.modifier = "";
+		this.name = "";
+		this.nodeType = "";
+		this.optional = false;
+		this.path = "";
+		this.pointer = false;
+		this.private = false;
+		this.protected = false;
+		this.public = false;
+		this.published = false;
+		this.runtime = "";
+		this.scope = null;
+		this.scopeId = 0;
+		this.start = 0;
+		this.static = false;
+		this.subtype = null;
+		this.symbolId = 0;
+		this.type = 0;
+		this.value = null;
+		this.vartype = "";
+		this.virtual = false;
+	};
+
+	var VarSymbol = _this.VarSymbol = function()
+	{
+		this.__cnSignature = "";
+		this.__signature = "";
+		this.abstract = false;
+		this.ast = null;
+		this.classId = "";
+		this.constant = false;
+		this.delegate = null;
+		this.description = "";
+		this.end = 0;
+		this.enum = false;
+		this.event = false;
+		this.extern = false;
+		this.file = "";
+		this.icon = 0;
+		this.line_end = 0;
+		this.line_start = 0;
+		this.modifier = "";
+		this.name = "";
+		this.nodeType = "";
+		this.optional = false;
+		this.path = "";
+		this.pointer = false;
+		this.private = null;
+		this.protected = null;
+		this.public = false;
+		this.published = null;
+		this.reference = null;
+		this.runtime = "";
+		this.scope = null;
+		this.scopeId = 0;
+		this.start = 0;
+		this.static = null;
+		this.subtype = null;
+		this.symbolId = 0;
+		this.type = 0;
+		this.value = "";
+		this.vartype = "";
+		this.virtual = false;
+	};
+
+	var StateSymbol = _this.StateSymbol = function()
+	{
+		this.abstract = false;
+		this.ast = null;
+		this.baseSymbol = null;
+		this.classId = "";
+		this.constant = false;
+		this.description = "";
+		this.end = 0;
+		this.extern = false;
+		this.file = "";
+		this.icon = 0;
+		this.line_end = 0;
+		this.line_start = 0;
+		this.modifier = "";
+		this.name = "";
+		this.nextStates = null;
+		this.nodeType = "";
+		this.optional = false;
+		this.path = "";
+		this.pointer = false;
+		this.private = false;
+		this.protected = false;
+		this.public = false;
+		this.runtime = "";
+		this.scope = null;
+		this.scopeId = 0;
+		this.start = 0;
+		this.state = false;
+		this.static = false;
+		this.subtype = null;
+		this.symbolId = 0;
+		this.type = 0;
+		this.value = "";
+		this.vartype = "";
+		this.virtual = false;
+	};
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.NewWarning = function (e, ast)
 	{
@@ -545,16 +757,112 @@ function Compiler(ast)
 		// Enable this code to detect Node object properties
 		// added by parser that could be excluded in descend.
 
+		/*
 		var fields = [];
 		for(item in dic)
 			fields.push('case "' + item + '":');
+
 		if(fields.length)
 		{
 			// Add those properties to switch above
-			//trace(fields.sort().join("\n"));
+			trace(fields.sort().join("\n"));
 		}
+		*/
 
 		trace("+ Generating Code ...");
+	};
+
+	// ==================================================================================================================================
+	//	    ____             __     ____
+	//	   / __ \____  _____/ /_   / __ \_________  ________  __________
+	//	  / /_/ / __ \/ ___/ __/  / /_/ / ___/ __ \/ ___/ _ \/ ___/ ___/
+	//	 / ____/ /_/ (__  ) /_   / ____/ /  / /_/ / /__/  __(__  |__  )
+	//	/_/    \____/____/\__/  /_/   /_/   \____/\___/\___/____/____/
+	//
+	// ==================================================================================================================================
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.symbolize = function()
+	{
+		var Scope 			= {};
+		var ClassSymbol 	= {};
+		var FunctionSymbol 	= {};
+		var PropSymbol 		= {};
+		var VarSymbol 		= {};
+		var StateSymbol 	= {};
+
+		function readClass(cls)
+		{
+			if(cls.name=="Global") return;
+			if(cls.extern) return;
+
+			for(var fld in cls)
+			{
+				ClassSymbol[fld] = _this.getDefaultVartypeValue(_this.typeOf(cls[fld]));
+			}
+
+			for(var mbr in cls.methods)
+			{
+				readFunction(cls.methods[mbr]);
+			}
+
+			for(var mbr in cls.vars)
+			{
+				readVar(cls.vars[mbr]);
+			}
+		}
+
+		function readFunction(fn)
+		{
+			for(var fld in fn)
+			{
+				FunctionSymbol[fld] = _this.getDefaultVartypeValue(_this.typeOf(fn[fld]));
+			}
+		}
+
+		function readVar(v)
+		{
+			for(var fld in v)
+			{
+				switch(v.type)
+				{
+				case jsdef.STATE:
+					StateSymbol[fld] = _this.getDefaultVartypeValue(_this.typeOf(v[fld]));
+					break;
+
+				case jsdef.PROPERTY:
+					PropSymbol[fld] = _this.getDefaultVartypeValue(_this.typeOf(v[fld]));
+					break;
+
+				default:
+					VarSymbol[fld] = _this.getDefaultVartypeValue(_this.typeOf(v[fld]));
+					break;
+				}
+			}
+		}
+
+		function gen(ClassName, fields)
+		{
+			var out = ["var " + ClassName + " = _this." + ClassName + " = function()\n{"];
+			for(var item in fields)
+			{
+				out.push("\tthis." + item + " = " + fields[item] + ";");
+			}
+			out = out.join("\n") +"\n};\n";
+			out = out.replace(/\{\}/g, "null");
+			return out;
+		}
+
+		for(var cls in _this.classes)
+		{
+			readClass(_this.classes[cls]);
+		}
+
+		trace(gen("ClassSymbol",ClassSymbol));
+		trace(gen("FunctionSymbol",FunctionSymbol));
+		trace(gen("PropSymbol",PropSymbol));
+		trace(gen("VarSymbol",VarSymbol));
+		trace(gen("StateSymbol",StateSymbol));
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -953,6 +1261,8 @@ function Compiler(ast)
 			return true;
 
 		var cls = _this.getClass(derivateClassName);
+		if(!cls) return false;
+
 		for(i=0;i<cls.bases.length;i++)
 			if(cls.bases[i].name==baseClassName)
 				return true;
@@ -1022,6 +1332,7 @@ function Compiler(ast)
 			if(!base) return false;
 			basePath.push(base.classId);
 			if(base==baseSymbol) return true;
+			if(!base.baseSymbol) return true;
 			return __getBase(base.baseSymbol);
 		}
 		return __getBase(classSymbol) ? basePath.join(".") : null;
@@ -1107,6 +1418,14 @@ function Compiler(ast)
 			}
 		});
 		return found;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.evalCondition = function(expr)
+	{
+		expr = expr.replace(/TARGET/, "makefile.Vars.TARGET");
+		var v = eval(expr);
+		return v;
 	};
 
 	// ==================================================================================================================================
@@ -1258,7 +1577,6 @@ function Compiler(ast)
 					varSymbol.constant		= false;
 					varSymbol.ast			= ast[item];
 					varSymbol.scope			= ast.scope;
-					varSymbol.baseSymbol	= null;
 					varSymbol.file			= ast[item].file;
 					varSymbol.path			= ast[item].path;
 					varSymbol.start			= ast[item].start;
@@ -2144,7 +2462,8 @@ function Compiler(ast)
 							{
 								var identifier = _this.getCallIdentifier(node);
 								if(identifier && identifier.symbol)
-									identifier.symbol.__constructor_initializer = true;
+									_this.SET_METADATA(identifier.symbol, "__constructor_initializer", true);
+
 							}
 						});
 					}
@@ -2157,7 +2476,7 @@ function Compiler(ast)
 							{
 								var identifier = _this.getCallIdentifier(node);
 								if(identifier && identifier.symbol)
-									identifier.symbol.__destructor_deinitializer = true;
+									_this.SET_METADATA(identifier.symbol, "__destructor_deinitializer", true);
 							}
 						});
 					}
@@ -2340,13 +2659,37 @@ function Compiler(ast)
 				typedParamsList += (param.optional ? "optional " : "") +
 								   param.name + ":" + param.vartype;
 
-				if(param.optional && param.file!="externs.jspp")
+				if(param.file!="externs.jspp")
 				{
 					var vartype = _this.getVarType(param.vartype);
-					if(_this.types.hasOwnProperty(vartype))
-						paramListInits.push(param.name+"="+param.name+"||"+_this.types[vartype].default+";");
+
+					if(param.optional)
+					{
+						if(_this.types.hasOwnProperty(vartype))
+						{
+							switch(vartype)
+							{
+							case "Integer":
+								paramListInits.push(param.name+"=Math.round("+param.name+"||"+_this.types[vartype].default+");");
+								break;
+
+							default:
+								paramListInits.push(param.name+"="+param.name+"||"+_this.types[vartype].default+";");
+								break;
+							}
+						}
+						else
+							paramListInits.push(param.name+"="+param.name+"||null;");
+					}
 					else
-						paramListInits.push(param.name+"="+param.name+"||null;");
+					{
+						switch(vartype)
+						{
+						case "Integer":
+							paramListInits.push(param.name+"=Math.round("+param.name+");");
+							break;
+						}
+					}
 				}
 
 				if(i!=ast.paramsList.length-1)
@@ -2387,7 +2730,6 @@ function Compiler(ast)
 					varSymbol.constant		= false;
 					varSymbol.ast			= param;
 					varSymbol.scope			= methodScope;
-					varSymbol.baseSymbol	= null;
 					varSymbol.file			= param.file;
 					varSymbol.path			= param.path;
 					varSymbol.start			= param.start;
@@ -2455,7 +2797,6 @@ function Compiler(ast)
 				varSymbol.constant		= false;
 				varSymbol.ast			= null;
 				varSymbol.scope			= methodScope;
-				varSymbol.baseSymbol	= null;
 				varSymbol.file			= ast.file;
 				varSymbol.path			= ast.path;
 				varSymbol.start			= ast.start;
@@ -2622,6 +2963,9 @@ function Compiler(ast)
 				// =================================================================
 	            else if(ast.isDestructor)
 	            {
+	            	if(ast.paramsList.length)
+	            		_this.NewError("Destructors cannot have arguments", ast);
+
 	            	out.push("this.Destructor = function(){");
 	            	out.push(ast.generated_code);
 					if(_this.secondPass && !functionSymbol.extern)
@@ -2632,6 +2976,16 @@ function Compiler(ast)
 						// is an object, delete it, and set it to null.
 						for(item in classSymbol.vars)
 						{
+							// Carefull: do not destroy static vars in destructor
+							if(classSymbol.vars[item].static && !classSymbol.vars[item].state) continue;
+
+							if(classSymbol.vars[item].state)
+							{
+								out.push("delete " + classSymbol.vars[item].runtime+";");
+								continue;
+							}
+
+							// Set objects to null
 							if(classSymbol.vars[item].pointer)
 							{
 								out.push(classSymbol.vars[item].runtime+"=null;");
@@ -2894,7 +3248,6 @@ function Compiler(ast)
 					varSymbol.constant		= ast.type==jsdef.CONST;
 					varSymbol.ast			= ast[item];
 					varSymbol.scope			= ast.scope;
-					varSymbol.baseSymbol	= null;
 					varSymbol.file			= ast[item].file;
 					varSymbol.path			= ast[item].path;
 					varSymbol.start			= ast[item].start;
@@ -2958,7 +3311,7 @@ function Compiler(ast)
 				ast.scope.vars[ast[item].name] = varSymbol;
 
 				// Record vartype usage in class level (used to check #includes)
-				if(classScope)
+				if(_this.secondPass && classScope)
 				{
 					_this.record_vartype_use(ast, varSymbol, classScope, (ast.inFunction ? _this.INCLUDE_IN_CPP : _this.INCLUDE_IN_HPP));
 				}
@@ -3091,6 +3444,7 @@ function Compiler(ast)
 				classSymbol.__event_dispatches		= [];
 				classSymbol.type					= jsdef.CLASS;
 				classSymbol.nodeType				= "CALLBACK";
+				classSymbol.callback				= true;
 				classSymbol.control					= false;
 				classSymbol.emscripten				= false;
 				classSymbol._prototype				= false;
@@ -3261,7 +3615,6 @@ function Compiler(ast)
 					varSymbol.constant				= false;
 					varSymbol.ast					= arg;
 					varSymbol.scope					= classSymbol.scope;
-					varSymbol.baseSymbol			= null;
 					varSymbol.file					= arg.file;
 					varSymbol.path					= arg.path;
 					varSymbol.start					= arg.start;
@@ -3274,7 +3627,7 @@ function Compiler(ast)
 					varSymbol.pointer				= arg.pointer;
 					varSymbol.icon 					= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
 					varSymbol.modifier 				= "public";
-					varSymbol.signature 			= varSymbol.name + ":" + varSymbol.vartype;
+					//varSymbol.signature 			= varSymbol.name + ":" + varSymbol.vartype;
 					varSymbol.runtime 				= arg.value;
 				}
 				classSymbol.vars[varSymbol.name]=varSymbol;
@@ -3315,7 +3668,6 @@ function Compiler(ast)
 				varSymbol.constant				= false;
 				varSymbol.ast					= ast;
 				varSymbol.scope					= currentClass.scope;
-				varSymbol.baseSymbol			= null;
 				varSymbol.file					= ast.file;
 				varSymbol.path					= ast.path;
 				varSymbol.start					= ast.start;
@@ -3482,7 +3834,6 @@ function Compiler(ast)
 					varSymbol.constant		= true;
 					varSymbol.ast			= ast[item];
 					varSymbol.scope			= scope;
-					varSymbol.baseSymbol	= null;
 					varSymbol.file			= ast[item].file;
 					varSymbol.path			= ast[item].path;
 					varSymbol.start			= ast[item].start;
@@ -4456,16 +4807,29 @@ function Compiler(ast)
 				ast.typecasting = true;
 				ast.castFromType = _this.getTypeName(ast[1][0]);
 				ast.castToType = call0;
-				switch(ast.castToType)
-				{
-				case "String":
-					out.push(ast.castToType + "("+call1+")");
-					break;
 
-				default:
-					_this.typeCheck(ast, ast.castToType, ast.castFromType);
-					out.push("("+call1+")");
-					break;
+				if(ast.castFromType!=ast.castToType)
+				{
+					switch(ast.castToType)
+					{
+					case "String":
+						out.push(ast.castToType + "("+call1+")");
+						break;
+
+					case "Integer":
+						_this.typeCheck(ast, ast.castToType, ast.castFromType);
+						out.push("Math.round("+call1+")");
+						break;
+
+					default:
+						_this.typeCheck(ast, ast.castToType, ast.castFromType);
+						out.push("("+call1+")");
+						break;
+					}
+				}
+				else
+				{
+					out.push(call1);
 				}
 			}
 			else
@@ -4550,10 +4914,22 @@ function Compiler(ast)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.ASSIGN:
 
-			out.push(generate(ast[0]));
+			var gen0 = generate(ast[0]);
+			var gen1 = generate(ast[1]);
+			var type1 = _this.getTypeName(ast[0]);
+
+			out.push(gen0);
 			out.push(ast.value);
 			if(ast.value != "=") out.push("=");
-			out.push(generate(ast[1]));
+
+			switch(type1)
+			{
+			case "Integer":
+				gen1 = "Math.round(" + gen1 + ")";
+				break;
+			}
+
+			out.push(gen1);
 
 			if(_this.secondPass)
 			{
@@ -4566,15 +4942,13 @@ function Compiler(ast)
 					_this.NewError("Invalid left-hand assignment", ast);
 				}
 
-				// Callback Function Assignment
+				// Callback Function Assignment (hack - need to implement properly)
 				if(ast[1].identifier_last && ast[1].identifier_last.symbol && ast[1].identifier_last.symbol.type==jsdef.FUNCTION)
 				{
-					var type1 = _this.getTypeName(ast[0]);
 				    _this.typeCheck(ast, type1, "CocoAction");
 				}
 				else
 				{
-					var type1 = _this.getTypeName(ast[0]);
 					var type2 = _this.getTypeName(ast[1]);
 				    _this.typeCheck(ast, type1, type2);
 				}

@@ -64,25 +64,42 @@ class CocoSequence
 
 class CocoImageResolution
 {
+	// Image Data
 	public var url:String;
 	public var pixelRatio:Float;
-	public var textureWidth:Float;
-	public var textureHeight:Float;
+
+	// Texture Data
+	public var textureCellWidth:Float;
+	public var textureCellHeight:Float;
 	public var textureScale:Float;
+
+	// Binpack Data
+	public reference var binpack:CocoImage;
+	public var binpackX:Float;
+	public var binpackY:Float;
+
+	// Skin Data
+	public reference var skin:Float32Array;  // W1, W2, W3, H1, H2, H3
+
+	// Compressed Tiled Layer Data
 	public var tileWidth:Float;
 	public var tileHeight:Float;
 	public var tileMap:Int32Array;
 
-	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, textureScale:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array)
+	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, textureScale:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array, optional binpack:CocoImage, optional binpackX:Float, optional binpackY:Float, optional skin:Float32Array)
 	{
 		this.url = url;
+		this.binpack = binpack;
+		this.binpackX = binpackX;
+		this.binpackY = binpackY;
 		this.pixelRatio = pixelRatio;
-		this.textureWidth = textureWidth;
-		this.textureHeight = textureHeight;
+		this.textureCellWidth = textureWidth;
+		this.textureCellHeight = textureHeight;
 		this.textureScale = textureScale;
 		this.tileWidth = tileWidth;
 		this.tileHeight = tileHeight;
 		this.tileMap = tileMap;
+		this.skin = skin;
 	}
 
 	public function Destructor()
@@ -106,6 +123,11 @@ class CocoImage
 	public var hImage:Image;
 
 	public reference var scene:CocoScene;
+
+	// BinPacked
+	public var binpack:Boolean;
+	public var binpackX:Float;
+	public var binpackY:Float;
 
 	// Texture
 	public var textureCellWidth:Float;
@@ -190,6 +212,9 @@ class CocoImage
 		onLoadResizeWidth	= 0;
 		onLoadResizeHeight	= 0;
 		viewSiblings		= new Array<CocoImageResolution>;
+		binpack				= false;
+		binpackX			= 0;
+		binpackY			= 0;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -288,73 +313,195 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function load()
 	{
-		var sibling:CocoImageResolution;
+		//                   |  Image |  Aspect |   Logical   |              | Pixel |   Physical    |         | Screen |    Max       |
+		// 	Device           |  x-dpi |   Ratio |  Resolution |  Resolution  | Ratio |    Pixels     |   PPi   |  Size  |   Texture    |
+		// =============================================================================================================================
+		// iPhone 6 Plus     | xxhdpi |    16:9 |  736x414 pt | 2208x1242 px |    3x | 1920x1080 ppx | 401 ppi |   5.5" | 4096x4096 px |
+		// iPhone 6          |  xhdpi |    16:9 |  667x375 pt |  1334x750 px |    2x |  1334x750 ppx | 326 ppi |   4.7" | 4096x4096 px |
+		// iPhone 5/5C/5S    |  xhdpi |    16:9 |  568x320 pt |  1136x640 px |    2x |  1136x640 ppx | 326 ppi |   4.0" | 2048x2048 px |
+		// iPhone 4          |  xhdpi |    16:9 |  480x320 pt |   960x640 px |    2x |   960x640 ppx | 326 ppi |   3.5" | 2048x2048 px |
+		// iPhone 3GS        |   mdpi |    16:9 |  480x320 pt |   480x320 px |    1x |   480x320 ppx | 163 ppi |   3.5" | 2048x2048 px |
+		// iPad				 |   mdpi |     4:3 | 1024x768 pt |  1024x768 px |    1x |  1024x768 ppx | 132 ppi |   9.7" | 2048x2048 px |
+		// iPad 2            |   mdpi |     4:3 | 1024x768 pt |  1024x768 px |    1x |  1024x768 ppx | 132 ppi |   9.7" | 2048x2048 px |
+		// iPad 3            |  xhdpi |     4:3 | 1024x768 pt | 2048x1536 px |    2x | 2048x1536 ppx | 132 ppi |   9.7" | 2048x2048 px |
+		// iPad Mini         |   mdpi |     4:3 | 1024x768 pt |  1024x768 px |    1x |  1024x768 ppx | 132 ppi |   7.9" | 2048x2048 px |
+		// iPad Air          |  xhdpi |     4:3 | 1024X768 pt | 2048x1536 px |    2x | 2048x1536 ppx | 264 ppi |   9.7" | 4096x4096 px |
+		// iPad Mini Retina  |  xhdpi |     4:3 | 1024X768 pt | 2048x1536 px |    2x | 2048x1536 ppx | 326 ppi |   7.9" | 4096x4096 px |
 
-		// For mobile browsers we use mdpi
-		if(engine.device.isHTML5Browser)
+		// ============================================================
+		// For mobile browsers we always load mdpi images to save memory
+		// ============================================================
+		if(engine.device.isMobileHTML5Browser && !engine.device.isIPhone5)
 		{
-			for(var j:Integer = 0; j<viewSiblings.size(); j++)
-			{
-				sibling = viewSiblings[j];
-				if(sibling.pixelRatio==1)
-				{
-					hImage = new Image();
-					hImage.load(baseUrl + sibling.url);
-					textureCellWidth = sibling.textureWidth;
-					textureCellHeight = sibling.textureHeight;
-					textureScale = sibling.textureScale;
-					pixelRatio = sibling.pixelRatio;
-					tileWidth = sibling.tileWidth;
-					tileHeight = sibling.tileHeight;
-					tileMap = sibling.tileMap;
-					break;
-				}
-			}
-		}
-		else if(scene.__view_width && scene.__view_height)
-		{
-			var tollerance:Float = 1.20;
-			var w:Float = tollerance * Float(viewOptimalWidth) * scene.__view_scale;
-			var h:Float = tollerance * Float(viewOptimalHeight) * scene.__view_scale;
-			for(var j:Integer = 0; j<viewSiblings.size(); j++)
-			{
-				sibling = viewSiblings[j];
-				if(sibling.textureWidth>=w && sibling.textureHeight>=h)
-				{
-					hImage = new Image();
-					hImage.load(baseUrl + sibling.url);
-					textureCellWidth = sibling.textureWidth;
-					textureCellHeight = sibling.textureHeight;
-					textureScale = sibling.textureScale;
-					pixelRatio = sibling.pixelRatio;
-					tileWidth = sibling.tileWidth;
-					tileHeight = sibling.tileHeight;
-					tileMap = sibling.tileMap;
-					break;
-				}
-			}
+			if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi))
+				return;
 		}
 
-		// Fallback to best image
+		switch(engine.__IMAGE_LOADING_MODE)
+		{
+			// ============================================================
+			// Load image by device dpi designation
+			// ============================================================
+			case COCO_IMAGE_LOADING_MODE_ENUM.LOAD_BY_DPI:
+			{
+				switch(engine.device.type)
+				{
+				case COCO_DEVICE.DEVICE_GENERIC_LDPI:       if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_ldpi)) 	 {return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_MDPI:		if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi))   {return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_TVDPI:      if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_tvdpi))  {return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_HDPI:       if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_hdpi))   {return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_XHDPI:      if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi))  {return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_XXHDPI:     if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xxhdpi)) {return;} break;
+
+				case COCO_DEVICE.DEVICE_IPHONE_3GS:         if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPAD:               if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPAD_2:             if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPAD_MINI:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) {return;} break;
+
+				case COCO_DEVICE.DEVICE_IPHONE_4:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_4S:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_5:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_5S:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_5C:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_6:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+
+				case COCO_DEVICE.DEVICE_IPHONE_6_PLUS:      if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xxhdpi)) {return;} break;
+
+				case COCO_DEVICE.DEVICE_IPAD_3:             if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi))	{return;} break;
+				case COCO_DEVICE.DEVICE_IPAD_AIR:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPAD_MINI_RETINA:	if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+				}
+			}
+			break;
+
+			// ============================================================
+			// Load image by keyframe analysis
+			// ============================================================
+			case COCO_IMAGE_LOADING_MODE_ENUM.LOAD_BY_EXMINING_KEYFRAMES:
+			{
+				var tx:Float;
+				var ty:Float;
+				var sibling:CocoImageResolution;
+				var tollerance:Float = 1.2;
+
+				// Image optimal width and height where calculated for scene's fixed viewport.
+				// We multiply with scene's view scale to calculate the image's desired size.
+
+				var w:Float = Float(viewOptimalWidth) * scene.__view_scale * engine.device.pixelRatio;
+				var h:Float = Float(viewOptimalHeight) * scene.__view_scale * engine.device.pixelRatio;
+
+				for(var i:Integer = 0; i<viewSiblings.size(); i++)
+				{
+					sibling = viewSiblings[i];
+
+					tx = tollerance * sibling.textureCellWidth * sibling.pixelRatio;
+					ty = tollerance * sibling.textureCellHeight * sibling.pixelRatio;
+
+					if(tx==0 && ty==0 && w==0 && h==0)
+					{
+						if(engine.device.pixelRatio==sibling.pixelRatio)
+						{
+							setResolution(sibling);
+							break;
+						}
+					}
+					else if(tx>=w && ty>=h)
+					{
+						setResolution(sibling);
+						break;
+					}
+				}
+			}
+			break;
+		}
+
+		// ============================================================
+		// Fallback to best (last) sibling image
+		// ============================================================
 		if(!hImage)
 		{
-			sibling = viewSiblings[viewSiblings.size()-1];
-			if(sibling)
+			setResolution(viewSiblings[viewSiblings.size()-1]);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function loadImageByDpi(dpi:SCREEN_RESOLUTION_DPI_ENUM, optional strict:Boolean):Boolean
+	{
+		var i:Integer;
+		var d:Integer;
+		var r:Float = CocoGraphics.DpiToPixelRatio(dpi);
+
+		// First try to find image by exact dpi
+		for(i = 0; i<viewSiblings.size(); i++)
+		{
+			if(viewSiblings[i].pixelRatio==r)
 			{
-				hImage = new Image();
-				hImage.load(baseUrl + sibling.url);
-				textureCellWidth = sibling.textureWidth;
-				textureCellHeight = sibling.textureHeight;
-				textureScale = sibling.textureScale;
-				pixelRatio = sibling.pixelRatio;
-				tileWidth = sibling.tileWidth;
-				tileHeight = sibling.tileHeight;
-				tileMap = sibling.tileMap;
+				setResolution(viewSiblings[i]);
+				return true;
+			}
+		}
+		if(strict) return false;
+
+		// Try to find closer dpi images with better quality
+		for(d=Integer(dpi); d<Integer(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_MAX_DPI); d++)
+		{
+			if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM(d), true)) return true;
+		}
+
+		// Try to find closer dpi images with less quality
+		for(d=Integer(dpi); d>=Integer(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_MIN_DPI); d--)
+		{
+			if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM(d), true)) return true;
+		}
+
+		// No image found, try for no-dpi
+		for(i = 0; i<viewSiblings.size(); i++)
+		{
+			if(viewSiblings[i].pixelRatio==0)
+			{
+				setResolution(viewSiblings[i]);
+				return true;
 			}
 		}
 
-		//if(hImage)
-		//	trace("Loading image " + hImage.src);
+		// No image could be loaded by dpi processing.
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function setResolution(sibling:CocoImageResolution)
+	{
+		if(!sibling) return;
+
+		if(sibling.binpack && sibling.binpack.hImage && sibling.pixelRatio==sibling.binpack.pixelRatio)
+		{
+			trace("Linking to Binpack: " + sibling.url);
+
+			hImage = sibling.binpack.hImage;
+
+			binpack 	= true;
+			binpackX 	= sibling.binpackX;
+			binpackY 	= sibling.binpackY;
+		}
+		else
+		{
+			trace("Loading image: " + sibling.url);
+
+			hImage = new Image();
+			hImage.load(baseUrl + sibling.url);
+		}
+
+		pixelRatio 			= sibling.pixelRatio;
+
+		textureCellWidth 	= sibling.textureCellWidth;
+		textureCellHeight 	= sibling.textureCellHeight;
+		textureScale 		= sibling.textureScale;
+
+		skin				= sibling.skin;
+
+		tileWidth 			= sibling.tileWidth;
+		tileHeight 			= sibling.tileHeight;
+		tileMap 			= sibling.tileMap;
 
 		loaded();
 	}
@@ -367,7 +514,7 @@ class CocoImage
 		renderData = engine.__ctx.prepareImage(this);
 
 		// On WebGL we can safely delete the image to save memory.
-		if(isSpriteSheet && engine.__ctx.getGLContext()!=null)
+		if(!binpack && isSpriteSheet && engine.__ctx.getGLContext()!=null)
 			 delete hImage;
 
 		return true;
@@ -378,4 +525,191 @@ class CocoImage
 	{
 		delete hImage;
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function resizeToOptimalTextureSize()
+	{
+		if(false && engine.__RESIZE_IMAGES_AT_RUNTIME && !binpack && textureCellWidth>=engine.device.screenWidth && !isSpriteSheet && scaleX > 0.0 && scaleY > 0.0 && scaleX!=1.0 && scaleY!=1.0)
+		{
+			var pot:Boolean = engine.__ctx.get2DContext()==null;
+			var w:Integer = Math.floor(textureCellWidth * scaleX / pixelRatio);
+			var h:Integer = Math.floor(textureCellHeight * scaleY / pixelRatio);
+			var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, pot);
+			var c2d:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+
+			trace("Scaling texture to " + String(w) + "x" + String(h) + " (x" + String(scaleX / pixelRatio) + ", x" + String(scaleY / pixelRatio) + ", @" + String(pixelRatio) + "): " + symbolName);
+
+			if(!hImage.__imageData || engine.device.isHTML5Browser)
+			{
+				c2d.imageSmoothingEnabled = true;
+				c2d.mozImageSmoothingEnabled = true;
+				c2d.oImageSmoothingEnabled = true;
+				c2d.webkitImageSmoothingEnabled = true;
+
+				c2d.drawImage(hImage, 0, 0, textureCellWidth, textureCellHeight, 0, 0, w, h);
+			}
+			else
+			{
+				var dt:ImageData = CocoImage.LanczosResize(hImage.__imageData, textureCellWidth, textureCellHeight, w, h);
+				c2d.putImageData(dt, 0, 0);
+				delete dt;
+			}
+
+			delete hImage;
+			hImage = new Image();
+			hImage.load(canvas.toDataURL("image/png"));
+
+			if(pot)
+			{
+				textureCellWidth = w;
+				textureCellHeight = h;
+			}
+			delete canvas;
+		}
+	}
+
+	// ==================================================================================================================================
+	//	    __                                      ____                                  ___
+	//	   / /   ____ _____  _________  ____  _____/ __ \___  _________ _____ ___  ____  / (_)___  ____ _
+	//	  / /   / __ `/ __ \/ ___/_  / / __ \/ ___/ /_/ / _ \/ ___/ __ `/ __ `__ \/ __ \/ / / __ \/ __ `/
+	//	 / /___/ /_/ / / / / /__  / /_/ /_/ (__  ) _, _/  __(__  ) /_/ / / / / / / /_/ / / / / / / /_/ /
+	//	/_____/\__,_/_/ /_/\___/ /___/\____/____/_/ |_|\___/____/\__,_/_/ /_/ /_/ .___/_/_/_/ /_/\__, /
+	//	                                                                       /_/              /____/
+	// ==================================================================================================================================
+
+	// Credit: http://blog.yoz.sk/2010/11/lanczos-resampling-with-actionscript/
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static var CACHE:Array<Float> = null;
+    public static const CACHE_PRECISION:Integer = 100;
+    public static const FILTER_SIZE:Integer = 1;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static function kernel(filterSize:Integer, x:Float):Float
+    {
+        if(x >= filterSize || x <= -filterSize)
+            return 0;
+
+        if(x == 0)
+            return 1;
+
+        var xpi:Float = x * M_PI;
+
+        return filterSize * Math.sin(xpi) * Math.sin(xpi / filterSize) / (xpi * xpi);
+    }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static function createCache(cachePrecision:Integer, filterSize:Integer):Array<Float>
+    {
+        var cache:Array<Float> = new Array<Float>;
+        var max:Integer = filterSize * filterSize * cachePrecision;
+        var iPrecision:Float = 1 / cachePrecision;
+        var v:Float;
+
+        for(var cacheKey:Integer = 0; cacheKey < max; cacheKey++)
+        {
+            v = kernel(filterSize, Math.sqrt(cacheKey * iPrecision));
+            cache.push(v < 0 ? 0 : v);
+        }
+
+        return cache;
+    }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static function LanczosResize(source:ImageData, srcWidth:Integer, srcHeight:Integer, dstWidth:Integer, dstHeight:Integer):ImageData
+    {
+        var total:Float, distanceY:Float, cacheValue:Float, v:Float, a:Float, r:Float, g:Float, b:Float, y1et:Float, x1et:Float, cx:Float, cy:Float, sourcePixelX:Float, sourcePixelY:Float;
+        var i:Integer, idx:Integer, cacheKey:Integer, x:Integer, x1:Integer, x1b:Integer, x1e:Integer, y:Integer, y1:Integer, y1b:Integer, y1e:Integer, y2:Integer, y3:Integer;
+        var values:Array<Float> = new Array<Float>;
+        var sx:Float = dstWidth / srcWidth;
+        var sy:Float = dstHeight / srcHeight;
+        var sw1:Integer = source.width - 1;
+        var sh1:Integer = source.height - 1;
+        var isx:Float = 1.0 / sx;
+        var isy:Float = 1.0 / sy;
+        var cw:Float = 1.0 / dstWidth;
+        var ch:Float = 1.0 / dstHeight;
+        var csx:Float = Math.min(Float(1.0), sx) * Math.min(Float(1.0), sx);
+        var csy:Float = Math.min(Float(1.0), sy) * Math.min(Float(1.0), sy);
+        var sourcePixels:Uint8Array = source.data;
+        var output:ImageData = new ImageData(String(dstWidth), String(dstHeight));
+        var outputPixels:Uint8Array = output.data;
+        var cache:Array<Float> = CACHE;
+        var cachePrecision:Integer = CACHE_PRECISION;
+        var filterSize:Integer = FILTER_SIZE;
+
+        CACHE = cache = (!CACHE || !CACHE.size() ? createCache(cachePrecision, filterSize) : CACHE);
+        y = dstHeight;
+
+        while(y--)
+        {
+            sourcePixelY = (y + 0.5) * isy;
+
+            y1b = sourcePixelY - filterSize;
+            if(y1b < 0) y1b = 0;
+
+            y1e = y1et = sourcePixelY + filterSize;
+            if(y1e != y1et) y1e = y1et + 1;
+            if(y1e > sh1) y1e = sh1;
+
+            cy = y * ch - sourcePixelY;
+            y3 = y * dstWidth;
+
+            x = dstWidth;
+            while(x--)
+            {
+                sourcePixelX = (x + 0.5) * isx;
+                x1b = sourcePixelX - filterSize;
+                if(x1b < 0) x1b = 0;
+                x1e = sourcePixelX + filterSize;
+                x1et = sourcePixelX + filterSize;
+                if(x1e != x1et) x1e = x1et + 1;
+                if(x1e > sw1) x1e = sw1;
+                cx = x * cw - sourcePixelX;
+
+				values.clear();
+                i = total = 0;
+                for(y1 = y1b; y1 <= y1e; y1++)
+                {
+                    distanceY = (y1 + cy) * (y1 + cy) * csy;
+                    for(x1 = x1b; x1 <= x1e; x1++)
+                    {
+                    	idx = ((x1 + cx) * (x1 + cx) * csx + distanceY) * cachePrecision;
+                    	cacheValue = 0;
+                    	if(idx>=0 && idx<cache.size())
+                    		cacheValue = cache[idx];
+                    	values.push(cacheValue);
+                        total += cacheValue;
+                        i++;
+                    }
+                }
+
+                total = 1 / total;
+
+                i = a = r = g = b = 0;
+                for(y1 = y1b; y1 <= y1e; y1++)
+                {
+                    y2 = y1 * source.width;
+                    for(x1 = x1b; x1 <= x1e; x1++)
+                    {
+                        v = values[i] * total;
+                        i++;
+                        idx = Math.floor(y2 + x1) * 4;
+                        r += sourcePixels[idx + 0] * v;
+                        g += sourcePixels[idx + 1] * v;
+                        b += sourcePixels[idx + 2] * v;
+                        a += sourcePixels[idx + 3] * v;
+                    }
+                }
+
+				idx = Math.floor(x + y3) * 4;
+                outputPixels[idx + 0] = r;
+                outputPixels[idx + 1] = g;
+                outputPixels[idx + 2] = b;
+                outputPixels[idx + 3] = a;
+            }
+        }
+
+        return output;
+    }
 }

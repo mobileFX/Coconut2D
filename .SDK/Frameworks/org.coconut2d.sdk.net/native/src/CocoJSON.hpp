@@ -1,23 +1,25 @@
 ﻿#ifndef __COCOJSON_HPP__
 #define __COCOJSON_HPP__
 
-#include "Coconut2D.hpp";
+#include "Coconut2D.hpp"
 
 class CocoJSON
 {
+public:
 
-	CocoJSON
+	CocoJSON(String json)
 	{
 	}
 
-	~CocoJSON
+	~CocoJSON()
 	{
 	}
 
-	public function read(dot:String) :String
+	String read(String dot)
 	{
+		return "";
 	}
-}
+};
 
 #endif
 

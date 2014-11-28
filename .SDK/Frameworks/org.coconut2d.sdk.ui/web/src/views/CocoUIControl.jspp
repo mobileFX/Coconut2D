@@ -437,7 +437,7 @@ class CocoUIControl : CocoUIView
 		for(var i:Integer = __texts.size()-1; i>=0; i--)
 		{
 			__texts[i].parent = this;
-			NewLayerFromImage(0, __texts[i].toImage(false, __scene.__view_scale), __texts[i].Left, __texts[i].Top, false);
+			NewLayerFromImage(0, __texts[i].toImage(false, __scene.__view_scale * engine.device.pixelRatio), __texts[i].Left, __texts[i].Top, false);
 		}
 
 		// SELECTED STATE //
@@ -459,7 +459,7 @@ class CocoUIControl : CocoUIView
 			for(var i:Integer = __texts.size()-1; i>=0; i--)
 			{
 				__texts[i].parent = this;
-				NewLayerFromImage(1, __texts[i].toImage(true, __scene.__view_scale), __texts[i].Left, __texts[i].Top, false);
+				NewLayerFromImage(1, __texts[i].toImage(true, __scene.__view_scale * engine.device.pixelRatio), __texts[i].Left, __texts[i].Top, false);
 			}
 		}
 	}

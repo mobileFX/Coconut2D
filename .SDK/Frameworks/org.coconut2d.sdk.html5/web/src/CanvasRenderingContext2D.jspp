@@ -371,6 +371,7 @@ class CanvasRenderingContext2D
 		{
 			return __fillStyle;
 		}
+
 		function set(v:String)
 		{
 			if(v.indexOf("rgba")) return;
@@ -378,8 +379,10 @@ class CanvasRenderingContext2D
 			str = str.substr(0, str.indexOf(")"));
 			var arr:Array<String> = str.split(",");
 			if(arr.size() != 4) return;
-			for(var i:Integer = 0; i < 4; i++)
-				__fillColor[i] = parseFloat(arr[i]) / 255.0;
+			__fillColor[0] = parseFloat(arr[0]) / 255.0;
+			__fillColor[1] = parseFloat(arr[1]) / 255.0;
+			__fillColor[2] = parseFloat(arr[2]) / 255.0;
+			__fillColor[3] = parseFloat(arr[3]);
 			__fillStyle = v;
 		}
 	}
@@ -391,6 +394,7 @@ class CanvasRenderingContext2D
 		{
 			return __strokeStyle;
 		}
+
 		function set(v:String)
 		{
 			if(v.indexOf("rgba")) return;
@@ -398,8 +402,10 @@ class CanvasRenderingContext2D
 			str = str.substr(0, str.indexOf(")"));
 			var arr:Array<String> = str.split(",");
 			if(arr.size() != 4) return;
-			for(var i:Integer = 0; i < 4; i++)
-				__strokeColor[i] = parseFloat(arr[i]) / 255.0;
+			__strokeColor[0] = parseFloat(arr[0]) / 255.0;
+			__strokeColor[1] = parseFloat(arr[1]) / 255.0;
+			__strokeColor[2] = parseFloat(arr[2]) / 255.0;
+			__strokeColor[3] = parseFloat(arr[3]);
 			__strokeStyle = v;
 		}
 	}
@@ -619,37 +625,10 @@ class CanvasRenderingContext2D
 		return ret;
 	}
 
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawImage(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)
 	{
-		var scaleW:Float = dw / sw;
-		var scaleH:Float = dh / sh;
-
-		var src:Uint8Array = image.__imageData.data;
-		var data:Uint8Array = canvas.__imageData.data;
-
-		var dMinX:Integer = Math.round(dx);
-		var dMinY:Integer = Math.round(dy);
-		var dMaxX:Integer = Math.round(dx + dw);
-		var dMaxY:Integer = Math.round(dy + dh);
-
-		for(var x:Integer = dMinX; x < dMaxX; x++)
-		{
-			for(var y:Integer = dMinY; y < dMaxY; y++)
-			{
-				var dIdx:Integer = ((__m12 * x + __m22 * y + __dy) * canvas.__imageData.width + (__m11 * x + __m21 * y + __dx)) * 4;
-				var sIdx:Integer = ((sy + Math.round(Float(y - dMinY) / scaleH)) * image.__imageData.width + sx + Math.round(Float(x - dMinX) / scaleW)) * 4; // Nearest interpolation
-
-				if(dIdx < canvas.__imageData.data.length && sIdx < image.__imageData.data.length)
-				{
-					data[dIdx + 0] = src[sIdx + 3] * src[sIdx + 0] / 255.0 + data[dIdx + 3] * data[dIdx + 0] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
-					data[dIdx + 1] = src[sIdx + 3] * src[sIdx + 1] / 255.0 + data[dIdx + 3] * data[dIdx + 1] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
-					data[dIdx + 2] = src[sIdx + 3] * src[sIdx + 2] / 255.0 + data[dIdx + 3] * data[dIdx + 2] / 255.0 * (1.0 - src[sIdx + 3] / 255.0);
-					data[dIdx + 3] = src[sIdx + 3] + data[dIdx + 3] * (1.0 - src[sIdx + 3] / 255.0);
-				}
-			}
-		}
+		drawImageNearestNeighbour(image, sx, sy, sw, sh, dx, dy, dw, dh, false);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -667,6 +646,136 @@ class CanvasRenderingContext2D
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawImage(image:HTMLCanvasElement, dx:Float, dy:Float, dw:Float, dh:Float)
 	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImageNearestNeighbour(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float, blend:Boolean)
+	{
+		// The pixels are arranged in row-major order, and are represented as integers between 0 and 255,
+		// where each four-integer group represents the four color channels of one pixel: red, green, blue, and alpha (RGBA).
+
+		// Get source and destination pixel arrays
+		var srcPixels:Uint8Array = image.__imageData.data;
+		var dstPixels:Uint8Array = canvas.__imageData.data;
+
+		// Round passed rectangles
+		dx = Math.round(dx);
+		dy = Math.round(dy);
+		dw = Math.round(dw);
+		dh = Math.round(dh);
+
+		sx = Math.round(sx);
+		sy = Math.round(sy);
+		sw = Math.round(sw);
+		sh = Math.round(sh);
+
+		// Calculate max destination x,y
+		var maxDx:Integer = dx + dw;
+		var maxDy:Integer = dy + dh;
+
+		// Index variables
+		var srcIndex:Integer;
+		var dstIndex:Integer;
+
+		// Loop control variables
+		var x:Integer;
+		var y:Integer;
+
+		// Source and destination scanline
+		var srcW:Integer = image.naturalWidth;
+		var dstW:Integer = canvas.__imageData.width;
+
+		// Source and destination array lengths
+		var srcLength:Integer = image.__imageData.data.length;
+		var dstLength:Integer = canvas.__imageData.data.length;
+
+		// Calculate scale x,y factors
+		var scaleX:Float = sw / dw;
+		var scaleY:Float = sh / dh;
+
+		// Projection of x,y destination pixel to source pixel
+		var srcX:Integer;
+		var srcY:Integer;
+		var dstX:Integer;
+		var dstY:Integer;
+
+		// Channels (RGBA)
+		var channels:Integer = 4;
+
+		// Source and Destingation Pixel Components
+		var src_R:Integer;
+		var src_G:Integer;
+		var src_B:Integer;
+		var src_A:Integer;
+
+		var dst_R:Integer;
+		var dst_G:Integer;
+		var dst_B:Integer;
+		var dst_A:Integer;
+
+		var one_minus_src_A:Integer;
+		var one_over_255:Float = 0.003922; //Math.round(1.0/255.0, 6);
+
+		// == We loop on destination pixels so that we fill them all ==
+
+		for(y=dy; y<maxDy; y++)
+		{
+			for(x=dx; x<maxDx; x++)
+			{
+				// Calculate the destination pixel (x,y) taking into
+				// account the transformation matrix of the canvas.
+
+				dstX = Math.round(__m11 * x + __m21 * y + __dx);
+				dstY = Math.round(__m12 * x + __m22 * y + __dy);
+
+				// Calculate the source pixel taking into account the
+				// scale between the source and destination areas.
+
+				srcX = Math.round(sx + (x-dx) * scaleX);
+				srcY = Math.round(sy + (y-dy) * scaleY);
+
+				// Calculate the source and destination pixel array index
+				dstIndex = channels * (dstY * dstW + dstX);
+				srcIndex = channels * (srcY * srcW + srcX);
+
+				// Bounds Sanity Check and Transfer Filters
+				if(dstIndex>=0 && dstIndex<dstLength && srcIndex>=0 && srcIndex<srcLength)
+				{
+
+					if(blend)
+					{
+						// Get source pixels
+						src_R = srcPixels[srcIndex + 0];
+						src_G = srcPixels[srcIndex + 1];
+						src_B = srcPixels[srcIndex + 2];
+						src_A = srcPixels[srcIndex + 3];
+
+						// Get existing destination pixels (for blending)
+						dst_R = dstPixels[dstIndex + 0];
+						dst_G = dstPixels[dstIndex + 1];
+						dst_B = dstPixels[dstIndex + 2];
+						dst_A = dstPixels[dstIndex + 3];
+
+						// Calculate ONE_MINUS_SRC_ALPHA
+						one_minus_src_A = (1.0 - src_A * one_over_255);
+
+						// Blend Source and Destination Pixels
+						dstPixels[dstIndex + 0] = src_A * src_R * one_over_255 + dst_A * dst_R * one_over_255 * one_minus_src_A;
+						dstPixels[dstIndex + 1] = src_A * src_G * one_over_255 + dst_A * dst_G * one_over_255 * one_minus_src_A;
+						dstPixels[dstIndex + 2] = src_A * src_B * one_over_255 + dst_A * dst_B * one_over_255 * one_minus_src_A;
+						dstPixels[dstIndex + 3] = src_A + dst_A * one_minus_src_A;
+					}
+					else
+					{
+						dstPixels[dstIndex + 0] = srcPixels[srcIndex + 0];
+						dstPixels[dstIndex + 1] = srcPixels[srcIndex + 1];
+						dstPixels[dstIndex + 2] = srcPixels[srcIndex + 2];
+						dstPixels[dstIndex + 3] = srcPixels[srcIndex + 3];
+					}
+				}
+
+			} //x
+		} //y
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -710,11 +819,11 @@ class CanvasRenderingContext2D
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function putImageData(imagedata:ImageData, dx:Float, dy:Float)
 	{
-		putImageData(imagedata, dx, dy, 0.0, 0.0, Float(imagedata.width), Float(imagedata.height));
+		putImageData1(imagedata, dx, dy, 0.0, 0.0, Float(imagedata.width), Float(imagedata.height));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function putImageData(imagedata:ImageData, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float)
+	public function putImageData1(imagedata:ImageData, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float)
 	{
 		if(dirtyWidth < 0.0)
 		{
@@ -757,7 +866,7 @@ class CanvasRenderingContext2D
 					{
 						for(var i:Integer = 4; i--;)
 						{
-							data[dIdx + i] += (imagedata.data[sIdx + i] - data[dIdx + i]) * imagedata.data[sIdx + 3];
+							data[dIdx + i] = imagedata.data[sIdx + i];//(imagedata.data[sIdx + i] - data[dIdx + i]) * imagedata.data[sIdx + 3];
 						}
 					}
 				}

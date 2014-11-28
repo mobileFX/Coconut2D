@@ -39,7 +39,7 @@ function CompilerAnalyzerPlugin(compiler)
 	// Create a non-enumerable metata entry on an object
 	_this.SET_METADATA = function(node, metaname, metadata)
 	{
-		Object.defineProperty(node, metaname, {enumerable:false, value:metadata});
+		Object.defineProperty(node, metaname, {enumerable:false, writable:false, configurable:false, value:metadata});
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -82,7 +82,8 @@ int main(int argc, char *argv[])
 	CocoAssetFile::init(documentsDir.c_str(), bundleDir.c_str());
 
 	CocoFontsCache::init();
-	$(IOS_FONTS_LIST)
+	$(FONTS_LIST)
+
 	CocoAudioStream::init();
 
 	#ifdef __XMLHTTPREQUEST_HPP__

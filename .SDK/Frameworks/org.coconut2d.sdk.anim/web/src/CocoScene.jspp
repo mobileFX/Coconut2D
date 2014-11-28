@@ -239,7 +239,10 @@ class CocoScene
 	public function loadingProgress():Integer
 	{
 		var assets:Float = Float(__imageSymbols.size());
-		return Math.floor((Math.min(__loaded_assets, assets)/assets)*100.0);
+		var p:Float = Math.floor((Math.min(__loaded_assets, assets)/assets)*100.0);
+		if(p<0) p = 0;
+		if(p>100) p = 100;
+		return p;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

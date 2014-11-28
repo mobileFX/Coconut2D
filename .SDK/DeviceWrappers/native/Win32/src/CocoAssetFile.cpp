@@ -1,4 +1,4 @@
-#include "CocoAssetFile.h"
+﻿#include "CocoAssetFile.h"
 
 char* CocoAssetFile::filesPath;
 char* CocoAssetFile::assetPath;

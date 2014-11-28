@@ -111,6 +111,11 @@ function __init_narcissus(GLOBAL)
         "STRING",
         "REGEXP",
 
+        // Conditionals
+        "IFDEF",
+        "ELSEDEF",
+        "ENDDEF",
+
         // OOP
         "struct",
 		"class",
@@ -234,7 +239,10 @@ function __init_narcissus(GLOBAL)
         ['{', "LEFT_CURLY"],
         ['}', "RIGHT_CURLY"],
         ['(', "LEFT_PAREN"],
-        [')', "RIGHT_PAREN"]
+        [')', "RIGHT_PAREN"],
+        ['#if', "IFDEF"],
+        ['#else', "ELSEDEF"],
+        ['#endif', "ENDDEF"]
 	];
 
 	var opTypeNames = jsdef.opTypeNames = (function ()
@@ -658,6 +666,7 @@ function __init_narcissus(GLOBAL)
 	Tokenizer.prototype.__EXPORT_NATIVE = "#export native";
 	Tokenizer.prototype.__DISABLE_ERRORS = "#define NO_COMPILER_ERRORS";
 	Tokenizer.prototype.__ENABLE_ERRORS = "#undefine NO_COMPILER_ERRORS";
+	Tokenizer.prototype.__CONDITIONS = [];
 	Tokenizer.prototype.__FILE_DELIM = "script_begin:///";
 	Tokenizer.prototype.__file = "";
 	Tokenizer.prototype.__path = "";
@@ -711,6 +720,9 @@ function __init_narcissus(GLOBAL)
 		this.EXPORT_NATIVE = t.EXPORT_NATIVE;
 		this.EXPORT_WEB = t.EXPORT_WEB;
 		this.DISABLE_ERRORS = t.DISABLE_ERRORS;
+
+		if(t.__CONDITIONS && t.__CONDITIONS.length)
+			this.__CONDITIONS = t.__CONDITIONS.join("&&");
 
 		if(token)
 		{
@@ -1490,8 +1502,8 @@ function __init_narcissus(GLOBAL)
 			t.mustMatch(jsdef.COLON);
 			matchVartype(t, f, "returntype");
 		}
-		t.mustMatch(jsdef.LEFT_CURLY);
-		t.mustMatch(jsdef.RIGHT_CURLY);
+		t.mustMatch(jsdef.SEMICOLON);
+		//t.mustMatch(jsdef.RIGHT_CURLY);
 		return f;
 	}
 
@@ -2053,6 +2065,29 @@ function __init_narcissus(GLOBAL)
 			n = new Node(t, jsdef.SEMICOLON);
 			n.expression = null;
 			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        case jsdef.IFDEF:
+			n = new Node(t);
+			n.expression = Expression(t, x);
+			n.condition = t.source.substr(n.expression.start, n.expression.end-n.expression.start);
+			t.__CONDITIONS.push(n.condition);
+        	return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        case jsdef.ELSEDEF:
+			t.__CONDITIONS.pop();
+			n = new Node(t);
+			n.expression = Expression(t, x);
+			n.condition = t.source.substr(n.expression.start, n.expression.end-n.expression.start);
+			t.__CONDITIONS.push(n.condition);
+        	return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        case jsdef.ENDDEF:
+        	n = new Node(t);
+        	t.__CONDITIONS.pop();
+        	return n;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		default:

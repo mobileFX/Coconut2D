@@ -681,9 +681,10 @@ function CompilerExportsPlugin(compiler)
 
 		for(var cls in _this.classes)
 		{
-			if(_this.selectedClass && _this.selectedClass!=cls) continue;
-
 			var classSymbol = _this.classes[cls];
+
+			if(_this.selectedClass && classSymbol.path!=_this.selectedClass) continue;
+
 			var derivatives = _this.getAllDerivatives(classSymbol, true);
 			if(derivatives.length)
 				classSymbol.classes = derivatives.join(";");
@@ -815,13 +816,13 @@ function CompilerExportsPlugin(compiler)
 				}
 
 				var signature = methodSymbol.name + "(" + arguments.join(", ") + ")" + (methodSymbol.vartype ? " :" + methodSymbol.vartype : "");
-				externs.push("\t" + methodSymbol.modifier + " function "+ signature + " {}\n");
+				externs.push("\t" + (methodSymbol.modifier?methodSymbol.modifier:"public") + " function "+ signature + " {}\n");
 			}
 
 			for(var item in classSymbol.vars)
 			{
 				var varSymbol = classSymbol.vars[item];
-				externs.push("\t" + varSymbol.modifier + " var " + varSymbol.name + (varSymbol.vartype ? " :"+ varSymbol.vartype : "") + ";\n");
+				externs.push("\t" + (varSymbol.modifier?varSymbol.modifier:"public") + " var " + varSymbol.name + (varSymbol.vartype ? " :"+ varSymbol.vartype : "") + ";\n");
 			}
 
 			externs.push("} //" + classSymbol.name + "\n\n");
@@ -843,8 +844,10 @@ function CompilerExportsPlugin(compiler)
 		var mbrLists = [];
 		for(var cls in _this.classes)
 		{
-			if(_this.selectedClass && _this.selectedClass!=cls) continue;
 			var classSymbol = _this.classes[cls];
+
+			if(_this.selectedClass && classSymbol.path!=_this.selectedClass) continue;
+
 			var mbrList = ["<memberlist name='Class " + classSymbol.name + "'>"];
 
 			for(var item in classSymbol.methods)
@@ -908,7 +911,7 @@ function CompilerExportsPlugin(compiler)
 		{
 			var scope = _this.scopesTable[i];
 			if(!scope.isGlobal && scope.path=="externs.jspp") continue;
-			if(_this.selectedClass && _this.selectedClass!=scope.className) continue;
+			if(_this.selectedClass && scope.path!=_this.selectedClass) continue;
 
 			var varsxml = [];
 
@@ -1463,46 +1466,47 @@ function CompilerExportsPlugin(compiler)
 	{
 		if(!_this.exportSymbols) return;
 
-		//=======================================================
-		// Export symbols to various forms
-		//=======================================================
-
-		var debugSymbols = "<DEBUG_SYMBOLS>" + _this.debugSymbolsTable.join("") + "</DEBUG_SYMBOLS>";
-		var codeSymbols  = _this.exportCodeSymbols();
-		var scopeVars	 = _this.exportScopes();
-		var mbrLists     = _this.exportMemberLists();
-		var externs      = _this.exportExterns();
-		var states		 = _this.exportStates();
-
-		//var stateMachine = compiler.exportGameStateMachine();
-		//trace(stateMachine);
-		//var diagram = _this.exportClassDiagram();
-		//write("D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Documentation/ClassDiagrams/Coconut2D.ncp", diagram);
-		//var reference	 = _this.exportClassReferenceDoc();
-        //write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
-        //write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
-        //write("C:/Users/Admin/Desktop/members.xml", mbrLists);
-        //write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
-
-		//=======================================================
-		// Send exported data to IDE
-		//=======================================================
-
-		if(!_this.selectedClass)
-			IDECallback("resetSymbols");
-
-		IDECallback("setCodeSymbols", "", 0, 0, codeSymbols);
-		IDECallback("setScopes", "", 0, 0, scopeVars);
-		IDECallback("setMemberLists", "", 0, 0, mbrLists);
-		IDECallback("setStates", "", 0, 0, states);
-
- 		if(!_this.selectedClass)
+		if(_this.selectedClass)
 		{
+			var codeSymbols  = _this.exportCodeSymbols();
+			var scopeVars	 = _this.exportScopes();
+			var mbrLists     = _this.exportMemberLists();
+
+			write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
+
+			IDECallback("setCodeSymbols", "", 0, 0, codeSymbols);
+			IDECallback("setScopes", "", 0, 0, scopeVars);
+			IDECallback("setMemberLists", "", 0, 0, mbrLists);
+			IDECallback("symbolsDone");
+		}
+		else
+		{
+			var debugSymbols = "<DEBUG_SYMBOLS>" + _this.debugSymbolsTable.join("") + "</DEBUG_SYMBOLS>";
+			var codeSymbols  = _this.exportCodeSymbols();
+			var scopeVars	 = _this.exportScopes();
+			var mbrLists     = _this.exportMemberLists();
+			var externs      = _this.exportExterns();
+			var states		 = _this.exportStates();
+
+			//var stateMachine = compiler.exportGameStateMachine();
+			//trace(stateMachine);
+			//var diagram = _this.exportClassDiagram();
+			//write("D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Documentation/ClassDiagrams/Coconut2D.ncp", diagram);
+			//var reference	 = _this.exportClassReferenceDoc();
+	        //write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
+	        //write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
+	        //write("C:/Users/Admin/Desktop/members.xml", mbrLists);
+	        //write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
+
+			IDECallback("resetSymbols");
+			IDECallback("setCodeSymbols", "", 0, 0, codeSymbols);
+			IDECallback("setScopes", "", 0, 0, scopeVars);
+			IDECallback("setMemberLists", "", 0, 0, mbrLists);
+			IDECallback("setStates", "", 0, 0, states);
 			IDECallback("setExterns", "", 0, 0, externs);
 			IDECallback("setDebugSymbols", "", 0, 0, debugSymbols);
+			IDECallback("symbolsDone");
 		}
-
-		IDECallback("symbolsDone");
 	};
 
 	/*

@@ -24,7 +24,7 @@
 
 #include "CocoFont.hpp"
 
-#ifdef ENABLE_FREETYPE_SUPPORT
+#define BYTE_VALUE(V)	(uint8_t)(V<0?0:(V>255?255:V))
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoFont::CocoFont(String fontName, float fontSize, bool bold, bool italic) : height(fontSize)
@@ -48,81 +48,94 @@ CocoFont::CocoFont(String fontName, float fontSize, bool bold, bool italic) : he
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoFont::~CocoFont()
 {
 	while(chars.size())
+	{
+		delete[] chars.begin()->second.data;
 		chars.erase(chars.begin());
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, int x, int y, float R, float G, float B, float A)
-{   // We only use the ArrayBuffer of an Int32Array with byteOffset = 0 (BYTES_PER_ELEMENT = 4) in RGBA format
+{
+	// We only use the ArrayBuffer of an Int32Array with byteOffset = 0 (BYTES_PER_ELEMENT = 4) in RGBA format
+
 	if(FT_Set_Pixel_Sizes(face, 0, height))
 	{
 		trace("ERROR(CocoFont.cpp): Freetype could not set font char size");
+		return;
 	}
-    else
-    {
-		std::map<uint16_t, CocoFontChar>::iterator it;
-		CocoFontChar* c = nullptr;
-		for(size_t i = 0; i < text.size(); i++)
+
+	std::map<uint16_t, CocoFontChar>::iterator it;
+	CocoFontChar* c = nullptr;
+
+	for(size_t i = 0; i < text.size(); i++)
+	{
+		if((it = chars.find(text[i])) == chars.end())
 		{
-			if((it = chars.find(text[i])) == chars.end())
+			// Retrieve glyph index from character code
+			CocoFontChar chr;
+			chr.charIndex = FT_Get_Char_Index(face, (FT_ULong)(text[i]));
+
+			// Load glyph image into the slot (erase previous one)
+			if(!FT_Load_Glyph(face, chr.charIndex, FT_LOAD_NO_HINTING|FT_LOAD_RENDER)) //FT_LOAD_RENDER))
 			{
-				CocoFontChar c;
-				c.charIndex = FT_Get_Char_Index(face, (FT_ULong)(text[i]));
-	            if(FT_Load_Glyph(face, c.charIndex, FT_LOAD_RENDER))
-	            {
-	            	trace("ERROR(CocoFont.cpp): Freetype could not load glyph");
-	            }
-	            else
-	            {
-	                if(face->glyph->bitmap.pixel_mode != FT_PIXEL_MODE_GRAY)
-	                {
-	                	trace("ERROR(CocoFont.cpp): Wrong FT_Pixel_Mode");
-	                }
-	                else
-	                {
-	                    c.rect.pos.x = face->glyph->metrics.horiBearingX >> 6;
-	                    c.rect.pos.y = (face->size->metrics.ascender - face->glyph->metrics.horiBearingY) >> 6;
-	                    c.rect.size.x = face->glyph->bitmap.width;
-	                    c.rect.size.y = face->glyph->bitmap.rows;
-	                    c.horiAdvance = face->glyph->advance.x >> 6;
-	                    c.data = new uint8_t[c.rect.size.x * c.rect.size.y];
-	                    memcpy(c.data, face->glyph->bitmap.buffer, c.rect.size.x * c.rect.size.y);
-	                    it = chars.insert(std::pair<uint16_t, CocoFontChar>(text[i], c)).first;
-	                }
-	            }
-			}
-			if(c && FT_HAS_KERNING(face))
-			{
-				std::map<uint16_t, int>::iterator kit = c->horiKernings.find(it->second.charIndex);
-				if(kit == c->horiKernings.end())
+				if(face->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY)
 				{
-					FT_Vector tk;
-	                FT_Get_Kerning(face, c->charIndex, it->second.charIndex, FT_KERNING_DEFAULT, &tk);
-	                kit = c->horiKernings.insert(std::pair<uint16_t, int>(it->second.charIndex, tk.x)).first;
+					chr.rect.pos.x = face->glyph->metrics.horiBearingX >> 6;
+					chr.rect.pos.y = -(face->glyph->metrics.horiBearingY >> 6);//(face->size->metrics.ascender - face->glyph->metrics.horiBearingY) >> 6;
+					chr.rect.size.x = face->glyph->bitmap.width;
+					chr.rect.size.y = face->glyph->bitmap.rows;
+					chr.horiAdvance = face->glyph->advance.x >> 6;
+					chr.data = new uint8_t[chr.rect.size.x * chr.rect.size.y];
+					memcpy(chr.data, face->glyph->bitmap.buffer, chr.rect.size.x * chr.rect.size.y);
+					it = chars.insert(std::pair<uint16_t, CocoFontChar>(text[i], chr)).first;
 				}
-				x += kit->second >> 6;
 			}
-			c = &(it->second);
-			for(size_t ix = c->rect.size.x; ix--;)
+		}
+
+		// Kerning
+		if(c && FT_HAS_KERNING(face))
+		{
+			std::map<uint16_t, int>::iterator kit = c->horiKernings.find(it->second.charIndex);
+			if(kit == c->horiKernings.end())
 			{
-				for(size_t iy = c->rect.size.y; iy--;)
+				FT_Vector tk;
+				FT_Get_Kerning(face, c->charIndex, it->second.charIndex, FT_KERNING_DEFAULT, &tk);
+				kit = c->horiKernings.insert(std::pair<uint16_t, int>(it->second.charIndex, tk.x)).first;
+			}
+			x += kit->second >> 6;
+		}
+
+		c = &(it->second);
+
+		// Bitblt
+		for(size_t ix = c->rect.size.x; ix--;)
+		{
+			for(size_t iy = c->rect.size.y; iy--;)
+			{
+				if(x + c->rect.pos.x + ix < width)
 				{
-					uint8_t* cp = (uint8_t*)((*imageDataBuffer)[((y + c->rect.pos.y + iy) * width + (x + c->rect.pos.x + ix)) * 4]);
-					if(cp && c->data[iy * c->rect.size.x + ix])
+					int idx = ((y + c->rect.pos.y + iy) * width + (x + c->rect.pos.x + ix)) * 4;
+					if(idx>=imageDataBuffer->byteLength) continue;
+					uint8_t* cp = (uint8_t*)((*imageDataBuffer)[idx]);
+					if(cp)// && c->data[iy * c->rect.size.x + ix])
 					{
-						cp[0] = R;
-						cp[1] = G;
-						cp[2] = B;
-						cp[3] = c->data[iy * c->rect.size.x + ix];
+						cp[0] = BYTE_VALUE(255.0 * R);
+						cp[1] = BYTE_VALUE(255.0 * G);
+						cp[2] = BYTE_VALUE(255.0 * B);
+						cp[3] = BYTE_VALUE(c->data[iy * c->rect.size.x + ix]);
+
 					}
 				}
 			}
-			x += c->horiAdvance;
 		}
-    }
+		x += c->horiAdvance;
+
+	}//loop
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,22 +196,3 @@ float CocoFont::measureText(String text)
     }
     return ret;
 }
-
-#else
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoFont::CocoFont(float fontSize, String fontName)
-{
-	trace("ERROR(CocoFont.cpp): Fonts not supported");
-}
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, float x, float y)
-{
-	trace("ERROR(CocoFont.cpp): Fonts not supported");
-}
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-float CocoFont::measureText(String text)
-{
-	trace("ERROR(CocoFont.cpp): Fonts not supported");
-	return 0.0f;
-}
-#endif

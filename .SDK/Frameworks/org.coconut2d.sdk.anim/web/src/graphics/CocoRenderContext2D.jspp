@@ -86,6 +86,7 @@ class CocoRenderContext2D implements ICocoRenderContext
  	}
 
  	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function getName():String									{ return __css3 ? "CSS3" : "2D Canvas"; };
 	public function getGLContext():WebGLRenderingContext				{ return null; }
 	public function get2DContext():CanvasRenderingContext2D				{ return c2d; }
 	public function getDisplayWidth():Float								{ return c2d.canvas.width / engine.device.pixelRatio; }
@@ -97,6 +98,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 	public function hide()												{ c2d.canvas.style.visibility="hidden"; }
 	public function show()												{ c2d.canvas.style.visibility="visible"; }
 	public function ready():Boolean										{ return true; }
+	public function getCanvas():HTMLCanvasElement						{ return c2d.canvas; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function flush()
@@ -153,6 +155,9 @@ class CocoRenderContext2D implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepareImage(img:CocoImage):ICocoImageRenderData
 	{
+		// Resize
+		img.resizeToOptimalTextureSize();
+
 		return new CocoImageRenderData2D();
 	}
 
@@ -202,7 +207,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 					m.translate(-(clip.__image.textureCellWidth/clip.__image.pixelRatio)/2, -(clip.__image.textureCellHeight/clip.__image.pixelRatio)/2);
 					m = __projectionMatrix.multiplyByMatrix(m);
 					m.__m.rc34 = clip.__zIndex;
-					var tm:String = m.toCSS3D(true);// + " translateZ(" + String(clip.__zIndex) + ")";
+					var tm:String = m.toCSS3D(true);
 					if(DIV.style.transform != tm)
 					{
 						DIV.style.webkitTransform = DIV.style.transform = tm;
@@ -238,6 +243,11 @@ class CocoRenderContext2D implements ICocoRenderContext
 
 		if(__css3)
 		{
+			//document.body.style.transformStyle			= "preserve-3d";
+			//document.body.style.webkitTransformStyle	= "preserve-3d";
+			//document.body.style.webkitPerspective		= "2000px";
+			//document.body.style.transform 				= "translateZ(0)";
+
 			var DIV:HTMLElement = document.getElementById(clip.__uniqueID);
 
 			if(!DIV)
@@ -267,21 +277,16 @@ class CocoRenderContext2D implements ICocoRenderContext
 				DIV.style.borderSpacing			= 0;
 				DIV.style.borderWidth			= 0;
 
-				// If pointer events are disabled (recommended) then you won't
-				// be able to mix HTML5 elements and expect to receive events.
-				//DIV.style.pointerEvents			= "none";
-
 				// Set DIV background image
 				DIV.style.backgroundImage 		= "url(" + image.hImage.src + ")";
 				DIV.style.backgroundPosition	= "0px 0px";
 				DIV.style.backgroundRepeat		= "no-repeat";
 				DIV.style.backgroundSize		= String(image.hImage.naturalWidth/image.pixelRatio) + "px " + String(image.hImage.naturalHeight/image.pixelRatio) + "px";
 				DIV.style.backgroundBlendMode	= "normal";
-				//DIV.style.backgroundAttachment	= "fixed";
 				DIV.style.backgroundClip		= "border-box";
 				DIV.style.backgroundOrigin		= "border-box";
 
-				DIV = document.body.appendChild(DIV);
+				document.body.appendChild(DIV);
 				DIV.setAttribute("ready", "true");
 			}
 
@@ -289,9 +294,13 @@ class CocoRenderContext2D implements ICocoRenderContext
 				DIV.style.backgroundImage = "url(" + image.hImage.src + ")";
 
 			// Spritesheet Animation in pure HTML5 with CSS3!!
-			var tx:Float = -(image.textureGrid[textureIndex * 2 + 1] * image.textureCellWidth/image.pixelRatio);
-			var ty:Float = -(image.textureGrid[textureIndex * 2 + 0] * image.textureCellHeight/image.pixelRatio);
-			DIV.style.backgroundPosition	= String(tx) + "px " + String(ty) + "px";
+			var tx:Float = -((image.textureGrid[textureIndex * 2 + 1]) * image.textureCellWidth/image.pixelRatio);
+			var ty:Float = -((image.textureGrid[textureIndex * 2 + 0]) * image.textureCellHeight/image.pixelRatio);
+
+			tx -= image.binpackX;
+			ty -= image.binpackY;
+
+			DIV.style.backgroundPosition = String(tx) + "px " + String(ty) + "px";
 		}
 
 		// ===================================================
@@ -332,14 +341,16 @@ class CocoRenderContext2D implements ICocoRenderContext
 			}
 
 			// Calculate image copy rectangles
-			var sw:Float = Math.floor( image.textureCellWidth															);
-			var sh:Float = Math.floor( image.textureCellHeight				                                        	);
-			var sx:Float = Math.floor( ((keyFrame.flipH ? 1.0 : 0.0) + image.textureGrid[textureIndex * 2 + 1]) * sw   	);
-			var sy:Float = Math.floor( ((keyFrame.flipV ? 1.0 : 0.0) + image.textureGrid[textureIndex * 2 + 0]) * sh   	);
-			var dx:Float = Math.floor( -sw / 2.0                                                                       	);
-			var dy:Float = Math.floor( -sh / 2.0                                                                       	);
-			var dw:Float = Math.floor( sw                                                                              	);
-			var dh:Float = Math.floor( sh                                                                              	);
+			var sw:Integer = image.textureCellWidth;
+			var sh:Integer = image.textureCellHeight;
+			var ox:Integer = image.binpackX;
+			var oy:Integer = image.binpackY;
+			var sx:Integer = ox + ((keyFrame.flipH ? 1.0 : 0.0) + image.textureGrid[textureIndex * 2 + 1]) * sw;
+			var sy:Integer = oy + ((keyFrame.flipV ? 1.0 : 0.0) + image.textureGrid[textureIndex * 2 + 0]) * sh;
+			var dx:Integer = -sw / 2.0;
+			var dy:Integer = -sh / 2.0;
+			var dw:Integer = sw;
+			var dh:Integer = sh;
 
 			// Set global alpha
 			c2d.globalAlpha = keyFrame.alpha;

@@ -67,7 +67,6 @@ CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
 
 	// Create instance of main window.
 	m_glHWND = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, MainWndClass, L"$(PROJECT_NAME)", WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, m_hInstance, NULL);
-	//m_glHWND = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_TOPMOST, MainWndClass, L"$(PROJECT_NAME)", WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, m_hInstance, NULL);
 
 	// Get Window hDC, show window and force a paint.
 	m_glHDC = GetDC(m_glHWND);
@@ -75,7 +74,6 @@ CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
 	UpdateWindow(m_glHWND);
 	SetForegroundWindow(m_glHWND);
 	SetFocus(m_glHWND);
-	//SetWindowPos(m_glHWND, NULL, 0, 0, 0, 0, SWP_NOSIZE);
 
 	// Keep window size information for OpenGL calculations
 	screen.width = width;
@@ -125,7 +123,7 @@ CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
 	window->devicePixelRatio = screen.pixelRatio;
 	window->deviceRotation = 0.0f;
 	global = window;
-	document = new HTMLDocument();
+	document = window->document;
 
 	// Create a WebGL Canvas
 	engine = new GameEngine();
@@ -153,12 +151,21 @@ void CocoDeviceWrapper::EventLoop()
 	QueryPerformanceCounter(&m_TFirst);
 	m_TLast = m_TFirst;
 
+	RECT rc;
+
 	do
 	{
 		// Get total and elapsed milliseconds since last tick.
 		QueryPerformanceCounter(&m_TCurrent);
 		currentTime = (double(m_TCurrent.QuadPart) - double(m_TFirst.QuadPart)) / m_Freq;
 		ellapsedTime = (double(m_TCurrent.QuadPart) - double(m_TLast.QuadPart)) / m_Freq;
+
+		// Update Window Size
+		GetClientRect(m_glHWND, &rc);
+		screen.width = rc.right-rc.left+1;
+		screen.height = rc.bottom-rc.top+1;
+		window->innerWidth = screen.width;
+		window->innerHeight = screen.height;
 
 		if(ellapsedTime>=16.0)
 		{

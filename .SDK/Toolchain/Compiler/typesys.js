@@ -172,7 +172,7 @@ function CompilerTypeSystemPlugin(compiler)
 		case "SyntaxError":
 		case "TypeError":
 
-		case "XMLHttpRequest":
+		//case "XMLHttpRequest": We exclude XMLHttpRequest because it is implemented inside a Framework and not in Common
 
 		case "ArrayBuffer":
 		case "ArrayBufferView":
@@ -257,9 +257,24 @@ function CompilerTypeSystemPlugin(compiler)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.typeOf = function(value)
+	{
+		if(Array.isArray(value)) return "Array";
+		switch(typeof(value))
+		{
+		case "string": return "String";
+		case "number": return "Number";
+		case "boolean": return "Boolean";
+		default:
+			return "Object";
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getDefaultVartypeValue = function(vartype)
 	{
 		if(!vartype) return null;
+		if(vartype=="Time") return "0";
 		if(__exists(_this.types, vartype) && __exists(_this.types[vartype], "default"))
 			return _this.types[vartype].default;
 		var cls = _this.getClass(vartype);
@@ -272,6 +287,20 @@ function CompilerTypeSystemPlugin(compiler)
 			}
 		}
 		return null;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getDefaultVartypeValueCPP = function(vartype)
+	{
+		if(_this.isEnum(vartype))
+		{
+			var cls = _this.getClass(vartype);
+			return vartype + "(0)";
+		}
+
+		var v = _this.getDefaultVartypeValue(vartype);
+		if(v==null || v=="null") return "nullptr";
+		return v;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -359,7 +388,6 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.DELETE:          return "Boolean";
 		case jsdef.EQ:              return "Boolean";
 		case jsdef.FALSE:           return "Boolean";
-		case jsdef.FUNCTION:		return ast.symbol.vartype;
 		case jsdef.GE:              return "Boolean";
 		case jsdef.GROUP: 			return _this.getTypeName(ast[0]);
 		case jsdef.GT:              return "Boolean";
@@ -383,6 +411,10 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.TRUE:			return "Boolean";
 		case jsdef.TYPEOF:			return "String";
 		case jsdef.VOID:			return _this.UNTYPED;
+
+		case jsdef.FUNCTION:
+			return ast.symbol.vartype || "Function";
+
 
 		//=============================================================================================================================
 		case jsdef.NEW:
@@ -845,6 +877,12 @@ function CompilerTypeSystemPlugin(compiler)
 			return type1;
 		}
 
+		// Callbacks (need to check better)
+		if(cls1.callback && cls2.vartype=="Function")
+		{
+			return type1;
+		}
+
 		// Inheritance and Interfaces
 		if(_this.classTypeCheck(cls1, cls2, ast))
 			return type1;
@@ -863,7 +901,7 @@ function CompilerTypeSystemPlugin(compiler)
 		// Casting function to callback signature
 		if(cls1.callback)
 		{
-			if(ast.symbol.__typedParamsList==cls1.__typedParamsList)
+			if(ast.symbol && ast.symbol.__typedParamsList && ast.symbol.__typedParamsList==cls1.__typedParamsList)
 				return cls1.name;
 
 			_this.NewError("Callback type mismatch " + cls1.name + " and " + cls2.name + ": " + ast.source, ast);

@@ -1,0 +1,435 @@
+﻿"#export native";
+"#export web";
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.yourcompany.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+"#include CocoClip.jspp";
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_SCREEN_ORIENTATION
+{
+	SCREEN_ORIENTATION_PORTRAIT						= 0,
+	SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN			= 180,
+	SCREEN_ORIENTATION_LANDSCAPE_CLOCKWISE			= -90,
+	SCREEN_ORIENTATION_LANDSCAPE_COUNTER_CLOCKWISE	= 90
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_DEVICE
+{
+	DEVICE_GENERIC_MDPI			= 0x0,
+	DEVICE_GENERIC_HDPI			= 0x1,
+	DEVICE_GENERIC_XHDPI		= 0x2,
+	DEVICE_GENERIC_XXHDPI		= 0x3,
+	DEVICE_GENERIC_TVDPI		= 0x4,
+	DEVICE_GENERIC_LDPI			= 0x5,
+	DEVICE_IPHONE_3GS			= 0xa1,
+	DEVICE_IPHONE_4             = 0xa2,
+	DEVICE_IPHONE_4S            = 0xa3,
+	DEVICE_IPHONE_5             = 0xa4,
+	DEVICE_IPHONE_5S            = 0xa5,
+	DEVICE_IPHONE_5C            = 0xa6,
+	DEVICE_IPHONE_6             = 0xa7,
+	DEVICE_IPHONE_6_PLUS        = 0xa8,
+	DEVICE_IPAD                 = 0xb1,
+	DEVICE_IPAD_2               = 0xb2,
+	DEVICE_IPAD_3               = 0xb3,
+	DEVICE_IPAD_MINI            = 0xb4,
+	DEVICE_IPAD_AIR             = 0xb5,
+	DEVICE_IPAD_MINI_RETINA     = 0xb6
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+class CocoDevice
+{
+	public function Constructor()
+	{
+	}
+
+	public function Destructor()
+	{
+	}
+
+	public function report()
+	{
+		var msg:String = window.navigator.userAgent;
+
+		if(isCoconut2DPlayer)	msg = "\nDetected Device\t\t: Coconut2D Player";
+		if(isIPad1) 			msg = "\nDetected Device\t\t: iPad";
+		if(isIPad2) 			msg = "\nDetected Device\t\t: iPad 2";
+		if(isIPad3) 			msg = "\nDetected Device\t\t: iPad 3";
+		if(isIPhone3)			msg = "\nDetected Device\t\t: iPhone 3";
+		if(isIPhone4)			msg = "\nDetected Device\t\t: iPhone 4";
+		if(isIPhone5)			msg = "\nDetected Device\t\t: iPhone 5";
+		if(isIPhone6)			msg = "\nDetected Device\t\t: iPhone 6";
+		if(isIPhone6Plus) 		msg = "\nDetected Device\t\t: iPhone 6 Plus";
+
+		msg += "\nRendering Engine\t: " + engine.__ctx.getName();
+		msg += "\nDrawing Buffer Size\t: " + String(screenWidth*pixelRatio) + " x " + String(screenHeight*pixelRatio) + " pixels";
+		msg += "\nDisplay Buffer Size\t: " + String(screenWidth) + " x " + String(screenHeight) + " points";
+		msg += "\nWorking Pixel Ratio\t: x" + String(pixelRatio);
+		msg += "\nActual Pixel Ratio\t: x" + String(window.devicePixelRatio);
+
+		trace(msg);
+	}
+
+	// ==================================================================================================================================
+	//	    ____            _              ____      ____
+	//	   / __ \___ _   __(_)_______     /  _/___  / __/___
+	//	  / / / / _ \ | / / / ___/ _ \    / // __ \/ /_/ __ \
+	//	 / /_/ /  __/ |/ / / /__/  __/  _/ // / / / __/ /_/ /
+	//	/_____/\___/|___/_/\___/\___/  /___/_/ /_/_/  \____/
+	//
+	// ==================================================================================================================================
+
+	public property Force2D
+	{
+		function get():Boolean
+		{
+			return (window.location.search.indexOf("ctx=2d")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property ForceCSS3
+	{
+		function get():Boolean
+		{
+			return (window.location.search.indexOf("ctx=css3")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property pixelRatio
+	{
+		function get():Float
+		{
+			return (!isHTML5Browser || (isHTML5Browser && (isIPhone5 || isIPhone6 || isIPhone6Plus))) ? window.devicePixelRatio : 1;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property screenWidth
+	{
+		function get():Float { return window.innerWidth; }
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property screenHeight
+	{
+		function get():Float { return window.innerHeight; }
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property unorientedScreenWidth
+	{
+		function get():Float
+		{
+			return Math.min(window.screen.width, window.screen.height);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property unorientedScreenHeight
+	{
+		function get():Float
+		{
+			return Math.max(window.screen.width, window.screen.height);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property screenOrientation
+	{
+		function get():COCO_SCREEN_ORIENTATION
+		{
+			switch (window.orientation)
+			{
+			case 180:  	return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN;
+			case -90:	return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_LANDSCAPE_CLOCKWISE;
+			case 90:  	return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_LANDSCAPE_COUNTER_CLOCKWISE;
+			case 0: 	return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_PORTRAIT;
+			}
+			return COCO_SCREEN_ORIENTATION.SCREEN_ORIENTATION_PORTRAIT;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property type
+	{
+		function get():COCO_DEVICE
+		{
+			     if(isIPad1)		return COCO_DEVICE.DEVICE_IPAD;
+			else if(isIPad2)		return COCO_DEVICE.DEVICE_IPAD_2;
+			else if(isIPad3)		return COCO_DEVICE.DEVICE_IPAD_3;
+			else if(isIPhone3)		return COCO_DEVICE.DEVICE_IPHONE_3GS;
+			else if(isIPhone4)		return COCO_DEVICE.DEVICE_IPHONE_4;
+			else if(isIPhone5)		return COCO_DEVICE.DEVICE_IPHONE_5;
+			else if(isIPhone6)		return COCO_DEVICE.DEVICE_IPHONE_6;
+			else if(isIPhone6Plus)	return COCO_DEVICE.DEVICE_IPHONE_6_PLUS;
+
+			else
+			{
+					 if(pixelRatio==0.75)	return COCO_DEVICE.DEVICE_GENERIC_LDPI;
+				else if(pixelRatio==1.25)	return COCO_DEVICE.DEVICE_GENERIC_TVDPI;
+				else if(pixelRatio==1.50)	return COCO_DEVICE.DEVICE_GENERIC_HDPI;
+				else if(pixelRatio==2.00)	return COCO_DEVICE.DEVICE_GENERIC_XHDPI;
+				else if(pixelRatio==3.00)	return COCO_DEVICE.DEVICE_GENERIC_XXHDPI;
+				else 						return COCO_DEVICE.DEVICE_GENERIC_MDPI;
+			}
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property dpi
+	{
+		function get():COCO_DEVICE
+		{
+				 if(pixelRatio==0.75)	return COCO_DEVICE.DEVICE_GENERIC_LDPI;
+			else if(pixelRatio==1.25)	return COCO_DEVICE.DEVICE_GENERIC_TVDPI;
+			else if(pixelRatio==1.50)	return COCO_DEVICE.DEVICE_GENERIC_HDPI;
+			else if(pixelRatio==2.00)	return COCO_DEVICE.DEVICE_GENERIC_XHDPI;
+			else if(pixelRatio==3.00)	return COCO_DEVICE.DEVICE_GENERIC_XXHDPI;
+			else 						return COCO_DEVICE.DEVICE_GENERIC_MDPI;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isNative
+	{
+		function get():Boolean
+		{
+			return global.__native;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isCoconut2DPlayer
+	{
+		function get():Boolean
+		{
+			return global.__Coconut2DPlayer;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isHTML5Browser
+	{
+		function get():Boolean
+		{
+			return !isNative && (isChrome || isFirefox || isSafari);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isDesktop
+	{
+		function get():Boolean
+		{
+			return !(isIOS || isAndroid);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isMobileHTML5Browser
+	{
+		function get():Boolean
+		{
+			return isHTML5Browser && !isDesktop;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isChrome
+	{
+		function get():Boolean
+		{
+			return (window.navigator.userAgent.indexOf("Chrome")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isFirefox
+	{
+		function get():Boolean
+		{
+			return (window.navigator.userAgent.indexOf("Firefox")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isSafari
+	{
+		function get():Boolean
+		{
+			return (window.navigator.userAgent.indexOf("Safari")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIOS
+	{
+		function get():Boolean
+		{
+			return isIPhone || isIPad;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPhone
+	{
+		function get():Boolean
+		{
+			return (window.navigator.userAgent.indexOf("iPhone")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPad
+	{
+		function get():Boolean
+		{
+			return (window.navigator.userAgent.indexOf("iPad")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPad1
+	{
+		function get():Boolean
+		{
+			return isIPad && (window.navigator.userAgent.indexOf("Mobile/8F190")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPad2
+	{
+		function get():Boolean
+		{
+			return isIPad && (window.devicePixelRatio==1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPad3
+	{
+		function get():Boolean
+		{
+			return isIPad && (window.devicePixelRatio==2);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPhone3
+	{
+		function get():Boolean
+		{
+			return (isIPhone && window.devicePixelRatio==1 && unorientedScreenHeight*window.devicePixelRatio==480);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPhone4
+	{
+		function get():Boolean
+		{
+			return (isIPhone && window.devicePixelRatio==2 && unorientedScreenHeight*window.devicePixelRatio==960);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPhone5
+	{
+		function get():Boolean
+		{
+			return (isIPhone && window.devicePixelRatio==2 && unorientedScreenHeight*window.devicePixelRatio==1136);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPhone6
+	{
+		function get():Boolean
+		{
+			return (isIPhone && window.devicePixelRatio==2 && unorientedScreenHeight*window.devicePixelRatio==1334);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isIPhone6Plus
+	{
+		function get():Boolean
+		{
+			return (isIPhone && window.devicePixelRatio==3 && window.innerHeight*window.devicePixelRatio==2208);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isDesktopSafari
+	{
+		function get():Boolean
+		{
+			return (window.navigator.userAgent.indexOf("Windows")!=-1) && (window.navigator.userAgent.indexOf("Safari")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property iOSVersion
+	{
+		function get():String
+		{
+			return "";//isIPhone ? navigator.userAgent.match(/iPhone OS (\d+)/)[1] : 0;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property isAndroid
+	{
+		function get():Boolean
+		{
+			return (window.navigator.userAgent.indexOf("Android")!=-1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property AndroidSDKVersion
+	{
+		function get():String
+		{
+			return "";//isAndroid ? navigator.userAgent.match(/Android (\d+\.\d+\.\d+)/)[1] : 0;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property HasTouchscreen
+	{
+		function get():Boolean
+		{
+			return isAndroid || isIOS;
+		}
+	}
+}

@@ -43,7 +43,7 @@ var __Audio_play = function(id:Integer){};
 var __Audio_pause = function(id:Integer){};
 var __Audio_stop = function(id:Integer){};
 
-function __Facebook_Initialize(AppID:Integer, ImageSize:Integer){};
+function __Facebook_Initialize(AppID:String, ImageSize:Integer){};
 function __Facebook_Login(Permissions:String, ImageSize:Integer){};
 function __Facebook_Share(URL:String){};
 function __Facebook_Post(toUserID:String, URL:String){};
@@ -204,13 +204,13 @@ var __WebGLRenderingContext_viewport = function(uid, x, y, width, height){};
 // ==================================================================================================================================
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class Null {}
-class Untyped {}
+//class Null {}
+//class Untyped {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Object
 {
-	public var prototype:Object;
+	//public var prototype:Object;
 	public function Destructor() {}
 	public function toString():String {}
 	public function toLocaleString():String {}
@@ -248,7 +248,7 @@ class Function
 	public function call(thisObject:Object, ...):Object {}
 }
 
-callback CocoAction() {}
+callback CocoAction();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Global
@@ -260,6 +260,7 @@ class Global
 	public var deviceRotation:Float;
 	public var devicePixelRatio:Float;
 	public var __native:Boolean;
+	public var __Coconut2DPlayer:Boolean;
 	public var __touchEvents:Boolean;
 	public function Destructor() {}
 	public function eval(s:String):Object {}
@@ -456,6 +457,12 @@ class Int32Array : TypedArray
 class Uint8Array : TypedArray
 {
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class Uint32Array : TypedArray
+{
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Error

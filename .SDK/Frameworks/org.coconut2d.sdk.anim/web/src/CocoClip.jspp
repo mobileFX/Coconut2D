@@ -223,6 +223,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function analyze(sx:Float, sy:Float)
 	{
+		// Get Timeline max scale X,Y
 		var maxSX:Float = 0.0;
 		var maxSY:Float = 0.0;
 		var i:Integer;
@@ -232,9 +233,12 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			if(kf.scaleX > maxSX) maxSX = kf.scaleX;
 			if(kf.scaleY > maxSY) maxSY = kf.scaleY;
 		}
+
+		// Multiply it with parent's scale
 		sx *= maxSX;
 		sy *= maxSY;
 
+		// Apply scale to image
 		if(__image)
 		{
 			if(__image.scaleX < sx) __image.scaleX = sx;
@@ -242,6 +246,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		}
 		else
 		{
+			// Process children
 			for(i = __children.size(); i--;)
 				__children[i].analyze(sx, sy);
 		}
@@ -447,7 +452,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function paused():Boolean
 	{
-		var clip:CocoClip;
 		for(var i:Integer = __children.size() - 1; i >= 0; i--)
 			if(!__children[i].__timeline.__paused)
 				return false;
@@ -572,10 +576,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 				var sequenceFrameIndex:Integer = __timeline.__paused ? 0 : Math.floor((__currentTime-__currentSequenceStartTime) / (1000.0 / sequenceFPS)) % __currentSequence.frames.size();
 				var frame:Integer = __currentSequence.frames[sequenceFrameIndex];
 
-				if(!__ANCHOR)
-				{
-					ctx.drawFrame(scene, this, __image, __currentFrame, frame);
-				}
+				ctx.drawFrame(scene, this, __image, __currentFrame, frame);
 
 				if(__currentSequenceFrameIndex!=-1 && sequenceFrameIndex<__currentSequenceFrameIndex)
 				{
@@ -586,7 +587,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			else
 			{
 				// Render a standard image.
-				if(!__ANCHOR)
+				//if(!__ANCHOR)
 				{
 					ctx.drawFrame(scene, this, __image, __currentFrame, 0);
 				}
@@ -654,6 +655,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			 			y = scene.viewY(y);
 
 		   	        	//trace("hit: " + __instanceName );
+
 		   	        	switch(deviceMessage.type)
 		   	        	{
 						case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START:
@@ -872,6 +874,8 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function createInplaceHTML(optional update:Boolean, optional tag:String, optional href:String) :HTMLElement
 	{
+		if(engine.device.isNative) return null;
+
 		var ANCHOR:HTMLElement = document.getElementById(__uniqueID);
 
 		if(!ANCHOR || update)
@@ -907,7 +911,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			ANCHOR.style.borderWidth			= 0;
 
 			// Set ANCHOR background image
-			ANCHOR.style.backgroundImage 		= "url(" + __image.hImage.src + ")";
+			//ANCHOR.style.backgroundImage 		= "url(" + __image.hImage.src + ")";
 			ANCHOR.style.backgroundPosition		= "0px 0px";
 			ANCHOR.style.backgroundRepeat		= "no-repeat";
 			ANCHOR.style.backgroundSize			= String(__image.hImage.naturalWidth/__image.pixelRatio) + "px " + String(__image.hImage.naturalHeight/__image.pixelRatio) + "px";
@@ -935,6 +939,8 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function destroyInplaceHTML()
 	{
+		if(engine.device.isNative) return;
+
 		if(__ANCHOR) __ANCHOR.parentNode.removeChild(__ANCHOR);
 		__ANCHOR=null;
 	}
@@ -1141,6 +1147,7 @@ class CocoTextClip : CocoSelfTexturedClip
     	f.mappings.push(0);
     	f.drawSimple(c2d, fontStyle, FontUnderline, color, 0, 0, w, h, align.horiz, align.vert);
 		buffer = CocoGraphics.CocoImageFromHTMLCanvas(canvas, w, h);
+
 		delete f;
 		delete canvas;
 

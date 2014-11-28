@@ -74,7 +74,7 @@ void trace(const char* fmt, ...)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-void __Facebook_Initialize(int AppID, int ImageSize)
+void __Facebook_Initialize(String AppID, int ImageSize)
 {
 }
 
@@ -103,6 +103,11 @@ void fixTouch(Touch* touch)
 {
 }
 
+extern String encodeURIComponent(String uri)
+{
+	return uri;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 ArrayBuffer* ArrayBuffer::NewFromImage(std::string str, uint32_t& width, uint32_t& height)
 {
@@ -113,7 +118,7 @@ ArrayBuffer* ArrayBuffer::NewFromImage(std::string str, uint32_t& width, uint32_
 		case CocoAssetFile::MIME::IMAGE_PNG: return NewFromImage_PNG(file, width, height);
 		#endif
 
-		#ifdef ENABLE_JPEG_SUPPORT
+		#ifdef ENABLE_JPG_SUPPORT
 		case CocoAssetFile::MIME::IMAGE_JPG: return NewFromImage_JPG(file, width, height);
 		#endif
 		default:

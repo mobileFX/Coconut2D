@@ -33,6 +33,8 @@
 //
 // ==================================================================================================================================
 
+callback OnClickHandler(e:HTMLEvent);
+
 class HTMLElement
 {
 	public var id:String;
@@ -42,7 +44,8 @@ class HTMLElement
 	public var style:HTMLStyleElement;
 	public reference var parentNode:HTMLElement;
 	public reference var document:HTMLDocument;
-	public reference var onclick:Function;
+
+	public reference var onclick:OnClickHandler;
 
 	public function Constructor()
 	{
@@ -52,6 +55,8 @@ class HTMLElement
 		offsetHeight = 0;
 		onclick = null;
 		style = new HTMLStyleElement();
+		parentNode = null;
+		document = null;
 	}
 
 	public function Destructor()

@@ -57,9 +57,9 @@ class HTMLWindow
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		innerHeight = global.innerHeight;
-		innerWidth = global.innerWidth;
 		devicePixelRatio = global.devicePixelRatio;
+		innerHeight = global.innerHeight / global.devicePixelRatio;
+		innerWidth = global.innerWidth / global.devicePixelRatio;
 
 		e = new HTMLEvent;
 		__elements = new Array<Function>;
@@ -129,10 +129,12 @@ class HTMLWindow
 			}
 			else
 			{
-				e.clientX					= Float(arguments[4]);
-				e.clientY					= Float(arguments[5]);
-				e.touches[0].clientX 		= e.clientX;
-				e.touches[0].clientY 		= e.clientY;
+				e.clientX = Float(arguments[4]) / global.devicePixelRatio;
+				e.clientY = Float(arguments[5]) / global.devicePixelRatio;
+
+				e.touches[0].clientX = e.clientX;
+				e.touches[0].clientY = e.clientY;
+
 				e.changedTouches[0].clientX	= e.clientX;
 				e.changedTouches[0].clientY	= e.clientY;
 			}

@@ -64,6 +64,11 @@ function CompilerCppPlugin(compiler)
 	{
 		var _this = this, CPP = [], HPP = [], ast = ast || _this.ast;
 
+		if(ast.__CONDITIONS)
+		{
+			if(!_this.evalCondition(ast.__CONDITIONS)) return _this.NULL_GEN;
+		}
+
 		var generate_cpp = function()
 		{
 			return _this.generate_cpp.apply(_this, Array.prototype.slice.call(arguments,0));
@@ -102,6 +107,7 @@ function CompilerCppPlugin(compiler)
 
 			var items = [];
 			var clone = [];
+			var init = [];
 			for(item in ast)
 			{
 				if(!isFinite(item)) break;
@@ -111,8 +117,9 @@ function CompilerCppPlugin(compiler)
 				if(value==null) value = "nullptr";
 				if(value=='""') value = 'String("")';
 				clone.push( "\t\t" + field.name + " = T->" + field.name + ";");
+				init.push( "\t\t" + field.name + " = " + _this.getDefaultVartypeValueCPP(field.vartype) + ";");
 			}
-			items.push("\t" + ast.name + "()\n\t{\n\t};");
+			items.push("\t" + ast.name + "()\n\t{" + init.join("\n") + "\n\t};");
 			items.push("\t" + ast.name + "(" + ast.name + "* T)\n\t{\n" + clone.join("\n") + "\n\t};");
 			HPP.push("struct " + ast.name + "\n{\n" + items.join("\n") + "\n\t};");
 
@@ -182,6 +189,61 @@ function CompilerCppPlugin(compiler)
 					CPP.push(result.CPP);
 					HPP.push(result.HPP);
 					break;
+				}
+			}
+
+			// Delegates
+			for(var item in ast.symbol.vars)
+			{
+				var delegator = ast.symbol.vars[item];
+				if(delegator.delegate)
+				{
+					var cls = _this.getClass(delegator.vartype);
+					for(member in cls.methods)
+					{
+						// Get delegate function
+						var delegatorFunctionSymbol = cls.methods[member];
+
+						// If delegate function is not public or if it is static or abstract, continue
+						if(!delegatorFunctionSymbol.public) continue;
+						if(delegatorFunctionSymbol.static) continue;
+						if(delegatorFunctionSymbol.abstract) continue;
+
+						// Get delegate function name
+						var fnName = delegatorFunctionSymbol.overloads && delegatorFunctionSymbol.overloads.length ? delegatorFunctionSymbol.overloads[0].name : delegatorFunctionSymbol.name;
+
+						// No delegation for constructor or destructor
+						if(fnName=="Constructor") continue;
+						if(fnName=="Destructor") continue;
+
+						// Get params list and build argumetns
+						var paramsList = delegatorFunctionSymbol.__untypedParamsList;
+						var args = [];
+						for(var i=0; i<delegatorFunctionSymbol.paramsList.length; i++)
+						{
+							var p = delegatorFunctionSymbol.paramsList[i];
+							args.push((p.optional ? "const " : "") + _this.VTCPP(p.vartype) + p.name + (p.optional ? " = " + _this.getDefaultVartypeValue(p.vartype) : ""));
+						}
+
+						// Create the delegation HPP wrapper
+						var wrapper = (delegatorFunctionSymbol.vartype ? delegatorFunctionSymbol.vartype : "void") + " " + fnName + "(" + args.join(", ") + ");";
+						HPP.push(wrapper);
+						args = [];
+						for(var i=0; i<delegatorFunctionSymbol.paramsList.length; i++)
+						{
+							var p = delegatorFunctionSymbol.paramsList[i];
+							args.push(_this.VTCPP(p.vartype) + p.name);
+						}
+
+						// Create the delegation CPP wrapper
+						wrapper = (delegatorFunctionSymbol.vartype ? delegatorFunctionSymbol.vartype : "void") + " " + ast.name + "::" + fnName + "(" + args.join(", ") + ")";
+						wrapper += "{ if(" + delegator.name + ") { ";
+						if(delegatorFunctionSymbol.vartype) wrapper += "return ";
+						wrapper += delegator.name + "->" + fnName + delegatorFunctionSymbol.__untypedParamsList + ";";
+						wrapper += (delegatorFunctionSymbol.vartype ? "" : "return;") + " } else { return";
+						wrapper += (delegatorFunctionSymbol.vartype ? " " +_this.getDefaultVartypeValue(delegatorFunctionSymbol.vartype) : "") + "; }}";
+						CPP.push(_this.SEPARATOR+wrapper);
+					}
 				}
 			}
 
@@ -284,7 +346,7 @@ function CompilerCppPlugin(compiler)
 									{
 										var event_parm = ebd.event_handler.paramsList[j];
 										flat_arguments.push("E->"+event_parm.name);
-										CPP.push(event_parm.vartype + " " + event_parm.name + " = E->" + event_parm.name + ";");
+										CPP.push(_this.VTCPP(event_parm.vartype) + event_parm.name + " = E->" + event_parm.name + ";");
 									}
 									flat_arguments = (flat_arguments.length>0 ? ", " + flat_arguments.join(", ") : "");
 
@@ -443,7 +505,7 @@ function CompilerCppPlugin(compiler)
 				{
 					if(ast[i].name == "__className" && ast.inClass.symbol.base)	continue;
 
-					if(isConst)
+					if(isConst && !ast.static)
 					{
 						val = "const " + _this.VTCPP(ast[i].vartype) + ast[i].name + initializer(ast[i]) + ";";
 						HPP.push(val);
@@ -454,7 +516,7 @@ function CompilerCppPlugin(compiler)
 						val = _this.VTCPP(ast[i].vartype) + _this.currClassName + "::" + ast[i].name + ";";
 						CPP.push(val);
 
-						val = "static " + (isConst ? "constexpr " : "") + _this.VTCPP(ast[i].vartype) + ast[i].name + ";";
+						val = "static " + (isConst ? "constexpr " : "") + _this.VTCPP(ast[i].vartype) + ast[i].name + (!isConst ? "" : initializer(ast[i])) + ";";
 						HPP.push(val);
 					}
 					else
@@ -832,26 +894,36 @@ function CompilerCppPlugin(compiler)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CALL:
 
+			var call0 = generate_cpp(ast[0]).CPP;
+
+			// toJSON hack
+			if(ast[0].__toJSON)
+			{
+				CPP.push(call0);
+				break;
+			}
+
 			if(ast.typecasting)
 			{
 				var vartype = generate_cpp(ast[0]).CPP;
 				if(ast.castToType=="String")
 				{
-					switch(ast.castFromType)
+
+					if(_this.isDerivativeOf(ast.castFromType, "Number"))
 					{
-					case "Float":
-					case "Number":
-					case "Integer":
 						CPP.push("(String(toString(" + generate_cpp(ast[1]).CPP + ")))");
-						break;
-
-					case "Boolean":
+					}
+					else if(_this.isDerivativeOf(ast.castFromType, "Boolean"))
+					{
 						CPP.push("(String(" + generate_cpp(ast[1]).CPP + " ? \"true\" : \"false\"))");
-						break;
-
-					case "String":
+					}
+					else if(_this.isDerivativeOf(ast.castFromType, "String"))
+					{
 						CPP.push("("+generate_cpp(ast[1]).CPP+")");
-						break;
+					}
+					else
+					{
+						_this.NewError("Invalid type casting to string", ast);
 					}
 				}
 				else
@@ -1117,6 +1189,18 @@ function CompilerCppPlugin(compiler)
 			var type1 = _this.getTypeName(ast[0]);
 			var type2 = _this.getTypeName(ast[1]);
 
+			if(type2!="CocoAction" && _this.isDerivativeOf(type2, "Function"))
+			{
+				if(ast[1].type==jsdef.FUNCTION)
+				{
+					// Lamda Function
+				}
+
+				CPP.push( "nullptr" );
+
+				break;
+			}
+
 			if(type1=="CocoAction" && type2!="Null" && type2!="CocoAction")
 			{
 				var idf = ast[1].type==jsdef.DOT ? ast[1].identifier_last : ast[1];
@@ -1291,30 +1375,76 @@ function CompilerCppPlugin(compiler)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DOT:
 
-			CPP.push(generate_cpp(ast[0]).CPP);
+			var gen0 = generate_cpp(ast[0]).CPP;
 
-			if(ast[1].symbol.static && ast[1].symbol.enum)
+			if(_this.secondPass && ast[1].value=="toJSON" && _this.getClass(ast[0].symbol.vartype).struct)
 			{
-				CPP.push("::");
-			}
-			else if(ast[1].symbol.static && ast[1].symbol.state)
-			{
-				CPP.push("->");
-			}
-			else if(ast[1].symbol.static)
-			{
-				CPP.push("::");
-			}
-			else if(ast[1].symbol.type==jsdef.FUNCTION && ast[1].symbol.virtual && (ast[0].type==jsdef.SUPER || ast[0].type==jsdef.THIS))
-			{
-				CPP.push("::");
+			 	var cls = _this.getClass(ast[0].symbol.vartype);
+			 	var jsonExpr = ['"{"'];
+			 	var i=0;
+			 	for(var item in cls.vars)
+			 	{
+					var v = "";
+					var mbr = "";
+
+					switch(cls.vars[item].vartype)
+					{
+					case "String":
+						v = " + " + gen0 + "->" + item;
+						mbr = '"' + (i>0?",":"") + '\\\"' + item + '\\\":\\\""' + v + ' + "\\\""';
+						jsonExpr.push(mbr);
+						break;
+
+					case "Integer":
+					case "Float":
+					case "Boolean":
+					case "Number":
+					case "Time":
+						v = " + String(toString(" + gen0 + "->" + item + "))";
+						mbr = '"' + (i>0?",":"") + '\\\"' + item + '\\\":"' + v;
+						jsonExpr.push(mbr);
+						break;
+
+					default:
+					}
+
+					i++;
+			 	}
+			 	jsonExpr.push('"}"');
+			 	jsonExpr = jsonExpr.join("+");
+
+				CPP.push(jsonExpr);
+
+				ast[0].vartype = "String";
+				ast.__toJSON = true;
 			}
 			else
 			{
-				CPP.push(_this.isPointer(ast[0].vartype) ? "->" : ".");
-			}
+				CPP.push(gen0);
 
-			CPP.push(generate_cpp(ast[1]).CPP);
+				if(ast[1].symbol.static && ast[1].symbol.enum)
+				{
+					CPP.push("::");
+				}
+				else if(ast[1].symbol.static && ast[1].symbol.state)
+				{
+					CPP.push("->");
+				}
+				else if(ast[1].symbol.static)
+				{
+					CPP.push("::");
+				}
+				else if(ast[1].symbol.type==jsdef.FUNCTION && ast[1].symbol.virtual && (ast[0].type==jsdef.SUPER || ast[0].type==jsdef.THIS))
+				{
+					CPP.push("::");
+				}
+				else
+				{
+					CPP.push(_this.isPointer(ast[0].vartype) ? "->" : ".");
+				}
+
+				CPP.push(generate_cpp(ast[1]).CPP);
+			}
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1327,7 +1457,10 @@ function CompilerCppPlugin(compiler)
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.DEBUGGER:			CPP.push("assert(false);"); break;
+		case jsdef.DEBUGGER:
+			CPP.push("assert(false);");
+			break;
+
 		case jsdef.EXPONENT:			CPP.push("std::pow(" + generate_cpp(ast[0]).CPP + "," + generate_cpp(ast[1]).CPP + ")");break;
 		case jsdef.MOD:					CPP.push("(int)" + generate_cpp(ast[0]).CPP); CPP.push("%"); CPP.push("(int)" + generate_cpp(ast[1]).CPP); break;
 		case jsdef.THROW:				CPP.push("throw CocoException("); CPP.push(generate_cpp(ast.exception).CPP); CPP.push(");"); break;
@@ -1378,7 +1511,7 @@ function CompilerCppPlugin(compiler)
 		case jsdef.NULL:				CPP.push("nullptr"); break;
 		case jsdef.NUMBER:				CPP.push(ast.value); break;
 		case jsdef.OR:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("||"); CPP.push(generate_cpp(ast[1]).CPP);	break;
-		case jsdef.PLUS: 				CPP.push(generate_cpp(ast[0]).CPP); CPP.push("+"); CPP.push(generate_cpp(ast[1]).CPP); break;
+		case jsdef.PLUS:				CPP.push(generate_cpp(ast[0]).CPP); CPP.push("+"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.RETURN:				CPP.push("return"); if(ast.value) CPP.push(" " + generate_cpp(ast.value).CPP); CPP.push(";\n"); break;
 		case jsdef.RSH:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push(">>"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.STRICT_EQ:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("=="); CPP.push(generate_cpp(ast[1]).CPP); break;
@@ -1411,62 +1544,3 @@ function CompilerCppPlugin(compiler)
 		return {CPP:CPP.join(""), HPP:HPP.join("")};
 	};
 }
-
-
-
-
-
-
-
-
-
-
-/*
-
-//
-// The following code type-casts objects according to what the callee function needs.
-// This casting is required to obtain compatibility with Interfaces and derivative classes.
-//
-// Example:
-//
-// addTickListener needs ITickable:
-//
-// 		void CocoEngine::addTickListener(ITickable* tickable)
-//
-// A CocoTickable passes itself casted to ITickable automatically:
-//
-//		void CocoTickable::RegisterTickable()
-//		{
-//			engine->addTickListener(((ITickable*)(this)));
-//		}
-//
-
-if(!isReference && !ast.parent.typecasting)
-{
-	if(ast.parent[0].identifier_last && ast.parent[0].identifier_last.symbol && !ast.parent[0].identifier_last.symbol.extern)
-	{
-		if(ast.parent[0].identifier_last.symbol.paramsList.length==ast.length)
-		{
-			vartype = ast.parent[0].identifier_last.symbol.paramsList[i].vartype;
-			if(_this.isPointer(vartype))
-			{
-				var cls = _this.getClass(vartype);
-				if(cls)
-				{
-					if(cls.interface)
-					{
-						CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
-						continue;
-					}
-					else if(!_this.isVector(vartype) && !_this.isECMA(vartype))
-					{
-						//trace("**CASTING: " + vartype);
-						CPP.push( "((" + vartype + "*)(" + generate_cpp(ast[i]).CPP + "))" );
-						continue;
-					}
-				}
-			}
-		}
-	}
-}
-*/

@@ -66,6 +66,9 @@ class Image : HTMLElement
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function load(url:String, optional cocoimage:CocoImage)
 	{
+		if(url=="")
+			return;
+
 		__imageData = new ImageData(url);
 
 		if(url.indexOf("data:")==-1)

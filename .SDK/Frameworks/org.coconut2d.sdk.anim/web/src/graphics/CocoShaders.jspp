@@ -196,7 +196,7 @@ class CocoShaderCommon : CocoShader
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
-		 vertex_shader = "attribute vec4 iTexCoords;attribute vec2 iVecCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec2 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords.xy * uSprFlip, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + iTexCoords.z + uSprFrame.x) * uSprSize.x), ((iTexCoords.y + iTexCoords.w + uSprFrame.y) * uSprSize.y));}";
+		 vertex_shader = "attribute vec4 iTexCoords;attribute vec2 iVecCoords;uniform mat4 uProjMat;uniform mat4 uMVMat;uniform vec4 uSprSize;uniform vec2 uSprFrame;uniform vec2 uSprFlip;varying vec2 pTexCoord;void main(void){ gl_Position = uProjMat * uMVMat * vec4(iVecCoords.xy * uSprFlip, 0.0, 1.0); pTexCoord = vec2(((iTexCoords.x + iTexCoords.z + uSprFrame.x) * uSprSize.z + uSprSize.x), ((iTexCoords.y + iTexCoords.w + uSprFrame.y) * uSprSize.w + uSprSize.y));}";
 		 fragment_shader = "";
 
 		 program = null;
@@ -255,7 +255,7 @@ class CocoShaderCommon : CocoShader
 	public function drawFrame(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
 		var data:CocoImageRenderDataGL = CocoImageRenderDataGL(image.renderData);
-		gl.uniform2f(uSprSize, image.texSize[0], image.texSize[1]);
+		gl.uniform4fv(uSprSize, image.texSize);
 		gl.uniform2f(uSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
 		gl.uniform2f(uSprFlip, (KF.flipH ? -1.0 : 1.0), (KF.flipV ? -1.0 : 1.0));
 		gl.bindBuffer(gl.ARRAY_BUFFER, data.buffer);

@@ -106,6 +106,24 @@ function CocoMake(command , params)
   	_this.Build_CocoScript = _this.Build_CocoPlayer;
 
     // =====================================================================
+    // Parse a single file for IntelliSyntax
+    // =====================================================================
+    _this.Parse = function(params)
+    {
+    	// Form the source code
+		var code = '"script_begin:///' + params.parse + '";\n' + read(params.code) + '\n"script_end:///' + params.parse + '";\n';
+
+		// Parse source code and generate AST
+		narcissus.__messages = false;
+		narcissus.__cpp = false;
+		var ast = narcissus.jsparse(code);
+
+		// Compile AST to export Code Symbols, Scopes and Member Lists (only)
+		var compiler = new Compiler(ast);
+		compiler.compile(true, params.parse, false);
+    };
+
+    // =====================================================================
     // Build for HTML5 Browsers
     // =====================================================================
   	_this.Build_HTML5 = function(params)
@@ -344,6 +362,9 @@ function CocoMake(command , params)
 		makefile.Vars["NATIVE_CPP_SOURCES"] = files.CPP.join(" \\\n");
 		makefile.Vars["NATIVE_CPP_INCLUDES"] = makefile.Vars.INCLUDE_PATHS.join(" \\\n");//files.HPP.join(" \\\n");
 
+		// Patch main.cpp to load Fonts
+		_this.loadFonts(TARGET.TARGET_ROOT + "/jni/src/main.cpp", TARGET.TARGET_ASSETS);
+
         // Create Android.mk
 		var file = TARGET.TARGET_ROOT+"/jni/Android.mk";
 		trace("\nCreating Android.mk makefile ...");
@@ -372,7 +393,7 @@ function CocoMake(command , params)
         buff.push('if ERRORLEVEL 1 (exit /b 1)');
         buff.push('SET NDK_MAKE=%NDK_ROOT%prebuilt/%NDK_WIN_HOST%/bin/make.exe');
 		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" SHELL=cmd clean');
-		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" SHELL=cmd -j %*');
+		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" NDK_DEBUG=1 SHELL=cmd -j %*');
 		buff = _this.replaceVars(buff.join("\n"));
         _this.module(make_lib_cmd, buff);
 
@@ -540,6 +561,9 @@ function CocoMake(command , params)
 		makefile.Vars["NATIVE_RESOURCES"] = files.join(" \\\n");
 		trace("+ Done.");
 
+		// Patch main.cpp to load Fonts
+		_this.loadFonts(TARGET.TARGET_ROOT + "/src/main.cpp", TARGET.TARGET_ASSETS);
+
         // Create Makefile
 		var file = TARGET.TARGET_ROOT+"/Makefile.mk";
 		trace("\nCreating Windows x86 makefile ...");
@@ -665,13 +689,14 @@ function CocoMake(command , params)
 
 		// Process Template Files
 		var templateFilesMask = TARGET.DEVICE_WRAPPER.TEMPLATES;
+		var excludeVars = TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS ? TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";") : ["APP_ICONS", "SCRIPTS"];
         if(templateFilesMask)
         {
   			var files = _this.FindFiles(destination_folder, templateFilesMask, true);
   			for(var i=0; i<files.length; i++)
   			{
 				var buff = read(files[i]);
-				buff = _this.replaceVars(buff, true, ["APP_ICONS", "SCRIPTS"]);
+				buff = _this.replaceVars(buff, true, excludeVars);
 				write(files[i], buff);
   			}
         }
@@ -971,6 +996,7 @@ function CocoMake(command , params)
 
 		// Get a list of template files for this target and replace variables
 		var templateFilesMask = TARGET.DEVICE_WRAPPER.TEMPLATES;
+		var excludeVars = TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS ? TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";") : ["APP_ICONS", "SCRIPTS"];
 		trace("+ templates: " + (templateFilesMask ? templateFilesMask : "(none)"));
         if(templateFilesMask)
         {
@@ -980,7 +1006,7 @@ function CocoMake(command , params)
   			{
 				trace("+ processing: " + files[i]);
 				var buff = read(files[i]);
-				buff = _this.replaceVars(buff, true, ["APP_ICONS", "SCRIPTS"]);
+				buff = _this.replaceVars(buff, true, excludeVars);
   				_this.module(files[i], buff);
   			}
         }
@@ -1052,7 +1078,7 @@ function CocoMake(command , params)
 			if(fonts[i].indexOf("BoldItalic")!=-1) style = "BoldItalic";
 			fonts[i] = '\tCocoFontsCache::add("' + fontName + '", CocoFontsCache::FONT_STYLE::' + style + ', "' + fonts[i] + '");';
 		}
-		buff = buff.replace("\t$(IOS_FONTS_LIST)", fonts.join("\n"));
+		buff = buff.replace("\t$(FONTS_LIST)", fonts.join("\n"));
 		_this.module(file, buff, false);
 	};
 
@@ -1235,26 +1261,6 @@ function CocoMake(command , params)
 	    // Order scripts
 	    scripts = _this.calculateDependencies(scripts, true);
 
-	    // Embed Images
-	    /*
-	    if(TARGET.APP_SETTINGS.EMBED_BASE64_IMAGES)
-	    {
-	    	var html_images = [];
-	    	var images = _this.FindFiles(TARGET.TARGET_ROOT + "/assets", "*_mdpi.png", true);
-	    	for(var i=0; i<images.length; i++)
-	    	{
-	    		// Read the image as Base64
-				var b64 = "data:image/png;base64," + read(images[i], true);
-				var name = images[i].substr(images[i].lastIndexOf("/")+1);
-				html_images.push('\t"' + name + '":"' + b64 + '"');
-	    	}
-	    	html_images =  "var __HTML_IMAGES__ = {\n" + html_images.join(",\n") + "\n};";
-	    	write(TARGET.TARGET_ROOT + "/images.js", html_images);
-	    	delete html_images;
-	    	BUFFER.push("include('images.js');");
-	    }
-	    */
-
 	    // === RELEASE MODE ===
 	    if(makefile.Config.CONFIGURATION=="Release")
 	    {
@@ -1334,20 +1340,6 @@ function CocoMake(command , params)
 	    	}
 	    }
 	    HTML.push("\t</style>\n");
-
-	    // Embed Images
-	    /*
-	    var html_images = [];
-	    if(TARGET.APP_SETTINGS.EMBED_BASE64_IMAGES)
-	    {
-	    	var images = _this.FindFiles(TARGET.TARGET_ROOT + "/assets", "*.png", true);
-	    	for(var i=0; i<images.length; i++)
-	    	{
-	    		var image = relativePath(TARGET.TARGET_ROOT, images[i]);
-	    		html_images.push("\t<img src='" + image + "' style='display:block;position:absolute;left:2000px;top:2000px;visibility:hidden'>");
-	    	}
-	    }
-	    */
 
 	    // Add Scripts
 	    var scripts = _this.FindFiles(TARGET.TARGET_ROOT, "*.js;*.jobj", true);
@@ -1757,7 +1749,14 @@ function CocoMake(command , params)
 		}
 		else
 		{
-			builder = this["Build_" + makefile.Vars.TARGET];
+			if(params && params.parse)
+			{
+				builder = this.Parse;
+			}
+			else
+			{
+				builder = this["Build_" + makefile.Vars.TARGET];
+			}
 		}
 
 		if(!builder)
@@ -1901,26 +1900,6 @@ function Graph()
 	        }
 	    }
     	return o||[];
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function parse_jspp(code, className)
-{
-	try
-	{
-		// Parse source code
-		narcissus.__messages = false;
-		narcissus.__cpp = false;
-		var ast = narcissus.jsparse(code);
-
-		// Compile ast
-		var compiler = new Compiler(ast);
-		compiler.compile(true, className, false);
-	}
-	catch(e)
-	{
-		//trace("ERROR: " +e);
 	}
 }
 
