@@ -138,6 +138,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	public event OnAnimationSequenceEnd(sequence:CocoSequence);
 
 	public static var __uniqueIDCounter:Integer = 0;
+	public static var __zIndexCounter:Integer = 0;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(optional image:CocoImage)
@@ -208,16 +209,35 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene)
 	{
-		__zIndex = zIndex;
 		ctx.prepareClip(this);
 		__timeline.prepare(scene, this);
-		for(var i:Integer =__children.size()-1; i>=0; i--)
+
+		var L:Integer = __children.size();
+		for(var i:Integer = 0; i<L; i++)
 		{
-			__children[i].prepare(ctx,scene,zIndex-1);
+			__children[i].prepare(ctx,scene);
 		}
 		normalize();
+
+		if(this==scene.__root)
+		{
+			__zIndexCounter = 0;
+			reindex_z();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function reindex_z()
+	{
+		__zIndex = ++__zIndexCounter;
+		var L:Integer = __children.size();
+		for(var i:Integer=0; i<L; i++)
+		{
+			__children[i].reindex_z();
+		}
+		//trace(String(__zIndex) + "\t" + this.__clipPath);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -914,7 +934,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			//ANCHOR.style.backgroundImage 		= "url(" + __image.hImage.src + ")";
 			ANCHOR.style.backgroundPosition		= "0px 0px";
 			ANCHOR.style.backgroundRepeat		= "no-repeat";
-			ANCHOR.style.backgroundSize			= String(__image.hImage.naturalWidth/__image.pixelRatio) + "px " + String(__image.hImage.naturalHeight/__image.pixelRatio) + "px";
+			ANCHOR.style.backgroundSize			= String(Math.floor(__image.hImage.naturalWidth/__image.pixelRatio)) + "px " + String(Math.floor(__image.hImage.naturalHeight/__image.pixelRatio)) + "px";
 			ANCHOR.style.backgroundBlendMode	= "normal";
 			ANCHOR.style.backgroundClip			= "border-box";
 			ANCHOR.style.backgroundOrigin		= "border-box";
@@ -931,6 +951,9 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			ANCHOR = document.body.appendChild(ANCHOR);
 
 			__ANCHOR = ANCHOR;
+
+			if(__scene && __scene.__root)
+				__scene.__root.reindex_z();
 		}
 
 		return ANCHOR;
@@ -941,8 +964,12 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	{
 		if(engine.device.isNative) return;
 
-		if(__ANCHOR) __ANCHOR.parentNode.removeChild(__ANCHOR);
+		if(__ANCHOR && __ANCHOR.parentNode) __ANCHOR.parentNode.removeChild(__ANCHOR);
+		else if(__ANCHOR && __ANCHOR.parentElement) __ANCHOR.parentElement.removeChild(__ANCHOR);
 		__ANCHOR=null;
+
+		if(__scene && __scene.__root)
+			__scene.__root.reindex_z();
 	}
 }
 
@@ -981,7 +1008,7 @@ class CocoSelfTexturedClip : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene)
 	{
 		InvalidTexture = false;
 		super.prepare;
@@ -993,7 +1020,7 @@ class CocoSelfTexturedClip : CocoClip
 		// If the self-textured object is invalid, we call prepare() to regenerate the texture.
 		if(InvalidTexture)
 		{
-			prepare(ctx,scene,this.__zIndex);
+			prepare(ctx,scene);
 		}
 
 		// If there is a worker buffer image available we will try to swap it with clip's __image.
@@ -1021,7 +1048,7 @@ class CocoSelfTexturedClip : CocoClip
 				// to create the Texture and render data for it.
 				buffer.renderData = ctx.prepareImage(buffer);
 
-				if(ctx.getGLContext())
+				if(ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL)
 				{
 					// Since the image is texturized and its copy exists
 					// on the GPU, we can safely delete the HTML image
@@ -1129,7 +1156,7 @@ class CocoTextClip : CocoSelfTexturedClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene)
 	{
 		delete buffer;
 

@@ -181,6 +181,30 @@ class CocoMatrix
 	//	                                     /_/
 	// ==================================================================================================================================
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function copyFrom(m:CocoMatrixData)
+	{
+		__m.rc11 = m.rc11;
+		__m.rc12 = m.rc12;
+		__m.rc13 = m.rc13;
+		__m.rc14 = m.rc14;
+		__m.rc21 = m.rc21;
+		__m.rc22 = m.rc22;
+		__m.rc23 = m.rc23;
+		__m.rc24 = m.rc24;
+		__m.rc31 = m.rc31;
+		__m.rc32 = m.rc32;
+		__m.rc33 = m.rc33;
+		__m.rc34 = m.rc34;
+		__m.rc41 = m.rc41;
+		__m.rc42 = m.rc42;
+		__m.rc43 = m.rc43;
+		__m.rc44 = m.rc44;
+
+		__dirty = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function identity()
 	{
 	    __m.rc11 = 1; __m.rc12 = 0; __m.rc13 = 0; __m.rc14 = 0;
@@ -304,51 +328,68 @@ class CocoMatrix
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean) :CocoMatrix
+	public function multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean, optional swap:Boolean) :CocoMatrix
 	{
-		var out:CocoMatrix = new CocoMatrix();
+		var out:CocoMatrix = null;
 
-		out.__m.rc11 = (__m.rc11 * v.__m.rc11) + (__m.rc21 * v.__m.rc12) + (__m.rc31 * v.__m.rc13) + (__m.rc41 * v.__m.rc14);
-		out.__m.rc12 = (__m.rc12 * v.__m.rc11) + (__m.rc22 * v.__m.rc12) + (__m.rc32 * v.__m.rc13) + (__m.rc42 * v.__m.rc14);
-		out.__m.rc13 = (__m.rc13 * v.__m.rc11) + (__m.rc23 * v.__m.rc12) + (__m.rc33 * v.__m.rc13) + (__m.rc43 * v.__m.rc14);
-		out.__m.rc14 = (__m.rc14 * v.__m.rc11) + (__m.rc24 * v.__m.rc12) + (__m.rc34 * v.__m.rc13) + (__m.rc44 * v.__m.rc14);
+		var __mm:CocoMatrixData = new CocoMatrixData();
 
-		out.__m.rc21 = (__m.rc11 * v.__m.rc21) + (__m.rc21 * v.__m.rc22) + (__m.rc31 * v.__m.rc23) + (__m.rc41 * v.__m.rc24);
-		out.__m.rc22 = (__m.rc12 * v.__m.rc21) + (__m.rc22 * v.__m.rc22) + (__m.rc32 * v.__m.rc23) + (__m.rc42 * v.__m.rc24);
-		out.__m.rc23 = (__m.rc13 * v.__m.rc21) + (__m.rc23 * v.__m.rc22) + (__m.rc33 * v.__m.rc23) + (__m.rc43 * v.__m.rc24);
-		out.__m.rc24 = (__m.rc14 * v.__m.rc21) + (__m.rc24 * v.__m.rc22) + (__m.rc34 * v.__m.rc23) + (__m.rc44 * v.__m.rc24);
+		if(swap)
+		{
+			__mm.rc11 = (v.__m.rc11 * __m.rc11) + (v.__m.rc21 * __m.rc12) + (v.__m.rc31 * __m.rc13) + (v.__m.rc41 * __m.rc14);
+			__mm.rc12 = (v.__m.rc12 * __m.rc11) + (v.__m.rc22 * __m.rc12) + (v.__m.rc32 * __m.rc13) + (v.__m.rc42 * __m.rc14);
+			__mm.rc13 = (v.__m.rc13 * __m.rc11) + (v.__m.rc23 * __m.rc12) + (v.__m.rc33 * __m.rc13) + (v.__m.rc43 * __m.rc14);
+			__mm.rc14 = (v.__m.rc14 * __m.rc11) + (v.__m.rc24 * __m.rc12) + (v.__m.rc34 * __m.rc13) + (v.__m.rc44 * __m.rc14);
 
-		out.__m.rc31 = (__m.rc11 * v.__m.rc31) + (__m.rc21 * v.__m.rc32) + (__m.rc31 * v.__m.rc33) + (__m.rc41 * v.__m.rc34);
-		out.__m.rc32 = (__m.rc12 * v.__m.rc31) + (__m.rc22 * v.__m.rc32) + (__m.rc32 * v.__m.rc33) + (__m.rc42 * v.__m.rc34);
-		out.__m.rc33 = (__m.rc13 * v.__m.rc31) + (__m.rc23 * v.__m.rc32) + (__m.rc33 * v.__m.rc33) + (__m.rc43 * v.__m.rc34);
-		out.__m.rc34 = (__m.rc14 * v.__m.rc31) + (__m.rc24 * v.__m.rc32) + (__m.rc34 * v.__m.rc33) + (__m.rc44 * v.__m.rc34);
+			__mm.rc21 = (v.__m.rc11 * __m.rc21) + (v.__m.rc21 * __m.rc22) + (v.__m.rc31 * __m.rc23) + (v.__m.rc41 * __m.rc24);
+			__mm.rc22 = (v.__m.rc12 * __m.rc21) + (v.__m.rc22 * __m.rc22) + (v.__m.rc32 * __m.rc23) + (v.__m.rc42 * __m.rc24);
+			__mm.rc23 = (v.__m.rc13 * __m.rc21) + (v.__m.rc23 * __m.rc22) + (v.__m.rc33 * __m.rc23) + (v.__m.rc43 * __m.rc24);
+			__mm.rc24 = (v.__m.rc14 * __m.rc21) + (v.__m.rc24 * __m.rc22) + (v.__m.rc34 * __m.rc23) + (v.__m.rc44 * __m.rc24);
 
-		out.__m.rc41 = (__m.rc11 * v.__m.rc41) + (__m.rc21 * v.__m.rc42) + (__m.rc31 * v.__m.rc43) + (__m.rc41 * v.__m.rc44);
-		out.__m.rc42 = (__m.rc12 * v.__m.rc41) + (__m.rc22 * v.__m.rc42) + (__m.rc32 * v.__m.rc43) + (__m.rc42 * v.__m.rc44);
-		out.__m.rc43 = (__m.rc13 * v.__m.rc41) + (__m.rc23 * v.__m.rc42) + (__m.rc33 * v.__m.rc43) + (__m.rc43 * v.__m.rc44);
-		out.__m.rc44 = (__m.rc14 * v.__m.rc41) + (__m.rc24 * v.__m.rc42) + (__m.rc34 * v.__m.rc43) + (__m.rc44 * v.__m.rc44);
+			__mm.rc31 = (v.__m.rc11 * __m.rc31) + (v.__m.rc21 * __m.rc32) + (v.__m.rc31 * __m.rc33) + (v.__m.rc41 * __m.rc34);
+			__mm.rc32 = (v.__m.rc12 * __m.rc31) + (v.__m.rc22 * __m.rc32) + (v.__m.rc32 * __m.rc33) + (v.__m.rc42 * __m.rc34);
+			__mm.rc33 = (v.__m.rc13 * __m.rc31) + (v.__m.rc23 * __m.rc32) + (v.__m.rc33 * __m.rc33) + (v.__m.rc43 * __m.rc34);
+			__mm.rc34 = (v.__m.rc14 * __m.rc31) + (v.__m.rc24 * __m.rc32) + (v.__m.rc34 * __m.rc33) + (v.__m.rc44 * __m.rc34);
+
+			__mm.rc41 = (v.__m.rc11 * __m.rc41) + (v.__m.rc21 * __m.rc42) + (v.__m.rc31 * __m.rc43) + (v.__m.rc41 * __m.rc44);
+			__mm.rc42 = (v.__m.rc12 * __m.rc41) + (v.__m.rc22 * __m.rc42) + (v.__m.rc32 * __m.rc43) + (v.__m.rc42 * __m.rc44);
+			__mm.rc43 = (v.__m.rc13 * __m.rc41) + (v.__m.rc23 * __m.rc42) + (v.__m.rc33 * __m.rc43) + (v.__m.rc43 * __m.rc44);
+			__mm.rc44 = (v.__m.rc14 * __m.rc41) + (v.__m.rc24 * __m.rc42) + (v.__m.rc34 * __m.rc43) + (v.__m.rc44 * __m.rc44);
+		}
+		else
+		{
+			__mm.rc11 = (__m.rc11 * v.__m.rc11) + (__m.rc21 * v.__m.rc12) + (__m.rc31 * v.__m.rc13) + (__m.rc41 * v.__m.rc14);
+			__mm.rc12 = (__m.rc12 * v.__m.rc11) + (__m.rc22 * v.__m.rc12) + (__m.rc32 * v.__m.rc13) + (__m.rc42 * v.__m.rc14);
+			__mm.rc13 = (__m.rc13 * v.__m.rc11) + (__m.rc23 * v.__m.rc12) + (__m.rc33 * v.__m.rc13) + (__m.rc43 * v.__m.rc14);
+			__mm.rc14 = (__m.rc14 * v.__m.rc11) + (__m.rc24 * v.__m.rc12) + (__m.rc34 * v.__m.rc13) + (__m.rc44 * v.__m.rc14);
+
+			__mm.rc21 = (__m.rc11 * v.__m.rc21) + (__m.rc21 * v.__m.rc22) + (__m.rc31 * v.__m.rc23) + (__m.rc41 * v.__m.rc24);
+			__mm.rc22 = (__m.rc12 * v.__m.rc21) + (__m.rc22 * v.__m.rc22) + (__m.rc32 * v.__m.rc23) + (__m.rc42 * v.__m.rc24);
+			__mm.rc23 = (__m.rc13 * v.__m.rc21) + (__m.rc23 * v.__m.rc22) + (__m.rc33 * v.__m.rc23) + (__m.rc43 * v.__m.rc24);
+			__mm.rc24 = (__m.rc14 * v.__m.rc21) + (__m.rc24 * v.__m.rc22) + (__m.rc34 * v.__m.rc23) + (__m.rc44 * v.__m.rc24);
+
+			__mm.rc31 = (__m.rc11 * v.__m.rc31) + (__m.rc21 * v.__m.rc32) + (__m.rc31 * v.__m.rc33) + (__m.rc41 * v.__m.rc34);
+			__mm.rc32 = (__m.rc12 * v.__m.rc31) + (__m.rc22 * v.__m.rc32) + (__m.rc32 * v.__m.rc33) + (__m.rc42 * v.__m.rc34);
+			__mm.rc33 = (__m.rc13 * v.__m.rc31) + (__m.rc23 * v.__m.rc32) + (__m.rc33 * v.__m.rc33) + (__m.rc43 * v.__m.rc34);
+			__mm.rc34 = (__m.rc14 * v.__m.rc31) + (__m.rc24 * v.__m.rc32) + (__m.rc34 * v.__m.rc33) + (__m.rc44 * v.__m.rc34);
+
+			__mm.rc41 = (__m.rc11 * v.__m.rc41) + (__m.rc21 * v.__m.rc42) + (__m.rc31 * v.__m.rc43) + (__m.rc41 * v.__m.rc44);
+			__mm.rc42 = (__m.rc12 * v.__m.rc41) + (__m.rc22 * v.__m.rc42) + (__m.rc32 * v.__m.rc43) + (__m.rc42 * v.__m.rc44);
+			__mm.rc43 = (__m.rc13 * v.__m.rc41) + (__m.rc23 * v.__m.rc42) + (__m.rc33 * v.__m.rc43) + (__m.rc43 * v.__m.rc44);
+			__mm.rc44 = (__m.rc14 * v.__m.rc41) + (__m.rc24 * v.__m.rc42) + (__m.rc34 * v.__m.rc43) + (__m.rc44 * v.__m.rc44);
+		}
 
 		if(setMatrix)
 		{
-			__m.rc11 = out.__m.rc11;
-			__m.rc12 = out.__m.rc12;
-			__m.rc13 = out.__m.rc13;
-			__m.rc14 = out.__m.rc14;
-			__m.rc21 = out.__m.rc21;
-			__m.rc22 = out.__m.rc22;
-			__m.rc23 = out.__m.rc23;
-			__m.rc24 = out.__m.rc24;
-			__m.rc31 = out.__m.rc31;
-			__m.rc32 = out.__m.rc32;
-			__m.rc33 = out.__m.rc33;
-			__m.rc34 = out.__m.rc34;
-			__m.rc41 = out.__m.rc41;
-			__m.rc42 = out.__m.rc42;
-			__m.rc43 = out.__m.rc43;
-			__m.rc44 = out.__m.rc44;
+			copyFrom(__mm);
+			out = this;
+		}
+		else
+		{
+			var out:CocoMatrix = new CocoMatrix();
+			out.copyFrom(__mm);
 		}
 
-		out.__dirty = true;
 		return out;
 	}
 

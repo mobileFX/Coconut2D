@@ -483,12 +483,24 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function isClicked(check:Array<CocoClip>):Integer
+	public function isClicked(check:Array<CocoClip>, optional preserveArray:Boolean):Integer
 	{
 		for(var i:Integer = __clicked.size(); i--;)
+		{
 			for(var r:Integer = check.size(); r--;)
+			{
 				if(check[r] == __clicked[i])
+				{
+					if(!preserveArray)
+						delete check;
 					return r;
+				}
+			}
+		}
+
+		if(!preserveArray)
+			delete check;
+
 		return -1;
 	}
 

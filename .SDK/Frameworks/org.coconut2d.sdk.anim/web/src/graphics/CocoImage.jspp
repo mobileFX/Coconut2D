@@ -246,7 +246,8 @@ class CocoImage
 		{
 			var w:Float = onLoadResizeWidth ? onLoadResizeWidth : hImage.naturalWidth;
 			var h:Float = onLoadResizeHeight ? onLoadResizeHeight : hImage.naturalHeight;
-			var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, engine.__ctx.getGLContext()!=null);
+			var pot:Boolean = engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL;
+			var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, pot);
 			var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 			ctx.drawImage(hImage, 0, 0, hImage.naturalWidth, hImage.naturalHeight, 0, 0, w, h);
 			delete hImage;
@@ -514,7 +515,7 @@ class CocoImage
 		renderData = engine.__ctx.prepareImage(this);
 
 		// On WebGL we can safely delete the image to save memory.
-		if(!binpack && isSpriteSheet && engine.__ctx.getGLContext()!=null)
+		if(!binpack && isSpriteSheet && engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL)
 			 delete hImage;
 
 		return true;
@@ -531,7 +532,7 @@ class CocoImage
 	{
 		if(false && engine.__RESIZE_IMAGES_AT_RUNTIME && !binpack && textureCellWidth>=engine.device.screenWidth && !isSpriteSheet && scaleX > 0.0 && scaleY > 0.0 && scaleX!=1.0 && scaleY!=1.0)
 		{
-			var pot:Boolean = engine.__ctx.get2DContext()==null;
+			var pot:Boolean = engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL;
 			var w:Integer = Math.floor(textureCellWidth * scaleX / pixelRatio);
 			var h:Integer = Math.floor(textureCellHeight * scaleY / pixelRatio);
 			var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, pot);

@@ -42,8 +42,10 @@ class CocoRenderContextGL implements ICocoRenderContext
 	// Matrix
 	private var __modelViewMatrix:CocoMatrix;
 	private var __projectionMatrix:CocoMatrix;
-	private var __projectionMatrix2D:CocoMatrix;
 	private var __viewportVector:CocoVector;
+
+	private var __modelViewMatrixCSS3:CocoMatrix;	// Used in CSS3 calculations
+	private var __projectionMatrixCSS3:CocoMatrix;	// Used in CSS3 calculations
 
 	private var maskDraw:Boolean;
 
@@ -67,11 +69,14 @@ class CocoRenderContextGL implements ICocoRenderContext
 		// set the display size of the canvas
 		gl.canvas.style.width 	= String(engine.device.screenWidth)  + 'px';
 		gl.canvas.style.height 	= String(engine.device.screenHeight) + 'px';
+		gl.canvas.style.zIndex 	= 0;
 
 		__modelViewMatrix = new CocoMatrix();
 		__projectionMatrix = new CocoMatrix();
-		__projectionMatrix2D = new CocoMatrix();
 		__viewportVector = new CocoVector();
+
+		__projectionMatrixCSS3 = new CocoMatrix();
+		__modelViewMatrixCSS3 = new CocoMatrix();
 
 		maskDraw = false;
 
@@ -101,7 +106,8 @@ class CocoRenderContextGL implements ICocoRenderContext
  	{
 		delete __modelViewMatrix;
 		delete __projectionMatrix;
-		delete __projectionMatrix2D;
+		delete __projectionMatrixCSS3;
+		delete __modelViewMatrixCSS3;
 		delete __viewportVector;
 		delete shaderSimple;
 		delete shaderSimpleWithAlpha;
@@ -112,8 +118,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 
  	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function getName():String									{ return "WebGL"; };
-	public function getGLContext():WebGLRenderingContext				{ return gl; }
-	public function get2DContext():CanvasRenderingContext2D				{ return null; }
+ 	public function getType():COCO_RENDERING_CONTEXT_ENUM				{ return COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL; }
 	public function getDisplayWidth():Float								{ return getBufferWidth() / engine.device.pixelRatio; }
 	public function getDisplayHeight():Float							{ return getBufferHeight() / engine.device.pixelRatio; }
 	public function getBufferWidth():Float								{ return gl.canvas.width; }
@@ -123,36 +128,6 @@ class CocoRenderContextGL implements ICocoRenderContext
 	public function hide()												{ gl.canvas.style.visibility="hidden"; }
 	public function show()												{ gl.canvas.style.visibility="visible"; }
 	public function ready():Boolean										{ return true; }
-	public function getCanvas():HTMLCanvasElement						{ return gl.canvas; }
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
- 	public function flush()
- 	{
- 	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)
-	{
-	 	if(!clip || !F || !matrix) return;
-
-	 	if(F.x!=0 || F.y!=0) 			matrix.translate(F.x, F.y);
-	 	if(F.scaleX!=1 ||F.scaleY!=1) 	matrix.scale(F.scaleX, F.scaleY);
-	 	if(F.rotation!=0) 				matrix.rotateZ(F.rotation * RADIANS);
-	 	if(F.pivotX!=0 || F.pivotY!=0) 	matrix.translate(-F.pivotX, -F.pivotY);
-
-		if(clip.__ANCHOR && matrix==__modelViewMatrix)
-		{
-			clip.__ANCHOR.style.opacity = F.visible ? F.alpha : 0;
-
-			var m:CocoMatrix = new CocoMatrix(__modelViewMatrix);
-			m.scale(clip.__image.textureScale, clip.__image.textureScale);
-			m.translate(-(clip.__image.textureCellWidth/clip.__image.pixelRatio)/2, -(clip.__image.textureCellHeight/clip.__image.pixelRatio)/2);
-			m = __projectionMatrix2D.multiplyByMatrix(m);
-			m.__m.rc34 = clip.__zIndex;
-			clip.__ANCHOR.style.zIndex = clip.__zIndex;
-			clip.__ANCHOR.style.webkitTransform = clip.__ANCHOR.style.transform = m.toCSS3D(true);
-		}
-	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function cls()
@@ -162,6 +137,7 @@ class CocoRenderContextGL implements ICocoRenderContext
  		gl.clear(gl.COLOR_BUFFER_BIT);
  		gl.stencilMask(0x00);
 	}
+
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Clip against physical pixels
@@ -173,6 +149,11 @@ class CocoRenderContextGL implements ICocoRenderContext
 			gl.scissor(x*engine.device.pixelRatio, y*engine.device.pixelRatio, w*engine.device.pixelRatio, h*engine.device.pixelRatio);
 		}
 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function flush()
+ 	{
+ 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function prepare(viewScale:Float)
@@ -218,9 +199,9 @@ class CocoRenderContextGL implements ICocoRenderContext
 			__projectionMatrix.ortho(-getBufferWidth()/2.0, getBufferWidth()/2.0, getBufferHeight()/2.0, -getBufferHeight()/2.0, -1.0, 1.0);
 			__projectionMatrix.scale(viewScale*engine.device.pixelRatio, viewScale*engine.device.pixelRatio);
 
-			__projectionMatrix2D.identity();
-			__projectionMatrix2D.translate(getDisplayWidth()/2.0, getDisplayHeight()/2.0);
-			__projectionMatrix2D.scale(viewScale, viewScale);
+			__projectionMatrixCSS3.identity();
+			__projectionMatrixCSS3.translate(getDisplayWidth()/2.0, getDisplayHeight()/2.0);
+			__projectionMatrixCSS3.scale(viewScale, viewScale);
 		}
 
 		// Initialize Model View Matrix
@@ -244,6 +225,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		activeShader = shaderSimple[0];
 		activeShader.begin(gl);
 
+		// Print out a device report
 		engine.device.report();
 	}
 
@@ -360,6 +342,35 @@ class CocoRenderContextGL implements ICocoRenderContext
 		if(!ul) return;
 		if(m.__dirty) m.refresh();
 		gl.uniformMatrix4fv(ul, false, m.__data);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)
+	{
+	 	if(!clip || !F || !matrix) return;
+
+	 	if(F.x!=0 || F.y!=0) 			matrix.translate(F.x, F.y);
+	 	if(F.scaleX!=1 ||F.scaleY!=1) 	matrix.scale(F.scaleX, F.scaleY);
+	 	if(F.rotation!=0) 				matrix.rotateZ(F.rotation * RADIANS);
+	 	if(F.pivotX!=0 || F.pivotY!=0) 	matrix.translate(-F.pivotX, -F.pivotY);
+
+		// Popup Blocker counter-measure:
+		// For Facebook/Twitter popups a clip must have a HTML5 DIV/A
+		// overlay element for handling clicks and initiating popup windows.
+		// We need to place this DIV/A on top of the clip.
+
+		if(clip.__ANCHOR && matrix==__modelViewMatrix)
+		{
+			clip.__ANCHOR.style.opacity = F.visible ? F.alpha : 0;
+
+			__modelViewMatrixCSS3.copyFrom(__modelViewMatrix.__m);
+			__modelViewMatrixCSS3.scale(clip.__image.textureScale, clip.__image.textureScale);
+			__modelViewMatrixCSS3.translate(-(clip.__image.textureCellWidth/clip.__image.pixelRatio)/2, -(clip.__image.textureCellHeight/clip.__image.pixelRatio)/2);
+			__modelViewMatrixCSS3.multiplyByMatrix(__projectionMatrixCSS3, true, true);
+			__modelViewMatrixCSS3.__m.rc34 = 1000+clip.__zIndex;
+			clip.__ANCHOR.style.webkitTransform = clip.__ANCHOR.style.transform = __modelViewMatrixCSS3.toCSS3D(true);
+			clip.__ANCHOR.style.zIndex = 1000+clip.__zIndex;
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////

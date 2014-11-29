@@ -34,9 +34,17 @@
 //
 // ==================================================================================================================================
 
+enum COCO_RENDERING_CONTEXT_ENUM
+{
+	COCO_RENDERING_CONTEXT_WEBGL		= 1,
+	COCO_RENDERING_CONTEXT_2D_CANVAS	= 2,
+	COCO_RENDERING_CONTEXT_CSS3			= 3
+};
+
 interface ICocoRenderContext
 {
 	public function getName():String;
+	public function getType():COCO_RENDERING_CONTEXT_ENUM;
 	public function getModelViewMatrix():CocoMatrix;
 	public function getProjectionMatrix():CocoMatrix;
 	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix);
@@ -57,10 +65,6 @@ interface ICocoRenderContext
 	public function drawBoundingBox(clip:CocoClip);
 	public function hide();
 	public function show();
-	public virtual function getGLContext():WebGLRenderingContext;
-	public virtual function get2DContext():CanvasRenderingContext2D;
-	public function getCanvas():HTMLCanvasElement;
-
 }
 
 // ==================================================================================================================================
@@ -85,23 +89,14 @@ class CocoRenderContext
 
 	public static function createContext():ICocoRenderContext
 	{
-		// Create a CANVAS element in document BODY.
-		var canvas:HTMLCanvasElement = HTMLCanvasElement(document.body.appendChild(document.createElement("canvas")));
-
-		// set the display size of the canvas
-		canvas.style.width 		= String(engine.device.screenWidth) + "px";
-		canvas.style.height 	= String(engine.device.screenHeight) + "px";
-
-		// set the size of the drawingBuffer
-		canvas.width 			= Math.round(engine.device.screenWidth * engine.device.pixelRatio);
-		canvas.height 			= Math.round(engine.device.screenHeight * engine.device.pixelRatio);
-
-		var args:ContextArguments = new ContextArguments();
-		args.stencil = true;
-
+		// ==========================================
+		// Try to get a WebGL Rendering Context
+		// ==========================================
 		if(!engine.device.Force2D && !engine.device.ForceCSS3 && !engine.device.isIPad2)
 		{
-			// WebGL advantage is that it is hardware accelerated and animates much faster than other solutions.
+			var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
+			var args:ContextArguments = new ContextArguments();
+			args.stencil = true;
 			var implementation:Array<String> = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
 			for(var i:Integer=0; i<implementation.size(); i++)
 			{
@@ -110,26 +105,40 @@ class CocoRenderContext
 				{
 					trace("Rendering with HTML5 WebGL Canvas API (" + implementation[i] + ")");
 					delete implementation;
+					document.body.appendChild(canvas);
 					return new CocoRenderContextGL(gl);
 				}
 			}
 		}
 
-		// Fallback to CanvasRenderingContext2D
-		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-		if(ctx)
+		// ==========================================
+		// Fallback to CSS3 Context
+		// ==========================================
+		var css3:Boolean = !engine.device.Force2D && (engine.device.isDesktopSafari || engine.device.ForceCSS3 || engine.device.isIPad1 || engine.device.isIPad2);
+		if(css3)
 		{
-			var css3:Boolean = !engine.device.Force2D && (engine.device.isDesktopSafari || engine.device.isIPad2 || engine.device.ForceCSS3);
-
-			trace(css3 ? "Rendering with HTML5 CSS3" : "Rendering with HTML5 2D Canvas API");
-
-			// Confirmed cases where HTML5 DIVs are faster than HTML5 Canvas:
-			// 1. Desktop safari for Windows
-
-			return new CocoRenderContext2D(ctx, css3);
+			var DIV:HTMLDivElement = HTMLDivElement(document.body.appendChild(document.createElement("DIV")));
+			return new CocoRenderContextCSS3(DIV);
 		}
 
-		//alert("Please use an HTML5 Browser to view this page.");
+		// ==========================================
+		// Fallback to CanvasRenderingContext2D
+		// ==========================================
+		{
+			var canvas:HTMLCanvasElement = HTMLCanvasElement(document.body.appendChild(document.createElement("canvas")));
+
+			// set the display size of the canvas
+			canvas.style.width 		= String(engine.device.screenWidth) + "px";
+			canvas.style.height 	= String(engine.device.screenHeight) + "px";
+
+			// set the size of the drawingBuffer
+			canvas.width 			= Math.round(engine.device.screenWidth * engine.device.pixelRatio);
+			canvas.height 			= Math.round(engine.device.screenHeight * engine.device.pixelRatio);
+
+			var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+			return new CocoRenderContext2D(ctx);
+		}
+
 		throw "Invalid rendering device.";
 	}
 }

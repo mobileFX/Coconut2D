@@ -65,27 +65,94 @@ enum COCO_DEVICE
 ///////////////////////////////////////////////////////////////////////////////////////////////
 class CocoDevice
 {
+	public var Force2D:Boolean;
+	public var ForceCSS3:Boolean;
+	public var isChrome:Boolean;
+	public var isFirefox:Boolean;
+	public var isSafari:Boolean;
+	public var isIPhone:Boolean;
+	public var isIPad:Boolean;
+	public var isDesktopSafari:Boolean;
+	public var isAndroid:Boolean;
+	public var isIPad1:Boolean;
+	public var isIPad2:Boolean;
+	public var isIPad3:Boolean;
+	public var isIPhone3:Boolean;
+	public var isIPhone4:Boolean;
+	public var isIPhone5:Boolean;
+	public var isIPhone6:Boolean;
+	public var isIPhone6Plus:Boolean;
+	public var HasTouchscreen:Boolean;
+	public var isIOS:Boolean;
+	public var pixelRatio:Float;
+	public var unorientedScreenWidth:Integer;
+	public var unorientedScreenHeight:Integer;
+	public var isMobileHTML5Browser:Boolean;
+	public var isHTML5Browser:Boolean;
+	public var isDesktop:Boolean;
+	public var isNative:Boolean;
+	public var isCoconut2DPlayer:Boolean;
+
 	public function Constructor()
 	{
+		Force2D 					= (window.location.search.indexOf("ctx=2d")!=-1);
+		ForceCSS3					= (window.location.search.indexOf("ctx=css3")!=-1);
+
+		isNative					= (global.__native);
+		isCoconut2DPlayer			= (global.__Coconut2DPlayer);
+
+		unorientedScreenWidth		= Math.min(window.screen.width, window.screen.height);
+		unorientedScreenHeight		= Math.max(window.screen.width, window.screen.height);
+
+		isChrome					= (window.navigator.userAgent.indexOf("Chrome")!=-1);
+		isFirefox					= (window.navigator.userAgent.indexOf("Firefox")!=-1);
+		isSafari					= (window.navigator.userAgent.indexOf("Safari")!=-1);
+		isIPhone					= (window.navigator.userAgent.indexOf("iPhone")!=-1);
+		isDesktopSafari				= (window.navigator.userAgent.indexOf("Windows")!=-1) && (window.navigator.userAgent.indexOf("Safari")!=-1);
+		isAndroid					= (window.navigator.userAgent.indexOf("Android")!=-1);
+
+		isIPad						= (window.navigator.userAgent.indexOf("iPad")!=-1);
+		isIPad1						= (isIPad && (window.navigator.userAgent.indexOf("Mobile/8F190")!=-1));
+		isIPad2						= (isIPad   && window.devicePixelRatio==1);
+		isIPad3						= (isIPad   && window.devicePixelRatio==2);
+
+		isIPhone3					= (isIPhone && window.devicePixelRatio==1 && unorientedScreenHeight*window.devicePixelRatio==480);
+		isIPhone4					= (isIPhone && window.devicePixelRatio==2 && unorientedScreenHeight*window.devicePixelRatio==960);
+		isIPhone5					= (isIPhone && window.devicePixelRatio==2 && unorientedScreenHeight*window.devicePixelRatio==1136);
+		isIPhone6					= (isIPhone && window.devicePixelRatio==2 && unorientedScreenHeight*window.devicePixelRatio==1334);
+		isIPhone6Plus				= (isIPhone && window.devicePixelRatio==3 && window.innerHeight*window.devicePixelRatio==2208);
+
+		isIOS						= (isIPhone || isIPad);
+		HasTouchscreen				= (isAndroid || isIOS);
+
+		isHTML5Browser				= (!isNative && (isChrome || isFirefox || isSafari));
+		isDesktop					= (!(isIOS || isAndroid));
+		isMobileHTML5Browser		= (isHTML5Browser && !isDesktop);
+
+		pixelRatio					= (!isHTML5Browser || (isHTML5Browser && (isIPhone5 || isIPhone6 || isIPhone6Plus))) ? window.devicePixelRatio : 1;
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function report()
 	{
 		var msg:String = window.navigator.userAgent;
 
-		if(isCoconut2DPlayer)	msg = "\nDetected Device\t\t: Coconut2D Player";
-		if(isIPad1) 			msg = "\nDetected Device\t\t: iPad";
-		if(isIPad2) 			msg = "\nDetected Device\t\t: iPad 2";
-		if(isIPad3) 			msg = "\nDetected Device\t\t: iPad 3";
-		if(isIPhone3)			msg = "\nDetected Device\t\t: iPhone 3";
-		if(isIPhone4)			msg = "\nDetected Device\t\t: iPhone 4";
-		if(isIPhone5)			msg = "\nDetected Device\t\t: iPhone 5";
-		if(isIPhone6)			msg = "\nDetected Device\t\t: iPhone 6";
-		if(isIPhone6Plus) 		msg = "\nDetected Device\t\t: iPhone 6 Plus";
+		msg = "\nCreated with mobileFX Coconut2D (http://www.mobilefx.com)\n";
+
+		if(isCoconut2DPlayer)	msg += "\nDetected Device\t\t: Coconut2D Player";
+		if(isIPad1) 			msg += "\nDetected Device\t\t: iPad";
+		if(isIPad2) 			msg += "\nDetected Device\t\t: iPad 2";
+		if(isIPad3) 			msg += "\nDetected Device\t\t: iPad 3";
+		if(isIPhone3)			msg += "\nDetected Device\t\t: iPhone 3";
+		if(isIPhone4)			msg += "\nDetected Device\t\t: iPhone 4";
+		if(isIPhone5)			msg += "\nDetected Device\t\t: iPhone 5";
+		if(isIPhone6)			msg += "\nDetected Device\t\t: iPhone 6";
+		if(isIPhone6Plus) 		msg += "\nDetected Device\t\t: iPhone 6 Plus";
 
 		msg += "\nRendering Engine\t: " + engine.__ctx.getName();
 		msg += "\nDrawing Buffer Size\t: " + String(screenWidth*pixelRatio) + " x " + String(screenHeight*pixelRatio) + " pixels";
@@ -105,32 +172,6 @@ class CocoDevice
 	//
 	// ==================================================================================================================================
 
-	public property Force2D
-	{
-		function get():Boolean
-		{
-			return (window.location.search.indexOf("ctx=2d")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property ForceCSS3
-	{
-		function get():Boolean
-		{
-			return (window.location.search.indexOf("ctx=css3")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property pixelRatio
-	{
-		function get():Float
-		{
-			return (!isHTML5Browser || (isHTML5Browser && (isIPhone5 || isIPhone6 || isIPhone6Plus))) ? window.devicePixelRatio : 1;
-		}
-	}
-
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public property screenWidth
 	{
@@ -141,24 +182,6 @@ class CocoDevice
 	public property screenHeight
 	{
 		function get():Float { return window.innerHeight; }
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property unorientedScreenWidth
-	{
-		function get():Float
-		{
-			return Math.min(window.screen.width, window.screen.height);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property unorientedScreenHeight
-	{
-		function get():Float
-		{
-			return Math.max(window.screen.width, window.screen.height);
-		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,186 +241,6 @@ class CocoDevice
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isNative
-	{
-		function get():Boolean
-		{
-			return global.__native;
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isCoconut2DPlayer
-	{
-		function get():Boolean
-		{
-			return global.__Coconut2DPlayer;
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isHTML5Browser
-	{
-		function get():Boolean
-		{
-			return !isNative && (isChrome || isFirefox || isSafari);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isDesktop
-	{
-		function get():Boolean
-		{
-			return !(isIOS || isAndroid);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isMobileHTML5Browser
-	{
-		function get():Boolean
-		{
-			return isHTML5Browser && !isDesktop;
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isChrome
-	{
-		function get():Boolean
-		{
-			return (window.navigator.userAgent.indexOf("Chrome")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isFirefox
-	{
-		function get():Boolean
-		{
-			return (window.navigator.userAgent.indexOf("Firefox")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isSafari
-	{
-		function get():Boolean
-		{
-			return (window.navigator.userAgent.indexOf("Safari")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIOS
-	{
-		function get():Boolean
-		{
-			return isIPhone || isIPad;
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPhone
-	{
-		function get():Boolean
-		{
-			return (window.navigator.userAgent.indexOf("iPhone")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPad
-	{
-		function get():Boolean
-		{
-			return (window.navigator.userAgent.indexOf("iPad")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPad1
-	{
-		function get():Boolean
-		{
-			return isIPad && (window.navigator.userAgent.indexOf("Mobile/8F190")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPad2
-	{
-		function get():Boolean
-		{
-			return isIPad && (window.devicePixelRatio==1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPad3
-	{
-		function get():Boolean
-		{
-			return isIPad && (window.devicePixelRatio==2);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPhone3
-	{
-		function get():Boolean
-		{
-			return (isIPhone && window.devicePixelRatio==1 && unorientedScreenHeight*window.devicePixelRatio==480);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPhone4
-	{
-		function get():Boolean
-		{
-			return (isIPhone && window.devicePixelRatio==2 && unorientedScreenHeight*window.devicePixelRatio==960);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPhone5
-	{
-		function get():Boolean
-		{
-			return (isIPhone && window.devicePixelRatio==2 && unorientedScreenHeight*window.devicePixelRatio==1136);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPhone6
-	{
-		function get():Boolean
-		{
-			return (isIPhone && window.devicePixelRatio==2 && unorientedScreenHeight*window.devicePixelRatio==1334);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isIPhone6Plus
-	{
-		function get():Boolean
-		{
-			return (isIPhone && window.devicePixelRatio==3 && window.innerHeight*window.devicePixelRatio==2208);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isDesktopSafari
-	{
-		function get():Boolean
-		{
-			return (window.navigator.userAgent.indexOf("Windows")!=-1) && (window.navigator.userAgent.indexOf("Safari")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
 	public property iOSVersion
 	{
 		function get():String
@@ -407,29 +250,11 @@ class CocoDevice
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property isAndroid
-	{
-		function get():Boolean
-		{
-			return (window.navigator.userAgent.indexOf("Android")!=-1);
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
 	public property AndroidSDKVersion
 	{
 		function get():String
 		{
 			return "";//isAndroid ? navigator.userAgent.match(/Android (\d+\.\d+\.\d+)/)[1] : 0;
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public property HasTouchscreen
-	{
-		function get():Boolean
-		{
-			return isAndroid || isIOS;
 		}
 	}
 }

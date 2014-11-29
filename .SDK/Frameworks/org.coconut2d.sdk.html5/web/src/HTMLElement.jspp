@@ -79,6 +79,11 @@ class HTMLElement
 		return newChild;
 	}
 
+	public property parentElement
+	{
+		function get():HTMLElement { return parentNode; }
+	}
+
 	public function removeChild(node:HTMLElement):HTMLElement
 	{
 		document.__remove(node);
