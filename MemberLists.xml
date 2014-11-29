@@ -273,9 +273,11 @@ public Function::__className:String" image="13"/>
 		<member name="ICocoImageRenderData" proto="ICocoImageRenderData:ICocoImageRenderData" help="ICocoImageRenderData:ICocoImageRenderData" image="25"/>
 		<member name="CocoImageRenderData2D" proto="CocoImageRenderData2D:CocoImageRenderData2D" help="CocoImageRenderData2D:CocoImageRenderData2D" image="11"/>
 		<member name="CocoImageRenderDataGL" proto="CocoImageRenderDataGL:CocoImageRenderDataGL" help="CocoImageRenderDataGL:CocoImageRenderDataGL" image="11"/>
+		<member name="COCO_RENDERING_CONTEXT_ENUM" proto="COCO_RENDERING_CONTEXT_ENUM:COCO_RENDERING_CONTEXT_ENUM" help="COCO_RENDERING_CONTEXT_ENUM:COCO_RENDERING_CONTEXT_ENUM" image="15"/>
 		<member name="ICocoRenderContext" proto="ICocoRenderContext:ICocoRenderContext" help="ICocoRenderContext:ICocoRenderContext" image="25"/>
 		<member name="CocoRenderContext" proto="CocoRenderContext:CocoRenderContext" help="CocoRenderContext:CocoRenderContext" image="11"/>
 		<member name="CocoRenderContext2D" proto="CocoRenderContext2D:CocoRenderContext2D" help="CocoRenderContext2D:CocoRenderContext2D" image="11"/>
+		<member name="CocoRenderContextCSS3" proto="CocoRenderContextCSS3:CocoRenderContextCSS3" help="CocoRenderContextCSS3:CocoRenderContextCSS3" image="11"/>
 		<member name="CocoRenderContextGL" proto="CocoRenderContextGL:CocoRenderContextGL" help="CocoRenderContextGL:CocoRenderContextGL" image="11"/>
 		<member name="CocoShader" proto="CocoShader:CocoShader" help="CocoShader:CocoShader" image="11"/>
 		<member name="CocoShaderBoundingBox" proto="CocoShaderBoundingBox:CocoShaderBoundingBox" help="CocoShaderBoundingBox:CocoShaderBoundingBox" image="11"/>
@@ -3291,6 +3293,8 @@ public HTMLElement::parentNode:HTMLElement" image="34"/>
 public HTMLElement::document:HTMLDocument" image="34"/>
 		<member name="onclick" proto="onclick:OnClickHandler" help="onclick is member var of class HTMLElement
 public HTMLElement::onclick:OnClickHandler" image="34"/>
+		<member name="parentElement" proto="parentElement:HTMLElement" help="parentElement is property of class HTMLElement
+public property HTMLElement::parentElement:HTMLElement" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class HTMLElement
 public HTMLElement::__className:String" image="13"/>
 	</memberlist>
@@ -5198,6 +5202,8 @@ public CocoVector::__className:String" image="13"/>
 	<memberlist name="Class CocoMatrix">
 		<member name="Unproject" proto="Unproject(x:Float, y:Float, mv:CocoMatrix, pm:CocoMatrix, viewOriginX:Float, viewOriginY:Float, viewWidth:Float, viewHeight:Float) :CocoVector" help="Unproject is member function of class CocoMatrix
 public static CocoMatrix::Unproject(x:Float, y:Float, mv:CocoMatrix, pm:CocoMatrix, viewOriginX:Float, viewOriginY:Float, viewWidth:Float, viewHeight:Float) :CocoVector" image="35"/>
+		<member name="copyFrom" proto="copyFrom(m:CocoMatrixData)" help="copyFrom is member function of class CocoMatrix
+public CocoMatrix::copyFrom(m:CocoMatrixData)" image="35"/>
 		<member name="identity" proto="identity()" help="identity is member function of class CocoMatrix
 public CocoMatrix::identity()" image="35"/>
 		<member name="ortho" proto="ortho(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)" help="ortho is member function of class CocoMatrix
@@ -5210,8 +5216,8 @@ public CocoMatrix::determinant() :Float" image="35"/>
 public CocoMatrix::invert()" image="35"/>
 		<member name="multiplyByVector" proto="multiplyByVector(v:CocoVector) :CocoVector" help="multiplyByVector is member function of class CocoMatrix
 public CocoMatrix::multiplyByVector(v:CocoVector) :CocoVector" image="35"/>
-		<member name="multiplyByMatrix" proto="multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean) :CocoMatrix" help="multiplyByMatrix is member function of class CocoMatrix
-public CocoMatrix::multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean) :CocoMatrix" image="35"/>
+		<member name="multiplyByMatrix" proto="multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean, optional swap:Boolean) :CocoMatrix" help="multiplyByMatrix is member function of class CocoMatrix
+public CocoMatrix::multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean, optional swap:Boolean) :CocoMatrix" image="35"/>
 		<member name="translate" proto="translate(tx:Float, ty:Float)" help="translate is member function of class CocoMatrix
 public CocoMatrix::translate(tx:Float, ty:Float)" image="35"/>
 		<member name="scale" proto="scale(sx:Float, sy:Float)" help="scale is member function of class CocoMatrix
@@ -5429,8 +5435,10 @@ public CocoTimeline::__lastKeyFrameIndex:Integer" image="34"/>
 public CocoTimeline::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoClip">
-		<member name="prepare" proto="prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" help="prepare is member function of class CocoClip
-public virtual CocoClip::prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" image="35"/>
+		<member name="prepare" proto="prepare(ctx:ICocoRenderContext, scene:CocoScene)" help="prepare is member function of class CocoClip
+public virtual CocoClip::prepare(ctx:ICocoRenderContext, scene:CocoScene)" image="35"/>
+		<member name="reindex_z" proto="reindex_z()" help="reindex_z is member function of class CocoClip
+public CocoClip::reindex_z()" image="35"/>
 		<member name="analyze" proto="analyze(sx:Float, sy:Float)" help="analyze is member function of class CocoClip
 public virtual CocoClip::analyze(sx:Float, sy:Float)" image="35"/>
 		<member name="reset" proto="reset()" help="reset is member function of class CocoClip
@@ -5575,6 +5583,8 @@ public event CocoClip::OnAnimationSequenceBegin(sequence:CocoSequence)" image="1
 public event CocoClip::OnAnimationSequenceEnd(sequence:CocoSequence)" image="18"/>
 		<member name="__uniqueIDCounter" proto="__uniqueIDCounter:Integer" help="__uniqueIDCounter is member var of class CocoClip
 public static CocoClip::__uniqueIDCounter:Integer" image="34"/>
+		<member name="__zIndexCounter" proto="__zIndexCounter:Integer" help="__zIndexCounter is member var of class CocoClip
+public static CocoClip::__zIndexCounter:Integer" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoClip
 public CocoClip::__className:String" image="13"/>
 	</memberlist>
@@ -5599,8 +5609,8 @@ public CocoClip::__className:String" image="13"/>
 		<member name="sequence" proto="sequence:CocoSequence" help="sequence:CocoSequence" image="34"/>
 	</memberlist>
 	<memberlist name="Class CocoSelfTexturedClip">
-		<member name="prepare" proto="prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" help="prepare is member function of class CocoSelfTexturedClip
-public virtual CocoSelfTexturedClip::prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" image="35"/>
+		<member name="prepare" proto="prepare(ctx:ICocoRenderContext, scene:CocoScene)" help="prepare is member function of class CocoSelfTexturedClip
+public virtual CocoSelfTexturedClip::prepare(ctx:ICocoRenderContext, scene:CocoScene)" image="35"/>
 		<member name="paint" proto="paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" help="paint is member function of class CocoSelfTexturedClip
 public virtual CocoSelfTexturedClip::paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoSelfTexturedClip
@@ -5615,8 +5625,8 @@ protected CocoSelfTexturedClip::buffer:CocoImage" image="32"/>
 public CocoSelfTexturedClip::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoTextClip">
-		<member name="prepare" proto="prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" help="prepare is member function of class CocoTextClip
-public virtual CocoTextClip::prepare(ctx:ICocoRenderContext, scene:CocoScene, zIndex:Integer)" image="35"/>
+		<member name="prepare" proto="prepare(ctx:ICocoRenderContext, scene:CocoScene)" help="prepare is member function of class CocoTextClip
+public virtual CocoTextClip::prepare(ctx:ICocoRenderContext, scene:CocoScene)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoTextClip
 public virtual CocoTextClip::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoTextClip
@@ -5954,9 +5964,16 @@ public CocoImageRenderDataGL::vertexCount:Integer" image="34"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoImageRenderDataGL
 public CocoImageRenderDataGL::__className:String" image="13"/>
 	</memberlist>
+	<memberlist name="Class COCO_RENDERING_CONTEXT_ENUM">
+		<member name="COCO_RENDERING_CONTEXT_WEBGL" proto="COCO_RENDERING_CONTEXT_WEBGL:COCO_RENDERING_CONTEXT_ENUM" help="COCO_RENDERING_CONTEXT_WEBGL:COCO_RENDERING_CONTEXT_ENUM" image="16"/>
+		<member name="COCO_RENDERING_CONTEXT_2D_CANVAS" proto="COCO_RENDERING_CONTEXT_2D_CANVAS:COCO_RENDERING_CONTEXT_ENUM" help="COCO_RENDERING_CONTEXT_2D_CANVAS:COCO_RENDERING_CONTEXT_ENUM" image="16"/>
+		<member name="COCO_RENDERING_CONTEXT_CSS3" proto="COCO_RENDERING_CONTEXT_CSS3:COCO_RENDERING_CONTEXT_ENUM" help="COCO_RENDERING_CONTEXT_CSS3:COCO_RENDERING_CONTEXT_ENUM" image="16"/>
+	</memberlist>
 	<memberlist name="Class ICocoRenderContext">
 		<member name="getName" proto="getName() :String" help="getName is member function of class ICocoRenderContext
 public abstract virtual ICocoRenderContext::getName() :String" image="35"/>
+		<member name="getType" proto="getType() :COCO_RENDERING_CONTEXT_ENUM" help="getType is member function of class ICocoRenderContext
+public abstract virtual ICocoRenderContext::getType() :COCO_RENDERING_CONTEXT_ENUM" image="35"/>
 		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class ICocoRenderContext
 public abstract virtual ICocoRenderContext::getModelViewMatrix() :CocoMatrix" image="35"/>
 		<member name="getProjectionMatrix" proto="getProjectionMatrix() :CocoMatrix" help="getProjectionMatrix is member function of class ICocoRenderContext
@@ -5997,12 +6014,6 @@ public abstract virtual ICocoRenderContext::drawBoundingBox(clip:CocoClip)" imag
 public abstract virtual ICocoRenderContext::hide()" image="35"/>
 		<member name="show" proto="show()" help="show is member function of class ICocoRenderContext
 public abstract virtual ICocoRenderContext::show()" image="35"/>
-		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::getGLContext() :WebGLRenderingContext" image="35"/>
-		<member name="get2DContext" proto="get2DContext() :CanvasRenderingContext2D" help="get2DContext is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::get2DContext() :CanvasRenderingContext2D" image="35"/>
-		<member name="getCanvas" proto="getCanvas() :HTMLCanvasElement" help="getCanvas is member function of class ICocoRenderContext
-public abstract virtual ICocoRenderContext::getCanvas() :HTMLCanvasElement" image="35"/>
 	</memberlist>
 	<memberlist name="Class CocoRenderContext">
 		<member name="createContext" proto="createContext() :ICocoRenderContext" help="createContext is member function of class CocoRenderContext
@@ -6017,10 +6028,8 @@ public CocoRenderContext::__className:String" image="13"/>
 	<memberlist name="Class CocoRenderContext2D">
 		<member name="getName" proto="getName() :String" help="getName is member function of class CocoRenderContext2D
 public CocoRenderContext2D::getName() :String" image="35"/>
-		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class CocoRenderContext2D
-public CocoRenderContext2D::getGLContext() :WebGLRenderingContext" image="35"/>
-		<member name="get2DContext" proto="get2DContext() :CanvasRenderingContext2D" help="get2DContext is member function of class CocoRenderContext2D
-public CocoRenderContext2D::get2DContext() :CanvasRenderingContext2D" image="35"/>
+		<member name="getType" proto="getType() :COCO_RENDERING_CONTEXT_ENUM" help="getType is member function of class CocoRenderContext2D
+public CocoRenderContext2D::getType() :COCO_RENDERING_CONTEXT_ENUM" image="35"/>
 		<member name="getDisplayWidth" proto="getDisplayWidth() :Float" help="getDisplayWidth is member function of class CocoRenderContext2D
 public CocoRenderContext2D::getDisplayWidth() :Float" image="35"/>
 		<member name="getDisplayHeight" proto="getDisplayHeight() :Float" help="getDisplayHeight is member function of class CocoRenderContext2D
@@ -6039,14 +6048,12 @@ public CocoRenderContext2D::hide()" image="35"/>
 public CocoRenderContext2D::show()" image="35"/>
 		<member name="ready" proto="ready() :Boolean" help="ready is member function of class CocoRenderContext2D
 public CocoRenderContext2D::ready() :Boolean" image="35"/>
-		<member name="getCanvas" proto="getCanvas() :HTMLCanvasElement" help="getCanvas is member function of class CocoRenderContext2D
-public CocoRenderContext2D::getCanvas() :HTMLCanvasElement" image="35"/>
-		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContext2D
-public CocoRenderContext2D::flush()" image="35"/>
 		<member name="cls" proto="cls()" help="cls is member function of class CocoRenderContext2D
 public CocoRenderContext2D::cls()" image="35"/>
 		<member name="clip" proto="clip(x:Float, y:Float, w:Float, h:Float)" help="clip is member function of class CocoRenderContext2D
 public CocoRenderContext2D::clip(x:Float, y:Float, w:Float, h:Float)" image="35"/>
+		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContext2D
+public CocoRenderContext2D::flush()" image="35"/>
 		<member name="prepare" proto="prepare(viewScale:Float)" help="prepare is member function of class CocoRenderContext2D
 public CocoRenderContext2D::prepare(viewScale:Float)" image="35"/>
 		<member name="prepareImage" proto="prepareImage(img:CocoImage) :ICocoImageRenderData" help="prepareImage is member function of class CocoRenderContext2D
@@ -6055,8 +6062,8 @@ public CocoRenderContext2D::prepareImage(img:CocoImage) :ICocoImageRenderData" i
 public CocoRenderContext2D::prepareClip(clip:CocoClip)" image="35"/>
 		<member name="apply" proto="apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix)" help="apply is member function of class CocoRenderContext2D
 public CocoRenderContext2D::apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix)" image="35"/>
-		<member name="hideClipCanvas" proto="hideClipCanvas(clip:CocoClip)" help="hideClipCanvas is member function of class CocoRenderContext2D
-private CocoRenderContext2D::hideClipCanvas(clip:CocoClip)" image="30"/>
+		<member name="hideClipCanvas" proto="hideClipCanvas(clip:CocoClip) :Boolean" help="hideClipCanvas is member function of class CocoRenderContext2D
+private CocoRenderContext2D::hideClipCanvas(clip:CocoClip) :Boolean" image="30"/>
 		<member name="drawFrame" proto="drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" help="drawFrame is member function of class CocoRenderContext2D
 public CocoRenderContext2D::drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" image="35"/>
 		<member name="drawMaskBegin" proto="drawMaskBegin()" help="drawMaskBegin is member function of class CocoRenderContext2D
@@ -6067,26 +6074,88 @@ public CocoRenderContext2D::drawMaskEnd(invert:Boolean)" image="35"/>
 public CocoRenderContext2D::drawBoundingBox(clip:CocoClip)" image="35"/>
 		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoRenderContext2D
 public virtual CocoRenderContext2D::Destructor()" image="35"/>
-		<member name="Constructor" proto="Constructor(ctx:CanvasRenderingContext2D, css3:Boolean)" help="Constructor is member function of class CocoRenderContext2D
-public CocoRenderContext2D::Constructor(ctx:CanvasRenderingContext2D, css3:Boolean)" image="14"/>
-		<member name="c2d" proto="c2d:CanvasRenderingContext2D" help="c2d is member var of class CocoRenderContext2D
-private CocoRenderContext2D::c2d:CanvasRenderingContext2D" image="29"/>
+		<member name="Constructor" proto="Constructor(ctx:CanvasRenderingContext2D)" help="Constructor is member function of class CocoRenderContext2D
+public CocoRenderContext2D::Constructor(ctx:CanvasRenderingContext2D)" image="14"/>
+		<member name="__ctx" proto="__ctx:CanvasRenderingContext2D" help="__ctx is member var of class CocoRenderContext2D
+private CocoRenderContext2D::__ctx:CanvasRenderingContext2D" image="29"/>
 		<member name="__modelViewMatrix" proto="__modelViewMatrix:CocoMatrix" help="__modelViewMatrix is member var of class CocoRenderContext2D
 private CocoRenderContext2D::__modelViewMatrix:CocoMatrix" image="29"/>
 		<member name="__projectionMatrix" proto="__projectionMatrix:CocoMatrix" help="__projectionMatrix is member var of class CocoRenderContext2D
 private CocoRenderContext2D::__projectionMatrix:CocoMatrix" image="29"/>
-		<member name="__css3" proto="__css3:Boolean" help="__css3 is member var of class CocoRenderContext2D
-private CocoRenderContext2D::__css3:Boolean" image="29"/>
+		<member name="__modelViewMatrixCSS3" proto="__modelViewMatrixCSS3:CocoMatrix" help="__modelViewMatrixCSS3 is member var of class CocoRenderContext2D
+private CocoRenderContext2D::__modelViewMatrixCSS3:CocoMatrix" image="29"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoRenderContext2D
 public CocoRenderContext2D::__className:String" image="13"/>
+	</memberlist>
+	<memberlist name="Class CocoRenderContextCSS3">
+		<member name="getName" proto="getName() :String" help="getName is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::getName() :String" image="35"/>
+		<member name="getType" proto="getType() :COCO_RENDERING_CONTEXT_ENUM" help="getType is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::getType() :COCO_RENDERING_CONTEXT_ENUM" image="35"/>
+		<member name="getDisplayWidth" proto="getDisplayWidth() :Float" help="getDisplayWidth is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::getDisplayWidth() :Float" image="35"/>
+		<member name="getDisplayHeight" proto="getDisplayHeight() :Float" help="getDisplayHeight is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::getDisplayHeight() :Float" image="35"/>
+		<member name="getBufferWidth" proto="getBufferWidth() :Float" help="getBufferWidth is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::getBufferWidth() :Float" image="35"/>
+		<member name="getBufferHeight" proto="getBufferHeight() :Float" help="getBufferHeight is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::getBufferHeight() :Float" image="35"/>
+		<member name="getModelViewMatrix" proto="getModelViewMatrix() :CocoMatrix" help="getModelViewMatrix is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::getModelViewMatrix() :CocoMatrix" image="35"/>
+		<member name="getProjectionMatrix" proto="getProjectionMatrix() :CocoMatrix" help="getProjectionMatrix is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::getProjectionMatrix() :CocoMatrix" image="35"/>
+		<member name="hide" proto="hide()" help="hide is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::hide()" image="35"/>
+		<member name="show" proto="show()" help="show is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::show()" image="35"/>
+		<member name="ready" proto="ready() :Boolean" help="ready is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::ready() :Boolean" image="35"/>
+		<member name="cls" proto="cls()" help="cls is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::cls()" image="35"/>
+		<member name="clip" proto="clip(x:Float, y:Float, w:Float, h:Float)" help="clip is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::clip(x:Float, y:Float, w:Float, h:Float)" image="35"/>
+		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::flush()" image="35"/>
+		<member name="prepare" proto="prepare(viewScale:Float)" help="prepare is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::prepare(viewScale:Float)" image="35"/>
+		<member name="prepareContainer" proto="prepareContainer()" help="prepareContainer is member function of class CocoRenderContextCSS3
+private CocoRenderContextCSS3::prepareContainer()" image="30"/>
+		<member name="prepareImage" proto="prepareImage(img:CocoImage) :ICocoImageRenderData" help="prepareImage is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::prepareImage(img:CocoImage) :ICocoImageRenderData" image="35"/>
+		<member name="prepareClip" proto="prepareClip(clip:CocoClip)" help="prepareClip is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::prepareClip(clip:CocoClip)" image="35"/>
+		<member name="apply" proto="apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix)" help="apply is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix)" image="35"/>
+		<member name="hideClipChildren" proto="hideClipChildren(clip:CocoClip) :Boolean" help="hideClipChildren is member function of class CocoRenderContextCSS3
+private CocoRenderContextCSS3::hideClipChildren(clip:CocoClip) :Boolean" image="30"/>
+		<member name="drawFrame" proto="drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" help="drawFrame is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" image="35"/>
+		<member name="drawMaskBegin" proto="drawMaskBegin()" help="drawMaskBegin is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::drawMaskBegin()" image="35"/>
+		<member name="drawMaskEnd" proto="drawMaskEnd(invert:Boolean)" help="drawMaskEnd is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::drawMaskEnd(invert:Boolean)" image="35"/>
+		<member name="drawBoundingBox" proto="drawBoundingBox(clip:CocoClip)" help="drawBoundingBox is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::drawBoundingBox(clip:CocoClip)" image="35"/>
+		<member name="Destructor" proto="Destructor()" help="Destructor is member function of class CocoRenderContextCSS3
+public virtual CocoRenderContextCSS3::Destructor()" image="35"/>
+		<member name="Constructor" proto="Constructor(ctx:HTMLDivElement)" help="Constructor is member function of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::Constructor(ctx:HTMLDivElement)" image="14"/>
+		<member name="__DIV" proto="__DIV:HTMLDivElement" help="__DIV is member var of class CocoRenderContextCSS3
+private CocoRenderContextCSS3::__DIV:HTMLDivElement" image="29"/>
+		<member name="__modelViewMatrix" proto="__modelViewMatrix:CocoMatrix" help="__modelViewMatrix is member var of class CocoRenderContextCSS3
+private CocoRenderContextCSS3::__modelViewMatrix:CocoMatrix" image="29"/>
+		<member name="__projectionMatrix" proto="__projectionMatrix:CocoMatrix" help="__projectionMatrix is member var of class CocoRenderContextCSS3
+private CocoRenderContextCSS3::__projectionMatrix:CocoMatrix" image="29"/>
+		<member name="__modelViewMatrixCSS3" proto="__modelViewMatrixCSS3:CocoMatrix" help="__modelViewMatrixCSS3 is member var of class CocoRenderContextCSS3
+private CocoRenderContextCSS3::__modelViewMatrixCSS3:CocoMatrix" image="29"/>
+		<member name="__className" proto="__className:String" help="__className is member var of class CocoRenderContextCSS3
+public CocoRenderContextCSS3::__className:String" image="13"/>
 	</memberlist>
 	<memberlist name="Class CocoRenderContextGL">
 		<member name="getName" proto="getName() :String" help="getName is member function of class CocoRenderContextGL
 public CocoRenderContextGL::getName() :String" image="35"/>
-		<member name="getGLContext" proto="getGLContext() :WebGLRenderingContext" help="getGLContext is member function of class CocoRenderContextGL
-public CocoRenderContextGL::getGLContext() :WebGLRenderingContext" image="35"/>
-		<member name="get2DContext" proto="get2DContext() :CanvasRenderingContext2D" help="get2DContext is member function of class CocoRenderContextGL
-public CocoRenderContextGL::get2DContext() :CanvasRenderingContext2D" image="35"/>
+		<member name="getType" proto="getType() :COCO_RENDERING_CONTEXT_ENUM" help="getType is member function of class CocoRenderContextGL
+public CocoRenderContextGL::getType() :COCO_RENDERING_CONTEXT_ENUM" image="35"/>
 		<member name="getDisplayWidth" proto="getDisplayWidth() :Float" help="getDisplayWidth is member function of class CocoRenderContextGL
 public CocoRenderContextGL::getDisplayWidth() :Float" image="35"/>
 		<member name="getDisplayHeight" proto="getDisplayHeight() :Float" help="getDisplayHeight is member function of class CocoRenderContextGL
@@ -6105,16 +6174,12 @@ public CocoRenderContextGL::hide()" image="35"/>
 public CocoRenderContextGL::show()" image="35"/>
 		<member name="ready" proto="ready() :Boolean" help="ready is member function of class CocoRenderContextGL
 public CocoRenderContextGL::ready() :Boolean" image="35"/>
-		<member name="getCanvas" proto="getCanvas() :HTMLCanvasElement" help="getCanvas is member function of class CocoRenderContextGL
-public CocoRenderContextGL::getCanvas() :HTMLCanvasElement" image="35"/>
-		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContextGL
-public CocoRenderContextGL::flush()" image="35"/>
-		<member name="apply" proto="apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)" help="apply is member function of class CocoRenderContextGL
-public CocoRenderContextGL::apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)" image="35"/>
 		<member name="cls" proto="cls()" help="cls is member function of class CocoRenderContextGL
 public CocoRenderContextGL::cls()" image="35"/>
 		<member name="clip" proto="clip(x:Float, y:Float, w:Float, h:Float)" help="clip is member function of class CocoRenderContextGL
 public CocoRenderContextGL::clip(x:Float, y:Float, w:Float, h:Float)" image="35"/>
+		<member name="flush" proto="flush()" help="flush is member function of class CocoRenderContextGL
+public CocoRenderContextGL::flush()" image="35"/>
 		<member name="prepare" proto="prepare(viewScale:Float)" help="prepare is member function of class CocoRenderContextGL
 public CocoRenderContextGL::prepare(viewScale:Float)" image="35"/>
 		<member name="prepareImage" proto="prepareImage(img:CocoImage) :ICocoImageRenderData" help="prepareImage is member function of class CocoRenderContextGL
@@ -6123,6 +6188,8 @@ public CocoRenderContextGL::prepareImage(img:CocoImage) :ICocoImageRenderData" i
 public CocoRenderContextGL::prepareClip(clip:CocoClip)" image="35"/>
 		<member name="update" proto="update(m:CocoMatrix, ul:WebGLUniformLocation)" help="update is member function of class CocoRenderContextGL
 private CocoRenderContextGL::update(m:CocoMatrix, ul:WebGLUniformLocation)" image="30"/>
+		<member name="apply" proto="apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)" help="apply is member function of class CocoRenderContextGL
+public CocoRenderContextGL::apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)" image="35"/>
 		<member name="drawFrame" proto="drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" help="drawFrame is member function of class CocoRenderContextGL
 public CocoRenderContextGL::drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer)" image="35"/>
 		<member name="setFilter" proto="setFilter(filter:Integer) :Boolean" help="setFilter is member function of class CocoRenderContextGL
@@ -6143,10 +6210,12 @@ private CocoRenderContextGL::gl:WebGLRenderingContext" image="29"/>
 private CocoRenderContextGL::__modelViewMatrix:CocoMatrix" image="29"/>
 		<member name="__projectionMatrix" proto="__projectionMatrix:CocoMatrix" help="__projectionMatrix is member var of class CocoRenderContextGL
 private CocoRenderContextGL::__projectionMatrix:CocoMatrix" image="29"/>
-		<member name="__projectionMatrix2D" proto="__projectionMatrix2D:CocoMatrix" help="__projectionMatrix2D is member var of class CocoRenderContextGL
-private CocoRenderContextGL::__projectionMatrix2D:CocoMatrix" image="29"/>
 		<member name="__viewportVector" proto="__viewportVector:CocoVector" help="__viewportVector is member var of class CocoRenderContextGL
 private CocoRenderContextGL::__viewportVector:CocoVector" image="29"/>
+		<member name="__modelViewMatrixCSS3" proto="__modelViewMatrixCSS3:CocoMatrix" help="__modelViewMatrixCSS3 is member var of class CocoRenderContextGL
+private CocoRenderContextGL::__modelViewMatrixCSS3:CocoMatrix" image="29"/>
+		<member name="__projectionMatrixCSS3" proto="__projectionMatrixCSS3:CocoMatrix" help="__projectionMatrixCSS3 is member var of class CocoRenderContextGL
+private CocoRenderContextGL::__projectionMatrixCSS3:CocoMatrix" image="29"/>
 		<member name="maskDraw" proto="maskDraw:Boolean" help="maskDraw is member var of class CocoRenderContextGL
 private CocoRenderContextGL::maskDraw:Boolean" image="29"/>
 		<member name="activeShader" proto="activeShader:CocoShaderCommon" help="activeShader is member var of class CocoRenderContextGL
@@ -6461,74 +6530,74 @@ public CocoDevice::report()" image="35"/>
 public virtual CocoDevice::Destructor()" image="35"/>
 		<member name="Constructor" proto="Constructor()" help="Constructor is member function of class CocoDevice
 public CocoDevice::Constructor()" image="14"/>
-		<member name="Force2D" proto="Force2D:Boolean" help="Force2D is property of class CocoDevice
-public property CocoDevice::Force2D:Boolean" image="31"/>
-		<member name="ForceCSS3" proto="ForceCSS3:Boolean" help="ForceCSS3 is property of class CocoDevice
-public property CocoDevice::ForceCSS3:Boolean" image="31"/>
-		<member name="pixelRatio" proto="pixelRatio:Float" help="pixelRatio is property of class CocoDevice
-public property CocoDevice::pixelRatio:Float" image="31"/>
+		<member name="Force2D" proto="Force2D:Boolean" help="Force2D is member var of class CocoDevice
+public CocoDevice::Force2D:Boolean" image="34"/>
+		<member name="ForceCSS3" proto="ForceCSS3:Boolean" help="ForceCSS3 is member var of class CocoDevice
+public CocoDevice::ForceCSS3:Boolean" image="34"/>
+		<member name="isChrome" proto="isChrome:Boolean" help="isChrome is member var of class CocoDevice
+public CocoDevice::isChrome:Boolean" image="34"/>
+		<member name="isFirefox" proto="isFirefox:Boolean" help="isFirefox is member var of class CocoDevice
+public CocoDevice::isFirefox:Boolean" image="34"/>
+		<member name="isSafari" proto="isSafari:Boolean" help="isSafari is member var of class CocoDevice
+public CocoDevice::isSafari:Boolean" image="34"/>
+		<member name="isIPhone" proto="isIPhone:Boolean" help="isIPhone is member var of class CocoDevice
+public CocoDevice::isIPhone:Boolean" image="34"/>
+		<member name="isIPad" proto="isIPad:Boolean" help="isIPad is member var of class CocoDevice
+public CocoDevice::isIPad:Boolean" image="34"/>
+		<member name="isDesktopSafari" proto="isDesktopSafari:Boolean" help="isDesktopSafari is member var of class CocoDevice
+public CocoDevice::isDesktopSafari:Boolean" image="34"/>
+		<member name="isAndroid" proto="isAndroid:Boolean" help="isAndroid is member var of class CocoDevice
+public CocoDevice::isAndroid:Boolean" image="34"/>
+		<member name="isIPad1" proto="isIPad1:Boolean" help="isIPad1 is member var of class CocoDevice
+public CocoDevice::isIPad1:Boolean" image="34"/>
+		<member name="isIPad2" proto="isIPad2:Boolean" help="isIPad2 is member var of class CocoDevice
+public CocoDevice::isIPad2:Boolean" image="34"/>
+		<member name="isIPad3" proto="isIPad3:Boolean" help="isIPad3 is member var of class CocoDevice
+public CocoDevice::isIPad3:Boolean" image="34"/>
+		<member name="isIPhone3" proto="isIPhone3:Boolean" help="isIPhone3 is member var of class CocoDevice
+public CocoDevice::isIPhone3:Boolean" image="34"/>
+		<member name="isIPhone4" proto="isIPhone4:Boolean" help="isIPhone4 is member var of class CocoDevice
+public CocoDevice::isIPhone4:Boolean" image="34"/>
+		<member name="isIPhone5" proto="isIPhone5:Boolean" help="isIPhone5 is member var of class CocoDevice
+public CocoDevice::isIPhone5:Boolean" image="34"/>
+		<member name="isIPhone6" proto="isIPhone6:Boolean" help="isIPhone6 is member var of class CocoDevice
+public CocoDevice::isIPhone6:Boolean" image="34"/>
+		<member name="isIPhone6Plus" proto="isIPhone6Plus:Boolean" help="isIPhone6Plus is member var of class CocoDevice
+public CocoDevice::isIPhone6Plus:Boolean" image="34"/>
+		<member name="HasTouchscreen" proto="HasTouchscreen:Boolean" help="HasTouchscreen is member var of class CocoDevice
+public CocoDevice::HasTouchscreen:Boolean" image="34"/>
+		<member name="isIOS" proto="isIOS:Boolean" help="isIOS is member var of class CocoDevice
+public CocoDevice::isIOS:Boolean" image="34"/>
+		<member name="pixelRatio" proto="pixelRatio:Float" help="pixelRatio is member var of class CocoDevice
+public CocoDevice::pixelRatio:Float" image="34"/>
+		<member name="unorientedScreenWidth" proto="unorientedScreenWidth:Integer" help="unorientedScreenWidth is member var of class CocoDevice
+public CocoDevice::unorientedScreenWidth:Integer" image="34"/>
+		<member name="unorientedScreenHeight" proto="unorientedScreenHeight:Integer" help="unorientedScreenHeight is member var of class CocoDevice
+public CocoDevice::unorientedScreenHeight:Integer" image="34"/>
+		<member name="isMobileHTML5Browser" proto="isMobileHTML5Browser:Boolean" help="isMobileHTML5Browser is member var of class CocoDevice
+public CocoDevice::isMobileHTML5Browser:Boolean" image="34"/>
+		<member name="isHTML5Browser" proto="isHTML5Browser:Boolean" help="isHTML5Browser is member var of class CocoDevice
+public CocoDevice::isHTML5Browser:Boolean" image="34"/>
+		<member name="isDesktop" proto="isDesktop:Boolean" help="isDesktop is member var of class CocoDevice
+public CocoDevice::isDesktop:Boolean" image="34"/>
+		<member name="isNative" proto="isNative:Boolean" help="isNative is member var of class CocoDevice
+public CocoDevice::isNative:Boolean" image="34"/>
+		<member name="isCoconut2DPlayer" proto="isCoconut2DPlayer:Boolean" help="isCoconut2DPlayer is member var of class CocoDevice
+public CocoDevice::isCoconut2DPlayer:Boolean" image="34"/>
 		<member name="screenWidth" proto="screenWidth:Float" help="screenWidth is property of class CocoDevice
 public property CocoDevice::screenWidth:Float" image="31"/>
 		<member name="screenHeight" proto="screenHeight:Float" help="screenHeight is property of class CocoDevice
 public property CocoDevice::screenHeight:Float" image="31"/>
-		<member name="unorientedScreenWidth" proto="unorientedScreenWidth:Float" help="unorientedScreenWidth is property of class CocoDevice
-public property CocoDevice::unorientedScreenWidth:Float" image="31"/>
-		<member name="unorientedScreenHeight" proto="unorientedScreenHeight:Float" help="unorientedScreenHeight is property of class CocoDevice
-public property CocoDevice::unorientedScreenHeight:Float" image="31"/>
 		<member name="screenOrientation" proto="screenOrientation:COCO_SCREEN_ORIENTATION" help="screenOrientation is property of class CocoDevice
 public property CocoDevice::screenOrientation:COCO_SCREEN_ORIENTATION" image="31"/>
 		<member name="type" proto="type:COCO_DEVICE" help="type is property of class CocoDevice
 public property CocoDevice::type:COCO_DEVICE" image="31"/>
 		<member name="dpi" proto="dpi:COCO_DEVICE" help="dpi is property of class CocoDevice
 public property CocoDevice::dpi:COCO_DEVICE" image="31"/>
-		<member name="isNative" proto="isNative:Boolean" help="isNative is property of class CocoDevice
-public property CocoDevice::isNative:Boolean" image="31"/>
-		<member name="isCoconut2DPlayer" proto="isCoconut2DPlayer:Boolean" help="isCoconut2DPlayer is property of class CocoDevice
-public property CocoDevice::isCoconut2DPlayer:Boolean" image="31"/>
-		<member name="isHTML5Browser" proto="isHTML5Browser:Boolean" help="isHTML5Browser is property of class CocoDevice
-public property CocoDevice::isHTML5Browser:Boolean" image="31"/>
-		<member name="isDesktop" proto="isDesktop:Boolean" help="isDesktop is property of class CocoDevice
-public property CocoDevice::isDesktop:Boolean" image="31"/>
-		<member name="isMobileHTML5Browser" proto="isMobileHTML5Browser:Boolean" help="isMobileHTML5Browser is property of class CocoDevice
-public property CocoDevice::isMobileHTML5Browser:Boolean" image="31"/>
-		<member name="isChrome" proto="isChrome:Boolean" help="isChrome is property of class CocoDevice
-public property CocoDevice::isChrome:Boolean" image="31"/>
-		<member name="isFirefox" proto="isFirefox:Boolean" help="isFirefox is property of class CocoDevice
-public property CocoDevice::isFirefox:Boolean" image="31"/>
-		<member name="isSafari" proto="isSafari:Boolean" help="isSafari is property of class CocoDevice
-public property CocoDevice::isSafari:Boolean" image="31"/>
-		<member name="isIOS" proto="isIOS:Boolean" help="isIOS is property of class CocoDevice
-public property CocoDevice::isIOS:Boolean" image="31"/>
-		<member name="isIPhone" proto="isIPhone:Boolean" help="isIPhone is property of class CocoDevice
-public property CocoDevice::isIPhone:Boolean" image="31"/>
-		<member name="isIPad" proto="isIPad:Boolean" help="isIPad is property of class CocoDevice
-public property CocoDevice::isIPad:Boolean" image="31"/>
-		<member name="isIPad1" proto="isIPad1:Boolean" help="isIPad1 is property of class CocoDevice
-public property CocoDevice::isIPad1:Boolean" image="31"/>
-		<member name="isIPad2" proto="isIPad2:Boolean" help="isIPad2 is property of class CocoDevice
-public property CocoDevice::isIPad2:Boolean" image="31"/>
-		<member name="isIPad3" proto="isIPad3:Boolean" help="isIPad3 is property of class CocoDevice
-public property CocoDevice::isIPad3:Boolean" image="31"/>
-		<member name="isIPhone3" proto="isIPhone3:Boolean" help="isIPhone3 is property of class CocoDevice
-public property CocoDevice::isIPhone3:Boolean" image="31"/>
-		<member name="isIPhone4" proto="isIPhone4:Boolean" help="isIPhone4 is property of class CocoDevice
-public property CocoDevice::isIPhone4:Boolean" image="31"/>
-		<member name="isIPhone5" proto="isIPhone5:Boolean" help="isIPhone5 is property of class CocoDevice
-public property CocoDevice::isIPhone5:Boolean" image="31"/>
-		<member name="isIPhone6" proto="isIPhone6:Boolean" help="isIPhone6 is property of class CocoDevice
-public property CocoDevice::isIPhone6:Boolean" image="31"/>
-		<member name="isIPhone6Plus" proto="isIPhone6Plus:Boolean" help="isIPhone6Plus is property of class CocoDevice
-public property CocoDevice::isIPhone6Plus:Boolean" image="31"/>
-		<member name="isDesktopSafari" proto="isDesktopSafari:Boolean" help="isDesktopSafari is property of class CocoDevice
-public property CocoDevice::isDesktopSafari:Boolean" image="31"/>
 		<member name="iOSVersion" proto="iOSVersion:String" help="iOSVersion is property of class CocoDevice
 public property CocoDevice::iOSVersion:String" image="31"/>
-		<member name="isAndroid" proto="isAndroid:Boolean" help="isAndroid is property of class CocoDevice
-public property CocoDevice::isAndroid:Boolean" image="31"/>
 		<member name="AndroidSDKVersion" proto="AndroidSDKVersion:String" help="AndroidSDKVersion is property of class CocoDevice
 public property CocoDevice::AndroidSDKVersion:String" image="31"/>
-		<member name="HasTouchscreen" proto="HasTouchscreen:Boolean" help="HasTouchscreen is property of class CocoDevice
-public property CocoDevice::HasTouchscreen:Boolean" image="31"/>
 		<member name="__className" proto="__className:String" help="__className is member var of class CocoDevice
 public CocoDevice::__className:String" image="13"/>
 	</memberlist>
@@ -6565,8 +6634,8 @@ private CocoEngine::__canRegisterMove(x:Float, y:Float) :Boolean" image="30"/>
 public CocoEngine::__clearDeviceMessageQueue()" image="35"/>
 		<member name="__pushClicked" proto="__pushClicked(clip:CocoClip)" help="__pushClicked is member function of class CocoEngine
 public CocoEngine::__pushClicked(clip:CocoClip)" image="35"/>
-		<member name="isClicked" proto="isClicked(check:Array&lt;CocoClip&gt;) :Integer" help="isClicked is member function of class CocoEngine
-public CocoEngine::isClicked(check:Array&lt;CocoClip&gt;) :Integer" image="35"/>
+		<member name="isClicked" proto="isClicked(check:Array&lt;CocoClip&gt;, optional preserveArray:Boolean) :Integer" help="isClicked is member function of class CocoEngine
+public CocoEngine::isClicked(check:Array&lt;CocoClip&gt;, optional preserveArray:Boolean) :Integer" image="35"/>
 		<member name="isKeyDown" proto="isKeyDown(check:Int32Array) :Integer" help="isKeyDown is member function of class CocoEngine
 public CocoEngine::isKeyDown(check:Int32Array) :Integer" image="35"/>
 		<member name="addTickListener" proto="addTickListener(tickable:ITickable)" help="addTickListener is member function of class CocoEngine

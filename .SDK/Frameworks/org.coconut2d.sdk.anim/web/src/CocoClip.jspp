@@ -939,16 +939,21 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			ANCHOR.style.backgroundClip			= "border-box";
 			ANCHOR.style.backgroundOrigin		= "border-box";
 
-			ANCHOR = document.body.appendChild(ANCHOR);
-			ANCHOR.setAttribute("ready", "true");
-
 			if(href!="" && href.indexOf("http")!=-1)
 			{
 				ANCHOR.setAttribute("href", href);
 				ANCHOR.setAttribute("target", "_blank");
 			}
 
-			ANCHOR = document.body.appendChild(ANCHOR);
+			if(engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_CSS3)
+			{
+				ANCHOR = engine.__ctx.getHtmlElement().appendChild(ANCHOR);
+			}
+			else
+			{
+				ANCHOR = document.body.appendChild(ANCHOR);
+				ANCHOR.setAttribute("ready", "true");
+			}
 
 			__ANCHOR = ANCHOR;
 

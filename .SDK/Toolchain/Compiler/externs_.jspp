@@ -3887,6 +3887,7 @@ class ICocoRenderContext
 	public function drawBoundingBox(clip:CocoClip) {}
 	public function hide() {}
 	public function show() {}
+	public function getHtmlElement() :HTMLElement {}
 } //ICocoRenderContext
 
 class CocoRenderContext
@@ -3910,6 +3911,7 @@ class CocoRenderContext2D
 	public function hide() {}
 	public function show() {}
 	public function ready() :Boolean {}
+	public function getHtmlElement() :HTMLElement {}
 	public function cls() {}
 	public function clip(x:Float, y:Float, w:Float, h:Float) {}
 	public function flush() {}
@@ -3944,6 +3946,7 @@ class CocoRenderContextCSS3
 	public function hide() {}
 	public function show() {}
 	public function ready() :Boolean {}
+	public function getHtmlElement() :HTMLElement {}
 	public function cls() {}
 	public function clip(x:Float, y:Float, w:Float, h:Float) {}
 	public function flush() {}
@@ -3959,7 +3962,7 @@ class CocoRenderContextCSS3
 	public function drawBoundingBox(clip:CocoClip) {}
 	public function Destructor() {}
 	public function Constructor(ctx:HTMLDivElement) {}
-	private  var __DIV :HTMLDivElement;
+	private  var __CONTAINER :HTMLDivElement;
 	private  var __modelViewMatrix :CocoMatrix;
 	private  var __projectionMatrix :CocoMatrix;
 	private  var __modelViewMatrixCSS3 :CocoMatrix;
@@ -3979,6 +3982,7 @@ class CocoRenderContextGL
 	public function hide() {}
 	public function show() {}
 	public function ready() :Boolean {}
+	public function getHtmlElement() :HTMLElement {}
 	public function cls() {}
 	public function clip(x:Float, y:Float, w:Float, h:Float) {}
 	public function flush() {}

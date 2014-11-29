@@ -36,7 +36,7 @@
 
 class CocoRenderContextCSS3 implements ICocoRenderContext
 {
-	private reference var __DIV:HTMLDivElement;
+	private reference var __CONTAINER:HTMLDivElement;
 
 	// Matrix
 	private var __modelViewMatrix:CocoMatrix;
@@ -46,7 +46,7 @@ class CocoRenderContextCSS3 implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function Constructor(ctx:HTMLDivElement)
  	{
- 		__DIV = ctx;
+ 		__CONTAINER = ctx;
 
  		prepareContainer();
 
@@ -66,15 +66,16 @@ class CocoRenderContextCSS3 implements ICocoRenderContext
  	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function getName():String									{ return "CSS3"; }
  	public function getType():COCO_RENDERING_CONTEXT_ENUM				{ return COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_CSS3; }
-	public function getDisplayWidth():Float								{ return __DIV.offsetWidth; }
-	public function getDisplayHeight():Float							{ return __DIV.offsetHeight; }
-	public function getBufferWidth():Float								{ return __DIV.offsetWidth; }
-	public function getBufferHeight():Float								{ return __DIV.offsetHeight; }
+	public function getDisplayWidth():Float								{ return __CONTAINER.offsetWidth; }
+	public function getDisplayHeight():Float							{ return __CONTAINER.offsetHeight; }
+	public function getBufferWidth():Float								{ return __CONTAINER.offsetWidth; }
+	public function getBufferHeight():Float								{ return __CONTAINER.offsetHeight; }
 	public function getModelViewMatrix():CocoMatrix						{ return __modelViewMatrix; }
 	public function getProjectionMatrix():CocoMatrix					{ return __projectionMatrix; }
-	public function hide()												{ __DIV.style.visibility="hidden"; }
-	public function show()												{ __DIV.style.visibility="hidden"; }
+	public function hide()												{ __CONTAINER.style.visibility="hidden"; }
+	public function show()												{ __CONTAINER.style.visibility="hidden"; }
 	public function ready():Boolean										{ return true; }
+	public function getHtmlElement():HTMLElement						{ return __CONTAINER; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function cls()
@@ -85,7 +86,7 @@ class CocoRenderContextCSS3 implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function clip(x:Float, y:Float, w:Float, h:Float)
 	{
-		__DIV.style.clip = "rect(" + String(y) + "px, " + String(x+w)  + "px, " + String(y+h) + "px, " + String(x) + "px)";;
+		__CONTAINER.style.clip = "rect(" + String(y) + "px, " + String(x+w)  + "px, " + String(y+h) + "px, " + String(x) + "px)";;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,25 +112,25 @@ class CocoRenderContextCSS3 implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function prepareContainer()
 	{
-		__DIV.style.position				= "absolute";
-		__DIV.style.overflow				= "hidden";
-		__DIV.style.top						= "0px";
-		__DIV.style.left					= "0px";
-		__DIV.style.width  					= String(engine.device.screenWidth)  + 'px';
-		__DIV.style.height 					= String(engine.device.screenHeight) + 'px';
-		__DIV.style.margin					= "0px";
-		__DIV.style.padding					= "0px";
-		__DIV.style.visibility				= "visible";
-		__DIV.style.backfaceVisibility		= "hidden";
-		__DIV.style.backgroundColor			= "transparent";
-		__DIV.style.transformStyle			= "preserve-3d";
-		__DIV.style.webkitTransformStyle	= "preserve-3d";
-		__DIV.style.transformOrigin			= "0% 0% 0px";
-		__DIV.style.webkitTransformOrigin	= "0% 0% 0px";
-		__DIV.style.transform				= "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
-		__DIV.style.webkitTransformStyle	= "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
-		__DIV.style.borderSpacing			= 0;
-		__DIV.style.borderWidth				= 0;
+		__CONTAINER.style.position				= "absolute";
+		__CONTAINER.style.overflow				= "hidden";
+		__CONTAINER.style.top					= "0px";
+		__CONTAINER.style.left					= "0px";
+		__CONTAINER.style.width  				= String(engine.device.screenWidth)  + 'px';
+		__CONTAINER.style.height 				= String(engine.device.screenHeight) + 'px';
+		__CONTAINER.style.margin				= "0px";
+		__CONTAINER.style.padding				= "0px";
+		__CONTAINER.style.visibility			= "visible";
+		__CONTAINER.style.backfaceVisibility	= "hidden";
+		__CONTAINER.style.backgroundColor		= "transparent";
+		__CONTAINER.style.transformStyle		= "preserve-3d";
+		__CONTAINER.style.webkitTransformStyle	= "preserve-3d";
+		__CONTAINER.style.transformOrigin		= "0% 0% 0px";
+		__CONTAINER.style.webkitTransformOrigin	= "0% 0% 0px";
+		__CONTAINER.style.transform				= "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
+		__CONTAINER.style.webkitTransformStyle	= "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
+		__CONTAINER.style.borderSpacing			= 0;
+		__CONTAINER.style.borderWidth			= 0;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -213,11 +214,11 @@ class CocoRenderContextCSS3 implements ICocoRenderContext
 	{
 		if(!image || !image.hImage) return;
 
-		var DIV:HTMLElement = document.getElementById(clip.__uniqueID);
+		var DIV:HTMLElement = clip.__ANCHOR ? clip.__ANCHOR : document.getElementById(clip.__uniqueID);
 
-		if(!DIV)
+		if(!DIV || (DIV && DIV.getAttribute("ready")!="true"))
 		{
-			DIV = document.createElement("div");
+			DIV = DIV ? DIV : document.createElement("div");
 			DIV.id = clip.__uniqueID;
 			DIV.setAttribute("instanceName", clip.__instanceName);
 
@@ -252,8 +253,7 @@ class CocoRenderContextCSS3 implements ICocoRenderContext
 			DIV.style.backgroundClip		= "border-box";
 			DIV.style.backgroundOrigin		= "border-box";
 
-			__DIV.appendChild(DIV);
-
+			DIV = __CONTAINER.appendChild(DIV);
 			DIV.setAttribute("ready", "true");
 		}
 
