@@ -133,6 +133,16 @@
 		all event sources must extend. Event listeners must implement the IEventListener interface. An event is declared
 		by
 
+	== 29/11/2014 ==
+
+	42. Completed implementation of object delegatation
+	43. Added toJSON() compiler magic for Structs
+	44. (Finally) implemented partial compilation for code completion
+	45. Fixed several minor bugs on events
+	46. Integers are wrapped in Math.round() in assignments and in function calls
+	47. Added conditional compilation closures using #if <condition> #elseif and #endif
+	48. Fixed minor bugs with static vars
+
 
 	Elias G. Politakis
 	epolitakis@mobilefx.com
@@ -140,17 +150,19 @@
 	TODO LIST:
 	==========
 
+	- SOS: Lamda Functions.
+	- SOS: Multi-dimensional Arrays.
+	- SOS: State exit must deallocate local state variables.
+	- SOS: There is definately a bug with overloaded function resolving.
+	- SOS: Lots of typechecking is missing, need to scan the compiler top-to-bottom for typechecking.
+
 	- Bug in V8 prevents breakpoints if block statements starts with jsdef.NEW/NEW_WITH_ARGS assignment (jsflags --inline-new=false)
 	- Proper support for ENUMS (need to check class-level enums)
 	- Consts must become read-only properties
 	- Delegation properties delegation and checks
 	- x = new Array<type> must check against x symbol for subtype
-	- Return path does not produce errors\
-	- IMPORTANT: Need to detect jsdef.NEW and jsdef.NEW_WITH_ARGS inside method calls that produce memory leaks in
-			     C++ and issue warnings. Possible define a weak_new operator and pass delete obligation to consumer?
-	- IMPORTANT: State exit must deallocate local state variables.
+	- Return path does not produce errors
 	- CocoUIPageView::invalidateControls
-	- check for loops that have i < somehting.size()
 
 */
 
@@ -201,7 +213,7 @@ function Compiler(ast)
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Extend the compiler with plugins
-	CompilerExportsPlugin(_this);
+	CompilerSymbolsPlugin(_this);
 	CompilerTypeSystemPlugin(_this);
 	CompilerAnalyzerPlugin(_this);
 	CompilerCppPlugin(_this);
@@ -2643,7 +2655,7 @@ function Compiler(ast)
 
 			// Record vartype usage in class level (used to check #includes)
 			if(classScope)
-				_this.record_vartype_use(ast, functionSymbol, parentScope, _this.INCLUDE_IN_CPP);
+				_this.record_vartype_use(ast, functionSymbol, parentScope, classSymbol.interface ?  _this.INCLUDE_IN_HPP : _this.INCLUDE_IN_CPP);
 
 			// Process the Arguments List
 			var paramsList = "";

@@ -144,16 +144,29 @@ class CocoRenderContextGL implements ICocoRenderContext
 	// Clip against physical pixels
 	public function clip(x:Float, y:Float, w:Float, h:Float)
 	{
-		if(!(engine.device.isNative && engine.device.isIOS))
+		gl.enable(gl.SCISSOR_TEST);
+
+		if(window.deviceRotation)
 		{
-			gl.enable(gl.SCISSOR_TEST);
-			gl.scissor(x*engine.device.pixelRatio, y*engine.device.pixelRatio, w*engine.device.pixelRatio, h*engine.device.pixelRatio);
+			var c:Float = Math.cos(window.deviceRotation);
+			var s:Float = Math.sin(window.deviceRotation);
+			var xx:Float = Math.abs(c*x + s*y);
+			var yy:Float = Math.abs(-s*x + c*y);
+			var ww:Float = Math.abs(c*w + s*h);
+			var hh:Float = Math.abs(-s*w + c*h);
+			x=xx;
+			y=yy;
+			w=ww;
+			h=hh;
 		}
+
+		gl.scissor(x*engine.device.pixelRatio, y*engine.device.pixelRatio, w*engine.device.pixelRatio, h*engine.device.pixelRatio);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function flush()
  	{
+ 		gl.finish();
  	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,6 +203,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 			var s:Float = Math.sin(window.deviceRotation);
 			var orthoWidth:Float = Math.abs(c * Float(getBufferWidth()) + s * Float(getBufferHeight()));
 			var orthoHeight:Float = Math.abs(-s * Float(getBufferWidth()) + c * Float(getBufferHeight()));
+
+			gl.viewport(0, 0, orthoWidth, orthoHeight);
 			__projectionMatrix.ortho(-orthoWidth / 2.0, orthoWidth / 2.0, orthoHeight / 2.0,  -orthoHeight / 2.0, -1.0, 1.0);
 			__projectionMatrix.rotateZ(-window.deviceRotation);
 			__projectionMatrix.scale(viewScale*engine.device.pixelRatio, viewScale*engine.device.pixelRatio);
@@ -256,25 +271,32 @@ class CocoRenderContextGL implements ICocoRenderContext
 		var texData:Float32Array = null;
 
 		// Create a WebGL Texture and bind it.
-		data.texture = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_2D, data.texture);
+		if(img.binpack)
+		{
+			data.texture = img.binpack.renderData.castRenderDataGL().texture;
+		}
+		else
+		{
+			data.texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, data.texture);
 
-		// Create Texture from HTML Image
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img.hImage);
-		if(gl.getError()!=0) trace("ERROR: CocoRenderContextGL::prepareImage() gl.texImage2D failed for image " + img.hImage.src);
+			// Create Texture from HTML Image
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img.hImage);
+			if(gl.getError()!=0) trace("ERROR: CocoRenderContextGL::prepareImage() gl.texImage2D failed for image " + img.symbolName);
 
-		// Instruct WebGL how to wrap the texture.
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+			// Instruct WebGL how to wrap the texture.
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 
-		// Generate Texture FROM iMAGE
-		gl.generateMipmap(gl.TEXTURE_2D);
-		if(gl.getError()!=0) trace("ERROR: CocoRenderContextGL::prepareImage() gl.generateMipmap failed for image " + img.hImage.src);
+			// Generate Texture FROM iMAGE
+			gl.generateMipmap(gl.TEXTURE_2D);
+			if(gl.getError()!=0) trace("ERROR: CocoRenderContextGL::prepareImage() gl.generateMipmap failed for image " + img.symbolName);
 
-		// Unbind Texture
-		gl.bindTexture(gl.TEXTURE_2D, null);
+			// Unbind Texture
+			gl.bindTexture(gl.TEXTURE_2D, null);
+		}
 
 		if(img.tileMap)
 		{

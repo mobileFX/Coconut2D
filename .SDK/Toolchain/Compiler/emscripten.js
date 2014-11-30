@@ -1,5 +1,4 @@
-﻿
-function __make_plugin_emscripten(cocomaker)
+﻿function __make_plugin_emscripten(cocomaker)
 {
 	var _this = cocomaker;
 

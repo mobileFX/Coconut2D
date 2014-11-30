@@ -6,7 +6,7 @@ Frameworks
    |
    +- native (C++ files)
    |  |
-   |  +- gen (generated C++ from CocoScript)
+   |  +- gen (generated C++ from CocoScript Compiler)
    |  +- src (non-generated C++ sources)
    |
    +- web

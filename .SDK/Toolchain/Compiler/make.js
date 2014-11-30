@@ -277,13 +277,14 @@ function CocoMake(command , params)
 
 				var buff = read(files[i]);
 				buff = _this.removeComments(buff);
-				var rx = /(?:\btemplate[^>]+>[\s\n\r\t]*?)?\b(class|struct)\s+([^\s\n\r\t\x7B\:]+)/g;
+				var rx = /(?:\btemplate[^>]+>[\s\n\r\t]*?)?\b(enum class|class|struct)\s+([^\s\n\r\t\x7B\:]+)/g;
 				while(match=rx.exec(buff))
 				{
 					var classDef  = match[0] + "";
 					var className = match[2] + "";
 
 					if(classDef.indexOf("template")!=-1) continue;
+					if(classDef.indexOf("enum class")!=-1) continue;
 					if(classDef.indexOf(";")!=-1) continue;
 					if(native_classes.indexOf(classDef+";")!=-1) continue;
 
@@ -314,7 +315,7 @@ function CocoMake(command , params)
 		// Update class forward declarations in Coconut2d.hpp
 		var buff = read(makefile.Vars.FILE_PATH_SDK_CRL_COCONUT2D_HPP);
 		buff = _this.replaceBuffer("//# Generated Classes Begin #//", "//# Generated Classes End #//", buff, generated_classes);
-		//buff = _this.replaceBuffer("//# Native Classes Begin #//", "//# Native Classes End #//", buff, native_classes);
+		buff = _this.replaceBuffer("//# Native Classes Begin #//", "//# Native Classes End #//", buff, native_classes);
 		_this.module(makefile.Vars.FILE_PATH_SDK_CRL_COCONUT2D_HPP, buff);
 
 		trace("+ Done.");
@@ -1066,20 +1067,23 @@ function CocoMake(command , params)
 	{
 		var fonts = _this.FindFiles(assetsRoot+"/fonts", "*.ttf", true);
 		var buff = read(file);
-		for(var i=0;i<fonts.length;i++)
+		if(buff)
 		{
-			fonts[i] = relativePath(assetsRoot, fonts[i]);
-			var fontFile = fonts[i].split("/");
-			fontFile = fontFile[fontFile.length-1];
-			fontName = /\w+/.exec(fontFile)[0];
-			var style = "Regular";
-			if(fonts[i].indexOf("Bold")!=-1) style = "Bold";
-			if(fonts[i].indexOf("Italic")!=-1) style = "Italic";
-			if(fonts[i].indexOf("BoldItalic")!=-1) style = "BoldItalic";
-			fonts[i] = '\tCocoFontsCache::add("' + fontName + '", CocoFontsCache::FONT_STYLE::' + style + ', "' + fonts[i] + '");';
+			for(var i=0;i<fonts.length;i++)
+			{
+				fonts[i] = relativePath(assetsRoot, fonts[i]);
+				var fontFile = fonts[i].split("/");
+				fontFile = fontFile[fontFile.length-1];
+				fontName = /\w+/.exec(fontFile)[0];
+				var style = "Regular";
+				if(fonts[i].indexOf("Bold")!=-1) style = "Bold";
+				if(fonts[i].indexOf("Italic")!=-1) style = "Italic";
+				if(fonts[i].indexOf("BoldItalic")!=-1) style = "BoldItalic";
+				fonts[i] = '\tCocoFontsCache::add("' + fontName + '", CocoFontsCache::FONT_STYLE::' + style + ', "' + fonts[i] + '");';
+			}
+			buff = buff.replace("\t$(FONTS_LIST)", fonts.join("\n"));
+			_this.module(file, buff, false);
 		}
-		buff = buff.replace("\t$(FONTS_LIST)", fonts.join("\n"));
-		_this.module(file, buff, false);
 	};
 
 	// ==================================================================================================================================
@@ -1227,20 +1231,23 @@ function CocoMake(command , params)
 	    {
 	    	if(!vFrameworks[i]) continue;
 	    	var framework = makefile.Components.Frameworks[vFrameworks[i]];
-	    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
+	    	if(framework)
 	    	{
-	        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
-	        	if(folderExists(path))
-	        	{
-		    		trace("  + " + vFrameworks[i] + " -> " + path);
-		        	var Files = _this.FindFiles(path, FileMasks, true);
-			        for(var j=0;j<Files.length;j++)
-			        {
-			        	var file = Files[j];
-			        	var fileName = file.substr(file.lastIndexOf("/")+1);
-			     		copyFile(file, TARGET.TARGET_ROOT + "/obj/" + fileName);
-			        }
-	        	}
+		    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
+		    	{
+		        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
+		        	if(folderExists(path))
+		        	{
+			    		trace("  + " + vFrameworks[i] + " -> " + path);
+			        	var Files = _this.FindFiles(path, FileMasks, true);
+				        for(var j=0;j<Files.length;j++)
+				        {
+				        	var file = Files[j];
+				        	var fileName = file.substr(file.lastIndexOf("/")+1);
+				     		copyFile(file, TARGET.TARGET_ROOT + "/obj/" + fileName);
+				        }
+		        	}
+		    	}
 	    	}
 	    }
 	};
@@ -1390,11 +1397,18 @@ function CocoMake(command , params)
 	    {
 	    	if(!vFrameworks[i]) continue;
 	    	var framework = makefile.Components.Frameworks[vFrameworks[i]];
-	    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
+	    	if(!framework)
 	    	{
-	        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
-	    		trace("  + " + vFrameworks[i] + " -> " + path);
-	        	SourcePaths[path] = true;
+	    		throw "ERROR: Invalid Framework " + vFrameworks[i];
+	    	}
+	    	else
+	    	{
+		    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
+		    	{
+		        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
+		    		trace("  + " + vFrameworks[i] + " -> " + path);
+		        	SourcePaths[path] = true;
+		    	}
 	    	}
 	    }
 
@@ -1782,128 +1796,121 @@ function CocoMake(command , params)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function Graph()
 {
-	var v = [];
-	var m = null;
-	var o = null;
+	var nodes = [];
+	var edges = [];
 
 	var _this = this;
 	_this.errors = [];
 
 	this.addV = function(n)
 	{
-		v.push(n);
+		nodes.push(n);
 	}
 
 	this.addE = function(v1, v2)
 	{
-		if(!m)
-		{
-			o = new Array(v.length);
-			m = new Array(v.length);
-			for(var i=0;i<v.length;i++)
-			{
-				o[i] = -1;
-				m[i] = new Array(v.length);
-				for(var j=0;j<v.length;j++)
-					m[i][j] = 0;
-			}
-		}
-	    var s = v2i(v1);
-    	var e = v2i(v2);
-    	if(s!=-1 && e!=-1)
-        	m[s][e] = 1;
-	}
-
-	var v2i = function(n)
-	{
-    	for(var i=0; i<v.length; i++)
-        	if(v[i]==n)
-            	return i;
-    	return -1;
-	}
-
-	var ni = function()
-	{
-	    for(var i=0; i<v.length; i++)
-	    {
-	        var c = 0;
-	        var t = 0;
-	        for(var j=0; j<v.length; j++)
-	        {
-	            if(m[i][j]==0) c++;
-	            if(m[i][j]==2) t++;
-	        }
-	        if(t==v.length)
-	        {
-	        	continue;
-	        }
-	        else if(c+t == v.length)
-	        {
-	            return i;
-	        }
-	    }
-	    return -1;
-	}
-
-	var cy = function(i)
-	{
-    	var Dic = {};
-    	cyi(i, Dic);
-	}
-
-	var cyi = function(i, Dic)
-	{
-    	if(!Dic) return;
-    	if(Dic[v[i]])
-    	{
-    		var first = null;
-			var last = null;
-			var path = [];
-    		for(last in Dic)
-    		{
-    			path.push(last);
-    			if(!first) first = last;
-    		}
-
-    		path = path.reverse().concat(last);
-			var msg = "Cyclic reference between [" + first + "] and [" + last + "]. References Cycle: " + path.join(" -> ");
-			_this.errors.push( { file:last, cylce:path, error:msg } );
-			IDECallback("warning", path.join(" -> "), 0, 0, msg);
-        	return;
-    	}
-    	Dic[v[i]] = true;
-    	for(var j=0; j<v.length; j++)
-    	{
-        	if(m[i][j]==1)
-        	{
-            	cyi(j, Dic);
-            	if(!Dic) return;
-        	}
-    	}
+		edges.push([v1, v2]);
 	}
 
 	this.sort = function()
 	{
-    	if(!v) return;
-	    for(var i=0; i<v.length; i++)
+	    var sorted = [];
+
+	    function visit( node, predecessors, i )
 	    {
-	        var e = ni();
-	        if(e == -1) cy(i);
-	        if(e != -1)
+	        var index, predsCopy;
+	        predecessors = predecessors || [];
+
+	        if(predecessors.indexOf(node) > -1)
 	        {
-		        o[i] = v[e];
-		        for(var j=0; j<v.length; j++)
-		        {
-		            m[j][e] = 2;
-		            m[e][j] = 2;
-		        }
+	        	_this.errors.push( { file:node, cycle:predecessors.concat([node]), error: "Cyclic dependency found. '" + node + "' is dependent of itself.\nDependency Chain: " + predecessors.join( " -> " ) + " => " + node + "\n" } );
 	        }
+
+	        index = nodes.indexOf( node );
+	        if ( index === -1 )
+	        {
+	            return i;
+	        }
+
+	        nodes.splice( index, 1 );
+	        if ( predecessors.length === 0 )
+	        {
+	            i--;
+	        }
+
+	        predsCopy = predecessors.slice();
+	        predsCopy.push( node );
+
+	        edges.filter(function( e )
+	        {
+	            return e[ 0 ] === node;
+	        }).forEach(function( e )
+	        {
+	            i = visit( e[ 1 ], predsCopy, i );
+	        });
+
+	        sorted.unshift( node );
+	        return i;
 	    }
-    	return o||[];
+
+	    for(var i=0; i<nodes.length; i++)
+	    {
+	        i = visit( nodes[ i ], null, i );
+	    }
+
+	    sorted = sorted.reverse();
+
+	    return sorted;
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function graphSort(nodes, edges)
+{
+	var cursor = nodes.length;
+	var sorted = new Array(cursor);
+	var visited = {};
+	var i = cursor;
+
+	while (i--)
+	{
+		if(!visited[i])
+			visit(nodes[i], i, []);
+	}
+	return sorted
+
+	function visit(node, i, predecessors)
+	{
+		if(predecessors.indexOf(node) >= 0)
+		{
+			trace("Cyclic dependency: "+JSON.stringify(node));
+		}
+
+		if(visited[i]) return;
+		visited[i] = true;
+
+		// outgoing edges
+		var outgoing = edges.filter(function(edge)
+		{
+			return edge[0] === node;
+		});
+
+		if(i = outgoing.length)
+		{
+			var preds = predecessors.concat(node);
+			do
+			{
+				var child = outgoing[--i][1];
+				visit(child, nodes.indexOf(child), preds);
+
+			} while(i)
+		}
+
+		sorted[--cursor] = node;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function ____JSONtoXML(json, rootNode)
 {
 	if(!rootNode) rootNode = "XML";

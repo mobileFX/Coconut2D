@@ -31,8 +31,10 @@
 //	                                      /_/                                /_/
 // ==================================================================================================================================
 
-function CompilerExportsPlugin(compiler)
+function CompilerSymbolsPlugin(compiler)
 {
+	trace("+ Loaded CocoScript Compiler Symbols Plugin");
+
 	var _this = this._this = compiler;
 	_this.debugSymbolsTable = [];           // Map of source code to runtime debug symbols, used by IDE debugger (eg. class foo { public var x; } , x at runtime is __CLASS_FOO__.x )
 
@@ -351,6 +353,7 @@ function CompilerExportsPlugin(compiler)
 			for(var inc in itm.hpp.includes)
 			{
 				var E = file_from_include(inc);
+				if(E=="Coconut2D.hpp" || E=="Constants.hpp") continue;
 				E = E.substr(0, E.indexOf("."));
 				g.addE(E, V);
 			}
@@ -366,33 +369,37 @@ function CompilerExportsPlugin(compiler)
 			// Since all classes have forward declarations in Coconut2D.hpp,
 			// the trick of removing the include file should work.
 
-			for(var i=g.errors.length;i--;)
+			for(var i=0; i<g.errors.length; i++)
 			{
 				var fixed = false;
 				var error = g.errors[i];
 				var native_file = _this.native_files[error.file+".jspp"];
 				if(!native_file) break;
 
-				for(var j=error.cylce.length;j--;)
+				var include = error.cycle[error.cycle.length-2];
+				var include_to_remove = '#include "' + include + '.hpp"';
+				var exists = native_file.hpp.includes[include_to_remove]!=null;
+
+				if(exists)
 				{
-					var include_to_remove = '#include "' + error.cylce[j] + '.hpp"';
-					fixed = fixed | (native_file.hpp.includes[include_to_remove]!=null);
 					delete native_file.hpp.includes[include_to_remove];
+					trace("+ removed " + include_to_remove + " from " + native_file.name + ".hpp");
+					fixed = true;
 				}
 
 				if(fixed)
 				{
 					// Error resolved!
 					g.errors.splice(i,1);
+					i--;
 				}
 			}
 
 			if(g.errors.length)
 			{
-				// Unfortunately there are still cyclic references.
-				//for(var i=0;i<g.errors.length;i++)
-				//	trace("ERROR: " + g.errors[i].error);
-				//throw "ERROR: Cyclic references detected in source code. Please break cyclic references to continue compilation.";
+				trace("\nUnresolved cyclic references ...\n");
+				for(var i=0;i<g.errors.length;i++)
+					trace("ERROR: " + g.errors[i].error);
 			}
 		}
 
@@ -533,6 +540,38 @@ function CompilerExportsPlugin(compiler)
 			for(item in native_file.classes){break;}
 			_this.NewWarning("Class " + vartype + " is used by CRL. It must be moved inside a Framework.", native_file.classes[item].ast);
 			//'#include "' + vartype + '.hpp"';
+		}
+
+		// ==========================================================================================
+		function debug_report_vartypes_per_file(jspp)
+		{
+			for(file in _this.native_files)
+			{
+				if(jspp && file!=jspp) continue;
+				var native_file = _this.native_files[file];
+				var cls, item;
+				trace("\n" + native_file.file);
+				for(cls in native_file.classes)
+				{
+					trace(" + class: " + cls);
+				}
+				for(item in native_file.cpp.vartypes)
+				{
+					trace(" + cpp vartype: " + item);
+				}
+				for(item in native_file.cpp.includes)
+				{
+					trace(" + cpp include: " + item);
+				}
+				for(item in native_file.hpp.vartypes)
+				{
+					trace(" + hpp vartype: " + item);
+				}
+				for(item in native_file.hpp.includes)
+				{
+					trace(" + hpp include: " + item);
+				}
+			}
 		}
 	};
 
@@ -1388,7 +1427,6 @@ function CompilerExportsPlugin(compiler)
 												if(list[1].type==jsdef.FUNCTION)
 												{
 													var fn = list[1].symbol.ast;
-													//debugger;
 												}
 											}
 										});

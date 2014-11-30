@@ -28,6 +28,7 @@
 #import <UIKit/UIView.h>
 #import <UIKit/UIApplication.h>
 #import <QuartzCore/CAEAGLLayer.h>
+#import <OpenGLES/ES2/gl.h>
 #import "Structs.h"
 
 @interface CocoDeviceOpenGLContext : UIView

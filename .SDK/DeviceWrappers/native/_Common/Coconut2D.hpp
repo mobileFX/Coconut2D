@@ -514,15 +514,32 @@ public:
 // ==================================================================================================================================
 
 //# Native Classes Begin #//
-class HTMLWindow;
-class WebGLRenderingContext;
+class Audio;
+class CocoAssetFile;
+class CocoAudioStream;
 class CocoEventConnectionPoint;
-class XMLHttpRequest;
+class CocoEventSource;
+class CocoFont;
+class CocoFontsCache;
+class HTMLWindow;
+class IEventListener;
+class ImageData;
+class WebGLBuffer;
+class WebGLFramebuffer;
+class WebGLObject;
+class WebGLProgram;
+class WebGLRenderbuffer;
+class WebGLRenderingContext;
+class WebGLShader;
+class WebGLTexture;
+class WebGLUniformLocation;
+struct CocoFontChar;
+struct GLany;
+struct fxScreen;
 //# Native Classes End #//
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
-class CocoAppController;
 class CocoAudio;
 class CocoClip;
 class CocoClipOnAnimationSequenceBeginEvent;
@@ -538,9 +555,7 @@ class CocoDataset;
 class CocoDevice;
 class CocoEngine;
 class CocoEvent;
-class CocoFacebook;
 class CocoGraphics;
-class CocoHttpRequest;
 class CocoImage;
 class CocoImageRenderData2D;
 class CocoImageRenderDataGL;
@@ -550,6 +565,7 @@ class CocoMaskClip;
 class CocoMatrix;
 class CocoRenderContext2D;
 class CocoRenderContext;
+class CocoRenderContextCSS3;
 class CocoRenderContextGL;
 class CocoScene;
 class CocoSelfTexturedClip;
@@ -568,20 +584,6 @@ class CocoTextStyle;
 class CocoTickable;
 class CocoTimeLabel;
 class CocoTimeline;
-class CocoUIButton;
-class CocoUICheckBox;
-class CocoUIComboBox;
-class CocoUIControl;
-class CocoUIControlOnChevronClickEvent;
-class CocoUIControlOnGlyphClickEvent;
-class CocoUIFormView;
-class CocoUILabel;
-class CocoUINavBar;
-class CocoUIPictureList;
-class CocoUIScrollView;
-class CocoUITabBar;
-class CocoUITextEdit;
-class CocoUIView;
 class CocoVector;
 class GameEngine;
 class HTMLAnchorElement;
@@ -603,10 +605,9 @@ class IEventTarget;
 class IPersistable;
 class ITickable;
 class Image;
-class NewAnimation;
 class OnClickHandler;
 class PathLine;
-class ReservationsForm;
+class SceneTest;
 class Touch;
 class TouchList;
 struct CocoHVAlign;
@@ -618,7 +619,6 @@ struct CocoRequestNameValuePair;
 struct CocoSkinCacheItem;
 struct ContextArguments;
 struct DEVICE_MESSAGE;
-struct FACEBOOK_LOGIN;
 //# Generated Classes End #//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

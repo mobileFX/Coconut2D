@@ -25,6 +25,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+
+ "#include CanvasRenderingContext2D.jspp";
+
 // ==================================================================================================================================
 //	   ______                _____
 //	  / ____/___  _________ / ___/___  ____ ___  _____  ____  ________
@@ -109,6 +112,107 @@ class CocoImageResolution
 }
 
 // ==================================================================================================================================
+//	    __________                 ____                           ____                 __          ____        __
+//	   /  _/ ____/___  _________  /  _/___ ___  ____ _____ ____  / __ \___  ____  ____/ /__  _____/ __ \____ _/ /_____ _
+//	   / // /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ / / / __ `/ __/ __ `/
+//	 _/ // /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/ _, _/  __/ / / / /_/ /  __/ /  / /_/ / /_/ / /_/ /_/ /
+//	/___/\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/_/ |_|\___/_/ /_/\__,_/\___/_/  /_____/\__,_/\__/\__,_/
+//	                                               /____/
+// ==================================================================================================================================
+
+interface ICocoImageRenderData
+{
+	public virtual function castRenderDataGL():CocoImageRenderDataGL;
+	public virtual function castRenderData2D():CocoImageRenderData2D;
+}
+
+// ==================================================================================================================================
+//	   ______                 ____                           ____                 __          ____        __       ___   ____
+//	  / ____/___  _________  /  _/___ ___  ____ _____ ____  / __ \___  ____  ____/ /__  _____/ __ \____ _/ /_____ |__ \ / __ \
+//	 / /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ / / / __ `/ __/ __ `/_/ // / / /
+//	/ /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/ _, _/  __/ / / / /_/ /  __/ /  / /_/ / /_/ / /_/ /_/ / __// /_/ /
+//	\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/_/ |_|\___/_/ /_/\__,_/\___/_/  /_____/\__,_/\__/\__,_/____/_____/
+//	                                          /____/
+// ==================================================================================================================================
+
+class CocoImageRenderData2D implements ICocoImageRenderData
+{
+	public var imageData:ImageData;
+
+	public function Constructor()
+	{
+		imageData = null;
+	}
+
+	public function Destructor()
+	{
+		delete imageData;
+	}
+
+	public function castRenderDataGL():CocoImageRenderDataGL
+	{
+		return null;
+	}
+
+	public function castRenderData2D():CocoImageRenderData2D
+	{
+		return this;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____                           ____                 __          ____        __        ________
+//	  / ____/___  _________  /  _/___ ___  ____ _____ ____  / __ \___  ____  ____/ /__  _____/ __ \____ _/ /_____ _/ ____/ /
+//	 / /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ / / / __ `/ __/ __ `/ / __/ /
+//	/ /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/ _, _/  __/ / / / /_/ /  __/ /  / /_/ / /_/ / /_/ /_/ / /_/ / /___
+//	\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/_/ |_|\___/_/ /_/\__,_/\___/_/  /_____/\__,_/\__/\__,_/\____/_____/
+//	                                          /____/
+// ==================================================================================================================================
+
+class CocoImageRenderDataGL implements ICocoImageRenderData
+{
+	public reference var gl:WebGLRenderingContext;
+
+	public var texture: WebGLTexture;
+	public var buffer: WebGLBuffer;
+	public var drawType:Integer;
+	public var vertexCount:Integer;
+
+	public function Constructor()
+	{
+		drawType = 0;
+		vertexCount = 0;
+		texture = null;
+		buffer = null;
+	}
+
+	public function Destructor()
+	{
+		if(gl)
+		{
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			gl.deleteTexture(texture);
+			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			gl.deleteBuffer(buffer);
+		}
+
+		delete texture;
+		delete buffer;
+		gl=null;
+	}
+
+	public function castRenderDataGL():CocoImageRenderDataGL
+	{
+		return this;
+	}
+
+	public function castRenderData2D():CocoImageRenderData2D
+	{
+		return null;
+	}
+}
+
+// ==================================================================================================================================
 //	   ______                 ____
 //	  / ____/___  _________  /  _/___ ___  ____ _____ ____
 //	 / /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \
@@ -125,7 +229,7 @@ class CocoImage
 	public reference var scene:CocoScene;
 
 	// BinPacked
-	public var binpack:Boolean;
+	public reference var binpack:CocoImage;
 	public var binpackX:Float;
 	public var binpackY:Float;
 
@@ -212,7 +316,7 @@ class CocoImage
 		onLoadResizeWidth	= 0;
 		onLoadResizeHeight	= 0;
 		viewSiblings		= new Array<CocoImageResolution>;
-		binpack				= false;
+		binpack				= null;
 		binpackX			= 0;
 		binpackY			= 0;
 	}
@@ -480,7 +584,7 @@ class CocoImage
 
 			hImage = sibling.binpack.hImage;
 
-			binpack 	= true;
+			binpack 	= sibling.binpack;
 			binpackX 	= sibling.binpackX;
 			binpackY 	= sibling.binpackY;
 		}
@@ -530,7 +634,7 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function resizeToOptimalTextureSize()
 	{
-		if(false && engine.__RESIZE_IMAGES_AT_RUNTIME && !binpack && textureCellWidth>=engine.device.screenWidth && !isSpriteSheet && scaleX > 0.0 && scaleY > 0.0 && scaleX!=1.0 && scaleY!=1.0)
+		if(engine.__RESIZE_IMAGES_AT_RUNTIME && !binpack && textureCellWidth>=engine.device.screenWidth && !isSpriteSheet && scaleX > 0.0 && scaleY > 0.0 && scaleX!=1.0 && scaleY!=1.0)
 		{
 			var pot:Boolean = engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL;
 			var w:Integer = Math.floor(textureCellWidth * scaleX / pixelRatio);
@@ -620,7 +724,7 @@ class CocoImage
     public static function LanczosResize(source:ImageData, srcWidth:Integer, srcHeight:Integer, dstWidth:Integer, dstHeight:Integer):ImageData
     {
         var total:Float, distanceY:Float, cacheValue:Float, v:Float, a:Float, r:Float, g:Float, b:Float, y1et:Float, x1et:Float, cx:Float, cy:Float, sourcePixelX:Float, sourcePixelY:Float;
-        var i:Integer, idx:Integer, cacheKey:Integer, x:Integer, x1:Integer, x1b:Integer, x1e:Integer, y:Integer, y1:Integer, y1b:Integer, y1e:Integer, y2:Integer, y3:Integer;
+        var i:Integer, idx:Integer, x:Integer, x1:Integer, x1b:Integer, x1e:Integer, y:Integer, y1:Integer, y1b:Integer, y1e:Integer, y2:Integer, y3:Integer;
         var values:Array<Float> = new Array<Float>;
         var sx:Float = dstWidth / srcWidth;
         var sy:Float = dstHeight / srcHeight;

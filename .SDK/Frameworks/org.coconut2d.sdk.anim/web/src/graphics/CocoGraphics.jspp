@@ -25,6 +25,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+
+ "#include CanvasRenderingContext2D.jspp";
+
 // ==================================================================================================================================
 //	   ______                 ____            __
 //	  / ____/___  _________  / __ \___  _____/ /_
@@ -223,13 +226,6 @@ class CocoGraphics
 		if(!skinImage)
 			return;
 
-		var r:Float					  = 1;
-		var p:Float					  = 1;
-		var src:Image				  = skinImage.hImage;
-		var cx:Float				  = 0;
-		var cy:Float				  = 0;
-		var cw:Float				  = width;
-		var ch:Float				  = height;
 		var W1:Float				  = skinImage.skin[0];
 		var W2:Float				  = skinImage.skin[1];
 		var W3:Float				  = skinImage.skin[2];
@@ -339,7 +335,7 @@ class CocoGraphics
 		if(cellWidth==0 || cellHeight==0)
 			return;
 
-		var ix:Float, iy:Float, cx:Float, cy:Float, cw:Float, ch:Float ,r:Float;
+		var ix:Float, iy:Float, cw:Float, ch:Float;
 
 		for(iy=y; iy<=y+height; iy+=cellHeight)
 		{
@@ -380,6 +376,7 @@ class CocoGraphics
 			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_NEAR:		align.horiz = 0; break;
 			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER:	align.horiz = 0.5; break;
 			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_FAR:		align.horiz = 1; break;
+			default:break;
 		}
 
 		switch(v)
@@ -387,6 +384,7 @@ class CocoGraphics
 			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_NEAR:		align.vert = 0; break;
 			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER:	align.vert = 0.5; break;
 			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_FAR:		align.vert = 1; break;
+			default:break;
 		}
 
 		return align;
@@ -441,6 +439,8 @@ class CocoGraphics
 			align.vert = 1.0;
 			align.horiz = 1.0;
 			break;
+
+		default:break;
     	}
 
     	return align;

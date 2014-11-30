@@ -381,10 +381,6 @@ class Global
 	public var WebGLShaderPrecisionFormat :WebGLShaderPrecisionFormat;
 	public var WebGLTexture :WebGLTexture;
 	public var WebGLUniformLocation :WebGLUniformLocation;
-	public var CocoVector :CocoVector;
-	public var CocoMatrixData :CocoMatrixData;
-	public var CocoMatrix :CocoMatrix;
-	public var CocoScene :CocoScene;
 	public var CocoKeyFrame :CocoKeyFrame;
 	public var CocoTimeLabel :CocoTimeLabel;
 	public var CocoTimeline :CocoTimeline;
@@ -399,21 +395,10 @@ class Global
 	public var CocoTextClip :CocoTextClip;
 	public var COCO_MASK_TYPE :COCO_MASK_TYPE;
 	public var CocoMaskClip :CocoMaskClip;
-	public var IEventListener :IEventListener;
-	public var IEventTarget :IEventTarget;
-	public var IPersistable :IPersistable;
-	public var ITickable :ITickable;
-	public var CocoPoint :CocoPoint;
-	public var CocoRect :CocoRect;
-	public var CocoSkinCacheItem :CocoSkinCacheItem;
-	public var CocoHVAlign :CocoHVAlign;
-	public var CocoGraphics :CocoGraphics;
-	public var CocoSequence :CocoSequence;
-	public var CocoImageResolution :CocoImageResolution;
-	public var CocoImage :CocoImage;
-	public var ICocoImageRenderData :ICocoImageRenderData;
-	public var CocoImageRenderData2D :CocoImageRenderData2D;
-	public var CocoImageRenderDataGL :CocoImageRenderDataGL;
+	public var CocoVector :CocoVector;
+	public var CocoMatrixData :CocoMatrixData;
+	public var CocoMatrix :CocoMatrix;
+	public var CocoScene :CocoScene;
 	public var COCO_RENDERING_CONTEXT_ENUM :COCO_RENDERING_CONTEXT_ENUM;
 	public var ICocoRenderContext :ICocoRenderContext;
 	public var CocoRenderContext :CocoRenderContext;
@@ -427,6 +412,21 @@ class Global
 	public var CocoShaderSimpleWithAlpha :CocoShaderSimpleWithAlpha;
 	public var CocoShaderSaturationWithAlpha :CocoShaderSaturationWithAlpha;
 	public var CocoShaderParallaxHor :CocoShaderParallaxHor;
+	public var IEventListener :IEventListener;
+	public var IEventTarget :IEventTarget;
+	public var IPersistable :IPersistable;
+	public var ITickable :ITickable;
+	public var CocoPoint :CocoPoint;
+	public var CocoRect :CocoRect;
+	public var CocoSkinCacheItem :CocoSkinCacheItem;
+	public var CocoHVAlign :CocoHVAlign;
+	public var CocoGraphics :CocoGraphics;
+	public var CocoSequence :CocoSequence;
+	public var CocoImageResolution :CocoImageResolution;
+	public var ICocoImageRenderData :ICocoImageRenderData;
+	public var CocoImageRenderData2D :CocoImageRenderData2D;
+	public var CocoImageRenderDataGL :CocoImageRenderDataGL;
+	public var CocoImage :CocoImage;
 	public var CocoTextStyle :CocoTextStyle;
 	public var CocoText :CocoText;
 	public var CocoTextBlock :CocoTextBlock;
@@ -445,26 +445,20 @@ class Global
 	public var HTMLEvent :HTMLEvent;
 	public var DEVICE_MESSAGE_ENUM :DEVICE_MESSAGE_ENUM;
 	public var DEVICE_MESSAGE :DEVICE_MESSAGE;
-	public var COCO_DATA_PROVIDER_ENUM :COCO_DATA_PROVIDER_ENUM;
-	public var COCO_REQUEST_DATA_FORMAT_ENUM :COCO_REQUEST_DATA_FORMAT_ENUM;
-	public var COCO_PERSISTENT_STORAGE_ENUM :COCO_PERSISTENT_STORAGE_ENUM;
-	public var CocoRequestNameValuePair :CocoRequestNameValuePair;
-	public var CocoDataSource :CocoDataSource;
 	public var CocoDataStream :CocoDataStream;
 	public var COCO_FIELD_DATATYPE :COCO_FIELD_DATATYPE;
 	public var CocoDataField :CocoDataField;
 	public var COCO_RECORD_STATUS :COCO_RECORD_STATUS;
 	public var CocoDataset :CocoDataset;
+	public var COCO_DATA_PROVIDER_ENUM :COCO_DATA_PROVIDER_ENUM;
+	public var COCO_REQUEST_DATA_FORMAT_ENUM :COCO_REQUEST_DATA_FORMAT_ENUM;
+	public var COCO_PERSISTENT_STORAGE_ENUM :COCO_PERSISTENT_STORAGE_ENUM;
+	public var CocoRequestNameValuePair :CocoRequestNameValuePair;
+	public var CocoDataSource :CocoDataSource;
 	public var CocoLocalStorage :CocoLocalStorage;
 	public var CocoAudio :CocoAudio;
-	public var FACEBOOK_LOGIN :FACEBOOK_LOGIN;
-	public var CocoFacebook :CocoFacebook;
-	public var CocoHttpRequest :CocoHttpRequest;
-	public var CocoJSON :CocoJSON;
-	public var MILKING_UDDER_TURN_ENUM :MILKING_UDDER_TURN_ENUM;
-	public var GAME_USER_DATA :GAME_USER_DATA;
 	public var GameEngine :GameEngine;
-	public var StoryBoard :StoryBoard;
+	public var SceneTest :SceneTest;
 } //Global
 
 class String
@@ -3321,108 +3315,6 @@ class WebGLUniformLocation : WebGLObject
 	public  var __className :String;
 } //WebGLUniformLocation
 
-class CocoVector
-{
-	public function reset(x:Float, y:Float, z:Float, w:Float) {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var X :Float;
-	public  var Y :Float;
-	public  var Z :Float;
-	public  var W :Float;
-	public  var __className :String;
-} //CocoVector
-
-class CocoMatrixData
-{
-	public function toJSON() :String {}
-	public var rc11 :Float;
-	public var rc12 :Float;
-	public var rc13 :Float;
-	public var rc14 :Float;
-	public var rc21 :Float;
-	public var rc22 :Float;
-	public var rc23 :Float;
-	public var rc24 :Float;
-	public var rc31 :Float;
-	public var rc32 :Float;
-	public var rc33 :Float;
-	public var rc34 :Float;
-	public var rc41 :Float;
-	public var rc42 :Float;
-	public var rc43 :Float;
-	public var rc44 :Float;
-} //CocoMatrixData
-
-class CocoMatrix
-{
-	public function Unproject(x:Float, y:Float, mv:CocoMatrix, pm:CocoMatrix, viewOriginX:Float, viewOriginY:Float, viewWidth:Float, viewHeight:Float) :CocoVector {}
-	public function copyFrom(m:CocoMatrixData) {}
-	public function identity() {}
-	public function ortho(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float) {}
-	public function transpose() {}
-	public function determinant() :Float {}
-	public function invert() {}
-	public function multiplyByVector(v:CocoVector) :CocoVector {}
-	public function multiplyByMatrix(v:CocoMatrix, setMatrix:Boolean, swap:Boolean) :CocoMatrix {}
-	public function translate(tx:Float, ty:Float) {}
-	public function scale(sx:Float, sy:Float) {}
-	public function rotateZ(rz:Float) {}
-	public function refresh() {}
-	public function push() {}
-	public function pop() {}
-	public function toCSS3D(identity:Boolean) :String {}
-	public function toCSS2D(identity:Boolean) :String {}
-	public function Destructor() {}
-	public function Constructor(M:CocoMatrix) {}
-	public  var __m :CocoMatrixData;
-	public  var __stack :Array<CocoMatrixData>;
-	public  var __data :Float32Array;
-	public  var __dirty :Boolean;
-	public  var __className :String;
-} //CocoMatrix
-
-class CocoScene
-{
-	public function getImageSymbol(symbolName:String) :CocoImage {}
-	public function getImageSymbolHeight(symbolName:String) :Float {}
-	public function getClipByPath(ClipPath:String) :CocoClip {}
-	public function getClipsByClassName(className:String) :Array<CocoClip> {}
-	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage {}
-	public function prepare(ctx:ICocoRenderContext) {}
-	public function tick(time:Time) {}
-	public function paint(ctx:ICocoRenderContext, time:Time) {}
-	public function resourcesLoaded(ctx:ICocoRenderContext) :Boolean {}
-	public function loadingProgress() :Integer {}
-	public function gotoAndPlayByName(LabelName:String) {}
-	public function gotoAndStopByName(LabelName:String) {}
-	public function gotoAndPlayByIndex(FrameIndex:Integer) {}
-	public function gotoAndStopyByIndex(FrameIndex:Integer) {}
-	public function stop() {}
-	public function worldX(deviceX:Float) :Float {}
-	public function worldY(deviceY:Float) :Float {}
-	public function viewX(worldX:Float) :Float {}
-	public function viewY(worldY:Float) :Float {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var __sceneName :String;
-	public  var __imageSymbols :Array<CocoImage>;
-	public  var __fps :Float;
-	public  var __view_width :Float;
-	public  var __view_height :Float;
-	public  var __view_pixel_ratio :Float;
-	public  var __view_scale :Float;
-	public  var __root :CocoClip;
-	public  var __levelParents :Array<CocoClip>;
-	public  var __ready :Boolean;
-	public  var __loaded_assets :Float;
-	public  var __finished :Boolean;
-	private  var m_ctx :ICocoRenderContext;
-	private  var m_width :Float;
-	private  var m_height :Float;
-	public  var __className :String;
-} //CocoScene
-
 class CocoKeyFrame
 {
 	public function toJSON() :String {}
@@ -3667,194 +3559,107 @@ class CocoMaskClip : CocoSelfTexturedClip
 	public  var __className :String;
 } //CocoMaskClip
 
-class IEventListener
+class CocoVector
 {
-} //IEventListener
+	public function reset(x:Float, y:Float, z:Float, w:Float) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var X :Float;
+	public  var Y :Float;
+	public  var Z :Float;
+	public  var W :Float;
+	public  var __className :String;
+} //CocoVector
 
-class IEventTarget
+class CocoMatrixData
 {
-} //IEventTarget
+	public function toJSON() :String {}
+	public var rc11 :Float;
+	public var rc12 :Float;
+	public var rc13 :Float;
+	public var rc14 :Float;
+	public var rc21 :Float;
+	public var rc22 :Float;
+	public var rc23 :Float;
+	public var rc24 :Float;
+	public var rc31 :Float;
+	public var rc32 :Float;
+	public var rc33 :Float;
+	public var rc34 :Float;
+	public var rc41 :Float;
+	public var rc42 :Float;
+	public var rc43 :Float;
+	public var rc44 :Float;
+} //CocoMatrixData
 
-class IPersistable
+class CocoMatrix
 {
-	public function save(ds:CocoDataStream) {}
-	public function load(ds:CocoDataStream) {}
-} //IPersistable
+	public function Unproject(x:Float, y:Float, mv:CocoMatrix, pm:CocoMatrix, viewOriginX:Float, viewOriginY:Float, viewWidth:Float, viewHeight:Float) :CocoVector {}
+	public function copyFrom(m:CocoMatrixData) {}
+	public function identity() {}
+	public function ortho(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float) {}
+	public function transpose() {}
+	public function determinant() :Float {}
+	public function invert() {}
+	public function multiplyByVector(v:CocoVector) :CocoVector {}
+	public function multiplyByMatrix(v:CocoMatrix, setMatrix:Boolean, swap:Boolean) :CocoMatrix {}
+	public function translate(tx:Float, ty:Float) {}
+	public function scale(sx:Float, sy:Float) {}
+	public function rotateZ(rz:Float) {}
+	public function refresh() {}
+	public function push() {}
+	public function pop() {}
+	public function toCSS3D(identity:Boolean) :String {}
+	public function toCSS2D(identity:Boolean) :String {}
+	public function Destructor() {}
+	public function Constructor(M:CocoMatrix) {}
+	public  var __m :CocoMatrixData;
+	public  var __stack :Array<CocoMatrixData>;
+	public  var __data :Float32Array;
+	public  var __dirty :Boolean;
+	public  var __className :String;
+} //CocoMatrix
 
-class ITickable
+class CocoScene
 {
-	public function RegisterTickable() {}
-	public function UnregisterTickable() {}
+	public function getImageSymbol(symbolName:String) :CocoImage {}
+	public function getImageSymbolHeight(symbolName:String) :Float {}
+	public function getClipByPath(ClipPath:String) :CocoClip {}
+	public function getClipsByClassName(className:String) :Array<CocoClip> {}
+	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage {}
+	public function prepare(ctx:ICocoRenderContext) {}
 	public function tick(time:Time) {}
-} //ITickable
-
-class CocoPoint
-{
-	public function toJSON() :String {}
-	public var x :Float;
-	public var y :Float;
-} //CocoPoint
-
-class CocoRect
-{
-	public function toJSON() :String {}
-	public var left :Float;
-	public var top :Float;
-	public var right :Float;
-	public var bottom :Float;
-} //CocoRect
-
-class CocoSkinCacheItem
-{
-	public function toJSON() :String {}
-	public var symbolName :String;
-	public var width :Float;
-	public var height :Float;
-	public var image :CocoImage;
-} //CocoSkinCacheItem
-
-class CocoHVAlign
-{
-	public function toJSON() :String {}
-	public var horiz :Float;
-	public var vert :Float;
-} //CocoHVAlign
-
-class CocoGraphics
-{
-	public function NewCanvas(width:Float, height:Float, POT:Boolean) :HTMLCanvasElement {}
-	public function ColorToHtmlRGBA(c:Color) :String {}
-	public function DpiToPixelRatio(dpi:SCREEN_RESOLUTION_DPI_ENUM) :Float {}
-	public function GetSkinFromCache(skinImage:CocoImage, width:Float, height:Float) :CocoImage {}
-	public function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float, mime:String) :CocoImage {}
-	public function DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float) {}
-	private function __drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Float, cy:Float, cw:Float, ch:Float, sx:Float, sy:Float, sw:Float, sh:Float, r:COCO_SKIN_TILE_ENUM) {}
-	private function __countFixed(v:Array<Float>) :Integer {}
-	private function __fixedW(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean {}
-	private function __fixedH(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean {}
-	private function __tileSkin(ctx:CanvasRenderingContext2D, image:CocoImage, cellX:Float, cellY:Float, cellWidth:Float, cellHeight:Float, x:Float, y:Float, width:Float, height:Float) {}
-	private function __drawRegion(ctx:CanvasRenderingContext2D, image:CocoImage, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float) {}
-	public function AlignToCocoHVAlign(h:COCO_TEXT_ALIGN_ENUM, v:COCO_TEXT_ALIGN_ENUM) :CocoHVAlign {}
-	public function AnchorToCocoHVAlign(anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoHVAlign {}
+	public function paint(ctx:ICocoRenderContext, time:Time) {}
+	public function resourcesLoaded(ctx:ICocoRenderContext) :Boolean {}
+	public function loadingProgress() :Integer {}
+	public function gotoAndPlayByName(LabelName:String) {}
+	public function gotoAndStopByName(LabelName:String) {}
+	public function gotoAndPlayByIndex(FrameIndex:Integer) {}
+	public function gotoAndStopyByIndex(FrameIndex:Integer) {}
+	public function stop() {}
+	public function worldX(deviceX:Float) :Float {}
+	public function worldY(deviceY:Float) :Float {}
+	public function viewX(worldX:Float) :Float {}
+	public function viewY(worldY:Float) :Float {}
 	public function Destructor() {}
 	public function Constructor() {}
-	public static  var skinsCache :Array<CocoSkinCacheItem>;
+	public  var __sceneName :String;
+	public  var __imageSymbols :Array<CocoImage>;
+	public  var __fps :Float;
+	public  var __view_width :Float;
+	public  var __view_height :Float;
+	public  var __view_pixel_ratio :Float;
+	public  var __view_scale :Float;
+	public  var __root :CocoClip;
+	public  var __levelParents :Array<CocoClip>;
+	public  var __ready :Boolean;
+	public  var __loaded_assets :Float;
+	public  var __finished :Boolean;
+	private  var m_ctx :ICocoRenderContext;
+	private  var m_width :Float;
+	private  var m_height :Float;
 	public  var __className :String;
-} //CocoGraphics
-
-class CocoSequence
-{
-	public function Destructor() {}
-	public function Constructor(name:String, framesArray:Array<Integer>) {}
-	public  var name :String;
-	public  var frames :Array<Integer>;
-	public  var __className :String;
-} //CocoSequence
-
-class CocoImageResolution
-{
-	public function Destructor() {}
-	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, textureScale:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array, binpack:CocoImage, binpackX:Float, binpackY:Float, skin:Float32Array) {}
-	public  var url :String;
-	public  var pixelRatio :Float;
-	public  var textureCellWidth :Float;
-	public  var textureCellHeight :Float;
-	public  var textureScale :Float;
-	public  var binpack :CocoImage;
-	public  var binpackX :Float;
-	public  var binpackY :Float;
-	public  var skin :Float32Array;
-	public  var tileWidth :Float;
-	public  var tileHeight :Float;
-	public  var tileMap :Int32Array;
-	public  var __className :String;
-} //CocoImageResolution
-
-class CocoImage
-{
-	public function createFromURL(url:String, resizeWidth:Float, resizeHeight:Float) :CocoImage {}
-	public function __error(hImage:Image) :Boolean {}
-	public function __loaded(hImage:Image) {}
-	public function createFromCanvas(canvas:HTMLCanvasElement, width:Float, height:Float) {}
-	public function createFromBase64(url:String, width:Float, height:Float) {}
-	public function addResolution(sibling:CocoImageResolution) :CocoImageResolution {}
-	public function addSequence(sequence:CocoSequence) :CocoSequence {}
-	public function getSequence(name:String) :CocoSequence {}
-	public function load() {}
-	private function loadImageByDpi(dpi:SCREEN_RESOLUTION_DPI_ENUM, strict:Boolean) :Boolean {}
-	private function setResolution(sibling:CocoImageResolution) {}
-	public function loaded() :Boolean {}
-	public function unload() {}
-	public function resizeToOptimalTextureSize() {}
-	public function kernel(filterSize:Integer, x:Float) :Float {}
-	public function createCache(cachePrecision:Integer, filterSize:Integer) :Array<Float> {}
-	public function LanczosResize(source:ImageData, srcWidth:Integer, srcHeight:Integer, dstWidth:Integer, dstHeight:Integer) :ImageData {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var symbolName :String;
-	public  var hImage :Image;
-	public  var scene :CocoScene;
-	public  var binpack :Boolean;
-	public  var binpackX :Float;
-	public  var binpackY :Float;
-	public  var textureCellWidth :Float;
-	public  var textureCellHeight :Float;
-	public  var textureScale :Float;
-	public  var textureGrid :Float32Array;
-	public  var textureTileMap :Float32Array;
-	public  var color :Float32Array;
-	public  var texSize :Float32Array;
-	public  var isSpriteSheet :Boolean;
-	public  var sequences :Array<CocoSequence>;
-	public  var skin :Float32Array;
-	public  var tileWidth :Integer;
-	public  var tileHeight :Integer;
-	public  var tileMap :Int32Array;
-	public  var renderData :ICocoImageRenderData;
-	public  var onLoadResizeWidth :Float;
-	public  var onLoadResizeHeight :Float;
-	public  var baseUrl :String;
-	public  var viewOptimalWidth :Integer;
-	public  var viewOptimalHeight :Integer;
-	public  var viewSiblings :Array<CocoImageResolution>;
-	public  var pixelRatio :Float;
-	public  var scaleX :Float;
-	public  var scaleY :Float;
-	public static  var CACHE :Array<Float>;
-	public static  var CACHE_PRECISION :Integer;
-	public static  var FILTER_SIZE :Integer;
-	public  var __className :String;
-} //CocoImage
-
-class ICocoImageRenderData
-{
-	public function castRenderDataGL() :CocoImageRenderDataGL {}
-	public function castRenderData2D() :CocoImageRenderData2D {}
-} //ICocoImageRenderData
-
-class CocoImageRenderData2D
-{
-	public function castRenderDataGL() :CocoImageRenderDataGL {}
-	public function castRenderData2D() :CocoImageRenderData2D {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var imageData :ImageData;
-	public  var __className :String;
-} //CocoImageRenderData2D
-
-class CocoImageRenderDataGL
-{
-	public function castRenderDataGL() :CocoImageRenderDataGL {}
-	public function castRenderData2D() :CocoImageRenderData2D {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var gl :WebGLRenderingContext;
-	public  var texture :WebGLTexture;
-	public  var buffer :WebGLBuffer;
-	public  var drawType :Integer;
-	public  var vertexCount :Integer;
-	public  var __className :String;
-} //CocoImageRenderDataGL
+} //CocoScene
 
 class COCO_RENDERING_CONTEXT_ENUM
 {
@@ -4107,6 +3912,195 @@ class CocoShaderParallaxHor : CocoShaderCommon
 	public  var uViewport :WebGLUniformLocation;
 	public  var __className :String;
 } //CocoShaderParallaxHor
+
+class IEventListener
+{
+} //IEventListener
+
+class IEventTarget
+{
+} //IEventTarget
+
+class IPersistable
+{
+	public function save(ds:CocoDataStream) {}
+	public function load(ds:CocoDataStream) {}
+} //IPersistable
+
+class ITickable
+{
+	public function RegisterTickable() {}
+	public function UnregisterTickable() {}
+	public function tick(time:Time) {}
+} //ITickable
+
+class CocoPoint
+{
+	public function toJSON() :String {}
+	public var x :Float;
+	public var y :Float;
+} //CocoPoint
+
+class CocoRect
+{
+	public function toJSON() :String {}
+	public var left :Float;
+	public var top :Float;
+	public var right :Float;
+	public var bottom :Float;
+} //CocoRect
+
+class CocoSkinCacheItem
+{
+	public function toJSON() :String {}
+	public var symbolName :String;
+	public var width :Float;
+	public var height :Float;
+	public var image :CocoImage;
+} //CocoSkinCacheItem
+
+class CocoHVAlign
+{
+	public function toJSON() :String {}
+	public var horiz :Float;
+	public var vert :Float;
+} //CocoHVAlign
+
+class CocoGraphics
+{
+	public function NewCanvas(width:Float, height:Float, POT:Boolean) :HTMLCanvasElement {}
+	public function ColorToHtmlRGBA(c:Color) :String {}
+	public function DpiToPixelRatio(dpi:SCREEN_RESOLUTION_DPI_ENUM) :Float {}
+	public function GetSkinFromCache(skinImage:CocoImage, width:Float, height:Float) :CocoImage {}
+	public function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float, mime:String) :CocoImage {}
+	public function DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float) {}
+	private function __drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Float, cy:Float, cw:Float, ch:Float, sx:Float, sy:Float, sw:Float, sh:Float, r:COCO_SKIN_TILE_ENUM) {}
+	private function __countFixed(v:Array<Float>) :Integer {}
+	private function __fixedW(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean {}
+	private function __fixedH(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean {}
+	private function __tileSkin(ctx:CanvasRenderingContext2D, image:CocoImage, cellX:Float, cellY:Float, cellWidth:Float, cellHeight:Float, x:Float, y:Float, width:Float, height:Float) {}
+	private function __drawRegion(ctx:CanvasRenderingContext2D, image:CocoImage, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float) {}
+	public function AlignToCocoHVAlign(h:COCO_TEXT_ALIGN_ENUM, v:COCO_TEXT_ALIGN_ENUM) :CocoHVAlign {}
+	public function AnchorToCocoHVAlign(anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoHVAlign {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public static  var skinsCache :Array<CocoSkinCacheItem>;
+	public  var __className :String;
+} //CocoGraphics
+
+class CocoSequence
+{
+	public function Destructor() {}
+	public function Constructor(name:String, framesArray:Array<Integer>) {}
+	public  var name :String;
+	public  var frames :Array<Integer>;
+	public  var __className :String;
+} //CocoSequence
+
+class CocoImageResolution
+{
+	public function Destructor() {}
+	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, textureScale:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array, binpack:CocoImage, binpackX:Float, binpackY:Float, skin:Float32Array) {}
+	public  var url :String;
+	public  var pixelRatio :Float;
+	public  var textureCellWidth :Float;
+	public  var textureCellHeight :Float;
+	public  var textureScale :Float;
+	public  var binpack :CocoImage;
+	public  var binpackX :Float;
+	public  var binpackY :Float;
+	public  var skin :Float32Array;
+	public  var tileWidth :Float;
+	public  var tileHeight :Float;
+	public  var tileMap :Int32Array;
+	public  var __className :String;
+} //CocoImageResolution
+
+class ICocoImageRenderData
+{
+	public function castRenderDataGL() :CocoImageRenderDataGL {}
+	public function castRenderData2D() :CocoImageRenderData2D {}
+} //ICocoImageRenderData
+
+class CocoImageRenderData2D
+{
+	public function castRenderDataGL() :CocoImageRenderDataGL {}
+	public function castRenderData2D() :CocoImageRenderData2D {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var imageData :ImageData;
+	public  var __className :String;
+} //CocoImageRenderData2D
+
+class CocoImageRenderDataGL
+{
+	public function castRenderDataGL() :CocoImageRenderDataGL {}
+	public function castRenderData2D() :CocoImageRenderData2D {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var gl :WebGLRenderingContext;
+	public  var texture :WebGLTexture;
+	public  var buffer :WebGLBuffer;
+	public  var drawType :Integer;
+	public  var vertexCount :Integer;
+	public  var __className :String;
+} //CocoImageRenderDataGL
+
+class CocoImage
+{
+	public function createFromURL(url:String, resizeWidth:Float, resizeHeight:Float) :CocoImage {}
+	public function __error(hImage:Image) :Boolean {}
+	public function __loaded(hImage:Image) {}
+	public function createFromCanvas(canvas:HTMLCanvasElement, width:Float, height:Float) {}
+	public function createFromBase64(url:String, width:Float, height:Float) {}
+	public function addResolution(sibling:CocoImageResolution) :CocoImageResolution {}
+	public function addSequence(sequence:CocoSequence) :CocoSequence {}
+	public function getSequence(name:String) :CocoSequence {}
+	public function load() {}
+	private function loadImageByDpi(dpi:SCREEN_RESOLUTION_DPI_ENUM, strict:Boolean) :Boolean {}
+	private function setResolution(sibling:CocoImageResolution) {}
+	public function loaded() :Boolean {}
+	public function unload() {}
+	public function resizeToOptimalTextureSize() {}
+	public function kernel(filterSize:Integer, x:Float) :Float {}
+	public function createCache(cachePrecision:Integer, filterSize:Integer) :Array<Float> {}
+	public function LanczosResize(source:ImageData, srcWidth:Integer, srcHeight:Integer, dstWidth:Integer, dstHeight:Integer) :ImageData {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var symbolName :String;
+	public  var hImage :Image;
+	public  var scene :CocoScene;
+	public  var binpack :CocoImage;
+	public  var binpackX :Float;
+	public  var binpackY :Float;
+	public  var textureCellWidth :Float;
+	public  var textureCellHeight :Float;
+	public  var textureScale :Float;
+	public  var textureGrid :Float32Array;
+	public  var textureTileMap :Float32Array;
+	public  var color :Float32Array;
+	public  var texSize :Float32Array;
+	public  var isSpriteSheet :Boolean;
+	public  var sequences :Array<CocoSequence>;
+	public  var skin :Float32Array;
+	public  var tileWidth :Integer;
+	public  var tileHeight :Integer;
+	public  var tileMap :Int32Array;
+	public  var renderData :ICocoImageRenderData;
+	public  var onLoadResizeWidth :Float;
+	public  var onLoadResizeHeight :Float;
+	public  var baseUrl :String;
+	public  var viewOptimalWidth :Integer;
+	public  var viewOptimalHeight :Integer;
+	public  var viewSiblings :Array<CocoImageResolution>;
+	public  var pixelRatio :Float;
+	public  var scaleX :Float;
+	public  var scaleY :Float;
+	public static  var CACHE :Array<Float>;
+	public static  var CACHE_PRECISION :Integer;
+	public static  var FILTER_SIZE :Integer;
+	public  var __className :String;
+} //CocoImage
 
 class CocoTextStyle
 {
@@ -4437,51 +4431,6 @@ class DEVICE_MESSAGE
 	public var shiftKey :Boolean;
 } //DEVICE_MESSAGE
 
-class COCO_DATA_PROVIDER_ENUM
-{
-	public var PROVIDER_HTTP_POST :COCO_DATA_PROVIDER_ENUM;
-	public var PROVIDER_HTTP_GET :COCO_DATA_PROVIDER_ENUM;
-	public var PROVIDER_FILESYSTEM :COCO_DATA_PROVIDER_ENUM;
-} //COCO_DATA_PROVIDER_ENUM
-
-class COCO_REQUEST_DATA_FORMAT_ENUM
-{
-	public var REQUEST_URL_QUERY_STRING :COCO_REQUEST_DATA_FORMAT_ENUM;
-	public var REQUEST_URL_ENCODED_FORM :COCO_REQUEST_DATA_FORMAT_ENUM;
-	public var REQUEST_XML :COCO_REQUEST_DATA_FORMAT_ENUM;
-	public var REQUEST_JSON :COCO_REQUEST_DATA_FORMAT_ENUM;
-} //COCO_REQUEST_DATA_FORMAT_ENUM
-
-class COCO_PERSISTENT_STORAGE_ENUM
-{
-	public var PERSIST_IN_SESSION :COCO_PERSISTENT_STORAGE_ENUM;
-	public var PERSIST_IN_LOCAL_STORAGE :COCO_PERSISTENT_STORAGE_ENUM;
-} //COCO_PERSISTENT_STORAGE_ENUM
-
-class CocoRequestNameValuePair
-{
-	public function toJSON() :String {}
-	public var Name :String;
-	public var Value :String;
-} //CocoRequestNameValuePair
-
-class CocoDataSource : CocoEventSource
-{
-	public function open() :CocoDataset {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public  var Name :String;
-	public  var Blocking :Boolean;
-	public  var Type :COCO_DATA_PROVIDER_ENUM;
-	public  var ConnectionString :String;
-	public  var RequestDataFormat :COCO_REQUEST_DATA_FORMAT_ENUM;
-	public  var RequestDataPacket :Array<String>;
-	public  var RequestHeaders :Array<String>;
-	public  var PersistentStorage :COCO_PERSISTENT_STORAGE_ENUM;
-	public  var PersistentDataID :String;
-	public  var __className :String;
-} //CocoDataSource
-
 class CocoDataStream
 {
 	public function increaseSize(s:Integer) {}
@@ -4601,6 +4550,51 @@ class CocoDataset
 	public  var __className :String;
 } //CocoDataset
 
+class COCO_DATA_PROVIDER_ENUM
+{
+	public var PROVIDER_HTTP_POST :COCO_DATA_PROVIDER_ENUM;
+	public var PROVIDER_HTTP_GET :COCO_DATA_PROVIDER_ENUM;
+	public var PROVIDER_FILESYSTEM :COCO_DATA_PROVIDER_ENUM;
+} //COCO_DATA_PROVIDER_ENUM
+
+class COCO_REQUEST_DATA_FORMAT_ENUM
+{
+	public var REQUEST_URL_QUERY_STRING :COCO_REQUEST_DATA_FORMAT_ENUM;
+	public var REQUEST_URL_ENCODED_FORM :COCO_REQUEST_DATA_FORMAT_ENUM;
+	public var REQUEST_XML :COCO_REQUEST_DATA_FORMAT_ENUM;
+	public var REQUEST_JSON :COCO_REQUEST_DATA_FORMAT_ENUM;
+} //COCO_REQUEST_DATA_FORMAT_ENUM
+
+class COCO_PERSISTENT_STORAGE_ENUM
+{
+	public var PERSIST_IN_SESSION :COCO_PERSISTENT_STORAGE_ENUM;
+	public var PERSIST_IN_LOCAL_STORAGE :COCO_PERSISTENT_STORAGE_ENUM;
+} //COCO_PERSISTENT_STORAGE_ENUM
+
+class CocoRequestNameValuePair
+{
+	public function toJSON() :String {}
+	public var Name :String;
+	public var Value :String;
+} //CocoRequestNameValuePair
+
+class CocoDataSource : CocoEventSource
+{
+	public function open() :CocoDataset {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var Name :String;
+	public  var Blocking :Boolean;
+	public  var Type :COCO_DATA_PROVIDER_ENUM;
+	public  var ConnectionString :String;
+	public  var RequestDataFormat :COCO_REQUEST_DATA_FORMAT_ENUM;
+	public  var RequestDataPacket :Array<String>;
+	public  var RequestHeaders :Array<String>;
+	public  var PersistentStorage :COCO_PERSISTENT_STORAGE_ENUM;
+	public  var PersistentDataID :String;
+	public  var __className :String;
+} //CocoDataSource
+
 class CocoLocalStorage
 {
 	public function Destructor() {}
@@ -4632,161 +4626,53 @@ class CocoAudio
 	public  var __className :String;
 } //CocoAudio
 
-class FACEBOOK_LOGIN
-{
-	public function toJSON() :String {}
-	public var id :String;
-	public var email :String;
-	public var first_name :String;
-	public var gender :String;
-	public var last_name :String;
-	public var link :String;
-	public var locale :String;
-	public var name :String;
-	public var timezone :Float;
-	public var updated_time :String;
-	public var verified :Boolean;
-	public var image :CocoImage;
-	public var image_is_silhouette :Boolean;
-	public var image_url :String;
-	public var image_b64 :String;
-} //FACEBOOK_LOGIN
-
-class CocoFacebook
-{
-	public function Init(AppID:String) {}
-	public function CreateDummyData() {}
-	public function Login() {}
-	public function isUserLoggedOn() :Boolean {}
-	public function Like(URL:String) :Boolean {}
-	public function Post(toUserID:String, URL:String) :Boolean {}
-	public function Share(URL:String) :Boolean {}
-	public function Invite(message:String) :Boolean {}
-	public function __Facebook_Login_Callback(response:FACEBOOK_LOGIN) {}
-	public function __Facebook_Action_Callback(success:Boolean) {}
-	public function Ready() :Boolean {}
-	public function Success() :Boolean {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public static  var DebugMode :Boolean;
-	public static  var Permissions :String;
-	public static  var ImageSize :Integer;
-	public static  var TextureScale :Float;
-	public static  var ImagePadding :Float;
-	public static  var ImageBkColor :String;
-	public static  var AppID :String;
-	public static  var UserData :FACEBOOK_LOGIN;
-	public static  var UserDenied :Boolean;
-	private static  var __ready :Boolean;
-	private static  var __success :Boolean;
-	private static  var __tempImage :Image;
-	public  var __className :String;
-} //CocoFacebook
-
-class CocoHttpRequest
-{
-	public function Ready() :Boolean {}
-	public function Success() :Boolean {}
-	public function responseText() :String {}
-	public function Destructor() {}
-	public function Constructor() {}
-	public function open(method:String, url:String, async:Boolean) {}
-	public function setRequestHeader(header:String, value:String) {}
-	public function send(data:String) {}
-	public function send$1(data:ArrayBufferView) {}
-	public function send$2() {}
-	public function abort() {}
-	public function getAllResponseHeaders() :String {}
-	public function getResponseHeader(header:String) :String {}
-	public  var xhttp :XMLHttpRequest;
-	public  var __className :String;
-} //CocoHttpRequest
-
-class CocoJSON
-{
-	public function read(dot:String) :String {}
-	public function Destructor() {}
-	public function Constructor(json:String) {}
-	private  var json :Array<Object>;
-	public  var __className :String;
-} //CocoJSON
-
-class MILKING_UDDER_TURN_ENUM
-{
-	public var MILKING_UDDER_TURN_LEFT :MILKING_UDDER_TURN_ENUM;
-	public var MILKING_UDDER_TURN_RIGHT :MILKING_UDDER_TURN_ENUM;
-} //MILKING_UDDER_TURN_ENUM
-
-class GAME_USER_DATA
-{
-	public function toJSON() :String {}
-	public var id :String;
-	public var score :Integer;
-	public var email :String;
-	public var first_name :String;
-	public var gender :String;
-	public var last_name :String;
-	public var link :String;
-	public var commit :Integer;
-	public var image :String;
-} //GAME_USER_DATA
-
 class GameEngine : CocoEngine
 {
-	public function SwapBucket(sender:CocoClip, e:CocoEvent) :Boolean {}
-	private function milkLeft() {}
-	private function milkRight() {}
-	private function CowIsAnnoyed() {}
-	public function FinishedUdderMilking(sender:CocoClip, e:CocoEvent, sequence:CocoSequence) :Boolean {}
-	public function ToggleAudio(sender:CocoClip, e:CocoEvent) :Boolean {}
-	private function playSound(sound:String) {}
+	public function TouchStart(sender:CocoClip, e:CocoClipOnTouchStartEvent) :Boolean {}
+	public function TouchMove(sender:CocoClip, e:CocoClipOnTouchMoveEvent) :Boolean {}
+	public function TouchEnd(sender:CocoClip, e:CocoClipOnTouchEndEvent) :Boolean {}
+	private function moveCakeBy(cake:CocoClip, X:Integer, Y:Integer) {}
+	private function eliminateLine() :Boolean {}
+	private function getCakeName(cake:CocoClip) :String {}
+	private function getCake(R:Integer, C:Integer) :CocoClip {}
+	private function getCakeIndex(cake:CocoClip) :Integer {}
+	private function getCakeRow(cake:CocoClip) :Integer {}
+	private function getCakeCol(cake:CocoClip) :Integer {}
 	public function Destructor() {}
 	public function Constructor() {}
 	private  var scene :CocoScene;
+	private  var cakes :Array<CocoClip>;
+	private  var grid :Array<CocoClip>;
+	private  var selectedCake :CocoClip;
+	private  var selector :CocoClip;
+	private  var line :Array<CocoClip>;
+	private  var touch :CocoClip;
+	private  var handle_events :Boolean;
+	private  var dragging :Boolean;
+	private  var dragX :Float;
+	private  var dragY :Float;
 	private  var score :Integer;
-	private  var udder_turn :MILKING_UDDER_TURN_ENUM;
-	private  var cow_angry :Integer;
-	private  var missed_lives :Integer;
-	private  var bucket_level :Integer;
-	private  var Udder_Left :CocoClip;
-	private  var Udder_Right :CocoClip;
-	private  var BucketSwap :CocoClip;
-	private  var play_time :Time;
-	private  var btn_Mute :CocoClip;
-	private  var btn_Pause :CocoClip;
-	private  var btn_Menu :CocoClip;
-	private  var player :GAME_USER_DATA;
-	private  var keyframedisp :Boolean;
-	private  var message_time :Time;
-	private  var game_in_progress :Boolean;
-	private  var has_played :Boolean;
-	private  var flooded :Boolean;
-	public var STATE_PROGRESS_BAR :State;
-	public var STATE_GET_FACEBOOK_USER :State;
-	public var STATE_MAIN_MENU :State;
-	public var STATE_NEW_GAME_INTRO :State;
-	public var STATE_RESUME_GAME :State;
-	public var STATE_NEW_GAME :State;
-	public var STATE_PLAY_GAME :State;
-	public var STATE_CHANGE_BUCKET :State;
-	public var STATE_SWAP_BUCKETS :State;
-	public var STATE_GAME_OVER :State;
-	public var STATE_GAME_FINISHED :State;
-	public var STATE_ENTER_FACEBOOK_SHARE :State;
-	public var STATE_ENTER_CONTEST_SUBMIT :State;
-	public var STATE_ENTER_CONTEST_SUCCESS :State;
-	public var STATE_INSTRUCTIONS :State;
-	public var STATE_GIFTS :State;
-	public var STATE_HIGH_SCORES :State;
-	public var STATE_FACEBOOK_LEADERBOARD_ACTION :State;
-	public var STATE_TWITTER_SHARE_LEADERBOARD :State;
+	private  var GRID_ROWS :Integer;
+	private  var GRID_COLS :Integer;
+	private  var GRID_LEFT :Float;
+	private  var GRID_TOP :Float;
+	private  var GRID_WIDTH :Integer;
+	private  var GRID_HEIGHT :Integer;
+	private  var SELECTOR_SPEED :Integer;
+	private  var SELECTOR_SNAP :Integer;
+	private  var MIN_MATCH :Integer;
+	public var STATE_INIT_GAME_BOARD :State;
+	public var WAIT_FOR_PLAYER :State;
+	public var STATE_MOVING_STUFF :State;
+	public var STATE_ELIMINATE_LINE :State;
+	public var STATE_WAIT_ELIMINATE_LINE :State;
 	public  var __className :String;
 } //GameEngine
 
-class StoryBoard : CocoScene
+class SceneTest : CocoScene
 {
 	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
-} //StoryBoard
+} //SceneTest
 
