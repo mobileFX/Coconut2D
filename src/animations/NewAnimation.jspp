@@ -46,29 +46,16 @@ class NewAnimation : CocoScene
 		// CocoImage Symbols
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		// Symbol Image: BinPack
-		//====================================================================================================
-		var Image_BinPack:CocoImage = newResourceImage('BinPack', './assets/images/');
-		{
-			Image_BinPack.viewOptimalWidth = 0;
-			Image_BinPack.viewOptimalHeight = 0;
-			Image_BinPack.addResolution(new CocoImageResolution('BinPack_mdpi.png', 1, 0, 0, 1, 0, 0, null, null, 0, 0, null));
-			Image_BinPack.addResolution(new CocoImageResolution('BinPack_xhdpi.png', 2, 0, 0, 1, 0, 0, null, null, 0, 0, null));
-			Image_BinPack.textureGrid = new Float32Array([0,0]);
-		}
-
-		//////////////////////////////////////////////////////////////////////////////////////////////////////
-		// CocoImage Symbols
-		//////////////////////////////////////////////////////////////////////////////////////////////////////
-
 		// Symbol Image: SpriteSymbol_metal_slug
 		//====================================================================================================
 		var Image_SpriteSymbol_metal_slug:CocoImage = newResourceImage('SpriteSymbol_metal_slug', './assets/images/');
 		{
-			Image_SpriteSymbol_metal_slug.viewOptimalWidth = 36;
-			Image_SpriteSymbol_metal_slug.viewOptimalHeight = 42;
-			Image_SpriteSymbol_metal_slug.addResolution(new CocoImageResolution('metal_slug_mdpi.png', 1, 36, 42, 1, 0, 0, null, null, 0, 0, null));
-			Image_SpriteSymbol_metal_slug.addResolution(new CocoImageResolution('metal_slug_xhdpi.png', 2, 72, 84, 1, 0, 0, null, null, 0, 0, null));
+			Image_SpriteSymbol_metal_slug.textureViewWidth = 36;
+			Image_SpriteSymbol_metal_slug.textureViewHeight = 42;
+			Image_SpriteSymbol_metal_slug.textureViewScaleX = 1;
+			Image_SpriteSymbol_metal_slug.textureViewScaleY = 1;
+			Image_SpriteSymbol_metal_slug.addResolution(new CocoImageResolution('metal_slug_mdpi.png', 1, 36, 42, 0, 0, null, null, 0, 0, null));
+			Image_SpriteSymbol_metal_slug.addResolution(new CocoImageResolution('metal_slug_xhdpi.png', 2, 72, 84, 0, 0, null, null, 0, 0, null));
 			Image_SpriteSymbol_metal_slug.textureGrid = new Float32Array([0,0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8]);
 			Image_SpriteSymbol_metal_slug.addSequence(new CocoSequence('Walk', [0,1,2,3,4,5,6,7,8]));
 		}
@@ -77,9 +64,11 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SpriteSymbol_Sparrow:CocoImage = newResourceImage('SpriteSymbol_Sparrow', './assets/images/');
 		{
-			Image_SpriteSymbol_Sparrow.viewOptimalWidth = 48;
-			Image_SpriteSymbol_Sparrow.viewOptimalHeight = 48;
-			Image_SpriteSymbol_Sparrow.addResolution(new CocoImageResolution('Sparrow.png', 1, 48, 48, 1, 0, 0, null, null, 0, 0, null));
+			Image_SpriteSymbol_Sparrow.textureViewWidth = 48;
+			Image_SpriteSymbol_Sparrow.textureViewHeight = 48;
+			Image_SpriteSymbol_Sparrow.textureViewScaleX = 1;
+			Image_SpriteSymbol_Sparrow.textureViewScaleY = 1;
+			Image_SpriteSymbol_Sparrow.addResolution(new CocoImageResolution('Sparrow.png', 1, 48, 48, 0, 0, null, null, 0, 0, null));
 			Image_SpriteSymbol_Sparrow.textureGrid = new Float32Array([0,0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,1,0,1,1,1,2,1,3,1,4,1,5,1,6,1,7,2,0,2,1,2,2,2,3,2,4,2,5,2,6,2,7,3,0,3,1,3,2,3,3,3,4,3,5,3,6,3,7,4,0,4,1,4,2,4,3,4,4,4,5,4,6,4,7,5,0,5,1,5,2,5,3,5,4,5,5,5,6,5,7,6,0,6,1,6,2,6,3]);
 			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Fly', [22,23,24]));
 			Image_SpriteSymbol_Sparrow.addSequence(new CocoSequence('Fire', [25,26,27,28,29,30,31,32,33,34,35]));
@@ -97,10 +86,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SkinSymbol_iPhone_CommandButton_Black:CocoImage = newResourceImage('SkinSymbol_iPhone_CommandButton_Black', './assets/images/');
 		{
-			Image_SkinSymbol_iPhone_CommandButton_Black.viewOptimalWidth = 31;
-			Image_SkinSymbol_iPhone_CommandButton_Black.viewOptimalHeight = 48;
-			Image_SkinSymbol_iPhone_CommandButton_Black.addResolution(new CocoImageResolution('iPhone_CommandButton_Black_mdpi.png', 1, 31, 48, 1, 0, 0, null, Image_BinPack, 85, 0, new Float32Array([14,3,14,0,48,0])));
-			Image_SkinSymbol_iPhone_CommandButton_Black.addResolution(new CocoImageResolution('iPhone_CommandButton_Black_xhdpi.png', 2, 62, 96, 1, 0, 0, null, Image_BinPack, 165, 0, new Float32Array([29,4,29,0,96,0])));
+			Image_SkinSymbol_iPhone_CommandButton_Black.textureViewWidth = 31;
+			Image_SkinSymbol_iPhone_CommandButton_Black.textureViewHeight = 48;
+			Image_SkinSymbol_iPhone_CommandButton_Black.textureViewScaleX = 1;
+			Image_SkinSymbol_iPhone_CommandButton_Black.textureViewScaleY = 1;
+			Image_SkinSymbol_iPhone_CommandButton_Black.addResolution(new CocoImageResolution('iPhone_CommandButton_Black_mdpi.png', 1, 31, 48, 0, 0, null, null, 0, 0, new Float32Array([14,3,14,0,48,0])));
+			Image_SkinSymbol_iPhone_CommandButton_Black.addResolution(new CocoImageResolution('iPhone_CommandButton_Black_xhdpi.png', 2, 62, 96, 0, 0, null, null, 0, 0, new Float32Array([29,4,29,0,96,0])));
 			Image_SkinSymbol_iPhone_CommandButton_Black.textureGrid = new Float32Array([0,0]);
 		}
 
@@ -108,10 +99,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SkinSymbol_iPhone_CommandButton_Red:CocoImage = newResourceImage('SkinSymbol_iPhone_CommandButton_Red', './assets/images/');
 		{
-			Image_SkinSymbol_iPhone_CommandButton_Red.viewOptimalWidth = 31;
-			Image_SkinSymbol_iPhone_CommandButton_Red.viewOptimalHeight = 48;
-			Image_SkinSymbol_iPhone_CommandButton_Red.addResolution(new CocoImageResolution('iPhone_CommandButton_Red_mdpi.png', 1, 31, 48, 1, 0, 0, null, Image_BinPack, 52, 0, new Float32Array([14,3,14,0,48,0])));
-			Image_SkinSymbol_iPhone_CommandButton_Red.addResolution(new CocoImageResolution('iPhone_CommandButton_Red_xhdpi.png', 2, 62, 96, 1, 0, 0, null, Image_BinPack, 101, 0, new Float32Array([29,4,29,0,96,0])));
+			Image_SkinSymbol_iPhone_CommandButton_Red.textureViewWidth = 31;
+			Image_SkinSymbol_iPhone_CommandButton_Red.textureViewHeight = 48;
+			Image_SkinSymbol_iPhone_CommandButton_Red.textureViewScaleX = 1;
+			Image_SkinSymbol_iPhone_CommandButton_Red.textureViewScaleY = 1;
+			Image_SkinSymbol_iPhone_CommandButton_Red.addResolution(new CocoImageResolution('iPhone_CommandButton_Red_mdpi.png', 1, 31, 48, 0, 0, null, null, 0, 0, new Float32Array([14,3,14,0,48,0])));
+			Image_SkinSymbol_iPhone_CommandButton_Red.addResolution(new CocoImageResolution('iPhone_CommandButton_Red_xhdpi.png', 2, 62, 96, 0, 0, null, null, 0, 0, new Float32Array([29,4,29,0,96,0])));
 			Image_SkinSymbol_iPhone_CommandButton_Red.textureGrid = new Float32Array([0,0]);
 		}
 
@@ -119,10 +112,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SkinSymbol_iPhone_CommandButton_RedPressed:CocoImage = newResourceImage('SkinSymbol_iPhone_CommandButton_RedPressed', './assets/images/');
 		{
-			Image_SkinSymbol_iPhone_CommandButton_RedPressed.viewOptimalWidth = 31;
-			Image_SkinSymbol_iPhone_CommandButton_RedPressed.viewOptimalHeight = 48;
-			Image_SkinSymbol_iPhone_CommandButton_RedPressed.addResolution(new CocoImageResolution('iPhone_CommandButton_RedPressed_mdpi.png', 1, 31, 48, 1, 0, 0, null, Image_BinPack, 0, 46, new Float32Array([14,3,14,0,48,0])));
-			Image_SkinSymbol_iPhone_CommandButton_RedPressed.addResolution(new CocoImageResolution('iPhone_CommandButton_RedPressed_xhdpi.png', 2, 62, 96, 1, 0, 0, null, Image_BinPack, 0, 90, new Float32Array([29,4,29,0,96,0])));
+			Image_SkinSymbol_iPhone_CommandButton_RedPressed.textureViewWidth = 31;
+			Image_SkinSymbol_iPhone_CommandButton_RedPressed.textureViewHeight = 48;
+			Image_SkinSymbol_iPhone_CommandButton_RedPressed.textureViewScaleX = 1;
+			Image_SkinSymbol_iPhone_CommandButton_RedPressed.textureViewScaleY = 1;
+			Image_SkinSymbol_iPhone_CommandButton_RedPressed.addResolution(new CocoImageResolution('iPhone_CommandButton_RedPressed_mdpi.png', 1, 31, 48, 0, 0, null, null, 0, 0, new Float32Array([14,3,14,0,48,0])));
+			Image_SkinSymbol_iPhone_CommandButton_RedPressed.addResolution(new CocoImageResolution('iPhone_CommandButton_RedPressed_xhdpi.png', 2, 62, 96, 0, 0, null, null, 0, 0, new Float32Array([29,4,29,0,96,0])));
 			Image_SkinSymbol_iPhone_CommandButton_RedPressed.textureGrid = new Float32Array([0,0]);
 		}
 
@@ -130,10 +125,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SkinSymbol_iPhone_CommandButton_White:CocoImage = newResourceImage('SkinSymbol_iPhone_CommandButton_White', './assets/images/');
 		{
-			Image_SkinSymbol_iPhone_CommandButton_White.viewOptimalWidth = 31;
-			Image_SkinSymbol_iPhone_CommandButton_White.viewOptimalHeight = 48;
-			Image_SkinSymbol_iPhone_CommandButton_White.addResolution(new CocoImageResolution('iPhone_CommandButton_White_mdpi.png', 1, 31, 48, 1, 0, 0, null, Image_BinPack, 0, 96, new Float32Array([14,3,14,0,48,0])));
-			Image_SkinSymbol_iPhone_CommandButton_White.addResolution(new CocoImageResolution('iPhone_CommandButton_White_xhdpi.png', 2, 62, 96, 1, 0, 0, null, Image_BinPack, 0, 188, new Float32Array([29,4,29,0,96,0])));
+			Image_SkinSymbol_iPhone_CommandButton_White.textureViewWidth = 31;
+			Image_SkinSymbol_iPhone_CommandButton_White.textureViewHeight = 48;
+			Image_SkinSymbol_iPhone_CommandButton_White.textureViewScaleX = 1;
+			Image_SkinSymbol_iPhone_CommandButton_White.textureViewScaleY = 1;
+			Image_SkinSymbol_iPhone_CommandButton_White.addResolution(new CocoImageResolution('iPhone_CommandButton_White_mdpi.png', 1, 31, 48, 0, 0, null, null, 0, 0, new Float32Array([14,3,14,0,48,0])));
+			Image_SkinSymbol_iPhone_CommandButton_White.addResolution(new CocoImageResolution('iPhone_CommandButton_White_xhdpi.png', 2, 62, 96, 0, 0, null, null, 0, 0, new Float32Array([29,4,29,0,96,0])));
 			Image_SkinSymbol_iPhone_CommandButton_White.textureGrid = new Float32Array([0,0]);
 		}
 
@@ -141,10 +138,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SkinSymbol_iPhone_CommandButtonPressed:CocoImage = newResourceImage('SkinSymbol_iPhone_CommandButtonPressed', './assets/images/');
 		{
-			Image_SkinSymbol_iPhone_CommandButtonPressed.viewOptimalWidth = 31;
-			Image_SkinSymbol_iPhone_CommandButtonPressed.viewOptimalHeight = 48;
-			Image_SkinSymbol_iPhone_CommandButtonPressed.addResolution(new CocoImageResolution('iPhone_CommandButtonPressed_mdpi.png', 1, 31, 48, 1, 0, 0, null, Image_BinPack, 118, 0, new Float32Array([14,3,14,0,48,0])));
-			Image_SkinSymbol_iPhone_CommandButtonPressed.addResolution(new CocoImageResolution('iPhone_CommandButtonPressed_xhdpi.png', 2, 62, 96, 1, 0, 0, null, Image_BinPack, 229, 0, new Float32Array([29,4,29,0,96,0])));
+			Image_SkinSymbol_iPhone_CommandButtonPressed.textureViewWidth = 31;
+			Image_SkinSymbol_iPhone_CommandButtonPressed.textureViewHeight = 48;
+			Image_SkinSymbol_iPhone_CommandButtonPressed.textureViewScaleX = 1;
+			Image_SkinSymbol_iPhone_CommandButtonPressed.textureViewScaleY = 1;
+			Image_SkinSymbol_iPhone_CommandButtonPressed.addResolution(new CocoImageResolution('iPhone_CommandButtonPressed_mdpi.png', 1, 31, 48, 0, 0, null, null, 0, 0, new Float32Array([14,3,14,0,48,0])));
+			Image_SkinSymbol_iPhone_CommandButtonPressed.addResolution(new CocoImageResolution('iPhone_CommandButtonPressed_xhdpi.png', 2, 62, 96, 0, 0, null, null, 0, 0, new Float32Array([29,4,29,0,96,0])));
 			Image_SkinSymbol_iPhone_CommandButtonPressed.textureGrid = new Float32Array([0,0]);
 		}
 
@@ -152,10 +151,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_ImageSymbol_iPhone_Background_Stripes:CocoImage = newResourceImage('ImageSymbol_iPhone_Background_Stripes', './assets/images/');
 		{
-			Image_ImageSymbol_iPhone_Background_Stripes.viewOptimalWidth = 320;
-			Image_ImageSymbol_iPhone_Background_Stripes.viewOptimalHeight = 480;
-			Image_ImageSymbol_iPhone_Background_Stripes.addResolution(new CocoImageResolution('iPhone_Background_Stripes_mdpi.png', 1, 320, 480, 1, 0, 0, null, null, 0, 0, null));
-			Image_ImageSymbol_iPhone_Background_Stripes.addResolution(new CocoImageResolution('iPhone_Background_Stripes_xhdpi.png', 2, 640, 960, 1, 0, 0, null, null, 0, 0, null));
+			Image_ImageSymbol_iPhone_Background_Stripes.textureViewWidth = 320;
+			Image_ImageSymbol_iPhone_Background_Stripes.textureViewHeight = 480;
+			Image_ImageSymbol_iPhone_Background_Stripes.textureViewScaleX = 1;
+			Image_ImageSymbol_iPhone_Background_Stripes.textureViewScaleY = 1;
+			Image_ImageSymbol_iPhone_Background_Stripes.addResolution(new CocoImageResolution('iPhone_Background_Stripes_mdpi.png', 1, 320, 480, 0, 0, null, null, 0, 0, null));
+			Image_ImageSymbol_iPhone_Background_Stripes.addResolution(new CocoImageResolution('iPhone_Background_Stripes_xhdpi.png', 2, 640, 960, 0, 0, null, null, 0, 0, null));
 			Image_ImageSymbol_iPhone_Background_Stripes.textureGrid = new Float32Array([0,0]);
 		}
 
@@ -163,10 +164,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SkinSymbol_iPhone_ComboBoxPressed:CocoImage = newResourceImage('SkinSymbol_iPhone_ComboBoxPressed', './assets/images/');
 		{
-			Image_SkinSymbol_iPhone_ComboBoxPressed.viewOptimalWidth = 41;
-			Image_SkinSymbol_iPhone_ComboBoxPressed.viewOptimalHeight = 27;
-			Image_SkinSymbol_iPhone_ComboBoxPressed.addResolution(new CocoImageResolution('iPhone_ComboBoxPressed_mdpi.png', 1, 41, 27, 1, 0, 0, null, Image_BinPack, 151, 0, new Float32Array([7,4,30,0,27,0])));
-			Image_SkinSymbol_iPhone_ComboBoxPressed.addResolution(new CocoImageResolution('iPhone_ComboBoxPressed_xhdpi.png', 2, 82, 54, 1, 0, 0, null, Image_BinPack, 293, 0, new Float32Array([14,8,60,0,54,0])));
+			Image_SkinSymbol_iPhone_ComboBoxPressed.textureViewWidth = 41;
+			Image_SkinSymbol_iPhone_ComboBoxPressed.textureViewHeight = 27;
+			Image_SkinSymbol_iPhone_ComboBoxPressed.textureViewScaleX = 1;
+			Image_SkinSymbol_iPhone_ComboBoxPressed.textureViewScaleY = 1;
+			Image_SkinSymbol_iPhone_ComboBoxPressed.addResolution(new CocoImageResolution('iPhone_ComboBoxPressed_mdpi.png', 1, 41, 27, 0, 0, null, null, 0, 0, new Float32Array([7,4,30,0,27,0])));
+			Image_SkinSymbol_iPhone_ComboBoxPressed.addResolution(new CocoImageResolution('iPhone_ComboBoxPressed_xhdpi.png', 2, 82, 54, 0, 0, null, null, 0, 0, new Float32Array([14,8,60,0,54,0])));
 			Image_SkinSymbol_iPhone_ComboBoxPressed.textureGrid = new Float32Array([0,0]);
 		}
 
@@ -174,10 +177,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SkinSymbol_iPhone_ComboBox:CocoImage = newResourceImage('SkinSymbol_iPhone_ComboBox', './assets/images/');
 		{
-			Image_SkinSymbol_iPhone_ComboBox.viewOptimalWidth = 41;
-			Image_SkinSymbol_iPhone_ComboBox.viewOptimalHeight = 27;
-			Image_SkinSymbol_iPhone_ComboBox.addResolution(new CocoImageResolution('iPhone_ComboBox_mdpi.png', 1, 41, 27, 1, 0, 0, null, Image_BinPack, 73, 96, new Float32Array([7,4,30,0,27,0])));
-			Image_SkinSymbol_iPhone_ComboBox.addResolution(new CocoImageResolution('iPhone_ComboBox_xhdpi.png', 2, 82, 54, 1, 0, 0, null, Image_BinPack, 134, 188, new Float32Array([14,8,60,0,54,0])));
+			Image_SkinSymbol_iPhone_ComboBox.textureViewWidth = 41;
+			Image_SkinSymbol_iPhone_ComboBox.textureViewHeight = 27;
+			Image_SkinSymbol_iPhone_ComboBox.textureViewScaleX = 1;
+			Image_SkinSymbol_iPhone_ComboBox.textureViewScaleY = 1;
+			Image_SkinSymbol_iPhone_ComboBox.addResolution(new CocoImageResolution('iPhone_ComboBox_mdpi.png', 1, 41, 27, 0, 0, null, null, 0, 0, new Float32Array([7,4,30,0,27,0])));
+			Image_SkinSymbol_iPhone_ComboBox.addResolution(new CocoImageResolution('iPhone_ComboBox_xhdpi.png', 2, 82, 54, 0, 0, null, null, 0, 0, new Float32Array([14,8,60,0,54,0])));
 			Image_SkinSymbol_iPhone_ComboBox.textureGrid = new Float32Array([0,0]);
 		}
 
@@ -185,10 +190,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SkinSymbol_iPhone_EditBox:CocoImage = newResourceImage('SkinSymbol_iPhone_EditBox', './assets/images/');
 		{
-			Image_SkinSymbol_iPhone_EditBox.viewOptimalWidth = 38;
-			Image_SkinSymbol_iPhone_EditBox.viewOptimalHeight = 31;
-			Image_SkinSymbol_iPhone_EditBox.addResolution(new CocoImageResolution('iPhone_EditBox_mdpi.png', 1, 38, 31, 1, 0, 0, null, Image_BinPack, 33, 96, new Float32Array([13,13,12,10,10,11])));
-			Image_SkinSymbol_iPhone_EditBox.addResolution(new CocoImageResolution('iPhone_EditBox_xhdpi.png', 2, 68, 62, 1, 0, 0, null, Image_BinPack, 64, 188, new Float32Array([18,31,19,20,20,22])));
+			Image_SkinSymbol_iPhone_EditBox.textureViewWidth = 38;
+			Image_SkinSymbol_iPhone_EditBox.textureViewHeight = 31;
+			Image_SkinSymbol_iPhone_EditBox.textureViewScaleX = 1;
+			Image_SkinSymbol_iPhone_EditBox.textureViewScaleY = 1;
+			Image_SkinSymbol_iPhone_EditBox.addResolution(new CocoImageResolution('iPhone_EditBox_mdpi.png', 1, 38, 31, 0, 0, null, null, 0, 0, new Float32Array([13,13,12,10,10,11])));
+			Image_SkinSymbol_iPhone_EditBox.addResolution(new CocoImageResolution('iPhone_EditBox_xhdpi.png', 2, 68, 62, 0, 0, null, null, 0, 0, new Float32Array([18,31,19,20,20,22])));
 			Image_SkinSymbol_iPhone_EditBox.textureGrid = new Float32Array([0,0]);
 		}
 
@@ -196,10 +203,12 @@ class NewAnimation : CocoScene
 		//====================================================================================================
 		var Image_SkinSymbol_iPhone_NavBar_Standard:CocoImage = newResourceImage('SkinSymbol_iPhone_NavBar_Standard', './assets/images/');
 		{
-			Image_SkinSymbol_iPhone_NavBar_Standard.viewOptimalWidth = 50;
-			Image_SkinSymbol_iPhone_NavBar_Standard.viewOptimalHeight = 44;
-			Image_SkinSymbol_iPhone_NavBar_Standard.addResolution(new CocoImageResolution('iPhone_NavBar_Standard_mdpi.png', 1, 50, 44, 1, 0, 0, null, Image_BinPack, 0, 0, new Float32Array([5,40,5,0,44,0])));
-			Image_SkinSymbol_iPhone_NavBar_Standard.addResolution(new CocoImageResolution('iPhone_NavBar_Standard_xhdpi.png', 2, 99, 88, 1, 0, 0, null, Image_BinPack, 0, 0, new Float32Array([10,79,10,0,88,0])));
+			Image_SkinSymbol_iPhone_NavBar_Standard.textureViewWidth = 50;
+			Image_SkinSymbol_iPhone_NavBar_Standard.textureViewHeight = 44;
+			Image_SkinSymbol_iPhone_NavBar_Standard.textureViewScaleX = 1;
+			Image_SkinSymbol_iPhone_NavBar_Standard.textureViewScaleY = 1;
+			Image_SkinSymbol_iPhone_NavBar_Standard.addResolution(new CocoImageResolution('iPhone_NavBar_Standard_mdpi.png', 1, 50, 44, 0, 0, null, null, 0, 0, new Float32Array([5,40,5,0,44,0])));
+			Image_SkinSymbol_iPhone_NavBar_Standard.addResolution(new CocoImageResolution('iPhone_NavBar_Standard_xhdpi.png', 2, 99, 88, 0, 0, null, null, 0, 0, new Float32Array([10,79,10,0,88,0])));
 			Image_SkinSymbol_iPhone_NavBar_Standard.textureGrid = new Float32Array([0,0]);
 		}
 

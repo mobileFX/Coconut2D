@@ -1318,7 +1318,7 @@ function CocoMake(command , params)
 	    		var match = /([^\-\.]+)(?:\-(\w+))*/img.exec(fontName);
 	            HTML.push('\t@font-face {');
 	            HTML.push('\t\tfont-family: "' + RegExp.$1 + '";');
-	            HTML.push('\t\tsrc: url("' + relativePath(TARGET.TARGET_ROOT,fonts[i]) + '");');
+	            HTML.push('\t\tsrc: local(' + fontName + '), url("' + relativePath(TARGET.TARGET_ROOT,fonts[i]) + '");');
 	            switch(RegExp.$2.toLowerCase())
 	            {
 	            case "bold":
