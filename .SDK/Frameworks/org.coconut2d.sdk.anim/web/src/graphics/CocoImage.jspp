@@ -74,7 +74,6 @@ class CocoImageResolution
 	// Texture Data
 	public var textureCellWidth:Float;
 	public var textureCellHeight:Float;
-	public var textureScale:Float;
 
 	// Binpack Data
 	public reference var binpack:CocoImage;
@@ -89,7 +88,7 @@ class CocoImageResolution
 	public var tileHeight:Float;
 	public var tileMap:Int32Array;
 
-	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, textureScale:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array, optional binpack:CocoImage, optional binpackX:Float, optional binpackY:Float, optional skin:Float32Array)
+	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array, optional binpack:CocoImage, optional binpackX:Float, optional binpackY:Float, optional skin:Float32Array)
 	{
 		this.url = url;
 		this.binpack = binpack;
@@ -98,7 +97,6 @@ class CocoImageResolution
 		this.pixelRatio = pixelRatio;
 		this.textureCellWidth = textureWidth;
 		this.textureCellHeight = textureHeight;
-		this.textureScale = textureScale;
 		this.tileWidth = tileWidth;
 		this.tileHeight = tileHeight;
 		this.tileMap = tileMap;
@@ -122,8 +120,8 @@ class CocoImageResolution
 
 interface ICocoImageRenderData
 {
-	public virtual function castRenderDataGL():CocoImageRenderDataGL;
-	public virtual function castRenderData2D():CocoImageRenderData2D;
+	public function castRenderDataGL():CocoImageRenderDataGL;
+	public function castRenderData2D():CocoImageRenderData2D;
 }
 
 // ==================================================================================================================================
@@ -236,7 +234,6 @@ class CocoImage
 	// Texture
 	public var textureCellWidth:Float;
 	public var textureCellHeight:Float;
-	public var textureScale:Float;
 	public var textureGrid:Float32Array;
 	public var textureTileMap:Float32Array;
 	public var color:Float32Array;
@@ -261,8 +258,10 @@ class CocoImage
 
 	// Resolution Siblings
 	public var baseUrl:String;
-	public var viewOptimalWidth:Integer;
-	public var viewOptimalHeight:Integer;
+	public var textureViewWidth:Float;
+	public var textureViewHeight:Float;
+	public var textureViewScaleX:Float;
+	public var textureViewScaleY:Float;
 	public var viewSiblings:Array<CocoImageResolution>;
 	public var pixelRatio:Float;
 	public var scaleX:Float;
@@ -274,7 +273,6 @@ class CocoImage
 		var img:CocoImage = new CocoImage();
 		img.textureCellWidth = 0;
 		img.textureCellHeight = 0;
-		img.textureScale = 1;
 		img.pixelRatio = 1;
 		img.tileWidth = 0;
 		img.tileHeight = 0;
@@ -307,18 +305,19 @@ class CocoImage
 		texSize				= new Float32Array([1.0, 1.0]);
 		textureCellHeight	= 0;
 		textureCellWidth	= 0;
-		textureScale		= 1;
 		textureGrid			= new Float32Array([0.0, 0.0]);
 		textureGrid			= new Float32Array([0.0]);
 		textureTileMap		= new Float32Array([0.0, 0.0]);
-		viewOptimalHeight	= 0;
-		viewOptimalWidth	= 0;
 		onLoadResizeWidth	= 0;
 		onLoadResizeHeight	= 0;
 		viewSiblings		= new Array<CocoImageResolution>;
 		binpack				= null;
 		binpackX			= 0;
 		binpackY			= 0;
+		textureViewWidth	= 0;
+		textureViewHeight	= 0;
+		textureViewScaleX	= 1;
+		textureViewScaleY	= 1;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -451,30 +450,30 @@ class CocoImage
 			{
 				switch(engine.device.type)
 				{
-				case COCO_DEVICE.DEVICE_GENERIC_LDPI:       if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_ldpi)) 	 {return;} break;
-				case COCO_DEVICE.DEVICE_GENERIC_MDPI:		if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi))   {return;} break;
-				case COCO_DEVICE.DEVICE_GENERIC_TVDPI:      if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_tvdpi))  {return;} break;
-				case COCO_DEVICE.DEVICE_GENERIC_HDPI:       if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_hdpi))   {return;} break;
-				case COCO_DEVICE.DEVICE_GENERIC_XHDPI:      if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi))  {return;} break;
-				case COCO_DEVICE.DEVICE_GENERIC_XXHDPI:     if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xxhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_LDPI:       if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_ldpi)) 	 	{return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_MDPI:		if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi))   	{return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_TVDPI:      if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_tvdpi))  	{return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_HDPI:       if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_hdpi))   	{return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_XHDPI:      if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi))  	{return;} break;
+				case COCO_DEVICE.DEVICE_GENERIC_XXHDPI:     if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xxhdpi)) 	{return;} break;
 
-				case COCO_DEVICE.DEVICE_IPHONE_3GS:         if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) {return;} break;
-				case COCO_DEVICE.DEVICE_IPAD:               if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) {return;} break;
-				case COCO_DEVICE.DEVICE_IPAD_2:             if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) {return;} break;
-				case COCO_DEVICE.DEVICE_IPAD_MINI:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_3GS:         if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) 		{return;} break;
+				case COCO_DEVICE.DEVICE_IPAD:               if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) 		{return;} break;
+				case COCO_DEVICE.DEVICE_IPAD_2:             if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) 		{return;} break;
+				case COCO_DEVICE.DEVICE_IPAD_MINI:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_mdpi)) 		{return;} break;
 
-				case COCO_DEVICE.DEVICE_IPHONE_4:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
-				case COCO_DEVICE.DEVICE_IPHONE_4S:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
-				case COCO_DEVICE.DEVICE_IPHONE_5:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
-				case COCO_DEVICE.DEVICE_IPHONE_5S:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
-				case COCO_DEVICE.DEVICE_IPHONE_5C:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
-				case COCO_DEVICE.DEVICE_IPHONE_6:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_4:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) 	{return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_4S:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) 	{return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_5:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) 	{return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_5S:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) 	{return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_5C:          if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) 	{return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_6:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) 	{return;} break;
 
-				case COCO_DEVICE.DEVICE_IPHONE_6_PLUS:      if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xxhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPHONE_6_PLUS:      if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xxhdpi)) 	{return;} break;
 
-				case COCO_DEVICE.DEVICE_IPAD_3:             if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi))	{return;} break;
-				case COCO_DEVICE.DEVICE_IPAD_AIR:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
-				case COCO_DEVICE.DEVICE_IPAD_MINI_RETINA:	if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) {return;} break;
+				case COCO_DEVICE.DEVICE_IPAD_3:             if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi))		{return;} break;
+				case COCO_DEVICE.DEVICE_IPAD_AIR:           if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) 	{return;} break;
+				case COCO_DEVICE.DEVICE_IPAD_MINI_RETINA:	if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi)) 	{return;} break;
 				}
 			}
 			break;
@@ -484,38 +483,46 @@ class CocoImage
 			// ============================================================
 			case COCO_IMAGE_LOADING_MODE_ENUM.LOAD_BY_EXMINING_KEYFRAMES:
 			{
-				var tx:Float;
-				var ty:Float;
-				var sibling:CocoImageResolution;
-				var tollerance:Float = 1.2;
+				var LastImg:CocoImageResolution;
+				var UseImg:CocoImageResolution;
 
 				// Image optimal width and height where calculated for scene's fixed viewport.
 				// We multiply with scene's view scale to calculate the image's desired size.
 
-				var w:Float = Float(viewOptimalWidth) * scene.__view_scale * engine.device.pixelRatio;
-				var h:Float = Float(viewOptimalHeight) * scene.__view_scale * engine.device.pixelRatio;
+		        // Calculate the optimal (desired) image size from mdpi
+		        var sw:Float = Math.round(textureViewWidth * scaleX);
+		        var sh:Float = Math.round(textureViewHeight * scaleY);
 
-				for(var i:Integer = 0; i<viewSiblings.size(); i++)
-				{
-					sibling = viewSiblings[i];
+		        // Scan siblings to find the closest image
+		        if(textureViewScaleX >= 1.0 && textureViewScaleY >= 1.0)
+		        {
+		            for(var i:Integer=0;i<viewSiblings.size();i++)
+		            {
+		                var img:CocoImageResolution = viewSiblings[i];
+	                    LastImg = img;
+	                    if(img.textureCellWidth >= sw && img.textureCellHeight >= sh)
+	                    {
+	                        UseImg = img;
+	                        break;
+	                    }
+		            }
+		        }
+		        else
+		        {
+		            for(var i:Integer=viewSiblings.size()-1; i>=0; i--)
+		            {
+		                var img:CocoImageResolution = viewSiblings[i];
+						LastImg = img;
+	                    if(sw >= img.textureCellWidth && sh >= img.textureCellHeight)
+	                    {
+	                        UseImg = img;
+		                    break;
+	                    }
+		            }
+		        }
 
-					tx = tollerance * sibling.textureCellWidth * sibling.pixelRatio;
-					ty = tollerance * sibling.textureCellHeight * sibling.pixelRatio;
+		        setResolution(UseImg ? UseImg : LastImg);
 
-					if(tx==0 && ty==0 && w==0 && h==0)
-					{
-						if(engine.device.pixelRatio==sibling.pixelRatio)
-						{
-							setResolution(sibling);
-							break;
-						}
-					}
-					else if(tx>=w && ty>=h)
-					{
-						setResolution(sibling);
-						break;
-					}
-				}
 			}
 			break;
 		}
@@ -523,7 +530,7 @@ class CocoImage
 		// ============================================================
 		// Fallback to best (last) sibling image
 		// ============================================================
-		if(!hImage)
+		if(!hImage && !renderData)
 		{
 			setResolution(viewSiblings[viewSiblings.size()-1]);
 		}
@@ -600,7 +607,6 @@ class CocoImage
 
 		textureCellWidth 	= sibling.textureCellWidth;
 		textureCellHeight 	= sibling.textureCellHeight;
-		textureScale 		= sibling.textureScale;
 
 		skin				= sibling.skin;
 

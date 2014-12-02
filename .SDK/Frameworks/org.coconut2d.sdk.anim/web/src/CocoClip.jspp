@@ -247,11 +247,20 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		var maxSX:Float = 0.0;
 		var maxSY:Float = 0.0;
 		var i:Integer;
-		for(i = __timeline.__keyFrames.size(); i--;)
+
+		if(__timeline.__keyFrames.size())
 		{
-			var kf:CocoKeyFrame = __timeline.__keyFrames[i];
-			if(kf.scaleX > maxSX) maxSX = kf.scaleX;
-			if(kf.scaleY > maxSY) maxSY = kf.scaleY;
+			for(i = __timeline.__keyFrames.size(); i--;)
+			{
+				var kf:CocoKeyFrame = __timeline.__keyFrames[i];
+				if(kf.scaleX > maxSX) maxSX = kf.scaleX;
+				if(kf.scaleY > maxSY) maxSY = kf.scaleY;
+			}
+		}
+		else
+		{
+			maxSX = 1.0;
+			maxSY = 1.0;
 		}
 
 		// Multiply it with parent's scale

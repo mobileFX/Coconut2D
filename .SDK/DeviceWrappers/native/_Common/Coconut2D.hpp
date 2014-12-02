@@ -41,8 +41,23 @@
 #define APPNAME "Coconut2D"
 #define GLOBAL_FPS 30.0f
 #define COCO_STOP_ON_CURRENT_FRAME -1
-//#define RADIANS (M_PI / 180.0f)
 #define NGLDEBUG
+
+#ifndef M_PI
+#define M_PI				3.14159265358979323846
+#endif
+
+#ifndef M_PI_2
+#define M_PI_2				1.57079632679489661923
+#endif
+
+#ifndef RADIANS
+#define RADIANS				0.01745329251994329576
+#endif
+
+#ifndef DEGREES
+#define DEGREES			   57.29577951308232087679
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Common Includes
@@ -586,6 +601,7 @@ class CocoTimeLabel;
 class CocoTimeline;
 class CocoVector;
 class GameEngine;
+class GridSymbol;
 class HTMLAnchorElement;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
@@ -607,7 +623,8 @@ class ITickable;
 class Image;
 class OnClickHandler;
 class PathLine;
-class SceneTest;
+class SceneGameBoard;
+class SceneTitle;
 class Touch;
 class TouchList;
 struct CocoHVAlign;
@@ -937,14 +954,6 @@ struct State
 	#undef near
 	#undef far
 
-	#ifndef M_PI
-	#define M_PI		3.14159265358979323846
-	#endif
-
-	#ifndef M_PI_2
-	#define M_PI_2		1.57079632679489661923
-	#endif
-
 	#define fxAPIGetMouseEventX(E) GET_X_LPARAM(((MSG*)E)->lParam)
 	#define fxAPIGetMouseEventY(E) GET_Y_LPARAM(((MSG*)E)->lParam)
 	#define fxAPIGetTouchEventX(E, I) GET_X_LPARAM(((MSG*)E)->lParam)
@@ -1037,7 +1046,6 @@ struct State
 		#include <OpenGLES/ES2/gl.h>
 	#elif WIN32_APPLICATION
 		#include <GL/glew.h>
-		/*#include <GL/glut.h>*/
 		#include <GL/gl.h>
 	#else
 		#include <QtOpenGL/QtOpenGL>

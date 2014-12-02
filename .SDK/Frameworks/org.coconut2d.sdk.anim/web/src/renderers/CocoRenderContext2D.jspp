@@ -175,7 +175,6 @@ class CocoRenderContext2D implements ICocoRenderContext
 			clip.__ANCHOR.style.opacity = keyFrame.visible ? keyFrame.alpha : 0;
 
 			__modelViewMatrixCSS3.copyFrom(__modelViewMatrix.__m);
-			__modelViewMatrixCSS3.scale(clip.__image.textureScale, clip.__image.textureScale);
 			__modelViewMatrixCSS3.translate(-(clip.__image.textureCellWidth/clip.__image.pixelRatio)/2, -(clip.__image.textureCellHeight/clip.__image.pixelRatio)/2);
 			__modelViewMatrixCSS3.multiplyByMatrix(__projectionMatrix, true, true);
 			__modelViewMatrixCSS3.__m.rc34 = 1000+clip.__zIndex;
@@ -229,12 +228,6 @@ class CocoRenderContext2D implements ICocoRenderContext
 					    __modelViewMatrix.__m.rc22,
 					    Math.floor(__modelViewMatrix.__m.rc41),
 					    Math.floor(__modelViewMatrix.__m.rc42));
-
-		// Sprite textures might need additional scaling
-		if(image.textureScale>0 && image.textureScale!=1.0)
-		{
-			__ctx.scale(image.textureScale, image.textureScale);
-		}
 
 		// Scale for image pixel ratio
 		if(image.pixelRatio!=1)

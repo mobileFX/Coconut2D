@@ -166,8 +166,8 @@ class CocoScene
 
 		if(!__ready)
 		{
-			if(engine.__RESIZE_IMAGES_AT_RUNTIME)
-				__root.analyze(__view_scale / __view_pixel_ratio, __view_scale / __view_pixel_ratio);
+			var s:Float = __view_scale * engine.device.pixelRatio / __view_pixel_ratio;
+			__root.analyze(s,s);
 
 			var L:Integer = __imageSymbols.size();
 			for(var i:Integer = 0; i < L ; i++)

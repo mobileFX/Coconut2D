@@ -52,8 +52,8 @@ function CompilerCppPlugin(compiler)
 	_this.cpp_types =
 	{
 		"Boolean"	: { "default": "false" },
-		"Function"	: {	"default": "NULL" },
-		"Null"		: { "default": "NULL" },
+		"Function"	: {	"default": "nullptr" },
+		"Null"		: { "default": "nullptr" },
 		"Number"	: {	"default": "0" },
 		"Float"		: { "default": "0.0" },
 		"Integer"	: { "default": "0" },
@@ -264,6 +264,12 @@ function CompilerCppPlugin(compiler)
 				}
 			}
 
+			// Add Public Virtual Destructon in Interfaces
+			if(ast.symbol.interface)
+			{
+				HPP.push("virtual ~" + ast.symbol.name + "(){}");
+			}
+
 			//TODO: Derivative Casting Helper for STL container tranformations
 			//if(ast.symbol.base && !ast.symbol.subtype)
 			//{
@@ -288,7 +294,7 @@ function CompilerCppPlugin(compiler)
 				{
 					var event_ast = list[i];
 					var ebd = event_ast.__event_descriptor;
-					_this.native_files['Constants.jspp'].hpp.dispIds[ebd.uid] = "#define " + ebd.uid + " " + ebd.id;
+					_this.native_files['Constants.jspp'].hpp.dispIds[ebd.uid] = "#ifndef " + ebd.uid + "\n#define " + ebd.uid + " " + ebd.id + "\n#endif\n";
 				}
 
 				// ========================================================================
@@ -565,7 +571,7 @@ function CompilerCppPlugin(compiler)
 			{
 				for(i=0;i<ast.length;i++)
 				{
-					val = "#define " + ast[i].name + " " + initializer(ast[i]).replace("=", "");
+					val = "#ifndef " + ast[i].name + "\n#define " + ast[i].name+ " " + initializer(ast[i]).replace("=", "") + "\n#endif\n";
 					_this.native_files['Constants.jspp'].hpp.constants[ast[i].name] = val;
 				}
 			}
@@ -584,8 +590,10 @@ function CompilerCppPlugin(compiler)
 					var vartype = _this.getVarType(vitem.vartype);
 					if(_this.cpp_types.hasOwnProperty(vartype))
 						return " = " + _this.cpp_types[vartype].default;
-					else if(ast.scope.isClass)
+					else if(vitem.symbol.pointer)
 						return " = nullptr";
+					else if(ast.scope.isClass)
+						return "";
 					else
 						return "";
 				}
@@ -1451,11 +1459,8 @@ function CompilerCppPlugin(compiler)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DELETE:
-			if(ast[0].symbol && ast[0].symbol.pointer)
-			{
-				var id = generate_cpp(ast[0]).CPP;
-				CPP.push("if(" + id + ") " + id + " = (delete " + id + ", nullptr)");
-			}
+			var id = generate_cpp(ast[0]).CPP;
+			CPP.push("if(" + id + ") " + id + " = (delete " + id + ", nullptr)");
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

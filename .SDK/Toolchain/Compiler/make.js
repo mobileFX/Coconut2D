@@ -2028,6 +2028,8 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "\\bMath::log\\(", "mg", "log(");
 	buff = RxReplace(buff, "\\bMath::min\\(", "mg", "std::min(");
 	buff = RxReplace(buff, "\\bMath::max\\(", "mg", "std::max(");
+	buff = RxReplace(buff, "\\bMath::asin\\(", "mg", "asin(");
+	buff = RxReplace(buff, "\\bMath::acos\\(", "mg", "acos(");
 	buff = RxReplace(buff, "\\bMath::sin\\(", "mg", "sin(");
 	buff = RxReplace(buff, "\\bMath::cos\\(", "mg", "cos(");
 	buff = RxReplace(buff, "\\bMath::abs\\(", "mg", "abs(");

@@ -2596,6 +2596,10 @@ function Compiler(ast)
 				baseMethodSymbol = _this.LookupIdentifier(parentScope.ast.symbol.baseSymbol.scope, fnName, ast, true);
 			}
 
+			// Interface functions are virtual anyway, do not use modifier
+			if(classSymbol && classSymbol.interface && ast.virtual)
+				_this.NewError("Invalid virtual modifier function in interface", ast);
+
 			// Function Symbol
 			var functionSymbol = new FunctionSymbol();
 			{
@@ -5114,7 +5118,7 @@ function Compiler(ast)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DELETE:
 			var expr = generate(ast[0]);
-			if(_this.currClassName && _this.secondPass && ast[0].symbol)
+			if(_this.currClassName && _this.secondPass)// && ast[0].symbol)
 			{
 				out.push("{");
 				/*

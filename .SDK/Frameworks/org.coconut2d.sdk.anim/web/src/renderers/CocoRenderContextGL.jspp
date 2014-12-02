@@ -134,7 +134,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 	public function cls()
 	{
 		__modelViewMatrix.identity();
-		gl.clearColor(0,0,0,1);
+		//gl.clearColor(0,0,0,1);
  		gl.clear(gl.COLOR_BUFFER_BIT);
  		gl.stencilMask(0x00);
 	}
@@ -166,7 +166,6 @@ class CocoRenderContextGL implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function flush()
  	{
- 		gl.finish();
  	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,8 +256,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 		// Keep WebGLRenderingContext on Image Rendering Data for deleting the texture
 		data.gl = gl;
 
-		var w2:Float = (img.textureScale * (img.textureCellWidth / 2.0) / img.pixelRatio);
-		var h2:Float = (img.textureScale * (img.textureCellHeight / 2.0) / img.pixelRatio);
+		var w2:Float = (img.textureCellWidth / 2.0) / img.pixelRatio;
+		var h2:Float = (img.textureCellHeight / 2.0) / img.pixelRatio;
 
 		// Apply image scaling
 		img.resizeToOptimalTextureSize();
@@ -387,7 +386,6 @@ class CocoRenderContextGL implements ICocoRenderContext
 			clip.__ANCHOR.style.opacity = F.visible ? F.alpha : 0;
 
 			__modelViewMatrixCSS3.copyFrom(__modelViewMatrix.__m);
-			__modelViewMatrixCSS3.scale(clip.__image.textureScale, clip.__image.textureScale);
 			__modelViewMatrixCSS3.translate(-(clip.__image.textureCellWidth/clip.__image.pixelRatio)/2, -(clip.__image.textureCellHeight/clip.__image.pixelRatio)/2);
 			__modelViewMatrixCSS3.multiplyByMatrix(__projectionMatrixCSS3, true, true);
 			__modelViewMatrixCSS3.__m.rc34 = 1000+clip.__zIndex;

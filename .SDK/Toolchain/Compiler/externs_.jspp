@@ -332,7 +332,6 @@ class Global
 	public var b2DistanceJointDef :b2DistanceJointDef;
 	public var b2GearJointDef :b2GearJointDef;
 	public var b2ContactEdge :b2ContactEdge;
-	public var RADIANS :Float;
 	public var BOX2D_SCALE :Float;
 	public var COCO_STOP_ON_CURRENT_FRAME :Integer;
 	public var COCO_DEFAULT_CONTROL_HEIGHT :Float;
@@ -340,6 +339,8 @@ class Global
 	public var COCO_CONTROL_MOVE_SNAP_PIXELS :Float;
 	public var M_PI :Float;
 	public var M_PI_2 :Float;
+	public var RADIANS :Float;
+	public var DEGREES :Number;
 	public var SCREEN_RESOLUTION_DPI_ENUM :SCREEN_RESOLUTION_DPI_ENUM;
 	public var COCO_CLIP_SYMBOL_LOOP_ENUM :COCO_CLIP_SYMBOL_LOOP_ENUM;
 	public var COCO_KEYFRAME_INTERPOLATION_ENUM :COCO_KEYFRAME_INTERPOLATION_ENUM;
@@ -457,8 +458,11 @@ class Global
 	public var CocoDataSource :CocoDataSource;
 	public var CocoLocalStorage :CocoLocalStorage;
 	public var CocoAudio :CocoAudio;
+	public var SYMBOL_ENUM :SYMBOL_ENUM;
+	public var GridSymbol :GridSymbol;
 	public var GameEngine :GameEngine;
-	public var SceneTest :SceneTest;
+	public var SceneGameBoard :SceneGameBoard;
+	public var SceneTitle :SceneTitle;
 } //Global
 
 class String
@@ -3609,6 +3613,11 @@ class CocoMatrix
 	public function refresh() {}
 	public function push() {}
 	public function pop() {}
+	public function getRotateX() :Float {}
+	public function getRotateY() :Float {}
+	public function getTranslateX() :Float {}
+	public function getTranslateY() :Float {}
+	public function getTranslateZ() :Float {}
 	public function toCSS3D(identity:Boolean) :String {}
 	public function toCSS2D(identity:Boolean) :String {}
 	public function Destructor() {}
@@ -4000,12 +4009,11 @@ class CocoSequence
 class CocoImageResolution
 {
 	public function Destructor() {}
-	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, textureScale:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array, binpack:CocoImage, binpackX:Float, binpackY:Float, skin:Float32Array) {}
+	public function Constructor(url:String, pixelRatio:Float, textureWidth:Float, textureHeight:Float, tileWidth:Float, tileHeight:Float, tileMap:Int32Array, binpack:CocoImage, binpackX:Float, binpackY:Float, skin:Float32Array) {}
 	public  var url :String;
 	public  var pixelRatio :Float;
 	public  var textureCellWidth :Float;
 	public  var textureCellHeight :Float;
-	public  var textureScale :Float;
 	public  var binpack :CocoImage;
 	public  var binpackX :Float;
 	public  var binpackY :Float;
@@ -4075,7 +4083,6 @@ class CocoImage
 	public  var binpackY :Float;
 	public  var textureCellWidth :Float;
 	public  var textureCellHeight :Float;
-	public  var textureScale :Float;
 	public  var textureGrid :Float32Array;
 	public  var textureTileMap :Float32Array;
 	public  var color :Float32Array;
@@ -4090,8 +4097,10 @@ class CocoImage
 	public  var onLoadResizeWidth :Float;
 	public  var onLoadResizeHeight :Float;
 	public  var baseUrl :String;
-	public  var viewOptimalWidth :Integer;
-	public  var viewOptimalHeight :Integer;
+	public  var textureViewWidth :Float;
+	public  var textureViewHeight :Float;
+	public  var textureViewScaleX :Float;
+	public  var textureViewScaleY :Float;
 	public  var viewSiblings :Array<CocoImageResolution>;
 	public  var pixelRatio :Float;
 	public  var scaleX :Float;
@@ -4626,53 +4635,86 @@ class CocoAudio
 	public  var __className :String;
 } //CocoAudio
 
+class SYMBOL_ENUM
+{
+	public var SYMBOL_LEONIDAS :SYMBOL_ENUM;
+	public var SYMBOL_XERXES :SYMBOL_ENUM;
+	public var SYMBOL_SPARTAN :SYMBOL_ENUM;
+	public var SYMBOL_PERSIAN :SYMBOL_ENUM;
+	public var SYMBOL_SWORDS :SYMBOL_ENUM;
+	public var SYMBOL_ARMOR :SYMBOL_ENUM;
+} //SYMBOL_ENUM
+
+class GridSymbol
+{
+	public function getRandom() :Integer {}
+	public function createSymbol(symbol:Integer) :CocoClip {}
+	public function initPlaceholder() :CocoClip {}
+	public function initLeonidas() :CocoClip {}
+	public function initXerxes() :CocoClip {}
+	public function initSpartan() :CocoClip {}
+	public function initPersian() :CocoClip {}
+	public function initSwords() :CocoClip {}
+	public function initArmor() :CocoClip {}
+	public function Destructor() {}
+	public function Constructor(scene:CocoScene) {}
+	public  var scene :CocoScene;
+	public  var __className :String;
+} //GridSymbol
+
 class GameEngine : CocoEngine
 {
-	public function TouchStart(sender:CocoClip, e:CocoClipOnTouchStartEvent) :Boolean {}
-	public function TouchMove(sender:CocoClip, e:CocoClipOnTouchMoveEvent) :Boolean {}
-	public function TouchEnd(sender:CocoClip, e:CocoClipOnTouchEndEvent) :Boolean {}
-	private function moveCakeBy(cake:CocoClip, X:Integer, Y:Integer) {}
-	private function eliminateLine() :Boolean {}
-	private function getCakeName(cake:CocoClip) :String {}
-	private function getCake(R:Integer, C:Integer) :CocoClip {}
-	private function getCakeIndex(cake:CocoClip) :Integer {}
-	private function getCakeRow(cake:CocoClip) :Integer {}
-	private function getCakeCol(cake:CocoClip) :Integer {}
+	public function setTexts() {}
+	public function createGUID() :String {}
+	public function hasClosedCells() :Boolean {}
+	public function OpenCell(i:Integer) {}
 	public function Destructor() {}
 	public function Constructor() {}
 	private  var scene :CocoScene;
-	private  var cakes :Array<CocoClip>;
-	private  var grid :Array<CocoClip>;
-	private  var selectedCake :CocoClip;
-	private  var selector :CocoClip;
-	private  var line :Array<CocoClip>;
-	private  var touch :CocoClip;
-	private  var handle_events :Boolean;
-	private  var dragging :Boolean;
-	private  var dragX :Float;
-	private  var dragY :Float;
-	private  var score :Integer;
-	private  var GRID_ROWS :Integer;
-	private  var GRID_COLS :Integer;
-	private  var GRID_LEFT :Float;
-	private  var GRID_TOP :Float;
-	private  var GRID_WIDTH :Integer;
-	private  var GRID_HEIGHT :Integer;
-	private  var SELECTOR_SPEED :Integer;
-	private  var SELECTOR_SNAP :Integer;
-	private  var MIN_MATCH :Integer;
-	public var STATE_INIT_GAME_BOARD :State;
-	public var WAIT_FOR_PLAYER :State;
-	public var STATE_MOVING_STUFF :State;
-	public var STATE_ELIMINATE_LINE :State;
-	public var STATE_WAIT_ELIMINATE_LINE :State;
+	private  var balance :Number;
+	private  var winnings :Number;
+	private  var avatars :Array<CocoClip>;
+	private  var avatar_leo :CocoClip;
+	private  var avatar_xerxes :CocoClip;
+	private  var avatar_spartan :CocoClip;
+	private  var avatar_persian :CocoClip;
+	private  var avatar_swords :CocoClip;
+	private  var avatar_armor :CocoClip;
+	private  var btnOpenAll :CocoClip;
+	private  var btnBuyTicket :CocoClip;
+	private  var cells :Array<CocoClip>;
+	private  var cellsOpen :Array<Boolean>;
+	private  var selectedAvatar :Integer;
+	private  var selAvatarAppearances :Integer;
+	private  var counter :Number;
+	private  var TICKET_TicketID :String;
+	private  var TICKET_cells :Array<Integer>;
+	private  var TICKET_price :Integer;
+	private  var TICKET_winCount :Integer;
+	private  var WIN_PRIZES :Array<Integer>;
+	public var STATE_TITLE_SCREEN :State;
+	public var STATE_GAME_BOARD :State;
+	public var STATE_GAME_BOARD_JUMPING_AVATARS :State;
+	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
+	public var STATE_GAME_BOARD_BUY_TICKET :State;
+	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_OPEN_ALL :State;
+	public var STATE_GAME_BOARD_WIN :State;
+	public var STATE_GAME_BOARD_LOSE :State;
 	public  var __className :String;
 } //GameEngine
 
-class SceneTest : CocoScene
+class SceneGameBoard : CocoScene
 {
 	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
-} //SceneTest
+} //SceneGameBoard
+
+class SceneTitle : CocoScene
+{
+	public function Destructor() {}
+	public function Constructor(engine:CocoEngine) {}
+	public  var __className :String;
+} //SceneTitle
 
