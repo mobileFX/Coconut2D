@@ -67,7 +67,7 @@ function CocoMake(command , params)
 {
 	var _this = this;
 	__global.__coco_make = this;
-	var TARGET = makefile.Config.TARGETS[makefile.Vars.TARGET];
+	var TARGET = makefile.Config.TARGETS[makefile.Vars['TARGET']];
 	makefile.Vars["UCONFIGURATION"] = makefile.Vars.CONFIGURATION.toUpperCase();
 	params = JSON.parse(params);
 
@@ -79,6 +79,47 @@ function CocoMake(command , params)
 	//	/_____/\__,_/_/_/\__,_/\___/_/  /____/
 	//
 	// ==================================================================================================================================
+
+    // =====================================================================
+    // Parse a single file for IntelliSyntax
+    // =====================================================================
+    _this.Parse = function(params)
+    {
+    	// Form the source code
+		var code = '"script_begin:///' + params.parse + '";\n' + read(params.code) + '\n"script_end:///' + params.parse + '";\n';
+
+		// Parse source code and generate AST
+		narcissus.__messages = false;
+		narcissus.__cpp = false;
+		var ast = narcissus.jsparse(code);
+
+		// Compile AST to export Code Symbols, Scopes and Member Lists (only)
+		var compiler = new Compiler(ast);
+		compiler.compile(true, params.parse, false);
+    };
+
+    // =====================================================================
+    // Build for node.js
+    // =====================================================================
+  	_this.Build_node_js = function(params)
+  	{
+  		if(params && params.mode=="compile")
+  		{
+	  		_this.generate_javascript();
+  		}
+  		else
+  		{
+	  		_this.clean();
+	  		_this.apply_device_wrapper();
+	  		_this.generate_icons();
+	  		_this.copy_assets();
+	  		_this.generate_javascript();
+	  		_this.copy_framework_libs();
+	  		//_this.create_payload_js();
+	  		_this.closure();
+	  		//_this.create_index_html();
+  		}
+  	};
 
     // =====================================================================
     // Build for CocoPlay
@@ -104,24 +145,6 @@ function CocoMake(command , params)
   	};
 
   	_this.Build_CocoScript = _this.Build_CocoPlayer;
-
-    // =====================================================================
-    // Parse a single file for IntelliSyntax
-    // =====================================================================
-    _this.Parse = function(params)
-    {
-    	// Form the source code
-		var code = '"script_begin:///' + params.parse + '";\n' + read(params.code) + '\n"script_end:///' + params.parse + '";\n';
-
-		// Parse source code and generate AST
-		narcissus.__messages = false;
-		narcissus.__cpp = false;
-		var ast = narcissus.jsparse(code);
-
-		// Compile AST to export Code Symbols, Scopes and Member Lists (only)
-		var compiler = new Compiler(ast);
-		compiler.compile(true, params.parse, false);
-    };
 
     // =====================================================================
     // Build for HTML5 Browsers
@@ -1102,9 +1125,12 @@ function CocoMake(command , params)
   	{
   		var buff = [];
 
+  		var PRIMARY_TARGET_SOURCES = makefile.Config.TARGETS[makefile.Vars.TARGET].TARGET_INPUT_SOURCES
+  									 || makefile.Config.PROJECT_PATHS.SOURCES;
+
   		// Calculate source code dependencies
   		var files = _this.collectSources(TARGET.TARGET_ROOT,
-  			                             makefile.Config.PROJECT_PATHS.SOURCES,
+  			                             PRIMARY_TARGET_SOURCES,
   										 makefile.Config.PROJECT_PATHS.SOURCES_MASK,
   										 "/$(PATH_SDK_FRAMEWORKS_WEB)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
@@ -1112,8 +1138,8 @@ function CocoMake(command , params)
 
   		// Externs
 		var file = makefile.Vars.PATH_SDK_COMPILER + "/externs.jspp";
-	  	if(!fileExists(file))
-	  		throw new Error("Externs file not found " + file);
+	  	if(!fileExists(file)) throw new Error("Externs file not found " + file);
+
 		trace("\nLoading externs ...");
 		trace("+ externs: " + file);
 		var externs = read(file);
@@ -1403,6 +1429,9 @@ function CocoMake(command , params)
 	    	}
 	    	else
 	    	{
+	    		// Check if this framework is compatible with this target
+	    		if((";"+framework.Platforms+";").indexOf(";"+makefile.Vars.TARGET+";")==-1) continue;
+
 		    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
 		    	{
 		        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
@@ -1769,13 +1798,13 @@ function CocoMake(command , params)
 			}
 			else
 			{
-				builder = this["Build_" + makefile.Vars.TARGET];
+				builder = this["Build_" + makefile.Vars.TARGET.replace(/\./img, '_')];
 			}
 		}
 
 		if(!builder)
 		{
-			trnace("Build function not found for [" + makefile.Vars.TARGET + "] target");
+			trace("Build function not found for [" + makefile.Vars.TARGET + "] target");
 			throw new Error("Build function not found for [" + makefile.Vars.TARGET + "] target");
 		}
 

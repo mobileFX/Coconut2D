@@ -546,6 +546,11 @@ class XMLHttpRequest
 	public function getResponseHeader(header:String):String {}
 }
 
+class Console
+{
+	public function log(msg:String) {}
+}
+
 // ==================================================================================================================================
 //	   ______                             __     _   __      __  _
 //	  / ____/___  _________  ____  __  __/ /_   / | / /___ _/ /_(_)   _____
@@ -590,7 +595,48 @@ var window:HTMLWindow;
 var document:HTMLDocument;
 var location:HTMLLocation;
 var graphics:CocoGraphics;
+var console:Console;
 var DEVICE_WRAPPER:COCO_DEVICE_WRAPPER;
+
+// ==================================================================================================================================
+//	    _   __          __          _______
+//	   / | / /___  ____/ /__       / / ___/
+//	  /  |/ / __ \/ __  / _ \ __  / /\__ \
+//	 / /|  / /_/ / /_/ /  __// /_/ /___/ /
+//	/_/ |_/\____/\__,_/\___(_)____//____/
+//
+// ==================================================================================================================================
+
+class NodeRequest
+{
+	public var httpVersion:String;
+	public var headers:Object;
+	public var trailers:Object;
+	public function setTimeout(msecs:Integer, callbackfn:Function) {}
+	public var method:String;
+	public var url:String;
+	public var statusCode:Integer;
+	public var socket:Object;
+}
+
+class NodeResponse
+{
+	public var statusCode:Integer;
+	public var headersSent:Boolean;
+	public var sendDate:Boolean;
+
+	public function writeContinue() {}
+	public function writeHead(statusCode:Integer, optional reasonPhrase:String, optional headers:Object) {}
+	public function setTimeout(msecs:Integer, callbackfn:Function) {}
+	public function setHeader(name:String, value:String) {}
+	public function setHeader(cookie:String, value:Array<String>) {}
+	public function getHeader(name:String):String {}
+	public function removeHeader(name:String) {}
+	public function write(chunk:String, optional encoding:String) {}
+	public function addTrailers(headers:String) {}
+	public function end(optional data:String, optional encoding:String) {}
+}
+
 
 //#ifndef EMS_BOX2D
 enum b2ManifoldType

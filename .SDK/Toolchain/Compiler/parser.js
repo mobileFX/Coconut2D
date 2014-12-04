@@ -122,6 +122,7 @@ function __init_narcissus(GLOBAL)
 		"interface",
 		"control",
 		"emscripten",
+		"export",
 
 		"implements",
 
@@ -512,6 +513,15 @@ function __init_narcissus(GLOBAL)
 				}
 
 				///////////////////////////////////////////////////////////////////
+				// "#export server";
+				if(token.value && token.value.indexOf(this.__EXPORT_SERVER) != -1)
+				{
+					this.EXPORT_SERVER = true;
+					if(match.input.substr(match.index + match[0].length, 1)!=";")
+						throw this.newSyntaxError("Missing ; after include directive.");
+				}
+
+				///////////////////////////////////////////////////////////////////
 				// // "#define NO_COMPILER_ERRORS";
 				if(token.value && token.value.indexOf(this.__ENABLE_ERRORS) != -1)
 				{
@@ -541,6 +551,7 @@ function __init_narcissus(GLOBAL)
 					this.__filePosOffset = this.cursor + token.value.length + 4;
 					this.EXPORT_NATIVE = false;
 					this.EXPORT_WEB = false;
+					this.EXPORT_SERVER = false;
 					this.DISABLE_ERRORS = false;
 					trace("+ parsing: " + this.__file);
 
@@ -663,6 +674,7 @@ function __init_narcissus(GLOBAL)
 	};
 
 	Tokenizer.prototype.__EXPORT_WEB = "#export web";
+	Tokenizer.prototype.__EXPORT_SERVER = "#export server";
 	Tokenizer.prototype.__EXPORT_NATIVE = "#export native";
 	Tokenizer.prototype.__DISABLE_ERRORS = "#define NO_COMPILER_ERRORS";
 	Tokenizer.prototype.__ENABLE_ERRORS = "#undefine NO_COMPILER_ERRORS";
@@ -719,6 +731,7 @@ function __init_narcissus(GLOBAL)
 		this.xmlvartype="";
 		this.EXPORT_NATIVE = t.EXPORT_NATIVE;
 		this.EXPORT_WEB = t.EXPORT_WEB;
+		this.EXPORT_SERVER = t.EXPORT_SERVER;
 		this.DISABLE_ERRORS = t.DISABLE_ERRORS;
 
 		if(t.__CONDITIONS && t.__CONDITIONS.length)
@@ -1742,6 +1755,13 @@ function __init_narcissus(GLOBAL)
 			t.get();
 			var n = ClassDefinition(t, x, true);
 			n.control = true;
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.EXPORT:
+			t.get();
+			var n = ClassDefinition(t, x, true);
+			n.export = true;
 			return n;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

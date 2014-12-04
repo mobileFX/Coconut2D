@@ -313,6 +313,47 @@
 				"IOS_PRIVATE_KEY_PASSPHRASE": "puerre",
 				"IOS_PROVISION": "Coconut2D.mobileprovision"
 			}
+		},
+		"node.js":
+		{
+			"TARGET_INPUT_SOURCES": "$(PROJECT_ROOT)/.server",
+			"TARGET_ROOT": "$(PROJECT_ROOT)/.targets/web/node.js",
+			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
+			"TARGET_ASSETS": "$(TARGET_ROOT)/assets",
+			"TARGET_OUTPUT": "$(TARGET_ROOT)/main.js",
+			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
+			"TARGET_EXPORT": "web",
+			"TARGET_ADDITIONAL_FRAMEWORKS": null,
+			"TARGET_ADDITIONAL_NATIVE_SOURCES": null,
+			"TARGET_NATIVE_MASK": null,
+			"TARGET_RESOURCES_MASK": null,
+			"RELOAD_AFTER_BUILD": true,
+			"DEVICE_WRAPPER":
+			{
+				"CLASS": "NODE_JS",
+				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
+				"TEMPLATES": "*.html;*.css;*.cmd",
+				"TEMPLATE_EXCLUDE_VARS": null
+			},
+			"DEVICES":
+			{
+				"Chrome":
+				{
+					"Debugger": "Debugger_NodeJS",
+					"Debug": "<$(TARGET_ROOT)/run.cmd>> <$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)>",
+					"Release": "<$(TARGET_ROOT)/run.cmd> <$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)>"
+				}
+			},
+			"APP_ICONS":
+			{
+				"16": "$(TARGET_ROOT)/favicon.ico",
+				"72": "$(TARGET_ROOT)/apple-touch-icon-72x72.png",
+				"76": "$(TARGET_ROOT)/apple-touch-icon-76x76.png",
+				"114": "$(TARGET_ROOT)/apple-touch-icon-114x114.png",
+				"120": "$(TARGET_ROOT)/apple-touch-icon-120x120.png",
+				"144": "$(TARGET_ROOT)/apple-touch-icon-144x144.png",
+				"152": "$(TARGET_ROOT)/apple-touch-icon-152x152.png"
+			}
 		}
 	}
 }
