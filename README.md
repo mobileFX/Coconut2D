@@ -1,3 +1,5 @@
+![Coconut2D_CrossPlatformRuntime](.SDK/Documentation/Introduction/Coconut2D_CrossPlatformRuntime.jpg)
+
 Coconut 2D SDK
 ==============
 
