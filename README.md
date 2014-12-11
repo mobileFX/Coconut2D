@@ -5,13 +5,9 @@
 Coconut 2D SDK
 ==============
 
-Coconut2D is a software for creating HTML5, iOS, Android and PC games that your really design and code once, and play everywhere!
+Coconut2D is a software project for creating HTML5, iOS, Android and PC games that your really design and code once, and play everywhere!
 
-This GitHub Repository contains the Open Source **Coconut2D SDK**, which is the toolchain and core frameworks of Coconut2D project. Please note that this repository does not contain Coconut2D Studio IDE which is a commercial product (or at least will be when we manage to finish it :)
-
-[![facebook](.SDK/Documentation/Introduction/facebook.png)](https://www.facebook.com/pages/mobileFX/106630919428634)
-
-[![twitter](.SDK/Documentation/Introduction/twitter.png)](https://twitter.com/mobilefx)
+This GitHub Repository contains the Open Source **Coconut2D SDK**, which is the Toolchain and Core Frameworks of Coconut2D project. Please note that this repository does not contain Coconut2D Studio IDE which is a commercial product (or at least will be when we manage to finish it :)
 
 What is Coconut 2D ?
 --------------------
@@ -93,15 +89,18 @@ Coconut2D Team
 * Despina Leonti (Illustrator - Sample Games Designer)
 * Sakis Garnelis (Animator - Concept Designer)
 
-Contribute / Donate
--------------------
-If this project is useful for you, you can help me sustain it either by contributing or by donating with Paypal.
-
-[<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
-
 Videos
 ------
 
 [![Coconut2D Technology](.SDK/Documentation/Introduction/Blueprint.png)](http://vimeo.com/108215677)
 
+[![facebook](.SDK/Documentation/Introduction/facebook.png)](https://www.facebook.com/pages/mobileFX/106630919428634)
+
+[![twitter](.SDK/Documentation/Introduction/twitter.png)](https://twitter.com/mobilefx)
+
+Contribute / Donate
+-------------------
+If this project is useful for you, you can help me sustain it either by contributing or by donating with Paypal.
+
+[<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
 
