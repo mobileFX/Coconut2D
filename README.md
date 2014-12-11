@@ -25,6 +25,8 @@ Coconut2D Frameworks
 
 We encapsulated all **Core Frameworks**, such as **Animations**, **2D Game Engine**, **User Interface**, **Networking**, etc. inside a **Common Runtime Layer (CRL)** also written in Object Oriented JavaScript.
 
+| Framework	               | Description                                                           |
+|--------------------------|-----------------------------------------------------------------------|
 |org.coconut2d.sdk.anim    | Core Animations Framework, implements Game Engine                     |
 |org.coconut2d.sdk.ui      | User Interface Framework, implements Controls, Buttons, Forms, etc    |
 |org.coconut2d.sdk.html5   |                                                                       |
