@@ -1,12 +1,12 @@
-# Coconut 2D
+Coconut 2D SDK
+==============
 
 Coconut2D is a software for creating HTML5, iOS, Android and PC games that your really design and code once, and play everywhere!
 
-This GitHub Repository contains the Open Source **Coconut2D SDK**, which is the core toolchain and frameworks of Coconut2D project. Please note that this repository does not contain Coconut2D Studio IDE which is a commercial product (or at least will be when we manage to finish it :)
+This GitHub Repository contains the Open Source **Coconut2D SDK**, which is the toolchain and core frameworks of Coconut2D project. Please note that this repository does not contain Coconut2D Studio IDE which is a commercial product (or at least will be when we manage to finish it :)
 
-## What is Coconut2D ?
-
-[![Coconut2D Technology](.SDK/Documentation/Introduction/Blueprint.png)](http://vimeo.com/108215677)
+What is Coconut 2D
+------------------
 
 Coconut2D virtualizes the **HTML5 Canvas** and uses **Object Oriented JavaScript** as the single code-base language. Developers can write and debug their games in Object Oriented JavaScript against the virtual HTML5 Canvas using Coconut2D Studio IDE.
 
@@ -85,4 +85,10 @@ Contribute / Donate
 If this project is useful for you, you can help me sustain it either by contributing or by donating with Paypal.
 
 [<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BV3LQJ2VPS7JN)
+
+Videos
+------
+
+[![Coconut2D Technology](.SDK/Documentation/Introduction/Blueprint.png)](http://vimeo.com/108215677)
+
 
