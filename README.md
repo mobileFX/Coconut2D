@@ -71,6 +71,17 @@ Work in Progress
 ----------------
 ![WIP](.SDK/Documentation/Introduction/WIP.png)
 
+Sample Games
+------------
+
+![Sample](.SDK/Documentation/Introduction/Game1.png)
+
+![Sample](.SDK/Documentation/Introduction/Game2.png)
+
+![Sample](.SDK/Documentation/Introduction/Game3.png)
+
+![Sample](.SDK/Documentation/Introduction/Game4.png)
+
 Authors
 -------
 
