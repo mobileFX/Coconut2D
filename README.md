@@ -2,8 +2,8 @@
 
 [<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
 
-Coconut 2D SDK
-==============
+Coconut 2D Project
+==================
 
 Coconut2D is a software project for creating HTML5, iOS, Android and PC games that your really design and code once, and play everywhere!
 
@@ -27,7 +27,7 @@ We encapsulated all **Core Frameworks**, such as **Animations**, **2D Game Engin
 
 | Framework	               | Description                                                              |
 |--------------------------|--------------------------------------------------------------------------|
-|org.coconut2d.sdk.anim    | Core Animations Framework, implements Game Engine.                       |
+|org.coconut2d.sdk.anim    | Core Animations Framework, implements `Game Engine`.                     |
 |org.coconut2d.sdk.ui      | User Interface Framework, implements Controls, Buttons, Forms, etc.      |
 |org.coconut2d.sdk.game2d  | 2D Games Framework, implements Sprite, TiledLayer, Parallax Layers, etc. |
 |org.coconut2d.sdk.html5   | HTML5 Emulation Framework (Window, Document, Elements, Events)           |
@@ -37,8 +37,25 @@ We encapsulated all **Core Frameworks**, such as **Animations**, **2D Game Engin
 |org.coconut2d.sdk.tests   | General Purpose Testing Framework.                                       |                                                                                                  |
 |org.emscripten.box2d      | Emscripten derived Box2D Physics Framework (compiled from C++)           |
 
+Coconut2D Layering
+------------------
 
-Coconut2D Game Engine is a **Finite State Machine Automaton** controlled by a new programming entity called **State**. States define a singularity in the execution context of Game Loop, they have explicit **enter** and **exit** points and they offer distinction between **tick** and **paint**.
+|-----------------------------------|
+|     Generic Game Engine Layer     |
+|-----------------------------------|
+|        User Interface Layer       |
+|-----------------------------------|
+|        2D Animations Layer        |
+|-----------------------------------|
+|       Device Wrappers Layer       |
+|-----------------------------------|
+| HTML5 | iOS | Android | x86 | ... |
+|-----------------------------------|
+
+Game Engine
+-----------
+
+**Coconut2D Game Engine** is a **Finite State Machine Automaton** controlled by a new programming entity called **State**. States define a singularity in the execution context of Game Loop, they have explicit **enter** and **exit** points and they offer distinction between **tick** and **paint**.
 
 To unify Native and HTML5 worlds under a single API while getting the best performance every time, we designed a set of **Native Device Wrappers** that virtualize the **HTML5 Canvas** across desktop, tablet, mobile and other devices.
 
