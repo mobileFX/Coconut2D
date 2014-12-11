@@ -25,17 +25,17 @@ Coconut2D Frameworks
 
 We encapsulated all **Core Frameworks**, such as **Animations**, **2D Game Engine**, **User Interface**, **Networking**, etc. inside a **Common Runtime Layer (CRL)** also written in Object Oriented JavaScript.
 
-| Framework	               | Description                                                           |
-|--------------------------|-----------------------------------------------------------------------|
-|org.coconut2d.sdk.anim    | Core Animations Framework, implements Game Engine                     |
-|org.coconut2d.sdk.ui      | User Interface Framework, implements Controls, Buttons, Forms, etc    |
-|org.coconut2d.sdk.html5   |                                                                       |
-|org.coconut2d.sdk.net     |                                                                       |
-|org.coconut2d.sdk.server  |                                                                       |
-|org.coconut2d.sdk.tests   |                                                                       |                                                                                                  |
-|org.coconut2d.sdk.webgl   |                                                                       |
-|org.emscripten.box2d      |                                                                       |
-|org.coconut2d.sdk.game2d  |                                                                       |
+| Framework	               | Description                                                              |
+|--------------------------|--------------------------------------------------------------------------|
+|org.coconut2d.sdk.anim    | Core Animations Framework, implements Game Engine.                       |
+|org.coconut2d.sdk.ui      | User Interface Framework, implements Controls, Buttons, Forms, etc.      |
+|org.coconut2d.sdk.game2d  | 2D Games Framework, implements Sprite, TiledLayer, Parallax Layers, etc. |
+|org.coconut2d.sdk.html5   | HTML5 Emulation Framework (Window, Document, Elements, Events)           |
+|org.coconut2d.sdk.webgl   | HTML5 WebGL Emulation Framework, implements WebGL Context.               |
+|org.coconut2d.sdk.net     | Networking Framework (XMLHttp, Facebook, Twitter, etc.)                  |
+|org.coconut2d.sdk.server  | node.js Server Side Framework, implements basic HTTP Server.             |
+|org.coconut2d.sdk.tests   | General Purpose Testing Framework.                                       |                                                                                                  |
+|org.emscripten.box2d      | Emscripten derived Box2D Physics Framework (compiled from C++)           |
 
 
 Coconut2D Game Engine is a **Finite State Machine Automaton** controlled by a new programming entity called **State**. States define a singularity in the execution context of Game Loop, they have explicit **enter** and **exit** points and they offer distinction between **tick** and **paint**.
