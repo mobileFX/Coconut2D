@@ -42,10 +42,10 @@ Coconut2D Layering
 
 |     Generic Game Engine Layer     |
 |-----------------------------------|
-|        User Interface Layer       |
-|        2D Animations Layer        |
-|       Device Wrappers Layer       |
-| HTML5 | iOS | Android | x86 | ... |
+|        **User Interface Layer**   |
+|        **2D Animations Layer**    |
+|       **Device Wrappers Layer*    |
+| HTML5 - iOS - Android - x86 - ... |
 
 Game Engine
 -----------
