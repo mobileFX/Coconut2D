@@ -44,7 +44,7 @@ Coconut2D Layering
 |-----------------------------------|
 |        **User Interface Layer**   |
 |        **2D Animations Layer**    |
-|       **Device Wrappers Layer*    |
+|       **Device Wrappers Layer**   |
 | HTML5 - iOS - Android - x86 - ... |
 
 Game Engine
