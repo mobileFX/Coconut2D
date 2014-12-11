@@ -7,6 +7,8 @@ Coconut 2D SDK
 
 Coconut2D is a software project for creating HTML5, iOS, Android and PC games that your really design and code once, and play everywhere!
 
+![Process](.SDK/Documentation/Introduction/Process.png)
+
 This GitHub Repository contains the Open Source **Coconut2D SDK**, which is the Toolchain and Core Frameworks of Coconut2D project. Please note that this repository does not contain Coconut2D Studio IDE which is a commercial product (or at least will be when we manage to finish it :)
 
 What is Coconut 2D ?
@@ -26,11 +28,13 @@ Coconut2D Studio IDE is capable of compiling C++11 code directly into a native i
 
 We encapsulated all **Core Frameworks**, such as Animations, 2D Game Engine, User Interface, Networking, etc. inside a **Common Runtime Layer (CRL)** also written in Object Oriented JavaScript.
 
+![CrossPlatform](.SDK/Documentation/Introduction/CrossPlatform.png)
+
 Coconut2D Game Engine is a **Finite State Machine Automaton** controlled by a new programming entity called **State**. States define a singularity in the execution context of Game Loop, they have explicit **enter** and **exit** points and they offer distinction between **tick** and **paint**.
 
 To unify Native and HTML5 worlds under a single API while getting the best performance every time, we designed a set of **Native Device Wrappers** that virtualize the **HTML5 Canvas** across desktop, tablet, mobile and other devices.
 
-![CocoScript.png](.SDK/Documentation/Introduction/CocoScript.png)
+![CocoScript](.SDK/Documentation/Introduction/CocoScript.png)
 -----
 
 ![CocoScriptCode](.SDK/Documentation/Introduction/CocoScriptCode.png)
@@ -102,10 +106,13 @@ Coconut2D Team
 * Despina Leonti (Illustrator - Sample Games Designer)
 * Sakis Garnelis (Animator - Concept Designer)
 
-Videos
-------
+Coconut2D Videos
+----------------
 
-[![Coconut2D Technology](.SDK/Documentation/Introduction/Blueprint.png)](http://vimeo.com/108215677)
+[![Coconut2D Technology](.SDK/Documentation/Introduction/Designer_1920x960.png)](https://www.youtube.com/watch?v=6WGuwU_KDBQ&list=UUsdcgU-EYQA8b-dbjJdqTgA)
+
+Coconut2D on Social Media
+-------------------------
 
 [![facebook](.SDK/Documentation/Introduction/facebook.png)](https://www.facebook.com/pages/mobileFX/106630919428634)
 
