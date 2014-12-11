@@ -112,12 +112,11 @@ function CocoMake(command , params)
 	  		_this.clean();
 	  		_this.apply_device_wrapper();
 	  		_this.generate_icons();
-	  		_this.copy_assets();
+	  		_this.copy_assets(null, null, true);
 	  		_this.generate_javascript();
 	  		_this.copy_framework_libs();
 	  		//_this.create_payload_js();
 	  		_this.closure();
-	  		//_this.create_index_html();
   		}
   	};
 
@@ -674,7 +673,7 @@ function CocoMake(command , params)
 		copyFolder(template_folder, destination_folder);
 
 		// Copy the Assets
-		_this.copy_assets(destination_folder+"/assets");
+		_this.copy_assets(null, destination_folder+"/assets");
 
 		// Copy Libraries
 		copyFolder(makefile.Vars.PATH_SDK_LIBRARIES +"/iOS", destination_folder+"/lib/libraries");
@@ -949,10 +948,14 @@ function CocoMake(command , params)
     // =====================================================================
     // Copy source assets to target
     // =====================================================================
-	_this.copy_assets = function(optDestination)
+	_this.copy_assets = function(optSource, optDestination, contentsOnly)
 	{
-		var src = makefile.Config.PROJECT_PATHS.ASSETS;
-		var dst = optDestination||TARGET.TARGET_ASSETS;
+		// Each target can have its own assts defined in TARGET.TARGET_INPUT_ASSETS
+		// Each target can copy assets to a different location defined in TARGET.TARGET_ASSETS
+		// copy_assets function can override defaults by defining optSource and optDestination
+
+		var src = optSource || TARGET.TARGET_INPUT_ASSETS || makefile.Config.PROJECT_PATHS.ASSETS;
+		var dst = optDestination|| TARGET.TARGET_ASSETS;
 
 		trace("\nCopying assets ...");
 		trace("+ source: " + src);
@@ -961,25 +964,24 @@ function CocoMake(command , params)
 	  	if(!folderExists(src))
 	  		throw new Error("Assets folder not found " + src);
 
-	  	buildPath(dst);
-		copyFolder(src, dst);
-		deleteFolder(dst + "/animations"); // Contains binary animation files
-		IDECallback("folder", dst);
-
-		// Super-Compress PNG images
-		/*
-		if(makefile.Config.CONFIGURATION=="Release")
+		if(contentsOnly)
 		{
-			trace("\nCompressing PNG images ...");
-	    	var html_images = [];
-	    	var images = _this.FindFiles(TARGET.TARGET_ROOT + "/assets", "*.png", true);
-	    	for(var i=0; i<images.length; i++)
-	    	{
-	    		trace("+ compressing: " + images[i]);
-	    		compressPNG(images[i]);
-	    	}
+			var assets = _this.FindFiles(src, "*.*", true);
+			for(var i=0; i<assets.length; i++)
+			{
+				var out = assets[i].replace(src, dst);
+				var path = out.substr(0, out.lastIndexOf('/'));
+				buildPath(path);
+				copyFile(assets[i], out);
+			}
 		}
-		*/
+		else
+		{
+		  	buildPath(dst);
+			copyFolder(src, dst);
+			deleteFolder(dst + "/animations"); // Contains binary animation files
+			IDECallback("folder", dst);
+		}
 	};
 
     // =====================================================================
