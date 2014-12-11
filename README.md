@@ -1,5 +1,7 @@
 ![Coconut2D_CrossPlatformRuntime](.SDK/Documentation/Introduction/Coconut2D_CrossPlatformRuntime.jpg)
 
+[<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
+
 Coconut 2D SDK
 ==============
 
@@ -36,6 +38,8 @@ To unify Native and HTML5 worlds under a single API while getting the best perfo
 -----
 
 ![CocoScriptCode](.SDK/Documentation/Introduction/CocoScriptCode.png)
+
+Language Features:
 
 * Real Classes as first-class citizens
 * Constructor with constructor arguments and inline base class initialization
@@ -83,9 +87,9 @@ Coconut2D Team
 ![CocoTeam](.SDK/Documentation/Introduction/CocoTeam1.jpg)
 
 * Lina Kalostipi (Coconut2D Commercial Product Manager)
-* Elias G. Politakis (epolitakis@mobilefx.com)
-* George Mathioudakis (YiamiYo@mobilefx.com)
-* Irida Kalostipi (irida@mobilefx.com)
+* Elias G. Politakis (Architect)
+* George Mathioudakis (Lead Developer)
+* Irida Kalostipi (Sample Games Programmer)
 * Despina Leonti (Illustrator - Sample Games Designer)
 * Sakis Garnelis (Animator - Concept Designer)
 
@@ -93,7 +97,7 @@ Contribute / Donate
 -------------------
 If this project is useful for you, you can help me sustain it either by contributing or by donating with Paypal.
 
-[<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BV3LQJ2VPS7JN)
+[<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
 
 Videos
 ------
