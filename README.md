@@ -47,12 +47,20 @@ Coconut2D Layering
 |       **Device Wrappers Layer**   |
 | HTML5 - iOS - Android - x86 - ... |
 
-Game Engine
------------
+2D Game Engine
+--------------
 
 **Coconut2D Game Engine** is a **Finite State Machine Automaton** controlled by a new programming entity called **State**. States define a singularity in the execution context of Game Loop, they have explicit **enter** and **exit** points and they offer distinction between **tick** and **paint**.
 
 To unify Native and HTML5 worlds under a single API while getting the best performance every time, we designed a set of **Native Device Wrappers** that virtualize the **HTML5 Canvas** across desktop, tablet, mobile and other devices.
+
+Technologies
+============
+
+Renderering Engines
+-------------------
+
+Coconut2D core rendering engine is OpenGL ES2 but we have implemented special renderers for WebGL, CanvasRenderingContext2D and CSS3 for supporting Mobile HTML5 Browsers.
 
 
 Integrating with Emscripten
