@@ -82,6 +82,8 @@ Coconut2D Team
 
 ![CocoTeam](.SDK/Documentation/Introduction/CocoTeam1.jpg)
 
+![CocoTeam](.SDK/Documentation/Introduction/CocoTeam2.jpg)
+
 * Lina Kalostipi (Coconut2D Commercial Product Manager)
 * Elias G. Politakis (Architect)
 * George Mathioudakis (Lead Developer)
