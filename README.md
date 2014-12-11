@@ -7,6 +7,10 @@ Coconut2D is a software for creating HTML5, iOS, Android and PC games that your 
 
 This GitHub Repository contains the Open Source **Coconut2D SDK**, which is the toolchain and core frameworks of Coconut2D project. Please note that this repository does not contain Coconut2D Studio IDE which is a commercial product (or at least will be when we manage to finish it :)
 
+[![facebook](.SDK/Documentation/Introduction/facebook.png)](https://www.facebook.com/pages/mobileFX/106630919428634)
+
+[![twitter](.SDK/Documentation/Introduction/twitter.png)](https://twitter.com/mobilefx)
+
 What is Coconut 2D ?
 --------------------
 
@@ -72,14 +76,16 @@ Authors
 
 * Elias G. Politakis (epolitakis@mobilefx.com)
 * George Mathioudakis (YiamiYo@mobilefx.com)
-* Irida Kalostipi (irida@mobilefx.com)
 
-Credits 
--------
+Coconut2D Team 
+--------------
 
 ![CocoTeam](.SDK/Documentation/Introduction/CocoTeam1.jpg)
 
 * Lina Kalostipi (Coconut2D Commercial Product Manager)
+* Elias G. Politakis (epolitakis@mobilefx.com)
+* George Mathioudakis (YiamiYo@mobilefx.com)
+* Irida Kalostipi (irida@mobilefx.com)
 * Despina Leonti (Illustrator - Sample Games Designer)
 * Sakis Garnelis (Animator - Concept Designer)
 
