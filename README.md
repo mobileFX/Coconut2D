@@ -20,19 +20,41 @@ Once a games is ready for release, it can be compiled to **HTML5 and ECMA JavaSc
 
 ![Architecture](.SDK/Documentation/Introduction/Architecture.jpg)
 
-Especially for HTML5, a game can also be compiled to C++ and post-compiled with **Emscripten** to JavaScript byte code. Compiled JavaScript can be up to x10 times faster than "regular" handwritten JavaScript and runs on all browsers.
+Coconut2D Frameworks
+--------------------
 
-Emscripten is a C++ to JavaScript compiler developed by Alon Zakai (Kripken). Coconut2D uses Emscripten both for binding 3rd party C++ libraries (such as Box2D Physics) with generated ECMA JavaScript code, and also for post-compiling and optimizing a game for HTML5 Browsers.
+We encapsulated all **Core Frameworks**, such as **Animations**, **2D Game Engine**, **User Interface**, **Networking**, etc. inside a **Common Runtime Layer (CRL)** also written in Object Oriented JavaScript.
 
-Coconut2D Studio IDE is capable of compiling C++11 code directly into a native iOS, Android and x86 applications. Especially for iOS apps, they are trully compiled on Windows, using a special port of the LLVM compiler; that is the same compiler Apple uses in XCode. iOS compilation process of Coconut2D Studio also code signs your apps with your official developer certificate.
+|org.coconut2d.sdk.anim    | Core Animations Framework, implements Game Engine                     |
+|org.coconut2d.sdk.ui      | User Interface Framework, implements Controls, Buttons, Forms, etc    |
+|org.coconut2d.sdk.html5   |                                                                       |
+|org.coconut2d.sdk.net     |                                                                       |
+|org.coconut2d.sdk.server  |                                                                       |
+|org.coconut2d.sdk.tests   |                                                                       |                                                                                                  |
+|org.coconut2d.sdk.webgl   |                                                                       |
+|org.emscripten.box2d      |                                                                       |
+|org.coconut2d.sdk.game2d  |                                                                       |
 
-We encapsulated all **Core Frameworks**, such as Animations, 2D Game Engine, User Interface, Networking, etc. inside a **Common Runtime Layer (CRL)** also written in Object Oriented JavaScript.
-
-![CrossPlatform](.SDK/Documentation/Introduction/CrossPlatform.png)
 
 Coconut2D Game Engine is a **Finite State Machine Automaton** controlled by a new programming entity called **State**. States define a singularity in the execution context of Game Loop, they have explicit **enter** and **exit** points and they offer distinction between **tick** and **paint**.
 
 To unify Native and HTML5 worlds under a single API while getting the best performance every time, we designed a set of **Native Device Wrappers** that virtualize the **HTML5 Canvas** across desktop, tablet, mobile and other devices.
+
+
+Integrating with Emscripten
+---------------------------
+
+Especially for HTML5, a game can also be compiled to C++ and post-compiled with **Emscripten** to JavaScript byte code. Compiled JavaScript can be up to x10 times faster than "regular" handwritten JavaScript and runs on all browsers.
+
+Emscripten is a C++ to JavaScript compiler developed by Alon Zakai (Kripken). Coconut2D uses Emscripten both for binding 3rd party C++ libraries (such as Box2D Physics) with generated ECMA JavaScript code, and also for post-compiling and optimizing a game for HTML5 Browsers.
+
+Compiling iOS Apps on Windows
+-----------------------------
+
+Coconut2D Studio IDE is capable of compiling C++11 code directly into a native iOS, Android and x86 applications. Especially for iOS apps, they are trully compiled on Windows, using a special port of the LLVM compiler developed by Pierre-Marie Baty; that is the same compiler Apple uses in XCode. iOS compilation process of Coconut2D Studio also code signs your apps with your official developer certificate.
+
+
+
 
 ![CocoScript](.SDK/Documentation/Introduction/CocoScript.png)
 -----
