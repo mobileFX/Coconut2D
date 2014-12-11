@@ -40,17 +40,12 @@ We encapsulated all **Core Frameworks**, such as **Animations**, **2D Game Engin
 Coconut2D Layering
 ------------------
 
-|-----------------------------------|
 |     Generic Game Engine Layer     |
 |-----------------------------------|
 |        User Interface Layer       |
-|-----------------------------------|
 |        2D Animations Layer        |
-|-----------------------------------|
 |       Device Wrappers Layer       |
-|-----------------------------------|
 | HTML5 | iOS | Android | x86 | ... |
-|-----------------------------------|
 
 Game Engine
 -----------
