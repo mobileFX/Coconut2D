@@ -163,7 +163,7 @@ We also developed **CocoPlayer**, a Simulator powered by **Google V8 JavaScript 
 6.5. Contribute / Donate
 ------------------------
 
-If this project is useful for you, you can help me sustain it either by contributing or by donating with Paypal.
+If this project is useful for you, you can help us sustain it either by contributing or by donating with Paypal.
 
 [<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
 
