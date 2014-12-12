@@ -2,8 +2,8 @@
 
 [<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
 
-1. Coconut 2D Project
-==================
+1. The Coconut 2D Project idea
+==============================
 
 Coconut2D is a software project for creating HTML5, iOS, Android and PC games that your really design and code once, and play everywhere!
 
@@ -12,7 +12,7 @@ Coconut2D is a software project for creating HTML5, iOS, Android and PC games th
 This GitHub Repository contains the Open Source **Coconut2D SDK**, which is the Toolchain and Core Frameworks of Coconut2D project. Please note that this repository does not contain Coconut2D Studio IDE which is a commercial product (or at least will be when we manage to finish it :)
 
 2. Coconut2D SDK Architecture
-==========================
+==============================
 
 Coconut2D virtualizes the **HTML5 Canvas** and uses **Object Oriented JavaScript** as the single code-base language. Developers can write and debug their games in Object Oriented JavaScript against the virtual HTML5 Canvas using Coconut2D Studio IDE.
 
@@ -21,7 +21,7 @@ Once a games is ready for release, it can be compiled to **HTML5 and ECMA JavaSc
 ![Architecture](.SDK/Documentation/Introduction/Architecture.jpg)
 
 2.1. Coconut2D Frameworks
---------------------
+-------------------------
 
 We encapsulated all **Core Frameworks**, such as **Animations**, **2D Game Engine**, **User Interface**, **Networking**, etc. inside a **Common Runtime Layer (CRL)** also written in Object Oriented JavaScript.
 
@@ -38,35 +38,35 @@ We encapsulated all **Core Frameworks**, such as **Animations**, **2D Game Engin
 |org.emscripten.box2d      | Emscripten derived Box2D Physics Framework (compiled from C++)           |
 
 2.2. Coconut2D Layering
-------------------
+-----------------------
 
 ![Layering](.SDK/Documentation/Introduction/Layering.jpg)
 
 2.3. 2D Game Engine
---------------
+-------------------
 
 **Coconut2D Game Engine** is a **Finite State Machine Automaton** controlled by a new programming entity called **State**. States define a singularity in the execution context of Game Loop, they have explicit **enter** and **exit** points and they offer distinction between **tick** and **paint**.
 
 To unify Native and HTML5 worlds under a single API while getting the best performance every time, we designed a set of **Native Device Wrappers** that virtualize the **HTML5 Canvas** across desktop, tablet, mobile and other devices.
 
 3. Technologies
-============
+================
 
 3.1. Renderering Engines
--------------------
+-------------------------
 
 Coconut2D core rendering engine is OpenGL ES2 but we have implemented special renderers for WebGL, CanvasRenderingContext2D and CSS3 for supporting Mobile HTML5 Browsers.
 
 
 3.2. Integrating with Emscripten
----------------------------
+--------------------------------
 
 Especially for HTML5, a game can also be compiled to C++ and post-compiled with **Emscripten** to JavaScript byte code. Compiled JavaScript can be up to x10 times faster than "regular" handwritten JavaScript and runs on all browsers.
 
 Emscripten is a C++ to JavaScript compiler developed by Alon Zakai (Kripken). Coconut2D uses Emscripten both for binding 3rd party C++ libraries (such as Box2D Physics) with generated ECMA JavaScript code, and also for post-compiling and optimizing a game for HTML5 Browsers.
 
 3.3. Compiling iOS Apps on Windows
------------------------------
+----------------------------------
 
 Coconut2D Studio IDE is capable of compiling C++11 code directly into a native iOS, Android and x86 applications. Especially for iOS apps, they are trully compiled on Windows, using a special port of the LLVM compiler developed by Pierre-Marie Baty; that is the same compiler Apple uses in XCode. iOS compilation process of Coconut2D Studio also code signs your apps with your official developer certificate.
 
@@ -111,11 +111,11 @@ Language Features:
 We also developed **CocoPlayer**, a Simulator powered by **Google V8 JavaScript VM Engine** where developers can test, debug and profile their games and apps. CocoPlayer is capable of simulating various screen resolutions taking into account the different dpi of numerous iOS and Android devices. The full-fledged Object Oriented JavaScript Debugger is one of Coconut2D Studio's unique features!
 
 4. Work in Progress
-===================
+====================
 ![WIP](.SDK/Documentation/Introduction/WIP.png)
 
 5. Sample Games
-===============
+================
 
 ![Sample](.SDK/Documentation/Introduction/Game1.png)
 
@@ -126,7 +126,7 @@ We also developed **CocoPlayer**, a Simulator powered by **Google V8 JavaScript 
 ![Sample](.SDK/Documentation/Introduction/Game4.png)
 
 6. Credits
-==========
+===========
 
 6.1. Authors
 ------------
