@@ -167,3 +167,7 @@ If this project is useful for you, you can help us sustain it either by contribu
 
 [<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mobileFX/coconut2d/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
