@@ -1,0 +1,89 @@
+﻿var ASP = require('./ASP.jobj');
+//@line 27
+
+function HTTPServer()
+{
+	var __BASE__ = null;
+
+	function __HTTPServer()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__HTTPSERVER__ = this.__CLASS__HTTPSERVER__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'HTTPServer'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 60
+		this.__className = "HTTPServer";
+		//@line 29
+		this.pages = [];
+		//@line 44
+		this.handle = function (req, res)
+		{
+			//@line 46
+			if (req.url == "/")
+			//@line 47
+			req.url = "default.asp";
+			//@line 49
+			console.log("Request URL: " + req.url);
+			//@line 51
+			var ext = req.url.substr(req.url.lastIndexOf(".")).toLowerCase();
+			//@line 52
+			if (ext == ".asp")
+			//@line 53
+			{
+				//@line 54
+				var server = new ASP.ASPServer;
+				//@line 55
+				server.run(req, res);
+				//@line 56
+			}
+			//@line 58
+			res.end();
+			//@line 59
+		};
+		//@line 38
+		this.Destructor = function ()
+		{
+			{
+				//@line 40
+				{
+					__CLASS__HTTPSERVER__.pages && ((__CLASS__HTTPSERVER__.pages.hasOwnProperty('Destructor') && __CLASS__HTTPSERVER__.pages.Destructor()) || !__CLASS__HTTPSERVER__.pages.hasOwnProperty('Destructor')) && (delete __CLASS__HTTPSERVER__.pages);
+					__CLASS__HTTPSERVER__.pages = null
+				};
+				//@line 41
+			}
+			{
+				__CLASS__HTTPSERVER__.pages = null;
+			}
+			return true
+		};
+		//@line 32
+		this.Constructor = function ()
+		{
+			//@line 34
+			__CLASS__HTTPSERVER__.pages = new Array;
+			//@line 35
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__HTTPServer.prototype.constructor = __HTTPServer;
+	return new __HTTPServer();
+}
+HTTPServer.__PRIVATE__ = {};
+HTTPServer.__PROTECTED__ = {};
+//Export node.js class
+module.exports.HTTPServer = HTTPServer;
