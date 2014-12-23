@@ -61,8 +61,8 @@ function __init_narcissus(GLOBAL)
 
 	var tokens = jsdef.tokens =
 	[
-        // End of source.
-        "END",
+        "END", 	// End of source.
+        "BOF",  // Begin of File
 
         // Operators and punctuators.
         "\n", ";", "...",
@@ -112,51 +112,54 @@ function __init_narcissus(GLOBAL)
         "REGEXP",
 
         // Conditionals
-        "IFDEF",
-        "ELSEDEF",
-        "ENDDEF",
+        "#if",
+        "#else",
+        "#endif",
+		"#define",
+		"#undefine",
+		"#pragma",
+		"#include",
+		"#module",
 
         // OOP
         "struct",
 		"class",
 		"interface",
+		"state",
+		"enum",
+
+		// Class Modifiers
+		"implements",
 		"control",
 		"emscripten",
-		"export",
+		"export", 				/*Node.js Exported Class - needs a #module directive in the same file */
 
-		"implements",
-
+		// Access Modifiers
 		"public",
 		"private",
 		"protected",
-		"published",
+		"published",			/* Exports a property|var to the IDE designer */
 
+		// Function Modifiers
 		"static",
 		"abstract",
 		"virtual",
-		"reference",
 
-		"delegate",
+		// Var Modifiers
+		"reference",			/* var is reference to object (does not delete it) */
+		"delegate",				/* var is delegated - class is agreegator */
 		"optional",
 		"super",
 
-		// TODO
-		"namespace",
-		"thread",
-		"volatile",
-		"inline",
-
 		// Functions
 		"function",
-		"state",
 		"property",
 		"event",
-		"callback",
+		"callback",				/* defines a function definition for callbacks */
 
         // Keywords.
 		"break",
 		"case",
-		"catch",
 		"const",
 		"continue",
 		"debugger",
@@ -164,23 +167,28 @@ function __init_narcissus(GLOBAL)
 		"delete",
 		"do",
 		"else",
-		"enum",
-		"false",
-		"finally",
 		"for",
 		"if",
-		"in",
-		"let",
 		"new",
 		"null",
 		"return",
 		"switch",
 		"this",
-		"throw",
-		"true",
-		"try",
 		"var",
 		"while",
+
+		"false",
+		"true",
+
+		"compiler_break",
+
+		// Need to double-check
+		"in",
+		"let",
+		"try",
+		"catch",
+		"finally",
+		"throw",
 		"with",
 
 		// Invalid in JSPP
@@ -192,7 +200,13 @@ function __init_narcissus(GLOBAL)
         "as",
 		"import",
 		"package",
-		"use"
+		"use",
+
+		// TODO
+		"namespace",
+		"thread",
+		"volatile",
+		"inline"
 	];
 
 	// Operator and punctuator mapping from token to tree node type name.
@@ -243,7 +257,12 @@ function __init_narcissus(GLOBAL)
         [')', "RIGHT_PAREN"],
         ['#if', "IFDEF"],
         ['#else', "ELSEDEF"],
-        ['#endif', "ENDDEF"]
+        ['#endif', "ENDDEF"],
+        ['#define', "DEFINE"],
+        ['#undefine', "UNDEFINE"],
+        ['#pragma', "PRAGMA"],
+        ['#include', "INCLUDE"],
+        ['#module', "MODULE"]
 	];
 
 	var opTypeNames = jsdef.opTypeNames = (function ()
@@ -495,51 +514,6 @@ function __init_narcissus(GLOBAL)
 				}
 
 				///////////////////////////////////////////////////////////////////
-				// "#export native";
-				if(token.value && token.value.indexOf(this.__EXPORT_NATIVE) != -1)
-				{
-					this.EXPORT_NATIVE = true;
-					if(match.input.substr(match.index + match[0].length, 1)!=";")
-						throw this.newSyntaxError("Missing ; after include directive.");
-				}
-
-				///////////////////////////////////////////////////////////////////
-				// "#export web";
-				if(token.value && token.value.indexOf(this.__EXPORT_WEB) != -1)
-				{
-					this.EXPORT_WEB = true;
-					if(match.input.substr(match.index + match[0].length, 1)!=";")
-						throw this.newSyntaxError("Missing ; after include directive.");
-				}
-
-				///////////////////////////////////////////////////////////////////
-				// "#export server";
-				if(token.value && token.value.indexOf(this.__EXPORT_SERVER) != -1)
-				{
-					this.EXPORT_SERVER = true;
-					if(match.input.substr(match.index + match[0].length, 1)!=";")
-						throw this.newSyntaxError("Missing ; after include directive.");
-				}
-
-				///////////////////////////////////////////////////////////////////
-				// // "#define NO_COMPILER_ERRORS";
-				if(token.value && token.value.indexOf(this.__ENABLE_ERRORS) != -1)
-				{
-					this.DISABLE_ERRORS = false;
-					if(match.input.substr(match.index + match[0].length, 1)!=";")
-						throw this.newSyntaxError("Missing ; after include directive.");
-				}
-
-				///////////////////////////////////////////////////////////////////
-				// // "#undefine NO_COMPILER_ERRORS";
-				if(token.value && token.value.indexOf(this.__DISABLE_ERRORS) != -1)
-				{
-					this.DISABLE_ERRORS = true;
-					if(match.input.substr(match.index + match[0].length, 1)!=";")
-						throw this.newSyntaxError("Missing ; after include directive.");
-				}
-
-				///////////////////////////////////////////////////////////////////
 				// File
 				if(token.value && token.value.indexOf(this.__FILE_DELIM) != -1)
 				{
@@ -549,12 +523,12 @@ function __init_narcissus(GLOBAL)
 					this.__file = v[v.length-1];
 					this.__fileLineOffset = this.line_start+1;
 					this.__filePosOffset = this.cursor + token.value.length + 4;
-					this.EXPORT_NATIVE = false;
-					this.EXPORT_WEB = false;
-					this.EXPORT_SERVER = false;
-					this.DISABLE_ERRORS = false;
+					this.__DIRECTIVES = {};
+					this.__MODULE = null;
 					trace("+ parsing: " + this.__file);
 
+					// Mark BOF ast node
+					token.type = jsdef.BOF;
 				}
 				///////////////////////////////////////////////////////////////////
 			}
@@ -592,7 +566,7 @@ function __init_narcissus(GLOBAL)
 				}
 				token.value = op;
 			}
-			else if(this.scanNewlines && (match = /^\n/.exec(input)))
+			else if(this.scanNewlines && (match = /^[\n\r]/.exec(input)))
 			{
 				token.type = jsdef.NEWLINE;
 			}
@@ -673,12 +647,10 @@ function __init_narcissus(GLOBAL)
 
 	};
 
-	Tokenizer.prototype.__EXPORT_WEB = "#export web";
-	Tokenizer.prototype.__EXPORT_SERVER = "#export server";
-	Tokenizer.prototype.__EXPORT_NATIVE = "#export native";
-	Tokenizer.prototype.__DISABLE_ERRORS = "#define NO_COMPILER_ERRORS";
-	Tokenizer.prototype.__ENABLE_ERRORS = "#undefine NO_COMPILER_ERRORS";
+	Tokenizer.prototype.__MODULE = null;
 	Tokenizer.prototype.__CONDITIONS = [];
+	Tokenizer.prototype.__DIRECTIVES = {};
+	Tokenizer.prototype.__DEFINES = {};
 	Tokenizer.prototype.__FILE_DELIM = "script_begin:///";
 	Tokenizer.prototype.__file = "";
 	Tokenizer.prototype.__path = "";
@@ -713,10 +685,12 @@ function __init_narcissus(GLOBAL)
 		return this.length && this[this.length - 1];
 	};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	function Node(t, type)
 	{
 		this.nodeId = (++__node_id);
 		this.xmlvartype="";
+		this.__VARIABLES = {};
 
 		if(!t)
 		{
@@ -727,12 +701,16 @@ function __init_narcissus(GLOBAL)
 
 		var token = t.token();
 
+		this.__MODULE = t.__MODULE;
 		this.scopeId = t.ScopeId();
 		this.xmlvartype="";
-		this.EXPORT_NATIVE = t.EXPORT_NATIVE;
-		this.EXPORT_WEB = t.EXPORT_WEB;
-		this.EXPORT_SERVER = t.EXPORT_SERVER;
-		this.DISABLE_ERRORS = t.DISABLE_ERRORS;
+
+		// Copy compiler directives and defines from tokenizer to this new AST Node
+
+		this.__VARIABLES = Object.create(t.__DIRECTIVES);
+
+		for(item in t.__DEFINES)
+			this.__VARIABLES[item] = t.__DEFINES[item];
 
 		if(t.__CONDITIONS && t.__CONDITIONS.length)
 			this.__CONDITIONS = t.__CONDITIONS.join("&&");
@@ -1464,14 +1442,36 @@ function __init_narcissus(GLOBAL)
 		var subtype = "";
 		node[typeProp] = vartype;
 
+		// Support for namespace class types (namespace::class)
+		// The rule is that each namespace must not have colliding class names.
+		// Namespaces are used only for compatibility and grouping for now.
+		if(t.peek()==jsdef.COLON)
+		{
+			t.mustMatch(jsdef.COLON);
+			t.mustMatch(jsdef.COLON);
+			t.mustMatch(jsdef.IDENTIFIER);
+			vartype = t.token().value;
+		}
+
 		// Typed Array
 		if(!skip && t.match(jsdef.LT))
 		{
 			t.mustMatch(jsdef.IDENTIFIER);
 			subtype = new Node(t).value;
 			node.subtype = subtype;
+
+			// Check for namespace vartype syntax (namespace::class)
+			if(t.peek()==jsdef.COLON)
+			{
+				t.mustMatch(jsdef.COLON);
+				t.mustMatch(jsdef.COLON);
+				t.mustMatch(jsdef.IDENTIFIER);
+				node.subtype = subtype = t.token().value;
+			}
+
 			t.mustMatch(jsdef.GT);
 			node[typeProp] = vartype + "<" + subtype + ">";
+
 			if(typeProp=="returntype")
 				node["vartype"] = vartype + "<" + subtype + ">";
 		}
@@ -1738,6 +1738,11 @@ function __init_narcissus(GLOBAL)
 
 		switch(tt)
 		{
+		case jsdef.BOF:
+			n = new Node(t);
+			n.value = t.token().value;
+			return n;
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NAMESPACE:
 			return NamespaceDefinition(t, x);
@@ -2086,12 +2091,39 @@ function __init_narcissus(GLOBAL)
 			n.expression = null;
 			return n;
 
+		// ==================================================================================================================================
+		//	    ____  _                __  _
+		//	   / __ \(_)_______  _____/ /_(_)   _____  _____
+		//	  / / / / / ___/ _ \/ ___/ __/ / | / / _ \/ ___/
+		//	 / /_/ / / /  /  __/ /__/ /_/ /| |/ /  __(__  )
+		//	/_____/_/_/   \___/\___/\__/_/ |___/\___/____/
+		//
+		// ==================================================================================================================================
+
+		case jsdef.COMPILER_BREAK:
+			var n = new Node(t);
+			t.mustMatch(jsdef.SEMICOLON);
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.MODULE:
+			var n = new Node(t);
+			t.mustMatch(jsdef.IDENTIFIER);
+			t.__MODULE = n.name = t.token().value;
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+			return n;
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         case jsdef.IFDEF:
 			n = new Node(t);
 			n.expression = Expression(t, x);
 			n.condition = t.source.substr(n.expression.start, n.expression.end-n.expression.start);
 			t.__CONDITIONS.push(n.condition);
+			n.end = t.cursor;
+			n.line_end = t.line_start;
         	return n;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2101,13 +2133,74 @@ function __init_narcissus(GLOBAL)
 			n.expression = Expression(t, x);
 			n.condition = t.source.substr(n.expression.start, n.expression.end-n.expression.start);
 			t.__CONDITIONS.push(n.condition);
+			n.end = t.cursor;
+			n.line_end = t.line_start;
         	return n;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         case jsdef.ENDDEF:
         	n = new Node(t);
         	t.__CONDITIONS.pop();
+			n.end = t.cursor;
+			n.line_end = t.line_start;
         	return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.DEFINE:
+			n = new Node(t);
+			t.mustMatch(jsdef.IDENTIFIER);
+			var name = t.token().value;
+			t.scanNewlines = true;
+			var value = [];
+			while(t.get()!=jsdef.NEWLINE)
+			{
+				value.push(t.token().value);
+			}
+			t.scanNewlines = false;
+			value = value.join("");
+			n.name = name;
+			n.value = t.__DEFINES[name] = value;
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.UNDEFINE:
+			n = new Node(t);
+			t.mustMatch(jsdef.IDENTIFIER);
+			n.name = t.token().value;
+			delete t.__DEFINES[n.name];
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.INCLUDE:
+			n = new Node(t);
+			t.mustMatch(jsdef.STRING);
+			n.value = t.token().value;
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.PRAGMA:
+			n = new Node(t);
+			t.mustMatch(jsdef.IDENTIFIER);
+			n.name = t.token().value;
+			n.value = t.__DIRECTIVES[n.name] = true;
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+			return n;
+
+		// ==================================================================================================================================
+		//	    ____    __           __  _ _____
+		//	   /  _/___/ /__  ____  / /_(_) __(_)__  _____
+		//	   / // __  / _ \/ __ \/ __/ / /_/ / _ \/ ___/
+		//	 _/ // /_/ /  __/ / / / /_/ / __/ /  __/ /
+		//	/___/\__,_/\___/_/ /_/\__/_/_/ /_/\___/_/
+		//
+		// ==================================================================================================================================
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		default:
@@ -2166,7 +2259,7 @@ function __init_narcissus(GLOBAL)
     // Experimental: heuristics based variable datatype detection when not pluggable type system is used.
     function detectDataType(varItem)
     {
-        if(!varItem.value) return;
+        if(!varItem || !varItem.value) return;
         var dt = undefined;
 
         switch(varItem.type)

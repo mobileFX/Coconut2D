@@ -110,7 +110,7 @@ function CompilerSymbolsPlugin(compiler)
 		for(item in _this.classes)
 		{
 			var cls = _this.classes[item];
-			if(!cls.EXPORT_NATIVE) continue;
+			if(!cls.ast.__VARIABLES.export_native) continue;
 			if(cls.enum) continue;
 			if(cls.struct)
 				classes.push("struct " + cls.name + ";");
@@ -137,7 +137,7 @@ function CompilerSymbolsPlugin(compiler)
 		for(item in _this.classes)
 		{
 			var cls = _this.classes[item];
-			if(!cls.EXPORT_NATIVE) continue;
+			if(!cls.ast.__VARIABLES.export_native) continue;
 
 			var native_file =
 			{
@@ -198,7 +198,8 @@ function CompilerSymbolsPlugin(compiler)
 			// Get class symbol
 			var cls = _this.classes[item];
 
-			if(!cls.EXPORT_NATIVE) continue;
+			if(!cls.ast.__VARIABLES.export_native)
+				continue;
 
 			// Get source file node
 			var native_file = _this.native_files[cls.file];
@@ -1510,7 +1511,7 @@ function CompilerSymbolsPlugin(compiler)
 			var scopeVars	 = _this.exportScopes();
 			var mbrLists     = _this.exportMemberLists();
 
-			write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
+			//write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
 
 			IDECallback("setCodeSymbols", "", 0, 0, codeSymbols);
 			IDECallback("setScopes", "", 0, 0, scopeVars);

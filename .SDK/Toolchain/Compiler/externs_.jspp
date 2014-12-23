@@ -55,6 +55,7 @@ class Global
 	public function __Twitter_Share(URL:String) {}
 	public function __close_window() {}
 	public function fixTouch(touch:Touch) {}
+	public function require(module:String) :Object {}
 	public function eval(s:String) :Object {}
 	public function parseInt(s:String, radix:Number) :Integer {}
 	public function parseFloat(s:String) :Float {}
@@ -270,8 +271,9 @@ class Global
 	public var graphics :CocoGraphics;
 	public var console :Console;
 	public var DEVICE_WRAPPER :COCO_DEVICE_WRAPPER;
-	public var NodeRequest :NodeRequest;
-	public var NodeResponse :NodeResponse;
+	public var NodeJS_Request :NodeJS_Request;
+	public var NodeJS_Response :NodeJS_Response;
+	public var NodeJS_FS :NodeJS_FS;
 	public var b2ManifoldType :b2ManifoldType;
 	public var b2BodyType :b2BodyType;
 	public var b2JointType :b2JointType;
@@ -336,6 +338,10 @@ class Global
 	public var b2DistanceJointDef :b2DistanceJointDef;
 	public var b2GearJointDef :b2GearJointDef;
 	public var b2ContactEdge :b2ContactEdge;
+	public var ASP :ASP;
+	public var fs :NodeJS_FS;
+	public var ASPServer :ASPServer;
+	public var HttpSever :HttpSever;
 	public var HTTPServer :HTTPServer;
 } //Global
 
@@ -653,7 +659,7 @@ class Gradient : String
 	public  var __className :String;
 } //Gradient
 
-class NodeRequest
+class NodeJS_Request
 {
 	public function setTimeout(msecs:Integer, callbackfn:Function) {}
 	public  var httpVersion :String;
@@ -664,9 +670,9 @@ class NodeRequest
 	public  var statusCode :Integer;
 	public  var socket :Object;
 	public  var __className :String;
-} //NodeRequest
+} //NodeJS_Request
 
-class NodeResponse
+class NodeJS_Response
 {
 	public function writeContinue() {}
 	public function writeHead(statusCode:Integer, reasonPhrase:String, headers:Object) {}
@@ -682,7 +688,77 @@ class NodeResponse
 	public  var headersSent :Boolean;
 	public  var sendDate :Boolean;
 	public  var __className :String;
-} //NodeResponse
+} //NodeJS_Response
+
+class NodeJS_FS
+{
+	public function rename(oldPath:String, newPath:String, Callback:Function) {}
+	public function renameSync(oldPath:String, newPath:String) {}
+	public function truncate(fd:Object, len:Number, Callback:Function) {}
+	public function truncateSync(fd:Object, len:Number) {}
+	public function chown(path:String, uid:Number, gid:Number, Callback:Function) {}
+	public function chownSync(path:String, uid:Number, gid:Number) {}
+	public function fchown(fd:Object, uid:Number, gid:Number, Callback:Function) {}
+	public function fchownSync(fd:Object, uid:Number, gid:Number) {}
+	public function lchown(path:String, uid:Number, gid:Number, Callback:Function) {}
+	public function lchownSync(path:String, uid:Number, gid:Number) {}
+	public function chmod(path:String, mode:Number, Callback:Function) {}
+	public function chmodSync(path:String, mode:Number) {}
+	public function fchmod(fd:Object, mode:Number, Callback:Function) {}
+	public function fchmodSync(fd:Object, mode:Number) {}
+	public function lchmod(path:String, mode:Number, Callback:Function) {}
+	public function lchmodSync(path:String, mode:Number) {}
+	public function stat(path:String, Callback:Function) {}
+	public function statSync(path:String) :Stats {}
+	public function fstat(fd:Object, Callback:Function) {}
+	public function fstatSync(fd:Object) :Stats {}
+	public function lstat(path:String, Callback:Function) {}
+	public function lstatSync(path:String) :Stats {}
+	public function link(srcpath:String, dstpath:String, Callback:Function) {}
+	public function linkSync(srcpath:String, dstpath:String) {}
+	public function symlink(srcpath:String, dstpath:String, type:String, Callback:Function) {}
+	public function symlinkSync(srcpath:String, dstpath:String, type:String) {}
+	public function readlink(path:String, Callback:Function) {}
+	public function readlinkSync(path:String) :String {}
+	public function realpath(path:String, cache:Object, Callback:Function) {}
+	public function realpathSync(path:String, cache:Object) :String {}
+	public function unlink(path:String, Callback:Function) {}
+	public function unlinkSync(path:String) {}
+	public function rmdir(path:String, Callback:Function) {}
+	public function rmdirSync(path:String) {}
+	public function mkdir(path:String, mode:Number, Callback:Function) {}
+	public function mkdirSync(path:String, mode:Number) {}
+	public function readdir(path:String, Callback:Function) {}
+	public function readdirSync(path:String) :Array<string> {}
+	public function close(fd:Object, Callback:Function) {}
+	public function closeSync(fd:Object) {}
+	public function open(path:String, flags:String, mode:Number, Callback:Function) {}
+	public function openSync(path:String, flags:String, mode:Number) :Object {}
+	public function utimes(path:String, atime:Number, mtime:Number, Callback:Function) {}
+	public function utimesSync(path:String, atime:Number, mtime:Number) {}
+	public function futimes(fd:Object, atime:Number, mtime:Number, Callback:Function) {}
+	public function futimesSync(fd:Object, atime:Number, mtime:Number) {}
+	public function fsync(fd:Object, Callback:Function) {}
+	public function fsyncSync(fd:Object) {}
+	public function write(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, Callback:Function) {}
+	public function writeSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number) :Number {}
+	public function read(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, Callback:Function) {}
+	public function readSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number) :Number {}
+	public function readFile(filename:String, encodingOrOptions:String, Callback:Function) {}
+	public function readFileSync(filename:String, encodingOrOptions:String) :String {}
+	public function writeFile(filename:String, data:String, encodingOrOptions:String, Callback:Function) {}
+	public function writeFileSync(filename:String, data:String, encodingOrOptions:String) {}
+	public function appendFile(filename:String, data:String, encoding:String, Callback:Function) {}
+	public function appendFileSync(filename:String, data:String, encoding:String) {}
+	public function watchFile(filename:String, options:Object, listener:Function) {}
+	public function unwatchFile(filename:String, listener:Function) {}
+	public function watch(filename:String, options:Object, listener:Function) :FSWatcher {}
+	public function exists(path:String, Callback:Function) {}
+	public function existsSync(path:String) {}
+	public function createReadStream(path:String, options:Object) :ReadStream {}
+	public function createWriteStream(path:String, options:Object) :WriteStream {}
+	public  var __className :String;
+} //NodeJS_FS
 
 class b2ManifoldType
 {
@@ -1947,9 +2023,25 @@ class b2ContactEdge
 	public  var __className :String;
 } //b2ContactEdge
 
+class ASP
+{
+} //ASP
+
+class ASPServer
+{
+	public function run(req:NodeJS_Request, res:NodeJS_Response) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //ASPServer
+
+class HttpSever
+{
+} //HttpSever
+
 class HTTPServer
 {
-	public function handle(req:NodeRequest, res:NodeResponse) {}
+	public function handle(req:NodeJS_Request, res:NodeJS_Response) {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var pages :Array<String>;

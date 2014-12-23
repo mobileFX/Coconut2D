@@ -176,11 +176,10 @@ function Compiler(ast)
 
 	_this.ast = ast;                        			// The Abstract Syntax Tree root node (jsdef.SCRIPT)
 	_this.classes = {};                     			// Map of class symbols
-	_this.classFiles = {};								// Used in order to have multiple classes in one file
 	_this.currClassName = null;             			// The current class being processed (also indicates whether a JS++ class is being processed or just plain JavaScript code)
 	_this.currFile = null;                  			// Current File being processed
 	_this.exportSymbols = false;		    			// Flag that indicates whether symbols should be exported or not
-	_this.fileClasses = {};                 			// Map of classes per file (usage: _this.fileClasses[file][class] = ast; )
+	_this.FILES = {};		                 			// Map of classes per file (usage: _this.xxx[file][class] = ast; )
 	_this.in_property = false;    						// Flag that indicates we are processing a property
 	_this.in_state = false;    							// Flag that indicates we are processing a state
 	_this.includes = [];                    			// List of include files for current file being processed (resets per file)
@@ -199,6 +198,7 @@ function Compiler(ast)
 	_this.eventId = 0;									// Counter for UID of events
 	_this.derivatives = {};								// Classes with derivatives (base classes)
 	_this.__contains_counter=0;
+	_this.currNamespace = null;							// Hold current namespace being processed
 
 	// Include priority (1: needed in .cpp, 2: needed in .hpp)
 	_this.INCLUDE_IN_CPP = 1;
@@ -248,8 +248,6 @@ function Compiler(ast)
 		this.enum = false;
 		this.event = false;
 		this.events = null;
-		this.EXPORT_NATIVE = false;
-		this.EXPORT_WEB = false;
 		this.extern = false;
 		this.file = "";
 		this.icon = 0;
@@ -466,37 +464,65 @@ function Compiler(ast)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.addCodeToClassFile = function(file, code)
+	_this.addCodeToClassFile = function(ast, code)
 	{
 		if(_this.secondPass)
 		{
-			if(_this.classFiles[file]==null)
-				_this.classFiles[file] = "";
-			_this.classFiles[file] += "\n\n" + code;
+			if(!_this.FILES[ast.path])
+				_this.FILES[ast.path]= { list:[], buff:[] };
+
+			_this.FILES[ast.path].list.push(ast);
+			_this.FILES[ast.path].buff.push(code);
 		}
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.write_javascript = function()
 	{
-		for(var p in _this.classFiles)
+		var platform = makefile.Config.TARGETS[makefile.Vars.TARGET].TARGET_EXPORT;
+		platform = (platform=="all" ? null : "export_" + platform);
+
+		for(var file in _this.FILES)
 		{
-			if(p != "externs.jspp")
+			if(file=="externs.jspp") continue;
+			var FILE = _this.FILES[file];
+			if(FILE.buff.length==0) continue;
+
+			// Check if this file can be exported
+			if(platform && !FILE.list[0].__VARIABLES[platform]) continue;
+
+			// Collect additional file headers
+			var file_headers = [];
+
+			// For node.js exports we need to "require" certain modules
+			for(var i=0; i<FILE.list.length; i++)
 			{
-				var buff = _this.classFiles[p];
-				if(!buff) continue;
-				var buff = do_js_beautify(buff, 1, false, false, true);
-				buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1"); 	// Empty Lines
-				buff = RxReplace(buff, "__PDEFINE__\\(([\\w\\W\\n\\N]+?)\\);", "mg", "__PDEFINE__($1);", true);
-				buff = RxReplace(buff, "(__PDEFINE__|__PROTECTED__|__PRIVATE__) \=[\\s\\t\\n\\r]+\{[\\s\\t\\n\\r]+\}", "mg", "$1 = {}");
-				buff = RxReplace(buff, "__NOENUM__ \=[\\s\\t\\n\\r]+\{[^}]+\}", "mg", "__NOENUM__ = {enumerable:false}");
-				buff = RxReplace(buff, ";[\\s\\t\\n\\r]*function F\\(\\)[\\s\\t\\n\\r]*\{[\\s\\t\\n\\r]*\}", "mg", "; function F(){}");
-				buff = RxReplace(buff, "\\([\\s\\t\\n\\r]+", "mg", "(");
-				buff = RxReplace(buff, "\\{[\\s\\t\\n\\r]*\\}", "mg", "{}");
-				buff = RxReplace(buff, "(^[\\s\\t\\n\\r]*$)+", "mg", "");
-				buff = RxReplace(buff, "[\\n\\s\\r\\t]+\\{[\\n\\s\\r\\t]*\\};", "mg", " {};");
-				IDECallback("module_jspp", p, 0, 0, buff);
+				var ast = FILE.list[i];
+				if(ast.type==jsdef.CLASS)
+				{
+					var cls = ast.symbol;
+					for(module_name in cls.imports)
+					{
+						var module_path = cls.imports[module_name].file.replace(".jspp", ".jobj");
+						file_headers.push("var " + module_name + " = require('./" + module_path + "');" );
+					}
+				}
 			}
+
+			// Generate and beutify code
+			var buff = do_js_beautify(file_headers.join("\n") + "\n\n" + FILE.buff.join("\n"), 1, false, false, true);
+			buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1"); 	// Empty Lines
+			buff = RxReplace(buff, "__PDEFINE__\\(([\\w\\W\\n\\N]+?)\\);", "mg", "__PDEFINE__($1);", true);
+			buff = RxReplace(buff, "(__PDEFINE__|__PROTECTED__|__PRIVATE__) \=[\\s\\t\\n\\r]+\{[\\s\\t\\n\\r]+\}", "mg", "$1 = {}");
+			buff = RxReplace(buff, "__NOENUM__ \=[\\s\\t\\n\\r]+\{[^}]+\}", "mg", "__NOENUM__ = {enumerable:false}");
+			buff = RxReplace(buff, ";[\\s\\t\\n\\r]*function F\\(\\)[\\s\\t\\n\\r]*\{[\\s\\t\\n\\r]*\}", "mg", "; function F(){}");
+			buff = RxReplace(buff, "\\([\\s\\t\\n\\r]+", "mg", "(");
+			buff = RxReplace(buff, "\\{[\\s\\t\\n\\r]*\\}", "mg", "{}");
+			buff = RxReplace(buff, "(^[\\s\\t\\n\\r]*$)+", "mg", "");
+			buff = RxReplace(buff, "[\\n\\s\\r\\t]+\\{[\\n\\s\\r\\t]*\\};", "mg", " {};");
+
+			// Send generated file to IDE
+			IDECallback("module_jspp", file, 0, 0, buff);
 		}
 	};
 
@@ -585,8 +611,6 @@ function Compiler(ast)
 			switch(node.type)
 			{
 			case jsdef.CLASS:
-				if(!_this.fileClasses[node.file]) _this.fileClasses[node.file]={};
-				_this.fileClasses[node.file][node.name] = node;
 				currClass = node;
 				break;
 
@@ -661,6 +685,11 @@ function Compiler(ast)
 					case "tokenizer":
 					case "jsdoc":
 					case "interfaces":
+					case "__VARIABLES":
+					case "funDecls":
+					case "varDecls":
+					case "setter":
+					case "getter":
 
 					// Scallar Node properties that we do not want to descend
 					case "__end":
@@ -668,6 +697,7 @@ function Compiler(ast)
 					case "__filePosOffset":
 					case "__start":
 					case "__visited":
+					case "__CONDITIONS":
 					case "abstract":
 					case "blockId":
 					case "contextId":
@@ -769,8 +799,28 @@ function Compiler(ast)
 		// Enable this code to detect Node object properties
 		// added by parser that could be excluded in descend.
 
-		/*
 		var fields = [];
+		delete dic["base_init"];
+		delete dic["block"];
+		delete dic["body"];
+		delete dic["caseLabel"];
+		delete dic["cases"];
+		delete dic["catchClauses"];
+		delete dic["condition"];
+		delete dic["discriminant"];
+		delete dic["elsePart"];
+		delete dic["exception"];
+		delete dic["expression"];
+		delete dic["initializer"];
+		delete dic["paramsList"];
+		delete dic["setup"];
+		delete dic["statements"];
+		delete dic["target"];
+		delete dic["thenPart"];
+		delete dic["tryBlock"];
+		delete dic["update"];
+		delete dic["value"];
+
 		for(item in dic)
 			fields.push('case "' + item + '":');
 
@@ -779,7 +829,6 @@ function Compiler(ast)
 			// Add those properties to switch above
 			trace(fields.sort().join("\n"));
 		}
-		*/
 
 		trace("+ Generating Code ...");
 	};
@@ -974,6 +1023,7 @@ function Compiler(ast)
 			scope.isClass		= type==jsdef.CLASS;
 			scope.isMethod		= type==jsdef.FUNCTION;
 			scope.isState		= type==jsdef.STATE;
+			scope.isNamespace	= type==jsdef.NAMESPACE;
 			scope.file			= ast.file;
 			scope.path			= ast.path;
 			scope.start			= ast.start;
@@ -1041,6 +1091,16 @@ function Compiler(ast)
 		case jsdef.IDENTIFIER:
 		case jsdef.FUNCTION:
 			break;
+
+		case jsdef.DOT:
+			var symbol = _this.LookupLastDotIdentifier(ast, scope);
+			if(symbol && symbol.ast.__MODULE)
+			{
+				var cls = ast.inClass.symbol;
+				cls.imports = cls.imports || {};
+				cls.imports[symbol.ast.__MODULE] = symbol;
+			}
+			return symbol;
 
 		default:
 			return null;
@@ -1233,6 +1293,9 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getClassScope = function()
 	{
+		if(_this.currNamespace)
+			return _this.classes[_this.currNamespace].scope;
+
 		return _this.currClassName && _this.currClassName!="Global" ? _this.classes[_this.currClassName].scope : null;
 	};
 
@@ -1463,11 +1526,20 @@ function Compiler(ast)
 	{
 		var _this = this, out = [], ast = ast || _this.ast, scope;
 
+		// =========================================================
+		if(ast.__CONDITIONS)
+		{
+			if(!_this.evalCondition(ast.__CONDITIONS))
+				return [];
+		}
+
+		// =========================================================
 		var generate = function()
 		{
 			return _this.generate.apply(_this, Array.prototype.slice.call(arguments,0));
 		};
 
+		// =========================================================
 		// Add debug line
 		if(_this.lineNumbers && _this.line_start != ast.line_start)
 		{
@@ -1479,6 +1551,100 @@ function Compiler(ast)
 		switch(ast.type)
 		{
 		// ==================================================================================================================================
+		//	    ____  ____  ______
+		//	   / __ )/ __ \/ ____/
+		//	  / __  / / / / /_
+		//	 / /_/ / /_/ / __/
+		//	/_____/\____/_/
+		//
+		// ==================================================================================================================================
+		case jsdef.BOF:
+			_this.scopeId = _this.scopesStack.length-1;
+			_this.currFile = ast.path;
+			_this.includes = [];
+			break;
+
+		// ==================================================================================================================================
+		//	     __ __  _            __          __
+		//	  __/ // /_(_)___  _____/ /_  ______/ /__
+		//	 /_  _  __/ / __ \/ ___/ / / / / __  / _ \
+		//	/_  _  __/ / / / / /__/ / /_/ / /_/ /  __/
+		//	 /_//_/ /_/_/ /_/\___/_/\__,_/\__,_/\___/
+		//
+		// ==================================================================================================================================
+		case jsdef.INCLUDE:
+			_this.includes.push(ast.value);
+			break;
+
+		// ==================================================================================================================================
+		//	    __  ___          __      __
+		//	   /  |/  /___  ____/ /_  __/ /__
+		//	  / /|_/ / __ \/ __  / / / / / _ \
+		//	 / /  / / /_/ / /_/ / /_/ / /  __/
+		//	/_/  /_/\____/\__,_/\__,_/_/\___/
+		//
+		// ==================================================================================================================================
+		/*@@ MODULE @@*/
+		case jsdef.MODULE:
+
+			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
+			var scope = _this.NewScope(ast);
+
+			// Module Symbol
+			var classSymbol = new ClassSymbol();
+			{
+				classSymbol.symbolId				= (++_this.symbolId);
+				classSymbol.name					= ast.name;
+				classSymbol.vartype					= ast.name;
+				classSymbol.subtype					= null;
+				classSymbol.classId					= classId;
+				classSymbol.base					= null;
+				classSymbol.baseSymbol				= null;
+				classSymbol.bases 					= [];
+				classSymbol.derivatives				= {};
+				classSymbol.interfaces				= []
+				classSymbol.includes 				= _this.includes;
+				classSymbol.events					= {};
+				classSymbol.__event_bindings		= [];
+				classSymbol.__event_unbindings		= [];
+				classSymbol.__event_dispatches		= [];
+				classSymbol.type					= jsdef.CLASS;
+				classSymbol.nodeType				= "MODULE";
+				classSymbol.extern					= (ast.file=="externs.jspp");
+				classSymbol.control					= false;
+				classSymbol.emscripten				= false;
+				classSymbol._prototype				= false;
+				classSymbol.enum					= false;
+				classSymbol.state					= false;
+				classSymbol.callback				= false;
+				classSymbol.interface				= false;
+				classSymbol.struct					= false;
+				classSymbol.namespace				= true;
+				classSymbol.ast						= ast;
+				classSymbol.scope					= scope;
+				classSymbol.vartypes				= scope.vartypes;
+				classSymbol.file					= ast.file;
+				classSymbol.path					= ast.path;
+				classSymbol.start					= ast.start;
+				classSymbol.end						= ast.end;
+				classSymbol.line_start				= ast.line_start;
+				classSymbol.line_end				= ast.line_end;
+				classSymbol.scopeId					= scope.scopeId;
+				classSymbol.vars					= scope.vars;
+				classSymbol.methods	 				= scope.methods;
+				classSymbol.runtime					= ast.name;
+				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
+			}
+
+			// Save symbol
+			ast.symbol = classSymbol;
+			_this.classes[ast.name] = classSymbol;
+			_this.scopesStack[0].vars[classSymbol.name] = classSymbol;
+
+			_this.ExitScope();
+			break;
+
+		// ==================================================================================================================================
 		//	    _   _____    __  ______________ ____  ___   ____________
 		//	   / | / /   |  /  |/  / ____/ ___// __ \/   | / ____/ ____/
 		//	  /  |/ / /| | / /|_/ / __/  \__ \/ /_/ / /| |/ /   / __/
@@ -1489,6 +1655,8 @@ function Compiler(ast)
 		/*@@ NAMESPACE @@*/
 
 		case jsdef.NAMESPACE:
+
+
 			break;
 
 		// ==================================================================================================================================
@@ -1504,7 +1672,6 @@ function Compiler(ast)
 		case jsdef.STRUCT:
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
 			var scope = _this.NewScope(ast);
-			ast.fileClasses = _this.fileClasses;
 
 			out.push("var " + ast.name + " = {");
 
@@ -1521,6 +1688,7 @@ function Compiler(ast)
 				classSymbol.bases 					= [];
 				classSymbol.derivatives				= {};
 				classSymbol.interfaces				= []
+				classSymbol.includes 				= _this.includes;
 				classSymbol.events					= {};
 				classSymbol.__event_bindings		= [];
 				classSymbol.__event_unbindings		= [];
@@ -1536,6 +1704,7 @@ function Compiler(ast)
 				classSymbol.callback				= false;
 				classSymbol.interface				= false;
 				classSymbol.struct					= true;
+				classSymbol.inNameSpace				= _this.currNamespace;
 				classSymbol.ast						= ast;
 				classSymbol.scope					= scope;
 				classSymbol.vartypes				= scope.vartypes;
@@ -1550,8 +1719,6 @@ function Compiler(ast)
 				classSymbol.methods	 				= scope.methods;
 				classSymbol.runtime					= ast.name;
 				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_OBJECT;
-				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
-				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
 
 			// Save symbol
@@ -1631,7 +1798,7 @@ function Compiler(ast)
 			out.push(items.join(",") + "};");
 
 			_this.ExitScope();
-			_this.addCodeToClassFile(ast.path, out.join("\n"));
+			_this.addCodeToClassFile(ast, out.join("\n"));
 			break;
 
 		// ==================================================================================================================================
@@ -1652,10 +1819,7 @@ function Compiler(ast)
 
 			_this.currClassName = ast.name;
 
-		 	// Class must know its includes
-		 	ast.fileClasses = _this.fileClasses;
-
-			var constructor = null;
+		 	var constructor = null;
 			var destructor = null;
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
 			var baseClass = ast.extends ? ast.extends : undefined;
@@ -1708,6 +1872,7 @@ function Compiler(ast)
 				classSymbol.bases 					= firstPassClassSymbol && firstPassClassSymbol.bases ? firstPassClassSymbol.bases : (baseClassSymbol ? [baseClassSymbol] : []); //Must be filled with all the base classes
 				classSymbol.derivatives				= (_this.secondPass ? _this.getClass(ast.name).derivatives : {});
 				classSymbol.interfaces				= ast.interfaces;
+				classSymbol.includes 				= _this.includes;
 				classSymbol.events					= {};
 				classSymbol.__event_descriptors		= {};
 				classSymbol.__event_bindings		= [];
@@ -1723,6 +1888,7 @@ function Compiler(ast)
 				classSymbol.state					= ast.state;
 				classSymbol.callback				= false;
 				classSymbol.interface				= ast.type==jsdef.INTERFACE;
+				classSymbol.inNameSpace				= _this.currNamespace;
 				classSymbol.ast						= ast;
 				classSymbol.scope					= scope;
 				classSymbol.vartypes				= scope.vartypes;
@@ -1737,8 +1903,6 @@ function Compiler(ast)
 				classSymbol.methods	 				= scope.methods;
 				classSymbol.runtime					= ast.name;
 				classSymbol.icon					= ast.type==jsdef.INTERFACE ? _this.CODE_SYMBOLS_ENUM.SYMBOL_INTERFACE : _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
-				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
-				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
 
 			// Keep a list of derivative classes to handle cyclic-references in C++ (error: base class has incomplete type)
@@ -1773,6 +1937,19 @@ function Compiler(ast)
 
 			// Collect all base classes (in reverse order from bottom to top)
 			classSymbol.bases = _this.getAllBaseClasses(classSymbol);
+
+			// Associate the class with a namespace or module pseudo-class
+			if(ast.MODULE)
+			{
+				var cls = _this.getClass(ast.MODULE);
+				var functionSymbol = new FunctionSymbol();
+				{
+					functionSymbol.symbolId				= (++_this.symbolId);
+					functionSymbol.name					= ast.name;
+					functionSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
+				}
+				cls.methods[ast.name] = functionSymbol;
+			}
 
 			// Generate constructor arguments list for this class
 			var thisConstructorArguments = [];
@@ -2533,7 +2710,7 @@ function Compiler(ast)
 				_this.ExitScope();
 
 				if(ast.type!=jsdef.INTERFACE)
-					_this.addCodeToClassFile(ast.path, out.join("\n"));
+					_this.addCodeToClassFile(ast, out.join("\n"));
 			}
 
 			break;
@@ -2627,6 +2804,7 @@ function Compiler(ast)
 				functionSymbol.optional				= false;
 				functionSymbol.virtual				= ast.virtual==true || fnName=="Destructor" || (classSymbol && classSymbol.interface);
 				functionSymbol.abstract				= ast.abstract==true || (classSymbol && classSymbol.interface);
+				functionSymbol.inNameSpace			= _this.currNamespace;
 				functionSymbol.ast					= ast;
 				functionSymbol.scope				= methodScope;
 				functionSymbol.scopes 				= [methodScope];
@@ -3271,6 +3449,7 @@ function Compiler(ast)
 					varSymbol.delegate		= ast.delegate;
 					varSymbol.event			= false;
 					varSymbol.constant		= ast.type==jsdef.CONST;
+					varSymbol.inNameSpace	= _this.currNamespace;
 					varSymbol.ast			= ast[item];
 					varSymbol.scope			= ast.scope;
 					varSymbol.file			= ast[item].file;
@@ -3429,7 +3608,7 @@ function Compiler(ast)
 
 			if(_this.secondPass && !_this.currClassName && !varSymbol.extern)
 			{
-				_this.addCodeToClassFile(ast.path, out.join(""));
+				_this.addCodeToClassFile(ast, out.join(""));
 			}
 
 			break;
@@ -3463,6 +3642,7 @@ function Compiler(ast)
 				classSymbol.bases 					= [baseClassSymbol];
 				classSymbol.derivatives				= {};
 				classSymbol.interfaces				= [];
+				classSymbol.includes 				= _this.includes;
 				classSymbol.events					= {};
 				classSymbol.__event_bindings		= [];
 				classSymbol.__event_unbindings		= [];
@@ -3477,6 +3657,7 @@ function Compiler(ast)
 				classSymbol.state					= false;
 				classSymbol.callback				= true;
 				classSymbol.interface				= false;
+				classSymbol.inNameSpace				= _this.currNamespace;
 				classSymbol.ast						= ast;
 				classSymbol.scope					= scope;
 				classSymbol.vartypes				= scope.vartypes;
@@ -3491,8 +3672,6 @@ function Compiler(ast)
 				classSymbol.methods	 				= scope.methods;
 				classSymbol.runtime					= ast.name;
 				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
-				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
-				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
 
 			// Create callback signature and save it in the class
@@ -3582,6 +3761,7 @@ function Compiler(ast)
 				classSymbol.bases 					= [baseClassSymbol];
 				classSymbol.derivatives				= {};
 				classSymbol.interfaces				= [];
+				classSymbol.includes 				= _this.includes;
 				classSymbol.events					= {};
 				classSymbol.__event_bindings		= [];
 				classSymbol.__event_unbindings		= [];
@@ -3609,8 +3789,6 @@ function Compiler(ast)
 				classSymbol.runtime					= ast.name;
 				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_CLASS;
 				classSymbol.__typedParamsList 		= __typedParamsList;
-				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
-				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
 
 			// We need to add var members in our new Event Class.
@@ -3781,6 +3959,7 @@ function Compiler(ast)
 				classSymbol.bases 					= [];
 				classSymbol.derivatives				= {};
 				classSymbol.interfaces				= [];
+				classSymbol.includes 				= _this.includes;
 				classSymbol.events					= {};
 				classSymbol.__event_bindings		= [];
 				classSymbol.__event_unbindings		= [];
@@ -3794,6 +3973,7 @@ function Compiler(ast)
 				classSymbol.state					= false;
 				classSymbol.callback				= false;
 				classSymbol.interface				= false;
+				classSymbol.inNameSpace				= _this.currNamespace;
 				classSymbol.ast						= ast;
 				classSymbol.scope					= scope;
 				classSymbol.vartypes				= scope.vartypes;
@@ -3808,8 +3988,6 @@ function Compiler(ast)
 				classSymbol.methods	 				= scope.methods;
 				classSymbol.runtime					= ast.name;
 				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_ENUM;
-				classSymbol.EXPORT_NATIVE 			= ast.EXPORT_NATIVE;
-				classSymbol.EXPORT_WEB 				= ast.EXPORT_WEB;
 			}
 
 			// Save symbol
@@ -3887,7 +4065,7 @@ function Compiler(ast)
 
 			if(_this.secondPass && !_this.currClassName)
 			{
-				_this.addCodeToClassFile(ast.path, out.join("\n"));
+				_this.addCodeToClassFile(ast, out.join("\n"));
 			}
 
 			_this.ExitScope();
@@ -4285,7 +4463,7 @@ function Compiler(ast)
 				// Nasty Hack to allow non-Integer array indexes in
 				// purely JavaScript classes such as Window Callbacks.
 
-				if(ast.EXPORT_NATIVE)
+				if(ast.__VARIABLES.export_native)
 				{
 					if(!(_this.isTypedArray(ast[0].vartype) || _this.isVector(ast[0].vartype)))
 					{
@@ -4403,7 +4581,7 @@ function Compiler(ast)
 				// Overloads are not synced between ast and symbol, this means that a class
 				// with overloaded functions is being used by some other class before it had
 				// the chance to fully process its overloads. This should be controlled by
-				// the acyclic graph by adding the proper #includes.
+				// the acyclic graph by adding the proper #include directives.
 
 				_this.NewError("Module " + ast.file + " requires \"#include " + ast.symbol.file + "\";", ast);
 			}
@@ -4488,7 +4666,7 @@ function Compiler(ast)
 					else
 					{
 						// The identifier symbol does not export for web, therefore it is a native symbol and we should not use $<index> overload accees.
-						if(!ast.symbol.ast.EXPORT_WEB && ast.value.indexOf("$")!=-1)
+						if(!ast.symbol.ast.__VARIABLES.export_web && ast.value.indexOf("$")!=-1)
 						{
 							ast.value = ast.symbol.ast.name;
 							ast.symbol.runtime = ast.symbol.runtime.substr(0, ast.symbol.runtime.indexOf("$"))
@@ -4774,6 +4952,11 @@ function Compiler(ast)
 			for(var item in ast)
 			{
 				if(!isFinite(item)) break;
+				if(_this.secondPass && ast[item].type==jsdef.COMPILER_BREAK)
+				{
+					debugger;
+					continue;
+				}
 				out.push(generate(ast[item]));
 			}
 
@@ -4914,19 +5097,37 @@ function Compiler(ast)
 		case jsdef.OBJECT_INIT:
 
 			if(_this.secondPass && _this.currClassName)
-				_this.NewError("Illegal object initialization inside class", ast);
-
-			out.push("{");
-			var firstItem = true;
-			for(var item in ast)
 			{
-				if(!isFinite(item)) break;
-				if(!firstItem) out.push(", ");
-				ast[item].parent = ast;
-				out.push(generate(ast[item]));
-				firstItem=false;
+				// Allow object initialization for JavaScript targets (CocoPlayer, Chrome, Node.JS)
+				if(!ast.__VARIABLES.json)
+				{
+					_this.NewError("Illegal JSON initialization inside Class, use \"#pragma json\" directive.", ast);
+				}
+				else
+				{
+					var json = [];
+					for(var item in ast)
+					{
+						if(!isFinite(item)) break;
+						json.push( generate(ast[item][0]) + ":" + generate(ast[item][1]) );
+					}
+					out.push("{" + json.join(",") + "}");
+				}
 			}
-			out.push("}");
+			else
+			{
+				out.push("{");
+				var firstItem = true;
+				for(var item in ast)
+				{
+					if(!isFinite(item)) break;
+					if(!firstItem) out.push(", ");
+					ast[item].parent = ast;
+					out.push(generate(ast[item]));
+					firstItem=false;
+				}
+				out.push("}");
+			}
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5055,31 +5256,8 @@ function Compiler(ast)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.STRING:
 
-			switch(ast.value)
-			{
-			case "#ignore_errors_begin":
-				_this.no_errors++;
-				break;
-
-			case "#ignore_errors_end":
-				_this.no_errors--;
-				break;
-			}
-
+			// Generate a string
 			out.push('"' + ast.value + '"');
-
-			if(ast.value.indexOf("#include ")!=-1)
-			{
-				_this.includes.push('"' + ast.value + '";');
-			}
-
-			// When file changes we must reset the scopeId counter.
-			if(_this.currFile!=ast.path)
-			{
-				_this.scopeId = _this.scopesStack.length-1;
-				_this.currFile = ast.path;
-				_this.includes = [];
-			}
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5271,6 +5449,7 @@ function Compiler(ast)
 		case jsdef.CASE:				out.push("case " + generate(ast.caseLabel) + ":"); out.push(generate(ast.statements)); break;
 		case jsdef.CONTINUE:			out.push("continue;"); break;
 		case jsdef.DEBUGGER:			out.push("debugger;"); break;
+
 		case jsdef.DEFAULT:				out.push("default:"); out.push(generate(ast.statements)); break;
 		case jsdef.DO: 					ast.body.isLoop = true; out.push("do"); out.push(generate(ast.body)); out.push("while(" + generate(ast.condition) + ");"); break;
 		case jsdef.FALSE:				out.push("false"); break;

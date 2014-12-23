@@ -162,6 +162,7 @@ function CompilerTypeSystemPlugin(compiler)
 		case "Function":
 
 		case "String":
+		case "Boolean":
 		case "Number":
 		case "Date":
 		case "Math":
@@ -182,9 +183,11 @@ function CompilerTypeSystemPlugin(compiler)
 		case "Int8Array":
 		case "Int16Array":
 		case "Int32Array":
+		case "Int64Array":
 		case "Uint8Array":
 		case "Uint16Array":
 		case "Uint32Array":
+		case "Uint64Array":
 		case "Float32Array":
 		case "Float64Array":
 

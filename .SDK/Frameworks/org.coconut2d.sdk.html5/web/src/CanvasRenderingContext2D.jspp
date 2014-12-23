@@ -1,4 +1,4 @@
-﻿"#export native";
+﻿#pragma export_native
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -571,7 +571,7 @@ class CanvasRenderingContext2D
 					return;
 			}
            	__fontSetting = v;
-           	__font = new CocoFont(fontFamily, fontSizeInPixels, fontWeight == "bold", fontStyle == "italic" || fontStyle == "oblique");
+           	__font = new CocoFont(fontFamily, Math.round(fontSizeInPixels), fontWeight == "bold", fontStyle == "italic" || fontStyle == "oblique");
 		}
 	}
 

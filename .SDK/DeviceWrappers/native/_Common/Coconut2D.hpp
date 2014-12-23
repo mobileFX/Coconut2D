@@ -532,7 +532,6 @@ public:
 class Audio;
 class CocoAssetFile;
 class CocoAudioStream;
-class CocoDeviceOpenGLContext;
 class CocoDeviceWrapper;
 class CocoEventConnectionPoint;
 class CocoEventSource;
@@ -551,7 +550,11 @@ class WebGLShader;
 class WebGLTexture;
 class WebGLUniformLocation;
 struct CocoFontChar;
+struct GLEWContextStruct;
 struct GLany;
+struct __GLsync;
+struct _cl_context;
+struct _cl_event;
 struct fxScreen;
 //# Native Classes End #//
 
@@ -559,12 +562,6 @@ struct fxScreen;
 class CanvasRenderingContext2D;
 class CocoAudio;
 class CocoClip;
-class CocoClipOnAnimationSequenceBeginEvent;
-class CocoClipOnAnimationSequenceEndEvent;
-class CocoClipOnClickEvent;
-class CocoClipOnTouchEndEvent;
-class CocoClipOnTouchMoveEvent;
-class CocoClipOnTouchStartEvent;
 class CocoDataField;
 class CocoDataSource;
 class CocoDataStream;

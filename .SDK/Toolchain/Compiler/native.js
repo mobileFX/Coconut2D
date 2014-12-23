@@ -68,7 +68,8 @@ function CompilerCppPlugin(compiler)
 
 		if(ast.__CONDITIONS)
 		{
-			if(!_this.evalCondition(ast.__CONDITIONS)) return _this.NULL_GEN;
+			if(!_this.evalCondition(ast.__CONDITIONS))
+				return _this.NULL_GEN;
 		}
 
 		var generate_cpp = function()
@@ -90,7 +91,7 @@ function CompilerCppPlugin(compiler)
 		/*@@ NAMESPACE @@*/
 
 		case jsdef.NAMESPACE:
-			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 			break;
 
 		// ==================================================================================================================================
@@ -105,7 +106,7 @@ function CompilerCppPlugin(compiler)
 
 		case jsdef.STRUCT:
 
-			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 
 			var items = [];
 			var clone = [];
@@ -145,7 +146,7 @@ function CompilerCppPlugin(compiler)
 		case jsdef.CLASS:
 
 			if(!ast.scope) return _this.NULL_GEN;
-			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 
 		 	_this.currClassName = ast.name;
 
@@ -400,7 +401,7 @@ function CompilerCppPlugin(compiler)
 
 		case jsdef.FUNCTION:
 
-			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 			if(!_this.currClassName) return _this.NULL_GEN;
 
 			var name = (ast.isConstructor ? _this.currClassName : (ast.isDestructor ? "~" + _this.currClassName : ast.name ));
@@ -503,7 +504,7 @@ function CompilerCppPlugin(compiler)
 		case jsdef.VAR:
 		case jsdef.CONST:
 
-			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 	        var isConst = (ast.type == jsdef.CONST) && !(ast.__rtti && ast[0].name == "__className");
 
 			// Var as class member
@@ -613,7 +614,7 @@ function CompilerCppPlugin(compiler)
 
 		case jsdef.CALLBACK:
 
-			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 			break;
 
 		// ==================================================================================================================================
@@ -628,7 +629,7 @@ function CompilerCppPlugin(compiler)
 
 		case jsdef.EVENT:
 
-			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 			if(!_this.currClassName) return _this.NULL_GEN;
 
 			// Define event class
@@ -654,6 +655,7 @@ function CompilerCppPlugin(compiler)
 
 			// Add event class to hpp file
 			_this.native_files[ast.file].hpp.body.insert(0, formatCPP(HPP.join("")));
+			_this.native_files[ast.file].classes[ast.event_class_symbol.name]=ast.event_class_symbol;
 
 			// Declare an event object in the class
 			HPP=[];
@@ -672,7 +674,7 @@ function CompilerCppPlugin(compiler)
 
 		case jsdef.ENUM:
 
-			if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 
 			HPP.push("\nenum " + ast.name + " {\n");
 			var firstItem = true;
@@ -703,7 +705,7 @@ function CompilerCppPlugin(compiler)
 
 	    case jsdef.PROPERTY:
 
-	    	if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+	    	if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 	    	if(!_this.currClassName) return _this.NULL_GEN;
 
 	    	if(ast.getter)
@@ -742,7 +744,7 @@ function CompilerCppPlugin(compiler)
 
 		case jsdef.STATE:
 
-		    if(!ast.EXPORT_NATIVE) return _this.NULL_GEN;
+		    if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 		    if(!_this.currClassName || !ast.scope) return _this.NULL_GEN;
 
 		    _this.in_state = true;

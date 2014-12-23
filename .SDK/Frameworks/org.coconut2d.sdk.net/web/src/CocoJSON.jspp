@@ -1,4 +1,4 @@
-﻿"#export web";
+﻿#pragma export_web
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
@@ -42,7 +42,7 @@ class CocoJSON
 
 	public function read(dot:String) :String
 	{
-		"#define NO_COMPILER_ERRORS";
+		#define NO_COMPILER_ERRORS
 		var p:Array<Object> = json;
 		var d:Array<String> = dot.split(".");
 		for(var i:Integer=0; i<d.size()-1; i++)
@@ -50,7 +50,7 @@ class CocoJSON
 			p = p[d[i]];
 		}
 		return p[d[d.size()-1]];
-		"#undefine NO_COMPILER_ERRORS";
+		#undefine NO_COMPILER_ERRORS
 	}
 
 }

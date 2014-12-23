@@ -27,8 +27,10 @@
 #define BYTE_VALUE(V)	(uint8_t)(V<0?0:(V>255?255:V))
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoFont::CocoFont(String fontName, float fontSize, bool bold, bool italic) : height(fontSize)
+CocoFont::CocoFont(String fontName, float fontSize, bool bold, bool italic)
 {
+	height = fontSize;
+
 	CocoFontsCache::FONT_STYLE style;
 	if(bold)
 	{
@@ -40,6 +42,7 @@ CocoFont::CocoFont(String fontName, float fontSize, bool bold, bool italic) : he
 		if(italic) style = CocoFontsCache::FONT_STYLE::Italic;
 		else style = CocoFontsCache::FONT_STYLE::Regular;
 	}
+
 	face = CocoFontsCache::get(fontName, style);
 
 	if(!face)
