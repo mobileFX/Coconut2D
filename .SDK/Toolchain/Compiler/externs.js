@@ -48,6 +48,7 @@ function ExternsParserPlugin(maker)
 		var gen = _this.generate();
 
 		// Append (or replace) externs to externs.jspp file
+		/*
 		var start_tag = "// BEGIN 3RD PARTY EXTERNS //";
 		var closing_tag = "// END 3RD PARTY EXTERNS //";
 		jspp_externs = ["\n", start_tag, "\n", figlet("3RD PARTY EXTERNS"), gen, "\n", closing_tag].join("");
@@ -65,8 +66,11 @@ function ExternsParserPlugin(maker)
 			buff += jspp_externs;
 		}
 		maker.module(externs_file, buff);
+		*/
 
-		trace("Externs imported in " + externs_file);
+		trace(gen);
+
+		//trace("Externs imported in " + externs_file);
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

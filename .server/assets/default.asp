@@ -1,6 +1,4 @@
-<html>
-
-<head></head>
+<html><head></head>
 
 <body>
 
@@ -11,6 +9,12 @@ var x=5;
 console.log("Running");
 </script>
 
-</body>
+<script>
+alert("test");
+</script>
 
-</html>
+
+
+<div>this is <b>a</b> test</div>
+
+<div><br></div></body></html>
