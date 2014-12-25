@@ -966,9 +966,21 @@ class WebGLRenderingContext
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function texImage2D(target:Integer, level:Integer, internalformat:Integer, width:Integer, height:Integer, border:Integer, format:Integer, type:Integer, pixels:ArrayBufferView)
+	{
+		__WebGLRenderingContext_texImage2D(__uid, target, level, internalformat, width, height, 0, format, type, pixels ? pixels.buffer.__uid : 0, pixels ? pixels.byteOffset : 0, pixels ? pixels.byteLength : 0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function texImage2D(target:Integer, level:Integer, internalformat:Integer, format:Integer, type:Integer, image:Image)
 	{
 		__WebGLRenderingContext_texImage2D(__uid, target, level, internalformat, image.width, image.height, 0, format, type, image.__imageData.data.buffer.__uid, 0, image.__imageData.data.buffer.byteLength);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function texImage2D(target:Integer, level:Integer, internalformat:Integer, format:Integer, type:Integer, video:HTMLVideoElement)
+	{
+		__WebGLRenderingContext_texImage2D(__uid, target, level, internalformat, video.width, video.height, 0, format, type, video.__imageData.data.buffer.__uid, 0, video.__imageData.data.buffer.byteLength);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -987,6 +999,11 @@ class WebGLRenderingContext
 	public function texSubImage2D(target:Integer, level:Integer, xoffset:Integer, yoffset:Integer, width:Integer, height:Integer, format:Integer, type:Integer, pixels:Float32Array)
 	{
 		__WebGLRenderingContext_texSubImage2D(__uid, target, level, xoffset, yoffset, width, height, format, type, pixels.buffer.__uid, pixels.byteOffset, pixels.length);
+	}
+
+	public function texSubImage2D(target:Integer, level:Integer, xoffset:Integer, yoffset:Integer, format:Integer, type:Integer, video:HTMLVideoElement)
+	{
+		__WebGLRenderingContext_texSubImage2D(__uid, target, level, xoffset, yoffset, video.width, video.height, format, type, video.__imageData.data.buffer.__uid, video.__imageData.data.byteOffset, video.__imageData.data.byteLength);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

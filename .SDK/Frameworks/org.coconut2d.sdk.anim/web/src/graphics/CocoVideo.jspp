@@ -1,0 +1,61 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.yourcompany.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native
+#pragma export_web
+
+#include "CocoClip.jspp"
+
+class CocoVideo : CocoClip
+{
+	private var video:HTMLVideoElement;
+
+	public function Constructor(optional url:String) : CocoClip()
+	{
+		video = HTMLVideoElement(document.createElement("video"));
+		if(url)
+		{
+			video.src = url;
+			video.play();
+		}
+	}
+
+	public virtual function tick(time:Time)
+	{
+		super.tick;
+	}
+
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		if(video.width != __width) video.width = __width;
+		if(video.height != __height) video.height = __height;
+		__image = ctx.prepareVideoFrame(__image, video);
+		super.paint;
+	}
+
+	public function Destructor()
+	{
+		delete video;
+	}
+}

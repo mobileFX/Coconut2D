@@ -47,6 +47,7 @@ class CocoAction : Function
 class Global
 {
 	public function __Audio_load(url:String, obj:Audio) :Integer {}
+	public function __Video_load(url:String, obj:HTMLVideoElement) :Integer {}
 	public function __Facebook_Initialize(AppID:String, ImageSize:Integer) {}
 	public function __Facebook_Login(Permissions:String, ImageSize:Integer) {}
 	public function __Facebook_Share(URL:String) {}
@@ -79,6 +80,11 @@ class Global
 	public var __Audio_play;
 	public var __Audio_pause;
 	public var __Audio_stop;
+	public var __Video_get_position :Float;
+	public var __Video_set_position;
+	public var __Video_play;
+	public var __Video_pause;
+	public var __Video_stop;
 	public var __Canvas2DRenderingContext_flush;
 	public var __WebGLRenderingContext_activeTexture;
 	public var __WebGLRenderingContext_attachShader;
@@ -371,6 +377,7 @@ class Global
 	public var HTMLDivElement :HTMLDivElement;
 	public var HTMLAnchorElement :HTMLAnchorElement;
 	public var Image :Image;
+	public var HTMLVideoElement :HTMLVideoElement;
 	public var HTMLWindow :HTMLWindow;
 	public var HTMLLocation :HTMLLocation;
 	public var HTMLScreen :HTMLScreen;
@@ -437,6 +444,7 @@ class Global
 	public var CocoTextStyle :CocoTextStyle;
 	public var CocoText :CocoText;
 	public var CocoTextBlock :CocoTextBlock;
+	public var CocoVideo :CocoVideo;
 	public var COCO_SCREEN_ORIENTATION :COCO_SCREEN_ORIENTATION;
 	public var COCO_DEVICE :COCO_DEVICE;
 	public var CocoDevice :CocoDevice;
@@ -2859,6 +2867,32 @@ class Image : HTMLElement
 	public  var __className :String;
 } //Image
 
+class HTMLVideoElement : HTMLElement
+{
+	private function resize() {}
+	public function play() {}
+	public function pause() {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __imageData :ImageData;
+	private  var __uid :Integer;
+	private  var __currentTime :Time;
+	private  var __width :Float;
+	private  var __height :Float;
+	public  var duration :Float;
+	public  var paused :Boolean;
+	public  var ended :Boolean;
+	public  var autoplay :Boolean;
+	public  var loop :Boolean;
+	private  var __src :String;
+	public  var src :String;
+	public  var width :Float;
+	public  var height :Float;
+	public  var currentTime :Float;
+	public  var readyState :Integer;
+	public  var __className :String;
+} //HTMLVideoElement
+
 class HTMLWindow
 {
 	public function addEventListener(eventType:String, listener:Function, useCapture:Boolean) {}
@@ -3084,10 +3118,13 @@ class WebGLRenderingContext
 	public function stencilMaskSeparate(face:Integer, mask:Integer) {}
 	public function stencilOp(fail:Integer, zfail:Integer, zpass:Integer) {}
 	public function stencilOpSeparate(face:Integer, fail:Integer, zfail:Integer, zpass:Integer) {}
-	public function texImage2D(target:Integer, level:Integer, internalformat:Integer, format:Integer, type:Integer, image:Image) {}
+	public function texImage2D(target:Integer, level:Integer, internalformat:Integer, width:Integer, height:Integer, border:Integer, format:Integer, type:Integer, pixels:ArrayBufferView) {}
+	public function texImage2D$1(target:Integer, level:Integer, internalformat:Integer, format:Integer, type:Integer, image:Image) {}
+	public function texImage2D$2(target:Integer, level:Integer, internalformat:Integer, format:Integer, type:Integer, video:HTMLVideoElement) {}
 	public function texParameterf(target:Integer, pname:Integer, param:Float) {}
 	public function texParameteri(target:Integer, pname:Integer, param:Integer) {}
 	public function texSubImage2D(target:Integer, level:Integer, xoffset:Integer, yoffset:Integer, width:Integer, height:Integer, format:Integer, type:Integer, pixels:Float32Array) {}
+	public function texSubImage2D$1(target:Integer, level:Integer, xoffset:Integer, yoffset:Integer, format:Integer, type:Integer, video:HTMLVideoElement) {}
 	public function uniform1f(location:WebGLUniformLocation, x:Float) {}
 	public function uniform1fv(location:WebGLUniformLocation, v:Float32Array) {}
 	public function uniform1i(location:WebGLUniformLocation, x:Integer) {}
@@ -3825,6 +3862,7 @@ class ICocoRenderContext
 	public function ready() :Boolean {}
 	public function prepare(viewScale:Float) {}
 	public function prepareClip(clip:CocoClip) {}
+	public function prepareVideoFrame(img:CocoImage, video:HTMLVideoElement) :CocoImage {}
 	public function prepareImage(img:CocoImage) :ICocoImageRenderData {}
 	public function drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer) {}
 	public function drawMaskBegin() {}
@@ -3861,6 +3899,7 @@ class CocoRenderContext2D
 	public function clip(x:Float, y:Float, w:Float, h:Float) {}
 	public function flush() {}
 	public function prepare(viewScale:Float) {}
+	public function prepareVideoFrame(image:CocoImage, video:HTMLVideoElement) :CocoImage {}
 	public function prepareImage(img:CocoImage) :ICocoImageRenderData {}
 	public function prepareClip(clip:CocoClip) {}
 	public function apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix) {}
@@ -3899,6 +3938,7 @@ class CocoRenderContextCSS3
 	private function prepareContainer() {}
 	public function prepareImage(img:CocoImage) :ICocoImageRenderData {}
 	public function prepareClip(clip:CocoClip) {}
+	public function prepareVideoFrame(img:CocoImage, video:HTMLVideoElement) :CocoImage {}
 	public function apply(clip:CocoClip, keyFrame:CocoKeyFrame, matrix:CocoMatrix) {}
 	private function hideClipChildren(clip:CocoClip) :Boolean {}
 	public function drawFrame(scene:CocoScene, clip:CocoClip, image:CocoImage, keyFrame:CocoKeyFrame, textureIndex:Integer) {}
@@ -3932,6 +3972,7 @@ class CocoRenderContextGL
 	public function clip(x:Float, y:Float, w:Float, h:Float) {}
 	public function flush() {}
 	public function prepare(viewScale:Float) {}
+	public function prepareVideoFrame(image:CocoImage, video:HTMLVideoElement) :CocoImage {}
 	public function prepareImage(img:CocoImage) :ICocoImageRenderData {}
 	public function prepareClip(clip:CocoClip) {}
 	private function update(m:CocoMatrix, ul:WebGLUniformLocation) {}
@@ -4308,6 +4349,16 @@ class CocoTextBlock
 	public  var fontShadowColorSel :Color;
 	public  var __className :String;
 } //CocoTextBlock
+
+class CocoVideo : CocoClip
+{
+	public function tick(time:Time) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(url:String) {}
+	private  var video :HTMLVideoElement;
+	public  var __className :String;
+} //CocoVideo
 
 class COCO_SCREEN_ORIENTATION
 {

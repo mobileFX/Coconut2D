@@ -45,12 +45,12 @@ export class HTTPServer
 	public function handle(req:NodeJS_Request, res:NodeJS_Response)
 	{
 		if(req.url=="/")
-			req.url = "default.asp";
+			req.url = "default.njsp";
 
 		console.log("Request URL: " + req.url);
 
 		var ext:String = req.url.substr(req.url.lastIndexOf(".")).toLowerCase();
-		if(ext==".asp")
+		if(ext==".njsp")
 		{
 			var server:ASPServer = new ASP.ASPServer();
 			server.run(req, res);

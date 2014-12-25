@@ -174,6 +174,9 @@ function Compiler(ast)
 
 	var _this = this;
 
+	_this.TARGET = makefile.Vars.TARGET;
+	_this.TARGET_EXPORT = "export_" + makefile.Config.TARGETS[makefile.Vars.TARGET].TARGET_EXPORT;
+
 	_this.ast = ast;                        			// The Abstract Syntax Tree root node (jsdef.SCRIPT)
 	_this.classes = {};                     			// Map of class symbols
 	_this.currClassName = null;             			// The current class being processed (also indicates whether a JS++ class is being processed or just plain JavaScript code)
@@ -479,9 +482,6 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.write_javascript = function()
 	{
-		var platform = makefile.Config.TARGETS[makefile.Vars.TARGET].TARGET_EXPORT;
-		platform = (platform=="all" ? null : "export_" + platform);
-
 		for(var file in _this.FILES)
 		{
 			if(file=="externs.jspp") continue;
@@ -489,7 +489,7 @@ function Compiler(ast)
 			if(FILE.buff.length==0) continue;
 
 			// Check if this file can be exported
-			if(platform && !FILE.list[0].__VARIABLES[platform]) continue;
+			if(_this.TARGET_EXPORT!="export_all" && !FILE.list[0].__VARIABLES[_this.TARGET_EXPORT]) continue;
 
 			// Collect additional file headers
 			var file_headers = [];
@@ -4624,8 +4624,8 @@ function Compiler(ast)
 							var maching_args = true;
 							for(var j=0;j<astCALL[1].length;j++)
 							{
-								var type1 = _this.getTypeName(astCALL[1][j]);
-								var type2 = ast.symbol.overloads[i].paramsList[j].vartype;
+								var type1 = ast.symbol.overloads[i].paramsList[j].vartype;
+								var type2 = _this.getTypeName(astCALL[1][j]);
 								if(!_this.typeCheck(ast, type1, type2, null, true))
 								{
 									maching_args=false;
@@ -4665,12 +4665,12 @@ function Compiler(ast)
 					}
 					else
 					{
-						// The identifier symbol does not export for web, therefore it is a native symbol and we should not use $<index> overload accees.
-						if(!ast.symbol.ast.__VARIABLES.export_web && ast.value.indexOf("$")!=-1)
+						// We need to check if the overloaded identifier symbol exports for web.
+						if(_this.TARGET_EXPORT!="export_all" && !ast.symbol.ast.__VARIABLES[_this.TARGET_EXPORT] && ast.value.indexOf("$")!=-1)
 						{
 							ast.value = ast.symbol.ast.name;
 							ast.symbol.runtime = ast.symbol.runtime.substr(0, ast.symbol.runtime.indexOf("$"))
-							//trace("Overload Fix: " + ast.symbol.runtime);
+							trace("overload fix: " + ast.symbol.runtime);
 						}
 					}
 				}
