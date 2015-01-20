@@ -150,6 +150,11 @@
 	TODO LIST:
 	==========
 
+	- SOS: Move collections and lists (eg. bases) from class symbols to ast.
+		   ClassSymbols and generally symbols are re-generated during second pass (and third pass for overloads)
+		   and therefore it is possible to lose information gathered during first pass. On the contrary, keeping
+		   stuff on ast is safer because ast is not altered during passes.
+
 	- SOS: Lamda Functions.
 	- SOS: Multi-dimensional Arrays.
 	- SOS: State exit must deallocate local state variables.
@@ -200,7 +205,7 @@ function Compiler(ast)
 	_this.UNTYPED = "Untyped";              			// Untyped identifier vartype, used in Type Check System
 	_this.eventId = 0;									// Counter for UID of events
 	_this.derivatives = {};								// Classes with derivatives (base classes)
-	_this.__contains_counter=0;
+	_this.__contains_counter=0;							// Used by contains() function
 	_this.currNamespace = null;							// Hold current namespace being processed
 
 	// Include priority (1: needed in .cpp, 2: needed in .hpp)
@@ -208,7 +213,8 @@ function Compiler(ast)
 	_this.INCLUDE_IN_HPP = 2;
 
 	_this.DELETE_BASE = "__BASE__ && ((__BASE__.hasOwnProperty('Destructor') && __BASE__.Destructor()) || !__BASE__.hasOwnProperty('Destructor')) && (delete __BASE__);";
-	_this.IDENTIFIER = /^[a-z_][\w$]*(?:\<\w+\>)?$/i;
+	_this.IDENTIFIER = /^([a-z_][\w$]*)(?:\<\w+\>)?$/i;
+	_this.QUALIFIED_NAME = /^([a-z_][\w$]*\.)([a-z_][\w$]*)(?:\<\w+\>)?$/i;
 	_this.SEPARATOR = "\n\n///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n\n";
 	_this.ADD_EVENT = "addEventListener";
 	_this.REMOVE_EVENT = "removeEventListener";
@@ -254,12 +260,15 @@ function Compiler(ast)
 		this.extern = false;
 		this.file = "";
 		this.icon = 0;
+		this.includes = [];
+		this.inNameSpace = null;
 		this.interface = false;
 		this.interfaces = [];
 		this.line_end = 0;
 		this.line_start = 0;
 		this.methods = null;
 		this.name = "";
+		this.namespace = false;
 		this.nodeType = "";
 		this.path = "";
 		this.runtime = "";
@@ -294,6 +303,7 @@ function Compiler(ast)
 		this.extern = false;
 		this.file = "";
 		this.icon = 0;
+		this.inNameSpace = null;
 		this.line_end = 0;
 		this.line_start = 0;
 		this.modifier = "";
@@ -376,6 +386,7 @@ function Compiler(ast)
 		this.extern = false;
 		this.file = "";
 		this.icon = 0;
+		this.inNameSpace = null;
 		this.line_end = 0;
 		this.line_start = 0;
 		this.modifier = "";
@@ -394,44 +405,6 @@ function Compiler(ast)
 		this.scopeId = 0;
 		this.start = 0;
 		this.static = null;
-		this.subtype = null;
-		this.symbolId = 0;
-		this.type = 0;
-		this.value = "";
-		this.vartype = "";
-		this.virtual = false;
-	};
-
-	var StateSymbol = _this.StateSymbol = function()
-	{
-		this.abstract = false;
-		this.ast = null;
-		this.baseSymbol = null;
-		this.classId = "";
-		this.constant = false;
-		this.description = "";
-		this.end = 0;
-		this.extern = false;
-		this.file = "";
-		this.icon = 0;
-		this.line_end = 0;
-		this.line_start = 0;
-		this.modifier = "";
-		this.name = "";
-		this.nextStates = null;
-		this.nodeType = "";
-		this.optional = false;
-		this.path = "";
-		this.pointer = false;
-		this.private = false;
-		this.protected = false;
-		this.public = false;
-		this.runtime = "";
-		this.scope = null;
-		this.scopeId = 0;
-		this.start = 0;
-		this.state = false;
-		this.static = false;
 		this.subtype = null;
 		this.symbolId = 0;
 		this.type = 0;
@@ -467,15 +440,18 @@ function Compiler(ast)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.addCodeToClassFile = function(ast, code)
+	_this.addCodeToClassFile = function(ast, code, exports)
 	{
 		if(_this.secondPass)
 		{
 			if(!_this.FILES[ast.path])
-				_this.FILES[ast.path]= { list:[], buff:[] };
+				_this.FILES[ast.path]= { list:[], buff:[], exports:[] };
 
-			_this.FILES[ast.path].list.push(ast);
-			_this.FILES[ast.path].buff.push(code);
+			if(_this.FILES[ast.path].list.indexOf(ast)==-1)
+				_this.FILES[ast.path].list.push(ast);
+
+			if(code) _this.FILES[ast.path].buff.push(code);
+			if(exports) _this.FILES[ast.path].exports.push(exports);
 		}
 	};
 
@@ -500,17 +476,27 @@ function Compiler(ast)
 				var ast = FILE.list[i];
 				if(ast.type==jsdef.CLASS)
 				{
-					var cls = ast.symbol;
-					for(module_name in cls.imports)
+					for(module_name in ast.imports)
 					{
-						var module_path = cls.imports[module_name].file.replace(".jspp", ".jobj");
-						file_headers.push("var " + module_name + " = require('./" + module_path + "');" );
+						var module_path = ast.imports[module_name].file.replace(".jspp", ".jobj");
+						var rq = "var " + module_name + " = require(\"./" + module_path + "\");";
+						if(file_headers.indexOf(rq)==-1)
+							file_headers.push(rq);
 					}
 				}
 			}
 
+			var buff = file_headers.join("\n") +
+					  "\n\n" +
+					  FILE.buff.join("\n");
+
+			if(FILE.list[0].__VARIABLES[_this.TARGET_EXPORT])
+			{
+				buff += "\n\n" + FILE.exports.join("\n");
+			}
+
 			// Generate and beutify code
-			var buff = do_js_beautify(file_headers.join("\n") + "\n\n" + FILE.buff.join("\n"), 1, false, false, true);
+			buff = do_js_beautify(buff, 1, false, false, true);
 			buff = RxReplace(buff, "//@line \\d+[\\s\\t\\n\\r]+//@line (\\d+)", "mg", "//@line $1"); 	// Empty Lines
 			buff = RxReplace(buff, "__PDEFINE__\\(([\\w\\W\\n\\N]+?)\\);", "mg", "__PDEFINE__($1);", true);
 			buff = RxReplace(buff, "(__PDEFINE__|__PROTECTED__|__PRIVATE__) \=[\\s\\t\\n\\r]+\{[\\s\\t\\n\\r]+\}", "mg", "$1 = {}");
@@ -570,6 +556,8 @@ function Compiler(ast)
 			_this.write_javascript();
 		}
 
+		//_this.symbolize();
+
 		// Generate C++ code
 		if(genrate_native)
 		{
@@ -612,6 +600,7 @@ function Compiler(ast)
 			{
 			case jsdef.CLASS:
 				currClass = node;
+				node.qualified_name = (node.__MODULE ? node.__MODULE + "." : "") + node.name;
 				break;
 
 			case jsdef.STATE:
@@ -639,7 +628,20 @@ function Compiler(ast)
 				currDot.push(node);
 				break;
 
+			case jsdef.NEW:
+			case jsdef.NEW_WITH_ARGS:
+
+				// Check if NEW has MODULE.CLASS and collapse DOT to identifier
+				if(node[0].type==jsdef.DOT && node[0].length==2)
+				{
+					node[0][1].value = node[0][0].value + "." + node[0][1].value;
+					node[0] = node[0][1];
+				}
+				break;
+
 			case jsdef.DOT:
+
+
 				// Pre-process DOT for speed.
 				currDot.push(node);
 
@@ -732,6 +734,7 @@ function Compiler(ast)
 					case "type":
 					case "vartype":
 					case "virtual":
+					case "vartype_module":
 
 						break;
 
@@ -1082,6 +1085,33 @@ function Compiler(ast)
 	/*@@ LookupIdentifier @@*/
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.LookupModuleClass = function(identifier, ast)
+	{
+		// Identifier is in qualified form <module>.<class>
+		// We return the class symbol and we record module usage
+		// for node.js require() statement generation
+
+		if(!identifier || !ast) return null;
+
+		// No qualified name
+		if(identifier.indexOf(".")==-1)
+			return _this.getClass(identifier);
+
+		// Get class from qualified name
+		var v = identifier.split(".");
+		var symbol = _this.getClass(v[1]);
+
+		// If class belongs to a module then add the module in the imports
+		if(symbol && symbol.ast.__MODULE)
+		{
+			var node = ast.inClass ? ast.inClass : ast;
+			if(!node.imports) node.imports = {};
+			node.imports[symbol.ast.__MODULE] = symbol;
+		}
+		return symbol;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.LookupIdentifier = function(scope, identifier, ast, noWarning)
 	{
 		if(!identifier || !scope || !ast) return;
@@ -1093,17 +1123,16 @@ function Compiler(ast)
 			break;
 
 		case jsdef.DOT:
-			var symbol = _this.LookupLastDotIdentifier(ast, scope);
-			if(symbol && symbol.ast.__MODULE)
-			{
-				var cls = ast.inClass.symbol;
-				cls.imports = cls.imports || {};
-				cls.imports[symbol.ast.__MODULE] = symbol;
-			}
-			return symbol;
+			debugger;
 
 		default:
 			return null;
+		}
+
+		// Identifier is in qualified form <module>.<class>
+		if(_this.QUALIFIED_NAME.test(identifier))
+		{
+			return _this.LookupModuleClass(identifier, ast);
 		}
 
 		if(!_this.IDENTIFIER.test(identifier))
@@ -1279,6 +1308,12 @@ function Compiler(ast)
 		if(vartype=="@@SUPER@@") return _this.getCurrentClass().baseSymbol;
 		vartype = _this.getVarType(vartype);
 		var cls = (vartype && _this.classes.hasOwnProperty(vartype) ? _this.classes[vartype] : null);
+		if(!cls)
+		{
+			var v = vartype.split(".");
+			if(v.length==2)
+				return _this.getClass(v[1]);
+		}
 		return cls;
 	};
 
@@ -1498,8 +1533,24 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.evalCondition = function(expr)
 	{
-		expr = expr.replace(/TARGET/, "makefile.Vars.TARGET");
-		var v = eval(expr);
+		var v = false;
+		try
+		{
+			if(expr.indexOf("=")==-1)
+			{
+				v = makefile.Vars[expr];
+			}
+			else
+			{
+				expr = expr.replace(/TARGET/, "makefile.Vars.TARGET");
+				v = eval(expr);
+			}
+		}
+		catch(e)
+		{
+			v = false;
+		}
+
 		return v;
 	};
 
@@ -1546,6 +1597,14 @@ function Compiler(ast)
 			_this.line_start != -1 && out.push("\n");
 			out.push("\/\/@line " + ast.line_start + "\n");
 			_this.line_start = ast.line_start;
+		}
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// Node.js Export
+		/////////////////////////////////////////////////////////////////////////////////
+		if(ast.export)
+		{
+			_this.addCodeToClassFile(ast, null, "module.exports." + ast.name + " = " + ast.name + ";");
 		}
 
 		switch(ast.type)
@@ -1823,7 +1882,7 @@ function Compiler(ast)
 			var destructor = null;
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
 			var baseClass = ast.extends ? ast.extends : undefined;
-			var baseClassSymbol = _this.getClass(baseClass);
+			var baseClassSymbol = _this.LookupModuleClass(baseClass, ast);
 			var baseClassId = baseClassSymbol ? baseClassSymbol.ast.symbol.classId : null;
 			var baseConstructor = baseClassSymbol ? baseClassSymbol.methods["Constructor"] : null;
 			var isGlobalClass = (ast.name=="Global");
@@ -2385,15 +2444,6 @@ function Compiler(ast)
 			for(item in staticMembers)
 			{
 				out.push( staticMembers[item] );
-			}
-
-
-			/////////////////////////////////////////////////////////////////////////////////
-			// Node.js Export
-			/////////////////////////////////////////////////////////////////////////////////
-			if(ast.export)
-			{
-				out.push("\n\n//Export node.js class\nmodule.exports." + ast.name + " = " + ast.name + ";");
 			}
 
 			/////////////////////////////////////////////////////////////////////////////////
@@ -3419,7 +3469,7 @@ function Compiler(ast)
 
 				if(!_this.secondPass)
 			 	{
-					if(classScope && __exists(classScope.vars, ast[item].name) && !_this.isInside(ast[item], jsdef.BLOCK))
+					if(classScope && __exists(classScope.vars, ast[item].name) && !ast[0].inFunction && !_this.isInside(ast[item], jsdef.BLOCK))
 					{
 						_this.NewWarning("Found declaration of variable " + ast[item].name + " in class scope", ast[item]);
 					}
@@ -4670,7 +4720,7 @@ function Compiler(ast)
 						{
 							ast.value = ast.symbol.ast.name;
 							ast.symbol.runtime = ast.symbol.runtime.substr(0, ast.symbol.runtime.indexOf("$"))
-							trace("overload fix: " + ast.symbol.runtime);
+							//trace("overload fix: " + ast.symbol.runtime);
 						}
 					}
 				}
@@ -4984,8 +5034,9 @@ function Compiler(ast)
 			}
 
 			var call1 = generate(ast[1]);
-			var cls = _this.getClass(call0);
+
 			if(!_this.secondPass) break;
+
 			var call = _this.getCallIdentifier(ast);
 
 			// EVENT HACK: for Coconut2D events append execution context __THIS__ to arguments.
@@ -5009,6 +5060,7 @@ function Compiler(ast)
 			// Detect callbacks from variables or maybe we should call everything with ".call(scope"
 			var callbackCall = _this.secondPass && ast[0].symbol && ast[0].symbol instanceof VarSymbol && ast[0].symbol.file != "externs.jspp";
 
+			var cls = _this.getClass(call0);
 			if(_this.secondPass && cls)
 			{
 				// Typcast
@@ -5332,6 +5384,7 @@ function Compiler(ast)
 		case jsdef.NEW:
 
 			var gen = generate(ast[0]);
+			_this.LookupModuleClass(gen, ast);
 
 			if(ast[0].symbol && ast[0].symbol.struct)
 			{
@@ -5352,6 +5405,8 @@ function Compiler(ast)
 
 			var gen0 = generate(ast[0]);
 			var gen1 = generate(ast[1]);
+
+			_this.LookupModuleClass(gen, ast);
 
 			if(ast[0].symbol && ast[0].symbol.struct)
 			{
@@ -5413,6 +5468,14 @@ function Compiler(ast)
 			if(_this.secondPass && _this.currClassName) _this.NewError("Illegal inside class", ast);
 			out.push("void ");
 			out.push(generate(ast[0]));
+			break;
+
+		case jsdef.BLOCK_JAVASCRIPT:
+			out.push(ast.code);
+			break;
+
+		case jsdef.REGEXP:
+			_this.NewError("Invalid JavaScript Reqular Expressio, use __javascript { }__end closure or RegEx object.", ast);
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

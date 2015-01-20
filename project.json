@@ -4,7 +4,7 @@
 	"PROJECT_PACKAGE": "com.mobilefx.Coconut2D",
 	"PROJECT_VERSION": "1.0.0",
 	"PROJECT_VERSION_SHORT": "1.0",
-	"PROJECT_FRAMEWORKS": "org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui",
+	"PROJECT_FRAMEWORKS": "org.coconut2d.sdk.common;org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui;org.coconut2d.sdk.server",
 	"CONFIGURATION": "Debug",
 	"DEBUG_HOST_IP": "$(LOCALHOST_IP)",
 	"DEBUG_HOST_PORT": "9999",
@@ -51,9 +51,9 @@
 	},
 	"DEVICE_VIEWPORT":
 	{
-		"VIEW_WIDTH": "0",
-		"VIEW_HEIGHT": "0",
-		"VIEW_PIXEL_RATIO": "0"
+		"VIEW_WIDTH": "480",
+		"VIEW_HEIGHT": "320",
+		"VIEW_PIXEL_RATIO": "1"
 	},
 	"TARGETS":
 	{
@@ -76,7 +76,8 @@
 				"CLASS": "JAVASCRIPT",
 				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
 				"TEMPLATES": null,
-				"TEMPLATE_EXCLUDE_VARS": null
+				"TEMPLATE_EXCLUDE_VARS": null,
+				"BINPACK_IMAGES": true
 			},
 			"DEVICES":
 			{
@@ -107,7 +108,8 @@
 				"CLASS": "JAVASCRIPT",
 				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
 				"TEMPLATES": "*.html;*.css",
-				"TEMPLATE_EXCLUDE_VARS": null
+				"TEMPLATE_EXCLUDE_VARS": null,
+				"BINPACK_IMAGES": true
 			},
 			"DEVICES":
 			{
@@ -117,11 +119,71 @@
 					"Debug": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> --app=<file:///$(TARGET_OUTPUT)> --flag-switches-begin --window-size=<$(WINDOW_WIDTH),$(WINDOW_HEIGHT)> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
 					"Release": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> --app=<file:///$(TARGET_OUTPUT)> --flag-switches-begin -window-size=<$(WINDOW_WIDTH),$(WINDOW_HEIGHT)> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
 				},
+				"Chrome (Canvas)":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> --app=<file:///$(TARGET_OUTPUT)?ctx=2d> --flag-switches-begin --window-size=<$(WINDOW_WIDTH),$(WINDOW_HEIGHT)> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
+					"Release": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> --app=<file:///$(TARGET_OUTPUT)?ctx=2d> --flag-switches-begin --window-size=<$(WINDOW_WIDTH),$(WINDOW_HEIGHT)> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
+				},
+				"Chrome (CSS3)":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> --app=<file:///$(TARGET_OUTPUT)?ctx=css3> --flag-switches-begin --window-size=<$(WINDOW_WIDTH),$(WINDOW_HEIGHT)> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
+					"Release": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> --app=<file:///$(TARGET_OUTPUT)?ctx=css3> --flag-switches-begin --window-size=<$(WINDOW_WIDTH),$(WINDOW_HEIGHT)> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
+				},
 				"FireFox":
 				{
 					"Debugger": null,
 					"Debug": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -jsconsole -url <file:///$(TARGET_OUTPUT)>",
 					"Release": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -url <file:///$(TARGET_OUTPUT)>"
+				},
+				"FireFox (Canvas)":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -jsconsole -url <file:///$(TARGET_OUTPUT)?ctx=2d>",
+					"Release": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -url <file:///$(TARGET_OUTPUT)?ctx=2d>"
+				},
+				"FireFox (CSS3)":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -jsconsole -url <file:///$(TARGET_OUTPUT)?ctx=css3>",
+					"Release": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -url <file:///$(TARGET_OUTPUT)?ctx=css3>"
+				},
+				"Internet Explorer":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <file:///$(TARGET_OUTPUT)>",
+					"Release": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <file:///$(TARGET_OUTPUT)>"
+				},
+				"Internet Explorer (Canvas)":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <file:///$(TARGET_OUTPUT)?ctx=2d>",
+					"Release": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <file:///$(TARGET_OUTPUT)?ctx=2d>"
+				},
+				"Internet Explorer (CSS3)":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <file:///$(TARGET_OUTPUT)?ctx=css3>",
+					"Release": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <file:///$(TARGET_OUTPUT)?ctx=css3>"
+				},
+				"Safari":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -jsconsole -url <file:///$(TARGET_OUTPUT)>",
+					"Release": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -url <file:///$(TARGET_OUTPUT)>"
+				},
+				"Safari (Canvas)":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -jsconsole -url <file:///$(TARGET_OUTPUT)?ctx=2d>",
+					"Release": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -url <file:///$(TARGET_OUTPUT)?ctx=2d>"
+				},
+				"Safari (CSS3)":
+				{
+					"Debugger": null,
+					"Debug": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -jsconsole -url <file:///$(TARGET_OUTPUT)?ctx=css3>",
+					"Release": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -url <file:///$(TARGET_OUTPUT)?ctx=css3>"
 				}
 			},
 			"APP_SETTINGS":
@@ -159,7 +221,8 @@
 				"CLASS": "ANDROID",
 				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
 				"TEMPLATES": "*.xml;*.properties;*.java;*.cpp",
-				"TEMPLATE_EXCLUDE_VARS": "FONTS_LIST"
+				"TEMPLATE_EXCLUDE_VARS": "FONTS_LIST;APP_ICONS",
+				"BINPACK_IMAGES": true
 			},
 			"DEVICES":
 			{
@@ -217,7 +280,8 @@
 				"CLASS": "IOS",
 				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
 				"TEMPLATES": "*.m;*.plist",
-				"TEMPLATE_EXCLUDE_VARS": "APP_ICONS;FONTS_LIST;IOSBUILDENV_PATH;PAYLOAD;NAME;CPUSET;IOSMINVER;SRC;OBJDIR;OBJ;OUTDIR;BIN;RES;CFLAGS;LDFLAGS;OBJ_OBJ;PROVISION;CERTIFICATES;PRIVATE_KEY;PASSPHRASE"
+				"TEMPLATE_EXCLUDE_VARS": "IOSBUILDENV_PATH;PAYLOAD;NAME;CPUSET;IOSMINVER;SRC;OBJDIR;OBJ;OUTDIR;BIN;RES;CFLAGS;LDFLAGS;OBJ_OBJ;PROVISION;CERTIFICATES;PRIVATE_KEY;PASSPHRASE;FONTS_LIST;APP_ICONS",
+				"BINPACK_IMAGES": true
 			},
 			"DEVICES":
 			{
@@ -290,7 +354,8 @@
 				"CLASS": "WIN32",
 				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
 				"TEMPLATES": "resource.h;debugger-config.gdb;*.cpp",
-				"TEMPLATE_EXCLUDE_VARS": "FONTS_LIST;SRC;BIN;OUT;OBJS;CC;LDFLAGS;CFLAGS;RC;OBJ;OBJ_OBJ;LDLIBS"
+				"TEMPLATE_EXCLUDE_VARS": "SRC;BIN;OUT;OBJS;CC;LDFLAGS;CFLAGS;RC;OBJ;OBJ_OBJ;LDLIBS;FONTS_LIST",
+				"BINPACK_IMAGES": true
 			},
 			"DEVICES":
 			{
@@ -316,13 +381,11 @@
 		},
 		"node.js":
 		{
-			"TARGET_INPUT_SOURCES": "$(PROJECT_ROOT)/.server/src",
-			"TARGET_INPUT_ASSETS": "$(PROJECT_ROOT)/.server/assets",
-			"TARGET_ROOT": "$(PROJECT_ROOT)/.server/node.js",
-			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
-			"TARGET_ASSETS": "$(TARGET_ROOT)",
+			"TARGET_INPUT_SOURCES": "$(PROJECT_ROOT)/.server",
+			"TARGET_ROOT": "$(PROJECT_ROOT)/.server",
 			"TARGET_OUTPUT": "$(TARGET_ROOT)/main.js",
-			"TARGET_CLEAN": "$(TARGET_ROOT)/obj",
+			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
+			"TARGET_CLEAN": "$(TARGET_OBJ)",
 			"TARGET_EXPORT": "nodejs",
 			"TARGET_ADDITIONAL_FRAMEWORKS": null,
 			"TARGET_ADDITIONAL_NATIVE_SOURCES": null,
@@ -333,7 +396,7 @@
 			{
 				"CLASS": "JAVASCRIPT",
 				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
-				"TEMPLATES": "*.html;*.css;*.cmd",
+				"TEMPLATES": "",
 				"TEMPLATE_EXCLUDE_VARS": null
 			},
 			"DEVICES":
@@ -341,8 +404,26 @@
 				"Chrome":
 				{
 					"Debugger": "Debugger_NodeJS",
-					"Debug": "<$(TARGET_ROOT)/run.cmd>> <$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)>",
-					"Release": "<$(TARGET_ROOT)/run.cmd> <$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)>"
+					"Debug": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> <http://localhost> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
+					"Release": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> <http://localhost> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
+				},
+				"FireFox":
+				{
+					"Debugger": "Debugger_NodeJS",
+					"Debug": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -jsconsole -url <http://localhost>",
+					"Release": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -url <http://localhost>"
+				},
+				"Internet Explorer":
+				{
+					"Debugger": "Debugger_NodeJS",
+					"Debug": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <http://localhost>",
+					"Release": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <http://localhost>"
+				},
+				"Safari":
+				{
+					"Debugger": "Debugger_NodeJS",
+					"Debug": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -jsconsole -url <http://localhost>",
+					"Release": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -url <http://localhost>"
 				}
 			},
 			"APP_ICONS":

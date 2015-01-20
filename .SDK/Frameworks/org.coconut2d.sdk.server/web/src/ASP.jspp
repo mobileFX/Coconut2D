@@ -1,0 +1,185 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.yourcompany.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_nodejs
+#pragma json
+#module ASP
+
+var fs:NodeJS_FS = require('fs');
+var vm:NodeJS_VM = require('vm');
+var path:NodeJS_Path = require('path');
+
+export class ASPProcessor
+{
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function run(Request:NodeJS_Request, Response:NodeJS_Response)
+	{
+		try
+		{
+			var aspFile:String = Request.url;
+			var compiledFile:String = path.resolve(aspFile).replace(".asp", "_compiled.js");
+
+			if(fs.existsSync(aspFile))
+			{
+				// Read ASP Page
+				var aspCode:String = fs.readFileSync(aspFile, "utf8");
+
+				// Compile ASP Page
+				var jsCode:String = compile(aspCode);
+
+				// Save compiled ASP Page
+				fs.writeFileSync(compiledFile, jsCode);
+
+				// Execute compiled ASP code
+				var f:Function = new Function('Request', 'Response', jsCode);
+				Response.writeHead(200, {"Content-Type":"text/html"});
+				f(Request,Response);
+			}
+			else
+			{
+				// ASP File Not Found
+			}
+		}
+		catch(e)
+		{
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function compile(buff:String):String
+	{
+	    if(buff=="") return "";
+
+		var code:Array<String>;
+	    var s:String;
+	    var p:Integer;
+	    var HTML:String;
+
+	    var rx:RegEx = new RX.RegEx("(?:\\x3c\\x25([\\W\\w\\n\\r\\t\\s.]*?)\\x25\\x3e)|(?:\\x3c\\x21\\x2d\\x2d\\s*\\x23include\\s+(?:virtual|file)\\s*\\x3d\\s*[\\x27\\x22]*(.*?)[\\x27\\x22]*\\s*\\x2d\\x2d\\x3e)|(?:\\x3cscript\\s+.*?runat\\s*\\x3d\\s*[\\x27\\x22]*server[\\x27\\x22]*.*?\\x3e([\\W\\w\\n\\r\\t\\s.]*?)\\x3c\\x2fscript\\s*.*?\\x3e)", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL);
+	    var ms:MatchCollection = rx.parse(buff);
+
+	    if(ms.size()==0)
+	    	return HTML2Script(buff);
+
+	    var pos:Integer = 0;
+	    for(var i:Integer=0; i<ms.size(); i++)
+	    {
+	    	var m:Match = ms[i];
+
+            // Get the HTML before the script
+            HTML = "";
+            if(m.index > pos)
+            {
+                HTML = buff.substr(pos, m.index - pos);
+                code.push(HTML2Script(HTML));
+            }
+
+	         //<!--#include-->
+	        if(m.value.indexOf("#include")!=-1)
+	        {
+	            //TODO: parse include file
+	            continue;
+	        }
+
+	        //<script runatserver>
+	        s = m.subMatches(2).trim();
+	        if(s!="")
+	        {
+	            code.push(s);
+	            pos = m.index + m.length;
+	            continue;
+	        }
+
+	        //<%=foo()%>
+	        if(rx.test(m.value, "^\\x3c\\x25\\s*\\x3d", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL))
+	        {
+	            s = m.subMatches(0).trim();
+	            s = s.substr(s.indexOf("=")+1);
+                s = "Response.write(String(" + s + "));"
+	            code.push(s);
+	            pos = m.index + m.length;
+	            continue;
+	        }
+
+	        //<% ... %>
+	        s = m.subMatches(0).trim();
+	        code.push(s);
+	        pos = m.index + m.length;
+	    }
+
+	    return code.join("\n");
+	}
+
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function HTML2Script(HTML:String):String
+	{
+	    if(HTML == "") return "";
+
+		__javascript
+		{
+		    HTML = HTML.replace(/(\r\n)|\n/mg, "\r");
+		    HTML = HTML.replace(/\t/mg, " ");
+		}
+		__end
+
+	    if(HTML.trim()=="") return "";
+
+	    var v:Array<String> = HTML.split("\r");
+	    var script:Array<String> = new Array<String>;
+		var L:Integer = v.size();
+		var s:String;
+
+	    for(var i:Integer = 0; i<L; i++)
+	    {
+	        s = v[i].trim();
+	        if(s!="")
+	        {
+                __javascript
+                {
+	                s = s.replace(/\x5c/mg, "\\\\");
+	                s = s.replace(/\x22/mg,  '\\"');
+	                s = s.replace(/\t/mg, "    ");
+                }
+                __end
+                s = "Response.write(String(\"" + s + (i<L ? "\\n" : "") + "\"));"
+	            script.push(s);
+	        }
+	    }
+
+	    s = script.join("\n");
+	    delete script;
+	    return s;
+	}
+}

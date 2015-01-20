@@ -36,22 +36,44 @@ state class GameEngine : CocoEngine
 		function enter()
 		{
 			scene = new NewAnimation(this);
-			var video1:CocoVideo = new CocoVideo("./assets/videos/video.mp4");
-			video1.__timeline.clear();
-			video1.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 160, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
-			video1.__width = 320;
-			video1.__height = 480;
-			video1.__instanceName = "video1";
-			scene.__root.addChild(video1);
-			app = new CocoAppController("MyApp", scene);
+
+/*			app = new CocoAppController("MyApp", scene);
 			app.addForm(new ReservationsForm("frm_Reserverations", scene));
 			app.addForm(new ReservationsForm("frm_Reserverations", scene));
 			app.showForm(app.Forms[0], COCO_UIFORM_ANIMATION.SHOW_NORMAL);
+*/
+
+			var ds:CocoDataset = new CocoDataset();
+			if(ds.open("http://www.mobilefx.com/coconut2d/data.b64"))
+			{
+				trace(ds.toBase64());
+
+				if(ds.fieldCount>0)
+				{
+					var s:String="";
+					for(var i:Integer=0; i<ds.fieldCount; i++)
+					{
+						s += ds.field(i).NAME+" | ";
+					}
+					s += "\n";
+					ds.moveFirst();
+					while(!ds.EOF)
+					{
+						for(var i:Integer=0; i<ds.fieldCount; i++)
+						{
+							s += ds.field(i).value+" | ";
+						}
+						s += "\n";
+						ds.moveNext();
+					}
+
+					trace(s);
+				}
+			}
 		}
 
 		function exit()
 		{
-			delete scene;
 		}
 
 		function tick(time:Float)

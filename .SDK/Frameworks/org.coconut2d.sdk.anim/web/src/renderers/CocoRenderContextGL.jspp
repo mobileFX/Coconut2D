@@ -255,8 +255,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 			data.gl = gl;
 			var w2:Float = video.width / 2.0;
 			var h2:Float = video.height / 2.0;
-			var pw:Float = Math.pow(2, Math.ceil(Math.log(video.width)/Math.log(2)));
-			var ph:Float = Math.pow(2, Math.ceil(Math.log(video.height)/Math.log(2)));
+			var pw:Float = CocoGraphics.POT(video.width);
+			var ph:Float = CocoGraphics.POT(video.height);
 			var tw:Float = video.width / pw;
 			var th:Float = video.height / ph;
 			image.texSize = new Float32Array([0.0, 0.0, tw, th]);

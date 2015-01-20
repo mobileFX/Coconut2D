@@ -568,7 +568,7 @@ function CompilerTypeSystemPlugin(compiler)
 
 		if(ast.type==jsdef.NEW || ast.type==jsdef.NEW_WITH_ARGS)
 		{
-			fnSymbol = ast[0] && ast[0].symbol ? ast[0].symbol.methods['Constructor'] : null;
+			fnSymbol = ast[0] && ast[0].symbol && ast[0].symbol.methods ? ast[0].symbol.methods['Constructor'] : null;
 		}
 		else
 		{

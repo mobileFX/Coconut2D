@@ -284,6 +284,7 @@ public:
 		return std::string(1, c);
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
 	Array<String>* split(const String& str, size_t max = -1)
 	{
 		Array<String>* ret = new Array<String>();
@@ -468,6 +469,15 @@ typedef TypedArray<double> Float64Array;
 
 typedef TypedArray<unsigned char> Uint8ClampedArray;
 
+
+// ==================================================================================================================================
+//	    ____        __       _    ___
+//	   / __ \____ _/ /_____ | |  / (_)__ _      __
+//	  / / / / __ `/ __/ __ `/ | / / / _ \ | /| / /
+//	 / /_/ / /_/ / /_/ /_/ /| |/ / /  __/ |/ |/ /
+//	/_____/\__,_/\__/\__,_/ |___/_/\___/|__/|__/
+//
+// ==================================================================================================================================
 class DataView : ArrayBufferView
 {
 public:
@@ -532,12 +542,13 @@ public:
 class Audio;
 class CocoAssetFile;
 class CocoAudioStream;
+class CocoDeviceOpenGLContext;
 class CocoDeviceWrapper;
 class CocoEventConnectionPoint;
 class CocoEventSource;
 class CocoFont;
 class CocoFontsCache;
-class CocoJSON;
+class HTMLVideoElement;
 class HTMLWindow;
 class IEventListener;
 class ImageData;
@@ -550,31 +561,20 @@ class WebGLRenderingContext;
 class WebGLShader;
 class WebGLTexture;
 class WebGLUniformLocation;
-class XMLHttpRequest;
 struct CocoFontChar;
-struct GLEWContextStruct;
 struct GLany;
-struct __GLsync;
-struct _cl_context;
-struct _cl_event;
 struct fxScreen;
 //# Native Classes End #//
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
-class CocoAppController;
 class CocoAudio;
 class CocoClip;
-class CocoDataField;
 class CocoDataSource;
-class CocoDataStream;
-class CocoDataset;
 class CocoDevice;
 class CocoEngine;
 class CocoEvent;
-class CocoFacebook;
 class CocoGraphics;
-class CocoHttpRequest;
 class CocoImage;
 class CocoImageRenderData2D;
 class CocoImageRenderDataGL;
@@ -603,19 +603,8 @@ class CocoTextStyle;
 class CocoTickable;
 class CocoTimeLabel;
 class CocoTimeline;
-class CocoUIButton;
-class CocoUICheckBox;
-class CocoUIComboBox;
-class CocoUIControl;
-class CocoUIFormView;
-class CocoUILabel;
-class CocoUINavBar;
-class CocoUIPictureList;
-class CocoUIScrollView;
-class CocoUITabBar;
-class CocoUITextEdit;
-class CocoUIView;
 class CocoVector;
+class CocoVideo;
 class GameEngine;
 class HTMLAnchorElement;
 class HTMLCanvasElement;
@@ -633,13 +622,11 @@ class HTMLTextMetrics;
 class ICocoImageRenderData;
 class ICocoRenderContext;
 class IEventTarget;
-class IPersistable;
 class ITickable;
 class Image;
-class NewAnimation;
 class OnClickHandler;
 class PathLine;
-class ReservationsForm;
+class SceneTest;
 class Touch;
 class TouchList;
 struct CocoHVAlign;
@@ -651,7 +638,6 @@ struct CocoRequestNameValuePair;
 struct CocoSkinCacheItem;
 struct ContextArguments;
 struct DEVICE_MESSAGE;
-struct FACEBOOK_LOGIN;
 //# Generated Classes End #//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

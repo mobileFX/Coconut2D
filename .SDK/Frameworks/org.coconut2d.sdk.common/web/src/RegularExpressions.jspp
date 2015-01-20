@@ -1,0 +1,211 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.yourcompany.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_web
+#pragma export_native
+#pragma export_nodejs
+
+#module RX
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export enum REGULAR_EXPRESSION_FLAGS
+{
+	RX_IGNORE_CASE	= 1,
+	RX_MULTILINE	= 2,
+	RX_GLOBAL		= 4,
+	RX_ALL			= 7
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export class Match
+{
+	public var index:Integer;
+	public var value:String;
+	public var length:Integer;
+
+	private var submatches:Array<String>;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(arr:ECMARegExpMatches)
+	{
+		index = arr.index;
+		value = arr[0];
+		length = value.length;
+		submatches = new Array<String>;
+		for(var i:Integer=1;i<arr.length; i++)
+			submatches.push(arr[i]);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete submatches;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function subMatches(index:Integer):String
+	{
+		var s:String = "";
+		var sm:Array<String> = submatches;
+		__javascript
+		{
+			s = index>=0 && index<sm.length ? sm[index] || "" : "";
+		}
+		__end
+		return s;
+	}
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export class MatchCollection :Array<Match>
+{
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	public function size():Integer
+	{
+		return length;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export class RegEx
+{
+	/*
+	public static function replace(string:String, find:String, repl:String):String
+	{
+		var findPattern:String = RX.toPattern(find);
+		var rx:RX = new RX();
+		var out:String = rx.replace(string, findPattern, repl, REGULAR_EXPRESSION_FLAGS.RX_GLOBAL|REGULAR_EXPRESSION_FLAGS.RX_IGNORE_CASE|REGULAR_EXPRESSION_FLAGS.RX_MULTILINE);
+		delete rx;
+		return out;
+	}
+	*/
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function toPattern(string:String):String
+	{
+		if(string=="") return "";
+		var pattern:Array<String> = new Array<String>;
+		for(var i:Integer=0; i<string.length; i++)
+		{
+			switch(string.charCodeAt(i))
+			{
+			case 42:	pattern.push("(?:[^:./\\\\]*?)"); break;		// *
+			case 63:	pattern.push("(?:[^:./\\\\])"); break;			// ?
+			case 36:	pattern.push("\\$"); break;						// $
+			case 40:	pattern.push("\\("); break;						// (
+			case 41:	pattern.push("\\)"); break;						// )
+			case 123:	pattern.push("\\{"); break;						// {
+			case 125:	pattern.push("\\}"); break;						// }
+			case 91:	pattern.push("\\["); break;						// [
+			case 93:	pattern.push("\\]"); break;						// ]
+			case 43:	pattern.push("\\+"); break;						// +
+			case 33:	pattern.push("\\!"); break;						// !
+			case 94:	pattern.push("\\^"); break;						// ^
+			case 46:	pattern.push("\\."); break;						// .
+			case 45:	pattern.push("\\-"); break;						// -
+			case 92:	pattern.push("/"); break;						// \
+			case 47:   	pattern.push("/"); break;						// /
+			default:
+						pattern.push(string.charAt(i));
+			}
+		}
+		var s:String = "^(?:" + pattern.join("") + ")$";
+		delete pattern;
+		return s;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private var rx:RegExp;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(optional pattern:String, optional flags:REGULAR_EXPRESSION_FLAGS)
+	{
+		rx = null;
+		if(pattern!="")
+			init(pattern, flags);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function init(pattern:String, flags:REGULAR_EXPRESSION_FLAGS)
+	{
+		if(rx) delete rx;
+		var sflags:String = "";
+		if((flags & REGULAR_EXPRESSION_FLAGS.RX_IGNORE_CASE)==REGULAR_EXPRESSION_FLAGS.RX_IGNORE_CASE) sflags+="i";
+		if((flags & REGULAR_EXPRESSION_FLAGS.RX_MULTILINE)==REGULAR_EXPRESSION_FLAGS.RX_MULTILINE) sflags+="m";
+		if((flags & REGULAR_EXPRESSION_FLAGS.RX_GLOBAL)==REGULAR_EXPRESSION_FLAGS.RX_GLOBAL) sflags+="g";
+		rx = new RegExp(pattern, sflags);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete rx;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function parse(buff:String, optional pattern:String, optional flags:REGULAR_EXPRESSION_FLAGS):MatchCollection
+	{
+		if(pattern!="")
+			init(pattern, flags);
+
+		var arr:ECMARegExpMatches = null;
+		var ms:MatchCollection = new MatchCollection();
+		do
+		{
+			arr = rx.exec(buff);
+			if(arr)
+			{
+				var m:Match = new Match(arr);
+				ms.push(m);
+			}
+		}
+		while(arr);
+		return ms;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function test(buff:String, optional pattern:String, optional flags:REGULAR_EXPRESSION_FLAGS):Boolean
+	{
+		if(pattern!="") init(pattern, flags);
+		return rx.test(buff);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function replace(buff:String, findPattern:String, replacePattern:String, optional flags:REGULAR_EXPRESSION_FLAGS):String
+	{
+		if(findPattern!="") init(findPattern, flags);
+		return buff.replace(rx, replacePattern);
+	}
+}

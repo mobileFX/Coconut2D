@@ -105,6 +105,13 @@ function __init_narcissus(GLOBAL)
 		"ENUM_ITEM",
 		"CONSTRUCTOR_CALL",
 
+		// Code Blocks
+		"__asm",
+		"__javascript",
+		"__cpp",
+		"__glsl",
+		"__end",
+
         // Terminals.
         "IDENTIFIER",
         "NUMBER",
@@ -180,6 +187,7 @@ function __init_narcissus(GLOBAL)
 		"false",
 		"true",
 
+		// Compiler Helpers
 		"compiler_break",
 
 		// Need to double-check
@@ -255,6 +263,7 @@ function __init_narcissus(GLOBAL)
         ['}', "RIGHT_CURLY"],
         ['(', "LEFT_PAREN"],
         [')', "RIGHT_PAREN"],
+
         ['#if', "IFDEF"],
         ['#else', "ELSEDEF"],
         ['#endif', "ENDDEF"],
@@ -262,7 +271,14 @@ function __init_narcissus(GLOBAL)
         ['#undefine', "UNDEFINE"],
         ['#pragma', "PRAGMA"],
         ['#include', "INCLUDE"],
-        ['#module', "MODULE"]
+        ['#module', "MODULE"],
+
+		["__asm", "BLOCK_ASM"],
+		["__javascript", "BLOCK_JAVASCRIPT"],
+		["__cpp", "BLOCK_CPP"],
+		["__glsl", "BLOCK_GLSL"],
+		["__end", "BLOCK_END"]
+
 	];
 
 	var opTypeNames = jsdef.opTypeNames = (function ()
@@ -280,33 +296,26 @@ function __init_narcissus(GLOBAL)
 
 	var keywords = jsdef.keywords = (function ()
 	{
-		// Hash of keyword identifier to tokens index.  NB: we must null __proto__ to
-		// avoid toString, etc. namespace pollution.
-		//  var _keywords = {__proto__: null};
-		// G. Lathoud's addition: This works however only on SpiderMonkey and the like,
-		// so let's resort to a more basic approach with hasOwnProperty (see further below).
-		// (this helps on Rhino 1.6).
+		// Hash of keyword identifier to tokens index.
 		var _keywords = {};
 		GLOBAL.narcissus.jsdefNames = {};
 		for(var i = 0, j = tokens.length; i < j; i++)
 		{
 			var a_const;
 			var t = tokens[i];
-			if(/^[a-z]/.test(t))
+			if(/^#?[_a-z]/.test(t))
 			{
-				a_const = t.toUpperCase();
 				_keywords[t] = i;
 			}
-			else
-			{
-				a_const = (/^\W/.test(t) ? opTypeNames[t] : t);
-			}
+			a_const = opTypeNames[t];
+			if(!a_const) a_const = t;
+			a_const = a_const.toUpperCase();
 			jsdef[a_const] = i >> 0;
 			tokens[t] = i;
 			GLOBAL.narcissus.jsdefNames[i] = a_const;
-			//trace("// jsdef." + a_const + " = " + i);
+			//trace("jsdef." + a_const + " = " + i + "// " + tokens[i]);
 		}
-		return function ( /*string*/ id)
+		return function(id)
 		{
 			return _keywords.hasOwnProperty(id) && _keywords[id];
 		};
@@ -350,7 +359,7 @@ function __init_narcissus(GLOBAL)
 
 	var opRegExp = new RegExp(opRegExpSrc);
 	var fpRegExp = /^\d+\.(?!\.)\d*(?:[eE][-+]?\d+)?|^\d+(?:\.\d*)?[eE][-+]?\d+|^\.\d+(?:[eE][-+]?\d+)?/;
-	//var reRegExp = /^(?:m(x)?|(?=\/))([^\w\s\\])((?:\\.|(?!\2)[^\\])*)\2([a-z]*)/;
+	var reRegExp = /^(?:m(x)?|(?=\/))([^\w\s\\])((?:\\.|(?!\2)[^\\])*)\2([a-z]*)/;
 	var scopeId = 1;
 
 	// ==================================================================================================================================
@@ -532,13 +541,12 @@ function __init_narcissus(GLOBAL)
 				}
 				///////////////////////////////////////////////////////////////////
 			}
-			/*
 			else if(this.scanOperand && (match = reRegExp.exec(input)))
 			{
+				// REGULAR EXPRESSION (Allowd in JavaScript only)
 				token.type = jsdef.REGEXP;
 				token.value = [match[1], match[2], match[3], match[4]];
 			}
-			*/
 			else if((match = opRegExp.exec(input)))
 			{
 				var op = match[0];
@@ -691,6 +699,9 @@ function __init_narcissus(GLOBAL)
 		this.nodeId = (++__node_id);
 		this.xmlvartype="";
 		this.__VARIABLES = {};
+
+		if(type)
+			this.nodeType = GLOBAL.narcissus.jsdefNames[type];
 
 		if(!t)
 		{
@@ -1442,15 +1453,13 @@ function __init_narcissus(GLOBAL)
 		var subtype = "";
 		node[typeProp] = vartype;
 
-		// Support for namespace class types (namespace::class)
-		// The rule is that each namespace must not have colliding class names.
-		// Namespaces are used only for compatibility and grouping for now.
-		if(t.peek()==jsdef.COLON)
+		// Support for node.js module class types (module.class)
+		if(t.peek()==jsdef.DOT)
 		{
-			t.mustMatch(jsdef.COLON);
-			t.mustMatch(jsdef.COLON);
+			node.vartype_module = t.token().value;
+			t.mustMatch(jsdef.DOT);
 			t.mustMatch(jsdef.IDENTIFIER);
-			vartype = t.token().value;
+			node[typeProp] = vartype = node.vartype_module+"."+t.token().value;
 		}
 
 		// Typed Array
@@ -1764,9 +1773,20 @@ function __init_narcissus(GLOBAL)
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.EXPORT:
+			var n;
 			t.get();
-			var n = ClassDefinition(t, x, true);
-			n.export = true;
+
+			switch(t.token().type)
+			{
+			case jsdef.CLASS: n = ClassDefinition(t, x, true); break;
+			case jsdef.STRUCT: n = StructDefinition(t, x, true); break;
+			case jsdef.ENUM:  n = EnumerationDefinition(t,x); break;
+			default:
+				n = null;
+				throw "Invalid export entity.";
+			}
+
+			if(n) n.export = true;
 			return n;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2108,6 +2128,24 @@ function __init_narcissus(GLOBAL)
 			return n;
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.BLOCK_ASM:
+		case jsdef.BLOCK_JAVASCRIPT:
+		case jsdef.BLOCK_CPP:
+		case jsdef.BLOCK_GLSL:
+			n = new Node(t);
+			t.mustMatch(jsdef.LEFT_CURLY);
+			var i = t.token().end;
+			while(t.get()!=jsdef.BLOCK_END);
+			t.unget();//__end
+			t.unget();//}
+			n.code = t.source.substr(i, t.token().end-i);
+			t.get();
+			t.get();
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+			return n;
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.MODULE:
 			var n = new Node(t);
 			t.mustMatch(jsdef.IDENTIFIER);
@@ -2228,6 +2266,7 @@ function __init_narcissus(GLOBAL)
 			n = new Node(t, jsdef.SEMICOLON);
 			t.unget();
 			n.expression = Expression(t, x);
+			n.nodeType = GLOBAL.narcissus.jsdefNames[n.type];
 
 			n.end = t.cursor;// n.expression.end;
 			n.line_end = t.line_start;// n.expression.line_end;

@@ -42,6 +42,7 @@ var __Audio_set_position = function(id:Integer,time:Time) {}
 var __Audio_play = function(id:Integer){};
 var __Audio_pause = function(id:Integer){};
 var __Audio_stop = function(id:Integer){};
+var __Audio_delete = function(id:Integer){};
 
 function __Video_load(url:String,obj:HTMLVideoElement) :Integer {}
 var __Video_get_position:Float = function(id:Integer) {}
@@ -49,6 +50,7 @@ var __Video_set_position = function(id:Integer,time:Time) {}
 var __Video_play = function(id:Integer){};
 var __Video_pause = function(id:Integer){};
 var __Video_stop = function(id:Integer){};
+var __Video_delete = function(id:Integer){};
 
 function __Facebook_Initialize(AppID:String, ImageSize:Integer){};
 function __Facebook_Login(Permissions:String, ImageSize:Integer){};
@@ -61,6 +63,9 @@ function __Twitter_Share(URL:String){};
 function __close_window(){};
 function fixTouch(touch:Touch){};
 function require(module:String):Object{};
+function md5(str:String):String {};
+function atob(str:String):String {};
+function btoa(str:String):String {};
 
 var __Canvas2DRenderingContext_flush = function(uid, length, width, height){};
 var __WebGLRenderingContext_activeTexture = function(uid, texture){};
@@ -244,8 +249,13 @@ class Array
 	public function splice(start:Number, deletecount:Number, optional items:Object):Object {}
 	public function unshift(start:Number):Array<Object> {}
 	public function forEach(item:Object):Array<Object> {}
-	public function size():Integer {}
+	public virtual function size():Integer {}
 	public function clear() {}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class Dictionary
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -299,6 +309,7 @@ class String
 	public function localeCompare(otherString:String):Number {}
 	public function match(regexp:RegExp):Array<Object> {}
 	public function replace(regexp:RegExp, replaceValue:String):String {}
+	public function replace(find:String, replaceValue:String):String {}
 	public function search(regexp:RegExp):Number {}
 	public function slice(start:Number, end:Number):String {}
 	public function split(separator:String, optional limit:Number):Array<String> {}
@@ -309,6 +320,7 @@ class String
 	public function toUpperCase():String {}
 	public function toLocaleUpperCase():String {}
 	public function size():Integer {}
+	public function trim():String {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -412,6 +424,11 @@ class Math
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+class ECMARegExpMatches : Array<String>
+{
+	public var index:Integer;
+}
+
 class RegExp
 {
 	public var source:String;
@@ -419,7 +436,7 @@ class RegExp
 	public var ignoreCase:Boolean;
 	public var multiline:Boolean;
 	public var lastIndex:Number;
-	public function exec(string:String):Array<Object> {}
+	public function exec(string:String):ECMARegExpMatches {}
 	public function test(string:String):Boolean {}
 }
 
@@ -549,7 +566,8 @@ class XMLHttpRequest
 	public var status:Integer;
 	public var statusText:String;
 	public var responseText:String;
-	public var responseType:Integer;//XMLHttpRequestResponseType;
+	public var responseType:String;
+	public var response:ArrayBuffer;
 	public function getAllResponseHeaders():String {}
 	public function getResponseHeader(header:String):String {}
 }
@@ -702,7 +720,7 @@ class NodeJS_FS
 	public function readFile(filename:String, encodingOrOptions:String, optional Callback:Function) {}
 	public function readFileSync(filename:String, encodingOrOptions:String):String {}
 	public function writeFile(filename:String, data:String, encodingOrOptions:String, optional Callback:Function) {}
-	public function writeFileSync(filename:String, data:String, encodingOrOptions:String) {}
+	public function writeFileSync(filename:String, data:String, optional encodingOrOptions:String) {}
 	public function appendFile(filename:String, data:String, encoding:String, optional Callback:Function) {}
 	public function appendFileSync(filename:String, data:String, encoding:String) {}
 	public function watchFile(filename:String, options:Object, optional listener:Function) {}
@@ -710,12 +728,44 @@ class NodeJS_FS
 	public function watch(filename:String, options:Object, optional listener:Function):FSWatcher {}
 	public function exists(path:String, Callback:Function) {}
 	public function existsSync(path:String) {}
-	public function createReadStream(path:String, options:Object):ReadStream {}
-	public function createWriteStream(path:String, options:Object):WriteStream {}
+	public function createReadStream(path:String, options:Dictionary):ReadStream {}
+	public function createWriteStream(path:String, options:Dictionary):WriteStream {}
+}
+
+class NodeJS_V8Context
+{
+}
+
+class NodeJS_VM
+{
+	public function runInThisContext(code:String, optional filename:String):String {}
+	public function runInNewContext(code:String, optional sandbox:Dictionary, optional filename:String):String {}
+	public function runInContext(code:String, context:NodeJS_V8Context, optional filename:String):String {}
+	public function createContext(optional initSandbox:Dictionary):NodeJS_V8Context {}
+	public function createScript(code:String, optional filename:String):NodeJS_Script {}
+}
+
+class NodeJS_Script
+{
+	public function runInThisContext():String {}
+	public function runInNewContext(optional sandbox:Dictionary):String {}
+}
+
+class NodeJS_Path
+{
+	public var sep:String;
+	public function normalize(path:String):String {}
+	public function join(var_args:String):String {}
+	public function resolve(fromPath:String, optional toPath:String):String {}
+	public function relative(fromPath:String, toPath:String):String {}
+	public function dirname(path:String):String {}
+	public function basename(path:String, optional ext:String):String {}
+	public function extname(path:String):String {}
 }
 
 
-//#ifndef EMS_BOX2D
+#if EMS_BOX2D
+
 enum b2ManifoldType
 {
 	e_circles 			= 0,
@@ -745,7 +795,6 @@ enum b2JointType
 	e_frictionJoint     = 9,
 	e_ropeJoint         = 10
 };
-//#endif
 
 struct b2Manifold
 {
@@ -1941,3 +1990,4 @@ emscripten class b2ContactEdge
 
 // END EMSCRIPTEN EXTERNS FOR EMS_BOX2D //
 
+#endif

@@ -22,14 +22,63 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var http = require('http');
-var module = require('./obj/HTTPServer.jobj');
-var httpServer = new module.HTTPServer();
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Extensions of JavaScript Array, String and Object classes to match C++ Vector and Map.
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Object.defineProperty(Array.prototype, "size", { value: function()
+{
+	return this.length;
+}});
+
+Object.defineProperty(Array.prototype, "clear", { value: function()
+{
+	while(this.length) { this.pop(); }
+}});
+
+Object.defineProperty(Array.prototype, "clone", { value: function()
+{
+	return [].concat(this);
+}});
+
+Object.defineProperty(String.prototype, "size", { value: function()
+{
+	return this.length;
+}});
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Instantiate Coconut2D HTTP Server
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var http = require('http');
+var server = null;
+
+// Attempt to load user HTTP server implementation
+var module = require('./obj/Server.jobj');
+if(module && module.Server)
+{
+	server = new module.Server();
+	console.log("Using custom HTTP server.");
+}
+else
+{
+	// Fall-back to generaic HTTP server implementation
+	module = require('./obj/HTTPServer.jobj');
+	if(module && module.HttpServer)
+	{
+		server = module.HttpServer();
+		console.log("Using generic HTTP server.");
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Instantiate Node.JS HTTP Server
+////////////////////////////////////////////////////////////////////////////////////////////////////
 http.createServer( function(req, res)
 {
-	return httpServer.handle(req, res);
+	return server.handle(req, res);
 
 }).listen(80, '127.0.0.1');
 
-console.log('Server running at http://127.0.0.1:80/');
+console.log('Server running on http://127.0.0.1:80/');

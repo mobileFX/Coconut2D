@@ -109,13 +109,10 @@ function CocoMake(command , params)
   		}
   		else
   		{
-	  		_this.clean();
 	  		_this.apply_device_wrapper();
 	  		_this.generate_icons();
-	  		_this.copy_assets(null, null, true);
 	  		_this.generate_javascript();
 	  		_this.copy_framework_libs();
-	  		//_this.create_payload_js();
 	  		_this.closure();
   		}
   	};
@@ -1142,13 +1139,11 @@ function CocoMake(command , params)
   	{
   		var buff = [];
 
-  		var PRIMARY_TARGET_SOURCES = makefile.Config.TARGETS[makefile.Vars.TARGET].TARGET_INPUT_SOURCES
-  									 || makefile.Config.PROJECT_PATHS.SOURCES;
+  		var PRIMARY_TARGET_SOURCES = TARGET.TARGET_INPUT_SOURCES || makefile.Config.PROJECT_PATHS.SOURCES;
+		var FILES_MASK = TARGET.TARGET_SOURCES_MASK || makefile.Config.PROJECT_PATHS.SOURCES_MASK;
 
   		// Calculate source code dependencies
-  		var files = _this.collectSources(TARGET.TARGET_ROOT,
-  			                             PRIMARY_TARGET_SOURCES,
-  										 makefile.Config.PROJECT_PATHS.SOURCES_MASK,
+  		var files = _this.collectSources(TARGET.TARGET_ROOT, PRIMARY_TARGET_SOURCES, FILES_MASK,
   										 "/$(PATH_SDK_FRAMEWORKS_WEB)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
   		files = _this.calculateDependencies(files);
@@ -1253,6 +1248,25 @@ function CocoMake(command , params)
 	//	\____/\__,_/ |___/\__,_//____/\___/_/  /_/ .___/\__/   /____/\____/\__,_/_/   \___/\___/   \____/\____/\__,_/\___/
 	//	                                        /_/
 	// ==================================================================================================================================
+
+    // =====================================================================
+    // Set Framework Precompiler Vars
+    // =====================================================================
+	_this.set_framework_vars = function()
+	{
+	    var vFrameworks = makefile.Config.PROJECT_FRAMEWORKS;
+	    if(TARGET.TARGET_ADDITIONAL_FRAMEWORKS) vFrameworks += (";"+TARGET.TARGET_ADDITIONAL_FRAMEWORKS)
+	    vFrameworks = vFrameworks.split(";");
+	    for(var i=0; i<vFrameworks.length; i++)
+	    {
+	    	if(!vFrameworks[i]) continue;
+	    	var framework = makefile.Components.Frameworks[vFrameworks[i]];
+	    	if(framework)
+	    	{
+	    		makefile.Vars[framework.PrecompilerVarName] = true;
+	    	}
+	    }
+	};
 
     // =====================================================================
     // Copy Framework JavaScript Libraries to target/out
@@ -1802,6 +1816,8 @@ function CocoMake(command , params)
     /*@@ make @@*/
     try
     {
+		_this.set_framework_vars();
+
 		var builder = null;
 		if(command)
 		{

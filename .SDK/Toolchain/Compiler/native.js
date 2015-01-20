@@ -722,7 +722,7 @@ function CompilerCppPlugin(compiler)
 	    	if(ast.setter)
 	    	{
 				var name = "__set_" + ast.name;
-				var param = "(" + _this.VTCPP(ast.vartype) + "v)";
+				var param = "(" + _this.VTCPP(ast.vartype) + ast.setter.paramsList[0].name + ")";
 				HPP.push((ast.symbol.virtual ? "virtual " : "") + ("void ") + name + param + ";");
 		        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 				CPP.push( "void " + _this.currClassName + "::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + param);

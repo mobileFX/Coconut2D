@@ -103,6 +103,7 @@ void fixTouch(Touch* touch)
 {
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
 extern String encodeURIComponent(String uri)
 {
 	return uri;
@@ -173,12 +174,14 @@ String ArrayBuffer::encodeAsBase64()
 
 #ifdef ENABLE_PNG_SUPPORT
 
+//////////////////////////////////////////////////////////////////////////////////////////////
 static void png_from_memory(png_structp png_ptr, png_bytep readBytes, png_size_t readCount)
 {
 	CocoAssetFile* file = (CocoAssetFile*)png_get_io_ptr(png_ptr);
 	file->read(readBytes, readCount);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
 static void png_to_memory(png_structp png_ptr, png_bytep data, png_size_t length)
 {
 	ArrayBuffer* buffer = (ArrayBuffer*)png_get_io_ptr(png_ptr);
@@ -187,6 +190,7 @@ static void png_to_memory(png_structp png_ptr, png_bytep data, png_size_t length
 	memcpy((*buffer)[buffer->byteLength - length], data, length);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
 ArrayBuffer* ArrayBuffer::NewFromImage_PNG(CocoAssetFile* file, uint32_t& width, uint32_t& height)
 {
 	ArrayBuffer* ret = NULL;
@@ -225,6 +229,7 @@ ArrayBuffer* ArrayBuffer::NewFromImage_PNG(CocoAssetFile* file, uint32_t& width,
 	return ret;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
 ArrayBuffer* ArrayBuffer::encodeAsPNG(size_t width, size_t height)
 {
 	const size_t bytes_per_pixel = 4;
@@ -265,6 +270,7 @@ ArrayBuffer* ArrayBuffer::encodeAsPNG(size_t width, size_t height)
 
 #ifdef ENABLE_JPG_SUPPORT
 
+//////////////////////////////////////////////////////////////////////////////////////////////
 static void jpeg_error(j_common_ptr cInfo)
 {
 	char pszMessage[JMSG_LENGTH_MAX];
@@ -274,6 +280,7 @@ static void jpeg_error(j_common_ptr cInfo)
 	trace("Jpeg Lib error: %s", pszMessage);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
 ArrayBuffer* ArrayBuffer::NewFromImage_JPG(CocoAssetFile* file, uint32_t& width, uint32_t& height)
 {
 	ArrayBuffer* ret = NULL;

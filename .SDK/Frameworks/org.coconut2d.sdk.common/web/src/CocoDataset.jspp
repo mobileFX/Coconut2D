@@ -1,0 +1,1281 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_web
+#pragma export_native
+#pragma export_nodejs
+
+#module Data
+
+var NULL_DATA_VALUE:String = "FF707534-E45E-4294-A242-E7B798BF96A7";
+
+export enum DBTYPEENUM
+{
+	DBTYPE_EMPTY			= 0,
+	DBTYPE_NULL				= 1,
+	DBTYPE_I2				= 2,
+	DBTYPE_I4				= 3,
+	DBTYPE_R4				= 4,
+	DBTYPE_R8				= 5,
+	DBTYPE_CY				= 6,
+	DBTYPE_DATE				= 7,
+	DBTYPE_BSTR				= 8,
+	DBTYPE_IDISPATCH		= 9,
+	DBTYPE_ERROR			= 10,
+	DBTYPE_BOOL				= 11,
+	DBTYPE_VARIANT			= 12,
+	DBTYPE_IUNKNOWN			= 13,
+	DBTYPE_DECIMAL			= 14,
+	DBTYPE_UI1				= 17,
+	DBTYPE_ARRAY			= 0x2000,
+	DBTYPE_BYREF			= 0x4000,
+	DBTYPE_I1				= 16,
+	DBTYPE_UI2				= 18,
+	DBTYPE_UI4				= 19,
+	DBTYPE_I8				= 20,
+	DBTYPE_UI8				= 21,
+	DBTYPE_GUID				= 72,
+	DBTYPE_VECTOR			= 0x1000,
+	DBTYPE_RESERVED			= 0x8000,
+	DBTYPE_BYTES			= 128,
+	DBTYPE_STR				= 129,
+	DBTYPE_WSTR				= 130,
+	DBTYPE_NUMERIC			= 131,
+	DBTYPE_UDT				= 132,
+	DBTYPE_DBDATE			= 133,
+	DBTYPE_DBTIME			= 134,
+	DBTYPE_DBTIMESTAMP		= 135,
+	DBTYPE_HCHAPTER			= 136,
+	DBTYPE_FILETIME			= 64,
+	DBTYPE_PROPVARIANT		= 138,
+	DBTYPE_VARNUMERIC		= 139,
+	DBTYPE_BLOB				= 12
+};
+
+export enum SQLITE_RECORD_STATUS
+{
+	RECORD_NO_RECORD	= 0,
+	RECORD_UNCHANGED	= 1,
+	RECORD_CHANGED		= 2,
+	RECORD_DELETED		= 4,
+	RECORD_INSERTED		= 8,
+	RECORD_ALL			= 15
+
+};
+
+export enum SQLITE_TABLE_ACCESS
+{
+	CAN_SELECT		= 0,
+	CAN_INSERT		= 1,
+	CAN_UPDATE		= 2,
+	CAN_DELETE		= 4,
+	CAN_CRUD		= 7
+
+};
+
+export enum SQLITE_COLUMN_FLAGS
+{
+	IS_UNIQUE			= 0x1,
+	IS_KEYCOLUMN		= 0x2,
+	IS_SEARCHABLE		= 0x4,
+	IS_COMPUTED			= 0x8,
+	IS_AUTOINCREMENT	= 0x10,
+	IS_SORTABLE			= 0x40,
+	IS_WRITABLE			= 0x80,
+	IS_SEARCHABLE_LIKE	= 0x200,
+	IS_NULLABLE			= 0x400,
+	IS_ROWID			= 0x800,
+	IS_FIXED_LENGTH		= 0x1000,
+	HAS_DEFAULT			= 0x2000
+
+};
+
+export enum SQLITE_SCHEMA_ENUM
+{
+	SQLITE_TABLES		= 0x1,
+	SQLITE_VIEWS		= 0x2,
+	SQLITE_COLUMNS		= 0x3,
+	SQLITE_FOREIGN_KEYS = 0x4
+
+};
+
+export enum SQLITE_INTERNAL_TYPE
+{
+	SQLITE_VT_INTGER	= 1,
+	SQLITE_VT_FLOAT		= 2,
+	SQLITE_VT_TEXT		= 3,
+	SQLITE_VT_BLOB		= 4,
+	SQLITE_VT_NULL		= 5
+
+};
+
+export enum SQLITE_VARTYPE
+{
+	VARTYPE_I1			= 16,
+	VARTYPE_I2			= 2,
+	VARTYPE_I4			= 3,
+	VARTYPE_I8			= 20,
+
+	VARTYPE_UI1			= 17,
+	VARTYPE_UI2			= 18,
+	VARTYPE_UI4			= 19,
+	VARTYPE_UI8			= 21,
+
+	VARTYPE_R4			= 4,
+	VARTYPE_R8			= 5,
+
+	VARTYPE_BOOL		= 11,
+
+	VARTYPE_DBDATE		= 133,
+	VARTYPE_DBTIME		= 134,
+	VARTYPE_DBTIMESTAMP	= 135,
+	VARTYPE_DATE		= 7,
+
+	VARTYPE_CY			= 6,
+	VARTYPE_DECIMAL		= 14,
+
+	VARTYPE_BLOB		= 12,
+
+	VARTYPE_BSTR		= 8,
+	VARTYPE_WSTR		= 130
+
+};
+
+// ==================================================================================================================================
+//	   ______                 ____        __        _____ __
+//	  / ____/___  _________  / __ \____ _/ /_____ _/ ___// /_________  ____ _____ ___
+//	 / /   / __ \/ ___/ __ \/ / / / __ `/ __/ __ `/\__ \/ __/ ___/ _ \/ __ `/ __ `__ \
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /_/ /_/ /___/ / /_/ /  /  __/ /_/ / / / / / /
+//	\____/\____/\___/\____/_____/\__,_/\__/\__,_//____/\__/_/   \___/\__,_/_/ /_/ /_/
+//
+// ==================================================================================================================================
+
+export class CocoDataStream
+{
+	// A DataStream creates an ArrayBuffer and uses two views for accessing its data,
+	// a Int32Array and a Float32Array. We use __offset to keep a pointer to the buffer
+	// that represents DWORDs and __length which indicates the actual size of the buffer
+	// in elements. Each time we attempt to write to the buffer we check if there is enough
+	// space and if not we create a new buffer with bigger size and copy the old to it.
+
+	private const ELEMENTS_INCREMENT:Integer = 1024;
+
+	private var bi:Int32Array;
+	private var bf:Float32Array;
+
+	private var __offset:Integer;
+	private var __length:Integer;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Constructor()
+ 	{
+ 		__offset = 0;
+ 		__length = 0;
+		bi = new Int32Array(__length);
+		bf = new Float32Array(bi.buffer);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Destructor()
+ 	{
+ 		delete bf;
+ 		delete bi;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Datastream from url must be openned synchronously and it can only get base64 encoded datastream
+ 	public function open(url:String):Boolean
+ 	{
+ 		var ret:Boolean = false;
+ 		var x:XMLHttpRequest = new XMLHttpRequest();
+ 		x.open("GET", url, false);
+ 		x.send("");
+ 		if(x.status==200 || x.responseText.size()>0)
+ 		{
+ 			ret = fromBase64(x.responseText);
+ 		}
+ 		delete x;
+ 		return ret;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function fromBase64(data:String):Boolean
+ 	{
+		delete bf;
+		delete bi;
+		__offset = 0;
+		__length = 0;
+
+		// Decode Base64 encoded Datastream
+		var base64_signature:String = "data:application/octet-stream;base64,";
+		if(data.substr(0,base64_signature.size())==base64_signature)
+		{
+			data = atob(data.substr(base64_signature.size()));
+		}
+
+		// Text to ArrayBuffer
+		var L:Integer = data.size();
+		var buffer:ArrayBuffer = new ArrayBuffer(L);
+		var view:DataView = new DataView(buffer);
+		for(var i:Integer=0; i<L; i++)
+		{
+			var c:Integer = data.charCodeAt(i);
+			view.setUint8(i,c);
+		}
+
+		// Create Int32Array from ArrayBuffer and a Float32Array view
+		bi = new Int32Array(buffer);
+	    bf = new Float32Array(bi.buffer);
+
+	    // Done.
+		__offset = 0;
+		__length = bi.byteLength;
+		return true;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function toBase64():String
+ 	{
+		var view:DataView = new DataView(bi.buffer);
+		var s:String = "";
+		for(var i:Integer=0; i<view.byteLength; i++)
+			s += String.fromCharCode(view.getUint8(i));
+		s = "data:application/octet-stream;base64," + btoa(s);
+		return s;
+
+		/*
+		var u8:Uint8Array = new Uint8Array(bi);
+		return "data:application/octet-stream;base64," + btoa(String.fromCharCode.apply(null, u8));
+		*/
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function increaseSize(s:Integer)
+	{
+		if(__offset + s <= __length) return;
+		__length = __offset + s;
+		if(__offset + s <= bi.length) return;
+		var nbi:Int32Array = new Int32Array(bi.length + ELEMENTS_INCREMENT + s);
+		nbi.set(bi);
+		delete bf;
+		delete bi;
+		bi = nbi;
+		bf = new Float32Array(bi.buffer);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function shrink()
+	{
+		if(bi.length == __length) return;
+		var nbi:Int32Array = new Int32Array(__length);
+		nbi.set(bi);
+		delete bf;
+		delete bi;
+		bi = nbi;
+		bf = new Float32Array(bi.buffer);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function load(URL:String)
+ 	{
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function save(URL:String)
+ 	{
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function clone():CocoDataStream
+ 	{
+ 		return null;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public property offset
+ 	{
+ 		function get():Integer
+ 		{
+ 			return __offset;
+ 		}
+
+ 		function set(v:Integer)
+ 		{
+ 			__offset = v;
+ 		}
+ 	}
+
+	// ==================================================================================================================================
+	//	 _       __     _ __          ____        __
+	//	| |     / /____(_) /____     / __ \____ _/ /_____ _
+	//	| | /| / / ___/ / __/ _ \   / / / / __ `/ __/ __ `/
+	//	| |/ |/ / /  / / /_/  __/  / /_/ / /_/ / /_/ /_/ /
+	//	|__/|__/_/  /_/\__/\___/  /_____/\__,_/\__/\__,_/
+	//
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function writeInteger(v:Integer)
+ 	{
+ 		increaseSize(Integer(1));
+ 		bi[__offset++] = v;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function writeFloat(v:Float)
+ 	{
+ 		increaseSize(Integer(1));
+ 		bf[__offset++] = v;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function writeString(v:String)
+ 	{
+		var isNull:Boolean = (v==NULL_DATA_VALUE);
+ 		var L:Integer = (isNull ? -1 : v.size());
+ 		writeInteger(L);
+ 		for(var i:Integer=0; i<L; i++)
+ 		{
+ 			var c:Integer = v.charCodeAt(i);
+ 			writeInteger(c);
+ 		}
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function writeBoolean(v:Boolean)
+ 	{
+ 		writeInteger(v ? 1 : 0);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function writeInt32Array(v:Int32Array)
+ 	{
+ 		writeInteger(v.length);
+ 		increaseSize(v.length);
+ 		bi.set(v, __offset);
+ 		__offset += v.length;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function writeFloat32Array(v:Float32Array)
+ 	{
+ 		writeInteger(v.length);
+ 		increaseSize(v.length);
+ 		bf.set(v, __offset);
+ 		__offset += v.length;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function writeDataStream(v:CocoDataStream)
+	{
+		v.shrink();
+		writeInt32Array(v.bi);
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function writeDate(v:Date)
+ 	{
+ 	}
+
+	// ==================================================================================================================================
+	//	    ____                 __   ____        __
+	//	   / __ \___  ____ _____/ /  / __ \____ _/ /_____ _
+	//	  / /_/ / _ \/ __ `/ __  /  / / / / __ `/ __/ __ `/
+	//	 / _, _/  __/ /_/ / /_/ /  / /_/ / /_/ / /_/ /_/ /
+	//	/_/ |_|\___/\__,_/\__,_/  /_____/\__,_/\__/\__,_/
+	//
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readCocoDataStream():CocoDataStream
+	{
+		var data:Int32Array = readInt32Array();
+		var ret:CocoDataStream = new CocoDataStream();
+		ret.set(data);
+		return ret;
+	}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	protected function set(v:Int32Array)
+ 	{
+ 		delete bf;
+ 		delete bi;
+ 		bi = new Int32Array(v.length);
+ 		bi.set(v);
+		bf = new Float32Array(bi.buffer);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readUint8Array():Uint8Array
+	{
+		if(__offset+1 > __length)
+			return null;
+
+		var L:Integer = readInteger();
+
+		if(__offset+L > __length)
+			return null;
+
+		var ret:Uint8Array = new Uint8Array(bi.buffer, __offset*4, L);
+		__offset += L/4;
+
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readInt32Array():Int32Array
+	{
+		if(__offset+1 > __length)
+			return null;
+
+		var L:Integer = readInteger();
+
+		if(__offset+L > __length)
+			return null;
+
+		var ret:Int32Array = new Int32Array(bi.buffer, __offset*4, L);
+		__offset += L;
+
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readFloat32Array():Float32Array
+	{
+		if(__offset+1 > __length)
+			return null;
+
+		var L:Integer = readInteger();
+
+		if(__offset+L > __length)
+			return null;
+
+		var ret:Float32Array = new Float32Array(bi.buffer, __offset*4, L);
+		__offset += L;
+
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readInteger():Integer
+	{
+		if(__offset+1 > __length)
+			return 0;
+		return bi[__offset++];
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readFloat():Float
+	{
+		if(__offset+1 > __length)
+			return 0.0;
+		return bf[__offset++];
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readString():String
+	{
+		if(__offset+1 > __length)
+			return "";
+
+		var L:Integer = readInteger();
+		if(L==-1)
+		{
+			return NULL_DATA_VALUE;
+		}
+
+		if(__offset+L> __length)
+			return "";
+
+		var ret:String = "";
+		for(var i:Integer=0; i<L; i++)
+ 		{
+ 			var c:Integer = readInteger();
+ 			ret += String.fromCharCode(c);
+ 		}
+
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readBoolean():Boolean
+	{
+		if(__offset+1 > __length)
+			return false;
+
+		var i:Integer = readInteger();
+		return i ? true : false;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function readDate():Date
+	{
+		return new Date();
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____        __        _______      __    __
+//	  / ____/___  _________  / __ \____ _/ /_____ _/ ____(_)__  / /___/ /
+//	 / /   / __ \/ ___/ __ \/ / / / __ `/ __/ __ `/ /_  / / _ \/ / __  /
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /_/ /_/ / __/ / /  __/ / /_/ /
+//	\____/\____/\___/\____/_____/\__,_/\__/\__,_/_/   /_/\___/_/\__,_/
+//
+// ==================================================================================================================================
+
+export class CocoDataField
+{
+	private reference var dataset:CocoDataset;
+
+	public var ORDINAL:Integer;
+	public var NAME:String;
+	public var BASECOLUMNNAME:String;
+	public var BASETABLENAME:String;
+	public var ID:String;
+	public var TYPE:SQLITE_VARTYPE;
+	public var LCID:Integer;
+	public var PRECISION:Integer;
+	public var SCALE:Integer;
+	public var SIZE:Integer;
+	public var LENGTH:Integer;
+	public var FLAGS:SQLITE_COLUMN_FLAGS;
+	public var SQLITE_DECLARED_TYPE:String;
+	public var SQLITE_PK_COLUMN:String;
+	public var SQLITE_PK_TABLE:String;
+	public var SQLITE_DATATYPE:SQLITE_INTERNAL_TYPE;
+	public var DEFAULTVALUE:String;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(dataset:CocoDataset)
+	{
+		this.dataset 			= dataset;
+
+		ORDINAL					= 0;
+		ID						= "";
+		NAME					= "";
+		BASECOLUMNNAME			= "";
+		BASETABLENAME			= "";
+		TYPE					= SQLITE_VARTYPE.VARTYPE_BSTR;
+		LCID					= 1053;
+		PRECISION				= 0;
+		SCALE					= 0;
+		SIZE					= 0;
+		LENGTH					= 0;
+		FLAGS					= SQLITE_COLUMN_FLAGS.IS_WRITABLE|SQLITE_COLUMN_FLAGS.IS_SORTABLE|SQLITE_COLUMN_FLAGS.IS_SEARCHABLE|SQLITE_COLUMN_FLAGS.IS_SEARCHABLE_LIKE|SQLITE_COLUMN_FLAGS.IS_NULLABLE;
+		SQLITE_DATATYPE			= SQLITE_INTERNAL_TYPE.SQLITE_VT_TEXT;
+		SQLITE_DECLARED_TYPE	= "Text";
+		SQLITE_PK_COLUMN		= "";
+		SQLITE_PK_TABLE			= "";
+		DEFAULTVALUE			= "";
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		dataset = null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function copy(col:CocoDataField)
+	{
+		dataset					= col.dataset;
+
+		ORDINAL					= col.ORDINAL;
+		ID						= col.ID;
+		NAME					= col.NAME;
+		BASECOLUMNNAME			= col.BASECOLUMNNAME;
+		BASETABLENAME			= col.BASETABLENAME;
+		TYPE					= col.TYPE;
+		LCID					= col.LCID;
+		PRECISION				= col.PRECISION;
+		SCALE					= col.SCALE;
+		SIZE					= col.SIZE;
+		LENGTH					= col.LENGTH;
+		FLAGS					= col.FLAGS;
+		SQLITE_DATATYPE			= col.SQLITE_DATATYPE;
+		SQLITE_DECLARED_TYPE	= col.SQLITE_DECLARED_TYPE;
+		SQLITE_PK_COLUMN		= col.SQLITE_PK_COLUMN;
+		SQLITE_PK_TABLE			= col.SQLITE_PK_TABLE;
+		DEFAULTVALUE			= col.DEFAULTVALUE;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function write(ds:CocoDataStream)
+	{
+		ds.writeInteger	(ORDINAL);
+		ds.writeString	(ID);
+		ds.writeString	(NAME);
+		ds.writeString	(BASECOLUMNNAME);
+		ds.writeString	(BASETABLENAME);
+		ds.writeInteger	(TYPE);
+		ds.writeInteger	(LCID);
+		ds.writeInteger	(PRECISION);
+		ds.writeInteger	(SCALE);
+		ds.writeInteger	(SIZE);
+		ds.writeInteger	(LENGTH);
+		ds.writeInteger	(FLAGS);
+		ds.writeInteger	(SQLITE_DATATYPE);
+		ds.writeString	(SQLITE_DECLARED_TYPE);
+		ds.writeString	(SQLITE_PK_COLUMN);
+		ds.writeString	(SQLITE_PK_TABLE);
+		ds.writeString	(DEFAULTVALUE);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function read(ds:CocoDataStream)
+	{
+		ORDINAL					= ds.readInteger();
+		ID						= ds.readString();
+		NAME					= ds.readString();
+		BASECOLUMNNAME			= ds.readString();
+		BASETABLENAME			= ds.readString();
+		TYPE					= ds.readInteger();
+		LCID					= ds.readInteger();
+		PRECISION				= ds.readInteger();
+		SCALE					= ds.readInteger();
+		SIZE					= ds.readInteger();
+		LENGTH					= ds.readInteger();
+		FLAGS					= ds.readInteger();
+		SQLITE_DATATYPE			= ds.readInteger();
+		SQLITE_DECLARED_TYPE	= ds.readString();
+		SQLITE_PK_COLUMN		= ds.readString();
+		SQLITE_PK_TABLE			= ds.readString();
+		DEFAULTVALUE			= ds.readString();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property value
+	{
+		function get():String
+		{
+			if(dataset.__recordIndex>=0 && dataset.__recordIndex<dataset.DATA.size() && ORDINAL>=0 && ORDINAL<dataset.METADATA.size())
+			{
+				var v:String = dataset.DATA[dataset.__recordIndex].FieldValues[ORDINAL];
+				if(v==NULL_DATA_VALUE) v = dataset.stringForNull;
+				return v;
+			}
+			throw "Invalid Record";
+		}
+
+		function set(v:String)
+		{
+			if(dataset.__recordIndex>=0 && dataset.__recordIndex<dataset.DATA.size() && ORDINAL>=0 && ORDINAL<dataset.METADATA.size())
+			{
+				if(v==dataset.stringForNull) v = NULL_DATA_VALUE;
+				if(dataset.DATA[dataset.__recordIndex].FieldValues[ORDINAL] != v)
+				{
+					dataset.DATA[dataset.__recordIndex].FieldValues[ORDINAL] = v;
+
+					if(dataset.DATA[dataset.__recordIndex].STATUS!=SQLITE_RECORD_STATUS.RECORD_INSERTED)
+						dataset.DATA[dataset.__recordIndex].STATUS = SQLITE_RECORD_STATUS.RECORD_CHANGED;
+				}
+				return;
+			}
+			throw "Invalid Record";
+		}
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____        __        ____
+//	  / ____/___  _________  / __ \____ _/ /_____ _/ __ \____ _      __
+//	 / /   / __ \/ ___/ __ \/ / / / __ `/ __/ __ `/ /_/ / __ \ | /| / /
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /_/ /_/ / _, _/ /_/ / |/ |/ /
+//	\____/\____/\___/\____/_____/\__,_/\__/\__,_/_/ |_|\____/|__/|__/
+//
+// ==================================================================================================================================
+
+export class CocoDataRow
+{
+	private reference var dataset:CocoDataset;
+	public var STATUS:SQLITE_RECORD_STATUS;
+	public var FieldValues:Array<String>;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(dataset:CocoDataset)
+	{
+		this.dataset = dataset;
+		STATUS = SQLITE_RECORD_STATUS.RECORD_UNCHANGED;
+		FieldValues = new Array<String>;
+		for(var i:Integer=0;i<dataset.METADATA.size(); i++)
+			FieldValues.push(NULL_DATA_VALUE);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		dataset = null;
+		delete FieldValues;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function write(ds:CocoDataStream)
+	{
+		var fieldCount:Integer = dataset.METADATA.size();
+
+		// Write record status
+		ds.writeInteger(STATUS);
+
+		// Write values	(special treatment for NULL)
+		for(var i:Integer=0;i<fieldCount; i++)
+		{
+			ds.writeString(FieldValues[i]);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function read(ds:CocoDataStream)
+	{
+		var fieldCount:Integer = dataset.METADATA.size();
+
+		// Write record status
+		STATUS = SQLITE_RECORD_STATUS(ds.readInteger());
+
+		// Write values	(special treatment for NULL)
+		for(var i:Integer=0;i<fieldCount; i++)
+		{
+			FieldValues[i] = ds.readString();
+		}
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____        __                  __
+//	  / ____/___  _________  / __ \____ _/ /_____ _________  / /_
+//	 / /   / __ \/ ___/ __ \/ / / / __ `/ __/ __ `/ ___/ _ \/ __/
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /_/ /_/ (__  )  __/ /_
+//	\____/\____/\___/\____/_____/\__,_/\__/\__,_/____/\___/\__/
+//
+// ==================================================================================================================================
+
+export class CocoDataset
+{
+	public var fileName:String;
+	public var SQL:String;
+	public var METADATA:Array<CocoDataField>;
+	public var DATA:Array<CocoDataRow>;
+	public var ACCESS:SQLITE_TABLE_ACCESS;
+	public var __recordIndex:Integer;
+	public var EOF:Boolean;
+	public var BOF:Boolean;
+	public var stringForNull:String;
+	public var StatusFilter:SQLITE_RECORD_STATUS;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		fileName		= "";
+		SQL				= "";
+		METADATA 		= new Array<CocoDataField>;
+		DATA			= new Array<CocoDataRow>;
+		ACCESS			= SQLITE_TABLE_ACCESS.CAN_CRUD;
+		__recordIndex	= -1;
+		EOF				= true;
+		BOF				= true;
+		StatusFilter	= SQLITE_RECORD_STATUS.RECORD_ALL;
+		ACCESS 			= SQLITE_TABLE_ACCESS.CAN_CRUD;
+		stringForNull	= "Null";
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		close();
+		delete METADATA;
+		delete DATA;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function open(url:String):Boolean
+	{
+		var ds:CocoDataStream = new CocoDataStream();
+		if(ds.open(url))
+			return open(ds);
+		return false;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function open(ds:CocoDataStream):Boolean
+	{
+		close();
+
+		var i:Integer;
+		var recordCount:Integer;
+		var filedCount:Integer;
+
+		if(ds.readString()=="SQLiteRowset.1")
+		{
+			fileName = ds.readString();
+			SQL = ds.readString();
+			ACCESS = SQLITE_TABLE_ACCESS(ds.readInteger());
+
+			filedCount = ds.readInteger();
+			for(i=0; i<filedCount; i++)
+			{
+				var COL:CocoDataField = new CocoDataField(this);
+				COL.read(ds);
+				METADATA.push(COL);
+			}
+
+			recordCount = ds.readInteger();
+			for(i=0; i<recordCount; i++)
+			{
+				var ROW:CocoDataRow = new CocoDataRow(this);
+				ROW.read(ds);
+				DATA.push(ROW);
+			}
+
+			moveFirst();
+			return true;
+		}
+
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function write(ds:CocoDataStream):Boolean
+	{
+		// We will write metadata and data to this data stream
+		var i:Integer;
+		var filedCount:Integer = METADATA.size();
+		var recordCount:Integer = DATA.size();
+
+		ds.writeString("SQLiteRowset.1");
+		ds.writeString(fileName);
+		ds.writeString(SQL);
+		ds.writeInteger(ACCESS);
+
+		ds.writeInteger(filedCount);
+		for(i=0; i<filedCount; i++)
+		{
+			METADATA[i].write(ds);
+		}
+
+		ds.writeInteger(recordCount);
+		for(i=0; i<recordCount; i++)
+		{
+			DATA[i].write(ds);
+		}
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function close()
+	{
+		__recordIndex = -1;
+		EOF = false;
+		BOF = false;
+		ACCESS = SQLITE_TABLE_ACCESS.CAN_CRUD;
+
+		var i:Integer;
+		var filedCount:Integer = METADATA.size();
+		var recordCount:Integer = DATA.size();
+
+		for(i=0; i<filedCount; i++)
+		{
+			var COL:CocoDataField = METADATA[i];
+			METADATA.pop();
+			delete COL;
+		}
+
+		for(i=0; i<recordCount; i++)
+		{
+			var ROW:CocoDataRow = DATA[i];
+			DATA.pop();
+			delete ROW;
+		}
+
+		METADATA.clear();
+		DATA.clear();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function ADD_META(
+		ORDINAL:Integer,
+		NAME:String,
+		TYPE:SQLITE_VARTYPE,
+		PRECISION:Integer,
+		SCALE:Integer,
+		LENGTH:Integer,
+		FLAGS:SQLITE_COLUMN_FLAGS,
+		BASECOLUMNNAME:String,
+		BASETABLENAME:String,
+		ID:String,
+		LCID:Integer,
+		SIZE:Integer,
+		SQLITE_DECLARED_TYPE:String,
+		SQLITE_PK_COLUMN:String,
+		SQLITE_PK_TABLE:String,
+		SQLITE_DATATYPE:SQLITE_INTERNAL_TYPE,
+		DEFAULTVALUE:String
+	)
+	{
+		var COL:CocoDataField = new CocoDataField(this);
+
+		COL.ORDINAL					= ORDINAL;
+		COL.ID						= ID;
+		COL.NAME					= NAME;
+		COL.BASECOLUMNNAME			= BASECOLUMNNAME;
+		COL.BASETABLENAME			= BASETABLENAME;
+		COL.TYPE					= TYPE;
+		COL.LCID					= LCID;
+		COL.PRECISION				= PRECISION;
+		COL.SCALE					= SCALE;
+		COL.SIZE					= SIZE;
+		COL.LENGTH					= LENGTH;
+		COL.FLAGS					= FLAGS;
+		COL.SQLITE_DATATYPE			= SQLITE_DATATYPE;
+		COL.SQLITE_DECLARED_TYPE	= SQLITE_DECLARED_TYPE;
+		COL.SQLITE_PK_COLUMN		= SQLITE_PK_COLUMN;
+		COL.SQLITE_PK_TABLE			= SQLITE_PK_TABLE;
+		COL.DEFAULTVALUE			= DEFAULTVALUE;
+
+		METADATA.push(COL);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function ADD_DATA(length:Integer, ...)
+	{
+		var ROW:CocoDataRow = new CocoDataRow(this);
+		for(var i:Integer=1;i<arguments.size();i++)
+		{
+			ROW.FieldValues[i] = arguments[i];
+		}
+		DATA.push(ROW);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function isSet(v:SQLITE_RECORD_STATUS, flags:SQLITE_RECORD_STATUS):Boolean
+	{
+		if((flags & SQLITE_RECORD_STATUS.RECORD_CHANGED)==SQLITE_RECORD_STATUS.RECORD_CHANGED)
+			if((v & SQLITE_RECORD_STATUS.RECORD_CHANGED)==SQLITE_RECORD_STATUS.RECORD_CHANGED)
+				return true;
+
+		if((flags & SQLITE_RECORD_STATUS.RECORD_UNCHANGED)==SQLITE_RECORD_STATUS.RECORD_UNCHANGED)
+			if((v & SQLITE_RECORD_STATUS.RECORD_UNCHANGED)==SQLITE_RECORD_STATUS.RECORD_UNCHANGED)
+				return true;
+
+		if((flags & SQLITE_RECORD_STATUS.RECORD_INSERTED)==SQLITE_RECORD_STATUS.RECORD_INSERTED)
+			if((v & SQLITE_RECORD_STATUS.RECORD_INSERTED)==SQLITE_RECORD_STATUS.RECORD_INSERTED)
+				return true;
+
+		if((flags & SQLITE_RECORD_STATUS.RECORD_DELETED)==SQLITE_RECORD_STATUS.RECORD_DELETED)
+			if((v & SQLITE_RECORD_STATUS.RECORD_DELETED)==SQLITE_RECORD_STATUS.RECORD_DELETED)
+				return true;
+
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property fieldCount
+	{
+		function get():Integer
+		{
+			return METADATA.size();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function recordCount(optional Status:SQLITE_RECORD_STATUS):Integer
+	{
+		if(Status==SQLITE_RECORD_STATUS.RECORD_ALL)
+			return DATA.size();
+
+		var recordCount:Integer = 0;
+		var i:Integer;
+		var  L:Integer = DATA.size();
+		for(i=0;i<L;i++)
+			if(isSet(DATA[i].STATUS, Status))
+				recordCount++;
+
+		return recordCount;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function row_to_record(rowIndex:Integer, Status:Integer):Integer
+	{
+		var r:Integer=-1;
+		var i:Integer;
+		var L:Integer = DATA.size();
+
+		for(i=0; i<L; i++)
+			if(isSet(DATA[i].STATUS, Status))
+				if(++r==rowIndex)
+					break;
+		return i;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getMatrix(Row:Integer, Col:Integer):String
+	{
+		// Convert data binding row (eg. the row of a data grid) to an actual record index.
+		// We need to do this mapping because data grids usually filter records (eg. do not display deleted records)
+
+		__recordIndex = row_to_record(Row, StatusFilter);
+		if(!moved()) return NULL_DATA_VALUE;
+
+		if(__recordIndex>=0 && __recordIndex<DATA.size() && Col>=0 && Col<METADATA.size())
+		{
+			var value:String = DATA[__recordIndex].FieldValues[Col];
+
+			if(value==NULL_DATA_VALUE)
+				value = stringForNull;
+
+			return value;
+		}
+
+		return NULL_DATA_VALUE;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function putMatrix(Row:Integer, Col:Integer, value:String):Boolean
+	{
+		// Convert data binding row (eg. the row of a data grid) to an actual record index.
+		// We need to do this mapping because data grids usually filter records (eg. do not display deleted records)
+
+		__recordIndex = row_to_record(Row, StatusFilter);
+
+		if(__recordIndex>=0 && __recordIndex<DATA.size() && Col>=0 && Col<METADATA.size() && DATA[__recordIndex].STATUS!=SQLITE_RECORD_STATUS.RECORD_DELETED)
+		{
+			if(value==stringForNull)
+				value = NULL_DATA_VALUE;
+
+			if(DATA[__recordIndex].FieldValues[Col] != value)
+			{
+				DATA[__recordIndex].FieldValues[Col] = value;
+
+				if(DATA[__recordIndex].STATUS!=SQLITE_RECORD_STATUS.RECORD_INSERTED)
+					DATA[__recordIndex].STATUS = SQLITE_RECORD_STATUS.RECORD_CHANGED;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function status():SQLITE_RECORD_STATUS
+	{
+		if(__recordIndex>=0 && __recordIndex<DATA.size())
+			return DATA[__recordIndex].STATUS;
+		else
+			return SQLITE_RECORD_STATUS.RECORD_NO_RECORD;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function move(recordIndex:Integer):Boolean
+	{
+		if(recordIndex>=0 && recordIndex<DATA.size())
+		{
+			__recordIndex = recordIndex;
+			return moved();
+		}
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moveFirst():Boolean
+	{
+		__recordIndex=0;
+		return moved();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moveLast():Boolean
+	{
+		__recordIndex = DATA.size()-1;
+		return moved();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moveNext():Boolean
+	{
+		__recordIndex++;
+		return moved();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function movePrev():Boolean
+	{
+		__recordIndex--;
+		return moved();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moved():Boolean
+	{
+		var records:Integer = DATA.size();
+
+		if(records==0)
+		{
+			EOF = true;
+			BOF = true;
+			__recordIndex = -1;
+			return true;
+		}
+
+		if(records>0 && __recordIndex>=records) __recordIndex = records;
+		if(records>0 && __recordIndex<0) __recordIndex = 0;
+
+		BOF = (records>0 && __recordIndex==0);
+		EOF = (records>0 && __recordIndex==records);
+
+		return (records>0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function field(name:String):CocoDataField
+	{
+		var fields:Integer = METADATA.size();
+		if(fields>0)
+		{
+			for(var i:Integer=0; i<fields; i++)
+			{
+				var COL:CocoDataField = METADATA[i];
+				if(COL!=null && COL.NAME == name || COL.ID == name)
+					return COL;
+			}
+		}
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function field(ordinal:Integer):CocoDataField
+	{
+		var fields:Integer = METADATA.size();
+		if(fields>0 && ordinal>=0 && ordinal<fields)
+		{
+			return METADATA[ordinal];
+		}
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function insertRecord():Boolean
+	{
+		if((ACCESS & SQLITE_TABLE_ACCESS.CAN_INSERT)!=SQLITE_TABLE_ACCESS.CAN_INSERT)
+			return false;
+
+		if(METADATA.size())
+		{
+			var RECORD:CocoDataRow = new CocoDataRow(this);
+			RECORD.STATUS = SQLITE_RECORD_STATUS.RECORD_INSERTED;
+			DATA.push(RECORD);
+			__recordIndex = DATA.size()-1;
+			moved();
+			return true;
+		}
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function deleteRecord():Boolean
+	{
+		if((ACCESS & SQLITE_TABLE_ACCESS.CAN_DELETE)!=SQLITE_TABLE_ACCESS.CAN_DELETE)
+			return false;
+
+		if(METADATA.size() && __recordIndex>=0 && __recordIndex<DATA.size())
+		{
+			DATA[__recordIndex].STATUS = SQLITE_RECORD_STATUS.RECORD_DELETED;
+			return true;
+		}
+		return false;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function locate(fieldName:String, fieldValue:String):Boolean
+	{
+		var index:Integer = __recordIndex;
+		var c:Integer = field(fieldName).ORDINAL;
+		if(c>=0 && c<METADATA.size())
+		{
+			for(var r:Integer=0; r<DATA.size(); r++)
+			{
+				if(DATA[r].FieldValues[c]==fieldValue)
+				{
+					__recordIndex = r;
+					return moved();
+				}
+			}
+			__recordIndex = index;
+			moved();
+		}
+		return false;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	public function getBookmark():String
+	{
+		var bookmark:String = "";
+		if(__recordIndex>=0 && __recordIndex<DATA.size())
+		{
+			for(var i:Integer=0;i<METADATA.size();i++)
+				bookmark+="{"+DATA[__recordIndex].FieldValues[i]+"}";
+			bookmark = md5(bookmark);
+		}
+		return bookmark;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	public function setBookmark(bookmark:String):Boolean
+	{
+		if(bookmark=="") return false;
+		var recordCount:Integer = DATA.size();
+		var fieldCount:Integer = METADATA.size();
+		for(var r:Integer=0;r<recordCount;r++)
+		{
+			var bm:String = "";
+			for(var c:Integer=0;c<fieldCount;c++)
+			{
+				bm += "{"+DATA[r].FieldValues[c]+"}";
+			}
+			if(bookmark == md5(bm))
+			{
+				return moved();
+			}
+		}
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toBase64():String
+	{
+		var base64:String = "";
+		var ds:CocoDataStream = new CocoDataStream();
+		if(write(ds)) base64 = ds.toBase64();
+		delete ds;
+		return base64;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function update():Boolean
+	{
+		return true;
+	}
+
+
+}
