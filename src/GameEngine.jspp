@@ -36,40 +36,6 @@ state class GameEngine : CocoEngine
 		function enter()
 		{
 			scene = new NewAnimation(this);
-
-/*			app = new CocoAppController("MyApp", scene);
-			app.addForm(new ReservationsForm("frm_Reserverations", scene));
-			app.addForm(new ReservationsForm("frm_Reserverations", scene));
-			app.showForm(app.Forms[0], COCO_UIFORM_ANIMATION.SHOW_NORMAL);
-*/
-
-			var ds:CocoDataset = new CocoDataset();
-			if(ds.open("http://www.mobilefx.com/coconut2d/data.b64"))
-			{
-				trace(ds.toBase64());
-
-				if(ds.fieldCount>0)
-				{
-					var s:String="";
-					for(var i:Integer=0; i<ds.fieldCount; i++)
-					{
-						s += ds.field(i).NAME+" | ";
-					}
-					s += "\n";
-					ds.moveFirst();
-					while(!ds.EOF)
-					{
-						for(var i:Integer=0; i<ds.fieldCount; i++)
-						{
-							s += ds.field(i).value+" | ";
-						}
-						s += "\n";
-						ds.moveNext();
-					}
-
-					trace(s);
-				}
-			}
 		}
 
 		function exit()
@@ -78,6 +44,68 @@ state class GameEngine : CocoEngine
 
 		function tick(time:Float)
 		{
+			scene.tick(time);
+			setNextState(STATE_DATASET_TEST);
+		}
+
+		function paint(ctx:ICocoRenderContext, time:Time)
+		{
+			scene.paint(ctx, time);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public state STATE_DATASET_TEST
+	{
+		var ds:CocoDataset;
+
+		function enter()
+		{
+			trace("=============xxxx====================");
+			trace("Φορτώνει, παρακαλώ περιμένετε...");
+			trace("=============xxxx====================");
+			ds = new CocoDataset();
+			ds.open("http://www.mobilefx.com/coconut2d/data.bin", true);
+		}
+
+		function exit()
+		{
+			delete ds;
+		}
+
+		function tick(time:Float)
+		{
+			if(ds && ds.Ready)
+			{
+				trace(ds.toString());
+				setNextState(STATE_SHOW_FORM);
+			}
+		}
+
+		function paint(ctx:ICocoRenderContext, time:Time)
+		{
+			scene.paint(ctx, time);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	public state STATE_SHOW_FORM
+	{
+		function enter()
+		{
+			app = new CocoAppController("MyApp", scene);
+			app.addForm(new ReservationsForm("frm_Reserverations", scene));
+			app.addForm(new ReservationsForm("frm_Reserverations", scene));
+			app.showForm(app.Forms[0], COCO_UIFORM_ANIMATION.SHOW_NORMAL);
+		}
+
+		function exit()
+		{
+		}
+
+		function tick(time:Float)
+		{
+			scene.tick(time);
 		}
 
 		function paint(ctx:ICocoRenderContext, time:Time)

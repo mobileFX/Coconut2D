@@ -202,6 +202,30 @@ function CompilerCppPlugin(compiler)
 				if(delegator.delegate)
 				{
 					var cls = _this.getClass(delegator.vartype);
+
+					for(member in cls.vars)
+					{
+						if(member=="__className") continue;
+						var delegatorVarSymbol = cls.vars[member];
+						if(!delegatorVarSymbol.public) continue;
+						if(delegatorVarSymbol.static) continue;
+						if(delegatorVarSymbol.type==jsdef.STATE) continue;
+						if(delegatorVarSymbol.type==jsdef.CONST) continue;
+
+						var fnName = delegatorVarSymbol.name;
+						var hasSetter = (delegatorVarSymbol.type!=jsdef.CONST && (delegatorVarSymbol.type==jsdef.VAR || (delegatorVarSymbol.type==jsdef.PROPERTY && delegatorVarSymbol.ast.setter)));
+						var vt = _this.VTCPP(delegatorVarSymbol.vartype);
+
+						// Create the delegation HPP wrapper
+						HPP.push( vt + " __get_" + fnName + "();" );
+						if(hasSetter) HPP.push( "void __set_" + fnName + "(" + vt + " v);" );
+
+						// Create the delegation CPP wrapper
+						CPP.push(_this.SEPARATOR);
+						CPP.push(vt + " " + _this.currClassName+"::__get_" + fnName + "() { return " + delegator.name + "->__get_" + fnName + "()" + "; }");
+						if(hasSetter) CPP.push("void " + _this.currClassName+"::__set_" + fnName + "(" + vt + " v) { " + delegator.name + "->__set_" + fnName + "(v)" + ";}");
+					}
+
 					for(member in cls.methods)
 					{
 						// Get delegate function
@@ -411,7 +435,20 @@ function CompilerCppPlugin(compiler)
 			{
 				param = ast.paramsList[i];
 				var cpp_param = _this.VTCPP(param.vartype) + param.name;
-				var def = (_this.cpp_types.hasOwnProperty(param.vartype) ? _this.cpp_types[param.vartype].default : "nullptr");
+
+				var def = "nullptr";
+				if(param.optional)
+				{
+					if(_this.cpp_types.hasOwnProperty(param.vartype))
+					{
+						def = _this.cpp_types[param.vartype].default;
+					}
+					else if(_this.isEnum(param.vartype))
+					{
+						def = "(" + param.vartype + ")0";
+					}
+				}
+
 				cppParamsList += cpp_param
 				hppParamList += cpp_param + (param.optional ? "=" + def : "");
 				if(i!=ast.paramsList.length-1)
@@ -483,6 +520,22 @@ function CompilerCppPlugin(compiler)
 		        		CPP.push("if(" + id + ") " + id + " = (delete " + id + ", nullptr);");
 		        	}
 		        }
+
+		        // Rest Arguments to std::vector<> arguments
+		        if(ast.symbol.restArguments)
+		        {
+		        	var param = ast.paramsList[0];
+		        	var vt = _this.VTCPP(ast.symbol.restArgumentsVartype).trim();
+		        	if(vt=="String") vt = "char*";
+		   			CPP.push("std::vector<" + vt + "> __arguments;");
+		   			CPP.push("std::vector<" + vt + ">* arguments = &__arguments;");
+					CPP.push("va_list vl;");
+					CPP.push("va_start(vl," + param.name + ");");
+					CPP.push("for(UINT i=0;i<" + param.name + ";i++)");
+					CPP.push("__arguments.push_back(va_arg(vl," + vt + "));");
+					CPP.push("va_end(vl);");
+		        }
+
 		        if(ast.body)
 					CPP.push(generate_cpp(ast.body).CPP);
 

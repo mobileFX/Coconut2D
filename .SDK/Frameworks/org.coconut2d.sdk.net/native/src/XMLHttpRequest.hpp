@@ -41,60 +41,77 @@
 #undef OPENED
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-enum XMLHttpRequestResponseType
-{
-	TypeNone,
-	TypeArrayBuffer,
-	TypeBlob,
-	TypeDocument,
-	TypeJSON,
-	TypeText
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 class XMLHttpRequest
 {
 public:
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	// Curl Related Members
+
 	static CURLM* curlm;
 	static void init();
 	static void tick();
 	static void quit();
+	static size_t curl_callback(void* contents, size_t size, size_t nmemb, void* ptr);
+	static void curl_multiperform();
+
+	CURL* curl;
+	std::map<String, String> requestHeaders;
+	std::map<String, String> responseHeaders;
+	std::vector<char> responseHeadersBuffer;
+	std::vector<char> responseDataBuffer;
+	std::vector<char> requestDataBuffer;
+	void curl_send();
+	void curl_complete();
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	// XMLHttpRequest members
+
+	static const UINT UNSENT			= 0;
+	static const UINT OPENED			= 1;
+	static const UINT HEADERS_RECEIVED	= 2;
+	static const UINT LOADING			= 3;
+	static const UINT DONE				= 4;
+
+	bool async;
+	bool dataAvailable;
+	unsigned short readyState;
+	unsigned short status;
+	String statusText;
+	String responseText;
+	String responseType;
+	String responseURL;
+	ArrayBuffer* response;
 
 	XMLHttpRequest();
 	~XMLHttpRequest();
 
-	String requestMethod;
-	String requestURL;
-	std::map<String, String> requestHeaders;
-	std::map<String, String> responseHeaders;
-	bool synchronous;
-	static size_t writeHeader(void* contents, size_t size, size_t nmemb, void* ptr);
-	static size_t writeData(void* contents, size_t size, size_t nmemb, void* ptr);
-	std::vector<char> header;
-	bool freeData;
-	CocoAssetFile* data;
-	void complete();
-
-	const unsigned short UNSENT = 0;
-	const unsigned short OPENED = 1;
-	const unsigned short HEADERS_RECEIVED = 2;
-	const unsigned short LOADING = 3;
-	const unsigned short DONE = 4;
-	unsigned short readyState;
-
-	void open(String method, String url, bool async = true);
+	void open(String method, String url, bool async=true);
 	void setRequestHeader(String header, String value);
 	void send();
 	void send(String data);
 	void send(ArrayBufferView* data);
 	void abort();
-
-	unsigned short status;
-	String statusText;
 	String getResponseHeader(String header);
 	String getAllResponseHeaders();
-	XMLHttpRequestResponseType responseType;
-	String responseText;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	// JavaScript to C++ bindings
+	String __get_responseType() 		{ return responseType; }
+	void __set_responseType(String v) 	{ responseType = v; }
+	int __get_timeout() 				{ return 0; }
+	void __set_timeout(int v) 			{}
+	int __get_readyState() 				{ return readyState; }
+	void __set_readyState(int v) 		{}
+	int __get_status() 					{ return status; }
+	void __set_status(int v) 			{}
+	String __get_statusText() 			{ return statusText; }
+	void __set_statusText(String v) 	{}
+	String __get_responseText() 		{ return responseText; }
+	void __set_responseText(String v) 	{}
+	void __set_response(ArrayBuffer* v) {}
+	ArrayBuffer* __get_response() 		{ return nullptr; }
+
 };
 
 #endif /* __XMLHTTPREQUEST_HPP__ */

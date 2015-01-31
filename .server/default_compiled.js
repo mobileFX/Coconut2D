@@ -1,5 +1,5 @@
-Response.write(String("<html>\n"));
+﻿Response.write(String("<html>\n"));
 Response.write(String("<body>\n"));
-Response.write(String("test\n"));
-Response.write(String("</body>\n"));
-Response.write(String("</html>\n"));
+for(i=1;i<10;i++) {
+Response.write(String("<div>test</div>\n"));
+}

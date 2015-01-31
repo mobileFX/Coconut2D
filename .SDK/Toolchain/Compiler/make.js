@@ -598,6 +598,9 @@ function CocoMake(command , params)
         var buff = [];
         var make_cmd = TARGET.TARGET_ROOT + "/make_x86.bat";
         buff.push('@echo off');
+        buff.push('SET LANG=en_US.UTF-8');
+        buff.push('SET LANGUAGE=en_US.UTF-8');
+        buff.push('set LC_ALL=en_US.UTF-8');
         buff.push('SET PROJECT_PATH=$(TARGET_ROOT)');
 		buff.push('SET MAKEFILE=%PROJECT_PATH%/Makefile.mk');
 		buff.push('SET MINGW=$(PATH_3RD_PARTY_MINGW)');
@@ -609,7 +612,7 @@ function CocoMake(command , params)
         // Build the static libraries for arm and x86
         trace("\nCalling Windows x86 make ...");
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
-        //_this.DeleteFile(make_cmd);
+        _this.DeleteFile(make_cmd);
 
         // Sanity check
         if(!fileExists(TARGET.TARGET_OUTPUT))
@@ -1206,8 +1209,8 @@ function CocoMake(command , params)
   				inc = inc.replace(/\.(jobj|jspp)/g, "");
   				if(!postProcess && !sources_map[inc])
   				{
-  					trace("> !ERROR: Include file [" + inc + "] not found in module " + files[i]);
-  					errors=true;
+  					//trace("> !ERROR: Include file [" + inc + "] not found in module " + files[i]);
+  					//errors=true;
   				}
 				g.addE(name, inc);
 				found = true;

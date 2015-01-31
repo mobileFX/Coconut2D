@@ -667,7 +667,7 @@ define pwstring
 	if $argc == 0
 		help pwstring
 	else
-		call printf("WString \t\t= \"%ls\"\n", $arg0._M_data())
+		printf "WString \t\t= \"%ls\"\n", $arg0._M_data()
 		printf "WString size/length \t= %u\n", $arg0._M_rep()._M_length
 		printf "WString capacity \t= %u\n", $arg0._M_rep()._M_capacity
 		printf "WString ref-count \t= %d\n", $arg0._M_rep()._M_refcount

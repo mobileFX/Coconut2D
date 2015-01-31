@@ -2223,6 +2223,7 @@ function Compiler(ast)
 			// Delegates are objects defined as vars inside a class thet extend class members.
 			// A class acts as a wrapper for delegate objects and at compile-time we need to
 			// generate wrapper methods for the delegated members.
+			/*@@ (delegator) @@*/
 
 			if(_this.secondPass)
 			{
@@ -2239,6 +2240,95 @@ function Compiler(ast)
 					// Get delegated object variable class symbol
 					var cls = _this.getClass(delegator.vartype);
 
+					// Loop on public properties and vars and delegate them as properties
+					for(member in cls.vars)
+					{
+						if(member=="__className") continue;
+						var delegatorVarSymbol = cls.vars[member];
+						if(!delegatorVarSymbol.public) continue;
+						if(delegatorVarSymbol.static) continue;
+						if(delegatorVarSymbol.type==jsdef.STATE) continue;
+						if(delegatorVarSymbol.type==jsdef.CONST) continue;
+
+						// Generate code
+						var propertyName = delegatorVarSymbol.name;
+						var wrapper = "Object.defineProperty(";
+
+						if(delegatorVarSymbol.static)
+						{
+							if(delegatorVarSymbol.public)			wrapper += classSymbol.name;
+							else if(delegatorVarSymbol.private)		wrapper += classSymbol.name+".__PRIVATE__";
+							else if(delegatorVarSymbol.protected)	wrapper += classSymbol.name+".__PROTECTED__";
+						}
+						else
+						{
+							if(delegatorVarSymbol.public)			wrapper += "this";
+							else if(delegatorVarSymbol.private)		wrapper += "this.__PRIVATE__";
+							else if(delegatorVarSymbol.protected)	wrapper += "this.__PROTECTED__";
+						}
+
+						wrapper += ", '" + propertyName + "', {enumerable:true,";
+						wrapper += "get:function(){return " + delegator.runtime + "." + propertyName + ";}";
+
+						if(delegatorVarSymbol.type==jsdef.VAR || (delegatorVarSymbol.type==jsdef.PROPERTY && delegatorVarSymbol.ast.setter))
+						{
+							wrapper += ", set:function(v){" + delegator.runtime + "." + propertyName + "=v;}";
+						}
+
+						wrapper += "});";
+
+						// Insert wrapper before any other function (so that it can be overwrittern)
+						out_functions.insert(0,wrapper);
+
+						// Extend Code Symbols
+						var propSymbol = new PropSymbol();
+						{
+							propSymbol.delegated 	= delegatorVarSymbol;
+							propSymbol.symbolId		= (++_this.symbolId);
+							propSymbol.name			= propertyName;
+							propSymbol.value		= null;
+							propSymbol.type			= jsdef.PROPERTY;
+							propSymbol.nodeType		= "PROPERTY";
+							propSymbol.classId		= classSymbol.classId;
+							propSymbol.extern		= (ast.file=="externs.jspp");
+							propSymbol.public		= delegator.public;
+							propSymbol.private		= delegator.private;
+							propSymbol.protected	= delegator.protected;
+							propSymbol.published	= delegator.published;
+							propSymbol.static		= false;
+							propSymbol.optional		= false;
+							propSymbol.virtual		= false;
+							propSymbol.abstract		= false;
+							propSymbol.constant		= delegator.constant;
+							propSymbol.ast			= delegatorVarSymbol.ast;
+							propSymbol.scope		= methodScope;
+							propSymbol.baseSymbol	= null;
+							propSymbol.file			= delegator.file;
+							propSymbol.path			= delegator.path;
+							propSymbol.start		= delegator.start;
+							propSymbol.end			= delegator.end;
+							propSymbol.line_start	= delegator.line_start;
+							propSymbol.line_end		= delegator.line_end;
+							propSymbol.scopeId		= methodScope.scopeId;
+							propSymbol.vartype		= delegatorVarSymbol.vartype;
+							propSymbol.subtype		= delegatorVarSymbol.subtype;
+							propSymbol.pointer		= delegatorVarSymbol.pointer;
+							propSymbol.description	= delegatorVarSymbol.description;
+							propSymbol.icon 		= _this.CODE_SYMBOLS_ENUM.SYMBOL_PROPERTY;
+
+							if(delegatorVarSymbol.public)			propSymbol.modifier = "public";
+							else if(delegatorVarSymbol.private)		propSymbol.modifier = "private";
+							else if(delegatorVarSymbol.protected)	propSymbol.modifier = "protected";
+							else									propSymbol.modifier = "";
+
+							propSymbol.runtime_delegated = delegator.runtime;
+							propSymbol.runtime = delegator.runtime + "." + propertyName;
+
+							// Finally save the functionSymbol in the class
+							classSymbol.vars[propertyName] = propSymbol;
+						}
+					}
+
 					// Loop on public methods
 					for(member in cls.methods)
 					{
@@ -2247,7 +2337,14 @@ function Compiler(ast)
 						if(delegatorFunctionSymbol.static) continue;
 						if(delegatorFunctionSymbol.abstract) continue;
 
-						var fnName = delegatorFunctionSymbol.name;
+						var fnName = innerFnName = delegatorFunctionSymbol.name;
+
+						// Check function overload
+						if(delegatorFunctionSymbol.overloads && delegatorFunctionSymbol.overloads.length && delegatorFunctionSymbol.file=="externs.jspp")
+						{
+							innerFnName = delegatorFunctionSymbol.ast.name;
+						}
+
 						var paramsList = delegatorFunctionSymbol.__untypedParamsList;
 
 						// Create the wrapper call
@@ -2255,7 +2352,7 @@ function Compiler(ast)
 		  				     if(delegator.public)			wrapper = "this." + fnName + " = function" + paramsList;
 		  				else if(delegator.private)			wrapper = "this.__PRIVATE__." + fnName + " = function" + paramsList;
 		  				else if(delegator.protected)		wrapper = "this.__PROTECTED__." + fnName + " = function" + paramsList;
-						wrapper += "{return " + delegator.runtime + "." + fnName + paramsList + ";}";
+						wrapper += "{return " + delegator.runtime + "." + innerFnName + paramsList + ";}";
 
 						// Insert wrapper before any other function (so that it can be overwrittern)
 						out_functions.insert(0,wrapper);
@@ -2266,35 +2363,44 @@ function Compiler(ast)
 							for(var key in delegatorFunctionSymbol)
 								functionSymbol[key] = delegatorFunctionSymbol[key];
 
-							functionSymbol.delegated 		= delegatorFunctionSymbol;
-							functionSymbol.symbolId			= (++_this.symbolId);
-							functionSymbol.name				= delegatorFunctionSymbol.name;
-							functionSymbol.type				= delegatorFunctionSymbol.type;
-							functionSymbol.nodeType			= delegatorFunctionSymbol.nodeType;
-							functionSymbol.className		= classSymbol.name;
-							functionSymbol.classId			= classSymbol.classId;
-							functionSymbol.restArguments	= delegatorFunctionSymbol.restArguments;
-							functionSymbol.public			= delegator.public;
-							functionSymbol.private			= delegator.private;
-							functionSymbol.protected		= delegator.protected;
-							functionSymbol.static			= false;
-							functionSymbol.optional			= false;
-							functionSymbol.virtual			= delegator.virtual;
-							functionSymbol.abstract			= false;
-							functionSymbol.ast				= delegatorFunctionSymbol.ast;
-							functionSymbol.scope			= methodScope;
-							functionSymbol.baseSymbol		= delegatorFunctionSymbol.baseSymbol;
-							functionSymbol.file				= delegator.file;
-							functionSymbol.path				= delegator.path;
-							functionSymbol.start			= delegator.start;
-							functionSymbol.end				= delegator.end;
-							functionSymbol.line_start		= delegator.line_start;
-							functionSymbol.line_end			= delegator.line_end;
-							functionSymbol.scopeId			= methodScope.scopeId;
-							functionSymbol.vartype			= delegatorFunctionSymbol.vartype;
-							functionSymbol.subtype			= delegatorFunctionSymbol.subtype;
-							functionSymbol.paramsList		= delegatorFunctionSymbol.paramsList;
-							functionSymbol.arguments		= delegatorFunctionSymbol.arguments;
+							functionSymbol.delegated 			= delegatorFunctionSymbol;
+							functionSymbol.symbolId				= (++_this.symbolId);
+							functionSymbol.name					= delegatorFunctionSymbol.name;
+							functionSymbol.type					= delegatorFunctionSymbol.type;
+							functionSymbol.nodeType				= delegatorFunctionSymbol.nodeType;
+							functionSymbol.className			= classSymbol.name;
+							functionSymbol.classId				= classSymbol.classId;
+							functionSymbol.restArguments		= delegatorFunctionSymbol.restArguments;
+							functionSymbol.restArgumentsVartype = delegatorFunctionSymbol.restArgumentsVartype;
+							functionSymbol.public				= delegator.public;
+							functionSymbol.private				= delegator.private;
+							functionSymbol.protected			= delegator.protected;
+							functionSymbol.static				= false;
+							functionSymbol.optional				= false;
+							functionSymbol.virtual				= delegator.virtual;
+							functionSymbol.abstract				= false;
+							functionSymbol.ast					= delegatorFunctionSymbol.ast;
+							functionSymbol.scope				= methodScope;
+							functionSymbol.baseSymbol			= delegatorFunctionSymbol.baseSymbol;
+							functionSymbol.file					= delegator.file;
+							functionSymbol.path					= delegator.path;
+							functionSymbol.start				= delegator.start;
+							functionSymbol.end					= delegator.end;
+							functionSymbol.line_start			= delegator.line_start;
+							functionSymbol.line_end				= delegator.line_end;
+							functionSymbol.scopeId				= methodScope.scopeId;
+							functionSymbol.vartype				= delegatorFunctionSymbol.vartype;
+							functionSymbol.subtype				= delegatorFunctionSymbol.subtype;
+							functionSymbol.paramsList			= delegatorFunctionSymbol.paramsList;
+							functionSymbol.arguments			= delegatorFunctionSymbol.arguments;
+
+							// If the delegated object has overloaded methods we need to
+							// properly register the generated overloads to the host class.
+
+							if(delegatorFunctionSymbol.overloads)
+							{
+								functionSymbol.ast.overloads = functionSymbol.overloads = functionSymbol.overloads;
+							}
 
 							if(functionSymbol.public)			functionSymbol.modifier = "public";
 							else if(functionSymbol.private)		functionSymbol.modifier = "private";
@@ -2302,7 +2408,7 @@ function Compiler(ast)
 							else								functionSymbol.modifier = "";
 
 							functionSymbol.runtime_delegated = delegator.runtime;
-							functionSymbol.runtime = delegator.runtime + "." + fnName;
+							functionSymbol.runtime = delegator.runtime + "." + innerFnName;
 						}
 
 						// Finally save the functionSymbol in the class
@@ -2847,6 +2953,7 @@ function Compiler(ast)
 				functionSymbol.classId				= classScope ? classId : null;
 				functionSymbol.extern				= (ast.file=="externs.jspp");
 				functionSymbol.restArguments		= ast.restArguments;
+				functionSymbol.restArgumentsVartype	= ast.restArgumentsVartype;
 				functionSymbol.public				= ast.public==true;
 				functionSymbol.private				= ast.private==true;
 				functionSymbol.protected			= ast.protected==true;
@@ -2918,21 +3025,31 @@ function Compiler(ast)
 
 					if(param.optional)
 					{
+						var init = null;
+
+						if(param.initializer)
+						{
+							//var vt = _this.getTypeName(param.initializer);//TODO:Check type
+							init = generate(param.initializer);
+						}
+
 						if(_this.types.hasOwnProperty(vartype))
 						{
 							switch(vartype)
 							{
 							case "Integer":
-								paramListInits.push(param.name+"=Math.round("+param.name+"||"+_this.types[vartype].default+");");
+								paramListInits.push(param.name+"=Math.round("+param.name+"||"+(init||_this.types[vartype].default)+");");
 								break;
 
 							default:
-								paramListInits.push(param.name+"="+param.name+"||"+_this.types[vartype].default+";");
+								paramListInits.push(param.name+"="+param.name+"||"+(init||_this.types[vartype].default)+";");
 								break;
 							}
 						}
 						else
-							paramListInits.push(param.name+"="+param.name+"||null;");
+						{
+							paramListInits.push(param.name+"="+param.name+"||"+(init||"null") + ";");
+						}
 					}
 					else
 					{
@@ -3229,19 +3346,24 @@ function Compiler(ast)
 						// is an object, delete it, and set it to null.
 						for(item in classSymbol.vars)
 						{
-							// Carefull: do not destroy static vars in destructor
-							if(classSymbol.vars[item].static && !classSymbol.vars[item].state) continue;
+							var cvar = classSymbol.vars[item];
 
-							if(classSymbol.vars[item].state)
+							// Carefull: do not destroy static vars in destructor
+							if(cvar.static && !cvar.state) continue;
+
+							// Do not destroy delegated vars
+							if(cvar.delegated) continue;
+
+							if(cvar.state)
 							{
-								out.push("delete " + classSymbol.vars[item].runtime+";");
+								out.push("delete " + cvar.runtime+";");
 								continue;
 							}
 
 							// Set objects to null
-							if(classSymbol.vars[item].pointer)
+							if(cvar.pointer)
 							{
-								out.push(classSymbol.vars[item].runtime+"=null;");
+								out.push(cvar.runtime+"=null;");
 							}
 						}
 
@@ -3483,7 +3605,7 @@ function Compiler(ast)
 					varSymbol.symbolId		= (++_this.symbolId);
 					varSymbol.name			= ast[item].name;
 					varSymbol.value			= (ast.type==jsdef.CONST || ast.type==jsdef.EVENT ? generate(ast[item].initializer) : null);
-					varSymbol.type			= ast[item].type;
+					varSymbol.type			= ast.type;//ast[item].type;
 					varSymbol.nodeType		= "IDENTIFIER";
 					varSymbol.classId		= classId;
 					varSymbol.extern		= (ast.file=="externs.jspp");
@@ -4156,7 +4278,7 @@ function Compiler(ast)
 				propSymbol.symbolId		= (++_this.symbolId);
 				propSymbol.name			= propertyName;
 				propSymbol.value		= null;
-				propSymbol.type			= ast.type;
+				propSymbol.type			= jsdef.PROPERTY;
 				propSymbol.nodeType		= "PROPERTY";
 				propSymbol.classId		= classId;
 				propSymbol.extern		= (ast.file=="externs.jspp");
@@ -4625,6 +4747,7 @@ function Compiler(ast)
 			// 3) as a call (that could be in a DOT)				:	foo() + object.foo()
 			//
 			//==================================================================================
+			/*@@ (overloads) @@*/
 
 			if(ast.symbol.ast.overloads && ast.symbol.ast.overloads!=ast.symbol.overloads)
 			{
@@ -4715,13 +4838,83 @@ function Compiler(ast)
 					}
 					else
 					{
-						// We need to check if the overloaded identifier symbol exports for web.
-						if(_this.TARGET_EXPORT!="export_all" && !ast.symbol.ast.__VARIABLES[_this.TARGET_EXPORT] && ast.value.indexOf("$")!=-1)
+						// General Rule:
+						// =============
+
+						// There are cases where $n must be removed during code generation.
+						// In the following comments I will try to explain why.
+
+						// First, recall that an identifier ast node (.foo) is linked with a symbol which
+						// in turn is linked with the ast node that defined this symbol (function foo)
+						// Also recall that the parser sets for each ast node a __VARIABLES
+						// collection with all the valid variables collected in the source code
+						// by #defines and #pragmas.
+
+						// During code generation, a special '#pragma export_xxx' directive controls
+						// if the code will be generated for the current target platform or not.
+						// That means that if 'function foo()' has '#pragma export_xxx' defined in the
+						// file and we are compiling for 'xxx' target, then the code is generated.
+
+						// Code generation for overloads produces '$n' suffix in function names,
+						// but we do not always need it, mostly if those classes are native.
+
+						// Some classes with overloads are:
+
+						// XMLHttpRequest				defined in externs.jspp and implemented as pure native class both by browsers and Device Wrappers.
+						// CocoFont						defined in externs.jspp and implemented as pure native class only for Device Wrappers and CocoPlayer.
+						// CanvasRenderingContext2D 	has '#pragma export_native' thus generates for Device Wrappers, and also by default generates for CocoPlayer.
+						// WebGLRenderingContext 		has no prgama, so by default generates only for CocoPlayer and has native implementation for Device Wrappers.
+						// HTMLWindowElement			has no pragma, so by default generates only for CocoPlayer and has native implementation for Device Wrappers.
+
+						// Let's take XMLHttpRequest.send() for example. It has several overloads that
+						// produce .send$n functions. However, when generating for web browsers we do
+						// not need the $n suffix because XMLHttpRequest is native to the browser.
+
+						// So, there are several cases where $n must be removed:
+
+						// If the identifier points to an overloaded member of a native
+						// class, then we need to remove the $n suffix from the identifier.
+						// Native classes are declared in externs.jspp and such classes are
+						// XMLHttpRequest, WebGLRenderingContent and Emscripten classes.
+
+						// There are framework classes, such as HTMLWindowElement, written in
+						// CocoScript for being used by CocoPlayer, which have have native
+						// implementations either by the browsers (Chrome, etc.) or Coconut2D
+						// native Device Wrappers (iOS, Android, x86, etc.) For those classes
+						// we must preserve $n for CocoPlayer and remove $n for native targets.
+
+						// Another case of removing $n suffix is when exporting for native.
+
+						// Finally, a special case regarding $n is delegates where $n might me
+						// preserved.
+
+						// So, first check if the overload has $n runtime resolution
+						if(ast.value.indexOf("$")!=-1)
 						{
-							ast.value = ast.symbol.ast.name;
-							ast.symbol.runtime = ast.symbol.runtime.substr(0, ast.symbol.runtime.indexOf("$"))
-							//trace("overload fix: " + ast.symbol.runtime);
+
+							//if(ast.value=="texImage2D$1") debugger;
+
+							// Check if the symbol exports for the current target
+							var export_matches_target = _this.TARGET_EXPORT=="export_all" || ast.symbol.ast.__VARIABLES[_this.TARGET_EXPORT] || false;
+
+							// Check if exporting native
+							var export_native = _this.TARGET_EXPORT=="export_native";
+
+							// Check if the symbol is extern
+							var isExtern = ast.symbol.ast.file=="externs.jspp";
+
+							// Check if the symbol is delegate
+							var isDelegate = ast.symbol.delegated||false;
+
+							// Remove $n suffix
+							if((isExtern && !isDelegate) || (!isExtern && !export_native && !export_matches_target))
+							{
+								ast.value = ast.symbol.ast.name;
+								ast.symbol.runtime = ast.symbol.runtime.substr(0, ast.symbol.runtime.indexOf("$"));
+								trace("overload fix: " + ast.symbol.runtime);
+							}
 						}
+
 					}
 				}
 			}

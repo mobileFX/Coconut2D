@@ -22,6 +22,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#pragma export_nodejs
 #pragma export_native
 #pragma export_web
 
@@ -78,8 +79,41 @@ class CocoHttpRequest
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function responseText() :String
+	public property responseBuffer
 	{
-		return xhttp ? xhttp.responseText : "";
+		function get():ArrayBuffer
+		{
+			var buffer:ArrayBuffer = null;
+
+			if(Ready() && Ready())
+			{
+				if(xhttp.responseType=="arraybuffer")
+				{
+					var response:ArrayBuffer = xhttp.response;
+					var responseView:DataView = new DataView(response);
+					var L:Integer = response.byteLength;
+					buffer = new ArrayBuffer(L);
+					var view:DataView = new DataView(buffer);
+					for(var i:Integer=0; i<L; i++)
+					{
+						view.setUint8(i,responseView.getUint8(i));
+					}
+				}
+				else
+				{
+					// Response Text to ArrayBuffer
+					var data:String = xhttp.responseText;
+					var L:Integer = data.size();
+					buffer = new ArrayBuffer(L);
+					var view:DataView = new DataView(buffer);
+					for(var i:Integer=0; i<L; i++)
+					{
+						view.setUint8(i,data.charCodeAt(i));
+					}
+				}
+			}
+
+			return buffer;
+		}
 	}
 }

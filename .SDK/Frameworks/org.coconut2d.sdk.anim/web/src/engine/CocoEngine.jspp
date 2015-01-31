@@ -559,6 +559,6 @@ state class CocoEngine
 	private function __tick(time:Time)
 	{
 		for(var i:Integer=__tickables.size();i--;)
-			__tickables[i].tick(time);
+			__tickables[i].tick(__tickables[i], time);
 	}
 }

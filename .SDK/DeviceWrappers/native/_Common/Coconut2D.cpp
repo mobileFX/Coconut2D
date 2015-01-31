@@ -51,7 +51,7 @@ HTMLDocument* document;
 
 void trace(const char* fmt, ...)
 {
-	char* buff = (char*) malloc(2048);
+	char* buff = (char*) malloc(65535);
 	va_list vl;
 	va_start(vl, fmt);
 	vsprintf(buff, fmt, vl);
@@ -61,7 +61,8 @@ void trace(const char* fmt, ...)
 		__android_log_print(ANDROID_LOG_INFO, "$(PROJECT_NAME)", buff,"");
 
 	#elif IOS_APPLICATION
-		NSLog(@"%s\n",buff);
+        NSString *string = [NSString stringWithUTF8String:buff];
+        NSLog(@"%@", string);
 
 	#elif WIN32_APPLICATION
 		printf("%s\n", buff);
@@ -71,6 +72,12 @@ void trace(const char* fmt, ...)
 	#endif
 
 	free(buff);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+String md5(String data)
+{
+	return data;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

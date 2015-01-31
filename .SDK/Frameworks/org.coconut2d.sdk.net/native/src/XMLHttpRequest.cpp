@@ -31,151 +31,300 @@
 //	                               /_/                  /_/
 // ==================================================================================================================================
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "XMLHttpRequest.hpp"
-#include "CocoAssetFile.h"
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CURLM* XMLHttpRequest::curlm = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void XMLHttpRequest::init()
 {
+	curl_global_init(CURL_GLOBAL_ALL);
 	curlm = curl_multi_init();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void XMLHttpRequest::tick()
-{
-	int count = 0;
-	while(curl_multi_perform(curlm, &count) == CURLM_CALL_MULTI_PERFORM);
-	do
-	{
-		CURLMsg* cmsg = curl_multi_info_read(curlm, &count);
-		if(cmsg && cmsg->msg == CURLMSG_DONE)
-		{
-			XMLHttpRequest* t = nullptr;
-			curl_easy_getinfo(cmsg->easy_handle, CURLINFO_PRIVATE, reinterpret_cast<char**>(&t));
-			switch(cmsg->data.result)
-			{
-				case CURLE_OK: t->complete(); break;
-				default: trace("ERROR(XMLHttpRequest.cpp): CURL returned %d", cmsg->data.result);
-			}
-			curl_easy_cleanup(cmsg->easy_handle);
-		}
-	}
-	while(count);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void XMLHttpRequest::quit()
 {
-	if(curlm) curlm = (curl_multi_cleanup(curlm), nullptr);
+	if(curlm)
+		curlm = (curl_multi_cleanup(curlm), nullptr);
+	curl_global_cleanup();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+void XMLHttpRequest::tick()
+{
+	curl_multiperform();
+}
+
+// ==================================================================================================================================
+//	    ____           __
+//	   /  _/___  _____/ /_____ _____  ________
+//	   / // __ \/ ___/ __/ __ `/ __ \/ ___/ _ \
+//	 _/ // / / (__  ) /_/ /_/ / / / / /__/  __/
+//	/___/_/ /_/____/\__/\__,_/_/ /_/\___/\___/
+//
+// ==================================================================================================================================
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 XMLHttpRequest::XMLHttpRequest()
 {
+	curl = NULL;
 	readyState = UNSENT;
-	freeData = true;
-	data = new CocoAssetFile(0);
+	dataAvailable = false;
+	status = UNSENT;
+	response = nullptr;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 XMLHttpRequest::~XMLHttpRequest()
 {
-	if(freeData) delete data;
+	delete response;
+
+	if(curl)
+	{
+		curl_easy_cleanup(curl);
+		curl = NULL;
+		requestHeaders.clear();
+		responseHeaders.clear();
+		responseHeadersBuffer.clear();
+		responseDataBuffer.clear();
+		requestDataBuffer.clear();
+	}
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 void XMLHttpRequest::open(String method, String url, bool async)
 {
-	if(!strcasecmp(method.c_str(), "CONNECT")) requestMethod = "CONNECT";
-	else if(!strcasecmp(method.c_str(), "DELETE")) requestMethod = "DELETE";
-	else if(!strcasecmp(method.c_str(), "GET")) requestMethod = "GET";
-	else if(!strcasecmp(method.c_str(), "HEAD")) requestMethod = "HEAD";
-	else if(!strcasecmp(method.c_str(), "OPTIONS")) requestMethod = "OPTIONS";
-	else if(!strcasecmp(method.c_str(), "POST")) requestMethod = "POST";
-	else if(!strcasecmp(method.c_str(), "PUT")) requestMethod = "PUT";
-	else if(!strcasecmp(method.c_str(), "TRACE")) requestMethod = "TRACE";
-	else if(!strcasecmp(method.c_str(), "TRACK")) requestMethod = "TRACK";
-	else requestMethod = method;
-	if(requestMethod == "CONNECT" || requestMethod == "TRACE" || requestMethod == "TRACK")
-		trace("ERROR(XMLHttpRequest.cpp): SecurityError");
-	requestURL = url;
-	responseText = "";
+	status = UNSENT;
 	statusText = "";
-	synchronous = !async;
-	requestHeaders.clear();
-	readyState = OPENED;
+	responseType = "";
+	responseText = "";
+	response = nullptr;
+	dataAvailable = false;
+	this->async = async;
+
+	if(url.at(0)=='.')
+	{
+		/*
+		// Hack for reading local files
+		AssetFile* file = AssetFile::open(url.c_str());
+		if(file)
+		{
+			response = ArrayBuffer::NewFromBytes(file);
+			if(response->IsObject())
+			{
+				// Persist the ArrayBuffer
+				v8::Persistent<v8::Object>::New(response->ToObject());
+
+				// Set response flags
+				status = 200;
+				statusText = "OK";
+				dataAvailable=true;
+				responseType = "arraybuffer";
+				responseURL = std::string("file:///") + std::string(file->file);
+				readyState=DONE;
+
+				delete file;
+			}
+		}
+		*/
+	}
+	else
+	{
+		// Start a libcurl easy session
+		curl = curl_easy_init();
+
+		// Store "this" as a private pointer to curl
+		curl_easy_setopt(curl, CURLOPT_PRIVATE, static_cast<void*>(this));
+
+		// Set http method
+		std::transform(method.begin(), method.end(), method.begin(), ::toupper);
+		if(method=="GET") curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+		else if(method=="POST") curl_easy_setopt(curl, CURLOPT_HTTPPOST, 1);
+
+		// Set url
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+		// skip all signal handling
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
+
+		// follow HTTP 3xx redirects
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+
+		// set user agent
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, APPNAME);
+
+		// set callback for writing received data
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_callback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, static_cast<void*>(&responseDataBuffer));
+
+		//  set callback for writing received header data
+		curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, curl_callback);
+		curl_easy_setopt(curl, CURLOPT_WRITEHEADER, static_cast<void*>(&responseHeadersBuffer));
+
+		responseURL = url;
+		readyState = OPENED;
+	}
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 void XMLHttpRequest::setRequestHeader(String header, String value)
 {
-	if(readyState != OPENED)
-		trace("ERROR(XMLHttpRequest.cpp): InvalidStateError");
+	if(curl)
+	{
+		// Add a header to the collection
+		std::map<String, String>::iterator it = requestHeaders.find(header);
+		if(it == requestHeaders.end())
+		{
+			requestHeaders.insert(std::pair<String, String>(header, value));
+		}
+		else
+		{
+			it->second += ", " + value;
+		}
+	}
+}
 
-	if(!strcasecmp(header.c_str(), "Accept-Charset")
-	|| !strcasecmp(header.c_str(), "Accept-Encoding")
-	|| !strcasecmp(header.c_str(), "Access-Control-Requesr-Headers")
-	|| !strcasecmp(header.c_str(), "Access-Control-Request-Method")
-	|| !strcasecmp(header.c_str(), "Connection")
-	|| !strcasecmp(header.c_str(), "Content-Length")
-	|| !strcasecmp(header.c_str(), "Cookie")
-	|| !strcasecmp(header.c_str(), "Cookie2")
-	|| !strcasecmp(header.c_str(), "Date")
-	|| !strcasecmp(header.c_str(), "DNT")
-	|| !strcasecmp(header.c_str(), "Expect")
-	|| !strcasecmp(header.c_str(), "Host")
-	|| !strcasecmp(header.c_str(), "Keep-Alive")
-	|| !strcasecmp(header.c_str(), "Origin")
-	|| !strcasecmp(header.c_str(), "Referer")
-	|| !strcasecmp(header.c_str(), "TE")
-	|| !strcasecmp(header.c_str(), "Trailer")
-	|| !strcasecmp(header.c_str(), "Transfer-Encoding")
-	|| !strcasecmp(header.c_str(), "Upgrade")
-	|| !strcasecmp(header.c_str(), "User-Agent")
-	|| !strcasecmp(header.c_str(), "Via")
-	|| !strncasecmp(header.c_str(), "Proxy-", 6)
-	|| !strncasecmp(header.c_str(), "Sec-", 4)) return;
+//////////////////////////////////////////////////////////////////////////////////////////////
+void XMLHttpRequest::send()
+{
+	send("");
+}
 
-	std::map<String, String>::iterator it = requestHeaders.find(header);
-	if(it == requestHeaders.end())
-		requestHeaders.insert(std::pair<String, String>(header, value));
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+void XMLHttpRequest::send(String data)
+{
+	if(curl)
+	{
+		/*
+		UINT cb = data.size();
+		if(cb>0)
+		{
+			BSTR s = STR_to_BSTR(data);
+			cb = SysStringByteLen(s);
+			requestDataBuffer.clear();
+			requestDataBuffer.resize(cb+1);
+			memcpy(requestDataBuffer.data(), s, cb);
+			*(requestDataBuffer.data()+cb) = 0;
+			SysFreeString(s);
+		}
+		*/
+		curl_send();
+		readyState=LOADING;
+		tick();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+void XMLHttpRequest::send(ArrayBufferView* data)
+{
+	if(curl)
+	{
+		ArrayBuffer* ab = data->buffer;
+		if(ab->byteLength>0)
+		{
+			requestDataBuffer.clear();
+			requestDataBuffer.resize(ab->byteLength+1);
+			memcpy(requestDataBuffer.data(), ab->data, ab->byteLength);
+			*(requestDataBuffer.data()+ab->byteLength) = 0;
+		}
+		curl_send();
+		readyState=LOADING;
+		tick();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+void XMLHttpRequest::abort()
+{
+	if(curl)
+	{
+		// Unavailable in curl
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+String XMLHttpRequest::getResponseHeader(String header)
+{
+	if(curl)
+	{
+		std::map<String, String>::iterator it = responseHeaders.find(header);
+		if(it != responseHeaders.end())
+		{
+			return it->second;
+		}
+	}
+	return "";
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+String XMLHttpRequest::getAllResponseHeaders()
+{
+	String ret = "";
+
+	if(curl)
+	{
+		for(std::map<String, String>::iterator it = responseHeaders.begin(); it != responseHeaders.end(); it++)
+		{
+			ret += it->first + ": " + it->second + "\n";
+		}
+	}
+	return ret;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void XMLHttpRequest::curl_send()
+{
+	CURLcode res;
+
+	// Pass headers to curl
+	curl_slist* httpheader = nullptr;
+	for(std::map<String, String>::iterator it = requestHeaders.begin(); it != requestHeaders.end(); it++)
+	{
+		httpheader = curl_slist_append(httpheader, (it->first + ": " + it->second).c_str());
+	}
+	res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, httpheader);
+
+	if(requestDataBuffer.size())
+	{
+		// Set data length
+		res = curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, requestDataBuffer.size());
+
+		// pass in a pointer to the data - curl will not copy
+		res = curl_easy_setopt(curl, CURLOPT_POSTFIELDS, requestDataBuffer.data());
+	}
+
+	if(async)
+	{
+		// add the easy handle to a multi session
+		curl_multi_add_handle(curlm, curl);
+	}
 	else
-		it->second += ", " + value;
+	{
+		// perform a blocking file transfer
+		curl_easy_perform(curl);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-size_t XMLHttpRequest::writeHeader(void* contents, size_t size, size_t nmemb, void* ptr)
+void XMLHttpRequest::curl_complete()
 {
-	std::vector<char>* v = static_cast<std::vector<char>*>(ptr);
-	size_t s = size * nmemb;
-	size_t ps = v->empty() ? 0 : v->size() - 1;
-	v->resize(ps + s + 1);
-	memcpy(v->data() + ps, contents, s);
-	*(v->data() + ps + s) = 0;
-	return s;
-}
+	// Split headers
+	Array<String>* splHeader = String(std::string(responseHeadersBuffer.begin(), responseHeadersBuffer.end())).split("\n");
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-size_t XMLHttpRequest::writeData(void* contents, size_t size, size_t nmemb, void* ptr)
-{
-	CocoAssetFile* v = static_cast<CocoAssetFile*>(ptr);
-	return v->append(contents, size * nmemb);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void XMLHttpRequest::complete()
-{
-	readyState = DONE;
-	Array<String>* splHeader = String(std::string(header.begin(), header.end())).split("\n");
+	// Get status code
 	Array<String>* splStatus = (*splHeader)[0].split(" ");
 	status = parseInt((*splStatus)[1]);
+
+	// Get status text
 	statusText = (*splStatus)[2];
+
+	// Init response type
+	responseType = "";
+
+	// Read response headers
 	for(size_t i = splHeader->size(); --i;)
 	{
 		if((*splHeader)[i] != "")
@@ -187,86 +336,72 @@ void XMLHttpRequest::complete()
 				String val = (*splHeader)[i].substr((*splHeader)[i].find_first_not_of(" ", pos + 1));
 				std::map<String, String>::iterator it = responseHeaders.find(key);
 				if(it != responseHeaders.end())
+				{
 					it->second += ", " + val;
+				}
 				else
+				{
+					if(key=="Content-Type")	responseType = val;
 					responseHeaders.insert(std::pair<String, String>(key, val));
+				}
 			}
 		}
 	}
 	delete splHeader;
 	delete splStatus;
-	data->setMime(getResponseHeader("Content-Type").c_str());
+
+	// Get response text and try to get an ArrayBuffer
+	responseText = std::string(responseDataBuffer.begin(), responseDataBuffer.end());
+	response = new ArrayBuffer(responseText.size());
+	memcpy(response->data, (unsigned char*)responseText.c_str(), responseText.size());
+	if(responseType.find("text")==-1 && responseType.find("html")==-1 && responseType.find("xml")==-1 && responseType.find("json")==-1 && responseType.find("javascript")==-1)
+		responseType = "arraybuffer";
+
+	// Data are now available
+	dataAvailable = true;
+	readyState = DONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void XMLHttpRequest::send()
+void XMLHttpRequest::curl_multiperform()
 {
-	if(readyState != OPENED)
-		trace("ERROR(XMLHttpRequest.cpp): InvalidStateError");
-
-	CURL* curl = curl_easy_init();
-	curl_easy_setopt(curl, CURLOPT_PRIVATE, static_cast<void*>(this));
-	if(requestMethod == "GET") curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
-	else if(requestMethod == "POST") curl_easy_setopt(curl, CURLOPT_HTTPPOST, 1);
-	else trace("ERROR(XMLHttpRequest.cpp): Method not yet supported. Using the default (GET)");
-	curl_slist* httpheader = nullptr;
-	for(std::map<String, String>::iterator it = requestHeaders.begin(); it != requestHeaders.end(); it++)
-		httpheader = curl_slist_append(httpheader, (it->first + ": " + it->second).c_str());
-	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, httpheader);
-	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
-	curl_easy_setopt(curl, CURLOPT_URL, requestURL.c_str());
-	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, APPNAME);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeData);
-	curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, writeHeader);
-	curl_easy_setopt(curl, CURLOPT_WRITEHEADER, static_cast<void*>(&header));
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, static_cast<void*>(&data));
-	if(synchronous)
+	int still_running = 0;
+	do
 	{
-		curl_easy_perform(curl);
-		complete();
-		curl_easy_cleanup(curl);
+		CURLMcode code = CURLM_OK;
+
+		// If code is CURLM_CALL_MULTI_PERFORM we must call curl_multi_perform again immediately.
+		while((code = curl_multi_perform(curlm, &still_running))==CURLM_CALL_MULTI_PERFORM);
+
+		if(code==CURLM_OK)
+		{
+			// Ask the multi handle if there are any messages from the individual transfers.
+			int msgs_in_queue = 0;
+			CURLMsg* cmsg = curl_multi_info_read(curlm, &msgs_in_queue);
+			if(cmsg && cmsg->msg == CURLMSG_DONE)
+			{
+				XMLHttpRequest* t = nullptr;
+				curl_easy_getinfo(cmsg->easy_handle, CURLINFO_PRIVATE, reinterpret_cast<char**>(&t));
+				switch(cmsg->data.result)
+				{
+				case CURLE_OK:
+					t->curl_complete();
+					break;
+				}
+			}
+		}
 	}
-	else
-	{
-		curl_multi_add_handle(curlm, curl);
-	}
+	while(still_running);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void XMLHttpRequest::send(String data)
+size_t XMLHttpRequest::curl_callback(void* contents, size_t size, size_t nmemb, void* ptr)
 {
-	TODO();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void XMLHttpRequest::send(ArrayBufferView* data)
-{
-	TODO();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void XMLHttpRequest::abort()
-{
-	TODO();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-String XMLHttpRequest::getResponseHeader(String header)
-{
-	if(readyState == UNSENT || readyState == OPENED) return "";
-	std::map<String, String>::iterator it = responseHeaders.find(header);
-	if(it != responseHeaders.end())
-		return it->second;
-	return "";
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-String XMLHttpRequest::getAllResponseHeaders()
-{
-	String ret = "";
-	if(readyState == UNSENT || readyState == OPENED) return ret;
-	for(std::map<String, String>::iterator it = responseHeaders.begin(); it != responseHeaders.end(); it++)
-		ret += it->first + ": " + it->second;
-	return ret;
+	std::vector<char>* v = static_cast<std::vector<char>*>(ptr);
+	size_t s = size * nmemb;
+	size_t ps = v->empty() ? 0 : v->size() - 1;
+	v->resize(ps + s + 1);
+	memcpy(v->data() + ps, contents, s);
+	*(v->data() + ps + s) = 0;
+	return s;
 }

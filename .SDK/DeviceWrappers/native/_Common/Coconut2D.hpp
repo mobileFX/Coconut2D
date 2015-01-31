@@ -66,19 +66,31 @@
 extern void trace(const char* fmt, ...);
 
 #include "Structs.h"
+
+#include <cmath>
+#include <cstdlib>
+#include <cstdarg>
+#include <cassert>
+#include <cstring>
+#include <clocale>
+
 #include <algorithm>
 #include <stack>
 #include <string>
 #include <sstream>
 #include <vector>
 #include <map>
-#include <cmath>
-#include <cstdlib>
-#include <cstdarg>
-#include <cassert>
+
+#include "UTF8/UTF8.hpp"
 
 #ifdef __CPP_0X__
 	#include <initializer_list>
+#endif
+
+#if IOS_APPLICATION
+	#ifndef UINT
+		#define UINT unsigned int
+	#endif
 #endif
 
 // ==================================================================================================================================
@@ -202,6 +214,7 @@ public:
 //	/____/\__/_/  /_/_/ /_/\__, /
 //	                      /____/
 // ==================================================================================================================================
+
 class String : public std::string
 {
 public:
@@ -279,9 +292,24 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	static String fromCharCode(unsigned char c)
+	static String fromCharCode(int c)
 	{
-		return std::string(1, c);
+		if(c<128) return std::string(1,c);
+
+		// Depending on the compiler and C runtime, wcstombs() might fail.
+
+	    const wchar_t wstr = (wchar_t) c;
+	    char mbstr[3] = {0,0,0};
+
+	    #ifdef __UTF8_HPP__
+	    	int ret = UTF8::wcstombs(mbstr, &wstr, 2);
+	    #else
+		    std::setlocale(LC_ALL, "en_US.utf-8");
+	    	int ret = std::wcstombs(mbstr, &wstr, 2);
+	    #endif
+
+		if(ret==-1) return std::string(1,'?');
+	    return std::string(mbstr);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -332,29 +360,16 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void* operator[](unsigned long i)
 	{
-		if(i>=byteLength)
-		{
-			trace("Invalid Array Access");
-			return reinterpret_cast<void*>(0);
-		}
-		assert(i<byteLength);
+		if(i>=byteLength) return reinterpret_cast<void*>(0);
 		return reinterpret_cast<void*>(reinterpret_cast<char*>(data) + i);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	static ArrayBuffer* NewFromImage(std::string str, uint32_t& width, uint32_t& height);
+	static ArrayBuffer* NewFromImage_PNG(CocoAssetFile* file, uint32_t& width, uint32_t& height);
+	static ArrayBuffer* NewFromImage_JPG(CocoAssetFile* file, uint32_t& width, uint32_t& height);
 	String encodeAsBase64();
-
-	//////////////////////////////////////////////////////////////////////////////////
-	#ifdef ENABLE_PNG_SUPPORT
-		static ArrayBuffer* NewFromImage_PNG(CocoAssetFile* file, uint32_t& width, uint32_t& height);
-		ArrayBuffer* encodeAsPNG(size_t width, size_t height);
-	#endif
-
-	//////////////////////////////////////////////////////////////////////////////////
-	#ifdef ENABLE_JPG_SUPPORT
-		static ArrayBuffer* NewFromImage_JPG(CocoAssetFile* file, uint32_t& width, uint32_t& height);
-	#endif
+	ArrayBuffer* encodeAsPNG(size_t width, size_t height);
 };
 
 // ==================================================================================================================================
@@ -396,12 +411,13 @@ public:
 template<typename T> class TypedArray : public ArrayBufferView
 {
 public:
-	const unsigned long BYTES_PER_ELEMENT = sizeof(T);
+	unsigned long BYTES_PER_ELEMENT;
 	unsigned long length;
 	bool owner;
 
 	TypedArray(size_t size)
 	{
+		int cb = BYTES_PER_ELEMENT = sizeof(T);
 		owner = true;
 		length = size;
 		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
@@ -412,15 +428,18 @@ public:
 
 	TypedArray(ArrayBuffer* i_buffer, size_t i_byteOffset = 0, size_t i_length = -1)
 	{
+		BYTES_PER_ELEMENT = sizeof(T);
 		owner = false;
 		buffer = i_buffer;
 		byteOffset = i_byteOffset;
-		length = std::min(size_t((i_buffer->byteLength - i_byteOffset) / sizeof(T)), i_length);
+		size_t t = (i_buffer->byteLength - i_byteOffset) / sizeof(T);
+		length = t < i_length ? t : i_length;
 		byteLength = length * sizeof(T);
 	}
 
 	TypedArray(Array<T>* val, bool preserve = false)
 	{
+		BYTES_PER_ELEMENT = sizeof(T);
 		owner = true;
 		length = val->size();
 		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
@@ -433,12 +452,13 @@ public:
 	void set(TypedArray<T>* val, unsigned long offset = 0)
 	{
 		if(val->length + offset > this->length) return;
-		memcpy(&(*this)[offset], val->ArrayBufferView::get(), val->length);
+		memcpy((*this->buffer)[this->byteOffset + offset * BYTES_PER_ELEMENT], (*val->buffer)[val->byteOffset], val->length * BYTES_PER_ELEMENT);
 	}
 
 	~TypedArray() { if(owner) delete buffer; }
 
 	T* get() { return reinterpret_cast<T*>(ArrayBufferView::get()); }
+
 	T& operator [](unsigned long index)
 	{
 		return get()[index];
@@ -542,16 +562,16 @@ public:
 class Audio;
 class CocoAssetFile;
 class CocoAudioStream;
-class CocoDeviceOpenGLContext;
-class CocoDeviceWrapper;
 class CocoEventConnectionPoint;
 class CocoEventSource;
 class CocoFont;
 class CocoFontsCache;
+class CocoJSON;
 class HTMLVideoElement;
 class HTMLWindow;
 class IEventListener;
 class ImageData;
+class UTF8;
 class WebGLBuffer;
 class WebGLFramebuffer;
 class WebGLObject;
@@ -561,6 +581,7 @@ class WebGLRenderingContext;
 class WebGLShader;
 class WebGLTexture;
 class WebGLUniformLocation;
+class XMLHttpRequest;
 struct CocoFontChar;
 struct GLany;
 struct fxScreen;
@@ -568,13 +589,20 @@ struct fxScreen;
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
+class CocoAppController;
 class CocoAudio;
 class CocoClip;
+class CocoDataField;
+class CocoDataRow;
 class CocoDataSource;
+class CocoDataStream;
+class CocoDataset;
 class CocoDevice;
 class CocoEngine;
 class CocoEvent;
+class CocoFacebook;
 class CocoGraphics;
+class CocoHttpRequest;
 class CocoImage;
 class CocoImageRenderData2D;
 class CocoImageRenderDataGL;
@@ -600,11 +628,23 @@ class CocoText;
 class CocoTextBlock;
 class CocoTextClip;
 class CocoTextStyle;
-class CocoTickable;
 class CocoTimeLabel;
 class CocoTimeline;
+class CocoUIButton;
+class CocoUICheckBox;
+class CocoUIComboBox;
+class CocoUIControl;
+class CocoUIFormView;
+class CocoUILabel;
+class CocoUINavBar;
+class CocoUIPictureList;
+class CocoUIScrollView;
+class CocoUITabBar;
+class CocoUITextEdit;
+class CocoUIView;
 class CocoVector;
 class CocoVideo;
+class Data;
 class GameEngine;
 class HTMLAnchorElement;
 class HTMLCanvasElement;
@@ -624,9 +664,10 @@ class ICocoRenderContext;
 class IEventTarget;
 class ITickable;
 class Image;
+class NewAnimation;
 class OnClickHandler;
 class PathLine;
-class SceneTest;
+class ReservationsForm;
 class Touch;
 class TouchList;
 struct CocoHVAlign;
@@ -638,6 +679,7 @@ struct CocoRequestNameValuePair;
 struct CocoSkinCacheItem;
 struct ContextArguments;
 struct DEVICE_MESSAGE;
+struct FACEBOOK_LOGIN;
 //# Generated Classes End #//
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1103,6 +1145,7 @@ extern void __Facebook_Login(String Permissions, int ImageSize);
 extern void __Facebook_Post(String toUserID, String URL);
 extern void __Facebook_Share(String URL);
 extern void __Facebook_Invite(String message);
+extern String md5(String data);
 
 extern String encodeURIComponent(String uri);
 extern void fixTouch(Touch* touch);

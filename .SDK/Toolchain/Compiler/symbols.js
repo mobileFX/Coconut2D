@@ -285,6 +285,7 @@ function CompilerSymbolsPlugin(compiler)
 
 			// Standard includes for .hpp
 			native_file.hpp.includes['#include "Coconut2D.hpp"'] = true;
+			native_file.hpp.includes['#include "Constants.hpp"'] = true;
 
 			// Standard includes for .cpp
 			native_file.cpp.includes['#include "' + native_file.name + '.hpp"'] = true;

@@ -22,6 +22,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#include "windows.h"
+#include "Coconut2D.hpp"
 #include "CocoAssetFile.h"
 #include "Fonts/CocoFontsCache.h"
 #include "Audio/CocoAudioStream.h"
@@ -30,32 +32,41 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	// Preferred width and height
 	int width = $(SURFACE_WIDTH);
 	int height = $(SURFACE_HEIGHT);
 
+	// Set folder of assets and resources (for Android compatibility)
 	CocoAssetFile::init("./assets/", (std::string(getenv("USERPROFILE")) + "/Coconut2D/").c_str());
 
+	// Initialize Fonts
 	CocoFontsCache::init();
 	$(FONTS_LIST)
 
+	// Initialize Audio
 	CocoAudioStream::init();
 
-	curl_global_init(CURL_GLOBAL_ALL);
-
+	// Initialize HTTP
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::init();
 	#endif
 
-	CocoDeviceWrapper w(width, height);
+	// Create Device Wrapper
+	CocoDeviceWrapper app(width, height);
 
+	// Quit HTTP
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::quit();
 	#endif
 
+	// Quit Audio
 	CocoAudioStream::quit();
+
+	// Quit Fonts
 	CocoFontsCache::quit();
+
+	// Quit Assets
 	CocoAssetFile::quit();
-	curl_global_cleanup();
 
 	return 0;
 }

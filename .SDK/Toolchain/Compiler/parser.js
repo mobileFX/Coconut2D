@@ -842,6 +842,39 @@ function __init_narcissus(GLOBAL)
 		return n;
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	function ConditionalExpression(tt, t, x)
+	{
+		switch(tt)
+		{
+		case jsdef.IFDEF:
+			n = new Node(t);
+			n.expression = Expression(t, x);
+			n.condition = t.source.substr(n.expression.start, n.expression.end-n.expression.start);
+			t.__CONDITIONS.push(n.condition);
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+			return n;
+
+		case jsdef.ELSEDEF:
+			t.__CONDITIONS.pop();
+			n = new Node(t);
+			n.expression = Expression(t, x);
+			n.condition = t.source.substr(n.expression.start, n.expression.end-n.expression.start);
+			t.__CONDITIONS.push(n.condition);
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+	    	return n;
+
+		case jsdef.ENDDEF:
+	    	n = new Node(t);
+	    	t.__CONDITIONS.pop();
+			n.end = t.cursor;
+			n.line_end = t.line_start;
+	    	return n;
+		}
+	}
+
 	// ==================================================================================================================================
 	//	    _   __                                                ____       _____       _ __  _
 	//	   / | / /___ _____ ___  ___  _________  ____ _________  / __ \___  / __(_)___  (_) /_(_)___  ____
@@ -1076,9 +1109,31 @@ function __init_narcissus(GLOBAL)
 					//n.push(ClassDefinition(t, x, true, DECLARED_FORM));
 					throw t.newSyntaxError("Invalid class initialization");
 				}
-				else if(t.token().type != jsdef.SEMICOLON && t.token().type != jsdef.LEFT_CURLY)
+				else if(t.token().type == jsdef.IFDEF)
 				{
-					throw t.newSyntaxError("Invalid class initialization");
+					ConditionalExpression(jsdef.IFDEF, t, x);
+				}
+				else if(t.token().type == jsdef.ELSEDEF)
+				{
+					ConditionalExpression(jsdef.ELSEDEF, t, x);
+				}
+				else if(t.token().type == jsdef.ENDDEF)
+				{
+					ConditionalExpression(jsdef.ENDDEF, t, x);
+				}
+				else
+				{
+					var tt = t.token().type;
+					switch(tt)
+					{
+						case jsdef.SEMICOLON:
+						case jsdef.LEFT_CURLY:
+							break;
+
+						default:
+							throw t.newSyntaxError("Invalid class initialization");
+							break;
+					}
 				}
 				x.stmtStack.pop();
 			}
@@ -1234,6 +1289,14 @@ function __init_narcissus(GLOBAL)
 						t.mustMatch(jsdef.RANGE);
 						f.restArguments = true;
 						restParam = true;
+
+						// Rest arguments vartype?
+						if(t.peek()==jsdef.COLON)
+						{
+							t.mustMatch(jsdef.COLON);
+							t.mustMatch(jsdef.IDENTIFIER);
+							f.restArgumentsVartype = t.token().value;
+						}
 					}
 					else
 					{
@@ -2156,32 +2219,15 @@ function __init_narcissus(GLOBAL)
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         case jsdef.IFDEF:
-			n = new Node(t);
-			n.expression = Expression(t, x);
-			n.condition = t.source.substr(n.expression.start, n.expression.end-n.expression.start);
-			t.__CONDITIONS.push(n.condition);
-			n.end = t.cursor;
-			n.line_end = t.line_start;
-        	return n;
+        	return ConditionalExpression(jsdef.IFDEF, t, x);
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         case jsdef.ELSEDEF:
-			t.__CONDITIONS.pop();
-			n = new Node(t);
-			n.expression = Expression(t, x);
-			n.condition = t.source.substr(n.expression.start, n.expression.end-n.expression.start);
-			t.__CONDITIONS.push(n.condition);
-			n.end = t.cursor;
-			n.line_end = t.line_start;
-        	return n;
+        	return ConditionalExpression(jsdef.ELSEDEF, t, x);
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         case jsdef.ENDDEF:
-        	n = new Node(t);
-        	t.__CONDITIONS.pop();
-			n.end = t.cursor;
-			n.line_end = t.line_start;
-        	return n;
+        	return ConditionalExpression(jsdef.ENDDEF, t, x);
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DEFINE:

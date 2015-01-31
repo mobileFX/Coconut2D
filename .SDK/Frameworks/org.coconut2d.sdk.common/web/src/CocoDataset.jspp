@@ -28,6 +28,10 @@
 
 #module Data
 
+#if (TARGET!="node.js")
+#include "CocoHttpRequest.jspp"
+#endif
+
 var NULL_DATA_VALUE:String = "FF707534-E45E-4294-A242-E7B798BF96A7";
 
 export enum DBTYPEENUM
@@ -107,8 +111,8 @@ export enum SQLITE_COLUMN_FLAGS
 	IS_NULLABLE			= 0x400,
 	IS_ROWID			= 0x800,
 	IS_FIXED_LENGTH		= 0x1000,
-	HAS_DEFAULT			= 0x2000
-
+	HAS_DEFAULT			= 0x2000,
+	DEFAULT_FLAGS 		= 0x6c4
 };
 
 export enum SQLITE_SCHEMA_ENUM
@@ -187,6 +191,10 @@ export class CocoDataStream
 	private var __offset:Integer;
 	private var __length:Integer;
 
+	#if (TARGET!="node.js")
+	private var http:CocoHttpRequest;
+	#endif
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Constructor()
  	{
@@ -194,80 +202,87 @@ export class CocoDataStream
  		__length = 0;
 		bi = new Int32Array(__length);
 		bf = new Float32Array(bi.buffer);
+		http = null;
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Destructor()
  	{
+ 		delete http;
  		delete bf;
  		delete bi;
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Datastream from url must be openned synchronously and it can only get base64 encoded datastream
- 	public function open(url:String):Boolean
+	#if (TARGET!="node.js")
+ 	public function open(url:String, optional async:Boolean = true):Boolean
  	{
  		var ret:Boolean = false;
- 		var x:XMLHttpRequest = new XMLHttpRequest();
- 		x.open("GET", url, false);
- 		x.send("");
- 		if(x.status==200 || x.responseText.size()>0)
+
+ 		if(!async)
  		{
- 			ret = fromBase64(x.responseText);
+ 			// Download datastream synchronously
+ 			http = new CocoHttpRequest();
+ 			http.open("GET", url, false);
+ 			http.send();
+
+ 			if(http.Success() && http.Ready())
+ 			{
+ 				ret = open(http.response);
+ 			}
  		}
- 		delete x;
+ 		else
+ 		{
+ 			// Download datastream asynchronously
+ 			http = new CocoHttpRequest();
+			http.responseType = "arraybuffer";
+ 			http.open("GET", url, true);
+ 			http.send();
+ 			ret = true;
+ 		}
+
  		return ret;
  	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function fromBase64(data:String):Boolean
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Ready
+	{
+		function get():Boolean
+		{
+			var ret:Boolean = false;
+
+			if(http && http.Ready())
+			{
+				if(http.Success())
+				{
+					ret = open(http.responseBuffer);
+				}
+				delete  http;
+			}
+			else
+			{
+				ret = __length>0;
+			}
+
+			return ret;
+		}
+	}
+	#endif
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function open(data:ArrayBuffer):Boolean
  	{
-		delete bf;
-		delete bi;
-		__offset = 0;
-		__length = 0;
+ 		if(!data || data.byteLength==0)
+ 			return false;
 
-		// Decode Base64 encoded Datastream
-		var base64_signature:String = "data:application/octet-stream;base64,";
-		if(data.substr(0,base64_signature.size())==base64_signature)
-		{
-			data = atob(data.substr(base64_signature.size()));
-		}
-
-		// Text to ArrayBuffer
-		var L:Integer = data.size();
-		var buffer:ArrayBuffer = new ArrayBuffer(L);
-		var view:DataView = new DataView(buffer);
-		for(var i:Integer=0; i<L; i++)
-		{
-			var c:Integer = data.charCodeAt(i);
-			view.setUint8(i,c);
-		}
-
-		// Create Int32Array from ArrayBuffer and a Float32Array view
-		bi = new Int32Array(buffer);
-	    bf = new Float32Array(bi.buffer);
-
-	    // Done.
+ 		delete bf;
+ 		delete bi;
+ 		bi = new Int32Array(data);
+ 		bf = new Float32Array(bi.buffer);
 		__offset = 0;
 		__length = bi.byteLength;
+
 		return true;
- 	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function toBase64():String
- 	{
-		var view:DataView = new DataView(bi.buffer);
-		var s:String = "";
-		for(var i:Integer=0; i<view.byteLength; i++)
-			s += String.fromCharCode(view.getUint8(i));
-		s = "data:application/octet-stream;base64," + btoa(s);
-		return s;
-
-		/*
-		var u8:Uint8Array = new Uint8Array(bi);
-		return "data:application/octet-stream;base64," + btoa(String.fromCharCode.apply(null, u8));
-		*/
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -295,22 +310,6 @@ export class CocoDataStream
 		bi = nbi;
 		bf = new Float32Array(bi.buffer);
 	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function load(URL:String)
- 	{
- 	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function save(URL:String)
- 	{
- 	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function clone():CocoDataStream
- 	{
- 		return null;
- 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public property offset
@@ -393,11 +392,6 @@ export class CocoDataStream
 		writeInt32Array(v.bi);
 	}
 
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function writeDate(v:Date)
- 	{
- 	}
 
 	// ==================================================================================================================================
 	//	    ____                 __   ____        __
@@ -512,8 +506,7 @@ export class CocoDataStream
 		var ret:String = "";
 		for(var i:Integer=0; i<L; i++)
  		{
- 			var c:Integer = readInteger();
- 			ret += String.fromCharCode(c);
+ 			ret += String.fromCharCode(readInteger());
  		}
 
 		return ret;
@@ -527,12 +520,6 @@ export class CocoDataStream
 
 		var i:Integer = readInteger();
 		return i ? true : false;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function readDate():Date
-	{
-		return new Date();
 	}
 }
 
@@ -583,7 +570,7 @@ export class CocoDataField
 		SCALE					= 0;
 		SIZE					= 0;
 		LENGTH					= 0;
-		FLAGS					= SQLITE_COLUMN_FLAGS.IS_WRITABLE|SQLITE_COLUMN_FLAGS.IS_SORTABLE|SQLITE_COLUMN_FLAGS.IS_SEARCHABLE|SQLITE_COLUMN_FLAGS.IS_SEARCHABLE_LIKE|SQLITE_COLUMN_FLAGS.IS_NULLABLE;
+		FLAGS					= SQLITE_COLUMN_FLAGS.DEFAULT_FLAGS;
 		SQLITE_DATATYPE			= SQLITE_INTERNAL_TYPE.SQLITE_VT_TEXT;
 		SQLITE_DECLARED_TYPE	= "Text";
 		SQLITE_PK_COLUMN		= "";
@@ -651,14 +638,14 @@ export class CocoDataField
 		NAME					= ds.readString();
 		BASECOLUMNNAME			= ds.readString();
 		BASETABLENAME			= ds.readString();
-		TYPE					= ds.readInteger();
+		TYPE					= SQLITE_VARTYPE(ds.readInteger());
 		LCID					= ds.readInteger();
 		PRECISION				= ds.readInteger();
 		SCALE					= ds.readInteger();
 		SIZE					= ds.readInteger();
 		LENGTH					= ds.readInteger();
-		FLAGS					= ds.readInteger();
-		SQLITE_DATATYPE			= ds.readInteger();
+		FLAGS					= SQLITE_COLUMN_FLAGS(ds.readInteger());
+		SQLITE_DATATYPE			= SQLITE_INTERNAL_TYPE(ds.readInteger());
 		SQLITE_DECLARED_TYPE	= ds.readString();
 		SQLITE_PK_COLUMN		= ds.readString();
 		SQLITE_PK_TABLE			= ds.readString();
@@ -719,7 +706,8 @@ export class CocoDataRow
 		this.dataset = dataset;
 		STATUS = SQLITE_RECORD_STATUS.RECORD_UNCHANGED;
 		FieldValues = new Array<String>;
-		for(var i:Integer=0;i<dataset.METADATA.size(); i++)
+		var L:Integer = dataset.METADATA.size();
+		for(var i:Integer=0;i<L; i++)
 			FieldValues.push(NULL_DATA_VALUE);
 	}
 
@@ -736,7 +724,7 @@ export class CocoDataRow
 		var fieldCount:Integer = dataset.METADATA.size();
 
 		// Write record status
-		ds.writeInteger(STATUS);
+		ds.writeInteger(Integer(STATUS));
 
 		// Write values	(special treatment for NULL)
 		for(var i:Integer=0;i<fieldCount; i++)
@@ -778,10 +766,12 @@ export class CocoDataset
 	public var DATA:Array<CocoDataRow>;
 	public var ACCESS:SQLITE_TABLE_ACCESS;
 	public var __recordIndex:Integer;
-	public var EOF:Boolean;
-	public var BOF:Boolean;
+	public var DB_EOF:Boolean;
+	public var DB_BOF:Boolean;
 	public var stringForNull:String;
 	public var StatusFilter:SQLITE_RECORD_STATUS;
+
+	private reference var ds:CocoDataStream;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -792,8 +782,8 @@ export class CocoDataset
 		DATA			= new Array<CocoDataRow>;
 		ACCESS			= SQLITE_TABLE_ACCESS.CAN_CRUD;
 		__recordIndex	= -1;
-		EOF				= true;
-		BOF				= true;
+		DB_EOF			= true;
+		DB_BOF			= true;
 		StatusFilter	= SQLITE_RECORD_STATUS.RECORD_ALL;
 		ACCESS 			= SQLITE_TABLE_ACCESS.CAN_CRUD;
 		stringForNull	= "Null";
@@ -807,14 +797,61 @@ export class CocoDataset
 		delete DATA;
 	}
 
+	#if (TARGET!="node.js")
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function open(url:String):Boolean
+	public function open(url:String, async:Boolean = true):Boolean
 	{
-		var ds:CocoDataStream = new CocoDataStream();
-		if(ds.open(url))
-			return open(ds);
-		return false;
+		var ret:Boolean = false;
+
+		// Open Dataset via synchronous Datastream
+		if(!async)
+		{
+			ds = new CocoDataStream();
+			if(ds.open(url, false))
+				ret = open(ds);
+			delete ds;
+		}
+
+		// Open Dataset via asynchronous Datastram
+		else
+		{
+			ds = new CocoDataStream();
+			ret = ds.open(url, true);
+		}
+
+		return ret;
 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Ready
+	{
+		function get():Boolean
+		{
+			var ret:Boolean = false;
+
+			// If a Datastream is operating, wait for it
+			if(ds)
+			{
+				// If the Datastream is ready, load it and destroy it
+				if(ds.Ready)
+				{
+					ret = open(ds);
+					delete ds;
+				}
+			}
+			else
+			{
+				// If Dataset has metadata its ready
+				if(METADATA)
+					ret = (METADATA.size()>0);
+			}
+
+			return ret;
+		}
+	}
+
+	#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function open(ds:CocoDataStream):Boolean
@@ -886,8 +923,8 @@ export class CocoDataset
 	public function close()
 	{
 		__recordIndex = -1;
-		EOF = false;
-		BOF = false;
+		DB_EOF = false;
+		DB_BOF = false;
 		ACCESS = SQLITE_TABLE_ACCESS.CAN_CRUD;
 
 		var i:Integer;
@@ -957,10 +994,11 @@ export class CocoDataset
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function ADD_DATA(length:Integer, ...)
+	public function ADD_DATA(length:Integer, ...:String)
 	{
 		var ROW:CocoDataRow = new CocoDataRow(this);
-		for(var i:Integer=1;i<arguments.size();i++)
+		var L:Integer = arguments.size();
+		for(var i=1;i<L;i++)
 		{
 			ROW.FieldValues[i] = arguments[i];
 		}
@@ -971,20 +1009,28 @@ export class CocoDataset
 	private function isSet(v:SQLITE_RECORD_STATUS, flags:SQLITE_RECORD_STATUS):Boolean
 	{
 		if((flags & SQLITE_RECORD_STATUS.RECORD_CHANGED)==SQLITE_RECORD_STATUS.RECORD_CHANGED)
+		{
 			if((v & SQLITE_RECORD_STATUS.RECORD_CHANGED)==SQLITE_RECORD_STATUS.RECORD_CHANGED)
 				return true;
+		}
 
 		if((flags & SQLITE_RECORD_STATUS.RECORD_UNCHANGED)==SQLITE_RECORD_STATUS.RECORD_UNCHANGED)
+		{
 			if((v & SQLITE_RECORD_STATUS.RECORD_UNCHANGED)==SQLITE_RECORD_STATUS.RECORD_UNCHANGED)
 				return true;
+		}
 
 		if((flags & SQLITE_RECORD_STATUS.RECORD_INSERTED)==SQLITE_RECORD_STATUS.RECORD_INSERTED)
+		{
 			if((v & SQLITE_RECORD_STATUS.RECORD_INSERTED)==SQLITE_RECORD_STATUS.RECORD_INSERTED)
 				return true;
+		}
 
 		if((flags & SQLITE_RECORD_STATUS.RECORD_DELETED)==SQLITE_RECORD_STATUS.RECORD_DELETED)
+		{
 			if((v & SQLITE_RECORD_STATUS.RECORD_DELETED)==SQLITE_RECORD_STATUS.RECORD_DELETED)
 				return true;
+		}
 
 		return false;
 	}
@@ -1007,24 +1053,32 @@ export class CocoDataset
 		var recordCount:Integer = 0;
 		var i:Integer;
 		var  L:Integer = DATA.size();
+
 		for(i=0;i<L;i++)
+		{
 			if(isSet(DATA[i].STATUS, Status))
 				recordCount++;
+		}
 
 		return recordCount;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	private function row_to_record(rowIndex:Integer, Status:Integer):Integer
+	private function row_to_record(rowIndex:Integer, Status:SQLITE_RECORD_STATUS):Integer
 	{
 		var r:Integer=-1;
 		var i:Integer;
 		var L:Integer = DATA.size();
 
 		for(i=0; i<L; i++)
+		{
 			if(isSet(DATA[i].STATUS, Status))
+			{
 				if(++r==rowIndex)
 					break;
+			}
+		}
+
 		return i;
 	}
 
@@ -1132,8 +1186,8 @@ export class CocoDataset
 
 		if(records==0)
 		{
-			EOF = true;
-			BOF = true;
+			DB_EOF = true;
+			DB_BOF = true;
 			__recordIndex = -1;
 			return true;
 		}
@@ -1141,8 +1195,8 @@ export class CocoDataset
 		if(records>0 && __recordIndex>=records) __recordIndex = records;
 		if(records>0 && __recordIndex<0) __recordIndex = 0;
 
-		BOF = (records>0 && __recordIndex==0);
-		EOF = (records>0 && __recordIndex==records);
+		DB_BOF = (records>0 && __recordIndex==0);
+		DB_EOF = (records>0 && __recordIndex==records);
 
 		return (records>0);
 	}
@@ -1156,7 +1210,7 @@ export class CocoDataset
 			for(var i:Integer=0; i<fields; i++)
 			{
 				var COL:CocoDataField = METADATA[i];
-				if(COL!=null && COL.NAME == name || COL.ID == name)
+				if(COL!=null && (COL.NAME == name || COL.ID == name))
 					return COL;
 			}
 		}
@@ -1213,7 +1267,8 @@ export class CocoDataset
 		var c:Integer = field(fieldName).ORDINAL;
 		if(c>=0 && c<METADATA.size())
 		{
-			for(var r:Integer=0; r<DATA.size(); r++)
+			var L:Integer = DATA.size();
+			for(var r:Integer=0; r<L; r++)
 			{
 				if(DATA[r].FieldValues[c]==fieldValue)
 				{
@@ -1233,7 +1288,8 @@ export class CocoDataset
 		var bookmark:String = "";
 		if(__recordIndex>=0 && __recordIndex<DATA.size())
 		{
-			for(var i:Integer=0;i<METADATA.size();i++)
+			var fieldCount:Integer = METADATA.size();
+			for(var i:Integer=0;i<fieldCount;i++)
 				bookmark+="{"+DATA[__recordIndex].FieldValues[i]+"}";
 			bookmark = md5(bookmark);
 		}
@@ -1262,20 +1318,38 @@ export class CocoDataset
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function toBase64():String
-	{
-		var base64:String = "";
-		var ds:CocoDataStream = new CocoDataStream();
-		if(write(ds)) base64 = ds.toBase64();
-		delete ds;
-		return base64;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function update():Boolean
 	{
 		return true;
 	}
 
-
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toString():String
+	{
+		var s:String = "";
+		var fieldCount:Integer = METADATA.size();
+		if(fieldCount>0)
+		{
+			var out:Array<String> = new Array<String>;
+			for(var i:Integer=0; i<fieldCount; i++)
+			{
+				s += field(i).NAME+" | ";
+			}
+			out.push(s);
+			moveFirst();
+			while(!DB_EOF)
+			{
+				s="";
+				for(var i:Integer=0; i<fieldCount; i++)
+				{
+					s += field(i).value+" | ";
+				}
+				out.push(s);
+				moveNext();
+			}
+			s = out.join("\n");
+			delete out;
+		}
+		return s;
+	}
 }

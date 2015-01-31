@@ -2,6 +2,18 @@
 #  GDB preload initialization commands
 # =====================================
 
+# Set Unicode Charset
+#set target-charset UCS-2
+#set host-charset UCS-2
+#set charset UCS-2
+#set target-wide-charset UCS-2
+
+# Set UTF-8 Charset
+set target-charset UTF-8
+set host-charset UTF-8
+set charset UTF-8
+set target-wide-charset UTF-8
+
 # Request async target mode
 set target-async 1
 

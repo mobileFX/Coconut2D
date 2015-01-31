@@ -47,6 +47,8 @@ int main(int argc, char *argv[])
 {
 	int ret = -1;
 
+	std::setlocale(LC_ALL, "en_US.UTF-8");
+
 	// Redirect the standard error stream to a remote console
 	#if defined CONFIGURATION_DEBUG
 	{
