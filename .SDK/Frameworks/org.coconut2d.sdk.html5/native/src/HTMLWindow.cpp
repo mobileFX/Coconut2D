@@ -45,6 +45,7 @@ HTMLWindow::HTMLWindow()
 	location = new HTMLLocation();
 	navigator = new HTMLNavigator();
 	screen = new HTMLScreen();
+	screenRotation = fxScreen::Rotation::NONE;
 	e = new HTMLEvent();
 }
 
@@ -116,20 +117,17 @@ void HTMLWindow::dispatchEvent(int uid, String eventType)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 {
-
-	String eventType;
-
 	switch(type)
 	{
 		case fxEvent::LOAD:
 		{
-			eventType = "load";
+			e->type = "load";
 			break;
 		}
 
 		case fxEvent::CLICK:
 		{
-			eventType = "click";
+			e->type = "click";
 			int x, y;
 			switch(screenRotation)
 			{
@@ -145,21 +143,21 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 
 		case fxEvent::KEYDOWN:
 		{
-			eventType = "keydown";
+			e->type = "keydown";
 			//fxJSSetProperty(js_EventObject, jsStr_which, fxJSMakeNumber(fxAPIGetKey(data)), fxJSPropertyAttributeNone);
 			break;
 		}
 
 		case fxEvent::KEYPRESS:
 		{
-			eventType = "keypress";
+			e->type = "keypress";
 			//fxJSSetProperty(js_EventObject, jsStr_which, fxJSMakeNumber(fxAPIGetKey(data)), fxJSPropertyAttributeNone);
 			break;
 		}
 
 		case fxEvent::KEYUP:
 		{
-			eventType = "keyup";
+			e->type = "keyup";
 			//fxJSSetProperty(js_EventObject, jsStr_which, fxJSMakeNumber(fxAPIGetKey(data)), fxJSPropertyAttributeNone);
 			break;
 		}
@@ -171,10 +169,10 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 		{
 			switch(type)
 			{
-				case fxEvent::TOUCHSTART: eventType = "touchstart"; break;
-				case fxEvent::TOUCHMOVE: eventType = "touchmove"; break;
-				case fxEvent::TOUCHEND: eventType = "touchend"; break;
-				case fxEvent::TOUCHCANCEL: eventType = "touchcancel"; break;
+				case fxEvent::TOUCHSTART: e->type = "touchstart"; break;
+				case fxEvent::TOUCHMOVE: e->type = "touchmove"; break;
+				case fxEvent::TOUCHEND: e->type = "touchend"; break;
+				case fxEvent::TOUCHCANCEL: e->type = "touchcancel"; break;
 				default: break;
 			}
 			int x, y;
@@ -183,12 +181,12 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 			{
 				switch(screenRotation)
 				{
-						/*
-						 case fxScreen::Rotation::NONE: x = fxAPIGetTouchEventX(data, i); y = fxAPIGetTouchEventY(data, i) - screen->top; break;
-						 case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetTouchEventX(data, i); y = innerHeight - fxAPIGetTouchEventY(data, i); break;
-						 case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetTouchEventY(data, i); y = fxAPIGetTouchEventX(data, i) - screen->top; break;
-						 case fxScreen::Rotation::RCCW: x = fxAPIGetTouchEventY(data, i); y = innerHeight - fxAPIGetTouchEventX(data, i); break;
-						 */
+					/*
+					 case fxScreen::Rotation::NONE: x = fxAPIGetTouchEventX(data, i); y = fxAPIGetTouchEventY(data, i) - screen->top; break;
+					 case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetTouchEventX(data, i); y = innerHeight - fxAPIGetTouchEventY(data, i); break;
+					 case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetTouchEventY(data, i); y = fxAPIGetTouchEventX(data, i) - screen->top; break;
+					 case fxScreen::Rotation::RCCW: x = fxAPIGetTouchEventY(data, i); y = innerHeight - fxAPIGetTouchEventX(data, i); break;
+					 */
 					case fxScreen::Rotation::NONE: x = fxAPIGetTouchEventX(data, i); y = fxAPIGetTouchEventY(data, i); break;
 					case fxScreen::Rotation::FULL: x = innerWidth - fxAPIGetTouchEventX(data, i); y = innerHeight - fxAPIGetTouchEventY(data, i); break;
 					case fxScreen::Rotation::RCW: x = innerWidth - fxAPIGetTouchEventY(data, i); y = fxAPIGetTouchEventX(data, i); break;
@@ -228,5 +226,5 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 			trace("Event not implemented");
 	}
 
-	dispatchEvent(uid, eventType);
+	dispatchEvent(uid, e->type);
 }

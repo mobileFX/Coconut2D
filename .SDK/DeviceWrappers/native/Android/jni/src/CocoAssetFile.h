@@ -39,10 +39,13 @@ protected:
     static AAssetManager* manager;
 
 protected:
-    union {
+
+    union
+    {
     	FILE* fd;
     	AAsset* ad;
     } ptr;
+
     char* file;
 	unsigned char* data;
 	size_t cursor;
@@ -51,19 +54,22 @@ protected:
 
 public:
 
-	enum Type {
+	enum Type
+	{
 		TYPE_FILE,
 		TYPE_ASSET,
 		TYPE_DATA
 	} type;
 
-	enum MIME {
+	enum MIME
+	{
 		IMAGE_PNG,
 		IMAGE_JPG,
 		AUDIO_OGG,
 		FONT_TTF,
 		MIME_OTHER
 	} mime;
+
 	// ==================================================================================================================================
 	//	   _____ __        __  _
 	//	  / ___// /_____ _/ /_(_)____
@@ -223,13 +229,33 @@ public:
 	//
 	// ==================================================================================================================================
 
-	CocoAssetFile(size_t i_length) : file(nullptr), data(nullptr), cursor(0), length(i_length), type(TYPE_DATA), mime(MIME_OTHER)
+
+
+	CocoAssetFile(size_t i_length)
 	{
+		file = nullptr;
+		data = nullptr;
+		cursor = 0;
+		length = i_length;
+		type = TYPE_DATA;
+		mime = MIME_OTHER;
+		ptr.fd = nullptr;
+		ptr.ad = nullptr;
 		data = (unsigned char*)malloc(length);
 	}
 
-	CocoAssetFile(const char* str, bool i_isAsset) : file(nullptr), data(nullptr), isAsset(i_isAsset), length(0), mime(MIME_OTHER)
+	CocoAssetFile(const char* str, bool i_isAsset)
 	{
+		isAsset = i_isAsset;
+		file = nullptr;
+		data = nullptr;
+		cursor = 0;
+		length = 0;
+		type = TYPE_DATA;
+		mime = MIME_OTHER;
+		ptr.fd = nullptr;
+		ptr.ad = nullptr;
+
 		char* ld = (char*) strrchr(str, '.');
         if(!ld)
         {

@@ -83,6 +83,10 @@ extern void trace(const char* fmt, ...);
 
 #include "UTF8/UTF8.hpp"
 
+#ifndef UINT
+#define UINT unsigned int
+#endif
+
 #ifdef __CPP_0X__
 	#include <initializer_list>
 #endif
@@ -562,6 +566,8 @@ public:
 class Audio;
 class CocoAssetFile;
 class CocoAudioStream;
+class CocoDeviceOpenGLContext;
+class CocoDeviceWrapper;
 class CocoEventConnectionPoint;
 class CocoEventSource;
 class CocoFont;

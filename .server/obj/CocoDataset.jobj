@@ -1,0 +1,1842 @@
+﻿//@line 34
+var NULL_DATA_VALUE = "FF707534-E45E-4294-A242-E7B798BF96A7";
+//@line 36
+var DBTYPEENUM =
+{
+	DBTYPE_EMPTY: 0,
+	DBTYPE_NULL: 1,
+	DBTYPE_I2: 2,
+	DBTYPE_I4: 3,
+	DBTYPE_R4: 4,
+	DBTYPE_R8: 5,
+	DBTYPE_CY: 6,
+	DBTYPE_DATE: 7,
+	DBTYPE_BSTR: 8,
+	DBTYPE_IDISPATCH: 9,
+	DBTYPE_ERROR: 10,
+	DBTYPE_BOOL: 11,
+	DBTYPE_VARIANT: 12,
+	DBTYPE_IUNKNOWN: 13,
+	DBTYPE_DECIMAL: 14,
+	DBTYPE_UI1: 17,
+	DBTYPE_ARRAY: 8192,
+	DBTYPE_BYREF: 16384,
+	DBTYPE_I1: 16,
+	DBTYPE_UI2: 18,
+	DBTYPE_UI4: 19,
+	DBTYPE_I8: 20,
+	DBTYPE_UI8: 21,
+	DBTYPE_GUID: 72,
+	DBTYPE_VECTOR: 4096,
+	DBTYPE_RESERVED: 32768,
+	DBTYPE_BYTES: 128,
+	DBTYPE_STR: 129,
+	DBTYPE_WSTR: 130,
+	DBTYPE_NUMERIC: 131,
+	DBTYPE_UDT: 132,
+	DBTYPE_DBDATE: 133,
+	DBTYPE_DBTIME: 134,
+	DBTYPE_DBTIMESTAMP: 135,
+	DBTYPE_HCHAPTER: 136,
+	DBTYPE_FILETIME: 64,
+	DBTYPE_PROPVARIANT: 138,
+	DBTYPE_VARNUMERIC: 139,
+	DBTYPE_BLOB: 12
+};
+//@line 79
+var SQLITE_RECORD_STATUS =
+{
+	RECORD_NO_RECORD: 0,
+	RECORD_UNCHANGED: 1,
+	RECORD_CHANGED: 2,
+	RECORD_DELETED: 4,
+	RECORD_INSERTED: 8,
+	RECORD_ALL: 15
+};
+//@line 90
+var SQLITE_TABLE_ACCESS =
+{
+	CAN_SELECT: 0,
+	CAN_INSERT: 1,
+	CAN_UPDATE: 2,
+	CAN_DELETE: 4,
+	CAN_CRUD: 7
+};
+//@line 100
+var SQLITE_COLUMN_FLAGS =
+{
+	IS_UNIQUE: 1,
+	IS_KEYCOLUMN: 2,
+	IS_SEARCHABLE: 4,
+	IS_COMPUTED: 8,
+	IS_AUTOINCREMENT: 16,
+	IS_SORTABLE: 64,
+	IS_WRITABLE: 128,
+	IS_SEARCHABLE_LIKE: 512,
+	IS_NULLABLE: 1024,
+	IS_ROWID: 2048,
+	IS_FIXED_LENGTH: 4096,
+	HAS_DEFAULT: 8192,
+	DEFAULT_FLAGS: 1732
+};
+//@line 117
+var SQLITE_SCHEMA_ENUM =
+{
+	SQLITE_TABLES: 1,
+	SQLITE_VIEWS: 2,
+	SQLITE_COLUMNS: 3,
+	SQLITE_FOREIGN_KEYS: 4
+};
+//@line 126
+var SQLITE_INTERNAL_TYPE =
+{
+	SQLITE_VT_INTGER: 1,
+	SQLITE_VT_FLOAT: 2,
+	SQLITE_VT_TEXT: 3,
+	SQLITE_VT_BLOB: 4,
+	SQLITE_VT_NULL: 5
+};
+//@line 136
+var SQLITE_VARTYPE =
+{
+	VARTYPE_I1: 16,
+	VARTYPE_I2: 2,
+	VARTYPE_I4: 3,
+	VARTYPE_I8: 20,
+	VARTYPE_UI1: 17,
+	VARTYPE_UI2: 18,
+	VARTYPE_UI4: 19,
+	VARTYPE_UI8: 21,
+	VARTYPE_R4: 4,
+	VARTYPE_R8: 5,
+	VARTYPE_BOOL: 11,
+	VARTYPE_DBDATE: 133,
+	VARTYPE_DBTIME: 134,
+	VARTYPE_DBTIMESTAMP: 135,
+	VARTYPE_DATE: 7,
+	VARTYPE_CY: 6,
+	VARTYPE_DECIMAL: 14,
+	VARTYPE_BLOB: 12,
+	VARTYPE_BSTR: 8,
+	VARTYPE_WSTR: 130
+};
+//@line 177
+
+function CocoDataStream()
+{
+	var __BASE__ = null;
+
+	function __CocoDataStream()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCODATASTREAM__ = this.__CLASS__COCODATASTREAM__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoDataStream'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 185
+		__PRIVATE__.ELEMENTS_INCREMENT = 1024;
+		//@line 529
+		this.__className = "CocoDataStream";
+		//@line 187
+		__PRIVATE__.bi = null;
+		//@line 188
+		__PRIVATE__.bf = null;
+		//@line 190
+		__PRIVATE__.__offset = 0;
+		//@line 191
+		__PRIVATE__.__length = 0;
+		//@line 278
+		this.open = function (data)
+		{
+			//@line 280
+			if (!data || data.byteLength == 0)
+			//@line 281
+			return false;
+			//@line 283
+			{
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bf && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bf.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bf);
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bf = null
+			};
+			//@line 284
+			{
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bi && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bi.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bi);
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bi = null
+			};
+			//@line 285
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bi = new Int32Array(data);
+			//@line 286
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bf = new Float32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.buffer);
+			//@line 287
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__offset = Math.round(0);
+			//@line 288
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__length = Math.round(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.byteLength);
+			//@line 290
+			return true;
+			return false //@line 291
+		};
+		//@line 294
+		this.increaseSize = function (s)
+		{
+			s = Math.round(s);
+			//@line 296
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + s <= __CLASS__COCODATASTREAM__.__PRIVATE__.__length) return;
+			//@line 297
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__length = Math.round(__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + s);
+			//@line 298
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + s <= __CLASS__COCODATASTREAM__.__PRIVATE__.bi.length) return;
+			//@line 299
+			var nbi = new Int32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.length + __CLASS__COCODATASTREAM__.__PRIVATE__.ELEMENTS_INCREMENT + s);
+			//@line 300
+			nbi.set(__CLASS__COCODATASTREAM__.__PRIVATE__.bi);
+			//@line 301
+			{
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bf && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bf.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bf);
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bf = null
+			};
+			//@line 302
+			{
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bi && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bi.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bi);
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bi = null
+			};
+			//@line 303
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bi = nbi;
+			//@line 304
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bf = new Float32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.buffer);
+			//@line 305
+		};
+		//@line 308
+		this.shrink = function ()
+		{
+			//@line 310
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.bi.length == __CLASS__COCODATASTREAM__.__PRIVATE__.__length) return;
+			//@line 311
+			var nbi = new Int32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.__length);
+			//@line 312
+			nbi.set(__CLASS__COCODATASTREAM__.__PRIVATE__.bi);
+			//@line 313
+			{
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bf && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bf.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bf);
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bf = null
+			};
+			//@line 314
+			{
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bi && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bi.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bi);
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bi = null
+			};
+			//@line 315
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bi = nbi;
+			//@line 316
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bf = new Float32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.buffer);
+			//@line 317
+		};
+		//@line 343
+		this.writeInteger = function (v)
+		{
+			v = Math.round(v);
+			//@line 345
+			__CLASS__COCODATASTREAM__.increaseSize(Math.round(1));
+			//@line 346
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bi[__CLASS__COCODATASTREAM__.__PRIVATE__.__offset++] = Math.round(v);
+			//@line 347
+		};
+		//@line 350
+		this.writeFloat = function (v)
+		{
+			//@line 352
+			__CLASS__COCODATASTREAM__.increaseSize(Math.round(1));
+			//@line 353
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bf[__CLASS__COCODATASTREAM__.__PRIVATE__.__offset++] = v;
+			//@line 354
+		};
+		//@line 357
+		this.writeString = function (v)
+		{
+			//@line 359
+			var isNull = (v == NULL_DATA_VALUE);
+			//@line 360
+			var L = (isNull ? -1 : v.size());
+			//@line 361
+			__CLASS__COCODATASTREAM__.writeInteger(L);
+			//@line 362
+			for (var i = 0; i < L; i++)
+			//@line 363
+			{
+				//@line 364
+				var c = v.charCodeAt(i);
+				//@line 365
+				__CLASS__COCODATASTREAM__.writeInteger(c);
+				//@line 366
+			}
+			//@line 367
+		};
+		//@line 370
+		this.writeBoolean = function (v)
+		{
+			//@line 372
+			__CLASS__COCODATASTREAM__.writeInteger(v ? 1 : 0);
+			//@line 373
+		};
+		//@line 376
+		this.writeInt32Array = function (v)
+		{
+			//@line 378
+			__CLASS__COCODATASTREAM__.writeInteger(v.length);
+			//@line 379
+			__CLASS__COCODATASTREAM__.increaseSize(v.length);
+			//@line 380
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bi.set(v, __CLASS__COCODATASTREAM__.__PRIVATE__.__offset);
+			//@line 381
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__offset += Math.round(v.length);
+			//@line 382
+		};
+		//@line 385
+		this.writeFloat32Array = function (v)
+		{
+			//@line 387
+			__CLASS__COCODATASTREAM__.writeInteger(v.length);
+			//@line 388
+			__CLASS__COCODATASTREAM__.increaseSize(v.length);
+			//@line 389
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bf.set(v, __CLASS__COCODATASTREAM__.__PRIVATE__.__offset);
+			//@line 390
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__offset += Math.round(v.length);
+			//@line 391
+		};
+		//@line 394
+		this.writeDataStream = function (v)
+		{
+			//@line 396
+			v.shrink();
+			//@line 397
+			__CLASS__COCODATASTREAM__.writeInt32Array(v.__PRIVATE__.bi);
+			//@line 398
+		};
+		//@line 411
+		this.readCocoDataStream = function ()
+		{
+			//@line 413
+			var data = __CLASS__COCODATASTREAM__.readInt32Array();
+			//@line 414
+			var ret = new CocoDataStream;
+			//@line 415
+			ret.__PROTECTED__.set(data);
+			//@line 416
+			return ret;
+			//@line 417
+		};
+		//@line 420
+		this.__PROTECTED__.set = function (v)
+		{
+			//@line 422
+			{
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bf && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bf.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bf);
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bf = null
+			};
+			//@line 423
+			{
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bi && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bi.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bi);
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bi = null
+			};
+			//@line 424
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bi = new Int32Array(v.length);
+			//@line 425
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bi.set(v);
+			//@line 426
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bf = new Float32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.buffer);
+			//@line 427
+		};
+		//@line 430
+		this.readUint8Array = function ()
+		{
+			//@line 432
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + 1 > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 433
+			return null;
+			//@line 435
+			var L = __CLASS__COCODATASTREAM__.readInteger();
+			//@line 437
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + L > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 438
+			return null;
+			//@line 440
+			var ret = new Uint8Array(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.buffer, __CLASS__COCODATASTREAM__.__PRIVATE__.__offset * 4, L);
+			//@line 441
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__offset += Math.round(L / 4);
+			//@line 443
+			return ret;
+			//@line 444
+		};
+		//@line 447
+		this.readInt32Array = function ()
+		{
+			//@line 449
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + 1 > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 450
+			return null;
+			//@line 452
+			var L = __CLASS__COCODATASTREAM__.readInteger();
+			//@line 454
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + L > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 455
+			return null;
+			//@line 457
+			var ret = new Int32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.buffer, __CLASS__COCODATASTREAM__.__PRIVATE__.__offset * 4, L);
+			//@line 458
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__offset += Math.round(L);
+			//@line 460
+			return ret;
+			//@line 461
+		};
+		//@line 464
+		this.readFloat32Array = function ()
+		{
+			//@line 466
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + 1 > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 467
+			return null;
+			//@line 469
+			var L = __CLASS__COCODATASTREAM__.readInteger();
+			//@line 471
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + L > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 472
+			return null;
+			//@line 474
+			var ret = new Float32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.buffer, __CLASS__COCODATASTREAM__.__PRIVATE__.__offset * 4, L);
+			//@line 475
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__offset += Math.round(L);
+			//@line 477
+			return ret;
+			//@line 478
+		};
+		//@line 481
+		this.readInteger = function ()
+		{
+			//@line 483
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + 1 > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 484
+			return 0;
+			//@line 485
+			return __CLASS__COCODATASTREAM__.__PRIVATE__.bi[__CLASS__COCODATASTREAM__.__PRIVATE__.__offset++];
+			return 0 //@line 486
+		};
+		//@line 489
+		this.readFloat = function ()
+		{
+			//@line 491
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + 1 > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 492
+			return 0.0;
+			//@line 493
+			return __CLASS__COCODATASTREAM__.__PRIVATE__.bf[__CLASS__COCODATASTREAM__.__PRIVATE__.__offset++];
+			return 0 //@line 494
+		};
+		//@line 497
+		this.readString = function ()
+		{
+			//@line 499
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + 1 > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 500
+			return "";
+			//@line 502
+			var L = __CLASS__COCODATASTREAM__.readInteger();
+			//@line 503
+			if (L == -1)
+			//@line 504
+			{
+				//@line 505
+				return NULL_DATA_VALUE;
+				//@line 506
+			}
+			//@line 508
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + L > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 509
+			return "";
+			//@line 511
+			var ret = "";
+			//@line 512
+			for (var i = 0; i < L; i++)
+			//@line 513
+			{
+				//@line 514
+				ret += String.fromCharCode(__CLASS__COCODATASTREAM__.readInteger());
+				//@line 515
+			}
+			//@line 517
+			return ret;
+			return "" //@line 518
+		};
+		//@line 521
+		this.readBoolean = function ()
+		{
+			//@line 523
+			if (__CLASS__COCODATASTREAM__.__PRIVATE__.__offset + 1 > __CLASS__COCODATASTREAM__.__PRIVATE__.__length)
+			//@line 524
+			return false;
+			//@line 526
+			var i = __CLASS__COCODATASTREAM__.readInteger();
+			//@line 527
+			return i ? true : false;
+			return false //@line 528
+		};
+		//@line 320
+		Object.defineProperty(this, 'offset', {
+			enumerable: true,
+			//@line 322
+			get: function ()
+			{
+				//@line 324
+				return __CLASS__COCODATASTREAM__.__PRIVATE__.__offset;
+				return 0 //@line 325
+			},
+			//@line 327
+			set: function (v)
+			{
+				v = Math.round(v);
+				//@line 329
+				__CLASS__COCODATASTREAM__.__PRIVATE__.__offset = Math.round(v);
+				//@line 330
+			}
+		});
+		//@line 211
+		this.Destructor = function ()
+		{
+			{
+				//@line 213
+				//@line 217
+				{
+					__CLASS__COCODATASTREAM__.__PRIVATE__.bf && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bf.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bf.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bf);
+					__CLASS__COCODATASTREAM__.__PRIVATE__.bf = null
+				};
+				//@line 218
+				{
+					__CLASS__COCODATASTREAM__.__PRIVATE__.bi && ((__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor') && __CLASS__COCODATASTREAM__.__PRIVATE__.bi.Destructor()) || !__CLASS__COCODATASTREAM__.__PRIVATE__.bi.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASTREAM__.__PRIVATE__.bi);
+					__CLASS__COCODATASTREAM__.__PRIVATE__.bi = null
+				};
+				//@line 219
+			}
+			{
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bi = null;
+				__CLASS__COCODATASTREAM__.__PRIVATE__.bf = null;
+			}
+			return true
+		};
+		//@line 198
+		this.Constructor = function ()
+		{
+			//@line 200
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__offset = Math.round(0);
+			//@line 201
+			__CLASS__COCODATASTREAM__.__PRIVATE__.__length = Math.round(0);
+			//@line 202
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bi = new Int32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.__length);
+			//@line 203
+			__CLASS__COCODATASTREAM__.__PRIVATE__.bf = new Float32Array(__CLASS__COCODATASTREAM__.__PRIVATE__.bi.buffer);
+			//@line 208
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__CocoDataStream.prototype.constructor = __CocoDataStream;
+	return new __CocoDataStream();
+}
+CocoDataStream.__PRIVATE__ = {};
+CocoDataStream.__PROTECTED__ = {};
+//@line 540
+
+function CocoDataField(__CLASS__COCODATAFIELD__$dataset__)
+{
+	var __BASE__ = null;
+
+	function __CocoDataField(__CLASS__COCODATAFIELD__$dataset__)
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCODATAFIELD__ = this.__CLASS__COCODATAFIELD__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoDataField'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 691
+		this.__className = "CocoDataField";
+		//@line 542
+		__PRIVATE__.dataset = null;
+		//@line 544
+		this.ORDINAL = 0;
+		//@line 545
+		this.NAME = "";
+		//@line 546
+		this.BASECOLUMNNAME = "";
+		//@line 547
+		this.BASETABLENAME = "";
+		//@line 548
+		this.ID = "";
+		//@line 549
+		this.TYPE = null;
+		//@line 550
+		this.LCID = 0;
+		//@line 551
+		this.PRECISION = 0;
+		//@line 552
+		this.SCALE = 0;
+		//@line 553
+		this.SIZE = 0;
+		//@line 554
+		this.LENGTH = 0;
+		//@line 555
+		this.FLAGS = null;
+		//@line 556
+		this.SQLITE_DECLARED_TYPE = "";
+		//@line 557
+		this.SQLITE_PK_COLUMN = "";
+		//@line 558
+		this.SQLITE_PK_TABLE = "";
+		//@line 559
+		this.SQLITE_DATATYPE = null;
+		//@line 560
+		this.DEFAULTVALUE = "";
+		//@line 593
+		this.copy = function (col)
+		{
+			//@line 595
+			__CLASS__COCODATAFIELD__.__PRIVATE__.dataset = col.__PRIVATE__.dataset;
+			//@line 597
+			__CLASS__COCODATAFIELD__.ORDINAL = Math.round(col.ORDINAL);
+			//@line 598
+			__CLASS__COCODATAFIELD__.ID = col.ID;
+			//@line 599
+			__CLASS__COCODATAFIELD__.NAME = col.NAME;
+			//@line 600
+			__CLASS__COCODATAFIELD__.BASECOLUMNNAME = col.BASECOLUMNNAME;
+			//@line 601
+			__CLASS__COCODATAFIELD__.BASETABLENAME = col.BASETABLENAME;
+			//@line 602
+			__CLASS__COCODATAFIELD__.TYPE = col.TYPE;
+			//@line 603
+			__CLASS__COCODATAFIELD__.LCID = Math.round(col.LCID);
+			//@line 604
+			__CLASS__COCODATAFIELD__.PRECISION = Math.round(col.PRECISION);
+			//@line 605
+			__CLASS__COCODATAFIELD__.SCALE = Math.round(col.SCALE);
+			//@line 606
+			__CLASS__COCODATAFIELD__.SIZE = Math.round(col.SIZE);
+			//@line 607
+			__CLASS__COCODATAFIELD__.LENGTH = Math.round(col.LENGTH);
+			//@line 608
+			__CLASS__COCODATAFIELD__.FLAGS = col.FLAGS;
+			//@line 609
+			__CLASS__COCODATAFIELD__.SQLITE_DATATYPE = col.SQLITE_DATATYPE;
+			//@line 610
+			__CLASS__COCODATAFIELD__.SQLITE_DECLARED_TYPE = col.SQLITE_DECLARED_TYPE;
+			//@line 611
+			__CLASS__COCODATAFIELD__.SQLITE_PK_COLUMN = col.SQLITE_PK_COLUMN;
+			//@line 612
+			__CLASS__COCODATAFIELD__.SQLITE_PK_TABLE = col.SQLITE_PK_TABLE;
+			//@line 613
+			__CLASS__COCODATAFIELD__.DEFAULTVALUE = col.DEFAULTVALUE;
+			//@line 614
+		};
+		//@line 617
+		this.write = function (ds)
+		{
+			//@line 619
+			ds.writeInteger(__CLASS__COCODATAFIELD__.ORDINAL);
+			//@line 620
+			ds.writeString(__CLASS__COCODATAFIELD__.ID);
+			//@line 621
+			ds.writeString(__CLASS__COCODATAFIELD__.NAME);
+			//@line 622
+			ds.writeString(__CLASS__COCODATAFIELD__.BASECOLUMNNAME);
+			//@line 623
+			ds.writeString(__CLASS__COCODATAFIELD__.BASETABLENAME);
+			//@line 624
+			ds.writeInteger(__CLASS__COCODATAFIELD__.TYPE);
+			//@line 625
+			ds.writeInteger(__CLASS__COCODATAFIELD__.LCID);
+			//@line 626
+			ds.writeInteger(__CLASS__COCODATAFIELD__.PRECISION);
+			//@line 627
+			ds.writeInteger(__CLASS__COCODATAFIELD__.SCALE);
+			//@line 628
+			ds.writeInteger(__CLASS__COCODATAFIELD__.SIZE);
+			//@line 629
+			ds.writeInteger(__CLASS__COCODATAFIELD__.LENGTH);
+			//@line 630
+			ds.writeInteger(__CLASS__COCODATAFIELD__.FLAGS);
+			//@line 631
+			ds.writeInteger(__CLASS__COCODATAFIELD__.SQLITE_DATATYPE);
+			//@line 632
+			ds.writeString(__CLASS__COCODATAFIELD__.SQLITE_DECLARED_TYPE);
+			//@line 633
+			ds.writeString(__CLASS__COCODATAFIELD__.SQLITE_PK_COLUMN);
+			//@line 634
+			ds.writeString(__CLASS__COCODATAFIELD__.SQLITE_PK_TABLE);
+			//@line 635
+			ds.writeString(__CLASS__COCODATAFIELD__.DEFAULTVALUE);
+			//@line 636
+		};
+		//@line 639
+		this.read = function (ds)
+		{
+			//@line 641
+			__CLASS__COCODATAFIELD__.ORDINAL = Math.round(ds.readInteger());
+			//@line 642
+			__CLASS__COCODATAFIELD__.ID = ds.readString();
+			//@line 643
+			__CLASS__COCODATAFIELD__.NAME = ds.readString();
+			//@line 644
+			__CLASS__COCODATAFIELD__.BASECOLUMNNAME = ds.readString();
+			//@line 645
+			__CLASS__COCODATAFIELD__.BASETABLENAME = ds.readString();
+			//@line 646
+			__CLASS__COCODATAFIELD__.TYPE = (ds.readInteger());
+			//@line 647
+			__CLASS__COCODATAFIELD__.LCID = Math.round(ds.readInteger());
+			//@line 648
+			__CLASS__COCODATAFIELD__.PRECISION = Math.round(ds.readInteger());
+			//@line 649
+			__CLASS__COCODATAFIELD__.SCALE = Math.round(ds.readInteger());
+			//@line 650
+			__CLASS__COCODATAFIELD__.SIZE = Math.round(ds.readInteger());
+			//@line 651
+			__CLASS__COCODATAFIELD__.LENGTH = Math.round(ds.readInteger());
+			//@line 652
+			__CLASS__COCODATAFIELD__.FLAGS = (ds.readInteger());
+			//@line 653
+			__CLASS__COCODATAFIELD__.SQLITE_DATATYPE = (ds.readInteger());
+			//@line 654
+			__CLASS__COCODATAFIELD__.SQLITE_DECLARED_TYPE = ds.readString();
+			//@line 655
+			__CLASS__COCODATAFIELD__.SQLITE_PK_COLUMN = ds.readString();
+			//@line 656
+			__CLASS__COCODATAFIELD__.SQLITE_PK_TABLE = ds.readString();
+			//@line 657
+			__CLASS__COCODATAFIELD__.DEFAULTVALUE = ds.readString();
+			//@line 658
+		};
+		//@line 661
+		Object.defineProperty(this, 'value', {
+			enumerable: true,
+			//@line 663
+			get: function ()
+			{
+				//@line 665
+				if (__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.__recordIndex >= 0 && __CLASS__COCODATAFIELD__.__PRIVATE__.dataset.__recordIndex < __CLASS__COCODATAFIELD__.__PRIVATE__.dataset.DATA.size() && __CLASS__COCODATAFIELD__.ORDINAL >= 0 && __CLASS__COCODATAFIELD__.ORDINAL < __CLASS__COCODATAFIELD__.__PRIVATE__.dataset.METADATA.size())
+				//@line 666
+				{
+					//@line 667
+					var v = __CLASS__COCODATAFIELD__.__PRIVATE__.dataset.DATA[__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.__recordIndex].FieldValues[__CLASS__COCODATAFIELD__.ORDINAL];
+					//@line 668
+					if (v == NULL_DATA_VALUE) v = __CLASS__COCODATAFIELD__.__PRIVATE__.dataset.stringForNull;
+					//@line 669
+					return v;
+					//@line 670
+				}
+				//@line 671
+				throw "Invalid Record";
+				return "" //@line 672
+			},
+			//@line 674
+			set: function (v)
+			{
+				//@line 676
+				if (__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.__recordIndex >= 0 && __CLASS__COCODATAFIELD__.__PRIVATE__.dataset.__recordIndex < __CLASS__COCODATAFIELD__.__PRIVATE__.dataset.DATA.size() && __CLASS__COCODATAFIELD__.ORDINAL >= 0 && __CLASS__COCODATAFIELD__.ORDINAL < __CLASS__COCODATAFIELD__.__PRIVATE__.dataset.METADATA.size())
+				//@line 677
+				{
+					//@line 678
+					if (v == __CLASS__COCODATAFIELD__.__PRIVATE__.dataset.stringForNull) v = NULL_DATA_VALUE;
+					//@line 679
+					if (__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.DATA[__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.__recordIndex].FieldValues[__CLASS__COCODATAFIELD__.ORDINAL] != v)
+					//@line 680
+					{
+						//@line 681
+						__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.DATA[__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.__recordIndex].FieldValues[__CLASS__COCODATAFIELD__.ORDINAL] = v;
+						//@line 683
+						if (__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.DATA[__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.__recordIndex].STATUS != SQLITE_RECORD_STATUS.RECORD_INSERTED)
+						//@line 684
+						__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.DATA[__CLASS__COCODATAFIELD__.__PRIVATE__.dataset.__recordIndex].STATUS = SQLITE_RECORD_STATUS.RECORD_CHANGED;
+						//@line 685
+					}
+					//@line 686
+					return;
+					//@line 687
+				}
+				//@line 688
+				throw "Invalid Record"; //@line 689
+			}
+		});
+		//@line 587
+		this.Destructor = function ()
+		{
+			{
+				//@line 589
+				__CLASS__COCODATAFIELD__.__PRIVATE__.dataset = null;
+				//@line 590
+			}
+			{
+				__CLASS__COCODATAFIELD__.__PRIVATE__.dataset = null;
+			}
+			return true
+		};
+		//@line 563
+		this.Constructor = function (dataset)
+		{
+			//@line 565
+			__CLASS__COCODATAFIELD__.__PRIVATE__.dataset = dataset;
+			//@line 567
+			__CLASS__COCODATAFIELD__.ORDINAL = Math.round(0);
+			//@line 568
+			__CLASS__COCODATAFIELD__.ID = "";
+			//@line 569
+			__CLASS__COCODATAFIELD__.NAME = "";
+			//@line 570
+			__CLASS__COCODATAFIELD__.BASECOLUMNNAME = "";
+			//@line 571
+			__CLASS__COCODATAFIELD__.BASETABLENAME = "";
+			//@line 572
+			__CLASS__COCODATAFIELD__.TYPE = SQLITE_VARTYPE.VARTYPE_BSTR;
+			//@line 573
+			__CLASS__COCODATAFIELD__.LCID = Math.round(1053);
+			//@line 574
+			__CLASS__COCODATAFIELD__.PRECISION = Math.round(0);
+			//@line 575
+			__CLASS__COCODATAFIELD__.SCALE = Math.round(0);
+			//@line 576
+			__CLASS__COCODATAFIELD__.SIZE = Math.round(0);
+			//@line 577
+			__CLASS__COCODATAFIELD__.LENGTH = Math.round(0);
+			//@line 578
+			__CLASS__COCODATAFIELD__.FLAGS = SQLITE_COLUMN_FLAGS.DEFAULT_FLAGS;
+			//@line 579
+			__CLASS__COCODATAFIELD__.SQLITE_DATATYPE = SQLITE_INTERNAL_TYPE.SQLITE_VT_TEXT;
+			//@line 580
+			__CLASS__COCODATAFIELD__.SQLITE_DECLARED_TYPE = "Text";
+			//@line 581
+			__CLASS__COCODATAFIELD__.SQLITE_PK_COLUMN = "";
+			//@line 582
+			__CLASS__COCODATAFIELD__.SQLITE_PK_TABLE = "";
+			//@line 583
+			__CLASS__COCODATAFIELD__.DEFAULTVALUE = "";
+			//@line 584
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__COCODATAFIELD__$dataset__);
+		return this;
+	}
+	__CocoDataField.prototype.constructor = __CocoDataField;
+	return new __CocoDataField(__CLASS__COCODATAFIELD__$dataset__);
+}
+CocoDataField.__PRIVATE__ = {};
+CocoDataField.__PROTECTED__ = {};
+//@line 702
+
+function CocoDataRow(__CLASS__COCODATAROW__$dataset__)
+{
+	var __BASE__ = null;
+
+	function __CocoDataRow(__CLASS__COCODATAROW__$dataset__)
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCODATAROW__ = this.__CLASS__COCODATAROW__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoDataRow'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 755
+		this.__className = "CocoDataRow";
+		//@line 704
+		__PRIVATE__.dataset = null;
+		//@line 705
+		this.STATUS = null;
+		//@line 706
+		this.FieldValues = [];
+		//@line 727
+		this.write = function (ds)
+		{
+			//@line 729
+			var fieldCount = __CLASS__COCODATAROW__.__PRIVATE__.dataset.METADATA.size();
+			//@line 732
+			ds.writeInteger(Math.round(__CLASS__COCODATAROW__.STATUS));
+			//@line 735
+			for (var i = 0; i < fieldCount; i++)
+			//@line 736
+			{
+				//@line 737
+				ds.writeString(__CLASS__COCODATAROW__.FieldValues[i]);
+				//@line 738
+			}
+			//@line 739
+		};
+		//@line 742
+		this.read = function (ds)
+		{
+			//@line 744
+			var fieldCount = __CLASS__COCODATAROW__.__PRIVATE__.dataset.METADATA.size();
+			//@line 747
+			__CLASS__COCODATAROW__.STATUS = (ds.readInteger());
+			//@line 750
+			for (var i = 0; i < fieldCount; i++)
+			//@line 751
+			{
+				//@line 752
+				__CLASS__COCODATAROW__.FieldValues[i] = ds.readString();
+				//@line 753
+			}
+			//@line 754
+		};
+		//@line 720
+		this.Destructor = function ()
+		{
+			{
+				//@line 722
+				__CLASS__COCODATAROW__.__PRIVATE__.dataset = null;
+				//@line 723
+				{
+					__CLASS__COCODATAROW__.FieldValues && ((__CLASS__COCODATAROW__.FieldValues.hasOwnProperty('Destructor') && __CLASS__COCODATAROW__.FieldValues.Destructor()) || !__CLASS__COCODATAROW__.FieldValues.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATAROW__.FieldValues);
+					__CLASS__COCODATAROW__.FieldValues = null
+				};
+				//@line 724
+			}
+			{
+				__CLASS__COCODATAROW__.__PRIVATE__.dataset = null;
+				__CLASS__COCODATAROW__.FieldValues = null;
+			}
+			return true
+		};
+		//@line 709
+		this.Constructor = function (dataset)
+		{
+			//@line 711
+			__CLASS__COCODATAROW__.__PRIVATE__.dataset = dataset;
+			//@line 712
+			__CLASS__COCODATAROW__.STATUS = SQLITE_RECORD_STATUS.RECORD_UNCHANGED;
+			//@line 713
+			__CLASS__COCODATAROW__.FieldValues = new Array;
+			//@line 714
+			var L = dataset.METADATA.size();
+			//@line 715
+			for (var i = 0; i < L; i++)
+			//@line 716
+			__CLASS__COCODATAROW__.FieldValues.push(NULL_DATA_VALUE);
+			//@line 717
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__COCODATAROW__$dataset__);
+		return this;
+	}
+	__CocoDataRow.prototype.constructor = __CocoDataRow;
+	return new __CocoDataRow(__CLASS__COCODATAROW__$dataset__);
+}
+CocoDataRow.__PRIVATE__ = {};
+CocoDataRow.__PROTECTED__ = {};
+//@line 766
+
+function CocoDataset()
+{
+	var __BASE__ = null;
+
+	function __CocoDataset()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCODATASET__ = this.__CLASS__COCODATASET__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoDataset'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 1360
+		this.__className = "CocoDataset";
+		//@line 768
+		this.fileName = "";
+		//@line 769
+		this.SQL = "";
+		//@line 770
+		this.METADATA = [];
+		//@line 771
+		this.DATA = [];
+		//@line 772
+		this.ACCESS = null;
+		//@line 773
+		this.__recordIndex = 0;
+		//@line 774
+		this.DB_EOF = false;
+		//@line 775
+		this.DB_BOF = false;
+		//@line 776
+		this.stringForNull = "";
+		//@line 777
+		this.StatusFilter = null;
+		//@line 779
+		__PRIVATE__.ds = null;
+		//@line 862
+		this.open = function (ds)
+		{
+			//@line 864
+			__CLASS__COCODATASET__.close();
+			//@line 866
+			var i = 0;
+			//@line 867
+			var recordCount = 0;
+			//@line 868
+			var filedCount = 0;
+			//@line 870
+			if (ds.readString() == "SQLiteRowset.1")
+			//@line 871
+			{
+				//@line 872
+				__CLASS__COCODATASET__.fileName = ds.readString();
+				//@line 873
+				__CLASS__COCODATASET__.SQL = ds.readString();
+				//@line 874
+				__CLASS__COCODATASET__.ACCESS = (ds.readInteger());
+				//@line 876
+				filedCount = Math.round(ds.readInteger());
+				//@line 877
+				for (i = Math.round(0); i < filedCount; i++)
+				//@line 878
+				{
+					//@line 879
+					var COL = new CocoDataField(__THIS__);
+					//@line 880
+					COL.read(ds);
+					//@line 881
+					__CLASS__COCODATASET__.METADATA.push(COL);
+					//@line 882
+				}
+				//@line 884
+				recordCount = Math.round(ds.readInteger());
+				//@line 885
+				for (i = Math.round(0); i < recordCount; i++)
+				//@line 886
+				{
+					//@line 887
+					var ROW = new CocoDataRow(__THIS__);
+					//@line 888
+					ROW.read(ds);
+					//@line 889
+					__CLASS__COCODATASET__.DATA.push(ROW);
+					//@line 890
+				}
+				//@line 892
+				__CLASS__COCODATASET__.moveFirst();
+				//@line 893
+				return true;
+				//@line 894
+			}
+			//@line 896
+			return false;
+			return false //@line 897
+		};
+		//@line 900
+		this.write = function (ds)
+		{
+			//@line 903
+			var i = 0;
+			//@line 904
+			var filedCount = __CLASS__COCODATASET__.METADATA.size();
+			//@line 905
+			var recordCount = __CLASS__COCODATASET__.DATA.size();
+			//@line 907
+			ds.writeString("SQLiteRowset.1");
+			//@line 908
+			ds.writeString(__CLASS__COCODATASET__.fileName);
+			//@line 909
+			ds.writeString(__CLASS__COCODATASET__.SQL);
+			//@line 910
+			ds.writeInteger(__CLASS__COCODATASET__.ACCESS);
+			//@line 912
+			ds.writeInteger(filedCount);
+			//@line 913
+			for (i = Math.round(0); i < filedCount; i++)
+			//@line 914
+			{
+				//@line 915
+				__CLASS__COCODATASET__.METADATA[i].write(ds);
+				//@line 916
+			}
+			//@line 918
+			ds.writeInteger(recordCount);
+			//@line 919
+			for (i = Math.round(0); i < recordCount; i++)
+			//@line 920
+			{
+				//@line 921
+				__CLASS__COCODATASET__.DATA[i].write(ds);
+				//@line 922
+			}
+			//@line 924
+			return true;
+			return false //@line 925
+		};
+		//@line 928
+		this.close = function ()
+		{
+			//@line 930
+			__CLASS__COCODATASET__.__recordIndex = Math.round(-1);
+			//@line 931
+			__CLASS__COCODATASET__.DB_EOF = false;
+			//@line 932
+			__CLASS__COCODATASET__.DB_BOF = false;
+			//@line 933
+			__CLASS__COCODATASET__.ACCESS = SQLITE_TABLE_ACCESS.CAN_CRUD;
+			//@line 935
+			var i = 0;
+			//@line 936
+			var filedCount = __CLASS__COCODATASET__.METADATA.size();
+			//@line 937
+			var recordCount = __CLASS__COCODATASET__.DATA.size();
+			//@line 939
+			for (i = Math.round(0); i < filedCount; i++)
+			//@line 940
+			{
+				//@line 941
+				var COL = __CLASS__COCODATASET__.METADATA[i];
+				//@line 942
+				__CLASS__COCODATASET__.METADATA.pop();
+				//@line 943
+				{
+					COL && ((COL.hasOwnProperty('Destructor') && COL.Destructor()) || !COL.hasOwnProperty('Destructor')) && (delete COL);
+					COL = null
+				};
+				//@line 944
+			}
+			//@line 946
+			for (i = Math.round(0); i < recordCount; i++)
+			//@line 947
+			{
+				//@line 948
+				var ROW = __CLASS__COCODATASET__.DATA[i];
+				//@line 949
+				__CLASS__COCODATASET__.DATA.pop();
+				//@line 950
+				{
+					ROW && ((ROW.hasOwnProperty('Destructor') && ROW.Destructor()) || !ROW.hasOwnProperty('Destructor')) && (delete ROW);
+					ROW = null
+				};
+				//@line 951
+			}
+			//@line 953
+			__CLASS__COCODATASET__.METADATA.clear();
+			//@line 954
+			__CLASS__COCODATASET__.DATA.clear();
+			//@line 955
+		};
+		//@line 958
+		this.ADD_META = function (ORDINAL, NAME, TYPE, PRECISION, SCALE, LENGTH, FLAGS, BASECOLUMNNAME, BASETABLENAME, ID, LCID, SIZE, SQLITE_DECLARED_TYPE, SQLITE_PK_COLUMN, SQLITE_PK_TABLE, SQLITE_DATATYPE, DEFAULTVALUE)
+		{
+			ORDINAL = Math.round(ORDINAL);
+			PRECISION = Math.round(PRECISION);
+			SCALE = Math.round(SCALE);
+			LENGTH = Math.round(LENGTH);
+			LCID = Math.round(LCID);
+			SIZE = Math.round(SIZE);
+			//@line 978
+			var COL = new CocoDataField(__THIS__);
+			//@line 980
+			COL.ORDINAL = Math.round(ORDINAL);
+			//@line 981
+			COL.ID = ID;
+			//@line 982
+			COL.NAME = NAME;
+			//@line 983
+			COL.BASECOLUMNNAME = BASECOLUMNNAME;
+			//@line 984
+			COL.BASETABLENAME = BASETABLENAME;
+			//@line 985
+			COL.TYPE = TYPE;
+			//@line 986
+			COL.LCID = Math.round(LCID);
+			//@line 987
+			COL.PRECISION = Math.round(PRECISION);
+			//@line 988
+			COL.SCALE = Math.round(SCALE);
+			//@line 989
+			COL.SIZE = Math.round(SIZE);
+			//@line 990
+			COL.LENGTH = Math.round(LENGTH);
+			//@line 991
+			COL.FLAGS = FLAGS;
+			//@line 992
+			COL.SQLITE_DATATYPE = SQLITE_DATATYPE;
+			//@line 993
+			COL.SQLITE_DECLARED_TYPE = SQLITE_DECLARED_TYPE;
+			//@line 994
+			COL.SQLITE_PK_COLUMN = SQLITE_PK_COLUMN;
+			//@line 995
+			COL.SQLITE_PK_TABLE = SQLITE_PK_TABLE;
+			//@line 996
+			COL.DEFAULTVALUE = DEFAULTVALUE;
+			//@line 998
+			__CLASS__COCODATASET__.METADATA.push(COL);
+			//@line 999
+		};
+		//@line 1002
+		this.ADD_DATA = function (length)
+		{
+			arguments = Array.prototype.slice.call(arguments, 0);
+			length = Math.round(length);
+			//@line 1004
+			var ROW = new CocoDataRow(__THIS__);
+			//@line 1005
+			var L = arguments.size();
+			//@line 1006
+			for (var i = 1; i < L; i++)
+			//@line 1007
+			{
+				//@line 1008
+				ROW.FieldValues[i] = arguments[i];
+				//@line 1009
+			}
+			//@line 1010
+			__CLASS__COCODATASET__.DATA.push(ROW);
+			//@line 1011
+		};
+		//@line 1014
+		this.__PRIVATE__.isSet = function (v, flags)
+		{
+			//@line 1016
+			if ((flags & SQLITE_RECORD_STATUS.RECORD_CHANGED) == SQLITE_RECORD_STATUS.RECORD_CHANGED)
+			//@line 1017
+			{
+				//@line 1018
+				if ((v & SQLITE_RECORD_STATUS.RECORD_CHANGED) == SQLITE_RECORD_STATUS.RECORD_CHANGED)
+				//@line 1019
+				return true;
+				//@line 1020
+			}
+			//@line 1022
+			if ((flags & SQLITE_RECORD_STATUS.RECORD_UNCHANGED) == SQLITE_RECORD_STATUS.RECORD_UNCHANGED)
+			//@line 1023
+			{
+				//@line 1024
+				if ((v & SQLITE_RECORD_STATUS.RECORD_UNCHANGED) == SQLITE_RECORD_STATUS.RECORD_UNCHANGED)
+				//@line 1025
+				return true;
+				//@line 1026
+			}
+			//@line 1028
+			if ((flags & SQLITE_RECORD_STATUS.RECORD_INSERTED) == SQLITE_RECORD_STATUS.RECORD_INSERTED)
+			//@line 1029
+			{
+				//@line 1030
+				if ((v & SQLITE_RECORD_STATUS.RECORD_INSERTED) == SQLITE_RECORD_STATUS.RECORD_INSERTED)
+				//@line 1031
+				return true;
+				//@line 1032
+			}
+			//@line 1034
+			if ((flags & SQLITE_RECORD_STATUS.RECORD_DELETED) == SQLITE_RECORD_STATUS.RECORD_DELETED)
+			//@line 1035
+			{
+				//@line 1036
+				if ((v & SQLITE_RECORD_STATUS.RECORD_DELETED) == SQLITE_RECORD_STATUS.RECORD_DELETED)
+				//@line 1037
+				return true;
+				//@line 1038
+			}
+			//@line 1040
+			return false;
+			return false //@line 1041
+		};
+		//@line 1053
+		this.recordCount = function (Status)
+		{
+			Status = Status || null;
+			//@line 1055
+			if (Status == SQLITE_RECORD_STATUS.RECORD_ALL)
+			//@line 1056
+			return __CLASS__COCODATASET__.DATA.size();
+			//@line 1058
+			var recordCount = 0;
+			//@line 1059
+			var i = 0;
+			//@line 1060
+			var L = __CLASS__COCODATASET__.DATA.size();
+			//@line 1062
+			for (i = Math.round(0); i < L; i++)
+			//@line 1063
+			{
+				//@line 1064
+				if (__CLASS__COCODATASET__.__PRIVATE__.isSet(__CLASS__COCODATASET__.DATA[i].STATUS, Status))
+				//@line 1065
+				recordCount++;
+				//@line 1066
+			}
+			//@line 1068
+			return recordCount;
+			return 0 //@line 1069
+		};
+		//@line 1072
+		this.__PRIVATE__.row_to_record = function (rowIndex, Status)
+		{
+			rowIndex = Math.round(rowIndex);
+			//@line 1074
+			var r = -1;
+			//@line 1075
+			var i = 0;
+			//@line 1076
+			var L = __CLASS__COCODATASET__.DATA.size();
+			//@line 1078
+			for (i = Math.round(0); i < L; i++)
+			//@line 1079
+			{
+				//@line 1080
+				if (__CLASS__COCODATASET__.__PRIVATE__.isSet(__CLASS__COCODATASET__.DATA[i].STATUS, Status))
+				//@line 1081
+				{
+					//@line 1082
+					if (++r == rowIndex)
+					//@line 1083
+					break;
+					//@line 1084
+				}
+				//@line 1085
+			}
+			//@line 1087
+			return i;
+			return 0 //@line 1088
+		};
+		//@line 1091
+		this.getMatrix = function (Row, Col)
+		{
+			Row = Math.round(Row);
+			Col = Math.round(Col);
+			//@line 1096
+			__CLASS__COCODATASET__.__recordIndex = Math.round(__CLASS__COCODATASET__.__PRIVATE__.row_to_record(Row, __CLASS__COCODATASET__.StatusFilter));
+			//@line 1097
+			if (!__CLASS__COCODATASET__.moved()) return NULL_DATA_VALUE;
+			//@line 1099
+			if (__CLASS__COCODATASET__.__recordIndex >= 0 && __CLASS__COCODATASET__.__recordIndex < __CLASS__COCODATASET__.DATA.size() && Col >= 0 && Col < __CLASS__COCODATASET__.METADATA.size())
+			//@line 1100
+			{
+				//@line 1101
+				var value = __CLASS__COCODATASET__.DATA[__CLASS__COCODATASET__.__recordIndex].FieldValues[Col];
+				//@line 1103
+				if (value == NULL_DATA_VALUE)
+				//@line 1104
+				value = __CLASS__COCODATASET__.stringForNull;
+				//@line 1106
+				return value;
+				//@line 1107
+			}
+			//@line 1109
+			return NULL_DATA_VALUE;
+			return "" //@line 1110
+		};
+		//@line 1113
+		this.putMatrix = function (Row, Col, value)
+		{
+			Row = Math.round(Row);
+			Col = Math.round(Col);
+			//@line 1118
+			__CLASS__COCODATASET__.__recordIndex = Math.round(__CLASS__COCODATASET__.__PRIVATE__.row_to_record(Row, __CLASS__COCODATASET__.StatusFilter));
+			//@line 1120
+			if (__CLASS__COCODATASET__.__recordIndex >= 0 && __CLASS__COCODATASET__.__recordIndex < __CLASS__COCODATASET__.DATA.size() && Col >= 0 && Col < __CLASS__COCODATASET__.METADATA.size() && __CLASS__COCODATASET__.DATA[__CLASS__COCODATASET__.__recordIndex].STATUS != SQLITE_RECORD_STATUS.RECORD_DELETED)
+			//@line 1121
+			{
+				//@line 1122
+				if (value == __CLASS__COCODATASET__.stringForNull)
+				//@line 1123
+				value = NULL_DATA_VALUE;
+				//@line 1125
+				if (__CLASS__COCODATASET__.DATA[__CLASS__COCODATASET__.__recordIndex].FieldValues[Col] != value)
+				//@line 1126
+				{
+					//@line 1127
+					__CLASS__COCODATASET__.DATA[__CLASS__COCODATASET__.__recordIndex].FieldValues[Col] = value;
+					//@line 1129
+					if (__CLASS__COCODATASET__.DATA[__CLASS__COCODATASET__.__recordIndex].STATUS != SQLITE_RECORD_STATUS.RECORD_INSERTED)
+					//@line 1130
+					__CLASS__COCODATASET__.DATA[__CLASS__COCODATASET__.__recordIndex].STATUS = SQLITE_RECORD_STATUS.RECORD_CHANGED;
+					//@line 1131
+				}
+				//@line 1133
+				return true;
+				//@line 1134
+			}
+			//@line 1136
+			return false;
+			return false //@line 1137
+		};
+		//@line 1140
+		this.status = function ()
+		{
+			//@line 1142
+			if (__CLASS__COCODATASET__.__recordIndex >= 0 && __CLASS__COCODATASET__.__recordIndex < __CLASS__COCODATASET__.DATA.size())
+			//@line 1143
+			return __CLASS__COCODATASET__.DATA[__CLASS__COCODATASET__.__recordIndex].STATUS;
+			else
+			//@line 1145
+			return SQLITE_RECORD_STATUS.RECORD_NO_RECORD;
+			//@line 1146
+		};
+		//@line 1149
+		this.move = function (recordIndex)
+		{
+			recordIndex = Math.round(recordIndex);
+			//@line 1151
+			if (recordIndex >= 0 && recordIndex < __CLASS__COCODATASET__.DATA.size())
+			//@line 1152
+			{
+				//@line 1153
+				__CLASS__COCODATASET__.__recordIndex = Math.round(recordIndex);
+				//@line 1154
+				return __CLASS__COCODATASET__.moved();
+				//@line 1155
+			}
+			//@line 1156
+			return false;
+			return false //@line 1157
+		};
+		//@line 1160
+		this.moveFirst = function ()
+		{
+			//@line 1162
+			__CLASS__COCODATASET__.__recordIndex = Math.round(0);
+			//@line 1163
+			return __CLASS__COCODATASET__.moved();
+			return false //@line 1164
+		};
+		//@line 1167
+		this.moveLast = function ()
+		{
+			//@line 1169
+			__CLASS__COCODATASET__.__recordIndex = Math.round(__CLASS__COCODATASET__.DATA.size() - 1);
+			//@line 1170
+			return __CLASS__COCODATASET__.moved();
+			return false //@line 1171
+		};
+		//@line 1174
+		this.moveNext = function ()
+		{
+			//@line 1176
+			__CLASS__COCODATASET__.__recordIndex++;
+			//@line 1177
+			return __CLASS__COCODATASET__.moved();
+			return false //@line 1178
+		};
+		//@line 1181
+		this.movePrev = function ()
+		{
+			//@line 1183
+			__CLASS__COCODATASET__.__recordIndex--;
+			//@line 1184
+			return __CLASS__COCODATASET__.moved();
+			return false //@line 1185
+		};
+		//@line 1188
+		this.moved = function ()
+		{
+			//@line 1190
+			var records = __CLASS__COCODATASET__.DATA.size();
+			//@line 1192
+			if (records == 0)
+			//@line 1193
+			{
+				//@line 1194
+				__CLASS__COCODATASET__.DB_EOF = true;
+				//@line 1195
+				__CLASS__COCODATASET__.DB_BOF = true;
+				//@line 1196
+				__CLASS__COCODATASET__.__recordIndex = Math.round(-1);
+				//@line 1197
+				return true;
+				//@line 1198
+			}
+			//@line 1200
+			if (records > 0 && __CLASS__COCODATASET__.__recordIndex >= records) __CLASS__COCODATASET__.__recordIndex = Math.round(records);
+			//@line 1201
+			if (records > 0 && __CLASS__COCODATASET__.__recordIndex < 0) __CLASS__COCODATASET__.__recordIndex = Math.round(0);
+			//@line 1203
+			__CLASS__COCODATASET__.DB_BOF = (records > 0 && __CLASS__COCODATASET__.__recordIndex == 0);
+			//@line 1204
+			__CLASS__COCODATASET__.DB_EOF = (records > 0 && __CLASS__COCODATASET__.__recordIndex == records);
+			//@line 1206
+			return (records > 0);
+			return false //@line 1207
+		};
+		//@line 1210
+		this.field = function (name)
+		{
+			//@line 1212
+			var fields = __CLASS__COCODATASET__.METADATA.size();
+			//@line 1213
+			if (fields > 0)
+			//@line 1214
+			{
+				//@line 1215
+				for (var i = 0; i < fields; i++)
+				//@line 1216
+				{
+					//@line 1217
+					var COL = __CLASS__COCODATASET__.METADATA[i];
+					//@line 1218
+					if (COL != null && (COL.NAME == name || COL.ID == name))
+					//@line 1219
+					return COL;
+					//@line 1220
+				}
+				//@line 1221
+			}
+			//@line 1222
+			return null;
+			//@line 1223
+		};
+		//@line 1226
+		this.field$1 = function (ordinal)
+		{
+			ordinal = Math.round(ordinal);
+			//@line 1228
+			var fields = __CLASS__COCODATASET__.METADATA.size();
+			//@line 1229
+			if (fields > 0 && ordinal >= 0 && ordinal < fields)
+			//@line 1230
+			{
+				//@line 1231
+				return __CLASS__COCODATASET__.METADATA[ordinal];
+				//@line 1232
+			}
+			//@line 1233
+			return null;
+			//@line 1234
+		};
+		//@line 1237
+		this.insertRecord = function ()
+		{
+			//@line 1239
+			if ((__CLASS__COCODATASET__.ACCESS & SQLITE_TABLE_ACCESS.CAN_INSERT) != SQLITE_TABLE_ACCESS.CAN_INSERT)
+			//@line 1240
+			return false;
+			//@line 1242
+			if (__CLASS__COCODATASET__.METADATA.size())
+			//@line 1243
+			{
+				//@line 1244
+				var RECORD = new CocoDataRow(__THIS__);
+				//@line 1245
+				RECORD.STATUS = SQLITE_RECORD_STATUS.RECORD_INSERTED;
+				//@line 1246
+				__CLASS__COCODATASET__.DATA.push(RECORD);
+				//@line 1247
+				__CLASS__COCODATASET__.__recordIndex = Math.round(__CLASS__COCODATASET__.DATA.size() - 1);
+				//@line 1248
+				__CLASS__COCODATASET__.moved();
+				//@line 1249
+				return true;
+				//@line 1250
+			}
+			//@line 1251
+			return false;
+			return false //@line 1252
+		};
+		//@line 1255
+		this.deleteRecord = function ()
+		{
+			//@line 1257
+			if ((__CLASS__COCODATASET__.ACCESS & SQLITE_TABLE_ACCESS.CAN_DELETE) != SQLITE_TABLE_ACCESS.CAN_DELETE)
+			//@line 1258
+			return false;
+			//@line 1260
+			if (__CLASS__COCODATASET__.METADATA.size() && __CLASS__COCODATASET__.__recordIndex >= 0 && __CLASS__COCODATASET__.__recordIndex < __CLASS__COCODATASET__.DATA.size())
+			//@line 1261
+			{
+				//@line 1262
+				__CLASS__COCODATASET__.DATA[__CLASS__COCODATASET__.__recordIndex].STATUS = SQLITE_RECORD_STATUS.RECORD_DELETED;
+				//@line 1263
+				return true;
+				//@line 1264
+			}
+			//@line 1265
+			return false;
+			return false //@line 1266
+		};
+		//@line 1269
+		this.locate = function (fieldName, fieldValue)
+		{
+			//@line 1271
+			var index = __CLASS__COCODATASET__.__recordIndex;
+			//@line 1272
+			var c = __CLASS__COCODATASET__.field(fieldName).ORDINAL;
+			//@line 1273
+			if (c >= 0 && c < __CLASS__COCODATASET__.METADATA.size())
+			//@line 1274
+			{
+				//@line 1275
+				var L = __CLASS__COCODATASET__.DATA.size();
+				//@line 1276
+				for (var r = 0; r < L; r++)
+				//@line 1277
+				{
+					//@line 1278
+					if (__CLASS__COCODATASET__.DATA[r].FieldValues[c] == fieldValue)
+					//@line 1279
+					{
+						//@line 1280
+						__CLASS__COCODATASET__.__recordIndex = Math.round(r);
+						//@line 1281
+						return __CLASS__COCODATASET__.moved();
+						//@line 1282
+					}
+					//@line 1283
+				}
+				//@line 1284
+				__CLASS__COCODATASET__.__recordIndex = Math.round(index);
+				//@line 1285
+				__CLASS__COCODATASET__.moved();
+				//@line 1286
+			}
+			//@line 1287
+			return false;
+			return false //@line 1288
+		};
+		//@line 1291
+		this.getBookmark = function ()
+		{
+			//@line 1293
+			var bookmark = "";
+			//@line 1294
+			if (__CLASS__COCODATASET__.__recordIndex >= 0 && __CLASS__COCODATASET__.__recordIndex < __CLASS__COCODATASET__.DATA.size())
+			//@line 1295
+			{
+				//@line 1296
+				var fieldCount = __CLASS__COCODATASET__.METADATA.size();
+				//@line 1297
+				for (var i = 0; i < fieldCount; i++)
+				//@line 1298
+				bookmark += "{" + __CLASS__COCODATASET__.DATA[__CLASS__COCODATASET__.__recordIndex].FieldValues[i] + "}";
+				//@line 1299
+				bookmark = md5(bookmark);
+				//@line 1300
+			}
+			//@line 1301
+			return bookmark;
+			return "" //@line 1302
+		};
+		//@line 1305
+		this.setBookmark = function (bookmark)
+		{
+			//@line 1307
+			if (bookmark == "") return false;
+			//@line 1308
+			var recordCount = __CLASS__COCODATASET__.DATA.size();
+			//@line 1309
+			var fieldCount = __CLASS__COCODATASET__.METADATA.size();
+			//@line 1310
+			for (var r = 0; r < recordCount; r++)
+			//@line 1311
+			{
+				//@line 1312
+				var bm = "";
+				//@line 1313
+				for (var c = 0; c < fieldCount; c++)
+				//@line 1314
+				{
+					//@line 1315
+					bm += "{" + __CLASS__COCODATASET__.DATA[r].FieldValues[c] + "}";
+					//@line 1316
+				}
+				//@line 1317
+				if (bookmark == md5(bm))
+				//@line 1318
+				{
+					//@line 1319
+					return __CLASS__COCODATASET__.moved();
+					//@line 1320
+				}
+				//@line 1321
+			}
+			//@line 1322
+			return false;
+			return false //@line 1323
+		};
+		//@line 1326
+		this.update = function ()
+		{
+			//@line 1328
+			return true;
+			return false //@line 1329
+		};
+		//@line 1332
+		this.toString = function ()
+		{
+			//@line 1334
+			var s = "";
+			//@line 1335
+			var fieldCount = __CLASS__COCODATASET__.METADATA.size();
+			//@line 1336
+			if (fieldCount > 0)
+			//@line 1337
+			{
+				//@line 1338
+				var out = new Array;
+				//@line 1339
+				for (var i = 0; i < fieldCount; i++)
+				//@line 1340
+				{
+					//@line 1341
+					s += __CLASS__COCODATASET__.field$1(i).NAME + " | ";
+					//@line 1342
+				}
+				//@line 1343
+				out.push(s);
+				//@line 1344
+				__CLASS__COCODATASET__.moveFirst();
+				//@line 1345
+				while (!__CLASS__COCODATASET__.DB_EOF)
+				//@line 1346
+				{
+					//@line 1347
+					s = "";
+					//@line 1348
+					for (var i = 0; i < fieldCount; i++)
+					//@line 1349
+					{
+						//@line 1350
+						s += __CLASS__COCODATASET__.field$1(i).value + " | ";
+						//@line 1351
+					}
+					//@line 1352
+					out.push(s);
+					//@line 1353
+					__CLASS__COCODATASET__.moveNext();
+					//@line 1354
+				}
+				//@line 1355
+				s = out.join("\n");
+				//@line 1356
+				{
+					out && ((out.hasOwnProperty('Destructor') && out.Destructor()) || !out.hasOwnProperty('Destructor')) && (delete out);
+					out = null
+				};
+				//@line 1357
+			}
+			//@line 1358
+			return s;
+			return "" //@line 1359
+		};
+		//@line 1044
+		Object.defineProperty(this, 'fieldCount', {
+			enumerable: true,
+			//@line 1046
+			get: function ()
+			{
+				//@line 1048
+				return __CLASS__COCODATASET__.METADATA.size();
+				return 0 //@line 1049
+			}
+		});
+		//@line 798
+		this.Destructor = function ()
+		{
+			{
+				//@line 800
+				__CLASS__COCODATASET__.close();
+				//@line 801
+				{
+					__CLASS__COCODATASET__.METADATA && ((__CLASS__COCODATASET__.METADATA.hasOwnProperty('Destructor') && __CLASS__COCODATASET__.METADATA.Destructor()) || !__CLASS__COCODATASET__.METADATA.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASET__.METADATA);
+					__CLASS__COCODATASET__.METADATA = null
+				};
+				//@line 802
+				{
+					__CLASS__COCODATASET__.DATA && ((__CLASS__COCODATASET__.DATA.hasOwnProperty('Destructor') && __CLASS__COCODATASET__.DATA.Destructor()) || !__CLASS__COCODATASET__.DATA.hasOwnProperty('Destructor')) && (delete __CLASS__COCODATASET__.DATA);
+					__CLASS__COCODATASET__.DATA = null
+				};
+				//@line 803
+			}
+			{
+				__CLASS__COCODATASET__.METADATA = null;
+				__CLASS__COCODATASET__.DATA = null;
+				__CLASS__COCODATASET__.__PRIVATE__.ds = null;
+			}
+			return true
+		};
+		//@line 782
+		this.Constructor = function ()
+		{
+			//@line 784
+			__CLASS__COCODATASET__.fileName = "";
+			//@line 785
+			__CLASS__COCODATASET__.SQL = "";
+			//@line 786
+			__CLASS__COCODATASET__.METADATA = new Array;
+			//@line 787
+			__CLASS__COCODATASET__.DATA = new Array;
+			//@line 788
+			__CLASS__COCODATASET__.ACCESS = SQLITE_TABLE_ACCESS.CAN_CRUD;
+			//@line 789
+			__CLASS__COCODATASET__.__recordIndex = Math.round(-1);
+			//@line 790
+			__CLASS__COCODATASET__.DB_EOF = true;
+			//@line 791
+			__CLASS__COCODATASET__.DB_BOF = true;
+			//@line 792
+			__CLASS__COCODATASET__.StatusFilter = SQLITE_RECORD_STATUS.RECORD_ALL;
+			//@line 793
+			__CLASS__COCODATASET__.ACCESS = SQLITE_TABLE_ACCESS.CAN_CRUD;
+			//@line 794
+			__CLASS__COCODATASET__.stringForNull = "Null";
+			//@line 795
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__CocoDataset.prototype.constructor = __CocoDataset;
+	return new __CocoDataset();
+}
+CocoDataset.__PRIVATE__ = {};
+CocoDataset.__PROTECTED__ = {};
+module.exports.DBTYPEENUM = DBTYPEENUM;
+module.exports.SQLITE_RECORD_STATUS = SQLITE_RECORD_STATUS;
+module.exports.SQLITE_TABLE_ACCESS = SQLITE_TABLE_ACCESS;
+module.exports.SQLITE_COLUMN_FLAGS = SQLITE_COLUMN_FLAGS;
+module.exports.SQLITE_SCHEMA_ENUM = SQLITE_SCHEMA_ENUM;
+module.exports.SQLITE_INTERNAL_TYPE = SQLITE_INTERNAL_TYPE;
+module.exports.SQLITE_VARTYPE = SQLITE_VARTYPE;
+module.exports.CocoDataStream = CocoDataStream;
+module.exports.CocoDataField = CocoDataField;
+module.exports.CocoDataRow = CocoDataRow;
+module.exports.CocoDataset = CocoDataset;

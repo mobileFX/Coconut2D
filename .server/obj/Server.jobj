@@ -1,0 +1,62 @@
+﻿var HttpSever = require("./HTTPServer.jobj");
+//@line 31
+
+function Server()
+{
+	var __BASE__ = null;
+
+	function __Server()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__SERVER__ = this.__CLASS__SERVER__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'Server'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__;
+		var __PROTECTED__ = this.__PROTECTED__;
+		var __CLASS__HTTPSERVER__ = this.__CLASS__HTTPSERVER__ = __CLASS__SERVER__.__CLASS__HTTPSERVER__;
+		__CLASS__SERVER__.__CLASS__HTTPSERVER__.__THIS__ = __CLASS__SERVER__;
+		//@line 45
+		this.__className = "Server";
+		//@line 41
+		this.handle = __VIRTUAL__.handle = __CLASS__HTTPSERVER__.handle = function (req, res)
+		{
+			//@line 43
+			__CLASS__HTTPSERVER__.__VIRTUAL__.handle(req, res);
+			//@line 44
+		};
+		//@line 37
+		this.Destructor = function ()
+		{
+			{
+				//@line 39
+			}
+			{
+				__CLASS__SERVER__.__CLASS__HTTPSERVER__ && ((__CLASS__SERVER__.__CLASS__HTTPSERVER__.hasOwnProperty('Destructor') && __CLASS__SERVER__.__CLASS__HTTPSERVER__.Destructor()) || !__CLASS__SERVER__.__CLASS__HTTPSERVER__.hasOwnProperty('Destructor')) && (delete __CLASS__SERVER__.__CLASS__HTTPSERVER__);
+			}
+			return true
+		};
+		//@line 33
+		this.Constructor = function ()
+		{
+			//@line 35
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__Server.prototype = new HttpSever.HTTPServer();
+	__Server.prototype.constructor = __Server;
+	return new __Server();
+}
+Server.__PRIVATE__ = {};
+Server.__PROTECTED__ = {};
+module.exports.Server = Server;

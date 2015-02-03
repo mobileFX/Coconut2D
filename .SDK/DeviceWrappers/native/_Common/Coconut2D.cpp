@@ -58,7 +58,7 @@ void trace(const char* fmt, ...)
 	va_end(vl);
 
 	#ifdef ANDROID_APPLICATION
-		__android_log_print(ANDROID_LOG_INFO, "$(PROJECT_NAME)", buff,"");
+		__android_log_print(ANDROID_LOG_INFO, APPNAME, buff,"");
 
 	#elif IOS_APPLICATION
         NSString *string = [NSString stringWithUTF8String:buff];

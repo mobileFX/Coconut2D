@@ -370,6 +370,9 @@ function CocoMake(command , params)
   	{
   		trace("\nCompiling Android JNI Static Library ...");
 
+  		_this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
+  		_this.DeleteFolder(TARGET.TARGET_ROOT+"/libs");
+
 		// Collect all C++ sources
   		var files = _this.collectSources(TARGET.TARGET_ROOT + "/jni",
   										 [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
@@ -380,7 +383,7 @@ function CocoMake(command , params)
 		// Make all paths relative to JNI folder
 		files = _this.get_relative_cpp_hpp(files, TARGET.TARGET_ROOT + "/jni");
 		makefile.Vars["NATIVE_CPP_SOURCES"] = files.CPP.join(" \\\n");
-		makefile.Vars["NATIVE_CPP_INCLUDES"] = makefile.Vars.INCLUDE_PATHS.join(" \\\n");//files.HPP.join(" \\\n");
+		makefile.Vars["NATIVE_CPP_INCLUDES"] = makefile.Vars.INCLUDE_PATHS.join(" \\\n");
 
 		// Patch main.cpp to load Fonts
 		_this.loadFonts(TARGET.TARGET_ROOT + "/jni/src/main.cpp", TARGET.TARGET_ASSETS);
@@ -408,12 +411,37 @@ function CocoMake(command , params)
         var make_lib_cmd = TARGET.TARGET_ROOT + "/jni/make_lib.bat";
         buff.push('@echo off');
         buff.push('SET NDK_ROOT=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_NDK)+"\\");
-        buff.push('SET NDK_PROJECT_PATH=$(TARGET_ROOT)');
+		buff.push('SET ANDROID_SDK_ROOT=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK));
+		buff.push('SET ANDROID_HOME=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK) + '/platform-tools');
+		buff.push('SET ANDROID_NDK_HOME=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_NDK));
+		buff.push('SET NDK_BUILD_CMD=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_NDK) + '/ndk-build');
+		buff.push('SET NDK_PROJECT_PATH=$(TARGET_ROOT)');
         buff.push('call "%NDK_ROOT%find-win-host.cmd" NDK_WIN_HOST');
         buff.push('if ERRORLEVEL 1 (exit /b 1)');
         buff.push('SET NDK_MAKE=%NDK_ROOT%prebuilt/%NDK_WIN_HOST%/bin/make.exe');
 		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" SHELL=cmd clean');
-		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" NDK_DEBUG=1 SHELL=cmd -j %*');
+
+		var params = [];
+		params.push('NDK_LOG=true');
+		params.push('SHELL=cmd');
+		params.push('APP_PLATFORM="' + 			(TARGET.APP_SETTINGS.ANDROID_PLATFORM||'android-10')+'"');
+		params.push('NDK_TOOLCHAIN_VERSION="' +	(TARGET.APP_SETTINGS.NDK_TOOLCHAIN_VERSION||'4.9')+'"');
+		params.push('APP_ABI="' + 				(TARGET.APP_SETTINGS.APP_ABI||'armeabi armeabi-v7a x86')+'"');
+
+		// Release or Debug compilation
+		if(makefile.Config.CONFIGURATION=="Release")
+		{
+			params.push('APP_OPTIM=release');
+			params.push('APP_CFLAGS=-O3');
+		}
+		else
+		{
+			params.push('APP_OPTIM=debug');
+			params.push('NDK_DEBUG=true');
+			params.push('APP_CFLAGS="-g -ggdb3 -DNDEBUG"');
+		}
+
+		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" ' + params.join(" ") + ' -j %*');
 		buff = _this.replaceVars(buff.join("\n"));
         _this.module(make_lib_cmd, buff);
 
@@ -449,7 +477,6 @@ function CocoMake(command , params)
         _this.module(make_cmd, buff);
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
         _this.DeleteFile(make_cmd);
-        _this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
 
         // Sanity check and output
         var intermediate_apk = _this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME)-$(CONFIGURATION).apk");
@@ -463,11 +490,14 @@ function CocoMake(command , params)
         {
         	copyFile(intermediate_apk, root_apk);
         	_this.cleanFolder(TARGET.TARGET_ROOT+"/bin");
-        	_this.DeleteFolder(TARGET.TARGET_ROOT+"/libs");
         	_this.DeleteFolder(TARGET.TARGET_ROOT+"/assets");
         	copyFile(root_apk, final_apk);
         	deleteFile(root_apk);
+        	copyFile(TARGET.TARGET_ROOT +"/debugger-config.gdb", TARGET.TARGET_ROOT+"/libs/armeabi-v7a/gdb.setup");
         }
+
+		//_this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
+		//_this.DeleteFolder(TARGET.TARGET_ROOT+"/libs");
   	};
 
     // =====================================================================
@@ -997,6 +1027,14 @@ function CocoMake(command , params)
 			deleteFolder(dst + "/animations"); // Contains binary animation files
 			IDECallback("folder", dst);
 		}
+
+		// Remove .rar files
+		var files = _this.FindFiles(dst, "*.rar", true);
+		for(var i=0; i<files.length; i++)
+		{
+			deleteFile(files[i]);
+		}
+
 	};
 
     // =====================================================================

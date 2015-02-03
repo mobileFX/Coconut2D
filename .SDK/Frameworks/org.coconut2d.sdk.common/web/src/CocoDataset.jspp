@@ -202,13 +202,19 @@ export class CocoDataStream
  		__length = 0;
 		bi = new Int32Array(__length);
 		bf = new Float32Array(bi.buffer);
+
+		#if (TARGET!="node.js")
 		http = null;
+		#endif
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Destructor()
  	{
+ 		#if (TARGET!="node.js")
  		delete http;
+ 		#endif
+
  		delete bf;
  		delete bi;
  	}

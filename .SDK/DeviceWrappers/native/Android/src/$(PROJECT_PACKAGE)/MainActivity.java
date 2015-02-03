@@ -16,6 +16,7 @@ public class MainActivity extends NativeActivity
     /////////////////////////////////////////////////////////////////////////////////////////////
 	static class NativeSurfaceView extends SurfaceView
 	{
+		//android.os.Debug.waitForDebugger();
 		MainActivity mActivity;
 		public NativeSurfaceView(Context context) { super(context); }
 		public NativeSurfaceView(Context context, AttributeSet attrs) { super(context, attrs); }

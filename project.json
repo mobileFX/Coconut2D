@@ -209,7 +209,7 @@
 			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
 			"TARGET_ASSETS": "$(TARGET_ROOT)/assets",
 			"TARGET_OUTPUT": "$(TARGET_ROOT)/bin/$(PROJECT_NAME).apk",
-			"TARGET_CLEAN": "$(TARGET_ROOT)/bin;$(TARGET_ROOT)/obj;$(TARGET_ROOT)/assets",
+			"TARGET_CLEAN": "$(TARGET_ROOT)/*",
 			"TARGET_EXPORT": "native",
 			"TARGET_ADDITIONAL_FRAMEWORKS": null,
 			"TARGET_ADDITIONAL_NATIVE_SOURCES": "$(PATH_SDK_COMMON);$(TARGET_ROOT)/jni/src",
@@ -220,7 +220,7 @@
 			{
 				"CLASS": "ANDROID",
 				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
-				"TEMPLATES": "*.xml;*.properties;*.java;*.cpp",
+				"TEMPLATES": "*.xml;*.properties;*.java;*.cpp;*.cmd;*.gdb;Application.mk",
 				"TEMPLATE_EXCLUDE_VARS": "FONTS_LIST;APP_ICONS",
 				"BINPACK_IMAGES": true
 			},
@@ -245,7 +245,9 @@
 				"ANDROID_PLATFORM": "android-10",
 				"MIN_SDK_VERSION": "10",
 				"TARGET_SDK_VERSION": "19",
-				"SCREEN_ORIENTATION": "portrait"
+				"SCREEN_ORIENTATION": "portrait",
+				"NDK_TOOLCHAIN_VERSION": "4.9",
+				"APP_ABI": "armeabi armeabi-v7a x86"
 			},
 			"APP_ICONS":
 			{
@@ -383,8 +385,8 @@
 		{
 			"TARGET_INPUT_SOURCES": "$(PROJECT_ROOT)/.server",
 			"TARGET_ROOT": "$(PROJECT_ROOT)/.server",
-			"TARGET_OUTPUT": "$(TARGET_ROOT)/main.js",
 			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
+			"TARGET_OUTPUT": "$(TARGET_ROOT)/main.js",
 			"TARGET_CLEAN": "$(TARGET_OBJ)",
 			"TARGET_EXPORT": "nodejs",
 			"TARGET_ADDITIONAL_FRAMEWORKS": null,

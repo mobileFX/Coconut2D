@@ -32,11 +32,13 @@ LOCAL_SRC_FILES := $(PATH_SDK_LIBRARIES_ANDROID)/$(TARGET_ARCH_ABI)/libTremolo.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
+#	LOCAL_CFLAGS := -g  -ggdb3
 	LOCAL_LDLIBS := -lm -lc -landroid -llog -lEGL -lGLESv2 -lOpenSLES -lz
-	LOCAL_STATIC_LIBRARIES := stdc++ android_native_app_glue v8_base preparser_lib v8_nosnapshot v8_nosnapshot png jpeg freetype openal curl Tremolo
+	LOCAL_STATIC_LIBRARIES := stdc++ android_native_app_glue png jpeg freetype openal curl Tremolo
 	LOCAL_C_INCLUDES := $(NATIVE_CPP_INCLUDES)
 	LOCAL_MODULE := Coconut2D
 	LOCAL_SRC_FILES := $(NATIVE_CPP_SOURCES)
+
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module, android/native_app_glue)
