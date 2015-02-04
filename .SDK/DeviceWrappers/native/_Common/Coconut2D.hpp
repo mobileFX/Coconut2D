@@ -83,12 +83,14 @@ extern void trace(const char* fmt, ...);
 
 #include "UTF8/UTF8.hpp"
 
-#ifndef UINT
-#define UINT unsigned int
-#endif
-
 #ifdef __CPP_0X__
 	#include <initializer_list>
+#endif
+
+#if ANDROID_APPLICATION
+	#ifndef UINT
+		#define UINT unsigned int
+	#endif
 #endif
 
 #if IOS_APPLICATION
