@@ -32,7 +32,7 @@ class Array
 	public  var __className :String;
 } //Array
 
-class Dictionary
+class Dictionary : Object
 {
 	public  var __className :String;
 } //Dictionary
@@ -314,6 +314,25 @@ class Global
 	public var COCO_CONTROL_BORDER_STYLE_ENUM :COCO_CONTROL_BORDER_STYLE_ENUM;
 	public var COCO_CONTROL_ANCHOR_ENUM :COCO_CONTROL_ANCHOR_ENUM;
 	public var COCO_SKIN_TILE_ENUM :COCO_SKIN_TILE_ENUM;
+	public var CocoHttpRequest :CocoHttpRequest;
+	public var Data :Data;
+	public var NULL_DATA_VALUE :String;
+	public var DBTYPEENUM :DBTYPEENUM;
+	public var SQLITE_RECORD_STATUS :SQLITE_RECORD_STATUS;
+	public var SQLITE_TABLE_ACCESS :SQLITE_TABLE_ACCESS;
+	public var SQLITE_COLUMN_FLAGS :SQLITE_COLUMN_FLAGS;
+	public var SQLITE_SCHEMA_ENUM :SQLITE_SCHEMA_ENUM;
+	public var SQLITE_INTERNAL_TYPE :SQLITE_INTERNAL_TYPE;
+	public var SQLITE_VARTYPE :SQLITE_VARTYPE;
+	public var CocoDataStream :CocoDataStream;
+	public var CocoDataField :CocoDataField;
+	public var CocoDataRow :CocoDataRow;
+	public var CocoDataset :CocoDataset;
+	public var RX :RX;
+	public var REGULAR_EXPRESSION_FLAGS :REGULAR_EXPRESSION_FLAGS;
+	public var Match :Match;
+	public var MatchCollection :MatchCollection;
+	public var RegEx :RegEx;
 	public var PathLine :PathLine;
 	public var HTMLCanvasPattern :HTMLCanvasPattern;
 	public var HTMLCanvasGradient :HTMLCanvasGradient;
@@ -417,11 +436,28 @@ class Global
 	public var CocoDataSource :CocoDataSource;
 	public var CocoLocalStorage :CocoLocalStorage;
 	public var CocoAudio :CocoAudio;
-	public var SYMBOL_ENUM :SYMBOL_ENUM;
-	public var GridSymbol :GridSymbol;
+	public var FACEBOOK_LOGIN :FACEBOOK_LOGIN;
+	public var CocoFacebook :CocoFacebook;
+	public var CocoJSON :CocoJSON;
+	public var CocoUIView :CocoUIView;
+	public var COCO_UIFORM_ANIMATION :COCO_UIFORM_ANIMATION;
+	public var CocoAppController :CocoAppController;
+	public var CocoUIControl :CocoUIControl;
+	public var CocoUIControlOnGlyphClickEvent :CocoUIControlOnGlyphClickEvent;
+	public var CocoUIControlOnChevronClickEvent :CocoUIControlOnChevronClickEvent;
+	public var CocoUIFormView :CocoUIFormView;
+	public var CocoUIScrollView :CocoUIScrollView;
+	public var CocoUIButton :CocoUIButton;
+	public var CocoUICheckBox :CocoUICheckBox;
+	public var CocoUIComboBox :CocoUIComboBox;
+	public var CocoUILabel :CocoUILabel;
+	public var CocoUINavBar :CocoUINavBar;
+	public var CocoUIPictureList :CocoUIPictureList;
+	public var CocoUITabBar :CocoUITabBar;
+	public var CocoUITextEdit :CocoUITextEdit;
 	public var GameEngine :GameEngine;
-	public var SceneGameBoard :SceneGameBoard;
-	public var SceneTitle :SceneTitle;
+	public var ReservationsForm :ReservationsForm;
+	public var NewAnimation :NewAnimation;
 } //Global
 
 class String
@@ -630,6 +666,7 @@ class Uint32Array : TypedArray
 
 class Error
 {
+	public function toString() :String {}
 	public  var name :String;
 	public  var message :String;
 	public  var __className :String;
@@ -662,8 +699,8 @@ class TypeError : Error
 
 class JSON
 {
-	public function parse(json:String) :Array<Object> {}
-	public function stringify(obj:Array<Object>) :String {}
+	public function parse(json:String) :Dictionary {}
+	public function stringify(obj:Dictionary) :String {}
 	public  var __className :String;
 } //JSON
 
@@ -780,71 +817,71 @@ class NodeJS_Response
 
 class NodeJS_FS
 {
-	public function rename(oldPath:String, newPath:String, Callback:Function) {}
-	public function renameSync(oldPath:String, newPath:String) {}
-	public function truncate(fd:Object, len:Number, Callback:Function) {}
-	public function truncateSync(fd:Object, len:Number) {}
-	public function chown(path:String, uid:Number, gid:Number, Callback:Function) {}
-	public function chownSync(path:String, uid:Number, gid:Number) {}
-	public function fchown(fd:Object, uid:Number, gid:Number, Callback:Function) {}
-	public function fchownSync(fd:Object, uid:Number, gid:Number) {}
-	public function lchown(path:String, uid:Number, gid:Number, Callback:Function) {}
-	public function lchownSync(path:String, uid:Number, gid:Number) {}
-	public function chmod(path:String, mode:Number, Callback:Function) {}
-	public function chmodSync(path:String, mode:Number) {}
-	public function fchmod(fd:Object, mode:Number, Callback:Function) {}
-	public function fchmodSync(fd:Object, mode:Number) {}
-	public function lchmod(path:String, mode:Number, Callback:Function) {}
-	public function lchmodSync(path:String, mode:Number) {}
-	public function stat(path:String, Callback:Function) {}
-	public function statSync(path:String) :Stats {}
-	public function fstat(fd:Object, Callback:Function) {}
-	public function fstatSync(fd:Object) :Stats {}
-	public function lstat(path:String, Callback:Function) {}
-	public function lstatSync(path:String) :Stats {}
-	public function link(srcpath:String, dstpath:String, Callback:Function) {}
-	public function linkSync(srcpath:String, dstpath:String) {}
-	public function symlink(srcpath:String, dstpath:String, type:String, Callback:Function) {}
-	public function symlinkSync(srcpath:String, dstpath:String, type:String) {}
-	public function readlink(path:String, Callback:Function) {}
-	public function readlinkSync(path:String) :String {}
-	public function realpath(path:String, cache:Object, Callback:Function) {}
-	public function realpathSync(path:String, cache:Object) :String {}
-	public function unlink(path:String, Callback:Function) {}
-	public function unlinkSync(path:String) {}
-	public function rmdir(path:String, Callback:Function) {}
-	public function rmdirSync(path:String) {}
-	public function mkdir(path:String, mode:Number, Callback:Function) {}
-	public function mkdirSync(path:String, mode:Number) {}
-	public function readdir(path:String, Callback:Function) {}
-	public function readdirSync(path:String) :Array<string> {}
-	public function close(fd:Object, Callback:Function) {}
-	public function closeSync(fd:Object) {}
-	public function open(path:String, flags:String, mode:Number, Callback:Function) {}
-	public function openSync(path:String, flags:String, mode:Number) :Object {}
-	public function utimes(path:String, atime:Number, mtime:Number, Callback:Function) {}
-	public function utimesSync(path:String, atime:Number, mtime:Number) {}
-	public function futimes(fd:Object, atime:Number, mtime:Number, Callback:Function) {}
-	public function futimesSync(fd:Object, atime:Number, mtime:Number) {}
-	public function fsync(fd:Object, Callback:Function) {}
-	public function fsyncSync(fd:Object) {}
-	public function write(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, Callback:Function) {}
-	public function writeSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number) :Number {}
-	public function read(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, Callback:Function) {}
-	public function readSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number) :Number {}
-	public function readFile(filename:String, encodingOrOptions:String, Callback:Function) {}
-	public function readFileSync(filename:String, encodingOrOptions:String) :String {}
-	public function writeFile(filename:String, data:String, encodingOrOptions:String, Callback:Function) {}
-	public function writeFileSync(filename:String, data:String, encodingOrOptions:String) {}
 	public function appendFile(filename:String, data:String, encoding:String, Callback:Function) {}
 	public function appendFileSync(filename:String, data:String, encoding:String) {}
-	public function watchFile(filename:String, options:Object, listener:Function) {}
-	public function unwatchFile(filename:String, listener:Function) {}
-	public function watch(filename:String, options:Object, listener:Function) :FSWatcher {}
-	public function exists(path:String, Callback:Function) {}
-	public function existsSync(path:String) {}
+	public function chmod(path:String, mode:Number, Callback:Function) {}
+	public function chmodSync(path:String, mode:Number) {}
+	public function chown(path:String, uid:Number, gid:Number, Callback:Function) {}
+	public function chownSync(path:String, uid:Number, gid:Number) {}
+	public function close(fd:Object, Callback:Function) {}
+	public function closeSync(fd:Object) {}
 	public function createReadStream(path:String, options:Dictionary) :ReadStream {}
 	public function createWriteStream(path:String, options:Dictionary) :WriteStream {}
+	public function exists(path:String, Callback:Function) {}
+	public function existsSync(path:String) {}
+	public function fchmod(fd:Object, mode:Number, Callback:Function) {}
+	public function fchmodSync(fd:Object, mode:Number) {}
+	public function fchown(fd:Object, uid:Number, gid:Number, Callback:Function) {}
+	public function fchownSync(fd:Object, uid:Number, gid:Number) {}
+	public function fstat(fd:Object, Callback:Function) {}
+	public function fstatSync(fd:Object) :Stats {}
+	public function fsync(fd:Object, Callback:Function) {}
+	public function fsyncSync(fd:Object) {}
+	public function futimes(fd:Object, atime:Number, mtime:Number, Callback:Function) {}
+	public function futimesSync(fd:Object, atime:Number, mtime:Number) {}
+	public function lchmod(path:String, mode:Number, Callback:Function) {}
+	public function lchmodSync(path:String, mode:Number) {}
+	public function lchown(path:String, uid:Number, gid:Number, Callback:Function) {}
+	public function lchownSync(path:String, uid:Number, gid:Number) {}
+	public function link(srcpath:String, dstpath:String, Callback:Function) {}
+	public function linkSync(srcpath:String, dstpath:String) {}
+	public function lstat(path:String, Callback:Function) {}
+	public function lstatSync(path:String) :Stats {}
+	public function mkdir(path:String, mode:Number, Callback:Function) {}
+	public function mkdirSync(path:String, mode:Number) {}
+	public function open(path:String, flags:String, mode:Number, Callback:Function) {}
+	public function openSync(path:String, flags:String, mode:Number) :Object {}
+	public function read(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, Callback:Function) {}
+	public function readdir(path:String, Callback:Function) {}
+	public function readdirSync(path:String) :Array<string> {}
+	public function readFile(filename:String, encodingOrOptions:String, Callback:Function) {}
+	public function readFileSync(filename:String, encodingOrOptions:String) :String {}
+	public function readlink(path:String, Callback:Function) {}
+	public function readlinkSync(path:String) :String {}
+	public function readSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number) :Number {}
+	public function realpath(path:String, cache:Object, Callback:Function) {}
+	public function realpathSync(path:String, cache:Object) :String {}
+	public function rename(oldPath:String, newPath:String, Callback:Function) {}
+	public function renameSync(oldPath:String, newPath:String) {}
+	public function rmdir(path:String, Callback:Function) {}
+	public function rmdirSync(path:String) {}
+	public function stat(path:String, Callback:Function) {}
+	public function statSync(path:String) :Stats {}
+	public function symlink(srcpath:String, dstpath:String, type:String, Callback:Function) {}
+	public function symlinkSync(srcpath:String, dstpath:String, type:String) {}
+	public function truncate(fd:Object, len:Number, Callback:Function) {}
+	public function truncateSync(fd:Object, len:Number) {}
+	public function unlink(path:String, Callback:Function) {}
+	public function unlinkSync(path:String) {}
+	public function unwatchFile(filename:String, listener:Function) {}
+	public function utimes(path:String, atime:Number, mtime:Number, Callback:Function) {}
+	public function utimesSync(path:String, atime:Number, mtime:Number) {}
+	public function watch(filename:String, options:Object, listener:Function) :FSWatcher {}
+	public function watchFile(filename:String, options:Object, listener:Function) {}
+	public function write(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, Callback:Function) {}
+	public function writeFile(filename:String, data:String, encodingOrOptions:String, Callback:Function) {}
+	public function writeFileSync(filename:String, data:String, encodingOrOptions:String) {}
+	public function writeSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number) :Number {}
 	public  var __className :String;
 } //NodeJS_FS
 
@@ -966,6 +1003,324 @@ class COCO_SKIN_TILE_ENUM
 	public var TILE_REPEAT_Y :COCO_SKIN_TILE_ENUM;
 	public var TILE_REPEAT_XY :COCO_SKIN_TILE_ENUM;
 } //COCO_SKIN_TILE_ENUM
+
+class CocoHttpRequest
+{
+	public function Ready() :Boolean {}
+	public function Success() :Boolean {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public function open(method:String, url:String, async:Boolean) {}
+	public function setRequestHeader(header:String, value:String) {}
+	public function send(data:String) {}
+	public function send$1(data:ArrayBufferView) {}
+	public function send$2() {}
+	public function abort() {}
+	public function getAllResponseHeaders() :String {}
+	public function getResponseHeader(header:String) :String {}
+	public  var xhttp :XMLHttpRequest;
+	public  var responseBuffer :ArrayBuffer;
+	public  var __className :String;
+	public var timeout :Integer;
+	public var readyState :Integer;
+	public var status :Integer;
+	public var statusText :String;
+	public var responseText :String;
+	public var responseType :String;
+	public var response :ArrayBuffer;
+} //CocoHttpRequest
+
+class Data
+{
+} //Data
+
+class DBTYPEENUM
+{
+	public var DBTYPE_EMPTY :DBTYPEENUM;
+	public var DBTYPE_NULL :DBTYPEENUM;
+	public var DBTYPE_I2 :DBTYPEENUM;
+	public var DBTYPE_I4 :DBTYPEENUM;
+	public var DBTYPE_R4 :DBTYPEENUM;
+	public var DBTYPE_R8 :DBTYPEENUM;
+	public var DBTYPE_CY :DBTYPEENUM;
+	public var DBTYPE_DATE :DBTYPEENUM;
+	public var DBTYPE_BSTR :DBTYPEENUM;
+	public var DBTYPE_IDISPATCH :DBTYPEENUM;
+	public var DBTYPE_ERROR :DBTYPEENUM;
+	public var DBTYPE_BOOL :DBTYPEENUM;
+	public var DBTYPE_VARIANT :DBTYPEENUM;
+	public var DBTYPE_IUNKNOWN :DBTYPEENUM;
+	public var DBTYPE_DECIMAL :DBTYPEENUM;
+	public var DBTYPE_UI1 :DBTYPEENUM;
+	public var DBTYPE_ARRAY :DBTYPEENUM;
+	public var DBTYPE_BYREF :DBTYPEENUM;
+	public var DBTYPE_I1 :DBTYPEENUM;
+	public var DBTYPE_UI2 :DBTYPEENUM;
+	public var DBTYPE_UI4 :DBTYPEENUM;
+	public var DBTYPE_I8 :DBTYPEENUM;
+	public var DBTYPE_UI8 :DBTYPEENUM;
+	public var DBTYPE_GUID :DBTYPEENUM;
+	public var DBTYPE_VECTOR :DBTYPEENUM;
+	public var DBTYPE_RESERVED :DBTYPEENUM;
+	public var DBTYPE_BYTES :DBTYPEENUM;
+	public var DBTYPE_STR :DBTYPEENUM;
+	public var DBTYPE_WSTR :DBTYPEENUM;
+	public var DBTYPE_NUMERIC :DBTYPEENUM;
+	public var DBTYPE_UDT :DBTYPEENUM;
+	public var DBTYPE_DBDATE :DBTYPEENUM;
+	public var DBTYPE_DBTIME :DBTYPEENUM;
+	public var DBTYPE_DBTIMESTAMP :DBTYPEENUM;
+	public var DBTYPE_HCHAPTER :DBTYPEENUM;
+	public var DBTYPE_FILETIME :DBTYPEENUM;
+	public var DBTYPE_PROPVARIANT :DBTYPEENUM;
+	public var DBTYPE_VARNUMERIC :DBTYPEENUM;
+	public var DBTYPE_BLOB :DBTYPEENUM;
+} //DBTYPEENUM
+
+class SQLITE_RECORD_STATUS
+{
+	public var RECORD_NO_RECORD :SQLITE_RECORD_STATUS;
+	public var RECORD_UNCHANGED :SQLITE_RECORD_STATUS;
+	public var RECORD_CHANGED :SQLITE_RECORD_STATUS;
+	public var RECORD_DELETED :SQLITE_RECORD_STATUS;
+	public var RECORD_INSERTED :SQLITE_RECORD_STATUS;
+	public var RECORD_ALL :SQLITE_RECORD_STATUS;
+} //SQLITE_RECORD_STATUS
+
+class SQLITE_TABLE_ACCESS
+{
+	public var CAN_SELECT :SQLITE_TABLE_ACCESS;
+	public var CAN_INSERT :SQLITE_TABLE_ACCESS;
+	public var CAN_UPDATE :SQLITE_TABLE_ACCESS;
+	public var CAN_DELETE :SQLITE_TABLE_ACCESS;
+	public var CAN_CRUD :SQLITE_TABLE_ACCESS;
+} //SQLITE_TABLE_ACCESS
+
+class SQLITE_COLUMN_FLAGS
+{
+	public var IS_UNIQUE :SQLITE_COLUMN_FLAGS;
+	public var IS_KEYCOLUMN :SQLITE_COLUMN_FLAGS;
+	public var IS_SEARCHABLE :SQLITE_COLUMN_FLAGS;
+	public var IS_COMPUTED :SQLITE_COLUMN_FLAGS;
+	public var IS_AUTOINCREMENT :SQLITE_COLUMN_FLAGS;
+	public var IS_SORTABLE :SQLITE_COLUMN_FLAGS;
+	public var IS_WRITABLE :SQLITE_COLUMN_FLAGS;
+	public var IS_SEARCHABLE_LIKE :SQLITE_COLUMN_FLAGS;
+	public var IS_NULLABLE :SQLITE_COLUMN_FLAGS;
+	public var IS_ROWID :SQLITE_COLUMN_FLAGS;
+	public var IS_FIXED_LENGTH :SQLITE_COLUMN_FLAGS;
+	public var HAS_DEFAULT :SQLITE_COLUMN_FLAGS;
+	public var DEFAULT_FLAGS :SQLITE_COLUMN_FLAGS;
+} //SQLITE_COLUMN_FLAGS
+
+class SQLITE_SCHEMA_ENUM
+{
+	public var SQLITE_TABLES :SQLITE_SCHEMA_ENUM;
+	public var SQLITE_VIEWS :SQLITE_SCHEMA_ENUM;
+	public var SQLITE_COLUMNS :SQLITE_SCHEMA_ENUM;
+	public var SQLITE_FOREIGN_KEYS :SQLITE_SCHEMA_ENUM;
+} //SQLITE_SCHEMA_ENUM
+
+class SQLITE_INTERNAL_TYPE
+{
+	public var SQLITE_VT_INTGER :SQLITE_INTERNAL_TYPE;
+	public var SQLITE_VT_FLOAT :SQLITE_INTERNAL_TYPE;
+	public var SQLITE_VT_TEXT :SQLITE_INTERNAL_TYPE;
+	public var SQLITE_VT_BLOB :SQLITE_INTERNAL_TYPE;
+	public var SQLITE_VT_NULL :SQLITE_INTERNAL_TYPE;
+} //SQLITE_INTERNAL_TYPE
+
+class SQLITE_VARTYPE
+{
+	public var VARTYPE_I1 :SQLITE_VARTYPE;
+	public var VARTYPE_I2 :SQLITE_VARTYPE;
+	public var VARTYPE_I4 :SQLITE_VARTYPE;
+	public var VARTYPE_I8 :SQLITE_VARTYPE;
+	public var VARTYPE_UI1 :SQLITE_VARTYPE;
+	public var VARTYPE_UI2 :SQLITE_VARTYPE;
+	public var VARTYPE_UI4 :SQLITE_VARTYPE;
+	public var VARTYPE_UI8 :SQLITE_VARTYPE;
+	public var VARTYPE_R4 :SQLITE_VARTYPE;
+	public var VARTYPE_R8 :SQLITE_VARTYPE;
+	public var VARTYPE_BOOL :SQLITE_VARTYPE;
+	public var VARTYPE_DBDATE :SQLITE_VARTYPE;
+	public var VARTYPE_DBTIME :SQLITE_VARTYPE;
+	public var VARTYPE_DBTIMESTAMP :SQLITE_VARTYPE;
+	public var VARTYPE_DATE :SQLITE_VARTYPE;
+	public var VARTYPE_CY :SQLITE_VARTYPE;
+	public var VARTYPE_DECIMAL :SQLITE_VARTYPE;
+	public var VARTYPE_BLOB :SQLITE_VARTYPE;
+	public var VARTYPE_BSTR :SQLITE_VARTYPE;
+	public var VARTYPE_WSTR :SQLITE_VARTYPE;
+} //SQLITE_VARTYPE
+
+class CocoDataStream
+{
+	public function open(url:String, async:Boolean) :Boolean {}
+	public function open$1(data:ArrayBuffer) :Boolean {}
+	public function increaseSize(s:Integer) {}
+	public function shrink() {}
+	public function writeInteger(v:Integer) {}
+	public function writeFloat(v:Float) {}
+	public function writeString(v:String) {}
+	public function writeBoolean(v:Boolean) {}
+	public function writeInt32Array(v:Int32Array) {}
+	public function writeFloat32Array(v:Float32Array) {}
+	public function writeDataStream(v:CocoDataStream) {}
+	public function readCocoDataStream() :CocoDataStream {}
+	protected function set(v:Int32Array) {}
+	public function readUint8Array() :Uint8Array {}
+	public function readInt32Array() :Int32Array {}
+	public function readFloat32Array() :Float32Array {}
+	public function readInteger() :Integer {}
+	public function readFloat() :Float {}
+	public function readString() :String {}
+	public function readBoolean() :Boolean {}
+	public function Destructor() {}
+	public function Constructor() {}
+	private  var ELEMENTS_INCREMENT :Integer;
+	private  var bi :Int32Array;
+	private  var bf :Float32Array;
+	private  var __offset :Integer;
+	private  var __length :Integer;
+	private  var http :CocoHttpRequest;
+	public  var Ready :Boolean;
+	public  var offset :Integer;
+	public  var __className :String;
+} //CocoDataStream
+
+class CocoDataField
+{
+	public function copy(col:CocoDataField) {}
+	public function write(ds:CocoDataStream) {}
+	public function read(ds:CocoDataStream) {}
+	public function Destructor() {}
+	public function Constructor(dataset:CocoDataset) {}
+	private  var dataset :CocoDataset;
+	public  var ORDINAL :Integer;
+	public  var NAME :String;
+	public  var BASECOLUMNNAME :String;
+	public  var BASETABLENAME :String;
+	public  var ID :String;
+	public  var TYPE :SQLITE_VARTYPE;
+	public  var LCID :Integer;
+	public  var PRECISION :Integer;
+	public  var SCALE :Integer;
+	public  var SIZE :Integer;
+	public  var LENGTH :Integer;
+	public  var FLAGS :SQLITE_COLUMN_FLAGS;
+	public  var SQLITE_DECLARED_TYPE :String;
+	public  var SQLITE_PK_COLUMN :String;
+	public  var SQLITE_PK_TABLE :String;
+	public  var SQLITE_DATATYPE :SQLITE_INTERNAL_TYPE;
+	public  var DEFAULTVALUE :String;
+	public  var value :String;
+	public  var __className :String;
+} //CocoDataField
+
+class CocoDataRow
+{
+	public function write(ds:CocoDataStream) {}
+	public function read(ds:CocoDataStream) {}
+	public function Destructor() {}
+	public function Constructor(dataset:CocoDataset) {}
+	private  var dataset :CocoDataset;
+	public  var STATUS :SQLITE_RECORD_STATUS;
+	public  var FieldValues :Array<String>;
+	public  var __className :String;
+} //CocoDataRow
+
+class CocoDataset
+{
+	public function open(url:String, async:Boolean) :Boolean {}
+	public function open$1(ds:CocoDataStream) :Boolean {}
+	public function write(ds:CocoDataStream) :Boolean {}
+	public function close() {}
+	public function ADD_META(ORDINAL:Integer, NAME:String, TYPE:SQLITE_VARTYPE, PRECISION:Integer, SCALE:Integer, LENGTH:Integer, FLAGS:SQLITE_COLUMN_FLAGS, BASECOLUMNNAME:String, BASETABLENAME:String, ID:String, LCID:Integer, SIZE:Integer, SQLITE_DECLARED_TYPE:String, SQLITE_PK_COLUMN:String, SQLITE_PK_TABLE:String, SQLITE_DATATYPE:SQLITE_INTERNAL_TYPE, DEFAULTVALUE:String) {}
+	public function ADD_DATA(length:Integer) {}
+	private function isSet(v:SQLITE_RECORD_STATUS, flags:SQLITE_RECORD_STATUS) :Boolean {}
+	public function recordCount(Status:SQLITE_RECORD_STATUS) :Integer {}
+	private function row_to_record(rowIndex:Integer, Status:SQLITE_RECORD_STATUS) :Integer {}
+	public function getMatrix(Row:Integer, Col:Integer) :String {}
+	public function putMatrix(Row:Integer, Col:Integer, value:String) :Boolean {}
+	public function status() :SQLITE_RECORD_STATUS {}
+	public function move(recordIndex:Integer) :Boolean {}
+	public function moveFirst() :Boolean {}
+	public function moveLast() :Boolean {}
+	public function moveNext() :Boolean {}
+	public function movePrev() :Boolean {}
+	public function moved() :Boolean {}
+	public function field(name:String) :CocoDataField {}
+	public function field$1(ordinal:Integer) :CocoDataField {}
+	public function insertRecord() :Boolean {}
+	public function deleteRecord() :Boolean {}
+	public function locate(fieldName:String, fieldValue:String) :Boolean {}
+	public function getBookmark() :String {}
+	public function setBookmark(bookmark:String) :Boolean {}
+	public function update() :Boolean {}
+	public function toString() :String {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var fileName :String;
+	public  var SQL :String;
+	public  var METADATA :Array<CocoDataField>;
+	public  var DATA :Array<CocoDataRow>;
+	public  var ACCESS :SQLITE_TABLE_ACCESS;
+	public  var __recordIndex :Integer;
+	public  var DB_EOF :Boolean;
+	public  var DB_BOF :Boolean;
+	public  var stringForNull :String;
+	public  var StatusFilter :SQLITE_RECORD_STATUS;
+	private  var ds :CocoDataStream;
+	public  var Ready :Boolean;
+	public  var fieldCount :Integer;
+	public  var __className :String;
+} //CocoDataset
+
+class RX
+{
+} //RX
+
+class REGULAR_EXPRESSION_FLAGS
+{
+	public var RX_IGNORE_CASE :REGULAR_EXPRESSION_FLAGS;
+	public var RX_MULTILINE :REGULAR_EXPRESSION_FLAGS;
+	public var RX_GLOBAL :REGULAR_EXPRESSION_FLAGS;
+	public var RX_ALL :REGULAR_EXPRESSION_FLAGS;
+} //REGULAR_EXPRESSION_FLAGS
+
+class Match
+{
+	public function subMatches(index:Integer) :String {}
+	public function Destructor() {}
+	public function Constructor(arr:ECMARegExpMatches) {}
+	public  var index :Integer;
+	public  var value :String;
+	public  var length :Integer;
+	private  var submatches :Array<String>;
+	public  var __className :String;
+} //Match
+
+class MatchCollection : Array
+{
+	public function size() :Integer {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //MatchCollection
+
+class RegEx
+{
+	public function toPattern(string:String) :String {}
+	private function init(pattern:String, flags:REGULAR_EXPRESSION_FLAGS) {}
+	public function parse(buff:String, pattern:String, flags:REGULAR_EXPRESSION_FLAGS) :MatchCollection {}
+	public function test(buff:String, pattern:String, flags:REGULAR_EXPRESSION_FLAGS) :Boolean {}
+	public function replace(buff:String, findPattern:String, replacePattern:String, flags:REGULAR_EXPRESSION_FLAGS) :String {}
+	public function Destructor() {}
+	public function Constructor(pattern:String, flags:REGULAR_EXPRESSION_FLAGS) {}
+	private  var rx :RegExp;
+	public  var __className :String;
+} //RegEx
 
 class PathLine
 {
@@ -3395,86 +3750,439 @@ class CocoAudio
 	public  var __className :String;
 } //CocoAudio
 
-class SYMBOL_ENUM
+class FACEBOOK_LOGIN
 {
-	public var SYMBOL_LEONIDAS :SYMBOL_ENUM;
-	public var SYMBOL_XERXES :SYMBOL_ENUM;
-	public var SYMBOL_SPARTAN :SYMBOL_ENUM;
-	public var SYMBOL_PERSIAN :SYMBOL_ENUM;
-	public var SYMBOL_SWORDS :SYMBOL_ENUM;
-	public var SYMBOL_ARMOR :SYMBOL_ENUM;
-} //SYMBOL_ENUM
+	public function toJSON() :String {}
+	public var id :String;
+	public var email :String;
+	public var first_name :String;
+	public var gender :String;
+	public var last_name :String;
+	public var link :String;
+	public var locale :String;
+	public var name :String;
+	public var timezone :Float;
+	public var updated_time :String;
+	public var verified :Boolean;
+	public var image :CocoImage;
+	public var image_is_silhouette :Boolean;
+	public var image_url :String;
+	public var image_b64 :String;
+} //FACEBOOK_LOGIN
 
-class GridSymbol
+class CocoFacebook
 {
-	public function getRandom() :Integer {}
-	public function createSymbol(symbol:Integer) :CocoClip {}
-	public function initPlaceholder() :CocoClip {}
-	public function initLeonidas() :CocoClip {}
-	public function initXerxes() :CocoClip {}
-	public function initSpartan() :CocoClip {}
-	public function initPersian() :CocoClip {}
-	public function initSwords() :CocoClip {}
-	public function initArmor() :CocoClip {}
+	public function Init(AppID:String) {}
+	public function CreateDummyData() {}
+	public function Login() {}
+	public function isUserLoggedOn() :Boolean {}
+	public function Like(URL:String) :Boolean {}
+	public function Post(toUserID:String, URL:String) :Boolean {}
+	public function Share(URL:String) :Boolean {}
+	public function Invite(message:String) :Boolean {}
+	public function __Facebook_Login_Callback(response:FACEBOOK_LOGIN) {}
+	public function __Facebook_Action_Callback(success:Boolean) {}
+	public function Ready() :Boolean {}
+	public function Success() :Boolean {}
 	public function Destructor() {}
-	public function Constructor(scene:CocoScene) {}
-	public  var scene :CocoScene;
+	public function Constructor() {}
+	public static  var DebugMode :Boolean;
+	public static  var Permissions :String;
+	public static  var ImageSize :Integer;
+	public static  var TextureScale :Float;
+	public static  var ImagePadding :Float;
+	public static  var ImageBkColor :String;
+	public static  var AppID :String;
+	public static  var UserData :FACEBOOK_LOGIN;
+	public static  var UserDenied :Boolean;
+	private static  var __ready :Boolean;
+	private static  var __success :Boolean;
+	private static  var __tempImage :Image;
 	public  var __className :String;
-} //GridSymbol
+} //CocoFacebook
+
+class CocoJSON
+{
+	public function read(dot:String) :String {}
+	public function Destructor() {}
+	public function Constructor(json:String) {}
+	private  var json :Dictionary;
+	public  var __className :String;
+} //CocoJSON
+
+class CocoUIView : CocoClip
+{
+	public function move(x:Float, y:Float, width:Float, height:Float) {}
+	public function move$1(x:Float, y:Float) {}
+	public function size(width:Float, height:Float) {}
+	public function bringToFront() {}
+	public function sendToBack() {}
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function invalidate() {}
+	public function addChild(clipInstance:CocoClip) :CocoClip {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __form :CocoUIFormView;
+	public  var Form :CocoUIFormView;
+	protected  var __enabled :Boolean;
+	protected  var __invalidated :Boolean;
+	public  var Name :String;
+	public  var Enabled :Boolean;
+	public  var Visible :Boolean;
+	public  var Width :Float;
+	public  var Height :Float;
+	public  var Left :Float;
+	public  var Top :Float;
+	public  var Bounds :CocoRect;
+	public  var __className :String;
+} //CocoUIView
+
+class COCO_UIFORM_ANIMATION
+{
+	public var SHOW_NORMAL :COCO_UIFORM_ANIMATION;
+	public var SHOW_NEXT :COCO_UIFORM_ANIMATION;
+	public var SHOW_PREVIOUS :COCO_UIFORM_ANIMATION;
+} //COCO_UIFORM_ANIMATION
+
+class CocoAppController : CocoClip
+{
+	public function addForm(Form:CocoUIFormView) :CocoUIFormView {}
+	public function showForm(Form:CocoUIFormView, animation:COCO_UIFORM_ANIMATION) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(Name:String, scene:CocoScene) {}
+	public  var NavBar :CocoUINavBar;
+	public  var ActiveForm :CocoUIFormView;
+	public  var Forms :Array<CocoUIFormView>;
+	public  var __className :String;
+} //CocoAppController
+
+class CocoUIControl : CocoUIView
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function CalcHeight() :Float {}
+	public function SetMargins(left:Float, right:Float, top:Float, bottom:Float) {}
+	public function SetPaddings(left:Float, right:Float, top:Float, bottom:Float) {}
+	public function __CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIControl_Graphic_OnClick(sender:CocoClip, e:CocoEvent) :Boolean {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function ComposeControl() {}
+	public function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float, handleEvents:Boolean) :CocoClip {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public var OnGlyphClick :CocoUIControlOnGlyphClickEvent;
+	public var OnChevronClick :CocoUIControlOnChevronClickEvent;
+	protected  var __selectable :Boolean;
+	protected  var __selected :Boolean;
+	protected  var __selectionWaitTickCycles :Integer;
+	public  var Selectable :Boolean;
+	public  var Selected :Boolean;
+	protected  var __marginLeft :Float;
+	protected  var __marginRight :Float;
+	protected  var __marginTop :Float;
+	protected  var __marginBottom :Float;
+	public  var MarginLeft :Float;
+	public  var MarginRight :Float;
+	public  var MarginTop :Float;
+	public  var MarginBottom :Float;
+	protected  var __paddingLeft :Float;
+	protected  var __paddingRight :Float;
+	protected  var __paddingTop :Float;
+	protected  var __paddingBottom :Float;
+	public  var PaddingLeft :Float;
+	public  var PaddingRight :Float;
+	public  var PaddingTop :Float;
+	public  var PaddingBottom :Float;
+	public  var PaddingWidth :Float;
+	public  var PaddingHeight :Float;
+	protected  var __borderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	protected  var __borderRadius :Float;
+	protected  var __borderColor :Color;
+	protected  var __borderColorSel :Color;
+	public  var BorderStyle :COCO_CONTROL_BORDER_STYLE_ENUM;
+	public  var BorderRadius :Float;
+	public  var BorderColor :Color;
+	public  var BorderColorSel :Color;
+	protected  var __backgroundGradient :Gradient;
+	protected  var __backgroundGradientSel :Gradient;
+	public  var BackgroundGradient :Gradient;
+	public  var BackgroundGradientSel :Gradient;
+	protected  var __skinImage :String;
+	protected  var __skinImageSel :String;
+	public  var SkinImage :String;
+	public  var SkinImageSel :String;
+	protected  var __glyphImage :String;
+	protected  var __glyphImageSel :String;
+	protected  var __glyphLeft :Float;
+	protected  var __glyphTop :Float;
+	protected  var __glyphEvents :Boolean;
+	private  var __glyphClip :CocoClip;
+	private  var __glyphSelClip :CocoClip;
+	public  var GlyphImage :String;
+	public  var GlyphImageSel :String;
+	public  var GlyphLeft :Float;
+	public  var GlyphTop :Float;
+	public  var GlyphEvents :Boolean;
+	protected  var __chevronImage :String;
+	protected  var __chevronImageSel :String;
+	protected  var __chevronLeft :Float;
+	protected  var __chevronTop :Float;
+	protected  var __chevronEvents :Boolean;
+	private  var __chevronClip :CocoClip;
+	private  var __chevronSelClip :CocoClip;
+	public  var ChevronImage :String;
+	public  var ChevronImageSel :String;
+	public  var ChevronLeft :Float;
+	public  var ChevronTop :Float;
+	public  var ChevronEvents :Boolean;
+	protected  var __texts :Array<CocoTextBlock>;
+	public  var __className :String;
+} //CocoUIControl
+
+class CocoUIControlOnGlyphClickEvent : CocoEvent
+{
+} //CocoUIControlOnGlyphClickEvent
+
+class CocoUIControlOnChevronClickEvent : CocoEvent
+{
+} //CocoUIControlOnChevronClickEvent
+
+class CocoUIFormView : CocoUIView
+{
+	public function moveScrollView(left:Float, top:Float, width:Float, height:Float) {}
+	public function addInlineControl(ctl:CocoUIControl) :CocoUIControl {}
+	public function addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(name:String, scene:CocoScene) {}
+	private  var __scrollView :CocoUIScrollView;
+	public  var __className :String;
+} //CocoUIFormView
+
+class CocoUIScrollView : CocoUIView
+{
+	public function getKeyFrame() :CocoKeyFrame {}
+	public function inlineHeight() :Float {}
+	public function resetSelection() {}
+	public function addChild(ctl:CocoUIControl) :CocoUIControl {}
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function __CocoUIScrollView_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIScrollView_OnTouchMove(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function __CocoUIScrollView_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String, scene:CocoScene) {}
+	private  var __scrollLastTime :Time;
+	private  var __scrollFirstPointY :Float;
+	private  var __scrollLastPointY :Float;
+	private  var __scrollSpeedY :Float;
+	private  var __minY :Float;
+	private  var __maxY :Float;
+	private  var __bounceY :Boolean;
+	private  var __scrollContainer :CocoClip;
+	private  var __scrollDeceleration :Float;
+	private  var __scrollSpringTension :Float;
+	public  var ScrollDeceleration :Float;
+	public  var ScrollSpringTension :Float;
+	public  var __className :String;
+} //CocoUIScrollView
+
+class CocoUIButton : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __caption :CocoTextBlock;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var CaptionFontName :String;
+	public  var CaptionFontSize :Float;
+	public  var CaptionFontBold :Boolean;
+	public  var CaptionFontItalic :Boolean;
+	public  var CaptionFontUnderline :Boolean;
+	public  var CaptionFontShadowX :Integer;
+	public  var CaptionFontShadowY :Integer;
+	public  var CaptionFontBlur :Integer;
+	public  var CaptionFontColorSel :Color;
+	public  var CaptionFontShadowColorSel :Color;
+	public  var CaptionFontColor :Color;
+	public  var CaptionFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUIButton
+
+class CocoUICheckBox : CocoUIControl
+{
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __className :String;
+} //CocoUICheckBox
+
+class CocoUIComboBox : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function __CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __text :CocoTextBlock;
+	public  var __prompt :CocoTextBlock;
+	public  var Text :String;
+	public  var TextFontName :String;
+	public  var TextFontSize :Float;
+	public  var TextFontBold :Boolean;
+	public  var TextFontItalic :Boolean;
+	public  var TextFontUnderline :Boolean;
+	public  var TextFontShadowX :Integer;
+	public  var TextFontShadowY :Integer;
+	public  var TextFontBlur :Integer;
+	public  var TextFontColorSel :Color;
+	public  var TextFontShadowColorSel :Color;
+	public  var TextFontColor :Color;
+	public  var TextFontShadowColor :Color;
+	public  var Prompt :String;
+	public  var PromptFontName :String;
+	public  var PromptFontSize :Float;
+	public  var PromptFontBold :Boolean;
+	public  var PromptFontItalic :Boolean;
+	public  var PromptFontUnderline :Boolean;
+	public  var PromptFontShadowX :Integer;
+	public  var PromptFontShadowY :Integer;
+	public  var PromptFontBlur :Integer;
+	public  var PromptFontColorSel :Color;
+	public  var PromptFontShadowColorSel :Color;
+	public  var PromptFontColor :Color;
+	public  var PromptFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUIComboBox
+
+class CocoUILabel : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __caption :CocoTextBlock;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var CaptionMultiline :Boolean;
+	public  var CaptionFontName :String;
+	public  var CaptionFontSize :Float;
+	public  var CaptionFontBold :Boolean;
+	public  var CaptionFontItalic :Boolean;
+	public  var CaptionFontUnderline :Boolean;
+	public  var CaptionFontShadowX :Integer;
+	public  var CaptionFontShadowY :Integer;
+	public  var CaptionFontBlur :Integer;
+	public  var CaptionFontColorSel :Color;
+	public  var CaptionFontShadowColorSel :Color;
+	public  var CaptionFontColor :Color;
+	public  var CaptionFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUILabel
+
+class CocoUINavBar : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer) {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __caption :CocoTextBlock;
+	public  var Caption :String;
+	public  var CaptionAlign :COCO_CONTROL_ANCHOR_ENUM;
+	public  var CaptionFontName :String;
+	public  var CaptionFontSize :Float;
+	public  var CaptionFontBold :Boolean;
+	public  var CaptionFontItalic :Boolean;
+	public  var CaptionFontUnderline :Boolean;
+	public  var CaptionFontShadowX :Integer;
+	public  var CaptionFontShadowY :Integer;
+	public  var CaptionFontBlur :Integer;
+	public  var CaptionFontColorSel :Color;
+	public  var CaptionFontShadowColorSel :Color;
+	public  var CaptionFontColor :Color;
+	public  var CaptionFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUINavBar
+
+class CocoUIPictureList : CocoUIButton
+{
+	public function Destructor() {}
+	public function Constructor(Name:String) {}
+	public  var __className :String;
+} //CocoUIPictureList
+
+class CocoUITabBar : CocoUIControl
+{
+	public function Composer() {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __className :String;
+} //CocoUITabBar
+
+class CocoUITextEdit : CocoUIControl
+{
+	public function RefreshLayout(parent:CocoUIView) {}
+	public function __CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean {}
+	public function Destructor() {}
+	public function Constructor(name:String) {}
+	public  var __text :CocoTextBlock;
+	public  var __prompt :CocoTextBlock;
+	public  var Text :String;
+	public  var TextFontName :String;
+	public  var TextFontSize :Float;
+	public  var TextFontBold :Boolean;
+	public  var TextFontItalic :Boolean;
+	public  var TextFontUnderline :Boolean;
+	public  var TextFontShadowX :Integer;
+	public  var TextFontShadowY :Integer;
+	public  var TextFontBlur :Integer;
+	public  var TextFontColorSel :Color;
+	public  var TextFontShadowColorSel :Color;
+	public  var TextFontColor :Color;
+	public  var TextFontShadowColor :Color;
+	public  var Prompt :String;
+	public  var PromptFontName :String;
+	public  var PromptFontSize :Float;
+	public  var PromptFontBold :Boolean;
+	public  var PromptFontItalic :Boolean;
+	public  var PromptFontUnderline :Boolean;
+	public  var PromptFontShadowX :Integer;
+	public  var PromptFontShadowY :Integer;
+	public  var PromptFontBlur :Integer;
+	public  var PromptFontColorSel :Color;
+	public  var PromptFontShadowColorSel :Color;
+	public  var PromptFontColor :Color;
+	public  var PromptFontShadowColor :Color;
+	public  var __className :String;
+} //CocoUITextEdit
 
 class GameEngine : CocoEngine
 {
-	public function setTexts() {}
-	public function createGUID() :String {}
-	public function hasClosedCells() :Boolean {}
-	public function OpenCell(i:Integer) {}
 	public function Destructor() {}
 	public function Constructor() {}
-	private  var scene :CocoScene;
-	private  var balance :Number;
-	private  var winnings :Number;
-	private  var avatars :Array<CocoClip>;
-	private  var avatar_leo :CocoClip;
-	private  var avatar_xerxes :CocoClip;
-	private  var avatar_spartan :CocoClip;
-	private  var avatar_persian :CocoClip;
-	private  var avatar_swords :CocoClip;
-	private  var avatar_armor :CocoClip;
-	private  var btnOpenAll :CocoClip;
-	private  var btnBuyTicket :CocoClip;
-	private  var cells :Array<CocoClip>;
-	private  var cellsOpen :Array<Boolean>;
-	private  var selectedAvatar :Integer;
-	private  var selAvatarAppearances :Integer;
-	private  var counter :Number;
-	private  var TICKET_TicketID :String;
-	private  var TICKET_cells :Array<Integer>;
-	private  var TICKET_price :Integer;
-	private  var TICKET_winCount :Integer;
-	private  var WIN_PRIZES :Array<Integer>;
-	public var STATE_TITLE_SCREEN :State;
-	public var STATE_GAME_BOARD :State;
-	public var STATE_GAME_BOARD_JUMPING_AVATARS :State;
-	public var STATE_GAME_BOARD_CHOOSE_AVATAR :State;
-	public var STATE_GAME_BOARD_BUY_TICKET :State;
-	public var STATE_GAME_BOARD_SCRATCH_OR_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_OPEN_ALL :State;
-	public var STATE_GAME_BOARD_WIN :State;
-	public var STATE_GAME_BOARD_LOSE :State;
+	public  var scene :CocoScene;
+	public  var app :CocoAppController;
+	public var STATE_START_APP :State;
+	public var STATE_DATASET_TEST :State;
+	public var STATE_SHOW_FORM :State;
 	public  var __className :String;
 } //GameEngine
 
-class SceneGameBoard : CocoScene
+class ReservationsForm : CocoUIFormView
 {
+	private function addLookup(Caption:String, FieldName:String, IsLookup:Boolean, IsComboBox:Boolean) {}
+	public function btnSubmit_OnClick(sender:CocoUIButton, e:CocoClipOnClickEvent) :Boolean {}
 	public function Destructor() {}
-	public function Constructor(engine:CocoEngine) {}
+	public function Constructor(name:String, scene:CocoScene) {}
+	private  var btnSubmit :CocoUIButton;
+	private  var btnDelete :CocoUIButton;
 	public  var __className :String;
-} //SceneGameBoard
+} //ReservationsForm
 
-class SceneTitle : CocoScene
+class NewAnimation : CocoScene
 {
 	public function Destructor() {}
 	public function Constructor(engine:CocoEngine) {}
 	public  var __className :String;
-} //SceneTitle
+} //NewAnimation
 

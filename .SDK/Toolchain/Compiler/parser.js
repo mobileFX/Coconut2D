@@ -2104,18 +2104,8 @@ function __init_narcissus(GLOBAL)
 				n2 = new Node(t);
 				t.mustMatch(jsdef.LEFT_PAREN);
 				n2.varName = t.mustMatch(jsdef.IDENTIFIER).value;
-				if(t.match(jsdef.IF))
-				{
-					if(x.ecmaStrictMode)
-						throw t.newSyntaxError("Illegal catch guard");
-					if(n.catchClauses.length && !n.catchClauses.top().guard)
-						throw t.newSyntaxError("Guarded catch after unguarded");
-					n2.guard = Expression(t, x);
-				}
-				else
-				{
-					n2.guard = null;
-				}
+				t.mustMatch(jsdef.COLON);
+				n2.vartype = t.mustMatch(jsdef.IDENTIFIER).value;
 				t.mustMatch(jsdef.RIGHT_PAREN);
 				n2.block = Block(t, x);
 				n.catchClauses.push(n2);

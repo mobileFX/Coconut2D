@@ -152,7 +152,7 @@ state class CocoEngine
 		{
 			__tick(__clock);
 		}
-		catch(e)
+		catch(e:Error)
 		{
 			trace("ERROR: CocoEngine::tick() at state " + __currentState.__name);
 		}
@@ -170,7 +170,7 @@ state class CocoEngine
 			{
 				__currentState.paint(__ctx, __clock);
 			}
-			catch(e)
+			catch(e:Error)
 			{
 				trace("ERROR: CocoEngine::paint() at state " + __currentState.__name);
 			}
@@ -261,7 +261,7 @@ state class CocoEngine
 		{
 			__translateDeviceMessageImpl(e);
 		}
-		catch(e)
+		catch(e:Error)
 		{
 			trace("ERROR: CocoEngine::__translateDeviceMessage");
 		}

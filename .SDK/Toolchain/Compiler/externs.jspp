@@ -254,8 +254,9 @@ class Array
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class Dictionary
+class Dictionary : Object
 {
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -493,7 +494,8 @@ class Uint32Array : TypedArray
 class Error
 {
 	public var name:String;
-	public var message:String
+	public var message:String;
+	public function toString():String {};
 }
 
 class EvalError :Error {}
@@ -505,8 +507,8 @@ class TypeError :Error {}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class JSON
 {
-	public static function parse(json:String):Array<Object> { return null; };
-	public static function stringify(obj:Array<Object>):String { return null; };
+	public static function parse(json:String):Dictionary { return null; };
+	public static function stringify(obj:Dictionary):String { return null; };
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -665,71 +667,71 @@ class NodeJS_Response
 
 class NodeJS_FS
 {
-	public function rename(oldPath:String, newPath:String, optional Callback:Function) {}
-	public function renameSync(oldPath:String, newPath:String) {}
-	public function truncate(fd:Object, len:Number, optional Callback:Function) {}
-	public function truncateSync(fd:Object, len:Number) {}
-	public function chown(path:String, uid:Number, gid:Number, optional Callback:Function) {}
-	public function chownSync(path:String, uid:Number, gid:Number) {}
-	public function fchown(fd:Object, uid:Number, gid:Number, optional Callback:Function) {}
-	public function fchownSync(fd:Object, uid:Number, gid:Number) {}
-	public function lchown(path:String, uid:Number, gid:Number, optional Callback:Function) {}
-	public function lchownSync(path:String, uid:Number, gid:Number) {}
-	public function chmod(path:String, mode:Number, optional Callback:Function) {}
-	public function chmodSync(path:String, mode:Number) {}
-	public function fchmod(fd:Object, mode:Number, optional Callback:Function) {}
-	public function fchmodSync(fd:Object, mode:Number) {}
-	public function lchmod(path:String, mode:Number, optional Callback:Function) {}
-	public function lchmodSync(path:String, mode:Number) {}
-	public function stat(path:String, optional Callback:Function) {}
-	public function statSync(path:String):Stats {}
-	public function fstat(fd:Object, optional Callback:Function) {}
-	public function fstatSync(fd:Object):Stats {}
-	public function lstat(path:String, optional Callback:Function) {}
-	public function lstatSync(path:String):Stats {}
-	public function link(srcpath:String, dstpath:String, optional Callback:Function) {}
-	public function linkSync(srcpath:String, dstpath:String) {}
-	public function symlink(srcpath:String, dstpath:String, optional type:String, optional Callback:Function) {}
-	public function symlinkSync(srcpath:String, dstpath:String, optional type:String) {}
-	public function readlink(path:String, optional Callback:Function) {}
-	public function readlinkSync(path:String):String {}
-	public function realpath(path:String, optional cache:Object, optional Callback:Function) {}
-	public function realpathSync(path:String, optional cache:Object):String {}
-	public function unlink(path:String, optional Callback:Function) {}
-	public function unlinkSync(path:String) {}
-	public function rmdir(path:String, optional Callback:Function) {}
-	public function rmdirSync(path:String) {}
-	public function mkdir(path:String, optional mode:Number, optional Callback:Function) {}
-	public function mkdirSync(path:String, optional mode:Number) {}
-	public function readdir(path:String, optional Callback:Function) {}
-	public function readdirSync(path:String):Array<string> {}
-	public function close(fd:Object, optional Callback:Function) {}
-	public function closeSync(fd:Object) {}
-	public function open(path:String, flags:String, optional mode:Number, optional Callback:Function) {}
-	public function openSync(path:String, flags:String, optional mode:Number):Object {}
-	public function utimes(path:String, atime:Number, mtime:Number, optional Callback:Function) {}
-	public function utimesSync(path:String, atime:Number, mtime:Number) {}
-	public function futimes(fd:Object, atime:Number, mtime:Number, optional Callback:Function) {}
-	public function futimesSync(fd:Object, atime:Number, mtime:Number) {}
-	public function fsync(fd:Object, optional Callback:Function) {}
-	public function fsyncSync(fd:Object) {}
-	public function write(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, optional Callback:Function) {}
-	public function writeSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number):Number {}
-	public function read(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, optional Callback:Function) {}
-	public function readSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number):Number {}
-	public function readFile(filename:String, encodingOrOptions:String, optional Callback:Function) {}
-	public function readFileSync(filename:String, encodingOrOptions:String):String {}
-	public function writeFile(filename:String, data:String, encodingOrOptions:String, optional Callback:Function) {}
-	public function writeFileSync(filename:String, data:String, optional encodingOrOptions:String) {}
 	public function appendFile(filename:String, data:String, encoding:String, optional Callback:Function) {}
 	public function appendFileSync(filename:String, data:String, encoding:String) {}
-	public function watchFile(filename:String, options:Object, optional listener:Function) {}
-	public function unwatchFile(filename:String, optional listener:Function) {}
-	public function watch(filename:String, options:Object, optional listener:Function):FSWatcher {}
-	public function exists(path:String, Callback:Function) {}
-	public function existsSync(path:String) {}
+	public function chmod(path:String, mode:Number, optional Callback:Function) {}
+	public function chmodSync(path:String, mode:Number) {}
+	public function chown(path:String, uid:Number, gid:Number, optional Callback:Function) {}
+	public function chownSync(path:String, uid:Number, gid:Number) {}
+	public function close(fd:Object, optional Callback:Function) {}
+	public function closeSync(fd:Object) {}
 	public function createReadStream(path:String, options:Dictionary):ReadStream {}
 	public function createWriteStream(path:String, options:Dictionary):WriteStream {}
+	public function exists(path:String, Callback:Function) {}
+	public function existsSync(path:String) {}
+	public function fchmod(fd:Object, mode:Number, optional Callback:Function) {}
+	public function fchmodSync(fd:Object, mode:Number) {}
+	public function fchown(fd:Object, uid:Number, gid:Number, optional Callback:Function) {}
+	public function fchownSync(fd:Object, uid:Number, gid:Number) {}
+	public function fstat(fd:Object, optional Callback:Function) {}
+	public function fstatSync(fd:Object):Stats {}
+	public function fsync(fd:Object, optional Callback:Function) {}
+	public function fsyncSync(fd:Object) {}
+	public function futimes(fd:Object, atime:Number, mtime:Number, optional Callback:Function) {}
+	public function futimesSync(fd:Object, atime:Number, mtime:Number) {}
+	public function lchmod(path:String, mode:Number, optional Callback:Function) {}
+	public function lchmodSync(path:String, mode:Number) {}
+	public function lchown(path:String, uid:Number, gid:Number, optional Callback:Function) {}
+	public function lchownSync(path:String, uid:Number, gid:Number) {}
+	public function link(srcpath:String, dstpath:String, optional Callback:Function) {}
+	public function linkSync(srcpath:String, dstpath:String) {}
+	public function lstat(path:String, optional Callback:Function) {}
+	public function lstatSync(path:String):Stats {}
+	public function mkdir(path:String, optional mode:Number, optional Callback:Function) {}
+	public function mkdirSync(path:String, optional mode:Number) {}
+	public function open(path:String, flags:String, optional mode:Number, optional Callback:Function) {}
+	public function openSync(path:String, flags:String, optional mode:Number):Object {}
+	public function read(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, optional Callback:Function) {}
+	public function readdir(path:String, optional Callback:Function) {}
+	public function readdirSync(path:String):Array<string> {}
+	public function readFile(filename:String, encodingOrOptions:String, optional Callback:Function) {}
+	public function readFileSync(filename:String, optional encodingOrOptions:String):String {}
+	public function readlink(path:String, optional Callback:Function) {}
+	public function readlinkSync(path:String):String {}
+	public function readSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number):Number {}
+	public function realpath(path:String, optional cache:Object, optional Callback:Function) {}
+	public function realpathSync(path:String, optional cache:Object):String {}
+	public function rename(oldPath:String, newPath:String, optional Callback:Function) {}
+	public function renameSync(oldPath:String, newPath:String) {}
+	public function rmdir(path:String, optional Callback:Function) {}
+	public function rmdirSync(path:String) {}
+	public function stat(path:String, optional Callback:Function) {}
+	public function statSync(path:String):Stats {}
+	public function symlink(srcpath:String, dstpath:String, optional type:String, optional Callback:Function) {}
+	public function symlinkSync(srcpath:String, dstpath:String, optional type:String) {}
+	public function truncate(fd:Object, len:Number, optional Callback:Function) {}
+	public function truncateSync(fd:Object, len:Number) {}
+	public function unlink(path:String, optional Callback:Function) {}
+	public function unlinkSync(path:String) {}
+	public function unwatchFile(filename:String, optional listener:Function) {}
+	public function utimes(path:String, atime:Number, mtime:Number, optional Callback:Function) {}
+	public function utimesSync(path:String, atime:Number, mtime:Number) {}
+	public function watch(filename:String, options:Object, optional listener:Function):FSWatcher {}
+	public function watchFile(filename:String, options:Object, optional listener:Function) {}
+	public function write(fd:Object, buffer:Object, offset:Number, length:Number, position:Number, optional Callback:Function) {}
+	public function writeFile(filename:String, data:String, encodingOrOptions:String, optional Callback:Function) {}
+	public function writeFileSync(filename:String, data:String, optional encodingOrOptions:String) {}
+	public function writeSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number):Number {}
 }
 
 class NodeJS_V8Context

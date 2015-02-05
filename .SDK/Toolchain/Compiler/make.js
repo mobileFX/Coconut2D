@@ -1318,7 +1318,7 @@ function CocoMake(command , params)
     // =====================================================================
 	_this.copy_framework_libs = function()
 	{
-		var FileMasks = "*.js";
+		var FileMasks = "*.js;*.json";
 		var vFrameworksSrcSubPaths = "/$(PATH_SDK_FRAMEWORKS_WEB)/$(PATH_SDK_FRAMEWORKS_LIB)";
 
 	    trace("\nCollecting JavaScript Libraries ...\n+ pattern: " + FileMasks);

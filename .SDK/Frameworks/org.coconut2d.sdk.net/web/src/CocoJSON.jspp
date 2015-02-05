@@ -26,7 +26,7 @@
 
 class CocoJSON
 {
-	private var json:Array<Object>;
+	private var json:Dictionary;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(json:String)
@@ -42,15 +42,26 @@ class CocoJSON
 
 	public function read(dot:String) :String
 	{
-		#define NO_COMPILER_ERRORS
-		var p:Array<Object> = json;
+		var p:Dictionary = json;
 		var d:Array<String> = dot.split(".");
+		var k:String;
 		for(var i:Integer=0; i<d.size()-1; i++)
 		{
-			p = p[d[i]];
+			k = d[i];
+			__javascript
+			{
+				p = p[k];
+			}
+			__end
 		}
-		return p[d[d.size()-1]];
-		#undefine NO_COMPILER_ERRORS
+		k = d[d.size()-1];
+		var v:String
+		__javascript
+		{
+			v = p[d];
+		}
+		__end
+		delete d;
+		return v;
 	}
-
 }

@@ -108,7 +108,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 			__ctx.rect(x,y,w,h);
 			__ctx.clip();
 		}
-		catch(e)
+		catch(e:Error)
 		{
 		}
 	}
@@ -261,7 +261,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 			if(sx >= 0 && sy >= 0 && sw > 0 && sh > 0 && sx + sw <= image.hImage.naturalWidth && sy + sh <= image.hImage.naturalHeight && sx + sw > 0 && sy + sh > 0)
 				__ctx.drawImage(image.hImage, sx, sy, sw, sh, dx, dy, dw, dh);
 		}
-		catch(e)
+		catch(e:Error)
 		{
 			trace("ERROR: __ctx.drawImage()");
 		}

@@ -44,17 +44,16 @@ export class ASPProcessor
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function run(Request:NodeJS_Request, Response:NodeJS_Response)
+	public virtual function run(AspFilePath:String, Request:NodeJS_Request, Response:NodeJS_Response)
 	{
 		try
 		{
-			var aspFile:String = Request.url;
-			var compiledFile:String = path.resolve(aspFile).replace(".asp", "_compiled.js");
+			var compiledFile:String = path.resolve(AspFilePath).replace(".asp", "_compiled.js");
 
-			if(fs.existsSync(aspFile))
+			if(fs.existsSync(AspFilePath))
 			{
 				// Read ASP Page
-				var aspCode:String = fs.readFileSync(aspFile, "utf8");
+				var aspCode:String = fs.readFileSync(AspFilePath, "utf8");
 
 				// Compile ASP Page
 				var jsCode:String = compile(aspCode);
@@ -65,6 +64,8 @@ export class ASPProcessor
 				// Execute compiled ASP code
 				var f:Function = new Function('Request', 'Response', jsCode);
 				Response.writeHead(200, {"Content-Type":"text/html"});
+
+				// IMPORTANT: You can step-in to debug the generated code.
 				f(Request,Response);
 			}
 			else
@@ -72,8 +73,9 @@ export class ASPProcessor
 				// ASP File Not Found
 			}
 		}
-		catch(e)
+		catch(e:Error)
 		{
+			console.log("Error executing ASP " + AspFilePath);
 		}
 	}
 
@@ -138,6 +140,9 @@ export class ASPProcessor
 	        code.push(s);
 	        pos = m.index + m.length;
 	    }
+
+		HTML = buff.substr(pos);
+		code.push(HTML2Script(HTML));
 
 	    return code.join("\n");
 	}

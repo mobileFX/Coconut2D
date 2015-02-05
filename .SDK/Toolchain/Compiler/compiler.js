@@ -5545,8 +5545,57 @@ function Compiler(ast)
 			for(var catchClause in ast.catchClauses)
 			{
 				if(!isFinite(catchClause)) break;
-				out.push("catch(" + ast.catchClauses[catchClause].varName + ")");
-				out.push(generate(ast.catchClauses[catchClause].block));
+
+				var clause = ast.catchClauses[catchClause];
+				var scope = ast.scope = _this.NewScope(ast);
+
+				out.push("catch(" + clause.varName + ")");
+
+				// Var Symbol
+				var varSymbol = new VarSymbol();
+				{
+					varSymbol.symbolId		= (++_this.symbolId);
+					varSymbol.name			= clause.varName;
+					varSymbol.value			= null;
+					varSymbol.type			= jsdef.IDENTIFIER;
+					varSymbol.nodeType		= "IDENTIFIER";
+					varSymbol.classId		= classId;
+					varSymbol.extern		= (ast.file=="externs.jspp");
+					varSymbol.public		= false;
+					varSymbol.private		= false;
+					varSymbol.protected		= false;
+					varSymbol.published		= false;
+					varSymbol.static		= false;
+					varSymbol.reference		= true;
+					varSymbol.optional		= false;
+					varSymbol.virtual		= false;
+					varSymbol.abstract		= false;
+					varSymbol.delegate		= false;
+					varSymbol.event			= false;
+					varSymbol.constant		= false;
+					varSymbol.inNameSpace	= _this.currNamespace;
+					varSymbol.ast			= clause;
+					varSymbol.scope			= scope;
+					varSymbol.file			= clause.file;
+					varSymbol.path			= clause.path;
+					varSymbol.start			= clause.start;
+					varSymbol.end			= clause.end;
+					varSymbol.line_start	= clause.line_start;
+					varSymbol.line_end		= clause.line_end;
+					varSymbol.scopeId		= scope.scopeId;
+					varSymbol.vartype		= clause.vartype;
+					varSymbol.subtype		= null;
+					varSymbol.pointer		= false;
+					varSymbol.description	= null;
+					varSymbol.icon 			= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
+					varSymbol.modifier 		= "";
+					varSymbol.__signature 	= varSymbol.name + ":" + varSymbol.vartype;
+					varSymbol.runtime 		= clause.varName;
+				}
+
+				ast.scope.vars[varSymbol.name] = varSymbol;
+				out.push(generate(clause.block));
+				_this.ExitScope();
 				ast.finallyBlock && out.push("finally" + generate(ast.finallyBlock));
 			}
 			break;
@@ -5579,6 +5628,13 @@ function Compiler(ast)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NEW:
+
+			// Nasry hack for Dictionary.
+			if(ast[0].value=="Dictionary")
+			{
+				out.push("{}");
+				break;
+			}
 
 			var gen = generate(ast[0]);
 			_this.LookupModuleClass(gen, ast);

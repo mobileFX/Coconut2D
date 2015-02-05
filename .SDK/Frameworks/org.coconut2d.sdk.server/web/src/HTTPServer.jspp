@@ -23,36 +23,98 @@
  * ***** END LICENSE BLOCK ***** */
 
 #pragma export_nodejs
+#pragma json
 
 #module HttpSever
 
+var fs1:NodeJS_FS = require('fs');
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct MIME_TYPE
+{
+	FileExtension:String;
+	ContentType:String;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export class HTTPServer
 {
+	private var MIME:Dictionary;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		MIME = new Dictionary;
+		var buff:String = fs1.readFileSync('./obj/mime.json', "utf8");
+		try
+		{
+			MIME = JSON.parse(buff);
+		}
+		catch(e:Error)
+		{
+			console.log("Error parsing mime types, " + e.toString());
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete MIME;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function handle(req:NodeJS_Request, res:NodeJS_Response)
 	{
+		// If root request set default page
 		if(req.url=="/")
 			req.url = "default.asp";
 
+		// Log request URL
 		console.log("Request URL: " + req.url);
 
+		// Get file extension
 		var ext:String = req.url.substr(req.url.lastIndexOf(".")).toLowerCase();
+		var fileName:String = req.url;
+
+		// Make path relative to root folder
+		if(fileName.indexOf('/')==0)
+			fileName = "." + fileName;
+
+		// If file does not exist end the response.
+		if(!fs1.existsSync(fileName))
+			res.end();
+
+		// Handle ASP pages
 		if(ext==".asp")
 		{
+			// Create an ASP processor, parse and execute the file.
 			var server:ASPProcessor = new ASP.ASPProcessor();
-			server.run(req, res);
+			server.run(fileName, req, res);
+			res.end();
+			return;
 		}
 
+		// Handle all other mime types
+		else
+		{
+			if(MIME.hasOwnProperty(ext))
+			{
+				var ContentType:String = String(MIME[ext]);
+				res.writeHead(200, {'Content-Type': ContentType });
+				var bytes:String = fs1.readFileSync(fileName);
+				if(ContentType.indexOf("text")!=-1 || ContentType.indexOf("javascript")!=-1)
+				{
+					res.end(bytes);
+				}
+				else
+				{
+					res.end(bytes, 'binary');
+				}
+				return;
+			}
+		}
+
+		// Unhandled mime
 		res.end();
 	}
 }
