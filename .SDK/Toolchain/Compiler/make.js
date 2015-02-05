@@ -68,6 +68,9 @@ function CocoMake(command , params)
 	var _this = this;
 	__global.__coco_make = this;
 	var TARGET = makefile.Config.TARGETS[makefile.Vars['TARGET']];
+	TARGET.NAME = makefile.Vars['TARGET'];
+	__global.TARGET = TARGET;
+	__global.TARGET_NAME = TARGET.NAME;
 	makefile.Vars["UCONFIGURATION"] = makefile.Vars.CONFIGURATION.toUpperCase();
 	params = JSON.parse(params);
 
@@ -1305,6 +1308,7 @@ function CocoMake(command , params)
 	    	if(framework)
 	    	{
 	    		makefile.Vars[framework.PrecompilerVarName] = true;
+	    		__global[framework.PrecompilerVarName] = true;
 	    	}
 	    }
 	};

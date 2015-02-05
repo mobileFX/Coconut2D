@@ -143,6 +143,14 @@
 	47. Added conditional compilation closures using #if <condition> #elseif and #endif
 	48. Fixed minor bugs with static vars
 
+	== 04/02/2015 ==
+
+	49. Added precompiler variables (#ifdef #else #end). Each ast node holds its scope
+		precompiler variables that are evaluated during code generation.
+	50. Added Raw Code Blocks similar to C++ __asm blocks that emmit raw code in the generated output.
+	    This allows special treatment for regular expressions and JavaScript code whose syntax is not
+	    compatible with C++.
+
 
 	Elias G. Politakis
 	epolitakis@mobilefx.com
@@ -1542,7 +1550,6 @@ function Compiler(ast)
 			}
 			else
 			{
-				expr = expr.replace(/TARGET/, "makefile.Vars.TARGET");
 				v = eval(expr);
 			}
 		}
@@ -1592,7 +1599,7 @@ function Compiler(ast)
 
 		// =========================================================
 		// Add debug line
-		if(_this.lineNumbers && _this.line_start != ast.line_start)
+		if(_this.secondPass && _this.lineNumbers && _this.line_start != ast.line_start)
 		{
 			_this.line_start != -1 && out.push("\n");
 			out.push("\/\/@line " + ast.line_start + "\n");
@@ -1621,6 +1628,8 @@ function Compiler(ast)
 			_this.scopeId = _this.scopesStack.length-1;
 			_this.currFile = ast.path;
 			_this.includes = [];
+			//if(_this.secondPass)
+			//	trace("+ compiling: " + ast.path);
 			break;
 
 		// ==================================================================================================================================
@@ -1714,8 +1723,6 @@ function Compiler(ast)
 		/*@@ NAMESPACE @@*/
 
 		case jsdef.NAMESPACE:
-
-
 			break;
 
 		// ==================================================================================================================================
@@ -2033,7 +2040,6 @@ function Compiler(ast)
 			// the original implementation using "super.<method>" we
 			// will make this call using __CLASS_<CLASSID>__.<method>
 
-			//out.push("var Class = this.Class = '" + ast.name + "';");
 			out.push("var __PDEFINE__ = Object.defineProperty;");
 			out.push("var __NOENUM__ = {enumerable:false};");
 			out.push("var " + classId + " = this." + classId + " = this;");
@@ -4892,8 +4898,6 @@ function Compiler(ast)
 						if(ast.value.indexOf("$")!=-1)
 						{
 
-							//if(ast.value=="texImage2D$1") debugger;
-
 							// Check if the symbol exports for the current target
 							var export_matches_target = _this.TARGET_EXPORT=="export_all" || ast.symbol.ast.__VARIABLES[_this.TARGET_EXPORT] || false;
 
@@ -4911,7 +4915,7 @@ function Compiler(ast)
 							{
 								ast.value = ast.symbol.ast.name;
 								ast.symbol.runtime = ast.symbol.runtime.substr(0, ast.symbol.runtime.indexOf("$"));
-								trace("overload fix: " + ast.symbol.runtime);
+								//trace("overload fix: " + ast.symbol.runtime);
 							}
 						}
 
