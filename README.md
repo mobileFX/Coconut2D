@@ -85,7 +85,7 @@ Language Features:
 * Destructor (invoked on delete)
 * Public, Private, Protected Access Modifiers
 * Published Access Modififer for Design-Time binding
-* Abstract Functions 
+* Abstract Functions
 * Static Functions and Fields
 * Virtual Functions and base class access with super keyword
 * Function Overloads
@@ -134,7 +134,7 @@ We also developed **CocoPlayer**, a Simulator powered by **Google V8 JavaScript 
 * Elias G. Politakis (epolitakis@mobilefx.com)
 * George Mathioudakis (YiamiYo@mobilefx.com)
 
-6.2. Coconut2D Team 
+6.2. Coconut2D Team
 -------------------
 
 ![CocoTeam](.SDK/Documentation/Introduction/CocoTeam1.jpg)

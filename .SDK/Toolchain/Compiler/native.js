@@ -1396,17 +1396,7 @@ function CompilerCppPlugin(compiler)
 		// ==================================================================================================================================
 
 		case jsdef.STRING:
-
-			switch(ast.value)
-			{
-			case "#ignore_errors_begin":
-			case "#ignore_errors_end":
-				break;
-
-			default:
-				CPP.push('String("' + ast.value + '")');
-			}
-
+			CPP.push('String("' + ast.value + '")');
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

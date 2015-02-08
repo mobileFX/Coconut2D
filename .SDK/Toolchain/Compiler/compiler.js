@@ -3573,45 +3573,44 @@ function Compiler(ast)
 				// inside externs.jspp and the compiler will automatically link the extern_symbol.
 
 				var extern_symbol = null;
+				var vitem = ast[item];
 
                 // Type Checks
-				if(_this.secondPass && !ast[item].vartype && _this.currClassName)
-					_this.NewError("Type declaration missing " + ast[item].name, ast[item]);
+				if(_this.secondPass && !vitem.vartype && _this.currClassName)
+					_this.NewError("Type declaration missing " + vitem.name, vitem);
 
-				if(_this.secondPass && _this.currClassName && ast[item].vartype && !_this.getClass(ast[item].vartype))
-					_this.NewError("Class not found: " + ast[item].vartype, ast[item]);
+				if(_this.secondPass && _this.currClassName && vitem.vartype && !_this.getClass(vitem.vartype))
+					_this.NewError("Class not found: " + vitem.vartype, vitem);
 
-				if(__exists(ast.scope.vars, ast[item].name))
+				if(__exists(ast.scope.vars, vitem.name) && !vitem.__MODULE)
 				{
-					// If a var is wrapped inside "#ignore_errors" directive we do not complain for redeclaration.
 					if(_this.no_errors)
 					{
-						extern_symbol = ast.scope.vars[ast[item].name];
+						extern_symbol = ast.scope.vars[vitem.name];
 					}
-
 					else if(!_this.secondPass)
 					{
-						_this.NewError("Redeclaration of variable " + ast[item].name + " in current scope", ast[item]);
+						_this.NewError("Redeclaration of variable " + vitem.name + " in current scope", vitem);
 					}
 				}
 
 				if(!_this.secondPass)
 			 	{
-					if(classScope && __exists(classScope.vars, ast[item].name) && !ast[0].inFunction && !_this.isInside(ast[item], jsdef.BLOCK))
+					if(classScope && __exists(classScope.vars, vitem.name) && !ast[0].inFunction && !_this.isInside(vitem, jsdef.BLOCK))
 					{
-						_this.NewWarning("Found declaration of variable " + ast[item].name + " in class scope", ast[item]);
+						_this.NewWarning("Found declaration of variable " + vitem.name + " in class scope", vitem);
 					}
 				}
 
-				ast[item].pointer = _this.isPointer(ast[item].vartype);
+				vitem.pointer = _this.isPointer(vitem.vartype);
 
 				// Var Symbol
 				var varSymbol = new VarSymbol();
 				{
 					varSymbol.symbolId		= (++_this.symbolId);
-					varSymbol.name			= ast[item].name;
-					varSymbol.value			= (ast.type==jsdef.CONST || ast.type==jsdef.EVENT ? generate(ast[item].initializer) : null);
-					varSymbol.type			= ast.type;//ast[item].type;
+					varSymbol.name			= vitem.name;
+					varSymbol.value			= (ast.type==jsdef.CONST || ast.type==jsdef.EVENT ? generate(vitem.initializer) : null);
+					varSymbol.type			= ast.type;//vitem.type;
 					varSymbol.nodeType		= "IDENTIFIER";
 					varSymbol.classId		= classId;
 					varSymbol.extern		= (ast.file=="externs.jspp");
@@ -3628,18 +3627,18 @@ function Compiler(ast)
 					varSymbol.event			= false;
 					varSymbol.constant		= ast.type==jsdef.CONST;
 					varSymbol.inNameSpace	= _this.currNamespace;
-					varSymbol.ast			= ast[item];
+					varSymbol.ast			= vitem;
 					varSymbol.scope			= ast.scope;
-					varSymbol.file			= ast[item].file;
-					varSymbol.path			= ast[item].path;
-					varSymbol.start			= ast[item].start;
-					varSymbol.end			= ast[item].end;
-					varSymbol.line_start	= ast[item].line_start;
-					varSymbol.line_end		= ast[item].line_end;
+					varSymbol.file			= vitem.file;
+					varSymbol.path			= vitem.path;
+					varSymbol.start			= vitem.start;
+					varSymbol.end			= vitem.end;
+					varSymbol.line_start	= vitem.line_start;
+					varSymbol.line_end		= vitem.line_end;
 					varSymbol.scopeId		= ast.scope.scopeId;
-					varSymbol.vartype		= ast[item].vartype;
-					varSymbol.subtype		= ast[item].subtype ? ast[item].subtype : _this.getSubType(ast[item].vartype);
-					varSymbol.pointer		= ast[item].pointer;
+					varSymbol.vartype		= vitem.vartype;
+					varSymbol.subtype		= vitem.subtype ? vitem.subtype : _this.getSubType(vitem.vartype);
+					varSymbol.pointer		= vitem.pointer;
 					varSymbol.description	= ast.jsdoc ? ast.jsdoc.descr : (classSymbol ? varSymbol.name + " is member var of class " + classSymbol.name : null);
 					varSymbol.icon 			= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FIELD;
 
@@ -3663,10 +3662,10 @@ function Compiler(ast)
 					if(varSymbol.event)					varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_EVENT;
 					if(varSymbol.subtype)				varSymbol.icon = _this.CODE_SYMBOLS_ENUM.SYMBOL_ARRAY;
 
-					if(classId && ast.public)			varSymbol.runtime = classId + "." + ast[item].name;
-					else if(classId && ast.private)		varSymbol.runtime = classId + ".__PRIVATE__." + ast[item].name;
-					else if(classId && ast.protected)	varSymbol.runtime = classId + ".__PROTECTED__." + ast[item].name;
-					else								varSymbol.runtime = ast[item].name;
+					if(classId && ast.public)			varSymbol.runtime = classId + "." + vitem.name;
+					else if(classId && ast.private)		varSymbol.runtime = classId + ".__PRIVATE__." + vitem.name;
+					else if(classId && ast.protected)	varSymbol.runtime = classId + ".__PROTECTED__." + vitem.name;
+					else								varSymbol.runtime = vitem.name;
 				}
 
 				// Update vartype from extern
@@ -3677,8 +3676,8 @@ function Compiler(ast)
 					varSymbol.pointer = _this.isPointer(varSymbol.vartype);
 				}
 
-                if(ast[item].vartype == "Array" && !ast[item].subtype)
-                	_this.NewError("Untyped Array " + ast[item].name, ast[item]);
+                if(vitem.vartype == "Array" && !vitem.subtype)
+                	_this.NewError("Untyped Array " + vitem.name, vitem);
 
 				// Detect if identifier vartype is a typed array and get subtype.
 				if(!varSymbol.subtype && varSymbol.vartype)
@@ -3689,8 +3688,8 @@ function Compiler(ast)
 				}
 
                 // Save var in scopes
-				ast[item].symbol = varSymbol;
-				ast.scope.vars[ast[item].name] = varSymbol;
+				vitem.symbol = varSymbol;
+				ast.scope.vars[vitem.name] = varSymbol;
 
 				// Record vartype usage in class level (used to check #includes)
 				if(_this.secondPass && classScope)
@@ -3698,34 +3697,34 @@ function Compiler(ast)
 					_this.record_vartype_use(ast, varSymbol, classScope, (ast.inFunction ? _this.INCLUDE_IN_CPP : _this.INCLUDE_IN_HPP));
 				}
 
-				if(ast[item].initializer)
+				if(vitem.initializer)
 				{
 					// Generate initializer
 						if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction && !ast.static)
 						{
 							if(_this.in_state)
-								_this.NewError("Invalid state variable initializer, should be in state enter() function : " + ast[item].name, ast[item]);
+								_this.NewError("Invalid state variable initializer, should be in state enter() function : " + vitem.name, vitem);
 							else if(ast.type!=jsdef.EVENT)
-								_this.NewError("Invalid class member initializer, should be in constructor: " + ast[item].name, ast[item]);
+								_this.NewError("Invalid class member initializer, should be in constructor: " + vitem.name, vitem);
 					}
 
-					ast[item].generated_code = generate(ast[item].initializer);
+					vitem.generated_code = generate(vitem.initializer);
 
 					// Check type
-					var type = _this.getTypeName(ast[item].initializer);
+					var type = _this.getTypeName(vitem.initializer);
 
 					_this.typeCheck(ast, varSymbol.vartype, type);
 				}
 				else
 				{
-					var vartype = _this.getVarType(ast[item].vartype);
+					var vartype = _this.getVarType(vitem.vartype);
 					if(_this.types.hasOwnProperty(vartype))
 					{
-						ast[item].generated_code = _this.types[vartype].default;
+						vitem.generated_code = _this.types[vartype].default;
 					}
 					else if(ast.scope.isClass || ast.scope.isState)
 					{
-						ast[item].generated_code = "null";
+						vitem.generated_code = "null";
 					}
 				}
 
@@ -3741,8 +3740,8 @@ function Compiler(ast)
 						else if(ast.private)	out.push(classSymbol.name+".__PRIVATE__.");
 						else if(ast.protected)	out.push(classSymbol.name+".__PROTECTED__.");
 
-						out.push(ast[item].name);
-						out.push("=" + ast[item].generated_code + ";");
+						out.push(vitem.name);
+						out.push("=" + vitem.generated_code + ";");
 					}
 					else
 					{
@@ -3758,7 +3757,7 @@ function Compiler(ast)
 
 						if(_this.derivatives[classSymbol.name] && ast.type!=jsdef.CONST)
 						{
-							out.push("__PRIVATE__.__" + varSymbol.name + "__ = " + ast[item].generated_code + ";");
+							out.push("__PRIVATE__.__" + varSymbol.name + "__ = " + vitem.generated_code + ";");
 							var pdefine = "__PDEFINE__(%, '" + varSymbol.name + "', { configurable:false, get: function(){ return __PRIVATE__.__" + varSymbol.name + "__; }, set: function(v) { __PRIVATE__.__" + varSymbol.name + "__ = v; }});";
 							if(ast.public)			out.push(pdefine.replace("%", "this"));
 							else if(ast.private)	out.push(pdefine.replace("%", "__PRIVATE__"));
@@ -3769,17 +3768,17 @@ function Compiler(ast)
 							if(ast.public)			out.push("this.");
 							else if(ast.private)	out.push("__PRIVATE__.");
 							else if(ast.protected)	out.push("__PROTECTED__.");
-							out.push(ast[item].name);
-							out.push("=" + ast[item].generated_code + ";");
+							out.push(vitem.name);
+							out.push("=" + vitem.generated_code + ";");
 						}
 					}
 				}
 				else
 				{
 					out.push("var ");
-					out.push(ast[item].name);
-					if(ast.scope.isState) out.push(" = this." + ast[item].name);
-					out.push("=" + ast[item].generated_code + ";");
+					out.push(vitem.name);
+					if(ast.scope.isState) out.push(" = this." + vitem.name);
+					out.push("=" + vitem.generated_code + ";");
 				}
 
 			} //loop

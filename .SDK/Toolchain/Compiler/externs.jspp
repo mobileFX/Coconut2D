@@ -635,6 +635,7 @@ var DEVICE_WRAPPER:COCO_DEVICE_WRAPPER;
 //
 // ==================================================================================================================================
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class NodeJS_Request
 {
 	public var httpVersion:String;
@@ -647,6 +648,7 @@ class NodeJS_Request
 	public var socket:Object;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class NodeJS_Response
 {
 	public var statusCode:Integer;
@@ -665,6 +667,7 @@ class NodeJS_Response
 	public function end(optional data:String, optional encoding:String) {}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class NodeJS_FS
 {
 	public function appendFile(filename:String, data:String, encoding:String, optional Callback:Function) {}
@@ -734,10 +737,12 @@ class NodeJS_FS
 	public function writeSync(fd:Object, buffer:Object, offset:Number, length:Number, position:Number):Number {}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class NodeJS_V8Context
 {
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class NodeJS_VM
 {
 	public function runInThisContext(code:String, optional filename:String):String {}
@@ -747,12 +752,14 @@ class NodeJS_VM
 	public function createScript(code:String, optional filename:String):NodeJS_Script {}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class NodeJS_Script
 {
 	public function runInThisContext():String {}
 	public function runInNewContext(optional sandbox:Dictionary):String {}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class NodeJS_Path
 {
 	public var sep:String;
@@ -765,6 +772,22 @@ class NodeJS_Path
 	public function extname(path:String):String {}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class NodeJS_QueryString
+{
+	public function stringify(obj:Dictionary, optional sep:String = "&", optional eq:String = "="):String {}
+	public function parse(str:String, optional sep:String, optional eq:String, optional options:Object) {}
+	public function escape(str:String):String {}
+	public function unescape(str:String):String {}
+	public function unescapeBuffer(s:ArrayBuffer, decodeSpaces:Boolean) {}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoNode
+{
+	public function SELECT(database:String, SQL:String):ArrayBuffer {}
+	public function UPDATE(database:String, data:ArrayBuffer):Boolean {}
+}
 
 #if EMS_BOX2D
 

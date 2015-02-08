@@ -32,6 +32,10 @@
 #include "CocoHttpRequest.jspp"
 #endif
 
+#if (TARGET_NAME=="node.js")
+var ServerUtils:CocoNode = require("D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/emsdk/node/0.10.17_32bit/CocoNode.node");
+#endif
+
 var NULL_DATA_VALUE:String = "FF707534-E45E-4294-A242-E7B798BF96A7";
 
 export enum DBTYPEENUM
@@ -860,6 +864,27 @@ export class CocoDataset
 	#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	#if (TARGET_NAME=="node.js")
+	public function open(database:String, SQL:String):Boolean
+	{
+		var ret:Boolean = false;
+		close();
+		var buff:ArrayBuffer = ServerUtils.SELECT(database, SQL);
+		if(buff)
+		{
+			var ds:CocoDataStream = new CocoDataStream();
+			if(ds.open(buff))
+			{
+				ret = open(ds);
+			}
+			delete ds;
+			delete buff;
+		}
+		return ret;
+	}
+	#endif
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function open(ds:CocoDataStream):Boolean
 	{
 		close();
@@ -1208,7 +1233,7 @@ export class CocoDataset
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function field(name:String):CocoDataField
+	public function fieldByName(name:String):CocoDataField
 	{
 		var fields:Integer = METADATA.size();
 		if(fields>0)
@@ -1224,7 +1249,7 @@ export class CocoDataset
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function field(ordinal:Integer):CocoDataField
+	public function fieldByIndex(ordinal:Integer):CocoDataField
 	{
 		var fields:Integer = METADATA.size();
 		if(fields>0 && ordinal>=0 && ordinal<fields)
@@ -1270,7 +1295,7 @@ export class CocoDataset
 	public function locate(fieldName:String, fieldValue:String):Boolean
 	{
 		var index:Integer = __recordIndex;
-		var c:Integer = field(fieldName).ORDINAL;
+		var c:Integer = fieldByName(fieldName).ORDINAL;
 		if(c>=0 && c<METADATA.size())
 		{
 			var L:Integer = DATA.size();
@@ -1339,7 +1364,7 @@ export class CocoDataset
 			var out:Array<String> = new Array<String>;
 			for(var i:Integer=0; i<fieldCount; i++)
 			{
-				s += field(i).NAME+" | ";
+				s += fieldByIndex(i).NAME+" | ";
 			}
 			out.push(s);
 			moveFirst();
@@ -1348,7 +1373,7 @@ export class CocoDataset
 				s="";
 				for(var i:Integer=0; i<fieldCount; i++)
 				{
-					s += field(i).value+" | ";
+					s += fieldByIndex(i).value+" | ";
 				}
 				out.push(s);
 				moveNext();

@@ -27,9 +27,535 @@
 
 #module ASP
 
-var fs:NodeJS_FS = require('fs');
-var vm:NodeJS_VM = require('vm');
-var path:NodeJS_Path = require('path');
+var __fs:NodeJS_FS = require('fs');
+var __vm:NodeJS_VM = require('vm');
+var __path:NodeJS_Path = require('path');
+var __querystring:NodeJS_QueryString = require("querystring");
+
+// ==================================================================================================================================
+//	    ___   _____ ____  ___                ___            __  _
+//	   /   | / ___// __ \/   |  ____  ____  / (_)________ _/ /_(_)___  ____
+//	  / /| | \__ \/ /_/ / /| | / __ \/ __ \/ / / ___/ __ `/ __/ / __ \/ __ \
+//	 / ___ |___/ / ____/ ___ |/ /_/ / /_/ / / / /__/ /_/ / /_/ / /_/ / / / /
+//	/_/  |_/____/_/   /_/  |_/ .___/ .___/_/_/\___/\__,_/\__/_/\____/_/ /_/
+//	                        /_/   /_/
+// ==================================================================================================================================
+
+export class ASPApplication
+{
+	public var Contents:Dictionary;
+	public var StaticObjects:Dictionary;
+
+	// Event Callbacks
+	public reference var OnEnd:Function;
+	public reference var OnStart:Function;
+
+	private var m_Locked:Boolean;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(req:NodeJS_Request)
+	{
+		Contents 		= new Dictionary;
+		StaticObjects 	= new Dictionary;
+		OnEnd			= null;
+		OnStart			= null;
+		m_Locked		= false;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Contents;
+		delete StaticObjects;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The Lock method prevents other clients from modifying Application object properties.
+	public function Lock()
+	{
+		m_Locked = true;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The Unlock method allows other clients to modify Application object properties.
+	public function Unlock()
+	{
+		m_Locked = false;
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____  _____                _
+//	   /   | / ___// __ \/ ___/___  __________(_)___  ____
+//	  / /| | \__ \/ /_/ /\__ \/ _ \/ ___/ ___/ / __ \/ __ \
+//	 / ___ |___/ / ____/___/ /  __(__  |__  ) / /_/ / / / /
+//	/_/  |_/____/_/    /____/\___/____/____/_/\____/_/ /_/
+//
+// ==================================================================================================================================
+
+export class ASPSession
+{
+	public var Contents:Dictionary;
+	public var StaticObjects:Dictionary;
+
+	// Event Callbacks
+	public reference var OnEnd:Function;
+	public reference var OnStart:Function;
+
+	private var m_CodePage:String;
+	private var m_LCID:String;
+	private var m_SessionID:Integer;
+	private var m_Timeout:Integer;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(req:NodeJS_Request)
+	{
+		Contents 		= new Dictionary;
+		StaticObjects 	= new Dictionary;
+		m_CodePage		= "utf-8";
+		m_LCID			= "";
+		m_SessionID		= 0;
+		m_Timeout		= 20;
+		OnEnd			= null;
+		OnStart			= null;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Contents;
+		delete StaticObjects;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The code page that will be used for symbol mapping.
+	public property CodePage
+	{
+		function get():String
+		{
+			return m_CodePage;
+		}
+		function set(v:String)
+		{
+			m_CodePage = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// An LCID specifies the locale identifier, which is a standard international
+	// abbreviation that uniquely identifies one of the system-defined locales.
+	public property LCID
+	{
+		function get():String
+		{
+			return m_LCID;
+		}
+		function set(v:String)
+		{
+			m_LCID = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Returns the session identification for this user.
+	public property SessionID
+	{
+		function get():Integer
+		{
+			return m_SessionID;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The timeout period for the session state for this application, in minutes.
+	public property Timeout
+	{
+		function get():Integer
+		{
+			return m_Timeout;
+		}
+		function set(v:Integer)
+		{
+			m_Timeout = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// This method destroys a Session object and releases its resources.
+	public function Abandon()
+	{
+		Destructor();
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____  ____                             __
+//	   /   | / ___// __ \/ __ \___  ____ ___  _____  _____/ /_
+//	  / /| | \__ \/ /_/ / /_/ / _ \/ __ `/ / / / _ \/ ___/ __/
+//	 / ___ |___/ / ____/ _, _/  __/ /_/ / /_/ /  __(__  ) /_
+//	/_/  |_/____/_/   /_/ |_|\___/\__, /\__,_/\___/____/\__/
+//	                                /_/
+// ==================================================================================================================================
+
+export class ASP_Request
+{
+	public var Cookies:Dictionary;
+	public var Form:Dictionary;
+	public var QueryString:Dictionary;
+	public var ServerVariables:Dictionary;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(req:NodeJS_Request)
+	{
+		Cookies = new Dictionary;
+		Form = new Dictionary;
+		QueryString = new Dictionary;
+		ServerVariables = new Dictionary;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Cookies;
+		delete Form;
+		delete QueryString;
+		delete ServerVariables;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property TotalBytes
+	{
+		function get():Integer
+		{
+			return 0;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Retrieves data sent to the server from the client as part of a POST request.
+	// count: specifies how many bytes to read from the client.
+	// The total number of bytes that will actually be read is less or equal to Request.TotalBytes.
+	public function BinaryRead(count:Integer):ArrayBuffer
+	{
+		return null;
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____   ____
+//	   /   | / ___// __ \ / __ \___  _________  ____  ____  ________
+//	  / /| | \__ \/ /_/ // /_/ / _ \/ ___/ __ \/ __ \/ __ \/ ___/ _ \
+//	 / ___ |___/ / ____// _, _/  __(__  ) /_/ / /_/ / / / (__  )  __/
+//	/_/  |_/____/_/    /_/ |_|\___/____/ .___/\____/_/ /_/____/\___/
+//	                                   /_/
+// ==================================================================================================================================
+
+export class ASP_Response
+{
+	public var Cookies:Dictionary;
+
+	private var m_Buffer:Boolean;
+	private var m_CacheControl:String;
+	private var m_Charset:String;
+	private var m_ContentType:String;
+	private var m_Expires:Integer;
+	private var m_ExpiresAbsolute:String;
+	private var m_Pics:String;
+	private var m_Status:Integer;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(res:NodeJS_Response)
+	{
+		Cookies 			= new Dictionary;
+		m_Buffer			= true;
+		m_CacheControl 		= "Public";
+		m_Charset 			= "utf-8";
+		m_ContentType 		= "text/html";
+		m_Expires 			= -1; 				// Expires immediately
+		m_ExpiresAbsolute 	= "";
+		m_Pics				= "";
+		m_Status			= 200;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Cookies;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Indicates whether page output is buffered.
+	// FALSE: 	No buffering. The server sends output to the client as it is processed.
+	// TRUE:	The server does not send output to the client until all of the ASP scripts on the current page have been processed, or until the Flush or End method has been called.
+	public property Buffer
+	{
+		function get():Boolean
+		{
+			return false;
+		}
+		function set(v:Boolean)
+		{
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Determines whether proxy servers are able to cache the output generated by ASP.
+	// "Private":	Only private caches may cache this page. This is the default value. Most proxy servers will not cache pages with this setting.
+	// "Public":	Public caches, such as proxy servers, will cache pages with this setting.
+	public property CacheControl
+	{
+		function get():String
+		{
+			return m_CacheControl;
+		}
+		function set(v:String)
+		{
+			m_CacheControl = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Appends the name of the character set to the content-type header.
+	public property Charset
+	{
+		function get():String
+		{
+			return m_Charset;
+		}
+		function set(v:String)
+		{
+			m_Charset = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Specifies the HTTP content type for the response.
+	public property ContentType
+	{
+		function get():String
+		{
+			return m_ContentType;
+		}
+		function set(v:String)
+		{
+			m_ContentType = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Specifies the length of time before a page cached on a browser expires.
+	// number: The time in minutes before the page expires.
+	public property Expires
+	{
+		function get():Integer
+		{
+			return m_Expires;
+		}
+		function set(v:Integer)
+		{
+			m_Expires = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Specifies the date and time on which a page cached on a browser expires.
+	// eg. "Jan 30,2015 13:30:15"
+	public property ExpiresAbsolute
+	{
+		function get():String
+		{
+			return m_ExpiresAbsolute;
+		}
+		function set(v:String)
+		{
+			m_ExpiresAbsolute = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Indicates whether the client has disconnected from the server.
+	public property IsClientConnected
+	{
+		function get():Boolean
+		{
+			return true;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Set the value for the pics-label response header, to indicate the PICS content rating.
+	public property Pics
+	{
+		function get():String
+		{
+			return m_Pics;
+		}
+		function set(v:String)
+		{
+			m_Pics = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The value of the status line returned by the server.
+	public property Status
+	{
+		function get():Integer
+		{
+			return m_Status;
+		}
+		function set(v:Integer)
+		{
+			m_Status = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Sets the HTML header name to value.
+	public function AddHeader(Name:String, Value:String)
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Adds a string to the end of the Web server log entry for this request.
+	public function AppendToLog(message:String)
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Writes the given information to the current HTTP output without any character-set conversion.
+	public function BinaryWrite(data:ArrayBuffer)
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Erases any buffered HTML output.
+	public function Clear()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Stops processing the .asp file and returns the current result.
+	public function End()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Sends buffered output immediately.
+	public function Flush()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Sends a redirect message to the browser, causing it to attempt to connect to a different URL.
+	public function Redirect(url:String)
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Writes a variable to the current HTTP output as a string.
+	public function Write(data:String)
+	{
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____  _____
+//	   /   | / ___// __ \/ ___/___  ______   _____  _____
+//	  / /| | \__ \/ /_/ /\__ \/ _ \/ ___/ | / / _ \/ ___/
+//	 / ___ |___/ / ____/___/ /  __/ /   | |/ /  __/ /
+//	/_/  |_/____/_/    /____/\___/_/    |___/\___/_/
+//
+// ==================================================================================================================================
+
+export class ASPServer
+{
+	private var m_ScriptTimeout:Integer;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		m_ScriptTimeout = 90;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Specifies the maximum number of seconds that a script can run before the server terminates it.
+	// The default value is 90 seconds.
+	public property ScriptTimeout
+	{
+		function get():Integer
+		{
+			return m_ScriptTimeout;
+		}
+		function set(v:Integer)
+		{
+			m_ScriptTimeout = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Creates a CocoScript object
+	public function CreateObject(clsid:String):Object
+	{
+		return null;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Executes an .asp file.
+	public function Execute(path:String)
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Returns an ASPError object that describes the error condition.
+	public function GetLastError():Error
+	{
+		return null;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Applies HTML encoding to the specified string.
+	public function HTMLEncode(s:String):String
+	{
+		return "";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Applies URL encoding rules, including escape characters, to the string.
+	public function URLEncode(s:String):String
+	{
+		return "";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Maps the specified virtual path, either the absolute path on the current server
+	// or the path relative to the current page, into a physical path.
+	public function MapPath(url:String):String
+	{
+		return __path.resolve(url);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Sends all of the current state information to another .asp file for processing.
+	public function Transfer(url:String)
+	{
+		var file:String = path.resolve(url);
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____  ____
+//	   /   | / ___// __ \/ __ \_________  ________  ______________  _____
+//	  / /| | \__ \/ /_/ / /_/ / ___/ __ \/ ___/ _ \/ ___/ ___/ __ \/ ___/
+//	 / ___ |___/ / ____/ ____/ /  / /_/ / /__/  __(__  |__  ) /_/ / /
+//	/_/  |_/____/_/   /_/   /_/   \____/\___/\___/____/____/\____/_/
+//
+// ==================================================================================================================================
 
 export class ASPProcessor
 {
@@ -48,25 +574,25 @@ export class ASPProcessor
 	{
 		try
 		{
-			var compiledFile:String = path.resolve(AspFilePath).replace(".asp", "_compiled.js");
+			var compiledFile:String = __path.resolve(AspFilePath).replace(".asp", "_compiled.js");
 
-			if(fs.existsSync(AspFilePath))
+			if(__fs.existsSync(AspFilePath))
 			{
 				// Read ASP Page
-				var aspCode:String = fs.readFileSync(AspFilePath, "utf8");
+				var aspCode:String = __fs.readFileSync(AspFilePath, "utf8");
 
 				// Compile ASP Page
 				var jsCode:String = compile(aspCode);
 
 				// Save compiled ASP Page
-				fs.writeFileSync(compiledFile, jsCode);
+				__fs.writeFileSync(compiledFile, jsCode);
 
 				// Execute compiled ASP code
 				var f:Function = new Function('Request', 'Response', jsCode);
 				Response.writeHead(200, {"Content-Type":"text/html"});
 
 				// IMPORTANT: You can step-in to debug the generated code.
-				f(Request,Response);
+				f.call(this, Request, Response);
 			}
 			else
 			{
@@ -187,5 +713,14 @@ export class ASPProcessor
 	    s = script.join("\n");
 	    delete script;
 	    return s;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function execSql(database:String, SQL:String):CocoDataset
+	{
+		var ds:CocoDataset = new Data.CocoDataset();
+		database = __path.resolve(database);
+		ds.open(database, SQL);
+		return ds;
 	}
 }

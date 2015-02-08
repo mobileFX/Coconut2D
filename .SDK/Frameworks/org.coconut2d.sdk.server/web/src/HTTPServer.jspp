@@ -27,7 +27,8 @@
 
 #module HttpSever
 
-var fs1:NodeJS_FS = require('fs');
+var fs:NodeJS_FS = require('fs');
+var path:NodeJS_Path = require('path');
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct MIME_TYPE
@@ -45,7 +46,7 @@ export class HTTPServer
 	public function Constructor()
 	{
 		MIME = new Dictionary;
-		var buff:String = fs1.readFileSync('./obj/mime.json', "utf8");
+		var buff:String = fs.readFileSync('./obj/mime.json', "utf8");
 		try
 		{
 			MIME = JSON.parse(buff);
@@ -80,8 +81,11 @@ export class HTTPServer
 		if(fileName.indexOf('/')==0)
 			fileName = "." + fileName;
 
+		// Resole path
+		fileName = path.resolve(fileName);
+
 		// If file does not exist end the response.
-		if(!fs1.existsSync(fileName))
+		if(!fs.existsSync(fileName))
 			res.end();
 
 		// Handle ASP pages
@@ -99,9 +103,14 @@ export class HTTPServer
 		{
 			if(MIME.hasOwnProperty(ext))
 			{
+				// Write content-type response header
 				var ContentType:String = String(MIME[ext]);
 				res.writeHead(200, {'Content-Type': ContentType });
-				var bytes:String = fs1.readFileSync(fileName);
+
+				// Read file bytes
+				var bytes:String = fs.readFileSync(fileName);
+
+				// If content type is well-known text, respond with text, else as binary
 				if(ContentType.indexOf("text")!=-1 || ContentType.indexOf("javascript")!=-1)
 				{
 					res.end(bytes);
@@ -115,6 +124,7 @@ export class HTTPServer
 		}
 
 		// Unhandled mime
+		console.log("Unknown mime-type: " + ext);
 		res.end();
 	}
 }
