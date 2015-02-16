@@ -264,8 +264,11 @@ class Global
 	public var ArrayBufferView :ArrayBufferView;
 	public var TypedArray :TypedArray;
 	public var Float32Array :Float32Array;
+	public var Int8Array :Int8Array;
+	public var Int16Array :Int16Array;
 	public var Int32Array :Int32Array;
 	public var Uint8Array :Uint8Array;
+	public var Uint16Array :Uint16Array;
 	public var Uint32Array :Uint32Array;
 	public var Error :Error;
 	public var EvalError :EvalError;
@@ -289,6 +292,8 @@ class Global
 	public var graphics :CocoGraphics;
 	public var console :Console;
 	public var DEVICE_WRAPPER :COCO_DEVICE_WRAPPER;
+	public var NodeJS_Buffer :NodeJS_Buffer;
+	public var NodeJS_Socket :NodeJS_Socket;
 	public var NodeJS_Request :NodeJS_Request;
 	public var NodeJS_Response :NodeJS_Response;
 	public var NodeJS_FS :NodeJS_FS;
@@ -297,9 +302,10 @@ class Global
 	public var NodeJS_Script :NodeJS_Script;
 	public var NodeJS_Path :NodeJS_Path;
 	public var NodeJS_QueryString :NodeJS_QueryString;
-	public var CocoNode :CocoNode;
+	public var NodeJS_Coconut2D :NodeJS_Coconut2D;
+	public var Coconut2D :NodeJS_Coconut2D;
 	public var Data :Data;
-	public var ServerUtils :CocoNode;
+	public var __path :NodeJS_Path;
 	public var NULL_DATA_VALUE :String;
 	public var DBTYPEENUM :DBTYPEENUM;
 	public var SQLITE_RECORD_STATUS :SQLITE_RECORD_STATUS;
@@ -320,17 +326,18 @@ class Global
 	public var ASP :ASP;
 	public var __fs :NodeJS_FS;
 	public var __vm :NodeJS_VM;
-	public var __path :NodeJS_Path;
-	public var __querystring :NodeJS_QueryString;
+	public var ASP_DIC_TYPE_ENUM :ASP_DIC_TYPE_ENUM;
+	public var ASPDictionary :ASPDictionary;
 	public var ASPApplication :ASPApplication;
 	public var ASPSession :ASPSession;
-	public var ASP_Request :ASP_Request;
-	public var ASP_Response :ASP_Response;
+	public var ASPRequest :ASPRequest;
+	public var ASPResponse :ASPResponse;
 	public var ASPServer :ASPServer;
 	public var ASPProcessor :ASPProcessor;
 	public var HttpSever :HttpSever;
 	public var fs :NodeJS_FS;
 	public var path :NodeJS_Path;
+	public var qs :NodeJS_QueryString;
 	public var MIME_TYPE :MIME_TYPE;
 	public var HTTPServer :HTTPServer;
 	public var CocoServer :CocoServer;
@@ -526,6 +533,16 @@ class Float32Array : TypedArray
 	public  var __className :String;
 } //Float32Array
 
+class Int8Array : TypedArray
+{
+	public  var __className :String;
+} //Int8Array
+
+class Int16Array : TypedArray
+{
+	public  var __className :String;
+} //Int16Array
+
 class Int32Array : TypedArray
 {
 	public  var __className :String;
@@ -535,6 +552,11 @@ class Uint8Array : TypedArray
 {
 	public  var __className :String;
 } //Uint8Array
+
+class Uint16Array : TypedArray
+{
+	public  var __className :String;
+} //Uint16Array
 
 class Uint32Array : TypedArray
 {
@@ -616,8 +638,9 @@ class XMLHttpRequest
 	public function open(method:String, url:String, async:Boolean) {}
 	public function setRequestHeader(header:String, value:String) {}
 	public function send(data:String) {}
-	public function send$1(data:ArrayBufferView) {}
-	public function send$2() {}
+	public function send$1(data:ArrayBuffer) {}
+	public function send$2(data:ArrayBufferView) {}
+	public function send$3() {}
 	public function abort() {}
 	public function getAllResponseHeaders() :String {}
 	public function getResponseHeader(header:String) :String {}
@@ -661,16 +684,107 @@ class Gradient : String
 	public  var __className :String;
 } //Gradient
 
+class NodeJS_Buffer : Array
+{
+	public function isEncoding(encoding:String) :Boolean {}
+	public function isBuffer(obj:Object) :Boolean {}
+	public function byteLength(string:String, encoding:String) :Number {}
+	public function concat(list:Array<Buffer>, totalLength:Number) :NodeJS_Buffer {}
+	public function get(offset:Number) :Object {}
+	public function set(offset:Number, v:Object) {}
+	public function write(string:String, offset:Number, length:Number, encoding:String) :Object {}
+	public function toJSON() :Array {}
+	public function copy(targetBuffer:NodeJS_Buffer, targetStart:Number, sourceStart:Number, sourceEnd:Number) :NodeJS_Buffer {}
+	public function slice(start:Number, end:Number) :NodeJS_Buffer {}
+	public function readUInt8(offset:Number, noAssert:Boolean) :Number {}
+	public function readUInt16LE(offset:Number, noAssert:Boolean) :Number {}
+	public function readUInt16BE(offset:Number, noAssert:Boolean) :Number {}
+	public function readUInt32LE(offset:Number, noAssert:Boolean) :Number {}
+	public function readUInt32BE(offset:Number, noAssert:Boolean) :Number {}
+	public function readInt8(offset:Number, noAssert:Boolean) :Number {}
+	public function readInt16LE(offset:Number, noAssert:Boolean) :Number {}
+	public function readInt16BE(offset:Number, noAssert:Boolean) :Number {}
+	public function readInt32LE(offset:Number, noAssert:Boolean) :Number {}
+	public function readInt32BE(offset:Number, noAssert:Boolean) :Number {}
+	public function readFloatLE(offset:Number, noAssert:Boolean) :Number {}
+	public function readFloatBE(offset:Number, noAssert:Boolean) :Number {}
+	public function readDoubleLE(offset:Number, noAssert:Boolean) :Number {}
+	public function readDoubleBE(offset:Number, noAssert:Boolean) :Number {}
+	public function writeUInt8(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeUInt16LE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeUInt16BE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeUInt32LE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeUInt32BE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeInt8(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeInt16LE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeInt16BE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeInt32LE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeInt32BE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeFloatLE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeFloatBE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeDoubleLE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function writeDoubleBE(value:Number, offset:Number, noAssert:Boolean) :Number {}
+	public function fill(value:Object, offset:Number, end:Number) {}
+	public function toString(encoding:String, start:Number, end:Number) {}
+	public function utf8Slice(start:Number, end:Number) :NodeJS_Buffer {}
+	public function binarySlice(start:Number, end:Number) :NodeJS_Buffer {}
+	public function asciiSlice(start:Number, end:Number) :NodeJS_Buffer {}
+	public function utf8Write(string:String, offset:Number) :NodeJS_Buffer {}
+	public function binaryWrite(string:String, offset:Number) :NodeJS_Buffer {}
+	public function asciiWrite(string:String, offset:Number) :NodeJS_Buffer {}
+	public function Constructor(var_args:Object) {}
+	public  var length :Number;
+	public  var INSPECT_MAX_BYTES :Number;
+	public  var __className :String;
+} //NodeJS_Buffer
+
+class NodeJS_Socket
+{
+	public function connect(port:Number, host:String, connectListener:Function) {}
+	public function setEncoding(encoding:String) {}
+	public function write(data:String, encoding:String, Callback:Function) {}
+	public function write$1(data:ArrayBuffer, encoding:String, Callback:Function) {}
+	public function end(data:String, encoding:String) {}
+	public function destroy() {}
+	public function pause() {}
+	public function resume() {}
+	public function setTimeout(timeout:Number, Callback:Function) {}
+	public function setNoDelay(noDelay:Boolean) {}
+	public function setKeepAlive(enable:Boolean, initialDelay:Number) {}
+	public function address() :String {}
+	public  var bufferSize :Number;
+	public  var remoteAddress :String;
+	public  var remotePort :Number;
+	public  var bytesRead :Number;
+	public  var bytesWritten :Number;
+	public  var localPort :String;
+	public  var localAddress :String;
+	public  var __className :String;
+} //NodeJS_Socket
+
 class NodeJS_Request
 {
-	public function setTimeout(msecs:Integer, callbackfn:Function) {}
-	public  var httpVersion :String;
-	public  var headers :Object;
-	public  var trailers :Object;
+	public function setTimeout(msecs:Number, Callback:Function) {}
+	public function read(count:Number) :ArrayBuffer {}
 	public  var method :String;
 	public  var url :String;
-	public  var statusCode :Integer;
-	public  var socket :Object;
+	public  var headers :Dictionary;
+	public  var trailers :Dictionary;
+	public  var httpVersion :String;
+	public  var httpVersionMajor :String;
+	public  var httpVersionMinor :String;
+	public  var connection :NodeJS_Socket;
+	public  var statusCode :Number;
+	public  var socket :NodeJS_Socket;
+	public  var __url :String;
+	public  var __query :String;
+	public  var __file :String;
+	public  var __path :String;
+	public  var __base :String;
+	public  var __ext :String;
+	public  var __mime :String;
+	public  var __arrayBuffer :ArrayBuffer;
+	public  var __body :String;
 	public  var __className :String;
 } //NodeJS_Request
 
@@ -684,11 +798,15 @@ class NodeJS_Response
 	public function getHeader(name:String) :String {}
 	public function removeHeader(name:String) {}
 	public function write(chunk:String, encoding:String) {}
+	public function write$1(chunk:NodeJS_Buffer, encoding:String) {}
 	public function addTrailers(headers:String) {}
 	public function end(data:String, encoding:String) {}
 	public  var statusCode :Integer;
 	public  var headersSent :Boolean;
 	public  var sendDate :Boolean;
+	public  var connection :NodeJS_Socket;
+	public  var finished :Boolean;
+	public  var _header :Boolean;
 	public  var __className :String;
 } //NodeJS_Response
 
@@ -800,19 +918,20 @@ class NodeJS_Path
 class NodeJS_QueryString
 {
 	public function stringify(obj:Dictionary, sep:String, eq:String) :String {}
-	public function parse(str:String, sep:String, eq:String, options:Object) {}
+	public function parse(str:String, sep:String, eq:String, options:Object) :Dictionary {}
 	public function escape(str:String) :String {}
 	public function unescape(str:String) :String {}
 	public function unescapeBuffer(s:ArrayBuffer, decodeSpaces:Boolean) {}
 	public  var __className :String;
 } //NodeJS_QueryString
 
-class CocoNode
+class NodeJS_Coconut2D
 {
 	public function SELECT(database:String, SQL:String) :ArrayBuffer {}
-	public function UPDATE(database:String, data:ArrayBuffer) :Boolean {}
+	public function UPDATE(data:ArrayBuffer) :ArrayBuffer {}
+	public function fileExists(path:String) :Boolean {}
 	public  var __className :String;
-} //CocoNode
+} //NodeJS_Coconut2D
 
 class Data
 {
@@ -940,7 +1059,7 @@ class SQLITE_VARTYPE
 
 class CocoDataStream
 {
-	public function open(data:ArrayBuffer) :Boolean {}
+	public function openFromArrayBuffer(data:ArrayBuffer) :Boolean {}
 	public function increaseSize(s:Integer) {}
 	public function shrink() {}
 	public function writeInteger(v:Integer) {}
@@ -966,6 +1085,7 @@ class CocoDataStream
 	private  var bf :Float32Array;
 	private  var __offset :Integer;
 	private  var __length :Integer;
+	public  var buffer :Int32Array;
 	public  var offset :Integer;
 	public  var __className :String;
 } //CocoDataStream
@@ -975,6 +1095,7 @@ class CocoDataField
 	public function copy(col:CocoDataField) {}
 	public function write(ds:CocoDataStream) {}
 	public function read(ds:CocoDataStream) {}
+	public function toJSON() :String {}
 	public function Destructor() {}
 	public function Constructor(dataset:CocoDataset) {}
 	private  var dataset :CocoDataset;
@@ -1003,6 +1124,7 @@ class CocoDataRow
 {
 	public function write(ds:CocoDataStream) {}
 	public function read(ds:CocoDataStream) {}
+	public function toJSON() :String {}
 	public function Destructor() {}
 	public function Constructor(dataset:CocoDataset) {}
 	private  var dataset :CocoDataset;
@@ -1014,7 +1136,9 @@ class CocoDataRow
 class CocoDataset
 {
 	public function open(database:String, SQL:String) :Boolean {}
-	public function open$1(ds:CocoDataStream) :Boolean {}
+	public function update() :Boolean {}
+	public function openFromArrayBuffer(ab:ArrayBuffer) :Boolean {}
+	public function openFromDataStream(ds:CocoDataStream) :Boolean {}
 	public function write(ds:CocoDataStream) :Boolean {}
 	public function close() {}
 	public function ADD_META(ORDINAL:Integer, NAME:String, TYPE:SQLITE_VARTYPE, PRECISION:Integer, SCALE:Integer, LENGTH:Integer, FLAGS:SQLITE_COLUMN_FLAGS, BASECOLUMNNAME:String, BASETABLENAME:String, ID:String, LCID:Integer, SIZE:Integer, SQLITE_DECLARED_TYPE:String, SQLITE_PK_COLUMN:String, SQLITE_PK_TABLE:String, SQLITE_DATATYPE:SQLITE_INTERNAL_TYPE, DEFAULTVALUE:String) {}
@@ -1038,7 +1162,9 @@ class CocoDataset
 	public function locate(fieldName:String, fieldValue:String) :Boolean {}
 	public function getBookmark() :String {}
 	public function setBookmark(bookmark:String) :Boolean {}
-	public function update() :Boolean {}
+	public function toArrayBuffer() :ArrayBuffer {}
+	public function toBase64() :String {}
+	public function toJSON() :String {}
 	public function toString() :String {}
 	public function Destructor() {}
 	public function Constructor() {}
@@ -1106,14 +1232,49 @@ class ASP
 {
 } //ASP
 
+class ASP_DIC_TYPE_ENUM
+{
+	public var ASP_APPLICATION_CONTENTS :ASP_DIC_TYPE_ENUM;
+	public var ASP_APPLICATION_STATIC_OBJECTS :ASP_DIC_TYPE_ENUM;
+	public var ASP_SESSION_CONTENTS :ASP_DIC_TYPE_ENUM;
+	public var ASP_SESSION_STATIC_OBJECTS :ASP_DIC_TYPE_ENUM;
+	public var ASP_REQUEST_COOKIES :ASP_DIC_TYPE_ENUM;
+	public var ASP_REQUEST_FORM :ASP_DIC_TYPE_ENUM;
+	public var ASP_REQUEST_QUERY_STRING :ASP_DIC_TYPE_ENUM;
+	public var ASP_REQUEST_SERVER_VARS :ASP_DIC_TYPE_ENUM;
+	public var ASP_RESPONSE_COOKIES :ASP_DIC_TYPE_ENUM;
+	public var ASP_HTTP_HEADERS :ASP_DIC_TYPE_ENUM;
+} //ASP_DIC_TYPE_ENUM
+
+class ASPDictionary
+{
+	private function indexOf(Key:String) :Integer {}
+	public function Add(Key:String, Value:String) {}
+	public function Remove(Key:String) {}
+	public function RemoveAll() {}
+	public function Exists(key:String) :Boolean {}
+	public function Key(index:Integer) :String {}
+	public function Value(index:Integer) :String {}
+	public function Item(Key:String) :String {}
+	public function ParseQueryString(req:NodeJS_Request) {}
+	public function ParseServerVariables(req:NodeJS_Request) {}
+	public function Destructor() {}
+	public function Constructor(t:ASP_DIC_TYPE_ENUM) {}
+	private  var m_Type :ASP_DIC_TYPE_ENUM;
+	private  var m_Keys :Array<String>;
+	private  var m_Values :Array<String>;
+	public  var Count :Integer;
+	public  var __className :String;
+} //ASPDictionary
+
 class ASPApplication
 {
 	public function Lock() {}
 	public function Unlock() {}
 	public function Destructor() {}
-	public function Constructor(req:NodeJS_Request) {}
-	public  var Contents :Dictionary;
-	public  var StaticObjects :Dictionary;
+	public function Constructor() {}
+	public  var Contents :ASPDictionary;
+	public  var StaticObjects :ASPDictionary;
 	public  var OnEnd :Function;
 	public  var OnStart :Function;
 	private  var m_Locked :Boolean;
@@ -1124,9 +1285,9 @@ class ASPSession
 {
 	public function Abandon() {}
 	public function Destructor() {}
-	public function Constructor(req:NodeJS_Request) {}
-	public  var Contents :Dictionary;
-	public  var StaticObjects :Dictionary;
+	public function Constructor() {}
+	public  var Contents :ASPDictionary;
+	public  var StaticObjects :ASPDictionary;
 	public  var OnEnd :Function;
 	public  var OnStart :Function;
 	private  var m_CodePage :String;
@@ -1140,32 +1301,35 @@ class ASPSession
 	public  var __className :String;
 } //ASPSession
 
-class ASP_Request
+class ASPRequest
 {
 	public function BinaryRead(count:Integer) :ArrayBuffer {}
+	public function QueryString(key:String) :String {}
+	public function ServerVariables(key:String) :String {}
 	public function Destructor() {}
 	public function Constructor(req:NodeJS_Request) {}
-	public  var Cookies :Dictionary;
-	public  var Form :Dictionary;
-	public  var QueryString :Dictionary;
-	public  var ServerVariables :Dictionary;
+	private  var req :NodeJS_Request;
+	public  var Cookies :ASPDictionary;
+	public  var Form :ASPDictionary;
+	private  var m_QueryString :ASPDictionary;
+	private  var m_ServerVariables :ASPDictionary;
 	public  var TotalBytes :Integer;
 	public  var __className :String;
-} //ASP_Request
+} //ASPRequest
 
-class ASP_Response
+class ASPResponse
 {
 	public function AddHeader(Name:String, Value:String) {}
 	public function AppendToLog(message:String) {}
+	public function Redirect(url:String) {}
 	public function BinaryWrite(data:ArrayBuffer) {}
 	public function Clear() {}
 	public function End() {}
 	public function Flush() {}
-	public function Redirect(url:String) {}
 	public function Write(data:String) {}
 	public function Destructor() {}
 	public function Constructor(res:NodeJS_Response) {}
-	public  var Cookies :Dictionary;
+	public  var Cookies :ASPDictionary;
 	private  var m_Buffer :Boolean;
 	private  var m_CacheControl :String;
 	private  var m_Charset :String;
@@ -1174,6 +1338,9 @@ class ASP_Response
 	private  var m_ExpiresAbsolute :String;
 	private  var m_Pics :String;
 	private  var m_Status :Integer;
+	private  var res :NodeJS_Response;
+	private  var m_Headers :ASPDictionary;
+	private  var m_Data :Array<String>;
 	public  var Buffer :Boolean;
 	public  var CacheControl :String;
 	public  var Charset :String;
@@ -1184,7 +1351,7 @@ class ASP_Response
 	public  var Pics :String;
 	public  var Status :Integer;
 	public  var __className :String;
-} //ASP_Response
+} //ASPResponse
 
 class ASPServer
 {
@@ -1207,7 +1374,6 @@ class ASPProcessor
 	public function run(AspFilePath:String, Request:NodeJS_Request, Response:NodeJS_Response) {}
 	private function compile(buff:String) :String {}
 	private function HTML2Script(HTML:String) :String {}
-	public function execSql(database:String, SQL:String) :CocoDataset {}
 	public function Destructor() {}
 	public function Constructor() {}
 	public  var __className :String;

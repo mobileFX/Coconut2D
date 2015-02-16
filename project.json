@@ -102,6 +102,7 @@
 			"TARGET_ADDITIONAL_NATIVE_SOURCES": null,
 			"TARGET_NATIVE_MASK": null,
 			"TARGET_RESOURCES_MASK": null,
+			"TARGET_POST_BUILD": "copyFolder('$(TARGET_ROOT)', '$(PROJECT_ROOT)/.server')",
 			"RELOAD_AFTER_BUILD": true,
 			"DEVICE_WRAPPER":
 			{
@@ -207,6 +208,8 @@
 		{
 			"TARGET_ROOT": "$(PROJECT_ROOT)/.targets/native/Android",
 			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
+			"TARGET_JNI": "$(TARGET_ROOT)/jni",
+			"TARGET_LIBS": "$(TARGET_ROOT)/libs",
 			"TARGET_ASSETS": "$(TARGET_ROOT)/assets",
 			"TARGET_OUTPUT": "$(TARGET_ROOT)/bin/$(PROJECT_NAME).apk",
 			"TARGET_CLEAN": "$(TARGET_ROOT)/*",
@@ -385,12 +388,15 @@
 		{
 			"TARGET_INPUT_SOURCES": "$(PROJECT_ROOT)/.server",
 			"TARGET_ROOT": "$(PROJECT_ROOT)/.server",
-			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
-			"TARGET_OUTPUT": "$(TARGET_ROOT)/main.js",
-			"TARGET_CLEAN": "$(TARGET_OBJ)",
+			"TARGET_CLIENT_OBJ": "obj",
+			"TARGET_SERVER_OBJ": "objs",
+			"TARGET_OBJ": "$(TARGET_ROOT)/$(TARGET_SERVER_OBJ)",
+			"TARGET_OUTPUT": "$(TARGET_ROOT)/node.js",
+			"TARGET_CLEAN": "$(TARGET_ROOT)/$(TARGET_CLIENT_OBJ);$(TARGET_ROOT)/$(TARGET_SERVER_OBJ)",
 			"TARGET_EXPORT": "nodejs",
 			"TARGET_ADDITIONAL_FRAMEWORKS": null,
 			"TARGET_ADDITIONAL_NATIVE_SOURCES": null,
+			"TARGET_CLIENT_FRAMEWORKS": "org.coconut2d.sdk.common;org.coconut2d.sdk.net",
 			"TARGET_NATIVE_MASK": null,
 			"TARGET_RESOURCES_MASK": null,
 			"RELOAD_AFTER_BUILD": true,
@@ -398,7 +404,7 @@
 			{
 				"CLASS": "JAVASCRIPT",
 				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
-				"TEMPLATES": "",
+				"TEMPLATES": "node.js",
 				"TEMPLATE_EXCLUDE_VARS": null
 			},
 			"DEVICES":
@@ -406,26 +412,26 @@
 				"Chrome":
 				{
 					"Debugger": "Debugger_NodeJS",
-					"Debug": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> <http://localhost> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
-					"Release": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> <http://localhost> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
+					"Debug": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> <http://$(LOCALHOST_IP)> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
+					"Release": "<$(HKEY_CLASSES_ROOT/ChromeHTML/shell/open/command/)> <http://$(LOCALHOST_IP)> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
 				},
 				"FireFox":
 				{
 					"Debugger": "Debugger_NodeJS",
-					"Debug": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -jsconsole -url <http://localhost>",
-					"Release": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -url <http://localhost>"
+					"Debug": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -jsconsole -url <http://$(LOCALHOST_IP)>",
+					"Release": "<$(HKEY_CLASSES_ROOT/FirefoxHTML/shell/open/command/)> -url <http://$(LOCALHOST_IP)>"
 				},
 				"Internet Explorer":
 				{
 					"Debugger": "Debugger_NodeJS",
-					"Debug": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <http://localhost>",
-					"Release": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <http://localhost>"
+					"Debug": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <http://$(LOCALHOST_IP)>",
+					"Release": "<$(HKEY_CLASSES_ROOT/IE.AssocFile.HTM/shell/open/command/)> <http://$(LOCALHOST_IP)>"
 				},
 				"Safari":
 				{
 					"Debugger": "Debugger_NodeJS",
-					"Debug": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -jsconsole -url <http://localhost>",
-					"Release": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -url <http://localhost>"
+					"Debug": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -jsconsole -url <http://$(LOCALHOST_IP)>",
+					"Release": "<$(HKEY_CLASSES_ROOT/SafariHTML/shell/open/command/)> -url <http://$(LOCALHOST_IP)>"
 				}
 			},
 			"APP_ICONS":

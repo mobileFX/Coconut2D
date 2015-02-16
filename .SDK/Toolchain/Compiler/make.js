@@ -108,15 +108,23 @@ function CocoMake(command , params)
   	{
   		if(params && params.mode=="compile")
   		{
-	  		_this.generate_javascript();
+	  		_this.generate_javascript(true);
   		}
   		else
   		{
 	  		_this.apply_device_wrapper();
 	  		_this.generate_icons();
-	  		_this.generate_javascript();
+	  		_this.generate_javascript(true);
 	  		_this.copy_framework_libs();
 	  		_this.closure();
+
+	  		// Client-side Framework may be compiled and used by HTML5 pages.
+	  		if(TARGET.TARGET_CLIENT_FRAMEWORKS)
+	  		{
+	  			trace("\nCompiling Client Frameworks ...");
+	  			var code = _this.getSourceCode(TARGET.TARGET_ROOT, null, undefined, undefined, TARGET.TARGET_CLIENT_FRAMEWORKS, "HTML5");
+				_this.generate_javascript(false, code, "HTML5", TARGET.TARGET_ROOT + "/obj");
+	  		}
   		}
   	};
 
@@ -128,7 +136,7 @@ function CocoMake(command , params)
   	{
   		if(params && params.mode=="compile")
   		{
-	  		_this.generate_javascript();
+	  		_this.generate_javascript(true);
   		}
   		else
   		{
@@ -136,7 +144,7 @@ function CocoMake(command , params)
 	  		_this.apply_device_wrapper();
 	  		_this.generate_icons();
 	  		_this.copy_assets();
-	  		_this.generate_javascript();
+	  		_this.generate_javascript(true);
 	  		_this.copy_framework_libs();
 	  		_this.create_payload_js();
 	  		_this.closure();
@@ -152,7 +160,7 @@ function CocoMake(command , params)
   	{
   		if(params && params.mode=="compile")
   		{
-	  		_this.generate_javascript();
+	  		_this.generate_javascript(true);
   		}
   		else
   		{
@@ -160,7 +168,7 @@ function CocoMake(command , params)
 	  		_this.apply_device_wrapper();
 	  		_this.generate_icons();
 	  		_this.copy_assets();
-	  		_this.generate_javascript();
+	  		_this.generate_javascript(true);
 	  		_this.copy_framework_libs();
 	  		_this.create_payload_js();
 	  		_this.closure();
@@ -173,8 +181,10 @@ function CocoMake(command , params)
     // =====================================================================
   	_this.Build_Android = function(params)
   	{
+  		var JNI_FOLDER = TARGET.TARGET_JNI || TARGET.TARGET_ROOT + "/jni";
+
   		makefile.Vars["ANDROID_SDK_ESCAPED"] = makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK.replace(/\x2f/mg, '\\\\');
-  		makefile.Vars["PATH_SDK_LIBRARIES_ANDROID"] = relativePath(TARGET.TARGET_ROOT+"/jni", makefile.Vars.PATH_SDK_LIBRARIES+"/Android");
+  		makefile.Vars["PATH_SDK_LIBRARIES_ANDROID"] = relativePath(JNI_FOLDER, makefile.Vars.PATH_SDK_LIBRARIES+"/Android");
 
   		if(params && params.mode=="compile")
   		{
@@ -244,10 +254,11 @@ function CocoMake(command , params)
     // =====================================================================
     // Compile JavaScript Classes to pure JavaScript
     // =====================================================================
-	_this.generate_javascript = function()
+	_this.generate_javascript = function(exportSymbols, code, target, output_path)
 	{
 		// Get all source code (including externs)
-		var code = _this.getSourceCode();
+		if(!code)
+			code = _this.getSourceCode();
 
 		// Parse source code and generate AST
 		trace("\nParsing JavaScript Class files ...");
@@ -258,8 +269,8 @@ function CocoMake(command , params)
 
 		// Compile AST
 		trace("\nCompiling JavaScript Classes to JavaScript ...");
-		var compiler = new Compiler(ast);
-		compiler.compile(true,null,false);
+		var compiler = new Compiler(ast, target, output_path);
+		compiler.compile(exportSymbols,null,false);
 		trace("+ Done.");
 	};
 
@@ -373,26 +384,28 @@ function CocoMake(command , params)
   	{
   		trace("\nCompiling Android JNI Static Library ...");
 
-  		_this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
-  		_this.DeleteFolder(TARGET.TARGET_ROOT+"/libs");
+  		var JNI_FOLDER = TARGET.TARGET_JNI || TARGET.TARGET_ROOT + "/jni";
+
+  		_this.DeleteFolder(TARGET.TARGET_OBJ);
+  		_this.DeleteFolder(TARGET.TARGET_LIBS || TARGET.TARGET_ROOT+"/libs");
 
 		// Collect all C++ sources
-  		var files = _this.collectSources(TARGET.TARGET_ROOT + "/jni",
+  		var files = _this.collectSources(JNI_FOLDER,
   										 [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
   										 TARGET.TARGET_NATIVE_MASK,
   										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
   										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
 		// Make all paths relative to JNI folder
-		files = _this.get_relative_cpp_hpp(files, TARGET.TARGET_ROOT + "/jni");
+		files = _this.get_relative_cpp_hpp(files, JNI_FOLDER);
 		makefile.Vars["NATIVE_CPP_SOURCES"] = files.CPP.join(" \\\n");
 		makefile.Vars["NATIVE_CPP_INCLUDES"] = makefile.Vars.INCLUDE_PATHS.join(" \\\n");
 
 		// Patch main.cpp to load Fonts
-		_this.loadFonts(TARGET.TARGET_ROOT + "/jni/src/main.cpp", TARGET.TARGET_ASSETS);
+		_this.loadFonts(JNI_FOLDER + "/src/main.cpp", TARGET.TARGET_ASSETS);
 
         // Create Android.mk
-		var file = TARGET.TARGET_ROOT+"/jni/Android.mk";
+		var file = JNI_FOLDER + "/Android.mk";
 		trace("\nCreating Android.mk makefile ...");
 		trace("+ makefile: " + file);
         trace("+ replacing variables ...");
@@ -401,7 +414,7 @@ function CocoMake(command , params)
         _this.module(file, buff);
 
         // Create Application.mk
-		var file = TARGET.TARGET_ROOT+"/jni/Application.mk";
+		var file = JNI_FOLDER + "/Application.mk";
 		trace("\nCreating Application.mk makefile ...");
 		trace("+ makefile: " + file);
         trace("+ replacing variables ...");
@@ -411,7 +424,7 @@ function CocoMake(command , params)
 
         // Create a custom make_lib.bat (offers better control than relying on environment variables)
         var buff = [];
-        var make_lib_cmd = TARGET.TARGET_ROOT + "/jni/make_lib.bat";
+        var make_lib_cmd = JNI_FOLDER + "/make_lib.bat";
         buff.push('@echo off');
         buff.push('SET NDK_ROOT=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_NDK)+"\\");
 		buff.push('SET ANDROID_SDK_ROOT=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK));
@@ -450,7 +463,7 @@ function CocoMake(command , params)
 
         // Build the static libraries for arm and x86
         trace("\nCalling make ...");
-        _this.shell(make_lib_cmd, TARGET.TARGET_ROOT+"/jni", "cc1plus.exe");
+        _this.shell(make_lib_cmd, JNI_FOLDER, "cc1plus.exe");
         _this.DeleteFile(make_lib_cmd);
 
         // Sanity check
@@ -498,9 +511,6 @@ function CocoMake(command , params)
         	deleteFile(root_apk);
         	copyFile(TARGET.TARGET_ROOT +"/debugger-config.gdb", TARGET.TARGET_ROOT+"/libs/armeabi-v7a/gdb.setup");
         }
-
-		//_this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
-		//_this.DeleteFolder(TARGET.TARGET_ROOT+"/libs");
   	};
 
     // =====================================================================
@@ -579,7 +589,6 @@ function CocoMake(command , params)
         trace("\nCalling iOS make ...");
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
         _this.DeleteFile(make_cmd);
-        //_this.DeleteFolder(TARGET.TARGET_ROOT+"/obj");
         _this.DeleteFolder(TARGET.TARGET_ROOT+"/assets");
 
         // Sanity check
@@ -1179,17 +1188,19 @@ function CocoMake(command , params)
   	// =====================================================================
     // Read all CocoScript source code into a huge buffer
     // =====================================================================
-  	_this.getSourceCode = function()
+  	_this.getSourceCode = function(target_root, src_paths, src_file_mask, framework_src_prefix, explicit_framework_ids, target)
   	{
   		var buff = [];
 
-  		var PRIMARY_TARGET_SOURCES = TARGET.TARGET_INPUT_SOURCES || makefile.Config.PROJECT_PATHS.SOURCES;
-		var FILES_MASK = TARGET.TARGET_SOURCES_MASK || makefile.Config.PROJECT_PATHS.SOURCES_MASK;
+		target_root				= String(target_root)!="undefined" 				? target_root 			: TARGET.TARGET_ROOT;														// absolute path of target root folder
+  		src_paths	 			= String(src_paths)!="undefined"				? src_paths 			: TARGET.TARGET_INPUT_SOURCES || makefile.Config.PROJECT_PATHS.SOURCES;		// semicolon separated list of paths
+		src_file_mask 			= String(src_file_mask)!="undefined"			? src_file_mask 		: TARGET.TARGET_SOURCES_MASK || makefile.Config.PROJECT_PATHS.SOURCES_MASK;	// semicolon separated file masks
+		framework_src_prefix	= String(framework_src_prefix)!="undefined" 	? framework_src_prefix 	: "/$(PATH_SDK_FRAMEWORKS_WEB)/$(PATH_SDK_FRAMEWORKS_SRC)";					// path suffix for src files within a framework
+
+  		// Collect sources from src paths and framrworks
+  		var files = _this.collectSources(target_root, src_paths, src_file_mask, framework_src_prefix, explicit_framework_ids, target);
 
   		// Calculate source code dependencies
-  		var files = _this.collectSources(TARGET.TARGET_ROOT, PRIMARY_TARGET_SOURCES, FILES_MASK,
-  										 "/$(PATH_SDK_FRAMEWORKS_WEB)/$(PATH_SDK_FRAMEWORKS_SRC)");
-
   		files = _this.calculateDependencies(files);
 
   		// Externs
@@ -1346,7 +1357,7 @@ function CocoMake(command , params)
 				        {
 				        	var file = Files[j];
 				        	var fileName = file.substr(file.lastIndexOf("/")+1);
-				     		copyFile(file, TARGET.TARGET_ROOT + "/obj/" + fileName);
+				     		copyFile(file, TARGET.TARGET_OBJ + "/" + fileName);
 				        }
 		        	}
 		    	}
@@ -1365,7 +1376,7 @@ function CocoMake(command , params)
 	    var BUFFER = ["if(!this['include']) this.include=function(f){};\n"];
 
 	    // Collect scripts
-	    var scripts = _this.FindFiles(TARGET.TARGET_ROOT + "/obj", "*.js;*.jobj", true);
+	    var scripts = _this.FindFiles(TARGET.TARGET_OBJ, "*.js;*.jobj", true);
 
 	    // Order scripts
 	    scripts = _this.calculateDependencies(scripts, true);
@@ -1483,18 +1494,23 @@ function CocoMake(command , params)
   	// =====================================================================
     // Find source files from target and frameworks
     // =====================================================================
-  	_this.collectSources = function(root, Sources, FileMasks, vFrameworksSrcSubPaths)
+  	_this.collectSources = function(target_root, src_paths, src_file_mask, framework_src_prefix, framrworks_ids, target)
   	{
-	    trace("\nCollecting Sources ...\n+ pattern: " + FileMasks);
+	    trace("\nCollecting Sources ...\n+ pattern: " + src_file_mask);
 
 	    var SourcePaths = {};
 
+	    // Make sure we know the target
+	    target = target || makefile.Vars.TARGET;
+
 	    // Collect source paths from frameworks
+	    // We either have an explicit list of framework ids passed by framrworks_ids,
+	    // or we use global project frameworks and additional target-specific frameworks.
+	    var vFrameworks = framrworks_ids || (makefile.Config.PROJECT_FRAMEWORKS + (TARGET.TARGET_ADDITIONAL_FRAMEWORKS ? (";"+TARGET.TARGET_ADDITIONAL_FRAMEWORKS) : ""));
+	    trace("+ frameworks: " + vFrameworks);
 	    trace("+ scanning frameworks ...");
-	    var vFrameworks = makefile.Config.PROJECT_FRAMEWORKS;
-	    if(TARGET.TARGET_ADDITIONAL_FRAMEWORKS) vFrameworks += (";"+TARGET.TARGET_ADDITIONAL_FRAMEWORKS)
 	    vFrameworks = vFrameworks.split(";");
-	    vFrameworksSrcSubPaths = vFrameworksSrcSubPaths.split(";");
+	    var vFrameworksSrcSubPaths = framework_src_prefix.split(";");
 	    for(var i=0; i<vFrameworks.length; i++)
 	    {
 	    	if(!vFrameworks[i]) continue;
@@ -1506,7 +1522,7 @@ function CocoMake(command , params)
 	    	else
 	    	{
 	    		// Check if this framework is compatible with this target
-	    		if((";"+framework.Platforms+";").indexOf(";"+makefile.Vars.TARGET+";")==-1) continue;
+	    		if((";"+framework.Platforms+";").indexOf(";"+target+";")==-1) continue;
 
 		    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
 		    	{
@@ -1518,25 +1534,28 @@ function CocoMake(command , params)
 	    }
 
 	    // Collect additional source paths
-	    trace("+ scanning target paths ...");
-	    var vSourcePaths = Sources.split(";");
-	    for(var i=0; i<vSourcePaths.length; i++)
+	    if(src_paths)
 	    {
-	        trace("  + from source path: " + vSourcePaths[i]);
-	        SourcePaths[vSourcePaths[i]] = true;
+		    trace("+ scanning target paths ...");
+		    var vSourcePaths = src_paths.split(";");
+		    for(var i=0; i<vSourcePaths.length; i++)
+		    {
+		        trace("  + from source path: " + vSourcePaths[i]);
+		        SourcePaths[vSourcePaths[i]] = true;
+		    }
 	    }
 
 	    // Create a list of include paths that will be used with the compiler
-	    makefile.Vars.INCLUDE_PATHS = [ root ? relativePath(root, makefile.Vars.PATH_SDK_INCLUDES) : makefile.Vars.PATH_SDK_INCLUDES ];
+	    makefile.Vars.INCLUDE_PATHS = [ target_root ? relativePath(target_root, makefile.Vars.PATH_SDK_INCLUDES) : makefile.Vars.PATH_SDK_INCLUDES ];
 	    for(var item in SourcePaths)
-	    	makefile.Vars.INCLUDE_PATHS.push( root ? relativePath(root, item) : item);
+	    	makefile.Vars.INCLUDE_PATHS.push( target_root ? relativePath(target_root, item) : item);
 
 	    // Collect modules from each path
 	    var files = [];
 	    _this.ModuleFiles = {};
 	    for(var path in SourcePaths)
 	    {
-	        var Files = _this.FindFiles(path, FileMasks, true);
+	        var Files = _this.FindFiles(path, src_file_mask, true);
 	        for(var i=0;i<Files.length;i++)
 	        {
 	        	var file = Files[i];
@@ -1826,7 +1845,7 @@ function CocoMake(command , params)
 		var json = JSON.stringify({command:command, path:path, wait_process:wait_process});
 		trace(command);
 		IDECallback("shell", command,0,0,json);
-	}
+	};
 
 	// ==================================================================================================================================
 	//	   _____ __        __          __  ___           __    _               __  ____  _ __
@@ -1847,7 +1866,35 @@ function CocoMake(command , params)
 		compiler.compile();
 		var stateMachine = compiler.exportGameStateMachine();
 		trace(stateMachine);
-	}
+	};
+
+	// ==================================================================================================================================
+	//	    ____        _ __    __
+	//	   / __ )__  __(_) /___/ /
+	//	  / __  / / / / / / __  /
+	//	 / /_/ / /_/ / / / /_/ /
+	//	/_____/\__,_/_/_/\__,_/
+	//
+	// ==================================================================================================================================
+
+    // =====================================================================
+	// Pre build script
+    // =====================================================================
+	_this.prebuild = function(params)
+	{
+	};
+
+    // =====================================================================
+	// Post build script
+    // =====================================================================
+	_this.postbuild = function(params)
+	{
+		if(TARGET.TARGET_POST_BUILD)
+		{
+			var result = eval(TARGET.TARGET_POST_BUILD);
+			trace(result);
+		}
+	};
 
     // =====================================================================
 	// Load Plugins
@@ -1886,7 +1933,11 @@ function CocoMake(command , params)
 			throw new Error("Build function not found for [" + makefile.Vars.TARGET + "] target");
 		}
 
+		// Build Target
+		prebuild(params);
 	    builder(params);
+	    postbuild(params);
+
 	    trace("\nDone.\n");
 	}
 	catch(e)

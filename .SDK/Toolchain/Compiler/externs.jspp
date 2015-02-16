@@ -470,25 +470,13 @@ class TypedArray : ArrayBufferView
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class Float32Array : TypedArray
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-class Int32Array : TypedArray
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-class Uint8Array : TypedArray
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-class Uint32Array : TypedArray
-{
-}
-
+class Float32Array : TypedArray {}
+class Int8Array : TypedArray {}
+class Int16Array : TypedArray {}
+class Int32Array : TypedArray {}
+class Uint8Array : TypedArray {}
+class Uint16Array : TypedArray {}
+class Uint32Array : TypedArray {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Error
@@ -560,6 +548,7 @@ class XMLHttpRequest
 	public function open(method:String, url:String, optional async:Boolean) {}
 	public function setRequestHeader(header:String, value:String) {}
 	public function send(data:String) {}
+	public function send(data:ArrayBuffer) {}
 	public function send(data:ArrayBufferView) {}
 	public function send() {}
 	public function abort() {}
@@ -635,17 +624,112 @@ var DEVICE_WRAPPER:COCO_DEVICE_WRAPPER;
 //
 // ==================================================================================================================================
 
+#if (TARGET_NAME=="node.js")
+
+class NodeJS_Buffer : Array
+{
+	public var length:Number;
+	public const INSPECT_MAX_BYTES:Number=50;
+
+	public function Constructor(var_args:Object) {}
+	public function isEncoding(encoding:String):Boolean {}
+	public function isBuffer(obj:Object):Boolean {}
+	public function byteLength(string:String, optional encoding:String):Number {}
+	public function concat(list:Array<Buffer>, optional totalLength:Number):NodeJS_Buffer {}
+	public function get(offset:Number):Object {}
+	public function set(offset:Number, v:Object) {}
+	public function write(string:String, optional offset:Number, optional length:Number, optional encoding:String):Object {}
+	public function toJSON():Array {}
+	public function copy(targetBuffer:NodeJS_Buffer, optional targetStart:Number, optional sourceStart:Number, optional sourceEnd:Number):NodeJS_Buffer {}
+	public function slice(optional start:Number, optional end:Number):NodeJS_Buffer {}
+	public function readUInt8(offset:Number, optional noAssert:Boolean):Number {}
+	public function readUInt16LE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readUInt16BE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readUInt32LE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readUInt32BE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readInt8(offset:Number, optional noAssert:Boolean):Number {}
+	public function readInt16LE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readInt16BE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readInt32LE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readInt32BE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readFloatLE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readFloatBE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readDoubleLE(offset:Number, optional noAssert:Boolean):Number {}
+	public function readDoubleBE(offset:Number, optional noAssert:Boolean):Number {}
+	public function writeUInt8(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeUInt16LE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeUInt16BE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeUInt32LE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeUInt32BE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeInt8(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeInt16LE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeInt16BE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeInt32LE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeInt32BE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeFloatLE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeFloatBE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeDoubleLE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function writeDoubleBE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
+	public function fill(value:Object, optional offset:Number, optional end:Number) {}
+	public function toString(optional encoding:String, optional start:Number, optional end:Number) {}
+	public function utf8Slice(optional start:Number, optional end:Number):NodeJS_Buffer {}
+	public function binarySlice(optional start:Number, optional end:Number):NodeJS_Buffer {}
+	public function asciiSlice(optional start:Number, optional end:Number):NodeJS_Buffer {}
+	public function utf8Write(string:String, optional offset:Number):NodeJS_Buffer {}
+	public function binaryWrite(string:String, optional offset:Number):NodeJS_Buffer {}
+	public function asciiWrite(string:String, optional offset:Number):NodeJS_Buffer {}
+}
+
+class NodeJS_Socket
+{
+	public var bufferSize:Number;
+	public var remoteAddress:String;
+	public var remotePort:Number;
+	public var bytesRead:Number;
+	public var bytesWritten:Number;
+	public var localPort:String;
+	public var localAddress:String;
+
+	public function connect(port:Number, host:String, optional connectListener:Function) {}
+	public function setEncoding(optional encoding:String) {}
+	public function write(data:String, optional encoding:String, optional Callback:Function) {}
+	public function write(data:ArrayBuffer, optional encoding:String, optional Callback:Function) {}
+	public function end(optional data:String, optional encoding:String) {}
+	public function destroy() {}
+	public function pause() {}
+	public function resume() {}
+	public function setTimeout(timeout:Number, optional Callback:Function) {}
+	public function setNoDelay(optional noDelay:Boolean) {}
+	public function setKeepAlive(optional enable:Boolean, optional initialDelay:Number) {}
+	public function address():String {}
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class NodeJS_Request
 {
-	public var httpVersion:String;
-	public var headers:Object;
-	public var trailers:Object;
-	public function setTimeout(msecs:Integer, callbackfn:Function) {}
 	public var method:String;
 	public var url:String;
-	public var statusCode:Integer;
-	public var socket:Object;
+	public var headers:Dictionary;
+	public var trailers:Dictionary;
+	public var httpVersion:String;
+	public var httpVersionMajor:String;
+	public var httpVersionMinor:String;
+	public var connection:NodeJS_Socket;
+	public var statusCode:Number;
+	public var socket:NodeJS_Socket;
+
+	public var __url:String;
+	public var __query:String;
+	public var __file:String;
+	public var __path:String;
+	public var __base:String;
+	public var __ext:String;
+	public var __mime:String;
+	public var __arrayBuffer:ArrayBuffer;
+	public var __body:String;
+
+	public function setTimeout(msecs:Number, optional Callback:Function) {}
+	public function read(optional count:Number):ArrayBuffer {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -654,6 +738,9 @@ class NodeJS_Response
 	public var statusCode:Integer;
 	public var headersSent:Boolean;
 	public var sendDate:Boolean;
+	public var connection:NodeJS_Socket;
+	public var finished:Boolean;
+	public var _header:Boolean;
 
 	public function writeContinue() {}
 	public function writeHead(statusCode:Integer, optional reasonPhrase:String, optional headers:Object) {}
@@ -662,7 +749,8 @@ class NodeJS_Response
 	public function setHeader(cookie:String, value:Array<String>) {}
 	public function getHeader(name:String):String {}
 	public function removeHeader(name:String) {}
-	public function write(chunk:String, optional encoding:String) {}
+	public function write(chunk:String, encoding:String) {}
+	public function write(chunk:NodeJS_Buffer, encoding:String) {}
 	public function addTrailers(headers:String) {}
 	public function end(optional data:String, optional encoding:String) {}
 }
@@ -776,18 +864,23 @@ class NodeJS_Path
 class NodeJS_QueryString
 {
 	public function stringify(obj:Dictionary, optional sep:String = "&", optional eq:String = "="):String {}
-	public function parse(str:String, optional sep:String, optional eq:String, optional options:Object) {}
+	public function parse(str:String, optional sep:String, optional eq:String, optional options:Object):Dictionary {}
 	public function escape(str:String):String {}
 	public function unescape(str:String):String {}
 	public function unescapeBuffer(s:ArrayBuffer, decodeSpaces:Boolean) {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class CocoNode
+class NodeJS_Coconut2D
 {
 	public function SELECT(database:String, SQL:String):ArrayBuffer {}
-	public function UPDATE(database:String, data:ArrayBuffer):Boolean {}
+	public function UPDATE(data:ArrayBuffer):ArrayBuffer {}
+	public function fileExists(path:String):Boolean {}
 }
+
+var Coconut2D:NodeJS_Coconut2D;
+
+#endif
 
 #if EMS_BOX2D
 

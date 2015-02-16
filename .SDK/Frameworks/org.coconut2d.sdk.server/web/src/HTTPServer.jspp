@@ -29,6 +29,7 @@
 
 var fs:NodeJS_FS = require('fs');
 var path:NodeJS_Path = require('path');
+var qs:NodeJS_QueryString = require('querystring');
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct MIME_TYPE
@@ -46,7 +47,8 @@ export class HTTPServer
 	public function Constructor()
 	{
 		MIME = new Dictionary;
-		var buff:String = fs.readFileSync('./obj/mime.json', "utf8");
+		//var path:String = './' + GLOBAL.process.mainModule.exports.SERVER_OBJ_FOLDER + '/mime.json';
+		var buff:String = fs.readFileSync("./objs/mime.json", "utf8");
 		try
 		{
 			MIME = JSON.parse(buff);
@@ -66,34 +68,45 @@ export class HTTPServer
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function handle(req:NodeJS_Request, res:NodeJS_Response)
 	{
-		// If root request set default page
+		// Resolve request url
+		var p:Integer = req.url.indexOf("?");
+		req.__query = (p!=-1 ? req.url.substr(p+1) : "");
+		req.url = (p!=-1 ? req.url.substr(0, p) : req.url);
+
 		if(req.url=="/")
-			req.url = "default.asp";
+		{
+			var root:String = path.resolve(".");
+			if(Coconut2D.fileExists(root+"/default.asp"))
+				req.url = "default.asp";
+			else if(Coconut2D.fileExists(root+"/index.html"))
+				req.url = "index.html";
+		}
+
+		if(req.url.substr(0,1)=="/") req.url = "." + req.url;
+		req.__file 	= qs.unescape(path.resolve(req.url));
+		req.__path  = path.dirname(req.__file) + "\\";
+		req.__base  = path.basename(req.__file);
+		req.__ext   = path.extname(req.__file).toLowerCase();
+		req.__mime  = MIME.hasOwnProperty(req.__ext) ? String(MIME[req.__ext]) : "";
+		req.__url	= path.relative(".", req.url);
 
 		// Log request URL
 		console.log("Request URL: " + req.url);
 
-		// Get file extension
-		var ext:String = req.url.substr(req.url.lastIndexOf(".")).toLowerCase();
-		var fileName:String = req.url;
-
-		// Make path relative to root folder
-		if(fileName.indexOf('/')==0)
-			fileName = "." + fileName;
-
-		// Resole path
-		fileName = path.resolve(fileName);
-
 		// If file does not exist end the response.
-		if(!fs.existsSync(fileName))
+		if(!Coconut2D.fileExists(req.__file))
+		{
+			res.statusCode = 404;
 			res.end();
+			return;
+		}
 
 		// Handle ASP pages
-		if(ext==".asp")
+		if(req.__ext==".asp")
 		{
 			// Create an ASP processor, parse and execute the file.
 			var server:ASPProcessor = new ASP.ASPProcessor();
-			server.run(fileName, req, res);
+			server.run(req.__file, req, res);
 			res.end();
 			return;
 		}
@@ -101,14 +114,14 @@ export class HTTPServer
 		// Handle all other mime types
 		else
 		{
-			if(MIME.hasOwnProperty(ext))
+			if(MIME.hasOwnProperty(req.__ext))
 			{
 				// Write content-type response header
-				var ContentType:String = String(MIME[ext]);
+				var ContentType:String = String(MIME[req.__ext]);
 				res.writeHead(200, {'Content-Type': ContentType });
 
 				// Read file bytes
-				var bytes:String = fs.readFileSync(fileName);
+				var bytes:String = fs.readFileSync(req.__file);
 
 				// If content type is well-known text, respond with text, else as binary
 				if(ContentType.indexOf("text")!=-1 || ContentType.indexOf("javascript")!=-1)
@@ -124,7 +137,7 @@ export class HTTPServer
 		}
 
 		// Unhandled mime
-		console.log("Unknown mime-type: " + ext);
+		console.log("Unknown mime-type: " + req.__ext);
 		res.end();
 	}
 }

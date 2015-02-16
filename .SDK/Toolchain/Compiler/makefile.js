@@ -54,14 +54,15 @@
             "VIEW_PIXEL_RATIO": "1"
         },
         "TARGETS": {
-            "node.js": {
-                "TARGET_INPUT_SOURCES": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server",
-                "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server",
+            "CocoPlayer": {
+                "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/web/CocoPlayer",
                 "TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
+                "TARGET_ASSETS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
                 "TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js",
-                "TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
-                "TARGET_EXPORT": "nodejs",
+                "TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/bin;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
+                "TARGET_EXPORT": "all",
                 "TARGET_ADDITIONAL_FRAMEWORKS": null,
+                "TARGET_FILTER": "",
                 "TARGET_ADDITIONAL_NATIVE_SOURCES": null,
                 "TARGET_NATIVE_MASK": null,
                 "TARGET_RESOURCES_MASK": null,
@@ -69,29 +70,316 @@
                 "DEVICE_WRAPPER": {
                     "CLASS": "JAVASCRIPT",
                     "PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/web/node.js",
-                    "TEMPLATES": "",
+                    "TEMPLATES": null,
+                    "TEMPLATE_EXCLUDE_VARS": null,
+                    "BINPACK_IMAGES": true
+                },
+                "DEVICES": {
+                    "CocoPlayer": {
+                        "Debugger": "Debugger_V8Local",
+                        "Debug": "CocoPlayer",
+                        "Release": "CocoPlayer"
+                    }
+                },
+                "APP_SETTINGS": {}
+            },
+            "HTML5": {
+                "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/web/HTML5",
+                "TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
+                "TARGET_ASSETS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
+                "TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/index.html",
+                "TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/bin;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
+                "TARGET_EXPORT": "web",
+                "TARGET_ADDITIONAL_FRAMEWORKS": null,
+                "TARGET_ADDITIONAL_NATIVE_SOURCES": null,
+                "TARGET_NATIVE_MASK": null,
+                "TARGET_RESOURCES_MASK": null,
+                "TARGET_POST_BUILD": "copyFolder('D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server', 'D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server')",
+                "RELOAD_AFTER_BUILD": true,
+                "DEVICE_WRAPPER": {
+                    "CLASS": "JAVASCRIPT",
+                    "PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/web/node.js",
+                    "TEMPLATES": "*.html;*.css",
+                    "TEMPLATE_EXCLUDE_VARS": null,
+                    "BINPACK_IMAGES": true
+                },
+                "DEVICES": {
+                    "Chrome": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> --app=<file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js> --flag-switches-begin --window-size=<336,518> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
+                        "Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> --app=<file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js> --flag-switches-begin -window-size=<336,518> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
+                    },
+                    "Chrome (Canvas)": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> --app=<file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=2d> --flag-switches-begin --window-size=<336,518> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
+                        "Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> --app=<file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=2d> --flag-switches-begin --window-size=<336,518> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
+                    },
+                    "Chrome (CSS3)": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> --app=<file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=css3> --flag-switches-begin --window-size=<336,518> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
+                        "Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> --app=<file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=css3> --flag-switches-begin --window-size=<336,518> --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --disable-web-security --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
+                    },
+                    "FireFox": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>",
+                        "Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>"
+                    },
+                    "FireFox (Canvas)": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=2d>",
+                        "Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=2d>"
+                    },
+                    "FireFox (CSS3)": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=css3>",
+                        "Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=css3>"
+                    },
+                    "Internet Explorer": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>",
+                        "Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>"
+                    },
+                    "Internet Explorer (Canvas)": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=2d>",
+                        "Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=2d>"
+                    },
+                    "Internet Explorer (CSS3)": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=css3>",
+                        "Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=css3>"
+                    },
+                    "Safari": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>",
+                        "Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>"
+                    },
+                    "Safari (Canvas)": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=2d>",
+                        "Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=2d>"
+                    },
+                    "Safari (CSS3)": {
+                        "Debugger": null,
+                        "Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=css3>",
+                        "Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx=css3>"
+                    }
+                },
+                "APP_SETTINGS": {
+                    "EMBED_BASE64_IMAGES": true,
+                    "HTML_BODY_WIDTH": "100%",
+                    "HTML_BODY_HEIGHT": "100%"
+                },
+                "APP_ICONS": {
+                    "16": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/favicon.ico",
+                    "72": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/apple-touch-icon-72x72.png",
+                    "76": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/apple-touch-icon-76x76.png",
+                    "114": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/apple-touch-icon-114x114.png",
+                    "120": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/apple-touch-icon-120x120.png",
+                    "144": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/apple-touch-icon-144x144.png",
+                    "152": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/apple-touch-icon-152x152.png"
+                }
+            },
+            "Android": {
+                "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android",
+                "TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
+                "TARGET_JNI": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/jni",
+                "TARGET_LIBS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/libs",
+                "TARGET_ASSETS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
+                "TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/bin/Coconut2D.apk",
+                "TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/*",
+                "TARGET_EXPORT": "native",
+                "TARGET_ADDITIONAL_FRAMEWORKS": null,
+                "TARGET_ADDITIONAL_NATIVE_SOURCES": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/native/_Common;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/jni/src",
+                "TARGET_NATIVE_MASK": "*.cpp;*.hpp;*.h",
+                "TARGET_RESOURCES_MASK": "*.png;*.jpeg;*.ogg;*.ttf",
+                "RELOAD_AFTER_BUILD": true,
+                "DEVICE_WRAPPER": {
+                    "CLASS": "ANDROID",
+                    "PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/native/node.js",
+                    "TEMPLATES": "*.xml;*.properties;*.java;*.cpp;*.cmd;*.gdb;Application.mk",
+                    "TEMPLATE_EXCLUDE_VARS": "FONTS_LIST;APP_ICONS",
+                    "BINPACK_IMAGES": true
+                },
+                "DEVICES": {
+                    "Android (x86)": {
+                        "Debugger": "Debugger_Android",
+                        "Debug": "DeviceBridge",
+                        "Release": "DeviceBridge"
+                    },
+                    "(DEBUG_BRIDGE_DEVICES)": {
+                        "DEVICE_TYPE_FILTER": "ANDROID",
+                        "Debugger": "Debugger_Android",
+                        "Debug": "DeviceBridge",
+                        "Release": "DeviceBridge"
+                    }
+                },
+                "APP_SETTINGS": {
+                    "ANDROID_PLATFORM": "android-10",
+                    "MIN_SDK_VERSION": "10",
+                    "TARGET_SDK_VERSION": "19",
+                    "SCREEN_ORIENTATION": "portrait",
+                    "NDK_TOOLCHAIN_VERSION": "4.9",
+                    "APP_ABI": "armeabi armeabi-v7a x86"
+                },
+                "APP_ICONS": {
+                    "48": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/res/drawable-mdpi/ic_launcher.png",
+                    "72": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/res/drawable-hdpi/ic_launcher.png",
+                    "96": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/res/drawable-xhdpi/ic_launcher.png",
+                    "144": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/res/drawable-xxhdpi/ic_launcher.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/res/drawable/ic_launcher.png"
+                },
+                "CODE_SIGNING": {
+                    "COMPANY": "mobileFX",
+                    "ORGANIZATION": "mobileFX",
+                    "COUNTRY": "US",
+                    "PASSWORD": "password"
+                }
+            },
+            "iOS": {
+                "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/iOS",
+                "TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
+                "TARGET_ASSETS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
+                "TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/bin/Coconut2D.ipa",
+                "TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/bin;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
+                "TARGET_EXPORT": "native",
+                "TARGET_ADDITIONAL_FRAMEWORKS": null,
+                "TARGET_ADDITIONAL_NATIVE_SOURCES": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/native/_Common;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/src",
+                "TARGET_NATIVE_MASK": "*.m;*.cpp;*.hpp;*.h",
+                "TARGET_RESOURCES_MASK": "*.plist;*.png;*.jpeg;*.ogg;*.ttf",
+                "RELOAD_AFTER_BUILD": true,
+                "DEVICE_WRAPPER": {
+                    "CLASS": "IOS",
+                    "PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/native/node.js",
+                    "TEMPLATES": "*.m;*.plist",
+                    "TEMPLATE_EXCLUDE_VARS": "IOSBUILDENV_PATH;PAYLOAD;NAME;CPUSET;IOSMINVER;SRC;OBJDIR;OBJ;OUTDIR;BIN;RES;CFLAGS;LDFLAGS;OBJ_OBJ;PROVISION;CERTIFICATES;PRIVATE_KEY;PASSPHRASE;FONTS_LIST;APP_ICONS",
+                    "BINPACK_IMAGES": true
+                },
+                "DEVICES": {
+                    "(DEBUG_BRIDGE_DEVICES)": {
+                        "DEVICE_TYPE_FILTER": "IOS",
+                        "Debugger": "Debugger_LLDB",
+                        "Debug": "DeviceBridge",
+                        "Release": "DeviceBridge"
+                    }
+                },
+                "APP_SETTINGS": {
+                    "IOSMINVER": "5",
+                    "CPUSET": "armv7",
+                    "CFBundleIdentifier": "com.mobilefx.Coconut2D",
+                    "UIStatusBarHidden": true,
+                    "UIStatusBarStyle": "UIStatusBarStyleBlackTranslucent",
+                    "UIViewControllerBasedStatusBarAppearance": true,
+                    "UIViewEdgeAntialiasing": false,
+                    "UIApplicationExitsOnSuspend": true,
+                    "UIInterfaceOrientation": "UIInterfaceOrientationPortrait",
+                    "UIInterfaceOrientation_iPad": "UIInterfaceOrientationPortrait",
+                    "UIPrerenderedIcon": true
+                },
+                "APP_ICONS": {
+                    "29": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-29.png",
+                    "40": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-40.png",
+                    "48": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-48.png",
+                    "50": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-50.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-Small-50.png",
+                    "57": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-57.png",
+                    "58": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-29@2x.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-58.png",
+                    "60": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-60.png",
+                    "72": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-72.png",
+                    "76": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-76.png",
+                    "80": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-40@2x.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-80.png",
+                    "96": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-48@2x.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-96.png",
+                    "100": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-Small-50@2x.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-100.png",
+                    "114": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon@2x.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-57@2x.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-114.png",
+                    "120": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-60@2x.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-120.png",
+                    "144": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-72@2x.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-144.png",
+                    "152": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-76@2x.png;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Icon-152.png",
+                    "512": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/iTunesArtwork.png",
+                    "1024": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/iTunesArtwork@2x.png"
+                },
+                "CODE_SIGNING": {
+                    "IOS_CERTIFICATES": "ios_development.cer:AppleIncRootCertificate.cer:AppleWWDRCA.cer",
+                    "IOS_PRIVATE_KEY": "ios_development.key",
+                    "IOS_PRIVATE_KEY_PASSPHRASE": "puerre",
+                    "IOS_PROVISION": "mobileFX.mobileprovision"
+                }
+            },
+            "Win32": {
+                "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Win32",
+                "TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
+                "TARGET_ASSETS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
+                "TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/Coconut2D.exe",
+                "TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/*",
+                "TARGET_EXPORT": "native",
+                "TARGET_ADDITIONAL_FRAMEWORKS": null,
+                "TARGET_ADDITIONAL_NATIVE_SOURCES": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/native/_Common;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/src",
+                "TARGET_NATIVE_MASK": "*.cpp;*.hpp;*.h",
+                "TARGET_RESOURCES_MASK": "*.png;*.jpeg;*.ogg;*.ttf",
+                "RELOAD_AFTER_BUILD": true,
+                "DEVICE_WRAPPER": {
+                    "CLASS": "WIN32",
+                    "PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/native/node.js",
+                    "TEMPLATES": "resource.h;debugger-config.gdb;*.cpp",
+                    "TEMPLATE_EXCLUDE_VARS": "SRC;BIN;OUT;OBJS;CC;LDFLAGS;CFLAGS;RC;OBJ;OBJ_OBJ;LDLIBS;FONTS_LIST",
+                    "BINPACK_IMAGES": true
+                },
+                "DEVICES": {
+                    "Windows (x86)": {
+                        "Debugger": "Debugger_GDB",
+                        "Debug": "<D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/MinGW/bin/gdb.exe> -q -nw -r -f -x <D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/debugger-config.gdb> -cd <D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server> -d <D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server>",
+                        "Release": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js"
+                    }
+                },
+                "APP_SETTINGS": {},
+                "APP_ICONS": {
+                    "32": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/res/Application.ico"
+                },
+                "CODE_SIGNING": {
+                    "IOS_CERTIFICATES": "ios_development.cer:AppleIncRootCertificate.cer:AppleWWDRCA.cer",
+                    "IOS_PRIVATE_KEY": "ios_development.key",
+                    "IOS_PRIVATE_KEY_PASSPHRASE": "puerre",
+                    "IOS_PROVISION": "Coconut2D.mobileprovision"
+                }
+            },
+            "node.js": {
+                "TARGET_INPUT_SOURCES": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server",
+                "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server",
+                "TARGET_CLIENT_OBJ": "obj",
+                "TARGET_SERVER_OBJ": "objs",
+                "TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/objs",
+                "TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js",
+                "TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/objs",
+                "TARGET_EXPORT": "nodejs",
+                "TARGET_ADDITIONAL_FRAMEWORKS": null,
+                "TARGET_ADDITIONAL_NATIVE_SOURCES": null,
+                "TARGET_CLIENT_FRAMEWORKS": "org.coconut2d.sdk.common;org.coconut2d.sdk.net",
+                "TARGET_NATIVE_MASK": null,
+                "TARGET_RESOURCES_MASK": null,
+                "RELOAD_AFTER_BUILD": true,
+                "DEVICE_WRAPPER": {
+                    "CLASS": "JAVASCRIPT",
+                    "PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/web/node.js",
+                    "TEMPLATES": "node.js",
                     "TEMPLATE_EXCLUDE_VARS": null
                 },
                 "DEVICES": {
                     "Chrome": {
                         "Debugger": "Debugger_NodeJS",
-                        "Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://localhost> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
-                        "Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://localhost> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
+                        "Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.109> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
+                        "Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.109> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
                     },
                     "FireFox": {
                         "Debugger": "Debugger_NodeJS",
-                        "Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <http://localhost>",
-                        "Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <http://localhost>"
+                        "Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <http://192.168.1.109>",
+                        "Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <http://192.168.1.109>"
                     },
                     "Internet Explorer": {
                         "Debugger": "Debugger_NodeJS",
-                        "Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://localhost>",
-                        "Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://localhost>"
+                        "Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.109>",
+                        "Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.109>"
                     },
                     "Safari": {
                         "Debugger": "Debugger_NodeJS",
-                        "Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <http://localhost>",
-                        "Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <http://localhost>"
+                        "Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <http://192.168.1.109>",
+                        "Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <http://192.168.1.109>"
                     }
                 },
                 "APP_ICONS": {
@@ -113,7 +401,7 @@
         "TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server",
         "TARGET_DEVICE": "Chrome",
         "CHROME_DEBUG_PORT": "9999",
-        "TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js",
+        "TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js",
         "SURFACE_WIDTH": "320",
         "SURFACE_HEIGHT": "480",
         "LOCALHOST_IP": "192.168.1.109",
@@ -191,6 +479,7 @@
         "TARGETS.HTML5.TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/index.html",
         "TARGETS.HTML5.TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/bin;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
         "TARGETS.HTML5.TARGET_EXPORT": "web",
+        "TARGETS.HTML5.TARGET_POST_BUILD": "copyFolder('D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server', 'D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server')",
         "TARGETS.HTML5.RELOAD_AFTER_BUILD": "true",
         "TARGETS.HTML5.DEVICE_WRAPPER.CLASS": "JAVASCRIPT",
         "TARGETS.HTML5.DEVICE_WRAPPER.PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/web/node.js",
@@ -202,24 +491,24 @@
         "TARGETS.HTML5.DEVICES['Chrome (Canvas)'].Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> --app",
         "TARGETS.HTML5.DEVICES['Chrome (CSS3)'].Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> --app",
         "TARGETS.HTML5.DEVICES['Chrome (CSS3)'].Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> --app",
-        "TARGETS.HTML5.DEVICES.FireFox.Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js>",
-        "TARGETS.HTML5.DEVICES.FireFox.Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js>",
-        "TARGETS.HTML5.DEVICES['FireFox (Canvas)'].Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['FireFox (Canvas)'].Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['FireFox (CSS3)'].Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['FireFox (CSS3)'].Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['Internet Explorer'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js>",
-        "TARGETS.HTML5.DEVICES['Internet Explorer'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js>",
-        "TARGETS.HTML5.DEVICES['Internet Explorer (Canvas)'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['Internet Explorer (Canvas)'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['Internet Explorer (CSS3)'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['Internet Explorer (CSS3)'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES.Safari.Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js>",
-        "TARGETS.HTML5.DEVICES.Safari.Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js>",
-        "TARGETS.HTML5.DEVICES['Safari (Canvas)'].Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['Safari (Canvas)'].Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['Safari (CSS3)'].Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
-        "TARGETS.HTML5.DEVICES['Safari (CSS3)'].Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js?ctx",
+        "TARGETS.HTML5.DEVICES.FireFox.Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>",
+        "TARGETS.HTML5.DEVICES.FireFox.Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>",
+        "TARGETS.HTML5.DEVICES['FireFox (Canvas)'].Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['FireFox (Canvas)'].Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['FireFox (CSS3)'].Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['FireFox (CSS3)'].Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['Internet Explorer'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>",
+        "TARGETS.HTML5.DEVICES['Internet Explorer'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>",
+        "TARGETS.HTML5.DEVICES['Internet Explorer (Canvas)'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['Internet Explorer (Canvas)'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['Internet Explorer (CSS3)'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['Internet Explorer (CSS3)'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES.Safari.Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>",
+        "TARGETS.HTML5.DEVICES.Safari.Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js>",
+        "TARGETS.HTML5.DEVICES['Safari (Canvas)'].Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['Safari (Canvas)'].Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['Safari (CSS3)'].Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
+        "TARGETS.HTML5.DEVICES['Safari (CSS3)'].Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <file:///D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js?ctx",
         "TARGETS.HTML5.APP_SETTINGS.EMBED_BASE64_IMAGES": "true",
         "TARGETS.HTML5.APP_SETTINGS.HTML_BODY_WIDTH": "100%",
         "TARGETS.HTML5.APP_SETTINGS.HTML_BODY_HEIGHT": "100%",
@@ -232,6 +521,8 @@
         "TARGETS.HTML5.APP_ICONS.152": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/apple-touch-icon-152x152.png",
         "TARGETS.Android.TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/native/Android",
         "TARGETS.Android.TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
+        "TARGETS.Android.TARGET_JNI": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/jni",
+        "TARGETS.Android.TARGET_LIBS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/libs",
         "TARGETS.Android.TARGET_ASSETS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/assets",
         "TARGETS.Android.TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/bin/Coconut2D.apk",
         "TARGETS.Android.TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/*",
@@ -335,7 +626,7 @@
         "TARGETS.Win32.DEVICE_WRAPPER.BINPACK_IMAGES": "true",
         "TARGETS.Win32.DEVICES['Windows (x86)'].Debugger": "Debugger_GDB",
         "TARGETS.Win32.DEVICES['Windows (x86)'].Debug": "<D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/MinGW/bin/gdb.exe> -q -nw -r -f -x <D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/debugger-config.gdb> -cd <D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server> -d <D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server>",
-        "TARGETS.Win32.DEVICES['Windows (x86)'].Release": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js",
+        "TARGETS.Win32.DEVICES['Windows (x86)'].Release": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js",
         "TARGETS.Win32.APP_ICONS.32": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/res/Application.ico",
         "TARGETS.Win32.CODE_SIGNING.IOS_CERTIFICATES": "ios_development.cer:AppleIncRootCertificate.cer:AppleWWDRCA.cer",
         "TARGETS.Win32.CODE_SIGNING.IOS_PRIVATE_KEY": "ios_development.key",
@@ -343,26 +634,29 @@
         "TARGETS.Win32.CODE_SIGNING.IOS_PROVISION": "Coconut2D.mobileprovision",
         "TARGETS.node.js.TARGET_INPUT_SOURCES": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server",
         "TARGETS.node.js.TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server",
-        "TARGETS.node.js.TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
-        "TARGETS.node.js.TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/main.js",
-        "TARGETS.node.js.TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
+        "TARGETS.node.js.TARGET_CLIENT_OBJ": "obj",
+        "TARGETS.node.js.TARGET_SERVER_OBJ": "objs",
+        "TARGETS.node.js.TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/objs",
+        "TARGETS.node.js.TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/node.js",
+        "TARGETS.node.js.TARGET_CLEAN": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj;D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/objs",
         "TARGETS.node.js.TARGET_EXPORT": "nodejs",
+        "TARGETS.node.js.TARGET_CLIENT_FRAMEWORKS": "org.coconut2d.sdk.common;org.coconut2d.sdk.net",
         "TARGETS.node.js.RELOAD_AFTER_BUILD": "true",
         "TARGETS.node.js.DEVICE_WRAPPER.CLASS": "JAVASCRIPT",
         "TARGETS.node.js.DEVICE_WRAPPER.PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/web/node.js",
-        "TARGETS.node.js.DEVICE_WRAPPER.TEMPLATES": "",
+        "TARGETS.node.js.DEVICE_WRAPPER.TEMPLATES": "node.js",
         "TARGETS.node.js.DEVICES.Chrome.Debugger": "Debugger_NodeJS",
-        "TARGETS.node.js.DEVICES.Chrome.Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://localhost> --flag-switches-begin --js-flags",
-        "TARGETS.node.js.DEVICES.Chrome.Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://localhost> --flag-switches-begin --js-flags",
+        "TARGETS.node.js.DEVICES.Chrome.Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.109> --flag-switches-begin --js-flags",
+        "TARGETS.node.js.DEVICES.Chrome.Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.109> --flag-switches-begin --js-flags",
         "TARGETS.node.js.DEVICES.FireFox.Debugger": "Debugger_NodeJS",
-        "TARGETS.node.js.DEVICES.FireFox.Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <http://localhost>",
-        "TARGETS.node.js.DEVICES.FireFox.Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <http://localhost>",
+        "TARGETS.node.js.DEVICES.FireFox.Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <http://192.168.1.109>",
+        "TARGETS.node.js.DEVICES.FireFox.Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <http://192.168.1.109>",
         "TARGETS.node.js.DEVICES['Internet Explorer'].Debugger": "Debugger_NodeJS",
-        "TARGETS.node.js.DEVICES['Internet Explorer'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://localhost>",
-        "TARGETS.node.js.DEVICES['Internet Explorer'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://localhost>",
+        "TARGETS.node.js.DEVICES['Internet Explorer'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.109>",
+        "TARGETS.node.js.DEVICES['Internet Explorer'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.109>",
         "TARGETS.node.js.DEVICES.Safari.Debugger": "Debugger_NodeJS",
-        "TARGETS.node.js.DEVICES.Safari.Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <http://localhost>",
-        "TARGETS.node.js.DEVICES.Safari.Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <http://localhost>",
+        "TARGETS.node.js.DEVICES.Safari.Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <http://192.168.1.109>",
+        "TARGETS.node.js.DEVICES.Safari.Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <http://192.168.1.109>",
         "TARGETS.node.js.APP_ICONS.16": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/favicon.ico",
         "TARGETS.node.js.APP_ICONS.72": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/apple-touch-icon-72x72.png",
         "TARGETS.node.js.APP_ICONS.76": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/apple-touch-icon-76x76.png",
@@ -429,15 +723,16 @@
         "PATH_SDK_EXTERNS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Toolchain/Externs",
         "FILE_PATH_SDK_CRL_COCONUT2D_HPP": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/DeviceWrappers/native/_Common/Coconut2D.hpp",
         "PROJECT_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project",
-        "TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",
         "ORG.COCONUT2D.SDK.COMMON": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.common",
         "ORG.COCONUT2D.SDK.HTML5": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.html5",
         "ORG.COCONUT2D.SDK.WEBGL": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.webgl",
         "ORG.COCONUT2D.SDK.ANIM": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.anim",
         "ORG.COCONUT2D.SDK.NET": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.net",
+        "ORG.COCONUT2D.SDK.SOCIAL": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.social",
         "ORG.COCONUT2D.SDK.UI": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.ui",
         "ORG.EMSCRIPTEN.BOX2D": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.emscripten.box2d",
         "ORG.COCONUT2D.SDK.GAME2D": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.game2d",
+        "COM.VERMANTIA.GAME.SLOTS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/com.vermantia.game.slots",
         "ORG.COCONUT2D.SDK.TESTS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.tests",
         "ORG.COCONUT2D.SDK.SERVER": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Frameworks/org.coconut2d.sdk.server",
         "TEXT_FILES": "*.mk;*.asp;*.c;*.cc;*.cpp;*.css;*.csv;*.cxx;*.doc;*.gdl;*.h;*.hh;*.hpp;*.hta;*.htc;*.htm;*.html;*.inc;*.include;*.j;*.java;*.javascript;*.jspp;*.js;*.jscript;*.glsl;*.json;*.jx;*.log;*.m;*.makefile;*.mx;*.mxx;*.pbxproj;*.pch;*.plist;*.strings;*.txt;*.xhtml;*.xml;*.xsd;*.xslt;*.bat;*.cmd;*.ini;*.mm;*.settings;*.jobj;*.md;*.lst;*.properties;*.conf;*.gdb;*.gitignore;*.njsp;*.setup"
@@ -509,6 +804,19 @@
                 "FSM": false,
                 "Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
             },
+            "org.coconut2d.sdk.social": {
+                "Name": "Coconut2D Social Networks Framework",
+                "Version": "0.1",
+                "Type": "CocoScript",
+                "Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+                "License": "MIT",
+                "PrecompilerVarName": "COCONUT2D_SOCIAL",
+                "Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.social",
+                "Description": "",
+                "Dependencies": "",
+                "FSM": false,
+                "Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
+            },
             "org.coconut2d.sdk.ui": {
                 "Name": "Coconut2D Core Application Framework",
                 "Version": "0.1",
@@ -544,6 +852,19 @@
                 "License": "MIT",
                 "PrecompilerVarName": "COCONUT2D_GAME2D",
                 "Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d",
+                "Description": "",
+                "Dependencies": "org.coconut2d.sdk.anim",
+                "FSM": true,
+                "Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
+            },
+            "com.vermantia.game.slots": {
+                "Name": "Vermantia 2D Slot Machine Framework",
+                "Version": "0.1",
+                "Type": "CocoScript",
+                "Copyright": "Copyright (C) 2015, Vermantia. All Rights Reserved",
+                "License": "MIT",
+                "PrecompilerVarName": "COCONUT2D_GAME_SLOTS",
+                "Path": "$(PATH_SDK_FRAMEWORKS)/com.vermantia.game.slots",
                 "Description": "",
                 "Dependencies": "org.coconut2d.sdk.anim",
                 "FSM": true,

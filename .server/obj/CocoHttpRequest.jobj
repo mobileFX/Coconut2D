@@ -1,0 +1,277 @@
+//@line 38
+
+function CocoHttpRequest()
+{
+	var __BASE__ = null;
+
+	function __CocoHttpRequest()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__COCOHTTPREQUEST__ = this.__CLASS__COCOHTTPREQUEST__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'CocoHttpRequest'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 118
+		this.__className = "CocoHttpRequest";
+		//@line 40
+		this.xhttp = null;
+		this.getResponseHeader = function (header)
+		{
+			return __CLASS__COCOHTTPREQUEST__.xhttp.getResponseHeader(header);
+		}
+		this.getAllResponseHeaders = function ()
+		{
+			return __CLASS__COCOHTTPREQUEST__.xhttp.getAllResponseHeaders();
+		}
+		this.abort = function ()
+		{
+			return __CLASS__COCOHTTPREQUEST__.xhttp.abort();
+		}
+		this.send$3 = function ()
+		{
+			return __CLASS__COCOHTTPREQUEST__.xhttp.send();
+		}
+		this.send$2 = function (data)
+		{
+			return __CLASS__COCOHTTPREQUEST__.xhttp.send(data);
+		}
+		this.send$1 = function (data)
+		{
+			return __CLASS__COCOHTTPREQUEST__.xhttp.send(data);
+		}
+		this.send = function (data)
+		{
+			return __CLASS__COCOHTTPREQUEST__.xhttp.send(data);
+		}
+		this.setRequestHeader = function (header, value)
+		{
+			return __CLASS__COCOHTTPREQUEST__.xhttp.setRequestHeader(header, value);
+		}
+		this.open = function (method, url, async)
+		{
+			return __CLASS__COCOHTTPREQUEST__.xhttp.open(method, url, async);
+		}
+		Object.defineProperty(this, 'response', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOHTTPREQUEST__.xhttp.response;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOHTTPREQUEST__.xhttp.response = v;
+			}
+		});
+		Object.defineProperty(this, 'responseType', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOHTTPREQUEST__.xhttp.responseType;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOHTTPREQUEST__.xhttp.responseType = v;
+			}
+		});
+		Object.defineProperty(this, 'responseText', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOHTTPREQUEST__.xhttp.responseText;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOHTTPREQUEST__.xhttp.responseText = v;
+			}
+		});
+		Object.defineProperty(this, 'statusText', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOHTTPREQUEST__.xhttp.statusText;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOHTTPREQUEST__.xhttp.statusText = v;
+			}
+		});
+		Object.defineProperty(this, 'status', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOHTTPREQUEST__.xhttp.status;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOHTTPREQUEST__.xhttp.status = v;
+			}
+		});
+		Object.defineProperty(this, 'readyState', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOHTTPREQUEST__.xhttp.readyState;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOHTTPREQUEST__.xhttp.readyState = v;
+			}
+		});
+		Object.defineProperty(this, 'timeout', {
+			enumerable: true,
+			get: function ()
+			{
+				return __CLASS__COCOHTTPREQUEST__.xhttp.timeout;
+			},
+			set: function (v)
+			{
+				__CLASS__COCOHTTPREQUEST__.xhttp.timeout = v;
+			}
+		});
+		//@line 55
+		this.Ready = function ()
+		{
+			//@line 57
+			try
+			{
+				//@line 59
+				return __CLASS__COCOHTTPREQUEST__.xhttp != null && __CLASS__COCOHTTPREQUEST__.xhttp.status != 0;
+				//@line 60
+			}
+			catch (e)
+			//@line 61
+			{
+				//@line 63
+				return false;
+				//@line 64
+			}
+			return false //@line 65
+		};
+		//@line 68
+		this.Success = function ()
+		{
+			//@line 70
+			try
+			{
+				//@line 72
+				return __CLASS__COCOHTTPREQUEST__.xhttp != null && __CLASS__COCOHTTPREQUEST__.xhttp.status == 200;
+				//@line 73
+			}
+			catch (e)
+			//@line 74
+			{
+				//@line 76
+				return false;
+				//@line 77
+			}
+			return false //@line 78
+		};
+		//@line 81
+		Object.defineProperty(this, 'responseBuffer', {
+			enumerable: true,
+			//@line 83
+			get: function ()
+			{
+				//@line 85
+				var buffer = null;
+				//@line 87
+				if (__CLASS__COCOHTTPREQUEST__.Ready() && __CLASS__COCOHTTPREQUEST__.Ready())
+				//@line 88
+				{
+					//@line 89
+					if (__CLASS__COCOHTTPREQUEST__.xhttp.responseType == "arraybuffer")
+					//@line 90
+					{
+						//@line 91
+						var response = __CLASS__COCOHTTPREQUEST__.xhttp.response;
+						//@line 92
+						var responseView = new DataView(response);
+						//@line 93
+						var L = response.byteLength;
+						//@line 94
+						buffer = new ArrayBuffer(L);
+						//@line 95
+						var view = new DataView(buffer);
+						//@line 96
+						for (var i = 0; i < L; i++)
+						//@line 97
+						{
+							//@line 98
+							view.setUint8(i, responseView.getUint8(i));
+							//@line 99
+						}
+						//@line 100
+					}
+					else
+					//@line 102
+					{
+						//@line 104
+						var data = __CLASS__COCOHTTPREQUEST__.xhttp.responseText;
+						//@line 105
+						var L = data.size();
+						//@line 106
+						buffer = new ArrayBuffer(L * 2);
+						//@line 107
+						var view = new DataView(buffer);
+						//@line 108
+						for (var i = 0; i < L; i++)
+						//@line 109
+						{
+							//@line 110
+							view.setUint8(i, data.charCodeAt(i));
+							//@line 111
+						}
+						//@line 112
+					}
+					//@line 113
+				}
+				//@line 115
+				return buffer;
+				//@line 116
+			}
+		});
+		//@line 49
+		this.Destructor = function ()
+		{
+			{
+				//@line 51
+				{
+					__CLASS__COCOHTTPREQUEST__.xhttp && ((__CLASS__COCOHTTPREQUEST__.xhttp.hasOwnProperty('Destructor') && __CLASS__COCOHTTPREQUEST__.xhttp.Destructor()) || !__CLASS__COCOHTTPREQUEST__.xhttp.hasOwnProperty('Destructor')) && (delete __CLASS__COCOHTTPREQUEST__.xhttp);
+					__CLASS__COCOHTTPREQUEST__.xhttp = null
+				};
+				//@line 52
+			}
+			{
+				__CLASS__COCOHTTPREQUEST__.xhttp = null;
+				__CLASS__COCOHTTPREQUEST__.responseBuffer = null;
+			}
+			return true
+		};
+		//@line 43
+		this.Constructor = function ()
+		{
+			//@line 45
+			__CLASS__COCOHTTPREQUEST__.xhttp = new XMLHttpRequest;
+			//@line 46
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__CocoHttpRequest.prototype.constructor = __CocoHttpRequest;
+	return new __CocoHttpRequest();
+}
+CocoHttpRequest.__PRIVATE__ = {};
+CocoHttpRequest.__PROTECTED__ = {};

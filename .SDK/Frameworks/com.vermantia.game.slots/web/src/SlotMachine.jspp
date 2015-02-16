@@ -1,0 +1,43 @@
+﻿#pragma export_native
+#pragma export_web
+
+#include "CocoClip.jspp"
+
+class SlotMachine : CocoClip
+{
+	published var Cols:Integer;
+	published var Rows:Integer;
+	published reference var IdleSpriteSheet:Image;
+	published reference var BlurSpriteSheet:Image;
+	published var StartDisposition:Float;
+	published var StartAnimationFunction:ANIMATION_FUNCTIONS;
+	published var SpinAnimationFunction:ANIMATION_FUNCTIONS;
+	published var EndAnimationFunction:ANIMATION_FUNCTIONS;
+
+	public function Constructor(optional image:CocoImage) : CocoClip(image)
+	{
+		Cols = 5;
+		Rows = 3;
+		StartDisposition = 0.0;
+		StartAnimationFunction = ANIMATION_FUNCTIONS.FN_EASE_IN;
+		SpinAnimationFunction = ANIMATION_FUNCTIONS.FN_LINEAR;
+		EndAnimationFunction = ANIMATION_FUNCTIONS.FN_EASE_OUT;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+		super.tick;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		super.paint;
+	}
+}

@@ -180,15 +180,19 @@
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function Compiler(ast)
+function Compiler(ast, target, output_path)
 {
 	// ast				: The abstract syntax tree root node as produced by the parser
 	// selectedClass	: Used if we want to parse-only a single class for intelliSence use
 
 	var _this = this;
 
-	_this.TARGET = makefile.Vars.TARGET;
-	_this.TARGET_EXPORT = "export_" + makefile.Config.TARGETS[makefile.Vars.TARGET].TARGET_EXPORT;
+	_this.TARGET = target||makefile.Vars.TARGET;
+	_this.TARGET_EXPORT = "export_" + makefile.Config.TARGETS[_this.TARGET].TARGET_EXPORT;
+
+	_this.output_path = output_path;					// Alternative output path (overwrites target default)
+	if(_this.output_path)
+		buildPath(_this.output_path);
 
 	_this.ast = ast;                        			// The Abstract Syntax Tree root node (jsdef.SCRIPT)
 	_this.classes = {};                     			// Map of class symbols
@@ -516,7 +520,15 @@ function Compiler(ast)
 			buff = RxReplace(buff, "[\\n\\s\\r\\t]+\\{[\\n\\s\\r\\t]*\\};", "mg", " {};");
 
 			// Send generated file to IDE
-			IDECallback("module_jspp", file, 0, 0, buff);
+			if(_this.output_path)
+			{
+				file = _this.output_path + file.substr(file.lastIndexOf("/")).replace(".jspp", ".jobj");
+				write(file, buff);
+			}
+			else
+			{
+				IDECallback("module_jspp", file, 0, 0, buff);
+			}
 		}
 	};
 
@@ -1550,6 +1562,7 @@ function Compiler(ast)
 			}
 			else
 			{
+				var TARGET_NAME = _this.TARGET;
 				v = eval(expr);
 			}
 		}
@@ -1611,7 +1624,8 @@ function Compiler(ast)
 		/////////////////////////////////////////////////////////////////////////////////
 		if(ast.export)
 		{
-			_this.addCodeToClassFile(ast, null, "module.exports." + ast.name + " = " + ast.name + ";");
+			if(_this.TARGET=="node.js")
+				_this.addCodeToClassFile(ast, null, "module.exports." + ast.name + " = " + ast.name + ";");
 		}
 
 		switch(ast.type)
@@ -3034,27 +3048,30 @@ function Compiler(ast)
 						var init = null;
 
 						if(param.initializer)
-						{
-							//var vt = _this.getTypeName(param.initializer);//TODO:Check type
 							init = generate(param.initializer);
-						}
+						else
+							init = (_this.types[vartype] ? _this.types[vartype].default : "null");
 
 						if(_this.types.hasOwnProperty(vartype))
 						{
 							switch(vartype)
 							{
 							case "Integer":
-								paramListInits.push(param.name+"=Math.round("+param.name+"||"+(init||_this.types[vartype].default)+");");
+								paramListInits.push(param.name+"=Math.round(String("+param.name+")!='undefined'?"+param.name+":"+init+");");
+								break;
+
+							case "Boolean":
+								paramListInits.push(param.name+"=String("+param.name+")!='undefined'?"+param.name+":"+init+";");
 								break;
 
 							default:
-								paramListInits.push(param.name+"="+param.name+"||"+(init||_this.types[vartype].default)+";");
+								paramListInits.push(param.name+"=String("+param.name+")!='undefined'?"+param.name+":"+init+";");
 								break;
 							}
 						}
 						else
 						{
-							paramListInits.push(param.name+"="+param.name+"||"+(init||"null") + ";");
+							paramListInits.push(param.name+"=String("+param.name+")!='undefined'?"+param.name+":"+init+";");
 						}
 					}
 					else
@@ -4563,7 +4580,7 @@ function Compiler(ast)
 			var gen0 = generate(ast[0]);
 
 			// Special Case: struct.toJSON()
-			if(_this.secondPass && ast[1].value=="toJSON" && _this.getClass(ast[0].symbol.vartype).struct)
+			if(_this.secondPass && ast[1].value=="toJSON" && ast[0].symbol && _this.getClass(ast[0].symbol.vartype).struct)
 			{
 			 	var cls = _this.getClass(ast[0].symbol.vartype);
 			 	var jsonExpr = ['"{"'];

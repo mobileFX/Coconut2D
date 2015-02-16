@@ -1,0 +1,202 @@
+﻿var ASP = require("./ASP.jobj");
+//@line 29
+var fs = require("fs");
+//@line 30
+var path = require("path");
+//@line 31
+var qs = require("querystring");
+//@line 34
+var MIME_TYPE =
+{
+	FileExtension: null,
+	ContentType: null
+};
+//@line 41
+
+function HTTPServer()
+{
+	var __BASE__ = null;
+
+	function __HTTPServer()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__HTTPSERVER__ = this.__CLASS__HTTPSERVER__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'HTTPServer'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 142
+		this.__className = "HTTPServer";
+		//@line 43
+		__PRIVATE__.__MIME__ = null;
+		__PDEFINE__(__PRIVATE__, 'MIME', { configurable: false, get: function () { return __PRIVATE__.__MIME__; }, set: function (v) { __PRIVATE__.__MIME__ = v; } });
+		//@line 68
+		this.handle = __VIRTUAL__.handle = function (req, res)
+		{
+			//@line 71
+			var p = req.url.indexOf("?");
+			//@line 72
+			req.__query = (p != -1 ? req.url.substr(p + 1) : "");
+			//@line 73
+			req.url = (p != -1 ? req.url.substr(0, p) : req.url);
+			//@line 75
+			if (req.url == "/")
+			//@line 76
+			{
+				//@line 77
+				var root = path.resolve(".");
+				//@line 78
+				if (Coconut2D.fileExists(root + "/default.asp"))
+				//@line 79
+				req.url = "default.asp";
+				else
+				//@line 80
+				if (Coconut2D.fileExists(root + "/index.html"))
+				//@line 81
+				req.url = "index.html";
+				//@line 82
+			}
+			//@line 84
+			if (req.url.substr(0, 1) == "/") req.url = "." + req.url;
+			//@line 85
+			req.__file = qs.unescape(path.resolve(req.url));
+			//@line 86
+			req.__path = path.dirname(req.__file) + "\\";
+			//@line 87
+			req.__base = path.basename(req.__file);
+			//@line 88
+			req.__ext = path.extname(req.__file).toLowerCase();
+			//@line 89
+			req.__mime = __CLASS__HTTPSERVER__.__PRIVATE__.MIME.hasOwnProperty(req.__ext) ? String(__CLASS__HTTPSERVER__.__PRIVATE__.MIME[req.__ext]) : "";
+			//@line 90
+			req.__url = path.relative(".", req.url);
+			//@line 93
+			console.log("Request URL: " + req.url);
+			//@line 96
+			if (!Coconut2D.fileExists(req.__file))
+			//@line 97
+			{
+				//@line 98
+				res.statusCode = Math.round(404);
+				//@line 99
+				res.end();
+				//@line 100
+				return;
+				//@line 101
+			}
+			//@line 104
+			if (req.__ext == ".asp")
+			//@line 105
+			{
+				//@line 107
+				var server = new ASP.ASPProcessor;
+				//@line 108
+				server.run(req.__file, req, res);
+				//@line 109
+				res.end();
+				//@line 110
+				return;
+				//@line 111
+			}
+			else
+			//@line 115
+			{
+				//@line 116
+				if (__CLASS__HTTPSERVER__.__PRIVATE__.MIME.hasOwnProperty(req.__ext))
+				//@line 117
+				{
+					//@line 119
+					var ContentType = String(__CLASS__HTTPSERVER__.__PRIVATE__.MIME[req.__ext]);
+					//@line 120
+					res.writeHead(200, {
+						"Content-Type": ContentType
+					});
+					//@line 123
+					var bytes = fs.readFileSync(req.__file);
+					//@line 126
+					if (ContentType.indexOf("text") != -1 || ContentType.indexOf("javascript") != -1)
+					//@line 127
+					{
+						//@line 128
+						res.end(bytes);
+						//@line 129
+					}
+					else
+					//@line 131
+					{
+						//@line 132
+						res.end(bytes, "binary");
+						//@line 133
+					}
+					//@line 134
+					return;
+					//@line 135
+				}
+				//@line 136
+			}
+			//@line 139
+			console.log("Unknown mime-type: " + req.__ext);
+			//@line 140
+			res.end();
+			//@line 141
+		};
+		//@line 62
+		this.Destructor = function ()
+		{
+			{
+				//@line 64
+				{
+					__CLASS__HTTPSERVER__.__PRIVATE__.MIME && ((__CLASS__HTTPSERVER__.__PRIVATE__.MIME.hasOwnProperty('Destructor') && __CLASS__HTTPSERVER__.__PRIVATE__.MIME.Destructor()) || !__CLASS__HTTPSERVER__.__PRIVATE__.MIME.hasOwnProperty('Destructor')) && (delete __CLASS__HTTPSERVER__.__PRIVATE__.MIME);
+					__CLASS__HTTPSERVER__.__PRIVATE__.MIME = null
+				};
+				//@line 65
+			}
+			{
+				__CLASS__HTTPSERVER__.__PRIVATE__.MIME = null;
+			}
+			return true
+		};
+		//@line 46
+		this.Constructor = function ()
+		{
+			//@line 48
+			__CLASS__HTTPSERVER__.__PRIVATE__.MIME = {};
+			//@line 50
+			var buff = fs.readFileSync("./objs/mime.json", "utf8");
+			//@line 51
+			try
+			{
+				//@line 53
+				__CLASS__HTTPSERVER__.__PRIVATE__.MIME = JSON.parse(buff);
+				//@line 54
+			}
+			catch (e)
+			//@line 55
+			{
+				//@line 57
+				console.log("Error parsing mime types, " + e.toString());
+				//@line 58
+			}
+			//@line 59
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__HTTPServer.prototype.constructor = __HTTPServer;
+	return new __HTTPServer();
+}
+HTTPServer.__PRIVATE__ = {};
+HTTPServer.__PROTECTED__ = {};
+module.exports.HTTPServer = HTTPServer;

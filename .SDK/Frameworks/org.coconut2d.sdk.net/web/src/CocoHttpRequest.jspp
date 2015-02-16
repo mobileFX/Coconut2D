@@ -104,7 +104,7 @@ class CocoHttpRequest
 					// Response Text to ArrayBuffer
 					var data:String = xhttp.responseText;
 					var L:Integer = data.size();
-					buffer = new ArrayBuffer(L);
+					buffer = new ArrayBuffer(L*2);
 					var view:DataView = new DataView(buffer);
 					for(var i:Integer=0; i<L; i++)
 					{

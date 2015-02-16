@@ -1,0 +1,1586 @@
+﻿var Data = require("./CocoDataset.jobj");
+var RX = require("./RegularExpressions.jobj");
+//@line 29
+var __fs = require("fs");
+//@line 30
+var __vm = require("vm");
+//@line 31
+var __path = require("path");
+//@line 33
+var ASP_DIC_TYPE_ENUM =
+{
+	ASP_APPLICATION_CONTENTS: 1,
+	ASP_APPLICATION_STATIC_OBJECTS: 2,
+	ASP_SESSION_CONTENTS: 3,
+	ASP_SESSION_STATIC_OBJECTS: 4,
+	ASP_REQUEST_COOKIES: 5,
+	ASP_REQUEST_FORM: 6,
+	ASP_REQUEST_QUERY_STRING: 7,
+	ASP_REQUEST_SERVER_VARS: 8,
+	ASP_RESPONSE_COOKIES: 9,
+	ASP_HTTP_HEADERS: 10
+};
+//@line 56
+
+function ASPDictionary(__CLASS__ASPDICTIONARY__$t__)
+{
+	var __BASE__ = null;
+
+	function __ASPDictionary(__CLASS__ASPDICTIONARY__$t__)
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__ASPDICTIONARY__ = this.__CLASS__ASPDICTIONARY__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'ASPDictionary'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 240
+		this.__className = "ASPDictionary";
+		//@line 58
+		__PRIVATE__.m_Type = null;
+		//@line 59
+		__PRIVATE__.m_Keys = [];
+		//@line 60
+		__PRIVATE__.m_Values = [];
+		//@line 87
+		this.__PRIVATE__.indexOf = function (Key)
+		{
+			//@line 89
+			for (var i = __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.size() - 1; i >= 0; i--)
+			//@line 90
+			if (__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys[i] == Key)
+			//@line 91
+			return i;
+			//@line 92
+			return -1;
+			return 0 //@line 93
+		};
+		//@line 96
+		this.Add = function (Key, Value)
+		{
+			//@line 98
+			var index = __CLASS__ASPDICTIONARY__.__PRIVATE__.indexOf(Key);
+			//@line 99
+			if (index == -1)
+			//@line 100
+			{
+				//@line 101
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.push(Key);
+				//@line 102
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values.push(Value);
+				//@line 103
+			}
+			else
+			//@line 105
+			{
+				//@line 106
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values[index] = Value;
+				//@line 107
+			}
+			//@line 108
+		};
+		//@line 111
+		this.Remove = function (Key)
+		{
+			//@line 113
+			var index = __CLASS__ASPDICTIONARY__.__PRIVATE__.indexOf(Key);
+			//@line 114
+			if (index != -1)
+			//@line 115
+			{
+				//@line 116
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.splice(index, 1);
+				//@line 117
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values.splice(index, 1);
+				//@line 118
+			}
+			//@line 119
+		};
+		//@line 122
+		this.RemoveAll = function ()
+		{
+			//@line 124
+			{
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys && ((__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.hasOwnProperty('Destructor') && __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.Destructor()) || !__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.hasOwnProperty('Destructor')) && (delete __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys);
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys = null
+			};
+			//@line 125
+			{
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values && ((__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values.hasOwnProperty('Destructor') && __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values.Destructor()) || !__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values.hasOwnProperty('Destructor')) && (delete __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values);
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values = null
+			};
+			//@line 126
+			__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys = new Array;
+			//@line 127
+			__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values = new Array;
+			//@line 128
+		};
+		//@line 131
+		this.Exists = function (key)
+		{
+			//@line 133
+			var index = __CLASS__ASPDICTIONARY__.__PRIVATE__.indexOf(key);
+			//@line 134
+			return index != -1;
+			return false //@line 135
+		};
+		//@line 138
+		this.Key = function (index)
+		{
+			index = Math.round(index);
+			//@line 140
+			if (index >= 0 && index < __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.size())
+			//@line 141
+			return __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys[index];
+			//@line 142
+			return "";
+			return "" //@line 143
+		};
+		//@line 146
+		this.Value = function (index)
+		{
+			index = Math.round(index);
+			//@line 148
+			if (index >= 0 && index < __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.size())
+			//@line 149
+			return __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values[index];
+			//@line 150
+			return "";
+			return "" //@line 151
+		};
+		//@line 154
+		this.Item = function (Key)
+		{
+			//@line 156
+			var index = __CLASS__ASPDICTIONARY__.__PRIVATE__.indexOf(Key);
+			//@line 157
+			if (index != -1) return __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values[index];
+			//@line 158
+			return "";
+			return "" //@line 159
+		};
+		//@line 162
+		this.ParseQueryString = function (req)
+		{
+			//@line 164
+			if (req.__query)
+			//@line 165
+			{
+				//@line 166
+				var qs = require("querystring");
+				//@line 167
+				var pairs = req.__query.split("&");
+				//@line 168
+				for (var i = 0; i < pairs.size(); i++)
+				//@line 169
+				{
+					//@line 170
+					var item = pairs[i].split("=");
+					//@line 171
+					var key = qs.unescape(item[0]);
+					//@line 172
+					var value = qs.unescape(item[1]);
+					//@line 173
+					__CLASS__ASPDICTIONARY__.Add(key, value);
+					//@line 174
+				}
+				//@line 175
+			}
+			//@line 176
+		};
+		//@line 179
+		this.ParseServerVariables = function (req)
+		{
+			//@line 181
+			__CLASS__ASPDICTIONARY__.Add("ALL_HTTP", "");
+			//@line 182
+			__CLASS__ASPDICTIONARY__.Add("ALL_RAW", "");
+			//@line 183
+			__CLASS__ASPDICTIONARY__.Add("APPL_MD_PATH", "/LM/W3SVC/42/ROOT");
+			//@line 184
+			__CLASS__ASPDICTIONARY__.Add("APPL_PHYSICAL_PATH", req.__path);
+			//@line 186
+			__CLASS__ASPDICTIONARY__.Add("AUTH_PASSWORD", "");
+			//@line 187
+			__CLASS__ASPDICTIONARY__.Add("AUTH_TYPE", "");
+			//@line 188
+			__CLASS__ASPDICTIONARY__.Add("AUTH_USER", "");
+			//@line 189
+			__CLASS__ASPDICTIONARY__.Add("CERT_COOKIE", "");
+			//@line 190
+			__CLASS__ASPDICTIONARY__.Add("CERT_FLAGS", "");
+			//@line 191
+			__CLASS__ASPDICTIONARY__.Add("CERT_ISSUER", "");
+			//@line 192
+			__CLASS__ASPDICTIONARY__.Add("CERT_KEYSIZE", "");
+			//@line 193
+			__CLASS__ASPDICTIONARY__.Add("CERT_SECRETKEYSIZE", "");
+			//@line 194
+			__CLASS__ASPDICTIONARY__.Add("CERT_SERIALNUMBER", "");
+			//@line 195
+			__CLASS__ASPDICTIONARY__.Add("CERT_SERVER_ISSUER", "");
+			//@line 196
+			__CLASS__ASPDICTIONARY__.Add("CERT_SERVER_SUBJECT", "");
+			//@line 197
+			__CLASS__ASPDICTIONARY__.Add("CERT_SUBJECT", "");
+			//@line 199
+			__CLASS__ASPDICTIONARY__.Add("CONTENT_LENGTH", String(req.headers["content-length"]));
+			//@line 200
+			__CLASS__ASPDICTIONARY__.Add("CONTENT_TYPE", String(req.headers["content-type"]));
+			//@line 202
+			__CLASS__ASPDICTIONARY__.Add("GATEWAY_INTERFACE", "CGI/1.1");
+			//@line 204
+			__CLASS__ASPDICTIONARY__.Add("HTTPS", "off");
+			//@line 205
+			__CLASS__ASPDICTIONARY__.Add("HTTPS_KEYSIZE", "");
+			//@line 206
+			__CLASS__ASPDICTIONARY__.Add("HTTPS_SECRETKEYSIZE", "");
+			//@line 207
+			__CLASS__ASPDICTIONARY__.Add("HTTPS_SERVER_ISSUER", "");
+			//@line 208
+			__CLASS__ASPDICTIONARY__.Add("HTTPS_SERVER_SUBJECT", "");
+			//@line 210
+			__CLASS__ASPDICTIONARY__.Add("INSTANCE_ID", "42");
+			//@line 211
+			__CLASS__ASPDICTIONARY__.Add("INSTANCE_META_PATH", "/LM/W3SVC/42");
+			//@line 212
+			__CLASS__ASPDICTIONARY__.Add("LOCAL_ADDR", req.socket.localAddress);
+			//@line 213
+			__CLASS__ASPDICTIONARY__.Add("LOGON_USER", "");
+			//@line 214
+			__CLASS__ASPDICTIONARY__.Add("PATH_INFO", req.url);
+			//@line 215
+			__CLASS__ASPDICTIONARY__.Add("PATH_TRANSLATED", req.__file);
+			//@line 216
+			__CLASS__ASPDICTIONARY__.Add("QUERY_STRING", req.__query);
+			//@line 217
+			__CLASS__ASPDICTIONARY__.Add("REMOTE_ADDR", req.socket.remoteAddress);
+			//@line 218
+			__CLASS__ASPDICTIONARY__.Add("REMOTE_HOST", String(req.headers["host"]));
+			//@line 219
+			__CLASS__ASPDICTIONARY__.Add("REMOTE_USER", "");
+			//@line 220
+			__CLASS__ASPDICTIONARY__.Add("REQUEST_METHOD", req.method);
+			//@line 221
+			__CLASS__ASPDICTIONARY__.Add("SCRIPT_NAME", req.url);
+			//@line 223
+			__CLASS__ASPDICTIONARY__.Add("SERVER_NAME", String(req.headers["host"]));
+			//@line 224
+			__CLASS__ASPDICTIONARY__.Add("SERVER_PORT", req.socket.localPort);
+			//@line 225
+			__CLASS__ASPDICTIONARY__.Add("SERVER_PORT_SECURE", "");
+			//@line 226
+			__CLASS__ASPDICTIONARY__.Add("SERVER_PROTOCOL", "HTTP");
+			//@line 227
+			__CLASS__ASPDICTIONARY__.Add("SERVER_SOFTWARE", "node.js");
+			//@line 229
+			__CLASS__ASPDICTIONARY__.Add("URL", req.url);
+			//@line 231
+			__CLASS__ASPDICTIONARY__.Add("HTTP_ACCEPT", String(req.headers["accept"]));
+			//@line 232
+			__CLASS__ASPDICTIONARY__.Add("HTTP_ACCEPT_ENCODING", String(req.headers["accept-encoding"]));
+			//@line 233
+			__CLASS__ASPDICTIONARY__.Add("HTTP_ACCEPT_LANGUAGE", String(req.headers["accept-language"]));
+			//@line 234
+			__CLASS__ASPDICTIONARY__.Add("HTTP_CONNECTION", String(req.headers["connection"]));
+			//@line 235
+			__CLASS__ASPDICTIONARY__.Add("HTTP_COOKIE", "");
+			//@line 236
+			__CLASS__ASPDICTIONARY__.Add("HTTP_HOST", String(req.headers["host"]));
+			//@line 237
+			__CLASS__ASPDICTIONARY__.Add("HTTP_REFERER", String(req.headers["referer"]));
+			//@line 238
+			__CLASS__ASPDICTIONARY__.Add("HTTP_USER_AGENT", String(req.headers["user-agent"]));
+			//@line 239
+		};
+		//@line 78
+		Object.defineProperty(this, 'Count', {
+			enumerable: true,
+			//@line 80
+			get: function ()
+			{
+				//@line 82
+				return __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.size();
+				return 0 //@line 83
+			}
+		});
+		//@line 71
+		this.Destructor = function ()
+		{
+			{
+				//@line 73
+				{
+					__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys && ((__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.hasOwnProperty('Destructor') && __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.Destructor()) || !__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys.hasOwnProperty('Destructor')) && (delete __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys);
+					__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys = null
+				};
+				//@line 74
+				{
+					__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values && ((__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values.hasOwnProperty('Destructor') && __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values.Destructor()) || !__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values.hasOwnProperty('Destructor')) && (delete __CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values);
+					__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values = null
+				};
+				//@line 75
+			}
+			{
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys = null;
+				__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values = null;
+			}
+			return true
+		};
+		//@line 63
+		this.Constructor = function (t)
+		{
+			//@line 65
+			__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Type = t;
+			//@line 66
+			__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Keys = new Array;
+			//@line 67
+			__CLASS__ASPDICTIONARY__.__PRIVATE__.m_Values = new Array;
+			//@line 68
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__ASPDICTIONARY__$t__);
+		return this;
+	}
+	__ASPDictionary.prototype.constructor = __ASPDictionary;
+	return new __ASPDictionary(__CLASS__ASPDICTIONARY__$t__);
+}
+ASPDictionary.__PRIVATE__ = {};
+ASPDictionary.__PROTECTED__ = {};
+//@line 251
+
+function ASPApplication()
+{
+	var __BASE__ = null;
+
+	function __ASPApplication()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__ASPAPPLICATION__ = this.__CLASS__ASPAPPLICATION__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'ASPApplication'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 292
+		this.__className = "ASPApplication";
+		//@line 253
+		this.Contents = null;
+		//@line 254
+		this.StaticObjects = null;
+		//@line 257
+		this.OnEnd = function () {};
+		//@line 258
+		this.OnStart = function () {};
+		//@line 260
+		__PRIVATE__.m_Locked = false;
+		//@line 281
+		this.Lock = function ()
+		{
+			//@line 283
+			__CLASS__ASPAPPLICATION__.__PRIVATE__.m_Locked = true;
+			//@line 284
+		};
+		//@line 288
+		this.Unlock = function ()
+		{
+			//@line 290
+			__CLASS__ASPAPPLICATION__.__PRIVATE__.m_Locked = false;
+			//@line 291
+		};
+		//@line 273
+		this.Destructor = function ()
+		{
+			{
+				//@line 275
+				{
+					__CLASS__ASPAPPLICATION__.Contents && ((__CLASS__ASPAPPLICATION__.Contents.hasOwnProperty('Destructor') && __CLASS__ASPAPPLICATION__.Contents.Destructor()) || !__CLASS__ASPAPPLICATION__.Contents.hasOwnProperty('Destructor')) && (delete __CLASS__ASPAPPLICATION__.Contents);
+					__CLASS__ASPAPPLICATION__.Contents = null
+				};
+				//@line 276
+				{
+					__CLASS__ASPAPPLICATION__.StaticObjects && ((__CLASS__ASPAPPLICATION__.StaticObjects.hasOwnProperty('Destructor') && __CLASS__ASPAPPLICATION__.StaticObjects.Destructor()) || !__CLASS__ASPAPPLICATION__.StaticObjects.hasOwnProperty('Destructor')) && (delete __CLASS__ASPAPPLICATION__.StaticObjects);
+					__CLASS__ASPAPPLICATION__.StaticObjects = null
+				};
+				//@line 277
+			}
+			{
+				__CLASS__ASPAPPLICATION__.Contents = null;
+				__CLASS__ASPAPPLICATION__.StaticObjects = null;
+				__CLASS__ASPAPPLICATION__.OnEnd = null;
+				__CLASS__ASPAPPLICATION__.OnStart = null;
+			}
+			return true
+		};
+		//@line 263
+		this.Constructor = function ()
+		{
+			//@line 265
+			__CLASS__ASPAPPLICATION__.Contents = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_CONTENTS);
+			//@line 266
+			__CLASS__ASPAPPLICATION__.StaticObjects = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_STATIC_OBJECTS);
+			//@line 267
+			__CLASS__ASPAPPLICATION__.OnEnd = null;
+			//@line 268
+			__CLASS__ASPAPPLICATION__.OnStart = null;
+			//@line 269
+			__CLASS__ASPAPPLICATION__.__PRIVATE__.m_Locked = false;
+			//@line 270
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__ASPApplication.prototype.constructor = __ASPApplication;
+	return new __ASPApplication();
+}
+ASPApplication.__PRIVATE__ = {};
+ASPApplication.__PROTECTED__ = {};
+//@line 303
+
+function ASPSession()
+{
+	var __BASE__ = null;
+
+	function __ASPSession()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__ASPSESSION__ = this.__CLASS__ASPSESSION__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'ASPSession'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 396
+		this.__className = "ASPSession";
+		//@line 305
+		this.Contents = null;
+		//@line 306
+		this.StaticObjects = null;
+		//@line 309
+		this.OnEnd = function () {};
+		//@line 310
+		this.OnStart = function () {};
+		//@line 312
+		__PRIVATE__.m_CodePage = "";
+		//@line 313
+		__PRIVATE__.m_LCID = "";
+		//@line 314
+		__PRIVATE__.m_SessionID = 0;
+		//@line 315
+		__PRIVATE__.m_Timeout = 0;
+		//@line 392
+		this.Abandon = function ()
+		{
+			//@line 394
+			__CLASS__ASPSESSION__.Destructor();
+			//@line 395
+		};
+		//@line 339
+		Object.defineProperty(this, 'CodePage', {
+			enumerable: true,
+			//@line 341
+			get: function ()
+			{
+				//@line 343
+				return __CLASS__ASPSESSION__.__PRIVATE__.m_CodePage;
+				return "" //@line 344
+			},
+			//@line 345
+			set: function (v)
+			{
+				//@line 347
+				__CLASS__ASPSESSION__.__PRIVATE__.m_CodePage = v;
+				//@line 348
+			}
+		});
+		//@line 354
+		Object.defineProperty(this, 'LCID', {
+			enumerable: true,
+			//@line 356
+			get: function ()
+			{
+				//@line 358
+				return __CLASS__ASPSESSION__.__PRIVATE__.m_LCID;
+				return "" //@line 359
+			},
+			//@line 360
+			set: function (v)
+			{
+				//@line 362
+				__CLASS__ASPSESSION__.__PRIVATE__.m_LCID = v;
+				//@line 363
+			}
+		});
+		//@line 368
+		Object.defineProperty(this, 'SessionID', {
+			enumerable: true,
+			//@line 370
+			get: function ()
+			{
+				//@line 372
+				return __CLASS__ASPSESSION__.__PRIVATE__.m_SessionID;
+				return 0 //@line 373
+			}
+		});
+		//@line 378
+		Object.defineProperty(this, 'Timeout', {
+			enumerable: true,
+			//@line 380
+			get: function ()
+			{
+				//@line 382
+				return __CLASS__ASPSESSION__.__PRIVATE__.m_Timeout;
+				return 0 //@line 383
+			},
+			//@line 384
+			set: function (v)
+			{
+				v = Math.round(v);
+				//@line 386
+				__CLASS__ASPSESSION__.__PRIVATE__.m_Timeout = Math.round(v);
+				//@line 387
+			}
+		});
+		//@line 331
+		this.Destructor = function ()
+		{
+			{
+				//@line 333
+				{
+					__CLASS__ASPSESSION__.Contents && ((__CLASS__ASPSESSION__.Contents.hasOwnProperty('Destructor') && __CLASS__ASPSESSION__.Contents.Destructor()) || !__CLASS__ASPSESSION__.Contents.hasOwnProperty('Destructor')) && (delete __CLASS__ASPSESSION__.Contents);
+					__CLASS__ASPSESSION__.Contents = null
+				};
+				//@line 334
+				{
+					__CLASS__ASPSESSION__.StaticObjects && ((__CLASS__ASPSESSION__.StaticObjects.hasOwnProperty('Destructor') && __CLASS__ASPSESSION__.StaticObjects.Destructor()) || !__CLASS__ASPSESSION__.StaticObjects.hasOwnProperty('Destructor')) && (delete __CLASS__ASPSESSION__.StaticObjects);
+					__CLASS__ASPSESSION__.StaticObjects = null
+				};
+				//@line 335
+			}
+			{
+				__CLASS__ASPSESSION__.Contents = null;
+				__CLASS__ASPSESSION__.StaticObjects = null;
+				__CLASS__ASPSESSION__.OnEnd = null;
+				__CLASS__ASPSESSION__.OnStart = null;
+			}
+			return true
+		};
+		//@line 318
+		this.Constructor = function ()
+		{
+			//@line 320
+			__CLASS__ASPSESSION__.Contents = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_CONTENTS);
+			//@line 321
+			__CLASS__ASPSESSION__.StaticObjects = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_STATIC_OBJECTS);
+			//@line 322
+			__CLASS__ASPSESSION__.__PRIVATE__.m_CodePage = "UTF-8";
+			//@line 323
+			__CLASS__ASPSESSION__.__PRIVATE__.m_LCID = "";
+			//@line 324
+			__CLASS__ASPSESSION__.__PRIVATE__.m_SessionID = Math.round(0);
+			//@line 325
+			__CLASS__ASPSESSION__.__PRIVATE__.m_Timeout = Math.round(20);
+			//@line 326
+			__CLASS__ASPSESSION__.OnEnd = null;
+			//@line 327
+			__CLASS__ASPSESSION__.OnStart = null;
+			//@line 328
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__ASPSession.prototype.constructor = __ASPSession;
+	return new __ASPSession();
+}
+ASPSession.__PRIVATE__ = {};
+ASPSession.__PROTECTED__ = {};
+//@line 407
+
+function ASPRequest(__CLASS__ASPREQUEST__$req__)
+{
+	var __BASE__ = null;
+
+	function __ASPRequest(__CLASS__ASPREQUEST__$req__)
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__ASPREQUEST__ = this.__CLASS__ASPREQUEST__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'ASPRequest'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 473
+		this.__className = "ASPRequest";
+		//@line 409
+		__PRIVATE__.req = null;
+		//@line 411
+		this.Cookies = null;
+		//@line 412
+		this.Form = null;
+		//@line 414
+		__PRIVATE__.m_QueryString = null;
+		//@line 415
+		__PRIVATE__.m_ServerVariables = null;
+		//@line 455
+		this.BinaryRead = function (count)
+		{
+			count = Math.round(count);
+			//@line 457
+			return __CLASS__ASPREQUEST__.__PRIVATE__.req.__arrayBuffer;
+			//@line 458
+		};
+		//@line 461
+		this.QueryString = function (key)
+		{
+			//@line 463
+			if (__CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString.Exists(key))
+			//@line 464
+			return __CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString.Item(key);
+			return "" //@line 465
+		};
+		//@line 468
+		this.ServerVariables = function (key)
+		{
+			//@line 470
+			if (__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables.Exists(key))
+			//@line 471
+			return __CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables.Item(key);
+			return "" //@line 472
+		};
+		//@line 440
+		Object.defineProperty(this, 'TotalBytes', {
+			enumerable: true,
+			//@line 442
+			get: function ()
+			{
+				//@line 444
+				if (__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables.Exists("CONTENT_LENGTH"))
+				//@line 445
+				return parseInt(__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables.Item("CONTENT_LENGTH"));
+				else
+				//@line 447
+				return 0;
+				return 0 //@line 448
+			}
+		});
+		//@line 431
+		this.Destructor = function ()
+		{
+			{
+				//@line 433
+				{
+					__CLASS__ASPREQUEST__.Cookies && ((__CLASS__ASPREQUEST__.Cookies.hasOwnProperty('Destructor') && __CLASS__ASPREQUEST__.Cookies.Destructor()) || !__CLASS__ASPREQUEST__.Cookies.hasOwnProperty('Destructor')) && (delete __CLASS__ASPREQUEST__.Cookies);
+					__CLASS__ASPREQUEST__.Cookies = null
+				};
+				//@line 434
+				{
+					__CLASS__ASPREQUEST__.Form && ((__CLASS__ASPREQUEST__.Form.hasOwnProperty('Destructor') && __CLASS__ASPREQUEST__.Form.Destructor()) || !__CLASS__ASPREQUEST__.Form.hasOwnProperty('Destructor')) && (delete __CLASS__ASPREQUEST__.Form);
+					__CLASS__ASPREQUEST__.Form = null
+				};
+				//@line 435
+				{
+					__CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString && ((__CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString.hasOwnProperty('Destructor') && __CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString.Destructor()) || !__CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString.hasOwnProperty('Destructor')) && (delete __CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString);
+					__CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString = null
+				};
+				//@line 436
+				{
+					__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables && ((__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables.hasOwnProperty('Destructor') && __CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables.Destructor()) || !__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables.hasOwnProperty('Destructor')) && (delete __CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables);
+					__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables = null
+				};
+				//@line 437
+			}
+			{
+				__CLASS__ASPREQUEST__.__PRIVATE__.req = null;
+				__CLASS__ASPREQUEST__.Cookies = null;
+				__CLASS__ASPREQUEST__.Form = null;
+				__CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString = null;
+				__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables = null;
+			}
+			return true
+		};
+		//@line 418
+		this.Constructor = function (req)
+		{
+			//@line 420
+			__CLASS__ASPREQUEST__.__PRIVATE__.req = req;
+			//@line 421
+			__CLASS__ASPREQUEST__.Cookies = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_COOKIES);
+			//@line 422
+			__CLASS__ASPREQUEST__.Form = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_FORM);
+			//@line 423
+			__CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_QUERY_STRING);
+			//@line 424
+			__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_SERVER_VARS);
+			//@line 426
+			__CLASS__ASPREQUEST__.__PRIVATE__.m_QueryString.ParseQueryString(req);
+			//@line 427
+			__CLASS__ASPREQUEST__.__PRIVATE__.m_ServerVariables.ParseServerVariables(req);
+			//@line 428
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__ASPREQUEST__$req__);
+		return this;
+	}
+	__ASPRequest.prototype.constructor = __ASPRequest;
+	return new __ASPRequest(__CLASS__ASPREQUEST__$req__);
+}
+ASPRequest.__PRIVATE__ = {};
+ASPRequest.__PROTECTED__ = {};
+//@line 484
+
+function ASPResponse(__CLASS__ASPRESPONSE__$res__)
+{
+	var __BASE__ = null;
+
+	function __ASPResponse(__CLASS__ASPRESPONSE__$res__)
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__ASPRESPONSE__ = this.__CLASS__ASPRESPONSE__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'ASPResponse'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 775
+		this.__className = "ASPResponse";
+		//@line 486
+		this.Cookies = null;
+		//@line 488
+		__PRIVATE__.m_Buffer = false;
+		//@line 489
+		__PRIVATE__.m_CacheControl = "";
+		//@line 490
+		__PRIVATE__.m_Charset = "";
+		//@line 491
+		__PRIVATE__.m_ContentType = "";
+		//@line 492
+		__PRIVATE__.m_Expires = 0;
+		//@line 493
+		__PRIVATE__.m_ExpiresAbsolute = "";
+		//@line 494
+		__PRIVATE__.m_Pics = "";
+		//@line 495
+		__PRIVATE__.m_Status = 0;
+		//@line 497
+		__PRIVATE__.res = null;
+		//@line 498
+		__PRIVATE__.m_Headers = null;
+		//@line 499
+		__PRIVATE__.m_Data = [];
+		//@line 662
+		this.AddHeader = function (Name, Value)
+		{
+			//@line 664
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.res.finished) return;
+			//@line 666
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.m_Buffer)
+			//@line 667
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers.Add(Name, Value);
+			else
+			//@line 669
+			__CLASS__ASPRESPONSE__.__PRIVATE__.res.setHeader(Name, Value);
+			//@line 670
+		};
+		//@line 674
+		this.AppendToLog = function (message)
+		{
+			//@line 676
+			console.log(message);
+			//@line 677
+		};
+		//@line 681
+		this.Redirect = function (url)
+		{
+			//@line 683
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.res.finished) return;
+			//@line 684
+			__CLASS__ASPRESPONSE__.Clear();
+			//@line 685
+			__CLASS__ASPRESPONSE__.AddHeader("Location", url);
+			//@line 686
+			__CLASS__ASPRESPONSE__.Status = Math.round(303);
+			//@line 687
+			__CLASS__ASPRESPONSE__.End();
+			//@line 688
+		};
+		//@line 692
+		this.BinaryWrite = function (data)
+		{
+			//@line 694
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.res.finished) return;
+			//@line 695
+			var buffer = "";
+			//@line 696
+			buffer = String.fromCharCode.apply(null, new Uint8Array(data));
+			//@line 701
+			__CLASS__ASPRESPONSE__.__PRIVATE__.res.setHeader("Accept-Ranges", "bytes");
+			//@line 702
+			__CLASS__ASPRESPONSE__.__PRIVATE__.res.setHeader("Content-Type", "application/octet-stream");
+			//@line 703
+			__CLASS__ASPRESPONSE__.__PRIVATE__.res.write(buffer, "utf8");
+			//@line 704
+			{
+				buffer && ((buffer.hasOwnProperty('Destructor') && buffer.Destructor()) || !buffer.hasOwnProperty('Destructor')) && (delete buffer);
+				buffer = null
+			};
+			//@line 705
+		};
+		//@line 709
+		this.Clear = function ()
+		{
+			//@line 711
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.res.finished) return;
+			//@line 712
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Status = Math.round(0);
+			//@line 713
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers.RemoveAll();
+			//@line 714
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data.clear();
+			//@line 715
+		};
+		//@line 719
+		this.End = function ()
+		{
+			//@line 721
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.res.finished) return;
+			//@line 722
+			__CLASS__ASPRESPONSE__.Flush();
+			//@line 723
+			__CLASS__ASPRESPONSE__.__PRIVATE__.res.end();
+			//@line 724
+		};
+		//@line 728
+		this.Flush = function ()
+		{
+			//@line 730
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.res.finished) return;
+			//@line 732
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.m_Buffer)
+			//@line 733
+			{
+				//@line 734
+				var i = 0;
+				//@line 736
+				if (!__CLASS__ASPRESPONSE__.__PRIVATE__.res._header)
+				//@line 737
+				{
+					//@line 739
+					__CLASS__ASPRESPONSE__.__PRIVATE__.res.statusCode = Math.round(__CLASS__ASPRESPONSE__.__PRIVATE__.m_Status);
+					//@line 742
+					for (i = Math.round(0); i < __CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers.Count; i++)
+					//@line 743
+					{
+						//@line 744
+						__CLASS__ASPRESPONSE__.__PRIVATE__.res.setHeader(__CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers.Key(i), __CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers.Value(i));
+						//@line 745
+					}
+					//@line 748
+					__CLASS__ASPRESPONSE__.__PRIVATE__.res.setHeader("Content-Type", __CLASS__ASPRESPONSE__.__PRIVATE__.m_ContentType + "; charset=" + __CLASS__ASPRESPONSE__.__PRIVATE__.m_Charset);
+					//@line 749
+					__CLASS__ASPRESPONSE__.__PRIVATE__.res.setHeader("Cache-Control", __CLASS__ASPRESPONSE__.__PRIVATE__.m_CacheControl);
+					//@line 750
+					if (__CLASS__ASPRESPONSE__.__PRIVATE__.m_Expires) __CLASS__ASPRESPONSE__.__PRIVATE__.res.setHeader("Expires", String(__CLASS__ASPRESPONSE__.__PRIVATE__.m_Expires));
+					//@line 751
+					if (__CLASS__ASPRESPONSE__.__PRIVATE__.m_ExpiresAbsolute) __CLASS__ASPRESPONSE__.__PRIVATE__.res.setHeader("Expires", "Expires:" + __CLASS__ASPRESPONSE__.__PRIVATE__.m_ExpiresAbsolute);
+					//@line 752
+				}
+				//@line 755
+				if (__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data.size() > 0)
+				//@line 756
+				__CLASS__ASPRESPONSE__.__PRIVATE__.res.write(__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data.join(""), __CLASS__ASPRESPONSE__.__PRIVATE__.m_Charset);
+				//@line 757
+			}
+			//@line 758
+		};
+		//@line 762
+		this.Write = function (data)
+		{
+			//@line 764
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.res.finished) return;
+			//@line 766
+			if (__CLASS__ASPRESPONSE__.__PRIVATE__.m_Buffer)
+			//@line 767
+			{
+				//@line 768
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data.push(data);
+				//@line 769
+			}
+			else
+			//@line 771
+			{
+				//@line 772
+				__CLASS__ASPRESPONSE__.__PRIVATE__.res.write(data, __CLASS__ASPRESPONSE__.__PRIVATE__.m_Charset);
+				//@line 773
+			}
+			//@line 774
+		};
+		//@line 533
+		Object.defineProperty(this, 'Buffer', {
+			enumerable: true,
+			//@line 535
+			get: function ()
+			{
+				//@line 537
+				return __CLASS__ASPRESPONSE__.__PRIVATE__.m_Buffer;
+				return false //@line 538
+			},
+			//@line 539
+			set: function (v)
+			{
+				//@line 541
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_Buffer = v;
+				//@line 542
+			}
+		});
+		//@line 549
+		Object.defineProperty(this, 'CacheControl', {
+			enumerable: true,
+			//@line 551
+			get: function ()
+			{
+				//@line 553
+				return __CLASS__ASPRESPONSE__.__PRIVATE__.m_CacheControl;
+				return "" //@line 554
+			},
+			//@line 555
+			set: function (v)
+			{
+				//@line 557
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_CacheControl = v;
+				//@line 558
+			}
+		});
+		//@line 563
+		Object.defineProperty(this, 'Charset', {
+			enumerable: true,
+			//@line 565
+			get: function ()
+			{
+				//@line 567
+				return __CLASS__ASPRESPONSE__.__PRIVATE__.m_Charset;
+				return "" //@line 568
+			},
+			//@line 569
+			set: function (v)
+			{
+				//@line 571
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_Charset = v;
+				//@line 572
+			}
+		});
+		//@line 577
+		Object.defineProperty(this, 'ContentType', {
+			enumerable: true,
+			//@line 579
+			get: function ()
+			{
+				//@line 581
+				return __CLASS__ASPRESPONSE__.__PRIVATE__.m_ContentType;
+				return "" //@line 582
+			},
+			//@line 583
+			set: function (v)
+			{
+				//@line 585
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_ContentType = v;
+				//@line 586
+			}
+		});
+		//@line 592
+		Object.defineProperty(this, 'Expires', {
+			enumerable: true,
+			//@line 594
+			get: function ()
+			{
+				//@line 596
+				return __CLASS__ASPRESPONSE__.__PRIVATE__.m_Expires;
+				return 0 //@line 597
+			},
+			//@line 598
+			set: function (v)
+			{
+				v = Math.round(v);
+				//@line 600
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_Expires = Math.round(v);
+				//@line 601
+			}
+		});
+		//@line 607
+		Object.defineProperty(this, 'ExpiresAbsolute', {
+			enumerable: true,
+			//@line 609
+			get: function ()
+			{
+				//@line 611
+				return __CLASS__ASPRESPONSE__.__PRIVATE__.m_ExpiresAbsolute;
+				return "" //@line 612
+			},
+			//@line 613
+			set: function (v)
+			{
+				//@line 615
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_ExpiresAbsolute = v;
+				//@line 616
+			}
+		});
+		//@line 621
+		Object.defineProperty(this, 'IsClientConnected', {
+			enumerable: true,
+			//@line 623
+			get: function ()
+			{
+				//@line 625
+				return __CLASS__ASPRESPONSE__.__PRIVATE__.res.connection != null;
+				return false //@line 626
+			}
+		});
+		//@line 631
+		Object.defineProperty(this, 'Pics', {
+			enumerable: true,
+			//@line 633
+			get: function ()
+			{
+				//@line 635
+				return __CLASS__ASPRESPONSE__.__PRIVATE__.m_Pics;
+				return "" //@line 636
+			},
+			//@line 637
+			set: function (v)
+			{
+				//@line 639
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_Pics = v;
+				//@line 640
+			}
+		});
+		//@line 645
+		Object.defineProperty(this, 'Status', {
+			enumerable: true,
+			//@line 647
+			get: function ()
+			{
+				//@line 649
+				return __CLASS__ASPRESPONSE__.__PRIVATE__.m_Status;
+				return 0 //@line 650
+			},
+			//@line 651
+			set: function (v)
+			{
+				v = Math.round(v);
+				//@line 653
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_Status = Math.round(v);
+				//@line 655
+				if (!__CLASS__ASPRESPONSE__.__PRIVATE__.m_Buffer)
+				//@line 656
+				__CLASS__ASPRESPONSE__.__PRIVATE__.res.statusCode = Math.round(__CLASS__ASPRESPONSE__.__PRIVATE__.m_Status);
+				//@line 657
+			}
+		});
+		//@line 522
+		this.Destructor = function ()
+		{
+			{
+				//@line 524
+				{
+					__CLASS__ASPRESPONSE__.Cookies && ((__CLASS__ASPRESPONSE__.Cookies.hasOwnProperty('Destructor') && __CLASS__ASPRESPONSE__.Cookies.Destructor()) || !__CLASS__ASPRESPONSE__.Cookies.hasOwnProperty('Destructor')) && (delete __CLASS__ASPRESPONSE__.Cookies);
+					__CLASS__ASPRESPONSE__.Cookies = null
+				};
+				//@line 525
+				{
+					__CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers && ((__CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers.hasOwnProperty('Destructor') && __CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers.Destructor()) || !__CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers.hasOwnProperty('Destructor')) && (delete __CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers);
+					__CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers = null
+				};
+				//@line 526
+				{
+					__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data && ((__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data.hasOwnProperty('Destructor') && __CLASS__ASPRESPONSE__.__PRIVATE__.m_Data.Destructor()) || !__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data.hasOwnProperty('Destructor')) && (delete __CLASS__ASPRESPONSE__.__PRIVATE__.m_Data);
+					__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data = null
+				};
+				//@line 527
+			}
+			{
+				__CLASS__ASPRESPONSE__.Cookies = null;
+				__CLASS__ASPRESPONSE__.__PRIVATE__.res = null;
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers = null;
+				__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data = null;
+			}
+			return true
+		};
+		//@line 502
+		this.Constructor = function (res)
+		{
+			//@line 504
+			__CLASS__ASPRESPONSE__.__PRIVATE__.res = res;
+			//@line 506
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Data = new Array;
+			//@line 507
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Headers = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_HTTP_HEADERS);
+			//@line 509
+			__CLASS__ASPRESPONSE__.Cookies = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_COOKIES);
+			//@line 510
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Buffer = true;
+			//@line 511
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_CacheControl = "Public";
+			//@line 512
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Charset = "utf8";
+			//@line 513
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_ContentType = "text/html";
+			//@line 514
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Expires = Math.round(-1);
+			//@line 515
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_ExpiresAbsolute = "";
+			//@line 516
+			__CLASS__ASPRESPONSE__.__PRIVATE__.m_Pics = "";
+			//@line 518
+			res.statusCode = Math.round(__CLASS__ASPRESPONSE__.__PRIVATE__.m_Status = Math.round(200));
+			//@line 519
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor(__CLASS__ASPRESPONSE__$res__);
+		return this;
+	}
+	__ASPResponse.prototype.constructor = __ASPResponse;
+	return new __ASPResponse(__CLASS__ASPRESPONSE__$res__);
+}
+ASPResponse.__PRIVATE__ = {};
+ASPResponse.__PROTECTED__ = {};
+//@line 786
+
+function ASPServer()
+{
+	var __BASE__ = null;
+
+	function __ASPServer()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__ASPSERVER__ = this.__CLASS__ASPSERVER__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'ASPServer'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 867
+		this.__className = "ASPServer";
+		//@line 788
+		__PRIVATE__.m_ScriptTimeout = 0;
+		//@line 818
+		this.CreateObject = function (clsid)
+		{
+			//@line 820
+			if (clsid == "CocoDataset")
+			//@line 821
+			return new Data.CocoDataset;
+			else
+			//@line 823
+			return null;
+			return {} //@line 824
+		};
+		//@line 828
+		this.Execute = function (path)
+		{
+			//@line 830
+		};
+		//@line 834
+		this.GetLastError = function ()
+		{
+			//@line 836
+			return null;
+			//@line 837
+		};
+		//@line 841
+		this.HTMLEncode = function (s)
+		{
+			//@line 843
+			return "";
+			return "" //@line 844
+		};
+		//@line 848
+		this.URLEncode = function (s)
+		{
+			//@line 850
+			return "";
+			return "" //@line 851
+		};
+		//@line 856
+		this.MapPath = function (url)
+		{
+			//@line 858
+			return __path.resolve(url);
+			return "" //@line 859
+		};
+		//@line 863
+		this.Transfer = function (url)
+		{
+			//@line 865
+			var file = __path.resolve(url); //@line 866
+		};
+		//@line 804
+		Object.defineProperty(this, 'ScriptTimeout', {
+			enumerable: true,
+			//@line 806
+			get: function ()
+			{
+				//@line 808
+				return __CLASS__ASPSERVER__.__PRIVATE__.m_ScriptTimeout;
+				return 0 //@line 809
+			},
+			//@line 810
+			set: function (v)
+			{
+				v = Math.round(v);
+				//@line 812
+				__CLASS__ASPSERVER__.__PRIVATE__.m_ScriptTimeout = Math.round(v);
+				//@line 813
+			}
+		});
+		//@line 797
+		this.Destructor = function ()
+		{
+			{
+				//@line 799
+			}
+			{}
+			return true
+		};
+		//@line 791
+		this.Constructor = function ()
+		{
+			//@line 793
+			__CLASS__ASPSERVER__.__PRIVATE__.m_ScriptTimeout = Math.round(90);
+			//@line 794
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__ASPServer.prototype.constructor = __ASPServer;
+	return new __ASPServer();
+}
+ASPServer.__PRIVATE__ = {};
+ASPServer.__PROTECTED__ = {};
+//@line 878
+
+function ASPProcessor()
+{
+	var __BASE__ = null;
+
+	function __ASPProcessor()
+	{
+		var __PDEFINE__ = Object.defineProperty;
+		var __NOENUM__ = {enumerable:false};
+		var __CLASS__ASPPROCESSOR__ = this.__CLASS__ASPPROCESSOR__ = this;
+		var __THIS__ = this;
+		this.toString = function ()
+		{
+			return 'ASPProcessor'
+		};
+		__PDEFINE__(this, '__THIS__', { enumerable: false, get: function () { return __THIS__; }, set: function (v) { __THIS__ = v; } });
+		var __VIRTUAL__ = this.__VIRTUAL__ =
+		{
+			__PROTECTED__: {}
+		};
+		var __PRIVATE__ = this.__PRIVATE__ = {};
+		var __PROTECTED__ = this.__PROTECTED__ = {};
+		__PDEFINE__(this, '__PRIVATE__', __NOENUM__);
+		__PDEFINE__(this, '__PROTECTED__', __NOENUM__);
+		//@line 1045
+		this.__className = "ASPProcessor";
+		//@line 891
+		this.run = __VIRTUAL__.run = function (AspFilePath, Request, Response)
+		{
+			//@line 893
+			try
+			{
+				//@line 895
+				if (Coconut2D.fileExists(AspFilePath))
+				//@line 896
+				{
+					//@line 897
+					var compiledFile = __path.resolve(AspFilePath).replace(".asp", "_compiled.js");
+					//@line 900
+					var aspCode = __fs.readFileSync(AspFilePath, "utf8");
+					//@line 903
+					var jsCode = __CLASS__ASPPROCESSOR__.__PRIVATE__.compile(aspCode);
+					//@line 906
+					__fs.writeFileSync(compiledFile, jsCode);
+					//@line 909
+					var app = new ASPApplication;
+					//@line 910
+					var srv = new ASPServer;
+					//@line 911
+					var ses = new ASPSession;
+					//@line 912
+					var req = new ASPRequest(Request);
+					//@line 913
+					var res = new ASPResponse(Response);
+					//@line 917
+					var f = new Function("Application", "Server", "Session", "Request", "Response", jsCode);
+					//@line 918
+					f.call(__THIS__, app, srv, ses, req, res);
+					//@line 921
+					res.End();
+					//@line 922
+				}
+				else
+				//@line 924
+				{
+					//@line 926
+				}
+				//@line 927
+			}
+			catch (e)
+			//@line 928
+			{
+				//@line 930
+				console.log("Error executing ASP " + AspFilePath);
+				//@line 931
+			}
+			//@line 932
+		};
+		//@line 935
+		this.__PRIVATE__.compile = function (buff)
+		{
+			//@line 937
+			if (buff == "") return "";
+			//@line 939
+			var code = [];
+			//@line 940
+			var s = "";
+			//@line 941
+			var p = 0;
+			//@line 942
+			var HTML = "";
+			//@line 944
+			var rx = new RX.RegEx("(?:\\x3c\\x25([\\W\\w\\n\\r\\t\\s.]*?)\\x25\\x3e)|(?:\\x3c\\x21\\x2d\\x2d\\s*\\x23include\\s+(?:virtual|file)\\s*\\x3d\\s*[\\x27\\x22]*(.*?)[\\x27\\x22]*\\s*\\x2d\\x2d\\x3e)|(?:\\x3cscript\\s+.*?runat\\s*\\x3d\\s*[\\x27\\x22]*server[\\x27\\x22]*.*?\\x3e([\\W\\w\\n\\r\\t\\s.]*?)\\x3c\\x2fscript\\s*.*?\\x3e)", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL);
+			//@line 945
+			var ms = rx.parse(buff);
+			//@line 947
+			if (ms.size() == 0)
+			//@line 948
+			return __CLASS__ASPPROCESSOR__.__PRIVATE__.HTML2Script(buff);
+			//@line 950
+			var pos = 0;
+			//@line 951
+			for (var i = 0; i < ms.size(); i++)
+			//@line 952
+			{
+				//@line 953
+				var m = ms[i];
+				//@line 956
+				HTML = "";
+				//@line 957
+				if (m.index > pos)
+				//@line 958
+				{
+					//@line 959
+					HTML = buff.substr(pos, m.index - pos);
+					//@line 960
+					code.push(__CLASS__ASPPROCESSOR__.__PRIVATE__.HTML2Script(HTML));
+					//@line 961
+				}
+				//@line 964
+				if (m.value.indexOf("#include") != -1)
+				//@line 965
+				{
+					//@line 967
+					continue;
+					//@line 968
+				}
+				//@line 971
+				s = m.subMatches(2).trim();
+				//@line 972
+				if (s != "")
+				//@line 973
+				{
+					//@line 974
+					code.push(s);
+					//@line 975
+					pos = Math.round(m.index + m.length);
+					//@line 976
+					continue;
+					//@line 977
+				}
+				//@line 980
+				if (rx.test(m.value, "^\\x3c\\x25\\s*\\x3d", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL))
+				//@line 981
+				{
+					//@line 982
+					s = m.subMatches(0).trim();
+					//@line 983
+					s = s.substr(s.indexOf("=") + 1);
+					//@line 984
+					s = "Response.Write(String(" + s + "));";
+					//@line 985
+					code.push(s);
+					//@line 986
+					pos = Math.round(m.index + m.length);
+					//@line 987
+					continue;
+					//@line 988
+				}
+				//@line 991
+				s = m.subMatches(0).trim();
+				//@line 992
+				code.push(s);
+				//@line 993
+				pos = Math.round(m.index + m.length);
+				//@line 994
+			}
+			//@line 996
+			HTML = buff.substr(pos);
+			//@line 997
+			code.push(__CLASS__ASPPROCESSOR__.__PRIVATE__.HTML2Script(HTML));
+			//@line 998
+			var out = code.join("\n");
+			//@line 999
+			{
+				code && ((code.hasOwnProperty('Destructor') && code.Destructor()) || !code.hasOwnProperty('Destructor')) && (delete code);
+				code = null
+			};
+			//@line 1000
+			out = rx.replace(out, "Response.End\\(\\);", "{ Response.End(); return; }", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL);
+			//@line 1001
+			return out;
+			return "" //@line 1002
+		};
+		//@line 1006
+		this.__PRIVATE__.HTML2Script = function (HTML)
+		{
+			//@line 1008
+			if (HTML == "") return "";
+			//@line 1010
+			HTML = HTML.replace(/(\r\n)|\n/mg, "\r");
+			HTML = HTML.replace(/\t/mg, " ");
+			//@line 1017
+			if (HTML.trim() == "") return "";
+			//@line 1019
+			var v = HTML.split("\r");
+			//@line 1020
+			var script = new Array;
+			//@line 1021
+			var L = v.size();
+			//@line 1022
+			var s = "";
+			//@line 1024
+			for (var i = 0; i < L; i++)
+			//@line 1025
+			{
+				//@line 1026
+				s = v[i].trim();
+				//@line 1027
+				if (s != "")
+				//@line 1028
+				{
+					//@line 1029
+					s = s.replace(/\x5c/mg, "\\\\");
+					s = s.replace(/\x22/mg, '\\"');
+					s = s.replace(/\t/mg, "    ");
+					//@line 1036
+					s = "Response.Write(String(\"" + s + (i < L ? "\\n" : "") + "\"));";
+					//@line 1037
+					script.push(s);
+					//@line 1038
+				}
+				//@line 1039
+			}
+			//@line 1041
+			s = script.join("\n");
+			//@line 1042
+			{
+				script && ((script.hasOwnProperty('Destructor') && script.Destructor()) || !script.hasOwnProperty('Destructor')) && (delete script);
+				script = null
+			};
+			//@line 1043
+			return s;
+			return "" //@line 1044
+		};
+		//@line 886
+		this.Destructor = function ()
+		{
+			{
+				//@line 888
+			}
+			{}
+			return true
+		};
+		//@line 881
+		this.Constructor = function ()
+		{
+			//@line 883
+		};
+		__PDEFINE__(this, 'Constructor', __NOENUM__);
+		this.Constructor();
+		return this;
+	}
+	__ASPProcessor.prototype.constructor = __ASPProcessor;
+	return new __ASPProcessor();
+}
+ASPProcessor.__PRIVATE__ = {};
+ASPProcessor.__PROTECTED__ = {};
+module.exports.ASPDictionary = ASPDictionary;
+module.exports.ASPApplication = ASPApplication;
+module.exports.ASPSession = ASPSession;
+module.exports.ASPRequest = ASPRequest;
+module.exports.ASPResponse = ASPResponse;
+module.exports.ASPServer = ASPServer;
+module.exports.ASPProcessor = ASPProcessor;

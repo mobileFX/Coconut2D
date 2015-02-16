@@ -33,7 +33,7 @@
 #endif
 
 #if (TARGET_NAME=="node.js")
-var ServerUtils:CocoNode = require("D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/emsdk/node/0.10.17_32bit/CocoNode.node");
+var __path:NodeJS_Path = require('path');
 #endif
 
 var NULL_DATA_VALUE:String = "FF707534-E45E-4294-A242-E7B798BF96A7";
@@ -225,7 +225,7 @@ export class CocoDataStream
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	#if (TARGET_NAME!="node.js" && COCONUT2D_NET)
- 	public function open(url:String, optional async:Boolean = true):Boolean
+ 	public function openFromURL(url:String, optional async:Boolean = true):Boolean
  	{
  		var ret:Boolean = false;
 
@@ -238,7 +238,7 @@ export class CocoDataStream
 
  			if(http.Success() && http.Ready())
  			{
- 				ret = open(http.response);
+ 				ret = openFromArrayBuffer(http.responseBuffer);
  			}
  		}
  		else
@@ -265,7 +265,7 @@ export class CocoDataStream
 			{
 				if(http.Success())
 				{
-					ret = open(http.responseBuffer);
+					ret = openFromArrayBuffer(http.responseBuffer);
 				}
 				delete  http;
 			}
@@ -280,7 +280,7 @@ export class CocoDataStream
 	#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function open(data:ArrayBuffer):Boolean
+ 	public function openFromArrayBuffer(data:ArrayBuffer):Boolean
  	{
  		if(!data || data.byteLength==0)
  			return false;
@@ -294,6 +294,15 @@ export class CocoDataStream
 
 		return true;
  	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property buffer
+	{
+		function get():Int32Array
+		{
+			return bi;
+		}
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function increaseSize(s:Integer)
@@ -516,7 +525,8 @@ export class CocoDataStream
 		var ret:String = "";
 		for(var i:Integer=0; i<L; i++)
  		{
- 			ret += String.fromCharCode(readInteger());
+ 			var c:Integer = readInteger();
+ 			ret += String.fromCharCode(c);
  		}
 
 		return ret;
@@ -663,6 +673,31 @@ export class CocoDataField
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toJSON():String
+	{
+		var s:String = "{";
+		s += "\"ORDINAL\":\"" 				+ String(ORDINAL)				+ "\"";
+		s += ",\"ID\":\""					+ String(ID)                    + "\"";
+		s += ",\"NAME\":\""					+ String(NAME)                  + "\"";
+		s += ",\"BASECOLUMNNAME\":\""		+ String(BASECOLUMNNAME)        + "\"";
+		s += ",\"BASETABLENAME\":\""		+ String(BASETABLENAME)         + "\"";
+		s += ",\"TYPE\":\""					+ String(TYPE)                  + "\"";
+		s += ",\"LCID\":\""					+ String(LCID)                  + "\"";
+		s += ",\"PRECISION\":\""			+ String(PRECISION)             + "\"";
+		s += ",\"SCALE\":\""				+ String(SCALE)                 + "\"";
+		s += ",\"SIZE\":\""					+ String(SIZE)                  + "\"";
+		s += ",\"LENGTH\":\""				+ String(LENGTH)                + "\"";
+		s += ",\"FLAGS\":\""				+ String(FLAGS)                 + "\"";
+		s += ",\"SQLITE_DATATYPE\":\""		+ String(SQLITE_DATATYPE)       + "\"";
+		s += ",\"SQLITE_DECLARED_TYPE\":\""	+ String(SQLITE_DECLARED_TYPE)  + "\"";
+		s += ",\"SQLITE_PK_COLUMN\":\""		+ String(SQLITE_PK_COLUMN)      + "\"";
+		s += ",\"SQLITE_PK_TABLE\":\""		+ String(SQLITE_PK_TABLE)       + "\"";
+		s += ",\"DEFAULTVALUE\":\""			+ String(DEFAULTVALUE)          + "\"";
+		s += "}";
+		return s;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public property value
 	{
 		function get():String
@@ -757,6 +792,20 @@ export class CocoDataRow
 			FieldValues[i] = ds.readString();
 		}
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toJSON():String
+	{
+		var t:Array<String> = new Array<String>;
+		var fieldCount:Integer = dataset.METADATA.size();
+		for(var i:Integer=0;i<fieldCount; i++)
+		{
+			t.push("\"" + FieldValues[i] + "\"");
+		}
+		var s:String = "{\"STATUS\":" + String(STATUS) + ", \"DATA\":[" + t.join(",") + "]}";
+		delete t;
+		return s;
+	}
 }
 
 // ==================================================================================================================================
@@ -810,7 +859,7 @@ export class CocoDataset
 	#if (TARGET_NAME!="node.js" && COCONUT2D_NET)
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function open(url:String, async:Boolean = true):Boolean
+	public function openURL(url:String, async:Boolean = true):Boolean
 	{
 		var ret:Boolean = false;
 
@@ -818,8 +867,8 @@ export class CocoDataset
 		if(!async)
 		{
 			ds = new CocoDataStream();
-			if(ds.open(url, false))
-				ret = open(ds);
+			if(ds.openFromURL(url, false))
+				ret = openFromDataStream(ds);
 			delete ds;
 		}
 
@@ -827,10 +876,24 @@ export class CocoDataset
 		else
 		{
 			ds = new CocoDataStream();
-			ret = ds.open(url, true);
+			ret = ds.openFromURL(url, true);
 		}
 
 		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function updateURL(url:String):Boolean
+	{
+		var ab:ArrayBuffer = toArrayBuffer();
+		if(ab)
+		{
+			var http:XMLHttpRequest = new XMLHttpRequest();
+			http.open("POST", url, false);
+			http.setRequestHeader("Content-Type", "plain/text");
+			http.send(toBase64());
+		}
+		return true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -846,7 +909,7 @@ export class CocoDataset
 				// If the Datastream is ready, load it and destroy it
 				if(ds.Ready)
 				{
-					ret = open(ds);
+					ret = openFromDataStream(ds);
 					delete ds;
 				}
 			}
@@ -869,23 +932,59 @@ export class CocoDataset
 	{
 		var ret:Boolean = false;
 		close();
-		var buff:ArrayBuffer = ServerUtils.SELECT(database, SQL);
+		database = __path.resolve(database);
+		var buff:ArrayBuffer = Coconut2D.SELECT(database, SQL);
 		if(buff)
 		{
 			var ds:CocoDataStream = new CocoDataStream();
-			if(ds.open(buff))
+			if(ds.openFromArrayBuffer(buff))
 			{
-				ret = open(ds);
+				ret = openFromDataStream(ds);
 			}
 			delete ds;
 			delete buff;
 		}
 		return ret;
 	}
-	#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function open(ds:CocoDataStream):Boolean
+	public function update():Boolean
+	{
+		var ret:Boolean = false;
+		var in_buff:ArrayBuffer = toArrayBuffer();
+		if(in_buff)
+		{
+			var out_buff:ArrayBuffer = Coconut2D.UPDATE(in_buff);
+			if(out_buff)
+			{
+				var ds:CocoDataStream = new CocoDataStream();
+				if(ds.openFromArrayBuffer(out_buff))
+				{
+					ret = openFromDataStream(ds);
+				}
+				delete ds;
+				delete out_buff;
+			}
+			delete in_buff;
+		}
+		return ret;
+	}
+
+	#endif
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function openFromArrayBuffer(ab:ArrayBuffer):Boolean
+	{
+		var ret:Boolean = false;
+		var ds:CocoDataStream = new CocoDataStream();
+		if(ds.openFromArrayBuffer(ab))
+			ret = openFromDataStream(ds);
+		delete ds;
+		return ret;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function openFromDataStream(ds:CocoDataStream):Boolean
 	{
 		close();
 
@@ -958,26 +1057,29 @@ export class CocoDataset
 		DB_BOF = false;
 		ACCESS = SQLITE_TABLE_ACCESS.CAN_CRUD;
 
+
 		var i:Integer;
-		var filedCount:Integer = METADATA.size();
-		var recordCount:Integer = DATA.size();
-
-		for(i=0; i<filedCount; i++)
+		if(METADATA)
 		{
-			var COL:CocoDataField = METADATA[i];
-			METADATA.pop();
-			delete COL;
+			var filedCount:Integer = METADATA.size();
+			for(i=0; i<filedCount; i++)
+			{
+				var COL:CocoDataField = METADATA[i];
+				delete COL;
+			}
+			METADATA.clear();
 		}
 
-		for(i=0; i<recordCount; i++)
+		if(DATA)
 		{
-			var ROW:CocoDataRow = DATA[i];
-			DATA.pop();
-			delete ROW;
+			var recordCount:Integer = DATA.size();
+			for(i=0; i<recordCount; i++)
+			{
+				var ROW:CocoDataRow = DATA[i];
+				delete ROW;
+			}
+			DATA.clear();
 		}
-
-		METADATA.clear();
-		DATA.clear();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1076,7 +1178,7 @@ export class CocoDataset
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function recordCount(optional Status:SQLITE_RECORD_STATUS):Integer
+	public function recordCount(optional Status:SQLITE_RECORD_STATUS = SQLITE_RECORD_STATUS.RECORD_ALL):Integer
 	{
 		if(Status==SQLITE_RECORD_STATUS.RECORD_ALL)
 			return DATA.size();
@@ -1348,10 +1450,64 @@ export class CocoDataset
 		return false;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function update():Boolean
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toArrayBuffer():ArrayBuffer
 	{
-		return true;
+		var ds:CocoDataStream = new CocoDataStream();
+		if(write(ds))
+		{
+			//ds.shrink();
+			return ds.buffer.buffer;
+		}
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toBase64():String
+	{//var base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)));
+
+		var buffer:ArrayBuffer = toArrayBuffer();
+		var binary:String = "";
+		var bytes:Uint8Array = new Uint8Array(buffer);
+		var len:Integer = bytes.byteLength;
+		for(var i:Integer=0; i<len; i++)
+		{
+			binary += String.fromCharCode(bytes[i]);
+		}
+		delete buffer;
+		delete bytes;
+		return "data:coconut2d/datastream;base64,"+btoa(binary);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toJSON():String
+	{
+		var s:String = "";
+		var fieldCount:Integer = METADATA.size();
+		var recordCount:Integer = DATA.size();
+
+		if(fieldCount>0)
+		{
+			var i:Integer;
+			var t:Array<String> = new Array<String>;
+
+			for(i=0; i<fieldCount; i++)
+			{
+				t.push(fieldByIndex(i).toJSON());
+			}
+			s = "{\"METADATA\":[\n"+t.join(",\n")+"],\n\"DATA\":[";
+
+			t.clear();
+			for(i=0; i<recordCount; i++)
+			{
+				t.push(DATA[i].toJSON());
+			}
+			s += t.join(",\n") + "]\n}";
+
+			delete t;
+		}
+		return s;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

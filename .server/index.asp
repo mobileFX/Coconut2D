@@ -1,4 +1,4 @@
-<html><head>
+﻿<html><head>
     <meta charset="utf-8">
 
     <title>Coconut2D</title>

@@ -1246,3 +1246,205 @@ class CocoMaskClip : CocoSelfTexturedClip
 		//ctx.drawMaskEnd(Invert);
 	}
 }
+
+// ==================================================================================================================================
+//	    ___          _                 __  _                ______                 __  _
+//	   /   |  ____  (_)___ ___  ____ _/ /_(_)___  ____     / ____/_  ______  _____/ /_(_)___  ____  _____
+//	  / /| | / __ \/ / __ `__ \/ __ `/ __/ / __ \/ __ \   / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+//	 / ___ |/ / / / / / / / / / /_/ / /_/ / /_/ / / / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+//	/_/  |_/_/ /_/_/_/ /_/ /_/\__,_/\__/_/\____/_/ /_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+//
+// ==================================================================================================================================
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum ANIMATION_FUNCTIONS
+{
+	FN_LINEAR			= 0,
+	FN_EASE				= 1,
+	FN_EASE_IN			= 2,
+	FN_EASE_OUT			= 3,
+	FN_EASE_IN_OUT		= 4,
+	FN_CUSTOM			= 5
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoBezier
+{
+	public const NEWTON_ITERATIONS:Float			= 4;
+	public const NEWTON_MIN_SLOPE:Float				= 0.001;
+	public const SUBDIVISION_PRECISION:Float		= 0.0000001;
+	public const SUBDIVISION_MAX_ITERATIONS:Float	= 10;
+
+	private var kSplineTableSize:Float;
+	private var kSampleStepSize:Float;
+
+	public var mX1:Float;
+	public var mY1:Float;
+	public var mX2:Float;
+	public var mY2:Float;
+
+	private var mSampleValues:Float32Array;
+	private var _precomputed:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(m:Float32Array)
+	{
+		this.mX1 = m[0];
+		this.mY1 = m[1];
+		this.mX2 = m[2];
+		this.mY2 = m[3];
+		kSplineTableSize = 11;
+		kSampleStepSize = 1.0 / (kSplineTableSize - 1.0);
+		mSampleValues = new Float32Array(kSplineTableSize);
+		_precomputed = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete mSampleValues;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function DefaultMatrix(fn:ANIMATION_FUNCTIONS):Float32Array
+	{
+		switch(fn)
+		{
+		case ANIMATION_FUNCTIONS.FN_EASE:				return new Float32Array([0.25, 0.10, 0.25, 1.00]);
+		case ANIMATION_FUNCTIONS.FN_EASE_IN:			return new Float32Array([0.42, 0.00, 1.00, 1.00]);
+		case ANIMATION_FUNCTIONS.FN_EASE_OUT:			return new Float32Array([0.00, 0.00, 0.58, 1.00]);
+		case ANIMATION_FUNCTIONS.FN_EASE_IN_OUT:		return new Float32Array([0.42, 0.00, 0.58, 1.00]);
+		default:										return new Float32Array([0.00, 0.00, 1.00, 1.00]);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function A (aA1:Float, aA2:Float):Float { return 1.0 - 3.0 * aA2 + 3.0 * aA1; }
+	private function B (aA1:Float, aA2:Float):Float { return 3.0 * aA2 - 6.0 * aA1; }
+	private function C (aA1:Float):Float      		{ return 3.0 * aA1; }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
+	private function calcBezier(aT:Float, aA1:Float, aA2:Float):Float
+	{
+		return ((A(aA1, aA2)*aT + B(aA1, aA2))*aT + C(aA1))*aT;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Returns dx/dt given t, x1, and x2, or dy/dt given t, y1, and y2.
+	private function getSlope(aT:Float, aA1:Float, aA2:Float):Float
+	{
+		return 3.0 * A(aA1, aA2)*aT*aT + 2.0 * B(aA1, aA2) * aT + C(aA1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function binarySubdivide(aX:Float, aA:Float, aB:Float):Float
+	{
+		var currentX:Float;
+		var currentT:Float;
+		var i:Float = 0;
+		do
+		{
+			currentT = aA + (aB - aA) / 2.0;
+			currentX = calcBezier(currentT, mX1, mX2) - aX;
+			if (currentX > 0.0)
+			{
+				aB = currentT;
+			}
+			else
+			{
+				aA = currentT;
+			}
+		} while (Math.abs(currentX) > SUBDIVISION_PRECISION && ++i < SUBDIVISION_MAX_ITERATIONS);
+
+		return currentT;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function newtonRaphsonIterate(aX:Float, aGuessT:Float):Float
+	{
+		for(var i:Integer=0; i<NEWTON_ITERATIONS; ++i)
+		{
+			var currentSlope:Float = getSlope(aGuessT, mX1, mX2);
+			if(currentSlope == 0.0) return aGuessT;
+			var currentX:Float = calcBezier(aGuessT, mX1, mX2) - aX;
+			aGuessT -= currentX / currentSlope;
+		}
+		return aGuessT;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function calcSampleValues ()
+	{
+		for(var i:Integer=0; i<kSplineTableSize; ++i)
+		{
+			mSampleValues[i] = calcBezier(i * kSampleStepSize, mX1, mX2);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function getTForX(aX:Float):Float
+	{
+		var intervalStart:Float = 0.0;
+		var currentSample:Float = 1;
+		var lastSample:Float = kSplineTableSize - 1;
+
+		for(; currentSample != lastSample && mSampleValues[currentSample] <= aX; ++currentSample)
+		{
+			intervalStart += kSampleStepSize;
+		}
+		--currentSample;
+
+		// Interpolate to provide an initial guess for t
+		var dist:Float = (aX - mSampleValues[currentSample]) / (mSampleValues[currentSample+1] - mSampleValues[currentSample]);
+		var guessForT:Float = intervalStart + dist * kSampleStepSize;
+
+		var initialSlope:Float = getSlope(guessForT, mX1, mX2);
+		if (initialSlope >= NEWTON_MIN_SLOPE)
+		{
+			return newtonRaphsonIterate(aX, guessForT);
+		}
+		else if (initialSlope === 0.0)
+		{
+			return guessForT;
+		}
+		else
+		{
+			return binarySubdivide(aX, intervalStart, intervalStart + kSampleStepSize);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function precompute()
+	{
+		_precomputed = true;
+		if (mX1 != mY1 || mX2 != mY2)
+			calcSampleValues();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function interpolate(x:Float):Float
+	{
+		if (!_precomputed) precompute();
+		if (mX1 === mY1 && mX2 === mY2) return x; // linear
+
+		// Because JavaScript number are imprecise,
+		// we should guarantee the extremes are right.
+		if (x === 0) return 0;
+		if (x === 1) return 1;
+
+		return calcBezier(getTForX(x), mY1, mY2);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getControlPoints():Float32Array
+	{
+		return new Float32Array([mX1, mY1, mX2, mY2]);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toCSS3():String
+	{
+		return "cubic-bezier(" + String(mX1) + "," + String(mY1) + "," + String(mX2) + "," + String(mY2) + ")";
+	}
+}

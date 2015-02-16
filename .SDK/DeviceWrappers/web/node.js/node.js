@@ -46,39 +46,102 @@ Object.defineProperty(String.prototype, "size", { value: function()
 	return this.length;
 }});
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Instantiate Coconut2D HTTP Server
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var http = require('http');
+var coco = global.Coconut2D = require("Coconut2D.node");
 var server = null;
 
+module.exports.SERVER_OBJ_FOLDER = "$(TARGETS.node.js.TARGET_SERVER_OBJ)";
+module.exports.CLIENT_OBJ_FOLDER = "$(TARGETS.node.js.TARGET_CLIENT_OBJ)";
+
 // Attempt to load user HTTP server implementation
-var module = require('./obj/Server.jobj');
-if(module && module.Server)
+if(Coconut2D.fileExists('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/Server.jobj'))
 {
-	server = new module.Server();
-	console.log("Using custom HTTP server.");
+	var module = require('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/Server.jobj');
+	if(module && module.Server)
+	{
+		server = new module.Server();
+		console.log("Using custom HTTP server.");
+	}
 }
-else
+else if(Coconut2D.fileExists('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/HTTPServer.jobj'))
 {
 	// Fall-back to generaic HTTP server implementation
-	module = require('./obj/HTTPServer.jobj');
-	if(module && module.HttpServer)
+	module = require('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/HTTPServer.jobj');
+	if(module && module.HTTPServer)
 	{
-		server = module.HttpServer();
+		server = module.HTTPServer();
 		console.log("Using generic HTTP server.");
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+function rawStringToBuffer(str)
+{
+    var idx, len = str.length, arr = new Array(len);
+    for(idx=0; idx<len; ++idx)
+    {
+        arr[idx] = str.charCodeAt(idx) & 0xFF;
+    }
+    return new Uint8Array(arr).buffer;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function toArrayBuffer(buffer)
+{
+    var ab = new ArrayBuffer(buffer.length);
+    var view = new Uint8Array(ab);
+    for(var i=0; i<buffer.length; ++i)
+    {
+        view[i] = buffer[i];
+    }
+    return ab;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // Instantiate Node.JS HTTP Server
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-http.createServer( function(req, res)
+http.createServer( function(request, response)
 {
-	return server.handle(req, res);
+    if(request.method == 'POST')
+    {
+        var body = '';
+        request.on('data', function (data)
+        {
+            body += data;
+            // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
+            if (body.length > 1e6)
+            {
+                // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
+                request.connection.destroy();
+            }
+        });
+        request.on('end', function ()
+        {
+        	request.__body = body;
+        	var sig = "data:coconut2d/datastream;base64,";
+        	if(body.indexOf(sig)==0)
+        	{
+        		var buff = new Buffer(body.substr(sig.length), "base64");
+        		request.__arrayBuffer = toArrayBuffer(buff);
+        		delete buff;
+        	}
+        	else
+        	{
+        		request.__body = body;
+            	request.__arrayBuffer = rawStringToBuffer(body);
+        	}
+            server.handle(request, response);
+        });
+    }
+    else
+    {
+    	server.handle(request, response);
+    }
 
-}).listen(80, '127.0.0.1');
+}).listen(80, '$(LOCALHOST_IP)');
 
-console.log('Server running on http://127.0.0.1:80/');
+console.log('Server running on http://$(LOCALHOST_IP):80/');
