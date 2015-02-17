@@ -304,8 +304,11 @@ class Global
 	public var NodeJS_QueryString :NodeJS_QueryString;
 	public var NodeJS_Coconut2D :NodeJS_Coconut2D;
 	public var Coconut2D :NodeJS_Coconut2D;
-	public var Data :Data;
+	public var __fs :NodeJS_FS;
+	public var __vm :NodeJS_VM;
 	public var __path :NodeJS_Path;
+	public var __qs :NodeJS_QueryString;
+	public var Data :Data;
 	public var NULL_DATA_VALUE :String;
 	public var DBTYPEENUM :DBTYPEENUM;
 	public var SQLITE_RECORD_STATUS :SQLITE_RECORD_STATUS;
@@ -318,14 +321,14 @@ class Global
 	public var CocoDataField :CocoDataField;
 	public var CocoDataRow :CocoDataRow;
 	public var CocoDataset :CocoDataset;
+	public var Encode :Encode;
+	public var CocoEncode :CocoEncode;
 	public var RX :RX;
 	public var REGULAR_EXPRESSION_FLAGS :REGULAR_EXPRESSION_FLAGS;
 	public var Match :Match;
 	public var MatchCollection :MatchCollection;
 	public var RegEx :RegEx;
 	public var ASP :ASP;
-	public var __fs :NodeJS_FS;
-	public var __vm :NodeJS_VM;
 	public var ASP_DIC_TYPE_ENUM :ASP_DIC_TYPE_ENUM;
 	public var ASPDictionary :ASPDictionary;
 	public var ASPApplication :ASPApplication;
@@ -335,9 +338,6 @@ class Global
 	public var ASPServer :ASPServer;
 	public var ASPProcessor :ASPProcessor;
 	public var HttpSever :HttpSever;
-	public var fs :NodeJS_FS;
-	public var path :NodeJS_Path;
-	public var qs :NodeJS_QueryString;
 	public var MIME_TYPE :MIME_TYPE;
 	public var HTTPServer :HTTPServer;
 	public var CocoServer :CocoServer;
@@ -1182,6 +1182,18 @@ class CocoDataset
 	public  var fieldCount :Integer;
 	public  var __className :String;
 } //CocoDataset
+
+class Encode
+{
+} //Encode
+
+class CocoEncode
+{
+	public function HTMLEncode(Text:String) :String {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //CocoEncode
 
 class RX
 {

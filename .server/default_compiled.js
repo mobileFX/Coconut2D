@@ -3,30 +3,30 @@ var title = "Classic Active Server Page";
 
 	switch(Request.QueryString("method"))
 	{
-		case "query":
-			var dataset = Server.CreateObject("CocoDataset");
-			if(dataset.open("./data/database.db", "SELECT * FROM TEST"))
+	case "query":
+		var dataset = Server.CreateObject("CocoDataset");
+		if(dataset.open("./data/database.db", "SELECT * FROM TEST"))
+		{
+			console.log("User query returned " + dataset.recordCount() + " records");
+			Response.Clear();
+			Response.BinaryWrite(dataset.toArrayBuffer());
+			{ Response.End(); return; }
+		}
+		break;
+
+	case "update":
+		var ab = Request.BinaryRead(Request.TotalBytes);
+		var dataset = Server.CreateObject("CocoDataset");
+		if(dataset.openFromArrayBuffer(ab))
+		{
+			if(dataset.update())
 			{
-				console.log("User query returned " + dataset.recordCount() + " records");
 				Response.Clear();
 				Response.BinaryWrite(dataset.toArrayBuffer());
 				{ Response.End(); return; }
 			}
-			break;
-
-		case "update":
-			var ab = Request.BinaryRead(Request.TotalBytes);
-			var dataset = Server.CreateObject("CocoDataset");
-			if(dataset.openFromArrayBuffer(ab))
-			{
-				if(dataset.update())
-				{
-					Response.Clear();
-					Response.BinaryWrite(dataset.toArrayBuffer());
-					{ Response.End(); return; }
-				}
-			}
-			break;
+		}
+		break;
 	}
 Response.Write(String("<html>\n"));
 Response.Write(String("<head>\n"));
@@ -124,7 +124,7 @@ Response.Write(String("$(data).html(html.join(\"\\n\"));\n"));
 Response.Write(String("$(btnUpdateData).click(function(e)\n"));
 Response.Write(String("{\n"));
 Response.Write(String("window.dataset.moveFirst();\n"));
-Response.Write(String("window.dataset.fieldByName(\"TEXT\").value = \"Ελληνικά\";\n"));
+Response.Write(String("window.dataset.fieldByName(\"TEXT\").value = \"Λίνα\";\n"));
 Response.Write(String("window.dataset.updateURL(\"./default.asp?method=update\");\n"));
 Response.Write(String("});\n"));
 Response.Write(String("}\n"));

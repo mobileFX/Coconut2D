@@ -49,9 +49,9 @@
             "ASSETS_VIDEOS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/assets/videos"
         },
         "DEVICE_VIEWPORT": {
-            "VIEW_WIDTH": "480",
-            "VIEW_HEIGHT": "320",
-            "VIEW_PIXEL_RATIO": "1"
+            "VIEW_WIDTH": 320,
+            "VIEW_HEIGHT": 480,
+            "VIEW_PIXEL_RATIO": 1
         },
         "TARGETS": {
             "CocoPlayer": {
@@ -456,8 +456,8 @@
         "PROJECT_PATHS.ASSETS_IMAGES": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/assets/images",
         "PROJECT_PATHS.ASSETS_SOUNDS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/assets/sounds",
         "PROJECT_PATHS.ASSETS_VIDEOS": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/assets/videos",
-        "DEVICE_VIEWPORT.VIEW_WIDTH": "480",
-        "DEVICE_VIEWPORT.VIEW_HEIGHT": "320",
+        "DEVICE_VIEWPORT.VIEW_WIDTH": "320",
+        "DEVICE_VIEWPORT.VIEW_HEIGHT": "480",
         "DEVICE_VIEWPORT.VIEW_PIXEL_RATIO": "1",
         "TARGETS.CocoPlayer.TARGET_ROOT": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.targets/web/CocoPlayer",
         "TARGETS.CocoPlayer.TARGET_OBJ": "D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.server/obj",

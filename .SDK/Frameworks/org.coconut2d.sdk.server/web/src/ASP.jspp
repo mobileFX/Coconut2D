@@ -27,10 +27,7 @@
 
 #module ASP
 
-var __fs:NodeJS_FS = require('fs');
-var __vm:NodeJS_VM = require('vm');
-var __path:NodeJS_Path = require('path');
-
+///////////////////////////////////////////////////////////////////////////////////////////////
 enum ASP_DIC_TYPE_ENUM
 {
     ASP_APPLICATION_CONTENTS			= 1,
@@ -841,14 +838,53 @@ export class ASPServer
 	// Applies HTML encoding to the specified string.
 	public function HTMLEncode(s:String):String
 	{
-		return "";
+	    var i:Integer;
+	    var L:Integer = s.size();
+	    var acode:Integer;
+	    var repl:String;
+	    var out:String = s;
+	    for(i=L-1; i>=0; i--)
+	    {
+	        acode = s.charCodeAt(i);
+	        switch(acode)
+	        {
+            case 32:
+                repl = "&nbsp;"
+                break;
+
+            case 34:
+                repl = "&quot;"
+                break;
+
+            case 38:
+                repl = "&amp;"
+                break;
+
+            case 60:
+                repl = "&lt;"
+                break;
+
+            case 62:
+                repl = "&gt;"
+                break;
+
+            default:
+                repl = "&#" + String(acode) + ";"
+	        }
+	        if(repl.size())
+	        {
+	            out = out.substr(0, i-1) + repl + out.substr(i+1);
+	            repl = "";
+	        }
+	    }
+	    return out;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Applies URL encoding rules, including escape characters, to the string.
 	public function URLEncode(s:String):String
 	{
-		return "";
+		return encodeURI(s);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////

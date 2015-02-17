@@ -139,7 +139,7 @@ $(window).load(function()
 			$(btnUpdateData).click(function(e)
 			{
 				window.dataset.moveFirst();
-				window.dataset.fieldByName("TEXT").value = "Ελληνικά";
+				window.dataset.fieldByName("TEXT").value = "Λίνα";
 				window.dataset.updateURL("./default.asp?method=update");
 			});
 		}

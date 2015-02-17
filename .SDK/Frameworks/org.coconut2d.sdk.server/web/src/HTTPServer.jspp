@@ -27,10 +27,6 @@
 
 #module HttpSever
 
-var fs:NodeJS_FS = require('fs');
-var path:NodeJS_Path = require('path');
-var qs:NodeJS_QueryString = require('querystring');
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct MIME_TYPE
 {
@@ -47,8 +43,8 @@ export class HTTPServer
 	public function Constructor()
 	{
 		MIME = new Dictionary;
-		//var path:String = './' + GLOBAL.process.mainModule.exports.SERVER_OBJ_FOLDER + '/mime.json';
-		var buff:String = fs.readFileSync("./objs/mime.json", "utf8");
+		//var __path:String = './' + GLOBAL.process.mainModule.exports.SERVER_OBJ_FOLDER + '/mime.json';
+		var buff:String = __fs.readFileSync("./objs/mime.json", "utf8");
 		try
 		{
 			MIME = JSON.parse(buff);
@@ -75,7 +71,7 @@ export class HTTPServer
 
 		if(req.url=="/")
 		{
-			var root:String = path.resolve(".");
+			var root:String = __path.resolve(".");
 			if(Coconut2D.fileExists(root+"/default.asp"))
 				req.url = "default.asp";
 			else if(Coconut2D.fileExists(root+"/index.html"))
@@ -83,12 +79,12 @@ export class HTTPServer
 		}
 
 		if(req.url.substr(0,1)=="/") req.url = "." + req.url;
-		req.__file 	= qs.unescape(path.resolve(req.url));
-		req.__path  = path.dirname(req.__file) + "\\";
-		req.__base  = path.basename(req.__file);
-		req.__ext   = path.extname(req.__file).toLowerCase();
+		req.__file 	= __qs.unescape(__path.resolve(req.url));
+		req.__path  = __path.dirname(req.__file) + "\\";
+		req.__base  = __path.basename(req.__file);
+		req.__ext   = __path.extname(req.__file).toLowerCase();
 		req.__mime  = MIME.hasOwnProperty(req.__ext) ? String(MIME[req.__ext]) : "";
-		req.__url	= path.relative(".", req.url);
+		req.__url	= __path.relative(".", req.url);
 
 		// Log request URL
 		console.log("Request URL: " + req.url);
@@ -121,7 +117,7 @@ export class HTTPServer
 				res.writeHead(200, {'Content-Type': ContentType });
 
 				// Read file bytes
-				var bytes:String = fs.readFileSync(req.__file);
+				var bytes:String = __fs.readFileSync(req.__file);
 
 				// If content type is well-known text, respond with text, else as binary
 				if(ContentType.indexOf("text")!=-1 || ContentType.indexOf("javascript")!=-1)

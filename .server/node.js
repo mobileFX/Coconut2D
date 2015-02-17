@@ -46,18 +46,34 @@ Object.defineProperty(String.prototype, "size", { value: function()
 	return this.length;
 }});
 
+Object.defineProperty(String.prototype, "toArrayBuffer", { value: function()
+{
+    var idx, len = this.length, arr = new Array(len);
+    for(idx=0; idx<len; ++idx)
+        arr[idx] = this.charCodeAt(idx) & 0xFF;
+    return new Uint8Array(arr).buffer;
+}});
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Instantiate Coconut2D HTTP Server
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var http = require('http');
-var coco = global.Coconut2D = require("Coconut2D.node");
-var server = null;
+global.__fs 			= require('fs');
+global.__vm 			= require('vm');
+global.__path 			= require('path');
+global.__qs				= require('querystring');
+global.Coconut2D 		= require("Coconut2D.node");
 
-module.exports.SERVER_OBJ_FOLDER = "objs";
-module.exports.CLIENT_OBJ_FOLDER = "obj";
+global.SERVER_OBJ_FOLDER = "objs";
+global.CLIENT_OBJ_FOLDER = "obj";
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Instantiate Coconut2D HTTP Server
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Attempt to load user HTTP server implementation
+var server = null;
+
 if(Coconut2D.fileExists('./objs/Server.jobj'))
 {
 	var module = require('./objs/Server.jobj');
@@ -79,7 +95,7 @@ else if(Coconut2D.fileExists('./objs/HTTPServer.jobj'))
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-function rawStringToBuffer(str)
+global.StringToArrayBuffer = function(str)
 {
     var idx, len = str.length, arr = new Array(len);
     for(idx=0; idx<len; ++idx)
@@ -90,7 +106,7 @@ function rawStringToBuffer(str)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-function toArrayBuffer(buffer)
+global.BufferToArrayBuffer = function(buffer)
 {
     var ab = new ArrayBuffer(buffer.length);
     var view = new Uint8Array(ab);
@@ -104,7 +120,7 @@ function toArrayBuffer(buffer)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Instantiate Node.JS HTTP Server
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-http.createServer( function(request, response)
+require('http').createServer( function(request, response)
 {
     if(request.method == 'POST')
     {
@@ -126,13 +142,13 @@ http.createServer( function(request, response)
         	if(body.indexOf(sig)==0)
         	{
         		var buff = new Buffer(body.substr(sig.length), "base64");
-        		request.__arrayBuffer = toArrayBuffer(buff);
+        		request.__arrayBuffer = BufferToArrayBuffer(buff);
         		delete buff;
         	}
         	else
         	{
         		request.__body = body;
-            	request.__arrayBuffer = rawStringToBuffer(body);
+            	request.__arrayBuffer = body.toArrayBuffer();
         	}
             server.handle(request, response);
         });
