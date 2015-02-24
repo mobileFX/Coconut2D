@@ -161,13 +161,31 @@ export class ASPDictionary
 	{
 		if(req.__query)
 		{
-			var qs:NodeJS_QueryString = require("querystring");
 			var pairs:Array<String> = req.__query.split("&");
 			for(var i:Integer=0; i<pairs.size(); i++)
 			{
 				var item:Array<String> = pairs[i].split("=");
-				var key:String = qs.unescape(item[0]);
-				var value:String = qs.unescape(item[1]);
+				var key:String = __qs.unescape(item[0]);
+				var value:String = __qs.unescape(item[1]);
+				Add(key, value);
+			}
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ParseForm(req:NodeJS_Request)
+	{
+		if(String(req.headers['content-type'])!="application/x-www-form-urlencoded")
+			return;
+
+		if(req.__body)
+		{
+			var pairs:Array<String> = req.__body.split("&");
+			for(var i:Integer=0; i<pairs.size(); i++)
+			{
+				var item:Array<String> = pairs[i].split("=");
+				var key:String = __qs.unescape(item[0]);
+				var value:String = __qs.unescape(item[1]);
 				Add(key, value);
 			}
 		}
@@ -407,8 +425,9 @@ export class ASPRequest
 	private reference var req:NodeJS_Request;
 
 	public var Cookies:ASPDictionary;
-	public var Form:ASPDictionary;
 
+
+	private var m_Form:ASPDictionary;
 	private var m_QueryString:ASPDictionary;
 	private var m_ServerVariables:ASPDictionary;
 
@@ -417,10 +436,11 @@ export class ASPRequest
 	{
 		this.req 			= req;
 		Cookies				= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_COOKIES);
-		Form 				= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_FORM);
+		m_Form 				= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_FORM);
 		m_QueryString 		= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_QUERY_STRING);
 		m_ServerVariables 	= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_SERVER_VARS);
 
+		m_Form.ParseForm(req);
 		m_QueryString.ParseQueryString(req);
 		m_ServerVariables.ParseServerVariables(req);
 	}
@@ -429,7 +449,7 @@ export class ASPRequest
 	public function Destructor()
 	{
 		delete Cookies;
-		delete Form;
+		delete m_Form;
 		delete m_QueryString;
 		delete m_ServerVariables;
 	}
@@ -453,6 +473,13 @@ export class ASPRequest
 	public function BinaryRead(count:Integer):ArrayBuffer
 	{
 		return req.__arrayBuffer;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Form(key:String):String
+	{
+		if(m_Form.Exists(key))
+			return m_Form.Item(key);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -940,7 +967,7 @@ export class ASPProcessor
 				var jsCode:String = compile(aspCode);
 
 				// Save compiled ASP Page
-				__fs.writeFileSync(compiledFile, jsCode);
+				//__fs.writeFileSync(compiledFile, jsCode);
 
 				// Wrap Node.js Request and Response to ASP Request and Response.
 				var app:ASPApplication	= new ASPApplication();
@@ -964,7 +991,7 @@ export class ASPProcessor
 		}
 		catch(e:Error)
 		{
-			console.log("Error executing ASP " + AspFilePath);
+			console.log("Error executing ASP " + AspFilePath + ", " + e.toString());
 		}
 	}
 
@@ -1000,7 +1027,18 @@ export class ASPProcessor
 	         //<!--#include-->
 	        if(m.value.indexOf("#include")!=-1)
 	        {
-	            //TODO: parse include file
+	            // Extract include filename
+	            var incFileName:String = m.value;
+	            incFileName = incFileName.substr(incFileName.indexOf("\"")+1);
+	            incFileName = incFileName.substr(0, incFileName.indexOf("\""));
+				incFileName = __path.resolve(incFileName);
+				console.log("Include file: " + incFileName);
+
+				var aspCode:String = __fs.readFileSync(incFileName, "utf8");
+				var incCode:String = compile(aspCode);
+				code.push(incCode);
+
+				pos = m.index + m.length;
 	            continue;
 	        }
 

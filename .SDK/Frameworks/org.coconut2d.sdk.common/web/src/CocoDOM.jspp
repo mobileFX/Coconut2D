@@ -1,0 +1,889 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.yourcompany.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native
+#pragma export_web
+#pragma export_nodejs
+
+#module CocoDOM
+
+// ==================================================================================================================================
+//	   ______               ______      __              _
+//	  / ____/___  _________/_  __/___  / /_____  ____  (_)___  ___  _____
+//	 / /   / __ \/ ___/ __ \/ / / __ \/ //_/ _ \/ __ \/ /_  / / _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ / / / /_/ / ,< /  __/ / / / / / /_/  __/ /
+//	\____/\____/\___/\____/_/  \____/_/|_|\___/_/ /_/_/ /___/\___/_/
+//
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export enum TOKEN_KIND_ENUM
+{
+	TOKEN_EOF			= 1,
+	TOKEN_WHITESPACE	= 2,
+	TOKEN_COMMENT		= 3,
+	TOKEN_OPERATOR		= 4,
+	TOKEN_NUMBER		= 5,
+	TOKEN_STRING		= 6,
+	TOKEN_KEYWORD		= 7,
+	TOKEN_IDENTIFIER	= 8,
+	TOKEN_TEXT			= 9
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export struct TOKEN_RULE
+{
+	name:String;
+	pattern:String;
+	kind:TOKEN_KIND_ENUM;
+	rx:RegExp;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export struct TOKEN
+{
+	type:String;
+	value:String;
+	start:Integer;
+	end:Integer;
+	line_start:Integer;
+	line_end:Integer;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export class CocoTokenizer
+{
+	public var tokenRules:Array<TOKEN_RULE>;
+	public var tokenRulesPrecedence:Array<TOKEN_KIND_ENUM>;
+
+	public var source:String;
+	public var cursor:Integer;
+	public var tokenIndex:Integer;
+	public var lookahead:Integer;
+	public var scanNewlines:Boolean;
+	public var line_start:Integer;
+	public var scopeId:Integer;
+	public var tokens:Array<TOKEN>;
+
+	private reference var rxCRLF:RegExp;
+	private reference var rxCOMMENT:RegExp;
+	private reference var rxFLOAT:RegExp;
+	private reference var rxNUMBER:RegExp;
+	private reference var rxIDENTIFIER:RegExp;
+	private reference var rxSTRING:RegExp;
+
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor(source:String)
+	{
+		this.source = source;
+		cursor = 0;
+		tokenIndex = 0;
+		lookahead = 0;
+		scanNewlines = false;
+		line_start = 0;
+		scopeId = 0;
+		tokens = new Array<String>;
+		tokenRules = new Array<TOKEN_RULE>;
+
+		// Define token regognizers precedence.
+		tokenRulesPrecedence = new Array<TOKEN_KIND_ENUM>;
+		tokenRulesPrecedence.push(TOKEN_OPERATOR);
+		tokenRulesPrecedence.push(TOKEN_NUMBER);
+		tokenRulesPrecedence.push(TOKEN_STRING);
+		tokenRulesPrecedence.push(TOKEN_KEYWORD);
+		tokenRulesPrecedence.push(TOKEN_IDENTIFIER);
+		tokenRulesPrecedence.push(TOKEN_TEXT);
+
+		// Define common token rules.
+		// Typically a parser inherits from CocoTokenizer
+		// and adds language-specific token rules.
+		// See JSON Parser for more information.
+
+		AddTokenRule("EOF", 		TOKEN_EOF,			"");
+		AddTokenRule("WHITESPACE", 	TOKEN_WHITESPACE,	"^\\s+");
+		AddTokenRule("NEW_LINE",	TOKEN_WHITESPACE,	"^\\n");
+		AddTokenRule("CRLF",		TOKEN_WHITESPACE,	"^[\\n\\r]");
+		AddTokenRule("COMMENT",		TOKEN_COMMENT,		"^\\/(?:\\*(?:[\\S\\s])*?\\*\\/|\\/.*)");
+		AddTokenRule("FLOAT",		TOKEN_NUMBER, 		"^\\d+\\.(?!\\.)\\d*(?:[eE][-+]?\\d+)?|^\\d+(?:\\.\d*)?[eE][-+]?\\d+|^\\.\\d+(?:[eE][-+]?\\d+)?");
+		AddTokenRule("NUMBER",		TOKEN_NUMBER,		"^0[xX][\\da-fA-F]+|^0[0-7]*|^\\d+");
+		AddTokenRule("STRING",		TOKEN_STRING,		"^\\x22(?!\\x22)(?:\\\\.|[^\\x22])*\\x22|^\\x27(?!\\x27)(?:\\\\.|[^\\x27])*\\x27|^([\\x27\\x22]{3})((?:(?!\\1)[\\s\\S])*)\\1|^\\x22\\x22|^\\x27\\x27");
+		AddTokenRule("IDENTIFIER",	TOKEN_IDENTIFIER,	"^[a-zA-Z_$][\\w_$]*");
+
+		// We cache some frequently used regular expressions for speed.
+
+		rxCRLF			= getTokenRule("CRLF").rx;
+		rxCOMMENT       = getTokenRule("COMMENT").rx;
+		rxFLOAT         = getTokenRule("FLOAT").rx;
+		rxNUMBER        = getTokenRule("NUMBER").rx;
+		rxIDENTIFIER    = getTokenRule("IDENTIFIER").rx;
+		rxSTRING        = getTokenRule("STRING").rx;
+
+		for(var i:Integer=0; i<4; i++)
+			tokens.push(new TOKEN());
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		for(var i:Integer=tokenRules.size()-1; i>=0; i--)
+			delete tokenRules[i].rx;
+
+		delete tokenRulesPrecedence;
+		delete tokens;
+		delete tokenRules;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function AddTokenRule(name:String, kind:TOKEN_KIND_ENUM, pattern:String)
+	{
+		// All regular expressions in token rules must start with ^
+		if(pattern.size()>0 && pattern.charAt(0)!="^")
+			pattern = "^" + pattern;
+
+		var rule:TOKEN_RULE = new TOKEN_RULE;
+
+		rule.name 		= name;
+		rule.kind		= kind;
+		rule.pattern 	= pattern;
+		rule.rx 		= new RegExp(pattern);
+
+		tokenRules.push(rule);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function getTokenRule(name:String):TOKEN_RULE
+	{
+		for(var i:Integer=0; i<tokenRules.size(); i++)
+		{
+			if(tokenRules[i].name == name)
+				return tokenRules[i];
+		}
+		return null;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function get():String
+	{
+		var match:Array<String>;
+		var inp:String = input();
+		var token:TOKEN;
+
+		// Perform token look-ahead
+		while(lookahead)
+		{
+			--lookahead;
+			tokenIndex = (tokenIndex + 1) & 3;
+			token = tokens[tokenIndex];
+			if((token.type != "NEWLINE") || scanNewlines)
+			{
+				return token.type;
+			}
+		}
+
+		// Ignore whitespace and comments
+		for(;;)
+		{
+			inp = input();
+			var rx:RegExp = new RegExp(scanNewlines ? "^[ \\t]+" : "^\\s+");
+			match = rx.exec(inp);
+			if(match)
+			{
+				var spaces:String = match[0];
+				cursor += spaces.length;
+				var newlines:Array<String> = spaces.match(rxCRLF);
+				if(newlines)
+					line_start += newlines.size();
+				inp = input();
+			}
+			if(!(match = rxCOMMENT.exec(inp)))
+				break;
+			var comment:String = match[0];
+			cursor += comment.length;
+			var newlines:Array<String> = comment.match(/\n/g);
+			if(newlines)
+				line_start += newlines.size();
+		}
+
+		// Get cached token or create a new one
+		tokenIndex = (tokenIndex + 1) & 3;
+		token = tokens[tokenIndex];
+
+		// If we run out of input then end.
+		if(!inp)
+		{
+			return token.type = "END";
+		}
+
+		// Use token definition precedence and process token rule groups.
+		var matched:Boolean = false;
+		var tokendef_groups:Integer = tokenRulesPrecedence.size();
+		var tokendef_rules:Integer = tokenRules.size();
+		for(var i:Integer = 0; !matched && i<tokendef_groups; i++)
+		{
+			var filter:TOKEN_KIND_ENUM = tokenRulesPrecedence[i];
+
+			for(var j:Integer = 0; j<tokendef_rules; j++)
+			{
+				var token_rule:TOKEN_RULE = tokenRules[j];
+				if(token_rule.kind!=filter) continue;
+
+				// Process token definition rule against current input.
+
+				if((match = token_rule.rx.exec(inp)))
+				{
+					token.type = token_rule.name;
+					if(token.type=="STRING")
+						token.value = match[0].substr(1, match[0].size()-2);
+					else
+						token.value = match[0];
+					matched = true;
+					break;
+				}
+			}
+		}
+
+		if(!matched)
+		{
+			if(scanNewlines && (match = rxCRLF.exec(inp)))
+			{
+				token.type = "NEWLINE";
+			}
+			else
+			{
+				throw "Illegal token";
+			}
+		}
+
+		token.start = cursor;
+		cursor += match[0].size();
+		token.end = cursor;
+		token.line_start = line_start;
+		token.line_end = line_start;
+
+		return token.type;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function parse():CocoDOMDocument
+	{
+		return null;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function NewScopeId():Integer
+	{
+		return (++scopeId);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function ScopeId():Integer
+	{
+		return (scopeId);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function input():String
+	{
+		return source.substring(cursor);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function done():Boolean
+	{
+		return peek() == "";
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function token():TOKEN
+	{
+		return tokens[tokenIndex];
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function match(tt:String):Boolean
+	{
+		if(get()==tt) return true;
+		unget();
+		return false;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function mustMatch(tt:String):TOKEN
+	{
+		if(!match(tt))
+			throw "Missing " + tt;
+		return token();
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function peek():String
+	{
+		var tt:String;
+		var next:TOKEN;
+		if(lookahead)
+		{
+			next = tokens[(tokenIndex + lookahead) & 3];
+			if(scanNewlines && next.line_start != line_start)
+				tt = "NEWLINE";
+			else
+				tt = next.type;
+		}
+		else
+		{
+			tt = get();
+			unget();
+		}
+		return tt;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function peekOnSameLine():String
+	{
+		scanNewlines = true;
+		var tt:String = peek();
+		scanNewlines = false;
+		return tt;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function unget()
+	{
+		if(++lookahead == 4) throw "PANIC: too much lookahead!";
+		tokenIndex = (tokenIndex - 1) & 3;
+	}
+};
+
+// ==================================================================================================================================
+//	   ______                     _______ ____  _   ______
+//	  / ____/___  _________      / / ___// __ \/ | / / __ \____ ______________  _____
+//	 / /   / __ \/ ___/ __ \__  / /\__ \/ / / /  |/ / /_/ / __ `/ ___/ ___/ _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ / /_/ /___/ / /_/ / /|  / ____/ /_/ / /  (__  )  __/ /
+//	\____/\____/\___/\____/\____//____/\____/_/ |_/_/    \__,_/_/  /____/\___/_/
+//
+// ==================================================================================================================================
+
+export class CocoJSONParser : CocoTokenizer
+{
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor(source:String) : CocoTokenizer(source)
+	{
+		// JSON needs the additional token rules:
+
+		AddTokenRule("COLON",			TOKEN_OPERATOR,		"^:");
+		AddTokenRule("COMMA",			TOKEN_OPERATOR,		"^,");
+		AddTokenRule("LEFT_BRACKET",	TOKEN_OPERATOR,		"^\\[");
+		AddTokenRule("LEFT_CURLY",		TOKEN_OPERATOR,		"^\\{");
+		AddTokenRule("RIGHT_BRACKET",	TOKEN_OPERATOR,		"^\\]");
+		AddTokenRule("RIGHT_CURLY",		TOKEN_OPERATOR,		"^\\}");
+		AddTokenRule("NULL",			TOKEN_KEYWORD,		"^null");
+		AddTokenRule("TRUE",			TOKEN_KEYWORD,		"^true");
+		AddTokenRule("FALSE",			TOKEN_KEYWORD,		"^false");
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function parse():CocoDOMDocument
+	{
+		super.parse;
+		var doc:CocoDOMDocument = new CocoDOMDocument();
+		parse_object(doc);
+		doc.root = doc;
+		return doc;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function parse_object(p:CocoDOMNode)
+	{
+		p.setAttribute("vt", "object");
+		mustMatch("LEFT_CURLY");
+		for(;;)
+		{
+			var tt:String = peek();
+			if(tt=="RIGHT_CURLY") break;
+
+			mustMatch("STRING");
+			var nodeName:String = token().value;
+			var n:CocoDOMNode = new CocoDOMNode(nodeName);
+
+			mustMatch("COLON");
+
+			parse_value(n);
+			p.appendChild(n);
+
+			if(peek()!="COMMA")	break;
+			mustMatch("COMMA");
+		}
+		mustMatch("RIGHT_CURLY");
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function parse_array(p:CocoDOMNode)
+	{
+		p.setAttribute("vt", "array");
+		mustMatch("LEFT_BRACKET");
+		for(var i:Integer;;i++)
+		{
+			var tt:String = peek();
+			if(tt=="RIGHT_BRACKET") break;
+
+			var n:CocoDOMNode = new CocoDOMNode(String(i));
+			parse_value(n);
+			p.appendChild(n);
+
+			if(peek()!="COMMA")	break;
+			mustMatch("COMMA");
+		}
+		mustMatch("RIGHT_BRACKET");
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function parse_value(p:CocoDOMNode)
+	{
+		var tt:String = get();
+		if(tt=="STRING")
+		{
+			p.nodeValue = token().value;
+			p.setAttribute("vt", "string");
+		}
+		else if(tt=="TRUE")
+		{
+			p.nodeValue = "true";
+			p.setAttribute("vt", "boolean");
+		}
+		else if(tt=="FALSE")
+		{
+			p.nodeValue = "false";
+			p.setAttribute("vt", "boolean");
+		}
+		else if(tt=="FLOAT")
+		{
+			p.nodeValue = token().value;
+			p.setAttribute("vt", "float");
+		}
+		else if(tt=="NUMBER")
+		{
+			p.nodeValue = token().value;
+			p.setAttribute("vt", "number");
+		}
+		else if(tt=="NULL")
+		{
+			p.nodeValue = "null";
+			p.setAttribute("vt", "null");
+		}
+		else if(tt=="LEFT_CURLY")
+		{
+			unget();
+			parse_object(p);
+		}
+		else if(tt=="LEFT_BRACKET")
+		{
+			unget();
+			parse_array(p);
+		}
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                _  __ __  _____    ____
+//	  / ____/___  _________ | |/ //  |/  / /   / __ \____ ______________  _____
+//	 / /   / __ \/ ___/ __ \|   // /|_/ / /   / /_/ / __ `/ ___/ ___/ _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ /   |/ /  / / /___/ ____/ /_/ / /  (__  )  __/ /
+//	\____/\____/\___/\____/_/|_/_/  /_/_____/_/    \__,_/_/  /____/\___/_/
+//
+// ==================================================================================================================================
+
+export class CocoXMLParser : CocoTokenizer
+{
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor(source:String) : CocoTokenizer(source)
+	{
+		AddTokenRule("OPEN_CDATA",			TOKEN_OPERATOR,		"^<\\!\\[CDATA\\[");
+		AddTokenRule("CLOSE_CDATA",			TOKEN_OPERATOR,		"^\\]\\]>");
+		AddTokenRule("CLOSING_TAG",			TOKEN_OPERATOR,		"^<\\/");
+		AddTokenRule("PI_OPEN",				TOKEN_OPERATOR,		"^<\\?xml");
+		AddTokenRule("PI_CLOSE",			TOKEN_OPERATOR,		"^\\?>");
+		AddTokenRule("TAG_OPEN",			TOKEN_OPERATOR,		"^<");
+		AddTokenRule("TAG_CLOSE",			TOKEN_OPERATOR,		"^>");
+		AddTokenRule("EQ",					TOKEN_OPERATOR,		"^=");
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function parse():CocoDOMDocument
+	{
+		super.parse;
+		var doc:CocoDOMDocument = new CocoDOMDocument();
+		doc.root = parse_tag(null);
+		return doc;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function parse_tag(p:CocoDOMNode):CocoDOMNode
+	{
+		var n:CocoDOMNode = null;
+		var tt:String = peek();
+
+		// Match a processing instruction
+		// =======================================================
+
+		if(tt=="PI_OPEN")
+		{
+			mustMatch("PI_OPEN");
+			n = new CocoDOMNode("?");
+			tt = peek();
+			while(tt=="IDENTIFIER")
+			{
+				mustMatch("IDENTIFIER");
+				var attrName:String = token().value;
+				mustMatch("EQ");
+				mustMatch("STRING");
+				var attrValue:String = token().value;
+				n.setAttribute(attrName, attrValue);
+				tt = peek();
+			}
+			mustMatch("PI_CLOSE");
+		}
+
+
+		// Match a tag and attributes, eg. <DIV style="color:red">
+		// =======================================================
+
+		mustMatch("TAG_OPEN");
+		mustMatch("IDENTIFIER");
+		var tagName:String= token().value;
+		n = new CocoDOMNode(tagName);
+		tt = peek();
+		while(tt=="IDENTIFIER")
+		{
+			mustMatch("IDENTIFIER");
+			var attrName:String = token().value;
+			mustMatch("EQ");
+			mustMatch("STRING");
+			var attrValue:String = token().value;
+			n.setAttribute(attrName, attrValue);
+			tt = peek();
+		}
+		mustMatch("TAG_CLOSE");
+		var tag_end:Integer = token().end;
+
+		// Match tag body
+		// =======================================================
+
+		tt = peek();
+
+		// Is it a <![CDATA[]]> section?
+		if(tt=="OPEN_CDATA")
+		{
+			mustMatch("OPEN_CDATA");
+			var i:Integer = token().end;
+			while(get()!="CLOSE_CDATA");
+			n.nodeValue = source.substr(i, cursor-i);
+		}
+
+		// Is it a closing tag?
+		else if(tt=="CLOSING_TAG")
+		{
+		}
+
+		// Is it an inner node?
+		else if(tt=="TAG_OPEN")
+		{
+			while(tt=="TAG_OPEN")
+			{
+				parse_tag(n);
+				tt = peek();
+			}
+		}
+
+		// Capture inner text
+		else
+		{
+			while(input().charAt(0)!="<")
+				cursor++;
+			n.nodeValue = source.substr(tag_end, cursor-tag_end);
+			tokenIndex=0;
+			lookahead=0;
+		}
+
+		// Closing tag
+		mustMatch("CLOSING_TAG");
+		mustMatch("IDENTIFIER");
+		if(token().value!=tagName)
+			throw "Invalid XML syntax";
+		mustMatch("TAG_CLOSE");
+
+		if(p)
+			p.appendChild(n);
+
+		return n;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______               _    __           _             __
+//	  / ____/___  _________| |  / /___ ______(_)___ _____  / /_
+//	 / /   / __ \/ ___/ __ \ | / / __ `/ ___/ / __ `/ __ \/ __/
+//	/ /___/ /_/ / /__/ /_/ / |/ / /_/ / /  / / /_/ / / / / /_
+//	\____/\____/\___/\____/|___/\__,_/_/  /_/\__,_/_/ /_/\__/
+//
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export enum COCO_VARTYPE
+{
+	CVT_UNKNOWN		= 0,
+	CVT_EMPTY		= 1,
+	CVT_NULL		= 2,
+	CVT_INTEGER		= 4,
+	CVT_FLOAT		= 8,
+	CVT_TIME		= 16,
+	CVT_DATE		= 32,
+	CVT_STRING		= 64,
+	CVT_BOOLEAN		= 128,
+	CVT_OBJECT		= 1024,
+	CVT_ARRAY		= 2048
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export struct CocoVariant
+{
+	vt:COCO_VARTYPE;
+	iVal:Integer;
+	fVal:Float;
+	tVal:Time;
+	dVal:Date;
+	sVal:String;
+	bVal:Boolean;
+	oVal:Object;
+	aiVal:Array<Integer>;
+	afVal:Array<Float>;
+	atVal:Array<Time>;
+	adVal:Array<Date>;
+	asVal:Array<String>;
+	abVal:Array<Boolean>;
+	aoVal:Array<Object>;
+}
+
+// ==================================================================================================================================
+//	   ______                 ____  ____  __  _______                                        __
+//	  / ____/___  _________  / __ \/ __ \/  |/  / __ \____  _______  ______ ___  ___  ____  / /_
+//	 / /   / __ \/ ___/ __ \/ / / / / / / /|_/ / / / / __ \/ ___/ / / / __ `__ \/ _ \/ __ \/ __/
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /  / / /_/ / /_/ / /__/ /_/ / / / / / /  __/ / / / /_
+//	\____/\____/\___/\____/_____/\____/_/  /_/_____/\____/\___/\__,_/_/ /_/ /_/\___/_/ /_/\__/
+//
+// ==================================================================================================================================
+
+export class CocoDOMDocument : CocoDOMNode
+{
+	public var root:CocoDOMNode;
+
+	private var out:Array<String>;
+
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor() : CocoDOMNode("document")
+	{
+		out = null;
+		root = null;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		if(this!=root)
+			delete root;
+
+		delete out;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function selectSingleNode(xPath:String):CocoDOMNode
+	{
+		return null;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function selectNodes(xPath:String):Array<CocoDOMNode>
+	{
+		return new Array<CocoDOMNode>;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function toXML():String
+	{
+		out = new Array<String>;
+		out.push("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+		nodeXML(root, 0);
+		var buff:String = out.join("");
+		delete out;
+		return buff;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function nodeXML(n:CocoDOMNode, tabs:Integer)
+	{
+		var nodeName:String = n.nodeName;
+		if(isFinite(parseInt(nodeName)))
+		{
+			n.setAttribute("id", nodeName);
+			nodeName = "item";
+		}
+
+		var A:Integer = n.attributes.size();
+		var L:Integer = n.children.size();
+		var i:Integer;
+		var t:String = "";
+		var attrs:String = "";
+
+		for(i=0;i<A;i++)
+			attrs += " " + n.attributes[i].name + "=\"" + n.attributes[i].value + "\"";
+
+		for(i=0; i<tabs; i++) { t += "\t"; }
+		if(L>0)
+		{
+			out.push(t+"<"+nodeName+attrs+">\n");
+			for(var i:Integer = 0; i<L; i++)
+				nodeXML(n.children[i], tabs+1);
+			out.push(t+"</"+nodeName+">\n");
+		}
+		else if(n.nodeValue!="")
+		{
+			out.push(t+"<"+nodeName+attrs+">" + n.nodeValue + "</"+nodeName+">\n");
+		}
+		else
+		{
+			out.push(t+"<"+nodeName+attrs+"/>\n");
+		}
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____  ____  __  ____   __          __
+//	  / ____/___  _________  / __ \/ __ \/  |/  / | / /___  ____/ /__
+//	 / /   / __ \/ ___/ __ \/ / / / / / / /|_/ /  |/ / __ \/ __  / _ \
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /  / / /|  / /_/ / /_/ /  __/
+//	\____/\____/\___/\____/_____/\____/_/  /_/_/ |_/\____/\__,_/\___/
+//
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export struct CocoDOMAttribute
+{
+	name:String;
+	value:String;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export class CocoDOMNode
+{
+	public var nodeName:String;
+	public var nodeValue:String;
+	public var children:Array<CocoDOMNode>;
+	public var attributes:Array<CocoDOMAttribute>;
+
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor(name:String)
+	{
+		nodeName = name;
+		nodeValue = "null";
+		children = new Array<CocoDOMNode>;
+		attributes = new Array<CocoDOMAttribute>;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete[] children;
+		delete[] attributes;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function appendChild(node:CocoDOMNode):CocoDOMNode
+	{
+		var L:Integer = children.size();
+		for(var i:Integer = 0; i<L; i++)
+		{
+			if(children[i] == node)
+			{
+				return node;
+			}
+		}
+		children.push(node);
+		return node;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function removeChild(node:CocoDOMNode):CocoDOMNode
+	{
+		var L:Integer = children.size();
+		for(var i:Integer = 0; i<L; i++)
+		{
+			if(children[i] == node)
+			{
+				children.splice(i,1);
+				return node;
+			}
+		}
+		return null;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function setAttribute(name:String, value:String)
+	{
+		var L:Integer = attributes.size();
+		for(var i:Integer = 0; i<L; i++)
+		{
+			if(attributes[i].name == name)
+			{
+				attributes[i].value = value;
+				return;
+			}
+		}
+		var attr:CocoDOMAttribute = new CocoDOMAttribute();
+		attr.name = name;
+		attr.value = value;
+		attributes.push(attr);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function getAttribute(name:String):String
+	{
+		var L:Integer = attributes.size();
+		for(var i:Integer = 0; i<L; i++)
+		{
+			if(attributes[i].name == name)
+			{
+				return attributes[i].value
+			}
+		}
+		return "";
+	}
+}

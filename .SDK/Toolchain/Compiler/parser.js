@@ -2705,6 +2705,16 @@ function __init_narcissus(GLOBAL)
 				break;
 
 			case jsdef.DELETE:
+				if(t.peek()==jsdef.LEFT_BRACKET)
+				{
+					var nd = new Node(t);
+					nd.delete_array=true;
+					t.mustMatch(jsdef.LEFT_BRACKET);
+					t.mustMatch(jsdef.RIGHT_BRACKET);
+					operators.push(nd);
+					break;
+				}
+
 			case jsdef.VOID:
 			case jsdef.TYPEOF:
 			case jsdef.NOT:

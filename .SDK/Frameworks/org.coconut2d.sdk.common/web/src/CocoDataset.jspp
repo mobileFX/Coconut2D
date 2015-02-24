@@ -676,23 +676,23 @@ export class CocoDataField
 	public function toJSON():String
 	{
 		var s:String = "{";
-		s += "\"ORDINAL\":\"" 				+ String(ORDINAL)				+ "\"";
-		s += ",\"ID\":\""					+ String(ID)                    + "\"";
-		s += ",\"NAME\":\""					+ String(NAME)                  + "\"";
-		s += ",\"BASECOLUMNNAME\":\""		+ String(BASECOLUMNNAME)        + "\"";
-		s += ",\"BASETABLENAME\":\""		+ String(BASETABLENAME)         + "\"";
-		s += ",\"TYPE\":\""					+ String(TYPE)                  + "\"";
-		s += ",\"LCID\":\""					+ String(LCID)                  + "\"";
-		s += ",\"PRECISION\":\""			+ String(PRECISION)             + "\"";
-		s += ",\"SCALE\":\""				+ String(SCALE)                 + "\"";
-		s += ",\"SIZE\":\""					+ String(SIZE)                  + "\"";
-		s += ",\"LENGTH\":\""				+ String(LENGTH)                + "\"";
-		s += ",\"FLAGS\":\""				+ String(FLAGS)                 + "\"";
-		s += ",\"SQLITE_DATATYPE\":\""		+ String(SQLITE_DATATYPE)       + "\"";
-		s += ",\"SQLITE_DECLARED_TYPE\":\""	+ String(SQLITE_DECLARED_TYPE)  + "\"";
-		s += ",\"SQLITE_PK_COLUMN\":\""		+ String(SQLITE_PK_COLUMN)      + "\"";
-		s += ",\"SQLITE_PK_TABLE\":\""		+ String(SQLITE_PK_TABLE)       + "\"";
-		s += ",\"DEFAULTVALUE\":\""			+ String(DEFAULTVALUE)          + "\"";
+		s += "\"ORDINAL\":\"" 				+ String(ORDINAL)					+ "\"";
+		s += ",\"ID\":\""					+ String(ID)                    	+ "\"";
+		s += ",\"NAME\":\""					+ String(NAME)                  	+ "\"";
+		s += ",\"BASECOLUMNNAME\":\""		+ String(BASECOLUMNNAME)        	+ "\"";
+		s += ",\"BASETABLENAME\":\""		+ String(BASETABLENAME)         	+ "\"";
+		s += ",\"TYPE\":\""					+ String(Integer(TYPE))             + "\"";
+		s += ",\"LCID\":\""					+ String(LCID)                  	+ "\"";
+		s += ",\"PRECISION\":\""			+ String(PRECISION)             	+ "\"";
+		s += ",\"SCALE\":\""				+ String(SCALE)                 	+ "\"";
+		s += ",\"SIZE\":\""					+ String(SIZE)                  	+ "\"";
+		s += ",\"LENGTH\":\""				+ String(LENGTH)                	+ "\"";
+		s += ",\"FLAGS\":\""				+ String(Integer(FLAGS))        	+ "\"";
+		s += ",\"SQLITE_DATATYPE\":\""		+ String(Integer(SQLITE_DATATYPE))  + "\"";
+		s += ",\"SQLITE_DECLARED_TYPE\":\""	+ String(SQLITE_DECLARED_TYPE)  	+ "\"";
+		s += ",\"SQLITE_PK_COLUMN\":\""		+ String(SQLITE_PK_COLUMN)      	+ "\"";
+		s += ",\"SQLITE_PK_TABLE\":\""		+ String(SQLITE_PK_TABLE)       	+ "\"";
+		s += ",\"DEFAULTVALUE\":\""			+ String(DEFAULTVALUE)          	+ "\"";
 		s += "}";
 		return s;
 	}
@@ -727,6 +727,30 @@ export class CocoDataField
 			}
 			throw "Invalid Record";
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function intValue():Integer
+	{
+		return parseInt(value);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function boolValue():Boolean
+	{
+		return parseInt(value)==0 ? false : true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function floatValue():Float
+	{
+		return parseFloat(value);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function timeValue():Time
+	{
+		return Time(parseFloat(value));
 	}
 }
 
@@ -802,7 +826,7 @@ export class CocoDataRow
 		{
 			t.push("\"" + FieldValues[i] + "\"");
 		}
-		var s:String = "{\"STATUS\":" + String(STATUS) + ", \"DATA\":[" + t.join(",") + "]}";
+		var s:String = "{\"STATUS\":" + String(Integer(STATUS)) + ", \"DATA\":[" + t.join(",") + "]}";
 		delete t;
 		return s;
 	}

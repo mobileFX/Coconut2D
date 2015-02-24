@@ -28,12 +28,7 @@
 		}
 		break;
 	}
-
-%>
-
-<html>
-
-<head>
+%><html><head>
 	<title><%=title%></title>
 	<meta charset="UTF-8">
 	<script type="text/javascript" language="JavaScript" src="/js/jquery-1.11.2.js"></script>
@@ -139,7 +134,7 @@ $(window).load(function()
 			$(btnUpdateData).click(function(e)
 			{
 				window.dataset.moveFirst();
-				window.dataset.fieldByName("TEXT").value = "Λίνα";
+				window.dataset.fieldByName("TEXT").value = "Ίριδα";
 				window.dataset.updateURL("./default.asp?method=update");
 			});
 		}
@@ -147,6 +142,5 @@ $(window).load(function()
 });
 
 </script>
-
 
 </body></html>

@@ -89,17 +89,23 @@ export class HTTPServer
 		// Log request URL
 		console.log("Request URL: " + req.url);
 
-		// If file does not exist end the response.
-		if(!Coconut2D.fileExists(req.__file))
-		{
-			res.statusCode = 404;
-			res.end();
-			return;
-		}
-
 		// Handle ASP pages
 		if(req.__ext==".asp")
 		{
+
+			// *** DISABLE THIS CODE ON RELEASE MODE ***
+			// NASTY DEVELOPMENT HACK!! If an .asp file does not exists it is created on requrest
+			if(!Coconut2D.fileExists(req.__file))
+				__fs.writeFileSync(req.__file, "<!--#include file=\"header.asp\"-->\n\n<!--#include file=\"footer.asp\"-->\n", "utf8");
+
+			// If file does not exist end the response.
+			if(!Coconut2D.fileExists(req.__file))
+			{
+				res.statusCode = 404;
+				res.end();
+				return;
+			}
+
 			// Create an ASP processor, parse and execute the file.
 			var server:ASPProcessor = new ASP.ASPProcessor();
 			server.run(req.__file, req, res);
@@ -110,6 +116,14 @@ export class HTTPServer
 		// Handle all other mime types
 		else
 		{
+			// If file does not exist end the response.
+			if(!Coconut2D.fileExists(req.__file))
+			{
+				res.statusCode = 404;
+				res.end();
+				return;
+			}
+
 			if(MIME.hasOwnProperty(req.__ext))
 			{
 				// Write content-type response header

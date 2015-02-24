@@ -3081,6 +3081,15 @@ function Compiler(ast, target, output_path)
 						case "Integer":
 							paramListInits.push(param.name+"=Math.round("+param.name+");");
 							break;
+
+						case "Float":
+						case "Time":
+							paramListInits.push(param.name+"=parseFloat("+param.name+");");
+							break;
+
+						case "String":
+							paramListInits.push(param.name+"=String("+param.name+");");
+							break;
 						}
 					}
 				}
@@ -4137,6 +4146,7 @@ function Compiler(ast, target, output_path)
 
 		case jsdef.ENUM:
 
+			var currScope = _this.getCurrentScope();
 			var scope = _this.NewScope(ast);
 			var classId = "__CLASS__" + ast.name.toUpperCase() + "__";
 
@@ -4202,6 +4212,7 @@ function Compiler(ast, target, output_path)
 				out.push("var " + ast.name + " = {");
 			}
 
+			var enum_items_out = [];
 			var firstItem = true;
 			for(item in ast)
 			{
@@ -4244,18 +4255,30 @@ function Compiler(ast, target, output_path)
 					varSymbol.icon			= _this.CODE_SYMBOLS_ENUM.SYMBOL_ENUM_ITEM;
 					varSymbol.modifier 		= "public";
 
-					if(varSymbol.public)			varSymbol.runtime = "this." + ast.name + "." + varSymbol.name;
-					else if(varSymbol.private)		varSymbol.runtime = "this.__PRIVATE__." + ast.name + "." + varSymbol.name;
-					else if(varSymbol.protected)	varSymbol.runtime = "this.__PROTECTED__." + ast.name + "." + varSymbol.name;
-					else							varSymbol.runtime = ast.name + "." + varSymbol.name;
+					if(_this.currClassName)
+					{
+						if(varSymbol.public)			varSymbol.runtime = "this." + ast.name + "." + varSymbol.name;
+						else if(varSymbol.private)		varSymbol.runtime = "this.__PRIVATE__." + ast.name + "." + varSymbol.name;
+						else if(varSymbol.protected)	varSymbol.runtime = "this.__PROTECTED__." + ast.name + "." + varSymbol.name;
+						else							varSymbol.runtime = ast.name + "." + varSymbol.name;
+					}
+					else
+					{
+						varSymbol.runtime = ast.name + "." + varSymbol.name;
+					}
 				}
+
 				classSymbol.vars[varSymbol.name] = varSymbol;
+				currScope.vars[varSymbol.name] = varSymbol;
 
 				if(!firstItem) out.push(", ");
 				out.push(ast[item].name + ":" + ast[item].value);
 				firstItem = false;
+
+				enum_items_out.push("var " + varSymbol.name + " = " + varSymbol.value + ";");
 			}
 			out.push("};");
+			out.push(enum_items_out.join("\n"));
 
 			if(_this.secondPass && !_this.currClassName)
 			{
@@ -5619,15 +5642,19 @@ function Compiler(ast, target, output_path)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DELETE:
 			var expr = generate(ast[0]);
-			if(_this.currClassName && _this.secondPass)// && ast[0].symbol)
+			if(_this.currClassName && _this.secondPass)
 			{
 				out.push("{");
-				/*
-				if(ast[0].symbol.subtype && _this.isPointer(ast[0].symbol.subtype))
+
+				// If deleting array, we delete children one by one
+				if(ast.delete_array)
 				{
-					out.push("(function(o){if(!o) return;for(var i=o.length;i--;){o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);o[i]=null;}})(" + expr + ");");
+					if(ast[0].symbol && ast[0].symbol.subtype && _this.isPointer(ast[0].symbol.subtype))
+					{
+						out.push("(function(o){if(!o) return;for(var i=o.length;i--;){o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);o[i]=null;}})(" + expr + ");");
+					}
 				}
-				*/
+
 				out.push("$ && (($.hasOwnProperty('Destructor') && $.Destructor()) || !$.hasOwnProperty('Destructor')) && (delete $);$=null".replace(new RegExp("\\$", "g"), expr));
 				out.push("}");
 			}

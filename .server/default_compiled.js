@@ -1,4 +1,4 @@
-
+﻿
 var title = "Classic Active Server Page";
 
 	switch(Request.QueryString("method"))
@@ -124,7 +124,7 @@ Response.Write(String("$(data).html(html.join(\"\\n\"));\n"));
 Response.Write(String("$(btnUpdateData).click(function(e)\n"));
 Response.Write(String("{\n"));
 Response.Write(String("window.dataset.moveFirst();\n"));
-Response.Write(String("window.dataset.fieldByName(\"TEXT\").value = \"Λίνα\";\n"));
+Response.Write(String("window.dataset.fieldByName(\"TEXT\").value = \"Ίριδα\";\n"));
 Response.Write(String("window.dataset.updateURL(\"./default.asp?method=update\");\n"));
 Response.Write(String("});\n"));
 Response.Write(String("}\n"));

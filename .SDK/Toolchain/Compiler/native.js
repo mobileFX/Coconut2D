@@ -1432,7 +1432,7 @@ function CompilerCppPlugin(compiler)
 
 			var gen0 = generate_cpp(ast[0]).CPP;
 
-			if(_this.secondPass && ast[1].value=="toJSON" && _this.getClass(ast[0].symbol.vartype).struct)
+			if(_this.secondPass && ast[1].value=="toJSON" && ast[0].symbol && _this.getClass(ast[0].symbol.vartype).struct)
 			{
 			 	var cls = _this.getClass(ast[0].symbol.vartype);
 			 	var jsonExpr = ['"{"'];

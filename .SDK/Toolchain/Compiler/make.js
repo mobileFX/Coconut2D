@@ -119,7 +119,7 @@ function CocoMake(command , params)
 	  		_this.closure();
 
 	  		// Client-side Framework may be compiled and used by HTML5 pages.
-	  		if(TARGET.TARGET_CLIENT_FRAMEWORKS)
+	  		if(TARGET.TARGET_CLIENT_FRAMEWORKS && makefile.Config.TARGETS["HTML5"])
 	  		{
 	  			trace("\nCompiling Client Frameworks ...");
 	  			var code = _this.getSourceCode(TARGET.TARGET_ROOT, null, undefined, undefined, TARGET.TARGET_CLIENT_FRAMEWORKS, "HTML5");
