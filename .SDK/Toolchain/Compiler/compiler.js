@@ -1851,16 +1851,20 @@ function Compiler(ast, target, output_path)
 					varSymbol.runtime 		= classId + "." + ast[item].name;
 				}
 
-	            if(ast[item].vartype == "Array" && !ast[item].subtype)
-	            	_this.NewError("Untyped Array " + ast[item].name, ast[item]);
+	            if(_this.secondPass)
+	            {
+		            if(ast[item].vartype == "Array" && !ast[item].subtype)
+		            	_this.NewError("Untyped Array " + ast[item].name, ast[item]);
 
-				// Detect if identifier vartype is a typed array and get subtype.
-				if(!varSymbol.subtype && varSymbol.vartype)
-				{
-					var vtcls = _this.getClass(varSymbol.vartype);
-					if(vtcls && vtcls.subtype)
+		            var vtcls = _this.getClass(varSymbol.vartype);
+		            if(!vtcls)
+		            	_this.NewError("Invalid type specifier: " + varSymbol.vartype, ast[item]);
+
+					// Detect if identifier vartype is a typed array and get subtype.
+					if(!varSymbol.subtype && varSymbol.vartype && vtcls && vtcls.subtype)
 						varSymbol.subtype = vtcls.subtype;
-				}
+	            }
+
 
 	            // Save var in scopes
 				ast[item].symbol = varSymbol;
@@ -5686,7 +5690,11 @@ function Compiler(ast, target, output_path)
 			{
 				var items = [];
 				for(item in ast[0].symbol.vars)
-					items.push(ast[0].symbol.vars[item].name + ":null");
+				{
+					var vartype = ast[0].symbol.vars[item].vartype;
+					var def = (_this.types[vartype] ? _this.types[vartype].default : "null");;
+					items.push(ast[0].symbol.vars[item].name + ":" + def);
+				}
 				out.push("{" + items.join(",") + "}");
 			}
 			else

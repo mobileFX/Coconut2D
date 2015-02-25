@@ -50,7 +50,7 @@ function CompilerTypeSystemPlugin(compiler)
 		"Float"		: { "default": "0" },
 		"Integer"	: { "default": "0" },
 		"Object"	: { "default": "{}" },
-		"RegExp"	: { "default": "/(?:)/" },
+		"RegExp"	: { "default": "null" },
 		"String"	: { "default": '""' }
 	};
 

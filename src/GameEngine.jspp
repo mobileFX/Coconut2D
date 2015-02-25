@@ -61,15 +61,24 @@ state class GameEngine : CocoEngine
 
 		function enter()
 		{
+			var js:CocoJSONParser = new CocoJSONParser();
+			var doc:CocoDOMDocument = js.parse("{\"person\": { \"address\": { \"city\": \"Anytown\", \"postalCode\": \"98765-4321\", \"state\": \"CA\", \"street\": \"12345 Sixth Ave\", \"type\": \"home\" }, \"created\": \"2006-11-11T19:23\", \"firstName\": \"Robert\", \"lastName\": \"Smith\", \"modified\": \"2006-12-31T23:59\", \"array_test\": [ 0, 1, 2, 3.14, \"5\", true, false, null, { \"6\" : \"7\" } ] }}");
 
-			var js:CocoJSONParser = new CocoJSONParser("{\"person\": { \"address\": { \"city\": \"Anytown\", \"postalCode\": \"98765-4321\", \"state\": \"CA\", \"street\": \"12345 Sixth Ave\", \"type\": \"home\" }, \"created\": \"2006-11-11T19:23\", \"firstName\": \"Robert\", \"lastName\": \"Smith\", \"modified\": \"2006-12-31T23:59\", \"array_test\": [ 0, 1, 2, 3.14, \"5\", true, false, null, { \"6\" : \"7\" } ] }}");
-			var doc:CocoDOMDocument = js.parse();
 			trace(doc.toXML());
-			var xml:CocoXMLParser = new CocoXMLParser(doc.toXML());
-			delete doc;
-			doc = xml.parse();
+			var xml:CocoXMLParser = new CocoXMLParser();
+			doc = xml.parse(doc.toXML());
 			trace(doc.toXML());
+			var n:CocoDOMNode = doc.selectSingleNode("//document/person/array_test/item[@vt=='boolean']");
+			var list:Array<CocoDOMNode>;
+			list = doc.selectNodes("//document/person/array_test/item[@vt=='boolean']");
+			list = doc.selectNodes("//item[@vt=='boolean']");
+			list = doc.selectNodes("//array_test/item");
+			list = doc.selectNodes("//item");
+			delete list;
 			delete doc;
+
+			var s:String = "Test";
+			trace(md5(s));
 
 			trace("=============xxxx====================");
 			trace("Φορτώνει, παρακαλώ περιμένετε...");

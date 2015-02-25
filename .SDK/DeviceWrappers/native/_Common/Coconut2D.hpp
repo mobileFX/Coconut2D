@@ -43,6 +43,7 @@
 #define COCO_STOP_ON_CURRENT_FRAME -1
 #define NGLDEBUG
 
+//////////////////////////////////////////////////////////////////////////////////
 #ifndef M_PI
 #define M_PI				3.14159265358979323846
 #endif
@@ -73,7 +74,6 @@ extern void trace(const char* fmt, ...);
 #include <cassert>
 #include <cstring>
 #include <clocale>
-
 #include <algorithm>
 #include <stack>
 #include <string>
@@ -81,18 +81,27 @@ extern void trace(const char* fmt, ...);
 #include <vector>
 #include <map>
 
+//////////////////////////////////////////////////////////////////////////////////
+// Forward Declarations
+class CocoAssetFile;
+
+//////////////////////////////////////////////////////////////////////////////////
+// UTF8 Support for MinGW Compiler
 #include "UTF8/UTF8.hpp"
 
+//////////////////////////////////////////////////////////////////////////////////
+// C++11 additional includes
 #ifdef __CPP_0X__
 	#include <initializer_list>
 #endif
 
+//////////////////////////////////////////////////////////////////////////////////
+// UINT definition
 #if ANDROID_APPLICATION
 	#ifndef UINT
 		#define UINT unsigned int
 	#endif
 #endif
-
 #if IOS_APPLICATION
 	#ifndef UINT
 		#define UINT unsigned int
@@ -210,6 +219,15 @@ public:
 		this->push(v);
 		return this;
 	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	int indexOf(T v)
+	{
+		for(int i = 0; i < (int)size(); i++)
+			if(this->at(i)==v)
+				return i;
+		return -1;
+	}
 };
 
 // ==================================================================================================================================
@@ -298,6 +316,12 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
+	String charAt(size_t index)
+	{
+		return std::string::substr(index, 1);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
 	static String fromCharCode(int c)
 	{
 		if(c<128) return std::string(1,c);
@@ -334,6 +358,51 @@ public:
 };
 
 // ==================================================================================================================================
+//	    ____             ______
+//	   / __ \___  ____ _/ ____/  ______
+//	  / /_/ / _ \/ __ `/ __/ | |/_/ __ \
+//	 / _, _/  __/ /_/ / /____>  </ /_/ /
+//	/_/ |_|\___/\__, /_____/_/|_/ .___/
+//	           /____/          /_/
+// ==================================================================================================================================
+class RegExp
+{
+public:
+	bool global;
+	bool ignoreCase;
+	bool multiline;
+	int lastIndex;
+	String source;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	RegExp(String pattern, String flags="")
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	~RegExp()
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	void compile(String pattern, String flags="")
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+ 	Array<String>* exec(String buff)
+ 	{
+ 		return nullptr;
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	bool test(String buff)
+	{
+		return false;
+	}
+};
+
+// ==================================================================================================================================
 //	    ___                          ____        ________
 //	   /   |  ______________ ___  __/ __ )__  __/ __/ __/__  _____
 //	  / /| | / ___/ ___/ __ `/ / / / __  / / / / /_/ /_/ _ \/ ___/
@@ -341,8 +410,6 @@ public:
 //	/_/  |_/_/  /_/   \__,_/\__, /_____/\__,_/_/ /_/  \___/_/
 //	                       /____/
 // ==================================================================================================================================
-
-class CocoAssetFile;
 
 class ArrayBuffer
 {
@@ -421,6 +488,7 @@ public:
 	unsigned long length;
 	bool owner;
 
+	//////////////////////////////////////////////////////////////////////////////////
 	TypedArray(size_t size)
 	{
 		int cb = BYTES_PER_ELEMENT = sizeof(T);
@@ -432,6 +500,7 @@ public:
 		memset(buffer->data, 0, buffer->byteLength);
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
 	TypedArray(ArrayBuffer* i_buffer, size_t i_byteOffset = 0, size_t i_length = -1)
 	{
 		BYTES_PER_ELEMENT = sizeof(T);
@@ -443,6 +512,7 @@ public:
 		byteLength = length * sizeof(T);
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
 	TypedArray(Array<T>* val, bool preserve = false)
 	{
 		BYTES_PER_ELEMENT = sizeof(T);
@@ -455,16 +525,20 @@ public:
 		if(!preserve) delete val;
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
 	void set(TypedArray<T>* val, unsigned long offset = 0)
 	{
 		if(val->length + offset > this->length) return;
 		memcpy((*this->buffer)[this->byteOffset + offset * BYTES_PER_ELEMENT], (*val->buffer)[val->byteOffset], val->length * BYTES_PER_ELEMENT);
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
 	~TypedArray() { if(owner) delete buffer; }
 
+	//////////////////////////////////////////////////////////////////////////////////
 	T* get() { return reinterpret_cast<T*>(ArrayBufferView::get()); }
 
+	//////////////////////////////////////////////////////////////////////////////////
 	T& operator [](unsigned long index)
 	{
 		return get()[index];
@@ -507,6 +581,8 @@ typedef TypedArray<unsigned char> Uint8ClampedArray;
 class DataView : ArrayBufferView
 {
 public:
+
+	//////////////////////////////////////////////////////////////////////////////////
 	DataView(ArrayBuffer* i_buffer, unsigned long i_byteOffset = 0, unsigned long i_byteLength = -1)
 	{
 		buffer = i_buffer;
@@ -514,7 +590,10 @@ public:
 		byteLength = std::min(i_byteLength, buffer->byteLength);
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
 	template<class T> T* get(unsigned long offset) { return reinterpret_cast<T*>(reinterpret_cast<unsigned char*>(ArrayBufferView::get()) + offset); }
+
+	//////////////////////////////////////////////////////////////////////////////////
 	template<class T> T flip(T val, bool littleEndian)
 	{
 		#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
@@ -535,6 +614,7 @@ public:
 		return val;
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
 	char getInt8(unsigned long offset) { return *get<char>(offset); }
 	unsigned char getUint8(unsigned long offset) { return *get<unsigned char>(offset); }
 	short getInt16(unsigned long offset, bool littleEndian = false) { return flip(*get<short>(offset), littleEndian); }
@@ -544,6 +624,7 @@ public:
 	float getFloat32(unsigned long offset, bool littleEndian = false) { return flip(*get<float>(offset), littleEndian); }
 	double getFloat64(unsigned long offset, bool littleEndian = false) { return flip(*get<double>(offset), littleEndian); }
 
+	//////////////////////////////////////////////////////////////////////////////////
 	void setInt8(unsigned long offset, char val) { *get<char>(offset) = val; }
 	void setUint8(unsigned long offset, unsigned char val) { *get<unsigned char>(offset) = val; }
 	void setInt16(unsigned long offset, short val, bool littleEndian = false) { *get<short>(offset) = flip(val, littleEndian); }
@@ -573,14 +654,10 @@ class CocoEventConnectionPoint;
 class CocoEventSource;
 class CocoFont;
 class CocoFontsCache;
-class CocoJSON;
-class GameEngine;
 class HTMLVideoElement;
 class HTMLWindow;
 class IEventListener;
 class ImageData;
-class NewAnimation;
-class ReservationsForm;
 class UTF8;
 class WebGLBuffer;
 class WebGLFramebuffer;
@@ -591,13 +668,9 @@ class WebGLRenderingContext;
 class WebGLShader;
 class WebGLTexture;
 class WebGLUniformLocation;
-class XMLHttpRequest;
 struct CocoFontChar;
 struct GLEWContextStruct;
 struct GLany;
-struct STATE_DATASET_TEST;
-struct STATE_SHOW_FORM;
-struct STATE_START_APP;
 struct __GLsync;
 struct _cl_context;
 struct _cl_event;
@@ -606,7 +679,6 @@ struct fxScreen;
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
-class CocoAppController;
 class CocoAudio;
 class CocoBezier;
 class CocoClip;
@@ -623,7 +695,6 @@ class CocoEncode;
 class CocoEngine;
 class CocoEvent;
 class CocoGraphics;
-class CocoHttpRequest;
 class CocoImage;
 class CocoImageRenderData2D;
 class CocoImageRenderDataGL;
@@ -653,23 +724,14 @@ class CocoTextStyle;
 class CocoTimeLabel;
 class CocoTimeline;
 class CocoTokenizer;
-class CocoUIButton;
-class CocoUICheckBox;
-class CocoUIComboBox;
-class CocoUIControl;
-class CocoUIFormView;
-class CocoUILabel;
-class CocoUINavBar;
-class CocoUIPictureList;
-class CocoUIScrollView;
-class CocoUITabBar;
-class CocoUITextEdit;
-class CocoUIView;
 class CocoVector;
 class CocoVideo;
+class CocoXMLParser;
+class CocoXPathParser;
 class Data;
 class Encode;
 class GameEngine;
+class GameScene;
 class HTMLAnchorElement;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
@@ -688,12 +750,12 @@ class ICocoRenderContext;
 class IEventTarget;
 class ITickable;
 class Image;
-class NewAnimation;
 class OnClickHandler;
 class PathLine;
-class ReservationsForm;
+class SlotMachine;
 class Touch;
 class TouchList;
+struct COCO_PARSER_STATE;
 struct CocoDOMAttribute;
 struct CocoHVAlign;
 struct CocoKeyFrame;
@@ -801,158 +863,6 @@ template<class T> std::string toString(T v)
 }
 
 typedef String Gradient;
-
-#ifndef __CPP_0X__
-
-// ==================================================================================================================================
-//	    ___                          __    __                ____
-//	   /   |  ______________ ___  __/ /   / /_  ____  ____  / /\ \
-//	  / /| | / ___/ ___/ __ `/ / / / /   / __ \/ __ \/ __ \/ /  \ \
-//	 / ___ |/ /  / /  / /_/ / /_/ /\ \  / /_/ / /_/ / /_/ / /   / /
-//	/_/  |_/_/  /_/   \__,_/\__, /  \_\/_.___/\____/\____/_/   /_/
-//	                       /____/
-// ==================================================================================================================================
-template<> class Array<bool> : public std::vector<bool>
-{
-public:
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array() : std::vector<bool>()
-	{
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	size_t size()
-	{
-		return std::vector<bool>::size();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array(size_t size, ...) : std::vector<bool>(size)
-	{
-		//this->resize(size);
-		va_list vl;
-		va_start(vl, size);
-		for(size_t i = 0; i < size; i++)
-			this->at(i) = (bool)va_arg(vl, int);
-		va_end(vl);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array(const std::vector<bool>& v) : std::vector<bool>(v)
-	{
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array<bool>* push(const bool& v)
-	{
-		std::vector<bool>::push_back(v);
-		return this;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	bool pop()
-	{
-		bool ret = std::vector<bool>::back();
-		std::vector<bool>::pop_back();
-		return ret;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array<bool>* slice(int first, int last)
-	{
-		return new Array<bool>(std::vector<bool>(std::vector<bool>::begin() + first, std::vector<bool>::begin() + last));
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	void splice(int index, int count)
-	{
-		std::vector<bool>::erase(std::vector<bool>::begin() + index, std::vector<bool>::begin() + index + count);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array<bool>* operator()(bool v)
-	{
-		this->push(v);
-		return this;
-	}
-};
-
-// ==================================================================================================================================
-//	    ___                          __    ______            ____
-//	   /   |  ______________ ___  __/ /   / __/ /___  ____ _/ /\ \
-//	  / /| | / ___/ ___/ __ `/ / / / /   / /_/ / __ \/ __ `/ __/\ \
-//	 / ___ |/ /  / /  / /_/ / /_/ /\ \  / __/ / /_/ / /_/ / /_  / /
-//	/_/  |_/_/  /_/   \__,_/\__, /  \_\/_/ /_/\____/\__,_/\__/ /_/
-//	                       /____/
-// ==================================================================================================================================
-template<> class Array<float> : public std::vector<float>
-{
-public:
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array() : std::vector<float>()
-	{
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	size_t size()
-	{
-		return std::vector<float>::size();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array(size_t size, ...) : std::vector<float>(size)
-	{
-		//this->resize(size);
-		va_list vl;
-		va_start(vl, size);
-		for(size_t i = 0; i < size; i++)
-			this->at(i) = (float)va_arg(vl, double);
-		va_end(vl);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array(const std::vector<float>& v) : std::vector<float>(v)
-	{
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array<float>* push(const float& v)
-	{
-		std::vector<float>::push_back(v);
-		return this;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	float pop()
-	{
-		float ret = std::vector<float>::back();
-		std::vector<float>::pop_back();
-		return ret;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array<float>* slice(int first, int last)
-	{
-		return new Array<float>(std::vector<float>(std::vector<float>::begin() + first, std::vector<float>::begin() + last));
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	void splice(int index, int count)
-	{
-		std::vector<float>::erase(std::vector<float>::begin() + index, std::vector<float>::begin() + index + count);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array<float>* operator()(float v)
-	{
-		this->push(v);
-		return this;
-	}
-};
-
-#endif
 
 // ==================================================================================================================================
 //	   _____ __        __
@@ -1172,7 +1082,10 @@ extern void __Facebook_Login(String Permissions, int ImageSize);
 extern void __Facebook_Post(String toUserID, String URL);
 extern void __Facebook_Share(String URL);
 extern void __Facebook_Invite(String message);
+
 extern String md5(String data);
+extern String btoa(String binary);
+extern bool isFinite(String value);
 
 extern String encodeURIComponent(String uri);
 extern void fixTouch(Touch* touch);
