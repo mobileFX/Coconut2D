@@ -485,6 +485,8 @@ class Global
 	public var HttpSever :HttpSever;
 	public var MIME_TYPE :MIME_TYPE;
 	public var HTTPServer :HTTPServer;
+	public var CocoServer :CocoServer;
+	public var Server :Server;
 } //Global
 
 class String
@@ -1657,18 +1659,18 @@ class ASPSession
 {
 	public function Abandon() {}
 	public function Destructor() {}
-	public function Constructor() {}
+	public function Constructor(SessionID:String) {}
 	public  var Contents :ASPDictionary;
 	public  var StaticObjects :ASPDictionary;
 	public  var OnEnd :Function;
 	public  var OnStart :Function;
 	private  var m_CodePage :String;
 	private  var m_LCID :String;
-	private  var m_SessionID :Integer;
+	private  var m_SessionID :String;
 	private  var m_Timeout :Integer;
 	public  var CodePage :String;
 	public  var LCID :String;
-	public  var SessionID :Integer;
+	public  var SessionID :String;
 	public  var Timeout :Integer;
 	public  var __className :String;
 } //ASPSession
@@ -1701,7 +1703,7 @@ class ASPResponse
 	public function Flush() {}
 	public function Write(data:String) {}
 	public function Destructor() {}
-	public function Constructor(res:NodeJS_Response) {}
+	public function Constructor(ses:ASPSession, res:NodeJS_Response) {}
 	public  var Cookies :ASPDictionary;
 	private  var m_Buffer :Boolean;
 	private  var m_CacheControl :String;
@@ -1711,6 +1713,7 @@ class ASPResponse
 	private  var m_ExpiresAbsolute :String;
 	private  var m_Pics :String;
 	private  var m_Status :Integer;
+	private  var ses :ASPSession;
 	private  var res :NodeJS_Response;
 	private  var m_Headers :ASPDictionary;
 	private  var m_Data :Array<String>;
@@ -1744,11 +1747,21 @@ class ASPServer
 
 class ASPProcessor
 {
+	private function getSession(Request:NodeJS_Request) :ASPSession {}
 	public function run(AspFilePath:String, Request:NodeJS_Request, Response:NodeJS_Response) {}
 	private function compile(buff:String) :String {}
 	private function HTML2Script(HTML:String) :String {}
 	public function Destructor() {}
-	public function Constructor() {}
+	public function Constructor(ASP_ROOT:String) {}
+	public  var ASP_ROOT :String;
+	private  var Sessions :Array<ASPSession>;
+	private  var app :ASPApplication;
+	private  var srv :ASPServer;
+	private  var global_asa :Function;
+	private  var APPLICATION_ONSTART :Integer;
+	private  var APPLICATION_ONEND :Integer;
+	private  var SESSION_ONSTART :Integer;
+	private  var SESSION_ONEND :Integer;
 	public  var __className :String;
 } //ASPProcessor
 
@@ -1769,6 +1782,19 @@ class HTTPServer
 	public function Destructor() {}
 	public function Constructor() {}
 	private  var MIME :Dictionary;
+	private  var asp :ASPProcessor;
 	public  var __className :String;
 } //HTTPServer
+
+class CocoServer
+{
+} //CocoServer
+
+class Server : HttpSever.HTTPServer
+{
+	public function handle(req:NodeJS_Request, res:NodeJS_Response) {}
+	public function Destructor() {}
+	public function Constructor() {}
+	public  var __className :String;
+} //Server
 

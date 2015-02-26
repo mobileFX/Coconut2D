@@ -327,17 +327,17 @@ export class ASPSession
 
 	private var m_CodePage:String;
 	private var m_LCID:String;
-	private var m_SessionID:Integer;
+	private var m_SessionID:String;
 	private var m_Timeout:Integer;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	public function Constructor(SessionID:String)
 	{
+		m_SessionID		= SessionID;
 		Contents 		= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_CONTENTS);
 		StaticObjects 	= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_STATIC_OBJECTS);
 		m_CodePage		= "UTF-8";
 		m_LCID			= "";
-		m_SessionID		= 0;
 		m_Timeout		= 20;
 		OnEnd			= null;
 		OnStart			= null;
@@ -383,7 +383,7 @@ export class ASPSession
 	// Returns the session identification for this user.
 	public property SessionID
 	{
-		function get():Integer
+		function get():String
 		{
 			return m_SessionID;
 		}
@@ -519,13 +519,15 @@ export class ASPResponse
 	private var m_Pics:String;
 	private var m_Status:Integer;
 
+	private reference var ses:ASPSession;
 	private reference var res:NodeJS_Response;
 	private var m_Headers:ASPDictionary;
 	private var m_Data:Array<String>;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(res:NodeJS_Response)
+	public function Constructor(ses:ASPSession, res:NodeJS_Response)
 	{
+		this.ses = ses;
 		this.res = res;
 
 		m_Data =  new Array<String>;
@@ -723,6 +725,7 @@ export class ASPResponse
 	    	buffer = String.fromCharCode.apply(null, new Uint8Array(data));
 	    }
 	    __end
+	    res.setHeader("Set-Cookie", "SID=" + ses.SessionID + "; Path=/; HttpOnly");
 		res.setHeader("Accept-Ranges", "bytes");
 		res.setHeader("Content-Type", "application/octet-stream");
 		res.write(buffer, "utf8");
@@ -762,6 +765,9 @@ export class ASPResponse
 			{
 				// Set HTTP status
 				res.statusCode = m_Status;
+
+				// Set Session Headers
+				res.setHeader("Set-Cookie", "SID=" + ses.SessionID + "; Path=/; HttpOnly");
 
 				// Write Headers
 				for(i=0; i<m_Headers.Count; i++)
@@ -941,14 +947,92 @@ export class ASPServer
 
 export class ASPProcessor
 {
+	public var ASP_ROOT:String;
+
+	private var Sessions:Array<ASPSession>;
+
+	private var app:ASPApplication;
+	private var srv:ASPServer;
+	private var global_asa:Function;
+
+	private const APPLICATION_ONSTART:Integer = 0;
+	private const APPLICATION_ONEND:Integer = 1;
+	private const SESSION_ONSTART:Integer = 2;
+	private const SESSION_ONEND:Integer = 3;
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	public function Constructor(ASP_ROOT:String)
 	{
+		this.ASP_ROOT = ASP_ROOT;
+		global_asa = null;
+		app	= new ASPApplication();
+		srv	= new ASPServer();
+		Sessions = new Array<ASPSession>;
+
+		var path:String = __path.resolve(ASP_ROOT+"/global.asa");
+		if(Coconut2D.fileExists(path))
+		{
+			var jsCode:String = __fs.readFileSync(path, "utf8");
+			jsCode += "\n\nswitch(id)\n";
+			jsCode += "{\n";
+			jsCode += "case 0: return Application_OnStart();\n";
+			jsCode += "case 1: return Application_OnEnd();\n";
+			jsCode += "case 2: return Session_OnStart();\n";
+			jsCode += "case 3: return Session_OnEnd();\n";
+			jsCode += "}\n";
+			global_asa = new Function('id', 'Application', 'Session', jsCode);
+			global_asa(APPLICATION_ONSTART, app, null);
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		if(global_asa)
+			global_asa(APPLICATION_ONEND, null, null);
+		delete global_asa;
+		delete app;
+		delete srv;
+		delete[] Sessions;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function getSession(Request:NodeJS_Request):ASPSession
+	{
+		var SessionID:String = "";
+		var cookie:String = String(Request.headers["cookie"]);
+		if(cookie!="")
+		{
+			// Get Session ID from cookie
+			var rx:RegExp = new RegExp("SID=([^ ,;]*)");
+			var m:Array<String> = rx.exec(cookie);
+			if(m && m.size()>0)
+				SessionID = m[1];
+		}
+		if(SessionID=="")
+		{
+			// New Session ID
+			var s:Array<String> = new Array<String>;
+			var hexDigits:String = "0123456789abcdef";
+			for(var i:Integer = 0; i<36; i++)
+				s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+			s[14] = "4";
+			s[19] = hexDigits.substr((parseInt(s[19]) & 0x3) | 0x8, 1);
+			SessionID = s.join("");
+			delete s;
+		}
+
+		// Return existing Session
+		for(var i:Integer=Sessions.size()-1; i>=0; i--)
+			if(Sessions[i].SessionID==SessionID)
+				return Sessions[i];
+
+		// Return new Session
+		var session:ASPSession = new ASPSession(SessionID);
+		Sessions.push(session);
+		if(global_asa)
+			global_asa(SESSION_ONSTART, app, session);
+		return session;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -970,11 +1054,9 @@ export class ASPProcessor
 				//__fs.writeFileSync(compiledFile, jsCode);
 
 				// Wrap Node.js Request and Response to ASP Request and Response.
-				var app:ASPApplication	= new ASPApplication();
-				var srv:ASPServer		= new ASPServer();
-				var ses:ASPSession 		= new ASPSession();
+				var ses:ASPSession 		= getSession(Request);
 				var req:ASPRequest 		= new ASPRequest(Request);
-				var res:ASPResponse 	= new ASPResponse(Response);
+				var res:ASPResponse 	= new ASPResponse(ses, Response);
 
 				// ** IMPORTANT **
 				//  You can step-in to debug the generated JavaScript ASP code.

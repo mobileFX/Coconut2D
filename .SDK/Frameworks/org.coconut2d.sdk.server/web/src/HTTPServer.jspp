@@ -38,12 +38,13 @@ struct MIME_TYPE
 export class HTTPServer
 {
 	private var MIME:Dictionary;
+	private var asp:ASPProcessor;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		// Load server MIME types
 		MIME = new Dictionary;
-		//var __path:String = './' + GLOBAL.process.mainModule.exports.SERVER_OBJ_FOLDER + '/mime.json';
 		var buff:String = __fs.readFileSync("./objs/mime.json", "utf8");
 		try
 		{
@@ -53,12 +54,16 @@ export class HTTPServer
 		{
 			console.log("Error parsing mime types, " + e.toString());
 		}
+
+		// Initialize ASP Processor
+		asp = new ASP.ASPProcessor(__path.resolve("."));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 		delete MIME;
+		delete asp;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +76,7 @@ export class HTTPServer
 
 		if(req.url=="/")
 		{
-			var root:String = __path.resolve(".");
+			var root:String = asp.ASP_ROOT = __path.resolve(".");
 			if(Coconut2D.fileExists(root+"/default.asp"))
 				req.url = "default.asp";
 			else if(Coconut2D.fileExists(root+"/index.html"))
@@ -95,8 +100,8 @@ export class HTTPServer
 
 			// *** DISABLE THIS CODE ON RELEASE MODE ***
 			// NASTY DEVELOPMENT HACK!! If an .asp file does not exists it is created on requrest
-			if(!Coconut2D.fileExists(req.__file))
-				__fs.writeFileSync(req.__file, "<!--#include file=\"header.asp\"-->\n\n<!--#include file=\"footer.asp\"-->\n", "utf8");
+			//if(!Coconut2D.fileExists(req.__file))
+			//	__fs.writeFileSync(req.__file, "<!--#include file=\"header.asp\"-->\n\n<!--#include file=\"footer.asp\"-->\n", "utf8");
 
 			// If file does not exist end the response.
 			if(!Coconut2D.fileExists(req.__file))
@@ -107,8 +112,7 @@ export class HTTPServer
 			}
 
 			// Create an ASP processor, parse and execute the file.
-			var server:ASPProcessor = new ASP.ASPProcessor();
-			server.run(req.__file, req, res);
+			asp.run(req.__file, req, res);
 			res.end();
 			return;
 		}
