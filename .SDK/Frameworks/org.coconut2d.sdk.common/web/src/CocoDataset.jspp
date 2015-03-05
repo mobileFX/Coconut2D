@@ -1364,10 +1364,11 @@ export class CocoDataset
 		var fields:Integer = METADATA.size();
 		if(fields>0)
 		{
+			name = name.toLowerCase();
 			for(var i:Integer=0; i<fields; i++)
 			{
 				var COL:CocoDataField = METADATA[i];
-				if(COL!=null && (COL.NAME == name || COL.ID == name))
+				if(COL!=null && (COL.NAME.toLowerCase() == name || COL.ID.toLowerCase() == name))
 					return COL;
 			}
 		}
@@ -1535,7 +1536,7 @@ export class CocoDataset
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function toString():String
+	public function toDebugString():String
 	{
 		var s:String = "";
 		var fieldCount:Integer = METADATA.size();

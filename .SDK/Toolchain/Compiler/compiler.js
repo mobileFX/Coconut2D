@@ -5688,14 +5688,69 @@ function Compiler(ast, target, output_path)
 
 			if(ast[0].symbol && ast[0].symbol.struct)
 			{
-				var items = [];
-				for(item in ast[0].symbol.vars)
+				function __createStruct(symbol)
 				{
-					var vartype = ast[0].symbol.vars[item].vartype;
-					var def = (_this.types[vartype] ? _this.types[vartype].default : "null");;
-					items.push(ast[0].symbol.vars[item].name + ":" + def);
+					var items = [];
+
+					for(var item in symbol.vars)
+					{
+						var vartype = symbol.vars[item].vartype;
+						var def = "null";
+						var cls = _this.getClass(vartype);
+						if(cls)
+						{
+							if(cls.struct)
+							{
+								def = __createStruct(cls);
+							}
+							else if(cls.enum)
+							{
+								def = "0";
+							}
+							else
+							{
+								switch(cls.name)
+								{
+								case "String":
+									def = '""';
+									break;
+
+								case "Boolean":
+									def = 'false';
+									break;
+
+								case "Number":
+								case "Integer":
+									def = "0";
+									break;
+
+								case "Time":
+								case "Float":
+									def = "0.0";
+									break;
+
+								case "Array":
+									def = "[] /* " + symbol.vars[item].subtype + " */";
+									break;
+
+								default:
+									def = "new " + cls.name;
+									break;
+								}
+							}
+						}
+						else
+						{
+							def = (_this.types[vartype] ? _this.types[vartype].default : "null");
+						}
+						items.push('"'+symbol.vars[item].name + '":' + def);
+					}
+
+					return "{" + items.join(",") + "}";
 				}
-				out.push("{" + items.join(",") + "}");
+
+				var struct = __createStruct(ast[0].symbol);
+				out.push(struct);
 			}
 			else
 			{

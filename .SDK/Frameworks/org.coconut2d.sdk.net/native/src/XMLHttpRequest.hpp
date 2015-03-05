@@ -91,6 +91,7 @@ public:
 	void send();
 	void send(String data);
 	void send(ArrayBufferView* data);
+	void send(ArrayBuffer* data);
 	void abort();
 	String getResponseHeader(String header);
 	String getAllResponseHeaders();

@@ -130,6 +130,7 @@ function __init_narcissus(GLOBAL)
 
         // OOP
         "struct",
+        "union",
 		"class",
 		"interface",
 		"state",
@@ -852,6 +853,26 @@ function __init_narcissus(GLOBAL)
 			n.expression = Expression(t, x);
 			n.condition = t.source.substr(n.expression.start, n.expression.end-n.expression.start);
 			t.__CONDITIONS.push(n.condition);
+			var identifiers = [];
+			function __scan(n)
+			{
+				if(!n) return;
+				for(var i=0;i<n.length;i++)
+				{
+					if(n[i].type==jsdef.IDENTIFIER)
+					{
+						var id = n[i].value;
+						identifiers.push(id);
+						if(__global[id]===undefined)
+						{
+							__global[id] = false;
+						}
+					}
+					else __scan(n[i]);
+				}
+			}
+			__scan(n.expression);
+			n.expression_identifiers = identifiers;
 			n.end = t.cursor;
 			n.line_end = t.line_start;
 			return n;
@@ -917,12 +938,26 @@ function __init_narcissus(GLOBAL)
 		t.mustMatch(jsdef.LEFT_CURLY);
 		for(;t.peek()!=jsdef.RIGHT_CURLY;t.peek()!=jsdef.RIGHT_CURLY && t.mustMatch(jsdef.SEMICOLON))
 		{
-			t.mustMatch(jsdef.IDENTIFIER);
-			var a = new Node(t, jsdef.IDENTIFIER);
-			a.name = t.token().value;
-			t.mustMatch(jsdef.COLON);
-			matchVartype(t, a, "vartype");
-			f.push(a);
+			tt = t.peek();
+			if(tt==jsdef.UNION)
+			{
+				t.mustMatch(jsdef.UNION);
+				var u = StructDefinition(t,x);
+				for(var i=0; i<u.length; i++)
+				{
+					u[i].union=true;
+					f.push(u[i]);
+				}
+			}
+			else
+			{
+				t.mustMatch(jsdef.IDENTIFIER);
+				var a = new Node(t, jsdef.IDENTIFIER);
+				a.name = t.token().value;
+				t.mustMatch(jsdef.COLON);
+				matchVartype(t, a, "vartype");
+				f.push(a);
+			}
 		}
 		t.mustMatch(jsdef.RIGHT_CURLY);
 		f.end = t.cursor;

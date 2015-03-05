@@ -219,9 +219,15 @@ void XMLHttpRequest::send(String data)
 //////////////////////////////////////////////////////////////////////////////////////////////
 void XMLHttpRequest::send(ArrayBufferView* data)
 {
-	if(curl)
+	if(data)
+		send( data->buffer);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+void XMLHttpRequest::send(ArrayBuffer* ab)
+{
+	if(curl && ab)
 	{
-		ArrayBuffer* ab = data->buffer;
 		if(ab->byteLength>0)
 		{
 			requestDataBuffer.clear();

@@ -180,6 +180,7 @@ export class ASPDictionary
 
 		if(req.__body)
 		{
+			req.__body = req.__body.replace(/\+/mg, " ");
 			var pairs:Array<String> = req.__body.split("&");
 			for(var i:Integer=0; i<pairs.size(); i++)
 			{
@@ -407,7 +408,8 @@ export class ASPSession
 	// This method destroys a Session object and releases its resources.
 	public function Abandon()
 	{
-		Destructor();
+		Contents.RemoveAll();
+		StaticObjects.RemoveAll();
 	}
 }
 
@@ -1114,7 +1116,7 @@ export class ASPProcessor
 	            incFileName = incFileName.substr(incFileName.indexOf("\"")+1);
 	            incFileName = incFileName.substr(0, incFileName.indexOf("\""));
 				incFileName = __path.resolve(incFileName);
-				console.log("Include file: " + incFileName);
+				//console.log("Include file: " + incFileName);
 
 				var aspCode:String = __fs.readFileSync(incFileName, "utf8");
 				var incCode:String = compile(aspCode);
@@ -1154,7 +1156,13 @@ export class ASPProcessor
 		code.push(HTML2Script(HTML));
 		var out:String = code.join("\n");
 		delete code;
+
+		// Patch for session/application dictionary direct assignment
     	out = rx.replace(out, "Response.End\\(\\);", "{ Response.End(); return; }", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL);
+    	out = rx.replace(out, "Response.Redirect", "return Response.Redirect", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL);
+		out = rx.replace(out, "(Session|Application)\\(([^)]+)\\)\\s*\\=\\s*([^;]+)", "$1.Contents.Add($2,$3);", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL);
+		out = rx.replace(out, "(Session|Application)\\(([^)]+)\\)", "$1.Contents.Item($2)", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL);
+
 	    return out;
 	}
 

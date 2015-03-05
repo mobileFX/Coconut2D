@@ -343,6 +343,12 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
+	String toLowerCase()
+	{
+		return std::string::substr(0, length());
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
 	Array<String>* split(const String& str, size_t max = -1)
 	{
 		Array<String>* ret = new Array<String>();
@@ -649,11 +655,13 @@ public:
 class Audio;
 class CocoAssetFile;
 class CocoAudioStream;
+class CocoDeviceOpenGLContext;
 class CocoDeviceWrapper;
 class CocoEventConnectionPoint;
 class CocoEventSource;
 class CocoFont;
 class CocoFontsCache;
+class CocoJSON;
 class HTMLVideoElement;
 class HTMLWindow;
 class IEventListener;
@@ -668,17 +676,15 @@ class WebGLRenderingContext;
 class WebGLShader;
 class WebGLTexture;
 class WebGLUniformLocation;
+class XMLHttpRequest;
 struct CocoFontChar;
-struct GLEWContextStruct;
 struct GLany;
-struct __GLsync;
-struct _cl_context;
-struct _cl_event;
 struct fxScreen;
 //# Native Classes End #//
 
 //# Generated Classes Begin #//
 class CanvasRenderingContext2D;
+class CocoAppController;
 class CocoAudio;
 class CocoBezier;
 class CocoClip;
@@ -695,6 +701,7 @@ class CocoEncode;
 class CocoEngine;
 class CocoEvent;
 class CocoGraphics;
+class CocoHttpRequest;
 class CocoImage;
 class CocoImageRenderData2D;
 class CocoImageRenderDataGL;
@@ -724,6 +731,18 @@ class CocoTextStyle;
 class CocoTimeLabel;
 class CocoTimeline;
 class CocoTokenizer;
+class CocoUIButton;
+class CocoUICheckBox;
+class CocoUIComboBox;
+class CocoUIControl;
+class CocoUIFormView;
+class CocoUILabel;
+class CocoUINavBar;
+class CocoUIPictureList;
+class CocoUIScrollView;
+class CocoUITabBar;
+class CocoUITextEdit;
+class CocoUIView;
 class CocoVector;
 class CocoVideo;
 class CocoXMLParser;
@@ -731,7 +750,6 @@ class CocoXPathParser;
 class Data;
 class Encode;
 class GameEngine;
-class GameScene;
 class HTMLAnchorElement;
 class HTMLCanvasElement;
 class HTMLCanvasGradient;
@@ -750,9 +768,10 @@ class ICocoRenderContext;
 class IEventTarget;
 class ITickable;
 class Image;
+class NewAnimation;
 class OnClickHandler;
 class PathLine;
-class SlotMachine;
+class ReservationsForm;
 class Touch;
 class TouchList;
 struct COCO_PARSER_STATE;
