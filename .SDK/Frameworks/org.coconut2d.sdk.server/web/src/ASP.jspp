@@ -187,7 +187,15 @@ export class ASPDictionary
 				var item:Array<String> = pairs[i].split("=");
 				var key:String = __qs.unescape(item[0]);
 				var value:String = __qs.unescape(item[1]);
-				Add(key, value);
+				var index:Integer = indexOf(key);
+				if(index==-1)
+				{
+					Add(key, value);
+				}
+				else
+				{
+					 m_Values[index] += "," + value;
+				}
 			}
 		}
 	}
