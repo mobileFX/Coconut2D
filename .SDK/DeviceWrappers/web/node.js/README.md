@@ -1,6 +1,6 @@
 With Coconut2D you can also create, test and debug **HTTP Application Servers** and responsive HTML5 web sites powered by Node.js, by coding in Object Oriented JavaScript (aka CocoScript) or ECMA JavaScript.
 
-The `org.coconut2d.sdk.server` Framework implements a **Classic ASP** replacement allowing node.js to run .asp pages without IIS, entirely as stand-alone super-fast and robust web server. By loading Coconut2D.node Native Extension you get SQLite and email support which is pretty much everything you will need for building your web sites.
+The `org.coconut2d.sdk.server` Framework implements a **Classic ASP** replacement allowing node.js to run .asp pages without IIS, entirely as stand-alone super-fast and robust web server. By loading `Coconut2D.node Native Extension` you get SQLite and email support which is pretty much everything you will need for building your web sites.
 
 For IIS users, here is a hint to integrate node.js with IIS7 on a Windows 64-bit Server. The following hint also solves some poor performance issues with iisnode and demonstrates how to use Node.js Native Extensions as well.
 
