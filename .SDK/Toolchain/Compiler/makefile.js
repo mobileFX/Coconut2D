@@ -8,7 +8,7 @@
         "PROJECT_VERSION_SHORT": "1.0",
         "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.common;org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui;org.coconut2d.sdk.server",
         "CONFIGURATION": "Debug",
-        "DEBUG_HOST_IP": "192.168.1.165",
+        "DEBUG_HOST_IP": "192.168.1.184",
         "DEBUG_HOST_PORT": "9999",
         "TAGS": {
             "OG_COMPANY_ADDRESS": "52 Electras str",
@@ -72,29 +72,29 @@
                 "DEVICE_WRAPPER": {
                     "CLASS": "JAVASCRIPT",
                     "PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/CavoBoutique.project/.SDK/DeviceWrappers/web/node.js",
-                    "TEMPLATES": "node.js",
+                    "TEMPLATES": "node.js;web.config;node_start.cmd",
                     "TEMPLATE_EXCLUDE_VARS": null
                 },
                 "DEVICES": {
                     "Chrome": {
                         "Debugger": "Debugger_NodeJS",
-                        "Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.165> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
-                        "Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.165> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
+                        "Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.184> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end",
+                        "Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.184> --flag-switches-begin --js-flags=<--harmony --harmony_symbols --harmony_typeof> -–allow-file-access-from-files --always-enable-dev-tools --debug-packed-apps --disable-breakpad --disable-desktop-notifications --disable-extensions --disable-new-tab-first-run --disable-restore-background-contents --disable-translate --enable-webgl --enable-accelerated-2d-canvas --enable-accelerated-filters --enable-accelerated-painting --enable-compact-navigation --enable-devtools-experiments --enable-experimental-extension-apis --enable-experimental-webkit-features --enable-new-dialog-style --enable-smooth-scrolling --enable-sync-favicons --keep-mouse-cursor --noerrdialogs --no-first-run --disable-application-cache --allow-running-insecure-content --sync-keystore-encryption --user-data-dir=remote-profile --flag-switches-end"
                     },
                     "FireFox": {
                         "Debugger": "Debugger_NodeJS",
-                        "Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <http://192.168.1.165>",
-                        "Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <http://192.168.1.165>"
+                        "Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <http://192.168.1.184>",
+                        "Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <http://192.168.1.184>"
                     },
                     "Internet Explorer": {
                         "Debugger": "Debugger_NodeJS",
-                        "Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.165>",
-                        "Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.165>"
+                        "Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.184>",
+                        "Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.184>"
                     },
                     "Safari": {
                         "Debugger": "Debugger_NodeJS",
-                        "Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <http://192.168.1.165>",
-                        "Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <http://192.168.1.165>"
+                        "Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <http://192.168.1.184>",
+                        "Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <http://192.168.1.184>"
                     }
                 },
                 "APP_ICONS": {
@@ -119,7 +119,7 @@
         "TARGET_OUTPUT": "D:/mobileFX/Projects/Software/Coconut/Projects/CavoBoutique.project/.server/node.js",
         "SURFACE_WIDTH": "480",
         "SURFACE_HEIGHT": "320",
-        "LOCALHOST_IP": "192.168.1.165",
+        "LOCALHOST_IP": "192.168.1.184",
         "ACTIVE_DEVICE_ID": "",
         "ANDROID_APK": "",
         "APK": "",
@@ -137,7 +137,7 @@
         "PROJECT_VERSION_SHORT": "1.0",
         "PROJECT_FRAMEWORKS": "org.coconut2d.sdk.common;org.coconut2d.sdk.html5;org.coconut2d.sdk.webgl;org.coconut2d.sdk.anim;org.coconut2d.sdk.net;org.coconut2d.sdk.ui;org.coconut2d.sdk.server",
         "CONFIGURATION": "Debug",
-        "DEBUG_HOST_IP": "192.168.1.165",
+        "DEBUG_HOST_IP": "192.168.1.184",
         "DEBUG_HOST_PORT": "9999",
         "TAGS.OG_COMPANY_ADDRESS": "52 Electras str",
         "TAGS.OG_COMPANY_COUNTRY": "Greece",
@@ -186,19 +186,19 @@
         "TARGETS.node.js.RELOAD_AFTER_BUILD": "true",
         "TARGETS.node.js.DEVICE_WRAPPER.CLASS": "JAVASCRIPT",
         "TARGETS.node.js.DEVICE_WRAPPER.PATH": "D:/mobileFX/Projects/Software/Coconut/Projects/CavoBoutique.project/.SDK/DeviceWrappers/web/node.js",
-        "TARGETS.node.js.DEVICE_WRAPPER.TEMPLATES": "node.js",
+        "TARGETS.node.js.DEVICE_WRAPPER.TEMPLATES": "node.js;web.config;node_start.cmd",
         "TARGETS.node.js.DEVICES.Chrome.Debugger": "Debugger_NodeJS",
-        "TARGETS.node.js.DEVICES.Chrome.Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.165> --flag-switches-begin --js-flags",
-        "TARGETS.node.js.DEVICES.Chrome.Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.165> --flag-switches-begin --js-flags",
+        "TARGETS.node.js.DEVICES.Chrome.Debug": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.184> --flag-switches-begin --js-flags",
+        "TARGETS.node.js.DEVICES.Chrome.Release": "<C:/Program Files (x86)/Google/Chrome/Application/chrome.exe> <http://192.168.1.184> --flag-switches-begin --js-flags",
         "TARGETS.node.js.DEVICES.FireFox.Debugger": "Debugger_NodeJS",
-        "TARGETS.node.js.DEVICES.FireFox.Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <http://192.168.1.165>",
-        "TARGETS.node.js.DEVICES.FireFox.Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <http://192.168.1.165>",
+        "TARGETS.node.js.DEVICES.FireFox.Debug": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -jsconsole -url <http://192.168.1.184>",
+        "TARGETS.node.js.DEVICES.FireFox.Release": "<C:/Program Files (x86)/Mozilla Firefox/firefox.exe> -url <http://192.168.1.184>",
         "TARGETS.node.js.DEVICES['Internet Explorer'].Debugger": "Debugger_NodeJS",
-        "TARGETS.node.js.DEVICES['Internet Explorer'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.165>",
-        "TARGETS.node.js.DEVICES['Internet Explorer'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.165>",
+        "TARGETS.node.js.DEVICES['Internet Explorer'].Debug": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.184>",
+        "TARGETS.node.js.DEVICES['Internet Explorer'].Release": "<C:/Program Files/Internet Explorer/iexplore.exe> <http://192.168.1.184>",
         "TARGETS.node.js.DEVICES.Safari.Debugger": "Debugger_NodeJS",
-        "TARGETS.node.js.DEVICES.Safari.Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <http://192.168.1.165>",
-        "TARGETS.node.js.DEVICES.Safari.Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <http://192.168.1.165>",
+        "TARGETS.node.js.DEVICES.Safari.Debug": "<C:/Program Files (x86)/Safari/Safari.exe> -jsconsole -url <http://192.168.1.184>",
+        "TARGETS.node.js.DEVICES.Safari.Release": "<C:/Program Files (x86)/Safari/Safari.exe> -url <http://192.168.1.184>",
         "TARGETS.node.js.APP_ICONS.16": "D:/mobileFX/Projects/Software/Coconut/Projects/CavoBoutique.project/.server/favicon.ico",
         "TARGETS.node.js.APP_ICONS.72": "D:/mobileFX/Projects/Software/Coconut/Projects/CavoBoutique.project/.server/apple-touch-icon-72x72.png",
         "TARGETS.node.js.APP_ICONS.76": "D:/mobileFX/Projects/Software/Coconut/Projects/CavoBoutique.project/.server/apple-touch-icon-76x76.png",
@@ -278,7 +278,7 @@
         "COM.VERMANTIA.GAME.SLOTS": "D:/mobileFX/Projects/Software/Coconut/Projects/CavoBoutique.project/.SDK/Frameworks/com.vermantia.game.slots",
         "ORG.COCONUT2D.SDK.TESTS": "D:/mobileFX/Projects/Software/Coconut/Projects/CavoBoutique.project/.SDK/Frameworks/org.coconut2d.sdk.tests",
         "ORG.COCONUT2D.SDK.SERVER": "D:/mobileFX/Projects/Software/Coconut/Projects/CavoBoutique.project/.SDK/Frameworks/org.coconut2d.sdk.server",
-        "TEXT_FILES": "*.mk;*.asp;*.c;*.cc;*.cpp;*.css;*.csv;*.cxx;*.doc;*.gdl;*.h;*.hh;*.hpp;*.hta;*.htc;*.htm;*.html;*.inc;*.include;*.j;*.java;*.javascript;*.jspp;*.js;*.jscript;*.glsl;*.json;*.jx;*.log;*.m;*.makefile;*.mx;*.mxx;*.pbxproj;*.pch;*.plist;*.strings;*.txt;*.xhtml;*.xml;*.xsd;*.xslt;*.bat;*.cmd;*.ini;*.mm;*.settings;*.jobj;*.md;*.lst;*.properties;*.conf;*.gdb;*.gitignore;*.njsp;*.setup;*.asa;*.gv"
+        "TEXT_FILES": "*.mk;*.asp;*.c;*.cc;*.cpp;*.css;*.csv;*.cxx;*.doc;*.gdl;*.h;*.hh;*.hpp;*.hta;*.htc;*.htm;*.html;*.inc;*.include;*.j;*.java;*.javascript;*.jspp;*.js;*.jscript;*.glsl;*.json;*.jx;*.log;*.m;*.makefile;*.mx;*.mxx;*.pbxproj;*.pch;*.plist;*.strings;*.txt;*.xhtml;*.xml;*.xsd;*.xslt;*.bat;*.cmd;*.ini;*.mm;*.settings;*.jobj;*.md;*.lst;*.properties;*.conf;*.gdb;*.gitignore;*.njsp;*.setup;*.asa;*.gv;*.config"
     },
     "Components": {
         "Frameworks": {

@@ -1148,7 +1148,11 @@ export class ASPProcessor
 	        {
 	            s = m.subMatches(0).trim();
 	            s = s.substr(s.indexOf("=")+1);
-                s = "Response.Write(String(" + s + "));"
+	            __javascript
+                {
+                	s = "Response.Write(String(" + s.replace(/\n/img,"") + "));"
+                }
+	            __end
 	            code.push(s);
 	            pos = m.index + m.length;
 	            continue;
@@ -1206,7 +1210,7 @@ export class ASPProcessor
 	                s = s.replace(/\t/mg, "    ");
                 }
                 __end
-                s = "Response.Write(String(\"" + s + (i<L ? "\\n" : "") + "\"));"
+                s = "Response.Write(String(\"" + s + (i<L && s.charCodeAt(s.length-1)!=34 ? "\\n" : "") + "\"));"
 	            script.push(s);
 	        }
 	    }

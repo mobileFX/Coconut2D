@@ -730,6 +730,21 @@ export class CocoDataField
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property html
+	{
+		function get():String
+		{
+			var v:String = value;
+			__javascript
+			{
+				v = v.replace(/\\n/mg, "<br>");
+			}
+			__end
+			return v;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function intValue():Integer
 	{
 		return parseInt(value);
@@ -968,6 +983,7 @@ export class CocoDataset
 			delete ds;
 			delete buff;
 		}
+		moved();
 		return ret;
 	}
 
