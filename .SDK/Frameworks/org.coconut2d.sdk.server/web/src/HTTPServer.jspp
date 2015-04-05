@@ -77,9 +77,9 @@ export class HTTPServer
 		if(req.url=="/")
 		{
 			var root:String = asp.ASP_ROOT = __path.resolve(".");
-			if(Coconut2D.fileExists(root+"/default.asp"))
+			if(Coconut2D.FileExists(root+"/default.asp"))
 				req.url = "default.asp";
-			else if(Coconut2D.fileExists(root+"/index.html"))
+			else if(Coconut2D.FileExists(root+"/index.html"))
 				req.url = "index.html";
 		}
 
@@ -100,11 +100,11 @@ export class HTTPServer
 
 			// *** DISABLE THIS CODE ON RELEASE MODE ***
 			// NASTY DEVELOPMENT HACK!! If an .asp file does not exists it is created on requrest
-			//if(!Coconut2D.fileExists(req.__file))
+			//if(!Coconut2D.FileExists(req.__file))
 			//	__fs.writeFileSync(req.__file, "<!--#include file=\"header.asp\"-->\n\n<!--#include file=\"footer.asp\"-->\n", "utf8");
 
 			// If file does not exist end the response.
-			if(!Coconut2D.fileExists(req.__file))
+			if(!Coconut2D.FileExists(req.__file))
 			{
 				res.statusCode = 404;
 				res.end();
@@ -121,7 +121,7 @@ export class HTTPServer
 		else
 		{
 			// If file does not exist end the response.
-			if(!Coconut2D.fileExists(req.__file))
+			if(!Coconut2D.FileExists(req.__file))
 			{
 				res.statusCode = 404;
 				res.end();

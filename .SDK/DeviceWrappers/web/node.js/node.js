@@ -74,7 +74,7 @@ global.CLIENT_OBJ_FOLDER = "$(TARGETS.node.js.TARGET_CLIENT_OBJ)";
 // Attempt to load user HTTP server implementation
 var server = null;
 
-if(Coconut2D.fileExists('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/Server.jobj'))
+if(Coconut2D.FileExists('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/Server.jobj'))
 {
 	var module = require('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/Server.jobj');
 	if(module && module.Server)
@@ -83,7 +83,7 @@ if(Coconut2D.fileExists('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/Server.jobj'))
 		console.log("Using custom HTTP server.");
 	}
 }
-else if(Coconut2D.fileExists('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/HTTPServer.jobj'))
+else if(Coconut2D.FileExists('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/HTTPServer.jobj'))
 {
 	// Fall-back to generaic HTTP server implementation
 	module = require('./$(TARGETS.node.js.TARGET_SERVER_OBJ)/HTTPServer.jobj');
@@ -159,6 +159,9 @@ require('http').createServer( function(request, response)
     }
 
 }).listen(80, '$(LOCALHOST_IP)');
+
+// Use this to run over iisnode on IIS7
+//.listen(process.env.PORT);
 
 console.log('Server running on http://$(LOCALHOST_IP):80/');
 

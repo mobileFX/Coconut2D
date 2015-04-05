@@ -53,6 +53,8 @@ enum ASP_DIC_TYPE_ENUM
 
 export class ASPDictionary
 {
+	public var URLData:String;
+
 	private var m_Type:ASP_DIC_TYPE_ENUM;
 	private var m_Keys:Array<String>;
 	private var m_Values:Array<String>;
@@ -60,6 +62,7 @@ export class ASPDictionary
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(t:ASP_DIC_TYPE_ENUM)
 	{
+		URLData="";
 		m_Type = t;
 		m_Keys =  new Array<String>;
 		m_Values = new Array<String>;
@@ -161,6 +164,8 @@ export class ASPDictionary
 	{
 		if(req.__query)
 		{
+			URLData = req.__query;
+
 			var pairs:Array<String> = req.__query.split("&");
 			for(var i:Integer=0; i<pairs.size(); i++)
 			{
@@ -175,27 +180,32 @@ export class ASPDictionary
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function ParseForm(req:NodeJS_Request)
 	{
-		if(String(req.headers['content-type'])!="application/x-www-form-urlencoded")
-			return;
-
-		if(req.__body)
+		var contentType:String = String(req.headers['content-type']);
+		if(req.__body && contentType.indexOf("application/x-www-form-urlencoded")==0)
 		{
-			req.__body = req.__body.replace(/\+/mg, " ");
-			var pairs:Array<String> = req.__body.split("&");
-			for(var i:Integer=0; i<pairs.size(); i++)
+			URLData = req.__body;
+			ParseFormData(req.__body);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ParseFormData(data:String)
+	{
+		data = data.replace(/\+/mg, " ");
+		var pairs:Array<String> = data.split("&");
+		for(var i:Integer=0; i<pairs.size(); i++)
+		{
+			var item:Array<String> = pairs[i].split("=");
+			var key:String = __qs.unescape(item[0]);
+			var value:String = __qs.unescape(item[1]);
+			var index:Integer = indexOf(key);
+			if(index==-1)
 			{
-				var item:Array<String> = pairs[i].split("=");
-				var key:String = __qs.unescape(item[0]);
-				var value:String = __qs.unescape(item[1]);
-				var index:Integer = indexOf(key);
-				if(index==-1)
-				{
-					Add(key, value);
-				}
-				else
-				{
-					 m_Values[index] += "," + value;
-				}
+				Add(key, value);
+			}
+			else
+			{
+				 m_Values[index] += "," + value;
 			}
 		}
 	}
@@ -488,15 +498,53 @@ export class ASPRequest
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Form(key:String):String
 	{
-		if(m_Form.Exists(key))
+		if(key=="")
+		{
+			/*
+			var result:String = "";
+			var items:Array<String> = new Array<String>;
+			for(var i:Integer=0; i<m_Form.Count; i++)
+			{
+				items.push(m_Form.Key(i) + "=" + encodeURIComponent(m_Form.Value(i)));
+			}
+			result = items.join("&");
+			delete items;
+			return result;
+			*/
+			return m_Form.URLData;
+		}
+		else if(m_Form.Exists(key))
+		{
 			return m_Form.Item(key);
+		}
+
+		return "";
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function QueryString(key:String):String
 	{
-		if(m_QueryString.Exists(key))
+		if(key=="")
+		{
+			/*
+			var result:String = "";
+			var items:Array<String> = new Array<String>;
+			for(var i:Integer=0; i<m_QueryString.Count; i++)
+			{
+				items.push(m_QueryString.Key(i) + "=" + encodeURIComponent(m_QueryString.Value(i)));
+			}
+			result = items.join("&");
+			delete items;
+			return result;
+			*/
+			return m_QueryString.URLData;
+		}
+		else if(m_QueryString.Exists(key))
+		{
 			return m_QueryString.Item(key);
+		}
+
+		return "";
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -504,6 +552,14 @@ export class ASPRequest
 	{
 		if(m_ServerVariables.Exists(key))
 			return m_ServerVariables.Item(key);
+
+		return "";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ParseFormData(data:String)
+	{
+		m_Form.ParseFormData(data);
 	}
 }
 
@@ -964,6 +1020,8 @@ export class ASPProcessor
 	private var app:ASPApplication;
 	private var srv:ASPServer;
 	private var global_asa:Function;
+	private var curr_asp_file:String;
+	private var debug:Boolean;
 
 	private const APPLICATION_ONSTART:Integer = 0;
 	private const APPLICATION_ONEND:Integer = 1;
@@ -978,9 +1036,11 @@ export class ASPProcessor
 		app	= new ASPApplication();
 		srv	= new ASPServer();
 		Sessions = new Array<ASPSession>;
+		curr_asp_file = "";
+		debug = true;
 
 		var path:String = __path.resolve(ASP_ROOT+"/global.asa");
-		if(Coconut2D.fileExists(path))
+		if(Coconut2D.FileExists(path))
 		{
 			var jsCode:String = __fs.readFileSync(path, "utf8");
 			jsCode += "\n\nswitch(id)\n";
@@ -1050,7 +1110,7 @@ export class ASPProcessor
 	{
 		try
 		{
-			if(Coconut2D.fileExists(AspFilePath))
+			if(Coconut2D.FileExists(AspFilePath))
 			{
 				var compiledFile:String = __path.resolve(AspFilePath).replace(".asp", "_compiled.js");
 
@@ -1058,6 +1118,7 @@ export class ASPProcessor
 				var aspCode:String = __fs.readFileSync(AspFilePath, "utf8");
 
 				// Compile ASP Page
+				curr_asp_file = __path.resolve(AspFilePath);
 				var jsCode:String = compile(aspCode);
 
 				// Save compiled ASP Page
@@ -1070,8 +1131,8 @@ export class ASPProcessor
 
 				// ** IMPORTANT **
 				//  You can step-in to debug the generated JavaScript ASP code.
-				var f:Function = new Function('Application', 'Server', 'Session', 'Request', 'Response', jsCode);
-				f.call(this, app, srv, ses, req, res);
+				var f:Function = new Function('Application', 'Server', 'Session', 'Request', 'Response', '__node_req', '__node_res', jsCode);
+				f.call(this, app, srv, ses, req, res, Request, Response);
 
 				// Send the response
 				res.End();
@@ -1084,6 +1145,8 @@ export class ASPProcessor
 		catch(e:Error)
 		{
 			console.log("Error executing ASP " + AspFilePath + ", " + e.toString());
+			console.log(e.stack);
+			console.trace();
 		}
 	}
 
@@ -1124,12 +1187,10 @@ export class ASPProcessor
 	            incFileName = incFileName.substr(incFileName.indexOf("\"")+1);
 	            incFileName = incFileName.substr(0, incFileName.indexOf("\""));
 				incFileName = __path.resolve(incFileName);
-				//console.log("Include file: " + incFileName);
-
 				var aspCode:String = __fs.readFileSync(incFileName, "utf8");
+				curr_asp_file = __path.resolve(incFileName);
 				var incCode:String = compile(aspCode);
 				code.push(incCode);
-
 				pos = m.index + m.length;
 	            continue;
 	        }
@@ -1175,9 +1236,13 @@ export class ASPProcessor
 		out = rx.replace(out, "(Session|Application)\\(([^)]+)\\)\\s*\\=\\s*([^;]+)", "$1.Contents.Add($2,$3);", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL);
 		out = rx.replace(out, "(Session|Application)\\(([^)]+)\\)", "$1.Contents.Item($2)", RX.REGULAR_EXPRESSION_FLAGS.RX_ALL);
 
+		// Generate debug code
+		if(debug)
+		{
+		}
+
 	    return out;
 	}
-
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function HTML2Script(HTML:String):String

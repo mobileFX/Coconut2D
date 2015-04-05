@@ -489,6 +489,7 @@ class Error
 	public var name:String;
 	public var message:String;
 	public function toString():String {};
+	public var stack:String;
 }
 
 class EvalError :Error {}
@@ -571,6 +572,7 @@ class XMLHttpRequest
 class Console
 {
 	public function log(msg:String) {}
+	public function trace() {}
 }
 
 // ==================================================================================================================================
@@ -881,7 +883,12 @@ class NodeJS_Coconut2D
 {
 	public function SELECT(database:String, SQL:String):ArrayBuffer {}
 	public function UPDATE(data:ArrayBuffer):ArrayBuffer {}
-	public function fileExists(path:String):Boolean {}
+	public function SendEmail(server:String, server_login:String, server_pass:String, from_name:String, from_email:String, to:String, subject:String, body:String, attachment:String):Boolean {}
+	public function MD5(text:String):String {}
+	public function GetGUID():String {}
+	public function FileExists(path:String):Boolean {}
+	public function ReadFile(path:String):String {}
+	public function ImageToBase64(path:String):String {}
 }
 
 var Coconut2D:NodeJS_Coconut2D;

@@ -1437,18 +1437,41 @@ export class CocoDataset
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function locate(fieldName:String, fieldValue:String):Boolean
 	{
+		var fieldNames:Array<String> = new Array<String>;
+		var fieldValues:Array<String> = new Array<String>;
+		fieldNames.push(fieldName);
+		fieldValues.push(fieldValue);
+		var ret:Boolean = search(fieldNames,fieldValues);
+		delete fieldNames;
+		delete fieldValues;
+		return ret;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function search(fieldNames:Array<String>, fieldValues:Array<String>):Boolean
+	{
 		var index:Integer = __recordIndex;
-		var c:Integer = fieldByName(fieldName).ORDINAL;
-		if(c>=0 && c<METADATA.size())
+		var T:Integer = fieldNames.size();
+		var L:Integer = DATA.size();
+		for(var r:Integer=0; r<L; r++)
 		{
-			var L:Integer = DATA.size();
-			for(var r:Integer=0; r<L; r++)
+			var fieldMatches:Integer = 0;
+			for(var i:Integer =0; i<T; i++)
 			{
-				if(DATA[r].FieldValues[c]==fieldValue)
+				var fieldName:String = fieldNames[i];
+				var fieldValue:String = fieldValues[i];
+				var c:Integer = fieldByName(fieldName).ORDINAL;
+				if(c>=0 && c<METADATA.size())
 				{
-					__recordIndex = r;
-					return moved();
+					if(DATA[r].FieldValues[c]==fieldValue)
+						fieldMatches++;
 				}
+			}
+
+			if(fieldMatches==T)
+			{
+				__recordIndex = r;
+				return moved();
 			}
 			__recordIndex = index;
 			moved();

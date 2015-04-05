@@ -3092,7 +3092,7 @@ function Compiler(ast, target, output_path)
 							break;
 
 						case "String":
-							paramListInits.push(param.name+"=String("+param.name+");");
+							paramListInits.push(param.name+'=String('+param.name+'||"");');
 							break;
 						}
 					}
@@ -5688,6 +5688,8 @@ function Compiler(ast, target, output_path)
 
 			if(ast[0].symbol && ast[0].symbol.struct)
 			{
+				// Use a function to support nested structs
+
 				function __createStruct(symbol)
 				{
 					var items = [];
@@ -5734,7 +5736,10 @@ function Compiler(ast, target, output_path)
 									break;
 
 								default:
-									def = "new " + cls.name;
+									if(cls.callback || _this.isDerivativeOf("Function", cls.name))
+										def = "null";
+									else
+										def = "new " + cls.name;
 									break;
 								}
 							}
