@@ -108,6 +108,638 @@ Language Features:
 * Compiles to ECMA JavaScript cross-browser code
 * Compiles to C++11 Portable Code
 
+```JavaScript
+grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
+{
+
+	//----------------------------------------------------------------------
+	// Compilation Unit
+	//----------------------------------------------------------------------
+
+	compilation_unit ::= [ { pragma_statement  } ]
+						 [ module_statement ]
+						 [ { code_unit } ];
+
+	code_unit ::= include_statement
+	            | type_declaration
+	            | global_scope_if_directive
+	            | var
+	            | method_declaration;
+
+	//----------------------------------------------------------------------
+	// Whitespace & Comments
+	//----------------------------------------------------------------------
+
+	whitespace <WHITESPACE> ::= '[\s\n\r]+';
+	comment <COMMENT> ::= '//[^\n\r]*$';
+	multiline_comment <MULTILINE_COMMENT> ::= '/+\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/+';
+
+	//----------------------------------------------------------------------
+	// Pragma Statement
+	//----------------------------------------------------------------------
+
+	pragma_statement <TERMINAL> ::= "#pragma" ident;
+
+	//----------------------------------------------------------------------
+	// Include Statement
+	//----------------------------------------------------------------------
+
+	include_statement <TERMINAL> ::= "#include" STRING_LITERAL;
+
+	//----------------------------------------------------------------------
+	// Module Statement (for Node.js)
+	//----------------------------------------------------------------------
+
+	module_statement <MODULE> ::= "#module" ident;
+
+	//----------------------------------------------------------------------
+	// Compiler Directives
+	//----------------------------------------------------------------------
+
+	global_scope_if_directive <SCOPE,FRIENDLYNAME="#if directive"> ::=
+	    
+	    "#if" "(" expression ")"
+	        [ compilation_unit ]
+	    [
+	    "#else"
+	        [ compilation_unit ]
+	    ]
+	    "#endif";
+
+	//------------------------------------------------------------
+	class_scope_if_directive <SCOPE,FRIENDLYNAME="#if directive"> ::=
+	    
+	    "#if" "(" expression ")"
+	        [ class_field_declarations ]
+	    [
+	    "#else"
+	        [ class_field_declarations ]
+	    ]
+	    "#endif";
+
+	//------------------------------------------------------------
+	scope_if_directive <SCOPE,FRIENDLYNAME="#if directive"> ::=
+	    
+	    "#if" "(" expression ")"
+	        [ STATEMENT ]
+	    [
+	    "#else"
+	        [ STATEMENT ]
+	    ]
+	    "#endif";
+
+	//------------------------------------------------------------
+	// Embedded Code (does not work with #pragma export_native)
+	//------------------------------------------------------------
+	
+	embedded_javascript ::= '__javascript\s*\{\s*[\w\W]*?\s*\}\s*__end';
+	embedded_cpp 		::= '__cpp\s*\{\s*[\w\W]*?\s*\}\s*__end';
+	embedded_java		::= '__java\s*\{\s*[\w\W]*?\s*\}\s*__end';
+	embedded_html		::= '__html\s*\{\s*[\w\W]*?\s*\}\s*__end';
+
+	//============================================================================================================================
+	//
+	// Type Declarations
+	//
+	//============================================================================================================================
+
+	type_declaration ::= ( 	  class_declaration
+					   		| interface_declaration
+					   		| struct_declaration
+					   		| enum_declaration
+					   		| callback_declaration
+						 ) [";"] ;
+
+	//----------------------------------------------------------------------
+	// CLASS
+	//----------------------------------------------------------------------
+
+	class_declaration <CLASS,SCOPE,STATEMENT> ::= 	[ { class_modifier } ] "class" class_name
+													[ ":" class_base ]
+													[ "implements" { class_interface, ","} ]
+													"{"
+														[ class_field_declarations ]
+													"}";
+
+	class_modifier <TERMINAL,CLASS_MODIFIER> 	::= "control" | "emscripten" | "export" | "state" | "export";
+	class_name <TERMINAL,CLASS_NAME> 			::= ident;
+	class_base <TERMINAL,CLASS_BASE> 			::= qualified_name | typed_array | ARRAY;
+	class_interface <TERMINAL,CLASS_INTERFACE> 	::= qualified_name;
+
+	class_field_declarations ::= { class_field_declaration };
+
+	class_field_declaration ::=   constructor_declaration
+							  	| destructon_declaration
+  								| variable_declaration
+								| const_declaration
+								| property_declaration
+							  	| method_declaration
+							  	| enum_declaration
+							  	| event_declaration
+							  	| state_declaration
+							  	| struct_declaration
+							  	| class_declaration
+							  	| class_scope_if_directive
+							  	| ";" ;
+
+	constructor_declaration <STATEMENT,METHOD,CONSTRUCTOR> ::= public_modifier "function" constructor_name
+															  "(" [parameter_list] ")"
+															  [ base_class_initializer ]
+															  STATEMENTS;
+
+	destructon_declaration <STATEMENT,CONSTRUCTOR> ::= public_modifier "function" destructor_name
+													   "(" ")"
+													   STATEMENTS;
+
+	constructor_name <TERMINAL,METHOD_NAME>	::= "Constructor";
+	destructor_name <TERMINAL,METHOD_NAME>	::= "Destructor";
+	public_modifier <METHOD_MODIFIER> 		::= "public";
+	base_class_initializer 					::= ":" ident "(" expression_list ")";
+
+	//----------------------------------------------------------------------
+	// EVENT
+	//----------------------------------------------------------------------
+
+	event_declaration <EVENT,SCOPE,STATEMENT> 	::= event_modifier "event" event_name "(" [ event_parameter_list ] ")";
+
+	event_modifier <TERMINAL,EVENT_MODIFIER>	::= "public";
+	event_name <TERMINAL,EVENT_NAME> 			::= ident;
+
+	event_parameter_list						::= { event_parameter, ","} ;
+	event_parameter <EVENT_ARG> 				::= event_param_name ":" event_param_type;
+	event_param_type <TERMINAL,EVENT_ARG_TYPE>	::= type;
+	event_param_name <TERMINAL,EVENT_ARG_NAME>	::= ident;
+
+	//----------------------------------------------------------------------
+	// STRUCT
+	//----------------------------------------------------------------------
+
+	struct_declaration <STRUCT,SCOPE,STATEMENT> ::=	 [ struct_modifier ] "struct" struct_name
+													 "{"
+													 	{ (struct_item | struct_union) }
+													 "}";
+
+	struct_modifier <TERMINAL,STRUCT_MODIFIER> 		::= "export";
+	struct_name <TERMINAL,STRUCT_NAME> 				::= ident;
+
+	struct_item <STRUCT_ITEM>						::= struct_item_name ":" struct_item_type ";";
+	struct_item_name <TERMINAL,STRUCT_ITEM_NAME>	::= ident;
+	struct_item_type <TERMINAL,STRUCT_ITEM_TYPE> 	::= type;
+
+	struct_union 									::= "union" ident
+														"{"
+															{ (struct_item | struct_union) }
+														"}" ";";
+
+	//----------------------------------------------------------------------
+	// ENUM
+	//----------------------------------------------------------------------
+
+	enum_declaration <ENUM,SCOPE,STATEMENT> ::=  [enum_modifier] "enum" enum_name
+												 "{"
+													{ enum_item,  "," }
+												 "}";
+
+	enum_modifier <TERMINAL,ENUM_MODIFIER> 		::= "export";
+	enum_name <TERMINAL,ENUM_NAME> 				::= ident;
+
+	enum_item <ENUM_ITEM>						::= enum_item_name "=" enum_item_value;
+	enum_item_name <TERMINAL,ENUM_ITEM_NAME> 	::= ident;
+	enum_item_value <TERMINAL,ENUM_ITEM_VALUE> 	::= [UNARY_OP] NUMERIC_LITERAL;
+
+	//----------------------------------------------------------------------
+	// STATE
+	//----------------------------------------------------------------------
+
+	state_declaration <STATE,SCOPE,STATEMENT> ::=	state_modifier "state" state_name
+													"{"
+														{ state_field_declarations }
+													"}";
+
+	state_field_declarations ::=  variable_declaration | method_declaration;
+
+
+	state_modifier <TERMINAL,STATE_MODIFIER> 	::= access_modifiers;
+	state_name <TERMINAL,STATE_NAME> 			::= ident;
+
+	//----------------------------------------------------------------------
+	// INTERFACE
+	//----------------------------------------------------------------------
+
+	interface_declaration <INTERFACE,SCOPE,STATEMENT> ::= 	"interface" interface_name
+															[ ":" { interface_base, ","} ]
+															"{"
+																[ interface_field_declarations ]
+															"}" ;
+
+	interface_field_declarations ::=  { interface_field_declaration };
+
+	interface_field_declaration   ::= variable_declaration
+									| method_declaration
+									| ";";
+
+	interface_name <TERMINAL,INTERFACE_NAME> 	::= ident;
+	interface_base <TERMINAL,INTERFACE_BASE> 	::= qualified_name;
+
+	//----------------------------------------------------------------------
+	// FUNCTION
+	//----------------------------------------------------------------------
+
+	method_declaration <METHOD,SCOPE,STATEMENT> ::=	[{ method_modifier }] "function" method_name
+													"(" [parameter_list] ")"
+													[ ":" method_type ]
+													[ STATEMENTS ];
+
+	method_modifier <TERMINAL,METHOD_MODIFIER> 	::= "public" | "private" | "protected" | "static" | "abstract" | "virtual";
+	method_name <TERMINAL,METHOD_NAME> 			::= ident;
+	method_type <TERMINAL,METHOD_TYPE> 			::= type;
+
+	parameter_list 								::= { parameter, ","} ;
+	parameter <METHOD_ARG> 						::= optional_parameter | required_parameter | rest_arguments;
+	required_parameter							::= param_name ":" param_type;
+	optional_parameter							::= "optional" required_parameter [ "=" expression ];
+	param_type <TERMINAL,METHOD_ARG_TYPE> 		::= type;
+	param_name <TERMINAL,METHOD_ARG_NAME> 		::= ident;
+	rest_arguments 								::= "..." [":" scalar_type];
+
+	//----------------------------------------------------------------------
+	// CALLBACK
+	//----------------------------------------------------------------------
+
+	callback_declaration ::= "callback" ident "(" [parameter_list] ")";
+
+	//----------------------------------------------------------------------
+	// VAR (as class member)
+	//----------------------------------------------------------------------
+
+	variable_declaration <STATEMENT,VAR> 	::= [{ var_modifier }] "var" variable_declarators ";";
+	const_declaration <STATEMENT,VAR,CONST>	::= [{ var_modifier }] "const" variable_declarators ";";
+
+	variable_declarators 					::= { variable_declarator, "," } ;
+	variable_declarator 					::= var_name ":" var_type ["=" expression];
+                                        	
+	var_modifier <VAR_MODIFIER>				::= "static" | "public" | "private" | "protected" | "published" | "reference" | "delegate" | "optional";
+	var_type <TERMINAL,VAR_TYPE>			::= type;
+	var_name <VAR_NAME> 					::= ident;
+                                        	
+	context_var <VAR>						::= var_name ":" var_type;
+
+	//----------------------------------------------------------------------
+	// PROPERTY
+	//----------------------------------------------------------------------
+
+	property_declaration <STATEMENT,SCOPE,PROPERTY> ::= { property_modifier } "property" property_name
+														"{"
+															property_getter
+															[ property_setter ]
+														"}";
+
+	property_modifier <PROPERTY_MODIFIER>			::= "static" | "public" | "private" | "protected" | "published";
+	property_name <PROPERTY_NAME>					::= ident;
+
+	property_getter <METHOD,PROPERTY_GETTER>		::= "function" "get" "(" ")" ":" method_type STATEMENTS;
+	property_setter <METHOD,PROPERTY_SETTER>		::= "function" "set" "(" parameter_list ")" STATEMENTS;
+
+	//----------------------------------------------------------------------
+	// (type declaration related productions)
+	//----------------------------------------------------------------------
+
+	access_modifiers	::= "public" | "private" | "protected";
+
+	//============================================================================================================================
+	//
+	// Statements
+	//
+	//============================================================================================================================
+
+	STATEMENTS <SCOPE> ::= "{" [{STATEMENT}] "}";
+
+	STATEMENT ::= STATEMENTS
+	            | break
+	            | continue
+	            | delete
+	            | do
+	            | for
+	            | for_in
+	            | if_else
+	            | return
+	            | switch
+	            | while
+	            | try
+	            | throw
+	            | label
+	            | var
+	            | EXPRESSION
+	            | scope_if_directive
+	            | embedded_javascript
+	            | embedded_java
+	            | embedded_cpp
+	            | embedded_html
+	            ;
+
+	//------------------------------------------------------------
+	EXPRESSION <STATEMENT,ERROR="Invalid EXPRESSION"> ::= expression ";";
+
+	//------------------------------------------------------------
+	try <STATEMENT,SCOPE,FRIENDLYNAME="try statement"> ::=
+	    "try"
+	        STATEMENT
+	    [ catch ]
+	    [ finally ];
+
+	catch <SCOPE> ::=
+	    "catch" "(" context_var ")"
+	    STATEMENT;
+
+	finally <SCOPE> ::=
+	    "finally"
+	    STATEMENT;
+
+	//------------------------------------------------------------
+	throw <STATEMENT,FRIENDLYNAME="throw statement"> ::=
+	    "throw" expression ";";
+
+	//------------------------------------------------------------
+	break <STATEMENT, FRIENDLYNAME="break statement"> ::=
+	    "break" [ident] ";";
+
+	//------------------------------------------------------------
+	continue <STATEMENT, FRIENDLYNAME="continue statement"> ::=
+	    "continue" [ident] ";";
+
+	//------------------------------------------------------------
+	delete <STATEMENT, FRIENDLYNAME="delete statement"> ::=
+	    "delete" ["[" "]"] reference_expr ";";
+
+	//------------------------------------------------------------
+	for <STATEMENT, FRIENDLYNAME="for statement">	::=
+	    "for" "(" [for_init] ";" [expression] ";" [expression_list] ")"
+			STATEMENT;
+
+	for_init ::= for_var | expression_list;
+
+	for_var <STATEMENT,VAR> ::= "var" variable_declarators;
+
+	//------------------------------------------------------------
+	for_in <STATEMENT, SCOPE, FRIENDLYNAME="for in statement"> ::=
+	    "for" "(" for_var "in" expression ")"
+	    	STATEMENT;
+
+	//------------------------------------------------------------
+	if_else <STATEMENT, FRIENDLYNAME="if statement"> ::=
+	    "if" "(" expression ")"
+	        STATEMENT
+	    [
+	     "else"
+	        STATEMENT
+	    ];
+
+	//------------------------------------------------------------
+	label <STATEMENT, FRIENDLYNAME="label statement"> ::=
+	    ident ":" STATEMENT ;
+
+	//------------------------------------------------------------
+	return <STATEMENT, FRIENDLYNAME="return statement"> ::=
+	    "return" [expression] ";";
+
+	//------------------------------------------------------------
+	switch <STATEMENT, FRIENDLYNAME="switch statement"> ::=
+	    "switch" "(" expression ")"
+	    "{"
+	        [{ case }]
+	        [default]
+	    "}";
+
+	case <STATEMENT,SCOPE> ::=
+	    "case" expression ":"
+	        [ { STATEMENT } ];
+
+	default <STATEMENT,SCOPE> ::=
+	    "default" ":"
+	        [ { STATEMENT } ];
+
+	//------------------------------------------------------------
+	do <STATEMENT, FRIENDLYNAME="do-while loop statement"> ::=
+	    "do"
+	        STATEMENT
+	    "while" "(" expression ")" ";";
+
+	//------------------------------------------------------------
+	while <STATEMENT, FRIENDLYNAME="while loop statement"> ::=
+	    "while" "(" expression ")"
+	        [ STATEMENT ] [";"];
+
+	//------------------------------------------------------------
+	var <STATEMENT,VAR> ::= "var" variable_declarators ";";
+
+	//============================================================================================================================
+	//
+	// Expressions
+	//
+	//============================================================================================================================
+
+	//----------------------------------------------------------------------
+	// Operators (avoiding op precedence for speed)
+	//----------------------------------------------------------------------
+
+	OPERATOR <OPERATOR> ::= "="    | "*="  | "/="  | "%="
+		                  | "+="   | "-="  | "<<=" | ">>="
+		                  | ">>>=" | "&="  | "^="  | "|="
+		                  | "||"   | "&&"  | "|"   | "^"
+		                  | "&"    | "=="  | "!="  | "<"
+		                  | ">"    | ">="  | "<="  | "==="
+		                  | "!=="  | ">>>" | ">>"  | "<<"
+		                  | "+"    | "-"   | "/"   | "*"
+		                  | "%"    | "~"   | "instanceof"
+		                  ;
+
+	UNARY_OP  <OPERATOR> ::= "-" | "~" | "+";
+	PREFIX_OP <OPERATOR> ::= "++" | "--" | "typeof";
+
+	//----------------------------------------------------------------------
+	// Expressions
+	//----------------------------------------------------------------------
+
+	expression <SHOWDELIMITERS> ::= { ternary_expr, OPERATOR };
+
+	ternary_expr ::= { factor_expr, "." }
+					 [ "?" expression ":" expression ]
+					 [ ( "(" [expression_list] ")" ) ];
+
+	factor_expr ::=	  ( "true" | "false" | "undefined" | "null" )
+					| ( "!" expression )
+					| ( "(" expression ")" )
+					| ( UNARY_OP expression )
+					| ( new_array_expr )
+					| new_expr
+					| ( STRING_LITERAL | NUMERIC_LITERAL )
+					| ( [ PREFIX_OP ] reference_expr [ PREFIX_OP ] )
+					| ( [ PREFIX_OP ] "(" reference_expr ")" [ PREFIX_OP ] )
+					| JSON
+					;
+
+	new_expr 						::= "new" (typed_array | expression);
+	new_array_expr 					::= "[" [ expression_list ] "]";
+	expression_list 				::= { expression, ","};
+
+	// reference term must not begin with keyword but may end with keyword (eg. a.default)
+	reference_expr <DOT>      		::= { reference_term, "." };
+	reference_term 					::= ident [ { ( subscript_expr ) | ( call_expr ) } ];
+
+	call_expr <CALL>				::= "(" [ expression_list ] ")";
+	subscript_expr <SUBSCRIPT>		::= "[" expression "]";
+
+	//============================================================================================================================
+	// JSON (Allowed only with #pragma json)
+	//============================================================================================================================
+
+	JSON ::= [ JSON_OBJECT ];
+	JSON_OBJECT ::= "{" [ { JSON_MEMBER, "," } ] "}";
+	JSON_ARRAY ::= "[" { JSON_VALUE, "," } "]";
+	JSON_MEMBER ::= STRING_LITERAL ":" JSON_VALUE;
+	JSON_VALUE ::= "false" | "true" | "null" | JSON_OBJECT | JSON_ARRAY | NUMERIC_LITERAL | STRING_LITERAL | expression;
+
+	//============================================================================================================================
+	//
+	// Terminals
+	//
+	//============================================================================================================================
+
+	type <TERMINAL> ::= typed_array | ident;
+
+	ARRAY ::= "Array";
+
+	typed_array ::= ARRAY "<" (^keyword identifier) ">";
+
+	qualified_name ::= ^ARRAY { ident, "." };
+
+	ident <TERMINAL,IDENTIFIER>::= ^keyword identifier;
+
+
+	scalar_type <SCALARS> ::= "Boolean"
+							| "Color"
+							| "Date"
+							| "Float"
+							| "Integer"
+							| "Number"
+							| "String"
+							| "Time"
+							;
+
+	vartypes <VARTYPES> ::=   "Array"
+							| "ArrayBuffer"
+							| "ArrayBufferView"
+							| "Boolean"
+							| "Class"
+							| "CocoAction"
+							| "Color"
+							| "DataView"
+							| "Date"
+							| "Error"
+							| "EvalError"
+							| "Float"
+							| "Float32Array"
+							| "Float64Array"
+							| "Function"
+							| "Global"
+							| "Gradient"
+							| "Int16Array"
+							| "Int32Array"
+							| "Int64Array"
+							| "Int8Array"
+							| "Integer"
+							| "Math"
+							| "Null"
+							| "Number"
+							| "Object"
+							| "RangeError"
+							| "ReferenceError"
+							| "RegExp"
+							| "String"
+							| "SyntaxError"
+							| "Time"
+							| "TypeError"
+							| "Uint16Array"
+							| "Uint32Array"
+							| "Uint64Array"
+							| "Uint8Array"
+							;
+
+	keyword <KEYWORDS> ::= 	  "abstract"
+							| "break"
+							| "callback"
+							| "case"
+							| "catch"
+							| "class"
+							| "compiler_break"
+							| "const"
+							| "continue"
+							| "control"
+							| "debugger"
+							| "default"
+							| "delegate"
+							| "delete"
+							| "do"
+							| "else"
+							| "emscripten"
+							| "enum"
+							| "event"
+							| "export"
+							| "finally"
+							| "for"
+							| "function"
+							| "if"
+							| "implements"
+							| "import"
+							| "in"
+							| "inline"
+							| "instanceof"
+							| "interface"
+							| "let"
+							| "namespace"
+							| "new"
+							| "optional"
+							| "private"
+							| "property"
+							| "protected"
+							| "public"
+							| "published"
+							| "reference"
+							| "return"
+							| "state"
+							| "static"
+							| "struct"
+							| "switch"
+							| "thread"
+							| "throw"
+							| "try"
+							| "typeof"
+							| "union"
+							| "use"
+							| "var"
+							| "virtual"
+							| "void"
+							| "volatile"
+							| "while"
+							| "with"
+							;
+
+							// "null","undefined","true","false","this","super",
+
+
+	//============================================================================================================================
+	//
+	// Literals
+	//
+	//============================================================================================================================
+
+	NUMERIC_LITERAL <TERMINAL> ::= '(?:0[xX][0-9a-fA-F]+)|(?:\d+(?:\.\d+){0,1}[fd]{0,1})';
+	STRING_LITERAL <STRING,TERMINAL> ::= '\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27';
+	identifier ::= '[a-zA-Z_\$][a-zA-Z0-9_\$]*';
+
+};
+```
+
 We also developed **CocoPlayer**, a Simulator powered by **Google V8 JavaScript VM Engine** where developers can test, debug and profile their games and apps. CocoPlayer is capable of simulating various screen resolutions taking into account the different dpi of numerous iOS and Android devices. The full-fledged Object Oriented JavaScript Debugger is one of Coconut2D Studio's unique features!
 
 4. Work in Progress
