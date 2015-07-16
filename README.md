@@ -247,7 +247,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 															  [ base_class_initializer ]
 															  STATEMENTS;
 
-	destructon_declaration <STATEMENT,CONSTRUCTOR> ::= public_modifier "function" destructor_name
+	destructon_declaration <STATEMENT,DESTRUCTOR> ::= public_modifier "function" destructor_name
 													   "(" ")"
 													   STATEMENTS;
 
