@@ -109,6 +109,7 @@ Language Features:
 * Compiles to C++11 Portable Code
 
 ```JavaScript
+
 grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 {
 
@@ -131,14 +132,14 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	//----------------------------------------------------------------------
 
 	whitespace <WHITESPACE> ::= '[\s\n\r]+';
-	comment <COMMENT> ::= '//[^\n\r]*$';
+	comment <COMMENT> ::= '//+[^\n\r]*$';
 	multiline_comment <MULTILINE_COMMENT> ::= '/+\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/+';
 
 	//----------------------------------------------------------------------
 	// Pragma Statement
 	//----------------------------------------------------------------------
 
-	pragma_statement <TERMINAL> ::= "#pragma" ident;
+	pragma_statement <TERMINAL> ::= "#pragma" uncaptured_ident ";";
 
 	//----------------------------------------------------------------------
 	// Include Statement
@@ -150,14 +151,14 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	// Module Statement (for Node.js)
 	//----------------------------------------------------------------------
 
-	module_statement <MODULE> ::= "#module" ident;
+	module_statement <MODULE> ::= "#module" uncaptured_ident ";";
 
 	//----------------------------------------------------------------------
 	// Compiler Directives
 	//----------------------------------------------------------------------
 
 	global_scope_if_directive <SCOPE,FRIENDLYNAME="#if directive"> ::=
-	    
+
 	    "#if" "(" expression ")"
 	        [ compilation_unit ]
 	    [
@@ -168,7 +169,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 
 	//------------------------------------------------------------
 	class_scope_if_directive <SCOPE,FRIENDLYNAME="#if directive"> ::=
-	    
+
 	    "#if" "(" expression ")"
 	        [ class_field_declarations ]
 	    [
@@ -179,7 +180,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 
 	//------------------------------------------------------------
 	scope_if_directive <SCOPE,FRIENDLYNAME="#if directive"> ::=
-	    
+
 	    "#if" "(" expression ")"
 	        [ STATEMENT ]
 	    [
@@ -191,7 +192,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	//------------------------------------------------------------
 	// Embedded Code (does not work with #pragma export_native)
 	//------------------------------------------------------------
-	
+
 	embedded_javascript ::= '__javascript\s*\{\s*[\w\W]*?\s*\}\s*__end';
 	embedded_cpp 		::= '__cpp\s*\{\s*[\w\W]*?\s*\}\s*__end';
 	embedded_java		::= '__java\s*\{\s*[\w\W]*?\s*\}\s*__end';
@@ -231,7 +232,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	class_field_declaration ::=   constructor_declaration
 							  	| destructon_declaration
   								| variable_declaration
-								| const_declaration
+  								| const_declaration
 								| property_declaration
 							  	| method_declaration
 							  	| enum_declaration
@@ -242,14 +243,13 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 							  	| class_scope_if_directive
 							  	| ";" ;
 
-	constructor_declaration <STATEMENT,METHOD,CONSTRUCTOR> ::= public_modifier "function" constructor_name
-															  "(" [parameter_list] ")"
-															  [ base_class_initializer ]
-															  STATEMENTS;
+	constructor_declaration <STATEMENT,METHOD,CONSTRUCTOR> 	::= public_modifier "function" constructor_name
+															    "(" [parameter_list] ")"
+															    [ base_class_initializer ]
+															    STATEMENTS;
 
-	destructon_declaration <STATEMENT,DESTRUCTOR> ::= public_modifier "function" destructor_name
-													   "(" ")"
-													   STATEMENTS;
+	destructon_declaration <STATEMENT,METHOD,DESTRUCTOR> 	::= public_modifier "function" destructor_name "(" ")"
+															    STATEMENTS;
 
 	constructor_name <TERMINAL,METHOD_NAME>	::= "Constructor";
 	destructor_name <TERMINAL,METHOD_NAME>	::= "Destructor";
@@ -316,7 +316,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 														{ state_field_declarations }
 													"}";
 
-	state_field_declarations ::=  variable_declaration | method_declaration;
+	state_field_declarations ::=  variable_declaration | const_declaration | method_declaration;
 
 
 	state_modifier <TERMINAL,STATE_MODIFIER> 	::= access_modifiers;
@@ -335,6 +335,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	interface_field_declarations ::=  { interface_field_declaration };
 
 	interface_field_declaration   ::= variable_declaration
+									| const_declaration
 									| method_declaration
 									| ";";
 
@@ -366,7 +367,13 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	// CALLBACK
 	//----------------------------------------------------------------------
 
-	callback_declaration ::= "callback" ident "(" [parameter_list] ")";
+	callback_declaration <CALLBACK,STATEMENT> 			::= "callback" callback_name "(" [callback_parameter_list] ")";
+
+	callback_name <TERMINAL,CALLBACK_NAME>				::= ident;
+	callback_parameter_list								::= { callback_parameter, ","} ;
+	callback_parameter <CALLBACK_ARG> 					::= callback_param_name ":" callback_param_type;
+	callback_param_name <TERMINAL,CALLBACK_ARG_NAME> 	::= ident;
+	callback_param_type <TERMINAL,CALLBACK_ARG_TYPE> 	::= type;
 
 	//----------------------------------------------------------------------
 	// VAR (as class member)
@@ -375,13 +382,14 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	variable_declaration <STATEMENT,VAR> 	::= [{ var_modifier }] "var" variable_declarators ";";
 	const_declaration <STATEMENT,VAR,CONST>	::= [{ var_modifier }] "const" variable_declarators ";";
 
-	variable_declarators 					::= { variable_declarator, "," } ;
+	variable_declarators 					::= { variable_declarator, var_separator } ;
 	variable_declarator 					::= var_name ":" var_type ["=" expression];
-                                        	
+
 	var_modifier <VAR_MODIFIER>				::= "static" | "public" | "private" | "protected" | "published" | "reference" | "delegate" | "optional";
 	var_type <TERMINAL,VAR_TYPE>			::= type;
 	var_name <VAR_NAME> 					::= ident;
-                                        	
+	var_separator<VAR_NEXT>					::= ",";
+
 	context_var <VAR>						::= var_name ":" var_type;
 
 	//----------------------------------------------------------------------
@@ -412,7 +420,10 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	//
 	//============================================================================================================================
 
-	STATEMENTS <SCOPE> ::= "{" [{STATEMENT}] "}";
+	STATEMENTS ::= EMPTY_BLOCK | STATEMENTS_BLOCK;
+
+	EMPTY_BLOCK 				::= "{" "}";
+	STATEMENTS_BLOCK<SCOPE> 	::= "{" { STATEMENT } "}";
 
 	STATEMENT ::= STATEMENTS
 	            | break
@@ -429,6 +440,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	            | throw
 	            | label
 	            | var
+	            | const
 	            | EXPRESSION
 	            | scope_if_directive
 	            | embedded_javascript
@@ -530,7 +542,8 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	        [ STATEMENT ] [";"];
 
 	//------------------------------------------------------------
-	var <STATEMENT,VAR> ::= "var" variable_declarators ";";
+	var <STATEMENT,VAR> 		::= "var" variable_declarators ";";
+	const <STATEMENT,VAR,CONST> ::= "const" variable_declarators ";";
 
 	//============================================================================================================================
 	//
@@ -609,11 +622,13 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 
 	ARRAY ::= "Array";
 
-	typed_array ::= ARRAY "<" (^keyword identifier) ">";
+	typed_array ::= ARRAY "<" (uncaptured_ident) ">";
 
 	qualified_name ::= ^ARRAY { ident, "." };
 
 	ident <TERMINAL,IDENTIFIER>::= ^keyword identifier;
+
+	uncaptured_ident ::= ^keyword identifier;
 
 
 	scalar_type <SCALARS> ::= "Boolean"
