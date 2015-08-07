@@ -110,7 +110,13 @@ Language Features:
 
 ```JavaScript
 
-grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
+
+grammar CocoScript
+<
+	MATCHCASE,
+	FILE_EXT_LIST=".jspp",
+	REPARSE_PATTERN="\b(var|const)\s+.*?;"
+>
 {
 
 	//----------------------------------------------------------------------
@@ -124,7 +130,8 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	code_unit ::= include_statement
 	            | type_declaration
 	            | global_scope_if_directive
-	            | var
+	            | variable_declaration
+	            | const_declaration
 	            | method_declaration;
 
 	//----------------------------------------------------------------------
@@ -139,25 +146,26 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	// Pragma Statement
 	//----------------------------------------------------------------------
 
-	pragma_statement <TERMINAL> ::= "#pragma" uncaptured_ident ";";
+	pragma_statement <TERMINAL,STATEMENT> ::= "#pragma" uncaptured_ident ";";
 
 	//----------------------------------------------------------------------
 	// Include Statement
 	//----------------------------------------------------------------------
 
-	include_statement <TERMINAL> ::= "#include" STRING_LITERAL;
+	include_statement <TERMINAL,STATEMENT> ::= "#include" STRING_LITERAL;
 
 	//----------------------------------------------------------------------
 	// Module Statement (for Node.js)
 	//----------------------------------------------------------------------
 
-	module_statement <MODULE> ::= "#module" uncaptured_ident ";";
+	module_statement <MODULE,STATEMENT> 			::= "#module" module_name ";";
+	module_name <TERMINAL, MODULE_NAME> ::= ident;
 
 	//----------------------------------------------------------------------
 	// Compiler Directives
 	//----------------------------------------------------------------------
 
-	global_scope_if_directive <SCOPE,FRIENDLYNAME="#if directive"> ::=
+	global_scope_if_directive <STATEMENT,FRIENDLYNAME="#if directive"> ::=
 
 	    "#if" "(" expression ")"
 	        [ compilation_unit ]
@@ -168,7 +176,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	    "#endif";
 
 	//------------------------------------------------------------
-	class_scope_if_directive <SCOPE,FRIENDLYNAME="#if directive"> ::=
+	class_scope_if_directive <STATEMENT,FRIENDLYNAME="#if directive"> ::=
 
 	    "#if" "(" expression ")"
 	        [ class_field_declarations ]
@@ -179,7 +187,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	    "#endif";
 
 	//------------------------------------------------------------
-	scope_if_directive <SCOPE,FRIENDLYNAME="#if directive"> ::=
+	scope_if_directive <STATEMENT,FRIENDLYNAME="#if directive"> ::=
 
 	    "#if" "(" expression ")"
 	        [ STATEMENT ]
@@ -216,7 +224,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	//----------------------------------------------------------------------
 
 	class_declaration <CLASS,SCOPE,STATEMENT> ::= 	[ { class_modifier } ] "class" class_name
-													[ ":" class_base ]
+													[ COLON class_base ]
 													[ "implements" { class_interface, ","} ]
 													"{"
 														[ class_field_declarations ]
@@ -224,7 +232,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 
 	class_modifier <TERMINAL,CLASS_MODIFIER> 	::= "control" | "emscripten" | "export" | "state" | "export";
 	class_name <TERMINAL,CLASS_NAME> 			::= ident;
-	class_base <TERMINAL,CLASS_BASE> 			::= qualified_name | typed_array | ARRAY;
+	class_base <TERMINAL,CLASS_BASE> 			::= qualified_name | typed_array | dictionary | ARRAY;
 	class_interface <TERMINAL,CLASS_INTERFACE> 	::= qualified_name;
 
 	class_field_declarations ::= { class_field_declaration };
@@ -254,7 +262,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	constructor_name <TERMINAL,METHOD_NAME>	::= "Constructor";
 	destructor_name <TERMINAL,METHOD_NAME>	::= "Destructor";
 	public_modifier <METHOD_MODIFIER> 		::= "public";
-	base_class_initializer 					::= ":" ident "(" expression_list ")";
+	base_class_initializer 					::= COLON ident "(" expression_list ")";
 
 	//----------------------------------------------------------------------
 	// EVENT
@@ -266,7 +274,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	event_name <TERMINAL,EVENT_NAME> 			::= ident;
 
 	event_parameter_list						::= { event_parameter, ","} ;
-	event_parameter <EVENT_ARG> 				::= event_param_name ":" event_param_type;
+	event_parameter <EVENT_ARG> 				::= event_param_name COLON event_param_type;
 	event_param_type <TERMINAL,EVENT_ARG_TYPE>	::= type;
 	event_param_name <TERMINAL,EVENT_ARG_NAME>	::= ident;
 
@@ -282,7 +290,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	struct_modifier <TERMINAL,STRUCT_MODIFIER> 		::= "export";
 	struct_name <TERMINAL,STRUCT_NAME> 				::= ident;
 
-	struct_item <STRUCT_ITEM>						::= struct_item_name ":" struct_item_type ";";
+	struct_item <STRUCT_ITEM>						::= struct_item_name COLON struct_item_type ";";
 	struct_item_name <TERMINAL,STRUCT_ITEM_NAME>	::= ident;
 	struct_item_type <TERMINAL,STRUCT_ITEM_TYPE> 	::= type;
 
@@ -316,7 +324,13 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 														{ state_field_declarations }
 													"}";
 
-	state_field_declarations ::=  variable_declaration | const_declaration | method_declaration;
+	state_field_declarations ::=  variable_declaration | const_declaration | state_method_declaration;
+
+	state_method_declaration <METHOD,STATE_METHOD,SCOPE,STATEMENT> ::=	"function" state_method_name
+																		"(" [parameter_list] ")"
+																		[ STATEMENTS ];
+
+	state_method_name <TERMINAL,METHOD_NAME> 	::= "enter" | "exit" | "tick" | "paint";
 
 
 	state_modifier <TERMINAL,STATE_MODIFIER> 	::= access_modifiers;
@@ -327,7 +341,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	//----------------------------------------------------------------------
 
 	interface_declaration <INTERFACE,SCOPE,STATEMENT> ::= 	"interface" interface_name
-															[ ":" { interface_base, ","} ]
+															[ COLON { interface_base, ","} ]
 															"{"
 																[ interface_field_declarations ]
 															"}" ;
@@ -346,22 +360,22 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	// FUNCTION
 	//----------------------------------------------------------------------
 
-	method_declaration <METHOD,SCOPE,STATEMENT> ::=	[{ method_modifier }] "function" method_name
-													"(" [parameter_list] ")"
-													[ ":" method_type ]
-													[ STATEMENTS ];
+	method_declaration <METHOD,SCOPE,STATEMENT> 		::=	[{ method_modifier }] "function" method_name
+															"(" [parameter_list] ")"
+															[ COLON method_type ]
+															[ STATEMENTS ];
 
-	method_modifier <TERMINAL,METHOD_MODIFIER> 	::= "public" | "private" | "protected" | "static" | "abstract" | "virtual";
-	method_name <TERMINAL,METHOD_NAME> 			::= ident;
-	method_type <TERMINAL,METHOD_TYPE> 			::= type;
+	method_modifier <TERMINAL,METHOD_MODIFIER> 			::= "public" | "private" | "protected" | "static" | "abstract" | "virtual";
+	method_name <TERMINAL,METHOD_NAME> 					::= ident;
+	method_type <TERMINAL,METHOD_TYPE> 					::= type;
 
-	parameter_list 								::= { parameter, ","} ;
-	parameter <METHOD_ARG> 						::= optional_parameter | required_parameter | rest_arguments;
-	required_parameter							::= param_name ":" param_type;
-	optional_parameter							::= "optional" required_parameter [ "=" expression ];
-	param_type <TERMINAL,METHOD_ARG_TYPE> 		::= type;
-	param_name <TERMINAL,METHOD_ARG_NAME> 		::= ident;
-	rest_arguments 								::= "..." [":" scalar_type];
+	parameter_list 										::= { parameter, ","} ;
+	parameter <METHOD_ARG> 								::= optional_parameter | required_parameter | rest_arguments;
+	required_parameter									::= param_name COLON param_type;
+	optional_parameter									::= "optional" required_parameter [ "=" expression ];
+	param_type <TERMINAL,METHOD_ARG_TYPE> 				::= type;
+	param_name <TERMINAL,METHOD_ARG_NAME> 				::= ident;
+	rest_arguments 										::= "..." [COLON scalar_type];
 
 	//----------------------------------------------------------------------
 	// CALLBACK
@@ -371,26 +385,27 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 
 	callback_name <TERMINAL,CALLBACK_NAME>				::= ident;
 	callback_parameter_list								::= { callback_parameter, ","} ;
-	callback_parameter <CALLBACK_ARG> 					::= callback_param_name ":" callback_param_type;
+	callback_parameter <CALLBACK_ARG> 					::= callback_param_name COLON callback_param_type;
 	callback_param_name <TERMINAL,CALLBACK_ARG_NAME> 	::= ident;
 	callback_param_type <TERMINAL,CALLBACK_ARG_TYPE> 	::= type;
 
 	//----------------------------------------------------------------------
-	// VAR (as class member)
+	// VAR
 	//----------------------------------------------------------------------
 
-	variable_declaration <STATEMENT,VAR> 	::= [{ var_modifier }] "var" variable_declarators ";";
-	const_declaration <STATEMENT,VAR,CONST>	::= [{ var_modifier }] "const" variable_declarators ";";
+	variable_declaration <STATEMENT,VAR> 				::= [{ var_modifier }] "var" variable_declarators ";";
+	const_declaration <STATEMENT,VAR,CONST>				::= [{ var_modifier }] "const" variable_declarators ";";
 
-	variable_declarators 					::= { variable_declarator, var_separator } ;
-	variable_declarator 					::= var_name ":" var_type ["=" expression];
+	variable_declarators 								::= { variable_declarator, var_separator } ;
+	variable_declarator 								::= var_name COLON var_type [ "=" var_init ];
 
-	var_modifier <VAR_MODIFIER>				::= "static" | "public" | "private" | "protected" | "published" | "reference" | "delegate" | "optional";
-	var_type <TERMINAL,VAR_TYPE>			::= type;
-	var_name <VAR_NAME> 					::= ident;
-	var_separator<VAR_NEXT>					::= ",";
+	var_modifier <VAR_MODIFIER>							::= "static" | "public" | "private" | "protected" | "published" | "reference" | "delegate" | "optional";
+	var_type <TERMINAL,VAR_TYPE>						::= type;
+	var_name <VAR_NAME> 								::= ident;
+	var_init <VAR_INITIALIZER>							::= expression;
+	var_separator<VAR_NEXT>								::= ",";
 
-	context_var <VAR>						::= var_name ":" var_type;
+	context_var <VAR>									::= var_name COLON var_type;
 
 	//----------------------------------------------------------------------
 	// PROPERTY
@@ -405,7 +420,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	property_modifier <PROPERTY_MODIFIER>			::= "static" | "public" | "private" | "protected" | "published";
 	property_name <PROPERTY_NAME>					::= ident;
 
-	property_getter <METHOD,PROPERTY_GETTER>		::= "function" "get" "(" ")" ":" method_type STATEMENTS;
+	property_getter <METHOD,PROPERTY_GETTER>		::= "function" "get" "(" ")" COLON method_type STATEMENTS;
 	property_setter <METHOD,PROPERTY_SETTER>		::= "function" "set" "(" parameter_list ")" STATEMENTS;
 
 	//----------------------------------------------------------------------
@@ -422,7 +437,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 
 	STATEMENTS ::= EMPTY_BLOCK | STATEMENTS_BLOCK;
 
-	EMPTY_BLOCK 				::= "{" "}";
+	EMPTY_BLOCK					::= "{" "}";
 	STATEMENTS_BLOCK<SCOPE> 	::= "{" { STATEMENT } "}";
 
 	STATEMENT ::= STATEMENTS
@@ -439,8 +454,8 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	            | try
 	            | throw
 	            | label
-	            | var
-	            | const
+	            | variable_declaration
+	            | const_declaration
 	            | EXPRESSION
 	            | scope_if_directive
 	            | embedded_javascript
@@ -450,7 +465,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	            ;
 
 	//------------------------------------------------------------
-	EXPRESSION <STATEMENT,ERROR="Invalid EXPRESSION"> ::= expression ";";
+	EXPRESSION <STATEMENT,ERROR="Invalid Expression"> ::= expression ";";
 
 	//------------------------------------------------------------
 	try <STATEMENT,SCOPE,FRIENDLYNAME="try statement"> ::=
@@ -508,7 +523,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 
 	//------------------------------------------------------------
 	label <STATEMENT, FRIENDLYNAME="label statement"> ::=
-	    ident ":" STATEMENT ;
+	    ident COLON STATEMENT ;
 
 	//------------------------------------------------------------
 	return <STATEMENT, FRIENDLYNAME="return statement"> ::=
@@ -523,11 +538,11 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	    "}";
 
 	case <STATEMENT,SCOPE> ::=
-	    "case" expression ":"
+	    "case" expression COLON
 	        [ { STATEMENT } ];
 
 	default <STATEMENT,SCOPE> ::=
-	    "default" ":"
+	    "default" COLON
 	        [ { STATEMENT } ];
 
 	//------------------------------------------------------------
@@ -540,10 +555,6 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	while <STATEMENT, FRIENDLYNAME="while loop statement"> ::=
 	    "while" "(" expression ")"
 	        [ STATEMENT ] [";"];
-
-	//------------------------------------------------------------
-	var <STATEMENT,VAR> 		::= "var" variable_declarators ";";
-	const <STATEMENT,VAR,CONST> ::= "const" variable_declarators ";";
 
 	//============================================================================================================================
 	//
@@ -576,10 +587,10 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	expression <SHOWDELIMITERS> ::= { ternary_expr, OPERATOR };
 
 	ternary_expr ::= { factor_expr, "." }
-					 [ "?" expression ":" expression ]
+					 [ "?" expression COLON expression ]
 					 [ ( "(" [expression_list] ")" ) ];
 
-	factor_expr ::=	  ( "true" | "false" | "undefined" | "null" )
+	factor_expr ::=	  ( TRUE | FALSE | UNDEFINED | NULL )
 					| ( "!" expression )
 					| ( "(" expression ")" )
 					| ( UNARY_OP expression )
@@ -591,7 +602,7 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 					| JSON
 					;
 
-	new_expr 						::= "new" (typed_array | expression);
+	new_expr 						::= "new" (typed_array | dictionary | expression);
 	new_array_expr 					::= "[" [ expression_list ] "]";
 	expression_list 				::= { expression, ","};
 
@@ -609,8 +620,8 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	JSON ::= [ JSON_OBJECT ];
 	JSON_OBJECT ::= "{" [ { JSON_MEMBER, "," } ] "}";
 	JSON_ARRAY ::= "[" { JSON_VALUE, "," } "]";
-	JSON_MEMBER ::= STRING_LITERAL ":" JSON_VALUE;
-	JSON_VALUE ::= "false" | "true" | "null" | JSON_OBJECT | JSON_ARRAY | NUMERIC_LITERAL | STRING_LITERAL | expression;
+	JSON_MEMBER ::= STRING_LITERAL COLON JSON_VALUE;
+	JSON_VALUE ::= FALSE | TRUE | NULL | JSON_OBJECT | JSON_ARRAY | NUMERIC_LITERAL | STRING_LITERAL | expression;
 
 	//============================================================================================================================
 	//
@@ -618,18 +629,49 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 	//
 	//============================================================================================================================
 
-	type <TERMINAL> ::= typed_array | ident;
+	ident 				<TERMINAL, IDENTIFIER> 	::= ^keyword identifier;
+	uncaptured_ident 	<TERMINAL> 				::= ^keyword identifier;
 
-	ARRAY ::= "Array";
+	type 				<TERMINAL> 				::= typed_array | dictionary | ident;
 
-	typed_array ::= ARRAY "<" (uncaptured_ident) ">";
+	typed_array 		<TERMINAL> 				::= ARRAY "<" uncaptured_ident ">";
+	dictionary 			<TERMINAL> 				::= DICTIONARY "<" uncaptured_ident "," uncaptured_ident ">";
+	qualified_name 		<TERMINAL> 				::= ^ARRAY ^DICTIONARY { ident, "." };
 
-	qualified_name ::= ^ARRAY { ident, "." };
+	//============================================================================================================================
+	//
+	// Literals
+	//
+	//============================================================================================================================
 
-	ident <TERMINAL,IDENTIFIER>::= ^keyword identifier;
+	NUMERIC_LITERAL <TERMINAL> 			::= '(?:0[xX][0-9a-fA-F]+)|(?:\d+(?:\.\d+){0,1}[fd]{0,1})';
+	STRING_LITERAL 	<TERMINAL,STRING> 	::= '\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27';
+	identifier 							::= '[a-zA-Z_\$][a-zA-Z0-9_\$]*';
 
-	uncaptured_ident ::= ^keyword identifier;
+	GLOBAL 		<TERMINAL, CLASS_GLOBAL>			::= "Global";			// The name of the Global Scope or Global Class
+	VOID 		<TERMINAL, CLASS_VOID>				::= "void";				// The name of the void VarType
+	EVENT_BASE 	<TERMINAL, CLASS_EVENT_BASE>		::= "CocoEvent";		// The name of Events base Class
 
+	ARRAY 		<TERMINAL, CLASS_ARRAY> 			::= "Array";			// The name of the typed array / vector Class Template
+	DICTIONARY 	<TERMINAL, CLASS_DICTIONARY>		::= "Dictionary";		// The name of the typed dictionary / map Class Template
+
+	THIS 		<TERMINAL, IDENTIFIER_THIS>			::= "this";				// The "this" identifier
+	SUPER 		<TERMINAL, IDENTIFIER_SUPER>		::= "super";			// The "supper" identifier
+	UNDEFINED 	<TERMINAL, IDENTIFIER_VOID>			::= "undefined";		// The "undefined" identifier
+	NULL 		<TERMINAL, IDENTIFIER_NULL>			::= "null";				// The "null" identifier
+	TRUE 		<TERMINAL, IDENTIFIER_TRUE>			::= "true";				// The "true" identifier
+	FALSE 		<TERMINAL, IDENTIFIER_FALSE>		::= "false";			// The "false" identifier
+
+	COMMIT_REPARSE	<COMMIT_STATEMENT>				::= ";";				// The commit statement punctuation
+	COLON 			<MEMBERLIST_VARTYPES>			::= ":";				// The list vartypes punctuation
+
+	//============================================================================================================================
+	//
+	// VarTypes
+	//
+	//============================================================================================================================
+
+	// Scalars
 
 	scalar_type <SCALARS> ::= "Boolean"
 							| "Color"
@@ -641,44 +683,68 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 							| "Time"
 							;
 
-	vartypes <VARTYPES> ::=   "Array"
-							| "ArrayBuffer"
-							| "ArrayBufferView"
+	// Classes (internally defined)
+
+	vartypes <VARTYPES>	::=   "Array"
+							| "Dictionary"
+
 							| "Boolean"
-							| "Class"
-							| "CocoAction"
-							| "Color"
-							| "DataView"
 							| "Date"
+							| "String"
+
+							| "Number"
+							| "Float"
+							| "Integer"
+							| "Color"
+							| "Time"
+
+
+							| "Class"
+							| "Object"
+							| "Function"
+							| "Null"
+
+							| "Global"
+							| "RegExp"
+							| "CocoAction"
+							| "DataView"
+							| "Gradient"
+							| "Math"
+
 							| "Error"
 							| "EvalError"
-							| "Float"
-							| "Float32Array"
-							| "Float64Array"
-							| "Function"
-							| "Global"
-							| "Gradient"
-							| "Int16Array"
-							| "Int32Array"
-							| "Int64Array"
-							| "Int8Array"
-							| "Integer"
-							| "Math"
-							| "Null"
-							| "Number"
-							| "Object"
+							| "TypeError"
+							| "SyntaxError"
 							| "RangeError"
 							| "ReferenceError"
-							| "RegExp"
-							| "String"
-							| "SyntaxError"
-							| "Time"
-							| "TypeError"
+
+							| "ArrayBuffer"
+							| "ArrayBufferView"
+
+							| "Float32Array"
+							| "Float64Array"
+
+							| "Uint8Array"
 							| "Uint16Array"
 							| "Uint32Array"
 							| "Uint64Array"
-							| "Uint8Array"
+
+							| "Int8Array"
+							| "Int16Array"
+							| "Int32Array"
+							| "Int64Array"
 							;
+
+	// VarTypes with SubTypes
+
+	FLOAT	<SUBTYPE, VARTYPE="Float">		::= "ArrayBuffer" | "ArrayBufferView" | "Float32Array" | "Float64Array";
+	INTEGER	<SUBTYPE, VARTYPE="Integer">	::= "Int8Array" | "Int16Array" | "Int32Array" | "Int64Array" | "Uint8Array" | "Uint16Array" | "Uint32Array" | "Uint64Array";
+
+	//============================================================================================================================
+	//
+	// Keywords
+	//
+	//============================================================================================================================
 
 	keyword <KEYWORDS> ::= 	  "abstract"
 							| "break"
@@ -739,20 +805,8 @@ grammar CocoScript <MATCHCASE,FILE_EXT_LIST=".jspp">
 							| "with"
 							;
 
-							// "null","undefined","true","false","this","super",
-
-
-	//============================================================================================================================
-	//
-	// Literals
-	//
-	//============================================================================================================================
-
-	NUMERIC_LITERAL <TERMINAL> ::= '(?:0[xX][0-9a-fA-F]+)|(?:\d+(?:\.\d+){0,1}[fd]{0,1})';
-	STRING_LITERAL <STRING,TERMINAL> ::= '\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27';
-	identifier ::= '[a-zA-Z_\$][a-zA-Z0-9_\$]*';
-
 };
+
 ```
 
 We also developed **CocoPlayer**, a Simulator powered by **Google V8 JavaScript VM Engine** where developers can test, debug and profile their games and apps. CocoPlayer is capable of simulating various screen resolutions taking into account the different dpi of numerous iOS and Android devices. The full-fledged Object Oriented JavaScript Debugger is one of Coconut2D Studio's unique features!
