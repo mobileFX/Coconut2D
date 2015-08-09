@@ -110,7 +110,6 @@ Language Features:
 
 ```JavaScript
 
-
 grammar CocoScript
 <
 	MATCHCASE,
@@ -659,17 +658,37 @@ grammar CocoScript
 	SUPER 		<TERMINAL, IDENTIFIER_SUPER>		::= "super";			// The "supper" identifier
 	UNDEFINED 	<TERMINAL, IDENTIFIER_VOID>			::= "undefined";		// The "undefined" identifier
 	NULL 		<TERMINAL, IDENTIFIER_NULL>			::= "null";				// The "null" identifier
+
+	BOOLEAN		<TERMINAL, CLASS_BOOLEAN>			::= "Boolean";			// The name of the Boolean Class
 	TRUE 		<TERMINAL, IDENTIFIER_TRUE>			::= "true";				// The "true" identifier
 	FALSE 		<TERMINAL, IDENTIFIER_FALSE>		::= "false";			// The "false" identifier
 
-	COMMIT_REPARSE	<COMMIT_STATEMENT>				::= ";";				// The commit statement punctuation
-	COLON 			<MEMBERLIST_VARTYPES>			::= ":";				// The list vartypes punctuation
+	COMMIT_REPARSE	<COMMIT_STATEMENT>				::= ";";				// Commit statement punctuation
+
+	//============================================================================================================================
+	// MemberList Directives
+	//============================================================================================================================
+
+	COLON <MEMBERLIST_VARTYPES>
+		::= ":";
+
+	IMPLEMENTS <MEMBERLIST_VARTYPES="INTERFACE">
+		::= "implements";
+
+	NEW	<MEMBERLIST_VARTYPES="MODULE NAMESPACE PACKAGE CLASS STRUCT">
+		::= "new";
+
+	DELETE <MEMBERLIST_SCOPE="VAR">
+		::= "delete";
 
 	//============================================================================================================================
 	//
 	// VarTypes
 	//
 	//============================================================================================================================
+
+	// NOTE: keep string literals in the following productions because
+	//       disjunctions of string literals are optimized for speed.
 
 	// Scalars
 
@@ -806,7 +825,6 @@ grammar CocoScript
 							;
 
 };
-
 ```
 
 We also developed **CocoPlayer**, a Simulator powered by **Google V8 JavaScript VM Engine** where developers can test, debug and profile their games and apps. CocoPlayer is capable of simulating various screen resolutions taking into account the different dpi of numerous iOS and Android devices. The full-fledged Object Oriented JavaScript Debugger is one of Coconut2D Studio's unique features!
