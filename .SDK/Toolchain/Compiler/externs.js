@@ -297,11 +297,11 @@ function ExternsParserPlugin(maker)
 		case jsdef.TRUE:
 		case jsdef.FALSE:
 		case jsdef.STRING:
-			_this.parseVar(ast, memberName, namespace, null, valueNode)
+			_this.parseVar(ast, memberName, namespace, null, valueNode);
 			break;
 
 		case jsdef.OBJECT_INIT:
-			_this.parseVar(ast, memberName, namespace, null, null)
+			_this.parseVar(ast, memberName, namespace, null, null);
 			break;
 		}
 	};
@@ -356,14 +356,14 @@ function ExternsParserPlugin(maker)
 		case jsdef.FALSE:
 		case jsdef.STRING:
 			var varName = signatureNode.identifier_last.value;
-			_this.parseVar(ast, varName, namespace, classname, valueNode)
+			_this.parseVar(ast, varName, namespace, classname, valueNode);
 			break;
 
 		//--------------------------------------------
 		case jsdef.OBJECT_INIT:
 		case jsdef.DOT:
 			var varName = signatureNode.identifier_last.value;
-			_this.parseVar(ast, varName, namespace, classname, valueNode)
+			_this.parseVar(ast, varName, namespace, classname, valueNode);
 			break;
 		}
 	};

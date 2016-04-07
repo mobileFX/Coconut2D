@@ -1,0 +1,797 @@
+// ***** BEGIN LICENSE BLOCK *****
+//
+// Copyright (C) 2013-2014 www.coconut2D.org
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+// ***** END LICENSE BLOCK ***** */
+
+grammar CocoScript
+<
+	MATCHCASE,
+	FILE_EXT_LIST=".jspp",
+	REPARSE_PATTERN="\b(var|const)\s+.*?;"
+>
+{
+
+	//----------------------------------------------------------------------
+	// Compilation Unit
+	//----------------------------------------------------------------------
+
+	compilation_unit ::= [ { pragma_statement  } ]
+						 [ module_statement ]
+						 [ { code_unit } ];
+
+	code_unit ::= include_statement
+		    | type_declaration
+		    | global_scope_if_directive
+		    | variable_declaration
+		    | const_declaration
+		    | method_declaration;
+
+	//----------------------------------------------------------------------
+	// Whitespace & Comments
+	//----------------------------------------------------------------------
+
+	whitespace <WHITESPACE> ::= '[\s\n\r]+';
+	comment <COMMENT> ::= '//+[^\n\r]*$';
+	multiline_comment <MULTILINE_COMMENT> ::= '/+\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/+';
+
+	//----------------------------------------------------------------------
+	// Pragma Statement
+	//----------------------------------------------------------------------
+
+	pragma_statement <TERMINAL,STATEMENT> ::= "#pragma" uncaptured_ident ";";
+
+	//----------------------------------------------------------------------
+	// Include Statement
+	//----------------------------------------------------------------------
+
+	include_statement <TERMINAL,STATEMENT> ::= "#include" STRING_LITERAL;
+
+	//----------------------------------------------------------------------
+	// Module Statement (for Node.js)
+	//----------------------------------------------------------------------
+
+	module_statement <MODULE,STATEMENT> 			::= "#module" module_name ";";
+	module_name <TERMINAL, MODULE_NAME> ::= qualified_name;
+
+	//----------------------------------------------------------------------
+	// Compiler Directives
+	//----------------------------------------------------------------------
+
+	global_scope_if_directive <STATEMENT,FRIENDLYNAME="#if directive"> ::=
+
+	    "#if" "(" expression ")"
+		[ compilation_unit ]
+	    [
+	    "#else"
+		[ compilation_unit ]
+	    ]
+	    "#endif";
+
+	//------------------------------------------------------------
+	class_scope_if_directive <STATEMENT,FRIENDLYNAME="#if directive"> ::=
+
+	    "#if" "(" expression ")"
+		[ class_field_declarations ]
+	    [
+	    "#else"
+		[ class_field_declarations ]
+	    ]
+	    "#endif";
+
+	//------------------------------------------------------------
+	scope_if_directive <STATEMENT,FRIENDLYNAME="#if directive"> ::=
+
+	    "#if" "(" expression ")"
+		[ STATEMENT ]
+	    [
+	    "#else"
+		[ STATEMENT ]
+	    ]
+	    "#endif";
+
+	//------------------------------------------------------------
+	// Embedded Code (does not work with #pragma export_native)
+	//------------------------------------------------------------
+
+	embedded_javascript ::= '__javascript\s*\{\s*[\w\W]*?\s*\}\s*__end';
+	embedded_cpp 		::= '__cpp\s*\{\s*[\w\W]*?\s*\}\s*__end';
+	embedded_java		::= '__java\s*\{\s*[\w\W]*?\s*\}\s*__end';
+	embedded_html		::= '__html\s*\{\s*[\w\W]*?\s*\}\s*__end';
+
+	//============================================================================================================================
+	//
+	// Type Declarations
+	//
+	//============================================================================================================================
+
+	type_declaration ::= ( 	  class_declaration
+							| interface_declaration
+							| struct_declaration
+							| enum_declaration
+							| callback_declaration
+						 ) [";"] ;
+
+	//----------------------------------------------------------------------
+	// CLASS
+	//----------------------------------------------------------------------
+
+	class_declaration <CLASS,SCOPE,STATEMENT> ::= 	[ { class_modifier } ] "class" class_name
+													[ COLON class_base ]
+													[ "implements" { class_interface, ","} ]
+													"{"
+														[ class_field_declarations ]
+													"}";
+
+	class_modifier <TERMINAL,CLASS_MODIFIER> 	::= "control" | "emscripten" | "export" | "state" | "export";
+	class_name <TERMINAL,CLASS_NAME> 			::= ident;
+	class_base <TERMINAL,CLASS_BASE> 			::= qualified_name | typed_array | dictionary | ARRAY;
+	class_interface <TERMINAL,CLASS_INTERFACE> 	::= qualified_name;
+
+	class_field_declarations ::= { class_field_declaration };
+
+	class_field_declaration ::=   constructor_declaration
+								| destructon_declaration
+								| variable_declaration
+								| const_declaration
+								| property_declaration
+								| method_declaration
+								| enum_declaration
+								| event_declaration
+								| state_declaration
+								| struct_declaration
+								| class_declaration
+								| class_scope_if_directive
+								| ";" ;
+
+	constructor_declaration <STATEMENT,METHOD,CONSTRUCTOR> 	::= public_modifier "function" constructor_name
+															    "(" [parameter_list] ")"
+															    [ base_class_initializer ]
+															    STATEMENTS;
+
+	destructon_declaration <STATEMENT,METHOD,DESTRUCTOR> 	::= public_modifier "function" destructor_name "(" ")"
+															    STATEMENTS;
+
+	constructor_name <TERMINAL,METHOD_NAME>	::= "Constructor";
+	destructor_name <TERMINAL,METHOD_NAME>	::= "Destructor";
+	public_modifier <METHOD_MODIFIER> 		::= "public";
+	base_class_initializer 					::= COLON ident "(" expression_list ")";
+
+	//----------------------------------------------------------------------
+	// EVENT
+	//----------------------------------------------------------------------
+
+	event_declaration <EVENT,SCOPE,STATEMENT> 	::= event_modifier "event" event_name "(" [ event_parameter_list ] ")";
+
+	event_modifier <TERMINAL,EVENT_MODIFIER>	::= "public";
+	event_name <TERMINAL,EVENT_NAME> 			::= ident;
+
+	event_parameter_list						::= { event_parameter, ","} ;
+	event_parameter <EVENT_ARG> 				::= event_param_name COLON event_param_type;
+	event_param_type <TERMINAL,EVENT_ARG_TYPE>	::= type;
+	event_param_name <TERMINAL,EVENT_ARG_NAME>	::= ident;
+
+	//----------------------------------------------------------------------
+	// STRUCT
+	//----------------------------------------------------------------------
+
+	struct_declaration <STRUCT,SCOPE,STATEMENT> ::=	 [ struct_modifier ] "struct" struct_name
+													 "{"
+														{ (struct_item | struct_union) }
+													 "}";
+
+	struct_modifier <TERMINAL,STRUCT_MODIFIER> 		::= "export";
+	struct_name <TERMINAL,STRUCT_NAME> 				::= ident;
+
+	struct_item <STRUCT_ITEM>						::= struct_item_name COLON struct_item_type ";";
+	struct_item_name <TERMINAL,STRUCT_ITEM_NAME>	::= ident;
+	struct_item_type <TERMINAL,STRUCT_ITEM_TYPE> 	::= type;
+
+	struct_union 									::= "union" ident
+														"{"
+															{ (struct_item | struct_union) }
+														"}" ";";
+
+	//----------------------------------------------------------------------
+	// ENUM
+	//----------------------------------------------------------------------
+
+	enum_declaration <ENUM,ENUM_ITEMS_AS_CONSTANTS,SCOPE,STATEMENT> ::=	[enum_modifier] "enum" enum_name
+																		 "{"
+																			{ enum_item,  "," }
+																		 "}";
+
+	enum_modifier <TERMINAL,ENUM_MODIFIER> 		::= "export";
+	enum_name <TERMINAL,ENUM_NAME> 				::= ident;
+
+	enum_item <ENUM_ITEM>						::= enum_item_name "=" enum_item_value;
+	enum_item_name <TERMINAL,ENUM_ITEM_NAME> 	::= ident;
+	enum_item_value <TERMINAL,ENUM_ITEM_VALUE> 	::= [unary_op] NUMERIC_LITERAL;
+
+	//----------------------------------------------------------------------
+	// STATE
+	//----------------------------------------------------------------------
+
+	state_declaration <STATE,SCOPE,STATEMENT> ::=	state_modifier "state" state_name
+													"{"
+														{ state_field_declarations }
+													"}";
+
+	state_field_declarations ::=  variable_declaration | const_declaration | state_method_declaration;
+
+	state_method_declaration <METHOD,STATE_METHOD,SCOPE,STATEMENT> ::=	"function" state_method_name
+																		"(" [parameter_list] ")"
+																		[ STATEMENTS ];
+
+	state_method_name <TERMINAL,METHOD_NAME> 	::= "enter" | "exit" | "tick" | "paint";
+
+
+	state_modifier <TERMINAL,STATE_MODIFIER> 	::= access_modifiers;
+	state_name <TERMINAL,STATE_NAME> 			::= ident;
+
+	//----------------------------------------------------------------------
+	// INTERFACE
+	//----------------------------------------------------------------------
+
+	interface_declaration <INTERFACE,SCOPE,STATEMENT> ::= 	"interface" interface_name
+															[ COLON { interface_base, ","} ]
+															"{"
+																[ interface_field_declarations ]
+															"}" ;
+
+	interface_field_declarations ::=  { interface_field_declaration };
+
+	interface_field_declaration   ::= variable_declaration
+									| const_declaration
+									| method_declaration
+									| ";";
+
+	interface_name <TERMINAL,INTERFACE_NAME> 	::= ident;
+	interface_base <TERMINAL,INTERFACE_BASE> 	::= qualified_name;
+
+	//----------------------------------------------------------------------
+	// FUNCTION
+	//----------------------------------------------------------------------
+
+	method_declaration <METHOD,SCOPE,STATEMENT> 		::=	[{ method_modifier }] "function" method_name
+															"(" [parameter_list] ")"
+															[ COLON method_type ]
+															[ STATEMENTS ];
+
+	method_modifier <TERMINAL,METHOD_MODIFIER> 			::= "public" | "private" | "protected" | "static" | "abstract" | "virtual";
+	method_name <TERMINAL,METHOD_NAME> 					::= ident;
+	method_type <TERMINAL,METHOD_TYPE> 					::= type;
+
+	parameter_list 										::= { parameter, ","} ;
+	parameter <METHOD_ARG> 								::= optional_parameter | required_parameter | rest_arguments;
+	required_parameter									::= param_name COLON param_type;
+	optional_parameter									::= "optional" required_parameter [ "=" expression ];
+	param_type <TERMINAL,METHOD_ARG_TYPE> 				::= type;
+	param_name <TERMINAL,METHOD_ARG_NAME> 				::= ident;
+	rest_arguments 										::= "..." [COLON scalar_type];
+
+	//----------------------------------------------------------------------
+	// CALLBACK
+	//----------------------------------------------------------------------
+
+	callback_declaration <CALLBACK,STATEMENT> 			::= "callback" callback_name "(" [callback_parameter_list] ")";
+
+	callback_name <TERMINAL,CALLBACK_NAME>				::= ident;
+	callback_parameter_list								::= { callback_parameter, ","} ;
+	callback_parameter <CALLBACK_ARG> 					::= callback_param_name COLON callback_param_type;
+	callback_param_name <TERMINAL,CALLBACK_ARG_NAME> 	::= ident;
+	callback_param_type <TERMINAL,CALLBACK_ARG_TYPE> 	::= type;
+
+	//----------------------------------------------------------------------
+	// VAR
+	//----------------------------------------------------------------------
+
+	variable_declaration <STATEMENT,VAR> 				::= [{ var_modifier }] "var" variable_declarators ";";
+	const_declaration <STATEMENT,VAR,CONST>				::= [{ var_modifier }] "const" variable_declarators ";";
+
+	variable_declarators 								::= { variable_declarator, var_separator } ;
+	variable_declarator 								::= var_name COLON var_type [ "=" var_init ];
+
+	var_modifier <VAR_MODIFIER>							::= "static" | "public" | "private" | "protected" | "published" | "reference" | "delegate" | "optional" | "databound";
+	var_type <TERMINAL,VAR_TYPE>						::= type;
+	var_name <VAR_NAME> 								::= ident;
+	var_init <VAR_INITIALIZER>							::= expression;
+	var_separator <VAR_NEXT>							::= ",";
+
+	context_var <VAR>									::= var_name COLON var_type;
+
+	//----------------------------------------------------------------------
+	// PROPERTY
+	//----------------------------------------------------------------------
+
+	property_declaration <STATEMENT,SCOPE,PROPERTY> ::= { property_modifier } "property" property_name
+														"{"
+															property_getter
+															[ property_setter ]
+														"}";
+
+	property_modifier <PROPERTY_MODIFIER>			::= "static" | "public" | "private" | "protected" | "published";
+	property_name <PROPERTY_NAME>					::= ident;
+
+	property_getter <METHOD,PROPERTY_GETTER>		::= "function" "get" "(" ")" COLON method_type STATEMENTS;
+	property_setter <METHOD,PROPERTY_SETTER>		::= "function" "set" "(" parameter_list ")" STATEMENTS;
+
+	//----------------------------------------------------------------------
+	// (type declaration related productions)
+	//----------------------------------------------------------------------
+
+	access_modifiers	::= "public" | "private" | "protected";
+
+	//============================================================================================================================
+	//
+	// Statements
+	//
+	//============================================================================================================================
+
+	STATEMENTS ::= EMPTY_BLOCK | STATEMENTS_BLOCK;
+
+	STATEMENTS_BLOCK<SCOPE> 	::= "{" { STATEMENT } "}";
+
+	STATEMENT ::= STATEMENTS
+		    | break
+		    | continue
+		    | delete
+		    | do
+		    | for
+		    | for_in
+		    | if_else
+		    | return
+		    | switch
+		    | while
+		    | try
+		    | throw
+		    | label
+		    | variable_declaration
+		    | const_declaration
+		    | EXPRESSION
+		    | scope_if_directive
+		    | embedded_javascript
+		    | embedded_java
+		    | embedded_cpp
+		    | embedded_html
+		    ;
+
+	//------------------------------------------------------------
+	EXPRESSION <STATEMENT,ERROR="Invalid Expression"> ::= expression ";";
+
+	//------------------------------------------------------------
+	try <STATEMENT,SCOPE,FRIENDLYNAME="try statement"> ::=
+	    "try"
+		STATEMENT
+	    [ catch ]
+	    [ finally ];
+
+	catch <SCOPE> ::=
+	    "catch" "(" context_var ")"
+	    STATEMENT;
+
+	finally <SCOPE> ::=
+	    "finally"
+	    STATEMENT;
+
+	//------------------------------------------------------------
+	throw <STATEMENT,FRIENDLYNAME="throw statement"> ::=
+	    "throw" expression ";";
+
+	//------------------------------------------------------------
+	break <STATEMENT, FRIENDLYNAME="break statement"> ::=
+	    "break" [ident] ";";
+
+	//------------------------------------------------------------
+	continue <STATEMENT, FRIENDLYNAME="continue statement"> ::=
+	    "continue" [ident] ";";
+
+	//------------------------------------------------------------
+	delete <STATEMENT, FRIENDLYNAME="delete statement"> ::=
+	    "delete" ["[" "]"] reference ";";
+
+	//------------------------------------------------------------
+	for <STATEMENT, FRIENDLYNAME="for statement">	::=
+	    "for" "(" [for_init] ";" [expression] ";" [expression_list] ")"
+			STATEMENT;
+
+	for_init ::= for_var | expression_list;
+
+	for_var <STATEMENT,VAR> ::= "var" variable_declarators;
+
+	//------------------------------------------------------------
+	for_in <STATEMENT, SCOPE, FRIENDLYNAME="for in statement"> ::=
+	    "for" "(" for_var "in" expression ")"
+		STATEMENT;
+
+	//------------------------------------------------------------
+	if_else <STATEMENT, FRIENDLYNAME="if statement"> ::=
+	    "if" "(" expression ")"
+		STATEMENT
+	    [
+	     "else"
+		STATEMENT
+	    ];
+
+	//------------------------------------------------------------
+	label <STATEMENT, FRIENDLYNAME="label statement"> ::=
+	    ident ":" STATEMENT ;
+
+	//------------------------------------------------------------
+	return <STATEMENT, FRIENDLYNAME="return statement"> ::=
+	    "return" [expression] ";";
+
+	//------------------------------------------------------------
+	switch <STATEMENT, FRIENDLYNAME="switch statement"> ::=
+	    "switch" "(" expression ")"
+	    "{"
+		[{ case }]
+		[default]
+	    "}";
+
+	case <STATEMENT,SCOPE> ::=
+	    "case" expression  ":"
+		[ { STATEMENT } ];
+
+	default <STATEMENT,SCOPE> ::=
+	    "default"  ":"
+		[ { STATEMENT } ];
+
+	//------------------------------------------------------------
+	do <STATEMENT, FRIENDLYNAME="do-while loop statement"> ::=
+	    "do"
+		STATEMENT
+	    "while" "(" expression ")" ";";
+
+	//------------------------------------------------------------
+	while <STATEMENT, FRIENDLYNAME="while loop statement"> ::=
+	    "while" "(" expression ")"
+		[ STATEMENT ] [";"];
+
+	//============================================================================================================================
+	//
+	// Expressions
+	//
+	//============================================================================================================================
+
+	//	// The following rules establish operator precedence but make Parser slow
+	//	// Useful for producing valid AST for feeding compilers
+	//	// (increasing precedence for each successive rule)
+	//
+	//	expression <SHOWDELIMITERS> ::= assign_term;
+	//
+	//	//----------------------------------------------------------------------
+	//	// Operator Precedence
+	//	//----------------------------------------------------------------------
+	//
+	//	assign_term 	::= { ternary_term, assign_level_op };  // assignment is lowest precedence
+	//
+	//	ternary_term 	::= or_term ["?" expression ":" expression];
+	//
+	//	or_term     	::= { and_term,  	or_level_op  	};
+	//	and_term    	::= { bit_term, 	and_level_op  	};
+	//	bit_term 		::= { cmp_term,  	bit_level_op 	};
+	//	cmp_term    	::= { shift_term, 	cmp_level_op	};
+	//	shift_term		::= { add_term,  	shift_level_op  };
+	//	add_term    	::= { mult_term, 	add_level_op 	};
+	//	mult_term   	::= { factor, 		mult_level_op 	};
+	//
+	//	// Operators
+	//	assign_level_op <OPERATOR>		::= "=" | "*=" | "/=" | "%=" | "+=" | "-="	| "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|=";
+	//	or_level_op  	<OPERATOR>		::= "||";
+	//	and_level_op 	<OPERATOR>		::= "&&" ;
+	//	bit_level_op 	<OPERATOR>		::= "|" | "^" | "&";
+	//	cmp_level_op 	<OPERATOR>		::= "==" | "!=" | "<" | ">" | ">=" | "<=";
+	//	shift_level_op 	<OPERATOR>		::= ">>>" | ">>" | "<<";
+	//	add_level_op 	<OPERATOR>		::= "+" | "-";
+	//	mult_level_op 	<OPERATOR>		::= "/" | "*" | "%";
+	//	unary_op 		<OPERATOR>		::= "-" | "~" | "+";
+	//	prefix_op		<OPERATOR>		::= "++" | "--";
+	//	postfix_op		<OPERATOR>		::= "++" | "--";
+
+	//----------------------------------------------------------------------
+	// Operators
+	//----------------------------------------------------------------------
+
+	OPERATOR <OPERATOR> ::= "="    | "*="  | "/="  | "%="
+		                  | "+="   | "-="  | "<<=" | ">>="
+		                  | ">>>=" | "&="  | "^="  | "|="
+		                  | "||"   | "&&"  | "|"   | "^"
+		                  | "&"    | "=="  | "!="  | "<"
+		                  | ">"    | ">="  | "<="  | "==="
+		                  | "!=="  | ">>>" | ">>"  | "<<"
+		                  | "+"    | "-"   | "/"   | "*"
+		                  | "%"    | "~"
+		                  ;
+
+	unary_op  	<OPERATOR> ::= "-" | "~" | "+";
+	prefix_op 	<OPERATOR> ::= "++" | "--" | "typeof";
+	postfix_op	<OPERATOR> ::= "++" | "--";
+
+	expression<SHOWDELIMITERS> ::= { ternary_expr, OPERATOR };
+
+	ternary_expr ::= { factor, "." } [ "?" expression ":" expression ];
+
+	//----------------------------------------------------------------------
+	// Expression Factors
+	//----------------------------------------------------------------------
+
+	factor ::=	  TRUE
+				| FALSE
+				| UNDEFINED
+				| NULL
+				| NUMERIC_LITERAL
+				| STRING_LITERAL
+				| new_array_expr
+				| new_expr
+				| ("!" expression)
+				| ("(" expression ")" [ ("." reference) ] )
+				| (unary_op expression)
+				| ([prefix_op] reference [postfix_op])
+				| JSON
+				;
+
+	expression_list 				::= { expression, ","};
+	EMPTY_CALL						::= "(" ")";	// Optimize for parsing speed by using empty call
+	EMPTY_SUBSCRIPT					::= "[" "]";	// Optimize for parsing speed by using empty array
+	EMPTY_BLOCK						::= "{" "}";	// Optimize for parsing speed by using empty block
+
+	//----------------------------------------------------------------------
+	// Reference (DOT, CALL, SUBSCRIPT)
+	//----------------------------------------------------------------------
+
+	// reference term must NOT begin with keyword but may end with keyword (eg. a.default)
+
+	reference		<DOT>  			::= reference_term [ "." { reference_term_kwrd, "." } ];
+	reference_term 					::= ident 		[ { (subscript_expr | call_expr) } ];
+	reference_term_kwrd 			::= ident_kwrd 	[ { (subscript_expr | call_expr) } ];
+
+	call_expr 		<CALL>			::= EMPTY_CALL | ( "(" expression_list ")" );
+	subscript_expr 	<SUBSCRIPT>		::= "[" expression "]";
+
+	//----------------------------------------------------------------------
+	// "new"
+	//----------------------------------------------------------------------
+
+	// Creating expression must push existing DOT eg. a.b( new C() )
+
+	new_expr 		<SCOPE>			::= "new" (typed_array | dictionary | expression) [expression];
+	new_array_expr 					::= EMPTY_SUBSCRIPT | ( "[" expression_list "]" );
+
+	//============================================================================================================================
+	// JSON (Allowed only with #pragma json)
+	//============================================================================================================================
+
+	JSON ::= [ JSON_OBJECT ];
+	JSON_OBJECT ::= "{" [ { JSON_MEMBER, "," } ] "}";
+	JSON_ARRAY ::= "[" { JSON_VALUE, "," } "]";
+	JSON_MEMBER ::= STRING_LITERAL ":" JSON_VALUE;
+	JSON_VALUE ::= FALSE | TRUE | NULL | JSON_OBJECT | JSON_ARRAY | NUMERIC_LITERAL | STRING_LITERAL | expression;
+
+	//============================================================================================================================
+	//
+	// Terminals
+	//
+	//============================================================================================================================
+
+	ident 				<TERMINAL, IDENTIFIER> 	::= ^keyword identifier;
+	ident_kwrd			<TERMINAL, IDENTIFIER> 	::= identifier;
+	uncaptured_ident 	<TERMINAL> 				::= ^keyword identifier;
+
+	type 				<TERMINAL> 				::= typed_array | dictionary | ident;
+
+	typed_array 		<TERMINAL> 				::= ARRAY "<" type ">";
+	dictionary 			<TERMINAL> 				::= DICTIONARY "<" type "," type ">";
+
+	qualified_name 		<TERMINAL> 				::= ^ARRAY ^DICTIONARY { ident, "." };
+
+	//============================================================================================================================
+	//
+	// Literals
+	//
+	//============================================================================================================================
+
+	NUMERIC_LITERAL <TERMINAL> 			::= '(?:0[xX][0-9a-fA-F]+)|(?:\d+(?:\.\d+){0,1}[fd]{0,1})';
+	STRING_LITERAL 	<TERMINAL,STRING> 	::= '\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27';
+	identifier 							::= '[a-zA-Z_\$][a-zA-Z0-9_\$]*';
+
+	GLOBAL 		<TERMINAL, CLASS_GLOBAL>			::= "Global";			// The name of the Global Scope or Global Class
+	VOID 		<TERMINAL, CLASS_VOID>				::= "void";				// The name of the void VarType
+	EVENT_BASE 	<TERMINAL, CLASS_EVENT_BASE>		::= "CocoEvent";		// The name of Events base Class
+
+	ARRAY 		<TERMINAL, CLASS_ARRAY> 			::= "Array";			// The name of the typed array / vector Class Template
+	DICTIONARY 	<TERMINAL, CLASS_DICTIONARY>		::= "Dictionary";		// The name of the typed dictionary / map Class Template
+
+	THIS 		<TERMINAL, IDENTIFIER_THIS>			::= "this";				// The "this" identifier
+	SUPER 		<TERMINAL, IDENTIFIER_SUPER>		::= "super";			// The "supper" identifier
+	UNDEFINED 	<TERMINAL, IDENTIFIER_VOID>			::= "undefined";		// The "undefined" identifier
+	NULL 		<TERMINAL, IDENTIFIER_NULL>			::= "null";				// The "null" identifier
+
+	BOOLEAN		<TERMINAL, CLASS_BOOLEAN>			::= "Boolean";			// The name of the Boolean Class
+	TRUE 		<TERMINAL, IDENTIFIER_TRUE>			::= "true";				// The "true" identifier
+	FALSE 		<TERMINAL, IDENTIFIER_FALSE>		::= "false";			// The "false" identifier
+
+	COMMIT_REPARSE	<COMMIT_STATEMENT>				::= ";";				// Commit statement punctuation
+
+	//============================================================================================================================
+	// MemberList Directives
+	//============================================================================================================================
+
+	COLON <MEMBERLIST_VARTYPES>
+		::= ":";
+
+	IMPLEMENTS <MEMBERLIST_VARTYPES="INTERFACE">
+		::= "implements";
+
+	NEW	<MEMBERLIST_VARTYPES="MODULE NAMESPACE PACKAGE CLASS STRUCT">
+		::= "new";
+
+	DELETE <MEMBERLIST_SCOPE="VAR">
+		::= "delete";
+
+	//============================================================================================================================
+	//
+	// VarTypes
+	//
+	//============================================================================================================================
+
+	// NOTE: keep string literals in the following productions because
+	//       disjunctions of string literals are optimized for speed.
+
+	// Scalars
+
+	scalar_type <SCALARS> ::= "Boolean"
+							| "Color"
+							| "Date"
+							| "Float"
+							| "Integer"
+							| "Number"
+							| "String"
+							| "Time"
+							;
+
+	// Classes (internally defined)
+
+	vartypes <VARTYPES>	::=   "Array"
+							| "Dictionary"
+
+							| "Boolean"
+							| "Date"
+							| "String"
+
+							| "Number"
+							| "Float"
+							| "Integer"
+							| "Color"
+							| "Time"
+
+
+							| "Class"
+							| "Object"
+							| "Function"
+							| "Null"
+
+							| "Global"
+							| "RegExp"
+							| "CocoAction"
+							| "DataView"
+							| "Gradient"
+							| "Math"
+
+							| "Error"
+							| "EvalError"
+							| "TypeError"
+							| "SyntaxError"
+							| "RangeError"
+							| "ReferenceError"
+
+							| "ArrayBuffer"
+							| "ArrayBufferView"
+
+							| "Float32Array"
+							| "Float64Array"
+
+							| "Uint8Array"
+							| "Uint16Array"
+							| "Uint32Array"
+							| "Uint64Array"
+
+							| "Int8Array"
+							| "Int16Array"
+							| "Int32Array"
+							| "Int64Array"
+							;
+
+	// VarTypes with SubTypes
+
+	FLOAT	<SUBTYPE, VARTYPE="Float">		::= "ArrayBuffer" | "ArrayBufferView" | "Float32Array" | "Float64Array";
+	INTEGER	<SUBTYPE, VARTYPE="Integer">	::= "Int8Array" | "Int16Array" | "Int32Array" | "Int64Array" | "Uint8Array" | "Uint16Array" | "Uint32Array" | "Uint64Array";
+
+	//============================================================================================================================
+	//
+	// Keywords
+	//
+	//============================================================================================================================
+
+	keyword <KEYWORDS> ::= 	  "abstract"
+							| "break"
+							| "callback"
+							| "case"
+							| "catch"
+							| "class"
+							| "compiler_break"
+							| "const"
+							| "continue"
+							| "control"
+							| "debugger"
+							| "default"
+							| "delegate"
+							| "delete"
+							| "do"
+							| "else"
+							| "emscripten"
+							| "enum"
+							| "event"
+							| "export"
+							| "finally"
+							| "for"
+							| "function"
+							| "if"
+							| "implements"
+							| "import"
+							| "in"
+							| "inline"
+							| "interface"
+							| "let"
+							| "namespace"
+							| "new"
+							| "optional"
+							| "private"
+							| "property"
+							| "protected"
+							| "public"
+							| "published"
+							| "reference"
+							| "return"
+							| "state"
+							| "static"
+							| "struct"
+							| "switch"
+							| "thread"
+							| "throw"
+							| "try"
+							| "typeof"
+							| "union"
+							| "use"
+							| "var"
+							| "virtual"
+							| "void"
+							| "volatile"
+							| "while"
+							| "with"
+							;
+
+};
+
+// The language has two ambiquities:
+// New Array Initialization currently is "x = []" where it should be "x = new []"
+// Typecasting is Vartype(expression) where it should be (Vartype) Expression
+// Typecasting ambiquity is resolved by the compiler but should be parser friendly.

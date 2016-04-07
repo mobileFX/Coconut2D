@@ -1,0 +1,382 @@
+{
+	"VM0":
+	{
+		"VMName": "Application Server VM",
+		"VM":
+		{
+			"Type": "VBox",
+			"CPUs": "1",
+			"RAM": "512",
+			"HDD": "10GB",
+			"ClonePath": "$(PATH_SDK_TEMPLATE_VM)/CentOS-6.6-x86_64.ova",
+			"SpawnPath": "$(PROJECT_PATHS.INFRASTRUCTURE)/$(VMName)"
+		},
+		"OS":
+		{
+			"Type": "CentOS",
+			"Version": "6.5",
+			"Console": "SSH",
+			"UserName": "root",
+			"Password": "intralot",
+			"Network":
+			{
+				"MAC": "auto",
+				"IP": "192.168.1.132",
+				"SubnetMask": "255.255.255.0",
+				"Gateway": "192.168.1.1",
+				"DNS":
+				[
+					"192.168.1.1",
+					"8.8.8.8"
+				]
+			}
+		},
+		"VMCreate":
+		{
+			"CMD":
+			[
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> clonevm <$(VM.ClonePath)> --name <$(VMName)> --basefolder <$(VM.SpawnPath)> --register",
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> modifyvm <$(VMName)> --cpus $(VM.CPUs) --memory $(VM.RAM) --acpi on --vtxux on --vtxvpid on",
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> modifyvm <$(VMName)> --macaddress1 $(OS.Network.MAC) --nic1 bridged --bridgeadapter1 eth0"
+			],
+			"SSH":
+			[
+				"yum -y update",
+				"yum -y install wget",
+				"yum -y groupinstall <Development Tools>"
+			]
+		},
+		"VMStart":
+		{
+			"CMD":
+			[
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> startvm <$(VMName)> --type headless"
+			],
+			"SSH": []
+		},
+		"VMStop":
+		{
+			"CMD":
+			[
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> controlvm <$(VMName)> poweroff"
+			],
+			"SSH": null
+		},
+		"SoftwareStack":
+		{
+			"gcc":
+			{
+				"Version": "4.8.2",
+				"Install":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"wget http://people.centos.org/tru/devtools-2/devtools-2.repo -O /etc/yum.repos.d/devtools-2.repo",
+						"yum -y install devtoolset-2-gcc devtoolset-2-binutils devtoolset-2-gcc-c++",
+						"scl enable devtoolset-2 bash",
+						"mv /usr/bin/gcc /usr/bin/gcc.4.4.7",
+						"ln -s /opt/centos/devtoolset-1.1/root/usr/bin/gcc /usr/bin/gcc",
+						"ln -s /opt/centos/devtoolset-1.1/root/usr/bin/gcc /usr/bin/gcc.4.8.2"
+					]
+				},
+				"Start":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"scl enable devtoolset-2 bash"
+					]
+				},
+				"Stop":
+				{
+					"CMD": [],
+					"SSH": []
+				}
+			},
+			"node.js":
+			{
+				"Version": "5.0",
+				"Install":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"cd /",
+						"git clone https://github.com/nodejs/node.git /node",
+						"cd /node",
+						"./configure",
+						"make",
+						"make install"
+					]
+				},
+				"Start":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"/node --harmony --debug-brk=$(NODE_V8_DEBUG_PORT) /iRGS/main.js"
+					]
+				},
+				"Stop":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"pkill -f node"
+					]
+				}
+			},
+			"Memcached":
+			{
+				"Version": "1.4.24",
+				"Install":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"npm -g install memcached"
+					]
+				},
+				"Start":
+				{
+					"CMD": [],
+					"SSH": []
+				},
+				"Stop":
+				{
+					"CMD": [],
+					"SSH": []
+				}
+			},
+			"Repcached":
+			{
+				"Version": "2.2.1",
+				"Install":
+				{
+					"CMD": [],
+					"SSH": []
+				},
+				"Start":
+				{
+					"CMD": [],
+					"SSH": []
+				},
+				"Stop":
+				{
+					"CMD": [],
+					"SSH": []
+				}
+			}
+		}
+	},
+	"VM1":
+	{
+		"VMName": "Database Server VM",
+		"VM":
+		{
+			"Type": "VBox",
+			"CPUs": "1",
+			"RAM": "512",
+			"HDD": "10GB",
+			"ClonePath": "$(PATH_SDK_TEMPLATE_VM)/CentOS-6.6-x86_64.ova",
+			"SpawnPath": "$(PROJECT_PATHS.INFRASTRUCTURE)/$(VMName)"
+		},
+		"OS":
+		{
+			"Type": "CentOS",
+			"Version": "6.5",
+			"Console": "SSH",
+			"UserName": "root",
+			"Password": "intralot",
+			"Network":
+			{
+				"MAC": "auto",
+				"IP": "192.168.1.133",
+				"SubnetMask": "255.255.255.0",
+				"Gateway": "192.168.1.1",
+				"DNS":
+				[
+					"192.168.1.1",
+					"8.8.8.8"
+				]
+			}
+		},
+		"VMCreate":
+		{
+			"CMD":
+			[
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> clonevm <$(VM.ClonePath)> --name <$(VMName)> --basefolder <$(VM.SpawnPath)> --register",
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> modifyvm <$(VMName)> --cpus $(VM.CPUs) --memory $(VM.RAM) --acpi on --vtxux on --vtxvpid on",
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> modifyvm <$(VMName)> --macaddress1 $(OS.Network.MAC) --nic1 bridged --bridgeadapter1 eth0"
+			],
+			"SSH":
+			[
+				"yum -y update",
+				"yum -y install wget"
+			]
+		},
+		"VMStart":
+		{
+			"CMD":
+			[
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> startvm <$(VMName)> --type headless"
+			],
+			"SSH": []
+		},
+		"VMStop":
+		{
+			"CMD":
+			[
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> controlvm <$(VMName)> poweroff"
+			],
+			"SSH":
+			[
+				"systemctl stop mariadb.service"
+			]
+		},
+		"SoftwareStack":
+		{
+			"MySQL":
+			{
+				"Version": "5.7",
+				"Install":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"yum install mysql-server",
+						"/sbin/service mysqld start",
+						"yum -y install mariadb-server mariadb",
+						"systemctl start mariadb.service",
+						"systemctl enable mariadb.service",
+						"firewall-cmd –add-service=mysql",
+						"/usr/bin/mysql_secure_installation",
+						"iptables -I INPUT -p tcp --dport 3306 -m state --state NEW,ESTABLISHED -j ACCEPT",
+						"iptables -I OUTPUT -p tcp --sport 3306 -m state --state ESTABLISHED -j ACCEPT"
+					]
+				},
+				"Start":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"/sbin/service mysqld start",
+						"systemctl start mariadb.service"
+					]
+				},
+				"Stop":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"/sbin/service mysqld stop",
+						"systemctl stop mariadb.service"
+					]
+				}
+			}
+		}
+	},
+	"VM2":
+	{
+		"VMName": "NoSQL Server VM",
+		"VM":
+		{
+			"Type": "VBox",
+			"CPUs": "1",
+			"RAM": "512",
+			"HDD": "10GB",
+			"ClonePath": "$(PATH_SDK_TEMPLATE_VM)/CentOS-6.6-x86_64.ova",
+			"SpawnPath": "$(PROJECT_PATHS.INFRASTRUCTURE)/$(VMName)"
+		},
+		"OS":
+		{
+			"Type": "CentOS",
+			"Version": "6.5",
+			"Console": "SSH",
+			"UserName": "root",
+			"Password": "intralot",
+			"Network":
+			{
+				"MAC": "auto",
+				"IP": "192.168.1.134",
+				"SubnetMask": "255.255.255.0",
+				"Gateway": "192.168.1.1",
+				"DNS":
+				[
+					"192.168.1.1",
+					"8.8.8.8"
+				]
+			}
+		},
+		"VMCreate":
+		{
+			"CMD":
+			[
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> clonevm <$(VM.ClonePath)> --name <$(VMName)> --basefolder <$(VM.SpawnPath)> --register",
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> modifyvm <$(VMName)> --cpus $(VM.CPUs) --memory $(VM.RAM) --acpi on --vtxux on --vtxvpid on",
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> modifyvm <$(VMName)> --macaddress1 $(OS.Network.MAC) --nic1 bridged --bridgeadapter1 eth0"
+			],
+			"SSH":
+			[
+				"yum -y update",
+				"yum -y install wget"
+			]
+		},
+		"VMStart":
+		{
+			"CMD":
+			[
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> startvm <$(VMName)> --type headless"
+			],
+			"SSH": []
+		},
+		"VMStop":
+		{
+			"CMD":
+			[
+				"<$(PATH_3RD_PARTY_VIRTUALBOX)/VBoxManage.exe> controlvm <$(VMName)> poweroff"
+			],
+			"SSH":
+			[
+				"systemctl stop mariadb.service"
+			]
+		},
+		"SoftwareStack":
+		{
+			"MongoDB":
+			{
+				"Version": "3.0.7",
+				"Install":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"echo '[mongodb-org-3.0]' >> /etc/yum.repos.d/mongodb-org-3.0.repo",
+						"echo 'name=MongoDB Repository' >> /etc/yum.repos.d/mongodb-org-3.0.repo",
+						"echo 'baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.0/x86_64/' >> /etc/yum.repos.d/mongodb-org-3.0.repo",
+						"echo 'gpgcheck=0' >> /etc/yum.repos.d/mongodb-org-3.0.repo",
+						"echo 'enabled=1' >> /etc/yum.repos.d/mongodb-org-3.0.repo",
+						"yum -y install mongodb-org-3.0.7 mongodb-org-server-3.0.7 mongodb-org-shell-3.0.7 mongodb-org-mongos-3.0.7 mongodb-org-tools-3.0.7"
+					]
+				},
+				"Start":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"service mongod start"
+					]
+				},
+				"Stop":
+				{
+					"CMD": [],
+					"SSH":
+					[
+						"service mongod stop"
+					]
+				}
+			}
+		}
+	}
+}

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2012 The Closure Compiler Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@
  var os = require('os');
  END_NODE_INCLUDE
  */
-    
+
 var os = {};
 
 /**

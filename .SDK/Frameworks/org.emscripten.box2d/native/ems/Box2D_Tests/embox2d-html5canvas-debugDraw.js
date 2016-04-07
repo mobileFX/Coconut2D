@@ -1,4 +1,4 @@
-
+﻿
 function drawAxes(ctx) {
     ctx.strokeStyle = 'rgb(192,0,0)';
     ctx.beginPath();
@@ -12,7 +12,7 @@ function drawAxes(ctx) {
     ctx.stroke();
 }
 
-function setColorFromDebugDrawCallback(color) {            
+function setColorFromDebugDrawCallback(color) {
     var col = Box2D.wrapPointer(color, b2Color);
     var red = (col.get_r() * 255)|0;
     var green = (col.get_g() * 255)|0;
@@ -24,7 +24,7 @@ function setColorFromDebugDrawCallback(color) {
 
 function drawSegment(vert1, vert2) {
     var vert1V = Box2D.wrapPointer(vert1, b2Vec2);
-    var vert2V = Box2D.wrapPointer(vert2, b2Vec2);                    
+    var vert2V = Box2D.wrapPointer(vert2, b2Vec2);
     context.beginPath();
     context.moveTo(vert1V.get_x(),vert1V.get_y());
     context.lineTo(vert2V.get_x(),vert2V.get_y());
@@ -46,16 +46,16 @@ function drawPolygon(vertices, vertexCount, fill) {
     context.stroke();
 }
 
-function drawCircle(center, radius, axis, fill) {                    
+function drawCircle(center, radius, axis, fill) {
     var centerV = Box2D.wrapPointer(center, b2Vec2);
     var axisV = Box2D.wrapPointer(axis, b2Vec2);
-    
+
     context.beginPath();
     context.arc(centerV.get_x(),centerV.get_y(), radius, 0, 2 * Math.PI, false);
     if (fill)
         context.fill();
     context.stroke();
-    
+
     if (fill) {
         //render axis marker
         var vert2V = copyVec2(centerV);
@@ -71,7 +71,7 @@ function drawTransform(transform) {
     var trans = Box2D.wrapPointer(transform,b2Transform);
     var pos = trans.get_p();
     var rot = trans.get_q();
-    
+
     context.save();
     context.translate(pos.get_x(), pos.get_y());
     context.scale(0.5,0.5);
@@ -83,53 +83,53 @@ function drawTransform(transform) {
 
 function getCanvasDebugDraw() {
     var debugDraw = new Box2D.b2Draw();
-            
+
     Box2D.customizeVTable(debugDraw, [{
     original: Box2D.b2Draw.prototype.DrawSegment,
     replacement:
-        function(ths, vert1, vert2, color) {                    
-            setColorFromDebugDrawCallback(color);                    
+        function(ths, vert1, vert2, color) {
+            setColorFromDebugDrawCallback(color);
             drawSegment(vert1, vert2);
         }
     }]);
-    
+
     Box2D.customizeVTable(debugDraw, [{
     original: Box2D.b2Draw.prototype.DrawPolygon,
     replacement:
-        function(ths, vertices, vertexCount, color) {                    
+        function(ths, vertices, vertexCount, color) {
             setColorFromDebugDrawCallback(color);
-            drawPolygon(vertices, vertexCount, false);                    
+            drawPolygon(vertices, vertexCount, false);
         }
     }]);
-    
+
     Box2D.customizeVTable(debugDraw, [{
     original: Box2D.b2Draw.prototype.DrawSolidPolygon,
     replacement:
-        function(ths, vertices, vertexCount, color) {                    
+        function(ths, vertices, vertexCount, color) {
             setColorFromDebugDrawCallback(color);
-            drawPolygon(vertices, vertexCount, true);                    
+            drawPolygon(vertices, vertexCount, true);
         }
     }]);
-    
+
     Box2D.customizeVTable(debugDraw, [{
     original: Box2D.b2Draw.prototype.DrawCircle,
     replacement:
-        function(ths, center, radius, color) {                    
+        function(ths, center, radius, color) {
             setColorFromDebugDrawCallback(color);
             var dummyAxis = b2Vec2(0,0);
             drawCircle(center, radius, dummyAxis, false);
         }
     }]);
-    
+
     Box2D.customizeVTable(debugDraw, [{
     original: Box2D.b2Draw.prototype.DrawSolidCircle,
     replacement:
-        function(ths, center, radius, axis, color) {                    
+        function(ths, center, radius, axis, color) {
             setColorFromDebugDrawCallback(color);
             drawCircle(center, radius, axis, true);
         }
     }]);
-    
+
     Box2D.customizeVTable(debugDraw, [{
     original: Box2D.b2Draw.prototype.DrawTransform,
     replacement:
@@ -137,6 +137,6 @@ function getCanvasDebugDraw() {
             drawTransform(transform);
         }
     }]);
-    
+
     return debugDraw;
 }

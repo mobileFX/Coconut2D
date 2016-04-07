@@ -34,52 +34,43 @@
 #include "CocoFontsCache.h"
 #include "CocoAssetFile.h" // <- Device Specific
 
-#ifdef ENABLE_FREETYPE_SUPPORT
-
 FT_Library CocoFontsCache::ftLibrary;
 std::map<CocoFontsCache, FT_Face> CocoFontsCache::fonts;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 bool CocoFontsCache::operator<(const CocoFontsCache& b) const
 {
-	//*
 	if(name < b.name) return true;
 	if(style < b.style) return true;
 	return false;
-	/*/
-	if(name != b.name)
-		return name < b.name;
-	else if(style != b.style)
-		return style < b.style;
-	else
-		return false;
-	//*/
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 void CocoFontsCache::add(std::string name, FONT_STYLE style, const char* filename)
 {
-	trace("CocoFontsCache::add(%s)", name.c_str());
 	CocoFontsCache ff(name, style);
 	if(fonts.find(ff) != fonts.end()) return;
+
 	CocoAssetFile* file = CocoAssetFile::open(filename);
 	if(!file) return;
+
 	switch(file->mime)
 	{
 		case CocoAssetFile::MIME::FONT_TTF:
 		{
 			FT_Face ftFace;
 			int er = 0;
-			if((er = FT_New_Memory_Face(ftLibrary, (const FT_Byte*)file->getData(), file->getLength(), 0, &ftFace)))
+			if((er = FT_New_Memory_Face(ftLibrary, (const FT_Byte*)file->getData(), (long) file->getLength(), 0, &ftFace)))
 			{
-				trace("Could not load FreeType Face(%d)!", er);
+				trace("Could not load FreeType Face");
 			}
 			fonts.insert(std::pair<CocoFontsCache, FT_Face>(ff, ftFace));
 			break;
 		}
+
 		default:
-			trace("Unsupported font type!\n");
-			return;
+			delete file;
+			trace("Unsupported font type!");
 	}
 }
 
@@ -95,8 +86,14 @@ FT_Face CocoFontsCache::get(std::string name, FONT_STYLE style)
 //////////////////////////////////////////////////////////////////////////////////////////////
 void CocoFontsCache::init()
 {
-    if(FT_Init_FreeType(&ftLibrary)) { trace("Could not initialize FreeType library!\n"); }
-    else { trace("FreeType OK!\n"); }
+    if(FT_Init_FreeType(&ftLibrary))
+    {
+    	trace("Could not initialize FreeType library!");
+    }
+    else
+    {
+    	trace("FreeType OK!");
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,6 +108,4 @@ void CocoFontsCache::quit()
 //////////////////////////////////////////////////////////////////////////////////////////////
 CocoFontsCache::CocoFontsCache(std::string i_name, FONT_STYLE i_style) : name(i_name), style(i_style) {}
 CocoFontsCache::CocoFontsCache() : name(""), style(FONT_STYLE::None) {}
-
-#endif /* ENABLE_FREETYPE_SUPPORT */
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2011 Erin Catto http://box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -39,7 +39,7 @@ private:
 	float64 m_start;
 	static float64 s_invFrequency;
 #elif defined(__linux__) || defined (__APPLE__)
-	unsigned long m_start_sec;
-	unsigned long m_start_msec;
+	size_t m_start_sec;
+	size_t m_start_msec;
 #endif
 };

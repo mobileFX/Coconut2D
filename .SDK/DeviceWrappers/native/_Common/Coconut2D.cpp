@@ -43,41 +43,62 @@
 
 #endif
 
+
+#if ANDROID_APPLICATION
+namespace std
+{
+	int32_t round(float n)		{ return (int32_t) ::round(n); }
+	int32_t round(int32_t n)	{ return (int32_t) ::round(n); }
+}
+#endif
+
+
+/*
+
+int32_t 	math_floor(int32_t n)				{ return std::floor(n); }
+int32_t 	math_floor(float n)					{ return std::floor( (int32_t) n); }
+
+int32_t 	math_ceil(int32_t n)				{ return std::ceil(n); }
+int32_t 	math_ceil(float n)					{ return std::ceil( (int32_t) n); }
+
+int32_t 	math_log(int32_t n)					{ return std::log(n); }
+int32_t 	math_log(float n)					{ return std::log( (int32_t) n); }
+
+int32_t 	math_abs(int32_t n)					{ return std::abs(n); }
+int32_t 	math_abs(float n)					{ return std::abs( (int32_t) n); }
+
+float 		math_sqrt(float n)					{ return std::sqrt(n); }
+float 		math_sqrt(int32_t n)				{ return std::sqrt( (float) n); }
+
+int32_t 	math_round(int32_t n)				{ return (int32_t) round( (float) n); }
+int32_t 	math_round(float n)					{ return (int32_t) round( (float) n); }
+
+float 		math_asin(float n)					{ return std::asin(n); }
+float 		math_asin(int32_t n)				{ return std::asin( (float) n); }
+
+float 		math_acos(float n)					{ return std::acos(n); }
+float 		math_acos(int32_t n)				{ return std::acos( (float) n); }
+
+float 		math_sin(float n)					{ return std::sin(n); }
+float 		math_sin(int32_t n)					{ return std::sin( (float) n); }
+
+float 		math_cos(float n)					{ return std::cos(n); }
+float 		math_cos(int32_t n)					{ return std::cos( (float) n); }
+
+*/
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 CocoEngine* engine;
 HTMLWindow* window;
 HTMLWindow* global;
 HTMLDocument* document;
 
-void trace(const char* fmt, ...)
-{
-	char* buff = (char*) malloc(65535);
-	va_list vl;
-	va_start(vl, fmt);
-	vsprintf(buff, fmt, vl);
-	va_end(vl);
-
-	#ifdef ANDROID_APPLICATION
-		__android_log_print(ANDROID_LOG_INFO, APPNAME, buff,"");
-
-	#elif IOS_APPLICATION
-        NSString *string = [NSString stringWithUTF8String:buff];
-        NSLog(@"%@", string);
-
-	#elif WIN32_APPLICATION
-		printf("%s\n", buff);
-		fflush(stdout);
-	#else
-
-	#endif
-
-	free(buff);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 String md5(String data)
 {
-	return data;
+    MD5 md5 = MD5(data);
+    return md5.hexdigest();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +110,28 @@ String btoa(String binary)
 //////////////////////////////////////////////////////////////////////////////////////////////
 bool isFinite(String value)
 {
-	return true;
+    double d = std::atof(value.c_str());
+    std::ostringstream ss;
+    ss << d;
+    std::string t(ss.str());
+    return (t==value ? std::isfinite(d) : false);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+void clearInterval(int handle)
+{
+	/*
+	if(!handle) return;
+	try
+	{
+		TimerThread* t = reinterpret_cast<TimerThread*>(handle);
+		t->stop();
+		delete t;
+	}
+	catch(...)
+	{
+	}
+	*/
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,18 +171,18 @@ extern String encodeURIComponent(String uri)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-ArrayBuffer* ArrayBuffer::NewFromImage(std::string str, uint32_t& width, uint32_t& height)
+ArrayBuffer* ArrayBuffer::NewFromImage(const String str, int32_t& width, int32_t& height)
 {
 	CocoAssetFile* file = CocoAssetFile::open(str.c_str());
+    if(!file)
+    {
+        std::cout << "Error Loading Image: " << str << "\n";
+        return NULL;
+    }
 	switch(file->mime)
 	{
-		#ifdef ENABLE_PNG_SUPPORT
 		case CocoAssetFile::MIME::IMAGE_PNG: return NewFromImage_PNG(file, width, height);
-		#endif
-
-		#ifdef ENABLE_JPG_SUPPORT
 		case CocoAssetFile::MIME::IMAGE_JPG: return NewFromImage_JPG(file, width, height);
-		#endif
 		default:
 			return NULL;
 	}
@@ -151,13 +193,14 @@ ArrayBuffer* ArrayBuffer::NewFromImage(std::string str, uint32_t& width, uint32_
 String ArrayBuffer::encodeAsBase64()
 {
 	static const char b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-	String ret;
+	STD_STRING ret;
 
-	int pad = (3 - (byteLength % 3)) % 3;
-	size_t len = 4 * (byteLength + pad) / 3;
-	ret.resize(len);
+	int32_t pad = (3 - (byteLength % 3)) % 3;
+	int32_t len = 4 * (byteLength + pad) / 3;
+	ret.resize( (size_t)len );
 
-	size_t c = 0, i = 0;
+    size_t c = 0;
+    int32_t i = 0;
 	unsigned char b0, b1, b2;
 
 	for(i = 0; i < byteLength - 2; i += 3 )
@@ -191,8 +234,6 @@ String ArrayBuffer::encodeAsBase64()
 	return ret;
 }
 
-#ifdef ENABLE_PNG_SUPPORT
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 static void png_from_memory(png_structp png_ptr, png_bytep readBytes, png_size_t readCount)
 {
@@ -205,102 +246,160 @@ static void png_to_memory(png_structp png_ptr, png_bytep data, png_size_t length
 {
 	ArrayBuffer* buffer = (ArrayBuffer*)png_get_io_ptr(png_ptr);
 	buffer->byteLength += length;
-	buffer->data = realloc(buffer->data, buffer->byteLength);
-	memcpy((*buffer)[buffer->byteLength - length], data, length);
+	buffer->data = realloc(buffer->data, (size_t) buffer->byteLength);
+	memcpy((*buffer)[buffer->byteLength - (int32_t)length], data, length);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-ArrayBuffer* ArrayBuffer::NewFromImage_PNG(CocoAssetFile* file, uint32_t& width, uint32_t& height)
+ArrayBuffer* ArrayBuffer::NewFromImage_PNG(CocoAssetFile* file, int32_t& width, int32_t& height)
 {
-	ArrayBuffer* ret = NULL;
-	unsigned char sig[8];
-	size_t rowbytes;
-	png_bytepp rows;
+    width = 0;
+    height = 0;
 
-	if(!file) return ret;
+    if(!file) return nullptr;
 
-	file->read(sig, 8);
+    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    png_set_read_fn(png_ptr, (png_voidp)file, png_from_memory);
 
-	if(!png_sig_cmp(sig, 0, 8))
-	{
-		png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-		png_infop info_ptr = png_create_info_struct(png_ptr);
-		if(png_ptr && info_ptr && !setjmp(png_jmpbuf(png_ptr)))
-		{
-			png_set_read_fn(png_ptr, (png_voidp)file, png_from_memory);
-			png_set_sig_bytes(png_ptr, 8);
-			png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_GRAY_TO_RGB | PNG_TRANSFORM_PACKING, nullptr);
-			width = png_get_image_width(png_ptr, info_ptr);
-			height = png_get_image_height(png_ptr, info_ptr);
-			rows = png_get_rows(png_ptr, info_ptr);
-			rowbytes = png_get_rowbytes(png_ptr, info_ptr);
+    if(setjmp(png_jmpbuf(png_ptr)))
+    {
+        // PNG Read Error
+        width = 0;
+        height = 0;
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+        //free(png_ptr);
+        //free(info_ptr);
+        return nullptr;
+    }
 
-			ArrayBuffer* t = new ArrayBuffer(height * rowbytes);
+    // Read all the info up to the image data
+    png_read_info(png_ptr, info_ptr);
 
-			for(uint32_t i = height; i--;)
-				memcpy((*t)[rowbytes * i], rows[i], rowbytes);
+    // Get info about PNG
+    int color_type;
+    int bit_depth;
+    png_get_IHDR( png_ptr, info_ptr, (png_uint_32*)&width, (png_uint_32*)&height, &bit_depth, &color_type, 0, 0, 0 );
 
-			ret = t;
-		}
-		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-	}
-	delete file;
-	return ret;
+    // Make sure we already end up reading PNG24 RGBA bytes
+    if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_expand(png_ptr);
+    if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) png_set_expand(png_ptr);
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) png_set_expand(png_ptr);
+    if (bit_depth == 16) png_set_strip_16(png_ptr);
+    if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA) png_set_gray_to_rgb(png_ptr);
+    if (color_type == PNG_COLOR_TYPE_RGB) png_set_filler(png_ptr, 0xff, PNG_FILLER_AFTER);
+
+    // Update the PNG info struct.
+    png_read_update_info(png_ptr, info_ptr);
+
+    // Get row size in bytes (should be aligned to 4 bytes)
+    png_size_t row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+    row_bytes += 3 - ((row_bytes-1) % 4); // unnecessary hack to align to 4 bytes
+
+    // Initialize raw pixels storage
+    int32_t size = (int32_t)row_bytes * height;
+    ArrayBuffer* t = new ArrayBuffer(size);
+
+    // Read PNG image into storage using row pointers
+    std::vector<png_byte*> rowData((size_t)height);
+    for(png_size_t i=0; i<(png_size_t)height; i++)
+        rowData[i] = (png_byte*) (i * row_bytes + (png_byte*)(t->data));
+    png_read_image(png_ptr, &rowData.front());
+
+    // Done
+    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+    //free(png_ptr);
+    //free(info_ptr);
+
+    return t;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-ArrayBuffer* ArrayBuffer::encodeAsPNG(size_t width, size_t height)
+ArrayBuffer* ArrayBuffer::encodeAsPNG(int32_t width, int32_t height)
 {
-	const size_t bytes_per_pixel = 4;
-    ArrayBuffer* ret = new ArrayBuffer(0);
+    const int bit_depth = 8;
+	const size_t bytes_per_pixel = 4; //RGBA
+    #define Z_DEFAULT_STRATEGY    0
 
+    ArrayBuffer* buffer = nullptr;
+
+    // Allocate PNG write structures
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if(png_ptr)
-	{
-		png_infop info_ptr = png_create_info_struct(png_ptr);
-		if(info_ptr)
-		{
-			if(!setjmp(png_jmpbuf(png_ptr)))
-			{
-				png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-				size_t bytes_per_row = bytes_per_pixel * width;
-				png_bytepp rows = (png_bytepp)png_malloc(png_ptr, sizeof(png_bytep) * height);
-				for(size_t y = height; y--;)
-				{
-					rows[y] = (png_bytep)png_malloc(png_ptr, sizeof(png_byte) * bytes_per_row);
-					memcpy(rows[y], (*this)[y * bytes_per_row], bytes_per_row);
-				}
-				png_set_rows(png_ptr, info_ptr, rows);
-				png_set_write_fn(png_ptr, ret, png_to_memory, NULL);
-				png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-				for(size_t y = height; y--;)
-					png_free(png_ptr, rows[y]);
-				png_free(png_ptr, rows);
-			}
-			png_destroy_write_struct(&png_ptr, &info_ptr);
-		}
-		else
-			png_destroy_write_struct(&png_ptr, NULL);
-	}
-	return ret;
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+
+    // Set defaults
+    png_set_compression_strategy(png_ptr, Z_DEFAULT_STRATEGY);
+    png_set_compression_mem_level(png_ptr, 8);
+    png_set_compression_window_bits(png_ptr, 15);
+    png_set_compression_method(png_ptr, 8);
+
+    // Shift the pixels up to a legal bit depth and fill in as appropriate to correctly scale the image.
+    png_color_8 sig_bit;
+    sig_bit.red = bit_depth;
+    sig_bit.green = bit_depth;
+    sig_bit.blue = bit_depth;
+    sig_bit.alpha = bit_depth;
+    png_set_shift(png_ptr, &sig_bit);
+
+    // Pack pixels into bytes
+    png_set_packing(png_ptr);
+
+    if(setjmp(png_jmpbuf(png_ptr)))
+    {
+        // PNG Write Error
+        png_destroy_write_struct(&png_ptr, NULL);
+        //free(png_ptr);
+        //free(info_ptr);
+        return nullptr;
+    }
+    else
+    {
+        // Write PNG Header
+        png_set_IHDR(png_ptr, info_ptr, (png_uint_32) width, (png_uint_32) height, bit_depth, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_DEFAULT);
+
+        // Allocate PNG rows buffer
+        int32_t bytes_per_row = (int32_t) bytes_per_pixel * width;
+        png_bytepp rows = (png_bytepp) png_malloc(png_ptr, (size_t) height * sizeof(png_bytep));
+
+        // Write image data to PNG rows
+        for(int32_t y = height; y--;)
+        {
+            rows[y] = (png_bytep) png_malloc(png_ptr, (size_t) bytes_per_row * sizeof(png_byte));
+            memcpy(rows[y], (*this)[y * bytes_per_row], (size_t) bytes_per_row);
+        }
+        png_set_rows(png_ptr, info_ptr, rows);
+
+        // Write PNG to Array Buffer
+        buffer = new ArrayBuffer(0);
+        png_set_write_fn(png_ptr, buffer, png_to_memory, NULL);
+        png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+        png_write_end(png_ptr, NULL);
+
+        // Free PNG rows
+        for(int32_t y = height; y--;)
+            png_free(png_ptr, rows[y]);
+
+        png_free(png_ptr, rows);
+    }
+
+    // Done
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    //free(png_ptr);
+    //free(info_ptr);
+
+    return buffer;
 }
-
-#endif /* ENABLE_PNG_SUPPORT */
-
-#ifdef ENABLE_JPG_SUPPORT
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 static void jpeg_error(j_common_ptr cInfo)
 {
 	char pszMessage[JMSG_LENGTH_MAX];
-
 	(*cInfo->err->format_message)(cInfo, pszMessage);
-
-	trace("Jpeg Lib error: %s", pszMessage);
+	trace(pszMessage);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-ArrayBuffer* ArrayBuffer::NewFromImage_JPG(CocoAssetFile* file, uint32_t& width, uint32_t& height)
+ArrayBuffer* ArrayBuffer::NewFromImage_JPG(CocoAssetFile* file, int32_t& width, int32_t& height)
 {
 	ArrayBuffer* ret = NULL;
 
@@ -315,12 +414,12 @@ ArrayBuffer* ArrayBuffer::NewFromImage_JPG(CocoAssetFile* file, uint32_t& width,
 	jpeg_mem_src(&cInfo, (unsigned char*)file->getData(), file->getLength());
 	jpeg_read_header(&cInfo, TRUE);
 	jpeg_start_decompress(&cInfo);
-	width = cInfo.output_width;
-	height = cInfo.output_height;
-	rowBytesIn = width * cInfo.output_components;
-	rowBytesOut = width * sizeof(uint32_t);
+	width = (int32_t) cInfo.output_width;
+	height = (int32_t) cInfo.output_height;
+	rowBytesIn = (size_t)width * (size_t)cInfo.output_components;
+	rowBytesOut = (size_t) width * sizeof(uint32_t);
 
-	ArrayBuffer* t = new ArrayBuffer(height * rowBytesOut);
+	ArrayBuffer* t = new ArrayBuffer( height * (int32_t)rowBytesOut);
 
 	JSAMPLE* pSample = (JSAMPLE*)malloc(rowBytesIn);
 
@@ -329,11 +428,11 @@ ArrayBuffer* ArrayBuffer::NewFromImage_JPG(CocoAssetFile* file, uint32_t& width,
 	unsigned char* ptrRow;
 
 	unsigned char* ptr = (unsigned char*)((*t)[0]);
-	for(uint32_t i = height; i--;)
+	for(int32_t i = height; i--;)
 	{
 		jpeg_read_scanlines(&cInfo, pRow, 1);
 		ptrRow = (unsigned char*)(&(pRow[0][0]));
-		for(uint32_t r = width; r--; ptr += 4, ptrRow += 3)
+		for(int32_t r = width; r--; ptr += 4, ptrRow += 3)
 		{
 			memcpy(ptr, ptrRow, 3);
 			ptr[3] = 0xFF;
@@ -348,6 +447,3 @@ ArrayBuffer* ArrayBuffer::NewFromImage_JPG(CocoAssetFile* file, uint32_t& width,
 	delete file;
 	return ret;
 }
-
-#endif /* ENABLE_JPG_SUPPORT */
-

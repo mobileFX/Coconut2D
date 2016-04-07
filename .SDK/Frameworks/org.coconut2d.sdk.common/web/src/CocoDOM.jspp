@@ -22,11 +22,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_native
-#pragma export_web
-#pragma export_nodejs
+#pragma export_native;
+#pragma export_web;
+#pragma export_nodejs;
 
-#module CocoDOM
+#module org.coconut2d.sdk.common;
 
 // ==================================================================================================================================
 //	   ______               _    __           _             __
@@ -146,6 +146,9 @@ export class CocoTokenizer
 	private reference var rxIDENTIFIER:RegExp;
 	private reference var rxSTRING:RegExp;
 	private reference var rxNewLines:RegExp;
+	private reference var rxWhiteSpaceLF:RegExp;
+
+	private var rxScanWhiteSpace:RegExp;
 
 	/////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -181,19 +184,25 @@ export class CocoTokenizer
 		AddTokenRule("COMMENT",		TOKEN_COMMENT,		"^\\/(?:\\*(?:[\\S\\s])*?\\*\\/|\\/.*)");
 		AddTokenRule("FLOAT",		TOKEN_NUMBER, 		"^\\d+\\.(?!\\.)\\d*(?:[eE][-+]?\\d+)?|^\\d+(?:\\.\\d*)?[eE][-+]?\\d+|^\\.\\d+(?:[eE][-+]?\\d+)?");
 		AddTokenRule("NUMBER",		TOKEN_NUMBER,		"^0[xX][\\da-fA-F]+|^0[0-7]*|^\\d+");
-		AddTokenRule("STRING",		TOKEN_STRING,		"^\\x22(?!\\x22)(?:\\\\.|[^\\x22])*\\x22|^\\x27(?!\\x27)(?:\\\\.|[^\\x27])*\\x27|^([\\x27\\x22]{3})((?:(?!\\1)[\\s\\S])*)\\1|^\\x22\\x22|^\\x27\\x27");
+
+		AddTokenRule("STRING",		TOKEN_STRING,		"^\\x22(?!\\x22)(?:\\\\.|[^\\x22])*\\x22|^\\x27(?!\\x27)(?:\\\\.|[^\\x27])*\\x27|(?:^\\x22\\x22)|(?:^\\x27\\x27)");
+		// String RX in C++11 on XCode throws "invalid back reference in regular expression" when adding ^([\\x27\\x22]{3})((?:(?!\\1)[\\s\\S])*)\\1|
+		// This RX would match strings withing strings eg. """test""".
+
 		AddTokenRule("IDENTIFIER",	TOKEN_IDENTIFIER,	"^[a-zA-Z_$][\\w_$]*");
 
 		// We cache some frequently used regular expressions for speed.
 
-		rxCRLF			= getTokenRule("CRLF").rx;
-		rxCOMMENT       = getTokenRule("COMMENT").rx;
-		rxFLOAT         = getTokenRule("FLOAT").rx;
-		rxNUMBER        = getTokenRule("NUMBER").rx;
-		rxIDENTIFIER    = getTokenRule("IDENTIFIER").rx;
-		rxSTRING        = getTokenRule("STRING").rx;
+		rxCRLF				= getTokenRule("CRLF").rx;
+		rxCOMMENT       	= getTokenRule("COMMENT").rx;
+		rxFLOAT         	= getTokenRule("FLOAT").rx;
+		rxNUMBER        	= getTokenRule("NUMBER").rx;
+		rxIDENTIFIER    	= getTokenRule("IDENTIFIER").rx;
+		rxSTRING        	= getTokenRule("STRING").rx;
+		rxWhiteSpaceLF		= getTokenRule("WHITESPACE").rx;
 
-		rxNewLines = new RegExp("\\n", "g");
+		rxScanWhiteSpace 	= new RegExp("^[ \\t]+");
+		rxNewLines 			= new RegExp("\\n", "g");
 
 		for(var i:Integer=0; i<4; i++)
 			tokens.push(new TOKEN());
@@ -210,6 +219,7 @@ export class CocoTokenizer
 		delete tokenRules;
 		delete currState;
 		delete[] states;
+		delete rxScanWhiteSpace;
 		delete rxNewLines;
 	}
 
@@ -278,28 +288,22 @@ export class CocoTokenizer
 		for(;;)
 		{
 			inp = input();
-			var rx:RegExp = new RegExp(currState.scanNewlines ? "^[ \\t]+" : "^\\s+");
+			var rx:RegExp = currState.scanNewlines ? rxScanWhiteSpace : rxWhiteSpaceLF;
 			match = rx.exec(inp);
 			if(match)
 			{
 				var spaces:String = match[0];
 				currState.cursor += spaces.size();
-				var newlines:Array<String> = rxCRLF.exec(spaces);//.match(rxCRLF);
-				if(newlines)
-					currState.line_start += newlines.size();
+				currState.line_start += countLines(spaces);
 				inp = input();
 			}
-
 			if(HAS_COMMENTS_RULE)
 			{
 				if(!(match = rxCOMMENT.exec(inp)))
 					break;
-
 				var comment:String = match[0];
 				currState.cursor += comment.size();
-				var newlines:Array<String> = rxNewLines.exec(comment);
-				if(newlines)
-					currState.line_start += newlines.size();
+				currState.line_start += countLines(comment);
 			}
 			else
 				break;
@@ -329,8 +333,8 @@ export class CocoTokenizer
 				if(token_rule.kind!=filter) continue;
 
 				// Process token definition rule against current input.
-
-				if((match = token_rule.rx.exec(inp)))
+				match = token_rule.rx.exec(inp);
+				if(match)
 				{
 					token.type = token_rule.name;
 					if(token.type=="STRING")
@@ -345,9 +349,17 @@ export class CocoTokenizer
 
 		if(!matched)
 		{
-			if(currState.scanNewlines && (match = rxCRLF.exec(inp)))
+			if(currState.scanNewlines)
 			{
-				token.type = "NEWLINE";
+				match = rxCRLF.exec(inp);
+				if(match)
+				{
+					token.type = "NEWLINE";
+				}
+				else
+				{
+					throw "Illegal token";
+				}
 			}
 			else
 			{
@@ -361,7 +373,18 @@ export class CocoTokenizer
 		token.line_start = currState.line_start;
 		token.line_end = currState.line_start;
 
+		delete match;
+
 		return token.type;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function countLines(buff:String):Integer
+	{
+		var lines:Array<String> = rxNewLines.exec(buff);
+		var n:Integer = lines ? lines.size() : 0;
+		if(lines) delete lines;
+		return n;
 	}
 
 	/////////////////////////////////////////////////////////////////////
@@ -654,6 +677,7 @@ export class CocoXMLParser : CocoTokenizer
 				tt = peek();
 			}
 			mustMatch("PI_CLOSE");
+			delete n;
 		}
 
 
@@ -745,7 +769,7 @@ export class CocoXMLParser : CocoTokenizer
 export class CocoXPathParser : CocoTokenizer
 {
 	private reference var xDOM:CocoDOMDocument;
-	private var result:Array<CocoDOMNode>;
+	private reference var result:Array<CocoDOMNode>;
 
 
 	/////////////////////////////////////////////////////////////////////
@@ -769,7 +793,6 @@ export class CocoXPathParser : CocoTokenizer
 	/////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete result;
 	}
 
 	/////////////////////////////////////////////////////////////////////
@@ -1066,7 +1089,7 @@ export class CocoDOMNode
 		{
 			if(attributes[i].name == name)
 			{
-				return attributes[i].value
+				return attributes[i].value;
 			}
 		}
 		return "";
@@ -1115,7 +1138,7 @@ export class CocoDOMDocument : CocoDOMNode
 	/////////////////////////////////////////////////////////////////////
 	private function node_all(n:CocoDOMNode, arr:Array<CocoDOMNode>)
 	{
-		if(!n) return;
+		if(!n || !n.children) return;
 		arr.push(n);
 		var L:Integer = n.children.size();
 		for(var i:Integer = 0; i<L; i++)
@@ -1131,6 +1154,7 @@ export class CocoDOMDocument : CocoDOMNode
 		if(sel && sel.size()>0)
 		{
 			n = sel[0];
+			sel.splice(0,1);
 			delete sel;
 		}
 		delete xp;
@@ -1140,9 +1164,8 @@ export class CocoDOMDocument : CocoDOMNode
 	/////////////////////////////////////////////////////////////////////
 	public function selectNodes(xPath:String):Array<CocoDOMNode>
 	{
-		var sel:Array<CocoDOMNode> = null;
 		var xp:CocoXPathParser = new CocoXPathParser();
-		sel = xp.select(xPath, this);
+		var sel:Array<CocoDOMNode> = xp.select(xPath, this);
 		delete xp;
 		return sel;
 	}

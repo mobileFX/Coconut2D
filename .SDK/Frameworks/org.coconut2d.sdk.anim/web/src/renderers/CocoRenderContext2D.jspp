@@ -22,8 +22,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_native
-#pragma export_web
+#pragma export_native;
+#pragma export_web;
+
+#include "CanvasRenderingContext2D.jspp"
 
 // ==================================================================================================================================
 //	    __________                 ____                 __          ______            __            __
@@ -241,6 +243,19 @@ class CocoRenderContext2D implements ICocoRenderContext
 		}
 
 		// Calculate image copy rectangles
+		/*
+		var sw:Float = image.textureCellWidth;
+		var sh:Float = image.textureCellHeight;
+		var ox:Float = image.binpackX;
+		var oy:Float = image.binpackY;
+		var sx:Float = ox + ((keyFrame.flipH ? 1.0 : 0.0) + image.textureGrid[textureIndex * 2 + 1]) * sw;
+		var sy:Float = oy + ((keyFrame.flipV ? 1.0 : 0.0) + image.textureGrid[textureIndex * 2 + 0]) * sh;
+		var dx:Float = -sw / 2.0;
+		var dy:Float = -sh / 2.0;
+		var dw:Float = sw;
+		var dh:Float = sh;
+		*/
+		
 		var sw:Integer = image.textureCellWidth;
 		var sh:Integer = image.textureCellHeight;
 		var ox:Integer = image.binpackX;
@@ -251,7 +266,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 		var dy:Integer = -sh / 2.0;
 		var dw:Integer = sw;
 		var dh:Integer = sh;
-
+		
 		// Set global alpha
 		__ctx.globalAlpha = keyFrame.alpha;
 

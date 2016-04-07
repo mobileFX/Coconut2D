@@ -1,4 +1,4 @@
-#define IDI_APPICON                    101
+﻿#define IDI_APPICON                    101
 #define IDR_MAINMENU                   102
 #define IDR_ACCELERATOR                103
 #define IDD_ABOUTDIALOG                104

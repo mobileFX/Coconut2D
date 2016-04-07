@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2011 Erin Catto http://box2d.org
 *
 * This software is provided 'as-is', without any express or implied

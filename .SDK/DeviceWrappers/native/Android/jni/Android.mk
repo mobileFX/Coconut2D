@@ -1,43 +1,23 @@
-LOCAL_PATH := $(call my-dir)
 LOCAL_PATH := $(TARGET_ROOT)/jni
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := freetype
-LOCAL_SRC_FILES := $(PATH_SDK_LIBRARIES_ANDROID)/$(TARGET_ARCH_ABI)/libfreetype.a
-include $(PREBUILT_STATIC_LIBRARY)
+# Link Libraries Binary Paths
+$(ANDROID_STATIC_LIBRARIES)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := png
-LOCAL_SRC_FILES := $(PATH_SDK_LIBRARIES_ANDROID)/$(TARGET_ARCH_ABI)/libpng.a
-include $(PREBUILT_STATIC_LIBRARY)
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := jpeg
-LOCAL_SRC_FILES := $(PATH_SDK_LIBRARIES_ANDROID)/$(TARGET_ARCH_ABI)/libjpeg.a
-include $(PREBUILT_STATIC_LIBRARY)
+LOCAL_MODULE := Coconut2D
+LOCAL_LDLIBS := -lm -lc -landroid -llog -lEGL -lGLESv2 -lOpenSLES -lz -llog
+LOCAL_SHARED_LIBRARIES := libcutils
+LOCAL_STATIC_LIBRARIES := stdc++ android_native_app_glue $(APP_LDLIBS)
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := openal
-LOCAL_SRC_FILES := $(PATH_SDK_LIBRARIES_ANDROID)/$(TARGET_ARCH_ABI)/libopenal.a
-include $(PREBUILT_STATIC_LIBRARY)
+# Include Paths (Libraries, Frameworkds, Sources)
+LOCAL_C_INCLUDES := \
+system/core/include/cutils \
+$(APP_CFLAGS)
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := curl
-LOCAL_SRC_FILES := $(PATH_SDK_LIBRARIES_ANDROID)/$(TARGET_ARCH_ABI)/libcurl.a
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE := Tremolo
-LOCAL_SRC_FILES := $(PATH_SDK_LIBRARIES_ANDROID)/$(TARGET_ARCH_ABI)/libTremolo.a
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-#	LOCAL_CFLAGS := -g  -ggdb3
-	LOCAL_LDLIBS := -lm -lc -landroid -llog -lEGL -lGLESv2 -lOpenSLES -lz
-	LOCAL_STATIC_LIBRARIES := stdc++ android_native_app_glue png jpeg freetype openal curl Tremolo
-	LOCAL_C_INCLUDES := $(NATIVE_CPP_INCLUDES)
-	LOCAL_MODULE := Coconut2D
-	LOCAL_SRC_FILES := $(NATIVE_CPP_SOURCES)
+# Source files to compile
+LOCAL_SRC_FILES := \
+$(NATIVE_CPP_SOURCES)
 
 include $(BUILD_SHARED_LIBRARY)
 

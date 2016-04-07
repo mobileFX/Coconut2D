@@ -31,7 +31,8 @@ CocoDeviceOpenGLContext::CocoDeviceOpenGLContext(ANativeWindow* window, CocoDevi
 	EGLint numConfigs, format;
 	EGLConfig config;
 
-	const EGLint attribs[] = {
+	const EGLint attribs[] =
+	{
 			EGL_BLUE_SIZE, 8,
 			EGL_GREEN_SIZE, 8,
 			EGL_RED_SIZE, 8,
@@ -40,7 +41,8 @@ CocoDeviceOpenGLContext::CocoDeviceOpenGLContext(ANativeWindow* window, CocoDevi
 			EGL_NONE
 	};
 
-	const EGLint contextAttribs[] = {
+	const EGLint contextAttribs[] =
+	{
 			EGL_CONTEXT_CLIENT_VERSION, 2,
 			EGL_NONE
 	};
@@ -54,7 +56,6 @@ CocoDeviceOpenGLContext::CocoDeviceOpenGLContext(ANativeWindow* window, CocoDevi
 	ANativeWindow_setBuffersGeometry(window, 0, 0, format);
 
 	surface = eglCreateWindowSurface(display, config, window, nullptr);
-
 	context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
 
 	SetContext();
@@ -63,16 +64,19 @@ CocoDeviceOpenGLContext::CocoDeviceOpenGLContext(ANativeWindow* window, CocoDevi
 	eglQuerySurface(display, surface, EGL_WIDTH, &w);
 	eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-	screen.width = w;
-	screen.height = h;
-	screen.pixelRatio = 1.0;
-	screen.rotation = dev->GetScreenRotation();
-	screen.isPortrait = dev->GetScreenIsPortrait();
-	screen.top = dev->GetScreenTop();
+	screen.width 		= w;
+	screen.height 		= h;
+	screen.pixelRatio 	= dev->GetScreenPixelRatio();
+	screen.rotation 	= dev->GetScreenRotation();
+	screen.isPortrait 	= dev->GetScreenIsPortrait();
+	screen.top 			= dev->GetScreenTop();
 
     glViewport(0, 0, screen.width * screen.pixelRatio, screen.height * screen.pixelRatio);
+
+    //glViewport(0, 0, screen.width / screen.pixelRatio, screen.height / screen.pixelRatio);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 CocoDeviceOpenGLContext::~CocoDeviceOpenGLContext()
 {
     if(display != EGL_NO_DISPLAY)
@@ -89,23 +93,27 @@ CocoDeviceOpenGLContext::~CocoDeviceOpenGLContext()
     surface = EGL_NO_SURFACE;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoDeviceOpenGLContext::SetContext()
 {
 	if(eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
 	{
-		trace("ERROR(CocoDeviceOpenGLContext.cpp): eglMakeCurrent(%d)", eglGetError());
+		// ERROR
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoDeviceOpenGLContext::ClearContext()
 {
 	eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoDeviceOpenGLContext::SetBuffers()
 {
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void CocoDeviceOpenGLContext::SwapBuffers()
 {
 	eglSwapBuffers(display, surface);

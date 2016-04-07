@@ -72,6 +72,8 @@ function CocoMake(command , params)
 	__global.TARGET = TARGET;
 	__global.TARGET_NAME = TARGET.NAME;
 	makefile.Vars["UCONFIGURATION"] = makefile.Vars.CONFIGURATION.toUpperCase();
+	makefile.Vars["DEBUGGABLE"] = makefile.Vars.CONFIGURATION.toLowerCase()=="debug" ? "true" : "false";
+
 	params = JSON.parse(params);
 
 	// ==================================================================================================================================
@@ -84,29 +86,11 @@ function CocoMake(command , params)
 	// ==================================================================================================================================
 
     // =====================================================================
-    // Parse a single file for IntelliSyntax
-    // =====================================================================
-    _this.Parse = function(params)
-    {
-    	// Form the source code
-		var code = '"script_begin:///' + params.parse + '";\n' + read(params.code) + '\n"script_end:///' + params.parse + '";\n';
-
-		// Parse source code and generate AST
-		narcissus.__messages = false;
-		narcissus.__cpp = false;
-		var ast = narcissus.jsparse(code);
-
-		// Compile AST to export Code Symbols, Scopes and Member Lists (only)
-		var compiler = new Compiler(ast);
-		compiler.compile(true, params.parse, false);
-    };
-
-    // =====================================================================
     // Build for node.js
     // =====================================================================
   	_this.Build_node_js = function(params)
   	{
-  		if(params && params.mode=="compile")
+  		if(params && params.mode=="generate")
   		{
 	  		_this.generate_javascript(true);
   		}
@@ -116,14 +100,46 @@ function CocoMake(command , params)
 	  		_this.generate_icons();
 	  		_this.generate_javascript(true);
 	  		_this.copy_framework_libs();
+	  		_this.npm();
+	  		_this.closure();
+  		}
+  	};
+
+    // =====================================================================
+    // Build for CocoNode (node.js with Coconut2D Native Addin for Web Sites)
+    // =====================================================================
+  	_this.Build_CocoNode = function(params)
+  	{
+  		if(params && params.mode=="generate")
+  		{
+	  		_this.generate_javascript(true);
+  		}
+  		else
+  		{
+	  		_this.apply_device_wrapper();
+	  		_this.generate_icons();
+	  		_this.generate_javascript(true);
+	  		_this.copy_framework_libs();
+	  		_this.npm();
 	  		_this.closure();
 
-	  		// Client-side Framework may be compiled and used by HTML5 pages.
-	  		if(TARGET.TARGET_CLIENT_FRAMEWORKS && makefile.Config.TARGETS["HTML5"])
+	  		// We need to switch target to ASP
+	  		if(TARGET.ASP)
 	  		{
-	  			trace("\nCompiling Client Frameworks ...");
-	  			var code = _this.getSourceCode(TARGET.TARGET_ROOT, null, undefined, undefined, TARGET.TARGET_CLIENT_FRAMEWORKS, "HTML5");
-				_this.generate_javascript(false, code, "HTML5", TARGET.TARGET_ROOT + "/obj");
+	  			// Replace target vars
+	  			for(var item in TARGET.ASP)
+	  			{
+	  				TARGET[item] = TARGET.ASP[item];
+	  			}
+
+	  			// Reset precompiler vars
+				TARGET_NAME = TARGET.NAME;
+				target = makefile.Vars.TARGET = TARGET.NAME;
+
+				_this.set_framework_vars();
+
+				// Compile for ASP
+				_this.generate_javascript(false);
 	  		}
   		}
   	};
@@ -134,7 +150,7 @@ function CocoMake(command , params)
     // =====================================================================
   	_this.Build_CocoPlayer = function(params)
   	{
-  		if(params && params.mode=="compile")
+  		if(params && params.mode=="generate")
   		{
 	  		_this.generate_javascript(true);
   		}
@@ -158,7 +174,7 @@ function CocoMake(command , params)
     // =====================================================================
   	_this.Build_HTML5 = function(params)
   	{
-  		if(params && params.mode=="compile")
+  		if(params && params.mode=="generate")
   		{
 	  		_this.generate_javascript(true);
   		}
@@ -186,9 +202,14 @@ function CocoMake(command , params)
   		makefile.Vars["ANDROID_SDK_ESCAPED"] = makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK.replace(/\x2f/mg, '\\\\');
   		makefile.Vars["PATH_SDK_LIBRARIES_ANDROID"] = relativePath(JNI_FOLDER, makefile.Vars.PATH_SDK_LIBRARIES+"/Android");
 
-  		if(params && params.mode=="compile")
+  		if(params && params.mode=="generate")
   		{
 	  		_this.generate_cpp();
+  		}
+  		else if(params && params.mode=="compile")
+  		{
+	  		_this.compile_jni_static_lib();
+	  		_this.compile_apk();
   		}
   		else
   		{
@@ -207,13 +228,16 @@ function CocoMake(command , params)
     // =====================================================================
   	_this.Build_iOS = function(params)
   	{
-  		if(params && params.mode=="compile")
+  		if(params && params.mode=="generate")
   		{
 	  		_this.generate_cpp();
   		}
+  		else if(params && params.mode=="compile")
+  		{
+  			_this.compile_ipa();
+  		}
   		else
   		{
-	  		//_this.clean();
 	  		_this.apply_device_wrapper();
 	  		_this.generate_icons();
 	  		_this.copy_assets();
@@ -227,13 +251,16 @@ function CocoMake(command , params)
     // =====================================================================
   	_this.Build_Win32 = function(params)
   	{
-  		if(params && params.mode=="compile")
+  		if(params && params.mode=="generate")
   		{
 	  		_this.generate_cpp();
   		}
+  		else if(params && params.mode=="compile")
+  		{
+  			_this.compile_x86();
+  		}
   		else
   		{
-	  		//_this.clean();
 	  		_this.apply_device_wrapper();
 	  		_this.generate_icons();
 	  		_this.copy_assets();
@@ -254,11 +281,11 @@ function CocoMake(command , params)
     // =====================================================================
     // Compile JavaScript Classes to pure JavaScript
     // =====================================================================
-	_this.generate_javascript = function(exportSymbols, code, target, output_path)
+	_this.generate_javascript = function(exportSymbols)
 	{
 		// Get all source code (including externs)
-		if(!code)
-			code = _this.getSourceCode();
+		var code = _this.getSourceCode();
+		if(!code) return;
 
 		// Parse source code and generate AST
 		trace("\nParsing JavaScript Class files ...");
@@ -269,8 +296,8 @@ function CocoMake(command , params)
 
 		// Compile AST
 		trace("\nCompiling JavaScript Classes to JavaScript ...");
-		var compiler = new Compiler(ast, target, output_path);
-		compiler.compile(exportSymbols,null,false);
+		var compiler = new Compiler(ast);
+		compiler.compile(exportSymbols,false);
 		trace("+ Done.");
 	};
 
@@ -281,13 +308,14 @@ function CocoMake(command , params)
 	{
 		// Get all source code (including externs)
 		var code = _this.getSourceCode();
+		if(!code) return;
 
 		// Collect all non-generated C++ classes from Frameworks
 		trace("\nScanning for non-generated C++ classes in Frameworks ...");
 		var native_classes = [];
 		var native_vartypes_includes = {};
 		var paths = [makefile.Config.PROJECT_PATHS.NATIVE_COMMON].concat(TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES.split(";"));
-		var frameworks = makefile.Config.PROJECT_FRAMEWORKS.split(";");
+		var frameworks = _this.TARGET_FRAMEWORKS().join(";");
 		for(item in makefile.Components.Frameworks)
 		{
 			if(frameworks.indexOf(item)!=-1)
@@ -303,7 +331,7 @@ function CocoMake(command , params)
 			var files = _this.FindFiles(path, "*.hpp;*.h", true);
 			for(i=0;i<files.length;i++)
 			{
-				var fileName = files[i].substr(files[i].lastIndexOf("/")+1);
+				var fileName = _this.fileName(files[i]);
 				if(fileName.toLowerCase()=="coconut2d.hpp") continue;
 
 				native_vartypes_includes[fileName] = {};
@@ -340,7 +368,7 @@ function CocoMake(command , params)
 		trace("\nCompiling JavaScript Classes to C++ ...");
 		var compiler = new Compiler(ast);
 		compiler.native_vartypes_includes = native_vartypes_includes;
-		compiler.compile(false,null,true);
+		compiler.compile(false,true);
 
 		// Get all generated C++ classes from the compiler
 		var generated_classes = compiler.getNativeClassList();
@@ -359,7 +387,7 @@ function CocoMake(command , params)
     // =====================================================================
 	_this.closure = function()
 	{
-		if(makefile.Config.CONFIGURATION=="Release")
+		if(makefile.Config.CONFIGURATION.toLowerCase()=="release")
 		{
 			trace("\nMinimizing JavaScript ...");
 
@@ -390,16 +418,11 @@ function CocoMake(command , params)
   		_this.DeleteFolder(TARGET.TARGET_LIBS || TARGET.TARGET_ROOT+"/libs");
 
 		// Collect all C++ sources
-  		var files = _this.collectSources(JNI_FOLDER,
-  										 [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
-  										 TARGET.TARGET_NATIVE_MASK,
-  										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
-  										 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
-
-		// Make all paths relative to JNI folder
-		files = _this.get_relative_cpp_hpp(files, JNI_FOLDER);
-		makefile.Vars["NATIVE_CPP_SOURCES"] = files.CPP.join(" \\\n");
-		makefile.Vars["NATIVE_CPP_INCLUDES"] = makefile.Vars.INCLUDE_PATHS.join(" \\\n");
+  		_this.collectSources(JNI_FOLDER,
+							 [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
+							 TARGET.TARGET_NATIVE_MASK,
+							 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
+							 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
 		// Patch main.cpp to load Fonts
 		_this.loadFonts(JNI_FOLDER + "/src/main.cpp", TARGET.TARGET_ASSETS);
@@ -409,8 +432,7 @@ function CocoMake(command , params)
 		trace("\nCreating Android.mk makefile ...");
 		trace("+ makefile: " + file);
         trace("+ replacing variables ...");
-		var buff = read(file);
-		buff = _this.replaceVars(buff, true, ["CLEAR_VARS", "TARGET_ARCH_ABI", "PREBUILT_STATIC_LIBRARY", "BUILD_SHARED_LIBRARY"]);
+		var buff = makefile.Vars.SOURCES.CREATE_MAKEFILE(file, JNI_FOLDER, null, ["CLEAR_VARS", "TARGET_ARCH_ABI", "PREBUILT_STATIC_LIBRARY", "BUILD_SHARED_LIBRARY"]);
         _this.module(file, buff);
 
         // Create Application.mk
@@ -445,7 +467,7 @@ function CocoMake(command , params)
 		params.push('APP_ABI="' + 				(TARGET.APP_SETTINGS.APP_ABI||'armeabi armeabi-v7a x86')+'"');
 
 		// Release or Debug compilation
-		if(makefile.Config.CONFIGURATION=="Release")
+		if(makefile.Config.CONFIGURATION.toLowerCase()=="release")
 		{
 			params.push('APP_OPTIM=release');
 			params.push('APP_CFLAGS=-O3');
@@ -453,8 +475,8 @@ function CocoMake(command , params)
 		else
 		{
 			params.push('APP_OPTIM=debug');
-			params.push('NDK_DEBUG=true');
-			params.push('APP_CFLAGS="-g -ggdb3 -DNDEBUG"');
+			params.push('NDK_DEBUG=1');
+			params.push('APP_CFLAGS="-O0 -g -ggdb3 -DNDEBUG"');
 		}
 
 		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" ' + params.join(" ") + ' -j %*');
@@ -463,7 +485,7 @@ function CocoMake(command , params)
 
         // Build the static libraries for arm and x86
         trace("\nCalling make ...");
-        _this.shell(make_lib_cmd, JNI_FOLDER, "cc1plus.exe");
+        _this.shell(make_lib_cmd, JNI_FOLDER, "cc1plus.exe|arm-linux-androideabi-g++.exe|i686-linux-android-g++.exe");
         _this.DeleteFile(make_lib_cmd);
 
         // Sanity check
@@ -481,18 +503,39 @@ function CocoMake(command , params)
   	_this.compile_apk = function()
   	{
   		trace("\nCalling ant ...");
+
   		var buff = [];
-  		var make_cmd = TARGET.TARGET_ROOT + "/make.bat";
   		buff.push('@echo off');
   		buff.push(_this.winPath('SET ANT_HOME=' + makefile.Vars.PATH_3RD_PARTY_ANT));
   		buff.push(_this.winPath('SET JAVA_HOME=' + makefile.Vars.PATH_3RD_PARTY_JAVA));
   		buff.push(_this.winPath('SET ANDROID_SDK_HOME=' + makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK+"\\"));
   		buff.push(_this.winPath('SET PATH=%ANT_HOME%;%ANT_HOME%/bin;%JAVA_HOME%;%JAVA_HOME%/bin;%PATH%'));
-  		buff.push(_this.winPath('"%ANT_HOME%/bin/ant" -S ' + makefile.Vars.CONFIGURATION.toLowerCase()));
+
+  		var configuration = makefile.Config.CONFIGURATION.toLowerCase();
+  		var keystore = TARGET.TARGET_ROOT + "/" + configuration + ".keystore";
+
+  		// Create debug/release keystores
+  		if(!fileExists(keystore))
+  		{
+  			var cmd = '"%JAVA_HOME%/bin/keytool.exe" -genkeypair -validity 10000 -dname "CN=$COMPANY_NAME,O=$ORGANIZATION_NAME,C=$COUNTRY" -keystore "$FILENAME" -storepass $PASSWORD -keypass $PASSWORD -alias "$ALIAS" -keyalg RSA';
+			cmd = cmd.replace(/\$COMPANY_NAME/g, TARGET.CODE_SIGNING.COMPANY)
+			cmd = cmd.replace(/\$ORGANIZATION_NAME/g, TARGET.CODE_SIGNING.ORGANIZATION)
+			cmd = cmd.replace(/\$COUNTRY/g, TARGET.CODE_SIGNING.COUNTRY)
+			cmd = cmd.replace(/\$PASSWORD/g, TARGET.CODE_SIGNING.PASSWORD)
+			cmd = cmd.replace(/\$FILENAME/g, keystore)
+			cmd = cmd.replace(/\$ALIAS/g, makefile.Vars.PROJECT_PACKAGE + "." + configuration)
+			buff.push(cmd);
+  		}
+
+  		// Compile
+  		buff.push(_this.winPath('"%ANT_HOME%/bin/ant" -S ' + configuration));
+
+  		// Save build file
+  		var make_cmd = TARGET.TARGET_ROOT + "/make.bat";
 		buff = _this.replaceVars(buff.join("\n"));
         _this.module(make_cmd, buff);
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
-        _this.DeleteFile(make_cmd);
+        //_this.DeleteFile(make_cmd);
 
         // Sanity check and output
         var intermediate_apk = _this.replaceVars("$(TARGET_ROOT)/bin/$(PROJECT_NAME)-$(CONFIGURATION).apk");
@@ -521,16 +564,11 @@ function CocoMake(command , params)
   		trace("\nCompiling iOS Application ...");
 
 		// Collect all C++ sources
-  		var sources = _this.collectSources(TARGET.TARGET_ROOT,
-  										   [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
-  										   TARGET.TARGET_NATIVE_MASK,
-  										   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
-  										   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
-
-		// Make all paths relative to target folder
-		files = _this.get_relative_cpp_hpp(sources, TARGET.TARGET_ROOT);
-		makefile.Vars["NATIVE_CPP_SOURCES"] = _this.winPath(files.CPP.join(" \\\n"));
-		makefile.Vars["NATIVE_CPP_INCLUDES"] = _this.winPath(" -I" + makefile.Vars.INCLUDE_PATHS.join(" \\\n -I"));
+  		_this.collectSources(  TARGET.TARGET_ROOT,
+							   [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
+							   TARGET.TARGET_NATIVE_MASK,
+							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
+							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
 		// Collect resources
 		trace("\n Collecting Resources ...");
@@ -548,7 +586,7 @@ function CocoMake(command , params)
 		var files = _this.FindFiles(TARGET.TARGET_ROOT, "*.png", false);
 		for(i=0;i<files.length;i++)
 		{
-			files[i] = files[i].substr(files[i].lastIndexOf("/")+1);
+			files[i] = _this.fileName(files[i]);
 			files[i] = "\t\t<string>" + files[i] + "</string>";
 	  	}
 		makefile.Vars["APP_ICONS"] = files.join("\n");
@@ -567,9 +605,7 @@ function CocoMake(command , params)
 		trace("\nCreating iOS makefile ...");
 		trace("+ makefile: " + file);
         trace("+ replacing variables ...");
-		var buff = read(file);
-		var excludeVars = TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS ? TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";") : null;
-		buff = _this.replaceVars(buff, true, excludeVars);
+		var buff = makefile.Vars.SOURCES.CREATE_MAKEFILE(file, TARGET.TARGET_ROOT);
         _this.module(file, buff);
 
         // Create a custom make_ios.bat (offers better control than relying on environment variables)  //--warn-undefined-variables
@@ -585,7 +621,7 @@ function CocoMake(command , params)
 		buff = _this.replaceVars(_this.winPath(buff.join("\n")));
         _this.module(make_cmd, buff);
 
-        // Build the static libraries for arm and x86
+        // Build
         trace("\nCalling iOS make ...");
         _this.shell(make_cmd, TARGET.TARGET_ROOT);
         _this.DeleteFile(make_cmd);
@@ -604,16 +640,12 @@ function CocoMake(command , params)
   		trace("\nCompiling Windows x86 Application ...");
 
 		// Collect all C++ sources
-  		var sources = _this.collectSources(TARGET.TARGET_ROOT,
-  										   [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
-  										   TARGET.TARGET_NATIVE_MASK,
-  										   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
-  										   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
+  		_this.collectSources(  TARGET.TARGET_ROOT,
+							   [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
+							   TARGET.TARGET_NATIVE_MASK,
+							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
+							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
-		// Make all paths relative to target folder
-		files = _this.get_relative_cpp_hpp(sources, TARGET.TARGET_ROOT);
-		makefile.Vars["NATIVE_CPP_SOURCES"] = _this.winPath(files.CPP.join(" \\\n"));
-		makefile.Vars["NATIVE_CPP_INCLUDES"] = _this.winPath(" -I" + makefile.Vars.INCLUDE_PATHS.join(" \\\n -I"));
 
 		// Collect resources
 		trace("\n Collecting Resources ...");
@@ -626,34 +658,44 @@ function CocoMake(command , params)
 		// Patch main.cpp to load Fonts
 		_this.loadFonts(TARGET.TARGET_ROOT + "/src/main.cpp", TARGET.TARGET_ASSETS);
 
+		// Release or Debug compilation
+		var CFLAGS = [];
+		if(makefile.Config.CONFIGURATION.toLowerCase()=="release")
+		{
+			CFLAGS.push('-O3');
+		}
+		else
+		{
+			CFLAGS.push('-O0 -g -ggdb3');// -gdwarf-2 -gstrict-dwarf
+		}
+
         // Create Makefile
 		var file = TARGET.TARGET_ROOT+"/Makefile.mk";
 		trace("\nCreating Windows x86 makefile ...");
 		trace("+ makefile: " + file);
         trace("+ replacing variables ...");
-		var buff = read(file);
-		var excludeVars = TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS ? TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";") : null;
-		buff = _this.replaceVars(buff, true, excludeVars);
+		var buff = makefile.Vars.SOURCES.CREATE_MAKEFILE(file, TARGET.TARGET_ROOT, CFLAGS.join(" "));
         _this.module(file, buff);
 
         // Create a custom make_x86.bat
         var buff = [];
         var make_cmd = TARGET.TARGET_ROOT + "/make_x86.bat";
         buff.push('@echo off');
+        buff.push('SET SHELL=cmd.exe');
         buff.push('SET LANG=en_US.UTF-8');
         buff.push('SET LANGUAGE=en_US.UTF-8');
-        buff.push('set LC_ALL=en_US.UTF-8');
+        buff.push('SET LC_ALL=en_US.UTF-8');
         buff.push('SET PROJECT_PATH=$(TARGET_ROOT)');
 		buff.push('SET MAKEFILE=%PROJECT_PATH%/Makefile.mk');
 		buff.push('SET MINGW=$(PATH_3RD_PARTY_MINGW)');
-		buff.push('SET PATH=%MINGW%;%MINGW%/bin;%PATH%');
+		buff.push('SET PATH=%MINGW%;%MINGW%/bin;');
 		buff.push('"%MINGW%/bin/mingw32-make" --directory="%PROJECT_PATH%" --jobs --makefile="%MAKEFILE%"');
 		buff = _this.replaceVars(_this.winPath(buff.join("\n")));
         _this.module(make_cmd, buff);
 
         // Build the static libraries for arm and x86
         trace("\nCalling Windows x86 make ...");
-        _this.shell(make_cmd, TARGET.TARGET_ROOT);
+        _this.shell(make_cmd, TARGET.TARGET_ROOT, "g++.exe");
         _this.DeleteFile(make_cmd);
 
         // Sanity check
@@ -669,7 +711,7 @@ function CocoMake(command , params)
 	//	/_____/_/|_/ .___/\____/_/   \__/   /_/|_\____/\____/\__,_/\___/
 	//	          /_/
 	// ==================================================================================================================================
-
+	/*@@ XCode @@*/
 	_this.EXPORT_XCODE_PROJECT = function(params)
 	{
 		// http://www.monobjc.net/xcode-project-file-format.html
@@ -692,6 +734,7 @@ function CocoMake(command , params)
         var FILE_REFS =
         {
         	src_REF: "",
+        	lib_REF: "",
         	GROUPS:{},
 	        PBXBuildFile:[],
 	        PBXFileReference:[],
@@ -707,7 +750,7 @@ function CocoMake(command , params)
 
 		// Get the template and destination folders
 		var template_folder = makefile.Vars.PATH_SDK_TEMPLATE_XCODE;
-		var destination_folder = makefile.Vars.PROJECT_ROOT + "/XCode";
+		var destination_folder = makefile.Config.PROJECT_PATHS.TARGETS + "/XCode";
 
 		// Purge previous XCode project and recreate the folders
 		deleteFolder(destination_folder);
@@ -717,10 +760,6 @@ function CocoMake(command , params)
 		// Copy the Assets
 		_this.copy_assets(null, destination_folder+"/assets");
 
-		// Copy Libraries
-		copyFolder(makefile.Vars.PATH_SDK_LIBRARIES +"/iOS", destination_folder+"/lib/libraries");
-		copyFolder(makefile.Vars.PATH_SDK_INCLUDES, destination_folder+"/lib/includes");
-
 		// Generate C++ files
   		_this.generate_cpp();
 
@@ -728,28 +767,61 @@ function CocoMake(command , params)
         var files = _this.FindFiles(TARGET.TARGET_ROOT, makefile.Vars.TEXT_FILES, true);
 		for(var i=0; i<files.length; i++)
 		{
-			trace("+ updating: " + files[i]);
 			var buff = read(files[i]);
 			_this.module(files[i], buff);
 		}
 
 		// Collect all C++ sources
-  		var sources = _this.collectSources(destination_folder,
-  										   makefile.Config.PROJECT_PATHS.NATIVE_COMMON + ";" +
-  										   makefile.Vars.PATH_SDK_COMMON + ";" +
-  										   TARGET.DEVICE_WRAPPER.PATH + "/src",
-  										   TARGET.TARGET_NATIVE_MASK,
-  										   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
-  										   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
+  		_this.collectSources(  destination_folder,
+							   makefile.Config.PROJECT_PATHS.NATIVE_COMMON + ";" +
+							   makefile.Vars.PATH_SDK_COMMON + ";" +
+							   TARGET.DEVICE_WRAPPER.PATH + "/src",
+							   TARGET.TARGET_NATIVE_MASK,
+							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
+							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
+
+  		buildPath(destination_folder + "/lib/bin");
+  		buildPath(destination_folder + "/lib/include");
+
+  		// Copy libraries
+  		for(var i=0; i<makefile.Vars.SOURCES.LIB_BIN_PATHS.length; i++)
+  		{
+  			copyFolder(makefile.Vars.SOURCES.LIB_BIN_PATHS[i], destination_folder + "/lib/bin");
+  		}
 
  		// Copy C++ files to /src
-		trace(sources.join("\n"));
-		for(var i=0;i<sources.length;i++)
+		for(var file in makefile.Vars.SOURCES.SourceFiles)
 		{
-			var fileName = sources[i].substr(sources[i].lastIndexOf("/")+1);
-			var rel = relativePath(_this.ModuleFiles[sources[i]], sources[i]).replace(fileName, "").substr(2);
-			buildPath(destination_folder+"/src/"+rel);
-			copyFile(sources[i], destination_folder+"/src/"+rel+fileName);
+			var File = makefile.Vars.SOURCES.SourceFiles[file];
+
+			if(File.Framework)
+			{
+				File.dst_file = destination_folder + "/src/.SDK/" + File.Framework.id + File.Rel;
+			}
+			else if(File.Library)
+			{
+				File.dst_file = destination_folder + "/lib/include" + File.Rel;
+			}
+			else if(File.Root==makefile.Config.PROJECT_PATHS.NATIVE_COMMON)
+			{
+				File.dst_file = destination_folder + "/src" + File.Rel;
+			}
+			else if(File.Root==makefile.Vars.PATH_SDK_COMMON, file)
+			{
+				File.dst_file = destination_folder + "/src/.SDK/.device" + File.Rel;
+			}
+			else
+			{
+				File.dst_file = destination_folder + "/src" + File.Rel;
+			}
+
+			File.dst_path = File.dst_file.substr(0, File.dst_file.lastIndexOf("/"));
+			File.rel_path = relativePath(destination_folder, File.dst_file).substr(2);
+			File.rel_parent = File.rel_path.substr(0, File.rel_path.lastIndexOf("/"));
+			File.ext = File.FileName.substr(File.FileName.indexOf(".")).toLowerCase();
+
+			buildPath(File.dst_path);
+			copyFile(file, File.dst_file);
 		}
 
 		// Process Template Files
@@ -766,93 +838,115 @@ function CocoMake(command , params)
   			}
         }
 
+		// Set assets folder
+		makefile.Vars["NATIVE_RESOURCES"] = "./assets \\\n./Images.xcassets";
+
 		// Patch main.m to load Fonts
-		_this.loadFonts(destination_folder + "/src/main.m", destination_folder+"/assets");
+		_this.loadFonts(destination_folder + "/src/.SDK/.device/main.m", destination_folder +"/" + makefile.Config.PROJECT_PATHS.APP_ASSETS);
 
 		// Generate Icons
-		_this.generate_icons(destination_folder);
+		var icons_folder = destination_folder + "/Images.xcassets/AppIcon.appiconset";
+		_this.generate_icons(icons_folder);
 
-		// Collect resources
-		var files = _this.FindFiles(destination_folder, TARGET.TARGET_RESOURCES_MASK, false);
-		for(i=0;i<files.length;i++) { files[i] = relativePath(destination_folder, files[i]); }
-		files.push("./assets");
-		makefile.Vars["NATIVE_RESOURCES"] = files.join(" \\\n");
+		// Generate Splash Screens
+		var splash_folder = destination_folder + "/Images.xcassets/Brand Assets.launchimage";
+		_this.generate_splashes(splash_folder);
 
 		// Collect icons
-		var files = _this.FindFiles(destination_folder, "*.png", false);
+		var files = _this.FindFiles(icons_folder, "*.png", false);
 		for(i=0;i<files.length;i++)
 		{
-			files[i] = files[i].substr(files[i].lastIndexOf("/")+1);
+			files[i] = _this.fileName(files[i]);
 			files[i] = "\t\t<string>" + files[i] + "</string>";
 		}
 		makefile.Vars["APP_ICONS"] = files.join("\n");
 
 		// Create Info.plist
-		var file = TARGET.DEVICE_WRAPPER.PATH+"/Info.plist";
+		var file = TARGET.DEVICE_WRAPPER.PATH + "/Info.plist";
 		var buff = read(file);
 		buff = _this.replaceVars(buff, true);
-        write(destination_folder+"/Info.plist", buff);
+        write(destination_folder + "/Info.plist", buff);
 
      	// ==========================================================================================================
      	// Now we process the files and generate the XCode project file
      	// ==========================================================================================================
 
 		// Get the src files, we will work on them...
-		var group_index = (2*sources.length);
-		sources = sources.sort(function(a,b){ a=a.toUpperCase(); b=b.toUpperCase(); if(a>b) return 1; else if(a==b) return 0; else return -1; });
+		var sources_length = makefile.Vars.SOURCES.FILES.length;
 
-		for(var i=0; i<sources.length; i++)
+		var file_index = 0;
+		var group_index = (2* sources_length);
+
+		for(var key in makefile.Vars.SOURCES.SourceFiles)
 		{
-			var fileName = sources[i].substr(sources[i].lastIndexOf("/")+1);
-			var ext = fileName.substr(fileName.indexOf(".")).toLowerCase();
+			// Get file descriptor
+			var File = makefile.Vars.SOURCES.SourceFiles[key];
 
 			// ==============================================
 			// Record groups by splitting a file path
+			// Each folder in a file path becomes a group
 			// ==============================================
-			var groups = relativePath(_this.ModuleFiles[sources[i]], sources[i]).replace(fileName, "").substr(2).split("/");
-			var GROUP = null;
-			var iGROUP = null;
-			var cGROUP = null;
-			for(var j=groups.length-1; j>=0; j--)
+
+			var GROUP = null;		// The inner-most group of where this file resides
+			var iGROUP = null;		// Group iterator during processing file path
+			var cGROUP = null;		// Group carry to make available child group to its parent
+
+			// Split file's path
+			var vFilePath = File.rel_parent.split("/");
+			var GroupKey = File.rel_parent;
+
+			// Start from inner to outer sub folder and create groups
+			for(var i=vFilePath.length-1; i>=0; i--)
 			{
-				groupRelPath = "src/" + groups.slice(0,j).join("/");
-				if(groupRelPath.charAt(groupRelPath.length-1)=="/") groupRelPath = groupRelPath.substr(0, groupRelPath.length-1);
-				var groupName = groupRelPath.split("/");
-				groupName = groupName[groupName.length-1];
-				if(!(iGROUP=FILE_REFS.GROUPS[groupRelPath]))
+				// Get grpup if it exists
+				iGROUP = FILE_REFS.GROUPS[GroupKey];
+
+				// Create new group if it does not exist
+				if(!iGROUP)
 				{
-					iGROUP = FILE_REFS.GROUPS[groupRelPath]  =
+					iGROUP = FILE_REFS.GROUPS[GroupKey] =
 					{
-						name	: groupName,
-						path	: groupRelPath,
+						name	: vFilePath[i],
 						ID		: SIG_SRC + hex(++group_index) + SIG_END,
-						ITEMS	: {}
+						FILES	: {},
+						GROUPS	: {}
 					};
 				}
 
-				if(groupName=="src") FILE_REFS.src_REF = iGROUP.ID;
+				// If found either 'src' or 'lib' groups, keep their referece
+				if(iGROUP.name=="src") FILE_REFS.src_REF = iGROUP.ID;
+				if(iGROUP.name=="lib") FILE_REFS.lib_REF = iGROUP.ID;
+
+				// Store the inner-most group for use outside this loop
 				if(!GROUP) GROUP = iGROUP;
-				if(cGROUP) iGROUP.ITEMS[ cGROUP.ID ] = cGROUP;
+
+				// If we are carrying a child group, add it to this group's items
+				if(cGROUP) iGROUP.GROUPS[cGROUP.ID] = cGROUP;
+
+				// Store current group, we will need it in next loop iteration
 				cGROUP = iGROUP;
+
+				// Remove inner-group from group key and proceed to next group
+				GroupKey = GroupKey.substr(0, GroupKey.lastIndexOf("/"));
 			}
 
 			// ==============================================
-			// Record a file
+			// Record the file
 			// ==============================================
 			var FILE =
 			{
-				name	: fileName,
-				path	: GROUP.path + "/" + fileName,
-				source	: "sourcecode.cpp.cpp",
-				ID		: SIG_SRC + hex(i) + SIG_END,
-				REF		: SIG_SRC + hex(sources.length + i) + SIG_END
+				name	: File.FileName,
+				path	: File.rel_path,
+				source	: null,
+				ID		: SIG_SRC + hex(++file_index) + SIG_END,
+				REF		: SIG_SRC + hex(sources_length + file_index) + SIG_END
 			};
 
 			// Add file to group
-			GROUP.ITEMS[ FILE.ID ] = FILE;
+			GROUP.FILES[ FILE.ID ] = FILE;
 
 			// Generate additional XCode sections
-			switch(ext)
+			switch(File.ext)
 			{
 			case ".m":
 				FILE.source = "sourcecode.c.objc";
@@ -871,17 +965,17 @@ function CocoMake(command , params)
 				break;
 
 			case ".h":
-				if(sources.indexOf(FILE.name.replace(".h", ".m"))!=-1)
+
+				// For header files we need to select the appropriate C/C++ compiler by checking if a .m / .c / .cpp file exists
+				if(makefile.Vars.SOURCES.SourceFiles[FILE.name.replace(".h", ".m")])
 					FILE.source = "sourcecode.c.h";
 
-				else if(sources.indexOf(FILE.name.replace(".h", ".cpp"))!=-1)
-					FILE.source = "sourcecode.cpp.h";
-
-				else if(sources.indexOf(FILE.name.replace(".h", ".c"))!=-1)
+				else if(makefile.Vars.SOURCES.SourceFiles[FILE.name.replace(".h", ".c")])
 					FILE.source = "sourcecode.c.h";
 
 				else
 					FILE.source = "sourcecode.cpp.h";
+
 				break;
 			}
 
@@ -891,21 +985,37 @@ function CocoMake(command , params)
 		// Generate Groups
 		for(var group in FILE_REFS.GROUPS)
 		{
+			// Get a group
 			var GROUP = FILE_REFS.GROUPS[group];
 
+			// Sort files and sub-groups
+			var files = _this.dicSort(GROUP.FILES, "name");
+			var groups = _this.dicSort(GROUP.GROUPS, "name");
+
+			// Generate group items lists (sorted by folders and files)
 			var list = [];
-			for(item in GROUP.ITEMS)
+			for(var i=0; i<groups.length; i++)
 			{
-				var FILE = GROUP.ITEMS[item];
-				list.push("\t\t\t\t" + FILE.ID + " /* " + FILE.name + " */");
+				var ITEM = groups[i];
+				list.push("\t\t\t\t" + ITEM.ID + " /* " + ITEM.name + " */");
+			}
+			for(var i=0; i<files.length; i++)
+			{
+				var ITEM = files[i];
+				list.push("\t\t\t\t" + ITEM.ID + " /* " + ITEM.name + " */");
 			}
 
 			FILE_REFS.PBXGroups.push("\t\t" + GROUP.ID + " /* " + GROUP.name + " */ = {\n\t\t\tisa = PBXGroup;\n\t\t\tchildren = (\n" + list.join(",\n") + "\n\t\t\t);\n\t\t\tname = " + GROUP.name + ";\n\t\t\tsourceTree = \"<group>\";\n\t\t};");
 		}
 
         // Create project.pbxproj
-        var pbxproj = read(destination_folder+"/project.pbxproj");
+        var project_root = destination_folder + "/" + makefile.Vars.PROJECT_NAME + ".xcodeproj";
+        var project_file = project_root + "/project.pbxproj";
+        var project_template = destination_folder + "/project.pbxproj";
+
+        var pbxproj = read(project_template);
 		pbxproj = pbxproj.replace("$(FILE_REFS.src_REF)", FILE_REFS.src_REF);
+		pbxproj = pbxproj.replace("$(FILE_REFS.lib_REF)", FILE_REFS.lib_REF);
 		pbxproj = pbxproj.replace("$(PBXBuildFile)", FILE_REFS.PBXBuildFile.join("\n"));
 		pbxproj = pbxproj.replace("$(PBXFileReference)", FILE_REFS.PBXFileReference.join("\n"));
 		pbxproj = pbxproj.replace("$(PBXGroups)", FILE_REFS.PBXGroups.join("\n"));
@@ -913,9 +1023,10 @@ function CocoMake(command , params)
 		pbxproj = pbxproj.replace("$(PBXFrameworksBuildPhase)", FILE_REFS.PBXFrameworksBuildPhase.join("\n"));
 		pbxproj = pbxproj.replace("$(PBXSourcesBuildPhase)", FILE_REFS.PBXSourcesBuildPhase.join("\n"));
 		pbxproj = pbxproj.replace(/\$\(PROJECT_NAME\)/g, makefile.Vars.PROJECT_NAME);
-		buildPath(destination_folder+"/" + makefile.Vars.PROJECT_NAME + ".xcodeproj");
-		write(destination_folder+"/" + makefile.Vars.PROJECT_NAME + ".xcodeproj/project.pbxproj", pbxproj);
-		deleteFile(destination_folder+"/project.pbxproj");
+
+		buildPath(project_root);
+		write(project_file, pbxproj);
+		deleteFile(project_template);
 
 		trace("XCode Project created in " + destination_folder);
 	};
@@ -1011,7 +1122,7 @@ function CocoMake(command , params)
 		// Each target can copy assets to a different location defined in TARGET.TARGET_ASSETS
 		// copy_assets function can override defaults by defining optSource and optDestination
 
-		var src = optSource || TARGET.TARGET_INPUT_ASSETS || makefile.Config.PROJECT_PATHS.ASSETS;
+		var src = optSource || TARGET.TARGET_INPUT_ASSETS || makefile.Config.PROJECT_PATHS.APP_ASSETS;
 		var dst = optDestination|| TARGET.TARGET_ASSETS;
 
 		trace("\nCopying assets ...");
@@ -1072,7 +1183,7 @@ function CocoMake(command , params)
 			var dst = folders[i];
 			for(;;)
 			{
-				var match = /\$\(([^)]+?)\)/mg.exec(dst);
+				var match = /\$\{([^)]+?)\}/mg.exec(dst);
 				if(!match) break;
 				var value = makefile.Vars[match[1]];
 				value = value.replace(/\./g, "/");
@@ -1101,14 +1212,50 @@ function CocoMake(command , params)
   				_this.module(files[i], buff);
   			}
         }
+	};
 
-        // Update modules (text files)
-        var files = _this.FindFiles(TARGET.TARGET_ROOT, makefile.Vars.TEXT_FILES, true);
-		for(var i=0; i<files.length; i++)
+    // =====================================================================
+    // Generate Images from a template
+    // =====================================================================
+	_this.generate_images = function(list, template, altFolder, scale_to_fit, fill_bleed)
+	{
+		if(!list) return;
+
+		if(!template || !fileExists(template))
+			throw new Error("Missing image template");
+
+		trace("+ template: " + template);
+
+		if(altFolder)
+			buildPath(altFolder);
+
+		if(scale_to_fit===undefined)
+			scale_to_fit = true;
+
+		if(fill_bleed===undefined)
+			fill_bleed = true;
+
+		for(size in list)
 		{
-			trace("+ updating: " + files[i]);
-			var buff = read(files[i]);
-			_this.module(files[i], buff);
+			var exports = list[size].split(";");
+			for(var i=0;i<exports.length;i++)
+			{
+				if(altFolder)
+					exports[i] = altFolder + "/" + _this.fileName(exports[i]);
+
+				if(!fileExists(exports[i]))
+				{
+					var v = size.split("x");
+					var width = v[0];
+					var height = v.length==2 ? v[1] : width;
+					trace("+ generating: " + exports[i]);
+					resizeImage(template, exports[i], width, height, scale_to_fit, fill_bleed);
+				}
+				else
+				{
+					trace("+ exists: " + exports[i]);
+				}
+			}
 		}
 	};
 
@@ -1117,37 +1264,20 @@ function CocoMake(command , params)
     // =====================================================================
 	_this.generate_icons = function(altFolder)
 	{
-		var list = TARGET.APP_ICONS;
-		if(!list) return;
-
+		if(!TARGET.APP_ICONS) return;
 		trace("\nGenerating App Icons ...");
+		_this.generate_images(TARGET.APP_ICONS, makefile.Config.PROJECT_FILES.ICON_TEMPLATE, altFolder, false, false);
+	};
 
-		var template = makefile.Config.PROJECT_PATHS.ICON_2048x2048;
-		if(!template || !fileExists(template))
-			throw new Error("Missing project template icon (2048x2048)");
-
-		trace("+ template: " + template);
-
-		for(size in list)
-		{
-			var exports = list[size].split(";");
-			for(var i=0;i<exports.length;i++)
-			{
-
-				if(altFolder)
-					exports[i] = altFolder + "/" + exports[i].substr(exports[i].lastIndexOf("/")+1);
-
-				if(!fileExists(exports[i]))
-				{
-					trace("+ generating: " + exports[i]);
-					resizeImage(template, exports[i], size);
-				}
-				else
-				{
-					trace("+ exists: " + exports[i]);
-				}
-			}
-		}
+    // =====================================================================
+    // Generate Splashes
+    // =====================================================================
+	_this.generate_splashes = function(altFolder)
+	{
+		if(!TARGET.APP_SPLASH_SCREENS) return;
+		trace("\nGenerating App Splash Screens ...");
+		_this.generate_images(TARGET.APP_SPLASH_SCREENS.Portrait, makefile.Config.PROJECT_FILES.SPLASH_PORTRAIT_TEMPLATE, altFolder, true, true);
+		_this.generate_images(TARGET.APP_SPLASH_SCREENS.Landscape, makefile.Config.PROJECT_FILES.SPLASH_LANDSCAPE_TEMPLATE, altFolder, true, true);
 	};
 
     // =====================================================================
@@ -1188,17 +1318,18 @@ function CocoMake(command , params)
   	// =====================================================================
     // Read all CocoScript source code into a huge buffer
     // =====================================================================
-  	_this.getSourceCode = function(target_root, src_paths, src_file_mask, framework_src_prefix, explicit_framework_ids, target)
+  	_this.getSourceCode = function()
   	{
   		var buff = [];
 
-		target_root				= String(target_root)!="undefined" 				? target_root 			: TARGET.TARGET_ROOT;														// absolute path of target root folder
-  		src_paths	 			= String(src_paths)!="undefined"				? src_paths 			: TARGET.TARGET_INPUT_SOURCES || makefile.Config.PROJECT_PATHS.SOURCES;		// semicolon separated list of paths
-		src_file_mask 			= String(src_file_mask)!="undefined"			? src_file_mask 		: TARGET.TARGET_SOURCES_MASK || makefile.Config.PROJECT_PATHS.SOURCES_MASK;	// semicolon separated file masks
-		framework_src_prefix	= String(framework_src_prefix)!="undefined" 	? framework_src_prefix 	: "/$(PATH_SDK_FRAMEWORKS_WEB)/$(PATH_SDK_FRAMEWORKS_SRC)";					// path suffix for src files within a framework
+		var target_root				= TARGET.TARGET_ROOT;																// absolute path of target root folder
+  		var src_paths	 			= TARGET.TARGET_INPUT_SOURCES || makefile.Config.PROJECT_PATHS.APP_SOURCES;			// semicolon separated list of paths
+		var src_file_mask 			= TARGET.TARGET_SOURCES_MASK;														// semicolon separated file masks
+		var framework_src_prefix	= "/$(PATH_SDK_FRAMEWORKS_WEB)/$(PATH_SDK_FRAMEWORKS_SRC)";							// path suffix for src files within a framework
 
   		// Collect sources from src paths and framrworks
-  		var files = _this.collectSources(target_root, src_paths, src_file_mask, framework_src_prefix, explicit_framework_ids, target);
+		var files = _this.collectSources(target_root, src_paths, src_file_mask, framework_src_prefix);
+  		if(files.length==0) return;
 
   		// Calculate source code dependencies
   		files = _this.calculateDependencies(files);
@@ -1241,7 +1372,7 @@ function CocoMake(command , params)
   		var sources_map = {};
   		for(var i=0; i<files.length; i++)
   		{
-  			var name = files[i].substr(files[i].lastIndexOf("/")+1);
+  			var name = _this.fileName(files[i]);
   			name = name.replace(/\.j\w+/g, "");
   			sources_map[name] = files[i];
   			g.addV(name);
@@ -1251,7 +1382,7 @@ function CocoMake(command , params)
   		for(var i=0; i<files.length; i++)
   		{
   			var found = false;
-  			var name = files[i].substr(files[i].lastIndexOf("/")+1);
+  			var name = _this.fileName(files[i]);
   			name = name.replace(/\.j\w+/g, "");
   			buff = read(files[i]);
   			var rx = new RegExp("\\#include \\x22([^\\x22]+)\\x22", "mg");
@@ -1309,9 +1440,18 @@ function CocoMake(command , params)
     // =====================================================================
 	_this.set_framework_vars = function()
 	{
-	    var vFrameworks = makefile.Config.PROJECT_FRAMEWORKS;
-	    if(TARGET.TARGET_ADDITIONAL_FRAMEWORKS) vFrameworks += (";"+TARGET.TARGET_ADDITIONAL_FRAMEWORKS)
-	    vFrameworks = vFrameworks.split(";");
+	    // Reset Framework vars
+	    for(var i in makefile.Components.Frameworks)
+	    {
+	    	var framework = makefile.Components.Frameworks[i];
+	    	if(framework)
+	    	{
+	    		makefile.Vars[framework.PrecompilerVarName] = false;
+	    		__global[framework.PrecompilerVarName] = false;
+	    	}
+	    }
+
+	    var vFrameworks = _this.TARGET_FRAMEWORKS();
 	    for(var i=0; i<vFrameworks.length; i++)
 	    {
 	    	if(!vFrameworks[i]) continue;
@@ -1336,9 +1476,7 @@ function CocoMake(command , params)
 
 	    // Collect source paths from frameworks
 	    trace("+ scanning frameworks ...");
-	    var vFrameworks = makefile.Config.PROJECT_FRAMEWORKS;
-	    if(TARGET.TARGET_ADDITIONAL_FRAMEWORKS) vFrameworks += (";"+TARGET.TARGET_ADDITIONAL_FRAMEWORKS)
-	    vFrameworks = vFrameworks.split(";");
+	    var vFrameworks = _this.TARGET_FRAMEWORKS();
 	    vFrameworksSrcSubPaths = vFrameworksSrcSubPaths.split(";");
 	    for(var i=0; i<vFrameworks.length; i++)
 	    {
@@ -1356,13 +1494,69 @@ function CocoMake(command , params)
 				        for(var j=0;j<Files.length;j++)
 				        {
 				        	var file = Files[j];
-				        	var fileName = file.substr(file.lastIndexOf("/")+1);
+				        	var fileName = _this.fileName(file);
 				     		copyFile(file, TARGET.TARGET_OBJ + "/" + fileName);
 				        }
 		        	}
+
+		        	// Native node_modules?
+		        	if(TARGET.NAME == "node.js" || TARGET.NAME == "CocoNode")
+		        	{
+			        	path = _this.replaceVars(framework.Path + "/native/node_modules");
+			        	if(folderExists(path))
+			        	{
+				    		var addins = folderItems(path, ".*", false);
+				    		for(k=0; k<addins.length; k++)
+				    		{
+				    			var bin = _this.FindFiles(addins[i] + "/gyp/build/Release", "*.node", false);
+				    			if(!bin.length) continue;
+			    				bin = bin[0];
+
+			    				var addin_file = _this.fileName(bin);
+			    				var addin_name = addin_file.replace(".node", "");
+			    				var destination_folder = TARGET.TARGET_ROOT + "/node_modules/" + addin_name;
+
+								// Copy node.js addon
+								buildPath(destination_folder);
+				    			copyFile(bin, destination_folder + "/bin/" + addin_file);
+
+				    			// Copy package
+				    			copyFile(addins[i] + "/gyp/package.json", destination_folder + "/package.json");
+				    		}
+			        	}
+		        	}
+
 		    	}
 	    	}
 	    }
+	};
+
+    // =====================================================================
+    // Download npm packages to target
+    // =====================================================================
+	_this.npm = function()
+	{
+		var modules_root = TARGET.TARGET_ROOT + "/node_modules";
+		var conf = makefile.Config.CONFIGURATION;
+		if(conf.toLowerCase()!="release") conf="Debug";
+		var packages = TARGET.SERVER[conf].npm;
+		if(!packages) return;
+
+		trace("\nDownloading npm packages, please wait ...");
+
+		packages = packages.split(";");
+
+		var node_root = makefile.Vars.PATH_3RD_PARTY_NODEJS;
+		var npm = node_root + "/npm.cmd";
+
+		for(var i=0; i<packages.length; i++)
+		{
+			if(folderExists(modules_root + "/" + packages[i])) continue;
+			var command = npm + " install " + packages[i];
+
+			trace("\nInstalling npm package " + packages[i] + " ...");
+			_this.shell(command, TARGET.TARGET_ROOT);
+		}
 	};
 
     // =====================================================================
@@ -1382,7 +1576,7 @@ function CocoMake(command , params)
 	    scripts = _this.calculateDependencies(scripts, true);
 
 	    // === RELEASE MODE ===
-	    if(makefile.Config.CONFIGURATION=="Release")
+	    if(makefile.Config.CONFIGURATION.toLowerCase()=="release")
 	    {
 		    for(var i=0; i<scripts.length; i++)
 		    {
@@ -1492,118 +1686,312 @@ function CocoMake(command , params)
 	// ==================================================================================================================================
 
   	// =====================================================================
+    // Collect all target frameworks
+    // =====================================================================
+	__global.TARGET_FRAMEWORKS = _this.TARGET_FRAMEWORKS = function()
+	{
+		return TARGET.TARGET_FRAMEWORKS ? TARGET.TARGET_FRAMEWORKS.split(";") : [];
+	};
+
+  	// =====================================================================
+    // Target Sources Helper (resolve sources for libs, frameworks and target)
+    // =====================================================================
+	function TARGET_SOURCES()
+	{
+		this.Target					= null;
+		this.TargetRoot             = null;
+		this.TargetSources          = null;
+		this.TargetFileMask         = null;
+		this.Frameworks             = null;
+		this.FRAMEWORKS             = [];
+		this.FrameworkSubPaths      = null;
+		this.Libraries              = [];
+		this.LIBRARIES              = [];
+		this.LIB_BIN_PATHS          = [];
+		this.LIB_INC_PATHS          = [];
+		this.LINK_LIBS		        = [];
+		this.SourcePaths            = {};
+		this.SourceFiles		    = {};
+		this.INCLUDE_PATHS          = [];
+		this.FILES                  = [];
+		this.HPP                  	= [];
+		this.CPP					= [];
+	}
+
+	// =====================================================================
+	TARGET_SOURCES.prototype.CREATE_MAKEFILE = function(template, _ROOT, _CFLAGS, _ExcludeVars)
+	{
+		var $ = this;
+		var SEPARATOR = " \\\n";
+		var isAndroid = makefile.Vars.TARGET=="Android";
+		var I_PREFIX = isAndroid ? "" : "-I";
+		var L_PREFIX = "-L";
+
+		var make_relative = function(files)
+		{
+			var out = [];
+			for(var i=0; i<files.length; i++)
+				out.push($.TargetRoot ? relativePath($.TargetRoot, files[i]) : files[i]);
+			return out;
+		};
+
+		var CFLAGS = function()
+		{
+			var include_paths = make_relative($.INCLUDE_PATHS);
+			include_paths = I_PREFIX + include_paths.join(SEPARATOR + I_PREFIX);
+			include_paths = _this.winPath(include_paths);
+			return _CFLAGS + SEPARATOR + include_paths;
+		};
+
+		var LDLIBS = function()
+		{
+			return $.LINK_LIBS.join(" ");
+		};
+
+		var LDFLAGS = function()
+		{
+			var lib_bin_paths = make_relative($.LIB_BIN_PATHS);
+			lib_bin_paths = L_PREFIX + lib_bin_paths.join(SEPARATOR + L_PREFIX);
+			lib_bin_paths = _this.winPath(lib_bin_paths);
+			return lib_bin_paths;
+		};
+
+		var NATIVE_CPP_SOURCES = function()
+		{
+			var HPPmap = {};
+			var files = [].concat($.FILES);
+			var root = $.TargetRoot;
+
+			for(i=0; i<files.length; i++)
+			{
+				// File relative to target root (if any)
+				files[i] = root ? relativePath(root, files[i]) : files[i];
+
+				if(/\.(cpp|m)$/i.test(files[i]))
+				{
+					if(files[i].indexOf("./")==0)
+						files[i] = files[i].substr(2);
+
+					$.CPP.push(files[i]);
+				}
+
+				if(/\.h[p]*?$/i.test(files[i]))
+				{
+					var path = files[i].substr(0, files[i].lastIndexOf("/"));
+
+					if(!HPPmap[path])
+					{
+						HPPmap[path] = true;
+						$.HPP.push(path);
+					}
+				}
+			}
+
+			$.HPP = $.HPP.sort();
+			$.CPP = $.CPP.sort();
+
+			return $.CPP.join(SEPARATOR);
+		};
+
+		var ANDROID_STATIC_LIBRARIES = function()
+		{
+			if(!isAndroid) return "";
+			var out = [];
+			for(var j=0; j<$.LIB_BIN_PATHS.length; j++)
+			{
+				var android_mk = ["LOCAL_PATH := $(call my-dir)\n"];
+				var lib_bin_path = $.LIB_BIN_PATHS[j];
+				var afiles = _this.FindFiles(lib_bin_path + "/x86", "*.a", false);
+				for(var i=0; i<afiles.length; i++)
+				{
+					var afile = _this.fileName(afiles[i]);
+					var aname = afile.substr(0, afile.lastIndexOf(".")).replace(/^lib/, '');
+
+					var android_lib = "include $(CLEAR_VARS)\n";
+					android_lib += "LOCAL_MODULE := " + aname + "\n";
+					android_lib += "LOCAL_SRC_FILES := " + relativePath($.TargetRoot, lib_bin_path) + "/$(TARGET_ARCH_ABI)/" +  afile + "\n";
+					android_lib += "include $(PREBUILT_STATIC_LIBRARY)\n";
+
+					out.push(android_lib);
+					android_mk.push(android_lib);
+				}
+
+				var path = $.LIBRARIES[j].Include;
+				path = path.replace("$(LIBRARY_NAME)", $.LIBRARIES[j].id);
+				path = path.replace("$(DEVICE_WRAPPER)", TARGET.NAME);
+				path = _this.replaceVars(path, false);
+				write(path + "/Android.mk", android_mk.join("\n"));
+			}
+			return out.join("\n");
+		};
+
+		// Read Makefile template
+		var buff = read(template);
+
+		// Substitute variables
+		buff = buff.replace('$(APP_LDLIBS)', 				LDLIBS() 						);
+		buff = buff.replace('$(APP_LDFLAGS)', 				LDFLAGS() 						);
+		buff = buff.replace('$(APP_CFLAGS)', 				CFLAGS()						);
+		buff = buff.replace('$(NATIVE_CPP_SOURCES)', 		NATIVE_CPP_SOURCES() 			);
+		buff = buff.replace('$(ANDROID_STATIC_LIBRARIES)', 	ANDROID_STATIC_LIBRARIES()		);
+
+		// Substitute variables
+		var excludeVars = TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS ? TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";") : [];
+		if(_ExcludeVars) excludeVars = excludeVars.concat(_ExcludeVars);
+		buff = _this.replaceVars(buff, true, excludeVars);
+
+		return buff;
+	};
+
+	// =====================================================================
+    TARGET_SOURCES.prototype.AddSources = function(root, path, add_files, framework, library)
+    {
+    	this.INCLUDE_PATHS.push(path);
+
+    	if(add_files)
+    	{
+	    	var files = this.SourcePaths[path] = _this.FindFiles(path, this.TargetFileMask, true);
+	        for(var i=0; i<files.length; i++)
+	        {
+	        	var file = files[i];
+	        	var fileName = _this.fileName(file);
+	        	var filepath = file.substr(0, file.lastIndexOf("/"));
+	        	var rel = file.replace((framework ? path : root), '');
+	        	if(rel=="") rel = "/";
+	        	this.SourceFiles[file] = { "FileName":fileName, "File":file, "Root":root, "Path":path, "Rel":rel, "Framework":framework, "Library":library };
+	        	this.FILES.push(file);
+	        }
+    	}
+    };
+
+  	// =====================================================================
     // Find source files from target and frameworks
     // =====================================================================
-  	_this.collectSources = function(target_root, src_paths, src_file_mask, framework_src_prefix, framrworks_ids, target)
+    /*@@ collectSources @@*/
+
+  	_this.collectSources = function(target_root, src_paths, src_file_mask, framework_src_prefix)
   	{
 	    trace("\nCollecting Sources ...\n+ pattern: " + src_file_mask);
 
-	    var SourcePaths = {};
+	    var SOURCES = makefile.Vars.SOURCES = new TARGET_SOURCES();
 
-	    // Make sure we know the target
-	    target = target || makefile.Vars.TARGET;
+		SOURCES.Target				= makefile.Vars.TARGET;
+		SOURCES.TargetRoot			= target_root;
+		SOURCES.TargetSources		= src_paths.split(";");
+		SOURCES.TargetFileMask		= src_file_mask;
+		SOURCES.Frameworks			= _this.TARGET_FRAMEWORKS();
+		SOURCES.FrameworkSubPaths	= _this.replaceVars(framework_src_prefix, false);
 
-	    // Collect source paths from frameworks
-	    // We either have an explicit list of framework ids passed by framrworks_ids,
-	    // or we use global project frameworks and additional target-specific frameworks.
-	    var vFrameworks = framrworks_ids || (makefile.Config.PROJECT_FRAMEWORKS + (TARGET.TARGET_ADDITIONAL_FRAMEWORKS ? (";"+TARGET.TARGET_ADDITIONAL_FRAMEWORKS) : ""));
-	    trace("+ frameworks: " + vFrameworks);
-	    trace("+ scanning frameworks ...");
-	    vFrameworks = vFrameworks.split(";");
-	    var vFrameworksSrcSubPaths = framework_src_prefix.split(";");
-	    for(var i=0; i<vFrameworks.length; i++)
+	   	// ==========================================================================
+	    // A. Collect sources from Libraries
+	   	// ==========================================================================
+		var libs_path = makefile.Vars.PATH_SDK_LIBRARIES;
+		var libs = read(libs_path + "/libs.json");
+		libs = JSON.parse(libs)
+		libs = libs.Libraries;
+	    trace("+ libraries: " + Object.keys(libs).join(";"));
+	    trace("+ scanning target libraries ...");
+		function lib_repl_vars(lib, path)
+		{
+			path = path.replace("$(LIBRARY_NAME)", lib.id);
+			path = path.replace("$(DEVICE_WRAPPER)", TARGET.NAME);
+			path = _this.replaceVars(path, false);
+			return path;
+		}
+		for(var lib_name in libs)
+		{
+			var lib = libs[lib_name];
+			var library_targets = [];
+			for(var t in lib.Targets) { library_targets.push(t); }
+			library_targets = library_targets.join(";");
+			if(library_targets.indexOf(TARGET.NAME)==-1) continue;
+
+			lib.id = lib_name;
+			SOURCES.Libraries.push(lib_name);
+			SOURCES.LIBRARIES.push(lib);
+
+			// Save library include path(s)
+			var abs_lib_include_path = lib_repl_vars(lib, lib.Include);
+			SOURCES.LIB_INC_PATHS.push(abs_lib_include_path);
+
+			// Save library bin path(s)
+			var abs_lib_bin_path = lib_repl_vars(lib, lib.Lib);
+			SOURCES.LIB_BIN_PATHS.push(abs_lib_bin_path);
+
+			// Save library link flags
+			var lib_link_flags = lib.Targets[TARGET.NAME];
+			SOURCES.LINK_LIBS.push(lib_link_flags);
+
+			// Collect Library Sources
+    		trace("  + " + lib_name + " -> " + abs_lib_include_path);
+        	SOURCES.AddSources(abs_lib_include_path, abs_lib_include_path, false, null, lib);
+		}
+
+	   	// ==========================================================================
+	    // B. Collect sources from Frameworks
+	   	// ==========================================================================
+
+	    if(SOURCES.Frameworks.length)
 	    {
-	    	if(!vFrameworks[i]) continue;
-	    	var framework = makefile.Components.Frameworks[vFrameworks[i]];
-	    	if(!framework)
-	    	{
-	    		throw "ERROR: Invalid Framework " + vFrameworks[i];
-	    	}
-	    	else
-	    	{
-	    		// Check if this framework is compatible with this target
-	    		if((";"+framework.Platforms+";").indexOf(";"+target+";")==-1) continue;
+		    trace("+ frameworks: " + SOURCES.Frameworks.join(";"));
+		    trace("+ scanning target frameworks ...");
 
-		    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
+		    var vFrameworksSrcSubPaths = framework_src_prefix.split(";");
+		    for(var i=0; i<SOURCES.Frameworks.length; i++)
+		    {
+		    	var id = SOURCES.Frameworks[i];
+		    	if(!id) continue;
+
+		    	var framework = makefile.Components.Frameworks[id];
+
+		    	if(!framework)
 		    	{
-		        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
-		    		trace("  + " + vFrameworks[i] + " -> " + path);
-		        	SourcePaths[path] = true;
+		    		throw "ERROR: Invalid Framework " + id;
 		    	}
-	    	}
+		    	else
+		    	{
+		    		framework.id = id;
+
+		    		// Check if this framework is compatible with this target
+		    		if((";"+framework.Platforms+";").indexOf(";"+makefile.Vars.TARGET+";")==-1) continue;
+
+		    		SOURCES.FRAMEWORKS.push(framework);
+
+					// Process get/src framrwork folders
+			    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
+			    	{
+			    		var root = _this.replaceVars(framework.Path);
+			        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
+			    		trace("  + " + id + " -> " + path);
+			        	SOURCES.AddSources(root, path, true, framework, null);
+			    	}
+		    	}
+		    }
+	    }
+	    else
+	    {
+	    	trace("+ frameworks: none");
 	    }
 
-	    // Collect additional source paths
+	   	// ==========================================================================
+	    // C. Collect sources from Target
+	   	// ==========================================================================
 	    if(src_paths)
 	    {
 		    trace("+ scanning target paths ...");
+
 		    var vSourcePaths = src_paths.split(";");
 		    for(var i=0; i<vSourcePaths.length; i++)
 		    {
-		        trace("  + from source path: " + vSourcePaths[i]);
-		        SourcePaths[vSourcePaths[i]] = true;
+		    	var path = vSourcePaths[i];
+		        trace("  + from source path: " + path);
+	        	SOURCES.AddSources(path, path, true, null, null);
 		    }
 	    }
 
-	    // Create a list of include paths that will be used with the compiler
-	    makefile.Vars.INCLUDE_PATHS = [ target_root ? relativePath(target_root, makefile.Vars.PATH_SDK_INCLUDES) : makefile.Vars.PATH_SDK_INCLUDES ];
-	    for(var item in SourcePaths)
-	    	makefile.Vars.INCLUDE_PATHS.push( target_root ? relativePath(target_root, item) : item);
-
-	    // Collect modules from each path
-	    var files = [];
-	    _this.ModuleFiles = {};
-	    for(var path in SourcePaths)
-	    {
-	        var Files = _this.FindFiles(path, src_file_mask, true);
-	        for(var i=0;i<Files.length;i++)
-	        {
-	        	var file = Files[i];
-	        	if(ModuleFiles[file]) continue;
-        		files.push(file);
-				ModuleFiles[file] = path;
-	        }
-	    }
-
-	    if(!files.length)
-	    	throw new Error("No source files found");
-
-	    trace("+ found: " + files.length + " files");
-	    return files;
-  	};
-
-  	// =====================================================================
-	// Extract C++ .cpp and .hpp files relative to a root folder
-	// =====================================================================
-  	_this.get_relative_cpp_hpp = function(files, root)
-  	{
-		var includes = root ? relativePath(root, makefile.Vars.PATH_SDK_INCLUDES) :  makefile.Vars.PATH_SDK_INCLUDES;
-		var CPP = [];
-		var HPP = [includes];
-		var HPPmap = {};
-		HPPmap[includes] = true;
-		for(i=0;i<files.length;i++)
-		{
-			files[i] = root ? relativePath(root, files[i]) : files[i];
-			if(/\.(cpp|m)$/i.test(files[i]))
-			{
-				if(files[i].indexOf("./")==0)
-					files[i] = files[i].substr(2);
-				CPP.push(files[i]);
-			}
-			if(/\.h[p]*?$/i.test(files[i]))
-			{
-				var path = files[i].substr(0, files[i].lastIndexOf("/"));
-				if(!HPPmap[path])
-				{
-					HPPmap[path] = true;
-					HPP.push(path);
-				}
-			}
-		}
-		HPP =  HPP.sort();//.reverse();
-		CPP = CPP.sort();//.reverse();
-		return { CPP:CPP, HPP:HPP };
+		// ==========================================================================
+	    trace("+ found: " + SOURCES.FILES.length + " files");
+	    return [].concat(SOURCES.FILES);
   	};
 
   	// =====================================================================
@@ -1684,6 +2072,7 @@ function CocoMake(command , params)
     // =====================================================================
 	_this.toRegExpPattern = function(filePattern)
 	{
+		if(!filePattern) filePattern = "*.jspp";
 		var pattern = [];
 		var terms = filePattern.split(";");
 		for(var i=0; i<terms.length; i++)
@@ -1775,7 +2164,7 @@ function CocoMake(command , params)
 		var pattern = _this.toRegExpPattern(mask);
 		for(var i=0;i<files.length;i++)
 		{
-			var fileName = files[i].substr(files[i].lastIndexOf("/")+1);
+			var fileName = _this.fileName(files[i]);
 			if((new RegExp(pattern, "i")).test(fileName))
 				out.push(files[i]);
 		}
@@ -1794,7 +2183,7 @@ function CocoMake(command , params)
   		{
   			if(folderExists(folders[i]))
   			{
-  				var folderName = folders[i].substr(folders[i].lastIndexOf("/")+1);
+  				var folderName = _this.fileName(folders[i]);
   				if((new RegExp(pattern, "i")).test(folderName))
   					out.push(folders[i]);
   				out = out.concat(_this.FindFolders(folders[i], mask, recursive));
@@ -1838,6 +2227,14 @@ function CocoMake(command , params)
 	};
 
     // =====================================================================
+    // File name from path
+    // =====================================================================
+	_this.fileName = function(path)
+	{
+		return path.substr(path.lastIndexOf('/')+1);
+	};
+
+    // =====================================================================
     // Execute a shell command in the IDE
     // =====================================================================
 	_this.shell = function(command, path, wait_process)
@@ -1846,6 +2243,145 @@ function CocoMake(command , params)
 		trace(command);
 		IDECallback("shell", command,0,0,json);
 	};
+
+    // =====================================================================
+    // Sort dictionary by child attribute
+    // =====================================================================
+	_this.dicSort = function(dic, child_attr)
+	{
+		var out = [];
+
+		if(child_attr)
+		{
+			var keys = [];
+			for(var key in dic)
+			{
+				keys.push(dic[key][child_attr]);
+			}
+
+			keys = _this.sortFileNames(keys)
+
+			for(var i=0; i<keys.length; i++)
+			{
+				for(var key in dic)
+				{
+					var item = dic[key];
+					if(item[child_attr]==keys[i])
+					{
+						out.push(item);
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			var keys = Object.keys(dic);
+			keys = _this.sortFileNames(keys);
+
+			for(var i=0; i<keys.length; i++)
+			{
+				out.push(dic[keys[i]]);
+			}
+		}
+
+		return out;
+	};
+
+    // =====================================================================
+    // Sort Files
+    // =====================================================================
+    _this.sortFileNames = function(files)
+    {
+		/*
+		* Natural Sort algorithm for Javascript - Version 0.8.1 - Released under MIT license
+		* Author: Jim Palmer (based on chunking idea from Dave Koelle)
+		*/
+		function naturalSort (a, b)
+		{
+			if(a.indexOf(".")!=-1 && b.indexOf(".")!=-1)
+			{
+				var p1 = a.lastIndexOf(".");
+				var p2 = b.lastIndexOf(".");
+				var L = Math.min(p1, p2);
+
+				// File config.c and config-32bit.c
+				// We compare against "config" and if both files are the same
+				// then first comes the file with smaller length (config.c)
+
+				if( a.substr(0, L)==b.substr(0, L) )
+				{
+					if(a.length < b.length)
+						return -1;
+					else
+						return 1;
+				}
+				else
+				{
+					a = a.substr(0, L);
+					b = b.substr(0, L);
+				}
+			}
+
+		    var re = /(^([+\-]?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?(?=\D|\s|$))|^0x[\da-fA-F]+$|\d+)/g,
+		        sre = /^\s+|\s+$/g,   // trim pre-post whitespace
+		        snre = /\s+/g,        // normalize all whitespace to single ' ' character
+		        dre = /(^([\w ]+,?[\w ]+)?[\w ]+,?[\w ]+\d+:\d+(:\d+)?[\w ]?|^\d{1,4}[\/\-]\d{1,4}[\/\-]\d{1,4}|^\w+, \w+ \d+, \d{4})/,
+		        hre = /^0x[0-9a-f]+$/i,
+		        ore = /^0/,
+		        i = function(s)
+		        {
+		            return (naturalSort.insensitive && ('' + s).toLowerCase() || '' + s).replace(sre, '');
+		        },
+		        // convert all to strings strip whitespace
+		        x = i(a),
+		        y = i(b),
+		        // chunk/tokenize
+		        xN = x.replace(re, '\0$1\0').replace(/\0$/,'').replace(/^\0/,'').split('\0'),
+		        yN = y.replace(re, '\0$1\0').replace(/\0$/,'').replace(/^\0/,'').split('\0'),
+		        // numeric, hex or date detection
+		        xD = parseInt(x.match(hre), 16) || (xN.length !== 1 && Date.parse(x)),
+		        yD = parseInt(y.match(hre), 16) || xD && y.match(dre) && Date.parse(y) || null,
+		        normChunk = function(s, l)
+		        {
+		            // normalize spaces; find floats not starting with '0', string or 0 if not defined (Clint Priest)
+		            return (!s.match(ore) || l == 1) && parseFloat(s) || s.replace(snre, ' ').replace(sre, '') || 0;
+		        },
+		        oFxNcL, oFyNcL;
+
+		    // first try and sort Hex codes or Dates
+		    if (yD)
+		    {
+		        if (xD < yD) { return -1; }
+		        else if (xD > yD) { return 1; }
+		    }
+
+		    // natural sorting through split numeric strings and default strings
+		    for(var cLoc = 0, xNl = xN.length, yNl = yN.length, numS = Math.max(xNl, yNl); cLoc < numS; cLoc++)
+		    {
+		        oFxNcL = normChunk(xN[cLoc] || '', xNl);
+		        oFyNcL = normChunk(yN[cLoc] || '', yNl);
+
+		        // handle numeric vs string comparison - number < string - (Kyle Adams)
+		        if (isNaN(oFxNcL) !== isNaN(oFyNcL))
+		        {
+		            return isNaN(oFxNcL) ? 1 : -1;
+		        }
+
+		        // if unicode use locale comparison
+		        if (/[^\x00-\x80]/.test(oFxNcL + oFyNcL) && oFxNcL.localeCompare)
+		        {
+		            var comp = oFxNcL.localeCompare(oFyNcL);
+		            return comp / Math.abs(comp);
+		        }
+
+		        if (oFxNcL < oFyNcL) { return -1; }
+		        else if (oFxNcL > oFyNcL) { return 1; }
+		    }
+		}
+
+		return [].concat(files).sort(naturalSort);
+    };
 
 	// ==================================================================================================================================
 	//	   _____ __        __          __  ___           __    _               __  ____  _ __
@@ -1862,8 +2398,8 @@ function CocoMake(command , params)
 		narcissus.__messages = true;
 		narcissus.__cpp = false;
 		var ast = narcissus.jsparse(code);
-		var compiler = new Compiler(ast, false);
-		compiler.compile();
+		var compiler = new Compiler(ast);
+		compiler.compile(false);
 		var stateMachine = compiler.exportGameStateMachine();
 		trace(stateMachine);
 	};
@@ -1914,17 +2450,16 @@ function CocoMake(command , params)
 		if(command)
 		{
 			builder = this[command];
+			if(!builder)
+			{
+				trace("Invalid make command: " + command);
+				throw new Error("Invalid make command: " + command);
+			}
 		}
 		else
 		{
-			if(params && params.parse)
-			{
-				builder = this.Parse;
-			}
-			else
-			{
-				builder = this["Build_" + makefile.Vars.TARGET.replace(/\./img, '_')];
-			}
+			var fn = "Build_" + makefile.Vars.TARGET.replace(/\./img, '_');
+			builder = this[fn];
 		}
 
 		if(!builder)
@@ -2168,42 +2703,28 @@ function RxReplace(buff, patt, opts, repl, single_line)
 function formatCPP(buff)
 {
 	if(!buff) return "";
+
 	buff = RxReplace(buff, "[\s\t\n\r]+\\{[\s\t\n\r]+\\};", "mg", "{};");
+
 	buff = RxReplace(buff, "Array\\s*\\<\\s*([\\w\\*]+)\\s*\\>\\s*", "mg", "Array<$1> ");
 	buff = RxReplace(buff, "Dictionary \\< (\\w+) \\> ", "mg", "Dictionary<$1> ");
+	buff = RxReplace(buff, "\\s*//<<(.*)>>//", "mg", "$1");
+
 	buff = RxReplace(buff, "\\bFloat\\b", "mg", "float");
-	buff = RxReplace(buff, "\\bInteger\\b", "mg", "int");
+	buff = RxReplace(buff, "\\bInteger\\b", "mg", "int32_t");
 	buff = RxReplace(buff, "\\bBoolean\\b", "mg", "bool");
 	buff = RxReplace(buff, "\\bTime\\b", "mg", "float");
 	buff = RxReplace(buff, "\\bNumber\\b", "mg", "float");
 	buff = RxReplace(buff, "\\bFunction\\b", "mg", "void");
 	buff = RxReplace(buff, "\\bObject\\b", "mg", "void");
-	buff = RxReplace(buff, "\\s*//<<(.*)>>//", "mg", "$1");
-	buff = RxReplace(buff, "\\bMath::floor\\(", "mg", "floor(");
-	buff = RxReplace(buff, "\\bMath::ceil\\(", "mg", "ceil(");
-	buff = RxReplace(buff, "\\bMath::round\\(", "mg", "round(");
-	buff = RxReplace(buff, "\\bMath::pow\\(", "mg", "pow(");
-	buff = RxReplace(buff, "\\bMath::log\\(", "mg", "log(");
-	buff = RxReplace(buff, "\\bMath::min\\(", "mg", "std::min(");
-	buff = RxReplace(buff, "\\bMath::max\\(", "mg", "std::max(");
-	buff = RxReplace(buff, "\\bMath::asin\\(", "mg", "asin(");
-	buff = RxReplace(buff, "\\bMath::acos\\(", "mg", "acos(");
-	buff = RxReplace(buff, "\\bMath::sin\\(", "mg", "sin(");
-	buff = RxReplace(buff, "\\bMath::cos\\(", "mg", "cos(");
-	buff = RxReplace(buff, "\\bMath::abs\\(", "mg", "abs(");
-	buff = RxReplace(buff, "\\bMath::sqrt\\(", "mg", "sqrt(");
-	buff = RxReplace(buff, "\\bMath::random\\(\\)", "mg", "((float)rand()/(float)RAND_MAX)");
-	buff = RxReplace(buff, "\\btrace\\s*\\((.*)\\)\\s*;\\s*$", "mg", "trace(($1).c_str());");
+
+	buff = RxReplace(buff, "\\bMath::(\\w+)\\(", "mg", 		"math_$1(");
+
+	//buff = RxReplace(buff, "\\btrace\\s*\\((.*)\\)\\s*;\\s*$", "mg", "trace(($1).c_str());");
 	buff = RxReplace(buff, "([\\x22\\x27])\\x2e\\x2fassets\\x2f", "mg", "$1./");
 	buff = RxReplace(buff, "_ENUM\\.(\\w+)", "mg", "_ENUM::$1");
 	buff = RxReplace(buff, "__currentFrame\\->action\\.call\\(scene\\);", "mg", "(scene->*__currentFrame->action)();");
 	return buff;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function fileName(f)
-{
-	 sources[i].substr(sources[i].lastIndexOf("/")+1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2243,3 +2764,28 @@ function figlet(text)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// =====================================================================
+// Parent Folder
+// =====================================================================
+function parentFolder(path)
+{
+	return path.substr(0, path.lastIndexOf('/'));
+}
+
+// =====================================================================
+// File Name
+// =====================================================================
+function fileName(path)
+{
+	return path.substr(path.lastIndexOf('/')+1);
+}
+
+// =====================================================================
+// File NodeName
+// =====================================================================
+function fileNodeName(path)
+{
+	var name = _this.fileName(path);
+	return name.substr(0, name.lastIndexOf('.'));
+}

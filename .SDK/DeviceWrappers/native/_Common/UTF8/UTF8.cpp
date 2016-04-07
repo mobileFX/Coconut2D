@@ -30,7 +30,7 @@ size_t UTF8::wcsrtombs(char* dest, const wchar_t** srcp, size_t len, utf8_mbstat
 			char* destptr = dest;
 			for(;;src++)
 			{
-				u_wchar_t wc = *src;
+				u_wchar_t wc = (u_wchar_t) (*src);
 				if (wc < 0x100)
 				{
 					if (len == 0)
@@ -39,7 +39,7 @@ size_t UTF8::wcsrtombs(char* dest, const wchar_t** srcp, size_t len, utf8_mbstat
 						break;
 					}
 					len--;
-					*destptr = (unsigned char) wc;
+					*destptr = (char) wc;
 					if (wc == (wchar_t)'\0')
 					{
 						*srcp = NULL;
@@ -53,7 +53,7 @@ size_t UTF8::wcsrtombs(char* dest, const wchar_t** srcp, size_t len, utf8_mbstat
 					return (size_t)(-1);
 				}
 			}
-			return destptr - dest;
+			return (size_t)(destptr - dest);
 		}
 		else
 		{
@@ -61,7 +61,7 @@ size_t UTF8::wcsrtombs(char* dest, const wchar_t** srcp, size_t len, utf8_mbstat
 			int totalcount = 0;
 			for(;;src++)
 			{
-				u_wchar_t wc = *src;
+				u_wchar_t wc = (u_wchar_t) (*src);
 				if(wc < 0x100)
 				{
 					if(wc == (wchar_t)'\0')
@@ -73,7 +73,7 @@ size_t UTF8::wcsrtombs(char* dest, const wchar_t** srcp, size_t len, utf8_mbstat
 					return (size_t)(-1);
 				}
 			}
-			return totalcount;
+			return (size_t) totalcount;
 		}
 	}
 	else
@@ -89,11 +89,11 @@ size_t UTF8::wcsrtombs(char* dest, const wchar_t** srcp, size_t len, utf8_mbstat
 				{
 					if (len == 0)
 					{
-						ps->count = count;
-						return destptr - dest;
+						ps->count = (unsigned int) count;
+						return (size_t)(destptr - dest);
 					}
 					len--;
-					*destptr++ = (unsigned char)(((wc >> (6 * --count)) & 0x3F) | 0x80);
+					*destptr++ = (char)(((wc >> (6 * --count)) & 0x3F) | 0x80);
 
 				} while (count > 0);
 
@@ -102,7 +102,7 @@ size_t UTF8::wcsrtombs(char* dest, const wchar_t** srcp, size_t len, utf8_mbstat
 
 			for (;; src++)
 			{
-				u_wchar_t wc = *src;
+				u_wchar_t wc = (u_wchar_t) (*src);
 				size_t count;
 				unsigned char c;
 				if(wc < 0x80)
@@ -162,22 +162,22 @@ size_t UTF8::wcsrtombs(char* dest, const wchar_t** srcp, size_t len, utf8_mbstat
 					break;
 				}
 				len--;
-				*destptr++ = c;
+				*destptr++ = (char) c;
 				if (count > 0)
 				do
 				{
 					if(len == 0)
 					{
-						ps->count = count;
+						ps->count = (unsigned int) count;
 						ps->value = wc;
 						*srcp = src+1;
-						return destptr - dest;
+						return (size_t)(destptr - dest);
 					}
 					len--;
-					*destptr++ = (unsigned char)(((wc >> (6 * --count)) & 0x3F) | 0x80);
+					*destptr++ = (char)(((wc >> (6 * --count)) & 0x3F) | 0x80);
 				} while (count > 0);
 			}
-			return destptr - dest;
+			return (size_t)(destptr - dest);
 		}
 		else
 		{
@@ -186,7 +186,7 @@ size_t UTF8::wcsrtombs(char* dest, const wchar_t** srcp, size_t len, utf8_mbstat
 			ps->count = 0;
 			for(;; src++)
 			{
-				u_wchar_t wc = *src;
+				u_wchar_t wc = (u_wchar_t) (*src);
 				size_t count;
 				if(wc < 0x80)
 				{

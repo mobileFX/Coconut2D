@@ -22,7 +22,7 @@ APP_ABI := $(TARGETS.Android.APP_SETTINGS.APP_ABI)
 # * thread (see comments)
 # * lamdas and auto keyword
 
-APP_CPPFLAGS += -std=c++11 -fexceptions
+APP_CPPFLAGS += -std=c++0x -fexceptions
 # or -std=gnu++11
 
 # STL implementation.
@@ -51,15 +51,7 @@ APP_PLATFORM := $(TARGETS.Android.APP_SETTINGS.ANDROID_PLATFORM)
 #for some reason the application doesn't launch/crashes at launch with -O2/s but works with -O0/1/3
 #APP_CFLAGS := -O0 -g0
 
-APP_OPTIM := $(CONFIGURATION)
+APP_OPTIM := $(LCONFIGURATION)
 
 # Coconut2D Flags
 APP_CPPFLAGS += -DANDROID_APPLICATION
-APP_CPPFLAGS += -DENABLE_OPENGL_SUPPORT
-APP_CPPFLAGS += -DENABLE_OPENAL_SUPPORT
-APP_CPPFLAGS += -DENABLE_FREETYPE_SUPPORT
-APP_CPPFLAGS += -DENABLE_PNG_SUPPORT
-APP_CPPFLAGS += -DENABLE_JPG_SUPPORT
-APP_CPPFLAGS += -DENABLE_OGG_SUPPORT
-APP_CPPFLAGS += -DENABLE_CURL_SUPPORT
-APP_CPPFLAGS += -DENABLE_FX_DEBUG

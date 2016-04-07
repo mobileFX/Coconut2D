@@ -1,19 +1,19 @@
-
+﻿
 var PTM = 32;
 
 var world = null;
 var mouseJointGroundBody;
 var canvas;
 var context;
-var myDebugDraw;        
+var myDebugDraw;
 var myQueryCallback;
-var mouseJoint = null;        
+var mouseJoint = null;
 var run = true;
 var frameTime60 = 0;
 var statusUpdateCounter = 0;
-var showStats = false;        
+var showStats = false;
 var mouseDown = false;
-var shiftDown = false;        
+var shiftDown = false;
 var mousePosPixel = {
     x: 0,
     y: 0
@@ -21,15 +21,15 @@ var mousePosPixel = {
 var prevMousePosPixel = {
     x: 0,
     y: 0
-};        
+};
 var mousePosWorld = {
     x: 0,
     y: 0
-};        
+};
 var canvasOffset = {
     x: 0,
     y: 0
-};        
+};
 var viewCenterPixel = {
     x:320,
     y:240
@@ -42,9 +42,9 @@ function myRound(val,places) {
         c *= 10;
     return Math.round(val*c)/c;
 }
-        
+
 function getWorldPointFromPixelPoint(pixelPoint) {
-    return {                
+    return {
         x: (pixelPoint.x - canvasOffset.x)/PTM,
         y: (pixelPoint.y - (canvas.height - canvasOffset.y))/PTM
     };
@@ -83,21 +83,21 @@ function onMouseMove(canvas, evt) {
 }
 
 function startMouseJoint() {
-    
+
     if ( mouseJoint != null )
         return;
-    
+
     // Make a small box.
     var aabb = new b2AABB();
-    var d = 0.001;            
+    var d = 0.001;
     aabb.set_lowerBound(new b2Vec2(mousePosWorld.x - d, mousePosWorld.y - d));
     aabb.set_upperBound(new b2Vec2(mousePosWorld.x + d, mousePosWorld.y + d));
-    
-    // Query the world for overlapping shapes.            
+
+    // Query the world for overlapping shapes.
     myQueryCallback.m_fixture = null;
     myQueryCallback.m_point = new b2Vec2(mousePosWorld.x, mousePosWorld.y);
     world.QueryAABB(myQueryCallback, aabb);
-    
+
     if (myQueryCallback.m_fixture)
     {
         var body = myQueryCallback.m_fixture.GetBody();
@@ -107,13 +107,13 @@ function startMouseJoint() {
         md.set_target( new b2Vec2(mousePosWorld.x, mousePosWorld.y) );
         md.set_maxForce( 1000 * body.GetMass() );
         md.set_collideConnected(true);
-        
+
         mouseJoint = Box2D.castObject( world.CreateJoint(md), b2MouseJoint );
         body.SetAwake(true);
     }
 }
 
-function onMouseDown(canvas, evt) {            
+function onMouseDown(canvas, evt) {
     updateMousePos(canvas, evt);
     if ( !mouseDown )
         startMouseJoint();
@@ -167,10 +167,10 @@ function onKeyDown(canvas, evt) {
     else if ( evt.keyCode == 16 ) {//shift
         shiftDown = true;
     }
-    
+
     if ( currentTest && currentTest.onKeyDown )
         currentTest.onKeyDown(canvas, evt);
-    
+
     draw();
 }
 
@@ -178,7 +178,7 @@ function onKeyUp(canvas, evt) {
     if ( evt.keyCode == 16 ) {//shift
         shiftDown = false;
     }
-    
+
     if ( currentTest && currentTest.onKeyUp )
         currentTest.onKeyUp(canvas, evt);
 }
@@ -200,7 +200,7 @@ function zoomOut() {
     canvasOffset.y -= (newViewCenterWorld.y-currentViewCenterWorld.y) * PTM;
     draw();
 }
-        
+
 function updateDebugDrawCheckboxesFromWorld() {
     var flags = myDebugDraw.GetFlags();
     document.getElementById('drawShapesCheck').checked = (( flags & e_shapeBit ) != 0);
@@ -236,42 +236,42 @@ function updateContinuousRefreshStatus() {
 }
 
 function init() {
-    
+
     canvas = document.getElementById("canvas");
     context = canvas.getContext( '2d' );
-    
+
     canvasOffset.x = canvas.width/2;
     canvasOffset.y = canvas.height/2;
-    
+
     canvas.addEventListener('mousemove', function(evt) {
         onMouseMove(canvas,evt);
     }, false);
-    
+
     canvas.addEventListener('mousedown', function(evt) {
         onMouseDown(canvas,evt);
     }, false);
-    
+
     canvas.addEventListener('mouseup', function(evt) {
         onMouseUp(canvas,evt);
     }, false);
-    
+
     canvas.addEventListener('mouseout', function(evt) {
         onMouseOut(canvas,evt);
     }, false);
-    
+
     canvas.addEventListener('keydown', function(evt) {
         onKeyDown(canvas,evt);
     }, false);
-    
+
     canvas.addEventListener('keyup', function(evt) {
         onKeyUp(canvas,evt);
     }, false);
-    
-    myDebugDraw = getCanvasDebugDraw();            
+
+    myDebugDraw = getCanvasDebugDraw();
     myDebugDraw.SetFlags(e_shapeBit);
-    
+
     myQueryCallback = new b2QueryCallback();
-    
+
     Box2D.customizeVTable(myQueryCallback, [{
     original: Box2D.b2QueryCallback.prototype.ReportFixture,
     replacement:
@@ -288,7 +288,7 @@ function init() {
     }]);
 }
 
-function changeTest() {    
+function changeTest() {
     resetScene();
     if ( currentTest && currentTest.setNiceViewCenter )
         currentTest.setNiceViewCenter();
@@ -297,20 +297,20 @@ function changeTest() {
 }
 
 function createWorld() {
-    
-    if ( world != null ) 
+
+    if ( world != null )
         Box2D.destroy(world);
-        
+
     world = new b2World( new b2Vec2(0.0, -10.0) );
     world.SetDebugDraw(myDebugDraw);
-    
+
     mouseJointGroundBody = world.CreateBody( new b2BodyDef() );
-    
+
     var e = document.getElementById("testSelection");
     var v = e.options[e.selectedIndex].value;
-    
+
     eval( "currentTest = new "+v+"();" );
-    
+
     currentTest.setup();
 }
 
@@ -320,21 +320,21 @@ function resetScene() {
 }
 
 function step(timestamp) {
-    
-    if ( currentTest && currentTest.step ) 
+
+    if ( currentTest && currentTest.step )
         currentTest.step();
-    
+
     if ( ! showStats ) {
         world.Step((1/60), 2, 2);
         draw();
         return;
     }
-    
+
     var current = Date.now();
     world.Step(1/60, 2, 2);
     var frametime = (Date.now() - current);
     frameTime60 = frameTime60 * (59/60) + frametime * (1/60);
-    
+
     draw();
     statusUpdateCounter++;
     if ( statusUpdateCounter > 20 ) {
@@ -344,22 +344,22 @@ function step(timestamp) {
 }
 
 function draw() {
-    
+
     //black background
     context.fillStyle = 'rgb(0,0,0)';
     context.fillRect( 0, 0, canvas.width, canvas.height );
-    
-    context.save();            
+
+    context.save();
         context.translate(canvasOffset.x, canvasOffset.y);
-        context.scale(1,-1);                
+        context.scale(1,-1);
         context.scale(PTM,PTM);
         context.lineWidth /= PTM;
-        
+
         drawAxes(context);
-        
+
         context.fillStyle = 'rgb(255,255,0)';
         world.DrawDebugData();
-        
+
         if ( mouseJoint != null ) {
             //mouse joint is not drawn with regular joints in debug draw
             var p1 = mouseJoint.GetAnchorB();
@@ -370,7 +370,7 @@ function draw() {
             context.lineTo(p2.get_x(),p2.get_y());
             context.stroke();
         }
-        
+
     context.restore();
 }
 
@@ -391,11 +391,11 @@ function updateStats() {
 }
 
 window.requestAnimFrame = (function(){
-    return  window.requestAnimationFrame       || 
-            window.webkitRequestAnimationFrame || 
-            window.mozRequestAnimationFrame    || 
-            window.oRequestAnimationFrame      || 
-            window.msRequestAnimationFrame     || 
+    return  window.requestAnimationFrame       ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            window.oRequestAnimationFrame      ||
+            window.msRequestAnimationFrame     ||
             function( callback ){
               window.setTimeout(callback, 1000/60);
             };

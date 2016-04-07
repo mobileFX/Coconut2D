@@ -8,12 +8,17 @@ PASSPHRASE   = $(TARGETS.iOS.CODE_SIGNING.IOS_PRIVATE_KEY_PASSPHRASE)
 PROVISION    = $(TARGETS.iOS.CODE_SIGNING.IOS_PROVISION)
 IOSMINVER    = $(TARGETS.iOS.APP_SETTINGS.IOSMINVER)
 CPUSET       = $(TARGETS.iOS.APP_SETTINGS.CPUSET)
-LDFLAGS		 = -L$(PATH_SDK_LIBRARIES)/$(TARGET)
 
-CFLAGS = $(NATIVE_CPP_INCLUDES)
+# Link Libraries Binary Paths
+LDFLAGS	= $(APP_LDFLAGS)
 
+# Compiler options and Include Paths (Libraries, Frameworkds, Sources)
+CFLAGS = $(APP_CFLAGS)
+
+# Source files to compile
 SRC = $(NATIVE_CPP_SOURCES)
 
+# Resources to embed
 RES = $(NATIVE_RESOURCES)
 
 #==============================================================================
@@ -25,12 +30,12 @@ NAME		= $(shell "$(IOSBUILDENV_PATH)/Toolchain/plconvert" "Info.plist" -query CF
 PAYLOAD		= Payload
 BIN			= bin
 OUTDIR		= $(PAYLOAD)\$(NAME).app
-CFLAGS		+= -DIOS_APPLICATION -DENABLE_OPENGL_SUPPORT -DENABLE_PNG_SUPPORT -DENABLE_JPG_SUPPORT -DENABLE_OGG_SUPPORT -DENABLE_OPENAL_SUPPORT -DENABLE_FREETYPE_SUPPORT -DENABLE_CURL_SUPPORT -DNGLDEBUG
+CFLAGS		+= -DIOS_APPLICATION
 CFLAGS		+= -g -O0 -DDEBUG=1
-CFLAGS		+= -x objective-c++ -std=c++11 -stdlib=libc++ -w -I $(IOSBUILDENV_PATH)/SDK/lib/c++/v1
-CFLAGS      += -frtti -fmessage-length=0 -fdiagnostics-show-note-include-stack -fpascal-strings -fexceptions -fasm-blocks -fstrict-aliasing -fvisibility-inlines-hidden -fobjc-abi-version=2 -fobjc-legacy-dispatch -fmacro-backtrace-limit=0
+CFLAGS		+= -x objective-c++ -std=c++11 -stdlib=libc++ -I $(IOSBUILDENV_PATH)/SDK/lib/c++/v1
+CFLAGS      += -frtti -fmessage-length=0 -fdiagnostics-show-note-include-stack -fpascal-strings -fexceptions -fasm-blocks -fstrict-aliasing -fvisibility-inlines-hidden -fobjc-abi-version=2 -fmacro-backtrace-limit=0
 CFLAGS		+= -target $(CPUSET)-apple-ios$(IOSMINVER).0.0 --sysroot "$(IOSBUILDENV_PATH)/SDK" -integrated-as -fdiagnostics-format=msvc -fconstant-cfstrings -miphoneos-version-min=$(IOSMINVER).0.0 -DIPHONE -D__IPHONE_OS_VERSION_MIN_REQUIRED=$(IOSMINVER)0000
-LDFLAGS 	+= -lc++ -lc++abi -lm -lc -lbz2 -lfreetype -lTremolo -lcurl -ljpeg -lz -lpng
+LDFLAGS 	+= -lc++ -lc++abi -lm -lc -lbz2 $(APP_LDLIBS)
 LDFLAGS 	+= -ios_version_min $(IOSMINVER).0 -syslibroot "$(IOSBUILDENV_PATH)/SDK" -lSystem -lcrt1.o -lgcc_s.1 -lstdc++ -F"$(IOSBUILDENV_PATH)/SDK/System/Library/Frameworks" $(shell "$(IOSBUILDENV_PATH)/Toolchain/cat" "$(IOSBUILDENV_PATH)/Frameworks.iOS$(IOSMINVER)")
 OBJ			= obj
 OBJS		= $(addsuffix .obj, $(basename $(SRC)))
@@ -40,8 +45,6 @@ $(foreach o,$(SRC),$(eval $(addprefix $(OBJ)/, $(addsuffix .obj, $(basename $(no
 
 #==============================================================================
 compile:	$(OBJ_OBJ)
-
-#link codesign ipa end
 
 #==============================================================================
 # Prepare Compilation
@@ -124,4 +127,4 @@ ipa:
 end:
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(OUTDIR)"
 	@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(PAYLOAD)"
-#@"$(IOSBUILDENV_PATH)/Toolchain/unlink" "$(OBJ)"
+

@@ -1,4 +1,4 @@
-
+﻿
 var embox2dTest_fallingShapes = function() {
 }
 
@@ -9,11 +9,11 @@ embox2dTest_fallingShapes.prototype.setNiceViewCenter = function() {
 
 embox2dTest_fallingShapes.prototype.setup = function() {
 
-    var NUMRANGE = [];    
+    var NUMRANGE = [];
     while (NUMRANGE.length < 20)
         NUMRANGE.push(NUMRANGE.length+1);
     bodies = [null]; // Indexes start from 1
-    
+
     var bd_ground = new b2BodyDef();
     var groundBody = world.CreateBody(bd_ground);
 
@@ -48,7 +48,7 @@ embox2dTest_fallingShapes.prototype.setup = function() {
         body.SetAwake(1);
         body.SetActive(1);
     });
-    
+
     //static polygon and chain shapes
     {
         var verts = [];
@@ -58,7 +58,7 @@ embox2dTest_fallingShapes.prototype.setup = function() {
         verts.push( new b2Vec2( 7, 1) );
         var polygonShape = createPolygonShape(verts);
         groundBody.CreateFixture(polygonShape, 0.0);
-        
+
         //mirror vertices in x-axis and use for chain shape
         for (var i = 0; i < verts.length; i++)
             verts[i].set_x( -verts[i].get_x() );

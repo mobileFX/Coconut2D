@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -49,7 +49,7 @@ struct b2WeldJointDef : public b2JointDef
 
 	/// The bodyB angle minus bodyA angle in the reference state (radians).
 	float32 referenceAngle;
-	
+
 	/// The mass-spring-damper frequency in Hertz. Rotation only.
 	/// Disable softness with a value of 0.
 	float32 frequencyHz;

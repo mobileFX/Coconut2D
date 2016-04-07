@@ -22,7 +22,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_web
+#pragma export_web;
 
 // ==================================================================================================================================
 //	   ______                 ______                 __  _____
@@ -36,7 +36,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoEventSource
 {
-	protected var __eventListeners:Array<CocoEventConnectionPoint>
+	protected var __eventListeners:Array<CocoEventConnectionPoint>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
@@ -84,7 +84,7 @@ class CocoEventSource
 		if(L==0) return;
 
 		var i:Integer;
-		var event_arguments:Array<Object>;
+		var event_arguments:Array<Object> = new Array<Object>;
 		event_arguments.push(this);
 		event_arguments.push(Event);
 		for(i=1;i<arguments.size();i++)

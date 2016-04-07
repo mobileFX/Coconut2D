@@ -22,91 +22,324 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// ==================================================================================================================================
-//	   ______                             __     ___   ____     ___    ____  ____
-//	  / ____/___  _________  ____  __  __/ /_   |__ \ / __ \   /   |  / __ \/  _/
-//	 / /   / __ \/ ___/ __ \/ __ \/ / / / __/   __/ // / / /  / /| | / /_/ // /
-//	/ /___/ /_/ / /__/ /_/ / / / / /_/ / /_    / __// /_/ /  / ___ |/ ____// /
-//	\____/\____/\___/\____/_/ /_/\__,_/\__/   /____/_____/  /_/  |_/_/   /___/
-//
-// ==================================================================================================================================
+///Applications/Xcode.app/Contents/Frameworks/IDEKit.framework/Resources/IDETextKeyBindingSet.plist
 
 #ifndef __COCONUT2D_HPP__
 #define __COCONUT2D_HPP__
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Application-wide constants
-////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define APPNAME "Coconut2D"
-#define GLOBAL_FPS 30.0f
-#define COCO_STOP_ON_CURRENT_FRAME -1
-#define NGLDEBUG
+#define APPNAME                         "Coconut2D"
+#define GLOBAL_FPS                      30.0f
+#define COCO_STOP_ON_CURRENT_FRAME      -1
 
-//////////////////////////////////////////////////////////////////////////////////
 #ifndef M_PI
-#define M_PI				3.14159265358979323846
+#define M_PI                            3.14159265358979323846f
 #endif
 
 #ifndef M_PI_2
-#define M_PI_2				1.57079632679489661923
+#define M_PI_2                          1.57079632679489661923f
 #endif
 
 #ifndef RADIANS
-#define RADIANS				0.01745329251994329576
+#define RADIANS                         0.01745329251994329576f
 #endif
 
 #ifndef DEGREES
-#define DEGREES			   57.29577951308232087679
+#define DEGREES                         57.29577951308232087679f
 #endif
 
+#define COCO_DELETE_OBJECT(O) if(O){delete O; O=nullptr;}
+#define COCO_DELETE_ARRAY(A) if(A){delete A; A=nullptr;}
+
+#define trace(v)					\
+{                                   \
+	std::stringstream ss;           \
+	ss << v << "\n";                \
+	std::cout << ss.str();          \
+}                                   \
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Common Includes
+// STL Includes
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-extern void trace(const char* fmt, ...);
+#include <cstddef>
+#include <stdarg.h>
 
-#include "Structs.h"
-
-#include <cmath>
+#include <clocale>
+#include <iostream>
 #include <cstdlib>
 #include <cstdarg>
 #include <cassert>
 #include <cstring>
-#include <clocale>
+#include <cmath>
+#include <cfloat>
+#include <tgmath.h>
 #include <algorithm>
 #include <stack>
 #include <string>
 #include <sstream>
 #include <vector>
 #include <map>
+#include <iterator>
+#include <stdexcept>
+#include <type_traits>
+#include <stdio.h>
+#include <typeinfo>
+#include <memory>
+#include <functional>
+#include <chrono>
+#include <future>
+#include <cstdio>
+#include <initializer_list>
 
-//////////////////////////////////////////////////////////////////////////////////
-// Forward Declarations
-class CocoAssetFile;
+#define ENABLE_BOOST 1
 
-//////////////////////////////////////////////////////////////////////////////////
-// UTF8 Support for MinGW Compiler
-#include "UTF8/UTF8.hpp"
+// Boost RegEx are much faster than STL
+#ifdef ENABLE_BOOST
 
-//////////////////////////////////////////////////////////////////////////////////
-// C++11 additional includes
-#ifdef __CPP_0X__
-	#include <initializer_list>
+	#include <boost/locale/encoding_utf.hpp>
+	#include <boost/regex.hpp>
+
+	using boost::locale::conv::utf_to_utf;
+
+	std::wstring utf8_to_wstring(const std::string& str)
+	{
+	    return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
+	}
+
+	std::string wstring_to_utf8(const std::wstring& str)
+	{
+	    return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
+	}
+
+#else
+
+	#include <regex>
+
+	std::wstring utf8_to_wstring(const std::string& str)
+	{
+	    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+	    return conv.from_bytes(str);
+	}
+
+	std::string wstring_to_utf8(const std::wstring& str)
+	{
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+		return conv.to_bytes(w);
+	}
+
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////
 // UINT definition
 #if ANDROID_APPLICATION
-	#ifndef UINT
-		#define UINT unsigned int
-	#endif
+#ifndef UINT
+#define UINT uint32_t
 #endif
-#if IOS_APPLICATION
-	#ifndef UINT
-		#define UINT unsigned int
-	#endif
 #endif
+
+typedef uint32_t Color;
+
+#include <utility>
+
+#if ANDROID_APPLICATION
+	namespace std
+	{
+		int32_t round(float n);
+		int32_t round(int32_t n);
+	}
+#endif
+
+#define math_floor(n)		(int32_t)std::floor(n)
+#define math_ceil(n)        (int32_t)std::ceil(n)
+#define math_log(n)         (float)std::log(n)
+#define math_abs(n)         std::abs(n)
+#define math_sqrt(n)        (float)std::sqrt(n)
+#define math_round(n)       (int32_t)std::round(n)
+#define math_asin(n)        (float)std::asin(n)
+#define math_acos(n)        (float)std::acos(n)
+#define math_sin(n)         (float)std::sin(n)
+#define math_cos(n)         (float)std::cos(n)
+
+#define math_min(A,B)     	((float)(A) < (float)(B) ? (A) : (B) )
+#define math_max(A,B)     	((float)(A) > (float)(B) ? (A) : (B) )
+
+#define math_pow(B,E)    	(int32_t) std::pow( (float)B, (float)E )
+#define math_random() 		(float) ((float)rand()/(float)RAND_MAX)
+
+// ==================================================================================================================================
+//	  ______                      __     _____                 _ _____
+//	 /_  __/___ __________ ____  / /_   / ___/____  ___  _____(_) __(_)____
+//	  / / / __ `/ ___/ __ `/ _ \/ __/   \__ \/ __ \/ _ \/ ___/ / /_/ / ___/
+//	 / / / /_/ / /  / /_/ /  __/ /_    ___/ / /_/ /  __/ /__/ / __/ / /__
+//	/_/  \__,_/_/   \__, /\___/\__/   /____/ .___/\___/\___/_/_/ /_/\___/
+//	               /____/                 /_/
+// ==================================================================================================================================
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef IOS_APPLICATION
+
+    #define PLATFORM "iOS"
+
+    #include <UIKit/UIEvent.h>
+    #include <UIKit/UITouch.h>
+    #include <sys/time.h>
+
+    #define fxAPIGetKey(E)                          (int32_t)(*(const uint32_t*)(E))
+    #define fxAPIGetMouseEventX(E)                  (int32_t)([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].x)
+    #define fxAPIGetMouseEventY(E)                  (int32_t)([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].y)
+    #define fxAPIGetTouchEventX(E, I)               (int32_t)([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: (size_t)I] locationInView:nil].x)
+    #define fxAPIGetTouchEventY(E, I)               (int32_t)([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: (size_t)I] locationInView:nil].y)
+    #define fxAPIGetChangedTouchEventX(E, I)        (int32_t)([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: (size_t)I] locationInView:nil].x)
+    #define fxAPIGetChangedTouchEventY(E, I)        (int32_t)([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: (size_t)I] locationInView:nil].y)
+    #define fxAPIGetTouchesLength(E)                (int32_t)([[(__bridge UIEvent*)E allTouches] count])
+    #define fxAPIGetChangedTouchesLength(E)         (int32_t)([[(__bridge UIEvent*)E allTouches] count])
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+#elif ANDROID_APPLICATION
+
+    #define PLATFORM "Android"
+
+    #include <chrono>
+    #include <jni.h>
+    #include <android_native_app_glue.h>
+
+    #define fxAPIGetMouseEventX(E)                  (AMotionEvent_getX((AInputEvent*)E, 0) * engine->device->pixelRatio)
+    #define fxAPIGetMouseEventY(E)                  (AMotionEvent_getY((AInputEvent*)E, 0) * engine->device->pixelRatio)
+    #define fxAPIGetTouchEventX(E, I)               (AMotionEvent_getX((AInputEvent*)E, I) * engine->device->pixelRatio)
+    #define fxAPIGetTouchEventY(E, I)               (AMotionEvent_getY((AInputEvent*)E, I) * engine->device->pixelRatio)
+    #define fxAPIGetChangedTouchEventX(E, I)        (AMotionEvent_getX((AInputEvent*)E, I) * engine->device->pixelRatio)
+    #define fxAPIGetChangedTouchEventY(E, I)        (AMotionEvent_getY((AInputEvent*)E, I) * engine->device->pixelRatio)
+    #define fxAPIGetTouchesLength(E)                AMotionEvent_getPointerCount((AInputEvent*)E)
+    #define fxAPIGetChangedTouchesLength(E)         AMotionEvent_getPointerCount((AInputEvent*)E)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+#elif WIN32_APPLICATION
+
+    #include <windows.h>
+    #include <windowsx.h>
+
+    #undef near
+    #undef far
+
+    #define fxAPIGetMouseEventX(E)                  GET_X_LPARAM(((MSG*)E)->lParam)
+    #define fxAPIGetMouseEventY(E)                  GET_Y_LPARAM(((MSG*)E)->lParam)
+    #define fxAPIGetTouchEventX(E, I)               GET_X_LPARAM(((MSG*)E)->lParam)
+    #define fxAPIGetTouchEventY(E, I)               GET_Y_LPARAM(((MSG*)E)->lParam)
+    #define fxAPIGetChangedTouchEventX(E, I)        GET_X_LPARAM(((MSG*)E)->lParam)
+    #define fxAPIGetChangedTouchEventY(E, I)        GET_Y_LPARAM(((MSG*)E)->lParam)
+    #define fxAPIGetTouchesLength(E)                1
+    #define fxAPIGetChangedTouchesLength(E)         1
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+#else
+
+    #define PLATFORM "General"
+
+    #define fxAPIGetKey(E)                          (*(const uint32_t*)(E))
+    #define fxAPIGetMouseEventX(E)                  (((QMouseEvent*)(E))->x())
+    #define fxAPIGetMouseEventY(E)                  (((QMouseEvent*)(E))->y())
+    #define fxAPIGetTouchEventX(E, I)               (((QMouseEvent*)(E))->x())
+    #define fxAPIGetTouchEventY(E, I)               (((QMouseEvent*)(E))->y())
+    #define fxAPIGetChangedTouchEventX(E, I)        (((QMouseEvent*)(E))->x())
+    #define fxAPIGetChangedTouchEventY(E, I)        (((QMouseEvent*)(E))->y())
+    #define fxAPIGetTouchesLength(E)                (((QEvent*)(E))->type() == QEvent::MouseButtonRelease ? 0 : 1)
+    #define fxAPIGetChangedTouchesLength(E)         1
+
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PNG Support
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <png.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// JPEG Support
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#undef FALSE
+#undef TRUE
+
+#include <jpeglib.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// OGG Vorbis Tremolo Support
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define AUDIO_SAMPLE_SIZE 2
+#define AUDIO_FORMAT_MONO AL_FORMAT_MONO16
+#define AUDIO_FORMAT_STEREO AL_FORMAT_STEREO16
+#include <tremor/ivorbisfile.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// OpenAL Support
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef IOS_APPLICATION
+    #include <OpenAL/al.h>
+    #include <OpenAL/alc.h>
+#else
+    #include <AL/al.h>
+    #include <AL/alc.h>
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Freetype Support
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// cURL Support
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <curl/curl.h>
+
+#ifndef CURL_STATICLIB
+    #define CURL_STATICLIB
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// OpenGL Support
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef ANDROID_APPLICATION
+    #include <EGL/egl.h>
+    #include <GLES2/gl2.h>
+
+#elif IOS_APPLICATION
+    #include <OpenGLES/ES2/gl.h>
+
+#elif WIN32_APPLICATION
+    #include <GL/glew.h>
+    #include <GL/gl.h>
+
+#else
+    #include <QtOpenGL/QtOpenGL>
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Common Includes
+////////////////////////////////////////////////////////////////////////////////////////////////////
+#include "Structs.h"
+
+
+//////////////////////////////////////////////////////////////////////////////////
+// UTF8 Support for MinGW Compiler
+//////////////////////////////////////////////////////////////////////////////////
+
+#include "UTF8/UTF8.hpp"
+
+//////////////////////////////////////////////////////////////////////////////////
+// MD5 Support
+//////////////////////////////////////////////////////////////////////////////////
+
+#include "MD5/MD5.h"
 
 // ==================================================================================================================================
 //	    ___
@@ -116,25 +349,56 @@ class CocoAssetFile;
 //	/_/  |_/_/  /_/   \__,_/\__, /
 //	                       /____/
 // ==================================================================================================================================
-template<class T> class Array : public std::vector<T>
+template<class T>
+class Array : public std::vector<T>
 {
 public:
+
 	std::string __className;
+
+	bool owner;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	template<typename U = T, typename std::enable_if<std::is_pointer<U>::value, int>::type = 0>
+	void __destroy__()
+	{
+        typename std::vector<T>::iterator it = this->begin();
+    	for(; it != this->end();)
+		{
+            delete *it;
+            it = this->erase(it);
+		}
+        this->clear();
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	template<typename U = T, typename std::enable_if<!std::is_pointer<U>::value, int>::type = 0>
+	void __destroy__()
+	{
+        typename std::vector<T>::iterator it = this->begin();
+    	for(; it != this->end();)
+		{
+	    	it = this->erase(it);
+		}
+        this->clear();
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	virtual ~Array()
+	{
+        if(owner)
+            __destroy__();
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	Array() : std::vector<T>()
 	{
 		__className = "Array";
+		owner = false;
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////
-	size_t size()
-	{
-		return std::vector<T>::size();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	Array(size_t size, ...) : std::vector<T>(size)
+    //////////////////////////////////////////////////////////////////////////////////
+	Array(const size_t size, ...) : std::vector<T>(size)
 	{
 		// This fails with Enums even in C++11.
 		va_list vl;
@@ -153,11 +417,10 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	Array<T>* push(const T& v)
+    const int32_t size() const
 	{
-		std::vector<T>::push_back(v);
-		return this;
-	};
+		return (const int32_t) std::vector<T>::size();
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	T pop()
@@ -168,19 +431,26 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	Array<T>* slice(int first)
+	Array<T>* push(const T& v)
+	{
+		std::vector<T>::push_back(v);
+		return this;
+	};
+
+	//////////////////////////////////////////////////////////////////////////////////
+	Array<T>* slice(const int32_t first)
 	{
 		return new Array<T>(std::vector<T>(std::vector<T>::begin() + first, std::vector<T>::end()));
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	Array<T>* slice(int first, int last)
+	Array<T>* slice(const size_t first, const size_t last) const
 	{
 		return new Array<T>(std::vector<T>(std::vector<T>::begin() + first, (last > 0 ? std::vector<T>::begin() : std::vector<T>::end()) + last));
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	Array<T>* concat(Array<T>* arr)
+	Array<T>* concat(const Array<T>* arr) const
 	{
 		Array<T>* n = new Array<T>(std::vector<T>(std::vector<T>::begin(), std::vector<T>::end()));
 		n->insert(n->end(), arr->begin(), arr->end());
@@ -188,22 +458,24 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	std::string join(std::string str)
+	std::string join(const std::string& str) const
 	{
 		std::stringstream ss;
-		for(size_t i = 0; i < size(); i++)
+        for(size_t i = 0, L = (size_t) size(); i<L; i++)
 		{
-			ss<<this->at(i);
-			if(i + 1 != size())
-				ss<<str;
+			ss << this->at(i);
+            if(i + 1 != L)
+				ss << str;
 		}
 		return ss.str();
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	void splice(int index, int count)
+	void splice(const int32_t index, const int32_t count)
 	{
-		std::vector<T>::erase(std::vector<T>::begin() + index, std::vector<T>::begin() + index + count);
+        auto from = std::vector<T>::begin() + index;
+        auto to = std::vector<T>::begin() + index + count;
+		std::vector<T>::erase(from, to);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -220,192 +492,459 @@ public:
 		return this;
 	}
 
+    //////////////////////////////////////////////////////////////////////////////////
+    T& operator [](int32_t index)
+    {
+        assert(index>=0 && index<size());
+        return this->at( (size_t) index);
+    }
+
 	//////////////////////////////////////////////////////////////////////////////////
-	int indexOf(T v)
+	const int32_t indexOf(T& v) const
 	{
-		for(int i = 0; i < (int)size(); i++)
+        for(size_t i = 0, L = (size_t) size(); i<L; i++)
 			if(this->at(i)==v)
-				return i;
-		return -1;
+				return (int32_t) i;
+
+        return -1;
 	}
 };
 
 // ==================================================================================================================================
-//	   _____ __       _
-//	  / ___// /______(_)___  ____ _
-//	  \__ \/ __/ ___/ / __ \/ __ `/
-//	 ___/ / /_/ /  / / / / / /_/ /
-//	/____/\__/_/  /_/_/ /_/\__, /
+//	   _____ __       _                ________
+//	  / ___// /______(_)___  ____ _   / ____/ /___ ___________
+//	  \__ \/ __/ ___/ / __ \/ __ `/  / /   / / __ `/ ___/ ___/
+//	 ___/ / /_/ /  / / / / / /_/ /  / /___/ / /_/ (__  |__  )
+//	/____/\__/_/  /_/_/ /_/\__, /   \____/_/\__,_/____/____/
 //	                      /____/
 // ==================================================================================================================================
 
-class String : public std::string
+#define STD_STRING std::string
+
+////////////////////////////////////////////////////////////////////
+class String : public STD_STRING
 {
+
+private:
+
+    //////////////////////////////////////////////////////////////////////////////////
+    inline bool __naive_char(const char *a, const char *b)
+    {
+        while (*a || *b)
+        {
+            if (*a != *b)
+            {
+                return false;
+            }
+            ++a;
+            ++b;
+        }
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    inline bool __naive_string(const STD_STRING& a, const STD_STRING& b)
+    {
+        if (a.length() == b.length())
+        {
+            return __naive_char(a.c_str(), b.c_str());
+        }
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    STD_STRING	__ucase(STD_STRING& s)
+    {
+        if (s.size() == 0) return "";
+        for (unsigned int i = 0, L = (unsigned int) s.length(); i < L; i++)
+        {
+            s[i] = (char) toupper(s[i]);
+        }
+        return s;
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    STD_STRING __lcase(STD_STRING& s)
+    {
+        if (s.size() == 0) return "";
+        for (unsigned int i = 0, L = (unsigned int) s.length(); i < L; i++)
+        {
+            s[i] = (char) tolower(s[i]);
+        }
+        return s;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////
+    STD_STRING __replace(STD_STRING& s, const STD_STRING& from, const STD_STRING& to)
+    {
+        if (s.size() == 0) return "";
+        size_t start_pos = 0;
+        while ((start_pos = s.find(from, start_pos)) != STD_STRING::npos)
+        {
+            s.replace(start_pos, from.length(), to);
+            start_pos += to.length();
+        }
+        return s;
+    }
+
 public:
 
-	//////////////////////////////////////////////////////////////////////////////////
-	operator bool() const
+    //////////////////////////////////////////////////////////////////////////////////
+    String() = default;
+
+    //////////////////////////////////////////////////////////////////////////////////
+    String(const char* str) : STD_STRING(str)
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+	String(const std::wstring& w)
 	{
-		return !empty();
+		std::string utf8 = wstring_to_utf8(w);
+		*this = STD_STRING(utf8);
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String& operator =(const char* c_str)
+    //////////////////////////////////////////////////////////////////////////////////
+	String(const wchar_t* wb)
 	{
-		std::string::operator=(c_str);
-		return *this;
+		std::wstring w(wb);
+		std::string utf8 = wstring_to_utf8(w);
+		*this = STD_STRING(utf8);
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String& operator =(String str)
-	{
-		std::string::operator=(str);
-		return *this;
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    String(const char* str, const std::initializer_list<String> list) : STD_STRING(str)
+    {
+        for (uint32_t i = 0, L = (uint32_t) list.size(); i < L; i+=2)
+        {
+            __replace(*this, *(list.begin() + i), *(list.begin() + i + 1));
+        }
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String& operator =(std::string str)
-	{
-		std::string::operator=(str);
-		return *this;
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    String(const STD_STRING & str) : STD_STRING(str)
+    {
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String() = default;
+    //////////////////////////////////////////////////////////////////////////////////
+    String(const String::const_iterator begin, const String::const_iterator end)
+    {
+        *this = STD_STRING(begin, end);
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String(const char* str) : std::string(str)
-	{
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    #ifdef V8_ENABLED
+    String(const v8::Local<v8::Value>& arg)
+    {
+        if (arg->IsString())
+        {
+            /*
+             v8::Local<v8::String> string = arg->ToString();
+             const int length = string->Utf8Length() + 1;
+             uint8_t* buffer = (uint8_t*) malloc(length*sizeof(uint8_t));
+             string->WriteOneByte(buffer, 0, length);
+             *this = STD_STRING((const char*)buffer, length);
+             free(buffer);
+             */
+            *this = STD_STRING(*(v8::String::Utf8Value(arg->ToString())));
+        }
+        else if (arg->IsArrayBufferView())
+        {
+            v8::Local<v8::ArrayBufferView> ab = v8::Local<v8::ArrayBufferView>::Cast(arg);
+            uint32_t length = ab->ByteLength();
+            void* buffer = malloc(length*sizeof(char));
+            ab->CopyContents(buffer, length);
+            *this = STD_STRING((const char*)buffer, length);
+            free(buffer);
+        }
+        else
+        {
+            *this = STD_STRING(*(v8::String::Utf8Value(arg->ToString())));
+        }
+    }
+    #endif
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String(const std::string& str) : std::string(str)
-	{
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    String(const int32_t arg)
+    {
+        char buff[100];
+        sprintf(buff, "%d", arg);
+        *this = String(buff);
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String slice(size_t start, size_t end = std::string::npos)
-	{
-		if(end==0) end = this->size();
-		size_t length = end - start;
-		return std::string::substr(start, length);
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    String(const uint32_t arg)
+    {
+        char buff[100];
+        sprintf(buff, "%d", arg);
+        *this = String(buff);
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String substr(size_t start, size_t length = std::string::npos)
-	{
-		return std::string::substr(start, length);
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    String(const float arg)
+    {
+        char buff[100];
+        sprintf(buff, "%g", arg);
+        *this = String(buff);
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String substring(size_t start, size_t end = 0)
-	{
-		return std::string::substr(start, end - start);
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    const int32_t size() const
+    {
+        return (int32_t) STD_STRING::size();
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	size_t indexOf(const String& str, size_t pos = 0)
-	{
-		return find(str, pos);
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    String slice(const int32_t start, int32_t end = -1)
+    {
+        if (end == -1)
+            end = this->size();
 
-	//////////////////////////////////////////////////////////////////////////////////
-	unsigned char charCodeAt(size_t index)
-	{
-		return std::string::at(index);
-	}
+        assert(end - start < 0);
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String charAt(size_t index)
-	{
-		return std::string::substr(index, 1);
-	}
+        int32_t length = end - start;
 
-	//////////////////////////////////////////////////////////////////////////////////
-	static String fromCharCode(int c)
-	{
-		if(c<128) return std::string(1,c);
+        return String(substr(start, length));
+    }
 
-		// Depending on the compiler and C runtime, wcstombs() might fail.
+    //////////////////////////////////////////////////////////////////////////////////
+    String substr(const int32_t start, const int32_t length = -1) const
+    {
+        STD_STRING ss(STD_STRING::substr( (size_t) start, length==-1 ? std::string::npos : (size_t) length));
+        return String(ss);
+    }
 
-	    const wchar_t wstr = (wchar_t) c;
-	    char mbstr[3] = {0,0,0};
+    //////////////////////////////////////////////////////////////////////////////////
+    String substring(const int32_t start, int32_t end = -1) const
+    {
+        if (end == -1) end = size();
+        return String(substr(start, end - start));
+    }
 
-	    #ifdef __UTF8_HPP__
-	    	int ret = UTF8::wcstombs(mbstr, &wstr, 2);
-	    #else
-		    std::setlocale(LC_ALL, "en_US.utf-8");
-	    	int ret = std::wcstombs(mbstr, &wstr, 2);
-	    #endif
+    //////////////////////////////////////////////////////////////////////////////////
+    const int32_t indexOf(const String& str, const size_t pos = 0) const
+    {
+        std::size_t found = find(str, pos);
+        return found==std::string::npos ? -1 : (int32_t) found;
+    }
 
-		if(ret==-1) return std::string(1,'?');
-	    return std::string(mbstr);
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    const uint16_t charCodeAt(const int32_t index) const
+    {
+    	uint16_t c = 0;
+		#ifdef ENABLE_BOOST
+		#else
+			std::string s = *this;
+			std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+			std::wstring w = converter.from_bytes(s);
+			c = w.at(index);
+		#endif
+		return c;
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	String toLowerCase()
-	{
-		return std::string::substr(0, length());
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    static String fromCharCode(const int32_t c)
+    {
+        if (c < (uint16_t) 128)
+            return String(STD_STRING(1, (char) c));
 
-	//////////////////////////////////////////////////////////////////////////////////
-	Array<String>* split(const String& str, size_t max = -1)
-	{
-		Array<String>* ret = new Array<String>();
-		size_t pos = 0, next = 0;
-		while(ret->size() < max && next != std::string::npos)
-		{
-			next = find(str, pos);
-			ret->push(substring(pos, next));
-			pos = next + str.size();
-		}
-		return ret;
-	}
-};
+        // Depending on the compiler and C runtime, wcstombs() might fail.
 
-// ==================================================================================================================================
-//	    ____             ______
-//	   / __ \___  ____ _/ ____/  ______
-//	  / /_/ / _ \/ __ `/ __/ | |/_/ __ \
-//	 / _, _/  __/ /_/ / /____>  </ /_/ /
-//	/_/ |_|\___/\__, /_____/_/|_/ .___/
-//	           /____/          /_/
-// ==================================================================================================================================
-class RegExp
-{
-public:
-	bool global;
-	bool ignoreCase;
-	bool multiline;
-	int lastIndex;
-	String source;
+        const wchar_t wstr = (wchar_t)c;
+        char mbstr[3] = { 0, 0, 0 };
 
-	//////////////////////////////////////////////////////////////////////////////////
-	RegExp(String pattern, String flags="")
-	{
-	}
+        #ifdef __UTF8_HPP__
+            int ret = (int) UTF8::wcstombs(mbstr, &wstr, 2);
+        #else
+            std::setlocale(LC_ALL, "en_US.utf-8");
+            int ret = std::wcstombs(mbstr, &wstr, 2);
+        #endif
 
-	//////////////////////////////////////////////////////////////////////////////////
-	~RegExp()
-	{
-	}
+        if (ret == -1) return String(STD_STRING(1, '?'));
+        return String(mbstr);
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	void compile(String pattern, String flags="")
-	{
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    Array<String>* split(const String& separator, int32_t max = -1)
+    {
+        Array<String>* ret = new Array<String>();
+        int32_t pos = 0, end, sz = separator.size();
+        size_t next = 0;
+        while((max==-1 || (max > 0 && ret->size() < max)) && next != STD_STRING::npos)
+        {
+            next = find(separator, (size_t) pos);
+            end = next==STD_STRING::npos ? -1 : (int32_t) next;
+            ret->push(substring(pos, end));
+            pos = (int32_t) next + sz;
+        }
+        return ret;
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
- 	Array<String>* exec(String buff)
- 	{
- 		return nullptr;
- 	}
+    //////////////////////////////////////////////////////////////////////////////////
+    String charAt(const int32_t index) const
+    {
+        return (*this).substr(index, 1);
+    }
 
-	//////////////////////////////////////////////////////////////////////////////////
-	bool test(String buff)
-	{
-		return false;
-	}
+    //////////////////////////////////////////////////////////////////////////////////
+    void trimLeft()
+    {
+    	#ifdef ENABLE_BOOST
+        	*this = boost::regex_replace(*this, boost::regex("^\\s+"), STD_STRING(""));
+        #else
+        	*this = std::regex_replace(*this, std::regex("^\\s+"), STD_STRING(""));
+        #endif
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    void trimRight()
+    {
+        int32_t i = size() - 1;
+        for(; i>=0; i--)
+        {
+            switch (charCodeAt(i))
+            {
+                case 10:
+                case 13:
+                case 32:
+                case 9:
+                    break;
+
+                default:
+                    i++;
+                    goto exit_for;
+            }
+        }
+    exit_for:
+
+        if (i >= 0)
+            *this = substr(0, i);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    void trim()
+    {
+        trimLeft();
+        trimRight();
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    void makeLower()
+    {
+        *this = __lcase(*this);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    void makeUpper()
+    {
+        *this = __ucase(*this);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    String toLowerCase()
+    {
+        return __lcase(*this);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    String toLocaleLowerCase()
+    {
+        return __lcase(*this);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    String toUpperCase()
+    {
+        return __ucase(*this);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    String toLocaleUpperCase()
+    {
+        return __ucase(*this);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    String replace(const String& find, const String& replace)
+    {
+        *this = __replace(*this, find, replace);
+        return *this;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    bool contains(const String& substr) const
+    {
+        return (this->find(substr)) != String::npos;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Comparison Operators
+    bool operator==(const String & rhs)
+    {
+        return __naive_string(*this, rhs);
+    }
+
+    bool operator==(const STD_STRING & rhs)
+    {
+        return __naive_string(*this, rhs);
+    }
+
+    bool operator==(const char* rhs)
+    {
+        return __naive_char(this->c_str(), rhs);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Type Cast Operators
+
+    operator bool() const
+    {
+        return !empty();
+    }
+
+    operator int32_t() const
+    {
+        return (int32_t) atoi(this->c_str());
+    }
+
+    operator uint32_t() const
+    {
+        return (uint32_t)atoi(this->c_str());
+    }
+
+    operator float() const
+    {
+        return (float)atof(this->c_str());
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Array Index operator
+
+    String operator [](int32_t index)
+    {
+        return charAt(index);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Assignment Operators
+
+    String& operator =(const char* c_str)
+    {
+        STD_STRING::operator=(c_str);
+        return *this;
+    }
+
+    String& operator =(const String str)
+    {
+        STD_STRING::operator=(str);
+        return *this;
+    }
+
+    String& operator =(const STD_STRING str)
+    {
+        STD_STRING::operator=(str);
+        return *this;
+    }
 };
 
 // ==================================================================================================================================
@@ -417,38 +956,56 @@ public:
 //	                       /____/
 // ==================================================================================================================================
 
+class CocoAssetFile;
+
 class ArrayBuffer
 {
 public:
-	void* data;
-	unsigned long byteLength;
 
-	//////////////////////////////////////////////////////////////////////////////////
-	ArrayBuffer(unsigned long length)
+    void* data;
+    int32_t byteLength;
+
+
+    //////////////////////////////////////////////////////////////////////////////////
+    ArrayBuffer(const int32_t length)
 	{
-		data = malloc(length);
-		byteLength = length;
+        byteLength = length;
+        data = malloc( (size_t) byteLength );
+
+        if(byteLength)
+            memset(data, 0, (size_t) byteLength);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	~ArrayBuffer()
 	{
-		free(data);
+        if(data)
+        {
+            free(data);
+            data = nullptr;
+        }
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	void* operator[](unsigned long i)
+	void* operator[](const int32_t i) const
 	{
-		if(i>=byteLength) return reinterpret_cast<void*>(0);
-		return reinterpret_cast<void*>(reinterpret_cast<char*>(data) + i);
+		if(i>=byteLength)
+        {
+            std::cout << "array index out of bounds\n";
+            return nullptr;
+        }
+
+		return reinterpret_cast<void*>(reinterpret_cast<uint8_t*>(data) + i);
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////
-	static ArrayBuffer* NewFromImage(std::string str, uint32_t& width, uint32_t& height);
-	static ArrayBuffer* NewFromImage_PNG(CocoAssetFile* file, uint32_t& width, uint32_t& height);
-	static ArrayBuffer* NewFromImage_JPG(CocoAssetFile* file, uint32_t& width, uint32_t& height);
-	String encodeAsBase64();
-	ArrayBuffer* encodeAsPNG(size_t width, size_t height);
+    //////////////////////////////////////////////////////////////////////////////////
+    String encodeAsBase64();
+    ArrayBuffer* encodeAsPNG(const int32_t width, const int32_t height);
+
+    //////////////////////////////////////////////////////////////////////////////////
+    static ArrayBuffer* NewFromImage(const String str, int32_t& width, int32_t& height);
+	static ArrayBuffer* NewFromImage_PNG(CocoAssetFile* file, int32_t& width, int32_t& height);
+	static ArrayBuffer* NewFromImage_JPG(CocoAssetFile* file, int32_t& width, int32_t& height);
 };
 
 // ==================================================================================================================================
@@ -463,19 +1020,20 @@ class ArrayBufferView
 {
 public:
 	ArrayBuffer* buffer;
-	unsigned long byteOffset;
-	unsigned long byteLength;
+	int32_t byteOffset;
+	int32_t byteLength;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	void clear()
 	{
-		memset((*buffer)[byteOffset], 0, byteLength);
+        if(byteLength)
+            memset((*buffer)[byteOffset], 0, (size_t) byteLength);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	void* get()
 	{
-		return reinterpret_cast<void*>(reinterpret_cast<char*>(buffer->data) + byteOffset);
+		return reinterpret_cast<void*>(reinterpret_cast<uint8_t*>(buffer->data) + byteOffset);
 	}
 };
 
@@ -487,68 +1045,102 @@ public:
 //	/_/  \__, / .___/\___/\__,_/_/  |_/_/  /_/   \__,_/\__, /
 //	    /____/_/                                      /____/
 // ==================================================================================================================================
-template<typename T> class TypedArray : public ArrayBufferView
+template<typename T>
+class TypedArray : public ArrayBufferView
 {
 public:
-	unsigned long BYTES_PER_ELEMENT;
-	unsigned long length;
+	int32_t BYTES_PER_ELEMENT;
+	int32_t length;
 	bool owner;
 
-	//////////////////////////////////////////////////////////////////////////////////
-	TypedArray(size_t size)
+    TypedArray(const int32_t size)
 	{
-		int cb = BYTES_PER_ELEMENT = sizeof(T);
 		owner = true;
-		length = size;
-		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
-		byteOffset = 0;
-		byteLength = buffer->byteLength;
-		memset(buffer->data, 0, buffer->byteLength);
+
+        BYTES_PER_ELEMENT = sizeof(T);
+        length = size;
+        byteOffset = 0;
+        byteLength = length * BYTES_PER_ELEMENT;
+
+		buffer = new ArrayBuffer(byteLength);
+        assert(byteLength==buffer->byteLength);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	TypedArray(ArrayBuffer* i_buffer, size_t i_byteOffset = 0, size_t i_length = -1)
+	TypedArray(ArrayBuffer* i_buffer, const int32_t i_byteOffset = 0, const int32_t i_elements = -1)
 	{
-		BYTES_PER_ELEMENT = sizeof(T);
-		owner = false;
+        assert(i_buffer!=nullptr);
+
+        owner = false;
 		buffer = i_buffer;
-		byteOffset = i_byteOffset;
-		size_t t = (i_buffer->byteLength - i_byteOffset) / sizeof(T);
-		length = t < i_length ? t : i_length;
-		byteLength = length * sizeof(T);
+
+        BYTES_PER_ELEMENT = sizeof(T);
+
+        int32_t _length = (i_buffer->byteLength - i_byteOffset) / BYTES_PER_ELEMENT;
+        length = i_elements != -1 ? i_elements : _length;
+        assert(length!=-1);
+
+        byteOffset = i_byteOffset;
+        byteLength = length * BYTES_PER_ELEMENT;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	TypedArray(Array<T>* val, bool preserve = false)
+	TypedArray(Array<T>* v, bool preserve = false)
 	{
-		BYTES_PER_ELEMENT = sizeof(T);
-		owner = true;
-		length = val->size();
-		buffer = new ArrayBuffer(length * BYTES_PER_ELEMENT);
-		byteOffset = 0;
-		byteLength = buffer->byteLength;
-		memcpy(buffer->data, val->data(), buffer->byteLength);
-		if(!preserve) delete val;
+		assert(v!=nullptr);
+
+        owner = true;
+
+        BYTES_PER_ELEMENT = sizeof(T);
+		length = v->size();
+        byteOffset = 0;
+        byteLength = length * BYTES_PER_ELEMENT;
+
+		buffer = new ArrayBuffer(byteLength);
+        assert(byteLength==buffer->byteLength);
+
+        void* vector_data = v->data();
+		memcpy(buffer->data, vector_data, (size_t) byteLength);
+		if(!preserve) delete v;
 	}
 
+    //////////////////////////////////////////////////////////////////////////////////
+    virtual ~TypedArray()
+    {
+        if(owner)
+            delete buffer;
+    }
+
 	//////////////////////////////////////////////////////////////////////////////////
-	void set(TypedArray<T>* val, unsigned long offset = 0)
+	void set(TypedArray<T>* v, const int32_t offset = 0)
 	{
-		if(val->length + offset > this->length) return;
-		memcpy((*this->buffer)[this->byteOffset + offset * BYTES_PER_ELEMENT], (*val->buffer)[val->byteOffset], val->length * BYTES_PER_ELEMENT);
+		if(v->length + offset >= this->length)
+        {
+            std::cout << "array index out of bounds\n";
+            return;
+        }
+
+        int32_t addr = (this->byteOffset + offset) * BYTES_PER_ELEMENT;
+        void* dst = (*this->buffer)[addr];
+
+        const void* src = (*v->buffer)[v->byteOffset];
+        int32_t cbSize = v->length * BYTES_PER_ELEMENT;
+
+        memcpy(dst, src, (size_t)cbSize);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	~TypedArray() { if(owner) delete buffer; }
+	T* get()
+    {
+        return reinterpret_cast<T*>(ArrayBufferView::get());
+    }
 
 	//////////////////////////////////////////////////////////////////////////////////
-	T* get() { return reinterpret_cast<T*>(ArrayBufferView::get()); }
-
-	//////////////////////////////////////////////////////////////////////////////////
-	T& operator [](unsigned long index)
-	{
-		return get()[index];
-	}
+    T& operator [](const int32_t index)
+    {
+        assert(index>=0 && index<(int32_t)length);
+        return get()[index];
+    }
 };
 
 // ==================================================================================================================================
@@ -560,21 +1152,20 @@ public:
 //	    /____/_/                                      /____/
 // ==================================================================================================================================
 
-typedef TypedArray<unsigned char> Uint8Array;
-typedef TypedArray<unsigned short> Uint16Array;
-typedef TypedArray<unsigned int> Uint32Array;
-typedef TypedArray<unsigned int> Uint64Array;
+typedef TypedArray<uint8_t> Uint8Array;
+typedef TypedArray<uint16_t> Uint16Array;
+typedef TypedArray<uint32_t> Uint32Array;
+typedef TypedArray<uint64_t> Uint64Array;
 
-typedef TypedArray<char> Int8Array;
-typedef TypedArray<short> Int16Array;
-typedef TypedArray<int> Int32Array;
-typedef TypedArray<int> Int64Array;
+typedef TypedArray<int8_t> Int8Array;
+typedef TypedArray<int16_t> Int16Array;
+typedef TypedArray<int32_t> Int32Array;
+typedef TypedArray<int64_t> Int64Array;
 
 typedef TypedArray<float> Float32Array;
 typedef TypedArray<double> Float64Array;
 
-typedef TypedArray<unsigned char> Uint8ClampedArray;
-
+typedef TypedArray<uint8_t> Uint8ClampedArray;
 
 // ==================================================================================================================================
 //	    ____        __       _    ___
@@ -589,58 +1180,228 @@ class DataView : ArrayBufferView
 public:
 
 	//////////////////////////////////////////////////////////////////////////////////
-	DataView(ArrayBuffer* i_buffer, unsigned long i_byteOffset = 0, unsigned long i_byteLength = -1)
+	DataView(ArrayBuffer* i_buffer, int32_t i_byteOffset = 0, int32_t i_byteLength = -1)
 	{
 		buffer = i_buffer;
 		byteOffset = i_byteOffset;
-		byteLength = std::min(i_byteLength, buffer->byteLength);
+        byteLength = i_byteLength!=-1 ? i_byteLength : buffer->byteLength;
+        assert(byteLength!=-1);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	template<class T> T* get(unsigned long offset) { return reinterpret_cast<T*>(reinterpret_cast<unsigned char*>(ArrayBufferView::get()) + offset); }
+	template<class T>
+    T* get(int32_t offset)
+    {
+        return reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(ArrayBufferView::get()) + offset);
+    }
 
 	//////////////////////////////////////////////////////////////////////////////////
-	template<class T> T flip(T val, bool littleEndian)
+	template<class T>
+    T flip(T val, bool littleEndian)
 	{
 		#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-			if(littleEndian) return val;
-		#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+            if(littleEndian) return val;
+        #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 			if(!littleEndian) return val;
 		#else
 			#error "Platform not supported!"
 		#endif
-		unsigned char t;
-		unsigned char* v = reinterpret_cast<unsigned char*>(&val);
-		for(uint8_t i = 0; i < sizeof(T) / 2; i++)
+
+        size_t sz = sizeof(T);
+        size_t sz_over_2 = sz / 2;
+		uint8_t t;
+		uint8_t* v = reinterpret_cast<uint8_t*>(&val);
+		for(size_t i = 0; i < sz_over_2; i++)
 		{
 			t = *(v + i);
-			*(v + i) = *(v + sizeof(T) - 1 - i);
-			*(v + sizeof(T) - 1 - i) = t;
+			*(v + i) = *(v + sz - 1 - i);
+			*(v + sz - 1 - i) = t;
 		}
 		return val;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	char getInt8(unsigned long offset) { return *get<char>(offset); }
-	unsigned char getUint8(unsigned long offset) { return *get<unsigned char>(offset); }
-	short getInt16(unsigned long offset, bool littleEndian = false) { return flip(*get<short>(offset), littleEndian); }
-	unsigned short getUint16(unsigned long offset, bool littleEndian = false) { return flip(*get<short>(offset), littleEndian); }
-	long getInt32(unsigned long offset, bool littleEndian = false) { return flip(*get<long>(offset), littleEndian); }
-	unsigned long getUint32(unsigned long offset, bool littleEndian = false) { return flip(*get<unsigned long>(offset), littleEndian); }
-	float getFloat32(unsigned long offset, bool littleEndian = false) { return flip(*get<float>(offset), littleEndian); }
-	double getFloat64(unsigned long offset, bool littleEndian = false) { return flip(*get<double>(offset), littleEndian); }
+
+	int32_t 	getUint8(int32_t offset) 								{ return (int32_t) *get<uint8_t>(offset); }
+	int32_t 	getUint16(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<uint16_t>(offset), littleEndian); }
+	int32_t     getUint32(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<uint32_t>(offset), littleEndian); }
+
+	int32_t 	getInt8(int32_t offset) 									{ return (int32_t) *get<int8_t>(offset); }
+	int32_t 	getInt16(int32_t offset, bool littleEndian = false) 		{ return (int32_t) flip(*get<int16_t>(offset), littleEndian); }
+	int32_t 	getInt32(int32_t offset, bool littleEndian = false) 		{ return (int32_t) flip(*get<int32_t>(offset), littleEndian); }
+
+	float 		getFloat32(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<float>(offset), littleEndian); }
+	float		getFloat64(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<double>(offset), littleEndian); }
 
 	//////////////////////////////////////////////////////////////////////////////////
-	void setInt8(unsigned long offset, char val) { *get<char>(offset) = val; }
-	void setUint8(unsigned long offset, unsigned char val) { *get<unsigned char>(offset) = val; }
-	void setInt16(unsigned long offset, short val, bool littleEndian = false) { *get<short>(offset) = flip(val, littleEndian); }
-	void setUint16(unsigned long offset, unsigned short val, bool littleEndian = false) { *get<unsigned short>(offset) = flip(val, littleEndian); }
-	void setInt32(unsigned long offset, long val, bool littleEndian = false) { *get<long>(offset) = flip(val, littleEndian); }
-	void setUint32(unsigned long offset, unsigned long val, bool littleEndian = false) { *get<unsigned long>(offset) = flip(val, littleEndian); }
-	void setFloat32(unsigned long offset, float val, bool littleEndian = false) { *get<float>(offset) = flip(val, littleEndian); }
-	void setFloat64(unsigned long offset, double val, bool littleEndian = false) { *get<double>(offset) = flip(val, littleEndian); }
+
+	void setUint8	(int32_t offset, int32_t val) 								{ *get<uint8_t>(offset) = (uint8_t)val; }
+	void setUint16	(int32_t offset, int32_t val, bool littleEndian = false) 	{ *get<uint16_t>(offset) = flip((uint16_t)val, littleEndian); }
+	void setUint32	(int32_t offset, int32_t val, bool littleEndian = false) 	{ *get<uint32_t>(offset) = flip((uint32_t)val, littleEndian); }
+
+	void setInt8	(int32_t offset, int32_t val) 								{ *get<int8_t>(offset) = (int8_t)val; }
+	void setInt16	(int32_t offset, int32_t val, bool littleEndian = false)		{ *get<int16_t>(offset) = flip((int16_t)val, littleEndian); }
+	void setInt32	(int32_t offset, int32_t val, bool littleEndian = false) 	{ *get<int32_t>(offset) = flip((int32_t)val, littleEndian); }
+
+	void setFloat32	(int32_t offset, float val, bool littleEndian = false) 		{ *get<float>(offset) = flip(val, littleEndian); }
+	void setFloat64	(int32_t offset, float val, bool littleEndian = false) 		{ *get<double>(offset) = flip((double)val, littleEndian); }
 
 };
+
+// ==================================================================================================================================
+//	    ____             ______
+//	   / __ \___  ____ _/ ____/  ______
+//	  / /_/ / _ \/ __ `/ __/ | |/_/ __ \
+//	 / _, _/  __/ /_/ / /____>  </ /_/ /
+//	/_/ |_|\___/\__, /_____/_/|_/ .___/
+//	           /____/          /_/
+// ==================================================================================================================================
+
+#ifdef ENABLE_BOOST
+
+class RegExp
+{
+public:
+    bool global;
+	bool ignoreCase;
+	bool multiline;
+	int lastIndex;
+	String source;
+    String pattern;
+	boost::regex rx;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	RegExp(String pattern, String flags="")
+	{
+		compile(pattern, flags);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	virtual ~RegExp()
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	void compile(String pattern, String flags="")
+	{
+        if(flags.find("i")!=std::string::npos) ignoreCase = true;
+        if(flags.find("m")!=std::string::npos) multiline = true;
+        if(flags.find("g")!=std::string::npos) global = true;
+
+        this->pattern = pattern;
+
+        uint32_t iflags = boost::regex_constants::ECMAScript;
+        if(ignoreCase) iflags |= boost::regex_constants::icase;
+
+        rx.assign(pattern, iflags);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+ 	Array<String>* exec(String& buff)
+ 	{
+        Array<String> *out = new Array<String>;
+
+        auto flags = boost::regex_constants::match_not_null;
+
+        if(!multiline)  flags |= boost::regex_constants::match_single_line; /* treat text as single line and ignor any \n's when matching ^ and $. */
+        if(!global)     flags |= boost::regex_constants::match_continuous;
+
+        boost::sregex_iterator it_end;
+        boost::sregex_iterator it(buff.begin(), buff.end(), rx, flags);
+
+        while(it != it_end)
+        {
+            boost::smatch match = *it;
+            std::string match_str = match.str();
+            out->push_back(match_str);
+            ++it;
+            if(!global) break;
+        }
+        if(out->size()==0)
+        {
+        	delete out;
+        	out = nullptr;
+        }
+ 		return out;
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	bool test(String& buff)
+	{
+        boost::smatch match;
+        boost::regex_search(buff, match, rx);
+		return match.size()>0 ? true : false;
+	}
+};
+
+#else
+
+class RegExp
+{
+public:
+    bool global;
+	bool ignoreCase;
+	bool multiline;
+	int lastIndex;
+	String source;
+	std::regex rx;
+
+	//////////////////////////////////////////////////////////////////////////////////
+	RegExp(String pattern, String flags="")
+	{
+		compile(pattern, flags);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	virtual ~RegExp()
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	void compile(String pattern, String flags="")
+	{
+        if(flags.find("i")!=std::string::npos) ignoreCase = true;
+        if(flags.find("m")!=std::string::npos) multiline = true;
+        if(flags.find("g")!=std::string::npos) global = true;
+
+        if(ignoreCase)
+	        rx.assign(pattern, std::regex_constants::ECMAScript|std::regex_constants::icase);
+        else
+            rx.assign(pattern, std::regex_constants::ECMAScript);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+ 	Array<String>* exec(String buff)
+ 	{
+        Array<String> *out = new Array<String>;
+        std::sregex_iterator it(buff.begin(), buff.end(), rx);
+        std::sregex_iterator it_end;
+        while(it != it_end)
+        {
+            std::smatch match = *it;
+            std::string match_str = match.str();
+            out->push_back(match_str);
+            ++it;
+            if(!global) break;
+        }
+        if(out->size()==0)
+        {
+        	delete out;
+        	out = nullptr;
+        }
+ 		return out;
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	bool test(String buff)
+	{
+        std::smatch match;
+        std::regex_search(buff, match, rx);
+		return match.size()>0 ? true : false;
+	}
+};
+
+#endif
 
 // ==================================================================================================================================
 //	    ______                                   __   ________                   ____            __                 __  _
@@ -655,7 +1416,6 @@ public:
 class Audio;
 class CocoAssetFile;
 class CocoAudioStream;
-class CocoDeviceOpenGLContext;
 class CocoDeviceWrapper;
 class CocoEventConnectionPoint;
 class CocoEventSource;
@@ -666,6 +1426,7 @@ class HTMLVideoElement;
 class HTMLWindow;
 class IEventListener;
 class ImageData;
+class MD5;
 class UTF8;
 class WebGLBuffer;
 class WebGLFramebuffer;
@@ -678,7 +1439,11 @@ class WebGLTexture;
 class WebGLUniformLocation;
 class XMLHttpRequest;
 struct CocoFontChar;
+struct GLEWContextStruct;
 struct GLany;
+struct __GLsync;
+struct _cl_context;
+struct _cl_event;
 struct fxScreen;
 //# Native Classes End #//
 
@@ -688,7 +1453,6 @@ class CocoAppController;
 class CocoAudio;
 class CocoBezier;
 class CocoClip;
-class CocoDOM;
 class CocoDOMDocument;
 class CocoDOMNode;
 class CocoDataField;
@@ -730,6 +1494,7 @@ class CocoTextClip;
 class CocoTextStyle;
 class CocoTimeLabel;
 class CocoTimeline;
+class CocoTimer;
 class CocoTokenizer;
 class CocoUIButton;
 class CocoUICheckBox;
@@ -747,8 +1512,8 @@ class CocoVector;
 class CocoVideo;
 class CocoXMLParser;
 class CocoXPathParser;
-class Data;
-class Encode;
+class DefaultForm;
+class FormViewer;
 class GameEngine;
 class HTMLAnchorElement;
 class HTMLCanvasElement;
@@ -768,12 +1533,13 @@ class ICocoRenderContext;
 class IEventTarget;
 class ITickable;
 class Image;
-class NewAnimation;
+class LoginForm;
 class OnClickHandler;
 class PathLine;
 class ReservationsForm;
 class Touch;
 class TouchList;
+class UUID;
 struct COCO_PARSER_STATE;
 struct CocoDOMAttribute;
 struct CocoHVAlign;
@@ -789,6 +1555,23 @@ struct DEVICE_MESSAGE;
 struct TOKEN;
 struct TOKEN_RULE;
 //# Generated Classes End #//
+
+// ==================================================================================================================================
+//	   _____ __        __
+//	  / ___// /_____ _/ /____
+//	  \__ \/ __/ __ `/ __/ _ \
+//	 ___/ / /_/ /_/ / /_/  __/
+//	/____/\__/\__,_/\__/\___/
+//
+// ==================================================================================================================================
+struct State
+{
+    String __name;
+	virtual void enter() {}
+	virtual void exit() {}
+	virtual void tick(float time) = 0;
+	virtual void paint(ICocoRenderContext* ctx, float time) {}
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enum for HTML5 Events
@@ -823,30 +1606,37 @@ enum fxEvent
 // ==================================================================================================================================
 
 #define CocoException	std::string
+#define fxObjectUID     uint32_t
+#define parseFloat(S)   (float)(atof((S).c_str()))
+#define parseInt(S)     (int32_t)(atoi((S).c_str()))
 
-#define JSINTERVAL_MIN 4
-#define JSTOUCHLIST_MAX_LENGTH 5
-#define SHADER_SOURCE_BUFFER_SIZE 4096
-#define INFO_LOG_BUFFER_SIZE 4096
-#define fxObjectUID size_t
+template<typename T>
+struct TYPE_STRING
+{
+    static constexpr char const* c_str()
+    {
+        return "undefined";
+    }
+};
 
-#define parseFloat(S) atof((S).c_str())
-#define parseInt(S) atoi((S).c_str())
-#define TODO() trace("TODO:%s @ %s:%d", __PRETTY_FUNCTION__, __FILE__, __LINE__)
+#define DEF_TYPE(T)                                 \
+template<>                                          \
+struct TYPE_STRING<T>                               \
+{                                                   \
+    static constexpr char const* c_str()            \
+    {                                               \
+        return #T;                                  \
+    }                                               \
+};                                                  \
 
-template<typename T> struct TYPE_STRING { static constexpr char const* c_str() { return "undefined"; } };
-#define DEF_TYPE(T) template<> struct TYPE_STRING<T> { static constexpr char const* c_str() { return #T; } };
-
-DEF_TYPE(char);
-DEF_TYPE(unsigned char);
-DEF_TYPE(short);
-DEF_TYPE(unsigned short);
-DEF_TYPE(int);
-DEF_TYPE(unsigned int);
+DEF_TYPE(int8_t);
+DEF_TYPE(uint8_t);
+DEF_TYPE(int16_t);
+DEF_TYPE(uint16_t);
+DEF_TYPE(int32_t);
+DEF_TYPE(uint32_t);
 DEF_TYPE(float);
 DEF_TYPE(double);
-
-typedef int Color;
 
 // ==================================================================================================================================
 //	   ______      ______               __
@@ -871,10 +1661,11 @@ typedef void (CocoEngine::*CocoEventAction)(HTMLEvent* e);
 
 template<class T> using Stack = std::stack<T>;
 template<class T> using Dictionary = std::map<std::string, T>;
-template<class T> using Index = std::map<size_t, T>;
+template<class T> using Index = std::map<uint32_t, T>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-template<class T> std::string toString(T v)
+template<class T>
+std::string toString(T v)
 {
 	std::stringstream ss;
 	ss<<v;
@@ -882,177 +1673,6 @@ template<class T> std::string toString(T v)
 }
 
 typedef String Gradient;
-
-// ==================================================================================================================================
-//	   _____ __        __
-//	  / ___// /_____ _/ /____
-//	  \__ \/ __/ __ `/ __/ _ \
-//	 ___/ / /_/ /_/ / /_/  __/
-//	/____/\__/\__,_/\__/\___/
-//
-// ==================================================================================================================================
-struct State
-{
-	String __name;
-	virtual void enter() {}
-	virtual void exit() {}
-	virtual void tick(float time) = 0;
-	virtual void paint(ICocoRenderContext* ctx, float time) {}
-};
-
-// ==================================================================================================================================
-//	  ______                      __     _____                 _ _____
-//	 /_  __/___ __________ ____  / /_   / ___/____  ___  _____(_) __(_)____
-//	  / / / __ `/ ___/ __ `/ _ \/ __/   \__ \/ __ \/ _ \/ ___/ / /_/ / ___/
-//	 / / / /_/ / /  / /_/ /  __/ /_    ___/ / /_/ /  __/ /__/ / __/ / /__
-//	/_/  \__,_/_/   \__, /\___/\__/   /____/ .___/\___/\___/_/_/ /_/\___/
-//	               /____/                 /_/
-// ==================================================================================================================================
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef IOS_APPLICATION
-
-	#define PLATFORM "iOS"
-
-	#include <UIKit/UIEvent.h>
-	#include <UIKit/UITouch.h>
-	#include <sys/time.h>
-
-	#define fxAPIGetKey(E) (*(const uint32_t*)(E))
-	#define fxAPIGetMouseEventX(E) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].x)
-	#define fxAPIGetMouseEventY(E) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: 0] locationInView:nil].y)
-	#define fxAPIGetTouchEventX(E, I) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].x)
-	#define fxAPIGetTouchEventY(E, I) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].y)
-	#define fxAPIGetChangedTouchEventX(E, I) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].x)
-	#define fxAPIGetChangedTouchEventY(E, I) ([[[[(__bridge UIEvent*)E allTouches] allObjects] objectAtIndex: I] locationInView:nil].y)
-	#define fxAPIGetTouchesLength(E) ([[(__bridge UIEvent*)E allTouches] count])
-	#define fxAPIGetChangedTouchesLength(E) ([[(__bridge UIEvent*)E allTouches] count])
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#elif ANDROID_APPLICATION
-
-	#define PLATFORM "Android"
-
-	#include <chrono>
-	#include <jni.h>
-	#include <android_native_app_glue.h>
-
-	#define fxAPIGetMouseEventX(E) AMotionEvent_getX((AInputEvent*)E, 0)
-	#define fxAPIGetMouseEventY(E) AMotionEvent_getY((AInputEvent*)E, 0)
-	#define fxAPIGetTouchEventX(E, I) AMotionEvent_getX((AInputEvent*)E, I)
-	#define fxAPIGetTouchEventY(E, I) AMotionEvent_getY((AInputEvent*)E, I)
-	#define fxAPIGetChangedTouchEventX(E, I) AMotionEvent_getX((AInputEvent*)E, I)
-	#define fxAPIGetChangedTouchEventY(E, I) AMotionEvent_getY((AInputEvent*)E, I)
-	#define fxAPIGetTouchesLength(E) AMotionEvent_getPointerCount((AInputEvent*)E)
-	#define fxAPIGetChangedTouchesLength(E) AMotionEvent_getPointerCount((AInputEvent*)E)
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#elif WIN32_APPLICATION
-	#include <windows.h>
-	#include <windowsx.h>
-
-	#undef near
-	#undef far
-
-	#define fxAPIGetMouseEventX(E) GET_X_LPARAM(((MSG*)E)->lParam)
-	#define fxAPIGetMouseEventY(E) GET_Y_LPARAM(((MSG*)E)->lParam)
-	#define fxAPIGetTouchEventX(E, I) GET_X_LPARAM(((MSG*)E)->lParam)
-	#define fxAPIGetTouchEventY(E, I) GET_Y_LPARAM(((MSG*)E)->lParam)
-	#define fxAPIGetChangedTouchEventX(E, I) GET_X_LPARAM(((MSG*)E)->lParam)
-	#define fxAPIGetChangedTouchEventY(E, I) GET_Y_LPARAM(((MSG*)E)->lParam)
-	#define fxAPIGetTouchesLength(E) 1
-	#define fxAPIGetChangedTouchesLength(E) 1
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#else
-
-	#define PLATFORM "General"
-
-	#define fxAPIGetKey(E)(*(const uint32_t*)(E))
-	#define fxAPIGetMouseEventX(E) (((QMouseEvent*)(E))->x())
-	#define fxAPIGetMouseEventY(E) (((QMouseEvent*)(E))->y())
-	#define fxAPIGetTouchEventX(E, I) (((QMouseEvent*)(E))->x())
-	#define fxAPIGetTouchEventY(E, I) (((QMouseEvent*)(E))->y())
-	#define fxAPIGetChangedTouchEventX(E, I) (((QMouseEvent*)(E))->x())
-	#define fxAPIGetChangedTouchEventY(E, I) (((QMouseEvent*)(E))->y())
-	#define fxAPIGetTouchesLength(E) (((QEvent*)(E))->type() == QEvent::MouseButtonRelease ? 0 : 1)
-	#define fxAPIGetChangedTouchesLength(E) 1
-
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef ENABLE_PNG_SUPPORT
-	#include <png.h>
-#elif !DISABLE_PNG_SUPPORT
-	#warning "Building without PNG support!"
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef ENABLE_JPG_SUPPORT
-	#undef FALSE
-	#undef TRUE
-	#include <jpeglib.h>
-#elif !DISABLE_JPG_SUPPORT
-	#warning "Building without JPG support!"
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef ENABLE_OGG_SUPPORT
-	#define AUDIO_SAMPLE_SIZE 2
-	#define AUDIO_FORMAT_MONO AL_FORMAT_MONO16
-	#define AUDIO_FORMAT_STEREO AL_FORMAT_STEREO16
-	#include <tremor/ivorbisfile.h>
-#elif !DISABLE_OGG_SUPPORT
-	#warning "Building without Vorbis OGG support!"
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef ENABLE_OPENAL_SUPPORT
-	#ifdef IOS_APPLICATION
-		#include <OpenAL/al.h>
-		#include <OpenAL/alc.h>
-	#else
-		#include <AL/al.h>
-		#include <AL/alc.h>
-	#endif
-#elif !DISABLE_OPENAL_SUPPORT
-	#warning "Building without Audio support!"
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef ENABLE_FREETYPE_SUPPORT
-	#include <ft2build.h>
-	#include FT_FREETYPE_H
-#elif !DISABLE_FREETYPE_SUPPORT
-	#warning "Building without Font support!"
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef ENABLE_CURL_SUPPORT
-	#include <curl.h>
-	#ifndef CURL_STATICLIB
-	#define CURL_STATICLIB
-	#endif
-#elif !DISABLE_CURL_SUPPORT
-	#warning "Building without XMLHttpRequest support!"
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef ENABLE_OPENGL_SUPPORT
-	#ifdef ANDROID_APPLICATION
-		#include <EGL/egl.h>
-		#include <GLES2/gl2.h>
-	#elif IOS_APPLICATION
-		#include <OpenGLES/ES2/gl.h>
-	#elif WIN32_APPLICATION
-		#include <GL/glew.h>
-		#include <GL/gl.h>
-	#else
-		#include <QtOpenGL/QtOpenGL>
-	#endif
-#elif !DISABLE_OPENGL_SUPPORT
-	#warning "Building without OpenGL support!"
-#endif
 
 // ==================================================================================================================================
 //	    ____        __
@@ -1078,9 +1698,8 @@ public:
 			millis = (long long)(tv.tv_sec) * 1000 + (long long)(tv.tv_usec) / 1000;
 		#endif
 	}
-	long long getTime() { return millis; }
+	int32_t getTime() { return (int32_t) millis; }
 };
-
 
 // ==================================================================================================================================
 //	    ______     __
@@ -1105,9 +1724,79 @@ extern void __Facebook_Invite(String message);
 extern String md5(String data);
 extern String btoa(String binary);
 extern bool isFinite(String value);
-
 extern String encodeURIComponent(String uri);
 extern void fixTouch(Touch* touch);
+
+// ==================================================================================================================================
+//	  _______
+//	 /_  __(_)___ ___  ___  __________
+//	  / / / / __ `__ \/ _ \/ ___/ ___/
+//	 / / / / / / / / /  __/ /  (__  )
+//	/_/ /_/_/ /_/ /_/\___/_/  /____/
+//
+// ==================================================================================================================================
+
+//class TimerThreadInterruptException;
+//class TimerThread;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Interruptible Timer Thread
+/*
+class TimerThread
+{
+public:
+
+	std::atomic<bool> _running;
+	std::thread _thread;
+
+	template <typename Function, typename... Args>
+	TimerThread(Function&& fn, Args&&... args) :
+		_thread([](std::atomic<bool>& f, Function&& fn, Args&&... args)
+		{
+			fn(std::forward<Args>(args)...);
+		},
+		std::forward<Function>(fn),
+		std::forward<Args>(args)...)
+	{
+		_running.store(true);
+	}
+
+	bool running() const
+	{
+		return _running.load();
+	}
+
+	void stop()
+	{
+		_running.store(false);
+	}
+};
+*/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename T>
+using setIntervalCallback = void(T::*)();
+
+template<typename T>
+int setInterval(T* _this, setIntervalCallback<T> fn, int interval)
+{
+	/*
+	if (interval < 0) return 0;
+
+	std::thread* t = new std::thread([&]()
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+		(_this->*fn)();
+	});
+
+	return (INT_PTR) t;
+	*/
+
+	return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+extern void clearInterval(int handle);
 
 #endif //__COCONUT2D_HPP__
 

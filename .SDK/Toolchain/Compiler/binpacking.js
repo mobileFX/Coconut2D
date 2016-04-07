@@ -58,7 +58,7 @@ Packer.prototype = {
     return node;
   }
 
-}
+};
 
 GrowingPacker = function() { };
 

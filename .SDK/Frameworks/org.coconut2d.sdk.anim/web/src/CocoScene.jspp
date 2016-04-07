@@ -22,8 +22,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_native
-#pragma export_web
+#pragma export_native;
+#pragma export_web;
 
 // ==================================================================================================================================
 //	   ______                _____
@@ -52,7 +52,7 @@ class CocoScene
 	public var __levelParents:Array<CocoClip>;
 
 	public var __ready:Boolean;
-	public var __loaded_assets:Float;
+	public var __loaded_assets:Integer;
 	public var __finished:Boolean;
 
 	private reference var m_ctx:ICocoRenderContext;
@@ -154,7 +154,7 @@ class CocoScene
 
 		if(__view_width > 0 && __view_height > 0)
 		{
-			__view_scale = Math.min( Float(m_width) / __view_width, Float(m_height) / __view_height);
+			__view_scale = Math.min( m_width / __view_width, m_height / __view_height);
 		}
 		else
 		{
@@ -238,8 +238,8 @@ class CocoScene
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function loadingProgress():Integer
 	{
-		var assets:Float = Float(__imageSymbols.size());
-		var p:Float = Math.floor((Math.min(__loaded_assets, assets)/assets)*100.0);
+		var assets:Float = __imageSymbols.size();
+		var p:Integer = Math.floor((Math.min(__loaded_assets, assets)/assets)*100.0);
 		if(p<0) p = 0;
 		if(p>100) p = 100;
 		return p;

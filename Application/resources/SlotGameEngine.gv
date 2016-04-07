@@ -1,0 +1,94 @@
+digraph finite_state_machine {
+
+	rankdir=LR;
+	pad = 0.1;
+	bgcolor="transparent";
+
+	graph [label="Slot Client Game Engine FSM", labelloc=t, fontname=Arial, fontsize=30];
+
+	node [shape = doublecircle fixedsize=true height=0.8 fontname=Verdana fontsize=9]; "Start", "Fatal\nError", "Begin\nActions",  "Finish\nActions", "Return\nto\nLobby";
+	node [shape = circle fixedsize=true height=0.8 fontname=Verdana fontsize=9];
+
+	{ rank=same "Load\nAssets", "Load\nGame", "Intro\nScene", "Title\nScene", "Board\nScene"};
+
+	"Load\nAssets", "Load\nGame", "Get\nTicket\nAsync", "Wait\nTicket"
+	[fillcolor="#B4D3FF" style=filled color="#054ED9"];
+
+	"Title\nScene", "Wait\nfor\nBet", "Display\nHelp", "Display\nLines", "Display\nMenu", "Display\nSymbol"
+	[fillcolor="#C7FFC2" style=filled color="#036D0B"];
+
+	"Intro\nScene"
+	[fillcolor="#C7FFC2" style="filled,dotted" color="#036D0B"];
+
+	"Fatal\nError"
+	[color=red fillcolor="#FFB5B4" style=filled]
+
+	"Begin\nActions", "Animate\nNext\nAction", "Finish\nActions", "Update\nBalance"
+	[fillcolor="#FFE785" style=filled color="#036D0B"];
+
+	"Auto\nSpin\nStart", "Next\nAuto\nSpin"
+	[fillcolor="#F3B7FF" style=filled color="#8C05CC"];
+
+	"Start" 					-> 		"Load\nGame"				[label="Operator Data\n(UserTokenID)" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+
+	"Load\nGame" 				-> 		"Load\nAssets"
+	"Load\nGame" 				-> 		"Load\nGame" 				[label="Retry" fontname=Verdana fontsize=9]
+	"Load\nGame" 				-> 		"Fatal\nError" 				[color="#ff0000"];
+
+	"Load\nAssets" 				-> 		"Intro\nScene"
+	"Load\nAssets" 				-> 		"Load\nAssets" 				[label="Retry" fontname=Verdana fontsize=9]
+	"Load\nAssets" 				-> 		"Fatal\nError" 				[color="#ff0000"];
+
+	"Intro\nScene" 				-> 		"Title\nScene" 				[label="[Skip Video]" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Title\nScene" 				-> 		"Board\nScene"	 			[label="[Play]" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+
+	"Board\nScene" 				-> 		"Wait\nfor\nBet"
+
+	{ rank=same "Auto\nSpin\nStart", "Display\nMenu", "Display\nHelp", "Display\nLines", "Display\nSymbol", "Toggle\nAudio"};
+
+	"Wait\nfor\nBet"			-> 		"Get\nTicket\nAsync" 		[label="[Spin Button]" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nBet"			-> 		"Auto\nSpin\nStart"			[label="[Auto Spin Button]" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nBet"			-> 		"Display\nMenu"				[label="\n\n[Menu Button]\n[Close Button]" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nBet"			-> 		"Display\nHelp" 			[label="[Help Button]\n[Close Button]" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nBet"			-> 		"Display\nLines"			[label="\n\n[Line Indicator Button]\n(Timeout 5sec)" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nBet"			-> 		"Display\nSymbol"			[label="\n\n[Symbol Button]\n(Timeout 5sec)" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nBet"			->		"Toggle\nAudio"				[label="[Audio Toggle Button]" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nBet"			->		"Return\nto\nLobby"			[label="[Home Button]" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+
+	"Auto\nSpin\nStart"			-> 		"Get\nTicket\nAsync"
+
+	"Get\nTicket\nAsync" 		-> 		"Start\nSpin\nAmination"	[weight=2]
+	"Get\nTicket\nAsync" 		-> 		"Fatal\nError" 				[label="" fontname=Verdana fontsize=9 fontcolor="red" color="#ff0000"];
+
+	"Start\nSpin\nAmination"	-> 		"Wait\nTicket"				[weight=2 label="Pseudo spin initialized\nwhile waiting server" labelloc="b" fontname=Verdana fontsize=9];
+
+	"Wait\nTicket" 				-> 		"Wait\nTicket" 				[label="Wait Server\nRetry" labelloc="b" fontname=Verdana fontsize=9];
+	"Wait\nTicket" 				-> 		"Fatal\nError" 				[label="" fontname=Verdana fontsize=9 fontcolor="red" color="#ff0000"];
+	"Wait\nTicket" 				-> 		"Begin\nActions"			[label="Ticket Actions\nReceived" fontname=Verdana fontsize=9];
+
+	"Begin\nActions" 			-> 		"Animate\nNext\nAction" 	[weight=3 color="#A903A3"];
+	"Animate\nNext\nAction" 	-> 		"Animate\nNext\nAction" 	[color="#A903A3" label="Repeat" fontname=Verdana fontsize=9];
+	"Update\nBalance"			->		"Animate\nNext\nAction"		[weight=3 color="#A903A3" style="dotted"];
+	"Update\nBalance" 			->		"Finish\nActions"			[weight=3 color="#A903A3"];
+
+	{ rank=same "Big\nWin", "Mega\nWin", "Win", "Free\nSpin\nAward", "Free\nSpin\nWin"};
+
+	"Animate\nNext\nAction"		-> 		"Big\nWin"
+	"Animate\nNext\nAction"		-> 		"Mega\nWin"
+	"Animate\nNext\nAction"		-> 		"Win"
+	"Animate\nNext\nAction"		-> 		"Free\nSpin\nAward"
+	"Animate\nNext\nAction"		-> 		"Free\nSpin\nWin"
+
+	"Big\nWin"					-> 		"Update\nBalance"
+	"Mega\nWin"                 -> 		"Update\nBalance"
+	"Win"                       -> 		"Update\nBalance"
+	"Free\nSpin\nAward"         -> 		"Update\nBalance"
+	"Free\nSpin\nWin"           -> 		"Update\nBalance"
+
+	"Finish\nActions" 			->		"Next\nAuto\nSpin"			[color="#A903A3"];
+
+	"Next\nAuto\nSpin"			-> 		"Get\nTicket\nAsync" 		[color="#A903A3" label="Remaining Auto Spins" fontname=Verdana fontsize=9];
+	"Next\nAuto\nSpin"			-> 		"Wait\nfor\nBet" 			[color="#A903A3" label="No Auto Spins" fontname=Verdana fontsize=9];
+
+	"Fatal\nError" 				-> 		"Return\nto\nLobby"
+}

@@ -1,0 +1,151 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.yourcompany.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_nodejs;
+
+#pragma json;
+
+#module org.coconut2d.sdk.server.ASP;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct MIME_TYPE
+{
+	FileExtension:String;
+	ContentType:String;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+export class HTTPServer
+{
+	private var MIME:Dictionary;
+	private var asp:ASPProcessor;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		// Load server MIME types
+		MIME = new Dictionary;
+		var buff:String = __fs.readFileSync( __dirname +"/../res/mime.json", "utf8");
+		try
+		{
+			MIME = JSON.parse(buff);
+		}
+		catch(e:Error)
+		{
+			console.log("Error parsing mime types, " + e.toString());
+		}
+
+		// Initialize ASP Processor
+		asp = new ASPProcessor(__path.resolve("."));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete MIME;
+		delete asp;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function handle(req:NodeJS_Request, res:NodeJS_Response)
+	{
+		// Resolve request url
+		var p:Integer = req.url.indexOf("?");
+		req.__query = (p!=-1 ? req.url.substr(p+1) : "");
+		req.url = (p!=-1 ? req.url.substr(0, p) : req.url);
+
+		if(req.url=="/")
+		{
+			var root:String = asp.ASP_ROOT = __path.resolve(".");
+			if(Coconut2D.FileExists(root+"/default.asp"))
+				req.url = "default.asp";
+			else if(Coconut2D.FileExists(root+"/index.html"))
+				req.url = "index.html";
+		}
+
+		if(req.url.substr(0,1)=="/") req.url = "." + req.url;
+		req.__file 	= __qs.unescape(__path.resolve(req.url));
+		req.__path  = __path.dirname(req.__file) + "\\";
+		req.__base  = __path.basename(req.__file);
+		req.__ext   = __path.extname(req.__file).toLowerCase();
+		req.__mime  = MIME.hasOwnProperty(req.__ext) ? String(MIME[req.__ext]) : "";
+		req.__url	= __path.relative(".", req.url);
+
+		// Log request URL
+		//console.log("Request URL: " + req.url);
+
+		// Handle ASP pages
+		if(req.__ext==".asp")
+		{
+
+			// *** DISABLE THIS CODE ON RELEASE MODE ***
+			// NASTY DEVELOPMENT HACK!! If an .asp file does not exists it is created on requrest
+			//if(!Coconut2D.FileExists(req.__file))
+			//	__fs.writeFileSync(req.__file, "<!--#include file=\"header.asp\"-->\n\n<!--#include file=\"footer.asp\"-->\n", "utf8");
+
+			// If file does not exist end the response.
+			if(!Coconut2D.FileExists(req.__file))
+			{
+				res.statusCode = 404;
+				res.end();
+				return;
+			}
+
+			// Create an ASP processor, parse and execute the file.
+			asp.run(req.__file, req, res);
+			res.end();
+			return;
+		}
+
+		// Handle all other mime types
+		else
+		{
+			// If file does not exist end the response.
+			if(!Coconut2D.FileExists(req.__file))
+			{
+				res.statusCode = 404;
+				res.end();
+				return;
+			}
+
+			if(MIME.hasOwnProperty(req.__ext))
+			{
+				// Write content-type response header
+				var ContentType:String = String(MIME[req.__ext]);
+				res.writeHead(200, {"Content-Type": ContentType });
+
+				// Return File
+				var readStream:ReadStream = __fs.createReadStream(req.__file);
+				readStream.pipe(res);
+
+				return;
+			}
+		}
+
+		// Unhandled mime
+		console.log("Unknown mime-type: " + req.__ext);
+		res.end();
+	}
+}
+

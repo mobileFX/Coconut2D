@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -272,7 +272,7 @@ bool b2WeldJoint::SolvePositionConstraints(const b2SolverData& data)
 		angularError = b2Abs(C2);
 
 		b2Vec3 C(C1.x, C1.y, C2);
-	
+
 		b2Vec3 impulse = -K.Solve33(C);
 		b2Vec2 P(impulse.x, impulse.y);
 

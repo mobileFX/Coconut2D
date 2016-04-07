@@ -37,7 +37,7 @@ protected:
 
 	void* fd;
 	char* file;
-	unsigned char* data;
+	uint8_t* data;
 	size_t cursor;
 	bool isAsset;
 	size_t length;
@@ -123,7 +123,7 @@ public:
 				return createFromBase64(str + 21, FONT_TTF);
 			else
 			{
-				trace("ERROR(CocoAssetFile.h): Unsupported data");
+				trace("Unsupported data");
 				return nullptr;
 			}
 		}
@@ -146,7 +146,7 @@ public:
             else if(exists(str, true))
 				return new CocoAssetFile(str, true);
         }
-		trace("ERROR(CocoAssetFile.h): File does not exist %s", str);
+		trace("File does not exist");
 		return NULL;
     }
 
@@ -185,7 +185,7 @@ public:
 		static const unsigned char unb64[] = { 62, 0, 0, 0, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0, 0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
 		size_t len = strlen(str);
 		if(len < 2) return nullptr;
-		int pad = 0;
+		size_t pad = 0;
 		if(str[len - 1] == '=') pad++;
 		if(str[len - 2] == '=') pad++;
 		CocoAssetFile* ret = new CocoAssetFile(3 * len / 4 - pad);
@@ -199,9 +199,9 @@ public:
 			C = unb64[str[i + 2] - 43];
 			D = unb64[str[i + 3] - 43];
 
-			ret->data[c++] = (A << 2) | (B >> 4);
-			ret->data[c++] = (B << 4) | (C >> 2);
-			ret->data[c++] = (C << 6) | (D);
+			ret->data[c++] = (uint8_t) ((A << 2) | (B >> 4));
+			ret->data[c++] = (uint8_t) ((B << 4) | (C >> 2));
+			ret->data[c++] = (uint8_t) ((C << 6) | (D));
 		}
 		if(pad == 1)
 		{
@@ -209,15 +209,15 @@ public:
 			B = unb64[str[i + 1] - 43];
 			C = unb64[str[i + 2] - 43];
 
-			ret->data[c++] = (A << 2) | (B >> 4);
-			ret->data[c++] = (B << 4) | (C >> 2);
+			ret->data[c++] = (uint8_t) ((A << 2) | (B >> 4));
+			ret->data[c++] = (uint8_t) ((B << 4) | (C >> 2));
 		}
 		else if(pad == 2)
 		{
 			A = unb64[str[i] - 43];
 			B = unb64[str[i + 1] - 43];
 
-			ret->data[c++] = (A << 2) | (B >> 4);
+			ret->data[c++] = (uint8_t) ((A << 2) | (B >> 4));
 		}
 		return ret;
 	}
@@ -233,7 +233,7 @@ public:
 
 	CocoAssetFile(size_t i_length) : fd(nullptr), file(nullptr), data(nullptr), cursor(0), length(i_length), type(TYPE_DATA), mime(MIME_OTHER)
 	{
-		data = (unsigned char*)malloc(length);
+		data = (uint8_t*)malloc(length);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,7 +242,7 @@ public:
 		char* ld = (char*) strrchr(str, '.');
         if(!ld)
         {
-            trace("ERROR(CocoAssetFile.h): Invalid file %s", str);
+            trace("Invalid file");
             return;
         }
         else
@@ -260,17 +260,12 @@ public:
             std::string temps(assetPath);
             temps += str + 2;
             file = strdup(temps.c_str());
-            trace("Loading file %s", file);
             fd = fopen(file, "rb");
             if(fd)
 			{
                 fseek((FILE*)fd, 0, SEEK_END);
-                length = ftell((FILE*)fd);
+                length = (size_t) ftell((FILE*)fd);
                 rewind((FILE*)fd);
-			}
-			else
-			{
-				trace("ERROR(CocoAssetFile.h): open asset failed %s", file);
 			}
         }
         else if(!isAsset && filesPath && str)
@@ -283,12 +278,8 @@ public:
             if(fd)
 			{
                 fseek((FILE*)fd, 0, SEEK_END);
-                length = ftell((FILE*)fd);
+                length = (size_t) ftell((FILE*)fd);
                 rewind((FILE*)fd);
-			}
-			else
-			{
-				trace("ERROR(CocoAssetFile.h): open file failed %s", file);
 			}
         }
 	}
@@ -323,13 +314,13 @@ public:
     // standard io functions pass-through
     // they update only the file, not the data!
 	//////////////////////////////////////////////////////////////////////////////////////////////
-	inline int seek(long int offset, int origin)
+	inline int seek(size_t offset, size_t origin)
 	{
 		switch(type)
 		{
 		case TYPE_FILE:
 		case TYPE_ASSET:
-			return fseek((FILE*)fd, offset, origin);
+			return fseek((FILE*)fd, (long) offset, (int) origin);
 		case TYPE_DATA:
 			switch(origin)
 		{
@@ -343,7 +334,7 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
-	inline long int tell()
+	inline int32_t tell()
 	{
 		switch(type)
 		{
@@ -351,7 +342,7 @@ public:
 			case TYPE_ASSET:
 				return ftell((FILE*)fd);
 			case TYPE_DATA:
-				return cursor;
+				return (int32_t) cursor;
 		}
 		return -1;
 	}
@@ -400,12 +391,12 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
-    unsigned char* getData()
+    uint8_t* getData()
     {
 		if(!data && fd)
         {
             rewind((FILE*)fd);
-            data = (unsigned char*)malloc(length + 1);
+            data = (uint8_t*)malloc(length + 1);
             data[length] = 0;
             fread(data, 1, length, (FILE*)fd);
         }

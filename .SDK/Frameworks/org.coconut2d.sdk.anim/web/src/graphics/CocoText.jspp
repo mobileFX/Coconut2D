@@ -1,5 +1,5 @@
-﻿#pragma export_native
-#pragma export_web
+﻿#pragma export_native;
+#pragma export_web;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoTextStyle
@@ -95,24 +95,24 @@ class CocoText
     public static function init(width:Integer, height:Integer)
     {
     	var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
-    	canvas.width = Float(Math.max(1.0, Math.floor(npo2(width))));
-    	canvas.height = Float(Math.max(1.0, Math.floor(npo2(height))));
+    	canvas.width = Math.max(1, Math.floor(npo2(width)));
+    	canvas.height = Math.max(1, Math.floor(npo2(height)));
     	ctx = CanvasRenderingContext2D(canvas.getContext("2d"));
     }
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static function drawSimpleText(ctx:CanvasRenderingContext2D, text:String,
     									  FontName:String, FontSizePx:Integer, FontBold:Boolean, FontItalic:Boolean, FontUnderline:Boolean, FontColor:Color,
-    									  x:Float, y:Float, width:Float, height:Float,
+    									  x:Integer, y:Integer, width:Integer, height:Integer,
     									  halign:Float, valign:Float,
     									  FontShadowX:Integer, FontShadowY:Integer, FontBlur:Integer, FontShadowColor:Color)
     {
     	try
     	{
-			var R:Integer = Integer((FontColor >> 16) & 0xFF);
-			var G:Integer = Integer((FontColor >> 8) & 0xFF);
-			var B:Integer = Integer(FontColor & 0xFF);
-			var A:Integer = Integer((FontColor >> 24) & 0xFF);
+			var R:Integer = (FontColor >> 16) & 0xFF;
+			var G:Integer = (FontColor >> 8) & 0xFF;
+			var B:Integer = FontColor & 0xFF;
+			var A:Integer = (FontColor >> 24) & 0xFF;
 			var color:String = "rgba(" + String(R) + ", " + String(G) + ", " + String(B) + ", " + String(A) + ")";
 	    	var fontStyle:String = (FontItalic ? "italic" : "normal") + " normal " + (FontBold ? "bold " : "normal ") + String(FontSizePx) + "px " + FontName;
 
@@ -120,7 +120,7 @@ class CocoText
 	    	f.str = text;
 	    	f.indices.push(0);
 	    	f.mappings.push(0);
-	    	f.wrapSimple(Integer(width), fontStyle);
+	    	f.wrapSimple(width, fontStyle);
 	    	f.drawSimple(ctx, fontStyle, FontUnderline, color, x, y, width, height, halign, valign);
 	    	delete f;
     	}
@@ -148,7 +148,7 @@ class CocoText
 			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
 			for(var r:Integer = indices[i]; r < to; r++)
 			{
-				var charWidth:Float = ctx.measureText(String(str.substr(r, 1))).width;
+				var charWidth:Float = ctx.measureText(str.substr(r, 1)).width;
 				if(lineWidth + charWidth > width)
 				{
 					if(lineWidth === 0) throw "Too small width!";
@@ -157,7 +157,7 @@ class CocoText
 					lineHeights.push(lineHeight);
 					totalHeight += lineHeight * lineSpacing;
 					lineWidth = charWidth;
-					lineHeight = Float(style.fontSizePixels);
+					lineHeight = style.fontSizePixels;
 				}
 				else lineWidth += charWidth;
 			}
@@ -198,7 +198,7 @@ class CocoText
 			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
 			for(var r:Integer = indices[i]; r < to; r++)
 			{
-				var chr:String = String(str.substr(r, 1));
+				var chr:String = str.substr(r, 1);
 				var charWidth:Float = ctx.measureText(chr).width;
 				if(chr == " ")
 				{
@@ -214,7 +214,7 @@ class CocoText
 					lineHeights.push(lineHeight);
 					totalHeight += lineHeight * lineSpacing;
 					lineWidth = 0;
-					lineHeight = Float(fontSize);
+					lineHeight = fontSize;
 				}
 				lastSpaceWidth += charWidth;
 			}
@@ -225,7 +225,7 @@ class CocoText
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function drawSimple(ctx:CanvasRenderingContext2D, fontStyle:String, underline:Boolean, color:String, x:Float, y:Float, width:Float, height:Float, halign:Float, valign:Float)
+	public function drawSimple(ctx:CanvasRenderingContext2D, fontStyle:String, underline:Boolean, color:String, x:Integer, y:Integer, width:Integer, height:Integer, halign:Float, valign:Float)
 	{
 		try
 		{
@@ -244,7 +244,7 @@ class CocoText
 					break;
 				}
 			}
-			if(!totalHeight) totalHeight = Float(fontSize);
+			if(totalHeight==0) totalHeight = fontSize;
 			var cx:Float = x;
 			var cy:Float = y;
 			var currentLine:Integer = 0;
@@ -278,7 +278,7 @@ class CocoText
 					if(stop == nextBreak)
 					{
 						cx = x;
-						cy += Float((lineHeights.size() > currentLine ? lineHeights[currentLine] : totalHeight)) * lineSpacing;
+						cy += (lineHeights.size() > currentLine ? lineHeights[currentLine] : totalHeight) * lineSpacing;
 						++currentLine;
 						firstChar = true;
 					}
@@ -292,7 +292,7 @@ class CocoText
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function draw(width:Float, height:Float, halign:Float, valign:Float, bgR:Integer, bgG:Integer, bgB:Integer, bgA:Integer):String
+	public function draw(width:Integer, height:Integer, halign:Float, valign:Float, bgR:Integer, bgG:Integer, bgB:Integer, bgA:Integer):String
 	{
 		if(width > ctx.canvas.width || height > ctx.canvas.height) return "";
 		ctx.clearRect(0.0, 0.0, width, height);
@@ -337,7 +337,7 @@ class CocoText
 				if(stop == nextBreak)
 				{
 					cx = 0;
-					cy += Float(lineHeights[currentLine]) * lineSpacing;
+					cy += lineHeights[currentLine] * lineSpacing;
 					++currentLine;
 					firstChar = true;
 				}

@@ -53,6 +53,7 @@ protected:
 	jmethodID jmID_GetScreenRotation;
 	jmethodID jmID_GetScreenIsPortrait;
 	jmethodID jmID_GetScreenTop;
+	jmethodID jmID_GetScreenPixelRatio;
 
 	bool video;
 
@@ -72,6 +73,7 @@ public:
 	fxScreen::Rotation GetScreenRotation();
 	bool GetScreenIsPortrait();
 	int GetScreenTop();
+	float GetScreenPixelRatio();
 };
 
 #endif

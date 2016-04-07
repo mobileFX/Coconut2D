@@ -1,0 +1,138 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	   ______                 __  ____________                __          ____             _____ __      __
+//	  / ____/___  _________  / / / /  _/ ____/___  ____ ___  / /_  ____  / __ )____  _  __/ ___// /___  / /_
+//	 / /   / __ \/ ___/ __ \/ / / // // /   / __ \/ __ `__ \/ __ \/ __ \/ __  / __ \| |/_/\__ \/ / __ \/ __/
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // /___/ /_/ / / / / / / /_/ / /_/ / /_/ / /_/ />  < ___/ / / /_/ / /_
+//	\____/\____/\___/\____/\____/___/\____/\____/_/ /_/ /_/_.___/\____/_____/\____/_/|_|/____/_/\____/\__/
+//
+// ==================================================================================================================================
+
+#include "CocoUIControl.jspp"
+
+// ==================================================================================================================================
+//	   ______                 __  ____________                __          ____
+//	  / ____/___  _________  / / / /  _/ ____/___  ____ ___  / /_  ____  / __ )____  _  __
+//	 / /   / __ \/ ___/ __ \/ / / // // /   / __ \/ __ `__ \/ __ \/ __ \/ __  / __ \| |/_/
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // /___/ /_/ / / / / / / /_/ / /_/ / /_/ / /_/ />  <
+//	\____/\____/\___/\____/\____/___/\____/\____/_/ /_/ /_/_.___/\____/_____/\____/_/|_|
+//
+// ==================================================================================================================================
+
+control class CocoUIComboBox : CocoUIControl
+{
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Caption
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public var __text:CocoTextBlock;
+	public var __prompt:CocoTextBlock;
+
+	published property Text							{ function get():String  { return __text.text; 						} 	function set(v:String) 		{ __text.text = v; invalidate(); 					}}
+	published property TextFontName					{ function get():String  { return __text.fontName; 					} 	function set(v:String) 		{ __text.fontName = v; invalidate(); 				}}
+	published property TextFontSize					{ function get():Float	 { return __text.fontSize; 					} 	function set(v:Float)	 	{ __text.fontSize = v; invalidate(); 				}}
+	published property TextFontBold					{ function get():Boolean { return __text.fontBold; 					} 	function set(v:Boolean) 	{ __text.fontBold = v; invalidate(); 				}}
+	published property TextFontItalic				{ function get():Boolean { return __text.fontItalic; 				} 	function set(v:Boolean) 	{ __text.fontItalic = v; invalidate(); 				}}
+	published property TextFontUnderline			{ function get():Boolean { return __text.fontUnderline; 			} 	function set(v:Boolean) 	{ __text.fontUnderline = v; invalidate(); 			}}
+	published property TextFontShadowX				{ function get():Integer { return __text.fontShadowX;				} 	function set(v:Integer) 	{ __text.fontShadowX = v; invalidate(); 			}}
+	published property TextFontShadowY				{ function get():Integer { return __text.fontShadowY;				} 	function set(v:Integer) 	{ __text.fontShadowY = v; invalidate(); 			}}
+	published property TextFontBlur					{ function get():Integer { return __text.fontBlur;					} 	function set(v:Integer) 	{ __text.fontBlur = v; invalidate(); 				}}
+	published property TextFontColorSel				{ function get():Color   { return __text.fontColorSel; 				} 	function set(v:Color) 		{ __text.fontColorSel = v; invalidate(); 			}}
+	published property TextFontShadowColorSel 		{ function get():Color	 { return __text.fontShadowColorSel;		} 	function set(v:Color) 		{ __text.fontShadowColorSel = v; invalidate(); 		}}
+	published property TextFontColor				{ function get():Color   { return __text.fontColor;					} 	function set(v:Color) 		{ __text.fontColor = v; invalidate(); 				}}
+	published property TextFontShadowColor 			{ function get():Color	 { return __text.fontColorSel;				}	function set(v:Color) 		{ __text.fontShadowColor = v; invalidate(); 		}}
+
+	published property Prompt						{ function get():String  { return __prompt.text; 					} 	function set(v:String) 		{ __prompt.text = v; invalidate(); 					}}
+	published property PromptFontName				{ function get():String  { return __prompt.fontName; 				} 	function set(v:String) 		{ __prompt.fontName = v; invalidate(); 				}}
+	published property PromptFontSize				{ function get():Float	 { return __prompt.fontSize; 				} 	function set(v:Float)	 	{ __prompt.fontSize = v; invalidate(); 				}}
+	published property PromptFontBold				{ function get():Boolean { return __prompt.fontBold; 				} 	function set(v:Boolean) 	{ __prompt.fontBold = v; invalidate(); 				}}
+	published property PromptFontItalic				{ function get():Boolean { return __prompt.fontItalic; 				} 	function set(v:Boolean) 	{ __prompt.fontItalic = v; invalidate(); 			}}
+	published property PromptFontUnderline			{ function get():Boolean { return __prompt.fontUnderline; 			} 	function set(v:Boolean) 	{ __prompt.fontUnderline = v; invalidate(); 		}}
+	published property PromptFontShadowX			{ function get():Integer { return __prompt.fontShadowX;				} 	function set(v:Integer) 	{ __prompt.fontShadowX = v; invalidate(); 			}}
+	published property PromptFontShadowY			{ function get():Integer { return __prompt.fontShadowY;				} 	function set(v:Integer) 	{ __prompt.fontShadowY = v; invalidate(); 			}}
+	published property PromptFontBlur				{ function get():Integer { return __prompt.fontBlur;				} 	function set(v:Integer) 	{ __prompt.fontBlur = v; invalidate(); 				}}
+	published property PromptFontColorSel			{ function get():Color   { return __prompt.fontColorSel; 			} 	function set(v:Color) 		{ __prompt.fontColorSel = v; invalidate(); 			}}
+	published property PromptFontShadowColorSel 	{ function get():Color	 { return __prompt.fontShadowColorSel;		} 	function set(v:Color) 		{ __prompt.fontShadowColorSel = v; invalidate(); 	}}
+	published property PromptFontColor				{ function get():Color   { return __prompt.fontColor;				} 	function set(v:Color) 		{ __prompt.fontColor = v; invalidate(); 			}}
+	published property PromptFontShadowColor 		{ function get():Color	 { return __prompt.fontColorSel;				}	function set(v:Color) 		{ __prompt.fontShadowColor = v; invalidate(); 		}}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(name:String) : CocoUIControl(name)
+	{
+		// Control is not selectable
+		__selectable = true;
+
+		// Initial size
+		Width = engine.device.screenWidth;
+		Height = COCO_DEFAULT_FONT_SIZE + PaddingTop + PaddingBottom;
+		SetPaddings(5,0,0,0);
+		SetMargins(4,4,4,4);
+
+		// Set default text block
+		__text = new CocoTextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
+		__text.fontColor = 0xff000000;
+		__text.fontBold = false;
+		__text.multiline = false;
+		__text.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
+
+		__prompt = new CocoTextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
+		__prompt.text = "Please enter value...";
+		__prompt.fontColor = 0xff444444;
+		__prompt.fontColorSel = 0xff444444;
+		__prompt.fontBold = false;
+		__prompt.multiline = false;
+		__prompt.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
+		__texts.push(__prompt);
+
+		// Handle Clicks
+		addEventListener(this.OnClick, __CocoUITextEdit_OnClick);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function RefreshLayout(parent:CocoUIView)
+	{
+		super.RefreshLayout;
+		__text.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
+		__prompt.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		removeEventListener(this.OnClick, __CocoUITextEdit_OnClick);
+		delete __text;
+		delete __prompt;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __CocoUITextEdit_OnClick(sender:CocoEventSource, e:CocoEvent) :Boolean
+	{
+		return false;
+	}
+}

@@ -22,8 +22,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_native
-#pragma export_web
+#pragma export_native;
+#pragma export_web;
 
 // ==================================================================================================================================
 //	   ______				  _________
@@ -237,7 +237,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		{
 			__children[i].reindex_z();
 		}
-		//trace(String(__zIndex) + "\t" + this.__clipPath);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -291,7 +290,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		__currentTime = 0.0;
 		__timeline.reset();
 
-		for(var i:Integer =__children.size()-1; i>=0; i--)
+		for(var i:Integer = __children.size()-1; i>=0; i--)
 		{
 			__children[i].reset();
 		}
@@ -537,7 +536,6 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 				__currentFrame = __timeline.interpolate(frameIndex);
 			}
 
-
 			// If interpolation didn't return a frame, do not advance time and exit.
 			if(!__currentFrame) return;
 
@@ -711,7 +709,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		   	        	}
 		   	        }
 
-		   	        if(__touch_start_time)
+		   	        if(__touch_start_time!=0)
 		   	        {
 			   	        switch(deviceMessage.type)
 			   	        {
@@ -854,7 +852,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	    __vREL_TOP_LEFT.Y = 100000;
 	    __vREL_BOTTOM_LEFT.Y = -100000;
 
-        var Child :CocoClip
+        var Child :CocoClip;
         var L:Integer = __children.size();
         for (var i:Integer = 0; i < L; i++)
 	    {
@@ -1199,6 +1197,12 @@ class CocoTextClip : CocoSelfTexturedClip
 
 		super.prepare;
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		super.paint;
+	}
 }
 
 // ==================================================================================================================================
@@ -1276,7 +1280,7 @@ class CocoBezier
 	public const SUBDIVISION_PRECISION:Float		= 0.0000001;
 	public const SUBDIVISION_MAX_ITERATIONS:Float	= 10;
 
-	private var kSplineTableSize:Float;
+	private var kSplineTableSize:Integer;
 	private var kSampleStepSize:Float;
 
 	public var mX1:Float;
@@ -1387,7 +1391,7 @@ class CocoBezier
 	private function getTForX(aX:Float):Float
 	{
 		var intervalStart:Float = 0.0;
-		var currentSample:Float = 1;
+		var currentSample:Integer = 1;
 		var lastSample:Float = kSplineTableSize - 1;
 
 		for(; currentSample != lastSample && mSampleValues[currentSample] <= aX; ++currentSample)

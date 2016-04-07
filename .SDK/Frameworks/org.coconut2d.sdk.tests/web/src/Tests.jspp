@@ -1,19 +1,5 @@
-﻿#pragma export_native
-#pragma export_web
-
-/*
-var obj1 = new Class1("Class1_arg1","Class1_arg2");
-obj1.test();
-trace(Class1.public_static_function());
-
-var obj2 = new Class2("Class2_arg1");
-obj2.test();
-trace(Class2.public_static_function());
-
-var obj3 = new Class3();
-obj3.test();
-trace(Class3.public_static_function());
-*/
+﻿#pragma export_native;
+#pragma export_web;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 state class Class1
@@ -82,9 +68,9 @@ state class Class1
 		test_virtual();
 		this.test_virtual();
 
-		public_state.tick(0)
-		private_state.tick(0)
-		protected_state.tick(0)
+		public_state.tick(0);
+		private_state.tick(0);
+		protected_state.tick(0);
 
 		trace( "Class1::public_overload()                    = " + public_overload()      					);
 		trace( "Class1::public_overload(arg1)                = " + public_overload("arg1")  				);
@@ -280,8 +266,8 @@ state class Class2 : Class1
 		trace( y );
 		trace( z );
 
-		public_state.tick(0)
-		protected_state.tick(0)
+		public_state.tick(0);
+		protected_state.tick(0);
 
 		trace( "Class2::cls2_public_function()               = " + cls2_public_function()                   );
 
@@ -340,8 +326,8 @@ state class Class3 : Class2
 		trace( x );
 		trace( z );
 
-		public_state.tick(0)
-		protected_state.tick(0)
+		public_state.tick(0);
+		protected_state.tick(0);
 
 		trace( "Class3::public_overload()                    = " + public_overload()      					);
 		trace( "Class3::public_overload(arg1)                = " + public_overload("arg1")  				);

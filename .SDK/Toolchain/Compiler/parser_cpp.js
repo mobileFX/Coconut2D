@@ -20,7 +20,7 @@ function CPPParser()
 	var classes = {};
 
 	// Get project framworks
-	var frameworks = makefile.Config.PROJECT_FRAMEWORKS.split(";");
+	var frameworks = __global.TARGET_FRAMEWORKS();
 	for(item in makefile.Components.Frameworks)
 	{
 		if(frameworks.indexOf(item)==-1) continue;

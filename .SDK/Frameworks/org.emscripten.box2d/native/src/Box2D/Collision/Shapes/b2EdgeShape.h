@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2006-2010 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -50,7 +50,7 @@ public:
 
 	/// @see b2Shape::ComputeMass
 	void ComputeMass(b2MassData* massData, float32 density) const;
-	
+
 	/// These are the edge vertices
 	b2Vec2 m_vertex1, m_vertex2;
 

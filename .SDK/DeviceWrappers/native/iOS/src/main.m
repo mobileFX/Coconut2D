@@ -38,54 +38,30 @@
 char* CocoAssetFile::filesPath;
 char* CocoAssetFile::assetPath;
 
-#define CONFIGURATION_$(UCONFIGURATION)
-#define DEBUG_HOST_IP 	"$(DEBUG_HOST_IP)"
-#define DEBUG_HOST_PORT $(DEBUG_HOST_PORT)
+#define CONFIGURATION_DEBUG
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
 	int ret = -1;
-
 	std::setlocale(LC_ALL, "en_US.UTF-8");
-
-	// Redirect the standard error stream to a remote console
-	#if defined CONFIGURATION_DEBUG
-	{
-		trace("Connecting to iOS Debug Server: %s", DEBUG_HOST_IP);
-		struct sockaddr_in debugserver_sockaddr = { AF_INET, 0, htons(DEBUG_HOST_PORT), { 0 }, { 0 } };
-		debugserver_sockaddr.sin_addr.s_addr = inet_addr(DEBUG_HOST_IP);
-		int debug_socket = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		trace("Socket Handle: %d",debug_socket);
-		if((debug_socket!=-1) && (connect(debug_socket, (struct sockaddr *) &debugserver_sockaddr, sizeof (debugserver_sockaddr))!=-1))
-		{
-			dup2(debug_socket, STDERR_FILENO);
-			trace("Connected%s\n", "");
-		}
-		else
-		{
-			trace("Failed to connect%s\n", "");
-		}
-	}
-	#endif
 
 	// Get application documents folder
 	std::string documentsDir([[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] fileSystemRepresentation]);
 	documentsDir += "/";
-	trace("Application Documents Folder: %s", documentsDir.c_str());
 
 	// Get bundle folder
 	std::string bundleDir([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);
 	bundleDir += "/assets/";
-	trace("Application Bundle Folder: %s", bundleDir.c_str());
 
 	// Initialize
 	curl_global_init(CURL_GLOBAL_ALL);
 	CocoAssetFile::init(documentsDir.c_str(), bundleDir.c_str());
-
 	CocoFontsCache::init();
-	$(FONTS_LIST)
-
+	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::Bold, "./fonts/Arial-Bold.ttf");
+	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::BoldItalic, "./fonts/Arial-BoldItalic.ttf");
+	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::Italic, "./fonts/Arial-Italic.ttf");
+	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::Regular, "./fonts/Arial.ttf");
 	CocoAudioStream::init();
 
 	#ifdef __XMLHTTPREQUEST_HPP__
@@ -104,7 +80,6 @@ int main(int argc, char *argv[])
 	CocoAudioStream::quit();
 	CocoFontsCache::quit();
 	CocoAssetFile::quit();
-
 	curl_global_cleanup();
 
 	// Done!

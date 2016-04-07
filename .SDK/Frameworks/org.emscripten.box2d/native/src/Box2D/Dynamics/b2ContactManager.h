@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -40,7 +40,7 @@ public:
 	void Destroy(b2Contact* c);
 
 	void Collide();
-            
+
 	b2BroadPhase m_broadPhase;
 	b2Contact* m_contactList;
 	int32 m_contactCount;

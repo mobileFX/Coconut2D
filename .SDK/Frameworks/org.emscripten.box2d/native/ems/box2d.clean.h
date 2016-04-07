@@ -1,4 +1,4 @@
-#line 1 "root.h"
+﻿#line 1 "root.h"
 #line 1 "root.h"
 #line 1 "<built-in>"
 #line 1 "<built-in>"
@@ -116,7 +116,7 @@ typedef struct threadlocaleinfostruct {
         int refcount;
         unsigned int lc_codepage;
         unsigned int lc_collate_cp;
-        unsigned long lc_handle[6];
+        size_t lc_handle[6];
         LC_ID lc_id[6];
         struct {
             char *locale;
@@ -352,7 +352,7 @@ extern b2Version b2_version;
 errno_t __cdecl _set_errno( int _Value);
 errno_t __cdecl _get_errno( int * _Value);
 #line 73 "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stddef.h"
-        extern unsigned long __cdecl __threadid(void);
+        extern size_t __cdecl __threadid(void);
 
         extern uintptr_t __cdecl __threadhandle(void);
 #line 27 "Box2D_v2.2.1\\Box2D/Common/b2Math.h"

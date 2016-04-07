@@ -1077,7 +1077,8 @@ function js_beautify(js_source_text, options)
 			break;
 		case 'TK_BLOCK_COMMENT':
 			var lines = token_text.split(/\x0a|\x0d\x0a/);
-			if(/^\/\*\*/.test(token_text))
+			var rx = new RegExp("^\\/\\*\\*");
+			if(rx.test(token_text))
 			{
 				print_newline();
 				output.push(lines[0]);

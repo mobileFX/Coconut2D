@@ -123,7 +123,6 @@ public:
 				return createFromBase64(str + 21, FONT_TTF);
 			else
 			{
-				trace("ERROR(CocoAssetFile.h): Unsupported data");
 				return nullptr;
 			}
 		}
@@ -146,7 +145,6 @@ public:
             else if(exists(str, true))
 				return new CocoAssetFile(str, true);
         }
-		trace("ERROR(CocoAssetFile.h): File does not exist %s", str);
 		return NULL;
     }
 
@@ -242,7 +240,6 @@ public:
 		char* ld = (char*) strrchr(str, '.');
         if(!ld)
         {
-            trace("ERROR(CocoAssetFile.h): Invalid file %s", str);
             return;
         }
         else
@@ -267,10 +264,6 @@ public:
                 length = ftell((FILE*)fd);
                 rewind((FILE*)fd);
 			}
-			else
-			{
-				trace("ERROR(CocoAssetFile.h): open asset failed %s", file);
-			}
         }
         else if(!isAsset && filesPath && str)
         {
@@ -284,10 +277,6 @@ public:
                 fseek((FILE*)fd, 0, SEEK_END);
                 length = ftell((FILE*)fd);
                 rewind((FILE*)fd);
-			}
-			else
-			{
-				trace("ERROR(CocoAssetFile.h): open file failed %s", file);
 			}
         }
 	}

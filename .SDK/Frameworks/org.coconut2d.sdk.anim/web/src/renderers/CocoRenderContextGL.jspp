@@ -22,8 +22,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_native
-#pragma export_web
+#pragma export_native;
+#pragma export_web;
+
+#include "WebGLRenderingContext.jspp"
 
 // ==================================================================================================================================
 //	   ______                 ____                 __          ______            __            __  ________
@@ -202,8 +204,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 		{
 			var c:Float = Math.cos(window.deviceRotation);
 			var s:Float = Math.sin(window.deviceRotation);
-			var orthoWidth:Float = Math.abs(c * Float(getBufferWidth()) + s * Float(getBufferHeight()));
-			var orthoHeight:Float = Math.abs(-s * Float(getBufferWidth()) + c * Float(getBufferHeight()));
+			var orthoWidth:Float = Math.abs(c * getBufferWidth() + s * getBufferHeight());
+			var orthoHeight:Float = Math.abs(-s * getBufferWidth() + c * getBufferHeight());
 
 			gl.viewport(0, 0, orthoWidth, orthoHeight);
 			__projectionMatrix.ortho(-orthoWidth / 2.0, orthoWidth / 2.0, orthoHeight / 2.0,  -orthoHeight / 2.0, -1.0, 1.0);
@@ -225,7 +227,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		__modelViewMatrix.identity();
 
 		// Initialize Viewport Vector
-		__viewportVector.reset(-(Float(getBufferWidth()) / 2.0) / viewScale, Float(getBufferWidth()) / 2.0 / viewScale, Float(getBufferHeight()) / 2.0 / viewScale, -(Float(getBufferHeight()) / 2.0 / viewScale));
+		__viewportVector.reset(-(getBufferWidth() / 2.0) / viewScale, getBufferWidth() / 2.0 / viewScale, getBufferHeight() / 2.0 / viewScale, -(getBufferHeight() / 2.0 / viewScale));
 
 		// Initialize Shaders
 		shaderBoundingBox.initialize(gl, __projectionMatrix);
@@ -348,8 +350,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 			var tileCountX:Integer = img.tileMap[0];
 			var tileMapCols:Integer = img.tileMap[1];
 			var tileMapRows:Integer = img.tileMap[2];
-			var vCount:Integer = Math.min(tileMapCols, Integer(Math.ceil(img.textureCellWidth / img.tileWidth)));
-			var hCount:Integer = Math.min(tileMapRows, Integer(Math.ceil(img.textureCellHeight / img.tileHeight)));
+			var vCount:Integer = Math.min(tileMapCols, Math.ceil(img.textureCellWidth / img.tileWidth));
+			var hCount:Integer = Math.min(tileMapRows, Math.ceil(img.textureCellHeight / img.tileHeight));
 			var tileCount:Integer = 0;
 			var paddingSize:Float = img.pixelRatio;
 			for(var y:Integer = hCount; y--;)

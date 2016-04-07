@@ -22,7 +22,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 #import "CocoDeviceOpenGLContext.h"
 
 @implementation CocoDeviceOpenGLContext
@@ -36,69 +35,33 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)rect contentsScale:(CGFloat)scale
 {
-    float iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    UIInterfaceOrientation ori 	= [[UIApplication sharedApplication] statusBarOrientation];
 
-    if(iOSVersion<8)
-    {
-        UIInterfaceOrientation ori = [[UIApplication sharedApplication] statusBarOrientation];
+	//bool is_iPad 				= (UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPhone);
+    //float iOSVersion 			= [[[UIDevice currentDevice] systemVersion] floatValue];
+    //bool screen_is_landscape	= (rect.size.height < rect.size.width);
+	//bool is_iPhone 				= !is_iPad;
 
-        // Get current screen orientation
-        bool screen_is_landscape = (rect.size.height < rect.size.width);
-        bool is_iPad = (UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPhone);
-        bool is_iPhone = !is_iPad;
+	bool PORTRAIT = (ori==UIInterfaceOrientationPortrait);
 
-        screen.pixelRatio = scale;
-
-        if(is_iPhone)
-        {
-            switch(ori)
-            {
-                default:
-                case UIInterfaceOrientationPortrait: 			screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true;  break;
-                case UIInterfaceOrientationPortraitUpsideDown: 	screen.rotation = fxScreen::Rotation::FULL; screen.isPortrait = true;  break;
-                case UIInterfaceOrientationLandscapeLeft: 		screen.rotation = fxScreen::Rotation::RCW;  screen.isPortrait = false; break;
-                case UIInterfaceOrientationLandscapeRight: 		screen.rotation = fxScreen::Rotation::RCCW; screen.isPortrait = false; break;
-            }
-        }
-        else
-        {
-            switch(ori)
-            {
-                default:
-                case UIInterfaceOrientationPortrait: 			screen.rotation = fxScreen::Rotation::NONE; screen.isPortrait = true;  break;
-                case UIInterfaceOrientationPortraitUpsideDown: 	screen.rotation = fxScreen::Rotation::FULL; screen.isPortrait = true;  break;
-                case UIInterfaceOrientationLandscapeLeft: 		screen.rotation = fxScreen::Rotation::RCW;  screen.isPortrait = false; break;
-                case UIInterfaceOrientationLandscapeRight: 		screen.rotation = fxScreen::Rotation::RCCW; screen.isPortrait = false; break;
-            }
-        }
-
-        switch(ori)
-        {
-            case UIInterfaceOrientationPortrait:
-            case UIInterfaceOrientationPortraitUpsideDown:
-                screen.top = [UIApplication sharedApplication].statusBarFrame.size.height;
-                screen.width = rect.size.width;
-                screen.height = rect.size.height;
-                break;
-
-            case UIInterfaceOrientationLandscapeLeft:
-            case UIInterfaceOrientationLandscapeRight:
-                screen.top = [UIApplication sharedApplication].statusBarFrame.size.width;
-                screen.isPortrait = false;
-                screen.width = rect.size.height;
-                screen.height = rect.size.width;
-                break;
-        }
-    }
-    else
-    {
-		screen.pixelRatio = scale;
-		screen.rotation =fxScreen::Rotation::NONE;
-		screen.isPortrait=false;
-		screen.top = 0;
-		screen.width = rect.size.width;
-		screen.height = rect.size.height;
-    }
+	if(PORTRAIT)
+	{
+	    screen.pixelRatio	= scale;
+		screen.rotation 	= fxScreen::Rotation::NONE;
+		screen.isPortrait	= true;
+		screen.top 			= 0;
+		screen.width 		= (uint32_t) rect.size.width;
+		screen.height 		= (uint32_t) rect.size.height;
+	}
+	else
+	{
+	    screen.pixelRatio	= scale;
+		screen.rotation 	= fxScreen::Rotation::RCW;
+		screen.isPortrait	= true;
+		screen.top 			= 0;
+		screen.width 		= (uint32_t) rect.size.height;
+		screen.height 		= (uint32_t) rect.size.width;
+	}
 
     if((self = [super initWithFrame:rect]))
     {
@@ -110,7 +73,6 @@
                                                          kEAGLDrawablePropertyColorFormat,
                                                          nil];
     }
-
     return self;
 }
 
@@ -125,21 +87,13 @@
 {
 	context = [[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2] autorelease];
     [EAGLContext setCurrentContext:context];
-
-    if(screen.isPortrait)
-		glViewport(0, 0, screen.width * screen.pixelRatio, screen.height * screen.pixelRatio);
-	else
-		glViewport(0, 0, screen.height * screen.pixelRatio, screen.width * screen.pixelRatio);
-
+    glViewport(0, 0, (GLsizei) (screen.width * screen.pixelRatio), (GLsizei) (screen.height * screen.pixelRatio));
     glGenFramebuffers(1, &fbuff);
     glBindFramebuffer(GL_FRAMEBUFFER, fbuff);
-
     glGenRenderbuffers(1, &rbuff);
     glBindRenderbuffer(GL_RENDERBUFFER, rbuff);
 	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, screen.width * screen.pixelRatio, screen.height * screen.pixelRatio);
-
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbuff);
-
     [self initGLRenderStorage];
 }
 
@@ -186,3 +140,4 @@
 }
 
 @end
+

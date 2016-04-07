@@ -39,24 +39,27 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef ENABLE_FREETYPE_SUPPORT
-
 class CocoFontsCache
 {
 public:
-	enum FONT_STYLE {
+
+	enum FONT_STYLE
+	{
 		None,
 		Regular,
 		Italic,
 		Bold,
 		BoldItalic
 	};
+
 private:
     static FT_Library ftLibrary;
     static std::map<CocoFontsCache, FT_Face> fonts;
+
 protected:
 	std::string name;
 	FONT_STYLE style;
+
 public:
 	bool operator<(const CocoFontsCache& b) const;
     static void add(std::string name, FONT_STYLE style, const char* filename);
@@ -67,24 +70,6 @@ public:
 	CocoFontsCache(std::string i_name, FONT_STYLE i_style);
 	CocoFontsCache();
 };
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-#else
-
-class CocoFontsCache
-{
-public:
-    static void add(const char* name, FONT_STYLE style, const char* filename) { LOGW("Fonts not supported!\n"); }
-    static const FT_Face* get(const char* name, FONT_STYLE style) { LOGW("Fonts not supported!\n"); return nullptr; }
-    static void init() { LOGW("Fonts not supported!\n"); }
-    static void quit(){ LOGW("Fonts not supported!\n"); }
-
-	CocoFontsCache(const char* i_name, FONT_STYLE i_style) : name(i_name), style(i_style) {}
-    inline void getFace() const { LOGW("Fonts not supported!\n"); }
-    inline bool hasKerning() const { LOGW("Fonts not supported!\n"); return false; }
-};
-
-#endif /* ENABLE_FREETYPE_SUPPORT */
 
 #endif // __COCOFONTSMANAGER_HPP__
 

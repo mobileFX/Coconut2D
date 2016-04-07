@@ -22,8 +22,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_native
-#pragma export_web
+#pragma export_native;
+#pragma export_web;
 
 #include "CanvasRenderingContext2D.jspp"
 
@@ -103,10 +103,10 @@ class CocoGraphics
 	public static function NewCanvas(width:Float, height:Float, pot:Boolean) :HTMLCanvasElement
 	{
     	var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
-    	width = Math.max(1.0, Math.floor(width));
-    	height = Math.max(1.0, Math.floor(height));
-		canvas.width = Math.max(1.0, Math.floor(pot ? POT(width) : width));
-		canvas.height = Math.max(1.0, Math.floor(pot ? POT(height) : height));
+    	width = Math.max(1, Math.floor(width));
+    	height = Math.max(1, Math.floor(height));
+		canvas.width = Math.max(1, Math.floor(pot ? POT(width) : width));
+		canvas.height = Math.max(1, Math.floor(pot ? POT(height) : height));
 		return canvas;
 	}
 
@@ -169,7 +169,7 @@ class CocoGraphics
 
 	public static function GetSkinFromCache(skinImage:CocoImage, width:Float, height:Float) :CocoImage
 	{
-		if(!skinImage || !width || !height)
+		if(!skinImage || width==0 || height==0)
 			return null;
 
 		// Initialize skin cache array
@@ -205,7 +205,7 @@ class CocoGraphics
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float, optional mime:String) :CocoImage
+	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float, optional mime:String = "image/png") :CocoImage
 	{
         var img:CocoImage = new CocoImage();
         img.hImage = new Image();
@@ -215,7 +215,8 @@ class CocoGraphics
         if(mime=="") mime = "image/png";
         try
         {
-        	img.hImage.load(canvas.toDataURL(mime));
+        	var data:String = canvas.toDataURL(mime);
+        	img.hImage.load(data);
         }
         catch(e:Error)
         {
@@ -263,18 +264,18 @@ class CocoGraphics
 	    if(__fixedW([RW3H1, RW3H2, RW3H3])) C[2] = W3;
 
 		// Count how many cells have fixed height and divide the remaining height to the others
-		F = Float(__countFixed([H1, H2, H3]) - __countFixed(R));
-		RmH = Math.max(Float(0.0), height - R[0] - R[1] - R[2]);
-		if(H1 && !R[0]) R[0] =(RmH / F);
-		if(H2 && !R[1]) R[1] =(RmH / F);
-		if(H3 && !R[2]) R[2] =(RmH / F);
+		F = __countFixed([H1, H2, H3]) - __countFixed(R);
+		RmH = Math.max(0, height - R[0] - R[1] - R[2]);
+		if(H1!=0 && R[0]==0) R[0] =(RmH / F);
+		if(H2!=0 && R[1]==0) R[1] =(RmH / F);
+		if(H3!=0 && R[2]==0) R[2] =(RmH / F);
 
 		// Count how many cells have fixed width and divide the remaining width to the others
-		F = Float(__countFixed([W1, W2, W3]) - __countFixed(C));
-		RmW = Math.max(Float(0.0), width - C[0] - C[1] - C[2]);
-		if(W1 && !C[0]) C[0] = (RmW / F);
-		if(W2 && !C[1]) C[1] = (RmW / F);
-		if(W3 && !C[2]) C[2] = (RmW / F);
+		F = __countFixed([W1, W2, W3]) - __countFixed(C);
+		RmW = Math.max(0, width - C[0] - C[1] - C[2]);
+		if(W1!=0 && C[0]==0) C[0] = (RmW / F);
+		if(W2!=0 && C[1]==0) C[1] = (RmW / F);
+		if(W3!=0 && C[2]==0) C[2] = (RmW / F);
 
 	    // Draw slices
 
@@ -297,7 +298,7 @@ class CocoGraphics
 	/////////////////////////////////////////////////////////////////////////////////////
 	private static function __drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Float, cy:Float, cw:Float, ch:Float, sx:Float, sy:Float, sw:Float, sh:Float, r:COCO_SKIN_TILE_ENUM)
 	{
-	    if(!cw || !ch || !sw || !sh) return;
+	    if(cw==0 || ch==0 || sw==0 || sh==0) return;
 	    if(r == COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE)
 	        __drawRegion(ctx, skin, sx, sy, sw, sh, cx, cy, cw, ch);
 	    else
@@ -310,7 +311,7 @@ class CocoGraphics
 	    var c:Integer = 0;
 	    var L:Integer = v.size();
 	    for(var i:Integer=0; i<L; i++)
-	    	if(v[i]) c++;
+	    	if(v[i]!=0) c++;
 	    return c;
 	}
 
@@ -357,7 +358,7 @@ class CocoGraphics
 	/////////////////////////////////////////////////////////////////////////////////////
 	private static function __drawRegion(ctx:CanvasRenderingContext2D, image:CocoImage, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)
 	{
-		if(!ctx || !image || !sw || !sh || !dw || !dh)
+		if(!ctx || !image || sw==0 || sh==0 || dw==0 || dh==0)
 			return;
 
 		ctx.drawImage(image.hImage, sx+image.binpackX, sy+image.binpackY, sw, sh, dx, dy, dw, dh);

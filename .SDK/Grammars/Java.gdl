@@ -1,0 +1,659 @@
+// ***** BEGIN LICENSE BLOCK *****
+//
+// Copyright (C) 2013-2014 www.coconut2D.org
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+// ***** END LICENSE BLOCK ***** */
+
+
+// REMEMBER: This grammar is not intented for compilation but for symbol
+//			 extraction, so you should optimize it for parsing speed!!
+
+grammar Java
+<
+	MATCHCASE,
+	FILE_EXT_LIST=".java"
+>
+{
+
+	//----------------------------------------------------------------------
+	// Compilation Unit
+	//----------------------------------------------------------------------
+
+	compilation_unit ::= package_statement
+						 [{import_statement}]
+						 [{type_declaration}] ;
+
+	//----------------------------------------------------------------------
+	// Whitespace & Comments
+	//----------------------------------------------------------------------
+
+	whitespace 			<WHITESPACE> 			::= '[\s\n\r]+';
+	comment <COMMENT> ::= '//+[^\n\r]*$';
+	multiline_comment 	<MULTILINE_COMMENT> 	::= '/(?!/+)(?=\*)(?:.|[\n\r])*?\*/';
+
+	//----------------------------------------------------------------------
+	// Package - Import Statements
+	//----------------------------------------------------------------------
+
+	package_statement <PACKAGE,SCOPE,STATEMENT> ::= "package" package_name {";"};
+
+	package_name <TERMINAL,PACKAGE_NAME> ::= ("$" "(" "PROJECT_PACKAGE" ")") | { uncaptured_ident, "." };
+
+	import_statement <STATEMENT> ::= "import" ["static"] { uncaptured_ident, "." } [ "." "*" ] {";"};
+
+	//----------------------------------------------------------------------
+	// Annotations
+	//----------------------------------------------------------------------
+
+	Annotation <TERMINAL>::= "@" AnnotationName [ AnnotationElement ];
+
+	AnnotationName ::= { identifier, "." };
+
+	AnnotationElement ::= "(" [AnotaionValues] ")";
+
+	AnotaionValues ::= { AnotaionValue, "," };
+
+	AnotaionValue ::=
+		STRING_LITERAL
+		| (AnnotationName ["=" (AnotaionArray|AnotaionExpression)])
+		| AnotaionArray;
+
+	AnotaionExpression ::= expression;
+
+	AnotaionArray ::= "{" { (Annotation|AnotaionValue), "," } "}";
+
+
+	//============================================================================================================================
+	//
+	// Type Declarations
+	//
+	//============================================================================================================================
+
+	type_declaration  ::= class_declaration
+						| enum_declaration
+						| interface_declaration
+						| ";"
+						;
+
+	//----------------------------------------------------------------------
+	// CLASS
+	//----------------------------------------------------------------------
+
+	class_declaration<CLASS,SCOPE,STATEMENT> ::=	 [ {Annotation} ]
+													 [ class_modifiers ] "class" class_name
+												 	 [ TypeParameters ]
+												 	 [ "extends" class_base ]
+												 	 [ "implements" { class_interface, "," } ]
+												 	 "{"
+												 	 	[ class_field_declarations ]
+												 	 "}";
+
+	class_modifiers <TERMINAL,CLASS_MODIFIER> 	::= modifiers;
+	class_name <TERMINAL,CLASS_NAME> 			::= ident;
+	class_base <TERMINAL,CLASS_BASE> 			::= type;
+	class_interface <TERMINAL,CLASS_INTERFACE> 	::= type;
+
+	class_field_declarations ::= { class_field_declaration };
+
+	class_field_declaration ::=
+								  static_initializer
+								| constructor_declaration
+								| variable_declaration
+								| method_declaration
+								| type_declaration
+								| ";" ;
+
+	constructor_declaration <STATEMENT,METHOD,CONSTRUCTOR> 	::= [ { method_modifiers } ] ident
+															parameter_list
+															[throws_clause]
+															STATEMENTS ;
+
+	static_initializer ::= ["static"] STATEMENT;
+
+	//----------------------------------------------------------------------
+	// INTERFACE
+	//----------------------------------------------------------------------
+
+	interface_declaration<INTERFACE,SCOPE,STATEMENT> ::=	[ {Annotation} ]
+															[ interface_modifiers ] ("interface"|"@interface") interface_name
+															[ type ]
+															[ "extends" { interface_base, ","} ]
+															"{"
+																[ interface_field_declarations ]
+															"}" ;
+
+	interface_field_declarations 	::= { interface_field_declaration } ;
+
+	interface_field_declaration 	::=   variable_declaration
+									  	| method_declaration
+									  	| class_declaration
+									  	| interface_declaration
+									  	| static_initializer
+									  	| ";" ;
+
+	interface_modifiers <TERMINAL,INTERFACE_MODIFIER> 	::= modifiers;
+	interface_name <TERMINAL,INTERFACE_NAME> 	 		::= type;
+	interface_base <TERMINAL,INTERFACE_BASE> 			::= type;
+
+	//----------------------------------------------------------------------
+	// ENUM
+	//----------------------------------------------------------------------
+
+	enum_declaration <ENUM,SCOPE,STATEMENT>	::= [ {Annotation} ]
+											    [ enum_modifiers ] "enum" enum_name
+												[ "implements" { enum_interface, ","} ]
+												"{"
+													{ enum_item, "," } [";"] [","]
+													[ { class_field_declaration } ]
+												"}";
+
+	enum_modifiers <TERMINAL,ENUM_MODIFIER>		::= modifiers;
+	enum_name <TERMINAL,ENUM_NAME> 	 			::= type;
+	enum_interface <TERMINAL,ENUM_INTERFACE> 	::= type;
+
+	enum_item <ENUM_ITEM>						::= [Annotation] enum_item_name ["(" [enum_item_value] ")"] [enum_item_members];
+	enum_item_name <TERMINAL,ENUM_ITEM_NAME> 	::= ident;
+	enum_item_value <TERMINAL,ENUM_ITEM_VALUE> 	::= { expression, "," };
+	enum_item_members							::= "{" { method_declaration} "}";
+
+
+	//----------------------------------------------------------------------
+	// FUNCTION
+	//----------------------------------------------------------------------
+
+	method_declaration ::= [ {Annotation} ] ( void_method | normal_method | method_template);
+
+
+
+	void_method <METHOD,SCOPE,STATEMENT> 			::= [ method_modifiers ]
+														method_name parameter_list
+														[empty_subscripts]
+														[ "default" expression ]
+														[throws_clause]
+														(STATEMENTS | ";") ;
+
+	normal_method <METHOD,SCOPE,STATEMENT> 			::= [ method_modifiers ]
+														[TypeParameters]
+														method_type
+														method_name parameter_list
+														[empty_subscripts]
+														[ "default" expression ]
+														[throws_clause]
+														(STATEMENTS | ";") ;
+
+	method_template <METHOD,SCOPE,STATEMENT> 		::= [ method_modifiers ]
+														TypeParameters
+														method_name parameter_list
+														[empty_subscripts]
+														[ "default" expression ]
+														[throws_clause]
+														(STATEMENTS | ";") ;
+
+	method_modifiers <TERMINAL,METHOD_MODIFIER>		::= modifiers;
+	method_name <TERMINAL,METHOD_NAME> 				::= ident;
+	method_type <TERMINAL,METHOD_TYPE> 				::= type;
+
+	parameter_list 									::= "(" [ { parameter, ","} ] ")";
+	parameter <METHOD_ARG> 							::= param_modifier param_type param_name;
+	param_modifier <TERMINAL,METHOD_ARG_MODIFIER> 	::= ["final"];
+	param_type <TERMINAL,METHOD_ARG_TYPE> 			::= type ["..."];
+	param_name <TERMINAL,METHOD_ARG_NAME> 			::= ident [empty_subscripts];
+
+	throws_clause ::= "throws" { QualifiedIdentifier, "," };
+
+	QualifiedIdentifier::=
+		{ identifier, "." }
+		;
+
+	//----------------------------------------------------------------------
+	// VAR (as class member)
+	//----------------------------------------------------------------------
+
+	variable_declaration <STATEMENT,VAR>	::= [ {Annotation} ] [ var_modifiers ] var_type variable_declarators ";" ;
+
+	variable_declarators 					::= { variable_declarator, var_separator };
+	variable_declarator 					::= var_name [empty_subscripts] ["=" variable_init];
+
+	var_modifiers <VAR_MODIFIER> 			::= modifiers;
+	var_type <TERMINAL,VAR_TYPE>			::= type;
+	var_name <VAR_NAME> 					::= ident;
+	variable_init <VAR_INITIALIZER>			::= expression;
+	var_separator <VAR_NEXT>				::= ",";
+
+	//----------------------------------------------------------------------
+	// Access Modifiers
+	//----------------------------------------------------------------------
+
+	modifiers ::= { modifier };
+
+	modifier<TERMINAL,MODIFIERS> ::=   "abstract"
+									 | "final"
+									 | "native"
+									 | "private"
+									 | "protected"
+									 | "public"
+									 | "static"
+									 | "synchronized"
+									 | "threadsafe"
+									 | "transient"
+									 | "volatile"
+									 | "strictfp"
+									 ;
+
+	//============================================================================================================================
+	//
+	// Statements
+	//
+	//============================================================================================================================
+
+	STATEMENTS ::= EMPTY_BLOCK | STATEMENTS_BLOCK;
+
+	EMPTY_BLOCK					::= "{" "}";
+	STATEMENTS_BLOCK <SCOPE> 	::= "{" { STATEMENT } "}";
+
+	STATEMENT ::=
+		  STATEMENTS
+		| assert
+		| break
+		| continue
+		| do
+		| for
+		| for_in
+		| if_else
+		| return
+		| switch
+		| synchronized
+		| while
+		| try
+		| throw
+		| label
+		| variable_declaration
+		| EXPRESSION
+		| type_declaration
+		| ";"
+		;
+
+	//------------------------------------------------------------
+	EXPRESSION <STATEMENT,ERROR="Invalid Expression"> ::= expression ";";
+
+	//------------------------------------------------------------
+
+	assert ::= "assert" expression [ ":" expression ];
+
+	try <STATEMENT,SCOPE,FRIENDLYNAME="try statement"> ::=
+	    "try" [  "(" {(var_type variable_declarators),";"} ")" ]
+		STATEMENT
+	    [ { catch } ]
+	    [ finally ];
+
+	catch <SCOPE> ::=
+	    "catch" "(" {(context_var|var_type), "|"} ")"
+	    STATEMENT;
+
+	finally <SCOPE> ::=
+	    "finally"
+	    STATEMENT;
+
+	context_var <VAR> ::= ["final"] var_type var_name;
+
+	//------------------------------------------------------------
+	throw <STATEMENT,FRIENDLYNAME="throw statement"> ::=
+	    "throw" expression ";";
+
+	//------------------------------------------------------------
+	break <STATEMENT, FRIENDLYNAME="break statement"> ::=
+	    "break" [ident] ";";
+
+	//------------------------------------------------------------
+	continue <STATEMENT, FRIENDLYNAME="continue statement"> ::=
+	    "continue" [ident] ";";
+
+	//------------------------------------------------------------
+	for <STATEMENT, FRIENDLYNAME="for statement">	::=
+		"for" "(" for_init for_expr [for_incr] ")" STATEMENT;
+
+	for_init ::= variable_declaration
+			   | ( expression_list ";" )
+			   | ";" ;
+
+	for_expr ::= [expression_list] ";" ;
+
+	for_incr ::= expression_list ;
+
+	//------------------------------------------------------------
+	for_in <STATEMENT, FRIENDLYNAME="for_in statement">	::=
+		"for" "(" for_in_init ":" expression ")" STATEMENT;
+
+	for_in_init <VAR> ::= ["final"] var_type variable_declarators;
+
+	//------------------------------------------------------------
+	if_else <STATEMENT, FRIENDLYNAME="if statement"> ::=
+	    "if" "(" expression ")"
+		STATEMENT
+	    [
+	     "else"
+		STATEMENT
+	    ];
+
+	//------------------------------------------------------------
+	label <STATEMENT, FRIENDLYNAME="label statement"> ::=
+	    ident ":" STATEMENT ;
+
+	//------------------------------------------------------------
+	return <STATEMENT, FRIENDLYNAME="return statement"> ::=
+	    "return" [expression] ";";
+
+	//------------------------------------------------------------
+	switch <STATEMENT, FRIENDLYNAME="switch statement"> ::=
+	    "switch" "(" expression ")"
+	    "{"
+		[{ case }]
+		[default]
+		[{ case }]
+	    "}";
+
+	case <STATEMENT,SCOPE> ::=
+	    "case" expression  ":"
+		[ { STATEMENT } ];
+
+	default <STATEMENT,SCOPE> ::=
+	    "default"  ":"
+		[ { STATEMENT } ];
+
+	//------------------------------------------------------------
+	do <STATEMENT, FRIENDLYNAME="do-while loop statement"> ::=
+	    "do"
+		STATEMENT
+	    "while" "(" expression ")" ";";
+
+	//------------------------------------------------------------
+	while <STATEMENT, FRIENDLYNAME="while loop statement"> ::=
+	    "while" "(" expression ")"
+		[ STATEMENT ] [";"];
+
+
+	//------------------------------------------------------------
+	synchronized <STATEMENT> ::=
+		"synchronized" "(" expression ")" STATEMENT;
+
+	//============================================================================================================================
+	//
+	// Expressions
+	//
+	//============================================================================================================================
+
+	//----------------------------------------------------------------------
+	// Operators
+	//----------------------------------------------------------------------
+
+	OPERATOR <OPERATOR> ::= "="    | "*="  | "/="  | "%="
+		                  | "+="   | "-="  | "<<=" | ">>="
+		                  | ">>>=" | "&="  | "^="  | "|="
+		                  | "||"   | "&&"  | "|"   | "^"
+		                  | "&"    | "=="  | "!="  | "<"
+		                  | ">"    | ">="  | "<="  | "==="
+		                  | "!=="  | ">>>" | ">>"  | "<<"
+		                  | "+"    | "-"   | "/"   | "*"
+		                  | "%"    | "~"   | "instanceof"
+		                  ;
+
+	unary_op  	<OPERATOR> ::= "-" | "~" | "+";
+	prefix_op 	<OPERATOR> ::= "++" | "--" | "typeof";
+	postfix_op	<OPERATOR> ::= "++" | "--";
+
+	expression <SHOWDELIMITERS> ::= { ternary_expr, OPERATOR };
+
+	ternary_expr ::= { factor, "." } [ "?" expression ":" expression ];
+
+	//----------------------------------------------------------------------
+	// Expression Factors
+	//----------------------------------------------------------------------
+
+	factor 	::=   TRUE
+				| FALSE
+				| NULL
+				| NUMERIC_LITERAL
+				| STRING_LITERAL
+				| CHARACTER_LITERAL
+				| lambda_expression
+				| creating_expression
+				| array_init_expression
+				| ("(" type ")" expression)
+				| ("!" expression)
+				| [prefix_op] ("(" expression ")" [ { (reference_subscript | reference_call) } ] )
+				| (unary_op expression)
+				| ([prefix_op] reference [postfix_op])
+				;
+
+	//============================================================================================================================
+	//
+	// Terminals and Reference (DOT, CALL, SUBSCRIPT)
+	//
+	//============================================================================================================================
+
+	ident 				<TERMINAL, IDENTIFIER> 	::= ^keyword identifier;
+	uncaptured_ident 	<TERMINAL>				::= ^keyword identifier;
+
+	expression_list								::=	{ expression, "," };
+
+	reference			<DOT>					::= { reference_term, "." };
+	reference_subscript	<SUBSCRIPT>				::= "[" [expression] "]";
+	reference_call		<CALL>					::= call_group;
+	reference_term 								::= "class" | reference_ident ;
+	reference_ident								::= [TypeArguments] ident [TypeArguments] [ reference_subscript_or_call ];
+	reference_subscript_or_call					::= { (reference_subscript | reference_call) };
+
+	call_group									::= call_zero_args | call_with_args;
+	call_zero_args								::= "(" ")";
+	call_with_args								::= "(" expression_list ")";
+
+	empty_subscripts 							::= { ("[" "]") };
+
+	array_init_expression						::= "{" [expression_list] [","] "}";
+
+	type										::= ((scalar_type [empty_subscripts]) | reference_type) ;
+	reference_type								::= { (ident [empty_subscripts] [TypeArguments] [empty_subscripts]), "." };
+
+	TypeArguments								::= ("<" ">") | ( "<" { TypeArgument, "," } ">" );
+	TypeArgument								::= ("?" | reference_type) [ ("extends" | "super") reference_type ];
+	TypeParameters								::= "<" { TypeParameter, "," } ">";
+	TypeParameter								::= ident ["extends" TypeParameterBound];
+	TypeParameterBound							::= { reference_type, "&" };
+
+	//----------------------------------------------------------------------
+	// "new"
+	//----------------------------------------------------------------------
+
+	// Creating expression must push existing DOT
+	creating_expression <SCOPE>	::= ( new_array_instance | new_sized_array | anonymous_class_expr | class_instance_expr ) ["." reference];
+
+	class_instance_expr ::= "new" type call_group;
+
+	// Anonymous Class in Java is not anonymous!
+	anonymous_class_expr <CLASS,ANONYMOUS_CLASS,SCOPE> ::=	"new" anonymous_class_name
+															call_group
+															"{"
+																[class_field_declarations]
+															"}";
+
+	anonymous_class_name <TERMINAL,CLASS_NAME> ::= type;
+
+	new_array_instance	::= "new" type array_init_expression;
+
+	new_sized_array		::= "new" type { ("[" [expression] "]") };
+
+	lambda_expression	::= parameter_list "->" (STATEMENTS | ";");
+
+	//============================================================================================================================
+	//
+	// Literals
+	//
+	//============================================================================================================================
+
+	// The Lexer is Regular Expression oriented and not character oriented, so we need to
+	// define good regular expressions for literals, especially strings and numbers.
+
+	STRING_LITERAL 		<TERMINAL,STRING> 		::= '\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27';
+	NUMERIC_LITERAL 	<TERMINAL> 				::= '(?:\b\d+\.(?![\d+-]+)[fdFD]?)|(?:\.\d+[fdFD]?)|(?:\d+(?:\.\d+)?[eE][-+]?\d+[fF]?)|(?:0[xX][0-9a-fA-F]+[fdlFDL]?(?:\.\d+[pP])?)|(?:\d+\.\d+[fdFD]?)|(?:\d+[fdlFDL]?)';
+	CHARACTER_LITERAL 	<TERMINAL>				::= '\x27[^\x27]\x27';
+	identifier 									::= '[a-zA-Z_\$][a-zA-Z0-9_\$]*';
+
+	GLOBAL 		<TERMINAL, CLASS_GLOBAL>			::= "Global";			// The name of the Global Scope or Global Class
+	VOID 		<TERMINAL, CLASS_VOID>				::= "void";				// The name of the void VarType
+
+	THIS 		<TERMINAL, IDENTIFIER_THIS>			::= "this";				// The "this" identifier
+	SUPER 		<TERMINAL, IDENTIFIER_SUPER>		::= "super";			// The "supper" identifier
+	NULL 		<TERMINAL, IDENTIFIER_NULL>			::= "null";				// The "null" identifier
+
+	BOOLEAN		<TERMINAL, CLASS_BOOLEAN>			::= "Boolean";			// The name of the Boolean Class
+	TRUE 		<TERMINAL, IDENTIFIER_TRUE>			::= "true";				// The "true" identifier
+	FALSE 		<TERMINAL, IDENTIFIER_FALSE>		::= "false";			// The "false" identifier
+
+	COMMIT_REPARSE	<COMMIT_STATEMENT>				::= ";";				// Commit statement punctuation
+
+	//============================================================================================================================
+	// MemberList Directives
+	//============================================================================================================================
+
+	IMPLEMENTS <MEMBERLIST_VARTYPES="INTERFACE">
+		::= "implements";
+
+	NEW	<MEMBERLIST_VARTYPES="CLASS">
+		::= "new";
+
+	//============================================================================================================================
+	//
+	// VarTypes
+	//
+	//============================================================================================================================
+
+	// NOTE: keep string literals in the following productions because
+	//       disjunctions of string literals are optimized for speed.
+
+	// Scalars
+
+	scalar_type<SCALARS> ::= "boolean"
+							| "byte"
+							| "char"
+							| "short"
+							| "int"
+							| "float"
+							| "long"
+							| "double"
+							| "void"
+							;
+
+	// Classes (internally defined)
+
+	vartypes <VARTYPES>	::=   "Appendable"
+							| "CharSequence"
+							| "Cloneable"
+							| "Comparable"
+							| "Iterable"
+							| "Readable"
+							| "Runnable"
+							| "UncaughtExceptionHandler"
+
+							| "Boolean"
+							| "Byte"
+							| "Class"
+							| "Character"
+							| "ClassLoader"
+							| "Compiler"
+							| "Double"
+							| "Enum"
+							| "Float"
+							| "Integer"
+							| "InheritableThreadLocal"
+							| "Long"
+							| "Math"
+							| "Number"
+							| "Object"
+							| "Package"
+							| "Process"
+							| "ProcessBuilder"
+							| "Runtime"
+							| "RuntimePermission"
+							| "SecurityManager"
+							| "Short"
+							| "StackTraceElement"
+							| "StrictMath"
+							| "String"
+							| "StringBuffer"
+							| "StringBuilder"
+							| "System"
+							| "Thread"
+							| "ThreadGroup"
+							| "ThreadLocal"
+							| "Throwable"
+							| "Void"
+							| "State"
+							;
+
+	//============================================================================================================================
+	//
+	// Keywords
+	//
+	//============================================================================================================================
+
+	keyword<KEYWORDS> ::= "abstract"
+						| "assert"
+						| "break"
+						| "case"
+						| "catch"
+						| "class"
+						| "const"
+						| "continue"
+						| "default"
+						| "do"
+						| "else"
+						| "enum"
+						| "extends"
+						| "final"
+						| "finally"
+						| "for"
+						| "goto"
+						| "if"
+						| "implements"
+						| "import"
+						| "instanceof"
+						| "interface"
+						| "native"
+						| "new"
+						| "package"
+						| "private"
+						| "protected"
+						| "public"
+						| "return"
+						| "static"
+						| "strictfp"
+						| "switch"
+						| "synchronized"
+						| "throw"
+						| "throws"
+						| "transient"
+						| "try"
+						| "volatile"
+						| "while"
+						;
+};
+
+

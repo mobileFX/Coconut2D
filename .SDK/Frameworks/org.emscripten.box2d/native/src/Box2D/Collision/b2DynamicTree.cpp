@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2009 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -456,7 +456,7 @@ int32 b2DynamicTree::Balance(int32 iA)
 
 		return iC;
 	}
-	
+
 	// Rotate B up
 	if (balance < -1)
 	{

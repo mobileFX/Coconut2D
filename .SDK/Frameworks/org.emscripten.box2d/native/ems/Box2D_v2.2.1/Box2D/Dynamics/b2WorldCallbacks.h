@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2006-2009 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -128,7 +128,7 @@ public:
 class b2QueryCallback
 {
 public:
-	b2QueryCallback() {} 
+	b2QueryCallback() {}
 	virtual ~b2QueryCallback() {}
 
 	/// Called for each fixture found in the query AABB.

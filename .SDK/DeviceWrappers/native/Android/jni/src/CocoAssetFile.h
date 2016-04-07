@@ -133,10 +133,10 @@ public:
 				return createFromBase64(str + 21, FONT_TTF);
 			else
 			{
-				trace("ERROR(CocoAssetFile.h): Unsupported data");
 				return nullptr;
 			}
 		}
+
         if(str && strlen(str) > 2 && str[0] == '.' && str[1] == '/')
         {
             if(exists(str, false))
@@ -144,7 +144,7 @@ public:
             else if(exists(str, true))
 				return new CocoAssetFile(str, true);
         }
-		trace("ERROR(CocoAssetFile.h): File does not exist %s", str);
+
 		return NULL;
     }
 
@@ -229,8 +229,6 @@ public:
 	//
 	// ==================================================================================================================================
 
-
-
 	CocoAssetFile(size_t i_length)
 	{
 		file = nullptr;
@@ -259,7 +257,6 @@ public:
 		char* ld = (char*) strrchr(str, '.');
         if(!ld)
         {
-            trace("ERROR(CocoAssetFile.h): Invalid file %s", str);
             return;
         }
         else
@@ -284,7 +281,6 @@ public:
 			}
 			else
 			{
-				trace("ERROR(CocoAssetFile.h): open asset failed %s", file);
 			}
         }
         else if(!isAsset && filesPath && str)
@@ -302,7 +298,6 @@ public:
 			}
 			else
 			{
-				trace("ERROR(CocoAssetFile.h): open file failed %s", file);
 			}
         }
 	}
@@ -408,7 +403,6 @@ public:
     {
     	if(!isAsset && ptr.fd)
     		return fwrite(src, 1, size, ptr.fd);
-    	trace("ERROR(CocoAssetFile.h): write file failed %s", file);
     	return 0;
     }
     int flush()

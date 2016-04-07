@@ -1,0 +1,112 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	   ______                 __  ____________                   _    ___
+//	  / ____/___  _________  / / / /  _/ ____/___  _________ ___| |  / (_)__ _      __
+//	 / /   / __ \/ ___/ __ \/ / / // // /_  / __ \/ ___/ __ `__ \ | / / / _ \ | /| / /
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // __/ / /_/ / /  / / / / / / |/ / /  __/ |/ |/ /
+//	\____/\____/\___/\____/\____/___/_/    \____/_/  /_/ /_/ /_/|___/_/\___/|__/|__/
+//
+// ==================================================================================================================================
+
+#include "CocoUIView.jspp"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoUIFormView : CocoUIView
+{
+	private var __scrollView:CocoUIScrollView;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(name:String, scene:CocoScene)
+	{
+		__instanceName = name;
+ 		__scene = scene;
+ 		__invalidated = true;
+		__width = engine.device.screenWidth;
+		__height = engine.device.screenHeight;
+
+		__scrollView = new CocoUIScrollView(name + "ScrollView", scene);
+		addChild(__scrollView);
+		__scrollView.move(0,0,scene.__view_width,scene.__view_height);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		if(__scene && __scene.__root)
+			__scene.__root.removeChild(this);
+
+		delete __scrollView;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moveScrollView(left:Float, top:Float, width:Float, height:Float)
+	{
+		__scrollView.move(left, top, width, height);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addInlineControl(ctl:CocoUIControl) :CocoUIControl
+	{
+		ctl.__form = this;
+		__scrollView.addChild(ctl);
+		invalidate();
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl
+	{
+		ctl.__form = this;
+		ctl.RefreshLayout(this);
+		addChild(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getControlByName(id:String) :CocoUIControl
+	{
+		var ctl:CocoUIControl = __scrollView.getControlByName(id);
+		if(ctl) return ctl;
+		return CocoUIControl(getChildByName(id));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		if(!__visible || !parentClip || !scene)
+			return;
+
+		if(__invalidated)
+		{
+			__scrollView.RefreshLayout(this);
+		}
+
+		super.paint;
+	}
+}

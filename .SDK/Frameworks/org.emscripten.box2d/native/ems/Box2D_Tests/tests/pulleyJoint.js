@@ -1,4 +1,4 @@
-var embox2dTest_pulleyJoint = function() {
+﻿var embox2dTest_pulleyJoint = function() {
 }
 
 embox2dTest_pulleyJoint.prototype.setNiceViewCenter = function() {
@@ -22,10 +22,10 @@ embox2dTest_pulleyJoint.prototype.setup = function() {
 
         var circle = new b2CircleShape();
         circle.set_m_radius(2.0);
-        
+
         circle.set_m_p( new b2Vec2(-10.0, y + b + L));
         ground.CreateFixture(circle, 0.0);
-    
+
         circle.set_m_p( new b2Vec2(10.0, y + b + L));
         ground.CreateFixture(circle, 0.0);
     }

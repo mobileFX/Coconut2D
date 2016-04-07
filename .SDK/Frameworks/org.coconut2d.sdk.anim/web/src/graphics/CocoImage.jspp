@@ -22,8 +22,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_native
-#pragma export_web
+#pragma export_native;
+#pragma export_web;
 
 #include "CanvasRenderingContext2D.jspp"
 
@@ -345,8 +345,8 @@ class CocoImage
 	{
 		if(onLoadResizeWidth>0 || onLoadResizeHeight>0 || textureCellWidth==0 || textureCellHeight==0)
 		{
-			var w:Float = onLoadResizeWidth ? onLoadResizeWidth : hImage.naturalWidth;
-			var h:Float = onLoadResizeHeight ? onLoadResizeHeight : hImage.naturalHeight;
+			var w:Float = onLoadResizeWidth!=0 ? onLoadResizeWidth : hImage.naturalWidth;
+			var h:Float = onLoadResizeHeight!=0 ? onLoadResizeHeight : hImage.naturalHeight;
 			var pot:Boolean = engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL;
 			var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, pot);
 			var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
@@ -367,8 +367,8 @@ class CocoImage
 	public function createFromCanvas(canvas:HTMLCanvasElement, width:Float, height:Float)
 	{
 		createFromBase64(canvas.toDataURL("image/png"));
-        textureCellWidth = Float(width);
-        textureCellHeight = Float(height);
+        textureCellWidth = width;
+        textureCellHeight = height;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -377,8 +377,8 @@ class CocoImage
 		delete hImage;
         hImage = new Image();
         hImage.load(url, this);
-        textureCellWidth = width ? width : hImage.width;
-        textureCellHeight = height ? height : hImage.height;
+        textureCellWidth = width!=0 ? width : hImage.width;
+        textureCellHeight = height!=0 ? height : hImage.height;
         textureGrid = new Float32Array([0,0]);
         if(hImage.complete)
 			this.renderData = engine.__ctx.prepareImage(this);
@@ -553,13 +553,13 @@ class CocoImage
 		if(strict) return false;
 
 		// Try to find closer dpi images with better quality
-		for(d=Integer(dpi); d<Integer(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_MAX_DPI); d++)
+		for(d=dpi; d<SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_MAX_DPI; d++)
 		{
 			if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM(d), true)) return true;
 		}
 
 		// Try to find closer dpi images with less quality
-		for(d=Integer(dpi); d>=Integer(SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_MIN_DPI); d--)
+		for(d=dpi; d>=SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_MIN_DPI; d--)
 		{
 			if(loadImageByDpi(SCREEN_RESOLUTION_DPI_ENUM(d), true)) return true;
 		}
@@ -738,8 +738,8 @@ class CocoImage
         var isy:Float = 1.0 / sy;
         var cw:Float = 1.0 / dstWidth;
         var ch:Float = 1.0 / dstHeight;
-        var csx:Float = Math.min(Float(1.0), sx) * Math.min(Float(1.0), sx);
-        var csy:Float = Math.min(Float(1.0), sy) * Math.min(Float(1.0), sy);
+        var csx:Float = Math.min(1, sx) * Math.min(1, sx);
+        var csy:Float = Math.min(1, sy) * Math.min(1, sy);
         var sourcePixels:Uint8Array = source.data;
         var output:ImageData = new ImageData(String(dstWidth), String(dstHeight));
         var outputPixels:Uint8Array = output.data;

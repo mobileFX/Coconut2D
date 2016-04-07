@@ -33,7 +33,6 @@
 
 #include "CocoAudioStream.h"
 
-#ifdef ENABLE_OGG_SUPPORT
 ov_callbacks CocoAudioStream::ovc;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +47,7 @@ int CocoAudioStream::ogg_from_memory_seek(void* datasource, ogg_int64_t offset, 
 {
     if(!datasource) return -1;
     CocoAssetFile* file = (CocoAssetFile*)datasource;
-    return file->seek(offset, whence);
+    return file->seek((size_t) offset, (size_t) whence);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,34 +62,27 @@ long CocoAudioStream::ogg_from_memory_tell(void* datasource)
     if(!datasource) return -1;
     return ((CocoAssetFile*)datasource)->tell();
 }
-#endif /* ENABLE_OGG_SUPPORT */
 
-#ifdef ENABLE_OPENAL_SUPPORT
-	ALCdevice* CocoAudioStream::alcDevice;
-	ALCcontext* CocoAudioStream::alcContext;
-	std::map<std::string, ALuint>* CocoAudioStream::buffers;
-#endif /* ENABLE_OPENAL_SUPPORT */
+ALCdevice* CocoAudioStream::alcDevice;
+ALCcontext* CocoAudioStream::alcContext;
+std::map<std::string, ALuint>* CocoAudioStream::buffers;
 
 std::map<fxObjectUID, CocoAudioStream*>* CocoAudioStream::audios;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 void CocoAudioStream::init()
 {
-    #ifdef ENABLE_OGG_SUPPORT
     ovc.read_func = ogg_from_memory_read;
     ovc.seek_func = ogg_from_memory_seek;
     ovc.close_func = ogg_from_memory_close;
     ovc.tell_func = ogg_from_memory_tell;
-    #endif /* ENABLE_OGG_SUPPORT */
 
-    #ifdef ENABLE_OPENAL_SUPPORT
     alcDevice = alcOpenDevice(nullptr);
-    if(!alcDevice) trace("ERROR(CocoAudioStream.cpp): Could not get default ALC Device");
+    if(!alcDevice) trace("Could not get default ALC Device");
     alcContext = alcCreateContext(alcDevice, nullptr);
-    if(!alcContext) trace("ERROR(CocoAudioStream.cpp): Could not create ALC Context");
+    if(!alcContext) trace("Could not create ALC Context");
 	buffers = new std::map<std::string, ALuint>();
     alcMakeContextCurrent(alcContext);
-    #endif /* ENABLE_OPENAL_SUPPORT */
 
     audios = new std::map<fxObjectUID, CocoAudioStream*>();
 }
@@ -106,7 +98,6 @@ void CocoAudioStream::quit()
     delete audios;
     audios = nullptr;
 
-    #ifdef ENABLE_OPENAL_SUPPORT
 	while(buffers->begin() != buffers->end())
 	{
 		alDeleteBuffers(1, &buffers->begin()->second);
@@ -118,9 +109,8 @@ void CocoAudioStream::quit()
     alcDestroyContext(alcContext);
     if(alcCloseDevice(alcDevice) != ALC_TRUE)
     {
-    	trace("ERROR(CocoAudioStream.cpp): alcCloseDevice Error");
+    	trace("CloseDevice Error");
     }
-    #endif /* ENABLE_OPENAL_SUPPORT */
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,12 +151,12 @@ void CocoAudioStream::tick()
         it->second->_tick();
 }
 
-#ifdef ENABLE_OPENAL_SUPPORT
 //////////////////////////////////////////////////////////////////////////////////////////////
 CocoAudioStream::CocoAudioStream(const char* str) : loop(false), playCount(1), type(Type::NONE), state(State::NONE)
 {
 	std::string stdStr = str;
 	std::map<std::string, ALuint>::iterator it = buffers->find(stdStr);
+
 	if(it != buffers->end())
 	{
 		alBuffer = it->second;
@@ -174,59 +164,61 @@ CocoAudioStream::CocoAudioStream(const char* str) : loop(false), playCount(1), t
 	else
 	{
 		CocoAssetFile* file = CocoAssetFile::open(str);
+
 		if(!file)
 		{
-			trace("ERROR(CocoAudioStream.cpp): Could not load audio from: %s", str);
+			trace("Could not load audio");
 			return;
 		}
+
 		switch(file->mime)
 		{
-			#ifdef ENABLE_OGG_SUPPORT
 			case CocoAssetFile::MIME::AUDIO_OGG:
 			{
 				OggVorbis_File ovf;
 				ov_open_callbacks(file, &ovf, nullptr, 0, ovc);
 				vorbis_info* ovi = ov_info(&ovf, -1);
 
-				ALsizei alFrequency = ovi->rate;
-				ALenum alFormat;
+				ALsizei alFrequency = (ALsizei) ovi->rate;
+				ALenum alFormat = AUDIO_FORMAT_STEREO;
 				switch(ovi->channels)
 				{
 					case 1: alFormat = AUDIO_FORMAT_MONO; break;
 					case 2: alFormat = AUDIO_FORMAT_STEREO; break;
-					default:
-						trace("ERROR(CocoAudioStream.cpp): Wrong number of channels in OGG file %s", str);
 				}
 
 				int ovSection = 0;
 				ogg_int64_t size = ov_pcm_total(&ovf, -1) * AUDIO_SAMPLE_SIZE * ovi->channels;
-				unsigned char* buffer = new unsigned char[size];
+				unsigned char* buffer = new unsigned char[(size_t)(size)];
 				long i;
 				long total = 0;
+
 				ov_pcm_seek(&ovf, 0);
-				while((total < size) && (i = ov_read(&ovf, (char*)buffer + total, std::min(size - total, 4096LL), &ovSection)))
+
+				while((total < size) && (i = ov_read(&ovf, (char*)buffer + total, (int) std::min(size - total, 4096LL), &ovSection)))
 					total += i;
-				//if(i) trace("WARNING(CocoAudioStream.cpp): ov_read returned more data than we anticipated!");
+
 				ov_clear(&ovf);
 
 				alGenBuffers(1, &alBuffer);
-				alBufferData(alBuffer, alFormat, buffer, size, alFrequency);
+				alBufferData(alBuffer, alFormat, buffer, (ALsizei) size, alFrequency);
 				buffers->insert(std::pair<std::string, ALuint>(stdStr, alBuffer));
 
 				delete[] buffer;
 				break;
 			}
-			#endif /* ENABLE_OGG_SUPPORT */
+
 			default:
-				trace("ERROR(CocoAudioStream.cpp): Unsupported audio format %s", str);
-				return;
+				break;
 		}
+
 		delete file;
 	}
+
 	alGenSources(1, &alSource);
 	alSourcef(alSource, AL_GAIN, 1.0f);
 	alSourcef(alSource, AL_PITCH, 1.0f);
-	alSourcei(alSource, AL_BUFFER, alBuffer);
+	alSourcei(alSource, AL_BUFFER, (ALint) alBuffer);
 	state = State::STOPPED;
 }
 
@@ -240,19 +232,12 @@ CocoAudioStream::~CocoAudioStream()
     }
 }
 
-#else
-CocoAudioStream::CocoAudioStream(const char* str) : state(State::NONE) { trace("ERROR(CocoAudioStream.cpp): Audio playback not supported"); }
-CocoAudioStream::~CocoAudioStream() {}
-#endif /* ENALE_OPENAL_SUPPORT */
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 void CocoAudioStream::play(size_t i_playCount)
 {
     if(state == State::NONE) return;
     playCount = i_playCount;
 
-    #ifdef ENABLE_OPENAL_SUPPORT
     if(loop) alSourcei(alSource, AL_LOOPING, AL_TRUE);
     else
     {
@@ -261,7 +246,6 @@ void CocoAudioStream::play(size_t i_playCount)
             alSourceQueueBuffers(alSource, 1, &alBuffer);
     }
     alSourcePlay(alSource);
-    #endif /* ENABLE_OPENAL_SUPPORT */
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -273,27 +257,21 @@ void CocoAudioStream::setloop(bool i_loop)
 //////////////////////////////////////////////////////////////////////////////////////////////
 void CocoAudioStream::stop()
 {
-    #ifdef ENABLE_OPENAL_SUPPORT
     alSourceStop(alSource);
-    #endif /* ENABLE_OPENAL_SUPPORT */
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 void CocoAudioStream::set_position(float pos)
 {
-	#ifdef ENABLE_OPENAL_SUPPORT
     alSourceStop(alSource);
 	alSourcef(alSource, AL_SEC_OFFSET, pos);
-	#endif /* ENABLE_OPENAL_SUPPORT */
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 float CocoAudioStream::get_position()
 {
 	float ret = 0.0f;
-	#ifdef ENABLE_OPENAL_SUPPORT
     alGetSourcef(alSource, AL_SEC_OFFSET, &ret);
-	#endif /* ENABLE_OPENAL_SUPPORT */
 	return ret;
 }
 
@@ -310,7 +288,6 @@ bool CocoAudioStream::isPaused()
 //////////////////////////////////////////////////////////////////////////////////////////////
 void CocoAudioStream::_tick()
 {
-	#ifdef ENABLE_OPENAL_SUPPORT
 	ALint val;
 	alGetSourcei(alSource, AL_SOURCE_STATE, &val);
 	switch(val)
@@ -328,39 +305,6 @@ void CocoAudioStream::_tick()
 		default:
 			state = State::STOPPED;
 	}
-	#endif
-
-    /*if(state != State::PLAYING) return;
-
-     ALuint buff;
-     ALint val;
-     long size;
-     bool repeat = false;
-
-     alGetSourcei(alSource, AL_SOURCE_STATE, &val);
-     if(val == AL_STOPPED) state = State::STOPPED;
-
-     alGetSourcei(alSource, AL_BUFFERS_PROCESSED, &val);
-     while(val--)
-     {
-     alSourceUnqueueBuffers(alSource, 1, &buff);
-     size = ov_read(&ovf, (char*)Buffer, AUDIO_BUFFER_SIZE, &ovSection);
-     if(size < 0) { trace("Error reading OGG file!\n"); }
-     else if(!size)
-     {
-     ov_pcm_seek(&ovf, 0);
-     if(!loop && !(--playCount)) { alSourceStop(alSource); }
-     size = ov_read(&ovf, (char*)Buffer, AUDIO_BUFFER_SIZE, &ovSection);
-     if(size <= 0) { trace("Error on OGG file!\n"); }
-     }
-     if(size > 0)
-     {
-     repeat = true;
-     alBufferData(buff, alFormat, Buffer, size, alFrequency);
-     alSourceQueueBuffers(alSource, 1, &buff);
-     }
-     }
-     if(repeat && state != State::PLAYING) alSourcePlay(alSource);*/
 }
 
 

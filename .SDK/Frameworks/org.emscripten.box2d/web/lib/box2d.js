@@ -1,4 +1,4 @@
-// Note: For maximum-speed code, see "Optimizing Code" on the Emscripten wiki, https://github.com/kripken/emscripten/wiki/Optimizing-Code
+﻿// Note: For maximum-speed code, see "Optimizing Code" on the Emscripten wiki, https://github.com/kripken/emscripten/wiki/Optimizing-Code
 // Note: Some Emscripten settings may limit the speed of the generated code.
 // The Module object: Our interface to the outside world. We import
 // and export values on it, and do the work to get that through
@@ -897,9 +897,9 @@ function demangle(func) {
     'h': 'unsigned char',
     't': 'unsigned short',
     'j': 'unsigned int',
-    'm': 'unsigned long',
+    'm': 'size_t',
     'x': 'long long',
-    'y': 'unsigned long long',
+    'y': 'size_t long',
     'z': '...'
   };
   var subs = [];
@@ -2589,13 +2589,13 @@ function copyTempDouble(ptr) {
 }
 
 
-  
+
   function __ZSt18uncaught_exceptionv() { // std::uncaught_exception()
       return !!__ZSt18uncaught_exceptionv.uncaught_exception;
     }
-  
-  
-  
+
+
+
   function ___cxa_is_number_type(type) {
       var isNumber = false;
       try { if (type == __ZTIi) isNumber = true } catch(e){}
@@ -2648,20 +2648,20 @@ function copyTempDouble(ptr) {
         return false; // some unencountered type
       }
     }
-  
-  
-  
+
+
+
   var ___cxa_last_thrown_exception=0;function ___resumeException(ptr) {
       if (!___cxa_last_thrown_exception) { ___cxa_last_thrown_exception = ptr; }
       throw ptr + " - Exception catching is disabled, this exception cannot be caught. Compile with -s DISABLE_EXCEPTION_CATCHING=0 or DISABLE_EXCEPTION_CATCHING=2 to catch.";
     }
-  
+
   var ___cxa_exception_header_size=8;function ___cxa_find_matching_catch(thrown, throwntype) {
       if (thrown == -1) thrown = ___cxa_last_thrown_exception;
       header = thrown - ___cxa_exception_header_size;
       if (throwntype == -1) throwntype = HEAP32[((header)>>2)];
       var typeArray = Array.prototype.slice.call(arguments, 2);
-  
+
       // If throwntype is a pointer, this means a pointer has been
       // thrown. When a pointer is thrown, actually what's thrown
       // is a pointer to the pointer. We'll dereference it.
@@ -2686,8 +2686,8 @@ function copyTempDouble(ptr) {
     }function ___gxx_personality_v0() {
     }
 
-  
-  
+
+
   function __exit(status) {
       // void _exit(int status);
       // http://pubs.opengroup.org/onlinepubs/000095399/functions/exit.html
@@ -2698,12 +2698,12 @@ function copyTempDouble(ptr) {
       _exit(-1234);
     }
 
-  
-  
+
+
   function _emscripten_memcpy_big(dest, src, num) {
       HEAPU8.set(HEAPU8.subarray(src, src+num), dest);
       return dest;
-    } 
+    }
   Module["_memcpy"] = _memcpy;var _llvm_memcpy_p0i8_p0i8_i32=_memcpy;
 
   var _sqrtf=Math_sqrt;
@@ -2713,8 +2713,8 @@ function copyTempDouble(ptr) {
       throw 'Assertion failed: ' + Pointer_stringify(condition) + ', at: ' + [filename ? Pointer_stringify(filename) : 'unknown filename', line, func ? Pointer_stringify(func) : 'unknown function'] + ' at ' + stackTrace();
     }
 
-  
-   
+
+
   Module["_memset"] = _memset;var _llvm_memset_p0i8_i32=_memset;
 
   var _sinf=Math_sin;
@@ -2732,22 +2732,22 @@ function copyTempDouble(ptr) {
 
   var _llvm_va_start=undefined;
 
-  
-  
-  
-  
-  
+
+
+
+
+
   var ERRNO_CODES={EPERM:1,ENOENT:2,ESRCH:3,EINTR:4,EIO:5,ENXIO:6,E2BIG:7,ENOEXEC:8,EBADF:9,ECHILD:10,EAGAIN:11,EWOULDBLOCK:11,ENOMEM:12,EACCES:13,EFAULT:14,ENOTBLK:15,EBUSY:16,EEXIST:17,EXDEV:18,ENODEV:19,ENOTDIR:20,EISDIR:21,EINVAL:22,ENFILE:23,EMFILE:24,ENOTTY:25,ETXTBSY:26,EFBIG:27,ENOSPC:28,ESPIPE:29,EROFS:30,EMLINK:31,EPIPE:32,EDOM:33,ERANGE:34,ENOMSG:42,EIDRM:43,ECHRNG:44,EL2NSYNC:45,EL3HLT:46,EL3RST:47,ELNRNG:48,EUNATCH:49,ENOCSI:50,EL2HLT:51,EDEADLK:35,ENOLCK:37,EBADE:52,EBADR:53,EXFULL:54,ENOANO:55,EBADRQC:56,EBADSLT:57,EDEADLOCK:35,EBFONT:59,ENOSTR:60,ENODATA:61,ETIME:62,ENOSR:63,ENONET:64,ENOPKG:65,EREMOTE:66,ENOLINK:67,EADV:68,ESRMNT:69,ECOMM:70,EPROTO:71,EMULTIHOP:72,EDOTDOT:73,EBADMSG:74,ENOTUNIQ:76,EBADFD:77,EREMCHG:78,ELIBACC:79,ELIBBAD:80,ELIBSCN:81,ELIBMAX:82,ELIBEXEC:83,ENOSYS:38,ENOTEMPTY:39,ENAMETOOLONG:36,ELOOP:40,EOPNOTSUPP:95,EPFNOSUPPORT:96,ECONNRESET:104,ENOBUFS:105,EAFNOSUPPORT:97,EPROTOTYPE:91,ENOTSOCK:88,ENOPROTOOPT:92,ESHUTDOWN:108,ECONNREFUSED:111,EADDRINUSE:98,ECONNABORTED:103,ENETUNREACH:101,ENETDOWN:100,ETIMEDOUT:110,EHOSTDOWN:112,EHOSTUNREACH:113,EINPROGRESS:115,EALREADY:114,EDESTADDRREQ:89,EMSGSIZE:90,EPROTONOSUPPORT:93,ESOCKTNOSUPPORT:94,EADDRNOTAVAIL:99,ENETRESET:102,EISCONN:106,ENOTCONN:107,ETOOMANYREFS:109,EUSERS:87,EDQUOT:122,ESTALE:116,ENOTSUP:95,ENOMEDIUM:123,EILSEQ:84,EOVERFLOW:75,ECANCELED:125,ENOTRECOVERABLE:131,EOWNERDEAD:130,ESTRPIPE:86};
-  
+
   var ERRNO_MESSAGES={0:"Success",1:"Not super-user",2:"No such file or directory",3:"No such process",4:"Interrupted system call",5:"I/O error",6:"No such device or address",7:"Arg list too long",8:"Exec format error",9:"Bad file number",10:"No children",11:"No more processes",12:"Not enough core",13:"Permission denied",14:"Bad address",15:"Block device required",16:"Mount device busy",17:"File exists",18:"Cross-device link",19:"No such device",20:"Not a directory",21:"Is a directory",22:"Invalid argument",23:"Too many open files in system",24:"Too many open files",25:"Not a typewriter",26:"Text file busy",27:"File too large",28:"No space left on device",29:"Illegal seek",30:"Read only file system",31:"Too many links",32:"Broken pipe",33:"Math arg out of domain of func",34:"Math result not representable",35:"File locking deadlock error",36:"File or path name too long",37:"No record locks available",38:"Function not implemented",39:"Directory not empty",40:"Too many symbolic links",42:"No message of desired type",43:"Identifier removed",44:"Channel number out of range",45:"Level 2 not synchronized",46:"Level 3 halted",47:"Level 3 reset",48:"Link number out of range",49:"Protocol driver not attached",50:"No CSI structure available",51:"Level 2 halted",52:"Invalid exchange",53:"Invalid request descriptor",54:"Exchange full",55:"No anode",56:"Invalid request code",57:"Invalid slot",59:"Bad font file fmt",60:"Device not a stream",61:"No data (for no delay io)",62:"Timer expired",63:"Out of streams resources",64:"Machine is not on the network",65:"Package not installed",66:"The object is remote",67:"The link has been severed",68:"Advertise error",69:"Srmount error",70:"Communication error on send",71:"Protocol error",72:"Multihop attempted",73:"Cross mount point (not really error)",74:"Trying to read unreadable message",75:"Value too large for defined data type",76:"Given log. name not unique",77:"f.d. invalid for this operation",78:"Remote address changed",79:"Can   access a needed shared lib",80:"Accessing a corrupted shared lib",81:".lib section in a.out corrupted",82:"Attempting to link in too many libs",83:"Attempting to exec a shared library",84:"Illegal byte sequence",86:"Streams pipe error",87:"Too many users",88:"Socket operation on non-socket",89:"Destination address required",90:"Message too long",91:"Protocol wrong type for socket",92:"Protocol not available",93:"Unknown protocol",94:"Socket type not supported",95:"Not supported",96:"Protocol family not supported",97:"Address family not supported by protocol family",98:"Address already in use",99:"Address not available",100:"Network interface is not configured",101:"Network is unreachable",102:"Connection reset by network",103:"Connection aborted",104:"Connection reset by peer",105:"No buffer space available",106:"Socket is already connected",107:"Socket is not connected",108:"Can't send after socket shutdown",109:"Too many references",110:"Connection timed out",111:"Connection refused",112:"Host is down",113:"Host is unreachable",114:"Socket already connected",115:"Connection already in progress",116:"Stale file handle",122:"Quota exceeded",123:"No medium (in tape drive)",125:"Operation canceled",130:"Previous owner died",131:"State not recoverable"};
-  
-  
+
+
   var ___errno_state=0;function ___setErrNo(value) {
       // For convenient setting and returning of errno.
       HEAP32[((___errno_state)>>2)]=value;
       return value;
     }
-  
+
   var PATH={splitPath:function (filename) {
         var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
         return splitPathRe.exec(filename).slice(1);
@@ -2865,7 +2865,7 @@ function copyTempDouble(ptr) {
         outputParts = outputParts.concat(toParts.slice(samePartsLength));
         return outputParts.join('/');
       }};
-  
+
   var TTY={ttys:[],init:function () {
         // https://github.com/kripken/emscripten/pull/1555
         // if (ENVIRONMENT_IS_NODE) {
@@ -2984,7 +2984,7 @@ function copyTempDouble(ptr) {
             tty.output.push(TTY.utf8.processCChar(val));
           }
         }}};
-  
+
   var MEMFS={ops_table:null,CONTENT_OWNING:1,CONTENT_FLEXIBLE:2,CONTENT_FIXED:3,mount:function (mount) {
         return MEMFS.createNode(null, '/', 16384 | 511 /* 0777 */, 0);
       },createNode:function (parent, name, mode, dev) {
@@ -3247,7 +3247,7 @@ function copyTempDouble(ptr) {
           }
           return { ptr: ptr, allocated: allocated };
         }}};
-  
+
   var IDBFS={dbs:{},indexedDB:function () {
         return window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
       },DB_VERSION:21,DB_STORE_NAME:"FILE_DATA",mount:function (mount) {
@@ -3256,13 +3256,13 @@ function copyTempDouble(ptr) {
       },syncfs:function (mount, populate, callback) {
         IDBFS.getLocalSet(mount, function(err, local) {
           if (err) return callback(err);
-  
+
           IDBFS.getRemoteSet(mount, function(err, remote) {
             if (err) return callback(err);
-  
+
             var src = populate ? remote : local;
             var dst = populate ? local : remote;
-  
+
             IDBFS.reconcile(src, dst, callback);
           });
         });
@@ -3272,7 +3272,7 @@ function copyTempDouble(ptr) {
         if (db) {
           return callback(null, db);
         }
-  
+
         var req;
         try {
           req = IDBFS.indexedDB().open(name, IDBFS.DB_VERSION);
@@ -3282,20 +3282,20 @@ function copyTempDouble(ptr) {
         req.onupgradeneeded = function(e) {
           var db = e.target.result;
           var transaction = e.target.transaction;
-  
+
           var fileStore;
-  
+
           if (db.objectStoreNames.contains(IDBFS.DB_STORE_NAME)) {
             fileStore = transaction.objectStore(IDBFS.DB_STORE_NAME);
           } else {
             fileStore = db.createObjectStore(IDBFS.DB_STORE_NAME);
           }
-  
+
           fileStore.createIndex('timestamp', 'timestamp', { unique: false });
         };
         req.onsuccess = function() {
           db = req.result;
-  
+
           // add to the cache
           IDBFS.dbs[name] = db;
           callback(null, db);
@@ -3305,7 +3305,7 @@ function copyTempDouble(ptr) {
         };
       },getLocalSet:function (mount, callback) {
         var entries = {};
-  
+
         function isRealDir(p) {
           return p !== '.' && p !== '..';
         };
@@ -3314,54 +3314,54 @@ function copyTempDouble(ptr) {
             return PATH.join2(root, p);
           }
         };
-  
+
         var check = FS.readdir(mount.mountpoint).filter(isRealDir).map(toAbsolute(mount.mountpoint));
-  
+
         while (check.length) {
           var path = check.pop();
           var stat;
-  
+
           try {
             stat = FS.stat(path);
           } catch (e) {
             return callback(e);
           }
-  
+
           if (FS.isDir(stat.mode)) {
             check.push.apply(check, FS.readdir(path).filter(isRealDir).map(toAbsolute(path)));
           }
-  
+
           entries[path] = { timestamp: stat.mtime };
         }
-  
+
         return callback(null, { type: 'local', entries: entries });
       },getRemoteSet:function (mount, callback) {
         var entries = {};
-  
+
         IDBFS.getDB(mount.mountpoint, function(err, db) {
           if (err) return callback(err);
-  
+
           var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readonly');
           transaction.onerror = function() { callback(this.error); };
-  
+
           var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
           var index = store.index('timestamp');
-  
+
           index.openKeyCursor().onsuccess = function(event) {
             var cursor = event.target.result;
-  
+
             if (!cursor) {
               return callback(null, { type: 'remote', db: db, entries: entries });
             }
-  
+
             entries[cursor.primaryKey] = { timestamp: cursor.key };
-  
+
             cursor.continue();
           };
         });
       },loadLocalEntry:function (path, callback) {
         var stat, node;
-  
+
         try {
           var lookup = FS.lookupPath(path);
           node = lookup.node;
@@ -3369,7 +3369,7 @@ function copyTempDouble(ptr) {
         } catch (e) {
           return callback(e);
         }
-  
+
         if (FS.isDir(stat.mode)) {
           return callback(null, { timestamp: stat.mtime, mode: stat.mode });
         } else if (FS.isFile(stat.mode)) {
@@ -3386,18 +3386,18 @@ function copyTempDouble(ptr) {
           } else {
             return callback(new Error('node type not supported'));
           }
-  
+
           FS.utime(path, entry.timestamp, entry.timestamp);
         } catch (e) {
           return callback(e);
         }
-  
+
         callback(null);
       },removeLocalEntry:function (path, callback) {
         try {
           var lookup = FS.lookupPath(path);
           var stat = FS.stat(path);
-  
+
           if (FS.isDir(stat.mode)) {
             FS.rmdir(path);
           } else if (FS.isFile(stat.mode)) {
@@ -3406,7 +3406,7 @@ function copyTempDouble(ptr) {
         } catch (e) {
           return callback(e);
         }
-  
+
         callback(null);
       },loadRemoteEntry:function (store, path, callback) {
         var req = store.get(path);
@@ -3422,7 +3422,7 @@ function copyTempDouble(ptr) {
         req.onerror = function() { callback(this.error); };
       },reconcile:function (src, dst, callback) {
         var total = 0;
-  
+
         var create = [];
         Object.keys(src.entries).forEach(function (key) {
           var e = src.entries[key];
@@ -3432,7 +3432,7 @@ function copyTempDouble(ptr) {
             total++;
           }
         });
-  
+
         var remove = [];
         Object.keys(dst.entries).forEach(function (key) {
           var e = dst.entries[key];
@@ -3442,17 +3442,17 @@ function copyTempDouble(ptr) {
             total++;
           }
         });
-  
+
         if (!total) {
           return callback(null);
         }
-  
+
         var errored = false;
         var completed = 0;
         var db = src.type === 'remote' ? src.db : dst.db;
         var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readwrite');
         var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
-  
+
         function done(err) {
           if (err) {
             if (!done.errored) {
@@ -3465,9 +3465,9 @@ function copyTempDouble(ptr) {
             return callback(null);
           }
         };
-  
+
         transaction.onerror = function() { done(this.error); };
-  
+
         // sort paths in ascending order so directory entries are created
         // before the files inside them
         create.sort().forEach(function (path) {
@@ -3483,7 +3483,7 @@ function copyTempDouble(ptr) {
             });
           }
         });
-  
+
         // sort paths in descending order so files are deleted before their
         // parent directories
         remove.sort().reverse().forEach(function(path) {
@@ -3494,7 +3494,7 @@ function copyTempDouble(ptr) {
           }
         });
       }};
-  
+
   var NODEFS={isWindows:false,staticInit:function () {
         NODEFS.isWindows = !!process.platform.match(/^win/);
       },mount:function (mount) {
@@ -3513,7 +3513,7 @@ function copyTempDouble(ptr) {
         try {
           stat = fs.lstatSync(path);
           if (NODEFS.isWindows) {
-            // On Windows, directories return permission bits 'rw-rw-rw-', even though they have 'rwxrwxrwx', so 
+            // On Windows, directories return permission bits 'rw-rw-rw-', even though they have 'rwxrwxrwx', so
             // propagate write bits to execute bits.
             stat.mode = stat.mode | ((stat.mode & 146) >> 1);
           }
@@ -3714,21 +3714,21 @@ function copyTempDouble(ptr) {
               }
             }
           }
-  
+
           if (position < 0) {
             throw new FS.ErrnoError(ERRNO_CODES.EINVAL);
           }
-  
+
           stream.position = position;
           return position;
         }}};
-  
+
   var _stdin=allocate(1, "i32*", ALLOC_STATIC);
-  
+
   var _stdout=allocate(1, "i32*", ALLOC_STATIC);
-  
+
   var _stderr=allocate(1, "i32*", ALLOC_STATIC);
-  
+
   function _fflush(stream) {
       // int fflush(FILE *stream);
       // http://pubs.opengroup.org/onlinepubs/000095399/functions/fflush.html
@@ -3739,7 +3739,7 @@ function copyTempDouble(ptr) {
       },lookupPath:function (path, opts) {
         path = PATH.resolve(FS.cwd(), path);
         opts = opts || {};
-  
+
         var defaults = {
           follow_mount: true,
           recurse_count: 0
@@ -3749,37 +3749,37 @@ function copyTempDouble(ptr) {
             opts[key] = defaults[key];
           }
         }
-  
+
         if (opts.recurse_count > 8) {  // max recursive lookup of 8
           throw new FS.ErrnoError(ERRNO_CODES.ELOOP);
         }
-  
+
         // split the path
         var parts = PATH.normalizeArray(path.split('/').filter(function(p) {
           return !!p;
         }), false);
-  
+
         // start at the root
         var current = FS.root;
         var current_path = '/';
-  
+
         for (var i = 0; i < parts.length; i++) {
           var islast = (i === parts.length-1);
           if (islast && opts.parent) {
             // stop resolving
             break;
           }
-  
+
           current = FS.lookupNode(current, parts[i]);
           current_path = PATH.join2(current_path, parts[i]);
-  
+
           // jump to the mount's root node if this is a mountpoint
           if (FS.isMountpoint(current)) {
             if (!islast || (islast && opts.follow_mount)) {
               current = current.mounted.root;
             }
           }
-  
+
           // by default, lookupPath will not follow a symlink if it is the final path component.
           // setting opts.follow = true will override this behavior.
           if (!islast || opts.follow) {
@@ -3787,17 +3787,17 @@ function copyTempDouble(ptr) {
             while (FS.isLink(current.mode)) {
               var link = FS.readlink(current_path);
               current_path = PATH.resolve(PATH.dirname(current_path), link);
-              
+
               var lookup = FS.lookupPath(current_path, { recurse_count: opts.recurse_count });
               current = lookup.node;
-  
+
               if (count++ > 40) {  // limit max consecutive symlinks to 40 (SYMLOOP_MAX).
                 throw new FS.ErrnoError(ERRNO_CODES.ELOOP);
               }
             }
           }
         }
-  
+
         return { path: current_path, node: current };
       },getPath:function (node) {
         var path;
@@ -3812,8 +3812,8 @@ function copyTempDouble(ptr) {
         }
       },hashName:function (parentid, name) {
         var hash = 0;
-  
-  
+
+
         for (var i = 0; i < name.length; i++) {
           hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
         }
@@ -3866,13 +3866,13 @@ function copyTempDouble(ptr) {
             this.stream_ops = {};
             this.rdev = rdev;
           };
-  
+
           FS.FSNode.prototype = {};
-  
+
           // compatibility
           var readMode = 292 | 73;
           var writeMode = 146;
-  
+
           // NOTE we must use Object.defineProperties instead of individual calls to
           // Object.defineProperty in order to make closure compiler happy
           Object.defineProperties(FS.FSNode.prototype, {
@@ -3892,11 +3892,11 @@ function copyTempDouble(ptr) {
             },
           });
         }
-  
+
         var node = new FS.FSNode(parent, name, mode, rdev);
-  
+
         FS.hashAddNode(node);
-  
+
         return node;
       },destroyNode:function (node) {
         FS.hashRemoveNode(node);
@@ -4065,25 +4065,25 @@ function copyTempDouble(ptr) {
       },getMounts:function (mount) {
         var mounts = [];
         var check = [mount];
-  
+
         while (check.length) {
           var m = check.pop();
-  
+
           mounts.push(m);
-  
+
           check.push.apply(check, m.mounts);
         }
-  
+
         return mounts;
       },syncfs:function (populate, callback) {
         if (typeof(populate) === 'function') {
           callback = populate;
           populate = false;
         }
-  
+
         var mounts = FS.getMounts(FS.root.mount);
         var completed = 0;
-  
+
         function done(err) {
           if (err) {
             if (!done.errored) {
@@ -4096,7 +4096,7 @@ function copyTempDouble(ptr) {
             callback(null);
           }
         };
-  
+
         // sync all mounts
         mounts.forEach(function (mount) {
           if (!mount.type.syncfs) {
@@ -4108,78 +4108,78 @@ function copyTempDouble(ptr) {
         var root = mountpoint === '/';
         var pseudo = !mountpoint;
         var node;
-  
+
         if (root && FS.root) {
           throw new FS.ErrnoError(ERRNO_CODES.EBUSY);
         } else if (!root && !pseudo) {
           var lookup = FS.lookupPath(mountpoint, { follow_mount: false });
-  
+
           mountpoint = lookup.path;  // use the absolute path
           node = lookup.node;
-  
+
           if (FS.isMountpoint(node)) {
             throw new FS.ErrnoError(ERRNO_CODES.EBUSY);
           }
-  
+
           if (!FS.isDir(node.mode)) {
             throw new FS.ErrnoError(ERRNO_CODES.ENOTDIR);
           }
         }
-  
+
         var mount = {
           type: type,
           opts: opts,
           mountpoint: mountpoint,
           mounts: []
         };
-  
+
         // create a root node for the fs
         var mountRoot = type.mount(mount);
         mountRoot.mount = mount;
         mount.root = mountRoot;
-  
+
         if (root) {
           FS.root = mountRoot;
         } else if (node) {
           // set as a mountpoint
           node.mounted = mount;
-  
+
           // add the new mount to the current mount's children
           if (node.mount) {
             node.mount.mounts.push(mount);
           }
         }
-  
+
         return mountRoot;
       },unmount:function (mountpoint) {
         var lookup = FS.lookupPath(mountpoint, { follow_mount: false });
-  
+
         if (!FS.isMountpoint(lookup.node)) {
           throw new FS.ErrnoError(ERRNO_CODES.EINVAL);
         }
-  
+
         // destroy the nodes for this mount, and all its child mounts
         var node = lookup.node;
         var mount = node.mounted;
         var mounts = FS.getMounts(mount);
-  
+
         Object.keys(FS.nameTable).forEach(function (hash) {
           var current = FS.nameTable[hash];
-  
+
           while (current) {
             var next = current.name_next;
-  
+
             if (mounts.indexOf(current.mount) !== -1) {
               FS.destroyNode(current);
             }
-  
+
             current = next;
           }
         });
-  
+
         // no longer a mountpoint
         node.mounted = null;
-  
+
         // remove this mount from the child mounts
         var idx = node.mount.mounts.indexOf(mount);
         assert(idx !== -1);
@@ -4508,7 +4508,7 @@ function copyTempDouble(ptr) {
         }
         // we've already handled these, don't pass down to the underlying vfs
         flags &= ~(128 | 512);
-  
+
         // register the stream with the filesystem
         var stream = FS.createStream({
           node: node,
@@ -4704,7 +4704,7 @@ function copyTempDouble(ptr) {
         // TODO deprecate the old functionality of a single
         // input / output callback and that utilizes FS.createDevice
         // and instead require a unique set of stream ops
-  
+
         // by default, we symlink the standard streams to the
         // default tty devices. however, if the standard streams
         // have been overwritten we create a unique device for
@@ -4724,16 +4724,16 @@ function copyTempDouble(ptr) {
         } else {
           FS.symlink('/dev/tty1', '/dev/stderr');
         }
-  
+
         // open default streams for the stdin, stdout and stderr devices
         var stdin = FS.open('/dev/stdin', 'r');
         HEAP32[((_stdin)>>2)]=FS.getPtrForStream(stdin);
         assert(stdin.fd === 0, 'invalid handle for stdin (' + stdin.fd + ')');
-  
+
         var stdout = FS.open('/dev/stdout', 'w');
         HEAP32[((_stdout)>>2)]=FS.getPtrForStream(stdout);
         assert(stdout.fd === 1, 'invalid handle for stdout (' + stdout.fd + ')');
-  
+
         var stderr = FS.open('/dev/stderr', 'w');
         HEAP32[((_stderr)>>2)]=FS.getPtrForStream(stderr);
         assert(stderr.fd === 2, 'invalid handle for stderr (' + stderr.fd + ')');
@@ -4758,24 +4758,24 @@ function copyTempDouble(ptr) {
         });
       },staticInit:function () {
         FS.ensureErrnoError();
-  
+
         FS.nameTable = new Array(4096);
-  
+
         FS.mount(MEMFS, {}, '/');
-  
+
         FS.createDefaultDirectories();
         FS.createDefaultDevices();
       },init:function (input, output, error) {
         assert(!FS.init.initialized, 'FS.init was previously called. If you want to initialize later with custom parameters, remove any earlier calls (note that one is automatically added to the generated code)');
         FS.init.initialized = true;
-  
+
         FS.ensureErrnoError();
-  
+
         // Allow Module.stdin etc. to provide defaults, if none explicitly passed to us here
         Module['stdin'] = input || Module['stdin'];
         Module['stdout'] = output || Module['stdout'];
         Module['stderr'] = error || Module['stderr'];
-  
+
         FS.createStandardStreams();
       },quit:function () {
         FS.init.initialized = false;
@@ -4979,25 +4979,25 @@ function copyTempDouble(ptr) {
               var header;
               var hasByteServing = (header = xhr.getResponseHeader("Accept-Ranges")) && header === "bytes";
               var chunkSize = 1024*1024; // Chunk size in bytes
-  
+
               if (!hasByteServing) chunkSize = datalength;
-  
+
               // Function to get a range from the remote URL.
               var doXHR = (function(from, to) {
                 if (from > to) throw new Error("invalid range (" + from + ", " + to + ") or no bytes requested!");
                 if (to > datalength-1) throw new Error("only " + datalength + " bytes available! programmer error!");
-  
+
                 // TODO: Use mozResponseArrayBuffer, responseStream, etc. if available.
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', url, false);
                 if (datalength !== chunkSize) xhr.setRequestHeader("Range", "bytes=" + from + "-" + to);
-  
+
                 // Some hints to the browser that we want binary data.
                 if (typeof Uint8Array != 'undefined') xhr.responseType = 'arraybuffer';
                 if (xhr.overrideMimeType) {
                   xhr.overrideMimeType('text/plain; charset=x-user-defined');
                 }
-  
+
                 xhr.send(null);
                 if (!(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304)) throw new Error("Couldn't load " + url + ". Status: " + xhr.status);
                 if (xhr.response !== undefined) {
@@ -5017,12 +5017,12 @@ function copyTempDouble(ptr) {
                 if (typeof(lazyArray.chunks[chunkNum]) === "undefined") throw new Error("doXHR failed!");
                 return lazyArray.chunks[chunkNum];
               });
-  
+
               this._length = datalength;
               this._chunkSize = chunkSize;
               this.lengthKnown = true;
           }
-  
+
           var lazyArray = new LazyUint8Array();
           Object.defineProperty(lazyArray, "length", {
               get: function() {
@@ -5040,12 +5040,12 @@ function copyTempDouble(ptr) {
                   return this._chunkSize;
               }
           });
-  
+
           var properties = { isDevice: false, contents: lazyArray };
         } else {
           var properties = { isDevice: false, url: url };
         }
-  
+
         var node = FS.createFile(parent, name, properties, canRead, canWrite);
         // This is a total hack, but I want to get this lazy file code out of the
         // core of MEMFS. If we want to keep this lazy file concept I feel it should
@@ -5198,10 +5198,10 @@ function copyTempDouble(ptr) {
         };
         openRequest.onerror = onerror;
       }};
-  
-  
-  
-  
+
+
+
+
   function _mkport() { throw 'TODO' }var SOCKFS={mount:function (mount) {
         return FS.createNode(null, '/', 16384 | 511 /* 0777 */, 0);
       },createSocket:function (family, type, protocol) {
@@ -5209,7 +5209,7 @@ function copyTempDouble(ptr) {
         if (protocol) {
           assert(streaming == (protocol == 6)); // if SOCK_STREAM, must be tcp
         }
-  
+
         // create our internal socket structure
         var sock = {
           family: family,
@@ -5221,12 +5221,12 @@ function copyTempDouble(ptr) {
           recv_queue: [],
           sock_ops: SOCKFS.websocket_sock_ops
         };
-  
+
         // create the filesystem node to store the socket structure
         var name = SOCKFS.nextname();
         var node = FS.createNode(SOCKFS.root, name, 49152, 0);
         node.sock = sock;
-  
+
         // and the wrapping stream that enables library functions such
         // as read and write to indirectly interact with the socket
         var stream = FS.createStream({
@@ -5236,11 +5236,11 @@ function copyTempDouble(ptr) {
           seekable: false,
           stream_ops: SOCKFS.stream_ops
         });
-  
+
         // map the new stream to the socket structure (sockets have a 1:1
         // relationship with a stream)
         sock.stream = stream;
-  
+
         return sock;
       },getSocket:function (fd) {
         var stream = FS.getStream(fd);
@@ -5276,13 +5276,13 @@ function copyTempDouble(ptr) {
         return 'socket[' + (SOCKFS.nextname.current++) + ']';
       },websocket_sock_ops:{createPeer:function (sock, addr, port) {
           var ws;
-  
+
           if (typeof addr === 'object') {
             ws = addr;
             addr = null;
             port = null;
           }
-  
+
           if (ws) {
             // for sockets that've already connected (e.g. we're the server)
             // we can inspect the _socket property for the address
@@ -5314,18 +5314,18 @@ function copyTempDouble(ptr) {
               throw new FS.ErrnoError(ERRNO_CODES.EHOSTUNREACH);
             }
           }
-  
-  
+
+
           var peer = {
             addr: addr,
             port: port,
             socket: ws,
             dgram_send_queue: []
           };
-  
+
           SOCKFS.websocket_sock_ops.addPeer(sock, peer);
           SOCKFS.websocket_sock_ops.handlePeerEvents(sock, peer);
-  
+
           // if this is a bound dgram socket, send the port number first to allow
           // us to override the ephemeral port reported to us by remotePort on the
           // remote end.
@@ -5336,7 +5336,7 @@ function copyTempDouble(ptr) {
                 ((sock.sport & 0xff00) >> 8) , (sock.sport & 0xff)
             ]));
           }
-  
+
           return peer;
         },getPeer:function (sock, addr, port) {
           return sock.peers[addr + ':' + port];
@@ -5346,7 +5346,7 @@ function copyTempDouble(ptr) {
           delete sock.peers[peer.addr + ':' + peer.port];
         },handlePeerEvents:function (sock, peer) {
           var first = true;
-  
+
           var handleOpen = function () {
             try {
               var queued = peer.dgram_send_queue.shift();
@@ -5360,12 +5360,12 @@ function copyTempDouble(ptr) {
               peer.socket.close();
             }
           };
-  
+
           function handleMessage(data) {
             assert(typeof data !== 'string' && data.byteLength !== undefined);  // must receive an ArrayBuffer
             data = new Uint8Array(data);  // make a typed array view on the array buffer
-  
-  
+
+
             // if this is the port message, override the peer's port with it
             var wasfirst = first;
             first = false;
@@ -5380,10 +5380,10 @@ function copyTempDouble(ptr) {
               SOCKFS.websocket_sock_ops.addPeer(sock, peer);
               return;
             }
-  
+
             sock.recv_queue.push({ addr: peer.addr, port: peer.port, data: data });
           };
-  
+
           if (ENVIRONMENT_IS_NODE) {
             peer.socket.on('open', handleOpen);
             peer.socket.on('message', function(data, flags) {
@@ -5407,29 +5407,29 @@ function copyTempDouble(ptr) {
             // if there are pending clients.
             return sock.pending.length ? (64 | 1) : 0;
           }
-  
+
           var mask = 0;
           var dest = sock.type === 1 ?  // we only care about the socket state for connection-based sockets
             SOCKFS.websocket_sock_ops.getPeer(sock, sock.daddr, sock.dport) :
             null;
-  
+
           if (sock.recv_queue.length ||
               !dest ||  // connection-less sockets are always ready to read
               (dest && dest.socket.readyState === dest.socket.CLOSING) ||
               (dest && dest.socket.readyState === dest.socket.CLOSED)) {  // let recv return 0 once closed
             mask |= (64 | 1);
           }
-  
+
           if (!dest ||  // connection-less sockets are always ready to write
               (dest && dest.socket.readyState === dest.socket.OPEN)) {
             mask |= 4;
           }
-  
+
           if ((dest && dest.socket.readyState === dest.socket.CLOSING) ||
               (dest && dest.socket.readyState === dest.socket.CLOSED)) {
             mask |= 16;
           }
-  
+
           return mask;
         },ioctl:function (sock, request, arg) {
           switch (request) {
@@ -5491,11 +5491,11 @@ function copyTempDouble(ptr) {
           if (sock.server) {
             throw new FS.ErrnoError(ERRNO_CODS.EOPNOTSUPP);
           }
-  
+
           // TODO autobind
           // if (!sock.addr && sock.type == 2) {
           // }
-  
+
           // early out if we're already connected / in the middle of connecting
           if (typeof sock.daddr !== 'undefined' && typeof sock.dport !== 'undefined') {
             var dest = SOCKFS.websocket_sock_ops.getPeer(sock, sock.daddr, sock.dport);
@@ -5507,13 +5507,13 @@ function copyTempDouble(ptr) {
               }
             }
           }
-  
+
           // add the socket to our peer list and set our
           // destination address / port to match
           var peer = SOCKFS.websocket_sock_ops.createPeer(sock, addr, port);
           sock.daddr = peer.addr;
           sock.dport = peer.port;
-  
+
           // always "fail" in non-blocking mode
           throw new FS.ErrnoError(ERRNO_CODES.EINPROGRESS);
         },listen:function (sock, backlog) {
@@ -5530,16 +5530,16 @@ function copyTempDouble(ptr) {
             port: sock.sport
             // TODO support backlog
           });
-  
+
           sock.server.on('connection', function(ws) {
             if (sock.type === 1) {
               var newsock = SOCKFS.createSocket(sock.family, sock.type, sock.protocol);
-  
+
               // create a peer on the new socket
               var peer = SOCKFS.websocket_sock_ops.createPeer(newsock, ws);
               newsock.daddr = peer.addr;
               newsock.dport = peer.port;
-  
+
               // push to queue for accept to pick up
               sock.pending.push(newsock);
             } else {
@@ -5594,10 +5594,10 @@ function copyTempDouble(ptr) {
             addr = sock.daddr;
             port = sock.dport;
           }
-  
+
           // find the peer for the destination address
           var dest = SOCKFS.websocket_sock_ops.getPeer(sock, addr, port);
-  
+
           // early out if not connected with a connection-based socket
           if (sock.type === 1) {
             if (!dest || dest.socket.readyState === dest.socket.CLOSING || dest.socket.readyState === dest.socket.CLOSED) {
@@ -5606,7 +5606,7 @@ function copyTempDouble(ptr) {
               throw new FS.ErrnoError(ERRNO_CODES.EAGAIN);
             }
           }
-  
+
           // create a copy of the incoming data to send, as the WebSocket API
           // doesn't work entirely with an ArrayBufferView, it'll just send
           // the entire underlying buffer
@@ -5616,7 +5616,7 @@ function copyTempDouble(ptr) {
           } else {  // ArrayBufferView
             data = buffer.buffer.slice(buffer.byteOffset + offset, buffer.byteOffset + offset + length);
           }
-  
+
           // if we're emulating a connection-less dgram socket and don't have
           // a cached connection, queue the buffer to send upon connect and
           // lie, saying the data was sent now.
@@ -5630,7 +5630,7 @@ function copyTempDouble(ptr) {
               return length;
             }
           }
-  
+
           try {
             // send the actual data
             dest.socket.send(data);
@@ -5644,12 +5644,12 @@ function copyTempDouble(ptr) {
             // tcp servers should not be recv()'ing on the listen socket
             throw new FS.ErrnoError(ERRNO_CODES.ENOTCONN);
           }
-  
+
           var queued = sock.recv_queue.shift();
           if (!queued) {
             if (sock.type === 1) {
               var dest = SOCKFS.websocket_sock_ops.getPeer(sock, sock.daddr, sock.dport);
-  
+
               if (!dest) {
                 // if we have a destination address but are not connected, error out
                 throw new FS.ErrnoError(ERRNO_CODES.ENOTCONN);
@@ -5666,7 +5666,7 @@ function copyTempDouble(ptr) {
               throw new FS.ErrnoError(ERRNO_CODES.EAGAIN);
             }
           }
-  
+
           // queued.data will be an ArrayBuffer if it's unadulterated, but if it's
           // requeued TCP data it'll be an ArrayBufferView
           var queuedLength = queued.data.byteLength || queued.data.length;
@@ -5678,15 +5678,15 @@ function copyTempDouble(ptr) {
             addr: queued.addr,
             port: queued.port
           };
-  
-  
+
+
           // push back any unread data for TCP connections
           if (sock.type === 1 && bytesRead < queuedLength) {
             var bytesRemaining = queuedLength - bytesRead;
             queued.data = new Uint8Array(queuedBuffer, queuedOffset + bytesRead, bytesRemaining);
             sock.recv_queue.unshift(queued);
           }
-  
+
           return res;
         }}};function _send(fd, buf, len, flags) {
       var sock = SOCKFS.getSocket(fd);
@@ -5697,7 +5697,7 @@ function copyTempDouble(ptr) {
       // TODO honor flags
       return _write(fd, buf, len);
     }
-  
+
   function _pwrite(fildes, buf, nbyte, offset) {
       // ssize_t pwrite(int fildes, const void *buf, size_t nbyte, off_t offset);
       // http://pubs.opengroup.org/onlinepubs/000095399/functions/write.html
@@ -5721,8 +5721,8 @@ function copyTempDouble(ptr) {
         ___setErrNo(ERRNO_CODES.EBADF);
         return -1;
       }
-  
-  
+
+
       try {
         var slab = HEAP8;
         return FS.write(stream, slab, buf, nbyte);
@@ -5731,7 +5731,7 @@ function copyTempDouble(ptr) {
         return -1;
       }
     }
-  
+
   function _fileno(stream) {
       // int fileno(FILE *stream);
       // http://pubs.opengroup.org/onlinepubs/000095399/functions/fileno.html
@@ -5751,11 +5751,11 @@ function copyTempDouble(ptr) {
         return Math.floor(bytesWritten / size);
       }
     }
-  
-  
-   
+
+
+
   Module["_strlen"] = _strlen;
-  
+
   function __reallyNegative(x) {
       return x < 0 || (x === 0 && (1/x) === -Infinity);
     }function __formatString(format, varargs) {
@@ -5771,7 +5771,7 @@ function copyTempDouble(ptr) {
           ret = [HEAP32[(((varargs)+(argIndex))>>2)],
                  HEAP32[(((varargs)+(argIndex+8))>>2)]];
           argIndex += 8; // each 32-bit chunk is in a 64-bit block
-  
+
         } else {
           type = 'i32'; // varargs are always i32, i64, or double
           ret = HEAP32[(((varargs)+(argIndex))>>2)];
@@ -5779,7 +5779,7 @@ function copyTempDouble(ptr) {
         argIndex += Math.max(Runtime.getNativeFieldSize(type), Runtime.getAlignSize(type, null, true));
         return ret;
       }
-  
+
       var ret = [];
       var curr, next, currArg;
       while(1) {
@@ -5821,7 +5821,7 @@ function copyTempDouble(ptr) {
             textIndex++;
             next = HEAP8[((textIndex+1)|0)];
           }
-  
+
           // Handle width.
           var width = 0;
           if (next == 42) {
@@ -5835,7 +5835,7 @@ function copyTempDouble(ptr) {
               next = HEAP8[((textIndex+1)|0)];
             }
           }
-  
+
           // Handle precision.
           var precisionSet = false, precision = -1;
           if (next == 46) {
@@ -5861,7 +5861,7 @@ function copyTempDouble(ptr) {
             precision = 6; // Standard default.
             precisionSet = false;
           }
-  
+
           // Handle integer sizes. WARNING: These assume a 32-bit architecture!
           var argSize;
           switch (String.fromCharCode(next)) {
@@ -5898,7 +5898,7 @@ function copyTempDouble(ptr) {
           }
           if (argSize) textIndex++;
           next = HEAP8[((textIndex+1)|0)];
-  
+
           // Handle type specifier.
           switch (String.fromCharCode(next)) {
             case 'd': case 'i': case 'u': case 'o': case 'x': case 'X': case 'p': {
@@ -5971,7 +5971,7 @@ function copyTempDouble(ptr) {
                   argText = '0' + argText;
                 }
               }
-  
+
               // Add sign if needed
               if (currArg >= 0) {
                 if (flagAlwaysSigned) {
@@ -5980,13 +5980,13 @@ function copyTempDouble(ptr) {
                   prefix = ' ' + prefix;
                 }
               }
-  
+
               // Move sign to prefix so we zero-pad after the sign
               if (argText.charAt(0) == '-') {
                 prefix = '-' + prefix;
                 argText = argText.substr(1);
               }
-  
+
               // Add padding.
               while (prefix.length + argText.length < width) {
                 if (flagLeftAlign) {
@@ -5999,7 +5999,7 @@ function copyTempDouble(ptr) {
                   }
                 }
               }
-  
+
               // Insert the result into the buffer.
               argText = prefix + argText;
               argText.split('').forEach(function(chr) {
@@ -6020,7 +6020,7 @@ function copyTempDouble(ptr) {
               } else {
                 var isGeneral = false;
                 var effectivePrecision = Math.min(precision, 20);
-  
+
                 // Convert g/G to f/F or e/E, as per:
                 // http://pubs.opengroup.org/onlinepubs/9699919799/functions/printf.html
                 if (next == 103 || next == 71) {
@@ -6036,7 +6036,7 @@ function copyTempDouble(ptr) {
                   }
                   effectivePrecision = Math.min(precision, 20);
                 }
-  
+
                 if (next == 101 || next == 69) {
                   argText = currArg.toExponential(effectivePrecision);
                   // Make sure the exponent has at least 2 digits.
@@ -6049,7 +6049,7 @@ function copyTempDouble(ptr) {
                     argText = '-' + argText;
                   }
                 }
-  
+
                 var parts = argText.split('e');
                 if (isGeneral && !flagAlternative) {
                   // Discard trailing zeros and periods.
@@ -6064,10 +6064,10 @@ function copyTempDouble(ptr) {
                   while (precision > effectivePrecision++) parts[0] += '0';
                 }
                 argText = parts[0] + (parts.length > 1 ? 'e' + parts[1] : '');
-  
+
                 // Capitalize 'E' if needed.
                 if (next == 69) argText = argText.toUpperCase();
-  
+
                 // Add sign.
                 if (currArg >= 0) {
                   if (flagAlwaysSigned) {
@@ -6077,7 +6077,7 @@ function copyTempDouble(ptr) {
                   }
                 }
               }
-  
+
               // Add padding.
               while (argText.length < width) {
                 if (flagLeftAlign) {
@@ -6090,10 +6090,10 @@ function copyTempDouble(ptr) {
                   }
                 }
               }
-  
+
               // Adjust case.
               if (next < 97) argText = argText.toUpperCase();
-  
+
               // Insert the result into the buffer.
               argText.split('').forEach(function(chr) {
                 ret.push(chr.charCodeAt(0));
@@ -6441,10 +6441,10 @@ function copyTempDouble(ptr) {
           }
         }},isFullScreen:false,pointerLock:false,moduleContextCreatedCallbacks:[],workers:[],init:function () {
         if (!Module["preloadPlugins"]) Module["preloadPlugins"] = []; // needs to exist even in workers
-  
+
         if (Browser.initted || ENVIRONMENT_IS_WORKER) return;
         Browser.initted = true;
-  
+
         try {
           new Blob();
           Browser.hasBlobConstructor = true;
@@ -6458,7 +6458,7 @@ function copyTempDouble(ptr) {
           console.log("warning: Browser does not support creating object URLs. Built-in browser image decoding will not be available.");
           Module.noImageDecoding = true;
         }
-  
+
         // Support for plugins that can process preloaded files. You can add more of these to
         // your app by creating and appending to Module.preloadPlugins.
         //
@@ -6466,7 +6466,7 @@ function copyTempDouble(ptr) {
         // it is given the file's raw data. When it is done, it calls a callback with the file's
         // (possibly modified) data. For example, a plugin might decompress a file, or it
         // might create some side data structure for use later (like an Image element, etc.).
-  
+
         var imagePlugin = {};
         imagePlugin['canHandle'] = function imagePlugin_canHandle(name) {
           return !Module.noImageDecoding && /\.(jpg|jpeg|png|bmp)$/i.test(name);
@@ -6509,7 +6509,7 @@ function copyTempDouble(ptr) {
           img.src = url;
         };
         Module['preloadPlugins'].push(imagePlugin);
-  
+
         var audioPlugin = {};
         audioPlugin['canHandle'] = function audioPlugin_canHandle(name) {
           return !Module.noAudioDecoding && name.substr(-4) in { '.ogg': 1, '.wav': 1, '.mp3': 1 };
@@ -6577,9 +6577,9 @@ function copyTempDouble(ptr) {
           }
         };
         Module['preloadPlugins'].push(audioPlugin);
-  
+
         // Canvas event setup
-  
+
         var canvas = Module['canvas'];
         canvas.requestPointerLock = canvas['requestPointerLock'] ||
                                     canvas['mozRequestPointerLock'] ||
@@ -6589,17 +6589,17 @@ function copyTempDouble(ptr) {
                                  document['webkitExitPointerLock'] ||
                                  function(){}; // no-op if function does not exist
         canvas.exitPointerLock = canvas.exitPointerLock.bind(document);
-  
+
         function pointerLockChange() {
           Browser.pointerLock = document['pointerLockElement'] === canvas ||
                                 document['mozPointerLockElement'] === canvas ||
                                 document['webkitPointerLockElement'] === canvas;
         }
-  
+
         document.addEventListener('pointerlockchange', pointerLockChange, false);
         document.addEventListener('mozpointerlockchange', pointerLockChange, false);
         document.addEventListener('webkitpointerlockchange', pointerLockChange, false);
-  
+
         if (Module['elementPointerLock']) {
           canvas.addEventListener("click", function(ev) {
             if (!Browser.pointerLock && canvas.requestPointerLock) {
@@ -6620,14 +6620,14 @@ function copyTempDouble(ptr) {
               antialias: false,
               alpha: false
             };
-  
+
             if (webGLContextAttributes) {
               for (var attribute in webGLContextAttributes) {
                 contextAttributes[attribute] = webGLContextAttributes[attribute];
               }
             }
-  
-  
+
+
             canvas.addEventListener('webglcontextcreationerror', onContextCreationError, false);
             try {
               ['experimental-webgl', 'webgl'].some(function(webglId) {
@@ -6647,7 +6647,7 @@ function copyTempDouble(ptr) {
         if (useWebGL) {
           // Set the background of the WebGL canvas to black
           canvas.style.backgroundColor = "black";
-  
+
           // Warn on context loss
           canvas.addEventListener('webglcontextlost', function(event) {
             alert('WebGL context lost. You will need to reload the page.');
@@ -6665,7 +6665,7 @@ function copyTempDouble(ptr) {
         Browser.resizeCanvas = resizeCanvas;
         if (typeof Browser.lockPointer === 'undefined') Browser.lockPointer = true;
         if (typeof Browser.resizeCanvas === 'undefined') Browser.resizeCanvas = false;
-  
+
         var canvas = Module['canvas'];
         function fullScreenChange() {
           Browser.isFullScreen = false;
@@ -6684,14 +6684,14 @@ function copyTempDouble(ptr) {
           }
           if (Module['onFullScreen']) Module['onFullScreen'](Browser.isFullScreen);
         }
-  
+
         if (!Browser.fullScreenHandlersInstalled) {
           Browser.fullScreenHandlersInstalled = true;
           document.addEventListener('fullscreenchange', fullScreenChange, false);
           document.addEventListener('mozfullscreenchange', fullScreenChange, false);
           document.addEventListener('webkitfullscreenchange', fullScreenChange, false);
         }
-  
+
         canvas.requestFullScreen = canvas['requestFullScreen'] ||
                                    canvas['mozRequestFullScreen'] ||
                                    (canvas['webkitRequestFullScreen'] ? function() { canvas['webkitRequestFullScreen'](Element['ALLOW_KEYBOARD_INPUT']) } : null);
@@ -6766,7 +6766,7 @@ function copyTempDouble(ptr) {
             Browser.mouseMovementX = Browser.getMovementX(event);
             Browser.mouseMovementY = Browser.getMovementY(event);
           }
-          
+
           // check if SDL is available
           if (typeof SDL != "undefined") {
           	Browser.mouseX = SDL.mouseX + Browser.mouseMovementX;
@@ -6776,13 +6776,13 @@ function copyTempDouble(ptr) {
           	// FIXME: ideally this should be clamped against the canvas size and zero
           	Browser.mouseX += Browser.mouseMovementX;
           	Browser.mouseY += Browser.mouseMovementY;
-          }        
+          }
         } else {
           // Otherwise, calculate the movement based on the changes
           // in the coordinates.
           var rect = Module["canvas"].getBoundingClientRect();
           var x, y;
-          
+
           // Neither .scrollX or .pageXOffset are defined in a spec, but
           // we prefer .scrollX because it is currently in a spec draft.
           // (see: http://www.w3.org/TR/2013/WD-cssom-view-20131217/)
@@ -6802,7 +6802,7 @@ function copyTempDouble(ptr) {
             x = event.pageX - (scrollX + rect.left);
             y = event.pageY - (scrollY + rect.top);
           }
-  
+
           // the canvas might be CSS-scaled compared to its backbuffer;
           // SDL-using content will want mouse coordinates in terms
           // of backbuffer units.
@@ -6810,7 +6810,7 @@ function copyTempDouble(ptr) {
           var ch = Module["canvas"].height;
           x = x * (cw / rect.width);
           y = y * (ch / rect.height);
-  
+
           Browser.mouseMovementX = x - Browser.mouseX;
           Browser.mouseMovementY = y - Browser.mouseY;
           Browser.mouseX = x;
@@ -6858,7 +6858,7 @@ function copyTempDouble(ptr) {
         this.windowedHeight = canvas.height;
         canvas.width = screen.width;
         canvas.height = screen.height;
-        // check if SDL is available   
+        // check if SDL is available
         if (typeof SDL != "undefined") {
         	var flags = HEAPU32[((SDL.screen+Runtime.QUANTUM_SIZE*0)>>2)];
         	flags = flags | 0x00800000; // set SDL_FULLSCREEN flag
@@ -6869,7 +6869,7 @@ function copyTempDouble(ptr) {
         var canvas = Module['canvas'];
         canvas.width = this.windowedWidth;
         canvas.height = this.windowedHeight;
-        // check if SDL is available       
+        // check if SDL is available
         if (typeof SDL != "undefined") {
         	var flags = HEAPU32[((SDL.screen+Runtime.QUANTUM_SIZE*0)>>2)];
         	flags = flags & ~0x00800000; // clear SDL_FULLSCREEN flag
@@ -64037,146 +64037,146 @@ function _strlen(ptr) {
 
   function dynCall_v(index) {
     index = index|0;
-    
+
     FUNCTION_TABLE_v[index&63]();
   }
 
 
   function jsCall_v_0() {
-    
+
     jsCall(0);
   }
 
 
 
   function jsCall_v_1() {
-    
+
     jsCall(1);
   }
 
 
 
   function jsCall_v_2() {
-    
+
     jsCall(2);
   }
 
 
 
   function jsCall_v_3() {
-    
+
     jsCall(3);
   }
 
 
 
   function jsCall_v_4() {
-    
+
     jsCall(4);
   }
 
 
 
   function jsCall_v_5() {
-    
+
     jsCall(5);
   }
 
 
 
   function jsCall_v_6() {
-    
+
     jsCall(6);
   }
 
 
 
   function jsCall_v_7() {
-    
+
     jsCall(7);
   }
 
 
 
   function jsCall_v_8() {
-    
+
     jsCall(8);
   }
 
 
 
   function jsCall_v_9() {
-    
+
     jsCall(9);
   }
 
 
 
   function jsCall_v_10() {
-    
+
     jsCall(10);
   }
 
 
 
   function jsCall_v_11() {
-    
+
     jsCall(11);
   }
 
 
 
   function jsCall_v_12() {
-    
+
     jsCall(12);
   }
 
 
 
   function jsCall_v_13() {
-    
+
     jsCall(13);
   }
 
 
 
   function jsCall_v_14() {
-    
+
     jsCall(14);
   }
 
 
 
   function jsCall_v_15() {
-    
+
     jsCall(15);
   }
 
 
 
   function jsCall_v_16() {
-    
+
     jsCall(16);
   }
 
 
 
   function jsCall_v_17() {
-    
+
     jsCall(17);
   }
 
 
 
   function jsCall_v_18() {
-    
+
     jsCall(18);
   }
 
 
 
   function jsCall_v_19() {
-    
+
     jsCall(19);
   }
 
@@ -65083,11 +65083,11 @@ function b0(p0,p1,p2,p3,p4) { p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0;p4 = p4|0;
   var FUNCTION_TABLE_viiiii = [b0,b0,jsCall_viiiii_0,b0,jsCall_viiiii_1,b0,jsCall_viiiii_2,b0,jsCall_viiiii_3,b0,jsCall_viiiii_4,b0,jsCall_viiiii_5,b0,jsCall_viiiii_6,b0,jsCall_viiiii_7,b0,jsCall_viiiii_8,b0,jsCall_viiiii_9,b0,jsCall_viiiii_10,b0,jsCall_viiiii_11,b0,jsCall_viiiii_12,b0,jsCall_viiiii_13
   ,b0,jsCall_viiiii_14,b0,jsCall_viiiii_15,b0,jsCall_viiiii_16,b0,jsCall_viiiii_17,b0,jsCall_viiiii_18,b0,jsCall_viiiii_19,b0,__ZNK10__cxxabiv120__si_class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib,b0,__ZNK10__cxxabiv117__class_type_info16search_below_dstEPNS_19__dynamic_cast_infoEPKvib,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0,b0
   ,b0,b0,b0,b0,b0];
-  
+
   var FUNCTION_TABLE_viifi = [b1,b1,jsCall_viifi_0,b1,jsCall_viifi_1,b1,jsCall_viifi_2,b1,jsCall_viifi_3,b1,jsCall_viifi_4,b1,jsCall_viifi_5,b1,jsCall_viifi_6,b1,jsCall_viifi_7,b1,jsCall_viifi_8,b1,jsCall_viifi_9,b1,jsCall_viifi_10,b1,jsCall_viifi_11,b1,jsCall_viifi_12,b1,jsCall_viifi_13
   ,b1,jsCall_viifi_14,b1,jsCall_viifi_15,b1,jsCall_viifi_16,b1,jsCall_viifi_17,b1,jsCall_viifi_18,b1,jsCall_viifi_19,b1,__ZN6b2Draw10DrawCircleERK6b2Vec2fRK7b2Color,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1,b1
   ,b1,b1,b1,b1,b1];
-  
+
   var FUNCTION_TABLE_vi = [b2,b2,jsCall_vi_0,b2,jsCall_vi_1,b2,jsCall_vi_2,b2,jsCall_vi_3,b2,jsCall_vi_4,b2,jsCall_vi_5,b2,jsCall_vi_6,b2,jsCall_vi_7,b2,jsCall_vi_8,b2,jsCall_vi_9,b2,jsCall_vi_10,b2,jsCall_vi_11,b2,jsCall_vi_12,b2,jsCall_vi_13
   ,b2,jsCall_vi_14,b2,jsCall_vi_15,b2,jsCall_vi_16,b2,jsCall_vi_17,b2,jsCall_vi_18,b2,jsCall_vi_19,b2,__ZN25b2PolygonAndCircleContactD0Ev,b2,__ZN22b2EdgeAndCircleContactD0Ev,b2,__ZN15b2QueryCallbackD0Ev,b2,__ZN16b2PrismaticJoint4DumpEv,b2,__ZN12b2WheelJointD1Ev,b2,__ZN15b2CircleContactD0Ev,b2,__ZN16b2BlockAllocatorC2Ev,b2,__ZN17b2ContactListenerD0Ev,b2,__ZN7b2JointD0Ev
   ,b2,__ZN11b2WeldJointD0Ev,b2,__ZN15b2FrictionJointD0Ev,b2,__ZN25b2PolygonAndCircleContactD1Ev,b2,__ZN11b2RopeJointD1Ev,b2,__ZN15b2RevoluteJointD1Ev,b2,__ZN10__cxxabiv116__shim_type_infoD2Ev,b2,__ZN11b2EdgeShapeD0Ev,b2,__ZN15b2DistanceJointD0Ev,b2,__ZN13b2DynamicTreeD2Ev,b2,__ZN16b2StackAllocatorD2Ev,b2,__ZN9b2ContactD1Ev,b2,__ZN7b2WorldD2Ev,b2,__ZN16b2PrismaticJointD0Ev,b2,__ZN16b2BlockAllocatorD2Ev,b2,__ZN6b2DrawD1Ev
@@ -65097,7 +65097,7 @@ function b0(p0,p1,p2,p3,p4) { p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0;p4 = p4|0;
   ,b2,__ZN12b2ChainShapeD2Ev,b2,__ZN16b2ContactManagerC2Ev,b2,__ZN16b2StackAllocatorC2Ev,b2,__ZN12b2MouseJointD1Ev,b2,__ZN13b2CircleShapeD0Ev,b2,__ZNSt9bad_allocD0Ev,b2,__ZN15b2ContactFilterD1Ev,b2,__ZN12b2ChainShapeD0Ev,b2,__ZN10__cxxabiv117__class_type_infoD0Ev,b2,__ZN15b2QueryCallbackD1Ev,b2,__ZN15b2DistanceJointD1Ev,b2,__ZN11b2GearJointD1Ev,b2,__ZN11b2WeldJointD1Ev,b2,__ZNK10__cxxabiv116__shim_type_info5noop1Ev,b2,__ZN7b2ShapeD0Ev
   ,b2,__ZN15b2RevoluteJointD0Ev,b2,__ZN11b2RopeJoint4DumpEv,b2,__ZN11b2EdgeShapeD1Ev,b2,__ZN7b2JointD1Ev,b2,__ZN11b2GearJoint4DumpEv,b2,__ZN10__cxxabiv120__si_class_type_infoD0Ev,b2,__ZN16b2PrismaticJointD1Ev,b2,__ZN13b2CircleShapeD1Ev,b2,__ZN12b2MouseJointD0Ev,b2,__ZN13b2DynamicTreeC2Ev,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2
   ,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2,b2];
-  
+
   var FUNCTION_TABLE_vii = [b3,b3,jsCall_vii_0,b3,jsCall_vii_1,b3,jsCall_vii_2,b3,jsCall_vii_3,b3,jsCall_vii_4,b3,jsCall_vii_5,b3,jsCall_vii_6,b3,jsCall_vii_7,b3,jsCall_vii_8,b3,jsCall_vii_9,b3,jsCall_vii_10,b3,jsCall_vii_11,b3,jsCall_vii_12,b3,jsCall_vii_13
   ,b3,jsCall_vii_14,b3,jsCall_vii_15,b3,jsCall_vii_16,b3,jsCall_vii_17,b3,jsCall_vii_18,b3,jsCall_vii_19,b3,__ZN15b2CircleContact7DestroyEP9b2ContactP16b2BlockAllocator,b3,__ZNK12b2MouseJoint10GetAnchorAEv,b3,__ZN11b2WeldJoint23InitVelocityConstraintsERK12b2SolverData,b3,__ZN12b2MouseJointC2EPK15b2MouseJointDef,b3,__ZN15b2FrictionJoint24SolveVelocityConstraintsERK12b2SolverData,b3,__ZN6b2Draw13DrawTransformERK11b2Transform,b3,__ZNK15b2RevoluteJoint10GetAnchorAEv,b3,__ZN15b2RevoluteJoint23InitVelocityConstraintsERK12b2SolverData,b3,__ZNK15b2DistanceJoint10GetAnchorBEv
   ,b3,__ZNK15b2RevoluteJoint10GetAnchorBEv,b3,__ZN12b2MouseJoint24SolveVelocityConstraintsERK12b2SolverData,b3,__ZN16b2PrismaticJoint24SolveVelocityConstraintsERK12b2SolverData,b3,__ZN24b2ChainAndPolygonContact7DestroyEP9b2ContactP16b2BlockAllocator,b3,__ZN12b2MouseJoint23InitVelocityConstraintsERK12b2SolverData,b3,__ZNK11b2GearJoint10GetAnchorBEv,b3,__ZN17b2ContactListener12BeginContactEP9b2Contact,b3,__ZN25b2PolygonAndCircleContact7DestroyEP9b2ContactP16b2BlockAllocator,b3,__ZN12b2WheelJoint24SolveVelocityConstraintsERK12b2SolverData,b3,__ZN11b2RopeJoint24SolveVelocityConstraintsERK12b2SolverData,b3,__ZN23b2ChainAndCircleContact7DestroyEP9b2ContactP16b2BlockAllocator,b3,__ZN11b2GearJoint24SolveVelocityConstraintsERK12b2SolverData,b3,__ZN17b2ContactListener10EndContactEP9b2Contact,b3,__ZN21b2DestructionListener10SayGoodbyeEP7b2Joint,b3,__ZN12b2WheelJointC2EPK15b2WheelJointDef
@@ -65107,61 +65107,61 @@ function b0(p0,p1,p2,p3,p4) { p0 = p0|0;p1 = p1|0;p2 = p2|0;p3 = p3|0;p4 = p4|0;
   ,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3
   ,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3
   ,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3,b3];
-  
+
   var FUNCTION_TABLE_iiii = [b4,b4,jsCall_iiii_0,b4,jsCall_iiii_1,b4,jsCall_iiii_2,b4,jsCall_iiii_3,b4,jsCall_iiii_4,b4,jsCall_iiii_5,b4,jsCall_iiii_6,b4,jsCall_iiii_7,b4,jsCall_iiii_8,b4,jsCall_iiii_9,b4,jsCall_iiii_10,b4,jsCall_iiii_11,b4,jsCall_iiii_12,b4,jsCall_iiii_13
   ,b4,jsCall_iiii_14,b4,jsCall_iiii_15,b4,jsCall_iiii_16,b4,jsCall_iiii_17,b4,jsCall_iiii_18,b4,jsCall_iiii_19,b4,__ZNK10__cxxabiv117__class_type_info9can_catchEPKNS_16__shim_type_infoERPv,b4,__ZNK14b2PolygonShape9TestPointERK11b2TransformRK6b2Vec2,b4,__ZNK11b2EdgeShape9TestPointERK11b2TransformRK6b2Vec2,b4,__ZN15b2ContactFilter13ShouldCollideEP9b2FixtureS1_,b4,__ZNK12b2ChainShape9TestPointERK11b2TransformRK6b2Vec2,b4,__ZNK13b2CircleShape9TestPointERK11b2TransformRK6b2Vec2,b4,b4,b4,b4,b4,b4
   ,b4,b4,b4,b4,b4];
-  
+
   var FUNCTION_TABLE_ii = [b5,b5,jsCall_ii_0,b5,jsCall_ii_1,b5,jsCall_ii_2,b5,jsCall_ii_3,b5,jsCall_ii_4,b5,jsCall_ii_5,b5,jsCall_ii_6,b5,jsCall_ii_7,b5,jsCall_ii_8,b5,jsCall_ii_9,b5,jsCall_ii_10,b5,jsCall_ii_11,b5,jsCall_ii_12,b5,jsCall_ii_13
   ,b5,jsCall_ii_14,b5,jsCall_ii_15,b5,jsCall_ii_16,b5,jsCall_ii_17,b5,jsCall_ii_18,b5,jsCall_ii_19,b5,__ZNK13b2CircleShape13GetChildCountEv,b5,__ZNKSt9bad_alloc4whatEv,b5,__ZNK11b2EdgeShape13GetChildCountEv,b5,__ZNK12b2ChainShape13GetChildCountEv,b5,__ZNK14b2PolygonShape13GetChildCountEv,b5,b5,b5,b5,b5,b5,b5,b5
   ,b5,b5,b5,b5,b5];
-  
+
   var FUNCTION_TABLE_fif = [b6,b6,jsCall_fif_0,b6,jsCall_fif_1,b6,jsCall_fif_2,b6,jsCall_fif_3,b6,jsCall_fif_4,b6,jsCall_fif_5,b6,jsCall_fif_6,b6,jsCall_fif_7,b6,jsCall_fif_8,b6,jsCall_fif_9,b6,jsCall_fif_10,b6,jsCall_fif_11,b6,jsCall_fif_12,b6,jsCall_fif_13
   ,b6,jsCall_fif_14,b6,jsCall_fif_15,b6,jsCall_fif_16,b6,jsCall_fif_17,b6,jsCall_fif_18,b6,jsCall_fif_19,b6,__ZNK11b2RopeJoint17GetReactionTorqueEf,b6,__ZNK15b2RevoluteJoint17GetReactionTorqueEf,b6,__ZNK12b2MouseJoint17GetReactionTorqueEf,b6,__ZNK15b2FrictionJoint17GetReactionTorqueEf,b6,__ZNK15b2DistanceJoint17GetReactionTorqueEf,b6,__ZNK11b2GearJoint17GetReactionTorqueEf,b6,__ZNK16b2PrismaticJoint17GetReactionTorqueEf,b6,__ZNK12b2WheelJoint17GetReactionTorqueEf,b6,__ZNK11b2WeldJoint17GetReactionTorqueEf
   ,b6,__ZNK13b2PulleyJoint17GetReactionTorqueEf,b6,b6,b6];
-  
+
   var FUNCTION_TABLE_viii = [b7,b7,jsCall_viii_0,b7,jsCall_viii_1,b7,jsCall_viii_2,b7,jsCall_viii_3,b7,jsCall_viii_4,b7,jsCall_viii_5,b7,jsCall_viii_6,b7,jsCall_viii_7,b7,jsCall_viii_8,b7,jsCall_viii_9,b7,jsCall_viii_10,b7,jsCall_viii_11,b7,jsCall_viii_12,b7,jsCall_viii_13
   ,b7,jsCall_viii_14,b7,jsCall_viii_15,b7,jsCall_viii_16,b7,jsCall_viii_17,b7,jsCall_viii_18,b7,jsCall_viii_19,b7,__ZN17b2ContactListener9PostSolveEP9b2ContactPK16b2ContactImpulse,b7,__ZN6b2BodyC2EPK9b2BodyDefP7b2World,b7,__ZN17b2ContactListener8PreSolveEP9b2ContactPK10b2Manifold,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7,b7
   ,b7,b7,b7,b7,b7];
-  
+
   var FUNCTION_TABLE_viifii = [b8,b8,jsCall_viifii_0,b8,jsCall_viifii_1,b8,jsCall_viifii_2,b8,jsCall_viifii_3,b8,jsCall_viifii_4,b8,jsCall_viifii_5,b8,jsCall_viifii_6,b8,jsCall_viifii_7,b8,jsCall_viifii_8,b8,jsCall_viifii_9,b8,jsCall_viifii_10,b8,jsCall_viifii_11,b8,jsCall_viifii_12,b8,jsCall_viifii_13
   ,b8,jsCall_viifii_14,b8,jsCall_viifii_15,b8,jsCall_viifii_16,b8,jsCall_viifii_17,b8,jsCall_viifii_18,b8,jsCall_viifii_19,b8,__ZN6b2Draw15DrawSolidCircleERK6b2Vec2fS2_RK7b2Color,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8,b8
   ,b8,b8,b8,b8,b8];
-  
+
   var FUNCTION_TABLE_v = [b9,b9,jsCall_v_0,b9,jsCall_v_1,b9,jsCall_v_2,b9,jsCall_v_3,b9,jsCall_v_4,b9,jsCall_v_5,b9,jsCall_v_6,b9,jsCall_v_7,b9,jsCall_v_8,b9,jsCall_v_9,b9,jsCall_v_10,b9,jsCall_v_11,b9,jsCall_v_12,b9,jsCall_v_13
   ,b9,jsCall_v_14,b9,jsCall_v_15,b9,jsCall_v_16,b9,jsCall_v_17,b9,jsCall_v_18,b9,jsCall_v_19,b9,v____cxa_pure_virtual__wrapper,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9,b9
   ,b9,b9,b9,b9,b9];
-  
+
   var FUNCTION_TABLE_viif = [b10,b10,jsCall_viif_0,b10,jsCall_viif_1,b10,jsCall_viif_2,b10,jsCall_viif_3,b10,jsCall_viif_4,b10,jsCall_viif_5,b10,jsCall_viif_6,b10,jsCall_viif_7,b10,jsCall_viif_8,b10,jsCall_viif_9,b10,jsCall_viif_10,b10,jsCall_viif_11,b10,jsCall_viif_12,b10,jsCall_viif_13
   ,b10,jsCall_viif_14,b10,jsCall_viif_15,b10,jsCall_viif_16,b10,jsCall_viif_17,b10,jsCall_viif_18,b10,jsCall_viif_19,b10,__ZNK12b2ChainShape11ComputeMassEP10b2MassDataf,b10,__ZNK11b2GearJoint16GetReactionForceEf,b10,__ZNK15b2RevoluteJoint16GetReactionForceEf,b10,__ZNK14b2PolygonShape11ComputeMassEP10b2MassDataf,b10,__ZNK12b2MouseJoint16GetReactionForceEf,b10,__ZNK11b2WeldJoint16GetReactionForceEf,b10,__ZNK15b2DistanceJoint16GetReactionForceEf,b10,__ZNK13b2CircleShape11ComputeMassEP10b2MassDataf,b10,__ZNK13b2PulleyJoint16GetReactionForceEf
   ,b10,__ZNK16b2PrismaticJoint16GetReactionForceEf,b10,__ZNK12b2WheelJoint16GetReactionForceEf,b10,__ZNK15b2FrictionJoint16GetReactionForceEf,b10,__ZNK11b2RopeJoint16GetReactionForceEf,b10,__ZNK11b2EdgeShape11ComputeMassEP10b2MassDataf,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10
   ,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10,b10
   ,b10,b10,b10,b10,b10,b10,b10,b10,b10];
-  
+
   var FUNCTION_TABLE_viiiiii = [b11,b11,jsCall_viiiiii_0,b11,jsCall_viiiiii_1,b11,jsCall_viiiiii_2,b11,jsCall_viiiiii_3,b11,jsCall_viiiiii_4,b11,jsCall_viiiiii_5,b11,jsCall_viiiiii_6,b11,jsCall_viiiiii_7,b11,jsCall_viiiiii_8,b11,jsCall_viiiiii_9,b11,jsCall_viiiiii_10,b11,jsCall_viiiiii_11,b11,jsCall_viiiiii_12,b11,jsCall_viiiiii_13
   ,b11,jsCall_viiiiii_14,b11,jsCall_viiiiii_15,b11,jsCall_viiiiii_16,b11,jsCall_viiiiii_17,b11,jsCall_viiiiii_18,b11,jsCall_viiiiii_19,b11,__ZNK10__cxxabiv117__class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib,b11,__ZNK10__cxxabiv120__si_class_type_info16search_above_dstEPNS_19__dynamic_cast_infoEPKvS4_ib,b11,__ZN8b2IslandC2EiiiP16b2StackAllocatorP17b2ContactListener,b11,b11,b11,b11,b11,b11,b11,b11,b11,b11,b11,b11
   ,b11,b11,b11,b11,b11];
-  
+
   var FUNCTION_TABLE_iii = [b12,b12,jsCall_iii_0,b12,jsCall_iii_1,b12,jsCall_iii_2,b12,jsCall_iii_3,b12,jsCall_iii_4,b12,jsCall_iii_5,b12,jsCall_iii_6,b12,jsCall_iii_7,b12,jsCall_iii_8,b12,jsCall_iii_9,b12,jsCall_iii_10,b12,jsCall_iii_11,b12,jsCall_iii_12,b12,jsCall_iii_13
   ,b12,jsCall_iii_14,b12,jsCall_iii_15,b12,jsCall_iii_16,b12,jsCall_iii_17,b12,jsCall_iii_18,b12,jsCall_iii_19,b12,__ZN15b2FrictionJoint24SolvePositionConstraintsERK12b2SolverData,b12,__ZN13b2PulleyJoint24SolvePositionConstraintsERK12b2SolverData,b12,__ZNK14b2PolygonShape5CloneEP16b2BlockAllocator,b12,__ZNK13b2CircleShape5CloneEP16b2BlockAllocator,b12,__ZN15b2RevoluteJoint24SolvePositionConstraintsERK12b2SolverData,b12,__Z14b2PairLessThanRK6b2PairS1_,b12,__ZN12b2MouseJoint24SolvePositionConstraintsERK12b2SolverData,b12,__ZN15b2QueryCallback13ReportFixtureEP9b2Fixture,b12,__ZN16b2PrismaticJoint24SolvePositionConstraintsERK12b2SolverData
   ,b12,__ZN11b2RopeJoint24SolvePositionConstraintsERK12b2SolverData,b12,__ZN15b2DistanceJoint24SolvePositionConstraintsERK12b2SolverData,b12,__ZN12b2WheelJoint24SolvePositionConstraintsERK12b2SolverData,b12,__ZNK11b2EdgeShape5CloneEP16b2BlockAllocator,b12,__ZNK12b2ChainShape5CloneEP16b2BlockAllocator,b12,__ZN11b2WeldJoint24SolvePositionConstraintsERK12b2SolverData,b12,__ZN11b2GearJoint24SolvePositionConstraintsERK12b2SolverData,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12
   ,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12,b12
   ,b12,b12,b12,b12,b12,b12,b12,b12,b12];
-  
+
   var FUNCTION_TABLE_iiiiii = [b13,b13,jsCall_iiiiii_0,b13,jsCall_iiiiii_1,b13,jsCall_iiiiii_2,b13,jsCall_iiiiii_3,b13,jsCall_iiiiii_4,b13,jsCall_iiiiii_5,b13,jsCall_iiiiii_6,b13,jsCall_iiiiii_7,b13,jsCall_iiiiii_8,b13,jsCall_iiiiii_9,b13,jsCall_iiiiii_10,b13,jsCall_iiiiii_11,b13,jsCall_iiiiii_12,b13,jsCall_iiiiii_13
   ,b13,jsCall_iiiiii_14,b13,jsCall_iiiiii_15,b13,jsCall_iiiiii_16,b13,jsCall_iiiiii_17,b13,jsCall_iiiiii_18,b13,jsCall_iiiiii_19,b13,__ZN16b2PolygonContact6CreateEP9b2FixtureiS1_iP16b2BlockAllocator,b13,__ZN24b2ChainAndPolygonContact6CreateEP9b2FixtureiS1_iP16b2BlockAllocator,b13,__ZNK14b2PolygonShape7RayCastEP15b2RayCastOutputRK14b2RayCastInputRK11b2Transformi,b13,__ZN22b2EdgeAndCircleContact6CreateEP9b2FixtureiS1_iP16b2BlockAllocator,b13,__ZN15b2CircleContact6CreateEP9b2FixtureiS1_iP16b2BlockAllocator,b13,__ZN25b2PolygonAndCircleContact6CreateEP9b2FixtureiS1_iP16b2BlockAllocator,b13,__ZNK12b2ChainShape7RayCastEP15b2RayCastOutputRK14b2RayCastInputRK11b2Transformi,b13,__ZN23b2ChainAndCircleContact6CreateEP9b2FixtureiS1_iP16b2BlockAllocator,b13,__ZNK11b2EdgeShape7RayCastEP15b2RayCastOutputRK14b2RayCastInputRK11b2Transformi
   ,b13,__ZNK13b2CircleShape7RayCastEP15b2RayCastOutputRK14b2RayCastInputRK11b2Transformi,b13,__ZN23b2EdgeAndPolygonContact6CreateEP9b2FixtureiS1_iP16b2BlockAllocator,b13];
-  
+
   var FUNCTION_TABLE_fiiiif = [b14,b14,jsCall_fiiiif_0,b14,jsCall_fiiiif_1,b14,jsCall_fiiiif_2,b14,jsCall_fiiiif_3,b14,jsCall_fiiiif_4,b14,jsCall_fiiiif_5,b14,jsCall_fiiiif_6,b14,jsCall_fiiiif_7,b14,jsCall_fiiiif_8,b14,jsCall_fiiiif_9,b14,jsCall_fiiiif_10,b14,jsCall_fiiiif_11,b14,jsCall_fiiiif_12,b14,jsCall_fiiiif_13
   ,b14,jsCall_fiiiif_14,b14,jsCall_fiiiif_15,b14,jsCall_fiiiif_16,b14,jsCall_fiiiif_17,b14,jsCall_fiiiif_18,b14,jsCall_fiiiif_19,b14,__ZN17b2RayCastCallback13ReportFixtureEP9b2FixtureRK6b2Vec2S4_f,b14,b14,b14,b14,b14,b14,b14,b14,b14,b14,b14,b14,b14,b14,b14,b14
   ,b14,b14,b14,b14,b14];
-  
+
   var FUNCTION_TABLE_viiii = [b15,b15,jsCall_viiii_0,b15,jsCall_viiii_1,b15,jsCall_viiii_2,b15,jsCall_viiii_3,b15,jsCall_viiii_4,b15,jsCall_viiii_5,b15,jsCall_viiii_6,b15,jsCall_viiii_7,b15,jsCall_viiii_8,b15,jsCall_viiii_9,b15,jsCall_viiii_10,b15,jsCall_viiii_11,b15,jsCall_viiii_12,b15,jsCall_viiii_13
   ,b15,jsCall_viiii_14,b15,jsCall_viiii_15,b15,jsCall_viiii_16,b15,jsCall_viiii_17,b15,jsCall_viiii_18,b15,jsCall_viiii_19,b15,__ZN6b2Draw16DrawSolidPolygonEPK6b2Vec2iRK7b2Color,b15,__ZN6b2Draw11DrawPolygonEPK6b2Vec2iRK7b2Color,b15,__ZNK14b2PolygonShape11ComputeAABBEP6b2AABBRK11b2Transformi,b15,__ZN6b2Draw11DrawSegmentERK6b2Vec2S2_RK7b2Color,b15,__ZN24b2ChainAndPolygonContact8EvaluateEP10b2ManifoldRK11b2TransformS4_,b15,__ZN15b2CircleContact8EvaluateEP10b2ManifoldRK11b2TransformS4_,b15,__ZNK10__cxxabiv117__class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,b15,__ZN16b2PolygonContact8EvaluateEP10b2ManifoldRK11b2TransformS4_,b15,__ZN25b2PolygonAndCircleContact8EvaluateEP10b2ManifoldRK11b2TransformS4_
   ,b15,__ZNK10__cxxabiv120__si_class_type_info27has_unambiguous_public_baseEPNS_19__dynamic_cast_infoEPvi,b15,__ZNK11b2EdgeShape11ComputeAABBEP6b2AABBRK11b2Transformi,b15,__ZN23b2EdgeAndPolygonContact8EvaluateEP10b2ManifoldRK11b2TransformS4_,b15,__ZNK13b2CircleShape11ComputeAABBEP6b2AABBRK11b2Transformi,b15,__ZN23b2ChainAndCircleContact8EvaluateEP10b2ManifoldRK11b2TransformS4_,b15,__ZN22b2EdgeAndCircleContact8EvaluateEP10b2ManifoldRK11b2TransformS4_,b15,__ZNK12b2ChainShape11ComputeAABBEP6b2AABBRK11b2Transformi,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15
   ,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15,b15
   ,b15,b15,b15,b15,b15,b15,b15,b15,b15];
-  
+
 
   return { _emscripten_bind_b2WheelJoint__GetSpringFrequencyHz_p0: _emscripten_bind_b2WheelJoint__GetSpringFrequencyHz_p0, _emscripten_bind_b2Vec2__get_y_p0: _emscripten_bind_b2Vec2__get_y_p0, _emscripten_bind_b2PolygonShape____destroy___p0: _emscripten_bind_b2PolygonShape____destroy___p0, _emscripten_bind_b2DistanceProxy__get_m_vertices_p0: _emscripten_bind_b2DistanceProxy__get_m_vertices_p0, _emscripten_bind_b2PrismaticJoint__EnableLimit_p1: _emscripten_bind_b2PrismaticJoint__EnableLimit_p1, _emscripten_bind_b2WheelJointDef__Initialize_p4: _emscripten_bind_b2WheelJointDef__Initialize_p4, _emscripten_bind_b2DistanceJointDef__set_frequencyHz_p1: _emscripten_bind_b2DistanceJointDef__set_frequencyHz_p1, _emscripten_bind_b2PrismaticJoint__GetMotorForce_p1: _emscripten_bind_b2PrismaticJoint__GetMotorForce_p1, _emscripten_bind_b2AABB__Combine_p1: _emscripten_bind_b2AABB__Combine_p1, _emscripten_bind_b2Body__IsSleepingAllowed_p0: _emscripten_bind_b2Body__IsSleepingAllowed_p0, _emscripten_bind_b2Vec3__set_z_p1: _emscripten_bind_b2Vec3__set_z_p1, _emscripten_bind_b2Vec2__b2Vec2_p2: _emscripten_bind_b2Vec2__b2Vec2_p2, _emscripten_bind_b2RevoluteJoint__GetMaxMotorTorque_p0: _emscripten_bind_b2RevoluteJoint__GetMaxMotorTorque_p0, _emscripten_bind_b2WeldJoint__GetFrequency_p0: _emscripten_bind_b2WeldJoint__GetFrequency_p0, _emscripten_bind_b2MouseJoint__GetType_p0: _emscripten_bind_b2MouseJoint__GetType_p0, _emscripten_bind_b2RayCastCallback__b2RayCastCallback_p0: _emscripten_bind_b2RayCastCallback__b2RayCastCallback_p0, _emscripten_bind_b2Body__GetLinearDamping_p0: _emscripten_bind_b2Body__GetLinearDamping_p0, _emscripten_bind_b2BodyDef__get_fixedRotation_p0: _emscripten_bind_b2BodyDef__get_fixedRotation_p0, _emscripten_bind_b2FixtureDef__get_shape_p0: _emscripten_bind_b2FixtureDef__get_shape_p0, _emscripten_bind_b2PrismaticJoint____destroy___p0: _emscripten_bind_b2PrismaticJoint____destroy___p0, _emscripten_bind_b2Joint__GetBodyA_p0: _emscripten_bind_b2Joint__GetBodyA_p0, _emscripten_bind_b2WheelJointDef__set_frequencyHz_p1: _emscripten_bind_b2WheelJointDef__set_frequencyHz_p1, _emscripten_bind_b2BlockAllocator____destroy___p0: _emscripten_bind_b2BlockAllocator____destroy___p0, _emscripten_bind_b2Vec2__op_add_p1: _emscripten_bind_b2Vec2__op_add_p1, _emscripten_bind_b2DistanceJointDef__set_dampingRatio_p1: _emscripten_bind_b2DistanceJointDef__set_dampingRatio_p1, _emscripten_bind_b2Transform__Set_p2: _emscripten_bind_b2Transform__Set_p2, _emscripten_bind_b2EdgeShape__RayCast_p4: _emscripten_bind_b2EdgeShape__RayCast_p4, _emscripten_bind_b2RevoluteJoint__GetLocalAnchorA_p0: _emscripten_bind_b2RevoluteJoint__GetLocalAnchorA_p0, _emscripten_bind_b2DistanceJoint__GetDampingRatio_p0: _emscripten_bind_b2DistanceJoint__GetDampingRatio_p0, _emscripten_bind_b2Fixture__SetRestitution_p1: _emscripten_bind_b2Fixture__SetRestitution_p1, _emscripten_bind_b2DynamicTree__Validate_p0: _emscripten_bind_b2DynamicTree__Validate_p0, _emscripten_bind_b2DynamicTree__DestroyProxy_p1: _emscripten_bind_b2DynamicTree__DestroyProxy_p1, _emscripten_bind_b2Filter__set_groupIndex_p1: _emscripten_bind_b2Filter__set_groupIndex_p1, _emscripten_bind_b2FixtureDef__set_userData_p1: _emscripten_bind_b2FixtureDef__set_userData_p1, _emscripten_bind_b2DynamicTree__b2DynamicTree_p0: _emscripten_bind_b2DynamicTree__b2DynamicTree_p0, _emscripten_bind_b2RevoluteJointDef__get_localAnchorA_p0: _emscripten_bind_b2RevoluteJointDef__get_localAnchorA_p0, _emscripten_bind_b2DistanceProxy__GetVertex_p1: _emscripten_bind_b2DistanceProxy__GetVertex_p1, _emscripten_bind_b2EdgeShape__get_m_radius_p0: _emscripten_bind_b2EdgeShape__get_m_radius_p0, _emscripten_bind_b2PrismaticJointDef__get_localAnchorB_p0: _emscripten_bind_b2PrismaticJointDef__get_localAnchorB_p0, _emscripten_bind_b2RevoluteJointDef__set_bodyA_p1: _emscripten_bind_b2RevoluteJointDef__set_bodyA_p1, _emscripten_bind_b2World__GetJointCount_p0: _emscripten_bind_b2World__GetJointCount_p0, _emscripten_bind_b2DynamicTree__CreateProxy_p2: _emscripten_bind_b2DynamicTree__CreateProxy_p2, _emscripten_bind_b2WheelJointDef__set_collideConnected_p1: _emscripten_bind_b2WheelJointDef__set_collideConnected_p1, _emscripten_bind_b2WeldJoint__GetLocalAnchorA_p0: _emscripten_bind_b2WeldJoint__GetLocalAnchorA_p0, _emscripten_bind_b2RevoluteJointDef__get_localAnchorB_p0: _emscripten_bind_b2RevoluteJointDef__get_localAnchorB_p0, _emscripten_bind_b2Body__GetGravityScale_p0: _emscripten_bind_b2Body__GetGravityScale_p0, _emscripten_bind_b2Fixture__Dump_p1: _emscripten_bind_b2Fixture__Dump_p1, _emscripten_bind_b2World__GetBodyList_p0: _emscripten_bind_b2World__GetBodyList_p0, _emscripten_bind_b2PulleyJoint__IsActive_p0: _emscripten_bind_b2PulleyJoint__IsActive_p0, _emscripten_bind_b2MouseJoint__SetUserData_p1: _emscripten_bind_b2MouseJoint__SetUserData_p1, _emscripten_bind_b2World__GetContactList_p0: _emscripten_bind_b2World__GetContactList_p0, _emscripten_bind_b2PrismaticJoint__GetNext_p0: _emscripten_bind_b2PrismaticJoint__GetNext_p0, _emscripten_bind_b2Vec2__Skew_p0: _emscripten_bind_b2Vec2__Skew_p0, _emscripten_bind_b2BodyDef__get_linearVelocity_p0: _emscripten_bind_b2BodyDef__get_linearVelocity_p0, _emscripten_bind_b2GearJointDef__set_joint2_p1: _emscripten_bind_b2GearJointDef__set_joint2_p1, _emscripten_bind_b2WheelJoint__GetReactionForce_p1: _emscripten_bind_b2WheelJoint__GetReactionForce_p1, _emscripten_bind_b2RevoluteJoint__GetLocalAnchorB_p0: _emscripten_bind_b2RevoluteJoint__GetLocalAnchorB_p0, _emscripten_bind_b2PrismaticJointDef__set_motorSpeed_p1: _emscripten_bind_b2PrismaticJointDef__set_motorSpeed_p1, _emscripten_bind_b2PrismaticJoint__SetMaxMotorForce_p1: _emscripten_bind_b2PrismaticJoint__SetMaxMotorForce_p1, _emscripten_bind_b2ChainShape__b2ChainShape_p0: _emscripten_bind_b2ChainShape__b2ChainShape_p0, _emscripten_bind_b2CircleShape__RayCast_p4: _emscripten_bind_b2CircleShape__RayCast_p4, _emscripten_bind_b2WheelJoint__GetBodyA_p0: _emscripten_bind_b2WheelJoint__GetBodyA_p0, _emscripten_bind_b2RevoluteJointDef__set_bodyB_p1: _emscripten_bind_b2RevoluteJointDef__set_bodyB_p1, _emscripten_bind_b2MouseJointDef__get_dampingRatio_p0: _emscripten_bind_b2MouseJointDef__get_dampingRatio_p0, _emscripten_bind_b2JointDef__set_bodyB_p1: _emscripten_bind_b2JointDef__set_bodyB_p1, _emscripten_bind_b2RevoluteJoint__GetJointSpeed_p0: _emscripten_bind_b2RevoluteJoint__GetJointSpeed_p0, _emscripten_bind_b2RopeJoint__GetLocalAnchorB_p0: _emscripten_bind_b2RopeJoint__GetLocalAnchorB_p0, _emscripten_bind_b2Fixture__GetAABB_p1: _emscripten_bind_b2Fixture__GetAABB_p1, _emscripten_bind_b2BroadPhase__TouchProxy_p1: _emscripten_bind_b2BroadPhase__TouchProxy_p1, _emscripten_bind_b2RopeJointDef__get_bodyB_p1: _emscripten_bind_b2RopeJointDef__get_bodyB_p1, _emscripten_bind_b2World__GetAllowSleeping_p0: _emscripten_bind_b2World__GetAllowSleeping_p0, _emscripten_bind_b2DestructionListener____destroy___p0: _emscripten_bind_b2DestructionListener____destroy___p0, _emscripten_bind_b2BroadPhase____destroy___p0: _emscripten_bind_b2BroadPhase____destroy___p0, _emscripten_bind_b2World__GetWarmStarting_p0: _emscripten_bind_b2World__GetWarmStarting_p0, _emscripten_bind_b2Rot__b2Rot_p1: _emscripten_bind_b2Rot__b2Rot_p1, _emscripten_bind_b2Rot__b2Rot_p0: _emscripten_bind_b2Rot__b2Rot_p0, _emscripten_bind_b2DistanceJoint__GetUserData_p0: _emscripten_bind_b2DistanceJoint__GetUserData_p0, _emscripten_bind_b2MouseJointDef__get_frequencyHz_p0: _emscripten_bind_b2MouseJointDef__get_frequencyHz_p0, _emscripten_bind_b2ContactManager__set_m_allocator_p1: _emscripten_bind_b2ContactManager__set_m_allocator_p1, _emscripten_bind_b2WheelJoint__SetMaxMotorTorque_p1: _emscripten_bind_b2WheelJoint__SetMaxMotorTorque_p1, _emscripten_bind_b2GearJoint__GetBodyB_p0: _emscripten_bind_b2GearJoint__GetBodyB_p0, _emscripten_bind_b2MouseJointDef__get_target_p0: _emscripten_bind_b2MouseJointDef__get_target_p0, _emscripten_bind_b2WeldJoint__SetUserData_p1: _emscripten_bind_b2WeldJoint__SetUserData_p1, _emscripten_bind_b2PrismaticJoint__GetBodyA_p0: _emscripten_bind_b2PrismaticJoint__GetBodyA_p0, _emscripten_bind_b2StackAllocator__b2StackAllocator_p0: _emscripten_bind_b2StackAllocator__b2StackAllocator_p0, _emscripten_bind_b2MouseJoint__GetDampingRatio_p0: _emscripten_bind_b2MouseJoint__GetDampingRatio_p0, _emscripten_bind_b2DistanceJoint__GetNext_p0: _emscripten_bind_b2DistanceJoint__GetNext_p0, _emscripten_bind_b2Filter__get_maskBits_p0: _emscripten_bind_b2Filter__get_maskBits_p0, _emscripten_bind_b2RayCastCallback____destroy___p0: _emscripten_bind_b2RayCastCallback____destroy___p0, _emscripten_bind_b2World__Dump_p0: _emscripten_bind_b2World__Dump_p0, _emscripten_bind_b2RevoluteJointDef____destroy___p0: _emscripten_bind_b2RevoluteJointDef____destroy___p0, _emscripten_bind_b2RevoluteJointDef__get_motorSpeed_p0: _emscripten_bind_b2RevoluteJointDef__get_motorSpeed_p0, _emscripten_bind_b2BodyDef__get_bullet_p0: _emscripten_bind_b2BodyDef__get_bullet_p0, _emscripten_bind_b2Body__SetAngularDamping_p1: _emscripten_bind_b2Body__SetAngularDamping_p1, _emscripten_bind_b2ChainShape__ComputeMass_p2: _emscripten_bind_b2ChainShape__ComputeMass_p2, _emscripten_bind_b2Fixture__GetFilterData_p0: _emscripten_bind_b2Fixture__GetFilterData_p0, _emscripten_bind_b2DistanceJoint__SetLength_p1: _emscripten_bind_b2DistanceJoint__SetLength_p1, _emscripten_bind_b2BodyDef__get_position_p0: _emscripten_bind_b2BodyDef__get_position_p0, _emscripten_bind_b2FrictionJoint__GetUserData_p0: _emscripten_bind_b2FrictionJoint__GetUserData_p0, _emscripten_bind_b2Transform__b2Transform_p0: _emscripten_bind_b2Transform__b2Transform_p0, _emscripten_bind_b2ContactEdge__set_next_p1: _emscripten_bind_b2ContactEdge__set_next_p1, _emscripten_bind_b2Transform__b2Transform_p2: _emscripten_bind_b2Transform__b2Transform_p2, _emscripten_bind_b2FrictionJointDef__get_maxTorque_p0: _emscripten_bind_b2FrictionJointDef__get_maxTorque_p0, _emscripten_bind_b2WeldJointDef__set_localAnchorB_p1: _emscripten_bind_b2WeldJointDef__set_localAnchorB_p1, _emscripten_bind_b2World__GetProxyCount_p0: _emscripten_bind_b2World__GetProxyCount_p0, _emscripten_bind_b2WeldJointDef__get_bodyB_p1: _emscripten_bind_b2WeldJointDef__get_bodyB_p1, _emscripten_bind_b2PulleyJointDef__set_lengthA_p1: _emscripten_bind_b2PulleyJointDef__set_lengthA_p1, _emscripten_bind_b2PolygonShape__set_m_centroid_p1: _emscripten_bind_b2PolygonShape__set_m_centroid_p1, _emscripten_bind_b2WeldJoint__GetAnchorB_p0: _emscripten_bind_b2WeldJoint__GetAnchorB_p0, _emscripten_bind_b2PulleyJointDef__get_collideConnected_p1: _emscripten_bind_b2PulleyJointDef__get_collideConnected_p1, _emscripten_bind_b2Vec3____destroy___p0: _emscripten_bind_b2Vec3____destroy___p0, _emscripten_bind_b2Color__set_r_p1: _emscripten_bind_b2Color__set_r_p1, _emscripten_bind_b2PrismaticJointDef__get_enableMotor_p0: _emscripten_bind_b2PrismaticJointDef__get_enableMotor_p0, _emscripten_bind_b2BodyDef__get_linearDamping_p0: _emscripten_bind_b2BodyDef__get_linearDamping_p0, _emscripten_bind_b2EdgeShape__ComputeMass_p2: _emscripten_bind_b2EdgeShape__ComputeMass_p2, _emscripten_bind_b2RayCastCallback__ReportFixture_p4: _emscripten_bind_b2RayCastCallback__ReportFixture_p4, _emscripten_bind_b2Body__Dump_p0: _emscripten_bind_b2Body__Dump_p0, _emscripten_bind_b2BodyDef__get_allowSleep_p0: _emscripten_bind_b2BodyDef__get_allowSleep_p0, _emscripten_bind_b2PrismaticJoint__GetJointTranslation_p0: _emscripten_bind_b2PrismaticJoint__GetJointTranslation_p0, _emscripten_bind_b2PulleyJoint__GetAnchorB_p0: _emscripten_bind_b2PulleyJoint__GetAnchorB_p0, _emscripten_bind_b2PrismaticJoint__GetReactionTorque_p1: _emscripten_bind_b2PrismaticJoint__GetReactionTorque_p1, _emscripten_bind_b2JointDef__set_bodyA_p1: _emscripten_bind_b2JointDef__set_bodyA_p1, _emscripten_bind_b2PrismaticJoint__GetBodyB_p0: _emscripten_bind_b2PrismaticJoint__GetBodyB_p0, _emscripten_bind_b2DistanceJoint__GetLocalAnchorA_p0: _emscripten_bind_b2DistanceJoint__GetLocalAnchorA_p0, _emscripten_bind_b2RopeJoint__GetLocalAnchorA_p0: _emscripten_bind_b2RopeJoint__GetLocalAnchorA_p0, _emscripten_bind_b2Rot__set_c_p1: _emscripten_bind_b2Rot__set_c_p1, _emscripten_bind_b2Vec3__op_mul_p1: _emscripten_bind_b2Vec3__op_mul_p1, _emscripten_bind_b2StackAllocator__GetMaxAllocation_p0: _emscripten_bind_b2StackAllocator__GetMaxAllocation_p0, _emscripten_bind_b2JointDef__set_collideConnected_p1: _emscripten_bind_b2JointDef__set_collideConnected_p1, _emscripten_bind_b2WeldJoint__GetAnchorA_p0: _emscripten_bind_b2WeldJoint__GetAnchorA_p0, _emscripten_bind_b2World__SetAutoClearForces_p1: _emscripten_bind_b2World__SetAutoClearForces_p1, _emscripten_bind_b2Contact__SetEnabled_p1: _emscripten_bind_b2Contact__SetEnabled_p1, _emscripten_bind_b2ContactManager__get_m_contactFilter_p0: _emscripten_bind_b2ContactManager__get_m_contactFilter_p0, _emscripten_bind_b2BodyDef__get_angularDamping_p0: _emscripten_bind_b2BodyDef__get_angularDamping_p0, _emscripten_bind_b2WeldJointDef__set_localAnchorA_p1: _emscripten_bind_b2WeldJointDef__set_localAnchorA_p1, _emscripten_bind_b2PulleyJointDef__set_lengthB_p1: _emscripten_bind_b2PulleyJointDef__set_lengthB_p1, _emscripten_bind_b2Vec2__op_sub_p0: _emscripten_bind_b2Vec2__op_sub_p0, _emscripten_bind_b2PrismaticJoint__GetLocalAnchorB_p0: _emscripten_bind_b2PrismaticJoint__GetLocalAnchorB_p0, _emscripten_bind_b2RopeJointDef__get_localAnchorB_p0: _emscripten_bind_b2RopeJointDef__get_localAnchorB_p0, _emscripten_bind_b2Contact__GetChildIndexB_p0: _emscripten_bind_b2Contact__GetChildIndexB_p0, _emscripten_bind_b2Fixture__TestPoint_p1: _emscripten_bind_b2Fixture__TestPoint_p1, _emscripten_bind_b2PrismaticJoint__GetType_p0: _emscripten_bind_b2PrismaticJoint__GetType_p0, _emscripten_bind_b2AABB__RayCast_p2: _emscripten_bind_b2AABB__RayCast_p2, _emscripten_bind_b2WheelJointDef__get_bodyB_p1: _emscripten_bind_b2WheelJointDef__get_bodyB_p1, _emscripten_bind_b2QueryCallback__ReportFixture_p1: _emscripten_bind_b2QueryCallback__ReportFixture_p1, _emscripten_bind_b2BodyDef__set_linearVelocity_p1: _emscripten_bind_b2BodyDef__set_linearVelocity_p1, _emscripten_bind_b2Body__GetMass_p0: _emscripten_bind_b2Body__GetMass_p0, _emscripten_bind_b2WeldJoint____destroy___p0: _emscripten_bind_b2WeldJoint____destroy___p0, _emscripten_bind_b2WheelJoint__GetSpringDampingRatio_p0: _emscripten_bind_b2WheelJoint__GetSpringDampingRatio_p0, _emscripten_bind_b2RopeJointDef__set_localAnchorB_p1: _emscripten_bind_b2RopeJointDef__set_localAnchorB_p1, _emscripten_bind_b2Body__IsFixedRotation_p0: _emscripten_bind_b2Body__IsFixedRotation_p0, _emscripten_bind_b2Rot__SetIdentity_p0: _emscripten_bind_b2Rot__SetIdentity_p0, _emscripten_bind_b2WheelJoint__SetSpringDampingRatio_p1: _emscripten_bind_b2WheelJoint__SetSpringDampingRatio_p1, _emscripten_bind_b2PrismaticJointDef__get_localAnchorA_p0: _emscripten_bind_b2PrismaticJointDef__get_localAnchorA_p0, _emscripten_bind_b2FrictionJoint__IsActive_p0: _emscripten_bind_b2FrictionJoint__IsActive_p0, _emscripten_bind_b2JointDef__get_userData_p0: _emscripten_bind_b2JointDef__get_userData_p0, _emscripten_bind_b2Draw__DrawPolygon_p3: _emscripten_bind_b2Draw__DrawPolygon_p3, _emscripten_bind_b2MouseJoint__GetBodyB_p0: _emscripten_bind_b2MouseJoint__GetBodyB_p0, _emscripten_bind_b2DistanceJointDef__get_dampingRatio_p0: _emscripten_bind_b2DistanceJointDef__get_dampingRatio_p0, _emscripten_bind_b2ContactManager__get_m_broadPhase_p0: _emscripten_bind_b2ContactManager__get_m_broadPhase_p0, _emscripten_bind_b2RopeJoint__GetReactionTorque_p1: _emscripten_bind_b2RopeJoint__GetReactionTorque_p1, _emscripten_bind_b2PrismaticJoint__GetLowerLimit_p0: _emscripten_bind_b2PrismaticJoint__GetLowerLimit_p0, _emscripten_bind_b2Contact__GetManifold_p0: _emscripten_bind_b2Contact__GetManifold_p0, _emscripten_bind_b2Contact__SetFriction_p1: _emscripten_bind_b2Contact__SetFriction_p1, _emscripten_bind_b2WheelJoint__GetJointSpeed_p0: _emscripten_bind_b2WheelJoint__GetJointSpeed_p0, _emscripten_bind_b2BodyDef__set_allowSleep_p1: _emscripten_bind_b2BodyDef__set_allowSleep_p1, _emscripten_bind_b2Fixture__RayCast_p3: _emscripten_bind_b2Fixture__RayCast_p3, _emscripten_bind_b2WeldJointDef__get_referenceAngle_p0: _emscripten_bind_b2WeldJointDef__get_referenceAngle_p0, _emscripten_bind_b2Fixture____destroy___p0: _emscripten_bind_b2Fixture____destroy___p0, _emscripten_bind_b2RopeJointDef__set_localAnchorA_p1: _emscripten_bind_b2RopeJointDef__set_localAnchorA_p1, _emscripten_bind_b2WheelJoint__SetUserData_p1: _emscripten_bind_b2WheelJoint__SetUserData_p1, _emscripten_bind_b2WeldJoint__b2WeldJoint_p1: _emscripten_bind_b2WeldJoint__b2WeldJoint_p1, _emscripten_bind_b2WeldJoint__IsActive_p0: _emscripten_bind_b2WeldJoint__IsActive_p0, _emscripten_bind_b2Draw__DrawSolidPolygon_p3: _emscripten_bind_b2Draw__DrawSolidPolygon_p3, _emscripten_bind_b2ContactManager____destroy___p0: _emscripten_bind_b2ContactManager____destroy___p0, _emscripten_bind_b2GearJoint__GetAnchorB_p0: _emscripten_bind_b2GearJoint__GetAnchorB_p0, _emscripten_bind_b2WheelJointDef__get_localAxisA_p0: _emscripten_bind_b2WheelJointDef__get_localAxisA_p0, _emscripten_bind_b2PrismaticJointDef__get_lowerTranslation_p0: _emscripten_bind_b2PrismaticJointDef__get_lowerTranslation_p0, _emscripten_bind_b2PolygonShape__get_m_vertexCount_p0: _emscripten_bind_b2PolygonShape__get_m_vertexCount_p0, _emscripten_bind_b2PolygonShape__SetAsBox_p2: _emscripten_bind_b2PolygonShape__SetAsBox_p2, _emscripten_bind_b2DistanceJointDef__Initialize_p4: _emscripten_bind_b2DistanceJointDef__Initialize_p4, _emscripten_bind_b2World__IsLocked_p0: _emscripten_bind_b2World__IsLocked_p0, _emscripten_bind_b2ContactEdge__get_prev_p0: _emscripten_bind_b2ContactEdge__get_prev_p0, _emscripten_bind_b2Joint__GetReactionForce_p1: _emscripten_bind_b2Joint__GetReactionForce_p1, _emscripten_bind_b2WeldJointDef__get_collideConnected_p1: _emscripten_bind_b2WeldJointDef__get_collideConnected_p1, _emscripten_bind_b2World__GetTreeHeight_p0: _emscripten_bind_b2World__GetTreeHeight_p0, _emscripten_bind_b2Draw__AppendFlags_p1: _emscripten_bind_b2Draw__AppendFlags_p1, _emscripten_bind_b2PrismaticJointDef__get_maxMotorForce_p0: _emscripten_bind_b2PrismaticJointDef__get_maxMotorForce_p0, _emscripten_bind_b2PrismaticJointDef__set_upperTranslation_p1: _emscripten_bind_b2PrismaticJointDef__set_upperTranslation_p1, _emscripten_bind_b2GearJointDef__set_collideConnected_p1: _emscripten_bind_b2GearJointDef__set_collideConnected_p1, _emscripten_bind_b2DistanceJointDef__get_bodyA_p1: _emscripten_bind_b2DistanceJointDef__get_bodyA_p1, _emscripten_bind_b2Body__SetActive_p1: _emscripten_bind_b2Body__SetActive_p1, _emscripten_bind_b2PrismaticJoint__GetCollideConnected_p0: _emscripten_bind_b2PrismaticJoint__GetCollideConnected_p0, _emscripten_bind_b2ContactListener____destroy___p0: _emscripten_bind_b2ContactListener____destroy___p0, _emscripten_bind_b2MouseJoint__SetDampingRatio_p1: _emscripten_bind_b2MouseJoint__SetDampingRatio_p1, _emscripten_bind_b2Body__ApplyTorque_p1: _emscripten_bind_b2Body__ApplyTorque_p1, _emscripten_bind_b2DistanceProxy__GetVertexCount_p0: _emscripten_bind_b2DistanceProxy__GetVertexCount_p0, _emscripten_bind_b2BodyDef__set_position_p1: _emscripten_bind_b2BodyDef__set_position_p1, _emscripten_bind_b2FixtureDef__set_density_p1: _emscripten_bind_b2FixtureDef__set_density_p1, _emscripten_bind_b2PulleyJointDef__set_bodyA_p1: _emscripten_bind_b2PulleyJointDef__set_bodyA_p1, _emscripten_bind_b2RopeJoint__b2RopeJoint_p1: _emscripten_bind_b2RopeJoint__b2RopeJoint_p1, _emscripten_bind_b2FixtureDef__get_filter_p0: _emscripten_bind_b2FixtureDef__get_filter_p0, _emscripten_bind_b2WheelJoint__GetUserData_p0: _emscripten_bind_b2WheelJoint__GetUserData_p0, _emscripten_bind_b2PrismaticJoint__GetReactionForce_p1: _emscripten_bind_b2PrismaticJoint__GetReactionForce_p1, _emscripten_bind_b2GearJoint____destroy___p0: _emscripten_bind_b2GearJoint____destroy___p0, _emscripten_bind_b2ContactEdge__set_prev_p1: _emscripten_bind_b2ContactEdge__set_prev_p1, _emscripten_bind_b2Shape__RayCast_p4: _emscripten_bind_b2Shape__RayCast_p4, _emscripten_bind_b2RevoluteJoint__EnableMotor_p1: _emscripten_bind_b2RevoluteJoint__EnableMotor_p1, _emscripten_bind_b2Body__SetType_p1: _emscripten_bind_b2Body__SetType_p1, _emscripten_bind_b2RopeJointDef__set_collideConnected_p1: _emscripten_bind_b2RopeJointDef__set_collideConnected_p1, _emscripten_bind_b2FrictionJoint__GetBodyB_p0: _emscripten_bind_b2FrictionJoint__GetBodyB_p0, _emscripten_bind_b2RevoluteJoint__IsLimitEnabled_p0: _emscripten_bind_b2RevoluteJoint__IsLimitEnabled_p0, _emscripten_bind_b2FrictionJointDef__set_maxForce_p1: _emscripten_bind_b2FrictionJointDef__set_maxForce_p1, _emscripten_bind_b2Contact__SetRestitution_p1: _emscripten_bind_b2Contact__SetRestitution_p1, _emscripten_bind_b2WheelJointDef__get_enableMotor_p0: _emscripten_bind_b2WheelJointDef__get_enableMotor_p0, _emscripten_bind_b2DistanceJointDef__b2DistanceJointDef_p0: _emscripten_bind_b2DistanceJointDef__b2DistanceJointDef_p0, _emscripten_bind_b2PolygonShape__GetChildCount_p0: _emscripten_bind_b2PolygonShape__GetChildCount_p0, _emscripten_bind_b2BlockAllocator__b2BlockAllocator_p0: _emscripten_bind_b2BlockAllocator__b2BlockAllocator_p0, _emscripten_bind_b2ContactEdge__set_other_p1: _emscripten_bind_b2ContactEdge__set_other_p1, _emscripten_bind_b2Body__GetMassData_p1: _emscripten_bind_b2Body__GetMassData_p1, _emscripten_bind_b2Joint__GetNext_p0: _emscripten_bind_b2Joint__GetNext_p0, _emscripten_bind_b2World__SetDestructionListener_p1: _emscripten_bind_b2World__SetDestructionListener_p1, _emscripten_bind_b2RevoluteJoint__GetAnchorA_p0: _emscripten_bind_b2RevoluteJoint__GetAnchorA_p0, _emscripten_bind_b2MouseJointDef__get_collideConnected_p1: _emscripten_bind_b2MouseJointDef__get_collideConnected_p1, _emscripten_bind_b2PrismaticJointDef__set_maxMotorForce_p1: _emscripten_bind_b2PrismaticJointDef__set_maxMotorForce_p1, _emscripten_bind_b2FrictionJoint__SetMaxForce_p1: _emscripten_bind_b2FrictionJoint__SetMaxForce_p1, _malloc: _malloc, _emscripten_bind_b2MouseJoint__GetMaxForce_p0: _emscripten_bind_b2MouseJoint__GetMaxForce_p0, _emscripten_bind_b2MouseJoint__Dump_p0: _emscripten_bind_b2MouseJoint__Dump_p0, _emscripten_bind_b2FixtureDef__set_restitution_p1: _emscripten_bind_b2FixtureDef__set_restitution_p1, _emscripten_bind_b2Shape__GetChildCount_p0: _emscripten_bind_b2Shape__GetChildCount_p0, _emscripten_bind_b2Body__GetJointList_p0: _emscripten_bind_b2Body__GetJointList_p0, _emscripten_bind_b2Timer____destroy___p0: _emscripten_bind_b2Timer____destroy___p0, _emscripten_bind_b2Vec2__IsValid_p0: _emscripten_bind_b2Vec2__IsValid_p0, _emscripten_bind_b2Contact__ResetRestitution_p0: _emscripten_bind_b2Contact__ResetRestitution_p0, _emscripten_bind_b2RevoluteJointDef__get_collideConnected_p1: _emscripten_bind_b2RevoluteJointDef__get_collideConnected_p1, _emscripten_bind_b2DynamicTree__MoveProxy_p3: _emscripten_bind_b2DynamicTree__MoveProxy_p3, _emscripten_bind_b2PulleyJointDef__get_localAnchorA_p0: _emscripten_bind_b2PulleyJointDef__get_localAnchorA_p0, _emscripten_bind_b2RevoluteJointDef__get_bodyA_p1: _emscripten_bind_b2RevoluteJointDef__get_bodyA_p1, _emscripten_bind_b2WheelJointDef____destroy___p0: _emscripten_bind_b2WheelJointDef____destroy___p0, _emscripten_bind_b2MouseJoint__GetBodyA_p0: _emscripten_bind_b2MouseJoint__GetBodyA_p0, _emscripten_bind_b2GearJoint__GetType_p0: _emscripten_bind_b2GearJoint__GetType_p0, _emscripten_bind_b2Body__SetMassData_p1: _emscripten_bind_b2Body__SetMassData_p1, _emscripten_bind_b2MouseJoint__IsActive_p0: _emscripten_bind_b2MouseJoint__IsActive_p0, _emscripten_bind_b2FrictionJoint__GetAnchorA_p0: _emscripten_bind_b2FrictionJoint__GetAnchorA_p0, _emscripten_bind_b2Contact__GetChildIndexA_p0: _emscripten_bind_b2Contact__GetChildIndexA_p0, _emscripten_bind_b2Fixture__GetShape_p0: _emscripten_bind_b2Fixture__GetShape_p0, _emscripten_bind_b2DistanceProxy__set_m_radius_p1: _emscripten_bind_b2DistanceProxy__set_m_radius_p1, _emscripten_bind_b2DistanceJointDef__get_bodyB_p1: _emscripten_bind_b2DistanceJointDef__get_bodyB_p1, _emscripten_bind_b2RevoluteJoint__GetLowerLimit_p0: _emscripten_bind_b2RevoluteJoint__GetLowerLimit_p0, _emscripten_bind_b2World__DestroyJoint_p1: _emscripten_bind_b2World__DestroyJoint_p1, _emscripten_bind_b2PulleyJointDef__set_ratio_p1: _emscripten_bind_b2PulleyJointDef__set_ratio_p1, _emscripten_bind_b2PulleyJoint__GetNext_p0: _emscripten_bind_b2PulleyJoint__GetNext_p0, _emscripten_bind_b2RopeJoint__GetType_p0: _emscripten_bind_b2RopeJoint__GetType_p0, _emscripten_bind_b2Body__GetLocalPoint_p1: _emscripten_bind_b2Body__GetLocalPoint_p1, _emscripten_bind_b2Body__SetGravityScale_p1: _emscripten_bind_b2Body__SetGravityScale_p1, _emscripten_bind_b2PrismaticJointDef__set_bodyA_p1: _emscripten_bind_b2PrismaticJointDef__set_bodyA_p1, _emscripten_bind_b2CircleShape__GetType_p0: _emscripten_bind_b2CircleShape__GetType_p0, _emscripten_bind_b2DistanceProxy__get_m_radius_p0: _emscripten_bind_b2DistanceProxy__get_m_radius_p0, _emscripten_bind_b2World__ClearForces_p0: _emscripten_bind_b2World__ClearForces_p0, _emscripten_bind_b2DynamicTree____destroy___p0: _emscripten_bind_b2DynamicTree____destroy___p0, _emscripten_bind_b2Contact__GetWorldManifold_p1: _emscripten_bind_b2Contact__GetWorldManifold_p1, _emscripten_bind_b2DynamicTree__GetUserData_p1: _emscripten_bind_b2DynamicTree__GetUserData_p1, _emscripten_bind_b2JointDef____destroy___p0: _emscripten_bind_b2JointDef____destroy___p0, _emscripten_bind_b2GearJoint__IsActive_p0: _emscripten_bind_b2GearJoint__IsActive_p0, _emscripten_bind_b2Draw__GetFlags_p0: _emscripten_bind_b2Draw__GetFlags_p0, _emscripten_bind_b2RevoluteJoint__GetAnchorB_p0: _emscripten_bind_b2RevoluteJoint__GetAnchorB_p0, _emscripten_bind_b2RevoluteJointDef__get_bodyB_p1: _emscripten_bind_b2RevoluteJointDef__get_bodyB_p1, _emscripten_bind_b2DistanceJoint____destroy___p0: _emscripten_bind_b2DistanceJoint____destroy___p0, _emscripten_bind_b2DestructionListener__SayGoodbye_p1: _emscripten_bind_b2DestructionListener__SayGoodbye_p1, _emscripten_bind_b2PrismaticJoint__IsLimitEnabled_p0: _emscripten_bind_b2PrismaticJoint__IsLimitEnabled_p0, _emscripten_bind_b2BodyDef____destroy___p0: _emscripten_bind_b2BodyDef____destroy___p0, _emscripten_bind_b2EdgeShape____destroy___p0: _emscripten_bind_b2EdgeShape____destroy___p0, _emscripten_bind_b2GearJointDef__get_ratio_p0: _emscripten_bind_b2GearJointDef__get_ratio_p0, _emscripten_bind_b2BlockAllocator__Clear_p0: _emscripten_bind_b2BlockAllocator__Clear_p0, _emscripten_bind_b2RopeJoint__GetAnchorB_p0: _emscripten_bind_b2RopeJoint__GetAnchorB_p0, _emscripten_bind_b2BodyDef__set_type_p1: _emscripten_bind_b2BodyDef__set_type_p1, _emscripten_bind_b2WheelJoint__EnableMotor_p1: _emscripten_bind_b2WheelJoint__EnableMotor_p1, _emscripten_bind_b2FrictionJoint__GetBodyA_p0: _emscripten_bind_b2FrictionJoint__GetBodyA_p0, _emscripten_bind_b2Joint__GetType_p0: _emscripten_bind_b2Joint__GetType_p0, _emscripten_bind_b2RopeJoint__GetBodyA_p0: _emscripten_bind_b2RopeJoint__GetBodyA_p0, _emscripten_bind_b2WheelJointDef__get_bodyA_p1: _emscripten_bind_b2WheelJointDef__get_bodyA_p1, _emscripten_bind_b2RopeJoint__GetAnchorA_p0: _emscripten_bind_b2RopeJoint__GetAnchorA_p0, _emscripten_bind_b2GearJointDef__get_collideConnected_p1: _emscripten_bind_b2GearJointDef__get_collideConnected_p1, _emscripten_bind_b2RevoluteJointDef__get_upperAngle_p0: _emscripten_bind_b2RevoluteJointDef__get_upperAngle_p0, _emscripten_bind_b2MouseJointDef__set_dampingRatio_p1: _emscripten_bind_b2MouseJointDef__set_dampingRatio_p1, _emscripten_bind_b2PolygonShape__set_m_radius_p1: _emscripten_bind_b2PolygonShape__set_m_radius_p1, _emscripten_bind_b2GearJointDef__set_bodyA_p1: _emscripten_bind_b2GearJointDef__set_bodyA_p1, _emscripten_bind_b2WheelJointDef__get_maxMotorTorque_p0: _emscripten_bind_b2WheelJointDef__get_maxMotorTorque_p0, _emscripten_bind_b2ChainShape__CreateLoop_p2: _emscripten_bind_b2ChainShape__CreateLoop_p2, _emscripten_bind_b2RevoluteJoint__GetNext_p0: _emscripten_bind_b2RevoluteJoint__GetNext_p0, _emscripten_bind_b2MouseJointDef__set_bodyB_p1: _emscripten_bind_b2MouseJointDef__set_bodyB_p1, _emscripten_bind_b2World__DestroyBody_p1: _emscripten_bind_b2World__DestroyBody_p1, _emscripten_bind_b2World__SetSubStepping_p1: _emscripten_bind_b2World__SetSubStepping_p1, _emscripten_bind_b2PulleyJoint__SetUserData_p1: _emscripten_bind_b2PulleyJoint__SetUserData_p1, _emscripten_bind_b2WheelJoint__GetMotorSpeed_p0: _emscripten_bind_b2WheelJoint__GetMotorSpeed_p0, _emscripten_bind_b2RopeJoint__GetLimitState_p0: _emscripten_bind_b2RopeJoint__GetLimitState_p0, _emscripten_bind_b2PrismaticJointDef____destroy___p0: _emscripten_bind_b2PrismaticJointDef____destroy___p0, _emscripten_bind_b2PulleyJointDef__set_collideConnected_p1: _emscripten_bind_b2PulleyJointDef__set_collideConnected_p1, _emscripten_bind_b2WheelJoint__GetNext_p0: _emscripten_bind_b2WheelJoint__GetNext_p0, _emscripten_bind_b2GearJoint__GetJoint1_p0: _emscripten_bind_b2GearJoint__GetJoint1_p0, _emscripten_bind_b2BroadPhase__GetFatAABB_p1: _emscripten_bind_b2BroadPhase__GetFatAABB_p1, _emscripten_bind_b2FrictionJoint__SetMaxTorque_p1: _emscripten_bind_b2FrictionJoint__SetMaxTorque_p1, _emscripten_bind_b2ContactManager__set_m_contactCount_p1: _emscripten_bind_b2ContactManager__set_m_contactCount_p1, _emscripten_bind_b2Body__GetLinearVelocity_p0: _emscripten_bind_b2Body__GetLinearVelocity_p0, _emscripten_bind_b2RevoluteJointDef__set_enableMotor_p1: _emscripten_bind_b2RevoluteJointDef__set_enableMotor_p1, _emscripten_bind_b2AABB____destroy___p0: _emscripten_bind_b2AABB____destroy___p0, _emscripten_bind_b2PulleyJoint__GetCollideConnected_p0: _emscripten_bind_b2PulleyJoint__GetCollideConnected_p0, _emscripten_bind_b2Body__GetAngularVelocity_p0: _emscripten_bind_b2Body__GetAngularVelocity_p0, _emscripten_bind_b2Rot__GetXAxis_p0: _emscripten_bind_b2Rot__GetXAxis_p0, _emscripten_bind_b2WeldJointDef__set_referenceAngle_p1: _emscripten_bind_b2WeldJointDef__set_referenceAngle_p1, _emscripten_bind_b2DistanceJoint__Dump_p0: _emscripten_bind_b2DistanceJoint__Dump_p0, _emscripten_bind_b2StackAllocator__Free_p1: _emscripten_bind_b2StackAllocator__Free_p1, _emscripten_bind_b2CircleShape__GetSupportVertex_p1: _emscripten_bind_b2CircleShape__GetSupportVertex_p1, _emscripten_bind_b2PrismaticJointDef__set_enableMotor_p1: _emscripten_bind_b2PrismaticJointDef__set_enableMotor_p1, _emscripten_bind_b2DistanceProxy__GetSupportVertex_p1: _emscripten_bind_b2DistanceProxy__GetSupportVertex_p1, _emscripten_bind_b2DistanceJointDef__set_bodyA_p1: _emscripten_bind_b2DistanceJointDef__set_bodyA_p1, _emscripten_bind_b2JointDef__set_userData_p1: _emscripten_bind_b2JointDef__set_userData_p1, _emscripten_bind_b2RopeJointDef__get_collideConnected_p1: _emscripten_bind_b2RopeJointDef__get_collideConnected_p1, _emscripten_bind_b2Vec3__get_z_p0: _emscripten_bind_b2Vec3__get_z_p0, _emscripten_bind_b2RopeJoint__GetUserData_p0: _emscripten_bind_b2RopeJoint__GetUserData_p0, _emscripten_bind_b2GearJoint__GetUserData_p0: _emscripten_bind_b2GearJoint__GetUserData_p0, _emscripten_bind_b2FixtureDef__get_restitution_p0: _emscripten_bind_b2FixtureDef__get_restitution_p0, _emscripten_bind_b2WheelJoint__GetAnchorB_p0: _emscripten_bind_b2WheelJoint__GetAnchorB_p0, _emscripten_bind_b2FixtureDef__b2FixtureDef_p0: _emscripten_bind_b2FixtureDef__b2FixtureDef_p0, _emscripten_bind_b2WheelJointDef__get_motorSpeed_p0: _emscripten_bind_b2WheelJointDef__get_motorSpeed_p0, _emscripten_bind_b2FrictionJoint__b2FrictionJoint_p1: _emscripten_bind_b2FrictionJoint__b2FrictionJoint_p1, _emscripten_bind_b2ContactEdge____destroy___p0: _emscripten_bind_b2ContactEdge____destroy___p0, _emscripten_bind_b2Body__GetAngularDamping_p0: _emscripten_bind_b2Body__GetAngularDamping_p0, _emscripten_bind_b2ChainShape__GetChildCount_p0: _emscripten_bind_b2ChainShape__GetChildCount_p0, _emscripten_bind_b2ChainShape__SetNextVertex_p1: _emscripten_bind_b2ChainShape__SetNextVertex_p1, _emscripten_bind_b2Joint__SetUserData_p1: _emscripten_bind_b2Joint__SetUserData_p1, _emscripten_bind_b2Fixture__IsSensor_p0: _emscripten_bind_b2Fixture__IsSensor_p0, _emscripten_bind_b2Filter__set_maskBits_p1: _emscripten_bind_b2Filter__set_maskBits_p1, _emscripten_bind_b2PulleyJointDef__set_groundAnchorB_p1: _emscripten_bind_b2PulleyJointDef__set_groundAnchorB_p1, _emscripten_bind_b2Timer__GetMilliseconds_p0: _emscripten_bind_b2Timer__GetMilliseconds_p0, _emscripten_bind_b2ContactListener__PreSolve_p2: _emscripten_bind_b2ContactListener__PreSolve_p2, _emscripten_bind_b2PulleyJointDef__set_localAnchorB_p1: _emscripten_bind_b2PulleyJointDef__set_localAnchorB_p1, _emscripten_bind_b2WheelJointDef__set_bodyB_p1: _emscripten_bind_b2WheelJointDef__set_bodyB_p1, _emscripten_bind_b2BroadPhase__MoveProxy_p3: _emscripten_bind_b2BroadPhase__MoveProxy_p3, _emscripten_bind_b2BodyDef__get_active_p0: _emscripten_bind_b2BodyDef__get_active_p0, _emscripten_bind_b2DynamicTree__GetMaxBalance_p0: _emscripten_bind_b2DynamicTree__GetMaxBalance_p0, _emscripten_bind_b2Timer__Reset_p0: _emscripten_bind_b2Timer__Reset_p0, _emscripten_bind_b2QueryCallback____destroy___p0: _emscripten_bind_b2QueryCallback____destroy___p0, _emscripten_bind_b2World__b2World_p1: _emscripten_bind_b2World__b2World_p1, _emscripten_bind_b2Vec3__Set_p3: _emscripten_bind_b2Vec3__Set_p3, _emscripten_bind_b2RevoluteJointDef__set_referenceAngle_p1: _emscripten_bind_b2RevoluteJointDef__set_referenceAngle_p1, _emscripten_bind_b2StackAllocator____destroy___p0: _emscripten_bind_b2StackAllocator____destroy___p0, _emscripten_bind_b2PrismaticJoint__GetMaxMotorForce_p0: _emscripten_bind_b2PrismaticJoint__GetMaxMotorForce_p0, _emscripten_bind_b2ContactEdge__get_other_p0: _emscripten_bind_b2ContactEdge__get_other_p0, _emscripten_bind_b2MouseJoint__SetTarget_p1: _emscripten_bind_b2MouseJoint__SetTarget_p1, _emscripten_bind_b2Fixture__GetType_p0: _emscripten_bind_b2Fixture__GetType_p0, _emscripten_bind_b2ContactListener__PostSolve_p2: _emscripten_bind_b2ContactListener__PostSolve_p2, _emscripten_bind_b2WeldJointDef__set_collideConnected_p1: _emscripten_bind_b2WeldJointDef__set_collideConnected_p1, _emscripten_bind_b2Body__GetInertia_p0: _emscripten_bind_b2Body__GetInertia_p0, _emscripten_bind_b2FrictionJointDef__b2FrictionJointDef_p0: _emscripten_bind_b2FrictionJointDef__b2FrictionJointDef_p0, _emscripten_bind_b2PolygonShape__get_m_centroid_p0: _emscripten_bind_b2PolygonShape__get_m_centroid_p0, _emscripten_bind_b2FrictionJointDef__get_localAnchorA_p0: _emscripten_bind_b2FrictionJointDef__get_localAnchorA_p0, _emscripten_bind_b2Draw__SetFlags_p1: _emscripten_bind_b2Draw__SetFlags_p1, _emscripten_bind_b2WeldJoint__GetUserData_p0: _emscripten_bind_b2WeldJoint__GetUserData_p0, _emscripten_bind_b2WeldJointDef__b2WeldJointDef_p0: _emscripten_bind_b2WeldJointDef__b2WeldJointDef_p0, _emscripten_bind_b2RevoluteJoint__SetUserData_p1: _emscripten_bind_b2RevoluteJoint__SetUserData_p1, _emscripten_bind_b2FrictionJointDef__set_collideConnected_p1: _emscripten_bind_b2FrictionJointDef__set_collideConnected_p1, _emscripten_bind_b2World__SetAllowSleeping_p1: _emscripten_bind_b2World__SetAllowSleeping_p1, _emscripten_bind_b2RevoluteJointDef__set_collideConnected_p1: _emscripten_bind_b2RevoluteJointDef__set_collideConnected_p1, _emscripten_bind_b2Contact__IsTouching_p0: _emscripten_bind_b2Contact__IsTouching_p0, _emscripten_bind_b2Transform__set_q_p1: _emscripten_bind_b2Transform__set_q_p1, _emscripten_bind_b2FrictionJoint__GetAnchorB_p0: _emscripten_bind_b2FrictionJoint__GetAnchorB_p0, _emscripten_bind_b2WeldJointDef__get_bodyA_p1: _emscripten_bind_b2WeldJointDef__get_bodyA_p1, _emscripten_bind_b2WheelJoint__GetMotorTorque_p1: _emscripten_bind_b2WheelJoint__GetMotorTorque_p1, _emscripten_bind_b2Draw__b2Draw_p0: _emscripten_bind_b2Draw__b2Draw_p0, _emscripten_bind_b2ChainShape____destroy___p0: _emscripten_bind_b2ChainShape____destroy___p0, _emscripten_bind_b2Rot____destroy___p0: _emscripten_bind_b2Rot____destroy___p0, _emscripten_bind_b2RopeJoint__IsActive_p0: _emscripten_bind_b2RopeJoint__IsActive_p0, _emscripten_bind_b2EdgeShape__set_m_radius_p1: _emscripten_bind_b2EdgeShape__set_m_radius_p1, _emscripten_bind_b2DistanceJointDef__get_length_p0: _emscripten_bind_b2DistanceJointDef__get_length_p0, _emscripten_bind_b2DistanceJoint__SetUserData_p1: _emscripten_bind_b2DistanceJoint__SetUserData_p1, _emscripten_bind_b2ContactManager__set_m_contactListener_p1: _emscripten_bind_b2ContactManager__set_m_contactListener_p1, _emscripten_bind_b2MouseJointDef__get_maxForce_p0: _emscripten_bind_b2MouseJointDef__get_maxForce_p0, _emscripten_bind_b2DistanceProxy__GetSupport_p1: _emscripten_bind_b2DistanceProxy__GetSupport_p1, _emscripten_bind_b2PulleyJoint__GetBodyA_p0: _emscripten_bind_b2PulleyJoint__GetBodyA_p0, _emscripten_bind_b2MouseJoint__SetMaxForce_p1: _emscripten_bind_b2MouseJoint__SetMaxForce_p1, _emscripten_bind_b2World__GetGravity_p0: _emscripten_bind_b2World__GetGravity_p0, _emscripten_bind_b2WheelJointDef__set_bodyA_p1: _emscripten_bind_b2WheelJointDef__set_bodyA_p1, _emscripten_bind_b2AABB__b2AABB_p0: _emscripten_bind_b2AABB__b2AABB_p0, _emscripten_bind_b2DistanceProxy____destroy___p0: _emscripten_bind_b2DistanceProxy____destroy___p0, _emscripten_bind_b2RevoluteJointDef__set_lowerAngle_p1: _emscripten_bind_b2RevoluteJointDef__set_lowerAngle_p1, _emscripten_bind_b2World__GetProfile_p0: _emscripten_bind_b2World__GetProfile_p0, _emscripten_bind_b2Vec2__b2Vec2_p0: _emscripten_bind_b2Vec2__b2Vec2_p0, _emscripten_bind_b2PulleyJointDef__set_groundAnchorA_p1: _emscripten_bind_b2PulleyJointDef__set_groundAnchorA_p1, _emscripten_bind_b2PolygonShape__Clone_p1: _emscripten_bind_b2PolygonShape__Clone_p1, _emscripten_bind_b2Body__GetNext_p0: _emscripten_bind_b2Body__GetNext_p0, _emscripten_bind_b2Fixture__GetMassData_p1: _emscripten_bind_b2Fixture__GetMassData_p1, _emscripten_bind_b2Body__GetWorldVector_p1: _emscripten_bind_b2Body__GetWorldVector_p1, _emscripten_bind_b2RevoluteJoint__GetType_p0: _emscripten_bind_b2RevoluteJoint__GetType_p0, _emscripten_bind_b2Fixture__Refilter_p0: _emscripten_bind_b2Fixture__Refilter_p0, _emscripten_bind_b2Vec3__SetZero_p0: _emscripten_bind_b2Vec3__SetZero_p0, _emscripten_bind_b2ContactListener__EndContact_p1: _emscripten_bind_b2ContactListener__EndContact_p1, _emscripten_bind_b2Vec2__Normalize_p0: _emscripten_bind_b2Vec2__Normalize_p0, _emscripten_bind_b2Shape__ComputeMass_p2: _emscripten_bind_b2Shape__ComputeMass_p2, _emscripten_bind_b2FrictionJoint__GetMaxForce_p0: _emscripten_bind_b2FrictionJoint__GetMaxForce_p0, _emscripten_bind_b2BodyDef__get_type_p0: _emscripten_bind_b2BodyDef__get_type_p0, _emscripten_bind_b2FixtureDef__get_userData_p0: _emscripten_bind_b2FixtureDef__get_userData_p0, _emscripten_bind_b2AABB__GetCenter_p0: _emscripten_bind_b2AABB__GetCenter_p0, _free: _free, _emscripten_bind_b2WeldJointDef__Initialize_p3: _emscripten_bind_b2WeldJointDef__Initialize_p3, _emscripten_bind_b2Color__b2Color_p0: _emscripten_bind_b2Color__b2Color_p0, _emscripten_bind_b2DistanceJoint__GetCollideConnected_p0: _emscripten_bind_b2DistanceJoint__GetCollideConnected_p0, _emscripten_bind_b2Rot__Set_p1: _emscripten_bind_b2Rot__Set_p1, _emscripten_bind_b2RevoluteJoint__GetReactionForce_p1: _emscripten_bind_b2RevoluteJoint__GetReactionForce_p1, _emscripten_bind_b2PrismaticJointDef__b2PrismaticJointDef_p0: _emscripten_bind_b2PrismaticJointDef__b2PrismaticJointDef_p0, _emscripten_bind_b2FrictionJointDef__get_localAnchorB_p0: _emscripten_bind_b2FrictionJointDef__get_localAnchorB_p0, _emscripten_bind_b2MouseJoint__b2MouseJoint_p1: _emscripten_bind_b2MouseJoint__b2MouseJoint_p1, _emscripten_bind_b2RopeJoint__Dump_p0: _emscripten_bind_b2RopeJoint__Dump_p0, _emscripten_bind_b2WheelJointDef__set_enableMotor_p1: _emscripten_bind_b2WheelJointDef__set_enableMotor_p1, _emscripten_bind_b2Vec3__b2Vec3_p3: _emscripten_bind_b2Vec3__b2Vec3_p3, _emscripten_bind_b2PolygonShape__ComputeAABB_p3: _emscripten_bind_b2PolygonShape__ComputeAABB_p3, _emscripten_bind_b2RopeJointDef__set_bodyB_p1: _emscripten_bind_b2RopeJointDef__set_bodyB_p1, _emscripten_bind_b2BodyDef__set_fixedRotation_p1: _emscripten_bind_b2BodyDef__set_fixedRotation_p1, _emscripten_bind_b2WheelJoint__GetAnchorA_p0: _emscripten_bind_b2WheelJoint__GetAnchorA_p0, _emscripten_bind_b2GearJoint__GetBodyA_p0: _emscripten_bind_b2GearJoint__GetBodyA_p0, _emscripten_bind_b2PulleyJointDef__b2PulleyJointDef_p0: _emscripten_bind_b2PulleyJointDef__b2PulleyJointDef_p0, _emscripten_bind_b2EdgeShape__GetChildCount_p0: _emscripten_bind_b2EdgeShape__GetChildCount_p0, _emscripten_bind_b2BodyDef__set_active_p1: _emscripten_bind_b2BodyDef__set_active_p1, _emscripten_bind_b2FrictionJointDef__get_bodyA_p1: _emscripten_bind_b2FrictionJointDef__get_bodyA_p1, _emscripten_bind_b2PulleyJoint__GetReactionTorque_p1: _emscripten_bind_b2PulleyJoint__GetReactionTorque_p1, _emscripten_bind_b2DistanceJoint__b2DistanceJoint_p1: _emscripten_bind_b2DistanceJoint__b2DistanceJoint_p1, _emscripten_bind_b2Vec2____destroy___p0: _emscripten_bind_b2Vec2____destroy___p0, _emscripten_bind_b2GearJointDef__get_bodyA_p1: _emscripten_bind_b2GearJointDef__get_bodyA_p1, _emscripten_bind_b2BodyDef__b2BodyDef_p0: _emscripten_bind_b2BodyDef__b2BodyDef_p0, _emscripten_bind_b2RevoluteJoint__Dump_p0: _emscripten_bind_b2RevoluteJoint__Dump_p0, _emscripten_bind_b2RevoluteJointDef__b2RevoluteJointDef_p0: _emscripten_bind_b2RevoluteJointDef__b2RevoluteJointDef_p0, _emscripten_bind_b2World__SetDebugDraw_p1: _emscripten_bind_b2World__SetDebugDraw_p1, _emscripten_bind_b2MouseJoint____destroy___p0: _emscripten_bind_b2MouseJoint____destroy___p0, _emscripten_bind_b2RevoluteJoint__IsMotorEnabled_p0: _emscripten_bind_b2RevoluteJoint__IsMotorEnabled_p0, _emscripten_bind_b2MouseJointDef__set_frequencyHz_p1: _emscripten_bind_b2MouseJointDef__set_frequencyHz_p1, _emscripten_bind_b2DestructionListener__b2DestructionListener_p0: _emscripten_bind_b2DestructionListener__b2DestructionListener_p0, _emscripten_bind_b2WheelJointDef__get_frequencyHz_p0: _emscripten_bind_b2WheelJointDef__get_frequencyHz_p0, _emscripten_bind_b2Filter__b2Filter_p0: _emscripten_bind_b2Filter__b2Filter_p0, _emscripten_bind_b2JointDef__b2JointDef_p0: _emscripten_bind_b2JointDef__b2JointDef_p0, _emscripten_bind_b2Body__SetBullet_p1: _emscripten_bind_b2Body__SetBullet_p1, _emscripten_bind_b2Body__GetAngle_p0: _emscripten_bind_b2Body__GetAngle_p0, _emscripten_bind_b2PulleyJoint__GetBodyB_p0: _emscripten_bind_b2PulleyJoint__GetBodyB_p0, _emscripten_bind_b2MouseJoint__GetTarget_p0: _emscripten_bind_b2MouseJoint__GetTarget_p0, _emscripten_bind_b2DistanceJointDef__get_frequencyHz_p0: _emscripten_bind_b2DistanceJointDef__get_frequencyHz_p0, _emscripten_bind_b2Contact__GetNext_p0: _emscripten_bind_b2Contact__GetNext_p0, _emscripten_bind_b2World__DrawDebugData_p0: _emscripten_bind_b2World__DrawDebugData_p0, _emscripten_bind_b2RevoluteJointDef__set_maxMotorTorque_p1: _emscripten_bind_b2RevoluteJointDef__set_maxMotorTorque_p1, _emscripten_bind_b2AABB__set_upperBound_p1: _emscripten_bind_b2AABB__set_upperBound_p1, _emscripten_bind_b2WheelJointDef__get_localAnchorA_p0: _emscripten_bind_b2WheelJointDef__get_localAnchorA_p0, _emscripten_bind_b2RevoluteJoint____destroy___p0: _emscripten_bind_b2RevoluteJoint____destroy___p0, _emscripten_bind_b2PulleyJointDef__get_lengthB_p0: _emscripten_bind_b2PulleyJointDef__get_lengthB_p0, _emscripten_bind_b2WeldJoint__GetReferenceAngle_p0: _emscripten_bind_b2WeldJoint__GetReferenceAngle_p0, _strlen: _strlen, _emscripten_bind_b2FixtureDef__set_filter_p1: _emscripten_bind_b2FixtureDef__set_filter_p1, _emscripten_bind_b2ChainShape__CreateChain_p2: _emscripten_bind_b2ChainShape__CreateChain_p2, _emscripten_bind_b2Body__GetLocalVector_p1: _emscripten_bind_b2Body__GetLocalVector_p1, _emscripten_bind_b2Fixture__SetUserData_p1: _emscripten_bind_b2Fixture__SetUserData_p1, _emscripten_bind_b2WheelJoint____destroy___p0: _emscripten_bind_b2WheelJoint____destroy___p0, _emscripten_bind_b2PolygonShape__TestPoint_p2: _emscripten_bind_b2PolygonShape__TestPoint_p2, _emscripten_bind_b2FrictionJointDef__set_maxTorque_p1: _emscripten_bind_b2FrictionJointDef__set_maxTorque_p1, _emscripten_bind_b2ChainShape__ComputeAABB_p3: _emscripten_bind_b2ChainShape__ComputeAABB_p3, _emscripten_bind_b2RopeJoint__GetReactionForce_p1: _emscripten_bind_b2RopeJoint__GetReactionForce_p1, _emscripten_bind_b2CircleShape__GetSupport_p1: _emscripten_bind_b2CircleShape__GetSupport_p1, _emscripten_bind_b2World__GetContinuousPhysics_p0: _emscripten_bind_b2World__GetContinuousPhysics_p0, _emscripten_bind_b2ContactManager__set_m_contactFilter_p1: _emscripten_bind_b2ContactManager__set_m_contactFilter_p1, _emscripten_bind_b2Draw____destroy___p0: _emscripten_bind_b2Draw____destroy___p0, _emscripten_bind_b2RevoluteJointDef__set_localAnchorA_p1: _emscripten_bind_b2RevoluteJointDef__set_localAnchorA_p1, _emscripten_bind_b2MouseJoint__GetCollideConnected_p0: _emscripten_bind_b2MouseJoint__GetCollideConnected_p0, _emscripten_bind_b2MouseJoint__GetReactionForce_p1: _emscripten_bind_b2MouseJoint__GetReactionForce_p1, _emscripten_bind_b2JointDef__set_type_p1: _emscripten_bind_b2JointDef__set_type_p1, _emscripten_bind_b2Color__Set_p3: _emscripten_bind_b2Color__Set_p3, _emscripten_bind_b2RopeJoint__GetCollideConnected_p0: _emscripten_bind_b2RopeJoint__GetCollideConnected_p0, _emscripten_bind_b2WeldJoint__GetType_p0: _emscripten_bind_b2WeldJoint__GetType_p0, _emscripten_bind_b2Joint__GetBodyB_p0: _emscripten_bind_b2Joint__GetBodyB_p0, _emscripten_bind_b2ContactManager__set_m_broadPhase_p1: _emscripten_bind_b2ContactManager__set_m_broadPhase_p1, _emscripten_bind_b2Body__GetLinearVelocityFromLocalPoint_p1: _emscripten_bind_b2Body__GetLinearVelocityFromLocalPoint_p1, _emscripten_bind_b2Vec2__Length_p0: _emscripten_bind_b2Vec2__Length_p0, _emscripten_bind_b2MouseJoint__GetUserData_p0: _emscripten_bind_b2MouseJoint__GetUserData_p0, _emscripten_bind_b2JointDef__get_collideConnected_p0: _emscripten_bind_b2JointDef__get_collideConnected_p0, _emscripten_bind_b2BroadPhase__GetTreeQuality_p0: _emscripten_bind_b2BroadPhase__GetTreeQuality_p0, _emscripten_bind_b2WheelJointDef__get_dampingRatio_p0: _emscripten_bind_b2WheelJointDef__get_dampingRatio_p0, _emscripten_bind_b2Body__GetType_p0: _emscripten_bind_b2Body__GetType_p0, _emscripten_bind_b2Joint__GetCollideConnected_p0: _emscripten_bind_b2Joint__GetCollideConnected_p0, _emscripten_bind_b2FrictionJoint__GetReactionTorque_p1: _emscripten_bind_b2FrictionJoint__GetReactionTorque_p1, _emscripten_bind_b2PulleyJointDef__get_bodyB_p1: _emscripten_bind_b2PulleyJointDef__get_bodyB_p1, _emscripten_bind_b2FrictionJointDef__set_localAnchorB_p1: _emscripten_bind_b2FrictionJointDef__set_localAnchorB_p1, _emscripten_bind_b2FrictionJointDef__get_maxForce_p0: _emscripten_bind_b2FrictionJointDef__get_maxForce_p0, _emscripten_bind_b2WheelJointDef__set_localAnchorA_p1: _emscripten_bind_b2WheelJointDef__set_localAnchorA_p1, _emscripten_bind_b2FrictionJointDef__get_bodyB_p1: _emscripten_bind_b2FrictionJointDef__get_bodyB_p1, _emscripten_bind_b2FrictionJoint__GetType_p0: _emscripten_bind_b2FrictionJoint__GetType_p0, _emscripten_bind_b2PolygonShape__RayCast_p4: _emscripten_bind_b2PolygonShape__RayCast_p4, _emscripten_bind_b2GearJoint__GetCollideConnected_p0: _emscripten_bind_b2GearJoint__GetCollideConnected_p0, _emscripten_bind_b2CircleShape__ComputeMass_p2: _emscripten_bind_b2CircleShape__ComputeMass_p2, _emscripten_bind_b2Joint__IsActive_p0: _emscripten_bind_b2Joint__IsActive_p0, _emscripten_bind_b2MouseJoint__GetFrequency_p0: _emscripten_bind_b2MouseJoint__GetFrequency_p0, _emscripten_bind_b2MouseJointDef__b2MouseJointDef_p0: _emscripten_bind_b2MouseJointDef__b2MouseJointDef_p0, _emscripten_bind_b2Contact__IsEnabled_p0: _emscripten_bind_b2Contact__IsEnabled_p0, _emscripten_bind_b2PrismaticJointDef__set_bodyB_p1: _emscripten_bind_b2PrismaticJointDef__set_bodyB_p1, _emscripten_bind_b2Vec2__SetZero_p0: _emscripten_bind_b2Vec2__SetZero_p0, _emscripten_bind_b2Fixture__SetSensor_p1: _emscripten_bind_b2Fixture__SetSensor_p1, _emscripten_bind_b2Shape__GetType_p0: _emscripten_bind_b2Shape__GetType_p0, _emscripten_bind_b2WeldJointDef__get_localAnchorB_p0: _emscripten_bind_b2WeldJointDef__get_localAnchorB_p0, _emscripten_bind_b2DistanceProxy__set_m_vertices_p1: _emscripten_bind_b2DistanceProxy__set_m_vertices_p1, _emscripten_bind_b2PrismaticJoint__GetLocalAnchorA_p0: _emscripten_bind_b2PrismaticJoint__GetLocalAnchorA_p0, _emscripten_bind_b2WheelJointDef__set_motorSpeed_p1: _emscripten_bind_b2WheelJointDef__set_motorSpeed_p1, _emscripten_bind_b2Contact__Evaluate_p3: _emscripten_bind_b2Contact__Evaluate_p3, _emscripten_bind_b2WheelJointDef__get_localAnchorB_p0: _emscripten_bind_b2WheelJointDef__get_localAnchorB_p0, _emscripten_bind_b2WeldJoint__GetNext_p0: _emscripten_bind_b2WeldJoint__GetNext_p0, _emscripten_bind_b2WeldJoint__GetReactionForce_p1: _emscripten_bind_b2WeldJoint__GetReactionForce_p1, _emscripten_bind_b2AABB__Combine_p2: _emscripten_bind_b2AABB__Combine_p2, _emscripten_bind_b2PulleyJointDef__get_lengthA_p0: _emscripten_bind_b2PulleyJointDef__get_lengthA_p0, _emscripten_bind_b2Shape__get_m_radius_p0: _emscripten_bind_b2Shape__get_m_radius_p0, _emscripten_bind_b2ChainShape__set_m_count_p1: _emscripten_bind_b2ChainShape__set_m_count_p1, _emscripten_bind_b2Contact__ResetFriction_p0: _emscripten_bind_b2Contact__ResetFriction_p0, _emscripten_bind_b2DynamicTree__GetFatAABB_p1: _emscripten_bind_b2DynamicTree__GetFatAABB_p1, _emscripten_bind_b2Body__SetLinearVelocity_p1: _emscripten_bind_b2Body__SetLinearVelocity_p1, _emscripten_bind_b2PrismaticJoint__SetLimits_p2: _emscripten_bind_b2PrismaticJoint__SetLimits_p2, _emscripten_bind_b2CircleShape__b2CircleShape_p0: _emscripten_bind_b2CircleShape__b2CircleShape_p0, _emscripten_bind_b2Color__get_g_p0: _emscripten_bind_b2Color__get_g_p0, _emscripten_bind_b2Fixture__GetBody_p0: _emscripten_bind_b2Fixture__GetBody_p0, _emscripten_bind_b2FrictionJointDef__get_collideConnected_p1: _emscripten_bind_b2FrictionJointDef__get_collideConnected_p1, _emscripten_bind_b2WheelJointDef__set_maxMotorTorque_p1: _emscripten_bind_b2WheelJointDef__set_maxMotorTorque_p1, _emscripten_bind_b2GearJointDef__get_bodyB_p1: _emscripten_bind_b2GearJointDef__get_bodyB_p1, _emscripten_bind_b2Vec2__LengthSquared_p0: _emscripten_bind_b2Vec2__LengthSquared_p0, _emscripten_bind_b2Contact__GetFixtureA_p0: _emscripten_bind_b2Contact__GetFixtureA_p0, _emscripten_bind_b2RevoluteJointDef__set_localAnchorB_p1: _emscripten_bind_b2RevoluteJointDef__set_localAnchorB_p1, _emscripten_bind_b2DistanceJointDef__set_bodyB_p1: _emscripten_bind_b2DistanceJointDef__set_bodyB_p1, _emscripten_bind_b2Transform__SetIdentity_p0: _emscripten_bind_b2Transform__SetIdentity_p0, _emscripten_bind_b2FrictionJointDef__set_localAnchorA_p1: _emscripten_bind_b2FrictionJointDef__set_localAnchorA_p1, _emscripten_bind_b2Body__SetTransform_p2: _emscripten_bind_b2Body__SetTransform_p2, _emscripten_bind_b2PulleyJointDef__get_bodyA_p1: _emscripten_bind_b2PulleyJointDef__get_bodyA_p1, _emscripten_bind_b2DistanceJoint__GetReactionTorque_p1: _emscripten_bind_b2DistanceJoint__GetReactionTorque_p1, _emscripten_bind_b2FrictionJointDef____destroy___p0: _emscripten_bind_b2FrictionJointDef____destroy___p0, _emscripten_bind_b2MouseJointDef__set_maxForce_p1: _emscripten_bind_b2MouseJointDef__set_maxForce_p1, _emscripten_bind_b2GearJoint__GetReactionForce_p1: _emscripten_bind_b2GearJoint__GetReactionForce_p1, _emscripten_bind_b2Vec2__set_y_p1: _emscripten_bind_b2Vec2__set_y_p1, _emscripten_bind_b2CircleShape__Clone_p1: _emscripten_bind_b2CircleShape__Clone_p1, _emscripten_bind_b2FrictionJoint__GetNext_p0: _emscripten_bind_b2FrictionJoint__GetNext_p0, _emscripten_bind_b2Color____destroy___p0: _emscripten_bind_b2Color____destroy___p0, _emscripten_bind_b2WeldJoint__GetBodyA_p0: _emscripten_bind_b2WeldJoint__GetBodyA_p0, _emscripten_bind_b2Fixture__GetRestitution_p0: _emscripten_bind_b2Fixture__GetRestitution_p0, _emscripten_bind_b2DistanceJointDef__set_length_p1: _emscripten_bind_b2DistanceJointDef__set_length_p1, _emscripten_bind_b2PrismaticJointDef__get_localAxisA_p0: _emscripten_bind_b2PrismaticJointDef__get_localAxisA_p0, _emscripten_bind_b2Color__b2Color_p3: _emscripten_bind_b2Color__b2Color_p3, _emscripten_bind_b2Body__ApplyForceToCenter_p1: _emscripten_bind_b2Body__ApplyForceToCenter_p1, _emscripten_bind_b2PrismaticJoint__SetUserData_p1: _emscripten_bind_b2PrismaticJoint__SetUserData_p1, _emscripten_bind_b2Color__get_r_p0: _emscripten_bind_b2Color__get_r_p0, _emscripten_bind_b2RevoluteJoint__b2RevoluteJoint_p1: _emscripten_bind_b2RevoluteJoint__b2RevoluteJoint_p1, _emscripten_bind_b2RevoluteJoint__GetCollideConnected_p0: _emscripten_bind_b2RevoluteJoint__GetCollideConnected_p0, _emscripten_bind_b2PrismaticJoint__IsActive_p0: _emscripten_bind_b2PrismaticJoint__IsActive_p0, _emscripten_bind_b2Body__SetFixedRotation_p1: _emscripten_bind_b2Body__SetFixedRotation_p1, _emscripten_bind_b2RopeJointDef____destroy___p0: _emscripten_bind_b2RopeJointDef____destroy___p0, _emscripten_bind_b2CircleShape____destroy___p0: _emscripten_bind_b2CircleShape____destroy___p0, _emscripten_bind_b2Shape__set_m_radius_p1: _emscripten_bind_b2Shape__set_m_radius_p1, _emscripten_bind_b2WheelJoint__GetBodyB_p0: _emscripten_bind_b2WheelJoint__GetBodyB_p0, _emscripten_bind_b2JointDef__get_bodyA_p0: _emscripten_bind_b2JointDef__get_bodyA_p0, _emscripten_bind_b2World__GetContactCount_p0: _emscripten_bind_b2World__GetContactCount_p0, _emscripten_bind_b2Fixture__b2Fixture_p0: _emscripten_bind_b2Fixture__b2Fixture_p0, _emscripten_bind_b2StackAllocator__Allocate_p1: _emscripten_bind_b2StackAllocator__Allocate_p1, _emscripten_bind_b2World__GetBodyCount_p0: _emscripten_bind_b2World__GetBodyCount_p0, _emscripten_bind_b2BodyDef__set_awake_p1: _emscripten_bind_b2BodyDef__set_awake_p1, _emscripten_bind_b2BroadPhase__CreateProxy_p2: _emscripten_bind_b2BroadPhase__CreateProxy_p2, _emscripten_bind_b2WheelJoint__GetLocalAnchorA_p0: _emscripten_bind_b2WheelJoint__GetLocalAnchorA_p0, _emscripten_bind_b2FrictionJointDef__set_bodyB_p1: _emscripten_bind_b2FrictionJointDef__set_bodyB_p1, _emscripten_bind_b2WheelJoint__SetSpringFrequencyHz_p1: _emscripten_bind_b2WheelJoint__SetSpringFrequencyHz_p1, _emscripten_bind_b2MouseJoint__SetFrequency_p1: _emscripten_bind_b2MouseJoint__SetFrequency_p1, _emscripten_bind_b2Timer__b2Timer_p0: _emscripten_bind_b2Timer__b2Timer_p0, _emscripten_bind_b2Filter____destroy___p0: _emscripten_bind_b2Filter____destroy___p0, _emscripten_bind_b2WeldJointDef__get_dampingRatio_p0: _emscripten_bind_b2WeldJointDef__get_dampingRatio_p0, _emscripten_bind_b2Fixture__GetUserData_p0: _emscripten_bind_b2Fixture__GetUserData_p0, _emscripten_bind_b2AABB__get_upperBound_p0: _emscripten_bind_b2AABB__get_upperBound_p0, _emscripten_bind_b2PulleyJoint__Dump_p0: _emscripten_bind_b2PulleyJoint__Dump_p0, _emscripten_bind_b2RopeJointDef__get_localAnchorA_p0: _emscripten_bind_b2RopeJointDef__get_localAnchorA_p0, _emscripten_bind_b2RevoluteJoint__GetBodyA_p0: _emscripten_bind_b2RevoluteJoint__GetBodyA_p0, _emscripten_bind_b2CircleShape__get_m_radius_p0: _emscripten_bind_b2CircleShape__get_m_radius_p0, _emscripten_bind_b2DistanceJoint__GetLength_p0: _emscripten_bind_b2DistanceJoint__GetLength_p0, _emscripten_bind_b2BodyDef__set_angularVelocity_p1: _emscripten_bind_b2BodyDef__set_angularVelocity_p1, _emscripten_bind_b2Color__get_b_p0: _emscripten_bind_b2Color__get_b_p0, _emscripten_bind_b2BroadPhase__GetProxyCount_p0: _emscripten_bind_b2BroadPhase__GetProxyCount_p0, _emscripten_bind_b2RevoluteJoint__SetMotorSpeed_p1: _emscripten_bind_b2RevoluteJoint__SetMotorSpeed_p1, _emscripten_bind_b2WeldJoint__GetReactionTorque_p1: _emscripten_bind_b2WeldJoint__GetReactionTorque_p1, _emscripten_bind_b2GearJoint__SetUserData_p1: _emscripten_bind_b2GearJoint__SetUserData_p1, _emscripten_bind_b2PrismaticJoint__GetAnchorB_p0: _emscripten_bind_b2PrismaticJoint__GetAnchorB_p0, _emscripten_bind_b2MouseJointDef__set_target_p1: _emscripten_bind_b2MouseJointDef__set_target_p1, _emscripten_bind_b2EdgeShape__ComputeAABB_p3: _emscripten_bind_b2EdgeShape__ComputeAABB_p3, _emscripten_bind_b2Body__GetFixtureList_p0: _emscripten_bind_b2Body__GetFixtureList_p0, _emscripten_bind_b2RopeJoint__SetMaxLength_p1: _emscripten_bind_b2RopeJoint__SetMaxLength_p1, _emscripten_bind_b2WheelJointDef__set_localAnchorB_p1: _emscripten_bind_b2WheelJointDef__set_localAnchorB_p1, _emscripten_bind_b2WheelJoint__GetReactionTorque_p1: _emscripten_bind_b2WheelJoint__GetReactionTorque_p1, _emscripten_bind_b2FrictionJointDef__set_bodyA_p1: _emscripten_bind_b2FrictionJointDef__set_bodyA_p1, _emscripten_bind_b2WheelJoint__GetLocalAnchorB_p0: _emscripten_bind_b2WheelJoint__GetLocalAnchorB_p0, _emscripten_bind_b2PrismaticJointDef__set_localAxisA_p1: _emscripten_bind_b2PrismaticJointDef__set_localAxisA_p1, _emscripten_bind_b2PrismaticJointDef__set_localAnchorA_p1: _emscripten_bind_b2PrismaticJointDef__set_localAnchorA_p1, _emscripten_bind_b2RevoluteJoint__GetReactionTorque_p1: _emscripten_bind_b2RevoluteJoint__GetReactionTorque_p1, _emscripten_bind_b2Joint__GetAnchorB_p0: _emscripten_bind_b2Joint__GetAnchorB_p0, _emscripten_bind_b2CircleShape__set_m_radius_p1: _emscripten_bind_b2CircleShape__set_m_radius_p1, _memcpy: _memcpy, _emscripten_bind_b2World__GetContactManager_p0: _emscripten_bind_b2World__GetContactManager_p0, _emscripten_bind_b2WeldJoint__GetLocalAnchorB_p0: _emscripten_bind_b2WeldJoint__GetLocalAnchorB_p0, _emscripten_bind_b2Contact__GetFixtureB_p0: _emscripten_bind_b2Contact__GetFixtureB_p0, _emscripten_bind_b2Rot__GetYAxis_p0: _emscripten_bind_b2Rot__GetYAxis_p0, _emscripten_bind_b2RevoluteJointDef__set_upperAngle_p1: _emscripten_bind_b2RevoluteJointDef__set_upperAngle_p1, _emscripten_bind_b2Shape__Clone_p1: _emscripten_bind_b2Shape__Clone_p1, _emscripten_bind_b2PulleyJoint__GetType_p0: _emscripten_bind_b2PulleyJoint__GetType_p0, _emscripten_bind_b2AABB__set_lowerBound_p1: _emscripten_bind_b2AABB__set_lowerBound_p1, _emscripten_bind_b2PrismaticJointDef__get_motorSpeed_p0: _emscripten_bind_b2PrismaticJointDef__get_motorSpeed_p0, _emscripten_bind_b2BodyDef__set_linearDamping_p1: _emscripten_bind_b2BodyDef__set_linearDamping_p1, _emscripten_bind_b2BroadPhase__GetTreeBalance_p0: _emscripten_bind_b2BroadPhase__GetTreeBalance_p0, _emscripten_bind_b2AABB__GetExtents_p0: _emscripten_bind_b2AABB__GetExtents_p0, _emscripten_bind_b2PrismaticJointDef__get_bodyB_p1: _emscripten_bind_b2PrismaticJointDef__get_bodyB_p1, _emscripten_bind_b2WeldJoint__SetFrequency_p1: _emscripten_bind_b2WeldJoint__SetFrequency_p1, _emscripten_bind_b2FixtureDef__get_density_p0: _emscripten_bind_b2FixtureDef__get_density_p0, _emscripten_bind_b2Draw__ClearFlags_p1: _emscripten_bind_b2Draw__ClearFlags_p1, _emscripten_bind_b2WeldJointDef__get_localAnchorA_p0: _emscripten_bind_b2WeldJointDef__get_localAnchorA_p0, _emscripten_bind_b2PolygonShape__GetType_p0: _emscripten_bind_b2PolygonShape__GetType_p0, _emscripten_bind_b2World__GetJointList_p0: _emscripten_bind_b2World__GetJointList_p0, _emscripten_bind_b2BroadPhase__GetUserData_p1: _emscripten_bind_b2BroadPhase__GetUserData_p1, _emscripten_bind_b2Rot__get_c_p0: _emscripten_bind_b2Rot__get_c_p0, _emscripten_bind_b2World__GetAutoClearForces_p0: _emscripten_bind_b2World__GetAutoClearForces_p0, _emscripten_bind_b2Rot__GetAngle_p0: _emscripten_bind_b2Rot__GetAngle_p0, _emscripten_bind_b2AABB__IsValid_p0: _emscripten_bind_b2AABB__IsValid_p0, _emscripten_bind_b2PolygonShape__Set_p2: _emscripten_bind_b2PolygonShape__Set_p2, _emscripten_bind_b2FixtureDef__set_isSensor_p1: _emscripten_bind_b2FixtureDef__set_isSensor_p1, _emscripten_bind_b2World__CreateJoint_p1: _emscripten_bind_b2World__CreateJoint_p1, _emscripten_bind_b2WheelJoint__GetDefinition_p1: _emscripten_bind_b2WheelJoint__GetDefinition_p1, _emscripten_bind_b2Color__set_b_p1: _emscripten_bind_b2Color__set_b_p1, _emscripten_bind_b2PrismaticJointDef__get_referenceAngle_p0: _emscripten_bind_b2PrismaticJointDef__get_referenceAngle_p0, _emscripten_bind_b2Body__GetLocalCenter_p0: _emscripten_bind_b2Body__GetLocalCenter_p0, _emscripten_bind_b2WheelJoint__GetLocalAxisA_p0: _emscripten_bind_b2WheelJoint__GetLocalAxisA_p0, _emscripten_bind_b2Body__SetAngularVelocity_p1: _emscripten_bind_b2Body__SetAngularVelocity_p1, _emscripten_bind_b2World__SetGravity_p1: _emscripten_bind_b2World__SetGravity_p1, _emscripten_bind_b2CircleShape__TestPoint_p2: _emscripten_bind_b2CircleShape__TestPoint_p2, _emscripten_bind_b2Body__SetAwake_p1: _emscripten_bind_b2Body__SetAwake_p1, _emscripten_bind_b2Filter__set_categoryBits_p1: _emscripten_bind_b2Filter__set_categoryBits_p1, _emscripten_bind_b2DynamicTree__RebuildBottomUp_p0: _emscripten_bind_b2DynamicTree__RebuildBottomUp_p0, _emscripten_bind_b2PrismaticJointDef__get_collideConnected_p1: _emscripten_bind_b2PrismaticJointDef__get_collideConnected_p1, _emscripten_bind_b2World__CreateBody_p1: _emscripten_bind_b2World__CreateBody_p1, _emscripten_bind_b2JointDef__get_bodyB_p0: _emscripten_bind_b2JointDef__get_bodyB_p0, _emscripten_bind_b2ChainShape__get_m_count_p0: _emscripten_bind_b2ChainShape__get_m_count_p0, _emscripten_bind_b2PrismaticJoint__GetAnchorA_p0: _emscripten_bind_b2PrismaticJoint__GetAnchorA_p0, _emscripten_bind_b2PulleyJoint__GetRatio_p0: _emscripten_bind_b2PulleyJoint__GetRatio_p0, _emscripten_bind_b2WheelJointDef__set_localAxisA_p1: _emscripten_bind_b2WheelJointDef__set_localAxisA_p1, _emscripten_bind_b2Draw__DrawCircle_p3: _emscripten_bind_b2Draw__DrawCircle_p3, _emscripten_bind_b2CircleShape__GetVertex_p1: _emscripten_bind_b2CircleShape__GetVertex_p1, _emscripten_bind_b2WeldJoint__GetCollideConnected_p0: _emscripten_bind_b2WeldJoint__GetCollideConnected_p0, _emscripten_bind_b2RevoluteJointDef__get_lowerAngle_p0: _emscripten_bind_b2RevoluteJointDef__get_lowerAngle_p0, _emscripten_bind_b2PulleyJointDef__get_ratio_p0: _emscripten_bind_b2PulleyJointDef__get_ratio_p0, _emscripten_bind_b2Joint__GetAnchorA_p0: _emscripten_bind_b2Joint__GetAnchorA_p0, _emscripten_bind_b2DistanceProxy__b2DistanceProxy_p0: _emscripten_bind_b2DistanceProxy__b2DistanceProxy_p0, _emscripten_bind_b2WheelJoint__IsActive_p0: _emscripten_bind_b2WheelJoint__IsActive_p0, _emscripten_bind_b2Transform____destroy___p0: _emscripten_bind_b2Transform____destroy___p0, _emscripten_bind_b2PolygonShape__ComputeMass_p2: _emscripten_bind_b2PolygonShape__ComputeMass_p2, _emscripten_bind_b2RopeJointDef__get_bodyA_p1: _emscripten_bind_b2RopeJointDef__get_bodyA_p1, _emscripten_bind_b2WheelJoint__b2WheelJoint_p1: _emscripten_bind_b2WheelJoint__b2WheelJoint_p1, _emscripten_bind_b2RopeJoint__GetMaxLength_p0: _emscripten_bind_b2RopeJoint__GetMaxLength_p0, _emscripten_bind_b2Draw__DrawTransform_p1: _emscripten_bind_b2Draw__DrawTransform_p1, _emscripten_bind_b2DistanceJoint__GetType_p0: _emscripten_bind_b2DistanceJoint__GetType_p0, _emscripten_bind_b2PolygonShape__get_m_radius_p0: _emscripten_bind_b2PolygonShape__get_m_radius_p0, _emscripten_bind_b2Fixture__GetFriction_p0: _emscripten_bind_b2Fixture__GetFriction_p0, _emscripten_bind_b2Body__GetWorld_p0: _emscripten_bind_b2Body__GetWorld_p0, _emscripten_bind_b2PolygonShape__b2PolygonShape_p0: _emscripten_bind_b2PolygonShape__b2PolygonShape_p0, _emscripten_bind_b2WeldJointDef__set_frequencyHz_p1: _emscripten_bind_b2WeldJointDef__set_frequencyHz_p1, _emscripten_bind_b2RevoluteJoint__GetJointAngle_p0: _emscripten_bind_b2RevoluteJoint__GetJointAngle_p0, _emscripten_bind_b2Body__ResetMassData_p0: _emscripten_bind_b2Body__ResetMassData_p0, _emscripten_bind_b2RevoluteJoint__IsActive_p0: _emscripten_bind_b2RevoluteJoint__IsActive_p0, _emscripten_bind_b2FrictionJoint__SetUserData_p1: _emscripten_bind_b2FrictionJoint__SetUserData_p1, _emscripten_bind_b2PulleyJoint__GetReactionForce_p1: _emscripten_bind_b2PulleyJoint__GetReactionForce_p1, _emscripten_bind_b2PrismaticJointDef__set_localAnchorB_p1: _emscripten_bind_b2PrismaticJointDef__set_localAnchorB_p1, _emscripten_bind_b2World__SetContinuousPhysics_p1: _emscripten_bind_b2World__SetContinuousPhysics_p1, _emscripten_bind_b2PulleyJoint__GetAnchorA_p0: _emscripten_bind_b2PulleyJoint__GetAnchorA_p0, _emscripten_bind_b2ContactManager__FindNewContacts_p0: _emscripten_bind_b2ContactManager__FindNewContacts_p0, _emscripten_bind_b2DistanceJointDef__get_localAnchorA_p0: _emscripten_bind_b2DistanceJointDef__get_localAnchorA_p0, _emscripten_bind_b2CircleShape__GetVertexCount_p0: _emscripten_bind_b2CircleShape__GetVertexCount_p0, _emscripten_bind_b2PolygonShape__GetVertex_p1: _emscripten_bind_b2PolygonShape__GetVertex_p1, _emscripten_bind_b2WeldJointDef__get_frequencyHz_p0: _emscripten_bind_b2WeldJointDef__get_frequencyHz_p0, _emscripten_bind_b2ContactListener__BeginContact_p1: _emscripten_bind_b2ContactListener__BeginContact_p1, _emscripten_bind_b2BodyDef__set_gravityScale_p1: _emscripten_bind_b2BodyDef__set_gravityScale_p1, _emscripten_bind_b2DistanceJoint__GetAnchorA_p0: _emscripten_bind_b2DistanceJoint__GetAnchorA_p0, _emscripten_bind_b2PrismaticJoint__GetLocalAxisA_p0: _emscripten_bind_b2PrismaticJoint__GetLocalAxisA_p0, _emscripten_bind_b2ChainShape__Clone_p1: _emscripten_bind_b2ChainShape__Clone_p1, _emscripten_bind_b2GearJointDef__b2GearJointDef_p0: _emscripten_bind_b2GearJointDef__b2GearJointDef_p0, _emscripten_bind_b2GearJoint__GetReactionTorque_p1: _emscripten_bind_b2GearJoint__GetReactionTorque_p1, _emscripten_bind_b2Body__ApplyForce_p2: _emscripten_bind_b2Body__ApplyForce_p2, _emscripten_bind_b2ContactEdge__get_contact_p0: _emscripten_bind_b2ContactEdge__get_contact_p0, _emscripten_bind_b2GearJointDef__set_bodyB_p1: _emscripten_bind_b2GearJointDef__set_bodyB_p1, _emscripten_bind_b2RevoluteJointDef__get_enableMotor_p0: _emscripten_bind_b2RevoluteJointDef__get_enableMotor_p0, _emscripten_bind_b2RopeJoint____destroy___p0: _emscripten_bind_b2RopeJoint____destroy___p0, _emscripten_bind_b2WheelJointDef__b2WheelJointDef_p0: _emscripten_bind_b2WheelJointDef__b2WheelJointDef_p0, _emscripten_bind_b2DistanceJoint__SetFrequency_p1: _emscripten_bind_b2DistanceJoint__SetFrequency_p1, _emscripten_bind_b2PrismaticJointDef__set_lowerTranslation_p1: _emscripten_bind_b2PrismaticJointDef__set_lowerTranslation_p1, _emscripten_bind_b2PrismaticJointDef__get_bodyA_p1: _emscripten_bind_b2PrismaticJointDef__get_bodyA_p1, _emscripten_bind_b2FixtureDef__get_friction_p0: _emscripten_bind_b2FixtureDef__get_friction_p0, _emscripten_bind_b2ContactEdge__get_next_p0: _emscripten_bind_b2ContactEdge__get_next_p0, _emscripten_bind_b2RevoluteJoint__GetBodyB_p0: _emscripten_bind_b2RevoluteJoint__GetBodyB_p0, _emscripten_bind_b2RevoluteJoint__GetUserData_p0: _emscripten_bind_b2RevoluteJoint__GetUserData_p0, _emscripten_bind_b2RopeJoint__GetBodyB_p0: _emscripten_bind_b2RopeJoint__GetBodyB_p0, _emscripten_bind_b2World__Step_p3: _emscripten_bind_b2World__Step_p3, _emscripten_bind_b2Vec2__set_x_p1: _emscripten_bind_b2Vec2__set_x_p1, _emscripten_bind_b2ContactManager__b2ContactManager_p0: _emscripten_bind_b2ContactManager__b2ContactManager_p0, _emscripten_bind_b2RopeJoint__GetNext_p0: _emscripten_bind_b2RopeJoint__GetNext_p0, _emscripten_bind_b2WeldJoint__SetDampingRatio_p1: _emscripten_bind_b2WeldJoint__SetDampingRatio_p1, _emscripten_bind_b2GearJoint__GetAnchorA_p0: _emscripten_bind_b2GearJoint__GetAnchorA_p0, _emscripten_bind_b2Contact__GetRestitution_p0: _emscripten_bind_b2Contact__GetRestitution_p0, _emscripten_bind_b2MouseJointDef____destroy___p0: _emscripten_bind_b2MouseJointDef____destroy___p0, _emscripten_bind_b2Body__GetTransform_p0: _emscripten_bind_b2Body__GetTransform_p0, _emscripten_bind_b2PrismaticJoint__b2PrismaticJoint_p1: _emscripten_bind_b2PrismaticJoint__b2PrismaticJoint_p1, _emscripten_bind_b2RopeJointDef__get_maxLength_p0: _emscripten_bind_b2RopeJointDef__get_maxLength_p0, _emscripten_bind_b2DistanceJoint__GetAnchorB_p0: _emscripten_bind_b2DistanceJoint__GetAnchorB_p0, _emscripten_bind_b2ChainShape__set_m_vertices_p1: _emscripten_bind_b2ChainShape__set_m_vertices_p1, _emscripten_bind_b2EdgeShape__TestPoint_p2: _emscripten_bind_b2EdgeShape__TestPoint_p2, _emscripten_bind_b2FrictionJoint__GetMaxTorque_p0: _emscripten_bind_b2FrictionJoint__GetMaxTorque_p0, _emscripten_bind_b2RopeJointDef__b2RopeJointDef_p0: _emscripten_bind_b2RopeJointDef__b2RopeJointDef_p0, _emscripten_bind_b2ContactManager__AddPair_p2: _emscripten_bind_b2ContactManager__AddPair_p2, _emscripten_bind_b2Color__set_g_p1: _emscripten_bind_b2Color__set_g_p1, _emscripten_bind_b2WheelJoint__IsMotorEnabled_p0: _emscripten_bind_b2WheelJoint__IsMotorEnabled_p0, _emscripten_bind_b2QueryCallback__b2QueryCallback_p0: _emscripten_bind_b2QueryCallback__b2QueryCallback_p0, _emscripten_bind_b2WheelJointDef__get_collideConnected_p1: _emscripten_bind_b2WheelJointDef__get_collideConnected_p1, _emscripten_bind_b2FrictionJoint__Dump_p0: _emscripten_bind_b2FrictionJoint__Dump_p0, _emscripten_bind_b2ChainShape__SetPrevVertex_p1: _emscripten_bind_b2ChainShape__SetPrevVertex_p1, _emscripten_bind_b2AABB__GetPerimeter_p0: _emscripten_bind_b2AABB__GetPerimeter_p0, _emscripten_bind_b2DistanceProxy__set_m_count_p1: _emscripten_bind_b2DistanceProxy__set_m_count_p1, _emscripten_bind_b2Body__GetLinearVelocityFromWorldPoint_p1: _emscripten_bind_b2Body__GetLinearVelocityFromWorldPoint_p1, _emscripten_bind_b2MouseJointDef__set_bodyA_p1: _emscripten_bind_b2MouseJointDef__set_bodyA_p1, _emscripten_bind_b2DynamicTree__GetAreaRatio_p0: _emscripten_bind_b2DynamicTree__GetAreaRatio_p0, _emscripten_bind_b2World__QueryAABB_p2: _emscripten_bind_b2World__QueryAABB_p2, _emscripten_bind_b2RevoluteJoint__GetUpperLimit_p0: _emscripten_bind_b2RevoluteJoint__GetUpperLimit_p0, _emscripten_bind_b2PrismaticJoint__GetJointSpeed_p0: _emscripten_bind_b2PrismaticJoint__GetJointSpeed_p0, _emscripten_bind_b2PulleyJointDef__Initialize_p7: _emscripten_bind_b2PulleyJointDef__Initialize_p7, _emscripten_bind_b2World__GetTreeQuality_p0: _emscripten_bind_b2World__GetTreeQuality_p0, _emscripten_bind_b2BodyDef__get_gravityScale_p0: _emscripten_bind_b2BodyDef__get_gravityScale_p0, _emscripten_bind_b2DistanceJoint__GetBodyA_p0: _emscripten_bind_b2DistanceJoint__GetBodyA_p0, _emscripten_bind_b2BroadPhase__DestroyProxy_p1: _emscripten_bind_b2BroadPhase__DestroyProxy_p1, _emscripten_bind_b2PulleyJoint____destroy___p0: _emscripten_bind_b2PulleyJoint____destroy___p0, _emscripten_bind_b2PulleyJointDef__set_localAnchorA_p1: _emscripten_bind_b2PulleyJointDef__set_localAnchorA_p1, _emscripten_bind_b2DistanceJoint__GetLocalAnchorB_p0: _emscripten_bind_b2DistanceJoint__GetLocalAnchorB_p0, _emscripten_bind_b2ChainShape__GetChildEdge_p2: _emscripten_bind_b2ChainShape__GetChildEdge_p2, _emscripten_bind_b2EdgeShape__b2EdgeShape_p0: _emscripten_bind_b2EdgeShape__b2EdgeShape_p0, _emscripten_bind_b2ContactEdge__set_contact_p1: _emscripten_bind_b2ContactEdge__set_contact_p1, _emscripten_bind_b2ChainShape__TestPoint_p2: _emscripten_bind_b2ChainShape__TestPoint_p2, _emscripten_bind_b2ChainShape__GetType_p0: _emscripten_bind_b2ChainShape__GetType_p0, _emscripten_bind_b2Fixture__SetFilterData_p1: _emscripten_bind_b2Fixture__SetFilterData_p1, _emscripten_bind_b2WheelJoint__GetCollideConnected_p0: _emscripten_bind_b2WheelJoint__GetCollideConnected_p0, _emscripten_bind_b2Body__ApplyAngularImpulse_p1: _emscripten_bind_b2Body__ApplyAngularImpulse_p1, _emscripten_bind_b2RevoluteJoint__SetLimits_p2: _emscripten_bind_b2RevoluteJoint__SetLimits_p2, _emscripten_bind_b2WheelJoint__SetMotorSpeed_p1: _emscripten_bind_b2WheelJoint__SetMotorSpeed_p1, _emscripten_bind_b2RevoluteJointDef__get_maxMotorTorque_p0: _emscripten_bind_b2RevoluteJointDef__get_maxMotorTorque_p0, _emscripten_bind_b2CircleShape__get_m_p_p0: _emscripten_bind_b2CircleShape__get_m_p_p0, _emscripten_bind_b2BodyDef__get_awake_p0: _emscripten_bind_b2BodyDef__get_awake_p0, _emscripten_bind_b2MouseJoint__GetAnchorB_p0: _emscripten_bind_b2MouseJoint__GetAnchorB_p0, _emscripten_bind_b2Body__CreateFixture_p1: _emscripten_bind_b2Body__CreateFixture_p1, _emscripten_bind_b2Body__CreateFixture_p2: _emscripten_bind_b2Body__CreateFixture_p2, _emscripten_bind_b2GearJointDef____destroy___p0: _emscripten_bind_b2GearJointDef____destroy___p0, _emscripten_bind_b2Fixture__GetDensity_p0: _emscripten_bind_b2Fixture__GetDensity_p0, _emscripten_bind_b2AABB__get_lowerBound_p0: _emscripten_bind_b2AABB__get_lowerBound_p0, _emscripten_bind_b2WeldJoint__GetDampingRatio_p0: _emscripten_bind_b2WeldJoint__GetDampingRatio_p0, _emscripten_bind_b2FrictionJoint__GetReactionForce_p1: _emscripten_bind_b2FrictionJoint__GetReactionForce_p1, _emscripten_bind_b2PolygonShape__set_m_vertexCount_p1: _emscripten_bind_b2PolygonShape__set_m_vertexCount_p1, _emscripten_bind_b2World__SetContactListener_p1: _emscripten_bind_b2World__SetContactListener_p1, _emscripten_bind_b2PulleyJointDef__get_localAnchorB_p0: _emscripten_bind_b2PulleyJointDef__get_localAnchorB_p0, _emscripten_bind_b2FixtureDef__set_shape_p1: _emscripten_bind_b2FixtureDef__set_shape_p1, _emscripten_bind_b2DistanceJoint__SetDampingRatio_p1: _emscripten_bind_b2DistanceJoint__SetDampingRatio_p1, _emscripten_bind_b2Joint__Dump_p0: _emscripten_bind_b2Joint__Dump_p0, _emscripten_bind_b2Shape__TestPoint_p2: _emscripten_bind_b2Shape__TestPoint_p2, _emscripten_bind_b2ChainShape__RayCast_p4: _emscripten_bind_b2ChainShape__RayCast_p4, _emscripten_bind_b2RopeJoint__SetUserData_p1: _emscripten_bind_b2RopeJoint__SetUserData_p1, _emscripten_bind_b2Transform__get_p_p0: _emscripten_bind_b2Transform__get_p_p0, _emscripten_bind_b2PulleyJoint__GetLengthA_p0: _emscripten_bind_b2PulleyJoint__GetLengthA_p0, _emscripten_bind_b2GearJoint__GetJoint2_p0: _emscripten_bind_b2GearJoint__GetJoint2_p0, _emscripten_bind_b2DistanceJoint__GetBodyB_p0: _emscripten_bind_b2DistanceJoint__GetBodyB_p0, _emscripten_bind_b2Body__IsBullet_p0: _emscripten_bind_b2Body__IsBullet_p0, _emscripten_bind_b2PrismaticJoint__Dump_p0: _emscripten_bind_b2PrismaticJoint__Dump_p0, _emscripten_bind_b2WeldJointDef____destroy___p0: _emscripten_bind_b2WeldJointDef____destroy___p0, _emscripten_bind_b2PrismaticJoint__GetMotorSpeed_p0: _emscripten_bind_b2PrismaticJoint__GetMotorSpeed_p0, _emscripten_bind_b2ChainShape__get_m_vertices_p0: _emscripten_bind_b2ChainShape__get_m_vertices_p0, _emscripten_bind_b2World__SetWarmStarting_p1: _emscripten_bind_b2World__SetWarmStarting_p1, _emscripten_bind_b2FrictionJoint__GetLocalAnchorA_p0: _emscripten_bind_b2FrictionJoint__GetLocalAnchorA_p0, _emscripten_bind_b2RevoluteJointDef__get_referenceAngle_p0: _emscripten_bind_b2RevoluteJointDef__get_referenceAngle_p0, _emscripten_bind_b2PrismaticJointDef__set_referenceAngle_p1: _emscripten_bind_b2PrismaticJointDef__set_referenceAngle_p1, _emscripten_bind_b2RevoluteJointDef__set_motorSpeed_p1: _emscripten_bind_b2RevoluteJointDef__set_motorSpeed_p1, _emscripten_bind_b2BodyDef__get_angularVelocity_p0: _emscripten_bind_b2BodyDef__get_angularVelocity_p0, _emscripten_bind_b2GearJoint__GetNext_p0: _emscripten_bind_b2GearJoint__GetNext_p0, _emscripten_bind_b2PrismaticJointDef__get_enableLimit_p0: _emscripten_bind_b2PrismaticJointDef__get_enableLimit_p0, _emscripten_bind_b2JointDef__get_type_p0: _emscripten_bind_b2JointDef__get_type_p0, _emscripten_bind_b2WeldJoint__GetBodyB_p0: _emscripten_bind_b2WeldJoint__GetBodyB_p0, _emscripten_bind_b2WheelJoint__GetJointTranslation_p0: _emscripten_bind_b2WheelJoint__GetJointTranslation_p0, _emscripten_bind_b2RopeJointDef__set_bodyA_p1: _emscripten_bind_b2RopeJointDef__set_bodyA_p1, _emscripten_bind_b2DistanceJointDef__get_localAnchorB_p0: _emscripten_bind_b2DistanceJointDef__get_localAnchorB_p0, _emscripten_bind_b2PulleyJoint__GetGroundAnchorB_p0: _emscripten_bind_b2PulleyJoint__GetGroundAnchorB_p0, _emscripten_bind_b2PulleyJointDef__get_groundAnchorB_p0: _emscripten_bind_b2PulleyJointDef__get_groundAnchorB_p0, _emscripten_bind_b2Body__GetPosition_p0: _emscripten_bind_b2Body__GetPosition_p0, _emscripten_bind_b2BroadPhase__b2BroadPhase_p0: _emscripten_bind_b2BroadPhase__b2BroadPhase_p0, _emscripten_bind_b2BodyDef__set_userData_p1: _emscripten_bind_b2BodyDef__set_userData_p1, _emscripten_bind_b2PrismaticJoint__EnableMotor_p1: _emscripten_bind_b2PrismaticJoint__EnableMotor_p1, _emscripten_bind_b2PrismaticJointDef__get_upperTranslation_p0: _emscripten_bind_b2PrismaticJointDef__get_upperTranslation_p0, _emscripten_bind_b2ChainShape__set_m_radius_p1: _emscripten_bind_b2ChainShape__set_m_radius_p1, _emscripten_bind_b2GearJointDef__get_joint2_p0: _emscripten_bind_b2GearJointDef__get_joint2_p0, _emscripten_bind_b2PrismaticJointDef__set_collideConnected_p1: _emscripten_bind_b2PrismaticJointDef__set_collideConnected_p1, _emscripten_bind_b2BroadPhase__TestOverlap_p2: _emscripten_bind_b2BroadPhase__TestOverlap_p2, _emscripten_bind_b2Fixture__SetDensity_p1: _emscripten_bind_b2Fixture__SetDensity_p1, _emscripten_bind_b2RevoluteJointDef__set_enableLimit_p1: _emscripten_bind_b2RevoluteJointDef__set_enableLimit_p1, _emscripten_bind_b2Body__IsAwake_p0: _emscripten_bind_b2Body__IsAwake_p0, _emscripten_bind_b2MouseJoint__GetAnchorA_p0: _emscripten_bind_b2MouseJoint__GetAnchorA_p0, _emscripten_bind_b2PolygonShape__SetAsBox_p4: _emscripten_bind_b2PolygonShape__SetAsBox_p4, _emscripten_bind_b2RevoluteJoint__GetReferenceAngle_p0: _emscripten_bind_b2RevoluteJoint__GetReferenceAngle_p0, _emscripten_bind_b2GearJointDef__set_joint1_p1: _emscripten_bind_b2GearJointDef__set_joint1_p1, _emscripten_bind_b2Draw__DrawSolidCircle_p4: _emscripten_bind_b2Draw__DrawSolidCircle_p4, _emscripten_bind_b2World__GetSubStepping_p0: _emscripten_bind_b2World__GetSubStepping_p0, _emscripten_bind_b2Body__SetLinearDamping_p1: _emscripten_bind_b2Body__SetLinearDamping_p1, _emscripten_bind_b2Fixture__SetFriction_p1: _emscripten_bind_b2Fixture__SetFriction_p1, _emscripten_bind_b2Filter__get_groupIndex_p0: _emscripten_bind_b2Filter__get_groupIndex_p0, _emscripten_bind_b2FixtureDef__get_isSensor_p0: _emscripten_bind_b2FixtureDef__get_isSensor_p0, _emscripten_bind_b2PrismaticJoint__GetUpperLimit_p0: _emscripten_bind_b2PrismaticJoint__GetUpperLimit_p0, _emscripten_bind_b2MouseJoint__GetReactionTorque_p1: _emscripten_bind_b2MouseJoint__GetReactionTorque_p1, _emscripten_bind_b2Vec2__op_mul_p1: _emscripten_bind_b2Vec2__op_mul_p1, _emscripten_bind_b2DistanceProxy__Set_p2: _emscripten_bind_b2DistanceProxy__Set_p2, _emscripten_bind_b2EdgeShape__Set_p2: _emscripten_bind_b2EdgeShape__Set_p2, _emscripten_bind_b2BodyDef__get_userData_p0: _emscripten_bind_b2BodyDef__get_userData_p0, _emscripten_bind_b2CircleShape__set_m_p_p1: _emscripten_bind_b2CircleShape__set_m_p_p1, _emscripten_bind_b2WheelJoint__GetMaxMotorTorque_p0: _emscripten_bind_b2WheelJoint__GetMaxMotorTorque_p0, _emscripten_bind_b2World__SetContactFilter_p1: _emscripten_bind_b2World__SetContactFilter_p1, _emscripten_bind_b2Body__GetWorldPoint_p1: _emscripten_bind_b2Body__GetWorldPoint_p1, _emscripten_bind_b2WheelJointDef__set_dampingRatio_p1: _emscripten_bind_b2WheelJointDef__set_dampingRatio_p1, _emscripten_bind_b2DistanceJointDef__set_collideConnected_p1: _emscripten_bind_b2DistanceJointDef__set_collideConnected_p1, _emscripten_bind_b2DistanceProxy__get_m_count_p0: _emscripten_bind_b2DistanceProxy__get_m_count_p0, _emscripten_bind_b2WeldJointDef__set_dampingRatio_p1: _emscripten_bind_b2WeldJointDef__set_dampingRatio_p1, _emscripten_bind_b2DistanceJointDef__set_localAnchorB_p1: _emscripten_bind_b2DistanceJointDef__set_localAnchorB_p1, _emscripten_bind_b2DistanceJoint__IsActive_p0: _emscripten_bind_b2DistanceJoint__IsActive_p0, _emscripten_bind_b2Joint__GetUserData_p0: _emscripten_bind_b2Joint__GetUserData_p0, _emscripten_bind_b2FrictionJoint__GetCollideConnected_p0: _emscripten_bind_b2FrictionJoint__GetCollideConnected_p0, _memset: _memset, _emscripten_bind_b2WheelJoint__Dump_p0: _emscripten_bind_b2WheelJoint__Dump_p0, _emscripten_bind_b2World__GetTreeBalance_p0: _emscripten_bind_b2World__GetTreeBalance_p0, _emscripten_bind_b2ContactListener__b2ContactListener_p0: _emscripten_bind_b2ContactListener__b2ContactListener_p0, _emscripten_bind_b2ChainShape__get_m_radius_p0: _emscripten_bind_b2ChainShape__get_m_radius_p0, _emscripten_bind_b2RopeJointDef__set_maxLength_p1: _emscripten_bind_b2RopeJointDef__set_maxLength_p1, _emscripten_bind_b2PulleyJointDef__set_bodyB_p1: _emscripten_bind_b2PulleyJointDef__set_bodyB_p1, _emscripten_bind_b2PulleyJointDef__get_groundAnchorA_p0: _emscripten_bind_b2PulleyJointDef__get_groundAnchorA_p0, _emscripten_bind_b2Body__ApplyLinearImpulse_p2: _emscripten_bind_b2Body__ApplyLinearImpulse_p2, _emscripten_bind_b2RevoluteJoint__GetMotorSpeed_p0: _emscripten_bind_b2RevoluteJoint__GetMotorSpeed_p0, _emscripten_bind_b2PrismaticJoint__GetUserData_p0: _emscripten_bind_b2PrismaticJoint__GetUserData_p0, _emscripten_bind_b2BroadPhase__GetTreeHeight_p0: _emscripten_bind_b2BroadPhase__GetTreeHeight_p0, _emscripten_bind_b2Draw__DrawSegment_p3: _emscripten_bind_b2Draw__DrawSegment_p3, _emscripten_bind_b2Body__IsActive_p0: _emscripten_bind_b2Body__IsActive_p0, _emscripten_bind_b2Vec2__Set_p2: _emscripten_bind_b2Vec2__Set_p2, _emscripten_bind_b2PulleyJoint__GetUserData_p0: _emscripten_bind_b2PulleyJoint__GetUserData_p0, _emscripten_bind_b2ContactEdge__b2ContactEdge_p0: _emscripten_bind_b2ContactEdge__b2ContactEdge_p0, _emscripten_bind_b2ContactManager__get_m_contactList_p0: _emscripten_bind_b2ContactManager__get_m_contactList_p0, _emscripten_bind_b2Vec3__b2Vec3_p0: _emscripten_bind_b2Vec3__b2Vec3_p0, _emscripten_bind_b2PulleyJoint__GetGroundAnchorA_p0: _emscripten_bind_b2PulleyJoint__GetGroundAnchorA_p0, _emscripten_bind_b2World____destroy___p0: _emscripten_bind_b2World____destroy___p0, _emscripten_bind_b2Vec2__get_x_p0: _emscripten_bind_b2Vec2__get_x_p0, _emscripten_bind_b2PulleyJointDef____destroy___p0: _emscripten_bind_b2PulleyJointDef____destroy___p0, _emscripten_bind_b2FixtureDef____destroy___p0: _emscripten_bind_b2FixtureDef____destroy___p0, _emscripten_bind_b2EdgeShape__Clone_p1: _emscripten_bind_b2EdgeShape__Clone_p1, _emscripten_bind_b2Body__GetUserData_p0: _emscripten_bind_b2Body__GetUserData_p0, _emscripten_bind_b2Body__SetUserData_p1: _emscripten_bind_b2Body__SetUserData_p1, _emscripten_bind_b2FixtureDef__set_friction_p1: _emscripten_bind_b2FixtureDef__set_friction_p1, _emscripten_bind_b2GearJoint__Dump_p0: _emscripten_bind_b2GearJoint__Dump_p0, _emscripten_bind_b2PrismaticJoint__SetMotorSpeed_p1: _emscripten_bind_b2PrismaticJoint__SetMotorSpeed_p1, _emscripten_bind_b2DistanceJointDef____destroy___p0: _emscripten_bind_b2DistanceJointDef____destroy___p0, _emscripten_bind_b2FrictionJointDef__Initialize_p3: _emscripten_bind_b2FrictionJointDef__Initialize_p3, _emscripten_bind_b2GearJoint__b2GearJoint_p1: _emscripten_bind_b2GearJoint__b2GearJoint_p1, _emscripten_bind_b2Body__SetSleepingAllowed_p1: _emscripten_bind_b2Body__SetSleepingAllowed_p1, _emscripten_bind_b2DistanceJoint__GetFrequency_p0: _emscripten_bind_b2DistanceJoint__GetFrequency_p0, _emscripten_bind_b2PolygonShape__GetVertexCount_p0: _emscripten_bind_b2PolygonShape__GetVertexCount_p0, _emscripten_bind_b2PulleyJoint__b2PulleyJoint_p1: _emscripten_bind_b2PulleyJoint__b2PulleyJoint_p1, _emscripten_bind_b2MouseJointDef__get_bodyB_p1: _emscripten_bind_b2MouseJointDef__get_bodyB_p1, _emscripten_bind_b2ContactManager__set_m_contactList_p1: _emscripten_bind_b2ContactManager__set_m_contactList_p1, _emscripten_bind_b2MouseJoint__GetNext_p0: _emscripten_bind_b2MouseJoint__GetNext_p0, _emscripten_bind_b2Transform__get_q_p0: _emscripten_bind_b2Transform__get_q_p0, _emscripten_bind_b2DistanceJointDef__get_collideConnected_p1: _emscripten_bind_b2DistanceJointDef__get_collideConnected_p1, _emscripten_bind_b2WeldJointDef__set_bodyB_p1: _emscripten_bind_b2WeldJointDef__set_bodyB_p1, _emscripten_bind_b2DistanceJoint__GetReactionForce_p1: _emscripten_bind_b2DistanceJoint__GetReactionForce_p1, _emscripten_bind_b2FrictionJoint____destroy___p0: _emscripten_bind_b2FrictionJoint____destroy___p0, _emscripten_bind_b2PrismaticJoint__IsMotorEnabled_p0: _emscripten_bind_b2PrismaticJoint__IsMotorEnabled_p0, _emscripten_bind_b2CircleShape__ComputeAABB_p3: _emscripten_bind_b2CircleShape__ComputeAABB_p3, _emscripten_bind_b2RevoluteJointDef__get_enableLimit_p0: _emscripten_bind_b2RevoluteJointDef__get_enableLimit_p0, _emscripten_bind_b2GearJoint__GetRatio_p0: _emscripten_bind_b2GearJoint__GetRatio_p0, _emscripten_bind_b2BlockAllocator__Allocate_p1: _emscripten_bind_b2BlockAllocator__Allocate_p1, _emscripten_bind_b2GearJointDef__get_joint1_p0: _emscripten_bind_b2GearJointDef__get_joint1_p0, _emscripten_bind_b2AABB__Contains_p1: _emscripten_bind_b2AABB__Contains_p1, _emscripten_bind_b2GearJointDef__set_ratio_p1: _emscripten_bind_b2GearJointDef__set_ratio_p1, _emscripten_bind_b2ContactManager__Destroy_p1: _emscripten_bind_b2ContactManager__Destroy_p1, _emscripten_bind_b2RevoluteJointDef__Initialize_p3: _emscripten_bind_b2RevoluteJointDef__Initialize_p3, _emscripten_bind_b2BodyDef__set_angle_p1: _emscripten_bind_b2BodyDef__set_angle_p1, _emscripten_bind_b2PrismaticJointDef__Initialize_p4: _emscripten_bind_b2PrismaticJointDef__Initialize_p4, _emscripten_bind_b2Body__GetContactList_p0: _emscripten_bind_b2Body__GetContactList_p0, _emscripten_bind_b2RevoluteJoint__EnableLimit_p1: _emscripten_bind_b2RevoluteJoint__EnableLimit_p1, _emscripten_bind_b2Body__GetWorldCenter_p0: _emscripten_bind_b2Body__GetWorldCenter_p0, _emscripten_bind_b2ContactManager__get_m_allocator_p0: _emscripten_bind_b2ContactManager__get_m_allocator_p0, _emscripten_bind_b2DistanceJointDef__set_localAnchorA_p1: _emscripten_bind_b2DistanceJointDef__set_localAnchorA_p1, _emscripten_bind_b2BodyDef__set_angularDamping_p1: _emscripten_bind_b2BodyDef__set_angularDamping_p1, _emscripten_bind_b2MouseJointDef__set_collideConnected_p1: _emscripten_bind_b2MouseJointDef__set_collideConnected_p1, _emscripten_bind_b2Shape__ComputeAABB_p3: _emscripten_bind_b2Shape__ComputeAABB_p3, _emscripten_bind_b2Joint__GetReactionTorque_p1: _emscripten_bind_b2Joint__GetReactionTorque_p1, _emscripten_bind_b2WheelJoint__GetType_p0: _emscripten_bind_b2WheelJoint__GetType_p0, _emscripten_bind_b2Vec3__op_add_p1: _emscripten_bind_b2Vec3__op_add_p1, _emscripten_bind_b2Filter__get_categoryBits_p0: _emscripten_bind_b2Filter__get_categoryBits_p0, _emscripten_bind_b2Contact__GetFriction_p0: _emscripten_bind_b2Contact__GetFriction_p0, _emscripten_bind_b2CircleShape__GetChildCount_p0: _emscripten_bind_b2CircleShape__GetChildCount_p0, _emscripten_bind_b2Transform__set_p_p1: _emscripten_bind_b2Transform__set_p_p1, _emscripten_bind_b2Fixture__GetNext_p0: _emscripten_bind_b2Fixture__GetNext_p0, _emscripten_bind_b2BodyDef__set_bullet_p1: _emscripten_bind_b2BodyDef__set_bullet_p1, _emscripten_bind_b2Vec3__op_sub_p0: _emscripten_bind_b2Vec3__op_sub_p0, _emscripten_bind_b2ContactManager__Collide_p0: _emscripten_bind_b2ContactManager__Collide_p0, _emscripten_bind_b2FrictionJoint__GetLocalAnchorB_p0: _emscripten_bind_b2FrictionJoint__GetLocalAnchorB_p0, _emscripten_bind_b2ContactManager__get_m_contactListener_p0: _emscripten_bind_b2ContactManager__get_m_contactListener_p0, _emscripten_bind_b2World__RayCast_p3: _emscripten_bind_b2World__RayCast_p3, _emscripten_bind_b2WeldJoint__Dump_p0: _emscripten_bind_b2WeldJoint__Dump_p0, _emscripten_bind_b2PrismaticJointDef__set_enableLimit_p1: _emscripten_bind_b2PrismaticJointDef__set_enableLimit_p1, _emscripten_bind_b2EdgeShape__GetType_p0: _emscripten_bind_b2EdgeShape__GetType_p0, _emscripten_bind_b2RevoluteJoint__GetMotorTorque_p1: _emscripten_bind_b2RevoluteJoint__GetMotorTorque_p1, _emscripten_bind_b2Body__DestroyFixture_p1: _emscripten_bind_b2Body__DestroyFixture_p1, _emscripten_bind_b2RevoluteJoint__SetMaxMotorTorque_p1: _emscripten_bind_b2RevoluteJoint__SetMaxMotorTorque_p1, _emscripten_bind_b2MouseJointDef__get_bodyA_p1: _emscripten_bind_b2MouseJointDef__get_bodyA_p1, _emscripten_bind_b2DynamicTree__GetHeight_p0: _emscripten_bind_b2DynamicTree__GetHeight_p0, _emscripten_bind_b2ContactManager__get_m_contactCount_p0: _emscripten_bind_b2ContactManager__get_m_contactCount_p0, _emscripten_bind_b2BlockAllocator__Free_p2: _emscripten_bind_b2BlockAllocator__Free_p2, _emscripten_bind_b2GearJoint__SetRatio_p1: _emscripten_bind_b2GearJoint__SetRatio_p1, _emscripten_bind_b2BodyDef__get_angle_p0: _emscripten_bind_b2BodyDef__get_angle_p0, _emscripten_bind_b2PrismaticJoint__GetReferenceAngle_p0: _emscripten_bind_b2PrismaticJoint__GetReferenceAngle_p0, _emscripten_bind_b2WeldJointDef__set_bodyA_p1: _emscripten_bind_b2WeldJointDef__set_bodyA_p1, _emscripten_bind_b2PulleyJoint__GetLengthB_p0: _emscripten_bind_b2PulleyJoint__GetLengthB_p0, runPostSets: runPostSets, stackAlloc: stackAlloc, stackSave: stackSave, stackRestore: stackRestore, setThrew: setThrew, setTempRet0: setTempRet0, setTempRet1: setTempRet1, setTempRet2: setTempRet2, setTempRet3: setTempRet3, setTempRet4: setTempRet4, setTempRet5: setTempRet5, setTempRet6: setTempRet6, setTempRet7: setTempRet7, setTempRet8: setTempRet8, setTempRet9: setTempRet9, dynCall_viiiii: dynCall_viiiii, dynCall_viifi: dynCall_viifi, dynCall_vi: dynCall_vi, dynCall_vii: dynCall_vii, dynCall_iiii: dynCall_iiii, dynCall_ii: dynCall_ii, dynCall_fif: dynCall_fif, dynCall_viii: dynCall_viii, dynCall_viifii: dynCall_viifii, dynCall_v: dynCall_v, dynCall_viif: dynCall_viif, dynCall_viiiiii: dynCall_viiiiii, dynCall_iii: dynCall_iii, dynCall_iiiiii: dynCall_iiiiii, dynCall_fiiiif: dynCall_fiiiif, dynCall_viiii: dynCall_viiii };
 })

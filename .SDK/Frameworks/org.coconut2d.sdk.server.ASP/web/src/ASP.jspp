@@ -1,0 +1,1534 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.yourcompany.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_nodejs;
+
+#pragma json;
+
+#module org.coconut2d.sdk.server.ASP;
+
+// ==================================================================================================================================
+//	    ___   _____ ____  ____  _      __  _
+//	   /   | / ___// __ \/ __ \(_)____/ /_(_)___  ____  ____ ________  __
+//	  / /| | \__ \/ /_/ / / / / / ___/ __/ / __ \/ __ \/ __ `/ ___/ / / /
+//	 / ___ |___/ / ____/ /_/ / / /__/ /_/ / /_/ / / / / /_/ / /  / /_/ /
+//	/_/  |_/____/_/   /_____/_/\___/\__/_/\____/_/ /_/\__,_/_/   \__, /
+//	                                                            /____/
+// ==================================================================================================================================
+
+export enum ASP_DIC_TYPE_ENUM
+{
+    ASP_APPLICATION_CONTENTS			= 1,
+    ASP_APPLICATION_STATIC_OBJECTS		= 2,
+    ASP_SESSION_CONTENTS				= 3,
+    ASP_SESSION_STATIC_OBJECTS			= 4,
+    ASP_REQUEST_COOKIES					= 5,
+    ASP_REQUEST_FORM					= 6,
+    ASP_REQUEST_QUERY_STRING			= 7,
+    ASP_REQUEST_SERVER_VARS				= 8,
+    ASP_RESPONSE_COOKIES				= 9,
+    ASP_HTTP_HEADERS					= 10
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+export class ASPDictionary
+{
+	public var URLData:String;
+
+	private var m_Type:ASP_DIC_TYPE_ENUM;
+	private var m_Keys:Array<String>;
+	private var m_Values:Array<String>;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(t:ASP_DIC_TYPE_ENUM)
+	{
+		URLData="";
+		m_Type = t;
+		m_Keys =  new Array<String>;
+		m_Values = new Array<String>;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete m_Keys;
+		delete m_Values;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property Count
+	{
+		function get():Integer
+		{
+			return m_Keys.size();
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function indexOf(Key:String):Integer
+	{
+		for(var i:Integer = m_Keys.size()-1; i>=0; i--)
+			if(m_Keys[i]==Key)
+				return i;
+		return -1;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Add(Key:String, Value:String)
+	{
+		var index:Integer = indexOf(Key);
+		if(index==-1)
+		{
+			m_Keys.push(Key);
+			m_Values.push(Value);
+		}
+		else
+		{
+			m_Values[index] = Value;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Remove(Key:String)
+	{
+		var index:Integer = indexOf(Key);
+		if(index!=-1)
+		{
+			m_Keys.splice(index,1);
+			m_Values.splice(index,1);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function RemoveAll()
+	{
+		delete m_Keys;
+		delete m_Values;
+		m_Keys =  new Array<String>;
+		m_Values = new Array<String>;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Exists(key:String):Boolean
+	{
+		var index:Integer = indexOf(key);
+		return index!=-1;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Key(index:Integer):String
+	{
+		if(index>=0 && index<m_Keys.size())
+			return m_Keys[index];
+		return "";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Value(index:Integer):String
+	{
+		if(index>=0 && index<m_Keys.size())
+			return m_Values[index];
+		return "";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Item(Key:String):String
+	{
+		var index:Integer = indexOf(Key);
+		if(index!=-1) return m_Values[index];
+		return "";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ParseQueryString(req:NodeJS_Request)
+	{
+		if(req.__query)
+		{
+			URLData = req.__query;
+
+			var pairs:Array<String> = req.__query.split("&");
+			for(var i:Integer=0; i<pairs.size(); i++)
+			{
+				var item:Array<String> = pairs[i].split("=");
+				var key:String = unescape(decodeURIComponent(item[0]));
+				var value:String = unescape(decodeURIComponent(item[1]));
+				Add(key, value);
+			}
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ParseForm(req:NodeJS_Request)
+	{
+		var contentType:String = String(req.headers['content-type']);
+		if(req.__body && contentType.indexOf("application/x-www-form-urlencoded")==0)
+		{
+			URLData = req.__body;
+			ParseFormData(req.__body);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ParseFormData(data:String)
+	{
+		var rx:RegExp = new RegExp("\\+", "mg");
+		data = data.replace(rx, " ");
+		var pairs:Array<String> = data.split("&");
+		for(var i:Integer=0; i<pairs.size(); i++)
+		{
+			var item:Array<String> = pairs[i].split("=");
+			var key:String = unescape(decodeURIComponent(item[0]));
+			var value:String = unescape(decodeURIComponent(item[1]));
+			var index:Integer = indexOf(key);
+			if(index==-1)
+			{
+				Add(key, value);
+			}
+			else
+			{
+				 m_Values[index] += "," + value;
+			}
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ParseServerVariables(req:NodeJS_Request)
+	{
+		Add("ALL_HTTP", 				"");
+		Add("ALL_RAW", 					"");
+		Add("APPL_MD_PATH", 			"/LM/W3SVC/42/ROOT");
+		Add("APPL_PHYSICAL_PATH", 		req.__path);
+
+		Add("AUTH_PASSWORD", 			"");
+		Add("AUTH_TYPE", 				"");
+		Add("AUTH_USER", 				"");
+		Add("CERT_COOKIE", 				"");
+		Add("CERT_FLAGS", 				"");
+		Add("CERT_ISSUER", 				"");
+		Add("CERT_KEYSIZE", 			"");
+		Add("CERT_SECRETKEYSIZE", 		"");
+		Add("CERT_SERIALNUMBER", 		"");
+		Add("CERT_SERVER_ISSUER",		"");
+		Add("CERT_SERVER_SUBJECT", 		"");
+		Add("CERT_SUBJECT", 			"");
+
+		Add("CONTENT_LENGTH", 			String(req.headers['content-length']));
+		Add("CONTENT_TYPE", 			String(req.headers['content-type']));
+
+		Add("GATEWAY_INTERFACE", 		"CGI/1.1");
+
+		Add("HTTPS", 					"off");
+		Add("HTTPS_KEYSIZE", 			"");
+		Add("HTTPS_SECRETKEYSIZE", 		"");
+		Add("HTTPS_SERVER_ISSUER", 		"");
+		Add("HTTPS_SERVER_SUBJECT", 	"");
+
+		Add("INSTANCE_ID", 				"42");
+		Add("INSTANCE_META_PATH", 		"/LM/W3SVC/42");
+		Add("LOCAL_ADDR", 				req.socket.localAddress);
+		Add("LOGON_USER", 				"");
+		Add("PATH_INFO", 				req.url);
+		Add("PATH_TRANSLATED", 			req.__file);
+		Add("QUERY_STRING", 			req.__query);
+		Add("REMOTE_ADDR", 				req.socket.remoteAddress);
+		Add("REMOTE_HOST", 				String(req.headers['host']));
+		Add("REMOTE_USER", 				"");
+		Add("REQUEST_METHOD", 			req.method);
+		Add("SCRIPT_NAME", 				req.url);
+
+		Add("SERVER_NAME", 				String(req.headers['host']));
+		Add("SERVER_PORT", 				req.socket.localPort);
+		Add("SERVER_PORT_SECURE", 		"");
+		Add("SERVER_PROTOCOL", 			"HTTP");
+		Add("SERVER_SOFTWARE", 			"node.js");
+
+		Add("URL", 						req.url);
+
+		Add("HTTP_ACCEPT", 				String(req.headers['accept']));
+		Add("HTTP_ACCEPT_ENCODING",		String(req.headers['accept-encoding']));
+		Add("HTTP_ACCEPT_LANGUAGE", 	String(req.headers['accept-language']));
+		Add("HTTP_CONNECTION",			String(req.headers['connection']));
+		Add("HTTP_COOKIE", 				"");
+		Add("HTTP_HOST", 				String(req.headers['host']));
+		Add("HTTP_REFERER", 			String(req.headers['referer']));
+		Add("HTTP_USER_AGENT", 			String(req.headers['user-agent']));
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____  ___                ___            __  _
+//	   /   | / ___// __ \/   |  ____  ____  / (_)________ _/ /_(_)___  ____
+//	  / /| | \__ \/ /_/ / /| | / __ \/ __ \/ / / ___/ __ `/ __/ / __ \/ __ \
+//	 / ___ |___/ / ____/ ___ |/ /_/ / /_/ / / / /__/ /_/ / /_/ / /_/ / / / /
+//	/_/  |_/____/_/   /_/  |_/ .___/ .___/_/_/\___/\__,_/\__/_/\____/_/ /_/
+//	                        /_/   /_/
+// ==================================================================================================================================
+
+export class ASPApplication
+{
+	public var Contents:ASPDictionary;
+	public var StaticObjects:ASPDictionary;
+
+	// Event Callbacks
+	public reference var OnEnd:Function;
+	public reference var OnStart:Function;
+
+	private var m_Locked:Boolean;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		Contents 		= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_CONTENTS);
+		StaticObjects 	= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_STATIC_OBJECTS);
+		OnEnd			= null;
+		OnStart			= null;
+		m_Locked		= false;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Contents;
+		delete StaticObjects;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The Lock method prevents other clients from modifying Application object properties.
+	public function Lock()
+	{
+		m_Locked = true;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The Unlock method allows other clients to modify Application object properties.
+	public function Unlock()
+	{
+		m_Locked = false;
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____  _____                _
+//	   /   | / ___// __ \/ ___/___  __________(_)___  ____
+//	  / /| | \__ \/ /_/ /\__ \/ _ \/ ___/ ___/ / __ \/ __ \
+//	 / ___ |___/ / ____/___/ /  __(__  |__  ) / /_/ / / / /
+//	/_/  |_/____/_/    /____/\___/____/____/_/\____/_/ /_/
+//
+// ==================================================================================================================================
+
+export class ASPSession
+{
+	public var Contents:ASPDictionary;
+	public var StaticObjects:ASPDictionary;
+
+	// Event Callbacks
+	public reference var OnEnd:Function;
+	public reference var OnStart:Function;
+
+	private var m_CodePage:String;
+	private var m_LCID:String;
+	private var m_SessionID:String;
+	private var m_Timeout:Integer;
+	private var m_Started:Time;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(SessionID:String)
+	{
+		m_SessionID		= SessionID;
+		Contents 		= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_CONTENTS);
+		StaticObjects 	= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_APPLICATION_STATIC_OBJECTS);
+		m_CodePage		= "UTF-8";
+		m_LCID			= "";
+		m_Timeout		= 20 * 60 * 1000;
+		OnEnd			= null;
+		OnStart			= null;
+		m_Started		= 0;
+
+		Update();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Contents;
+		delete StaticObjects;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The code page that will be used for symbol mapping.
+	public property CodePage
+	{
+		function get():String
+		{
+			return m_CodePage;
+		}
+		function set(v:String)
+		{
+			m_CodePage = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// An LCID specifies the locale identifier, which is a standard international
+	// abbreviation that uniquely identifies one of the system-defined locales.
+	public property LCID
+	{
+		function get():String
+		{
+			return m_LCID;
+		}
+		function set(v:String)
+		{
+			m_LCID = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Returns the session identification for this user.
+	public property SessionID
+	{
+		function get():String
+		{
+			return m_SessionID;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The timeout period for the session state for this application, in minutes.
+	public property Timeout
+	{
+		function get():Integer
+		{
+			return m_Timeout;
+		}
+		function set(v:Integer)
+		{
+			m_Timeout = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// This method destroys a Session object and releases its resources.
+	public function Abandon()
+	{
+		Contents.RemoveAll();
+		StaticObjects.RemoveAll();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property Uptime
+	{
+		function get():Time
+		{
+			var d:Date = new Date();
+			var m_Uptime:Time = d.getTime() - m_Started;
+			delete d;
+			return m_Uptime;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property Expired
+	{
+		function get():Boolean
+		{
+			return Uptime > m_Timeout;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Update()
+	{
+		var d:Date = new Date();
+		m_Started = d.getTime();
+		delete d;
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____  ____                             __
+//	   /   | / ___// __ \/ __ \___  ____ ___  _____  _____/ /_
+//	  / /| | \__ \/ /_/ / /_/ / _ \/ __ `/ / / / _ \/ ___/ __/
+//	 / ___ |___/ / ____/ _, _/  __/ /_/ / /_/ /  __(__  ) /_
+//	/_/  |_/____/_/   /_/ |_|\___/\__, /\__,_/\___/____/\__/
+//	                                /_/
+// ==================================================================================================================================
+
+export class ASPRequest
+{
+	private reference var req:NodeJS_Request;
+
+	public var Cookies:ASPDictionary;
+
+
+	private var m_Form:ASPDictionary;
+	private var m_QueryString:ASPDictionary;
+	private var m_ServerVariables:ASPDictionary;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(req:NodeJS_Request)
+	{
+		this.req 			= req;
+		Cookies				= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_COOKIES);
+		m_Form 				= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_FORM);
+		m_QueryString 		= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_QUERY_STRING);
+		m_ServerVariables 	= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_SERVER_VARS);
+
+		m_Form.ParseForm(req);
+		m_QueryString.ParseQueryString(req);
+		m_ServerVariables.ParseServerVariables(req);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Cookies;
+		delete m_Form;
+		delete m_QueryString;
+		delete m_ServerVariables;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property TotalBytes
+	{
+		function get():Integer
+		{
+			if(m_ServerVariables.Exists("CONTENT_LENGTH"))
+				return parseInt(m_ServerVariables.Item("CONTENT_LENGTH"));
+			else
+				return 0;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Retrieves data sent to the server from the client as part of a POST request.
+	// count: specifies how many bytes to read from the client.
+	// The total number of bytes that will actually be read is less or equal to Request.TotalBytes.
+	public function BinaryRead(count:Integer):ArrayBuffer
+	{
+		return req.__arrayBuffer;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Body():String
+	{
+		return req.__body;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Form(key:String):String
+	{
+		if(key=="")
+		{
+			/*
+			var result:String = "";
+			var items:Array<String> = new Array<String>;
+			for(var i:Integer=0; i<m_Form.Count; i++)
+			{
+				items.push(m_Form.Key(i) + "=" + encodeURIComponent(m_Form.Value(i)));
+			}
+			result = items.join("&");
+			delete items;
+			return result;
+			*/
+			return m_Form.URLData;
+		}
+		else if(m_Form.Exists(key))
+		{
+			return m_Form.Item(key);
+		}
+
+		return "";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function QueryString(key:String):String
+	{
+		if(key=="")
+		{
+			/*
+			var result:String = "";
+			var items:Array<String> = new Array<String>;
+			for(var i:Integer=0; i<m_QueryString.Count; i++)
+			{
+				items.push(m_QueryString.Key(i) + "=" + encodeURIComponent(m_QueryString.Value(i)));
+			}
+			result = items.join("&");
+			delete items;
+			return result;
+			*/
+			return m_QueryString.URLData;
+		}
+		else if(m_QueryString.Exists(key))
+		{
+			return m_QueryString.Item(key);
+		}
+
+		return "";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ServerVariables(key:String):String
+	{
+		if(m_ServerVariables.Exists(key))
+			return m_ServerVariables.Item(key);
+
+		return "";
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function ParseFormData(data:String)
+	{
+		m_Form.ParseFormData(data);
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____   ____
+//	   /   | / ___// __ \ / __ \___  _________  ____  ____  ________
+//	  / /| | \__ \/ /_/ // /_/ / _ \/ ___/ __ \/ __ \/ __ \/ ___/ _ \
+//	 / ___ |___/ / ____// _, _/  __(__  ) /_/ / /_/ / / / (__  )  __/
+//	/_/  |_/____/_/    /_/ |_|\___/____/ .___/\____/_/ /_/____/\___/
+//	                                   /_/
+// ==================================================================================================================================
+
+export class ASPResponse
+{
+	public var Cookies:ASPDictionary;
+
+	private var m_Buffer:Boolean;
+	private var m_CacheControl:String;
+	private var m_Charset:String;
+	private var m_ContentType:String;
+	private var m_Expires:Integer;
+	private var m_ExpiresAbsolute:String;
+	private var m_Pics:String;
+	private var m_Status:Integer;
+
+	private reference var ses:ASPSession;
+	private reference var res:NodeJS_Response;
+	private var m_Headers:ASPDictionary;
+	private var m_Data:Array<String>;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(ses:ASPSession, res:NodeJS_Response)
+	{
+		this.ses = ses;
+		this.res = res;
+
+		m_Data =  new Array<String>;
+		m_Headers = new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_HTTP_HEADERS);
+
+		Cookies 			= new ASPDictionary(ASP_DIC_TYPE_ENUM.ASP_REQUEST_COOKIES);
+		m_Buffer			= true;
+		m_CacheControl 		= "Public";
+		m_Charset 			= "utf8";
+		m_ContentType 		= "text/html";
+		m_Expires 			= -1; 				// Expires immediately
+		m_ExpiresAbsolute 	= "";
+		m_Pics				= "";
+
+		res.statusCode = m_Status = 200;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Cookies;
+		delete m_Headers;
+		delete m_Data;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Indicates whether page output is buffered.
+	// FALSE: 	No buffering. The server sends output to the client as it is processed.
+	// TRUE:	The server does not send output to the client until all of the ASP scripts on the current page have been processed, or until the Flush or End method has been called.
+	public property Buffer
+	{
+		function get():Boolean
+		{
+			return m_Buffer;
+		}
+		function set(v:Boolean)
+		{
+			m_Buffer = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Determines whether proxy servers are able to cache the output generated by ASP.
+	// "Private":	Only private caches may cache this page. This is the default value. Most proxy servers will not cache pages with this setting.
+	// "Public":	Public caches, such as proxy servers, will cache pages with this setting.
+	public property CacheControl
+	{
+		function get():String
+		{
+			return m_CacheControl;
+		}
+		function set(v:String)
+		{
+			m_CacheControl = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Appends the name of the character set to the content-type header.
+	public property Charset
+	{
+		function get():String
+		{
+			return m_Charset;
+		}
+		function set(v:String)
+		{
+			m_Charset = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Specifies the HTTP content type for the response.
+	public property ContentType
+	{
+		function get():String
+		{
+			return m_ContentType;
+		}
+		function set(v:String)
+		{
+			m_ContentType = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Specifies the length of time before a page cached on a browser expires.
+	// number: The time in minutes before the page expires.
+	public property Expires
+	{
+		function get():Integer
+		{
+			return m_Expires;
+		}
+		function set(v:Integer)
+		{
+			m_Expires = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Specifies the date and time on which a page cached on a browser expires.
+	// eg. "Jan 30,2015 13:30:15"
+	public property ExpiresAbsolute
+	{
+		function get():String
+		{
+			return m_ExpiresAbsolute;
+		}
+		function set(v:String)
+		{
+			m_ExpiresAbsolute = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Indicates whether the client has disconnected from the server.
+	public property IsClientConnected
+	{
+		function get():Boolean
+		{
+			return res.connection!=null;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Set the value for the pics-label response header, to indicate the PICS content rating.
+	public property Pics
+	{
+		function get():String
+		{
+			return m_Pics;
+		}
+		function set(v:String)
+		{
+			m_Pics = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// The value of the status line returned by the server.
+	public property Status
+	{
+		function get():Integer
+		{
+			return m_Status;
+		}
+		function set(v:Integer)
+		{
+			m_Status = v;
+
+			if(!m_Buffer)
+				res.statusCode = m_Status;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Sets the HTML header name to value.
+	public function AddHeader(Name:String, Value:String)
+	{
+		if(res.finished) return;
+
+		if(m_Buffer)
+			m_Headers.Add(Name, Value);
+		else
+			res.setHeader(Name, Value);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Adds a string to the end of the Web server log entry for this request.
+	public function AppendToLog(message:String)
+	{
+		console.log(message);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Sends a redirect message to the browser, causing it to attempt to connect to a different URL.
+	public function Redirect(url:String)
+	{
+		if(res.finished) return;
+		Clear();
+		AddHeader("Location", url);
+		Status = 303;
+		End();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Writes the given information to the current HTTP output without any character-set conversion.
+	public function BinaryWrite(data:ArrayBuffer)
+	{
+		if(res.finished) return;
+	    var buffer:String;
+	    __javascript
+	    {
+	    	buffer = String.fromCharCode.apply(null, new Uint8Array(data));
+	    }
+	    __end
+	    res.setHeader("Set-Cookie", "SID=" + ses.SessionID + "; Path=/; HttpOnly");
+		res.setHeader("Accept-Ranges", "bytes");
+		res.setHeader("Content-Type", "application/octet-stream");
+		res.write(buffer, "utf8");
+		delete buffer;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Erases any buffered HTML output.
+	public function Clear()
+	{
+		if(res.finished) return;
+		m_Status = 0;
+		m_Headers.RemoveAll();
+		m_Data.clear();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Stops processing the .asp file and returns the current result.
+	public function End()
+	{
+		if(res.finished) return;
+		Flush();
+		res.end();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Sends buffered output immediately.
+	public function Flush()
+	{
+		if(res.finished) return;
+
+		if(m_Buffer)
+		{
+			var i:Integer;
+
+			if(!res._header)
+			{
+				// Set HTTP status
+				res.statusCode = m_Status;
+
+				// Set Session Headers
+				res.setHeader("Set-Cookie", "SID=" + ses.SessionID + "; Path=/; HttpOnly");
+
+				// Write Headers
+				for(i=0; i<m_Headers.Count; i++)
+				{
+					res.setHeader(m_Headers.Key(i), m_Headers.Value(i));
+				}
+
+				// Response specific Headers
+				res.setHeader("Content-Type", m_ContentType + "; charset=" + m_Charset);
+				res.setHeader("Cache-Control", m_CacheControl);
+				if(m_Expires) res.setHeader("Expires", String(m_Expires));
+				if(m_ExpiresAbsolute) res.setHeader("Expires", "Expires:" + m_ExpiresAbsolute);
+			}
+
+			// Write Data
+			if(m_Data.size()>0)
+				res.write(m_Data.join(""), m_Charset);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Writes a variable to the current HTTP output as a string.
+	public function Write(data:String)
+	{
+		if(res.finished) return;
+
+		if(m_Buffer)
+		{
+			m_Data.push(data);
+		}
+		else
+		{
+			res.write(data, m_Charset);
+		}
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____  _____
+//	   /   | / ___// __ \/ ___/___  ______   _____  _____
+//	  / /| | \__ \/ /_/ /\__ \/ _ \/ ___/ | / / _ \/ ___/
+//	 / ___ |___/ / ____/___/ /  __/ /   | |/ /  __/ /
+//	/_/  |_/____/_/    /____/\___/_/    |___/\___/_/
+//
+// ==================================================================================================================================
+
+export class ASPServer
+{
+	private var m_ScriptTimeout:Integer;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		m_ScriptTimeout = 90;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Specifies the maximum number of seconds that a script can run before the server terminates it.
+	// The default value is 90 seconds.
+	public property ScriptTimeout
+	{
+		function get():Integer
+		{
+			return m_ScriptTimeout;
+		}
+		function set(v:Integer)
+		{
+			m_ScriptTimeout = v;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Creates a CocoScript object
+	public function CreateObject(clsid:String):Object
+	{
+		if(clsid=="CocoDataset")
+			return new CocoDataset();
+		else
+			return null;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Executes an .asp file.
+	public function Execute(path:String)
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Returns an ASPError object that describes the error condition.
+	public function GetLastError():Error
+	{
+		return null;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Applies HTML encoding to the specified string.
+	public function HTMLEncode(s:String):String
+	{
+	    var i:Integer;
+	    var L:Integer = s.size();
+	    var acode:Integer;
+	    var repl:String;
+	    var out:String = s;
+	    for(i=L-1; i>=0; i--)
+	    {
+	        acode = s.charCodeAt(i);
+	        switch(acode)
+	        {
+            case 32:
+                repl = "&nbsp;";
+                break;
+
+            case 34:
+                repl = "&quot;";
+                break;
+
+            case 38:
+                repl = "&amp;";
+                break;
+
+            case 60:
+                repl = "&lt;";
+                break;
+
+            case 62:
+                repl = "&gt;";
+                break;
+
+            default:
+                repl = "&#" + String(acode) + ";";
+	        }
+	        if(repl.size())
+	        {
+	            out = out.substr(0, i-1) + repl + out.substr(i+1);
+	            repl = "";
+	        }
+	    }
+	    return out;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Applies URL encoding rules, including escape characters, to the string.
+	public function URLEncode(s:String):String
+	{
+		return encodeURI(s);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Maps the specified virtual path, either the absolute path on the current server
+	// or the path relative to the current page, into a physical path.
+	public function MapPath(url:String):String
+	{
+		return __path.resolve(url);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Sends all of the current state information to another .asp file for processing.
+	public function Transfer(url:String)
+	{
+		var file:String = __path.resolve(url);
+	}
+}
+
+// ==================================================================================================================================
+//	    ___   _____ ____  ____
+//	   /   | / ___// __ \/ __ \_________  ________  ______________  _____
+//	  / /| | \__ \/ /_/ / /_/ / ___/ __ \/ ___/ _ \/ ___/ ___/ __ \/ ___/
+//	 / ___ |___/ / ____/ ____/ /  / /_/ / /__/  __(__  |__  ) /_/ / /
+//	/_/  |_/____/_/   /_/   /_/   \____/\___/\___/____/____/\____/_/
+//
+// ==================================================================================================================================
+
+// This class reads and compiles a Clasic ASP file (.asp) to pure JavaScript,
+// along with debug information if required by the IDE, and then executes the
+// generated JavaScript code in node.js.
+
+struct ASP_DEBUG_MAP
+{
+	ASPFile:String;
+	Map:Array<Integer>;
+}
+
+export class ASPProcessor : CocoTimer
+{
+	public var ASP_ROOT:String;
+
+	private var Sessions:Array<ASPSession>;
+
+	private var app:ASPApplication;
+	private var srv:ASPServer;
+	private var global_asa:Function;
+	private var debug:Boolean;
+
+	private const APPLICATION_ONSTART:Integer = 0;
+	private const APPLICATION_ONEND:Integer = 1;
+	private const SESSION_ONSTART:Integer = 2;
+	private const SESSION_ONEND:Integer = 3;
+
+	private var ASP_DEBUG_TABLE:Array<ASP_DEBUG_MAP>;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(ASP_ROOT:String) : CocoTimer(60000)
+	{
+		this.ASP_ROOT = ASP_ROOT;
+		global_asa = null;
+		app	= new ASPApplication();
+		srv	= new ASPServer();
+		Sessions = new Array<ASPSession>;
+		ASP_DEBUG_TABLE = null;
+		debug = true;
+
+		// If we run on iisnode we need to disable debugging
+		__javascript
+		{
+			if(!(global.v8debug && global.v8debug.script_break_points))
+			{
+				__CLASS__ASPPROCESSOR__.__PRIVATE__.debug = false;
+			}
+		}
+		__end
+
+		var path:String = __path.resolve(ASP_ROOT+"/global.asa");
+		if(Coconut2D.FileExists(path))
+		{
+			var jsCode:String = __fs.readFileSync(path, "utf8");
+			jsCode += "\n\nswitch(id)\n";
+			jsCode += "{\n";
+			jsCode += "case 0: return Application_OnStart();\n";
+			jsCode += "case 1: return Application_OnEnd();\n";
+			jsCode += "case 2: return Session_OnStart();\n";
+			jsCode += "case 3: return Session_OnEnd();\n";
+			jsCode += "}\n";
+			global_asa = new Function('id', 'Application', 'Session', jsCode);
+			global_asa(APPLICATION_ONSTART, app, null);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		if(global_asa)
+			global_asa(APPLICATION_ONEND, null, null);
+		delete global_asa;
+		delete app;
+		delete srv;
+		delete ASP_DEBUG_TABLE;
+		delete[] Sessions;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function getSession(Request:NodeJS_Request):ASPSession
+	{
+		var SessionID:String = "";
+		var cookie:String = String(Request.headers["cookie"]);
+		if(cookie!="")
+		{
+			// Get Session ID from cookie
+			var rx:RegExp = new RegExp("SID=([^ ,;]*)");
+			var m:Array<String> = rx.exec(cookie);
+			if(m && m.size()>0)
+				SessionID = m[1];
+		}
+		if(SessionID=="")
+		{
+			// New Session ID
+			var s:Array<String> = new Array<String>;
+			var hexDigits:String = "0123456789abcdef";
+			for(var i:Integer = 0; i<36; i++)
+				s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+			s[14] = "4";
+			s[19] = hexDigits.substr((parseInt(s[19]) & 0x3) | 0x8, 1);
+			SessionID = s.join("");
+			delete s;
+		}
+
+		// Return existing Session
+		for(var i:Integer=Sessions.size()-1; i>=0; i--)
+		{
+			if(Sessions[i].SessionID==SessionID)
+			{
+				Sessions[i].Update();
+				return Sessions[i];
+			}
+		}
+
+		// Return new Session
+		var session:ASPSession = new ASPSession(SessionID);
+		Sessions.push(session);
+		if(global_asa)
+			global_asa(SESSION_ONSTART, app, session);
+
+		return session;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function OnTimer()
+	{
+		// Check for expired sessions
+		for(var i:Integer=Sessions.size()-1; i>=0; i--)
+		{
+			if(Sessions[i].Expired)
+			{
+				delete Sessions[i];
+				Sessions.splice(i, 1);
+			}
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function run(AspFilePath:String, Request:NodeJS_Request, Response:NodeJS_Response)
+	{
+		try
+		{
+			if(!Running)
+			{
+				// If the background timer is not running, we should start it.
+				// This timer checks for expired sessions and destroys them.
+				StartTimer();
+			}
+
+			if(Coconut2D.FileExists(AspFilePath))
+			{
+				var compiledFile:String = __path.resolve(AspFilePath).replace(".asp", "_compiled.js");
+
+				// Read ASP Page
+				var aspCode:String = Coconut2D.ReadFile(AspFilePath);
+
+				// Compile ASP Page (with debug info if required)
+				var curr_asp_file:String = __path.resolve(AspFilePath);
+				var jsCode:String = compile(curr_asp_file, aspCode);
+
+				// Save compiled ASP Page with debug info
+				//__fs.writeFileSync(compiledFile, jsCode);
+
+				// Wrap Node.js Request and Response to ASP Request and Response.
+				var ses:ASPSession 		= getSession(Request);
+				var req:ASPRequest 		= new ASPRequest(Request);
+				var res:ASPResponse 	= new ASPResponse(ses, Response);
+
+				// ** IMPORTANT **
+				//  You can step-in to debug the generated JavaScript ASP code.
+				var f:Function = new Function('Application', 'Server', 'Session', 'Request', 'Response', '__node_req', '__node_res', '__asp_filename__', 'Coconut2D', 'require', jsCode);
+
+				// Set node.js breakpoints on the compiled code:
+				// ==================================================
+				if(debug)
+				{
+					var ASP_DEBUG_TABLE:Array<ASP_DEBUG_MAP> = this.ASP_DEBUG_TABLE;
+					__javascript
+					{
+						// Loop on ASP files (this file and its includes)
+		    			for(var fileIndex=0; fileIndex<ASP_DEBUG_TABLE.length; fileIndex++)
+		    			{
+		    				// Loop on node.js breakpoints and try to find an ASP file
+		    				for(var breakpointIndex=0; breakpointIndex<global.v8debug.script_break_points.length; breakpointIndex++)
+		    				{
+		    					// If a node.js breakpoint is found on one of the ASP files process the lines
+		    					if(global.v8debug.script_break_points[breakpointIndex].script_name_ == ASP_DEBUG_TABLE[fileIndex].ASPFile)
+		    					{
+		    						// Loop on the lines to map source line to compiled line
+		    						for(var srcLineIndex=0; srcLineIndex<ASP_DEBUG_TABLE[fileIndex].Map.length; srcLineIndex+=2)
+		    						{
+		    							// A line is found!
+		    							if(ASP_DEBUG_TABLE[fileIndex].Map[srcLineIndex]==global.v8debug.script_break_points[breakpointIndex].line_)
+		    							{
+		    								// Get the compiled line
+		    								var compiledLineIndex = srcLineIndex+1;
+
+		    								// Set a breakpoint to the anonymous function that contains the combined compiled ASP code
+		    								global.v8debug.Debug.setBreakPoint(f, ASP_DEBUG_TABLE[fileIndex].Map[compiledLineIndex]);
+		    								break;
+		    							}
+		    						}
+		    					}
+		    				}
+		    			}
+					}
+					__end
+				}
+
+				// Execute asp file generated code
+				f.call(this, app, srv, ses, req, res, Request, Response, curr_asp_file, Coconut2D, require);
+
+				// Send the response
+				res.End();
+			}
+			else
+			{
+				// ASP File Not Found
+			}
+		}
+		catch(e:Error)
+		{
+			console.log("Error executing ASP " + AspFilePath + ", " + e.toString());
+			console.log(e.stack);
+			console.trace();
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function compile(ASPFile:String, ASPCode:String):String
+	{
+		// Prepare debug tables
+		if(debug)
+		{
+			if(ASP_DEBUG_TABLE) delete ASP_DEBUG_TABLE;
+			ASP_DEBUG_TABLE = new Array<ASP_DEBUG_MAP>;
+		}
+
+		// Compile ASP code
+		var CompiledLines:Array<String> = new Array<String>;
+		__compile(ASPFile, ASPCode, CompiledLines);
+		var out:String = CompiledLines.join("\n");
+		delete CompiledLines;
+
+		// ASP Hacks
+        __javascript
+        {
+        	// Patch for session/application dictionary direct assignment
+	    	out = out.replace(/Response.End\(\);/mg, "{ Response.End(); return; }");
+	    	out = out.replace(/Response.Redirect/mg, "return Response.Redirect");
+			out = out.replace(/(Session|Application)\(([^)]+)\)\s*\=\s*([^;]+)/mg, "$1.Contents.Add($2,$3);");
+			out = out.replace(/(Session|Application)\(([^)]+)\)/mg, "$1.Contents.Item($2)");
+		}
+        __end
+
+        // Embedd Debug Tables in compiled code
+        if(debug)
+        {
+        	out += "\n//@@__ASP_DEBUG_TABLES_BEGIN__";
+        	for(var i:Integer=0; i<ASP_DEBUG_TABLE.size(); i++)
+        	{
+        		out += "\n//@@__ASP__FILE__:" + ASP_DEBUG_TABLE[i].ASPFile;
+        		out += "\n//@@__ASP__DEBUG_MAP__:" + ASP_DEBUG_TABLE[i].Map.join(",");
+        	}
+        	out += "\n//@@__ASP_DEBUG_TABLES_END__\n";
+        }
+
+	    return out;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __compile(ASPFile:String, Buffer:String, CompiledLines:Array<String>)
+	{
+		var SourceLineIndex:Integer = 0;
+
+		var i:Integer = 0;
+		var j:Integer = 0;
+		var L:Integer = Buffer.size()-1;
+		var ch:Integer;
+		var cn:Integer;
+
+		const CHAR_LT:Integer = 60;
+		const CHAR_GT:Integer = 62;
+		const CHAR_PC:Integer = 37;
+		const CHAR_LF:Integer = 10;
+		const CHAR_CR:Integer = 13;
+		const CHAR_EQ:Integer = 61;
+		const CHAR_EX:Integer = 33;
+
+		var Line:String;
+		var LineStart:Integer = 0;
+		var LineEnd:Integer = 0;
+
+		// Create debug info item
+		var DBG:ASP_DEBUG_MAP;
+		if(debug)
+		{
+			DBG = new ASP_DEBUG_MAP;
+			DBG.ASPFile = ASPFile;
+			DBG.Map = new Array<Integer>;
+			ASP_DEBUG_TABLE.push(DBG);
+		}
+
+		// It is faster to process characters than using
+		// regular expressions (at least with node.js)
+
+		for(;;)
+		{
+			ch = Buffer.charCodeAt(i);		// The current character
+			cn = Buffer.charCodeAt(i+1);	// The next character
+
+			// Check for openning script tag
+			if(ch==CHAR_LT && cn==CHAR_PC)
+			{
+				// Flush the line
+				if(LineEnd>0)
+				{
+					Line = HTML_LINE(Buffer.substr(LineStart, LineEnd));
+					__add_line(SourceLineIndex, Line, DBG, CompiledLines);
+				}
+
+				// Move cursor just after "<%"
+				LineStart = i+2;
+				LineEnd = 0;
+
+				// Process script block until "%>" is found
+				j = i+2;
+				for(;;)
+				{
+					ch = Buffer.charCodeAt(j);
+					cn = Buffer.charCodeAt(j+1);
+
+					// Chceck for closing script tag
+					if(ch==CHAR_PC && cn==CHAR_GT)
+					{
+						// Found closing script tag, flush the line
+						if(LineEnd>0)
+						{
+							Line = Buffer.substr(LineStart, LineEnd);
+
+							// Check for inline response script
+							if(Line.charCodeAt(0)==CHAR_EQ)
+							{
+								Line = "Response.Write(String(" + Line.substr(1) + "));";
+							}
+
+							__add_line(SourceLineIndex, Line, DBG, CompiledLines);
+						}
+
+						j += 2;
+						LineStart = j;
+						LineEnd = 0;
+						break;
+					}
+					else if(ch==CHAR_CR || ch==CHAR_LF)
+					{
+						j++;
+
+						// Comsume the CRLF completely to start fresh new line on next j
+						if(cn==CHAR_CR || cn==CHAR_LF) j++;
+
+						// Flush the line
+						if(LineEnd>0)
+						{
+							Line = Buffer.substr(LineStart, LineEnd);
+							__add_line(SourceLineIndex, Line, DBG, CompiledLines);
+						}
+
+						LineStart = j;
+						LineEnd = 0;
+						SourceLineIndex++;
+					}
+					else
+					{
+						// Consume line character
+						j++;
+						LineEnd++;
+					}
+
+					if(j>=L) break;
+				}
+
+				i = j;
+				if(i>=L) break;
+			}
+
+			// Line end
+			else if(ch==CHAR_CR || ch==CHAR_LF)
+			{
+				i++;
+				if(cn==CHAR_CR || cn==CHAR_LF) i++;
+
+				// Flush the line
+				if(LineEnd>0)
+				{
+					Line = Buffer.substr(LineStart, LineEnd);
+
+					// Check if this line is an include file
+					if(Line.indexOf("<!--#include ")!=-1)
+					{
+						// Process include file
+						var Include:String = Line.substr(Line.indexOf("\x22")+1);
+						Include = Include.substr(0,Include.indexOf("\x22"));
+						Include = __path.resolve(Include);
+
+						// Recursively compile the include file (and its includes)
+						// but output the compiled lines on the global buffer.
+						__compile(Include, Coconut2D.ReadFile(Include), CompiledLines);
+					}
+					else
+					{
+						// Process HTML line
+						Line = HTML_LINE(Line, true);
+						__add_line(SourceLineIndex, Line, DBG, CompiledLines);
+					}
+				}
+
+				LineStart = i;
+				LineEnd = 0;
+				SourceLineIndex++;
+			}
+			else
+			{
+				// Consume line character
+				i++;
+				LineEnd++;
+			}
+
+			if(i>=L) break;
+		}
+
+		// ++ Remember to flush the last line! ++
+		if(LineEnd>0)
+		{
+			Line = HTML_LINE(Buffer.substr(LineStart, L+1));
+			__add_line(SourceLineIndex, Line, DBG, CompiledLines);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __add_line(SourceLineIndex:Integer, Line:String, DBG:ASP_DEBUG_MAP, CompiledLines:Array<String>)
+	{
+		// Node.js v4.2.1 injects in "new Function" an empty comment at the end of ths signature.
+		//
+		// Consider the following code:
+		// ----------------------------
+		//
+		// var f = new Function('Application', 'Server', 'Session', 'Request', 'Response', '__node_req', '__node_res', '__asp_filename__', jsCode);
+		//
+		// The function script becomes:
+		// ----------------------------
+		//
+		// (function(Application,Server,Session,Request,Response,__node_req,__node_res,__asp_filename__
+		// /**/) {
+		//
+		// In order to align the compiled and source lines properly we need to apply an error correction offset.
+		// For node.js v4.2.1 the error correction is 2
+
+		if(debug)
+		{
+			DBG.Map.push(SourceLineIndex);
+			DBG.Map.push(CompiledLines.size()+2);
+		}
+		CompiledLines.push(Line);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function HTML_LINE(Line:String, optional LF:Boolean):String
+	{
+		// This is an HTML line, wrap it in Response.Write()
+        __javascript
+        {
+            Line = Line.replace(/\x5c/mg, "\\\\");
+            Line = Line.replace(/\x22/mg,  '\\"');
+            Line = Line.replace(/\t/mg, "    ");
+        }
+        __end
+
+        return "Response.Write(String(\"" + Line + "\"));";
+	}
+}

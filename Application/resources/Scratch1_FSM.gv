@@ -1,0 +1,109 @@
+digraph finite_state_machine {
+
+	rankdir = LR;
+	pad = 0.1;
+	xbgcolor="transparent";
+
+	graph [label="Scratch Client Game Engine FSM (with UI Handling Shared State)", labelloc=t, fontname=Arial, fontsize=30];
+	edge [concentrate=false];
+
+	node [shape = doublecircle fixedsize=true height=0.8 fontname=Verdana fontsize=9]; "Start", "Fatal\nError", "Begin\nActions",  "Finish\nActions", "Return\nto\nLobby";
+	node [shape = circle fixedsize=true height=0.8 fontname=Verdana fontsize=9];
+
+	"Load\nAssets", "Load\nGame", "Get\nTicket\nAsync", "Wait\nTicket"
+	[fillcolor="#B4D3FF" style=filled color="#054ED9"];
+
+	"Title\nScene", "Wait\nfor\nBet", "Handle\nUI Input", "Display\nHelp", "Display\nLines", "Display\nMenu", "Display\nSymbol", "Wait\nfor\nScratch"
+	[fillcolor="#C7FFC2" style=filled color="#036D0B"];
+
+	"Intro\nScene", "Display\nLines", "Display\nSymbol"
+	[fillcolor="#C7FFC2" style="filled,dotted" color="#036D0B"];
+
+	"Fatal\nError"
+	[color=red fillcolor="#FFB5B4" style=filled]
+
+	"Begin\nActions", "Animate\nNext\nAction", "Finish\nActions", "Update\nBalance", "Reveal\nOne"
+	[fillcolor="#FFE785" style=filled color="#036D0B"];
+
+	"Reveal\nAll"
+	[fillcolor="#FFE785" style="filled,dotted" color="#036D0B"];
+
+	"Auto\nScratch\nToggle", "Next\nAuto\nScratch"
+	[fillcolor="#F3B7FF" style=filled color="#8C05CC"];
+
+	"Start" 					-> 		"Load\nGame"				[label="Operator Data\n(UserTokenID)" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+
+	{ rank=same "Load\nGame", "Load\nAssets", "Intro\nScene", "Title\nScene"};
+
+	"Load\nGame" 				-> 		"Load\nAssets"
+	"Load\nGame" 				-> 		"Load\nGame" 				[label="Retry" fontname=Verdana fontsize=9]
+	"Load\nGame" 				-> 		"Fatal\nError" 				[weight=10 label="Error" fontname=Verdana fontsize=9 fontcolor="#ff0000" color="#ff0000"];
+
+	"Load\nAssets" 				-> 		"Load\nAssets" 				[label="Retry" fontname=Verdana fontsize=9]
+	"Load\nAssets" 				-> 		"Intro\nScene"
+	"Load\nAssets" 				-> 		"Fatal\nError" 				[weight=10 label="Error" fontname=Verdana fontsize=9 fontcolor="#ff0000" color="#ff0000"];
+
+	"Intro\nScene" 				-> 		"Title\nScene" 				[label="[Skip Video]" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Title\nScene" 				-> 		"Board\nScene"	 			[weight=10 label="[Play]" labelloc="Bottom" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+
+	"Board\nScene" 				-> 		"Wait\nfor\nBet"			[weight=10]
+
+	{ rank=same "Wait\nfor\nBet", "Auto\nScratch\nToggle" };
+
+	"Wait\nfor\nBet"			->		"Handle\nUI Input"			[weight=90 dir="both" label="(Wait for Bet Tick calls Handle UI Input)" style="dotted" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nBet"			-> 		"Get\nTicket\nAsync" 		[weight=100 label=<<B>[Play Button]</B>> fontname=Verdana fontsize=13 style="bold" fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nBet"			->		"Auto\nScratch\nToggle"		[label="\n\n[Auto Scratch Switch]" dir="both" fontname=Verdana fontsize=13 fontcolor="#036D0B" color="#036D0B"];
+
+	{ rank=same "Display\nMenu", "Display\nHelp", "Display\nLines", "Display\nSymbol", "Toggle\nAudio"};
+
+	"Handle\nUI Input"			-> 		"Display\nMenu"				[label="[Menu Button]\n(Timeout)" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Handle\nUI Input"			-> 		"Display\nHelp" 			[label="[Help Button]\n[Close Button]" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Handle\nUI Input"			-> 		"Display\nLines"			[label="[Line Indicator Button]\n(Timeout)" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Handle\nUI Input"			-> 		"Display\nSymbol"			[label="\n\n[Symbol Button]\n(Timeout)" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Handle\nUI Input"			->		"Toggle\nAudio"				[label="\n\n[Audio Toggle Button]\n(Timeout)" dir="both" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Handle\nUI Input"			->		"Return\nto\nLobby"			[label="[Home Button]" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+
+	"Get\nTicket\nAsync" 		-> 		"Fatal\nError" 				[label="Error" fontname=Verdana fontsize=9 fontcolor="#ff0000" color="#ff0000"];
+	"Get\nTicket\nAsync"		->		"Wait\nTicket"				[weight=100]
+
+	"Wait\nTicket" 				-> 		"Wait\nTicket" 				[label="Wait Server\nRetry" labelloc="b" fontname=Verdana fontsize=9];
+	"Wait\nTicket" 				-> 		"Fatal\nError" 				[label="Error" fontname=Verdana fontsize=9 fontcolor="#ff0000" color="#ff0000"];
+	"Wait\nTicket" 				-> 		"Begin\nActions"			[label="Ticket Actions\nReceived" fontname=Verdana fontsize=9];
+
+	"Begin\nActions" 			-> 		"Animate\nNext\nAction" 	[weight=1000 color="#A903A3"];
+	"Animate\nNext\nAction" 	-> 		"Animate\nNext\nAction" 	[color="#A903A3" label="Repeat" fontname=Verdana fontsize=9];
+	"Update\nBalance"			->		"Animate\nNext\nAction"		[label="Next Action" fontname=Verdana fontsize=9 fontcolor="#A903A3" color="#A903A3" style="dotted"];
+	"Update\nBalance" 			->		"Finish\nActions"			[color="#A903A3"];
+
+	{ rank=same "Wait\nfor\nScratch", "Big\nWin", "Mega\nWin", "Win", "Free\nScratch\nAward", "Free\nScratch\nWin", "Lose" };
+
+	"Animate\nNext\nAction"		-> 		"Wait\nfor\nScratch"
+	"Animate\nNext\nAction"		-> 		"Big\nWin"
+	"Animate\nNext\nAction"		-> 		"Mega\nWin"
+	"Animate\nNext\nAction"		-> 		"Win"
+	"Animate\nNext\nAction"		-> 		"Lose"
+	"Animate\nNext\nAction"		-> 		"Free\nScratch\nAward"
+	"Animate\nNext\nAction"		-> 		"Free\nScratch\nWin"
+
+	{ rank=same "Reveal\nOne", "Reveal\nAll"};
+
+	"Wait\nfor\nScratch"		->		"Handle\nUI Input"			[dir="both" label="Wait for Scratch Tick/\ncalls Handle UI Input" style="dotted" fontname=Verdana fontsize=9 fontcolor="#036D0B" color="#036D0B"];
+	"Wait\nfor\nScratch"		->		"Reveal\nOne"
+	"Wait\nfor\nScratch"		->		"Reveal\nAll"
+
+	"Reveal\nOne"				-> 		"Update\nBalance"
+	"Reveal\nAll"				-> 		"Update\nBalance"
+	"Big\nWin"					-> 		"Update\nBalance"
+	"Mega\nWin"                 -> 		"Update\nBalance"
+	"Win"                       -> 		"Update\nBalance"
+	"Free\nScratch\nAward"     	-> 		"Update\nBalance"
+	"Free\nScratch\nWin"		-> 		"Update\nBalance"
+	"Lose"                      -> 		"Update\nBalance"			[weight=1000]
+
+	"Finish\nActions" 			->		"Next\nAuto\nScratch"		[weight=100 color="#A903A3"];
+
+	"Next\nAuto\nScratch"		-> 		"Get\nTicket\nAsync" 		[color="#A903A3" label="Remaining Auto Scratches" fontname=Verdana fontsize=9];
+	"Next\nAuto\nScratch"		-> 		"Wait\nfor\nBet" 			[color="#A903A3" label="No Auto Scratches" fontname=Verdana fontsize=9];
+
+	"Fatal\nError" 				-> 		"Return\nto\nLobby"
+}

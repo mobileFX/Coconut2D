@@ -55,11 +55,8 @@ path $(TARGET_ROOT)/obj
 # Load gdb scripts for STL (string, vector, map, etc.)
 source $(PATH_SDK_DEBUGGER)/stl-views-1.0.3.gdb
 
-# List of source code files
-dir $(PATH_SDK_COMMON)
-dir $(PATH_SDK_FRAMEWORKS)
-dir $(PATH_SDK_INCLUDES)
-dir $(PROJECT_PATHS.NATIVE_COMMON)
+# List of sources and includes
+$(PATH_SDK_INCLUDES)
 dir $(TARGET_ROOT)/jni/src
 dir $(PATH_3RD_PARTY_ANDROID_NDK)/sources/android/native_app_glue
 dir $(PATH_3RD_PARTY_ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.8/include

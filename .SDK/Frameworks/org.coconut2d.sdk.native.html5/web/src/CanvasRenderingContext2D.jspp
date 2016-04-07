@@ -1,0 +1,879 @@
+﻿#pragma export_native;
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+
+// ==================================================================================================================================
+//	   ______                            ____                 __          _             ______            __            __ ___   ____
+//	  / ____/___ _____ _   ______ ______/ __ \___  ____  ____/ /__  _____(_)___  ____ _/ ____/___  ____  / /____  _  __/ /|__ \ / __ \
+//	 / /   / __ `/ __ \ | / / __ `/ ___/ /_/ / _ \/ __ \/ __  / _ \/ ___/ / __ \/ __ `/ /   / __ \/ __ \/ __/ _ \| |/_/ __/_/ // / / /
+//	/ /___/ /_/ / / / / |/ / /_/ (__  ) _, _/  __/ / / / /_/ /  __/ /  / / / / / /_/ / /___/ /_/ / / / / /_/  __/>  </ /_/ __// /_/ /
+//	\____/\__,_/_/ /_/|___/\__,_/____/_/ |_|\___/_/ /_/\__,_/\___/_/  /_/_/ /_/\__, /\____/\____/_/ /_/\__/\___/_/|_|\__/____/_____/
+//	                                                                          /____/
+// ==================================================================================================================================
+// http://www.w3.org/TR/2dcontext/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class PathLine
+{
+	public var x0:Float;
+	public var y0:Float;
+	public var x1:Float;
+	public var y1:Float;
+
+	public function Constructor(_x0:Float, _y0:Float, _x1:Float, _y1:Float)
+	{
+		x0 = _x0;
+		y0 = _y0;
+		x1 = _x1;
+		y1 = _y1;
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLCanvasPattern
+{
+	public function Constructor()
+	{
+	}
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLCanvasGradient
+{
+	public function Constructor()
+	{
+	}
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLTextMetrics
+{
+	public var width:Float;
+	public function Constructor()
+	{
+		width=0.0;
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CanvasRenderingContext2D
+{
+	public reference var canvas:HTMLCanvasElement;
+
+	public const DRAWWINDOW_DRAW_CARET:Integer			= 0x01;	// Show the caret if appropriate when drawing.
+	public const DRAWWINDOW_DO_NOT_FLUSH:Integer		= 0x02;	// Do not flush pending layout notifications that could otherwise be batched up.
+	public const DRAWWINDOW_DRAW_VIEW:Integer			= 0x04;	// Draw scrollbars and scroll the viewport if they are present.
+	public const DRAWWINDOW_USE_WIDGET_LAYERS:Integer	= 0x08;	// Use the widget layer manager if available. This means hardware acceleration may be used, but it might actually be slower or lower quality than normal. It will, however, more accurately reflect the pixels rendered to the screen.
+	public const DRAWWINDOW_ASYNC_DECODE_IMAGES:Integer	= 0x10;	// Do not synchronously decode images - draw what we have.
+
+	public var globalAlpha:Float;						// Alpha value that is applied to shapes and images before they are composited onto the canvas. Default 1.0 (opaque).
+	public var lineCap:String;							// Type of endings on the end of lines. Possible values: butt (default), round, square
+	public var lineDashOffset:Float;					// Specifies where to start a dasharray on a line.
+	public var lineJoin:String;							// Defines the type of corners where two lines meet. Possible values: round, bevel, miter (default)
+	public var miterLimit:Float;						// Default 10.
+	public var shadowBlur:Float;						// Specifies the blurring effect. Default 0
+	public var shadowColor:String;						// Color of the shadow. Default fully-transparent black.
+	public var shadowOffsetX:Float;						// Horizontal distance the shadow will be offset. Default 0.
+	public var shadowOffsetY:Float;						// Vertical distance the shadow will be offset. Default 0.
+	public var textAlign:String;						// ossible values: start (default), end, left, right or center.
+	public var textBaseline:String;						// Possible values: top, hanging, middle, alphabetic (default), ideographic, bottom
+	public var globalCompositeOperation:String;			// With globalAlpha applied this sets how shapes and images are drawn onto the existing bitmap. Possible values: "source-atop", "source-in", "source-out", "source-over", "destination-atop", "destination-in", "destination-out", "destination-over", "lighter", "darker", "copy", "xor"
+ 	public var imageSmoothingEnabled:Boolean;
+ 	public var webkitImageSmoothingEnabled:Boolean;
+ 	public var oImageSmoothingEnabled:Boolean;
+ 	public var mozImageSmoothingEnabled:Boolean;
+
+	private var __lineWidth:Float;
+	private var __fillStyle:String;
+	private var __fillColor:Array<Float>;
+	private var __strokeStyle:String;
+	private var __strokeColor:Array<Float>;
+	private var __fontSetting:String;
+	private var __font:CocoFont;
+	private var __curX:Float;
+	private var __curY:Float;
+	private var __pathLines:Array<PathLine>;
+
+	private var __m11:Float;
+	private var __m12:Float;
+	private var __m21:Float;
+	private var __m22:Float;
+	private var __dx:Float;
+	private var __dy:Float;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(canvas:HTMLCanvasElement)
+	{
+		globalAlpha	= 0.0;
+		lineCap = "";
+		lineDashOffset = 0.0;
+		lineJoin = "";
+		miterLimit = 0.0;
+		shadowBlur = 0.0;
+		shadowColor = "";
+		shadowOffsetX = 0.0;
+		shadowOffsetY = 0.0;
+		textAlign = "";
+		textBaseline = "";
+		globalCompositeOperation = "";
+		imageSmoothingEnabled=true;
+		webkitImageSmoothingEnabled=true;
+		mozImageSmoothingEnabled=true;
+		oImageSmoothingEnabled=true;
+
+		__font = null;
+		__curX = 0.0;
+		__curY = 0.0;
+
+		__fillColor = new Array<Float>;
+		__fillColor.push(0.0);
+		__fillColor.push(0.0);
+		__fillColor.push(0.0);
+		__fillColor.push(1.0);
+
+		__strokeColor = new Array<Float>;
+		__strokeColor.push(0.0);
+		__strokeColor.push(0.0);
+		__strokeColor.push(0.0);
+		__strokeColor.push(1.0);
+
+		__pathLines = new Array<PathLine>;
+
+		 __lineWidth = 0.0;
+		 __fillStyle = "";
+		 __strokeStyle = "";
+		 __fontSetting = "";
+		 __font = null;
+		 __curX = 0.0;
+		 __curY = 0.0;
+		 __m11 = 0.0;
+		 __m12 = 0.0;
+		 __m21 = 0.0;
+		 __m22 = 0.0;
+		 __dx = 0.0;
+		 __dy = 0.0;
+
+		this.canvas = canvas;
+		this.canvas.__imageData = new ImageData(String(canvas.width), String(canvas.height));
+		setTransform(1,0,0,1,0,0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete __strokeColor;
+		delete __fillColor;
+		delete __pathLines;
+		delete __font;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+    //public function createImageData(imagedata:Imagedata):ImageData
+	public function clip()                                                                                                  {}
+	public function closePath()                                                                                             {}
+	public function createPattern(image:Image, repetition:String):HTMLCanvasPattern											{ return null; }
+	public function drawCustomFocusRing(element:HTMLElement):Boolean														{ return false; }
+	public function drawSystemFocusRing(element:HTMLElement)																{}
+	public function getLineDash()																							{}
+	public function isPointInPath(x:Float, y:Float):Boolean																	{ return false; }
+	public function isPointInStroke(x:Float, y:Float):Boolean																{ return false; }
+	public function scrollPathIntoView()                                                                                    {}
+	public function setLineDash(segments:Array<Float>)                                                                      {}
+	public function strokeRect(x:Float, y:Float, w:Float, h:Float)                                                          {}
+	public function strokeText(text:String, x:Float, y:Float, optional maxWidth:Float)                                      {}
+
+	public function restore()                                                                                               {}
+	public function save()                                                                                                  {}
+
+	public function scale(x:Float, y:Float)                                                                                 {}
+	public function translate(x:Float, y:Float)                                                                             {}
+	public function rotate(angle:Float)                                                                                     {}
+
+	public function createLinearGradient(x0:Float, y0:Float, x1:Float, y1:Float):HTMLCanvasGradient							{ return null; }
+	public function createRadialGradient(x0:Float, y0:Float, r0:Float, x1:Float, y1:Float, r1:Float):HTMLCanvasGradient		{ return null; }
+
+	public function arc(x:Float, y:Float, radius:Float, startAngle:Float, endAngle:Float, optional anticlockwise:Boolean)	{}
+	public function arcTo(x1:Float, y1:Float, x2:Float, y2:Float, radius:Float)                                             {}
+	public function bezierCurveTo(cp1x:Float, cp1y:Float, cp2x:Float, cp2y:Float, x:Float, y:Float)                         {}
+	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float)                                                {}
+	public function rect(x:Float, y:Float, width:Float, height:Float)                                                       {}
+	public function fill()                                                     												{}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)
+	{
+		__m11 = 1;
+		__m12 = 0;
+		__m21 = 0;
+		__m22 = 1;
+		__dx = 0;
+		__dy = 0;
+
+		transform(m11,m12,m21,m22,dx,dy);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function transform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)
+	{
+		var t11:Float = __m11 * m11 + __m21 * m12;
+		var t21:Float = __m11 * m21 + __m21 * m22;
+		var t12:Float = __m12 * m11 + __m22 * m12;
+		var t22:Float = __m12 * m21 + __m22 * m22;
+		var tdx:Float = __m11 * dx + __m21 * dy + __dx;
+		var tdy:Float = __m12 * dx + __m22 * dy + __dy;
+		__m11 = t11;
+		__m12 = t12;
+		__m21 = t21;
+		__m22 = t22;
+		__dx = tdx;
+		__dy = tdy;
+	}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function beginPath()
+	{
+		__pathLines.clear();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function moveTo(x:Float, y:Float)
+	{
+		__curX = x;
+		__curY = y;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function lineTo(x:Float, y:Float)
+	{
+		__pathLines.push(new PathLine(__curX, __curY, x, y));
+		moveTo(x, y);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function stroke()
+	{
+		var l0:Integer = Math.floor(-0.5 * lineWidth);
+		var l1:Integer = Math.floor(0.5 * lineWidth);
+		var data:Uint8Array = canvas.__imageData.data;
+
+		for(var i:Integer = __pathLines.size(); i--;)
+		{
+			var x0:Integer = Math.floor(Math.max(0, Math.min(canvas.width, __pathLines[i].x0)));
+			var y0:Integer = Math.floor(Math.max(0, Math.min(canvas.height, __pathLines[i].y0)));
+			var x1:Integer = Math.floor(Math.max(0, Math.min(canvas.width, __pathLines[i].x1)));
+			var y1:Integer = Math.floor(Math.max(0, Math.min(canvas.height, __pathLines[i].y1)));
+			var t:Integer;
+
+			if(x0 > x1)
+			{
+				t = x0;
+				x0 = x1;
+				x1 = t;
+			}
+
+			if(y0 > y1)
+			{
+				t = y0;
+				y0 = y1;
+				y1 = t;
+			}
+
+			if(x0 == x1 && y0 == y1)
+			{
+				/*
+				t = (y0 * canvas.width + x0) * 4;
+				canvas.__imageData.data[t + 0] += 255.0 * __strokeColor[0] * __strokeColor[3] - canvas.__imageData.data[t + 0] * __strokeColor[3];
+				canvas.__imageData.data[t + 1] += 255.0 * __strokeColor[1] * __strokeColor[3] - canvas.__imageData.data[t + 1] * __strokeColor[3];
+				canvas.__imageData.data[t + 2] += 255.0 * __strokeColor[2] * __strokeColor[3] - canvas.__imageData.data[t + 2] * __strokeColor[3];
+				canvas.__imageData.data[t + 3] += 255.0 * __strokeColor[3] * __strokeColor[3] - canvas.__imageData.data[t + 3] * __strokeColor[3];
+				*/
+			}
+
+			else if(x0 == x1)
+			{
+				for(var y:Integer = y0; y < y1; y++)
+				{
+					for(var l:Integer = l0; l < l1; l++)
+					{
+						t = (y * Integer(canvas.width) + x0 + l) * 4;
+						if(t < data.length)
+						{
+							data[t + 0] += 255.0 * __strokeColor[0] * __strokeColor[3] - Float(data[t + 0]) * __strokeColor[3];
+							data[t + 1] += 255.0 * __strokeColor[1] * __strokeColor[3] - Float(data[t + 1]) * __strokeColor[3];
+							data[t + 2] += 255.0 * __strokeColor[2] * __strokeColor[3] - Float(data[t + 2]) * __strokeColor[3];
+							data[t + 3] += 255.0 * __strokeColor[3] * __strokeColor[3] - Float(data[t + 3]) * __strokeColor[3];
+						}
+					}
+				}
+			}
+			else if(y0 == y1)
+			{
+				for(var x:Integer = x0; x < x1; x++)
+				{
+					for(var l:Integer = l0; l < l1; l++)
+					{
+						t = ((y0 + l) * Integer(canvas.width) + x) * 4;
+						if(t < canvas.__imageData.data.length)
+						{
+							data[t + 0] += 255.0 * __strokeColor[0] * __strokeColor[3] - Float(data[t + 0]) * __strokeColor[3];
+							data[t + 1] += 255.0 * __strokeColor[1] * __strokeColor[3] - Float(data[t + 1]) * __strokeColor[3];
+							data[t + 2] += 255.0 * __strokeColor[2] * __strokeColor[3] - Float(data[t + 2]) * __strokeColor[3];
+							data[t + 3] += 255.0 * __strokeColor[3] * __strokeColor[3] - Float(data[t + 3]) * __strokeColor[3];
+						}
+					}
+				}
+			}
+			else
+			{
+				// Only vertical/horizontal lines for now
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property fillStyle
+	{
+		function get():String
+		{
+			return __fillStyle;
+		}
+
+		function set(v:String)
+		{
+			if(v.indexOf("rgba")) return;
+			var str:String = v.substr(v.indexOf("(") + 1);
+			str = str.substr(0, str.indexOf(")"));
+			var arr:Array<String> = str.split(",");
+			if(arr.size() != 4) return;
+			__fillColor[0] = parseFloat(arr[0]) / 255.0;
+			__fillColor[1] = parseFloat(arr[1]) / 255.0;
+			__fillColor[2] = parseFloat(arr[2]) / 255.0;
+			__fillColor[3] = parseFloat(arr[3]);
+			__fillStyle = v;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property strokeStyle
+	{
+		function get():String
+		{
+			return __strokeStyle;
+		}
+
+		function set(v:String)
+		{
+			if(v.indexOf("rgba")) return;
+			var str:String = v.substr(v.indexOf("(") + 1);
+			str = str.substr(0, str.indexOf(")"));
+			var arr:Array<String> = str.split(",");
+			if(arr.size() != 4) return;
+			__strokeColor[0] = parseFloat(arr[0]) / 255.0;
+			__strokeColor[1] = parseFloat(arr[1]) / 255.0;
+			__strokeColor[2] = parseFloat(arr[2]) / 255.0;
+			__strokeColor[3] = parseFloat(arr[3]);
+			__strokeStyle = v;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property lineWidth
+	{
+		function get():Float
+		{
+			return __lineWidth;
+		}
+		function set(v:Float)
+		{
+			if(v >= 1.0)
+				__lineWidth = v;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property font
+	{
+		// font-style font-variant font-weight font-size/line-height font-family
+
+		function get():String
+		{
+			return __fontSetting;
+		}
+
+		function set(v:String)
+		{
+			var spl:Array<String> = v.split(" ");
+			var fontStyle:String = "normal";
+			var fontVariant:String = "normal";
+			var fontWeight:String = "normal";
+			var fontSize:String = "medium";
+			var lineHeight:String = "normal";
+			var fontFamily:String = "Arial";
+			var s:Integer = 0;
+			var str:String;
+			for(var i:Integer = 0; i < spl.size(); i++)
+			{
+				str = spl[i];
+				if(!str) continue;
+				switch(s)
+				{
+					case 3:
+					{
+						var idx:Integer = str.indexOf("/");
+						if(idx != -1)
+						{
+                            fontSize = str.substr(0, idx);
+							var lh:String = str.substr(idx + 1);
+							if(lh)
+							{
+								lineHeight = lh;
+								s++;
+							}
+						}
+						else
+							fontSize = str;
+						s++;
+						break;
+					}
+					case 4:
+					{
+						var idx:Integer = str.indexOf("/");
+						if(idx != -1)
+						{
+							var lh:String = str.substr(idx + 1);
+							if(lh)
+							{
+								lineHeight = lh;
+								s++;
+							}
+						}
+						else
+						{
+							fontFamily = spl.slice(i).join("");
+							i = spl.size();
+						}
+						s++;
+						break;
+					}
+					case 5:
+					{
+						fontFamily = spl.slice(i + 1).join("");
+						i = spl.size();
+						break;
+					}
+					default:
+					{
+						if(str == "inherit")
+						{
+							// We don't support inherit
+							return;
+						}
+						else if(str == "normal")
+						{
+							switch(s)
+							{
+								case 0: s++; break;
+								case 1: s++; break;
+								case 2: s++; break;
+								case 4: s++; break;
+								default: return;
+							}
+						}
+						else if(str == "italic" || str == "oblique")
+						{
+							switch(s)
+							{
+								case 0: fontStyle = str; s = 1; break;
+								default: return;
+							}
+						}
+						else if(str == "small-caps")
+						{
+							switch(s)
+							{
+								case 0: fontVariant = str; s = 2; break;
+								case 1: fontVariant = str; s = 2; break;
+								default: return;
+							}
+						}
+						else if(str == "bold" || str == "bolder" || str == "lighter" || str == "100" || str == "200" || str == "300" || str == "400" || str == "500" || str == "600" || str == "700" || str == "800" || str == "900")
+						{
+							switch(s)
+							{
+								case 1: fontWeight = str; s = 3; break;
+								case 2: fontWeight = str; s = 3; break;
+								default: return;
+							}
+						}
+					}
+				}
+			}
+			var fontSizeInPixels:Float;
+			if(fontSize == "xx-small") fontSizeInPixels = 9;
+			else if(fontSize == "x-small") fontSizeInPixels = 10;
+			else if(fontSize == "small") fontSizeInPixels = 13;
+			else if(fontSize == "medium") fontSizeInPixels = 16;
+			else if(fontSize == "large") fontSizeInPixels = 18;
+			else if(fontSize == "x-large") fontSizeInPixels = 24;
+			else if(fontSize == "xx-large") fontSizeInPixels = 32;
+			else if(fontSize == "smaller") fontSizeInPixels = 13;
+			else if(fontSize == "larger") fontSizeInPixels = 18;
+			else
+			{
+				if(fontSize.indexOf("px") != -1)
+				{
+					fontSizeInPixels = parseFloat(fontSize);
+				}
+				else if(fontSize.indexOf("in") != -1)
+				{
+					fontSizeInPixels = parseFloat(fontSize) * engine.device.pixelRatio * 160.0;
+				}
+				else if(fontSize.indexOf("cm") != -1)
+				{
+					fontSizeInPixels = parseFloat(fontSize) * engine.device.pixelRatio * 160.0 / 2.54;
+				}
+				else
+					return;
+			}
+           	__fontSetting = v;
+           	__font = new CocoFont(fontFamily, Math.round(fontSizeInPixels), fontWeight == "bold", fontStyle == "italic" || fontStyle == "oblique");
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function fillText(text:String, x:Float, y:Float)
+	{
+		if(__font)
+			__font.fillText(canvas.__imageData.data.buffer, canvas.__imageData.width, text, x, y, __fillColor[0], __fillColor[1], __fillColor[2], __fillColor[3]);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function fillRect(x:Float, y:Float, width:Float, height:Float)
+	{
+		var _x:Integer = Math.floor(x);
+		var _y:Integer = Math.floor(y);
+		var data:Uint8Array = canvas.__imageData.data;
+		for(var ix:Integer = 0; ix < width; ix++)
+		{
+			for(var iy:Integer = 0; iy < height; iy++)
+			{
+				var idx:Integer = ((_y + iy) * canvas.__imageData.width + _x + ix) * 4;
+				if(idx < canvas.__imageData.data.length)
+				{
+					data[idx + 0] += 255.0 * __fillColor[0] * __fillColor[3] - Float(data[idx + 0]) * __fillColor[3];
+					data[idx + 1] += 255.0 * __fillColor[1] * __fillColor[3] - Float(data[idx + 1]) * __fillColor[3];
+					data[idx + 2] += 255.0 * __fillColor[2] * __fillColor[3] - Float(data[idx + 2]) * __fillColor[3];
+					data[idx + 3] += 255.0 * __fillColor[3] - Float(data[idx + 3]) * __fillColor[3];
+				}
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function clearRect(x:Float, y:Float, width:Float, height:Float)
+	{
+		var _x:Integer = Math.floor(x);
+		var _y:Integer = Math.floor(y);
+		for(var ix:Integer = 0; ix < width; ix++)
+			for(var iy:Integer = 0; iy < height; iy++)
+			{
+				var idx:Integer = (_y + iy) * canvas.__imageData.width + _x + ix;
+				if(idx < canvas.__imageData.data.length)
+					canvas.__imageData.data[idx] = 0;
+			}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function measureText(text:String):HTMLTextMetrics
+	{
+		var ret:HTMLTextMetrics = new HTMLTextMetrics;
+		ret.width = __font.measureText(text);
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)
+	{
+		drawImageNearestNeighbour(image, sx, sy, sw, sh, dx, dy, dw, dh, false);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:Image, dx:Float, dy:Float)
+	{
+		drawImage(image, 0.0, 0.0, image.naturalWidth, image.naturalHeight, dx, dy, image.naturalWidth, image.naturalHeight);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:Image, dx:Float, dy:Float, dw:Float, dh:Float)
+	{
+		drawImage(image, 0.0, 0.0, image.naturalWidth, image.naturalHeight, dx, dy, dw, dh);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:HTMLCanvasElement, dx:Float, dy:Float, dw:Float, dh:Float)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImageNearestNeighbour(image:Image, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float, blend:Boolean)
+	{
+		// The pixels are arranged in row-major order, and are represented as integers between 0 and 255,
+		// where each four-integer group represents the four color channels of one pixel: red, green, blue, and alpha (RGBA).
+
+		// Get source and destination pixel arrays
+		var srcPixels:Uint8Array = image.__imageData.data;
+		var dstPixels:Uint8Array = canvas.__imageData.data;
+
+		// Round passed rectangles
+		dx = Math.round(dx);
+		dy = Math.round(dy);
+		dw = Math.round(dw);
+		dh = Math.round(dh);
+
+		sx = Math.round(sx);
+		sy = Math.round(sy);
+		sw = Math.round(sw);
+		sh = Math.round(sh);
+
+		// Calculate max destination x,y
+		var maxDx:Integer = dx + dw;
+		var maxDy:Integer = dy + dh;
+
+		// Index variables
+		var srcIndex:Integer;
+		var dstIndex:Integer;
+
+		// Loop control variables
+		var x:Integer;
+		var y:Integer;
+
+		// Source and destination scanline
+		var srcW:Integer = image.naturalWidth;
+		var dstW:Integer = canvas.__imageData.width;
+
+		// Source and destination array lengths
+		var srcLength:Integer = image.__imageData.data.length;
+		var dstLength:Integer = canvas.__imageData.data.length;
+
+		// Calculate scale x,y factors
+		var scaleX:Float = sw / dw;
+		var scaleY:Float = sh / dh;
+
+		// Projection of x,y destination pixel to source pixel
+		var srcX:Integer;
+		var srcY:Integer;
+		var dstX:Integer;
+		var dstY:Integer;
+
+		// Channels (RGBA)
+		var channels:Integer = 4;
+
+		// Source and Destingation Pixel Components
+		var src_R:Integer;
+		var src_G:Integer;
+		var src_B:Integer;
+		var src_A:Integer;
+
+		var dst_R:Integer;
+		var dst_G:Integer;
+		var dst_B:Integer;
+		var dst_A:Integer;
+
+		var one_minus_src_A:Integer;
+		var one_over_255:Float = 0.003922; //Math.round(1.0/255.0, 6);
+
+		// == We loop on destination pixels so that we fill them all ==
+
+		for(y=dy; y<maxDy; y++)
+		{
+			for(x=dx; x<maxDx; x++)
+			{
+				// Calculate the destination pixel (x,y) taking into
+				// account the transformation matrix of the canvas.
+
+				dstX = Math.round(__m11 * x + __m21 * y + __dx);
+				dstY = Math.round(__m12 * x + __m22 * y + __dy);
+
+				// Calculate the source pixel taking into account the
+				// scale between the source and destination areas.
+
+				srcX = Math.round(sx + (x-dx) * scaleX);
+				srcY = Math.round(sy + (y-dy) * scaleY);
+
+				// Calculate the source and destination pixel array index
+				dstIndex = channels * (dstY * dstW + dstX);
+				srcIndex = channels * (srcY * srcW + srcX);
+
+				// Bounds Sanity Check and Transfer Filters
+				if(dstIndex>=0 && dstIndex<dstLength && srcIndex>=0 && srcIndex<srcLength)
+				{
+
+					if(blend)
+					{
+						// Get source pixels
+						src_R = srcPixels[srcIndex + 0];
+						src_G = srcPixels[srcIndex + 1];
+						src_B = srcPixels[srcIndex + 2];
+						src_A = srcPixels[srcIndex + 3];
+
+						// Get existing destination pixels (for blending)
+						dst_R = dstPixels[dstIndex + 0];
+						dst_G = dstPixels[dstIndex + 1];
+						dst_B = dstPixels[dstIndex + 2];
+						dst_A = dstPixels[dstIndex + 3];
+
+						// Calculate ONE_MINUS_SRC_ALPHA
+						one_minus_src_A = (1.0 - src_A * one_over_255);
+
+						// Blend Source and Destination Pixels
+						dstPixels[dstIndex + 0] = src_A * src_R * one_over_255 + dst_A * dst_R * one_over_255 * one_minus_src_A;
+						dstPixels[dstIndex + 1] = src_A * src_G * one_over_255 + dst_A * dst_G * one_over_255 * one_minus_src_A;
+						dstPixels[dstIndex + 2] = src_A * src_B * one_over_255 + dst_A * dst_B * one_over_255 * one_minus_src_A;
+						dstPixels[dstIndex + 3] = src_A + dst_A * one_minus_src_A;
+					}
+					else
+					{
+						dstPixels[dstIndex + 0] = srcPixels[srcIndex + 0];
+						dstPixels[dstIndex + 1] = srcPixels[srcIndex + 1];
+						dstPixels[dstIndex + 2] = srcPixels[srcIndex + 2];
+						dstPixels[dstIndex + 3] = srcPixels[srcIndex + 3];
+					}
+				}
+
+			} //x
+		} //y
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createImageData(sw:Float, sh:Float):ImageData
+	{
+		return new ImageData(String(sw), String(sh));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createImageData(imagedata:ImageData):ImageData
+	{
+		return new ImageData(String(imagedata.width), String(imagedata.height));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getImageData(sx:Float, sy:Float, sw:Float, sh:Float):ImageData
+	{
+		var minX:Integer = Math.round(sx);
+		var minY:Integer = Math.round(sy);
+		var maxX:Integer = Math.round(sx + sw);
+		var maxY:Integer = Math.round(sy + sh);
+		var ret:ImageData = createImageData(maxX - minX, maxY - minY);
+		for(var x:Integer = minX; x < maxX; x++)
+		{
+			for(var y:Integer = minY; y < maxY; y++)
+			{
+				var sIdx:Integer = (y * canvas.__imageData.width + x) * 4;
+				var dIdx:Integer = ((y - minY) * ret.width + x - minX) * 4;
+				if(sIdx < canvas.__imageData.data.length)
+				{
+					ret.data[dIdx + 0] = canvas.__imageData.data[sIdx + 0];
+					ret.data[dIdx + 1] = canvas.__imageData.data[sIdx + 1];
+					ret.data[dIdx + 2] = canvas.__imageData.data[sIdx + 2];
+					ret.data[dIdx + 3] = canvas.__imageData.data[sIdx + 3];
+				}
+			}
+		}
+		return ret;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function putImageData(imagedata:ImageData, dx:Float, dy:Float)
+	{
+		putImageData1(imagedata, dx, dy, 0.0, 0.0, imagedata.width, imagedata.height);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function putImageData1(imagedata:ImageData, dx:Float, dy:Float, dirtyX:Float, dirtyY:Float, dirtyWidth:Float, dirtyHeight:Float)
+	{
+		if(dirtyWidth < 0.0)
+		{
+			dirtyX += dirtyWidth;
+			dirtyWidth = -dirtyWidth;
+		}
+		if(dirtyHeight < 0.0)
+		{
+			dirtyY += dirtyHeight;
+			dirtyHeight = -dirtyHeight;
+		}
+		if(dirtyX < 0.0)
+		{
+			dirtyWidth += dirtyX;
+			dirtyX = 0.0;
+		}
+		if(dirtyY < 0.0)
+		{
+			dirtyHeight += dirtyY;
+			dirtyY = 0.0;
+		}
+		if(dirtyX + dirtyWidth > imagedata.width)
+		{
+			dirtyWidth = imagedata.width - dirtyX;
+		}
+		if(dirtyY + dirtyHeight > imagedata.height)
+		{
+			dirtyHeight = imagedata.height - dirtyY;
+		}
+		if(dirtyWidth > 0.0 && dirtyHeight > 0.0)
+		{
+			var data:Uint8Array = canvas.__imageData.data;
+			for(var x:Integer = dirtyX; x < dirtyX + dirtyWidth; x++)
+			{
+				for(var y:Integer = dirtyY; y < dirtyY + dirtyHeight; y++)
+				{
+					var dIdx:Integer = ((dy + y) * canvas.__imageData.width + (dx + x)) * 4;
+					var sIdx:Integer = (y * imagedata.width + x) * 4;
+					if(dIdx < data.length && sIdx < imagedata.data.length)
+					{
+						for(var i:Integer = 4; i--;)
+						{
+							data[dIdx + i] = imagedata.data[sIdx + i];//(imagedata.data[sIdx + i] - data[dIdx + i]) * imagedata.data[sIdx + 3];
+						}
+					}
+				}
+			}
+		}
+	}
+}

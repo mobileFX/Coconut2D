@@ -70,7 +70,7 @@ source $(PATH_SDK_DEBUGGER)/stl-views-1.0.3.gdb
 # List of source code files
 dir $(PATH_SDK_COMMON)
 dir $(PATH_SDK_FRAMEWORKS)
-dir $(PATH_SDK_INCLUDES)
+#dir $(PATH_SDK_INCLUDES)
 dir $(PROJECT_PATHS.NATIVE_COMMON)
 
 # Load the binary

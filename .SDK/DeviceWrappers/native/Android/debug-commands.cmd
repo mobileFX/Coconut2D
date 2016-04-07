@@ -24,7 +24,7 @@ adb -e pull /system/lib/libc.so ./obj/local/armeabi-v7a/libc.so
 
 REM Start GDB and connect to GDB Server on the Device
 REM (you must run this in a separate console because it blocks)
-"D:/mobileFX/Projects/Software/Coconut/IDE/Studio/etc/3rd_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/windows-x86_64/bin/arm-linux-androideabi-gdb.exe" -x debugger-config.gdb
+"$(PATH_3RD_PARTY_ANDROID_NDK)/toolchains/arm-linux-androideabi-4.8/prebuilt/windows-x86_64/bin/arm-linux-androideabi-gdb.exe" -x debugger-config.gdb
 
 REM All-in-one Debugging with Python Script
 ndk-gdb-py --verbose --force --launch $(ANDROID_PACKAGE).MainActivity -e -t --nowait

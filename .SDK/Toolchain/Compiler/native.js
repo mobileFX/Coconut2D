@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function CompilerCppPlugin(compiler)
 {
-	trace("+ Loaded CocoScript Compiler C++ Generator Plugin");
+	//trace("+ Loaded CocoScript Compiler C++ Generator Plugin");
 
 	var _this = this._this = compiler;
 
@@ -55,7 +55,7 @@ function CompilerCppPlugin(compiler)
 		"Function"	: {	"default": "nullptr" },
 		"Null"		: { "default": "nullptr" },
 		"Number"	: {	"default": "0" },
-		"Float"		: { "default": "0.0" },
+		"Float"		: { "default": "0.0f" },
 		"Integer"	: { "default": "0" },
 		"Object"	: { "default": "nullptr" },
 		"String"	: { "default": '""' }
@@ -309,7 +309,7 @@ function CompilerCppPlugin(compiler)
 			{
 				var hasDispIds = false;
 				var classSymbol = ast.symbol;
-				for(var uid in classSymbol.__event_descriptors) { hasDispIds=true; break; };
+				for(var uid in classSymbol.__event_descriptors) { hasDispIds=true; break; }
 
 				// ==================================================================
 				// Create event handler Dispatch ID constants
@@ -379,7 +379,7 @@ function CompilerCppPlugin(compiler)
 									{
 										var event_parm = ebd.event_handler.paramsList[j];
 										flat_arguments.push("E->"+event_parm.name);
-										CPP.push(_this.VTCPP(event_parm.vartype) + event_parm.name + " = E->" + event_parm.name + ";");
+										//CPP.push(_this.VTCPP(event_parm.vartype) + event_parm.name + " = E->" + event_parm.name + ";");
 									}
 									flat_arguments = (flat_arguments.length>0 ? ", " + flat_arguments.join(", ") : "");
 
@@ -428,6 +428,8 @@ function CompilerCppPlugin(compiler)
 			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
 			if(!_this.currClassName) return _this.NULL_GEN;
 
+			_this.currFunction = ast;
+
 			var name = (ast.isConstructor ? _this.currClassName : (ast.isDestructor ? "~" + _this.currClassName : ast.name ));
 			var param, cppParamsList = "(", hppParamList = "(";
 
@@ -449,7 +451,7 @@ function CompilerCppPlugin(compiler)
 					}
 				}
 
-				cppParamsList += cpp_param
+				cppParamsList += cpp_param;
 				hppParamList += cpp_param + (param.optional ? "=" + def : "");
 				if(i!=ast.paramsList.length-1)
 				{
@@ -527,11 +529,11 @@ function CompilerCppPlugin(compiler)
 		        	var param = ast.paramsList[0];
 		        	var vt = _this.VTCPP(ast.symbol.restArgumentsVartype).trim();
 		        	if(vt=="String") vt = "char*";
-		   			CPP.push("std::vector<" + vt + "> __arguments;");
-		   			CPP.push("std::vector<" + vt + ">* arguments = &__arguments;");
+		   			CPP.push("Array<" + vt + "> __arguments;");
+		   			CPP.push("Array<" + vt + ">* arguments = &__arguments;");
 					CPP.push("va_list vl;");
 					CPP.push("va_start(vl," + param.name + ");");
-					CPP.push("for(UINT i=0;i<" + param.name + ";i++)");
+					CPP.push("for(int32_t i=0;i<" + param.name + ";i++)");
 					CPP.push("__arguments.push_back(va_arg(vl," + vt + "));");
 					CPP.push("va_end(vl);");
 		        }
@@ -541,6 +543,8 @@ function CompilerCppPlugin(compiler)
 
 				CPP.push("}\n");
 			}
+
+			_this.currFunction = null;
 
 			break;
 
@@ -635,19 +639,28 @@ function CompilerCppPlugin(compiler)
 			function initializer(vitem)
 			{
 				var init;
+
 				if(vitem.initializer)
 				{
-					return " = " + generate_cpp(vitem.initializer).CPP;
+					//#TYPECAST
+					vitem.initializer.__typecast = vitem.vartype;
+					vitem.initializer.__typecast_implicit = true;
+					var rhs = _this.typeCastCPP(vitem.initializer, generate_cpp(vitem.initializer).CPP);
+					return " = " + rhs;
 				}
 				else
 				{
 					var vartype = _this.getVarType(vitem.vartype);
+
 					if(_this.cpp_types.hasOwnProperty(vartype))
 						return " = " + _this.cpp_types[vartype].default;
+
 					else if(vitem.symbol.pointer)
 						return " = nullptr";
+
 					else if(ast.scope.isClass)
 						return "";
+
 					else
 						return "";
 				}
@@ -960,45 +973,33 @@ function CompilerCppPlugin(compiler)
 		case jsdef.CALL:
 
 			var call0 = generate_cpp(ast[0]).CPP;
+			var scope_this = false;
 
-			// toJSON hack
+			// Hack to support JSON()
 			if(ast[0].__toJSON)
 			{
 				CPP.push(call0);
 				break;
 			}
 
-			if(ast.typecasting)
+			// Hack to support setInterval() and setTimeout() with classes
+			if(_this.currClassName)
 			{
-				var vartype = generate_cpp(ast[0]).CPP;
-				if(ast.castToType=="String")
+				switch(call0)
 				{
+					case "setInterval":
+					case "setTimeout":
+						call0 += "<" + _this.currClassName + ">";
+						scope_this = true;
+						break;
+				}
+			}
 
-					if(_this.isDerivativeOf(ast.castFromType, "Number"))
-					{
-						CPP.push("(String(toString(" + generate_cpp(ast[1]).CPP + ")))");
-					}
-					else if(_this.isDerivativeOf(ast.castFromType, "Boolean"))
-					{
-						CPP.push("(String(" + generate_cpp(ast[1]).CPP + " ? \"true\" : \"false\"))");
-					}
-					else if(_this.isDerivativeOf(ast.castFromType, "String"))
-					{
-						CPP.push("("+generate_cpp(ast[1]).CPP+")");
-					}
-					else
-					{
-						_this.NewError("Invalid type casting to string", ast);
-					}
-				}
-				else
-				{
-					CPP.push("((");
-					CPP.push(vartype + (_this.isPointer(vartype) ? "*":""));
-					CPP.push(")");
-					CPP.push(generate_cpp(ast[1]).CPP);
-					CPP.push(")");
-				}
+			// Explicit type casting
+			if(ast[1][0] && ast[1][0].__typecast_explicit)
+			{
+				//#TYPECAST
+				CPP.push(_this.typeCastCPP(ast[1][0], generate_cpp(ast[1][0]).CPP));
 			}
 			else
 			{
@@ -1022,8 +1023,9 @@ function CompilerCppPlugin(compiler)
 					}
 				}
 
-				CPP.push(generate_cpp(ast[0]).CPP);
+				CPP.push(call0);
 				CPP.push("(");
+				if(scope_this) CPP.push((_this.in_state ? "self" : "this") + ",");
 				CPP.push(generate_cpp(ast[1]).CPP);
 				CPP.push(")");
 
@@ -1035,7 +1037,6 @@ function CompilerCppPlugin(compiler)
 		/*@@ LIST @@*/
 
 		case jsdef.LIST:
-		case jsdef.COMMA:
 
 			// Handle addEventListener, removeEventListener,
 			// dispatchEvent for Coconut2D native events.
@@ -1065,6 +1066,26 @@ function CompilerCppPlugin(compiler)
 				}
 				break;
 			}
+
+			var firstItem = true;
+
+			//#TYPECAST
+			for(var item in ast)
+			{
+				if(!isFinite(item)) break;
+				if(!firstItem) CPP.push(", ");
+				var gen = generate_cpp(ast[item]).CPP;
+				CPP.push(gen);
+				firstItem = false;
+			}
+
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.COMMA:
+
+			if(_this.in_event_call)
+				debugger;
 
 			for(i=0;i<ast.length;i++)
 			{
@@ -1182,7 +1203,7 @@ function CompilerCppPlugin(compiler)
 					var v = generate_cpp(ast[i]).CPP;
 					v = _this.VALUECPP(v, subtype);
 					out.push("->push(" + v + ")");
-				};
+				}
 				out.push(")");
 			}
 			else
@@ -1193,7 +1214,7 @@ function CompilerCppPlugin(compiler)
 					var v = generate_cpp(ast[i]).CPP;
 					v = _this.VALUECPP(v, subtype);
 					out.push(", " + v);
-				};
+				}
 				out.push("))");
 			}
 
@@ -1225,6 +1246,10 @@ function CompilerCppPlugin(compiler)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.ASSIGN:
 
+			var setter = false;
+
+			//-----------------------------------------------------------
+			// ARRAY_INIT
 			if(ast[1].type==jsdef.ARRAY_INIT)
 			{
 				var isEmpty = true;
@@ -1234,14 +1259,17 @@ function CompilerCppPlugin(compiler)
 					isEmpty=false;
 					break;
 				}
-				if(isEmpty) return _this.NULL_GEN;
+				if(isEmpty)
+					return _this.NULL_GEN;
 			}
 
+			//-----------------------------------------------------------
+			// PROPERTY
 	     	if((ast[0].symbol && ast[0].symbol.type == jsdef.PROPERTY && ast[0].symbol.ast.setter) ||
 	     	   (ast[0].type == jsdef.DOT && ast[0].identifier_last.symbol && ast[0].identifier_last.symbol.type == jsdef.PROPERTY && ast[0].identifier_last.symbol.ast.setter))
 	     	{
-					_this.in_setter = true;
-					CPP.push(generate_cpp(ast[0]).CPP);
+					setter = _this.in_setter = true;
+					CPP.push( generate_cpp(ast[0]).CPP );
 					_this.in_setter = false;
 	     	}
 	     	else
@@ -1250,6 +1278,9 @@ function CompilerCppPlugin(compiler)
 				CPP.push(ast.value);
 				if(ast.value != "=") CPP.push("=");
 	     	}
+
+			//-----------------------------------------------------------
+			// Function Pointer
 
 			var type1 = _this.getTypeName(ast[0]);
 			var type2 = _this.getTypeName(ast[1]);
@@ -1260,9 +1291,7 @@ function CompilerCppPlugin(compiler)
 				{
 					// Lamda Function
 				}
-
 				CPP.push( "nullptr" );
-
 				break;
 			}
 
@@ -1273,18 +1302,12 @@ function CompilerCppPlugin(compiler)
 				break;
 			}
 
-			if(_this.secondPass && type1 && type2 && type1!=type2 && type1!="Array<Object>" && type2!="Array<Object>" && type1.indexOf("<")!=-1 && type2.indexOf("<")!=-1)
-			{
-				var stype1 = _this.getSubType(type1);
-				var stype2 = _this.getSubType(type2);
-				if(_this.isDerivativeOf(stype1, stype2))
-				{
-					CPP.push("(reinterpret_cast<Array<" + stype1 + "*>*>(" + generate_cpp(ast[1]).CPP + "))");
-					_this.NewWarning("Arbitrary array coversion from " + type2 + " to " + type1, ast);
-					break;
-				}
-			}
-	     	CPP.push( "("+generate_cpp(ast[1]).CPP+")" );
+			//-----------------------------------------------------------
+			//#TYPECAST
+			var rhs = _this.typeCastCPP(ast[1], generate_cpp(ast[1]).CPP);
+			CPP.push( setter ? "( " + rhs + " )" : rhs );
+			setter=false;
+
 			break;
 
 		// ==================================================================================================================================
@@ -1396,7 +1419,8 @@ function CompilerCppPlugin(compiler)
 		// ==================================================================================================================================
 
 		case jsdef.STRING:
-			CPP.push('String("' + ast.value + '")');
+			//CPP.push('String("' + ast.value + '")');
+			CPP.push('"' + ast.value + '"');
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1432,7 +1456,7 @@ function CompilerCppPlugin(compiler)
 
 			var gen0 = generate_cpp(ast[0]).CPP;
 
-			if(_this.secondPass && ast[1].value=="toJSON" && ast[0].symbol && _this.getClass(ast[0].symbol.vartype).struct)
+			if(ast[1].value=="toJSON" && ast[0].symbol && _this.getClass(ast[0].symbol.vartype).struct)
 			{
 			 	var cls = _this.getClass(ast[0].symbol.vartype);
 			 	var jsonExpr = ['"{"'];
@@ -1505,7 +1529,21 @@ function CompilerCppPlugin(compiler)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DELETE:
 			var id = generate_cpp(ast[0]).CPP;
-			CPP.push("if(" + id + ") " + id + " = (delete " + id + ", nullptr)");
+			if(_this.currClassName)
+			{
+				var items = (ast.delete_array && ast[0].symbol && ast[0].symbol.subtype && _this.isPointer(ast[0].symbol.subtype));
+				if(items)
+					CPP.push("COCO_DELETE_ARRAY(" + id + ")");
+				else
+					CPP.push("COCO_DELETE_OBJECT(" + id + ")");
+			}
+			else
+			{
+				CPP.push("COCO_DELETE_OBJECT(" + id + ")");
+			}
+
+			//CPP.push("if(" + id + ") " + id + " = (delete " + id + ", nullptr)");
+
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1514,13 +1552,13 @@ function CompilerCppPlugin(compiler)
 			break;
 
 		case jsdef.EXPONENT:			CPP.push("std::pow(" + generate_cpp(ast[0]).CPP + "," + generate_cpp(ast[1]).CPP + ")");break;
-		case jsdef.MOD:					CPP.push("(int)" + generate_cpp(ast[0]).CPP); CPP.push("%"); CPP.push("(int)" + generate_cpp(ast[1]).CPP); break;
+		case jsdef.MOD:					CPP.push("(int32_t)" + generate_cpp(ast[0]).CPP); CPP.push("%"); CPP.push("(int32_t)" + generate_cpp(ast[1]).CPP); break;
 		case jsdef.THROW:				CPP.push("throw CocoException("); CPP.push(generate_cpp(ast.exception).CPP); CPP.push(");"); break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NEW:
 			if(!ast[0].vartype)	ast[0].vartype = ast[0].value;
-			CPP.push("new " + _this.VTCPP(ast[0].vartype, true)+"()");
+			CPP.push("new " + _this.VTCPP(ast[0].vartype, true).trim());
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1529,7 +1567,43 @@ function CompilerCppPlugin(compiler)
 			if(!ast[0].vartype)
 				ast[0].vartype = ast[0].value;
 
-			CPP.push("(new " + _this.VTCPP(ast[0].vartype, true) + "(" + generate_cpp(ast[1]).CPP + "))");
+			CPP.push("new " + _this.VTCPP(ast[0].vartype, true) + "(" + generate_cpp(ast[1]).CPP + ")");
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.RETURN:
+
+			CPP.push("return");
+
+			if(ast.value)
+				CPP.push(" " + generate_cpp(ast.value).CPP);
+
+			CPP.push(";\n");
+
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.PLUS:
+
+			var type1 = _this.getTypeName(ast[0]);
+			var type2 = _this.getTypeName(ast[1]);
+
+			var gen1 = generate_cpp(ast[0]).CPP;
+			var gen2 = generate_cpp(ast[1]).CPP;
+
+			if(type1=="String" || type2=="String")
+			{
+				CPP.push( "String(" + gen1 + ")" );
+				CPP.push(" + ");
+				CPP.push( gen2 );
+			}
+			else
+			{
+				CPP.push(gen1);
+				CPP.push("+");
+				CPP.push(gen2);
+			}
+
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1561,10 +1635,8 @@ function CompilerCppPlugin(compiler)
 		case jsdef.NE:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("!=");	 CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.NOT:					CPP.push("!"); CPP.push(generate_cpp(ast[0]).CPP); break;
 		case jsdef.NULL:				CPP.push("nullptr"); break;
-		case jsdef.NUMBER:				CPP.push(ast.value); break;
+		case jsdef.NUMBER:				CPP.push(ast.value && String(ast.value).indexOf(".")!=-1 ? ast.value + "f" : ast.value); break;
 		case jsdef.OR:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("||"); CPP.push(generate_cpp(ast[1]).CPP);	break;
-		case jsdef.PLUS:				CPP.push(generate_cpp(ast[0]).CPP); CPP.push("+"); CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.RETURN:				CPP.push("return"); if(ast.value) CPP.push(" " + generate_cpp(ast.value).CPP); CPP.push(";\n"); break;
 		case jsdef.RSH:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push(">>"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.STRICT_EQ:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("=="); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.STRICT_NE:			CPP.push(generate_cpp(ast[0]).CPP);	CPP.push("!="); CPP.push(generate_cpp(ast[1]).CPP); break;

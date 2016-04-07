@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2007-2009 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -51,7 +51,7 @@ void b2WorldManifold::Initialize(const b2Manifold* manifold,
 		{
 			normal = b2Mul(xfA.q, manifold->localNormal);
 			b2Vec2 planePoint = b2Mul(xfA, manifold->localPoint);
-			
+
 			for (int32 i = 0; i < manifold->pointCount; ++i)
 			{
 				b2Vec2 clipPoint = b2Mul(xfB, manifold->points[i].localPoint);

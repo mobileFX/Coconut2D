@@ -22,16 +22,30 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#include "windows.h"
+#define _WIN32_WINNT  0x501
+
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include "Coconut2D.hpp"
 #include "CocoAssetFile.h"
 #include "Fonts/CocoFontsCache.h"
 #include "Audio/CocoAudioStream.h"
 #include "CocoDeviceWrapper.h"
 
+#define CONFIGURATION_$(UCONFIGURATION)
+#define DEBUG_HOST_IP "$(DEBUG_HOST_IP)"
+#define DEBUG_HOST_PORT $(DEBUG_HOST_PORT)
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	std::setlocale(LC_ALL, "en_US.UTF-8");
+
 	// Preferred width and height
 	int width = $(SURFACE_WIDTH);
 	int height = $(SURFACE_HEIGHT);

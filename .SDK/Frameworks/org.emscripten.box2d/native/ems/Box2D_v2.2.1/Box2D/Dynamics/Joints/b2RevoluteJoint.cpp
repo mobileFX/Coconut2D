@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -372,7 +372,7 @@ bool b2RevoluteJoint::SolvePositionConstraints(const b2SolverData& data)
 	data.positions[m_indexA].a = aA;
 	data.positions[m_indexB].c = cB;
 	data.positions[m_indexB].a = aB;
-	
+
 	return positionError <= b2_linearSlop && angularError <= b2_angularSlop;
 }
 
@@ -471,7 +471,7 @@ float32 b2RevoluteJoint::GetUpperLimit() const
 void b2RevoluteJoint::SetLimits(float32 lower, float32 upper)
 {
 	b2Assert(lower <= upper);
-	
+
 	if (lower != m_lowerAngle || upper != m_upperAngle)
 	{
 		m_bodyA->SetAwake(true);

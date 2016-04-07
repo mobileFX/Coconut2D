@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -127,7 +127,7 @@ protected:
 	b2Vec2 m_groundAnchorB;
 	float32 m_lengthA;
 	float32 m_lengthB;
-	
+
 	// Solver shared
 	b2Vec2 m_localAnchorA;
 	b2Vec2 m_localAnchorB;

@@ -27,13 +27,30 @@
 #include "Audio/CocoAudioStream.h"
 #include "CocoDeviceWrapper.h"
 
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <fstream>
+#include <sstream>
+#include <libgen.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+
 extern AAssetManager* CocoAssetFile::manager;
 extern char* CocoAssetFile::assetPath;
 extern char* CocoAssetFile::filesPath;
 
+#define CONFIGURATION_$(UCONFIGURATION)
+#define DEBUG_HOST_IP "$(DEBUG_HOST_IP)"
+#define DEBUG_HOST_PORT $(DEBUG_HOST_PORT)
+
 void android_main(android_app* app)
 {
 	app_dummy();
+
+	std::setlocale(LC_ALL, "en_US.UTF-8");
 
 	curl_global_init(CURL_GLOBAL_ALL);
 	CocoAssetFile::init(app->activity->assetManager, "/data/data/com.mobilefx.cocoengine/files/");

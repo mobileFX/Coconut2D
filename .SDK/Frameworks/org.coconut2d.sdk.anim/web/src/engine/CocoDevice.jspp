@@ -22,8 +22,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_native
-#pragma export_web
+#pragma export_native;
+#pragma export_web;
 
 #include "CocoClip.jspp"
 
@@ -129,7 +129,7 @@ class CocoDevice
 		isDesktop					= (!(isIOS || isAndroid));
 		isMobileHTML5Browser		= (isHTML5Browser && !isDesktop);
 
-		pixelRatio					= (!isHTML5Browser || (isHTML5Browser && (isIPhone5 || isIPhone6 || isIPhone6Plus))) ? window.devicePixelRatio : 1;
+		pixelRatio					= (isAndroid || !isHTML5Browser || (isHTML5Browser && (isIPhone5 || isIPhone6 || isIPhone6Plus))) ? window.devicePixelRatio : 1;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,6 +224,65 @@ class CocoDevice
 				else if(pixelRatio==3.00)	return COCO_DEVICE.DEVICE_GENERIC_XXHDPI;
 				else 						return COCO_DEVICE.DEVICE_GENERIC_MDPI;
 			}
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property DeviceClass
+	{
+		function get():String
+		{
+			var out:Array<String> = new Array<String>;
+
+			if(this.isAndroid) 					out.push("ANDROID");
+			if(this.isIOS) 						out.push("IOS");
+			if(this.isDesktop)					out.push("DESKTOP");
+			if(this.isChrome)					out.push("BROWSER_CHROME");
+			if(this.isDesktopSafari)			out.push("BROWSER_SAFARI");
+			if(this.isFirefox)					out.push("BROWSER_FIREFOX");
+
+			var deviceClass:String = out.join(";");
+			delete out;
+			return deviceClass;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property DeviceModel
+	{
+		function get():String
+		{
+			switch(this.type)
+			{
+
+			// Android or Generic Device
+			case DEVICE_GENERIC_MDPI			: return "DEVICE_GENERIC_MDPI";
+			case DEVICE_GENERIC_HDPI            : return "DEVICE_GENERIC_HDPI";
+			case DEVICE_GENERIC_XHDPI           : return "DEVICE_GENERIC_XHDPI";
+			case DEVICE_GENERIC_XXHDPI          : return "DEVICE_GENERIC_XXHDPI";
+			case DEVICE_GENERIC_TVDPI		    : return "DEVICE_GENERIC_TVDPI";
+			case DEVICE_GENERIC_LDPI		    : return "DEVICE_GENERIC_LDPI";
+
+			// iPhone Devices
+			case DEVICE_IPHONE_3GS			    : return "DEVICE_IPHONE_3GS";
+			case DEVICE_IPHONE_4                : return "DEVICE_IPHONE_4";
+			case DEVICE_IPHONE_4S               : return "DEVICE_IPHONE_4S";
+			case DEVICE_IPHONE_5                : return "DEVICE_IPHONE_5";
+			case DEVICE_IPHONE_5S               : return "DEVICE_IPHONE_5S";
+			case DEVICE_IPHONE_5C               : return "DEVICE_IPHONE_5C";
+			case DEVICE_IPHONE_6                : return "DEVICE_IPHONE_6";
+			case DEVICE_IPHONE_6_PLUS           : return "DEVICE_IPHONE_6_PLUS";
+
+			// iPad Devices
+			case DEVICE_IPAD                    : return "DEVICE_IPAD";
+			case DEVICE_IPAD_2                  : return "DEVICE_IPAD_2";
+			case DEVICE_IPAD_3                  : return "DEVICE_IPAD_3";
+			case DEVICE_IPAD_MINI               : return "DEVICE_IPAD_MINI";
+			case DEVICE_IPAD_AIR                : return "DEVICE_IPAD_AIR";
+			case DEVICE_IPAD_MINI_RETINA        : return "DEVICE_IPAD_MINI_RETINA";
+			}
+
+			return "UNKNOWN";
 		}
 	}
 

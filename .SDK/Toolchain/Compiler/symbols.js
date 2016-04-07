@@ -33,7 +33,7 @@
 
 function CompilerSymbolsPlugin(compiler)
 {
-	trace("+ Loaded CocoScript Compiler Symbols Plugin");
+	//trace("+ Loaded CocoScript Compiler Symbols Plugin");
 
 	var _this = this._this = compiler;
 	_this.debugSymbolsTable = [];           // Map of source code to runtime debug symbols, used by IDE debugger (eg. class foo { public var x; } , x at runtime is __CLASS_FOO__.x )
@@ -111,11 +111,18 @@ function CompilerSymbolsPlugin(compiler)
 		{
 			var cls = _this.classes[item];
 			if(!cls.ast.__VARIABLES.export_native) continue;
-			if(cls.enum) continue;
+			if(cls.enum || cls.namespace) continue;
+
+			// We only process classes and structs
+
 			if(cls.struct)
+			{
 				classes.push("struct " + cls.name + ";");
+			}
 			else
+			{
 				classes.push("class " + cls.name + ";");
+			}
 		}
 		classes = classes.sort().join("\n");
 		return classes;
@@ -133,7 +140,7 @@ function CompilerSymbolsPlugin(compiler)
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.prepare_native_files = function()
 	{
-		_this.native_files 	= {};
+		__global.native_files = _this.native_files = {};
 		for(item in _this.classes)
 		{
 			var cls = _this.classes[item];
@@ -164,7 +171,7 @@ function CompilerSymbolsPlugin(compiler)
 				}
 			};
 
-			native_file.root = __global.__coco_make.ModuleFiles[cls.path];
+			native_file.root = makefile.Vars.SOURCES.SourceFiles[cls.path].Path;
 			native_file.rel = relativePath(native_file.root, cls.path).replace(cls.file,"");
 			native_file.file = cls.file;
 			native_file.path = cls.path;
@@ -649,62 +656,24 @@ function CompilerSymbolsPlugin(compiler)
 	//	          /_/                                             /____/         /____/
 	// ==================================================================================================================================
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.exportDebugSymbols = function()
+	{
+		return "<DEBUG_SYMBOLS>" + _this.debugSymbolsTable.join("") + "</DEBUG_SYMBOLS>";
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.addDebugSymbol = function(ast, runtime)
 	{
-		if(!_this.secondPass || !_this.exportSymbols) return;
+		if(!_this.secondPass || !_this.exportSymbols || ast.source == runtime) return;
 
-		var identifier = "";
-
-		if(ast.type==jsdef.IDENTIFIER && !ast.inDot)
+		if(ast.value == runtime)
 		{
-			identifier = ast.value;
-			//if(identifier==runtime) return;
-			_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
+			// Overloads!!
+			return;
 		}
-		else if(ast.type==jsdef.IDENTIFIER && ast.inDot)
-		{
-			// Taken care by DOT
-		}
-		else if(ast.type==jsdef.DOT && _this.currClassName && !_this.isInside(ast, jsdef.DOT)) // Process top-level DOTs only, skip inner DOTs.
-		{
-			var v_identifiers = [], v_runtime = [], buff = [];
 
-			for(var i=0;i<ast.identifiers_list.length;i++)
-			{
-				var f = ast.identifiers_list[i].ast;
-				var value = ast.identifiers_list[i].value.replace("@@THIS@@", "__THIS__");
-				if(f.type==jsdef.NEW || f.type==jsdef.NEW_WITH_ARGS)
-				{
-					v_identifiers.push(value);
-					v_runtime.push(value);
-				}
-				else if(i==0)
-				{
-					v_identifiers.push(value);
-					if(f.symbol)
-						v_runtime.push(f.symbol.runtime);
-				}
-				else if(f.type==jsdef.INDEX)
-				{
-					v_identifiers[v_identifiers.length-1] += f.generated_index;
-					v_runtime[v_runtime.length-1] += f.generated_index;
-				}
-				else
-				{
-					v_identifiers.push(value);
-					v_runtime.push(value);
-				}
-
-				identifier = v_identifiers.join(".");
-				runtime = v_runtime.join(".")
-				//if(identifier==runtime) continue;
-
-				buff.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + f.start + "' end='" + f.end + "' line='" + f.line_start + "' identifier='" + identifier + "' runtime='" + runtime +"'/>\n");
-			}
-
-			// Reverse debug symbols for faster search and append them to debug symbols table.
-			_this.debugSymbolsTable = _this.debugSymbolsTable.concat(buff.reverse());
-		}
+		_this.debugSymbolsTable.push("<DEBUG_SYMBOL file='" + ast.path + "' start='" + ast.start + "' end='" + ast.end + "' line='" + ast.line_start + "' source='" + escape(ast.source) + "' runtime='" + escape(runtime) +"'/>\n");
 	};
 
 	// ==================================================================================================================================
@@ -837,7 +806,7 @@ function CompilerSymbolsPlugin(compiler)
 
 	_this.exportExterns = function()
 	{
-		var externs = ["// Auto-generated Project Externs\n\n"];
+		var externs = ["// Auto-generated Project Externs\n\n#pragma no_parse;\n\n"];
 		for(var cls in _this.classes)
 		{
 			if(_this.selectedClass && _this.selectedClass!=cls) continue;
@@ -1506,47 +1475,37 @@ function CompilerSymbolsPlugin(compiler)
 	{
 		if(!_this.exportSymbols) return;
 
-		if(_this.selectedClass)
-		{
-			var codeSymbols  = _this.exportCodeSymbols();
-			var scopeVars	 = _this.exportScopes();
-			var mbrLists     = _this.exportMemberLists();
+		var debugSymbols = _this.exportDebugSymbols();
+		//write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
+		IDECallback("setDebugSymbols", "", 0, 0, debugSymbols);
 
-			//write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
+		/*
+		var debugSymbols = _this.exportDebugSymbols();
+		var codeSymbols  = _this.exportCodeSymbols();
+		var scopeVars	 = _this.exportScopes();
+		var mbrLists     = _this.exportMemberLists();
+		var externs      = _this.exportExterns();
+		var states		 = _this.exportStates();
 
-			IDECallback("setCodeSymbols", "", 0, 0, codeSymbols);
-			IDECallback("setScopes", "", 0, 0, scopeVars);
-			IDECallback("setMemberLists", "", 0, 0, mbrLists);
-			IDECallback("symbolsDone");
-		}
-		else
-		{
-			var debugSymbols = "<DEBUG_SYMBOLS>" + _this.debugSymbolsTable.join("") + "</DEBUG_SYMBOLS>";
-			var codeSymbols  = _this.exportCodeSymbols();
-			var scopeVars	 = _this.exportScopes();
-			var mbrLists     = _this.exportMemberLists();
-			var externs      = _this.exportExterns();
-			var states		 = _this.exportStates();
+		//var stateMachine = compiler.exportGameStateMachine();
+		//trace(stateMachine);
+		//var diagram = _this.exportClassDiagram();
+		//write("D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Documentation/ClassDiagrams/Coconut2D.ncp", diagram);
+		//var reference	 = _this.exportClassReferenceDoc();
+        //write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
+        //write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
+        //write("C:/Users/Admin/Desktop/members.xml", mbrLists);
+        //write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
 
-			//var stateMachine = compiler.exportGameStateMachine();
-			//trace(stateMachine);
-			//var diagram = _this.exportClassDiagram();
-			//write("D:/mobileFX/Projects/Software/Coconut/Projects/Coco.project/.SDK/Documentation/ClassDiagrams/Coconut2D.ncp", diagram);
-			//var reference	 = _this.exportClassReferenceDoc();
-	        //write("C:/Users/Admin/Desktop/codeSymbols.xml", codeSymbols);
-	        //write("C:/Users/Admin/Desktop/scopes.xml", scopeVars);
-	        //write("C:/Users/Admin/Desktop/members.xml", mbrLists);
-	        //write("C:/Users/Admin/Desktop/debugSymbols.xml", debugSymbols);
-
-			IDECallback("resetSymbols");
-			IDECallback("setCodeSymbols", "", 0, 0, codeSymbols);
-			IDECallback("setScopes", "", 0, 0, scopeVars);
-			IDECallback("setMemberLists", "", 0, 0, mbrLists);
-			IDECallback("setStates", "", 0, 0, states);
-			IDECallback("setExterns", "", 0, 0, externs);
-			IDECallback("setDebugSymbols", "", 0, 0, debugSymbols);
-			IDECallback("symbolsDone");
-		}
+		IDECallback("resetSymbols");
+		IDECallback("setCodeSymbols", "", 0, 0, codeSymbols);
+		IDECallback("setScopes", "", 0, 0, scopeVars);
+		IDECallback("setMemberLists", "", 0, 0, mbrLists);
+		IDECallback("setStates", "", 0, 0, states);
+		IDECallback("setExterns", "", 0, 0, externs);
+		IDECallback("setDebugSymbols", "", 0, 0, debugSymbols);
+		IDECallback("symbolsDone");
+		*/
 	};
 
 	/*

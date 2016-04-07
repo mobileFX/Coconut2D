@@ -24,8 +24,20 @@
 
 #include <windows.h>
 #include <commctrl.h>
+#include <thread>
 #include "resource.h"
 #include "CocoDeviceWrapper.h"
+
+bool alive = false;
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+CocoDeviceWrapper::~CocoDeviceWrapper(void)
+{
+	if(wglDeleteContext(m_OpenGLContext)) m_OpenGLContext = NULL;
+	if(m_glHDC) m_glHDC = (ReleaseDC(m_glHWND, m_glHDC), (HDC)NULL);
+	if(m_glHWND) m_glHWND = (DestroyWindow(m_glHWND), (HWND)NULL);
+	//UnregisterClass("CocoWindow", m_hInstance);
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
@@ -128,22 +140,6 @@ CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
 	// Create a WebGL Canvas
 	engine = new GameEngine();
 
-	alive = true;
-	EventLoop();
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-CocoDeviceWrapper::~CocoDeviceWrapper(void)
-{
-	if(wglDeleteContext(m_OpenGLContext)) m_OpenGLContext = NULL;
-	if(m_glHDC) m_glHDC = (ReleaseDC(m_glHWND, m_glHDC), (HDC)NULL);
-	if(m_glHWND) m_glHWND = (DestroyWindow(m_glHWND), (HWND)NULL);
-	//UnregisterClass("CocoWindow", m_hInstance);
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-void CocoDeviceWrapper::EventLoop()
-{
 	// Read clock frequency and adjust to milliseconds
 	LARGE_INTEGER freq, m_TCurrent, m_TFirst, m_TLast;
 	QueryPerformanceFrequency(&freq);
@@ -151,8 +147,7 @@ void CocoDeviceWrapper::EventLoop()
 	QueryPerformanceCounter(&m_TFirst);
 	m_TLast = m_TFirst;
 
-	RECT rc;
-
+	alive = true;
 	do
 	{
 		// Get total and elapsed milliseconds since last tick.
@@ -180,6 +175,18 @@ void CocoDeviceWrapper::EventLoop()
 		Sleep(0);
 	}
 	while(alive);
+
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+void CocoDeviceWrapper::tick()
+{
+	#ifdef __XMLHTTPREQUEST_HPP__
+	XMLHttpRequest::tick();
+	#endif
+
+	engine->run(16);
+	SwapBuffers(m_glHDC);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +202,7 @@ void CocoDeviceWrapper::HandleDeviceEvents()
 			break;
 
 		case WM_KEYUP:
-			window->handleEvent(0, fxEvent::KEYUP, &msg);
+		window->handleEvent(0, fxEvent::KEYUP, &msg);
 			break;
 
 		case WM_LBUTTONDOWN:
@@ -209,11 +216,6 @@ void CocoDeviceWrapper::HandleDeviceEvents()
 		case WM_MOUSEMOVE:
 			window->handleEvent(0, fxEvent::TOUCHMOVE, &msg);
 			break;
-
-		case WM_CLOSE:
-		case WM_QUIT:
-			alive = false;
-			break;
 		}
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -226,31 +228,28 @@ LRESULT CALLBACK CocoDeviceWrapper::MainWndProc(HWND hWnd, UINT msg, WPARAM wPar
 {
 	static HINSTANCE hInstance;
 
+	LRESULT lResult = 0;
+
 	switch (msg)
 	{
 		case WM_CREATE:
-		{
 			hInstance = ((LPCREATESTRUCT) lParam)->hInstance;
-			return 0;
-		}
+			break;
+
+		case WM_CLOSE:
+			alive = false;
+			::DestroyWindow(hWnd);
+			break;
 
 		case WM_DESTROY:
-		{
+			alive = false;
 			PostQuitMessage(0);
-			return 0;
-		}
+			break;
+
+		default:
+			lResult = ::DefWindowProc(hWnd, msg, wParam, lParam);
+			break;
 	}
 
-	return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-void CocoDeviceWrapper::tick()
-{
-	#ifdef __XMLHTTPREQUEST_HPP__
-	XMLHttpRequest::tick();
-	#endif
-
-	engine->run(16);
-	SwapBuffers(m_glHDC);
+	return lResult;
 }

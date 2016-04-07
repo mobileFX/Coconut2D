@@ -25,11 +25,10 @@
 #import "CocoDeviceKeyboard.h"
 
 @implementation CocoDeviceKeyboard
-
 - (BOOL)canBecomeFirstResponder { return YES; }
 - (BOOL)hasText { return YES; }
 - (void)insertText:(NSString *)theText {}
-- (void)deleteBackward { static uint32_t _v = 8; }
+- (void)deleteBackward { }
 - (UITextAutocapitalizationType)autocapitalizationType { return UITextAutocapitalizationTypeNone; }
 - (UITextAutocorrectionType)autocorrectionType { return UITextAutocorrectionTypeNo; }
 - (UITextSpellCheckingType)spellCheckingType { return UITextSpellCheckingTypeNo; }

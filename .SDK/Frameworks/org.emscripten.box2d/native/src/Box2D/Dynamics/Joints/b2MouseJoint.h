@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -116,7 +116,7 @@ protected:
 	float32 m_frequencyHz;
 	float32 m_dampingRatio;
 	float32 m_beta;
-	
+
 	// Solver shared
 	b2Vec2 m_impulse;
 	float32 m_maxForce;

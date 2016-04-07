@@ -1,4 +1,4 @@
-var embox2dTest_balancedMobile = function() {
+﻿var embox2dTest_balancedMobile = function() {
 }
 
 embox2dTest_balancedMobile.prototype.setNiceViewCenter = function() {

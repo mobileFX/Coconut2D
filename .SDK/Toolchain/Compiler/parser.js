@@ -147,6 +147,7 @@ function __init_narcissus(GLOBAL)
 		"private",
 		"protected",
 		"published",			/* Exports a property|var to the IDE designer */
+		"databound",
 
 		// Function Modifiers
 		"static",
@@ -535,7 +536,7 @@ function __init_narcissus(GLOBAL)
 					this.__filePosOffset = this.cursor + token.value.length + 4;
 					this.__DIRECTIVES = {};
 					this.__MODULE = null;
-					trace("+ parsing: " + this.__file);
+					//trace("+ parsing: " + this.__file);
 
 					// Mark BOF ast node
 					token.type = jsdef.BOF;
@@ -607,6 +608,7 @@ function __init_narcissus(GLOBAL)
 			n.private 	= t.private;
 			n.protected = t.protected;
 			n.published	= t.published;
+			n.databound = t.databound;
 			n.virtual 	= t.virtual;
 			n.abstract 	= t.abstract;
 			n.delegate 	= t.delegate;
@@ -621,6 +623,7 @@ function __init_narcissus(GLOBAL)
 			n.private 	= this.private;
 			n.protected = this.protected;
 			n.published	= this.published;
+			n.databound	= this.databound;
 			n.virtual 	= this.virtual;
 			n.abstract 	= this.abstract;
 			n.delegate 	= this.delegate;
@@ -636,6 +639,7 @@ function __init_narcissus(GLOBAL)
 			this.public 	= false;
 			this.protected 	= false;
 			this.published	= false;
+			this.databound	= false;
 			this.virtual 	= false;
 			this.abstract 	= false;
 			this.delegate 	= false;
@@ -1127,6 +1131,13 @@ function __init_narcissus(GLOBAL)
 					t.published = true;
                     recognizeStatement(n);
 				}
+				else if(t.token().type == jsdef.DATABOUND)
+				{
+					t.public = true;
+					t.published = true;
+					t.databound = true;
+                    recognizeStatement(n);
+				}
 				else if(t.token().type == jsdef.STATIC)
 				{
 					t.protected = true;
@@ -1255,9 +1266,14 @@ function __init_narcissus(GLOBAL)
 			}
 			else f.name = v;
 		}
+		else
+		{
+			if(requireName)
+				throw t.newSyntaxError("Missing function identifier");
+		}
 
-		else if(requireName)
-			throw t.newSyntaxError("Missing function identifier");
+		if(!f.name && t.__path!="externs.jspp")
+			f.lambda = true;
 
 		f.__start = t.token().start;
 		f.__end = t.token().end;
@@ -1596,7 +1612,7 @@ function __init_narcissus(GLOBAL)
 
 	function CallbackDefinition(t,x)
 	{
-		//callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean {}
+		//callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean;
 		f = new Node(t,jsdef.CALLBACK);
 		t.mustMatch(jsdef.IDENTIFIER);
 		f.name = t.token().value;
@@ -1623,7 +1639,6 @@ function __init_narcissus(GLOBAL)
 			matchVartype(t, f, "returntype");
 		}
 		t.mustMatch(jsdef.SEMICOLON);
-		//t.mustMatch(jsdef.RIGHT_CURLY);
 		return f;
 	}
 
@@ -1871,14 +1886,37 @@ function __init_narcissus(GLOBAL)
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.EXPORT:
+
 			var n;
 			t.get();
 
 			switch(t.token().type)
 			{
-			case jsdef.CLASS: n = ClassDefinition(t, x, true); break;
-			case jsdef.STRUCT: n = StructDefinition(t, x, true); break;
-			case jsdef.ENUM:  n = EnumerationDefinition(t,x); break;
+			case jsdef.CLASS:
+				n = ClassDefinition(t, x, true);
+				break;
+
+			case jsdef.INTERFACE:
+				n  = ClassDefinition(t, x, true, DECLARED_FORM, true);
+				break;
+
+			case jsdef.STRUCT:
+				n = StructDefinition(t, x, true);
+				break;
+
+			case jsdef.ENUM:
+				 n = EnumerationDefinition(t,x);
+				 break;
+
+			case jsdef.CONST:
+			case jsdef.VAR:
+				n = VariablesDefinition(t, x);
+				break;
+
+			case jsdef.FUNCTION:
+				n = FunctionDefinition(t, x, true, DECLARED_FORM);
+				break;
+
 			default:
 				n = null;
 				throw "Invalid export entity.";
@@ -2237,7 +2275,14 @@ function __init_narcissus(GLOBAL)
 		case jsdef.MODULE:
 			var n = new Node(t);
 			t.mustMatch(jsdef.IDENTIFIER);
-			t.__MODULE = n.name = t.token().value;
+			var out = [t.token().value];
+			while(t.peek()==jsdef.DOT)
+			{
+				t.get();
+				t.mustMatch(jsdef.IDENTIFIER);
+				out.push(t.token().value);
+			}
+			t.__MODULE = n.name = out.join(".");
 			n.end = t.cursor;
 			n.line_end = t.line_start;
 			return n;
@@ -2495,6 +2540,7 @@ function __init_narcissus(GLOBAL)
 		PRIVATE: 16,
 		PROTECTED: 16,
 		PUBLISHED: 16,
+		DATABOUND: 16,
 		STATIC: 16,
 		REFERENCE:16,
 		NEW: 17,
@@ -2561,6 +2607,7 @@ function __init_narcissus(GLOBAL)
 		PRIVATE: 1,
 		PROTECTED: 1,
 		PUBLISHED: 1,
+		DATABOUND: 1,
 		STATIC: 1,
 		REFERENCE: 1
 	};
@@ -3101,6 +3148,8 @@ function __init_narcissus(GLOBAL)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	function jsparse(code, as3)
 	{
+		var mark = (new Date()).getTime();
+
         if(as3)
         {
 		    code = RxReplace(code, "\\bVector\\.\\<", "mg", "Array<");
@@ -3127,6 +3176,7 @@ function __init_narcissus(GLOBAL)
 		var x = new CompilerContext(false);
 		var n = Script(t, x);
 		if(!t.done()) throw t.newSyntaxError("Syntax error");
+		trace("+ Parsed in " + ((new Date()).getTime() - mark) + " ms");
 		return n;
 	}
 

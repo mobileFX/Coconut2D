@@ -22,8 +22,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef DEVICE_WRAPPER_H
-#define DEVICE_WRAPPER_H
+#ifndef __DEVICE_WRAPPER_H__
+#define __DEVICE_WRAPPER_H__
 
 class CocoDeviceWrapper;
 
@@ -35,6 +35,8 @@ class CocoDeviceWrapper;
 #include "WebGLRenderingContext.hpp"
 #include "GameEngine.hpp"
 
+extern bool alive;
+
 class CocoDeviceWrapper
 {
 public:
@@ -44,15 +46,13 @@ public:
 	HDC m_glHDC;
 	HGLRC m_OpenGLContext;
 	MSG msg;
-	bool alive;
 
 	CocoDeviceWrapper(int width, int height);
 	~CocoDeviceWrapper();
 
-	void EventLoop();
 	void HandleDeviceEvents();
 	void tick();
 	static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };
 
-#endif // DEVICE_WRAPPER_H
+#endif // __DEVICE_WRAPPER_H__

@@ -34,22 +34,28 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function CompilerTypeSystemPlugin(compiler)
 {
-	trace("+ Loaded CocoScript Compiler Type System Plugin");
+	//trace("+ Loaded CocoScript Compiler Type System Plugin");
 
 	var _this = this._this = compiler;
+
+	_this.RX_STRING_LETERAL = /^\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27$/;
+	_this.RX_INTEGER = /^[+-]?\d+$/;
+	_this.RX_FLOAT = /^[+-]?\d+\.\d+$/;
+	_this.RX_PARTIAL_FLOAT = /^[+-]?\d+\./;
+	_this.RX_NUMERIC_LITERAL = /^(?:0[xX][0-9a-fA-F]+)|(?:\d+(?:\.\d+){0,1}[fd]{0,1})$/;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.types =
 	{
-		"Array"		: { "default": "[]" },
+		"Array"		: { "default": "null" },
 		"Boolean"	: { "default": "false" },
-		"Date"		: {	"default": "new Date" },
-		"Function"	: {	"default": "function(){}" },
+		"Date"		: {	"default": "null" },
+		"Function"	: {	"default": "null" },
 		"Null"		: { "default": "null" },
 		"Number"	: {	"default": "0" },
-		"Float"		: { "default": "0" },
+		"Float"		: { "default": "0.0" },
 		"Integer"	: { "default": "0" },
-		"Object"	: { "default": "{}" },
+		"Object"	: { "default": "null" },
 		"RegExp"	: { "default": "null" },
 		"String"	: { "default": '""' }
 	};
@@ -118,7 +124,7 @@ function CompilerTypeSystemPlugin(compiler)
 		if(!vartype)
 			return false;
 
-		vartype = _this.getVarType(vartype);
+		vartype = _this.getVarType(vartype.trim());
 
 		switch(vartype)
 		{
@@ -135,6 +141,15 @@ function CompilerTypeSystemPlugin(compiler)
 		case "undefined":
 		case "null":
 		case "CocoAction":
+		case "int8_t":
+		case "int16_t":
+		case "int32_t":
+		case "int64_t":
+		case "uint8_t":
+		case "uint16_t":
+		case "uint32_t":
+		case "uint64_t":
+
 			return false;
 
 		default:
@@ -195,7 +210,7 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		return false;
-	}
+	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.isTypedArray = function(vartype)
@@ -220,7 +235,7 @@ function CompilerTypeSystemPlugin(compiler)
 			return true;
 		}
 		return false;
-	}
+	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.isVector = function(vartype)
@@ -242,7 +257,16 @@ function CompilerTypeSystemPlugin(compiler)
 		case 'Number':
 		case 'Float':
 		case 'Integer':
+		case 'Color':
 		case 'Time':
+		case 'int8_t':
+		case 'int16_t':
+		case 'int32_t':
+		case 'int64_t':
+		case 'uint8_t':
+		case 'uint16_t':
+		case 'uint32_t':
+		case 'uint64_t':
 			return true;
 		}
 
@@ -273,7 +297,7 @@ function CompilerTypeSystemPlugin(compiler)
 		default:
 			return "Object";
 		}
-	}
+	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getDefaultVartypeValue = function(vartype)
@@ -319,14 +343,15 @@ function CompilerTypeSystemPlugin(compiler)
 		case "Array":			return "Object";
 		case "ArrayBuffer":		return "Number";
 		case "ArrayBufferView":	return "Number";
-		case "Int8Array":		return "Integer";
-		case "Int16Array":		return "Integer";
+
+		case "Int8Array":		return "int8_t";
+		case "Int16Array":		return "int16_t";
 		case "Int32Array":		return "Integer";
-		case "Int64Array":		return "Integer";
-		case "Uint8Array":		return "Integer";
-		case "Uint16Array":		return "Integer";
-		case "Uint32Array":		return "Integer";
-		case "Uint64Array":		return "Integer";
+		case "Int64Array":		return "int64_t";
+		case "Uint8Array":		return "uint8_t";
+		case "Uint16Array":		return "uint16_t";
+		case "Uint32Array":		return "uint32_t";
+		case "Uint64Array":		return "uint64_t";
 		case "Float32Array":	return "Float";
 		case "Float64Array":	return "Float";
 		}
@@ -356,7 +381,7 @@ function CompilerTypeSystemPlugin(compiler)
 			v += (_this.isPointer(v) || s!=null ? "* " :" ");
 
 		return v;
-	}
+	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.VALUECPP = function(v, subtype)
@@ -371,8 +396,6 @@ function CompilerTypeSystemPlugin(compiler)
 	_this.getTypeName = function(ast)
 	{
 		if(!_this.secondPass || !_this.currClassName || !ast) return;
-		//if(ast.vartype && ast.vartype!="Untyped")
-		//	return ast.vartype;
 		var type = _this.getTypeNameResolver(ast);
 		ast.vartype = type;
 		return type;
@@ -386,7 +409,7 @@ function CompilerTypeSystemPlugin(compiler)
 		switch(ast.type)
 		{
 		//=============================================================================================================================
-		case jsdef.ARRAY_INIT:		return "Array"
+		case jsdef.ARRAY_INIT:		return "Array";
 		case jsdef.ASSIGN:   		return _this.getTypeName(ast[0]);
 		case jsdef.BITWISE_NOT:		return "Number";
 		case jsdef.COMMA: 			return _this.getTypeName(ast[+ast.length-1]);
@@ -404,7 +427,6 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.NE:              return "Boolean";
 		case jsdef.NOT:             return "Boolean";
 		case jsdef.NULL:			return "Null";
-		case jsdef.NUMBER:			return "Number";
 		case jsdef.OBJECT_INIT:		return "Object";
 		case jsdef.REGEXP:			return "RegExp";
 		case jsdef.STATE:			return "State";
@@ -416,6 +438,18 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.TRUE:			return "Boolean";
 		case jsdef.TYPEOF:			return "String";
 		case jsdef.VOID:			return _this.UNTYPED;
+
+		case jsdef.NUMBER:
+
+			/*
+			if(_this.RX_INTEGER.test(ast.value))
+				return "Integer";
+
+			if(_this.RX_FLOAT.test(ast.value))
+				return "Float";
+			*/
+
+			return "Number";
 
 		case jsdef.FUNCTION:
 			return ast.symbol.vartype || "Function";
@@ -539,6 +573,9 @@ function CompilerTypeSystemPlugin(compiler)
 			if(_this.getClass(ast[0].value)) return ast[0].value;
 			return _this.getTypeName(ast[0]);
 
+		case jsdef.LIST:
+			return _this.getTypeName(ast[0]);
+
 		//=============================================================================================================================
 		case jsdef.INDEX:
 			var vartype = _this.getTypeName(ast[0]);
@@ -589,6 +626,8 @@ function CompilerTypeSystemPlugin(compiler)
 		}
 
 		_this.checkFunctionSignature(ast, fnSymbol);
+
+		return fnSymbol;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -818,7 +857,7 @@ function CompilerTypeSystemPlugin(compiler)
 			if(checkOnly) return false;
 			_this.NewError(customError || "Invalid "+type2+" to Integer convertion: " + ast.source, ast);
 			return type1;
-		};
+		}
 
 		// Float
 		if(type1=="Float" && type2=="Number") return type1;
@@ -827,7 +866,7 @@ function CompilerTypeSystemPlugin(compiler)
         	if(checkOnly) return false;
         	_this.NewError(customError || "Invalid "+type2+" to Float convertion: " + ast.source, ast);
         	return type1;
-        };
+        }
 
 		// Time
 		if(type1=="Time" && type2=="Number") return type1;
@@ -836,7 +875,7 @@ function CompilerTypeSystemPlugin(compiler)
 			if(checkOnly) return false;
 			_this.NewError(customError || "Invalid "+type2+" to Time convertion: " + ast.source, ast);
 			return type1;
-		};
+		}
 
 		// Color
 		if(type1=="Color" && type2=="Number") return type1;
@@ -846,7 +885,7 @@ function CompilerTypeSystemPlugin(compiler)
 			if(checkOnly) return false;
 			_this.NewError(customError || "Invalid "+type2+" to Color convertion: " + ast.source, ast);
 			return type1;
-		};
+		}
 		// Date
 		if(type1=="Date" && type2=="Null") return type1;
 
@@ -879,6 +918,16 @@ function CompilerTypeSystemPlugin(compiler)
 		if(!cls2)
 		{
 			_this.NewError(customError || "Class not found: " + type2, ast);
+			return type1;
+		}
+
+		// JSON support: typecast from Dictionary or Object to a Struct
+		if(cls1.struct && (cls2.name=="Dictionary" || cls2.name=="Object"))
+		{
+			return type1;
+		}
+		if(cls2.struct && (cls1.name=="Dictionary" || cls1.name=="Object"))
+		{
 			return type1;
 		}
 
@@ -927,7 +976,7 @@ function CompilerTypeSystemPlugin(compiler)
 			{
 				if(base.name==cls2.name)
 				{
-					if(!ast.typecasting)
+					if(!ast.__typecast_explicit)
 					{
 						if(cls2.name=="HTMLElement" || cls1.name=="HTMLElement")
 						{
@@ -968,10 +1017,267 @@ function CompilerTypeSystemPlugin(compiler)
 		// Check casting interface to class
 		if(!cls1.interface && cls2.interface)
 		{
-			if(!ast.typecasting)
+			if(!ast.__typecast_explicit)
 				_this.NewError("Ambiguous casting of interface to class", ast);
 			else
 				return cls1.name;
 		}
-	}
+	};
+
+	// ==================================================================================================================================
+	//	  ______                    ______           __  _
+	//	 /_  __/_  ______  ___     / ____/___ ______/ /_(_)___  ____ _
+	//	  / / / / / / __ \/ _ \   / /   / __ `/ ___/ __/ / __ \/ __ `/
+	//	 / / / /_/ / /_/ /  __/  / /___/ /_/ (__  ) /_/ / / / / /_/ /
+	//	/_/  \__, / .___/\___/   \____/\__,_/____/\__/_/_/ /_/\__, /
+	//	    /____/_/                                         /____/
+	// ==================================================================================================================================
+
+	_this.typeCast = function(ast, gen)
+	{
+		gen = gen.trim();
+
+		var vartype = _this.getTypeName(ast);
+
+		//===============================================================================
+		if(ast.__typecast == "CocoAction")
+		{
+			//TODO
+			return gen;
+		}
+
+		//===============================================================================
+		function __cast_to_float()
+		{
+			vartype = "Float";
+
+			// integer literal to float
+			if(_this.RX_INTEGER.test(gen) && !isNaN(gen))
+			{
+				gen = gen + ".0";
+				return;
+			}
+		}
+
+		//===============================================================================
+		function __cast_to_integer()
+		{
+			vartype = "Integer";
+
+			/// integer literal to color
+			if(ast.__typecast=="Color" && _this.RX_INTEGER.test(gen) && !isNaN(gen))
+			{
+				gen = "0x" + parseInt(gen).toString(16);
+				return;
+			}
+
+			// integer literal to integer, pass...
+			if(_this.RX_INTEGER.test(gen) && !isNaN(gen)) return;
+
+			// float literal to integer
+			if(_this.RX_PARTIAL_FLOAT.test(gen) && !isNaN(Math.round(gen)))
+			{
+				gen = Math.round(gen);
+				return;
+			}
+
+			// Type cast to integer (or derivative)
+			gen = "Math.round(" + gen + ")";
+		}
+
+		//===============================================================================
+		function __cast_to_string()
+		{
+			vartype = "String";
+
+			// string literal to string, pass...
+			if(_this.RX_STRING_LETERAL.test(gen)) return;
+
+			gen = "String(" + gen + ")";
+		}
+
+		//===============================================================================
+		function __cast()
+		{
+			if(_this.isDerivativeOf(ast.__typecast, "Integer")) 	return __cast_to_integer();
+			if(_this.isDerivativeOf(ast.__typecast, "Float"))		return __cast_to_float();
+			if(_this.isDerivativeOf(ast.__typecast, "String"))		return __cast_to_string();
+		}
+
+		//===============================================================================
+		if(ast.__typecast_explicit) // Explicit Type Cast Call
+		{
+			if(vartype==ast.__typecast)
+				_this.NewWarning("Explicit typecast is unnecessary", ast);
+
+			__cast();
+		}
+
+		//===============================================================================
+		else if(ast.__typecast_implicit) // Assign
+		{
+			if(ast.__typecast != vartype)
+				__cast();
+		}
+
+		//===============================================================================
+		else if(ast.__typecast_byval) // Function Call
+		{
+			if(ast.__typecast != vartype)
+				__cast();
+		}
+
+		//===============================================================================
+		// Type Check
+
+		_this.typeCheck(ast, ast.__typecast, vartype);
+
+		return gen;
+	};
+
+	// ==================================================================================================================================
+	//	  ______                    ______           __  _                ______
+	//	 /_  __/_  ______  ___     / ____/___ ______/ /_(_)___  ____ _   / ____/__    __
+	//	  / / / / / / __ \/ _ \   / /   / __ `/ ___/ __/ / __ \/ __ `/  / /  __/ /___/ /_
+	//	 / / / /_/ / /_/ /  __/  / /___/ /_/ (__  ) /_/ / / / / /_/ /  / /__/_  __/_  __/
+	//	/_/  \__, / .___/\___/   \____/\__,_/____/\__/_/_/ /_/\__, /   \____//_/   /_/
+	//	    /____/_/                                         /____/
+	// ==================================================================================================================================
+
+	_this.typeCastCPP = function(ast, gen)
+	{
+		gen = gen.trim();
+
+		if(!_this.secondPass || gen=="nullptr" || ast.type==jsdef.NEW)
+			return gen;
+
+		var ogen = gen;
+
+		var vartype = _this.getTypeName(ast);
+		var cpp_vartype = _this.VTCPP(vartype).trim();
+
+		var typecast = ast.__typecast;
+		var cpp_typecast = _this.VTCPP(typecast).trim();
+
+		//===============================================================================
+		function __cast_to_string()
+		{
+			// string literal to string, pass...
+			if(_this.RX_STRING_LETERAL.test(gen)) return;
+
+			// String constructor
+			gen = cpp_typecast + "(" + gen + ")";
+		}
+
+		//===============================================================================
+		function __cast_to_float()
+		{
+			// float literal to float, pass...
+			if(_this.RX_PARTIAL_FLOAT.test(gen)) return;
+
+			// integer literal to float
+			if(_this.RX_INTEGER.test(gen))
+			{
+				gen = gen + ".0f";
+				return;
+			}
+
+			// Type cast to float (or derivative)
+			gen = "(" + cpp_typecast + ")(" + gen + ")";
+		}
+
+		//===============================================================================
+		function __cast_to_integer()
+		{
+			/// integer literal to color
+			if(cpp_typecast=="Color" && _this.RX_INTEGER.test(gen) && !isNaN(gen))
+			{
+				gen = "0x" + parseInt(gen).toString(16);
+				return;
+			}
+
+			// integer literal to integer, pass...
+			if(_this.RX_INTEGER.test(gen)) return;
+
+			// float literal to integer
+			if(_this.RX_PARTIAL_FLOAT.test(gen) && !isNaN(Math.round(gen)))
+			{
+				gen = Math.round(gen);
+				return;
+			}
+
+			// Type cast to integer (or derivative)
+			gen = "(" + cpp_typecast + ")(" + gen + ")";
+		}
+
+		//===============================================================================
+		function __cast_to_pointer()
+		{
+			if(typecast!=vartype && typecast!="Array<Object>" && vartype!="Array<Object>" && typecast.indexOf("<")!=-1 && vartype.indexOf("<")!=-1)
+			{
+				var stype1 = _this.getSubType(typecast);
+				var stype2 = _this.getSubType(vartype);
+				if(_this.isDerivativeOf(stype1, stype2))
+				{
+					CPP.push("(reinterpret_cast<Array<" + stype1 + "*>*>(" + rhs + "))");
+					_this.NewWarning("Arbitrary array coversion from " + vartype + " to " + typecast, ast);
+					return;
+				}
+				_this.NewError("Incompatible array sub types conversion from Array<" + stype2 + "> to Array<" + stype1 + ">", ast);
+			}
+
+			// Reinterpret cast pointer to class
+			gen = "reinterpret_cast<" + cpp_typecast + ">(" + gen + ")";
+		}
+
+		//===============================================================================
+		function __cast_to_enum()
+		{
+			gen = "(" + cpp_typecast + ")(" + gen + ")";
+		}
+
+		//===============================================================================
+		function __cast()
+		{
+			// Handle Number type
+			if(vartype=="Number" && _this.RX_NUMERIC_LITERAL.test(gen) && !isNaN(gen))
+			{
+				if(_this.RX_PARTIAL_FLOAT.test(gen))
+					vartype = "Float";
+				else
+					vartype = "Integer";
+			}
+
+			if(_this.isDerivativeOf(cpp_typecast, "Integer")) 	return __cast_to_integer();
+			if(_this.isDerivativeOf(cpp_typecast, "Float"))		return __cast_to_float();
+			if(_this.isDerivativeOf(cpp_typecast, "String"))	return __cast_to_string();
+			if(_this.isPointer(cpp_typecast))					return __cast_to_pointer();
+			if(_this.isEnum(cpp_typecast))						return __cast_to_enum();
+
+			trace("WARNING: >>>>>> Unknown type cast: " + cpp_typecast);
+			gen = "(" + cpp_typecast + ")(" + gen + ")";
+		}
+
+		//===============================================================================
+		if(ast.__typecast_explicit) // Explicit Type Cast Call
+		{
+			__cast();
+		}
+
+		//===============================================================================
+		else if(ast.__typecast_implicit) // Assign
+		{
+			if(cpp_typecast!=cpp_vartype)
+				__cast();
+		}
+
+		//===============================================================================
+		else if(ast.__typecast_byval) // Function Call
+		{
+			if(cpp_typecast!=cpp_vartype)
+				__cast();
+		}
+
+		return gen;
+	};
 }

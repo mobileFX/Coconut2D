@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2011 Erin Catto http://www.box2d.org
 *
 * This software is provided 'as-is', without any express or implied
@@ -23,7 +23,7 @@
 
 class b2Draw;
 
-/// 
+///
 struct b2RopeDef
 {
 	b2RopeDef()
@@ -59,7 +59,7 @@ struct b2RopeDef
 	float32 k3;
 };
 
-/// 
+///
 class b2Rope
 {
 public:

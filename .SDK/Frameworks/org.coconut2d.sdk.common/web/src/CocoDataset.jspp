@@ -22,17 +22,17 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#pragma export_web
-#pragma export_native
-#pragma export_nodejs
+#pragma export_web;
+#pragma export_native;
 
-#module Data
+#pragma export_nodejs;
+#module org.coconut2d.sdk.common;
 
-#if (TARGET_NAME!="node.js" && COCONUT2D_NET)
+#if (TARGET_EXPORT!="nodejs" && COCONUT2D_NET)
 #include "CocoHttpRequest.jspp"
 #endif
 
-#if (TARGET_NAME=="node.js")
+#if (TARGET_EXPORT=="nodejs")
 var __path:NodeJS_Path = require('path');
 #endif
 
@@ -195,7 +195,7 @@ export class CocoDataStream
 	private var __offset:Integer;
 	private var __length:Integer;
 
-	#if (TARGET_NAME!="node.js" && COCONUT2D_NET)
+	#if (TARGET_EXPORT!="nodejs" && COCONUT2D_NET)
 	private var http:CocoHttpRequest;
 	#endif
 
@@ -207,7 +207,7 @@ export class CocoDataStream
 		bi = new Int32Array(__length);
 		bf = new Float32Array(bi.buffer);
 
-		#if (TARGET_NAME!="node.js" && COCONUT2D_NET)
+		#if (TARGET_EXPORT!="nodejs" && COCONUT2D_NET)
 		http = null;
 		#endif
  	}
@@ -215,7 +215,7 @@ export class CocoDataStream
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function Destructor()
  	{
- 		#if (TARGET_NAME!="node.js" && COCONUT2D_NET)
+ 		#if (TARGET_EXPORT!="nodejs" && COCONUT2D_NET)
  		delete http;
  		#endif
 
@@ -224,7 +224,7 @@ export class CocoDataStream
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	#if (TARGET_NAME!="node.js" && COCONUT2D_NET)
+	#if (TARGET_EXPORT!="nodejs" && COCONUT2D_NET)
  	public function openFromURL(url:String, optional async:Boolean = true):Boolean
  	{
  		var ret:Boolean = false;
@@ -356,14 +356,14 @@ export class CocoDataStream
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function writeInteger(v:Integer)
  	{
- 		increaseSize(Integer(1));
+ 		increaseSize(1);
  		bi[__offset++] = v;
  	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function writeFloat(v:Float)
  	{
- 		increaseSize(Integer(1));
+ 		increaseSize(1);
  		bf[__offset++] = v;
  	}
 
@@ -677,10 +677,10 @@ export class CocoDataField
 	{
 		var s:String = "{";
 		s += "\"ORDINAL\":\"" 				+ String(ORDINAL)					+ "\"";
-		s += ",\"ID\":\""					+ String(ID)                    	+ "\"";
-		s += ",\"NAME\":\""					+ String(NAME)                  	+ "\"";
-		s += ",\"BASECOLUMNNAME\":\""		+ String(BASECOLUMNNAME)        	+ "\"";
-		s += ",\"BASETABLENAME\":\""		+ String(BASETABLENAME)         	+ "\"";
+		s += ",\"ID\":\""					+ ID                    			+ "\"";
+		s += ",\"NAME\":\""					+ NAME                  			+ "\"";
+		s += ",\"BASECOLUMNNAME\":\""		+ BASECOLUMNNAME        			+ "\"";
+		s += ",\"BASETABLENAME\":\""		+ BASETABLENAME         			+ "\"";
 		s += ",\"TYPE\":\""					+ String(Integer(TYPE))             + "\"";
 		s += ",\"LCID\":\""					+ String(LCID)                  	+ "\"";
 		s += ",\"PRECISION\":\""			+ String(PRECISION)             	+ "\"";
@@ -689,10 +689,10 @@ export class CocoDataField
 		s += ",\"LENGTH\":\""				+ String(LENGTH)                	+ "\"";
 		s += ",\"FLAGS\":\""				+ String(Integer(FLAGS))        	+ "\"";
 		s += ",\"SQLITE_DATATYPE\":\""		+ String(Integer(SQLITE_DATATYPE))  + "\"";
-		s += ",\"SQLITE_DECLARED_TYPE\":\""	+ String(SQLITE_DECLARED_TYPE)  	+ "\"";
-		s += ",\"SQLITE_PK_COLUMN\":\""		+ String(SQLITE_PK_COLUMN)      	+ "\"";
-		s += ",\"SQLITE_PK_TABLE\":\""		+ String(SQLITE_PK_TABLE)       	+ "\"";
-		s += ",\"DEFAULTVALUE\":\""			+ String(DEFAULTVALUE)          	+ "\"";
+		s += ",\"SQLITE_DECLARED_TYPE\":\""	+ SQLITE_DECLARED_TYPE  			+ "\"";
+		s += ",\"SQLITE_PK_COLUMN\":\""		+ SQLITE_PK_COLUMN      			+ "\"";
+		s += ",\"SQLITE_PK_TABLE\":\""		+ SQLITE_PK_TABLE       			+ "\"";
+		s += ",\"DEFAULTVALUE\":\""			+ DEFAULTVALUE          			+ "\"";
 		s += "}";
 		return s;
 	}
@@ -895,10 +895,10 @@ export class CocoDataset
 		delete DATA;
 	}
 
-	#if (TARGET_NAME!="node.js" && COCONUT2D_NET)
+	#if (TARGET_EXPORT!="nodejs" && COCONUT2D_NET)
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function openURL(url:String, async:Boolean = true):Boolean
+	public function openURL(url:String, optional async:Boolean = true):Boolean
 	{
 		var ret:Boolean = false;
 
@@ -966,7 +966,7 @@ export class CocoDataset
 	#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	#if (TARGET_NAME=="node.js")
+	#if (TARGET_EXPORT=="nodejs")
 	public function open(database:String, SQL:String):Boolean
 	{
 		var ret:Boolean = false;
@@ -1171,7 +1171,7 @@ export class CocoDataset
 	{
 		var ROW:CocoDataRow = new CocoDataRow(this);
 		var L:Integer = arguments.size();
-		for(var i=1;i<L;i++)
+		for(var i:Integer=1;i<L;i++)
 		{
 			ROW.FieldValues[i] = arguments[i];
 		}
@@ -1518,13 +1518,12 @@ export class CocoDataset
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function toArrayBuffer():ArrayBuffer
 	{
+		var result:ArrayBuffer;
 		var ds:CocoDataStream = new CocoDataStream();
 		if(write(ds))
-		{
-			//ds.shrink();
-			return ds.buffer.buffer;
-		}
-		return null;
+			result = ds.buffer.buffer;
+		delete ds;
+		return result;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

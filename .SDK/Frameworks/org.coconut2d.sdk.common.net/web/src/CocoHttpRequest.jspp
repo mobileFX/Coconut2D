@@ -1,0 +1,126 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_web;
+#pragma export_native;
+#pragma export_nodejs;
+
+// ==================================================================================================================================
+//	   ______                 __  ____  __        ____                             __
+//	  / ____/___  _________  / / / / /_/ /_____  / __ \___  ____ ___  _____  _____/ /_
+//	 / /   / __ \/ ___/ __ \/ /_/ / __/ __/ __ \/ /_/ / _ \/ __ `/ / / / _ \/ ___/ __/
+//	/ /___/ /_/ / /__/ /_/ / __  / /_/ /_/ /_/ / _, _/  __/ /_/ / /_/ /  __(__  ) /_
+//	\____/\____/\___/\____/_/ /_/\__/\__/ .___/_/ |_|\___/\__, /\__,_/\___/____/\__/
+//	                                   /_/                  /_/
+// ==================================================================================================================================
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoHttpRequest
+{
+	public delegate var xhttp:XMLHttpRequest;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		xhttp = new XMLHttpRequest();
+	}
+
+	public function OnTimeout()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete xhttp;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Ready():Boolean
+	{
+		try
+		{
+			return xhttp!=null && xhttp.status!=0 && xhttp.response!=null;
+		}
+		catch(e:Error)
+		{
+			return false;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Success():Boolean
+	{
+		try
+		{
+			return xhttp!=null && xhttp.status==200;
+		}
+		catch(e:Error)
+		{
+			return false;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property responseBuffer
+	{
+		function get():ArrayBuffer
+		{
+			var buffer:ArrayBuffer = null;
+
+			if(Ready() && Success() && xhttp.response!=null)
+			{
+				if(xhttp.responseType=="arraybuffer")
+				{
+					var response:ArrayBuffer = xhttp.response;
+					var responseView:DataView = new DataView(response);
+					var L:Integer = response.byteLength;
+					buffer = new ArrayBuffer(L);
+					var view:DataView = new DataView(buffer);
+					for(var i:Integer=0; i<L; i++)
+					{
+						view.setUint8(i, responseView.getUint8(i));
+					}
+					delete responseView;
+					delete view;
+				}
+				else
+				{
+					// Response Text to ArrayBuffer
+					var data:String = xhttp.responseText;
+					var L:Integer = data.size();
+					buffer = new ArrayBuffer(L*2);
+					var view:DataView = new DataView(buffer);
+					for(var i:Integer=0; i<L; i++)
+					{
+						view.setUint8(i,data.charCodeAt(i));
+					}
+					delete view;
+				}
+			}
+
+			return buffer;
+		}
+	}
+}

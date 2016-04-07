@@ -33,7 +33,7 @@
 
 function CompilerAnalyzerPlugin(compiler)
 {
-	trace("+ Loaded CocoScript Compiler Code Analyzer Plugin");
+	//trace("+ Loaded CocoScript Compiler Code Analyzer Plugin");
 
 	var _this = this._this = compiler;
 
@@ -63,6 +63,6 @@ function CompilerAnalyzerPlugin(compiler)
 				//if(stop) return true;
 			}
 		}
-	}
+	};
 }
 

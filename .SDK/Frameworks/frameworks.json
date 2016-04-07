@@ -1,102 +1,144 @@
 {
 	"Frameworks":
 	{
+		"org.coconut2d.sdk.anim":
+		{
+			"Name": "Coconut2D Core Animation Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
+			"License": "MIT",
+			"PrecompilerVarName": "COCONUT2D_ANIMATION",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.anim",
+			"Description": "",
+			"Dependencies": "org.coconut2d.sdk.common",
+			"FSM": true,
+			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
+		},
+		"org.coconut2d.sdk.anim.game2D":
+		{
+			"Name": "Coconut2D Core 2D Game Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
+			"License": "MIT",
+			"PrecompilerVarName": "COCONUT2D_GAME2D",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.anim.game2D",
+			"Description": "",
+			"Dependencies": "org.coconut2d.sdk.anim",
+			"FSM": true,
+			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
+		},
+		"org.coconut2d.sdk.anim.ui":
+		{
+			"Name": "Coconut2D Core Application Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
+			"License": "MIT",
+			"PrecompilerVarName": "COCONUT2D_APPLICATION",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.anim.ui",
+			"Description": "",
+			"Dependencies": "org.coconut2d.sdk.anim",
+			"FSM": true,
+			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
+		},
 		"org.coconut2d.sdk.common":
 		{
 			"Name": "Coconut2D Common Utility Framework",
 			"Version": "0.1",
 			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
 			"License": "MIT",
 			"PrecompilerVarName": "COCONUT2D_COMMON",
 			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.common",
 			"Description": "",
 			"Dependencies": "",
 			"FSM": false,
-			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32;node.js"
+			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32;node.js;CocoNode"
 		},
-		"org.coconut2d.sdk.html5":
+		"org.coconut2d.sdk.common.net":
+		{
+			"Name": "Coconut2D Common Network Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
+			"License": "MIT",
+			"PrecompilerVarName": "COCONUT2D_NET",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.common.net",
+			"Description": "",
+			"Dependencies": "org.coconut2d.sdk.common",
+			"FSM": false,
+			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
+		},
+		"org.coconut2d.sdk.native.html5":
 		{
 			"Name": "Coconut2D HTML5 Bindings Framework",
 			"Version": "0.1",
 			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
 			"License": "MIT",
 			"PrecompilerVarName": "COCONUT2D_HTML5",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.html5",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.native.html5",
 			"Description": "",
-			"Dependencies": "",
+			"Dependencies": "org.coconut2d.sdk.common",
 			"FSM": false,
 			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
 		},
-		"org.coconut2d.sdk.webgl":
+		"org.coconut2d.sdk.native.webgl":
 		{
 			"Name": "Coconut2D WebGL Bindings Framework",
 			"Version": "0.1",
 			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
 			"License": "MIT",
 			"PrecompilerVarName": "COCONUT2D_WEBGL",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.webgl",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.native.webgl",
 			"Description": "",
-			"Dependencies": "",
+			"Dependencies": "org.coconut2d.sdk.common;org.coconut2d.sdk.native.html5",
 			"FSM": false,
 			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
 		},
-		"org.coconut2d.sdk.anim":
+		"org.coconut2d.sdk.server.ASP":
 		{
-			"Name": "Coconut2D Core Animation Framework",
+			"Name": "Coconut2D Classic ASP Framework",
 			"Version": "0.1",
 			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
 			"License": "MIT",
-			"PrecompilerVarName": "COCONUT2D_ANIMATION",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.anim",
-			"Description": "",
-			"Dependencies": "",
-			"FSM": true,
-			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
-		},
-		"org.coconut2d.sdk.net":
-		{
-			"Name": "Coconut2D Core Network Framework",
-			"Version": "0.1",
-			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
-			"License": "MIT",
-			"PrecompilerVarName": "COCONUT2D_NET",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.net",
+			"PrecompilerVarName": "COCONUT2D_ASP",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.server.ASP",
 			"Description": "",
 			"Dependencies": "",
 			"FSM": false,
-			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
+			"Platforms": "CocoNode"
+		},
+		"org.coconut2d.sdk.server.node.js":
+		{
+			"Name": "Coconut2D Core Node.js Server Framework",
+			"Version": "0.1",
+			"Type": "CocoScript",
+			"Copyright": "Copyright (C) 2015, mobileFX. All Rights Reserved",
+			"License": "MIT",
+			"PrecompilerVarName": "COCONUT2D_NODEJS",
+			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.server.node.js",
+			"Description": "",
+			"Dependencies": "",
+			"FSM": false,
+			"Platforms": "node.js"
 		},
 		"org.coconut2d.sdk.social":
 		{
 			"Name": "Coconut2D Social Networks Framework",
 			"Version": "0.1",
 			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
 			"License": "MIT",
 			"PrecompilerVarName": "COCONUT2D_SOCIAL",
 			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.social",
 			"Description": "",
 			"Dependencies": "",
 			"FSM": false,
-			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
-		},
-		"org.coconut2d.sdk.ui":
-		{
-			"Name": "Coconut2D Core Application Framework",
-			"Version": "0.1",
-			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
-			"License": "MIT",
-			"PrecompilerVarName": "COCONUT2D_APPLICATION",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.ui",
-			"Description": "",
-			"Dependencies": "org.coconut2d.sdk.anim",
-			"FSM": true,
 			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
 		},
 		"org.emscripten.box2d":
@@ -114,61 +156,19 @@
 			"FSM": false,
 			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
 		},
-		"org.coconut2d.sdk.game2d":
-		{
-			"Name": "Coconut2D Core 2D Game Framework",
-			"Version": "0.1",
-			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
-			"License": "MIT",
-			"PrecompilerVarName": "COCONUT2D_GAME2D",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.game2d",
-			"Description": "",
-			"Dependencies": "org.coconut2d.sdk.anim",
-			"FSM": true,
-			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
-		},
-		"com.vermantia.game.slots":
-		{
-			"Name": "Vermantia 2D Slot Machine Framework",
-			"Version": "0.1",
-			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2015, Vermantia. All Rights Reserved",
-			"License": "MIT",
-			"PrecompilerVarName": "COCONUT2D_GAME_SLOTS",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/com.vermantia.game.slots",
-			"Description": "",
-			"Dependencies": "org.coconut2d.sdk.anim",
-			"FSM": true,
-			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
-		},
 		"org.coconut2d.sdk.tests":
 		{
 			"Name": "Coconut2D Tests Framework",
 			"Version": "0.1",
 			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
+			"Copyright": "Copyright (C) 2016, mobileFX. All Rights Reserved",
 			"License": "MIT",
-			"PrecompilerVarName": "COCONUT2D_ANIMATION",
+			"PrecompilerVarName": "COCONUT2D_TESTS",
 			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.tests",
 			"Description": "",
 			"Dependencies": "",
 			"FSM": true,
 			"Platforms": "CocoPlayer;HTML5;Android;iOS;Win32"
-		},
-		"org.coconut2d.sdk.server":
-		{
-			"Name": "Coconut2D Core Server Framework",
-			"Version": "0.1",
-			"Type": "CocoScript",
-			"Copyright": "Copyright (C) 2014, mobileFX. All Rights Reserved",
-			"License": "MIT",
-			"PrecompilerVarName": "COCONUT2D_SERVER",
-			"Path": "$(PATH_SDK_FRAMEWORKS)/org.coconut2d.sdk.server",
-			"Description": "",
-			"Dependencies": "",
-			"FSM": false,
-			"Platforms": "node.js"
 		}
 	}
 }

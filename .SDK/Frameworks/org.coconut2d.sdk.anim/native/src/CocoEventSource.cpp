@@ -66,7 +66,7 @@ void CocoEventSource::addEventListener(CocoEvent* Event, void* Listener, int Dis
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 bool CocoEventSource::removeEventListener(CocoEvent* Event, void* Listener, int DispID)
 {
-	for(int i = __eventListeners->size() - 1; i >= 0; i--)
+	for(int32_t i = (int32_t)__eventListeners->size() - 1; i >= 0; i--)
 	{
 		if((*__eventListeners)[i]->Event->is(Event) && (*__eventListeners)[i]->Listener == Listener && (*__eventListeners)[i]->DispID == DispID)
 		{

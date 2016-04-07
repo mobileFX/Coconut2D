@@ -1,4 +1,4 @@
-
+﻿
 // Bindings utilities
 
 var Object__cache = {}; // we do it this way so we do not modify |Object|
@@ -1903,7 +1903,7 @@ b2PolygonShape.prototype['RayCast'] = function(arg0, arg1, arg2, arg3) {
 b2PolygonShape.prototype['SetAsBox'] = function(arg0, arg1, arg2, arg3) {
   if (arg2 === undefined)
     _emscripten_bind_b2PolygonShape__SetAsBox_p2(this.ptr, arg0, arg1);
-  else 
+  else
     _emscripten_bind_b2PolygonShape__SetAsBox_p4(this.ptr, arg0, arg1, arg2.ptr, arg3);
 }
 
@@ -2226,7 +2226,7 @@ b2Body.prototype['SetType'] = function(arg0) {
 b2Body.prototype['CreateFixture'] = function(arg0, arg1) {
   if (arg1 === undefined)
     return wrapPointer(_emscripten_bind_b2Body__CreateFixture_p1(this.ptr, arg0.ptr), Module['b2Fixture']);
-  else 
+  else
     return wrapPointer(_emscripten_bind_b2Body__CreateFixture_p2(this.ptr, arg0.ptr, arg1), Module['b2Fixture']);
 }
 
@@ -2769,7 +2769,7 @@ b2Vec2.prototype['set_x'] = function(arg0) {
 function b2Vec2(arg0, arg1) {
   if (arg0 === undefined)
     this.ptr = _emscripten_bind_b2Vec2__b2Vec2_p0();
-  else 
+  else
     this.ptr = _emscripten_bind_b2Vec2__b2Vec2_p2(arg0, arg1);
   b2Vec2.prototype.__cache__[this.ptr] = this;
   this.__class__ = b2Vec2;
@@ -2856,7 +2856,7 @@ b2Vec3.prototype['SetZero'] = function() {
 function b2Vec3(arg0, arg1, arg2) {
   if (arg0 === undefined)
     this.ptr = _emscripten_bind_b2Vec3__b2Vec3_p0();
-  else 
+  else
     this.ptr = _emscripten_bind_b2Vec3__b2Vec3_p3(arg0, arg1, arg2);
   b2Vec3.prototype.__cache__[this.ptr] = this;
   this.__class__ = b2Vec3;
@@ -2915,7 +2915,7 @@ b2AABB.prototype['GetPerimeter'] = function() {
 b2AABB.prototype['Combine'] = function(arg0, arg1) {
   if (arg1 === undefined)
     _emscripten_bind_b2AABB__Combine_p1(this.ptr, arg0.ptr);
-  else 
+  else
     _emscripten_bind_b2AABB__Combine_p2(this.ptr, arg0.ptr, arg1.ptr);
 }
 
@@ -3510,7 +3510,7 @@ b2Transform.prototype['get_q'] = function() {
 function b2Transform(arg0, arg1) {
   if (arg0 === undefined)
     this.ptr = _emscripten_bind_b2Transform__b2Transform_p0();
-  else 
+  else
     this.ptr = _emscripten_bind_b2Transform__b2Transform_p2(arg0.ptr, arg1.ptr);
   b2Transform.prototype.__cache__[this.ptr] = this;
   this.__class__ = b2Transform;
@@ -3541,7 +3541,7 @@ b2Color.prototype['get_r'] = function() {
 function b2Color(arg0, arg1, arg2) {
   if (arg0 === undefined)
     this.ptr = _emscripten_bind_b2Color__b2Color_p0();
-  else 
+  else
     this.ptr = _emscripten_bind_b2Color__b2Color_p3(arg0, arg1, arg2);
   b2Color.prototype.__cache__[this.ptr] = this;
   this.__class__ = b2Color;
@@ -3596,7 +3596,7 @@ b2Rot.prototype['SetIdentity'] = function() {
 function b2Rot(arg0) {
   if (arg0 === undefined)
     this.ptr = _emscripten_bind_b2Rot__b2Rot_p0();
-  else 
+  else
     this.ptr = _emscripten_bind_b2Rot__b2Rot_p1(arg0);
   b2Rot.prototype.__cache__[this.ptr] = this;
   this.__class__ = b2Rot;

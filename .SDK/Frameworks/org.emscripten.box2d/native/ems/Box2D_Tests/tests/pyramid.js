@@ -1,4 +1,4 @@
-var embox2dTest_pyramid = function() {
+﻿var embox2dTest_pyramid = function() {
 }
 
 embox2dTest_pyramid.prototype.setNiceViewCenter = function() {
@@ -7,7 +7,7 @@ embox2dTest_pyramid.prototype.setNiceViewCenter = function() {
 }
 
 embox2dTest_pyramid.prototype.setup = function() {
-    
+
     {
         var ground = world.CreateBody(new b2BodyDef());
 
@@ -34,7 +34,7 @@ embox2dTest_pyramid.prototype.setup = function() {
 
             for (var j = i; j < 15; ++j)
             {
-                bd.set_position(y);                        
+                bd.set_position(y);
                 world.CreateBody(bd).CreateFixture(shape, 5.0);
                 y.op_add(deltaY);
             }

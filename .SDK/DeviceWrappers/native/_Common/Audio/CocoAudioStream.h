@@ -41,7 +41,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoAudioStream
 {
-    #ifdef ENABLE_OGG_SUPPORT
     private:
         static ov_callbacks ovc;
     public:
@@ -49,9 +48,7 @@ class CocoAudioStream
         static int ogg_from_memory_seek(void* datasource, ogg_int64_t offset, int whence);
         static int ogg_from_memory_close(void* datasource);
         static long ogg_from_memory_tell(void* datasource);
-    #endif /* ENABLE_OGG_SUPPORT */
 
-    #ifdef ENABLE_OPENAL_SUPPORT
     private:
         static ALCdevice* alcDevice;
         static ALCcontext* alcContext;
@@ -59,7 +56,6 @@ class CocoAudioStream
         ALuint alBuffer;
         ALuint alSource;
 		static std::map<std::string, ALuint>* buffers;
-    #endif /* ENABLE_OPENAL_SUPPORT */
 
 private:
     static std::map<fxObjectUID, CocoAudioStream*>* audios;
