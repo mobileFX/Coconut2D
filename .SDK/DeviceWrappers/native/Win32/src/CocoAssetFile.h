@@ -183,7 +183,7 @@ public:
 		static const unsigned char unb64[] = { 62, 0, 0, 0, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0, 0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
 		size_t len = strlen(str);
 		if(len < 2) return nullptr;
-		int pad = 0;
+		size_t pad = 0;
 		if(str[len - 1] == '=') pad++;
 		if(str[len - 2] == '=') pad++;
 		CocoAssetFile* ret = new CocoAssetFile(3 * len / 4 - pad);
@@ -197,9 +197,9 @@ public:
 			C = unb64[str[i + 2] - 43];
 			D = unb64[str[i + 3] - 43];
 
-			ret->data[c++] = (A << 2) | (B >> 4);
-			ret->data[c++] = (B << 4) | (C >> 2);
-			ret->data[c++] = (C << 6) | (D);
+			ret->data[c++] = (uint8_t) (((A << 2) | (B >> 4)) & 0xFF);
+			ret->data[c++] = (uint8_t) (((B << 4) | (C >> 2)) & 0xFF);
+			ret->data[c++] = (uint8_t) (((C << 6) | (D))  & 0xFF);
 		}
 		if(pad == 1)
 		{
@@ -207,15 +207,15 @@ public:
 			B = unb64[str[i + 1] - 43];
 			C = unb64[str[i + 2] - 43];
 
-			ret->data[c++] = (A << 2) | (B >> 4);
-			ret->data[c++] = (B << 4) | (C >> 2);
+			ret->data[c++] = (uint8_t) (((A << 2) | (B >> 4)) & 0xFF);
+			ret->data[c++] = (uint8_t) (((B << 4) | (C >> 2)) & 0xFF);
 		}
 		else if(pad == 2)
 		{
 			A = unb64[str[i] - 43];
 			B = unb64[str[i + 1] - 43];
 
-			ret->data[c++] = (A << 2) | (B >> 4);
+			ret->data[c++] = (uint8_t) (((A << 2) | (B >> 4)) & 0xFF);
 		}
 		return ret;
 	}

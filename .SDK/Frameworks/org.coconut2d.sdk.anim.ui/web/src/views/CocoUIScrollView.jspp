@@ -45,7 +45,7 @@ class CocoUIScrollView : CocoUIView
 	private var __minY:Float;
 	private var __maxY:Float;
 	private var __bounceY:Boolean;
-	private var __scrollContainer:CocoClip;
+	private var __scrollContainer:CocoUIView;
 	private var __scrollDeceleration:Float;
 	private var __scrollSpringTension:Float;
 
@@ -66,7 +66,7 @@ class CocoUIScrollView : CocoUIView
 
 		// Add a container clip to place all children so that
 		// during scrolling we only scroll this container.
- 		__scrollContainer = new CocoClip();
+ 		__scrollContainer = new CocoUIView;
  		__scrollContainer.__instanceName = "__scrollContainer";
  		__scrollContainer.__timeline.clear();
 		__scrollContainer.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
@@ -110,9 +110,9 @@ class CocoUIScrollView : CocoUIView
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function inlineHeight() :Float
+	public function inlineHeight() :Integer
 	{
-		var h:Float = 0;
+		var h:Integer = 0;
 		var ctl:CocoUIControl;
 		for(var i:Integer=__scrollContainer.__children.size();i--;)
 		{

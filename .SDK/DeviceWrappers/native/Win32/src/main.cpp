@@ -22,14 +22,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#define _WIN32_WINNT  0x501
+#ifndef MSVC_COMPILER
+	#define _WIN32_WINNT  0x501
+#endif
 
 #include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include "Coconut2D.hpp"
 #include "CocoAssetFile.h"

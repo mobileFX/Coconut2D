@@ -88,6 +88,7 @@ function CocoMake(command , params)
     // =====================================================================
     // Build for node.js
     // =====================================================================
+    /*@@ node.js @@*/
   	_this.Build_node_js = function(params)
   	{
   		if(params && params.mode=="generate")
@@ -108,6 +109,7 @@ function CocoMake(command , params)
     // =====================================================================
     // Build for CocoNode (node.js with Coconut2D Native Addin for Web Sites)
     // =====================================================================
+    /*@@ CocoNode @@*/
   	_this.Build_CocoNode = function(params)
   	{
   		if(params && params.mode=="generate")
@@ -148,6 +150,7 @@ function CocoMake(command , params)
     // Build for CocoPlay
     // (Similar to Browsers with OpenGL and HTML5 native bindings)
     // =====================================================================
+  	/*@@ CocoPlayer @@*/
   	_this.Build_CocoPlayer = function(params)
   	{
   		if(params && params.mode=="generate")
@@ -172,6 +175,7 @@ function CocoMake(command , params)
     // =====================================================================
     // Build for HTML5 Browsers
     // =====================================================================
+    /*@@ HTML5 @@*/
   	_this.Build_HTML5 = function(params)
   	{
   		if(params && params.mode=="generate")
@@ -195,6 +199,7 @@ function CocoMake(command , params)
     // =====================================================================
     // Build for Android Devices
     // =====================================================================
+    /*@@ Android @@*/
   	_this.Build_Android = function(params)
   	{
   		var JNI_FOLDER = TARGET.TARGET_JNI || TARGET.TARGET_ROOT + "/jni";
@@ -226,6 +231,7 @@ function CocoMake(command , params)
     // =====================================================================
     // Build for iOS Devices
     // =====================================================================
+    /*@@ iOS @@*/
   	_this.Build_iOS = function(params)
   	{
   		if(params && params.mode=="generate")
@@ -249,6 +255,7 @@ function CocoMake(command , params)
     // =====================================================================
     // Build for Win32
     // =====================================================================
+  	/*@@ Win32 @@*/
   	_this.Build_Win32 = function(params)
   	{
   		if(params && params.mode=="generate")
@@ -266,6 +273,78 @@ function CocoMake(command , params)
 	  		_this.copy_assets();
 	  		_this.generate_cpp();
 	  		_this.compile_x86();
+  		}
+  	};
+
+    // =====================================================================
+    // Build for Win64
+    // =====================================================================
+  	/*@@ Win64 @@*/
+  	_this.Build_Win64 = function(params)
+  	{
+  		if(params && params.mode=="generate")
+  		{
+	  		_this.generate_cpp();
+  		}
+  		else if(params && params.mode=="compile")
+  		{
+  			_this.compile_x64();
+  		}
+  		else
+  		{
+	  		_this.apply_device_wrapper();
+	  		_this.generate_icons();
+	  		_this.copy_assets();
+	  		_this.generate_cpp();
+	  		_this.compile_x64();
+  		}
+  	};
+
+    // =====================================================================
+    // Build for Linux
+    // =====================================================================
+  	/*@@ Linux @@*/
+  	_this.Build_Linux = function(params)
+  	{
+  		if(params && params.mode=="generate")
+  		{
+	  		_this.generate_cpp();
+  		}
+  		else if(params && params.mode=="compile")
+  		{
+  			_this.compile_linux();
+  		}
+  		else
+  		{
+	  		_this.apply_device_wrapper();
+	  		_this.generate_icons();
+	  		_this.copy_assets();
+	  		_this.generate_cpp();
+	  		_this.compile_linux();
+  		}
+  	};
+
+    // =====================================================================
+    // Build for OSX
+    // =====================================================================
+  	/*@@ OSX @@*/
+  	_this.Build_OSX = function(params)
+  	{
+  		if(params && params.mode=="generate")
+  		{
+	  		_this.generate_cpp();
+  		}
+  		else if(params && params.mode=="compile")
+  		{
+  			_this.compile_OSX();
+  		}
+  		else
+  		{
+	  		_this.apply_device_wrapper();
+	  		_this.generate_icons();
+	  		_this.copy_assets();
+	  		_this.generate_cpp();
+	  		_this.compile_OSX();
   		}
   	};
 
@@ -696,61 +775,33 @@ function CocoMake(command , params)
         // Build the static libraries for arm and x86
         trace("\nCalling Windows x86 make ...");
         _this.shell(make_cmd, TARGET.TARGET_ROOT, "g++.exe");
-        _this.DeleteFile(make_cmd);
+        //_this.DeleteFile(make_cmd);
 
         // Sanity check
         if(!fileExists(TARGET.TARGET_OUTPUT))
        		throw new Error("ERROR: Failed to compile Windows x86 Application");
   	};
 
-	// ==================================================================================================================================
-	//	    ______                      __     _  ________          __
-	//	   / ____/  ______  ____  _____/ /_   | |/ / ____/___  ____/ /__
-	//	  / __/ | |/_/ __ \/ __ \/ ___/ __/   |   / /   / __ \/ __  / _ \
-	//	 / /____>  </ /_/ / /_/ / /  / /_    /   / /___/ /_/ / /_/ /  __/
-	//	/_____/_/|_/ .___/\____/_/   \__/   /_/|_\____/\____/\__,_/\___/
-	//	          /_/
-	// ==================================================================================================================================
-	/*@@ XCode @@*/
-	_this.EXPORT_XCODE_PROJECT = function(params)
-	{
-		// http://www.monobjc.net/xcode-project-file-format.html
-		// An XCode project is a piece of (stupid) art!
-		// Each file inserted in the project has a reference id in a hex form like 8C15xxxx1988089000F91C7B.
-		// I am not sure what the prefix and suffix numbers mean but seems to work ok.
-		// Source files added need to be added with what XCode calls "Group".
-		// A group consists of file reference ids and if it contains other groups in it, then it should
-		// also have the group ids in it.
+// ==================================================================================================================================
+//	    ______                      __     ______              _____
+//	   / ____/  ______  ____  _____/ /_   / ____/__    __     / ___/____  __  _______________  _____
+//	  / __/ | |/_/ __ \/ __ \/ ___/ __/  / /  __/ /___/ /_    \__ \/ __ \/ / / / ___/ ___/ _ \/ ___/
+//	 / /____>  </ /_/ / /_/ / /  / /_   / /__/_  __/_  __/   ___/ / /_/ / /_/ / /  / /__/  __(__  )
+//	/_____/_/|_/ .___/\____/_/   \__/   \____//_/   /_/     /____/\____/\__,_/_/   \___/\___/____/
+//	          /_/
+// ==================================================================================================================================
 
-		if(makefile.Vars.TARGET!="iOS")
-		{
-			throw "Please set target to iOS";
-			return;
-		}
-
-		// Lets define a data structure to hold the lot.
-        var SIG_SRC = "8C15";
-        var SIG_END = "1988089000F91C7B";
-        var FILE_REFS =
-        {
-        	src_REF: "",
-        	lib_REF: "",
-        	GROUPS:{},
-	        PBXBuildFile:[],
-	        PBXFileReference:[],
-	        PBXGroups:[],
-	        PBXLibraries:[],
-	        PBXFrameworksBuildPhase:[],
-	        PBXSourcesBuildPhase:[]
-        };
-
+  	_this.EXPORT_CPP = function(template_folder, destination_folder)
+  	{
      	// ==========================================================================================================
      	// First lets take care of the files, copy template files, replace in-file variables, generate icons, etc.
      	// ==========================================================================================================
 
-		// Get the template and destination folders
-		var template_folder = makefile.Vars.PATH_SDK_TEMPLATE_XCODE;
-		var destination_folder = makefile.Config.PROJECT_PATHS.TARGETS + "/XCode";
+     	if(!folderExists(template_folder))
+     	{
+     		trace("ERROR: Template folder " + template_folder + " not found");
+     		return;
+     	}
 
 		// Purge previous XCode project and recreate the folders
 		deleteFolder(destination_folder);
@@ -758,7 +809,7 @@ function CocoMake(command , params)
 		copyFolder(template_folder, destination_folder);
 
 		// Copy the Assets
-		_this.copy_assets(null, destination_folder+"/assets");
+		_this.copy_assets(null, destination_folder + "/assets");
 
 		// Generate C++ files
   		_this.generate_cpp();
@@ -821,7 +872,9 @@ function CocoMake(command , params)
 			File.ext = File.FileName.substr(File.FileName.indexOf(".")).toLowerCase();
 
 			buildPath(File.dst_path);
-			copyFile(file, File.dst_file);
+
+			var buff = read(file);
+			_this.module("UNIX:" + File.dst_file, buff);
 		}
 
 		// Process Template Files
@@ -837,12 +890,239 @@ function CocoMake(command , params)
 				write(files[i], buff);
   			}
         }
+  	};
+
+	// ==================================================================================================================================
+	//	    ______                      __     __  _________    ________
+	//	   / ____/  ______  ____  _____/ /_   /  |/  / ___/ |  / / ____/
+	//	  / __/ | |/_/ __ \/ __ \/ ___/ __/  / /|_/ /\__ \| | / / /
+	//	 / /____>  </ /_/ / /_/ / /  / /_   / /  / /___/ /| |/ / /___
+	//	/_____/_/|_/ .___/\____/_/   \__/  /_/  /_//____/ |___/\____/
+	//	          /_/
+	// ==================================================================================================================================
+  	/*@@ [MSVC 2013] @@*/
+  	_this.EXPORT_VISUAL_STUDIO_PROJECT = function(params)
+  	{
+		if(makefile.Vars.TARGET!="Win32" && makefile.Vars.TARGET!="Win64")
+		{
+			throw "Please set target to Win32 or Win64";
+			return;
+		}
+
+        var FILE_REFS =
+        {
+        	FILTERS:{},
+        	VCXPROJ_Files:[],
+        	VCXPROJ_Filters:[],
+        	VCXPROJ_FilterFiles:[],
+        	IncludePaths: []
+        };
+
+		// Get the template and destination folders
+		var template_folder = makefile.Vars.PATH_SDK_TEMPLATE_MSVC2010;
+		var destination_folder = makefile.Config.PROJECT_PATHS.TARGETS + "/MSVC";
+
+		// Export C++ sourcers and libraries
+		_this.EXPORT_CPP(template_folder, destination_folder);
+
+		// Generate Icons
+		var icons_folder = destination_folder;
+		_this.generate_icons(icons_folder);
+
+		// Collect icons
+		var files = _this.FindFiles(icons_folder, "*.png", false);
+		makefile.Vars["APP_ICONS"] = files.join("\n");
+
+		// Collect resources
+		trace("\n Collecting Resources ...");
+		var files = _this.FindFiles(destination_folder, TARGET.TARGET_RESOURCES_MASK, false);
+		for(i=0;i<files.length;i++) { files[i] = relativePath(destination_folder, files[i]); }
+		files.push("./" + makefile.Config.PROJECT_PATHS.APP_ASSETS);
+		makefile.Vars["NATIVE_RESOURCES"] = files.join(" \\\n");
+		trace("+ Done.");
+
+		// Patch main.cpp to load Fonts
+		_this.loadFonts(destination_folder + "/src/.SDK/.device/main.cpp", makefile.Config.PROJECT_PATHS.APP_ASSETS);
+
+     	// ==========================================================================================================
+     	// Now we process the files and generate the XCode project file
+     	// ==========================================================================================================
+
+		for(var key in makefile.Vars.SOURCES.SourceFiles)
+		{
+			// Get file descriptor
+			var File = makefile.Vars.SOURCES.SourceFiles[key];
+
+			// Record include path
+			if(FILE_REFS.IncludePaths.indexOf(File.rel_parent)==-1)
+			{
+				 FILE_REFS.IncludePaths.push("$(ProjectDir)/"+File.rel_parent);
+			}
+
+			// ==============================================
+			// Record filters by splitting a file path
+			// Each folder in a file path becomes a filter
+			// ==============================================
+
+			var FILTER = null;		// The inner-most filter of where this file resides
+			var iFILTER = null;		// Filter iterator during processing file path
+			var cFILTER = null;		// Filter carry to make available child filter to its parent
+
+			// Split file's path
+			var vFilePath = File.rel_parent.split("/");
+			var FilterKey = File.rel_parent;
+
+			// Start from inner to outer sub folder and create filters
+			for(var i=vFilePath.length-1; i>=0; i--)
+			{
+				// Get grpup if it exists
+				iFILTER = FILE_REFS.FILTERS[FilterKey];
+
+				// Create new filter if it does not exist
+				if(!iFILTER)
+				{
+					iFILTER = FILE_REFS.FILTERS[FilterKey] =
+					{
+						name	: vFilePath[i],
+						path	: vFilePath.slice(0, i+1).join("\\"),
+						ID		: GUID(),
+						FILES	: {},
+						FILTERS	: {}
+					};
+
+					FILE_REFS.VCXPROJ_Filters.push("\t\t<Filter Include=\"" + iFILTER.path + "\">\n\t\t\t<UniqueIdentifier>" + iFILTER.ID.toLowerCase() + "</UniqueIdentifier>\n\t\t</Filter>");
+				}
+
+				// Store the inner-most filter for use outside this loop
+				if(!FILTER) FILTER = iFILTER;
+
+				// If we are carrying a child filter, add it to this filter's items
+				if(cFILTER) iFILTER.FILTERS[cFILTER.ID] = cFILTER;
+
+				// Store current filter, we will need it in next loop iteration
+				cFILTER = iFILTER;
+
+				// Remove inner-filter from filter key and proceed to next filter
+				FilterKey = FilterKey.substr(0, FilterKey.lastIndexOf("/"));
+			}
+
+			// ==============================================
+			// Record the file
+			// ==============================================
+			var FILE =
+			{
+				name	: File.FileName,
+				path	: File.rel_path,
+				ID		: GUID(),
+				REF		: GUID()
+			};
+
+			// Add file to filter
+			FILTER.FILES[ FILE.ID ] = FILE;
+
+			// Generate additional XCode sections
+			switch(File.ext)
+			{
+			case ".c":
+				FILE_REFS.VCXPROJ_Files.push("\t<ClCompile Include=\"" + File.rel_path + "\" />");
+				FILE_REFS.VCXPROJ_FilterFiles.push("\t<ItemGroup><ClCompile Include=\"" + FILE.path + "\"><Filter>" + FILTER.path + "</Filter></ClCompile></ItemGroup>");
+				buff = read(File.dst_file);
+				_this.module("UNIX:" + File.dst_file, buff);
+				break;
+
+			case ".cpp":
+				FILE_REFS.VCXPROJ_Files.push("\t<ClCompile Include=\"" + File.rel_path + "\" />");
+				FILE_REFS.VCXPROJ_FilterFiles.push("\t<ItemGroup><ClCompile Include=\"" + FILE.path + "\"><Filter>" + FILTER.path + "</Filter></ClCompile></ItemGroup>");
+				buff = read(File.dst_file);
+				buff = "#include \"StdAfx.h\"\n\n" + buff;
+				_this.module("UNIX:" + File.dst_file, buff);
+				break;
+
+			case ".h":
+			case ".hpp":
+				FILE_REFS.VCXPROJ_Files.push("\t<ClInclude Include=\"" + File.rel_path + "\" />");
+				FILE_REFS.VCXPROJ_FilterFiles.push("\t<ItemGroup><ClInclude Include=\"" + FILE.path + "\"><Filter>" + FILTER.path + "</Filter></ClInclude></ItemGroup>");
+				buff = read(File.dst_file);
+				_this.module("UNIX:" + File.dst_file, buff);
+				break;
+			}
+		}
+
+        // Create "CocoProject.vcxproj"
+        var project_file = destination_folder + "/CocoProject.vcxproj";
+        var buff = read(project_file);
+		buff = buff.replace("$(ClInclude)", FILE_REFS.VCXPROJ_Files.join("\n"));
+		buff = buff.replace(/\$\(SourcePath\)/g, FILE_REFS.IncludePaths.join(";") + ";$(SourcePath)");
+		buff = buff.replace(/\$\(IncludePath\)/g, FILE_REFS.IncludePaths.join(";") + ";$(IncludePath)");
+		write(project_file, buff);
+
+        // Create "CocoProject.vcxproj.filters"
+        var filters_file = destination_folder + "/CocoProject.vcxproj.filters";
+        var buff = read(filters_file);
+		buff = buff.replace("$(FILTERS)", FILE_REFS.VCXPROJ_Filters.join("\n"));
+		buff = buff.replace("$(FILTER_ITEMS)", FILE_REFS.VCXPROJ_FilterFiles.join("\n"));
+		write(filters_file, buff);
+
+		trace("Microsoft Visual Studio Project created in " + destination_folder);
+  	}
+
+	// ==================================================================================================================================
+	//	    ______                      __     _  ________          __
+	//	   / ____/  ______  ____  _____/ /_   | |/ / ____/___  ____/ /__
+	//	  / __/ | |/_/ __ \/ __ \/ ___/ __/   |   / /   / __ \/ __  / _ \
+	//	 / /____>  </ /_/ / /_/ / /  / /_    /   / /___/ /_/ / /_/ /  __/
+	//	/_____/_/|_/ .___/\____/_/   \__/   /_/|_\____/\____/\__,_/\___/
+	//	          /_/
+	// ==================================================================================================================================
+	/*@@ [XCode 7] @@*/
+	_this.EXPORT_XCODE_PROJECT = function(params)
+	{
+		// http://www.monobjc.net/xcode-project-file-format.html
+		// An XCode project is a piece of (stupid) art!
+		// Each file inserted in the project has a reference id in a hex form like 8C15xxxx1988089000F91C7B.
+		// I am not sure what the prefix and suffix numbers mean but seems to work ok.
+		// Source files added need to be added with what XCode calls "Group".
+		// A group consists of file reference ids and if it contains other groups in it, then it should
+		// also have the group ids in it.
+
+		if(makefile.Vars.TARGET!="iOS")
+		{
+			throw "Please set target to iOS";
+			return;
+		}
+
+		// Lets define a data structure to hold the lot.
+        var SIG_SRC = "8C15";
+        var SIG_END = "1988089000F91C7B";
+        var FILE_REFS =
+        {
+        	src_REF: "",
+        	lib_REF: "",
+        	GROUPS:{},
+	        PBXBuildFile:[],
+	        PBXFileReference:[],
+	        PBXGroups:[],
+	        PBXLibraries:[],
+	        PBXFrameworksBuildPhase:[],
+	        PBXSourcesBuildPhase:[]
+        };
+
+     	// ==========================================================================================================
+     	// First lets take care of the files, copy template files, replace in-file variables, generate icons, etc.
+     	// ==========================================================================================================
+
+		// Get the template and destination folders
+		var template_folder = makefile.Vars.PATH_SDK_TEMPLATE_XCODE;
+		var destination_folder = makefile.Config.PROJECT_PATHS.TARGETS + "/XCode";
+
+		// Export C++ sourcers and libraries
+		_this.EXPORT_CPP(template_folder, destination_folder);
 
 		// Set assets folder
 		makefile.Vars["NATIVE_RESOURCES"] = "./assets \\\n./Images.xcassets";
 
 		// Patch main.m to load Fonts
-		_this.loadFonts(destination_folder + "/src/.SDK/.device/main.m", destination_folder +"/" + makefile.Config.PROJECT_PATHS.APP_ASSETS);
+		_this.loadFonts(destination_folder + "/src/.SDK/.device/main.m", makefile.Config.PROJECT_PATHS.APP_ASSETS);
 
 		// Generate Icons
 		var icons_folder = destination_folder + "/Images.xcassets/AppIcon.appiconset";
@@ -1924,7 +2204,7 @@ function CocoMake(command , params)
 
 			// Collect Library Sources
     		trace("  + " + lib_name + " -> " + abs_lib_include_path);
-        	SOURCES.AddSources(abs_lib_include_path, abs_lib_include_path, false, null, lib);
+        	SOURCES.AddSources(abs_lib_include_path, abs_lib_include_path, lib.AddSources, null, lib);
 		}
 
 	   	// ==========================================================================
@@ -2770,7 +3050,10 @@ function figlet(text)
 // =====================================================================
 function parentFolder(path)
 {
-	return path.substr(0, path.lastIndexOf('/'));
+	if(path.indexOf('/')!=-1)
+		return path.substr(0, path.lastIndexOf('/'));
+	else
+		return path.substr(0, path.lastIndexOf('\\'));
 }
 
 // =====================================================================
@@ -2778,7 +3061,10 @@ function parentFolder(path)
 // =====================================================================
 function fileName(path)
 {
-	return path.substr(path.lastIndexOf('/')+1);
+	if(path.indexOf('/')!=-1)
+		return path.substr(path.lastIndexOf('/')+1);
+	else
+		return path.substr(path.lastIndexOf('\\')+1);
 }
 
 // =====================================================================
@@ -2789,3 +3075,4 @@ function fileNodeName(path)
 	var name = _this.fileName(path);
 	return name.substr(0, name.lastIndexOf('.'));
 }
+

@@ -57,14 +57,14 @@ CocoEventSource::~CocoEventSource()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoEventSource::addEventListener(CocoEvent* Event, void* Listener, int DispID)
+void CocoEventSource::addEventListener(CocoEvent* Event, void* Listener, int32_t DispID)
 {
 	CocoEventConnectionPoint* item = new CocoEventConnectionPoint(Event, Listener, DispID);
 	__eventListeners->push(item);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CocoEventSource::removeEventListener(CocoEvent* Event, void* Listener, int DispID)
+bool CocoEventSource::removeEventListener(CocoEvent* Event, void* Listener, int32_t DispID)
 {
 	for(int32_t i = (int32_t)__eventListeners->size() - 1; i >= 0; i--)
 	{

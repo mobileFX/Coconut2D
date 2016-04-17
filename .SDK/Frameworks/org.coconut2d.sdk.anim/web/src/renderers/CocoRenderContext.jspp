@@ -48,12 +48,12 @@ interface ICocoRenderContext
 	public function getModelViewMatrix():CocoMatrix;
 	public function getProjectionMatrix():CocoMatrix;
 	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix);
-	public function getDisplayWidth():Float;
-	public function getDisplayHeight():Float;
-	public function getBufferWidth():Float;
-	public function getBufferHeight():Float;
+	public function getDisplayWidth():Integer;
+	public function getDisplayHeight():Integer;
+	public function getBufferWidth():Integer;
+	public function getBufferHeight():Integer;
 	public function cls();
-	public function clip(x:Float, y:Float, w:Float, h:Float);
+	public function clip(x:Integer, y:Integer, w:Integer, h:Integer);
 	public function flush();
 	public function ready():Boolean;
 	public function prepare(viewScale:Float);

@@ -1,4 +1,28 @@
-﻿#include <stdlib.h>
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2014 www.coconut2D.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#include <stdlib.h>
 #include <string.h>
 #include "UTF8/UTF8.hpp"
 
@@ -241,3 +265,115 @@ size_t UTF8::wcstombs(char* s, const wchar_t* pwcs, size_t n)
 	memset(&state, 0, sizeof(utf8_mbstate_t));
 	return UTF8::wcsrtombs(s, &pwcs, n, &state);
 }
+
+/////////////////////////////////////////////////////////////////////////////
+void UTF8::utf8_to_wstring(std::string& src, std::wstring& dest)
+{
+    dest.clear();
+
+	wchar_t w = 0;
+	int bytes = 0;
+	wchar_t err = L'?';
+
+	for (size_t i = 0, L = src.length(); i < L ; i++)
+	{
+		unsigned char c = (unsigned char)src[i];
+		if (c <= 0x7f)
+		{
+			//first byte
+			if (bytes)
+			{
+				dest.push_back(err);
+				bytes = 0;
+			}
+			dest.push_back((wchar_t)c);
+		}
+		else if (c <= 0xbf)
+		{
+			//second/third/etc byte
+			if (bytes)
+			{
+				w = ((w << 6)|(c & 0x3f));
+				bytes--;
+				if (bytes == 0)
+					dest.push_back(w);
+			}
+			else
+				dest.push_back(err);
+		}
+		else if (c <= 0xdf)
+		{
+			//2byte sequence start
+			bytes = 1;
+			w = c & 0x1f;
+		}
+		else if (c <= 0xef)
+		{
+			//3byte sequence start
+			bytes = 2;
+			w = c & 0x0f;
+		}
+		else if (c <= 0xf7)
+		{
+			//3byte sequence start
+			bytes = 3;
+			w = c & 0x07;
+		}
+		else
+		{
+			dest.push_back(err);
+			bytes = 0;
+		}
+	}
+	if (bytes)
+		dest.push_back(err);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+void UTF8::wstring_to_utf8(std::wstring& src, std::string& dest)
+{
+    dest.clear();
+	for (size_t i = 0, L = src.length(); i < L ; i++)
+	{
+		wchar_t w = src[i];
+		if (w <= 0x7f)
+			dest.push_back((char)w);
+		else if (w <= 0x7ff)
+		{
+			dest.push_back((int8_t)(0xc0 | ((w >> 6)& 0x1f)));
+			dest.push_back((int8_t)(0x80| (w & 0x3f)));
+		}
+		else if (w <= 0xffff)
+		{
+			dest.push_back((int8_t)(0xe0 | ((w >> 12)& 0x0f)));
+			dest.push_back((int8_t)(0x80| ((w >> 6) & 0x3f)));
+			dest.push_back((int8_t)(0x80| (w & 0x3f)));
+		}
+		else if (w <= 0x10ffff)
+		{
+			dest.push_back((int8_t)(0xf0 | ((w >> 18)& 0x07)));
+			dest.push_back((int8_t)(0x80| ((w >> 12) & 0x3f)));
+			dest.push_back((int8_t)(0x80| ((w >> 6) & 0x3f)));
+			dest.push_back((int8_t)(0x80| (w & 0x3f)));
+		}
+		else
+			dest.push_back('?');
+	}
+}
+
+/*
+std::ostream& operator<<(std::ostream& f, const std::wstring& s)
+{
+	std::string s1 = UTF8::wstring_to_utf8(s);
+	f << s1;
+	return f;
+}
+
+std::istream& operator>>(std::istream& f, std::wstring& s)
+{
+	std::string s1;
+	f >> s1;
+	s1 = UTF8::utf8_to_wstring(s);
+	return f;
+}
+*/

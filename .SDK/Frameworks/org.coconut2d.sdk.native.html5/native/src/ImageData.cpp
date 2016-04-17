@@ -38,7 +38,8 @@ ImageData::ImageData(std::string str)
 {
 	src = str;
 	int32_t w=0, h=0;
-	data = new Uint8Array(ArrayBuffer::NewFromImage(str, w, h));
+    buff = ArrayBuffer::NewFromImage(str, w, h);
+	data = new Uint8Array(buff);
 	width = w;
 	height = h;
 }
@@ -47,6 +48,7 @@ ImageData::ImageData(std::string str)
 ImageData::~ImageData()
 {
 	delete data;
+    delete buff;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +56,7 @@ ImageData::ImageData(std::string w, std::string h)
 {
 	width = atoi(w.c_str());
 	height = atoi(h.c_str());
-	data = new Uint8Array(new ArrayBuffer(width * height * 4));
+    buff = new ArrayBuffer(width * height * 4);
+	data = new Uint8Array(buff);
 	data->clear();
 }

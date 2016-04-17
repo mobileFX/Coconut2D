@@ -27,7 +27,7 @@
 #define BYTE_VALUE(V)	(uint8_t)(V<0?0:(V>255?255:V))
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-CocoFont::CocoFont(String fontName, float fontSize, bool bold, bool italic)
+CocoFont::CocoFont(String fontName, int32_t fontSize, bool bold, bool italic)
 {
 	height = (uint16_t) fontSize;
 
@@ -62,7 +62,7 @@ CocoFont::~CocoFont()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, int x, int y, float R, float G, float B, float A)
+void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int32_t width, String text, int32_t x, int32_t y, float R, float G, float B, float A)
 {
 	// We only use the ArrayBuffer of an Int32Array with byteOffset = 0 (BYTES_PER_ELEMENT = 4) in RGBA format
 
@@ -75,9 +75,11 @@ void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, in
 	std::map<uint16_t, CocoFontChar>::iterator it;
 	CocoFontChar* c = nullptr;
 
-	for(int i = 0; i < text.size(); i++)
+	for(int32_t i=0, L=text.size(); i<L; i++)
 	{
         uint16_t ch = text.charCodeAt(i);
+        if(ch==0) break;
+
         if((it = chars.find(ch)) == chars.end())
 		{
 			// Retrieve glyph index from character code
@@ -126,7 +128,7 @@ void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, in
 					int32_t idx = (( y + c->rect.pos.y + iy) * width + (x + c->rect.pos.x + ix)) * 4;
 					if(idx >= imageDataBuffer->byteLength) continue;
 					uint8_t* cp = (uint8_t*)((*imageDataBuffer)[idx]);
-					if(cp)// && c->data[iy * c->rect.size.x + ix])
+					if(cp)
 					{
 						cp[0] = BYTE_VALUE(255.0 * R);
 						cp[1] = BYTE_VALUE(255.0 * G);
@@ -138,66 +140,77 @@ void CocoFont::fillText(ArrayBuffer* imageDataBuffer, int width, String text, in
 			}
 		}
 		x += c->horiAdvance;
-
-	}//loop
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-float CocoFont::measureText(String text)
+int32_t CocoFont::measureText(String text)
 {
-	size_t ret = 0;
+	int32_t ret = 0;
+
 	if(FT_Set_Pixel_Sizes(face, 0, height))
 	{
-		trace("ERROR(CocoFont.cpp): Freetype could not set font char size");
+		trace("ERROR: Freetype could not set font height");
+		return ret;
 	}
-    else
-    {
-		std::map<uint16_t, CocoFontChar>::iterator it;
-		CocoFontChar* c = nullptr;
-		for(int i = 0; i < text.size(); i++)
+
+	CocoFontChar* c = nullptr;
+	std::map<uint16_t, CocoFontChar>::iterator it;
+
+	// Scan text and accumulate width
+	for(int i = 0, L=text.size(); i<L; i++)
+	{
+		// Get a character
+        uint16_t ch = text.charCodeAt(i);
+        if(ch==0) break;
+
+		if((it = chars.find(ch)) == chars.end())
 		{
-            uint16_t ch = text.charCodeAt(i);
-			if((it = chars.find(ch)) == chars.end())
-			{
-				CocoFontChar c;
-				c.charIndex = (uint16_t) FT_Get_Char_Index(face, (FT_ULong)(ch));
-	            if(FT_Load_Glyph(face, c.charIndex, FT_LOAD_RENDER))
-	            {
-	            	trace("ERROR(CocoFont.cpp): Freetype could not load glyph");
-	            }
-	            else
-	            {
-	                if(face->glyph->bitmap.pixel_mode != FT_PIXEL_MODE_GRAY)
-	                {
-						trace("ERROR(CocoFont.cpp): Wrong FT_Pixel_Mode");
-	                }
-	                else
-	                {
-	                    c.rect.pos.x  = (int16_t) face->glyph->metrics.horiBearingX >> 6;
-	                    c.rect.pos.y  = (int16_t) -(face->glyph->metrics.horiBearingY >> 6);//(face->size->metrics.ascender - face->glyph->metrics.horiBearingY) >> 6;
-	                    c.rect.size.x = (int16_t) face->glyph->bitmap.width;
-	                    c.rect.size.y = (int16_t) face->glyph->bitmap.rows;
-	                    c.horiAdvance = (uint16_t) (face->glyph->advance.x >> 6);
-	                    c.data = new uint8_t[c.rect.size.x * c.rect.size.y];
-	                    memcpy(c.data, face->glyph->bitmap.buffer, (size_t)(c.rect.size.x * c.rect.size.y));
-	                    it = chars.insert(std::pair<uint16_t, CocoFontChar>(ch, c)).first;
-	                }
-	            }
-			}
-			if(c && FT_HAS_KERNING(face))
-			{
-				std::map<uint16_t, int>::iterator kit = c->horiKernings.find(it->second.charIndex);
-				if(kit == c->horiKernings.end())
-				{
-					FT_Vector tk;
-	                FT_Get_Kerning(face, c->charIndex, it->second.charIndex, FT_KERNING_DEFAULT, &tk);
-	                kit = c->horiKernings.insert(std::pair<uint16_t, int>(it->second.charIndex, tk.x)).first;
-				}
-				ret += (size_t)(kit->second >> 6);
-			}
-			c = &(it->second);
-			ret += c->horiAdvance;
+			// Get character index in Font
+			CocoFontChar c;
+			c.charIndex = (uint16_t) FT_Get_Char_Index(face, (FT_ULong)(ch));
+
+			// Load Glyph
+            if(FT_Load_Glyph(face, c.charIndex, FT_LOAD_RENDER))
+            {
+            	trace("ERROR: Freetype character glyph not found");
+            	break;
+            }
+
+            // Check glyph pixel mode
+            if(face->glyph->bitmap.pixel_mode != FT_PIXEL_MODE_GRAY)
+            {
+				trace("ERROR: Freetype font has wrong pixel mode");
+				break;
+            }
+
+			// Calc character rect
+            c.rect.pos.x  = (int16_t) face->glyph->metrics.horiBearingX >> 6;
+            c.rect.pos.y  = (int16_t) -(face->glyph->metrics.horiBearingY >> 6);//(face->size->metrics.ascender - face->glyph->metrics.horiBearingY) >> 6;
+            c.rect.size.x = (int16_t) face->glyph->bitmap.width;
+            c.rect.size.y = (int16_t) face->glyph->bitmap.rows;
+            c.horiAdvance = (uint16_t) (face->glyph->advance.x >> 6);
+            c.data = new uint8_t[c.rect.size.x * c.rect.size.y];
+
+            memcpy(c.data, face->glyph->bitmap.buffer, (size_t)(c.rect.size.x * c.rect.size.y));
+            it = chars.insert(std::pair<uint16_t, CocoFontChar>(ch, c)).first;
 		}
-    }
+
+		if(c && FT_HAS_KERNING(face))
+		{
+			std::map<uint16_t, int>::iterator kit = c->horiKernings.find(it->second.charIndex);
+			if(kit == c->horiKernings.end())
+			{
+				FT_Vector tk;
+                FT_Get_Kerning(face, c->charIndex, it->second.charIndex, FT_KERNING_DEFAULT, &tk);
+                kit = c->horiKernings.insert(std::pair<uint16_t, int>(it->second.charIndex, tk.x)).first;
+			}
+			ret += (size_t)(kit->second >> 6);
+		}
+
+		c = &(it->second);
+		ret += c->horiAdvance;
+	}
+
     return ret;
 }

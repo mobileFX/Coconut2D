@@ -84,11 +84,11 @@
 			"RELOAD_AFTER_BUILD": true,
 			"DEVICE_WRAPPER":
 			{
-				"CLASS": "JAVASCRIPT" /*@type{String}*/,
-				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)" /*@type{String}*/,
-				"TEMPLATES": null /*@type{String}*/,
-				"TEMPLATE_EXCLUDE_VARS": null /*@type{String}*/,
-				"BINPACK_IMAGES": false /*@type{String}*/
+				"CLASS": "JAVASCRIPT",
+				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/web/$(TARGET)",
+				"TEMPLATES": null,
+				"TEMPLATE_EXCLUDE_VARS": null,
+				"BINPACK_IMAGES": false
 			},
 			"DEVICES":
 			{
@@ -379,6 +379,50 @@
 			}
 		},
 		"Win32":
+		{
+			"TARGET_ROOT": "$(PROJECT_PATHS.TARGETS)/native/Win32",
+			"TARGET_OBJ": "$(TARGET_ROOT)/obj",
+			"TARGET_ASSETS": "$(TARGET_ROOT)/assets",
+			"TARGET_OUTPUT": "$(TARGET_ROOT)/$(PROJECT_NAME).exe",
+			"TARGET_CLEAN": "$(TARGET_ROOT)/*",
+			"TARGET_EXPORT": "native",
+			"TARGET_SOURCES_MASK": "*.jspp",
+			"TARGET_FRAMEWORKS": "org.coconut2d.sdk.anim;org.coconut2d.sdk.anim.ui;org.coconut2d.sdk.common;org.coconut2d.sdk.common.net;org.coconut2d.sdk.native.html5;org.coconut2d.sdk.native.webgl",
+			"TARGET_ADDITIONAL_NATIVE_SOURCES": "$(PATH_SDK_COMMON);$(TARGET_ROOT)/src",
+			"TARGET_NATIVE_MASK": "*.cpp;*.hpp;*.h",
+			"TARGET_RESOURCES_MASK": "*.png;*.jpeg;*.ogg;*.ttf",
+			"RELOAD_AFTER_BUILD": true,
+			"DEVICE_WRAPPER":
+			{
+				"CLASS": "WIN32",
+				"PATH": "$(PATH_SDK_DEVICE_WRAPPERS)/native/$(TARGET)",
+				"TEMPLATES": "resource.h;debugger-config.gdb;*.cpp",
+				"TEMPLATE_EXCLUDE_VARS": "SRC;BIN;OUT;OBJS;CC;LDFLAGS;CFLAGS;RC;OBJ;OBJ_OBJ;LDLIBS;FONTS_LIST;APP_CFLAGS;PATH_SDK_INCLUDES",
+				"BINPACK_IMAGES": false
+			},
+			"DEVICES":
+			{
+				"Windows (x86)":
+				{
+					"Debugger": "Debugger_GDB",
+					"Debug": "<$(PATH_3RD_PARTY_GDB)/gdb.exe> -q -nw -r -f -x <$(TARGET_ROOT)/debugger-config.gdb> -cd <$(TARGET_ROOT)> -d <$(TARGET_ROOT)>",
+					"Release": "$(TARGET_OUTPUT)"
+				}
+			},
+			"APP_SETTINGS": {},
+			"APP_ICONS":
+			{
+				"32": "$(TARGET_ROOT)/res/Application.ico"
+			},
+			"CODE_SIGNING":
+			{
+				"IOS_CERTIFICATES": "ios_development.cer:AppleIncRootCertificate.cer:AppleWWDRCA.cer",
+				"IOS_PRIVATE_KEY": "ios_development.key",
+				"IOS_PRIVATE_KEY_PASSPHRASE": "puerre",
+				"IOS_PROVISION": "Coconut2D.mobileprovision"
+			}
+		},
+		"Win64":
 		{
 			"TARGET_ROOT": "$(PROJECT_PATHS.TARGETS)/native/Win32",
 			"TARGET_OBJ": "$(TARGET_ROOT)/obj",

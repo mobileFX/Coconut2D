@@ -174,7 +174,10 @@ export class ASPDictionary
 				var key:String = unescape(decodeURIComponent(item[0]));
 				var value:String = unescape(decodeURIComponent(item[1]));
 				Add(key, value);
+				delete item;
 			}
+
+			delete pairs;
 		}
 	}
 
@@ -209,7 +212,9 @@ export class ASPDictionary
 			{
 				 m_Values[index] += "," + value;
 			}
+			delete item;
 		}
+		delete pairs;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////

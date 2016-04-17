@@ -40,18 +40,22 @@ class CocoTextBlock
 	public var multiline:Boolean;
 	public reference var parent:CocoClip;
 
+	// Image Buffers
+	private var img_normal:CocoImage;
+	private var img_selected:CocoImage;
+
 	// Rectanble to anchor text
-	public var Left:Float;
-	public var Top:Float;
-	public var Width:Float;
-	public var Height:Float;
+	public var Left:Integer;
+	public var Top:Integer;
+	public var Width:Integer;
+	public var Height:Integer;
 	public var anchor:COCO_CONTROL_ANCHOR_ENUM;
 
 	// Font Style
 	public var fontColor:Color;
 	public var fontColorSel:Color;
 	public var fontName:String;
-	public var fontSize:Float;
+	public var fontSize:Integer;
 	public var fontBold:Boolean;
 	public var fontItalic:Boolean;
 	public var fontUnderline:Boolean;
@@ -64,10 +68,10 @@ class CocoTextBlock
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor(Text:String, align:COCO_CONTROL_ANCHOR_ENUM)
 	{
-		Left				= 0.0;
-		Top					= 0.0;
-		Width				= 0.0;
-		Height				= 0.0;
+		Left				= 0;
+		Top					= 0;
+		Width				= 0;
+		Height				= 0;
 
 		parent				= null;
 		text				= Text;
@@ -88,15 +92,20 @@ class CocoTextBlock
 		fontBlur			= 0;
 		fontShadowColor		= 0xff000000;
 		fontShadowColorSel	= 0xff000000;
+
+		img_normal			= null;
+		img_selected 		= null;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+		delete img_normal;
+		delete img_selected;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function SetTextRect(left:Float, top:Float, width:Float, height:Float)
+	public function SetTextRect(left:Integer, top:Integer, width:Integer, height:Integer)
 	{
 		Left = left;
 		Top = top;
@@ -107,6 +116,9 @@ class CocoTextBlock
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function toImage(selected:Boolean, scale:Float):CocoImage
 	{
+		if(selected && img_selected) delete img_selected;
+		if(!selected && img_normal) delete img_normal;
+
 		var align:CocoHVAlign;
 		if(multiline)
 		{
@@ -127,12 +139,16 @@ class CocoTextBlock
     	f.indices.push(0);
     	f.mappings.push(0);
 
+    	var w:Integer = Width * scale;
+    	var h:Integer = Height * scale;
+
     	if(multiline)
     	{
-    		f.wrapSimple(Width * scale, fontStyle);
+    		f.wrapSimple(w, fontStyle);
     		if(Height!=f.totalHeight)
     		{
 	    		Height = f.totalHeight / scale;
+	    		h = Height * scale;
 	    		//if(ctl)
 	    		//{
 	    		//	ctl.Form.invalidate();
@@ -140,13 +156,22 @@ class CocoTextBlock
     		}
     	}
 
-    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(Width * scale,Height * scale, true);
+     	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, true);
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-    	f.drawSimple(ctx, fontStyle, fontUnderline, color, 0, 0, Width * scale, Height * scale, align.horiz, align.vert);
-		var image:CocoImage = CocoGraphics.CocoImageFromHTMLCanvas(canvas,Width * scale,Height * scale);
+    	f.drawSimple(ctx, fontStyle, fontUnderline, color, 0, 0, w, h, align.horiz, align.vert);
+
+		var image:CocoImage = CocoGraphics.CocoImageFromHTMLCanvas(canvas, w, h);
 		image.pixelRatio = scale;
+
+		// We need to properly dispose the image (and its texture)
+		if(selected)
+			img_selected = image;
+		else
+			img_normal = image;
+
 		delete f;
 		delete canvas;
+		delete align;
 
 		return image;
 	}

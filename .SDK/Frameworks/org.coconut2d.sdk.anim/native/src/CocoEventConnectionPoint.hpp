@@ -47,10 +47,10 @@ class CocoEventConnectionPoint
 {
 public:
 	CocoEvent* Event;
-	int DispID;
+	int32_t DispID;
 	void* Listener;
 	const String __className = String("CocoEventConnectionPoint");
-	CocoEventConnectionPoint(CocoEvent* Event, void* Listener, int DispID);
+	CocoEventConnectionPoint(CocoEvent* Event, void* Listener, int32_t DispID);
 	virtual ~CocoEventConnectionPoint();
 };
 

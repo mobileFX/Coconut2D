@@ -643,8 +643,6 @@ function CompilerCppPlugin(compiler)
 				if(vitem.initializer)
 				{
 					//#TYPECAST
-					vitem.initializer.__typecast = vitem.vartype;
-					vitem.initializer.__typecast_implicit = true;
 					var rhs = _this.typeCastCPP(vitem.initializer, generate_cpp(vitem.initializer).CPP);
 					return " = " + rhs;
 				}
@@ -1074,8 +1072,10 @@ function CompilerCppPlugin(compiler)
 			{
 				if(!isFinite(item)) break;
 				if(!firstItem) CPP.push(", ");
-				var gen = generate_cpp(ast[item]).CPP;
+
+				var gen = _this.typeCastCPP(ast[item], generate_cpp(ast[item]).CPP);
 				CPP.push(gen);
+
 				firstItem = false;
 			}
 
@@ -1083,10 +1083,6 @@ function CompilerCppPlugin(compiler)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.COMMA:
-
-			if(_this.in_event_call)
-				debugger;
-
 			for(i=0;i<ast.length;i++)
 			{
 				if(i>0) CPP.push(", ");
@@ -1108,118 +1104,81 @@ function CompilerCppPlugin(compiler)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.ARRAY_INIT:
 
-			// Case1: new Float32Array([...])
-			// Case2: new CocoSequence(params, [...]) or foo([...])
-			// Case3: a = [...]
-			// Case4: var x:Array<T> = [...]
+			if(ast.nodeId==63480) debugger;
 
-			//(*(new Array<CocoClip*>()))(__root);
+			// We need to detect array subtype and type cast items to it
 
-			var fnSymbol = null;
-			var vartype = null;
-			var subtype = null;
-			var out=[];
+			// Cases of implicit inline array initialization:
+			// 1: new Float32Array([...])
+			// 2: new CocoSequence(params, [...]) or foo([...]) // handled by jsdef.CALL !!
+			// 3: a = [...]
+			// 4: var x:Array<T> = [...]
 
+			var vartype, subtype;
+
+			//===================================================================================
 	        if(ast.parent.parent.type==jsdef.VAR)
 	        {
-	        	//Case4
+	        	// var x:Array<T> = [...]
 	        	vartype = ast.parent.parent[0].symbol.vartype;
 	        	subtype = _this.getSubType(vartype);
 	        }
+
+			//===================================================================================
 			else if(ast.parent.type==jsdef.ASSIGN)
 			{
-				//Case3
-				if(ast.parent.parent.expression[0].symbol)
+				// a = [...]
+				if(ast.__typecast)
 				{
-					vartype = ast.parent.parent.expression[0].symbol.vartype;
+					vartype = ast.__typecast;
 					subtype = _this.getSubType(vartype);
 				}
 				else
 				{
-					_this.NewWarning("Untyped array initialization, defaulting to Array<Float>", ast);
-					vartype = "Array<Float>";
-					subtype = _this.getSubType(vartype);
+					// Should never get in here because jsdef.ASSIGN sets ast.__typecast
+					debugger;
 				}
 			}
+
+			//===================================================================================
 			else if(ast.parent.type==jsdef.LIST)
 			{
-				// Get ast index in function call list
-				var index = -1;
-				for(item in ast.parent)
-				{
-					if(!isFinite(item)) break;
-					index++;
-				}
-
 				switch(ast.parent.parent.type)
 				{
-				case jsdef.CALL:
-					//Case2
-					switch(ast.inCall[0].type)
-					{
-					case jsdef.IDENTIFIER:
-						fnSymbol = ast.inCall[0].symbol;
-						break;
-					case jsdef.DOT:
-					  	fnSymbol = ast.inCall.inCall[0].identifier_last.symbol;
-					  	break;
-					}
-					break;
-
 				case jsdef.NEW_WITH_ARGS:
-					//Case1
-					for(item in ast.parent.parent[0].symbol.methods)
-					{
-						if(item=="Constructor")
-						{
-							fnSymbol = ast.parent.parent[0].symbol.methods[item];
-							break;
-						}
-					}
-					if(!fnSymbol)
-					{
-						// TypedArrays
-						subtype = _this.getSubType(ast.parent.parent.vartype);
-						vartype = "Array<" + subtype +">";
-					}
+					// new Float32Array([...])
+					vartype = ast.parent.parent.vartype;
+					subtype = _this.getSubType(vartype);
+					break;
+
+				case jsdef.CALL:
+
+					_this.NewWarning("Memory Leak from illegal array initialization within function call: " + ast.parent.parent.source, ast);
+
+					// foo([...])
+					var fn = _this.getCallIdentifier(ast.parent);
+					var paramIndex = _this.getCallListParamIndex(ast);
+					vartype = fn.symbol.paramsList[paramIndex].vartype;
+					subtype = _this.getSubType(vartype);
 					break;
 				}
-
-				// From function symbol arguments get ast datatype
-				if(fnSymbol)
-				{
-					var arg = fnSymbol.paramsList[index];
-					vartype = arg.vartype;
-					subtype = _this.getSubType(vartype);
-				}
 			}
 
-			// Special case when having Array<ENUM> because C++11 without experimental features fails.
-			if(_this.isEnum(subtype) || ast.length<250)
+			if(!subtype)
+				_this.NewError("Unknown array initialization subtype: " + ast.parent.source, ast);
+
+			// Create an std::initializerlist for array initializer
+			var values = [];
+			for(var i=0;i<ast.length;i++)
 			{
-				out.push("((new " + _this.VTCPP(vartype, true) + ")");
-				for(var i=0;i<ast.length;i++)
-				{
-					var v = generate_cpp(ast[i]).CPP;
-					v = _this.VALUECPP(v, subtype);
-					out.push("->push(" + v + ")");
-				}
-				out.push(")");
-			}
-			else
-			{
-				out.push("(new " + _this.VTCPP(vartype, true) + "(" + ast.length);
-				for(var i=0;i<ast.length;i++)
-				{
-					var v = generate_cpp(ast[i]).CPP;
-					v = _this.VALUECPP(v, subtype);
-					out.push(", " + v);
-				}
-				out.push("))");
+				ast[i].__typecast = subtype;
+				values.push(_this.typeCastCPP(ast[i], generate_cpp(ast[i]).CPP));
 			}
 
-			out = out.join("");
-			CPP.push(out);
+			CPP.push("{");
+			CPP.push(values.join(", "));
+			CPP.push("}");
+
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1306,7 +1265,7 @@ function CompilerCppPlugin(compiler)
 			//#TYPECAST
 			var rhs = _this.typeCastCPP(ast[1], generate_cpp(ast[1]).CPP);
 			CPP.push( setter ? "( " + rhs + " )" : rhs );
-			setter=false;
+			setter = false;
 
 			break;
 
@@ -1418,11 +1377,6 @@ function CompilerCppPlugin(compiler)
 		//
 		// ==================================================================================================================================
 
-		case jsdef.STRING:
-			//CPP.push('String("' + ast.value + '")');
-			CPP.push('"' + ast.value + '"');
-			break;
-
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.TRY:
 			CPP.push("try");
@@ -1430,11 +1384,17 @@ function CompilerCppPlugin(compiler)
 			for(var catchClause in ast.catchClauses)
 			{
 				if(!isFinite(catchClause)) break;
-				//CPP.push("catch(" + ast.catchClauses[catchClause].varName + ")");
 				CPP.push("catch(...)");
 				CPP.push(generate_cpp(ast.catchClauses[catchClause].block).CPP);
 				ast.finallyBlock && CPP.push("finally" + generate_cpp(ast.finallyBlock).CPP);
 			}
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.THROW:
+			CPP.push("throw CocoException(");
+			CPP.push(generate_cpp(ast.exception).CPP);
+			CPP.push(");");
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1528,6 +1488,7 @@ function CompilerCppPlugin(compiler)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DELETE:
+
 			var id = generate_cpp(ast[0]).CPP;
 			if(_this.currClassName)
 			{
@@ -1541,19 +1502,12 @@ function CompilerCppPlugin(compiler)
 			{
 				CPP.push("COCO_DELETE_OBJECT(" + id + ")");
 			}
-
-			//CPP.push("if(" + id + ") " + id + " = (delete " + id + ", nullptr)");
-
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.DEBUGGER:
 			CPP.push("assert(false);");
 			break;
-
-		case jsdef.EXPONENT:			CPP.push("std::pow(" + generate_cpp(ast[0]).CPP + "," + generate_cpp(ast[1]).CPP + ")");break;
-		case jsdef.MOD:					CPP.push("(int32_t)" + generate_cpp(ast[0]).CPP); CPP.push("%"); CPP.push("(int32_t)" + generate_cpp(ast[1]).CPP); break;
-		case jsdef.THROW:				CPP.push("throw CocoException("); CPP.push(generate_cpp(ast.exception).CPP); CPP.push(");"); break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NEW:
@@ -1574,12 +1528,12 @@ function CompilerCppPlugin(compiler)
 		case jsdef.RETURN:
 
 			CPP.push("return");
-
 			if(ast.value)
-				CPP.push(" " + generate_cpp(ast.value).CPP);
-
+			{
+				//#TYPECAST
+				CPP.push(" " + _this.typeCastCPP(ast.value, generate_cpp(ast.value).CPP));
+			}
 			CPP.push(";\n");
-
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1588,68 +1542,134 @@ function CompilerCppPlugin(compiler)
 			var type1 = _this.getTypeName(ast[0]);
 			var type2 = _this.getTypeName(ast[1]);
 
-			var gen1 = generate_cpp(ast[0]).CPP;
-			var gen2 = generate_cpp(ast[1]).CPP;
-
-			if(type1=="String" || type2=="String")
+			if(type1=="String")
 			{
-				CPP.push( "String(" + gen1 + ")" );
+				var ogen = gen = generate_cpp(ast[0]).CPP;
+
+				ast[0].__typecast = "String";
+				gen = _this.typeCastCPP(ast[0], gen);
+
+				//#TYPECAST
+				if(ogen==gen && gen.indexOf("String(")!=0)
+					gen = "String(" + gen + ")";
+
+				CPP.push(gen);
 				CPP.push(" + ");
-				CPP.push( gen2 );
+				CPP.push(generate_cpp(ast[1]).CPP);
+			}
+			else if(type2=="String")
+			{
+				CPP.push(generate_cpp(ast[0]).CPP);
+				CPP.push(" + ");
+				CPP.push(generate_cpp(ast[1]).CPP);
 			}
 			else
 			{
-				CPP.push(gen1);
-				CPP.push("+");
-				CPP.push(gen2);
+				_this.arithmeticOp_cpp(ast, "+", CPP);
 			}
+			break;
 
+		case jsdef.MINUS:
+			_this.arithmeticOp_cpp(ast, "-", CPP);
+			break;
+
+		case jsdef.MUL:
+			_this.arithmeticOp_cpp(ast, "*", CPP);
+			break;
+
+		case jsdef.DIV:
+			_this.arithmeticOp_cpp(ast, "/", CPP);
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.EXPONENT:
+			var base = generate_cpp(ast[0]).CPP;
+			var exp = generate_cpp(ast[1]).CPP;
+			CPP.push("std::pow(" + base  + "," + exp + ")");
+			break;
 
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.MOD:
+			var oper1 = generate_cpp(ast[0]).CPP;
+			var oper2 = generate_cpp(ast[1]).CPP;
+			CPP.push("(int32_t)(" + oper1 + ")");
+			CPP.push("%");
+			CPP.push("(int32_t)(" + oper2 + ")");
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.STRING:
+
+			if(!ast.value)
+			{
+				CPP.push('""');
+			}
+			else if(/^[\x00-\x7F]+$/.test(ast.value))
+			{
+				CPP.push('"' + ast.value + '"');
+			}
+			else
+			{
+				CPP.push('String(L"' + ast.value + '")');
+			}
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.NUMBER:
+			CPP.push(ast.value && String(ast.value).indexOf(".")!=-1 ? ast.value + "f" : ast.value);
+			break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.INCREMENT:			if(ast.postfix) { CPP.push(generate_cpp(ast[0]).CPP); CPP.push("++"); } else { CPP.push("++"); CPP.push(generate_cpp(ast[0]).CPP); } break;
+		case jsdef.DECREMENT:			if(ast.postfix) { CPP.push(generate_cpp(ast[0]).CPP); CPP.push("--"); } else { CPP.push("--"); CPP.push(generate_cpp(ast[0]).CPP); } break;
+
+		case jsdef.UNARY_MINUS:			CPP.push(" -"); CPP.push(generate_cpp(ast[0]).CPP); break;
+		case jsdef.UNARY_PLUS:			CPP.push(" +"); CPP.push(generate_cpp(ast[0]).CPP); break;
+
+		case jsdef.NOT:					CPP.push("!"); CPP.push(generate_cpp(ast[0]).CPP); break;
 		case jsdef.AND:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("&&"); CPP.push(generate_cpp(ast[1]).CPP); break;
+		case jsdef.OR:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("||"); CPP.push(generate_cpp(ast[1]).CPP);	break;
+
 		case jsdef.BITWISE_AND:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("&"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.BITWISE_NOT:			CPP.push("~"); CPP.push(generate_cpp(ast[0]).CPP); break;
 		case jsdef.BITWISE_OR:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("|"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.BITWISE_XOR:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("^"); CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.BREAK:				CPP.push("break;"); break;
-		case jsdef.CONTINUE:			CPP.push("continue;"); break;
-		case jsdef.DECREMENT:			if(ast.postfix) { CPP.push(generate_cpp(ast[0]).CPP); CPP.push("--"); } else { CPP.push("--"); CPP.push(generate_cpp(ast[0]).CPP); } break;
-		case jsdef.DEFAULT:				CPP.push("default:"); CPP.push(generate_cpp(ast.statements).CPP); break;
-		case jsdef.DIV:					CPP.push( "(float)(" + generate_cpp(ast[0]).CPP + ")"); CPP.push("/"); CPP.push( "(float)(" + generate_cpp(ast[1]).CPP + ")"); break;
-		case jsdef.DO: 					ast.body.isLoop = true; CPP.push("do"); CPP.push(generate_cpp(ast.body).CPP); CPP.push("while(" + generate_cpp(ast.condition).CPP + ");"); break;
+
 		case jsdef.EQ: 					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("==");	 CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.FALSE:				CPP.push("false"); break;
 		case jsdef.GE:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push(">=");  CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.GT:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push(">");   CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.HOOK:				CPP.push(generate_cpp(ast[0]).CPP); CPP.push("?"); CPP.push(generate_cpp(ast[1]).CPP); CPP.push(":"); CPP.push(generate_cpp(ast[2]).CPP); break;
-		case jsdef.INCREMENT:			if(ast.postfix) { CPP.push(generate_cpp(ast[0]).CPP); CPP.push("++"); } else { CPP.push("++"); CPP.push(generate_cpp(ast[0]).CPP); } break;
-		case jsdef.INSTANCEOF: 			CPP.push(generate_cpp(ast[0]).CPP); CPP.push(" instanceof "); CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.LABEL:				CPP.push(ast.label + ":"); CPP.push(generate_cpp(ast.statement).CPP); break;
 		case jsdef.LE:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("<=");  CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.LSH:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("<<"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.LT:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("<");   CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.MINUS: 				CPP.push(generate_cpp(ast[0]).CPP); CPP.push("-"); CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.MUL: 				CPP.push(generate_cpp(ast[0]).CPP); CPP.push("*"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.NE:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("!=");	 CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.NOT:					CPP.push("!"); CPP.push(generate_cpp(ast[0]).CPP); break;
-		case jsdef.NULL:				CPP.push("nullptr"); break;
-		case jsdef.NUMBER:				CPP.push(ast.value && String(ast.value).indexOf(".")!=-1 ? ast.value + "f" : ast.value); break;
-		case jsdef.OR:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("||"); CPP.push(generate_cpp(ast[1]).CPP);	break;
-		case jsdef.RSH:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push(">>"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.STRICT_EQ:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("=="); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.STRICT_NE:			CPP.push(generate_cpp(ast[0]).CPP);	CPP.push("!="); CPP.push(generate_cpp(ast[1]).CPP); break;
+
 		case jsdef.TRUE:				CPP.push("true"); break;
-		case jsdef.TYPEOF:				CPP.push("typeof "); CPP.push(generate_cpp(ast[0]).CPP); break;
-		case jsdef.UNARY_MINUS:			CPP.push(" -"); CPP.push(generate_cpp(ast[0]).CPP); break;
-		case jsdef.UNARY_PLUS:			CPP.push(" +"); CPP.push(generate_cpp(ast[0]).CPP); break;
+		case jsdef.FALSE:				CPP.push("false"); break;
+
+		case jsdef.LSH:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("<<"); CPP.push(generate_cpp(ast[1]).CPP); break;
+		case jsdef.RSH:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push(">>"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.URSH:				CPP.push(generate_cpp(ast[0]).CPP); CPP.push(">>"); CPP.push(generate_cpp(ast[1]).CPP); break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		case jsdef.BREAK:				CPP.push("break;"); break;
+		case jsdef.CONTINUE:			CPP.push("continue;"); break;
+		case jsdef.DEFAULT:				CPP.push("default:"); CPP.push(generate_cpp(ast.statements).CPP); break;
+		case jsdef.DO: 					ast.body.isLoop = true; CPP.push("do"); CPP.push(generate_cpp(ast.body).CPP); CPP.push("while(" + generate_cpp(ast.condition).CPP + ");"); break;
+		case jsdef.HOOK:				CPP.push(generate_cpp(ast[0]).CPP); CPP.push("?"); CPP.push(generate_cpp(ast[1]).CPP); CPP.push(":"); CPP.push(generate_cpp(ast[2]).CPP); break;
+		case jsdef.INSTANCEOF: 			CPP.push(generate_cpp(ast[0]).CPP); CPP.push(" instanceof "); CPP.push(generate_cpp(ast[1]).CPP); break;
+		case jsdef.LABEL:				CPP.push(ast.label + ":"); CPP.push(generate_cpp(ast.statement).CPP); break;
+		case jsdef.TYPEOF:				CPP.push("typeof "); CPP.push(generate_cpp(ast[0]).CPP); break;
 		case jsdef.VOID:				CPP.push("void "); CPP.push(generate_cpp(ast[0]).CPP); break;
 		case jsdef.WHILE:				ast.body.isLoop=true; CPP.push("while(" + generate_cpp(ast.condition).CPP + ")"); CPP.push(generate_cpp(ast.body).CPP); break;
+		case jsdef.NULL:				CPP.push("nullptr"); break;
 
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.SEMICOLON:
+
 			var expr = (ast.expression ? generate_cpp(ast.expression).CPP : "");
+
 			if(ast.expression && ast.expression[0] && ast.expression[0].type==jsdef.SUPER && ast.expression[1].symbol.type==jsdef.FUNCTION)
 			{
 				var params = [];
@@ -1661,10 +1681,15 @@ function CompilerCppPlugin(compiler)
 				}
 				expr += "(" + params.join(",") + ")";
 			}
-			if(expr) CPP.push(expr + ";\n");
+
+			if(expr)
+				CPP.push(expr + ";\n");
+
 			break;
 
 		}
-		return {CPP:CPP.join(""), HPP:HPP.join("")};
+
+		// Done!
+		return { CPP:CPP.join(""), HPP:HPP.join("") };
 	};
 }

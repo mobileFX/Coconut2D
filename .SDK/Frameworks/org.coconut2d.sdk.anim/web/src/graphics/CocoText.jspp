@@ -143,12 +143,15 @@ class CocoText
 		for(var i:Integer = 0; i<L; i++)
 		{
 			var style:CocoTextStyle = styles[mappings[i]];
-			lineHeight = Math.max(lineHeight, Float(style.fontSizePixels));
+			lineHeight = Math.max(lineHeight, style.fontSizePixels);
 			ctx.font = style.fontStyle + " normal " + style.fontWeight + " " + String(style.fontSizePixels) + "px " + style.fontFamily;
 			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
 			for(var r:Integer = indices[i]; r < to; r++)
 			{
-				var charWidth:Float = ctx.measureText(str.substr(r, 1)).width;
+	            var tm:HTMLTextMetrics = ctx.measureText(str.substr(r, 1));
+				var charWidth:Float = tm.width;
+	            delete tm;
+
 				if(lineWidth + charWidth > width)
 				{
 					if(lineWidth === 0) throw "Too small width!";
@@ -182,6 +185,7 @@ class CocoText
 				break;
 			}
 		}
+		delete spl;
 		ctx.font = fontStyle;
 		lineBreaks.clear();
 		lineWidths.clear();
@@ -194,12 +198,16 @@ class CocoText
 		var L:Integer = indices.size();
 		for(var i:Integer = 0; i<L; i++)
 		{
-			lineHeight = Math.max(lineHeight, Float(fontSize));
+			lineHeight = Math.max(lineHeight, fontSize);
 			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
 			for(var r:Integer = indices[i]; r < to; r++)
 			{
 				var chr:String = str.substr(r, 1);
-				var charWidth:Float = ctx.measureText(chr).width;
+
+	            var tm:HTMLTextMetrics = ctx.measureText(chr);
+				var charWidth:Float = tm.width;
+	            delete tm;
+
 				if(chr == " ")
 				{
 					lastSpace = r;
@@ -244,6 +252,7 @@ class CocoText
 					break;
 				}
 			}
+			delete spl;
 			if(totalHeight==0) totalHeight = fontSize;
 			var cx:Float = x;
 			var cy:Float = y;
@@ -262,13 +271,17 @@ class CocoText
 					var s:String = str.substring(prevStop, stop);
 					if(firstChar) firstChar = false;
 					prevStop = stop;
-					var sWidth:Float = ctx.measureText(s).width;
+
+		            var tm:HTMLTextMetrics = ctx.measureText(s);
+					var sWidth:Float = tm.width;
+		            delete tm;
+
 					var left:Float = (width - (lineWidths.size() > currentLine ? lineWidths[currentLine] : sWidth)) * halign;
 					var top:Float = ((lineHeights.size() > currentLine ? lineHeights[currentLine] : totalHeight) / 1.125) + (height - totalHeight) * valign;
 					ctx.fillText(s, cx + left, cy + top);
 					if(underline)
 					{
-						ctx.lineWidth = Float(fontSize) / 12.0;
+						ctx.lineWidth = fontSize / 12.0;
 						ctx.beginPath();
 						ctx.moveTo(cx + left, cy + top + ctx.lineWidth * 1.5);
 						ctx.lineTo(cx + left + sWidth, cy + top + ctx.lineWidth * 1.5);
@@ -316,18 +329,22 @@ class CocoText
 				var s:String = str.substring(prevStop, stop);
 				if(firstChar) firstChar = false;
 				prevStop = stop;
-				var sWidth:Float = ctx.measureText(s).width;
+
+	            var tm:HTMLTextMetrics = ctx.measureText(s);
+				var sWidth:Float = tm.width;
+	            delete tm;
+
 				var left:Float = (width - lineWidths[currentLine]) * halign;
 				var top:Float = (lineHeights[currentLine] / 1.125) + (height - totalHeight) * valign;
 				ctx.fillStyle = "rgba(" + String(style.bgcolor[0]) + ", " + String(style.bgcolor[1]) + ", " + String(style.bgcolor[2]) + ", " + String(style.bgcolor[3]) + ")";
-				ctx.fillRect(cx + left, cy + top - Float(style.fontSizePixels) / 1.25, sWidth, Float(style.fontSizePixels) * 1.125);
+				ctx.fillRect(cx + left, cy + top - style.fontSizePixels / 1.25, sWidth, style.fontSizePixels * 1.125);
 				var StyleString:String = "rgba(" + String(style.color[0]) + ", " + String(style.color[1]) + ", " + String(style.color[2]) + ", " + String(style.color[3]) + ")";
 				ctx.fillStyle = StyleString;
 				ctx.strokeStyle = StyleString;
 				ctx.fillText(s, cx + left, cy + top);
 				if(style.underline)
 				{
-					ctx.lineWidth = Float(style.fontSizePixels) / 12.0;
+					ctx.lineWidth = style.fontSizePixels / 12.0;
 					ctx.beginPath();
 					ctx.moveTo(cx + left, cy + top + ctx.lineWidth * 1.5);
 					ctx.lineTo(cx + left + sWidth, cy + top + ctx.lineWidth * 1.5);

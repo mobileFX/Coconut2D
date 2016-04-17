@@ -96,7 +96,7 @@ class CocoEventSource
 
 			if(cp.Event.is(Event))
 			{
-				var cancel:Boolean = Boolean(cp.Callback.apply(cp.Listener, event_arguments));
+				var cancel:Boolean = cp.Callback.apply(cp.Listener, event_arguments);
 				if(cancel)
 				{
 					Event.cancelBubble();

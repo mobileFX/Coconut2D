@@ -28,10 +28,10 @@ class HTMLVideoElement : HTMLElement
 
 	private var __uid:Integer;
 	private var __currentTime:Time;
-	private var __width:Float;
-	private var __height:Float;
+	private var __width:Integer;
+	private var __height:Integer;
 
-	public var duration:Float;
+	public var duration:Time;
 	public var paused:Boolean;
 	public var ended:Boolean;
 	public var autoplay:Boolean;
@@ -45,9 +45,9 @@ class HTMLVideoElement : HTMLElement
 		__uid=0;
 		__imageData = null;
 		__currentTime=0;
-		__width=0.0;
-		__height=0.0;
-		duration=0.0;
+		__width=0;
+		__height=0;
+		duration=0;
 		paused=false;
 		ended=false;
 		autoplay=false;
@@ -100,12 +100,12 @@ class HTMLVideoElement : HTMLElement
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public property width
 	{
-		function get():Float
+		function get():Integer
 		{
 			return __width;
 		}
 
-		function set(v:Float)
+		function set(v:Integer)
 		{
 			if(v == __width) return;
 			__width = v;
@@ -116,12 +116,12 @@ class HTMLVideoElement : HTMLElement
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public property height
 	{
-		function get():Float
+		function get():Integer
 		{
 			return __height;
 		}
 
-		function set(v:Float)
+		function set(v:Integer)
 		{
 			if(v == __height) return;
 			__height = v;
@@ -132,7 +132,7 @@ class HTMLVideoElement : HTMLElement
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public property currentTime
 	{
-		function get():Float
+		function get():Time
 		{
 			return __Video_get_position(__uid);
 		}

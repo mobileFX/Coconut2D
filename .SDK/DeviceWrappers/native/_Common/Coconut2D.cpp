@@ -52,42 +52,6 @@ namespace std
 }
 #endif
 
-
-/*
-
-int32_t 	math_floor(int32_t n)				{ return std::floor(n); }
-int32_t 	math_floor(float n)					{ return std::floor( (int32_t) n); }
-
-int32_t 	math_ceil(int32_t n)				{ return std::ceil(n); }
-int32_t 	math_ceil(float n)					{ return std::ceil( (int32_t) n); }
-
-int32_t 	math_log(int32_t n)					{ return std::log(n); }
-int32_t 	math_log(float n)					{ return std::log( (int32_t) n); }
-
-int32_t 	math_abs(int32_t n)					{ return std::abs(n); }
-int32_t 	math_abs(float n)					{ return std::abs( (int32_t) n); }
-
-float 		math_sqrt(float n)					{ return std::sqrt(n); }
-float 		math_sqrt(int32_t n)				{ return std::sqrt( (float) n); }
-
-int32_t 	math_round(int32_t n)				{ return (int32_t) round( (float) n); }
-int32_t 	math_round(float n)					{ return (int32_t) round( (float) n); }
-
-float 		math_asin(float n)					{ return std::asin(n); }
-float 		math_asin(int32_t n)				{ return std::asin( (float) n); }
-
-float 		math_acos(float n)					{ return std::acos(n); }
-float 		math_acos(int32_t n)				{ return std::acos( (float) n); }
-
-float 		math_sin(float n)					{ return std::sin(n); }
-float 		math_sin(int32_t n)					{ return std::sin( (float) n); }
-
-float 		math_cos(float n)					{ return std::cos(n); }
-float 		math_cos(int32_t n)					{ return std::cos( (float) n); }
-
-*/
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 CocoEngine* engine;
 HTMLWindow* window;
@@ -173,27 +137,46 @@ extern String encodeURIComponent(String uri)
 //////////////////////////////////////////////////////////////////////////////////////////////
 ArrayBuffer* ArrayBuffer::NewFromImage(const String str, int32_t& width, int32_t& height)
 {
+	ArrayBuffer* buff = nullptr;
+
 	CocoAssetFile* file = CocoAssetFile::open(str.c_str());
+
     if(!file)
     {
         std::cout << "Error Loading Image: " << str << "\n";
-        return NULL;
     }
-	switch(file->mime)
-	{
-		case CocoAssetFile::MIME::IMAGE_PNG: return NewFromImage_PNG(file, width, height);
-		case CocoAssetFile::MIME::IMAGE_JPG: return NewFromImage_JPG(file, width, height);
-		default:
-			return NULL;
-	}
-	return NULL;
+    else
+    {
+		switch(file->mime)
+		{
+			case CocoAssetFile::MIME::IMAGE_PNG:
+				buff = NewFromImage_PNG(file, width, height);
+				break;
+
+			case CocoAssetFile::MIME::IMAGE_JPG:
+				buff = NewFromImage_JPG(file, width, height);
+				break;
+
+			default:
+				buff = nullptr;
+				break;
+		}
+
+		if(file)
+		{
+			delete file;
+			file = nullptr;
+		}
+    }
+
+	return buff;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 String ArrayBuffer::encodeAsBase64()
 {
 	static const char b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-	STD_STRING ret;
+    std::string ret;
 
 	int32_t pad = (3 - (byteLength % 3)) % 3;
 	int32_t len = 4 * (byteLength + pad) / 3;

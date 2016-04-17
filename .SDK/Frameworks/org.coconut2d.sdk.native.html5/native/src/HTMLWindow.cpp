@@ -62,8 +62,8 @@ HTMLWindow::~HTMLWindow()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void HTMLWindow::setScreen(fxScreen __screen)
 {
-	innerWidth = (uint32_t) __screen.width;
-	innerHeight = (uint32_t) __screen.height;
+	innerWidth = __screen.width;
+	innerHeight = __screen.height;
 	devicePixelRatio = __screen.pixelRatio;
 	screenRotation = __screen.rotation;
 	screen->width = innerWidth;
@@ -136,8 +136,8 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 				case fxScreen::Rotation::RCW:  x = (int32_t) -fxAPIGetMouseEventY(data); y = (int32_t)  fxAPIGetMouseEventX(data); break;
 				case fxScreen::Rotation::RCCW: x = (int32_t)  fxAPIGetMouseEventY(data); y = (int32_t) -fxAPIGetMouseEventX(data); break;
 			}
-			e->clientX = x;
-			e->clientY = y;
+			e->clientX = (float) x;
+			e->clientY = (float) y;
 			break;
 		}
 
@@ -192,10 +192,10 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 					case fxScreen::Rotation::RCW: x = (int32_t) innerWidth - fxAPIGetTouchEventY(data, i); y = fxAPIGetTouchEventX(data, i); break;
 					case fxScreen::Rotation::RCCW: x = fxAPIGetTouchEventY(data, i); y = (int32_t) innerHeight - fxAPIGetTouchEventX(data, i); break;
 				}
-				e->touches->item(i)->clientX = x;
-				e->touches->item(i)->clientY = y;
-				e->touches->item(i)->screenX = x;
-				e->touches->item(i)->screenY = y;
+				e->touches->item(i)->clientX = (float) x;
+				e->touches->item(i)->clientY = (float) y;
+				e->touches->item(i)->screenX = (float) x;
+				e->touches->item(i)->screenY = (float) y;
 			}
 
 			e->changedTouches->length = fxAPIGetChangedTouchesLength(data);
@@ -214,10 +214,10 @@ void HTMLWindow::handleEvent(fxObjectUID uid, fxEvent type, void* data)
 					case fxScreen::Rotation::RCW: x = (int32_t) innerWidth - fxAPIGetChangedTouchEventY(data, i); y = fxAPIGetChangedTouchEventX(data, i); break;
 					case fxScreen::Rotation::RCCW: x = fxAPIGetChangedTouchEventY(data, i); y = (int32_t) innerHeight - fxAPIGetChangedTouchEventX(data, i); break;
 				}
-				e->changedTouches->item(i)->clientX = x;
-				e->changedTouches->item(i)->clientY = y;
-				e->changedTouches->item(i)->screenX = x;
-				e->changedTouches->item(i)->screenY = y;
+				e->changedTouches->item(i)->clientX = (float) x;
+				e->changedTouches->item(i)->clientY = (float) y;
+				e->changedTouches->item(i)->screenX = (float) x;
+				e->changedTouches->item(i)->screenY = (float) y;
 			}
 			break;
 		}

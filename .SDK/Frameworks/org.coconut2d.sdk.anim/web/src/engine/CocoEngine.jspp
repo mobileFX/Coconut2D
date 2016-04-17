@@ -74,7 +74,7 @@ state class CocoEngine
 		__currentState = null;
 		__nextState = null;
 		__tickables = new Array<ITickable>;
-		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
+		__deviceMessageQueue = null;
 		__clicked = new Array<CocoClip>;
 		__track_touch = false;
 		__track_key = false;
@@ -207,6 +207,7 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function __attachDevices()
 	{
+		delete[] __deviceMessageQueue;
 		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
 		__clicked = new Array<CocoClip>;
 
@@ -288,6 +289,7 @@ state class CocoEngine
 		case "mousedown":
 			if(!__track_touch)
 			{
+				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
 				MSG.x0 = e.clientX;
@@ -302,6 +304,7 @@ state class CocoEngine
 			{
 				if(__canRegisterMove(e.clientX, e.clientY))
 				{
+					delete MSG;
 					MSG = new DEVICE_MESSAGE();
 					MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
 					MSG.x0 = e.clientX;
@@ -315,6 +318,7 @@ state class CocoEngine
 			if(__track_touch)
 			{
 				__removeTouchMessages();
+				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
 				MSG.x0 = e.clientX;
@@ -332,6 +336,7 @@ state class CocoEngine
 			{
 				var touch:Touch = e.touches[0];
 				if(global.__touchEvents) fixTouch(touch);
+				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
 				MSG.x0 = touch.clientX;
@@ -349,6 +354,7 @@ state class CocoEngine
 				if(global.__touchEvents) fixTouch(touch);
 				if(__canRegisterMove(touch.clientX, touch.clientY))
 				{
+					delete MSG;
 					MSG = new DEVICE_MESSAGE();
 					MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
 					MSG.x0 = touch.clientX;
@@ -364,6 +370,7 @@ state class CocoEngine
 				var touch:Touch = e.changedTouches[0];
 				if(global.__touchEvents) fixTouch(touch);
 				__removeTouchMessages();
+				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
 				MSG.x0 = touch.clientX;
@@ -377,6 +384,7 @@ state class CocoEngine
 		case "keydown":
 			if(!__track_key)
 			{
+				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_DOWN;
 				MSG.keyCode = e.keyCode;
@@ -390,6 +398,7 @@ state class CocoEngine
 		case "keyup":
 			if(__track_key)
 			{
+				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_UP;
 				MSG.keyCode = e.keyCode;
@@ -423,8 +432,13 @@ state class CocoEngine
 	{
 		if(!__has_touch_device_message) return;
 		for(var i:Integer=__deviceMessageQueue.size();i--;)
+		{
 			if((__deviceMessageQueue[i].type & DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK)!=0)
+			{
+				delete __deviceMessageQueue[i];
 				__deviceMessageQueue.splice(i,1);
+			}
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -469,7 +483,8 @@ state class CocoEngine
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __clearDeviceMessageQueue()
 	{
-		__deviceMessageQueue.clear();
+		delete[] __deviceMessageQueue;
+		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
 		__has_touch_device_message = false;
 	}
 

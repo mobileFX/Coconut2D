@@ -1,8 +1,11 @@
-﻿struct fxScreen
+﻿#ifndef __COCONUT2D_DEVICE_HPP__
+#define __COCONUT2D_DEVICE_HPP__
+
+struct fxScreen
 {
-    uint32_t width;
-    uint32_t height;
-    uint32_t top;
+    int32_t width;
+    int32_t height;
+    int32_t top;
     float pixelRatio;
     bool isPortrait;
     enum class Rotation
@@ -30,3 +33,5 @@ enum class ArgState : uint8_t
     SCRIPTS = 1,
     FONTS = 2
 };
+
+#endif /* __COCONUT2D_DEVICE_HPP__ */

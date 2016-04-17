@@ -77,7 +77,7 @@ void Audio::__set_currentTime(float time)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-int Audio::__get_readyState()
+int32_t Audio::__get_readyState()
 {
 	return 4;
 }

@@ -175,8 +175,8 @@ class CocoTimeline
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
-		delete __labels;
-		delete __keyFrames;
+		delete[] __labels;
+		delete[] __keyFrames;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,8 +190,8 @@ class CocoTimeline
 	public function clear()
 	{
 		reset();
-		delete __labels;
-		delete __keyFrames;
+		delete[] __labels;
+		delete[] __keyFrames;
 		__labels = new Array<CocoTimeLabel>;
 		__keyFrames = new Array<CocoKeyFrame>;
 		normalizetimeline();
@@ -337,7 +337,7 @@ class CocoTimeline
 		{
 			__durationInFrames = __keyFrames[__keyFrames.size() - 1].frameIndex + 1;
 			__singleFrameDurationTime = 1000.0 / __fps;
-			__durationInTime = Time(__durationInFrames) * __singleFrameDurationTime;
+			__durationInTime = __durationInFrames * __singleFrameDurationTime;
 			__firstKeyFrameIndex = firstKeyFrame().frameIndex;
 			__lastKeyFrameIndex = lastKeyFrame().frameIndex;
 		}
@@ -491,7 +491,7 @@ class CocoTimeline
 	                F = CocoTimeline.CloneKeyFrame(F1, exact);
 	                F.frameIndex = iFrameIndex;
 	                F.__frameIndex = frameIndex;
-	                s = (frameIndex - Float(F1.frameIndex)) / Float(F2.frameIndex - F1.frameIndex);
+	                s = (frameIndex - F1.frameIndex) / (F2.frameIndex - F1.frameIndex);
 	                interpolate(F, F1, F2, s);
 	                return F;
 	            }

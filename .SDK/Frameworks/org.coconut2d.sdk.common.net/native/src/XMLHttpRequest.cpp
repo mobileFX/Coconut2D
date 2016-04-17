@@ -283,23 +283,21 @@ String XMLHttpRequest::getAllResponseHeaders()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void XMLHttpRequest::curl_send()
 {
-	CURLcode res;
-
 	// Pass headers to curl
 	curl_slist* httpheader = nullptr;
 	for(std::map<String, String>::iterator it = requestHeaders.begin(); it != requestHeaders.end(); it++)
 	{
 		httpheader = curl_slist_append(httpheader, (it->first + ": " + it->second).c_str());
 	}
-	res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, httpheader);
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, httpheader);
 
 	if(requestDataBuffer.size())
 	{
 		// Set data length
-		res = curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, requestDataBuffer.size());
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, requestDataBuffer.size());
 
 		// pass in a pointer to the data - curl will not copy
-		res = curl_easy_setopt(curl, CURLOPT_POSTFIELDS, requestDataBuffer.data());
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, requestDataBuffer.data());
 	}
 
 	if(async)

@@ -23,7 +23,7 @@ OBJS		= $(addsuffix .obj, $(basename $(SRC)))
 OBJ_OBJ		= $(addprefix $(OBJ)/, $(addsuffix .obj, $(basename $(notdir $(SRC)))))
 OUT			= $(PROJECT_NAME).exe
 
-CFLAGS		+= -m32 -std=c++11 -std=gnu++11 -fpermissive
+CFLAGS		+= -m32 -std=gnu++11 -fpermissive
 CFLAGS		+= -D _WIN32_IE=0x0500 -D WINVER=0x500 -D WIN32 -D _WINDOWS -D WIN32_APPLICATION -D WIN32_LEAN_AND_MEAN
 CFLAGS		+= -D UNICODE -D _UNICODE
 CFLAGS		+= -D _CRT_SECURE_NO_DEPRECATE -D _CRT_NONSTDC_NO_DEPRECATE -D GLEW_STATIC -D CURL_STATICLIB

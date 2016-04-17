@@ -54,7 +54,7 @@ public:
 	void pause();
 	float __get_currentTime();
 	void __set_currentTime(float time);
-	int __get_readyState();
+	int32_t __get_readyState();
 };
 
 #endif /* __HTMLAUDIOELEMENT_HPP__ */

@@ -199,9 +199,9 @@ public:
 			C = unb64[str[i + 2] - 43];
 			D = unb64[str[i + 3] - 43];
 
-			ret->data[c++] = (uint8_t) ((A << 2) | (B >> 4));
-			ret->data[c++] = (uint8_t) ((B << 4) | (C >> 2));
-			ret->data[c++] = (uint8_t) ((C << 6) | (D));
+			ret->data[c++] = (uint8_t) (((A << 2) | (B >> 4)) & 0xFF);
+			ret->data[c++] = (uint8_t) (((B << 4) | (C >> 2)) & 0xFF);
+			ret->data[c++] = (uint8_t) (((C << 6) | (D))  & 0xFF);
 		}
 		if(pad == 1)
 		{
@@ -209,15 +209,15 @@ public:
 			B = unb64[str[i + 1] - 43];
 			C = unb64[str[i + 2] - 43];
 
-			ret->data[c++] = (uint8_t) ((A << 2) | (B >> 4));
-			ret->data[c++] = (uint8_t) ((B << 4) | (C >> 2));
+			ret->data[c++] = (uint8_t) (((A << 2) | (B >> 4)) & 0xFF);
+			ret->data[c++] = (uint8_t) (((B << 4) | (C >> 2)) & 0xFF);
 		}
 		else if(pad == 2)
 		{
 			A = unb64[str[i] - 43];
 			B = unb64[str[i + 1] - 43];
 
-			ret->data[c++] = (uint8_t) ((A << 2) | (B >> 4));
+			ret->data[c++] = (uint8_t) (((A << 2) | (B >> 4)) & 0xFF);
 		}
 		return ret;
 	}
@@ -340,8 +340,11 @@ public:
 		{
 			case TYPE_FILE:
 			case TYPE_ASSET:
-				return ftell((FILE*)fd);
-			case TYPE_DATA:
+            {
+				long sz = ftell((FILE*)fd);
+                return static_cast<int32_t>(sz);
+            }
+            case TYPE_DATA:
 				return (int32_t) cursor;
 		}
 		return -1;

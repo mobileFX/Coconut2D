@@ -252,8 +252,8 @@ class CocoImage
 
 	// Render
 	public var renderData:ICocoImageRenderData;
-	public var onLoadResizeWidth:Float;
-	public var onLoadResizeHeight:Float;
+	public var onLoadResizeWidth:Integer;
+	public var onLoadResizeHeight:Integer;
 
 	// Resolution Siblings
 	public var baseUrl:String;
@@ -267,7 +267,7 @@ class CocoImage
 	public var scaleY:Float;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function createFromURL(url:String, optional resizeWidth:Float, optional resizeHeight:Float):CocoImage
+	public static function createFromURL(url:String, optional resizeWidth:Integer, optional resizeHeight:Integer):CocoImage
 	{
 		var img:CocoImage = new CocoImage();
 		img.textureCellWidth = 0;
@@ -289,7 +289,7 @@ class CocoImage
 		scene				= null;
 		renderData			= null;
 		baseUrl				= "";
-		color				= new Float32Array([1.0, 1.0, 1.0, 1.0]);
+		color				= null;
 		hImage				= null;
 		isSpriteSheet		= false;
 		pixelRatio			= 1.0;
@@ -301,11 +301,11 @@ class CocoImage
 		tileHeight			= 0;
 		tileMap				= null;
 		symbolName			= "";
-		texSize				= new Float32Array([1.0, 1.0]);
+		texSize				= null;
 		textureCellHeight	= 0;
 		textureCellWidth	= 0;
-		textureGrid			= new Float32Array([0.0, 0.0]);
-		textureTileMap		= new Float32Array([0.0, 0.0]);
+		textureGrid			= null;
+		textureTileMap		= null;
 		onLoadResizeWidth	= 0;
 		onLoadResizeHeight	= 0;
 		viewSiblings		= new Array<CocoImageResolution>;
@@ -345,8 +345,8 @@ class CocoImage
 	{
 		if(onLoadResizeWidth>0 || onLoadResizeHeight>0 || textureCellWidth==0 || textureCellHeight==0)
 		{
-			var w:Float = onLoadResizeWidth!=0 ? onLoadResizeWidth : hImage.naturalWidth;
-			var h:Float = onLoadResizeHeight!=0 ? onLoadResizeHeight : hImage.naturalHeight;
+			var w:Integer = onLoadResizeWidth!=0 ? onLoadResizeWidth : hImage.naturalWidth;
+			var h:Integer = onLoadResizeHeight!=0 ? onLoadResizeHeight : hImage.naturalHeight;
 			var pot:Boolean = engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL;
 			var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, pot);
 			var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
@@ -364,7 +364,7 @@ class CocoImage
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function createFromCanvas(canvas:HTMLCanvasElement, width:Float, height:Float)
+	public function createFromCanvas(canvas:HTMLCanvasElement, width:Integer, height:Integer)
 	{
 		createFromBase64(canvas.toDataURL("image/png"));
         textureCellWidth = width;
@@ -372,7 +372,7 @@ class CocoImage
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function createFromBase64(url:String, optional width:Float, optional height:Float)
+	public function createFromBase64(url:String, optional width:Integer, optional height:Integer)
 	{
 		delete hImage;
         hImage = new Image();
@@ -488,8 +488,8 @@ class CocoImage
 				// We multiply with scene's view scale to calculate the image's desired size.
 
 		        // Calculate the optimal (desired) image size from mdpi
-		        var sw:Float = Math.round(textureViewWidth * scaleX);
-		        var sh:Float = Math.round(textureViewHeight * scaleY);
+		        var sw:Integer = Math.floor(textureViewWidth * scaleX);
+		        var sh:Integer = Math.floor(textureViewHeight * scaleY);
 
 		        // Scan siblings to find the closest image
 		        if(textureViewScaleX >= 1.0 && textureViewScaleY >= 1.0)
@@ -623,6 +623,7 @@ class CocoImage
 		renderData = engine.__ctx.prepareImage(this);
 
 		// On WebGL we can safely delete the image to save memory.
+		//if(!binpack && (isSpriteSheet || !skin) && engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL)
 		if(!binpack && isSpriteSheet && engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL)
 			 delete hImage;
 

@@ -140,7 +140,7 @@ public:
 	void depthMask(GLboolean flag);
 	void disable(GLenum cap);
 	void disableVertexAttribArray(int32_t index);
-    void drawArrays(GLenum mode, GLint first, GLsizei count);
+    void drawArrays(GLint mode, GLint first, GLsizei count);
 	void drawElements(GLenum mode, GLsizei count, GLenum type, GLintptr offset);
 	void enable(GLenum cap);
 	void enableVertexAttribArray(int32_t index);
@@ -157,7 +157,7 @@ public:
 	void stencilOp(GLenum fail, GLenum zfail, GLenum zpass);
 	void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, GLenum type, Image* image);
 	void texImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, ArrayBufferView* pixels);
-	void texParameteri(GLenum target, GLenum pname, GLint param);
+	void texParameteri(GLenum target, GLenum pname, GLenum param);
 	void uniform1f(WebGLUniformLocation* location, GLfloat x);
 	void uniform1fv(WebGLUniformLocation* location, Float32Array* v);
 	void uniform1i(WebGLUniformLocation* location, GLint x);
@@ -201,10 +201,10 @@ public:
 	const GLenum COLOR_BUFFER_BIT = 0x00004000;
 	const GLenum POINTS = 0x0000;
 	const GLenum LINES = 0x0001;
-	const GLenum LINE_LOOP = 0x0002;
+	const GLint LINE_LOOP = 0x0002;
 	const GLenum LINE_STRIP = 0x0003;
-	const GLenum TRIANGLES = 0x0004;
-	const GLenum TRIANGLE_STRIP = 0x0005;
+	const GLint TRIANGLES = 0x0004;
+	const GLint TRIANGLE_STRIP = 0x0005;
 	const GLenum TRIANGLE_FAN = 0x0006;
 	const GLenum ZERO = 0;
 	const GLenum ONE = 1;

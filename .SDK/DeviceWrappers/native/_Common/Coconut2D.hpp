@@ -22,8 +22,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-///Applications/Xcode.app/Contents/Frameworks/IDEKit.framework/Resources/IDETextKeyBindingSet.plist
-
 #ifndef __COCONUT2D_HPP__
 #define __COCONUT2D_HPP__
 
@@ -52,14 +50,25 @@
 #endif
 
 #define COCO_DELETE_OBJECT(O) if(O){delete O; O=nullptr;}
-#define COCO_DELETE_ARRAY(A) if(A){delete A; A=nullptr;}
 
-#define trace(v)					\
-{                                   \
-	std::stringstream ss;           \
-	ss << v << "\n";                \
-	std::cout << ss.str();          \
-}                                   \
+#define COCO_DELETE_ARRAY(A) 												\
+if(A)                                                                       \
+{                                                                           \
+	for(int32_t _index= A->size()-1; _index>=0; _index--)                   \
+	{                                                                       \
+		delete (*A)[_index];                                                \
+	};                                                                      \
+	A->clear();                                                             \
+	delete A;                                                               \
+	A=nullptr;                                                              \
+}																			\
+
+#define trace(v)															\
+{                                   										\
+	std::stringstream ss;           										\
+	ss << v << "\n";                										\
+	std::cout << ss.str();          										\
+}                                   										\
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STL Includes
@@ -76,7 +85,11 @@
 #include <cstring>
 #include <cmath>
 #include <cfloat>
-#include <tgmath.h>
+
+#ifndef MSVC_COMPILER
+	#include <tgmath.h>
+#endif
+
 #include <algorithm>
 #include <stack>
 #include <string>
@@ -95,42 +108,18 @@
 #include <cstdio>
 #include <initializer_list>
 
-#define ENABLE_BOOST 1
-
 // Boost RegEx are much faster than STL
 #ifdef ENABLE_BOOST
-
-	#include <boost/locale/encoding_utf.hpp>
 	#include <boost/regex.hpp>
-
-	using boost::locale::conv::utf_to_utf;
-
-	std::wstring utf8_to_wstring(const std::string& str)
-	{
-	    return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
-	}
-
-	std::string wstring_to_utf8(const std::wstring& str)
-	{
-	    return utf_to_utf<char>(str.c_str(), str.c_str() + str.size());
-	}
-
 #else
-
 	#include <regex>
+#endif
 
-	std::wstring utf8_to_wstring(const std::string& str)
-	{
-	    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-	    return conv.from_bytes(str);
-	}
-
-	std::string wstring_to_utf8(const std::wstring& str)
-	{
-		std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-		return conv.to_bytes(w);
-	}
-
+#ifdef MSVC_COMPILER
+	#define strdup _strdup
+	#define constexpr const
+	#define FALSE 0
+	#define NOMINMAX
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -222,9 +211,6 @@ typedef uint32_t Color;
     #include <windows.h>
     #include <windowsx.h>
 
-    #undef near
-    #undef far
-
     #define fxAPIGetMouseEventX(E)                  GET_X_LPARAM(((MSG*)E)->lParam)
     #define fxAPIGetMouseEventY(E)                  GET_Y_LPARAM(((MSG*)E)->lParam)
     #define fxAPIGetTouchEventX(E, I)               GET_X_LPARAM(((MSG*)E)->lParam)
@@ -261,8 +247,13 @@ typedef uint32_t Color;
 // JPEG Support
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef FALSE
 #undef FALSE
+#endif
+
+#ifdef TRUE
 #undef TRUE
+#endif
 
 #include <jpeglib.h>
 
@@ -397,6 +388,15 @@ public:
 		owner = false;
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////
+    Array(std::initializer_list<T> list)
+    {
+        for(size_t i=0; i<list.size(); i++)
+        {
+            push(*(list.begin()+i));
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////////////////
 	Array(const size_t size, ...) : std::vector<T>(size)
 	{
@@ -519,10 +519,8 @@ public:
 //	                      /____/
 // ==================================================================================================================================
 
-#define STD_STRING std::string
-
 ////////////////////////////////////////////////////////////////////
-class String : public STD_STRING
+class String : public std::string
 {
 
 private:
@@ -543,7 +541,7 @@ private:
     }
 
     //////////////////////////////////////////////////////////////////////////////////
-    inline bool __naive_string(const STD_STRING& a, const STD_STRING& b)
+    inline bool __naive_string(const std::string& a, const std::string& b)
     {
         if (a.length() == b.length())
         {
@@ -553,7 +551,7 @@ private:
     }
 
     ////////////////////////////////////////////////////////////////////
-    STD_STRING	__ucase(STD_STRING& s)
+    std::string	__ucase(std::string& s)
     {
         if (s.size() == 0) return "";
         for (unsigned int i = 0, L = (unsigned int) s.length(); i < L; i++)
@@ -564,7 +562,7 @@ private:
     }
 
     ////////////////////////////////////////////////////////////////////
-    STD_STRING __lcase(STD_STRING& s)
+    std::string __lcase(std::string& s)
     {
         if (s.size() == 0) return "";
         for (unsigned int i = 0, L = (unsigned int) s.length(); i < L; i++)
@@ -575,11 +573,11 @@ private:
     }
 
     /////////////////////////////////////////////////////////////////////////////
-    STD_STRING __replace(STD_STRING& s, const STD_STRING& from, const STD_STRING& to)
+    std::string __replace(std::string& s, const std::string& from, const std::string& to)
     {
         if (s.size() == 0) return "";
         size_t start_pos = 0;
-        while ((start_pos = s.find(from, start_pos)) != STD_STRING::npos)
+        while ((start_pos = s.find(from, start_pos)) != std::string::npos)
         {
             s.replace(start_pos, from.length(), to);
             start_pos += to.length();
@@ -587,33 +585,34 @@ private:
         return s;
     }
 
+	std::wstring wcache;
+
 public:
 
     //////////////////////////////////////////////////////////////////////////////////
     String() = default;
 
     //////////////////////////////////////////////////////////////////////////////////
-    String(const char* str) : STD_STRING(str)
+    String(const char* str) : std::string(str)
     {
     }
 
     //////////////////////////////////////////////////////////////////////////////////
 	String(const std::wstring& w)
 	{
-		std::string utf8 = wstring_to_utf8(w);
-		*this = STD_STRING(utf8);
+    	wcache = std::wstring(w);
+		UTF8::wstring_to_utf8(wcache, *this);
 	}
 
     //////////////////////////////////////////////////////////////////////////////////
 	String(const wchar_t* wb)
 	{
-		std::wstring w(wb);
-		std::string utf8 = wstring_to_utf8(w);
-		*this = STD_STRING(utf8);
+		wcache = std::wstring(wb);
+        UTF8::wstring_to_utf8( (std::wstring&) wcache, *this);
 	}
 
     //////////////////////////////////////////////////////////////////////////////////
-    String(const char* str, const std::initializer_list<String> list) : STD_STRING(str)
+    String(const char* str, const std::initializer_list<String> list) : std::string(str)
     {
         for (uint32_t i = 0, L = (uint32_t) list.size(); i < L; i+=2)
         {
@@ -622,14 +621,14 @@ public:
     }
 
     //////////////////////////////////////////////////////////////////////////////////
-    String(const STD_STRING & str) : STD_STRING(str)
+    String(const std::string & str) : std::string(str)
     {
     }
 
     //////////////////////////////////////////////////////////////////////////////////
     String(const String::const_iterator begin, const String::const_iterator end)
     {
-        *this = STD_STRING(begin, end);
+        *this = std::string(begin, end);
     }
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -643,10 +642,10 @@ public:
              const int length = string->Utf8Length() + 1;
              uint8_t* buffer = (uint8_t*) malloc(length*sizeof(uint8_t));
              string->WriteOneByte(buffer, 0, length);
-             *this = STD_STRING((const char*)buffer, length);
+             *this = std::string((const char*)buffer, length);
              free(buffer);
              */
-            *this = STD_STRING(*(v8::String::Utf8Value(arg->ToString())));
+            *this = std::string(*(v8::String::Utf8Value(arg->ToString())));
         }
         else if (arg->IsArrayBufferView())
         {
@@ -654,12 +653,12 @@ public:
             uint32_t length = ab->ByteLength();
             void* buffer = malloc(length*sizeof(char));
             ab->CopyContents(buffer, length);
-            *this = STD_STRING((const char*)buffer, length);
+            *this = std::string((const char*)buffer, length);
             free(buffer);
         }
         else
         {
-            *this = STD_STRING(*(v8::String::Utf8Value(arg->ToString())));
+            *this = std::string(*(v8::String::Utf8Value(arg->ToString())));
         }
     }
     #endif
@@ -691,7 +690,7 @@ public:
     //////////////////////////////////////////////////////////////////////////////////
     const int32_t size() const
     {
-        return (int32_t) STD_STRING::size();
+        return (int32_t) (wcache.length()>0 ? wcache.length() : std::string::size());
     }
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -710,7 +709,7 @@ public:
     //////////////////////////////////////////////////////////////////////////////////
     String substr(const int32_t start, const int32_t length = -1) const
     {
-        STD_STRING ss(STD_STRING::substr( (size_t) start, length==-1 ? std::string::npos : (size_t) length));
+        std::string ss(std::string::substr( (size_t) start, length==-1 ? std::string::npos : (size_t) length));
         return String(ss);
     }
 
@@ -731,22 +730,20 @@ public:
     //////////////////////////////////////////////////////////////////////////////////
     const uint16_t charCodeAt(const int32_t index) const
     {
-    	uint16_t c = 0;
-		#ifdef ENABLE_BOOST
-		#else
-			std::string s = *this;
-			std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-			std::wstring w = converter.from_bytes(s);
-			c = w.at(index);
-		#endif
-		return c;
+    	if(index<0) return 0;
+    	if(wcache.size()==0)
+    	{
+            std::string s = *this;
+            UTF8::utf8_to_wstring(s, (std::wstring&) wcache);
+    	}
+		return (uint16_t) (index>=(int32_t)wcache.length() ? 0 : wcache.at((size_t)index));
     }
 
     //////////////////////////////////////////////////////////////////////////////////
     static String fromCharCode(const int32_t c)
     {
         if (c < (uint16_t) 128)
-            return String(STD_STRING(1, (char) c));
+            return String(std::string(1, (char) c));
 
         // Depending on the compiler and C runtime, wcstombs() might fail.
 
@@ -760,7 +757,7 @@ public:
             int ret = std::wcstombs(mbstr, &wstr, 2);
         #endif
 
-        if (ret == -1) return String(STD_STRING(1, '?'));
+        if (ret == -1) return String(std::string(1, '?'));
         return String(mbstr);
     }
 
@@ -770,10 +767,10 @@ public:
         Array<String>* ret = new Array<String>();
         int32_t pos = 0, end, sz = separator.size();
         size_t next = 0;
-        while((max==-1 || (max > 0 && ret->size() < max)) && next != STD_STRING::npos)
+        while((max==-1 || (max > 0 && ret->size() < max)) && next != std::string::npos)
         {
             next = find(separator, (size_t) pos);
-            end = next==STD_STRING::npos ? -1 : (int32_t) next;
+            end = next==std::string::npos ? -1 : (int32_t) next;
             ret->push(substring(pos, end));
             pos = (int32_t) next + sz;
         }
@@ -789,16 +786,20 @@ public:
     //////////////////////////////////////////////////////////////////////////////////
     void trimLeft()
     {
+    	wcache.clear();
+
     	#ifdef ENABLE_BOOST
-        	*this = boost::regex_replace(*this, boost::regex("^\\s+"), STD_STRING(""));
+        	*this = boost::regex_replace(*this, boost::regex("^\\s+"), std::string(""));
         #else
-        	*this = std::regex_replace(*this, std::regex("^\\s+"), STD_STRING(""));
+        	*this = std::regex_replace(*this, std::regex("^\\s+"), std::string(""));
         #endif
     }
 
     //////////////////////////////////////////////////////////////////////////////////
     void trimRight()
     {
+       	wcache.clear();
+
         int32_t i = size() - 1;
         for(; i>=0; i--)
         {
@@ -831,12 +832,14 @@ public:
     //////////////////////////////////////////////////////////////////////////////////
     void makeLower()
     {
+        wcache.clear();
         *this = __lcase(*this);
     }
 
     //////////////////////////////////////////////////////////////////////////////////
     void makeUpper()
     {
+        wcache.clear();
         *this = __ucase(*this);
     }
 
@@ -867,6 +870,7 @@ public:
     //////////////////////////////////////////////////////////////////////////////////
     String replace(const String& find, const String& replace)
     {
+        wcache.clear();
         *this = __replace(*this, find, replace);
         return *this;
     }
@@ -884,7 +888,7 @@ public:
         return __naive_string(*this, rhs);
     }
 
-    bool operator==(const STD_STRING & rhs)
+    bool operator==(const std::string & rhs)
     {
         return __naive_string(*this, rhs);
     }
@@ -930,19 +934,22 @@ public:
 
     String& operator =(const char* c_str)
     {
-        STD_STRING::operator=(c_str);
+        wcache.clear();
+        std::string::operator=(c_str);
         return *this;
     }
 
     String& operator =(const String str)
     {
-        STD_STRING::operator=(str);
+        wcache.clear();
+        std::string::operator=(str);
         return *this;
     }
 
-    String& operator =(const STD_STRING str)
+    String& operator =(const std::string str)
     {
-        STD_STRING::operator=(str);
+        wcache.clear();
+        std::string::operator=(str);
         return *this;
     }
 };
@@ -1101,8 +1108,27 @@ public:
 
         void* vector_data = v->data();
 		memcpy(buffer->data, vector_data, (size_t) byteLength);
-		if(!preserve) delete v;
+
+		if(!preserve)
+			delete v;
 	}
+
+    //////////////////////////////////////////////////////////////////////////////////
+    TypedArray(std::initializer_list<T> list)
+    {
+        owner = true;
+
+        BYTES_PER_ELEMENT = sizeof(T);
+        length = (int32_t) list.size();
+        byteOffset = 0;
+        byteLength = length * BYTES_PER_ELEMENT;
+
+        buffer = new ArrayBuffer(byteLength);
+        assert(byteLength==buffer->byteLength);
+
+        void* vector_data = (void*) &(*(list.begin()));
+        memcpy(buffer->data, vector_data, (size_t) byteLength);
+   }
 
     //////////////////////////////////////////////////////////////////////////////////
     virtual ~TypedArray()
@@ -1226,12 +1252,12 @@ public:
 	int32_t 	getUint16(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<uint16_t>(offset), littleEndian); }
 	int32_t     getUint32(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<uint32_t>(offset), littleEndian); }
 
-	int32_t 	getInt8(int32_t offset) 									{ return (int32_t) *get<int8_t>(offset); }
-	int32_t 	getInt16(int32_t offset, bool littleEndian = false) 		{ return (int32_t) flip(*get<int16_t>(offset), littleEndian); }
-	int32_t 	getInt32(int32_t offset, bool littleEndian = false) 		{ return (int32_t) flip(*get<int32_t>(offset), littleEndian); }
+	int32_t 	getInt8(int32_t offset) 								{ return (int32_t) *get<int8_t>(offset); }
+	int32_t 	getInt16(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<int16_t>(offset), littleEndian); }
+	int32_t 	getInt32(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<int32_t>(offset), littleEndian); }
 
-	float 		getFloat32(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<float>(offset), littleEndian); }
-	float		getFloat64(int32_t offset, bool littleEndian = false) 	{ return (int32_t) flip(*get<double>(offset), littleEndian); }
+	float 		getFloat32(int32_t offset, bool littleEndian = false) 	{ return (float) flip(*get<float>(offset), littleEndian); }
+	float		getFloat64(int32_t offset, bool littleEndian = false) 	{ return (float) flip(*get<double>(offset), littleEndian); }
 
 	//////////////////////////////////////////////////////////////////////////////////
 
@@ -1508,12 +1534,11 @@ class CocoUIScrollView;
 class CocoUITabBar;
 class CocoUITextEdit;
 class CocoUIView;
+class CocoUUID;
 class CocoVector;
 class CocoVideo;
 class CocoXMLParser;
 class CocoXPathParser;
-class DefaultForm;
-class FormViewer;
 class GameEngine;
 class HTMLAnchorElement;
 class HTMLCanvasElement;
@@ -1533,13 +1558,12 @@ class ICocoRenderContext;
 class IEventTarget;
 class ITickable;
 class Image;
-class LoginForm;
+class NewAnimation;
 class OnClickHandler;
 class PathLine;
 class ReservationsForm;
 class Touch;
 class TouchList;
-class UUID;
 struct COCO_PARSER_STATE;
 struct CocoDOMAttribute;
 struct CocoHVAlign;
@@ -1608,35 +1632,8 @@ enum fxEvent
 #define CocoException	std::string
 #define fxObjectUID     uint32_t
 #define parseFloat(S)   (float)(atof((S).c_str()))
+#define parseTime(S)   (float)(atof((S).c_str()))
 #define parseInt(S)     (int32_t)(atoi((S).c_str()))
-
-template<typename T>
-struct TYPE_STRING
-{
-    static constexpr char const* c_str()
-    {
-        return "undefined";
-    }
-};
-
-#define DEF_TYPE(T)                                 \
-template<>                                          \
-struct TYPE_STRING<T>                               \
-{                                                   \
-    static constexpr char const* c_str()            \
-    {                                               \
-        return #T;                                  \
-    }                                               \
-};                                                  \
-
-DEF_TYPE(int8_t);
-DEF_TYPE(uint8_t);
-DEF_TYPE(int16_t);
-DEF_TYPE(uint16_t);
-DEF_TYPE(int32_t);
-DEF_TYPE(uint32_t);
-DEF_TYPE(float);
-DEF_TYPE(double);
 
 // ==================================================================================================================================
 //	   ______      ______               __

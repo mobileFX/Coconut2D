@@ -53,8 +53,8 @@ struct CocoRect
 struct CocoSkinCacheItem
 {
 	symbolName:String;
-	width:Float;
-	height:Float;
+	width:Integer;
+	height:Integer;
 	image:CocoImage;
 }
 
@@ -86,9 +86,9 @@ class CocoGraphics
  	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
- 	public static function POT(n:Float):Float
+ 	public static function POT(n:Integer):Integer
  	{
- 		return Math.pow(2.0, Math.ceil(Math.log(n)/Math.log(2.0)));
+ 		return Math.pow(2, Math.ceil(Math.log(n)/Math.log(2)));
  	}
 
 	// ==================================================================================================================================
@@ -100,13 +100,13 @@ class CocoGraphics
 	//
 	// ==================================================================================================================================
 
-	public static function NewCanvas(width:Float, height:Float, pot:Boolean) :HTMLCanvasElement
+	public static function NewCanvas(width:Integer, height:Integer, pot:Boolean) :HTMLCanvasElement
 	{
     	var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
-    	width = Math.max(1, Math.floor(width));
-    	height = Math.max(1, Math.floor(height));
-		canvas.width = Math.max(1, Math.floor(pot ? POT(width) : width));
-		canvas.height = Math.max(1, Math.floor(pot ? POT(height) : height));
+    	width = Math.max(1, width);
+    	height = Math.max(1, height);
+		canvas.width = Math.max(1, (pot ? POT(width) : width));
+		canvas.height = Math.max(1, (pot ? POT(height) : height));
 		return canvas;
 	}
 
@@ -123,11 +123,12 @@ class CocoGraphics
 	{
 		try
 		{
-			var R:Integer = Integer((c >> 16) & 0xFF);
-			var G:Integer = Integer((c >> 8) & 0xFF);
-			var B:Integer = Integer((c & 0xFF));
-			var A:Float = Integer((c >> 24) & 0xFF) / 255.0;
-			return "rgba(" + String(R) + "," + String(G) + "," + String(B) + "," + String(A) + ")";
+			var A:Integer = ((c >> 24) & 0xFF);
+			var R:Integer = ((c >> 16) & 0xFF);
+			var G:Integer = ((c >>  8) & 0xFF);
+			var B:Integer = ((c)       & 0xFF);
+
+			return "rgba(" + String(R) + "," + String(G) + "," + String(B) + "," + String(A/255.0) + ")";
 		}
 		catch(e:Error)
 		{
@@ -167,7 +168,7 @@ class CocoGraphics
 	//
 	// ==================================================================================================================================
 
-	public static function GetSkinFromCache(skinImage:CocoImage, width:Float, height:Float) :CocoImage
+	public static function GetSkinFromCache(skinImage:CocoImage, width:Integer, height:Integer) :CocoImage
 	{
 		if(!skinImage || width==0 || height==0)
 			return null;
@@ -185,11 +186,13 @@ class CocoGraphics
 		}
 
 		// Create a skin image
-		var canvas:HTMLCanvasElement = NewCanvas(width*skinImage.pixelRatio, height*skinImage.pixelRatio, true);
+		var w:Integer = Math.floor(width*skinImage.pixelRatio);
+		var h:Integer = Math.floor(height*skinImage.pixelRatio);
+		var canvas:HTMLCanvasElement = NewCanvas(w, h, true);
 		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
-		CocoGraphics.DrawSkin(ctx, skinImage, 0, 0, width*skinImage.pixelRatio, height*skinImage.pixelRatio);
+		CocoGraphics.DrawSkin(ctx, skinImage, 0, 0, w, h);
 		ctx = null;
-		var image:CocoImage = CocoImageFromHTMLCanvas(canvas, width*skinImage.pixelRatio, height*skinImage.pixelRatio);
+		var image:CocoImage = CocoImageFromHTMLCanvas(canvas, w, h);
 		image.pixelRatio = skinImage.pixelRatio;
 		delete canvas;
 
@@ -205,7 +208,7 @@ class CocoGraphics
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Float, textureHeight:Float, optional mime:String = "image/png") :CocoImage
+	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Integer, textureHeight:Integer, optional mime:String = "image/png") :CocoImage
 	{
         var img:CocoImage = new CocoImage();
         img.hImage = new Image();
@@ -227,17 +230,17 @@ class CocoGraphics
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Float, y:Float, width:Float, height:Float)
+	public static function DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Integer, y:Integer, width:Integer, height:Integer)
 	{
 		if(!skinImage)
 			return;
 
-		var W1:Float				  = skinImage.skin[0];
-		var W2:Float				  = skinImage.skin[1];
-		var W3:Float				  = skinImage.skin[2];
-		var H1:Float				  = skinImage.skin[3];
-		var H2:Float				  = skinImage.skin[4];
-		var H3:Float				  = skinImage.skin[5];
+		var W1:Integer				  = skinImage.skin[0];
+		var W2:Integer				  = skinImage.skin[1];
+		var W3:Integer				  = skinImage.skin[2];
+		var H1:Integer				  = skinImage.skin[3];
+		var H2:Integer				  = skinImage.skin[4];
+		var H3:Integer				  = skinImage.skin[5];
 
 		var RW1H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
 		var RW2H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
@@ -249,33 +252,33 @@ class CocoGraphics
 		var RW2H3:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
 		var RW3H3:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
 
-		var	F:Float;
-		var	RmW:Float;
-		var	RmH:Float;
-		var	R:Array<Float> = [0,0,0];
-		var	C:Array<Float> = [0,0,0];
+		var	F:Integer;
+		var	RmW:Integer;
+		var	RmH:Integer;
+		var	R:Array<Integer> = [0,0,0];
+		var	C:Array<Integer> = [0,0,0];
 
 	    // Find slices with fixed width or height
-	    if(__fixedH([RW1H1, RW2H1, RW3H1])) R[0] = H1;
-	    if(__fixedH([RW1H2, RW2H2, RW3H2])) R[1] = H2;
-	    if(__fixedH([RW1H3, RW2H3, RW3H3])) R[2] = H3;
-	    if(__fixedW([RW1H1, RW1H2, RW1H3])) C[0] = W1;
-	    if(__fixedW([RW2H1, RW2H2, RW2H3])) C[1] = W2;
-	    if(__fixedW([RW3H1, RW3H2, RW3H3])) C[2] = W3;
+	    if(__fixedH([RW1H1, RW2H1, RW3H1], true)) R[0] = H1;
+	    if(__fixedH([RW1H2, RW2H2, RW3H2], true)) R[1] = H2;
+	    if(__fixedH([RW1H3, RW2H3, RW3H3], true)) R[2] = H3;
+	    if(__fixedW([RW1H1, RW1H2, RW1H3], true)) C[0] = W1;
+	    if(__fixedW([RW2H1, RW2H2, RW2H3], true)) C[1] = W2;
+	    if(__fixedW([RW3H1, RW3H2, RW3H3], true)) C[2] = W3;
 
 		// Count how many cells have fixed height and divide the remaining height to the others
-		F = __countFixed([H1, H2, H3]) - __countFixed(R);
+		F = __countFixed([H1, H2, H3], true) - __countFixed(R);
 		RmH = Math.max(0, height - R[0] - R[1] - R[2]);
-		if(H1!=0 && R[0]==0) R[0] =(RmH / F);
-		if(H2!=0 && R[1]==0) R[1] =(RmH / F);
-		if(H3!=0 && R[2]==0) R[2] =(RmH / F);
+		if(F && H1!=0 && R[0]==0) R[0] =(RmH / F);
+		if(F && H2!=0 && R[1]==0) R[1] =(RmH / F);
+		if(F && H3!=0 && R[2]==0) R[2] =(RmH / F);
 
 		// Count how many cells have fixed width and divide the remaining width to the others
-		F = __countFixed([W1, W2, W3]) - __countFixed(C);
+		F = __countFixed([W1, W2, W3], true) - __countFixed(C);
 		RmW = Math.max(0, width - C[0] - C[1] - C[2]);
-		if(W1!=0 && C[0]==0) C[0] = (RmW / F);
-		if(W2!=0 && C[1]==0) C[1] = (RmW / F);
-		if(W3!=0 && C[2]==0) C[2] = (RmW / F);
+		if(F && W1!=0 && C[0]==0) C[0] = (RmW / F);
+		if(F && W2!=0 && C[1]==0) C[1] = (RmW / F);
+		if(F && W3!=0 && C[2]==0) C[2] = (RmW / F);
 
 	    // Draw slices
 
@@ -293,10 +296,13 @@ class CocoGraphics
 	    __drawSlice ( ctx, skinImage, 	x + C[0] + C[1], 	y + R[0] + R[1], 	C[2],	R[2], 	W1 + W2, 	H1 + H2, 	W3, 	H3, 	RW3H3);
 
 		ctx.restore();
+
+		delete R;
+		delete C;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Float, cy:Float, cw:Float, ch:Float, sx:Float, sy:Float, sw:Float, sh:Float, r:COCO_SKIN_TILE_ENUM)
+	private static function __drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Integer, cy:Integer, cw:Integer, ch:Integer, sx:Integer, sy:Integer, sw:Integer, sh:Integer, r:COCO_SKIN_TILE_ENUM)
 	{
 	    if(cw==0 || ch==0 || sw==0 || sh==0) return;
 	    if(r == COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE)
@@ -306,42 +312,45 @@ class CocoGraphics
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __countFixed(v:Array<Float>) :Integer
+	private static function __countFixed(v:Array<Integer>, optional dispose:Boolean) :Integer
 	{
 	    var c:Integer = 0;
 	    var L:Integer = v.size();
 	    for(var i:Integer=0; i<L; i++)
 	    	if(v[i]!=0) c++;
+	    if(dispose) delete v;
 	    return c;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __fixedW(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean
+	private static function __fixedW(v:Array<COCO_SKIN_TILE_ENUM>, optional dispose:Boolean) :Boolean
 	{
 		var R:Boolean = false;
 		var L:Integer = v.size();
 	    for(var i:Integer=0; i<L; i++)
 	        R |= ((v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y));
+	    if(dispose) delete v;
 	    return R;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __fixedH(v:Array<COCO_SKIN_TILE_ENUM>) :Boolean
+	private static function __fixedH(v:Array<COCO_SKIN_TILE_ENUM>, optional dispose:Boolean) :Boolean
 	{
 		var R:Boolean = false;
 		var L:Integer = v.size();
 	    for(var i:Integer=0; i<L; i++)
 	        R |= ((v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (v[i]==COCO_SKIN_TILE_ENUM.TILE_REPEAT_X));
+	    if(dispose) delete v;
 	    return R;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __tileSkin(ctx:CanvasRenderingContext2D, image:CocoImage, cellX:Float, cellY:Float, cellWidth:Float, cellHeight:Float, x:Float, y:Float, width:Float, height:Float)
+	private static function __tileSkin(ctx:CanvasRenderingContext2D, image:CocoImage, cellX:Integer, cellY:Integer, cellWidth:Integer, cellHeight:Integer, x:Integer, y:Integer, width:Integer, height:Integer)
 	{
 		if(cellWidth==0 || cellHeight==0)
 			return;
 
-		var ix:Float, iy:Float, cw:Float, ch:Float;
+		var ix:Integer, iy:Integer, cw:Integer, ch:Integer;
 
 		for(iy=y; iy<=y+height; iy+=cellHeight)
 		{
@@ -356,7 +365,7 @@ class CocoGraphics
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	private static function __drawRegion(ctx:CanvasRenderingContext2D, image:CocoImage, sx:Float, sy:Float, sw:Float, sh:Float, dx:Float, dy:Float, dw:Float, dh:Float)
+	private static function __drawRegion(ctx:CanvasRenderingContext2D, image:CocoImage, sx:Integer, sy:Integer, sw:Integer, sh:Integer, dx:Integer, dy:Integer, dw:Integer, dh:Integer)
 	{
 		if(!ctx || !image || sw==0 || sh==0 || dw==0 || dh==0)
 			return;

@@ -160,6 +160,7 @@ class CocoMatrix
 
 		var out:CocoVector = finalMatrix.multiplyByVector(inp);
 		delete finalMatrix;
+		delete inp;
 
         if(out.W != 0.0)
         {
@@ -169,6 +170,7 @@ class CocoMatrix
         	return out;
         }
 
+        delete out;
         return null;
 	}
 
@@ -215,23 +217,23 @@ class CocoMatrix
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function ortho(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float)
+	public function ortho(Left:Float, Right:Float, Bottom:Float, Top:Float, Near:Float, Far:Float)
 	{
-		__m.rc11 = 2 / (right - left);
+		__m.rc11 = 2 / (Right - Left);
 		__m.rc12 = 0.0;
 		__m.rc13 = 0.0;
 		__m.rc14 = 0.0;
 		__m.rc21 = 0.0;
-		__m.rc22 = 2 / (top - bottom);
+		__m.rc22 = 2 / (Top - Bottom);
 		__m.rc23 = 0.0;
 		__m.rc24 = 0.0;
 		__m.rc31 = 0.0;
 		__m.rc32 = 0.0;
-		__m.rc33 = -2 / (far - near);
+		__m.rc33 = -2 / (Far - Near);
 		__m.rc34 = 0.0;
-		__m.rc41 = -(right + left) / (right - left);
-		__m.rc42 = -(top + bottom) / (top - bottom);
-		__m.rc43 = -(far + near) / (far - near);
+		__m.rc41 = -(Right + Left) / (Right - Left);
+		__m.rc42 = -(Top + Bottom) / (Top - Bottom);
+		__m.rc43 = -(Far + Near) / (Far - Near);
 		__m.rc44 = 1.0;
 		__dirty = true;
 	}
@@ -330,8 +332,6 @@ class CocoMatrix
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean, optional swap:Boolean) :CocoMatrix
 	{
-		var out:CocoMatrix = null;
-
 		var __mm:CocoMatrixData = new CocoMatrixData();
 
 		if(swap)
@@ -382,15 +382,16 @@ class CocoMatrix
 		if(setMatrix)
 		{
 			copyFrom(__mm);
-			out = this;
+			delete __mm;
+			return null;
 		}
 		else
 		{
 			var out:CocoMatrix = new CocoMatrix();
 			out.copyFrom(__mm);
+			delete __mm;
+			return out;
 		}
-
-		return out;
 	}
 
 	// ==================================================================================================================================
@@ -506,7 +507,7 @@ class CocoMatrix
 	{
 		if(__stack.size())
 		{
-			var mm:CocoMatrixData = CocoMatrixData(__stack.pop());
+			var mm:CocoMatrixData = __stack.pop();
 			__m.rc11 = mm.rc11;
 			__m.rc12 = mm.rc12;
 			__m.rc13 = mm.rc13;

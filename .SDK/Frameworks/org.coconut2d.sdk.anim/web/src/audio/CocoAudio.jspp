@@ -133,7 +133,7 @@ class CocoAudio
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function duration(): Float
+	public function duration(): Time
 	{
 		return audio ? audio.duration : 0;
 	}
@@ -151,13 +151,13 @@ class CocoAudio
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function getCurrentTime(): Float
+	public function getCurrentTime(): Time
 	{
 		return audio ? audio.currentTime : 0;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function setCurrentTime(t: Float)
+	public function setCurrentTime(t: Time)
 	{
 		if(audio && audio.readyState==4)
 			audio.currentTime = t;

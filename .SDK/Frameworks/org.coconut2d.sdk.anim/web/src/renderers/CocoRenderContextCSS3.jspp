@@ -66,10 +66,10 @@ class CocoRenderContextCSS3 implements ICocoRenderContext
  	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function getName():String									{ return "CSS3"; }
  	public function getType():COCO_RENDERING_CONTEXT_ENUM				{ return COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_CSS3; }
-	public function getDisplayWidth():Float								{ return __CONTAINER.offsetWidth; }
-	public function getDisplayHeight():Float							{ return __CONTAINER.offsetHeight; }
-	public function getBufferWidth():Float								{ return __CONTAINER.offsetWidth; }
-	public function getBufferHeight():Float								{ return __CONTAINER.offsetHeight; }
+	public function getDisplayWidth():Integer							{ return __CONTAINER.offsetWidth; }
+	public function getDisplayHeight():Integer							{ return __CONTAINER.offsetHeight; }
+	public function getBufferWidth():Integer							{ return __CONTAINER.offsetWidth; }
+	public function getBufferHeight():Integer							{ return __CONTAINER.offsetHeight; }
 	public function getModelViewMatrix():CocoMatrix						{ return __modelViewMatrix; }
 	public function getProjectionMatrix():CocoMatrix					{ return __projectionMatrix; }
 	public function hide()												{ __CONTAINER.style.visibility="hidden"; }
@@ -84,7 +84,7 @@ class CocoRenderContextCSS3 implements ICocoRenderContext
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function clip(x:Float, y:Float, w:Float, h:Float)
+	public function clip(x:Integer, y:Integer, w:Integer, h:Integer)
 	{
 		__CONTAINER.style.clip = "rect(" + String(y) + "px, " + String(x+w)  + "px, " + String(y+h) + "px, " + String(x) + "px)";
 	}

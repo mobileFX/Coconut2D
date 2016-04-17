@@ -57,13 +57,15 @@ int main(int argc, char *argv[])
 	// Initialize
 	curl_global_init(CURL_GLOBAL_ALL);
 	CocoAssetFile::init(documentsDir.c_str(), bundleDir.c_str());
+
+	// Initialize Fonts
 	CocoFontsCache::init();
-	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::Bold, "./fonts/Arial-Bold.ttf");
-	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::BoldItalic, "./fonts/Arial-BoldItalic.ttf");
-	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::Italic, "./fonts/Arial-Italic.ttf");
-	CocoFontsCache::add("Arial", CocoFontsCache::FONT_STYLE::Regular, "./fonts/Arial.ttf");
+	$(FONTS_LIST)
+
+	// Initialize Audio
 	CocoAudioStream::init();
 
+	// Initialize HTTP
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::init();
 	#endif
@@ -73,13 +75,20 @@ int main(int argc, char *argv[])
 
 	// Dispose resources
 
+	// Quit HTTP
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::quit();
 	#endif
 
+	// Quit Audio
 	CocoAudioStream::quit();
+
+	// Quit Fonts
 	CocoFontsCache::quit();
+
+	// Quit Assets
 	CocoAssetFile::quit();
+
 	curl_global_cleanup();
 
 	// Done!

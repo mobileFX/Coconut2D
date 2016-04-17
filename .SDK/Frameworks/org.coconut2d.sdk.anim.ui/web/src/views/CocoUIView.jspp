@@ -95,29 +95,29 @@ class CocoUIView : CocoClip
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	published property Width
 	{
-		function get():Float { return __width; }
-		function set(v:Float) { move(__x, __y, v, __height); }
+		function get():Integer { return __width; }
+		function set(v:Integer) { move(__x, __y, v, __height); }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	published property Height
 	{
-		function get():Float { return __height; }
-		function set(v:Float) { move(__x, __y, __width, v); }
+		function get():Integer { return __height; }
+		function set(v:Integer) { move(__x, __y, __width, v); }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	published property Left
 	{
-		function get():Float { return __x; }
-		function set(v:Float) { move(v, __y, __width, __height); }
+		function get():Integer { return __x; }
+		function set(v:Integer) { move(v, __y, __width, __height); }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	published property Top
 	{
-		function get():Float { return __y; }
-		function set(v:Float) { move(__x, v, __width, __height); }
+		function get():Integer { return __y; }
+		function set(v:Integer) { move(__x, v, __width, __height); }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,11 +192,11 @@ class CocoUIView : CocoClip
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function addChild(clipInstance:CocoClip) :CocoClip
+	public virtual function addChild(ctl:CocoUIView) :CocoUIView
 	{
-		var ctl:CocoUIView = CocoUIView(clipInstance);
 		ctl.__form = this.__form;
-		return super.addChild(clipInstance);
+		super.addChild(ctl);
+		return ctl;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

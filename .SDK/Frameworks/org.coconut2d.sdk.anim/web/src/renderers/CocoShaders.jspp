@@ -127,7 +127,9 @@ class CocoShaderBoundingBox : CocoShader
 		uProjMat = gl.getUniformLocation(program, "uProjMat");
 		vbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);
+		var data:Float32Array = new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
+		gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
+		delete data;
 	}
 
 	public function initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix)

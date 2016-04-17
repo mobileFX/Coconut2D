@@ -42,9 +42,10 @@ public:
 	ImageData(std::string str);
 	ImageData(std::string w, std::string h);
 	~ImageData();
+	ArrayBuffer* buff;
 	TypedArray<uint8_t>* data;
-	int width;
-	int height;
+	int32_t width;
+	int32_t height;
 	std::string src;
 };
 

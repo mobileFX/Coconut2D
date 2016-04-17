@@ -43,8 +43,8 @@ class HTMLVideoElement :
 public:
 	float duration;
 	float currentTime;
-	float width;
-	float height;
+	int32_t width;
+	int32_t height;
 	bool paused;
 	bool ended;
 	bool autoplay;
@@ -55,10 +55,10 @@ public:
 	void tick();
 	void play();
 	void pause();
-	float __get_width();
-	void __set_width(float w);
-	float __get_height();
-	void __set_height(float h);
+	int32_t __get_width();
+	void __set_width(int32_t w);
+	int32_t __get_height();
+	void __set_height(int32_t h);
 	String __get_src();
 	void __set_src(String src);
 	float __get_currentTime();

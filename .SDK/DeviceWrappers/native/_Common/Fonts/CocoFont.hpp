@@ -45,10 +45,10 @@ public:
     std::map<uint16_t, CocoFontChar> chars;
     FT_Face face;
     uint16_t height;
-	CocoFont(String fontName, float fontSize, bool bold, bool oblique);
+	CocoFont(String fontName, int32_t fontSize, bool bold, bool oblique);
 	~CocoFont();
-	void fillText(ArrayBuffer* imageDataBuffer, int width, String text, int x, int y, float R, float G, float B, float A);
-	float measureText(String text);
+	void fillText(ArrayBuffer* imageDataBuffer, int32_t width, String text, int32_t x, int32_t y, float R, float G, float B, float A);
+	int32_t measureText(String text);
 };
 
 #endif /* defined(__CocoEngine__CocoFont__) */

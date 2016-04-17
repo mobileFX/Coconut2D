@@ -277,9 +277,9 @@ void WebGLRenderingContext::disableVertexAttribArray(int32_t index)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void WebGLRenderingContext::drawArrays(GLenum mode, GLint first, GLsizei count)
+void WebGLRenderingContext::drawArrays(GLint mode, GLint first, GLsizei count)
 {
-    glDrawArrays(mode, first, count);
+    glDrawArrays( (GLenum)mode, first, count);
 	ASSERT_GL();
 }
 
@@ -355,7 +355,7 @@ GLany WebGLRenderingContext::getProgramParameter(WebGLProgram* program, GLenum p
 
     GLany ret;
 	GLint params;
-	
+
     glGetProgramiv(program->__uid, pname, &params);
 	ASSERT_GL();
 
@@ -367,7 +367,7 @@ GLany WebGLRenderingContext::getProgramParameter(WebGLProgram* program, GLenum p
 		ret.type = GLany::typeBool;
 		ret.valBool = params!=0;
 		break;
-            
+
 	case GL_ATTACHED_SHADERS:
 	case GL_ACTIVE_ATTRIBUTES:
 	case GL_ACTIVE_UNIFORMS:
@@ -377,7 +377,7 @@ GLany WebGLRenderingContext::getProgramParameter(WebGLProgram* program, GLenum p
 	default:
 		assert(false);
 	}
-    
+
 	return ret;
 }
 
@@ -478,9 +478,9 @@ void WebGLRenderingContext::texSubImage2D(GLenum target, GLint level, GLsizei xo
 //void WebGLRenderingContext::texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, Glenum type, HTMLVideoElement* video);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void WebGLRenderingContext::texParameteri(GLenum target, GLenum pname, GLint param)
+void WebGLRenderingContext::texParameteri(GLenum target, GLenum pname, GLenum param)
 {
-	glTexParameteri(target, pname, param);
+	glTexParameteri(target, pname, (GLint) param);
 	ASSERT_GL();
 }
 

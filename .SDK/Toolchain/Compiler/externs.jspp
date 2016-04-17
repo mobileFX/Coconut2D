@@ -210,7 +210,7 @@ function __WebGLRenderingContext_vertexAttrib3fv(uid:Integer, indx:Integer, valu
 function __WebGLRenderingContext_vertexAttrib4f(uid:Integer, indx:Integer, x:Float, y:Float, z:Float, w:Float) {}
 function __WebGLRenderingContext_vertexAttrib4fv(uid:Integer, indx:Integer, value__buffer_uid:Integer, value_byteOffset:Integer, value_length:Integer) {}
 function __WebGLRenderingContext_vertexAttribPointer(uid:Integer, indx:Integer, size:Integer, type:Integer, normalized:Boolean, stride:Integer, offset:Integer) {}
-function __WebGLRenderingContext_viewport(uid:Integer, x:Integer, y:Integer, width:Integer, height:Integer) {}
+function __WebGLRenderingContext_viewport(uid:Integer, x:Float, y:Float, width:Float, height:Float) {}
 
 // ==================================================================================================================================
 //	    ______________  ______           __                  _____           _       __     ____  __      _           __
@@ -238,17 +238,17 @@ class Object
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Array
 {
-	public var length:Number;
+	public var length:Integer;
 	public function concat(args:Array):Array<Object> {}
 	public function join(seperator:String):String {}
 	public function pop():Object {}
 	public function push(args:Object):Object {}
 	public function reverse():Array<Object> {}
 	public function shift():Array<Object> {}
-	public function slice(start:Number, optional end:Number):Array<Object> {}
+	public function slice(start:Integer, optional end:Integer):Array<Object> {}
 	public function sort(funct:Function):Array<Object> {}
-	public function splice(start:Number, deletecount:Number, optional items:Object):Object {}
-	public function unshift(start:Number):Array<Object> {}
+	public function splice(start:Integer, deletecount:Integer, optional items:Object):Object {}
+	public function unshift(start:Integer):Array<Object> {}
 	public function forEach(item:Object):Array<Object> {}
 	public virtual function size():Integer {}
 	public function clear() {}
@@ -264,7 +264,7 @@ class Dictionary : Object
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Function
 {
-	public var length:Number;
+	public var length:Integer;
 	public function apply(thisObject:Object, optional args:Array<Object>):Object {}
 	public function call(thisObject:Object, ...):Object {}
 }
@@ -283,8 +283,9 @@ class Global
 	public var __touchEvents:Boolean;
 	public function Destructor() {}
 	public function eval(s:String):Object {}
-	public function parseInt(s:String, optional radix:Number):Integer {}
+	public function parseInt(s:String, optional radix:Integer):Integer {}
 	public function parseFloat(s:String):Float {}
+	public function parseTime(s:String):Time {}
 	public function escape(s:String):String {}
 	public function unescape(s:String):String {}
 	public function isNaN(number:Object):Boolean {}
@@ -300,23 +301,23 @@ class Global
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class String
 {
-	public var length:Number;
+	public var length:Integer;
 	public static function fromCharCode(charCode:Integer):String {}
 	public function charAt(position:Integer):String {}
 	public function charCodeAt(position:Integer):Integer {}
 	public function concat(value:String):String {}
-	public function indexOf(searchString:String, optional startPosition:Number):Number {}
-	public function lastIndexOf(searchString:String, optional startPosition:Number):Number {}
-	public function localeCompare(otherString:String):Number {}
+	public function indexOf(searchString:String, optional startPosition:Integer):Integer {}
+	public function lastIndexOf(searchString:String, optional startPosition:Integer):Integer {}
+	public function localeCompare(otherString:String):Integer {}
 	public function match(regexp:RegExp):Array<Object> {}
 	public function replace(regexp:RegExp, replaceValue:String):String {}
 	public function replace(find:String, replaceValue:String):String {}
-	public function search(regexp:RegExp):Number {}
-	public function slice(start:Number, end:Number):String {}
+	public function search(regexp:RegExp):Integer {}
+	public function slice(start:Integer, end:Integer):String {}
 	public function split(separator:String):Array<String> {}
 	public function split(rx:RegExp):Array<String> {}
-	public function substring(start:Number, optional end:Number):String {}
-	public function substr(start:Number, optional size:Number):String {}
+	public function substring(start:Integer, optional end:Integer):String {}
+	public function substr(start:Integer, optional size:Integer):String {}
 	public function toLowerCase():String {}
 	public function toLocaleLowerCase():String {}
 	public function toUpperCase():String {}
@@ -332,10 +333,10 @@ class Number
 	public var MAX_VALUE:Number;
 	public var NEGATIVE_INFINITY:Number;
 	public var POSITIVE_INFINITY:Number;
-	public function toFixed(fractionDigits:Number):String {}
-	public function toExponential(fractionDigits:Number):String {}
-	public function toPrecision(fractionDigits:Number):String {}
-	public function toString(optional fractionDigits:Number):String {}
+	public function toFixed(fractionDigits:Integer):String {}
+	public function toExponential(fractionDigits:Integer):String {}
+	public function toPrecision(fractionDigits:Integer):String {}
+	public function toString(optional fractionDigits:Integer):String {}
 }
 
 class Integer : Number 	{}
@@ -361,47 +362,47 @@ class Boolean
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Date
 {
-	public function UTC(hour:Number, min:Number, sec:Number, ms:Number):Number {}
-	public function parse(string:String):Number {}
+	public function UTC(hour:Integer, min:Integer, sec:Integer, ms:Integer):Integer {}
+	public function parse(string:String):Integer {}
 	public function toDateString():String {}
 	public function toTimeString():String {}
 	public function toLocaleString():String {}
 	public function toLocaleDateString():String {}
 	public function toLocaleTimeString():String {}
 	public function valueOf():Object {}
-	public function getFullYear():Number {}
-	public function getTime():Number {}
-	public function getUTCFullYear():Number {}
-	public function getMonth():Number {}
-	public function getUTCMonth():Number {}
-	public function getDate():Number {}
-	public function getUTCDate():Number {}
-	public function getDay():Number {}
-	public function getUTCDay():Number {}
-	public function getHours():Number {}
-	public function getUTCHours():Number {}
-	public function getMinutes():Number {}
-	public function getUTCMinutes():Number {}
-	public function getSeconds():Number {}
-	public function getUTCSeconds():Number {}
-	public function getMilliseconds():Number {}
-	public function getUTCMilliseconds():Number {}
-	public function getTimezoneOffset():Number {}
-	public function setTime(value:Number):Number {}
-	public function setMilliseconds(value:Number):Number {}
-	public function setUTCMilliseconds(ms:Number):Number {}
-	public function setSeconds(sec:Number, ms:Number):Number {}
-	public function setUTCSeconds(sec:Number, ms:Number):Number {}
-	public function setMinutes(min:Number, sec:Number, ms:Number):Number {}
-	public function setUTCMinute(min:Number, sec:Number, ms:Number):Number {}
-	public function setHours(hour:Number, min:Number, sec:Number, ms:Number):Number {}
-	public function setUTCHours(hour:Number, min:Number, sec:Number, ms:Number):Number {}
-	public function setDate(date:Number):Number {}
-	public function setUTCDate(date:Number):Number {}
-	public function setMonth(month:Number, date:Number):Number {}
-	public function setUTCMonth(month:Number, date:Number):Number {}
-	public function setFullYear(year:Number, month:Number, date:Number):Number {}
-	public function setUTCFullYear(year:Number, month:Number, date:Number){}
+	public function getFullYear():Integer {}
+	public function getTime():Integer {}
+	public function getUTCFullYear():Integer {}
+	public function getMonth():Integer {}
+	public function getUTCMonth():Integer {}
+	public function getDate():Integer {}
+	public function getUTCDate():Integer {}
+	public function getDay():Integer {}
+	public function getUTCDay():Integer {}
+	public function getHours():Integer {}
+	public function getUTCHours():Integer {}
+	public function getMinutes():Integer {}
+	public function getUTCMinutes():Integer {}
+	public function getSeconds():Integer {}
+	public function getUTCSeconds():Integer {}
+	public function getMilliseconds():Integer {}
+	public function getUTCMilliseconds():Integer {}
+	public function getTimezoneOffset():Integer {}
+	public function setTime(value:Integer):Integer {}
+	public function setMilliseconds(value:Integer):Integer {}
+	public function setUTCMilliseconds(ms:Integer):Integer {}
+	public function setSeconds(sec:Integer, ms:Integer):Integer {}
+	public function setUTCSeconds(sec:Integer, ms:Integer):Integer {}
+	public function setMinutes(min:Integer, sec:Integer, ms:Integer):Integer {}
+	public function setUTCMinute(min:Integer, sec:Integer, ms:Integer):Integer {}
+	public function setHours(hour:Integer, min:Integer, sec:Integer, ms:Integer):Integer {}
+	public function setUTCHours(hour:Integer, min:Integer, sec:Integer, ms:Integer):Integer {}
+	public function setDate(date:Integer):Integer {}
+	public function setUTCDate(date:Integer):Integer {}
+	public function setMonth(month:Integer, date:Integer):Integer {}
+	public function setUTCMonth(month:Integer, date:Integer):Integer {}
+	public function setFullYear(year:Integer, month:Integer, date:Integer):Integer {}
+	public function setUTCFullYear(year:Integer, month:Integer, date:Integer){}
 	public function toUTCString():String {}
 	public function toJSON():String {}
 }
@@ -431,7 +432,7 @@ class Math
 	public static function min(a:Number, b:Number):Float {}
 	public static function pow(x:Number, y:Number):Float {}
 	public static function random():Float {}
-	public static function round(x:Float):Float {}
+	public static function round(x:Float):Integer {}
 	public static function sin(x:Number):Float {}
 	public static function sqrt(x:Number):Float {}
 	public static function tan(x:Number):Float {}
@@ -447,11 +448,12 @@ class ECMARegExpMatches : Array<String>
 
 class RegExp
 {
+	public function Constructor(optional pattern:String, optional flags:String) {}
 	public var source:String;
 	public var global:Boolean;
 	public var ignoreCase:Boolean;
 	public var multiline:Boolean;
-	public var lastIndex:Number;
+	public var lastIndex:Integer;
 	//public function exec(string:String):ECMARegExpMatches {}
 	public function exec(string:String):Array<String> {}
 	public function test(string:String):Boolean {}
@@ -460,9 +462,10 @@ class RegExp
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class ArrayBuffer
 {
-	public var byteLength:Number;
-    public function slice(begin:Number, end:Number): ArrayBuffer {}
-    public function encodeAsPNG(width:Number, height:Number):ArrayBuffer {}
+	public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {}
+	public var byteLength:Integer;
+    public function slice(begin:Integer, end:Integer): ArrayBuffer {}
+    public function encodeAsPNG(width:Integer, height:Integer):ArrayBuffer {}
     public function encodeAsBase64():String {}
     public var __uid:Integer;
 }
@@ -470,6 +473,7 @@ class ArrayBuffer
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class ArrayBufferView
 {
+	public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {}
 	public var buffer:ArrayBuffer;
 	public var byteOffset:Integer;
 	public var byteLength:Integer;
@@ -486,17 +490,17 @@ class TypedArray : ArrayBufferView
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class Int8Array 		: TypedArray {}
-class Int16Array 		: TypedArray {}
-class Int32Array 		: TypedArray {}
-class Int64Array 		: TypedArray {}
-class Uint8Array 		: TypedArray {}
-class Uint16Array 		: TypedArray {}
-class Uint32Array 		: TypedArray {}
-class Uint64Array 		: TypedArray {}
-class Float32Array 		: TypedArray {}
-class Float64Array 		: TypedArray {}
-class Uint8ClampedArray	: TypedArray {}
+class Int8Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Int16Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Int32Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Int64Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Uint8Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Uint16Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Uint32Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Uint64Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Float32Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Float64Array 		: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
+class Uint8ClampedArray	: TypedArray { public function Constructor(optional buff:Object, optional offset:Integer, optional length:Integer) {} }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Error
@@ -608,9 +612,9 @@ callback CocoAction();
 class CocoFont
 {
 	public var height:Float;
-	public function Constructor(FontName:String, FontSize:Float, Bold:Boolean, Italic:Boolean){}
-	public function fillText(imageDataBuffer:ArrayBuffer, width:Float, text:String, x:Float, y:Float, R:Float, G:Float, B:Float, A:Float){}
-	public function measureText(text:String):Float {}
+	public function Constructor(FontName:String, FontSize:Integer, Bold:Boolean, Italic:Boolean){}
+	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Integer, y:Integer, R:Float, G:Float, B:Float, A:Float){}
+	public function measureText(text:String):Integer {}
 }
 
 // ==================================================================================================================================
@@ -655,70 +659,70 @@ var __dirname:String;
 
 class NodeJS_Buffer : Array
 {
-	public var length:Number;
-	public const INSPECT_MAX_BYTES:Number=50;
+	public var length:Integer;
+	public const INSPECT_MAX_BYTES:Integer=50;
 
 	public function Constructor(var_args:Object) {}
 	public function isEncoding(encoding:String):Boolean {}
 	public function isBuffer(obj:Object):Boolean {}
-	public function byteLength(string:String, optional encoding:String):Number {}
-	public function concat(list:Array<Buffer>, optional totalLength:Number):NodeJS_Buffer {}
-	public function get(offset:Number):Object {}
-	public function set(offset:Number, v:Object) {}
-	public function write(string:String, optional offset:Number, optional length:Number, optional encoding:String):Object {}
+	public function byteLength(string:String, optional encoding:String):Integer {}
+	public function concat(list:Array<Buffer>, optional totalLength:Integer):NodeJS_Buffer {}
+	public function get(offset:Integer):Object {}
+	public function set(offset:Integer, v:Object) {}
+	public function write(string:String, optional offset:Integer, optional length:Integer, optional encoding:String):Object {}
 	public function toJSON():Array {}
-	public function copy(targetBuffer:NodeJS_Buffer, optional targetStart:Number, optional sourceStart:Number, optional sourceEnd:Number):NodeJS_Buffer {}
-	public function slice(optional start:Number, optional end:Number):NodeJS_Buffer {}
-	public function readUInt8(offset:Number, optional noAssert:Boolean):Number {}
-	public function readUInt16LE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readUInt16BE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readUInt32LE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readUInt32BE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readInt8(offset:Number, optional noAssert:Boolean):Number {}
-	public function readInt16LE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readInt16BE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readInt32LE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readInt32BE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readFloatLE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readFloatBE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readDoubleLE(offset:Number, optional noAssert:Boolean):Number {}
-	public function readDoubleBE(offset:Number, optional noAssert:Boolean):Number {}
-	public function writeUInt8(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeUInt16LE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeUInt16BE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeUInt32LE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeUInt32BE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeInt8(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeInt16LE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeInt16BE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeInt32LE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeInt32BE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeFloatLE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeFloatBE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeDoubleLE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function writeDoubleBE(value:Number, offset:Number, optional noAssert:Boolean):Number {}
-	public function fill(value:Object, optional offset:Number, optional end:Number) {}
-	public function toString(optional encoding:String, optional start:Number, optional end:Number) {}
-	public function utf8Slice(optional start:Number, optional end:Number):NodeJS_Buffer {}
-	public function binarySlice(optional start:Number, optional end:Number):NodeJS_Buffer {}
-	public function asciiSlice(optional start:Number, optional end:Number):NodeJS_Buffer {}
-	public function utf8Write(string:String, optional offset:Number):NodeJS_Buffer {}
-	public function binaryWrite(string:String, optional offset:Number):NodeJS_Buffer {}
-	public function asciiWrite(string:String, optional offset:Number):NodeJS_Buffer {}
+	public function copy(targetBuffer:NodeJS_Buffer, optional targetStart:Integer, optional sourceStart:Integer, optional sourceEnd:Integer):NodeJS_Buffer {}
+	public function slice(optional start:Integer, optional end:Integer):NodeJS_Buffer {}
+	public function readUInt8(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readUInt16LE(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readUInt16BE(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readUInt32LE(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readUInt32BE(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readInt8(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readInt16LE(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readInt16BE(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readInt32LE(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readInt32BE(offset:Integer, optional noAssert:Boolean):Integer {}
+	public function readFloatLE(offset:Integer, optional noAssert:Boolean):Float {}
+	public function readFloatBE(offset:Integer, optional noAssert:Boolean):Float {}
+	public function readDoubleLE(offset:Integer, optional noAssert:Boolean):Float {}
+	public function readDoubleBE(offset:Integer, optional noAssert:Boolean):Float {}
+	public function writeUInt8(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeUInt16LE(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeUInt16BE(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeUInt32LE(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeUInt32BE(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeInt8(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeInt16LE(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeInt16BE(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeInt32LE(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeInt32BE(value:Integer, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeFloatLE(value:Float, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeFloatBE(value:Float, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeDoubleLE(value:Float, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function writeDoubleBE(value:Float, offset:Integer, optional noAssert:Boolean):Integer {}
+	public function fill(value:Object, optional offset:Integer, optional end:Integer) {}
+	public function toString(optional encoding:String, optional start:Integer, optional end:Integer) {}
+	public function utf8Slice(optional start:Integer, optional end:Integer):NodeJS_Buffer {}
+	public function binarySlice(optional start:Integer, optional end:Integer):NodeJS_Buffer {}
+	public function asciiSlice(optional start:Integer, optional end:Integer):NodeJS_Buffer {}
+	public function utf8Write(string:String, optional offset:Integer):NodeJS_Buffer {}
+	public function binaryWrite(string:String, optional offset:Integer):NodeJS_Buffer {}
+	public function asciiWrite(string:String, optional offset:Integer):NodeJS_Buffer {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class NodeJS_Socket
 {
-	public var bufferSize:Number;
+	public var bufferSize:Integer;
 	public var remoteAddress:String;
-	public var remotePort:Number;
-	public var bytesRead:Number;
-	public var bytesWritten:Number;
+	public var remotePort:Integer;
+	public var bytesRead:Integer;
+	public var bytesWritten:Integer;
 	public var localPort:String;
 	public var localAddress:String;
 
-	public function connect(port:Number, host:String, optional connectListener:Function) {}
+	public function connect(port:Integer, host:String, optional connectListener:Function) {}
 	public function setEncoding(optional encoding:String) {}
 	public function write(data:String, optional encoding:String, optional Callback:Function) {}
 	public function write(data:ArrayBuffer, optional encoding:String, optional Callback:Function) {}

@@ -46,21 +46,21 @@
 
 	if(PORTRAIT)
 	{
-	    screen.pixelRatio	= scale;
+	    screen.pixelRatio	= (float) scale;
 		screen.rotation 	= fxScreen::Rotation::NONE;
 		screen.isPortrait	= true;
 		screen.top 			= 0;
-		screen.width 		= (uint32_t) rect.size.width;
-		screen.height 		= (uint32_t) rect.size.height;
+		screen.width 		= (int32_t) rect.size.width;
+		screen.height 		= (int32_t) rect.size.height;
 	}
 	else
 	{
-	    screen.pixelRatio	= scale;
+	    screen.pixelRatio	= (float) scale;
 		screen.rotation 	= fxScreen::Rotation::RCW;
 		screen.isPortrait	= true;
 		screen.top 			= 0;
-		screen.width 		= (uint32_t) rect.size.height;
-		screen.height 		= (uint32_t) rect.size.width;
+		screen.width 		= (int32_t) rect.size.height;
+		screen.height 		= (int32_t) rect.size.width;
 	}
 
     if((self = [super initWithFrame:rect]))

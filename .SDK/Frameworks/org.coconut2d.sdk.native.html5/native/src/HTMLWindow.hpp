@@ -51,8 +51,8 @@ public:
 	HTMLLocation* location;
 	HTMLNavigator* navigator;
 	HTMLScreen* screen;
-	uint32_t innerHeight;
-	uint32_t innerWidth;
+	int32_t innerHeight;
+	int32_t innerWidth;
 	float devicePixelRatio;
 	float deviceRotation;
 	fxScreen::Rotation screenRotation;

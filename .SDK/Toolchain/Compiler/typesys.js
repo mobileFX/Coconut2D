@@ -34,9 +34,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function CompilerTypeSystemPlugin(compiler)
 {
-	//trace("+ Loaded CocoScript Compiler Type System Plugin");
-
 	var _this = this._this = compiler;
+
+	_this.warn_explicit_typecast = false;
 
 	_this.RX_STRING_LETERAL = /^\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27$/;
 	_this.RX_INTEGER = /^[+-]?\d+$/;
@@ -54,6 +54,7 @@ function CompilerTypeSystemPlugin(compiler)
 		"Null"		: { "default": "null" },
 		"Number"	: {	"default": "0" },
 		"Float"		: { "default": "0.0" },
+		"Time"		: { "default": "0.0" },
 		"Integer"	: { "default": "0" },
 		"Object"	: { "default": "null" },
 		"RegExp"	: { "default": "null" },
@@ -65,13 +66,15 @@ function CompilerTypeSystemPlugin(compiler)
 	{
 		explicit:
 		{
-			"__UNARY__"		: ["Boolean", "Number", "String", "Integer", "Float"],
+			"__UNARY__"		: ["Boolean", "Number", "String", "Integer", "Float", "Time"],
 			"Array"			: [],
 			"Boolean"		: ["Number", "String"],
 			"Date"			: ["Number", "String"],
 			"Function"		: ["String"],
 			"null"			: [],
 			"Number"		: ["Boolean", "String"],
+			"Integer"		: ["Boolean", "Integer", "Float", "Time", "Color" ],
+			"Float"			: ["Number", "Integer" ],
 			"Object"		: [],
 			"RegExp"		: ["Boolean", "Date", "Number", "String"],
 			"String"		: ["Boolean", "Date", "Function", "Number", "RegExp"]
@@ -79,15 +82,235 @@ function CompilerTypeSystemPlugin(compiler)
 
 		implicit:
 		{
-			PLUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" }, "String": { "String": "String" } },
-			MINUS:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			MUL: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number","Float":"Number", "Time":"Number"  } },
-			DIV: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number", "Float":"Number", "Time":"Number" } },
-			MOD:	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			BIT: 	{ "Boolean": { "Boolean": "Number", "Number": "Number" }, "Number": { "Boolean": "Number", "Number": "Number" } },
-			ASSIGN: { "Number":	 { "Boolean": "Number",	"Number": "Number" }, "Boolean": { "Boolean": "Number", "Number": "Number" }
+			ASSIGN:
+			{
+				"Integer":
+						{
+							"Number"	: "Integer",
+							"Integer"	: "Integer",
+							"Float"		: "Integer",
+							"Time"		: "Integer",
+							"Color"		: "Integer"
+						},
+				"Float":
+						{
+							"Number"	: "Float",
+							"Integer"	: "Float",
+							"Float"		: "Float",
+							"Time"		: "Float",
+							"Color"		: "Float"
+						},
+				"Time":
+						{
+							"Number"	: "Time",
+							"Integer"	: "Time",
+							"Float"		: "Time",
+							"Time"		: "Time",
+						},
+				"Color":
+						{
+							"Number"	: "Color",
+							"Integer"	: "Color",
+							"Color"		: "Color",
+							"Float"		: "Color"
+						},
+				"String":
+						{
+							"String"	: "String",
+							"Integer"	: "String",
+							"Float"		: "String",
+							"Color"		: "String",
+							"Time"		: "String"
+						}
+			},
+			PLUS:
+			{
+				"Number":
+						{
+							"Number"	: "Number",
+							"Integer"	: "Integer",
+							"Float"		: "Float",
+							"Time"		: "Time",
+							"Color"		: "Color"
+
+						},
+				"Integer":
+						{
+							"Number"	: "Integer",
+							"Integer"	: "Integer",
+							"Float"		: "Float",
+							"Time"		: "Time",
+							"Color"		: "Color"
+						},
+				"Float":
+						{
+							"Number"	: "Float",
+							"Integer"	: "Float",
+							"Float"		: "Float",
+							"Time"		: "Float",
+							"Color"		: "Float"
+						},
+				"Time":
+						{
+							"Number"	: "Time",
+							"Integer"	: "Time",
+							"Float"		: "Time",
+							"Time"		: "Time",
+						},
+
+				"Color":
+						{
+							"Number"	: "Color",
+							"Integer"	: "Color",
+							"Color"		: "Color"
+						},
+				"String":
+						{
+							"String"	: "String"
+						}
+			},
+
+			MINUS:
+			{
+				"Number":
+						{
+							"Number"	: "Number",
+							"Integer"	: "Integer",
+							"Float"		: "Float",
+							"Time"		: "Time",
+							"Color"		: "Color"
+
+						},
+				"Integer":
+						{
+							"Number"	: "Integer",
+							"Integer"	: "Integer",
+							"Float"		: "Float",
+							"Time"		: "Time",
+							"Color"		: "Color"
+						},
+				"Float":
+						{
+							"Number"	: "Float",
+							"Integer"	: "Float",
+							"Float"		: "Float",
+							"Time"		: "Float",
+							"Color"		: "Float"
+						},
+				"Time":
+						{
+							"Number"	: "Time",
+							"Integer"	: "Time",
+							"Float"		: "Time",
+							"Time"		: "Time",
+						},
+
+				"Color":
+						{
+							"Number"	: "Color",
+							"Integer"	: "Color",
+							"Color"		: "Color"
+						},
+				"String":
+						{
+							"String"	: "String"
+						}
+			},
+
+			MUL:
+			{
+				"Number":
+						{
+							"Number"	: "Number",
+							"Integer"	: "Integer",
+							"Float"		: "Float",
+							"Time"		: "Time",
+							"Color"		: "Color"
+
+						},
+				"Integer":
+						{
+							"Number"	: "Integer",
+							"Integer"	: "Integer",
+							"Float"		: "Float",
+							"Time"		: "Time",
+							"Color"		: "Color"
+						},
+				"Float":
+						{
+							"Number"	: "Float",
+							"Integer"	: "Float",
+							"Float"		: "Float",
+							"Time"		: "Float",
+							"Color"		: "Float"
+						},
+				"Time":
+						{
+							"Number"	: "Time",
+							"Integer"	: "Time",
+							"Float"		: "Time",
+							"Time"		: "Time",
+						},
+
+				"Color":
+						{
+							"Number"	: "Color",
+							"Integer"	: "Color",
+							"Color"		: "Color"
+						},
+				"String":
+						{
+							"String"	: "String"
+						}
+			},
+
+			DIV:
+			{
+				"Number":
+						{
+							"Number"	: "Number",
+							"Integer"	: "Integer",
+							"Float"		: "Float",
+							"Time"		: "Time"
+						},
+				"Integer":
+						{
+							"Number"	: "Integer",
+							"Integer"	: "Integer",
+							"Float"		: "Float",
+							"Time"		: "Time"
+						},
+				"Float":
+						{
+							"Number"	: "Float",
+							"Integer"	: "Float",
+							"Float"		: "Float",
+							"Time"		: "Float"
+						},
+				"Time":
+						{
+							"Number"	: "Time",
+							"Integer"	: "Time",
+							"Float"		: "Time",
+							"Time"		: "Time"
+						}
+			},
+
+			MOD: {},
+			BIT:
+			{
+				"Boolean":
+				{
+					"Boolean": "Number",
+					"Number": "Number"
+				},
+				"Number":
+				{
+					"Boolean": "Number",
+					"Number": "Number"
+				}
 			}
-		}
+		} // implicit
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,24 +610,40 @@ function CompilerTypeSystemPlugin(compiler)
 	_this.VALUECPP = function(v, subtype)
 	{
 		if(subtype=="Float" && !isNaN(parseFloat(v)) && v.indexOf('.')==-1)
-			return v+'.0';
+			return v + ".0f";
 
 		return v;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.jsdef_to_type = function(ast)
+	{
+		     if (ast.type == jsdef.PLUS) 			return "PLUS";
+		else if (ast.type == jsdef.MINUS) 			return "MINUS";
+		else if (ast.type == jsdef.MUL) 			return "MUL";
+		else if (ast.type == jsdef.DIV) 			return "DIV";
+		else if (ast.type == jsdef.MOD) 			return "MOD";
+		else if (ast.type == jsdef.BITWISE_AND) 	return "BITWISE_AND";
+		else if (ast.type == jsdef.BITWISE_OR) 		return "BITWISE_OR";
+		else if (ast.type == jsdef.BITWISE_XOR) 	return "BITWISE_XOR";
+		else if (ast.type == jsdef.LSH) 			return "LSH";
+		else if (ast.type == jsdef.RSH) 			return "RSH";
+		else if (ast.type == jsdef.URSH) 			return "URSH";
+
+		return "UNKNOWN";
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getTypeName = function(ast)
 	{
-		if(!_this.secondPass || !_this.currClassName || !ast) return;
-		var type = _this.getTypeNameResolver(ast);
-		ast.vartype = type;
-		return type;
+		if(!_this.secondPass || !ast) return;
+		//if(!_this.secondPass || !_this.currClassName || !ast) return;
+		return (ast.vartype ? ast.vartype : (ast.vartype = _this.getTypeNameResolver(ast)));
 	};
 
 	_this.getTypeNameResolver = function(ast)
 	{
 		var _this = this;
-		if(!_this.secondPass || !_this.currClassName || !ast) return;
 
 		switch(ast.type)
 		{
@@ -441,13 +680,11 @@ function CompilerTypeSystemPlugin(compiler)
 
 		case jsdef.NUMBER:
 
-			/*
 			if(_this.RX_INTEGER.test(ast.value))
 				return "Integer";
 
 			if(_this.RX_FLOAT.test(ast.value))
 				return "Float";
-			*/
 
 			return "Number";
 
@@ -473,15 +710,12 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.MUL:
 		case jsdef.DIV:
 		case jsdef.MOD:
-			var operation = "", op = "";
-			if (ast.type == jsdef.PLUS) op = "PLUS";
-			else if (ast.type == jsdef.MINUS) op = "MINUS";
-			else if (ast.type == jsdef.MUL) op = "MUL";
-			else if (ast.type == jsdef.DIV) op = "DIV";
-			else if (ast.type == jsdef.MOD) op = "MOD";
-			operation = this.typerules.implicit[op];
+
+			var op = _this.jsdef_to_type(ast);
+			var operation = this.typerules.implicit[op];
 			var type1 = _this.getTypeName(ast[0]);
 			var type2 = _this.getTypeName(ast[1]);
+
 			if(operation[type1])
 			{
 				if(operation[type1].hasOwnProperty(type2))
@@ -489,13 +723,15 @@ function CompilerTypeSystemPlugin(compiler)
 				else
 					return _this.typeCheck(ast, type1, type2);
 			}
-			return _this.typeCheck(ast, type1, type2, "Illegal operation "+op+" on: "+type1+" and "+type2);
+
+			return _this.typeCheck(ast, type1, type2, "Illegal operation " + op + " on: " + type1 + " and " + type2);
 
 		//=============================================================================================================================
 		case jsdef.INCREMENT:
 		case jsdef.DECREMENT:
 		case jsdef.UNARY_PLUS:
 		case jsdef.UNARY_MINUS:
+
 			var type = _this.getTypeName(ast[0]);
 			if (~this.typerules.explicit.__UNARY__.indexOf(type))
 			{
@@ -520,16 +756,12 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.LSH:
 		case jsdef.RSH:
 		case jsdef.URSH:
-			var operation = "", op = "";
-			if (ast.type == jsdef.BITWISE_AND) op = "&";
-			else if (ast.type == jsdef.BITWISE_OR) op = "|";
-			else if (ast.type == jsdef.BITWISE_XOR) op = "^";
-			else if (ast.type == jsdef.LSH) op = "<<";
-			else if (ast.type == jsdef.RSH) op = ">>";
-			else if (ast.type == jsdef.URSH) op = ">>>";
-			operation = this.typerules.implicit.BIT;
+
+			var op = _this.jsdef_to_type(ast);
+			var operation = this.typerules.implicit.BIT;
 			var type1 = _this.getTypeName(ast[0]);
 			var type2 = _this.getTypeName(ast[1]);
+
 			return operation[type1] ?
 				   (operation[type1].hasOwnProperty(type2) ? operation[type1][type2] : _this.typeCheck(ast, type1, type2))
 				   : _this.typeCheck(ast, type1, type2, "Illegal operation "+op+" on: "+type1+" and "+type2);
@@ -978,13 +1210,13 @@ function CompilerTypeSystemPlugin(compiler)
 				{
 					if(!ast.__typecast_explicit)
 					{
-						if(cls2.name=="HTMLElement" || cls1.name=="HTMLElement")
+						if(cls2.name=="HTMLElement" || cls1.name=="HTMLElement" || cls1.name=="Gradient" || cls2.name=="Gradient")
 						{
 							return cls1.name;
 						}
 						else
 						{
-							_this.NewWarning("Possible runtime error converting from " + cls2.name + " to " + cls1.name + ": " + ast.source, ast);
+							_this.NewWarning("Possible runtime error converting from " + cls2.name + " to " + cls1.name + ": " + ast.parent.source, ast);
 						}
 					}
 
@@ -1035,7 +1267,10 @@ function CompilerTypeSystemPlugin(compiler)
 
 	_this.typeCast = function(ast, gen)
 	{
-		gen = gen.trim();
+		if(ast.file=="extern.jspp")
+			return gen;
+
+		var old = gen = gen.trim();
 
 		var vartype = _this.getTypeName(ast);
 
@@ -1108,9 +1343,16 @@ function CompilerTypeSystemPlugin(compiler)
 		if(ast.__typecast_explicit) // Explicit Type Cast Call
 		{
 			if(vartype==ast.__typecast)
-				_this.NewWarning("Explicit typecast is unnecessary", ast);
+				_this.NewWarning("Unnecessary explicit typecast: " + ast.parent.parent.source, ast);
+
+			if(_this.warn_explicit_typecast && gen.indexOf("arguments[")!=0 && ast.__typecast!="String" && !_this.isPointer(ast.__typecast) && !_this.isEnum(ast.__typecast) && !_this.isEnum(vartype))
+				_this.NewWarning("Explicit typecast: " + ast.parent.parent.source, ast);
 
 			__cast();
+
+			// Explicit typecast is wrapped in parenthesis
+			if(gen==old)
+				gen = "(" + gen + ")";
 		}
 
 		//===============================================================================
@@ -1144,20 +1386,75 @@ function CompilerTypeSystemPlugin(compiler)
 	//	    /____/_/                                         /____/
 	// ==================================================================================================================================
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.arithmeticOp_cpp = function(ast, op, out)
+	{
+		var type = _this.getTypeName(ast);
+		var type1 = _this.getTypeName(ast[0]);
+		var type2 = _this.getTypeName(ast[1]);
+
+		var g0 = _this.generate_cpp(ast[0]).CPP;
+		var g1 = _this.generate_cpp(ast[1]).CPP;
+
+		if(type1!=type)
+		{
+			ast[0].__typecast = type;
+			g0 = _this.typeCastCPP(ast[0], g0);
+		}
+
+		if(type2!=type)
+		{
+			ast[1].__typecast = type;
+			g1 = _this.typeCastCPP(ast[1], g1);
+		}
+
+		out.push(g0);
+		out.push(op);
+		out.push(g1);
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Called by:
+	// 1. jsdef.VAR value initializer to cast initializer to expected vartype
+	// 2. jsdef.CALL for explicit typecast
+	// 3. jsdef.LIST during jsdef.CALL generation to type cast function call arguments to proper vartype
+	// 4. jsdef.ASSIGN to type cast a value when it is assigned to a variable
+	// 5. jsdef.RETURN to type cast a return value to function return vartype
+
 	_this.typeCastCPP = function(ast, gen)
 	{
-		gen = gen.trim();
+		if(ast.__typecasted) return gen;
+		ast.__typecasted = true;
+
+		var old = gen = gen.trim();
 
 		if(!_this.secondPass || gen=="nullptr" || ast.type==jsdef.NEW)
 			return gen;
 
-		var ogen = gen;
-
 		var vartype = _this.getTypeName(ast);
+		if(!vartype)
+			return gen;
+
 		var cpp_vartype = _this.VTCPP(vartype).trim();
+		if(!cpp_vartype)
+			return gen;
 
 		var typecast = ast.__typecast;
+		if(!typecast)
+		{
+			var id = _this.getCallIdentifier(ast);
+			if(id && id.symbol.struct)
+			{
+				// Struct copy constructor
+				return gen;
+			}
+			debugger;
+			return gen;
+		}
+
 		var cpp_typecast = _this.VTCPP(typecast).trim();
+		if(!cpp_typecast)
+			return gen;
 
 		//===============================================================================
 		function __cast_to_string()
@@ -1165,7 +1462,7 @@ function CompilerTypeSystemPlugin(compiler)
 			// string literal to string, pass...
 			if(_this.RX_STRING_LETERAL.test(gen)) return;
 
-			// String constructor
+			// String Constructor
 			gen = cpp_typecast + "(" + gen + ")";
 		}
 
@@ -1183,7 +1480,7 @@ function CompilerTypeSystemPlugin(compiler)
 			}
 
 			// Type cast to float (or derivative)
-			gen = "(" + cpp_typecast + ")(" + gen + ")";
+			gen = "static_cast<" + cpp_typecast + ">(" + gen + ")";
 		}
 
 		//===============================================================================
@@ -1207,38 +1504,54 @@ function CompilerTypeSystemPlugin(compiler)
 			}
 
 			// Type cast to integer (or derivative)
-			gen = "(" + cpp_typecast + ")(" + gen + ")";
+			gen = "static_cast<" + cpp_typecast + ">(" + gen + ")";
 		}
 
 		//===============================================================================
 		function __cast_to_pointer()
 		{
-			if(typecast!=vartype && typecast!="Array<Object>" && vartype!="Array<Object>" && typecast.indexOf("<")!=-1 && vartype.indexOf("<")!=-1)
+			if(typecast=="TypedArray") return;
+			if(typecast=="Object") return;
+			if(typecast=="void") return;
+
+			// Allow implicit convertion between base and derivative classes
+			if(!ast.__typecast_explicit && _this.isDerivativeOf(vartype, typecast))
+				return;
+
+			// Casting untyped array to typed array
+			if(ast.type==jsdef.ARRAY_INIT)
 			{
-				var stype1 = _this.getSubType(typecast);
-				var stype2 = _this.getSubType(vartype);
-				if(_this.isDerivativeOf(stype1, stype2))
-				{
-					CPP.push("(reinterpret_cast<Array<" + stype1 + "*>*>(" + rhs + "))");
-					_this.NewWarning("Arbitrary array coversion from " + vartype + " to " + typecast, ast);
-					return;
-				}
-				_this.NewError("Incompatible array sub types conversion from Array<" + stype2 + "> to Array<" + stype1 + ">", ast);
+				gen = "new " + typecast + "(" + gen + ")";
+				return;
 			}
 
-			// Reinterpret cast pointer to class
-			gen = "reinterpret_cast<" + cpp_typecast + ">(" + gen + ")";
+			// Avoid array casting
+			if(cpp_typecast.indexOf("Array")!=-1)
+			{
+				return;
+			}
+
+			// Cast pointer to class (upcast or downcast)
+			if(ast.__typecast_explicit)
+				gen = "reinterpret_cast<" + cpp_typecast + ">(" + gen + ")";
+			else
+				gen = "dynamic_cast<" + cpp_typecast + ">(" + gen + ")";
 		}
 
 		//===============================================================================
 		function __cast_to_enum()
 		{
-			gen = "(" + cpp_typecast + ")(" + gen + ")";
+			gen = "static_cast<" + cpp_typecast + ">(" + gen + ")";
 		}
 
 		//===============================================================================
 		function __cast()
 		{
+			if(cpp_typecast=="CocoAction")
+			{
+				return;
+			}
+
 			// Handle Number type
 			if(vartype=="Number" && _this.RX_NUMERIC_LITERAL.test(gen) && !isNaN(gen))
 			{
@@ -1254,25 +1567,40 @@ function CompilerTypeSystemPlugin(compiler)
 			if(_this.isPointer(cpp_typecast))					return __cast_to_pointer();
 			if(_this.isEnum(cpp_typecast))						return __cast_to_enum();
 
-			trace("WARNING: >>>>>> Unknown type cast: " + cpp_typecast);
-			gen = "(" + cpp_typecast + ")(" + gen + ")";
+			if(cpp_typecast=="Number")
+			{
+				//trace("WARNING: Number Typecast " + ast.parent.parent.source);
+				return;
+			}
+
+			// Unknown
+			gen = "static_cast<" + cpp_typecast + ">(" + gen + ")";
 		}
 
 		//===============================================================================
-		if(ast.__typecast_explicit) // Explicit Type Cast Call
+		// Explicit Type Cast
+		if(ast.__typecast_explicit)
 		{
 			__cast();
+
+			// Explicit type cast is wrapped in parenthesis if not changed
+			if(gen==old)
+			{
+				gen = "(" + gen + ")";
+			}
 		}
 
 		//===============================================================================
-		else if(ast.__typecast_implicit) // Assign
+		// ByVal Type Cast (Implicit, for function call arguments)
+		else if(ast.__typecast_byval)
 		{
 			if(cpp_typecast!=cpp_vartype)
 				__cast();
 		}
 
 		//===============================================================================
-		else if(ast.__typecast_byval) // Function Call
+		// Implicit Type Cast
+		else // Assign, Return, etc.
 		{
 			if(cpp_typecast!=cpp_vartype)
 				__cast();

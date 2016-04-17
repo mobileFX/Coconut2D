@@ -66,43 +66,43 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Margins
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	protected var __marginLeft:Float;
-	protected var __marginRight:Float;
-	protected var __marginTop:Float;
-	protected var __marginBottom:Float;
+	protected var __marginLeft:Integer;
+	protected var __marginRight:Integer;
+	protected var __marginTop:Integer;
+	protected var __marginBottom:Integer;
 
-	published property MarginLeft		{ function get():Float { return __marginLeft; 		} function set(v:Float) 	{ __marginLeft=v; invalidate(); 	} }
-	published property MarginRight		{ function get():Float { return __marginRight;		} function set(v:Float) 	{ __marginRight=v; invalidate(); 	} }
-	published property MarginTop		{ function get():Float { return __marginTop;		} function set(v:Float)		{ __marginTop=v; invalidate(); 		} }
-	published property MarginBottom 	{ function get():Float { return __marginBottom; 	} function set(v:Float)		{ __marginBottom=v; invalidate(); 	} }
+	published property MarginLeft		{ function get():Integer { return __marginLeft; 	} function set(v:Integer) 	{ __marginLeft=v; invalidate(); 	} }
+	published property MarginRight		{ function get():Integer { return __marginRight;	} function set(v:Integer) 	{ __marginRight=v; invalidate(); 	} }
+	published property MarginTop		{ function get():Integer { return __marginTop;		} function set(v:Integer)	{ __marginTop=v; invalidate(); 		} }
+	published property MarginBottom 	{ function get():Integer { return __marginBottom; 	} function set(v:Integer)	{ __marginBottom=v; invalidate(); 	} }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Paddings
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	protected var __paddingLeft:Float;
-	protected var __paddingRight:Float;
-	protected var __paddingTop:Float;
-	protected var __paddingBottom:Float;
+	protected var __paddingLeft:Integer;
+	protected var __paddingRight:Integer;
+	protected var __paddingTop:Integer;
+	protected var __paddingBottom:Integer;
 
-	published property PaddingLeft		{ function get():Float { return __paddingLeft; 		} function set(v:Float) 	{ __paddingLeft=v; invalidate(); 	} }
-	published property PaddingRight		{ function get():Float { return __paddingRight;		} function set(v:Float) 	{ __paddingRight=v; invalidate(); 	} }
-	published property PaddingTop		{ function get():Float { return __paddingTop;		} function set(v:Float)		{ __paddingTop=v; invalidate(); 	} }
-	published property PaddingBottom 	{ function get():Float { return __paddingBottom; 	} function set(v:Float)		{ __paddingBottom=v; invalidate(); 	} }
+	published property PaddingLeft		{ function get():Integer { return __paddingLeft; 	} function set(v:Integer) 	{ __paddingLeft=v; invalidate(); 	} }
+	published property PaddingRight		{ function get():Integer { return __paddingRight;	} function set(v:Integer) 	{ __paddingRight=v; invalidate(); 	} }
+	published property PaddingTop		{ function get():Integer { return __paddingTop;		} function set(v:Integer)	{ __paddingTop=v; invalidate(); 	} }
+	published property PaddingBottom 	{ function get():Integer { return __paddingBottom; 	} function set(v:Integer)	{ __paddingBottom=v; invalidate(); 	} }
 
-	public property PaddingWidth 		{ function get():Float { return Width-PaddingLeft-PaddingRight; } }
-	public property PaddingHeight 		{ function get():Float { return Height-PaddingTop-PaddingBottom; } }
+	public property PaddingWidth 		{ function get():Integer { return Width-PaddingLeft-PaddingRight; } }
+	public property PaddingHeight 		{ function get():Integer { return Height-PaddingTop-PaddingBottom; } }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Borders
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	protected var __borderStyle:COCO_CONTROL_BORDER_STYLE_ENUM;
-	protected var __borderRadius:Float;
+	protected var __borderRadius:Integer;
 	protected var __borderColor:Color;
 	protected var __borderColorSel:Color;
 
 	published property BorderStyle		{ function get():COCO_CONTROL_BORDER_STYLE_ENUM { return __borderStyle; }	function set(v:COCO_CONTROL_BORDER_STYLE_ENUM) { __borderStyle = v; invalidate(); }	}
 
-	published property BorderRadius		{ function get():Float { return __borderRadius; 	}	function set(v:Float)	{ __borderRadius = v; invalidate(); }}
+	published property BorderRadius		{ function get():Integer { return __borderRadius; 	}	function set(v:Integer)	{ __borderRadius = v; invalidate(); }}
 	published property BorderColor		{ function get():Color { return __borderColor; 		}	function set(v:Color)	{ __borderColor = v; invalidate(); } }
 	published property BorderColorSel	{ function get():Color { return __borderColorSel; 	}	function set(v:Color)	{ __borderColorSel = v; invalidate(); } }
 
@@ -138,17 +138,17 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	protected var __glyphImage:String;
 	protected var __glyphImageSel:String;
-	protected var __glyphLeft:Float;
-	protected var __glyphTop:Float;
+	protected var __glyphLeft:Integer;
+	protected var __glyphTop:Integer;
 	protected var __glyphEvents:Boolean;
 
-	private var __glyphClip:CocoClip;
-	private var __glyphSelClip:CocoClip;
+	private var __glyphClip:CocoUIView;
+	private var __glyphSelClip:CocoUIView;
 
 	published property GlyphImage		{ function get():String 	{ return __glyphImage;	 	}	function set(v:String) 	{ __glyphImage = v; invalidate(); 		}}
 	published property GlyphImageSel	{ function get():String 	{ return __glyphImageSel; 	}	function set(v:String) 	{ __glyphImageSel = v; invalidate();	}}
-	published property GlyphLeft		{ function get():Float 		{ return __glyphLeft; 		}	function set(v:Float) 	{ __glyphLeft = v; invalidate();		}}
-	published property GlyphTop			{ function get():Float 		{ return __glyphTop; 		}	function set(v:Float) 	{ __glyphTop = v; invalidate();			}}
+	published property GlyphLeft		{ function get():Integer 	{ return __glyphLeft; 		}	function set(v:Integer) { __glyphLeft = v; invalidate();		}}
+	published property GlyphTop			{ function get():Integer 	{ return __glyphTop; 		}	function set(v:Integer) { __glyphTop = v; invalidate();			}}
 	published property GlyphEvents		{ function get():Boolean	{ return __glyphEvents;		}	function set(v:Boolean)	{ __glyphEvents = v; 					}}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,17 +156,17 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	protected var __chevronImage:String;
 	protected var __chevronImageSel:String;
-	protected var __chevronLeft:Float;
-	protected var __chevronTop:Float;
+	protected var __chevronLeft:Integer;
+	protected var __chevronTop:Integer;
 	protected var __chevronEvents:Boolean;
 
-	private var __chevronClip:CocoClip;
-	private var __chevronSelClip:CocoClip;
+	private var __chevronClip:CocoUIView;
+	private var __chevronSelClip:CocoUIView;
 
 	published property ChevronImage		{ function get():String 	{ return __chevronImage;	}	function set(v:String) 	{ __chevronImage = v; invalidate(); 	}}
 	published property ChevronImageSel	{ function get():String 	{ return __chevronImageSel;	}	function set(v:String) 	{ __chevronImageSel = v; invalidate();	}}
-	published property ChevronLeft		{ function get():Float 		{ return __chevronLeft; 	}	function set(v:Float) 	{ __chevronLeft = v; invalidate();		}}
-	published property ChevronTop		{ function get():Float 		{ return __chevronTop; 		}	function set(v:Float) 	{ __chevronTop = v; invalidate();		}}
+	published property ChevronLeft		{ function get():Integer 	{ return __chevronLeft; 	}	function set(v:Integer) { __chevronLeft = v; invalidate();		}}
+	published property ChevronTop		{ function get():Integer 	{ return __chevronTop; 		}	function set(v:Integer) { __chevronTop = v; invalidate();		}}
 	published property ChevronEvents	{ function get():Boolean	{ return __chevronEvents;	}	function set(v:Boolean)	{ __chevronEvents = v; 					}}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,9 +191,9 @@ class CocoUIControl : CocoUIView
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function CalcHeight() :Float
+	public virtual function CalcHeight() :Integer
 	{
-		var h:Float = 0;
+		var h:Integer = 0;
 
 		if(__skinImage) 		h = Math.max(h, __scene.getImageSymbolHeight(__skinImage));
 		if(__skinImageSel) 		h = Math.max(h, __scene.getImageSymbolHeight(__skinImageSel));
@@ -219,7 +219,7 @@ class CocoUIControl : CocoUIView
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function SetMargins(left:Float, right:Float, top:Float, bottom:Float)
+	public function SetMargins(left:Integer, right:Integer, top:Integer, bottom:Integer)
 	{
 		MarginLeft = left;
 		MarginRight = right;
@@ -229,7 +229,7 @@ class CocoUIControl : CocoUIView
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function SetPaddings(left:Float, right:Float, top:Float, bottom:Float)
+	public function SetPaddings(left:Integer, right:Integer, top:Integer, bottom:Integer)
 	{
 		PaddingLeft = left;
 		PaddingRight = right;
@@ -271,8 +271,8 @@ class CocoUIControl : CocoUIView
 		__borderColor				= 0x00000000;
 		__borderColorSel			= 0x00000000;
 
-		__backgroundGradient		= Gradient("");
-		__backgroundGradientSel 	= Gradient("");
+		__backgroundGradient		= "";
+		__backgroundGradientSel 	= "";
 
 		__skinImage					= "";
 		__skinImageSel				= "";
@@ -334,7 +334,7 @@ class CocoUIControl : CocoUIView
 	// ==================================================================================================================================
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function __CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+ 	public function __CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Integer, y:Integer) :Boolean
 	{
 		if(__selectable && __selectionWaitTickCycles==0)
 			__selectionWaitTickCycles = 5;
@@ -342,7 +342,7 @@ class CocoUIControl : CocoUIView
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function __CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
+	public function __CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Integer, y:Integer) :Boolean
 	{
 		__selectionWaitTickCycles=0;
 		Selected = false;
@@ -466,7 +466,7 @@ class CocoUIControl : CocoUIView
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Float, y:Float, handleEvents:Boolean) :CocoClip
+	public virtual function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Integer, y:Integer, handleEvents:Boolean) :CocoUIView
 	{
 		// Composition Layers (skin, texts, glyph, chevron, etc.) are placed
 		// with origin the top-left corner of the control. When we finally
@@ -487,14 +487,15 @@ class CocoUIControl : CocoUIView
 
 		if(!image) return null;
 
- 		x = -Width/2 + x + image.textureCellWidth/2/(image.pixelRatio/__scene.__view_pixel_ratio);
- 		y = -Height/2 + y + image.textureCellHeight/2/(image.pixelRatio/__scene.__view_pixel_ratio);
+ 		x = -Width / 2 + x + image.textureCellWidth / 2 / (image.pixelRatio / __scene.__view_pixel_ratio);
+ 		y = -Height / 2 + y + image.textureCellHeight / 2 / (image.pixelRatio / __scene.__view_pixel_ratio);
 
-		var clip:CocoClip = new CocoClip(image);
-		clip.__instanceName = __instanceName + "Layer" + String(__children.size());
-		clip = addChild(clip);
-		clip.__timeline.clear();
-		clip.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, handleEvents, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
-		return clip;
+		var view:CocoUIView = new CocoUIView;
+		view.__image = image;
+		view.__instanceName = __instanceName + "Layer" + String(__children.size());
+		addChild(view);
+		view.__timeline.clear();
+		view.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, handleEvents, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
+		return view;
 	}
 }

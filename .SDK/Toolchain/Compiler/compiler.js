@@ -198,16 +198,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function Compiler(ast)
 {
-	// ast				: The abstract syntax tree root node as produced by the parser
+	// ast: The abstract syntax tree root node as produced by the parser
 
 	var _this = this;
-
-	_this.options =
-	{
-		round_integers: false,
-		cast_arguments: false,
-		cast_calls: true
-	};
 
 	// Save Target Information
 
@@ -619,7 +612,8 @@ function Compiler(ast)
 		var currClass = null;
 		var currState = null;
 		var currDot = [];
-		var dic={};
+		var currCall = [];
+		var dic = {};
 
 		var des = {};
 
@@ -683,12 +677,19 @@ function Compiler(ast)
 
     		case jsdef.INDEX:
 			case jsdef.GROUP:
-			case jsdef.CALL:
 				currDot.push(node);
 				break;
 
-			case jsdef.NEW:
+			case jsdef.CALL:
+				currDot.push(node);
+				currCall.push(node);
+				break;
+
 			case jsdef.NEW_WITH_ARGS:
+
+				currCall.push(node);
+
+			case jsdef.NEW:
 
 				// Check if NEW has MODULE.CLASS and collapse DOT to identifier
 				var n0 = node[0];
@@ -755,6 +756,7 @@ function Compiler(ast)
 			_this.SET_METADATA(node, "inState", currState);
 			_this.SET_METADATA(node, "inFunction", currFunction);
 
+			// Used by DOT
 			if(n0)
 			{
 				_this.SET_METADATA(node, "inDot", 	n0.type==jsdef.DOT 	 ? n0 : null);
@@ -763,6 +765,9 @@ function Compiler(ast)
 				_this.SET_METADATA(node, "inCall",	n0.type==jsdef.CALL  ? n0 : null);
 			}
 
+			if(currCall.length)
+				_this.SET_METADATA(node, "inFnCall", currCall[currCall.length-1]);
+
 			delete node.tokenizer;
 			node.tokenizer = null;
 
@@ -770,9 +775,17 @@ function Compiler(ast)
 			{
     		case jsdef.INDEX:
 			case jsdef.GROUP:
-			case jsdef.CALL:
 			case jsdef.DOT:
 				currDot.pop();
+				break;
+
+			case jsdef.CALL:
+				currDot.pop();
+				currCall.pop();
+				break;
+
+			case jsdef.NEW_WITH_ARGS:
+				currCall.pop();
 				break;
 
 			case jsdef.STATE:
@@ -1409,17 +1422,52 @@ function Compiler(ast)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getCallIdentifier = function(ast)
 	{
-		if(ast[0].type==jsdef.DOT)
-			return ast[0].identifier_last;
+		switch(ast.type)
+		{
+			case jsdef.LIST:
+			case jsdef.ASSIGN:
+			case jsdef.CALL:
+			case jsdef.DELETE:
+			case jsdef.IDENTIFIER:
+			case jsdef.NUMBER:
+			case jsdef.STRING:
+			case jsdef.NEW_WITH_ARGS:
+				break;
 
-		if(ast[0].type==jsdef.IDENTIFIER)
-			return ast[0];
+			default:
+				debugger;
+		}
+
+		function __getCallIdentifier(ast)
+		{
+			if(ast[0])
+			{
+				if(ast[0].type==jsdef.DOT)
+					return ast[0].identifier_last;
+
+				if(ast[0].type==jsdef.IDENTIFIER)
+					return ast[0];
+			}
+
+			if(ast.inFnCall)
+			{
+				return _this.getCallIdentifier(ast.inFnCall);
+			}
+		}
+
+		var id = __getCallIdentifier(ast);
+
+		if(id && !id.symbol)
+			id.symbol = _this.LookupIdentifier(_this.getCurrentScope(), id.value, id, true);
+
+		return id;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.getCallList = function(ast)
 	{
 		var list = null;
+		if(ast.inFnCall) list = ast.inFnCall[1];
 		if(ast.inCall) list = ast.inCall[1];
 		if(ast.inDot) list = _this.isInside(ast, jsdef.CALL)[1];
 		if(list && list.type==jsdef.LIST) return list;
@@ -1430,6 +1478,33 @@ function Compiler(ast)
 	{
 		var list = _this.getCallList(ast);
 		if(list) return list[index];
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getCallListParamIndex = function(ast)
+	{
+		var index = -1;
+		for(item in ast.parent)
+		{
+			if(!isFinite(item)) break;
+			index++;
+			if(ast.parent[item]==ast) break;
+		}
+		return index;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getCallObject = function(ast)
+	{
+		var id = _this.getCallIdentifier(ast);
+		if(id.inDot)
+		{
+			var dot = id.inDot.identifiers_list;
+			for(var i=0, L=dot.length; i<L; i++)
+				if(dot[i].ast==id)
+					return dot[i-1].ast;
+		}
+		return id.inClass;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1661,6 +1736,41 @@ function Compiler(ast)
 			return _this.generate.apply(_this, Array.prototype.slice.call(arguments,0));
 		};
 
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		var generateFnCallByValue = function(fn, argsList)
+		{
+			// Prepare call-by-value by processing function symbol
+			// and applying type-cast information to arguments
+			// Actual type-casting takes place while generating jsdef.LIST
+
+			//#TYPECAST
+			var rest = [];
+			for(var i=0, L=fn.paramsList.length; i<L; i++)
+			{
+				var param = fn.paramsList[i];
+				var arg = argsList[i];
+				if(arg)
+				{
+					// Normal param
+					arg.__typecast_byval = true;
+					arg.__typecast = param.vartype;
+				}
+				else if(param.optional)
+				{
+					// Optional param
+
+					if(!param.initializer)
+						break;
+
+					rest.push(param.initializer ? generate(param.initializer) : (_this.types[param.vartype] ? _this.types[param.vartype].default : "null"));
+				}
+			}
+
+			var gen = generate(ast[1]) + (rest.length ? ", " + rest.join(", ") : "");
+			return gen;
+		};
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		switch(ast.type)
 		{
 		// ==================================================================================================================================
@@ -3709,88 +3819,96 @@ function Compiler(ast)
 					_this.record_vartype_use(ast, varSymbol, classScope, (ast.inFunction ? _this.INCLUDE_IN_CPP : _this.INCLUDE_IN_HPP));
 				}
 
-				if(vitem.initializer)
+				if(_this.secondPass)
 				{
-					// Generate initializer
-					if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction && !ast.static)
+					if(vitem.initializer)
 					{
-						if(_this.in_state)
-							_this.NewError("Invalid state variable initializer, should be in state enter() function : " + vitem.name, vitem);
-						else if(ast.type!=jsdef.EVENT)
-							_this.NewError("Invalid class member initializer, should be in constructor: " + vitem.name, vitem);
-					}
+						// Generate initializer
+						if(_this.currClassName && ast.type!=jsdef.CONST && (ast.scope.isClass || ast.scope.isState) && !ast.inFunction && !ast.static)
+						{
+							if(_this.in_state)
+								_this.NewError("Invalid state variable initializer, should be in state enter() function : " + vitem.name, vitem);
 
-					vitem.generated_code = generate(vitem.initializer);
+							else if(ast.type!=jsdef.EVENT)
+								_this.NewError("Invalid class member initializer, should be in constructor: " + vitem.name, vitem);
+						}
 
-					// Check type
-					var type = _this.getTypeName(vitem.initializer);
+						if(!varSymbol.extern)
+						{
+							//#TYPECAST
+							vitem.initializer.__typecast = vitem.vartype;
+							vitem.generated_code = _this.typeCast(vitem.initializer, generate(vitem.initializer));
+						}
 
-					_this.typeCheck(ast, varSymbol.vartype, type);
-				}
-				else
-				{
-					var vartype = _this.getVarType(vitem.vartype);
-					if(_this.types.hasOwnProperty(vartype))
-					{
-						vitem.generated_code = _this.types[vartype].default;
-					}
-					else if(ast.scope.isClass || ast.scope.isState)
-					{
-						vitem.generated_code = "null";
-					}
-				}
+						// Check type
+						var type = _this.getTypeName(vitem.initializer);
 
-				// Generate
-
-				if(varSymbol.extern) continue;
-
-				if(ast.scope.isClass && !ast.scope.isState && !ast.inFunction)
-				{
-					if(ast.static)
-					{
-						if(ast.public)			out.push(classSymbol.name+".");
-						else if(ast.private)	out.push(classSymbol.name+".__PRIVATE__.");
-						else if(ast.protected)	out.push(classSymbol.name+".__PROTECTED__.");
-
-						out.push(vitem.name);
-						out.push("=" + vitem.generated_code + ";");
+						_this.typeCheck(ast, varSymbol.vartype, type);
 					}
 					else
 					{
-						// For inheritance to work with scalars (strings, numbers, etc.)
-						// we need to use getters and setters because only objects are
-						// referenced with prototype inheritance and a scalar var needs
-						// to get wrapped inside an object. This makes var access very
-						// slow, so we do it ONLY if the class is used as a base class
-						// by other classes (aka has derivatives) and the variable is
-						// not an object already. Also, we don't do it for consts.
-
-						//if(_this.derivatives[classSymbol.name] /*&& !varSymbol.pointer*/ && ast.type!=jsdef.CONST)
-
-						if(_this.derivatives[classSymbol.name] && ast.type!=jsdef.CONST)
+						var vartype = _this.getVarType(vitem.vartype);
+						if(_this.types.hasOwnProperty(vartype))
 						{
-							out.push("__PRIVATE__.__" + varSymbol.name + "__ = " + vitem.generated_code + ";");
-							var pdefine = "__PDEFINE__(%, '" + varSymbol.name + "', { configurable:false, get: function(){ return __PRIVATE__.__" + varSymbol.name + "__; }, set: function(v) { __PRIVATE__.__" + varSymbol.name + "__ = v; }});";
-							if(ast.public)			out.push(pdefine.replace("%", "this"));
-							else if(ast.private)	out.push(pdefine.replace("%", "__PRIVATE__"));
-							else if(ast.protected)	out.push(pdefine.replace("%", "__PROTECTED__"));
+							vitem.generated_code = _this.types[vartype].default;
 						}
-						else
+						else if(ast.scope.isClass || ast.scope.isState)
 						{
-							if(ast.public)			out.push("this.");
-							else if(ast.private)	out.push("__PRIVATE__.");
-							else if(ast.protected)	out.push("__PROTECTED__.");
+							vitem.generated_code = "null";
+						}
+					}
+
+					// Generate
+					if(varSymbol.extern) continue;
+
+					if(ast.scope.isClass && !ast.scope.isState && !ast.inFunction)
+					{
+						if(ast.static)
+						{
+							if(ast.public)			out.push(classSymbol.name+".");
+							else if(ast.private)	out.push(classSymbol.name+".__PRIVATE__.");
+							else if(ast.protected)	out.push(classSymbol.name+".__PROTECTED__.");
+
 							out.push(vitem.name);
 							out.push("=" + vitem.generated_code + ";");
 						}
+						else
+						{
+							// For inheritance to work with scalars (strings, numbers, etc.)
+							// we need to use getters and setters because only objects are
+							// referenced with prototype inheritance and a scalar var needs
+							// to get wrapped inside an object. This makes var access very
+							// slow, so we do it ONLY if the class is used as a base class
+							// by other classes (aka has derivatives) and the variable is
+							// not an object already. Also, we don't do it for consts.
+
+							//if(_this.derivatives[classSymbol.name] /*&& !varSymbol.pointer*/ && ast.type!=jsdef.CONST)
+
+							if(_this.derivatives[classSymbol.name] && ast.type!=jsdef.CONST)
+							{
+								out.push("__PRIVATE__.__" + varSymbol.name + "__ = " + vitem.generated_code + ";");
+								var pdefine = "__PDEFINE__(%, '" + varSymbol.name + "', { configurable:false, get: function(){ return __PRIVATE__.__" + varSymbol.name + "__; }, set: function(v) { __PRIVATE__.__" + varSymbol.name + "__ = v; }});";
+								if(ast.public)			out.push(pdefine.replace("%", "this"));
+								else if(ast.private)	out.push(pdefine.replace("%", "__PRIVATE__"));
+								else if(ast.protected)	out.push(pdefine.replace("%", "__PROTECTED__"));
+							}
+							else
+							{
+								if(ast.public)			out.push("this.");
+								else if(ast.private)	out.push("__PRIVATE__.");
+								else if(ast.protected)	out.push("__PROTECTED__.");
+								out.push(vitem.name);
+								out.push("=" + vitem.generated_code + ";");
+							}
+						}
 					}
-				}
-				else
-				{
-					out.push("var ");
-					out.push(vitem.name);
-					if(ast.scope.isState) out.push(" = this." + vitem.name);
-					out.push("=" + vitem.generated_code + ";");
+					else
+					{
+						out.push("var ");
+						out.push(vitem.name);
+						if(ast.scope.isState) out.push(" = this." + vitem.name);
+						out.push("=" + vitem.generated_code + ";");
+					}
 				}
 
 			} //loop
@@ -5277,14 +5395,14 @@ function Compiler(ast)
 			// Suppress line number generation
 			_this.skipLineNumbers++;
 
-			// Get call symbol
-			var callSymbol = _this.getCallIdentifier(ast);
+			// Get calling method ast
+			var callIdentifier = _this.getCallIdentifier(ast);
 
 			// Detect explicity type cast
 			var isExplicitTypeCast = _this.getClass(gen_lhs);
 
-			// Detect Function call
-			var fnCall = callSymbol.symbol && callSymbol.symbol.type==jsdef.FUNCTION ? callSymbol.symbol : null;
+			// Get call identifier function symbol (if any)
+			var fnCall = callIdentifier.symbol && callIdentifier.symbol.type==jsdef.FUNCTION ? callIdentifier.symbol : null;
 
 			// Detect Callback call
 			var callbackCall = ast[0].symbol && ast[0].symbol instanceof VarSymbol && ast[0].symbol.file != "externs.jspp";
@@ -5294,55 +5412,20 @@ function Compiler(ast)
 			// Typecast is prepared and performed in jsdef.LIST
 			//------------------------------------------------------------------------------------------------
 
-			var gen_rhs;
-
-			if(!callbackCall && fnCall && !callSymbol.__event && fnCall.paramsList.length && ast[1].length>1)
-			{
-				//#TYPECAST
-
-				// Implicit type cast to support pass by value for scalars.
-				// We store the vartype of each function parameter to each
-				// call argument respectively in order to generate the proper
-				// value wrapper. We also handle optional parameters here.
-
-				var rest = [];
-				for(var i=0; i<fnCall.paramsList.length; i++)
-				{
-					var param = fnCall.paramsList[i];
-					var arg = ast[1][i];
-					if(arg)
-					{
-						// Normal param
-						arg.__typecast_byval = true;
-						arg.__typecast = param.vartype;
-					}
-					else if(param.optional)
-					{
-						// Optional param
-						var init = param.initializer ? generate(param.initializer) : (_this.types[param.vartype] ? _this.types[param.vartype].default : "null");
-						rest.push(init);
-					}
-				}
-				gen_rhs = generate(ast[1]) + (rest.length ? ", " + rest.join(", ") : "");
-			}
-			else
-			{
-				//TODO: check
-				gen_rhs = generate(ast[1]);
-			}
+			var gen_rhs = fnCall ? generateFnCallByValue(fnCall, ast[1]) : generate(ast[1]);
 
 			//------------------------------------------------------------------------------------------------
 			// Event Calls
 			//------------------------------------------------------------------------------------------------
 
 			// EVENT HACK: for Coconut2D events append execution context __THIS__ to arguments.
-			if(callSymbol.__event && (callSymbol.value==_this.ADD_EVENT || callSymbol.value==_this.REMOVE_EVENT))
+			if(callIdentifier.__event && (callIdentifier.value==_this.ADD_EVENT || callIdentifier.value==_this.REMOVE_EVENT))
 			{
 				gen_rhs += ", __THIS__";
 			}
 
 			// EVENT HACK: dispatchEvent loads values to event prior to firing
-			if(callSymbol.__event && callSymbol.value==_this.DISPATCH_EVENT)
+			if(callIdentifier.__event && callIdentifier.value==_this.DISPATCH_EVENT)
 			{
 				var list = _this.getCallList(ast);
 				var evCls = _this.getClass(_this.getTypeName(list[0]));
@@ -5400,9 +5483,6 @@ function Compiler(ast)
 
 				if(ast[item].__typecast_byval)
 				{
-					// For function calls we need
-					// to perform call by value type cast
-
 					//#TYPECAST
 					out.push(_this.typeCast(ast[item], generate(ast[item])));
 				}
@@ -5441,6 +5521,7 @@ function Compiler(ast)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.ARRAY_INIT:
+
 			out.push("[");
 			var firstItem = true;
 			for(var item in ast)
@@ -5914,6 +5995,24 @@ function Compiler(ast)
 			var gen_lhs = generate(ast[0]);
 			var gen_rhs = generate(ast[1]);
 
+			if(!_this.secondPass)
+				break;
+
+			var callSymbol = _this.getClass(ast[0].value);
+			if(callSymbol.nodeType=="CLASS")//!callSymbol.extern &&
+			{
+				var fnCall = callSymbol.methods['Constructor'];
+				if(!fnCall)
+				{
+					_this.NewWarning("No Constructor for: " + callSymbol.name, ast);
+				}
+				else
+				{
+					//#TYPECAST
+					gen_rhs = generateFnCallByValue(fnCall, ast[1])
+				}
+			}
+
 			if(ast[0].symbol && ast[0].symbol.struct)
 			{
 				if(ast[1][0].symbol.vartype==ast[0].symbol.name)
@@ -6025,10 +6124,27 @@ function Compiler(ast)
 		case jsdef.TRUE:				out.push("true"); break;
 		case jsdef.NULL:				out.push("null"); break;
 		case jsdef.NUMBER:				out.push(ast.value); break;
-		case jsdef.RETURN:				out.push("return"); if(ast.value) out.push(" " + generate(ast.value)); out.push(";\n"); break;
 		case jsdef.THROW:				out.push("throw "); out.push(generate(ast.exception)); out.push(";"); break;
 		case jsdef.WHILE:				ast.body.isLoop=true; out.push("while(" + generate(ast.condition) + ")"); out.push(generate(ast.body)); break;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case jsdef.RETURN:
+
+			if(!_this.secondPass || ast.file=="externs.jspp")
+				break;
+
+			out.push("return");
+			if(ast.value)
+			{
+				//#TYPECAST
+				ast.value.__typecast = ast.inFunction.returntype;
+				out.push(" " + _this.typeCast(ast.value, generate(ast.value)));
+			}
+			out.push(";\n");
+			break;
+
 		}
+
 		return out.join("");
 	};
 

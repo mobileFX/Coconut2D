@@ -82,10 +82,10 @@ class CocoRenderContext2D implements ICocoRenderContext
  	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function getName():String									{ return "2D Canvas"; }
  	public function getType():COCO_RENDERING_CONTEXT_ENUM				{ return COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_2D_CANVAS; }
-	public function getDisplayWidth():Float								{ return __ctx.canvas.width / engine.device.pixelRatio; }
-	public function getDisplayHeight():Float							{ return __ctx.canvas.height / engine.device.pixelRatio; }
-	public function getBufferWidth():Float								{ return __ctx.canvas.width; }
-	public function getBufferHeight():Float								{ return __ctx.canvas.height; }
+	public function getDisplayWidth():Integer							{ return Math.floor(__ctx.canvas.width / engine.device.pixelRatio); }
+	public function getDisplayHeight():Integer							{ return Math.floor(__ctx.canvas.height / engine.device.pixelRatio); }
+	public function getBufferWidth():Integer							{ return __ctx.canvas.width; }
+	public function getBufferHeight():Integer							{ return __ctx.canvas.height; }
 	public function getModelViewMatrix():CocoMatrix						{ return __modelViewMatrix; }
 	public function getProjectionMatrix():CocoMatrix					{ return __projectionMatrix; }
 	public function hide()												{ __ctx.canvas.style.visibility="hidden"; }
@@ -103,7 +103,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function clip(x:Float, y:Float, w:Float, h:Float)
+	public function clip(x:Integer, y:Integer, w:Integer, h:Integer)
 	{
 		try
 		{
@@ -255,7 +255,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 		var dw:Float = sw;
 		var dh:Float = sh;
 		*/
-		
+
 		var sw:Integer = image.textureCellWidth;
 		var sh:Integer = image.textureCellHeight;
 		var ox:Integer = image.binpackX;
@@ -266,7 +266,7 @@ class CocoRenderContext2D implements ICocoRenderContext
 		var dy:Integer = -sh / 2.0;
 		var dw:Integer = sw;
 		var dh:Integer = sh;
-		
+
 		// Set global alpha
 		__ctx.globalAlpha = keyFrame.alpha;
 

@@ -50,8 +50,8 @@ public:
 	String __className;
 	CocoEventSource();
 	virtual ~CocoEventSource();
-	virtual void addEventListener(CocoEvent* Event, void* Listener, int DispID);
-	virtual bool removeEventListener(CocoEvent* Event, void* Listener, int DispID);
+	virtual void addEventListener(CocoEvent* Event, void* Listener, int32_t DispID);
+	virtual bool removeEventListener(CocoEvent* Event, void* Listener, int32_t DispID);
 	virtual void dispatchEvent(CocoEvent* Event)=0;
 };
 

@@ -204,7 +204,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		delete __touch_start_point;
 		delete __ANCHOR;
 
-		if(__currentFrame && __currentFrame.__isCloned)
+		//if(__currentFrame && __currentFrame.__isCloned)
 			delete __currentFrame;
 	}
 
@@ -470,7 +470,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 			clip.__timeline.__paused = pause;
 			clip.__timeline.__currentFrameIndex = -1;
 
-			clip.__currentTime = Time(FrameIndex) * clip.__timeline.__singleFrameDurationTime;
+			clip.__currentTime = FrameIndex * clip.__timeline.__singleFrameDurationTime;
 
 			//trace("-> child: " + clip.__clipPath + ", from=" + (clip.__currentFrame ? String(clip.__currentFrame.frameIndex) : "0") + ", to=" + String((FrameIndex==-1 ? clip.__currentFrame.frameIndex : FrameIndex)) + ", time=" + clip.__currentTime.toFixed(2) + ", paused=" + String(clip.__timeline.__paused));
 		}
@@ -519,7 +519,7 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		{
 			// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
 			__loops = Math.floor(__currentTime / parentClipsDuration);
-			__loopTime = __currentTime - (Time(__loops) * parentClipsDuration);
+			__loopTime = __currentTime - (__loops * parentClipsDuration);
 
 			// Calculate frameIndex from time.
 			var frameIndex:Float = __loopTime / __timeline.__singleFrameDurationTime;
@@ -819,6 +819,19 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 		ctx.apply(this, __currentFrame, __mBBox);
 
 		__vBBoxVrtx.reset(-W2, -H2, 0, 1);
+
+	    delete __vREL_TOP_LEFT;
+	    delete __vABS_TOP_LEFT;
+
+	    delete __vREL_TOP_RIGHT;
+	    delete __vABS_TOP_RIGHT;
+
+	    delete __vREL_BOTTOM_LEFT;
+	    delete __vABS_BOTTOM_LEFT;
+
+	    delete __vREL_BOTTOM_RIGHT;
+	    delete __vABS_BOTTOM_RIGHT;
+
 		__vREL_TOP_LEFT	= __mBBox.multiplyByVector(__vBBoxVrtx);
 		__vABS_TOP_LEFT	= mv.multiplyByVector(__vBBoxVrtx);
 
@@ -886,19 +899,39 @@ class CocoClip : CocoEventSource implements IEventListener, IEventTarget
 	    __vREL_BOTTOM_RIGHT.X = __vREL_TOP_RIGHT.X;
 	    __vREL_BOTTOM_RIGHT.Y = __vREL_BOTTOM_LEFT.Y;
 
+		delete __vABS_TOP_LEFT;
 	    __vABS_TOP_LEFT = mv.multiplyByVector(__vREL_TOP_LEFT);
+
+	    delete __vABS_TOP_RIGHT;
 	    __vABS_TOP_RIGHT = mv.multiplyByVector(__vREL_TOP_RIGHT);
+
+	    delete __vABS_BOTTOM_LEFT;
 	    __vABS_BOTTOM_LEFT = mv.multiplyByVector(__vREL_BOTTOM_LEFT);
+
+	    delete __vABS_BOTTOM_RIGHT;
 	    __vABS_BOTTOM_RIGHT = mv.multiplyByVector(__vREL_BOTTOM_RIGHT);
 
 		__mBBox.identity();
 
 		ctx.apply(this, __currentFrame, __mBBox);
 
-	    __vREL_TOP_LEFT = __mBBox.multiplyByVector(__vREL_TOP_LEFT);
-	    __vREL_TOP_RIGHT = __mBBox.multiplyByVector(__vREL_TOP_RIGHT);
-	    __vREL_BOTTOM_LEFT = __mBBox.multiplyByVector(__vREL_BOTTOM_LEFT);
-	    __vREL_BOTTOM_RIGHT = __mBBox.multiplyByVector(__vREL_BOTTOM_RIGHT);
+		var V:CocoVector;
+
+	    V = __mBBox.multiplyByVector(__vREL_TOP_LEFT);
+	    delete __vREL_TOP_LEFT;
+	    __vREL_TOP_LEFT = V;
+
+	    V = __mBBox.multiplyByVector(__vREL_TOP_RIGHT);
+	    delete __vREL_TOP_RIGHT;
+	    __vREL_TOP_RIGHT = V;
+
+	    V = __mBBox.multiplyByVector(__vREL_BOTTOM_LEFT);
+	    delete __vREL_BOTTOM_LEFT;
+	    __vREL_BOTTOM_LEFT = V;
+
+	    V = __mBBox.multiplyByVector(__vREL_BOTTOM_RIGHT);
+	    delete __vREL_BOTTOM_RIGHT;
+	    __vREL_BOTTOM_RIGHT = V;
 
 	    __hasBoundingBox = true;
 	}

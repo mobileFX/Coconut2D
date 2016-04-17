@@ -121,10 +121,10 @@ class CocoRenderContextGL implements ICocoRenderContext
  	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function getName():String									{ return "WebGL"; };
  	public function getType():COCO_RENDERING_CONTEXT_ENUM				{ return COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL; }
-	public function getDisplayWidth():Float								{ return getBufferWidth() / engine.device.pixelRatio; }
-	public function getDisplayHeight():Float							{ return getBufferHeight() / engine.device.pixelRatio; }
-	public function getBufferWidth():Float								{ return gl.canvas.width; }
-	public function getBufferHeight():Float								{ return gl.canvas.height; }
+	public function getDisplayWidth():Integer							{ return Math.floor(getBufferWidth() / engine.device.pixelRatio); }
+	public function getDisplayHeight():Integer							{ return Math.floor(getBufferHeight() / engine.device.pixelRatio); }
+	public function getBufferWidth():Integer							{ return gl.canvas.width; }
+	public function getBufferHeight():Integer							{ return gl.canvas.height; }
 	public function getModelViewMatrix():CocoMatrix						{ return __modelViewMatrix; }
 	public function getProjectionMatrix():CocoMatrix					{ return __projectionMatrix; }
 	public function hide()												{ gl.canvas.style.visibility="hidden"; }
@@ -144,7 +144,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Clip against physical pixels
-	public function clip(x:Float, y:Float, w:Float, h:Float)
+	public function clip(x:Integer, y:Integer, w:Integer, h:Integer)
 	{
 		/*
 		gl.enable(gl.SCISSOR_TEST);
@@ -200,7 +200,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 		gl.enable(gl.BLEND);
 
 		// Prepare orthographic projection matrix
-		if(window.deviceRotation)
+		if(window.deviceRotation!=0)
 		{
 			var c:Float = Math.cos(window.deviceRotation);
 			var s:Float = Math.sin(window.deviceRotation);
@@ -259,8 +259,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 			data.gl = gl;
 			var w2:Float = video.width / 2.0;
 			var h2:Float = video.height / 2.0;
-			var pw:Float = CocoGraphics.POT(video.width);
-			var ph:Float = CocoGraphics.POT(video.height);
+			var pw:Integer = CocoGraphics.POT(video.width);
+			var ph:Integer = CocoGraphics.POT(video.height);
 			var tw:Float = video.width / pw;
 			var th:Float = video.height / ph;
 			image.texSize = new Float32Array([0.0, 0.0, tw, th]);
@@ -350,8 +350,8 @@ class CocoRenderContextGL implements ICocoRenderContext
 			var tileCountX:Integer = img.tileMap[0];
 			var tileMapCols:Integer = img.tileMap[1];
 			var tileMapRows:Integer = img.tileMap[2];
-			var vCount:Integer = Math.min(tileMapCols, Math.ceil(img.textureCellWidth / img.tileWidth));
-			var hCount:Integer = Math.min(tileMapRows, Math.ceil(img.textureCellHeight / img.tileHeight));
+			var vCount:Integer = Math.min(tileMapCols, Math.floor(img.textureCellWidth / img.tileWidth));
+			var hCount:Integer = Math.min(tileMapRows, Math.floor(img.textureCellHeight / img.tileHeight));
 			var tileCount:Integer = 0;
 			var paddingSize:Float = img.pixelRatio;
 			for(var y:Integer = hCount; y--;)

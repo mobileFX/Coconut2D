@@ -97,9 +97,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc
 {
-    [self.keywrap release];
-    [self.glwrap release];
-    [self.window release];
+    //[self.keywrap release];
+    //[self.glwrap release];
+    //[self.window release];
     [super dealloc];
 }
 
@@ -161,7 +161,7 @@
     if(recognizer.state == UIGestureRecognizerStateBegan)
         last_scale = 1.0;
 
-    scale = [recognizer scale] / last_scale;
+    scale = (float) [recognizer scale] / last_scale;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@
     if(recognizer.state == UIGestureRecognizerStateBegan)
         last_rotation = 0.0;
 
-    rotation = [recognizer rotation] - last_rotation;
+    rotation = (float) [recognizer rotation] - last_rotation;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

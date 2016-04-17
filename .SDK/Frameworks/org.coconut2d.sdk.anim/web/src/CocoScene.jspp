@@ -42,8 +42,8 @@ class CocoScene
 
 	// Fixed View Port
 	public var __fps:Float;
-	public var __view_width:Float;
-	public var __view_height:Float;
+	public var __view_width:Integer;
+	public var __view_height:Integer;
 	public var __view_pixel_ratio:Float;
 	public var __view_scale:Float;
 
@@ -120,8 +120,12 @@ class CocoScene
 		{
 			clip = clip.getChildByName(vPath[i]);
 			if(!clip)
+			{
+				delete vPath;
 				return null;
+			}
 		}
+		delete vPath;
 		return clip;
 	}
 
