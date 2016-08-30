@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -335,7 +335,8 @@ void UTF8::wstring_to_utf8(std::wstring& src, std::string& dest)
     dest.clear();
 	for (size_t i = 0, L = src.length(); i < L ; i++)
 	{
-		wchar_t w = src[i];
+		int w = src[i];//wchar_t
+
 		if (w <= 0x7f)
 			dest.push_back((char)w);
 		else if (w <= 0x7ff)
@@ -351,7 +352,7 @@ void UTF8::wstring_to_utf8(std::wstring& src, std::string& dest)
 		}
 		else if (w <= 0x10ffff)
 		{
-			dest.push_back((int8_t)(0xf0 | ((w >> 18)& 0x07)));
+			dest.push_back((int8_t) (0xf0 | ((w >> 18) & 0x07)));
 			dest.push_back((int8_t)(0x80| ((w >> 12) & 0x3f)));
 			dest.push_back((int8_t)(0x80| ((w >> 6) & 0x3f)));
 			dest.push_back((int8_t)(0x80| (w & 0x3f)));

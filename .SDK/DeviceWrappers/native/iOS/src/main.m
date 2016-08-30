@@ -1,6 +1,6 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,6 @@
 #include <libgen.h>
 
 #import "Coconut2D.hpp"
-#import "CocoAssetFile.h"
 #import "Fonts/CocoFontsCache.h"
 #import "Audio/CocoAudioStream.h"
 #import "CocoDeviceWrapper.h"

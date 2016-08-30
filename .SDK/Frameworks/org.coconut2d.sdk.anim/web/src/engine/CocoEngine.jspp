@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -64,21 +64,32 @@ state class CocoEngine
 	public var __RESIZE_IMAGES_AT_RUNTIME:Boolean;
 	public var __IMAGE_LOADING_MODE:COCO_IMAGE_LOADING_MODE_ENUM;
 
+	// Device Messages Queue and Buffer
+	private var __deviceMessageQueue:Array<DEVICE_MESSAGE>;
+	private var __deviceMessageQueueBuffer:Array<DEVICE_MESSAGE>;
+
+	// Stack of clicked clips.
+	private var __clicked:Array<CocoClip>;
+
+	// Sequential events control variables
+	private var __touch_event_initiated:Boolean;
+	private var __key_event_initiated:Boolean;
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
 		__RESIZE_IMAGES_AT_RUNTIME = false;
-		__IMAGE_LOADING_MODE = COCO_IMAGE_LOADING_MODE_ENUM.LOAD_BY_EXMINING_KEYFRAMES;
+		__IMAGE_LOADING_MODE = COCO_IMAGE_LOADING_MODE_ENUM.LOAD_BY_DPI;
 
 		__clock = 0;
 		__currentState = null;
 		__nextState = null;
 		__tickables = new Array<ITickable>;
 		__deviceMessageQueue = null;
+		__deviceMessageQueueBuffer = null;
 		__clicked = new Array<CocoClip>;
-		__track_touch = false;
-		__track_key = false;
-		__has_touch_device_message = false;
+		__touch_event_initiated = false;
+		__key_event_initiated = false;
 
 		engine = this;
 		device = new CocoDevice();
@@ -96,7 +107,8 @@ state class CocoEngine
 		delete __ctx;
 		delete __clicked;
 		delete __tickables;
-		delete __deviceMessageQueue;
+		delete[] __deviceMessageQueue;
+		delete[] __deviceMessageQueueBuffer;
 		delete device;
 	}
 
@@ -143,19 +155,17 @@ state class CocoEngine
 			if(__currentState) __currentState.enter();
 		}
 
+		// Swap device message queue with its buffer
+		delete[] __deviceMessageQueue;
+		__deviceMessageQueue = __deviceMessageQueueBuffer;
+		__deviceMessageQueueBuffer = new Array<DEVICE_MESSAGE>;
+
 		// Tick current Engine state
 		if(__currentState)
 			__currentState.tick(__clock);
 
 		// Tick ITickable objects
-		try
-		{
-			__tick(__clock);
-		}
-		catch(e:Error)
-		{
-			trace("ERROR: CocoEngine::tick() at state " + __currentState.__name);
-		}
+		__tick(__clock);
 
 		// Clear Clicked clips
 		__clicked.clear();
@@ -164,21 +174,9 @@ state class CocoEngine
 		if(__currentState!=null)
 		{
 			__ctx.cls();
-
-			try
-			{
-				__currentState.paint(__ctx, __clock);
-			}
-			catch(e:Error)
-			{
-				trace("ERROR: CocoEngine::paint() at state " + __currentState.__name);
-			}
-
+			__currentState.paint(__ctx, __clock);
 			__ctx.flush();
 		}
-
-		// Clear Device Messages queue
-		__clearDeviceMessageQueue();
 
 		// To avoid frame skipping we enfore a fixed time interval of 16.66~ ms.
 		__clock += TICK_TIME;
@@ -193,26 +191,15 @@ state class CocoEngine
 	//	                                                           /____/                                          /____/
 	// ==================================================================================================================================
 
-	// Device Messages Queue: should hold 1 event per category (eg. 1 touch event, 1 http event, etc).
-	private var __deviceMessageQueue:Array<DEVICE_MESSAGE>;
-
-	// Stack of clicked clips.
-	private var __clicked:Array<CocoClip>;
-
-	// Touch handling controlor variables
-	private var __track_touch:Boolean;
-	private var __track_key:Boolean;
-	private var __has_touch_device_message:Boolean;
-
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function __attachDevices()
 	{
 		delete[] __deviceMessageQueue;
-		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
-		__clicked = new Array<CocoClip>;
+		delete[] __deviceMessageQueueBuffer;
 
-		__track_touch = false;
-		__has_touch_device_message = false;
+		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
+		__deviceMessageQueueBuffer = new Array<DEVICE_MESSAGE>;
+		__clicked = new Array<CocoClip>;
 
 		if(global.__native || global.__touchEvents)
 		{
@@ -229,6 +216,7 @@ state class CocoEngine
 
 		window.addEventListener("keydown", __translateDeviceMessage);
 		window.addEventListener("keyup", __translateDeviceMessage);
+		window.addEventListener("keypress", __translateDeviceMessage);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -249,9 +237,12 @@ state class CocoEngine
 
 		window.removeEventListener("keydown", __translateDeviceMessage);
 		window.removeEventListener("keyup", __translateDeviceMessage);
-
+		window.removeEventListener("keypress", __translateDeviceMessage);
 
 		window.addEventListener("orientationchange", __translateDeviceMessage);
+
+		delete[] __deviceMessageQueue;
+		delete[] __deviceMessageQueueBuffer;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,6 +258,7 @@ state class CocoEngine
 		}
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	private function __translateDeviceMessageImpl(e:HTMLEvent)
 	{
 		// Convert an HTMLEvent to a DEVICE_MESSAGE structure. DEVICE_MESSAGE is a unified
@@ -287,44 +279,34 @@ state class CocoEngine
 		// We need to latch the mouse down/move/up
 
 		case "mousedown":
-			if(!__track_touch)
+			if(!__touch_event_initiated)
 			{
-				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
 				MSG.x0 = e.clientX;
 				MSG.y0 = e.clientY;
-				__track_touch = true;
-				__has_touch_device_message = true;
+				__touch_event_initiated = true;
 			}
 			break;
 
 		case "mousemove":
-			if(__track_touch)
+			if(__touch_event_initiated && __canRegisterMove(e.clientX, e.clientY))
 			{
-				if(__canRegisterMove(e.clientX, e.clientY))
-				{
-					delete MSG;
-					MSG = new DEVICE_MESSAGE();
-					MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
-					MSG.x0 = e.clientX;
-					MSG.y0 = e.clientY;
-					__has_touch_device_message = true;
-				}
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
+				MSG.x0 = e.clientX;
+				MSG.y0 = e.clientY;
 			}
 			break;
 
 		case "mouseup":
-			if(__track_touch)
+			if(__touch_event_initiated)
 			{
-				__removeTouchMessages();
-				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
 				MSG.x0 = e.clientX;
 				MSG.y0 = e.clientY;
-				__track_touch = false;
-				__has_touch_device_message = true;
+				__touch_event_initiated = false;
 			}
 			break;
 
@@ -332,80 +314,83 @@ state class CocoEngine
 		// We need to latch the touch down/move/up
 
 		case "touchstart":
-			if(!__track_touch)
+			if(!__touch_event_initiated)
 			{
 				var touch:Touch = e.touches[0];
 				if(global.__touchEvents) fixTouch(touch);
-				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
 				MSG.x0 = touch.clientX;
 				MSG.y0 = touch.clientY;
-				__track_touch = true;
-				__has_touch_device_message = true;
+				__touch_event_initiated = true;
 			}
 			break;
 
 		case "touchmove":
-			e.preventDefault();
-			if(__track_touch)
+			if(__touch_event_initiated)
 			{
+				e.preventDefault();
 				var touch:Touch = e.touches[0];
 				if(global.__touchEvents) fixTouch(touch);
 				if(__canRegisterMove(touch.clientX, touch.clientY))
 				{
-					delete MSG;
 					MSG = new DEVICE_MESSAGE();
 					MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
 					MSG.x0 = touch.clientX;
 					MSG.y0 = touch.clientY;
-					__has_touch_device_message = true;
 				}
 			}
 			break;
 
 		case "touchend":
-			if(__track_touch)
+			if(__touch_event_initiated)
 			{
 				var touch:Touch = e.changedTouches[0];
 				if(global.__touchEvents) fixTouch(touch);
-				__removeTouchMessages();
-				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
 				MSG.x0 = touch.clientX;
 				MSG.y0 = touch.clientY;
-				__track_touch = false;
-				__has_touch_device_message = true;
+				__touch_event_initiated = false;
 			}
 			break;
 
 		//=============================================================================
 		case "keydown":
-			if(!__track_key)
+			if(!__key_event_initiated)
 			{
-				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_DOWN;
 				MSG.keyCode = e.keyCode;
 				MSG.ctrlKey = e.ctrlKey;
 				MSG.altKey = e.altKey;
 				MSG.shiftKey = e.shiftKey;
-				__track_key = true;
+				__key_event_initiated = true;
+			}
+			break;
+
+		case "keypress":
+			if(__key_event_initiated)
+			{
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_PRESS;
+				MSG.keyCode = e.keyCode;
+				MSG.ctrlKey = e.ctrlKey;
+				MSG.altKey = e.altKey;
+				MSG.shiftKey = e.shiftKey;
 			}
 			break;
 
 		case "keyup":
-			if(__track_key)
+			if(__key_event_initiated)
 			{
-				delete MSG;
 				MSG = new DEVICE_MESSAGE();
 				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_UP;
 				MSG.keyCode = e.keyCode;
 				MSG.ctrlKey = e.ctrlKey;
 				MSG.altKey = e.altKey;
 				MSG.shiftKey = e.shiftKey;
-				__track_key = false;
+				__key_event_initiated = false;
 			}
 			break;
 		}
@@ -417,20 +402,24 @@ state class CocoEngine
 		if(MSG)
 		{
 			MSG.handled = false;
-			__deviceMessageQueue.push(MSG);
+			__deviceMessageQueueBuffer.push(MSG);
 		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __hasTouchDeviceMessage():Boolean
 	{
-		return (__has_touch_device_message && __deviceMessageQueue.size()>0);
+		for(var i:Integer=__deviceMessageQueue.size();i--;)
+		{
+			if((__deviceMessageQueue[i].type & DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK)!=0)
+				return true;
+		}
+		return false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function __removeTouchMessages()
 	{
-		if(!__has_touch_device_message) return;
 		for(var i:Integer=__deviceMessageQueue.size();i--;)
 		{
 			if((__deviceMessageQueue[i].type & DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK)!=0)
@@ -442,7 +431,7 @@ state class CocoEngine
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function __peekDeviceMessage(mask:DEVICE_MESSAGE_ENUM) :DEVICE_MESSAGE
+	public function __peekDeviceMessage(type:DEVICE_MESSAGE_ENUM, mask:DEVICE_MESSAGE_ENUM) :DEVICE_MESSAGE
 	{
 		// Purpose of the queue is to collect 1 message per category.
 		// Here we use a mask to filter and return that message.
@@ -451,13 +440,15 @@ state class CocoEngine
 		// queue is cleared on every cycle.
 
 		var L:Integer = __deviceMessageQueue.size();
+		var process:Boolean = false;
+
 		for(var i:Integer=0; i<L; i++)
 		{
-			if((__deviceMessageQueue[i].type & mask)!=0)
+			process = (type!=DEVICE_MESSAGE_ENUM.MESSAGE_NONE && __deviceMessageQueue[i].type==type) || (mask!=DEVICE_MESSAGE_ENUM.MESSAGE_NONE && (__deviceMessageQueue[i].type & mask)!=0);
+			if(process)
 			{
 				if(__deviceMessageQueue[i].handled)
 				{
-					__has_touch_device_message = false;
 					return null;
 				}
 				return __deviceMessageQueue[i];
@@ -478,14 +469,6 @@ state class CocoEngine
 			}
 		}
 		return true;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	public function __clearDeviceMessageQueue()
-	{
-		delete[] __deviceMessageQueue;
-		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
-		__has_touch_device_message = false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-﻿#ifndef __COCONUT2D_DEVICE_HPP__
+#ifndef __COCONUT2D_DEVICE_HPP__
 #define __COCONUT2D_DEVICE_HPP__
 
 struct fxScreen

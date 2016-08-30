@@ -114,7 +114,10 @@ export class HTTPServer
 
 			// Create an ASP processor, parse and execute the file.
 			asp.run(req.__file, req, res);
-			res.end();
+
+			if(!asp.has_asynchronous_code)
+				res.end();
+
 			return;
 		}
 

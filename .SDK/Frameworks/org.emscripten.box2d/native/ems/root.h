@@ -1,4 +1,4 @@
-﻿// Prevent some inclusions
+// Prevent some inclusions
 #define NDEBUG
 
 #ifdef EM_NO_LIBCPP

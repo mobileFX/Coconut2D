@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,17 +34,80 @@
 //
 // ==================================================================================================================================
 
-#include "CocoUIControl.jspp"
+#include "CocoUIButton.jspp"
 
-control class CocoUICheckBox : CocoUIControl
+control class CocoUICheckBox : CocoUIButton
 {
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(name:String) :CocoUIControl(name)
+	public var __checked:Boolean;
+
+	published property Checked
 	{
+		function get():Boolean { return __checked; }
+
+		function set(v:Boolean)
+		{
+			__checked = v;
+			__chevronImage = __checked ? "ImageSymbol_iPhone_SwitchON" : "ImageSymbol_iPhone_SwitchOFF";
+			invalidate();
+		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __onChevronClick()
+	{
+		Checked = !Checked;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoUIButton(scene, name)
+	{
+		__selectable = false;
+		__checked = false;
+		__chevronEvents = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Clone():CocoUICheckBox
+	{
+		var ctl:CocoUICheckBox = new CocoUICheckBox(__scene, __instanceName);
+		__cloneTo(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __cloneTo(ctl:CocoUICheckBox)
+	{
+		__copy__(this, ctl, COPY_MEMBERS_ALL);
+		super.__cloneTo(ctl);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Defaults()
+	{
+		if(!__scene) return;
+
+		super.Defaults;
+
+		// Control Background Gradient
+		__backgroundGradient = "0,0xffffffff,0.47,0xfff6f6f6,1,0xffededed";
+		__backgroundGradientSel = "0,0xffffd65e,1,0xfffebf04";
+
+		// Check chevron
+		__chevronImage = "ImageSymbol_iPhone_SwitchOFF";
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		super.paint;
+	}
+
 }
 

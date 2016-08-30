@@ -224,7 +224,7 @@ grammar CocoScript
 
 	enum_item <ENUM_ITEM>						::= enum_item_name "=" enum_item_value;
 	enum_item_name <TERMINAL,ENUM_ITEM_NAME> 	::= ident;
-	enum_item_value <TERMINAL,ENUM_ITEM_VALUE> 	::= [unary_op] NUMERIC_LITERAL;
+	enum_item_value <TERMINAL,ENUM_ITEM_VALUE> 	::= expression;
 
 	//----------------------------------------------------------------------
 	// STATE
@@ -289,12 +289,23 @@ grammar CocoScript
 	rest_arguments 										::= "..." [COLON scalar_type];
 
 	//----------------------------------------------------------------------
+	// LAMBDA
+	//----------------------------------------------------------------------
+
+	lambda_declaration <METHOD,SCOPE,STATEMENT> 		::=	"function" [method_name]
+															"(" [parameter_list] ")"
+															[ COLON method_type ]
+															[ STATEMENTS ];
+
+	//----------------------------------------------------------------------
 	// CALLBACK
 	//----------------------------------------------------------------------
 
-	callback_declaration <CALLBACK,STATEMENT> 			::= "callback" callback_name "(" [callback_parameter_list] ")";
+	callback_declaration <CALLBACK,STATEMENT> 			::= "callback" callback_name "(" [callback_parameter_list] ")" [ COLON callback_result ];
 
 	callback_name <TERMINAL,CALLBACK_NAME>				::= ident;
+	callback_result <TERMINAL,CALLBACK_TYPE> 			::= type;
+
 	callback_parameter_list								::= { callback_parameter, ","} ;
 	callback_parameter <CALLBACK_ARG> 					::= callback_param_name COLON callback_param_type;
 	callback_param_name <TERMINAL,CALLBACK_ARG_NAME> 	::= ident;
@@ -546,6 +557,7 @@ grammar CocoScript
 				| ("(" expression ")" [ ("." reference) ] )
 				| (unary_op expression)
 				| ([prefix_op] reference [postfix_op])
+				| lambda_declaration
 				| JSON
 				;
 

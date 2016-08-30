@@ -1,4 +1,4 @@
-﻿#ifndef __$(FILENAME)_HPP__
+#ifndef __$(FILENAME)_HPP__
 #define __$(FILENAME)_HPP__
 
 #include "Coconut2D.hpp"

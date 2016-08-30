@@ -1,6 +1,6 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,81 +22,34 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// ==================================================================================================================================
-//	    __  __________  _____    ___             ___       ________                          __
-//	   / / / /_  __/  |/  / /   /   | __  ______/ (_)___  / ____/ /__  ____ ___  ___  ____  / /_
-//	  / /_/ / / / / /|_/ / /   / /| |/ / / / __  / / __ \/ __/ / / _ \/ __ `__ \/ _ \/ __ \/ __/
-//	 / __  / / / / /  / / /___/ ___ / /_/ / /_/ / / /_/ / /___/ /  __/ / / / / /  __/ / / / /_
-//	/_/ /_/ /_/ /_/  /_/_____/_/  |_\__,_/\__,_/_/\____/_____/_/\___/_/ /_/ /_/\___/_/ /_/\__/
-//
-// ==================================================================================================================================
-
 #include "HTMLAudioElement.hpp"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 Audio::Audio(String url)
 {
+	duration = 0;
+	paused = true;
+	ended = true;
+	autoplay = false;
+	loop = false;
 	src = url;
-	stream = new CocoAudioStream(src.c_str());
+	source = CocoAudioSystem::NewSource(src);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 Audio::~Audio()
 {
-	delete stream;
+	delete source;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void Audio::play()
-{
-	if(stream)
-		stream->play();
-}
+void Audio::play()								{ if (source) source->play(); }
+void Audio::pause()								{ if (source) source->stop(); }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void Audio::pause()
-{
-	if(stream)
-		stream->stop();
-}
+bool Audio::__get_ended()						{ return !source ? false : source->hasEnded(); }
+float Audio::__get_duration()					{ return !source ? 0 : (float) source->duration; }
+bool Audio::__get_paused()						{ return !source ? false : source->isPaused(); }
+float Audio::__get_currentTime()				{ return !source ? 0 : source->get_position(); }
+int32_t Audio::__get_readyState()				{ return 4; }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-float Audio::__get_currentTime()
-{
-	if(!stream)
-		return 0.0f;
+void Audio::__set_autoplay(bool v)				{ if (source) source->set_autoplay(v); }
+void Audio::__set_loop(bool v)					{ if (source) source->set_loop(v); }
+void Audio::__set_currentTime(float time)		{ if (source) source->set_position(time); }
 
-	return stream->get_position();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void Audio::__set_currentTime(float time)
-{
-	if(stream)
-		stream->set_position(time);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-int32_t Audio::__get_readyState()
-{
-	return 4;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void Audio::tick()
-{
-	if(stream)
-	{
-		stream->_tick();
-		if(stream->isStopped())
-		{
-			ended = true;
-			paused = false;
-		}
-		else if(stream->isPaused())
-		{
-			ended = false;
-			paused = true;
-		}
-	}
-}

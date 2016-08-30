@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -266,6 +266,10 @@ class CocoImage
 	public var scaleX:Float;
 	public var scaleY:Float;
 
+	// Shared Image
+	public var shared:Boolean;
+	public var refCount:Integer;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static function createFromURL(url:String, optional resizeWidth:Integer, optional resizeHeight:Integer):CocoImage
 	{
@@ -316,6 +320,8 @@ class CocoImage
 		textureViewHeight	= 0;
 		textureViewScaleX	= 1;
 		textureViewScaleY	= 1;
+		refCount 			= 0;
+		shared 				= false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -332,6 +338,31 @@ class CocoImage
 		delete hImage;
 		delete skin;
 		delete tileMap;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addRef():Integer
+	{
+		shared = true;
+		refCount++;
+		return refCount;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function release():Integer
+	{
+		if(shared && refCount>0)
+			refCount--;
+		return refCount;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function dispose()
+	{
+		//trace("Dispose texture: " + hImage.id);
+
+		if(renderData)
+			delete renderData;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -369,6 +400,8 @@ class CocoImage
 		createFromBase64(canvas.toDataURL("image/png"));
         textureCellWidth = width;
         textureCellHeight = height;
+        textureViewWidth = width;
+        textureViewHeight = height;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -379,6 +412,9 @@ class CocoImage
         hImage.load(url, this);
         textureCellWidth = width!=0 ? width : hImage.width;
         textureCellHeight = height!=0 ? height : hImage.height;
+        textureViewWidth = textureCellWidth;
+        textureViewHeight = textureCellHeight;
+        pixelRatio = 1.0;
         textureGrid = new Float32Array([0,0]);
         if(hImage.complete)
 			this.renderData = engine.__ctx.prepareImage(this);
@@ -585,7 +621,7 @@ class CocoImage
 
 		if(sibling.binpack && sibling.binpack.hImage && sibling.pixelRatio==sibling.binpack.pixelRatio)
 		{
-			trace("Linking to Binpack: " + sibling.url);
+			//trace("Linking to Binpack: " + sibling.url);
 
 			hImage = sibling.binpack.hImage;
 
@@ -595,7 +631,7 @@ class CocoImage
 		}
 		else
 		{
-			trace("Loading image: " + sibling.url);
+			//trace("Loading image: " + sibling.url);
 
 			hImage = new Image();
 			hImage.load(baseUrl + sibling.url);
@@ -625,7 +661,9 @@ class CocoImage
 		// On WebGL we can safely delete the image to save memory.
 		//if(!binpack && (isSpriteSheet || !skin) && engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL)
 		if(!binpack && isSpriteSheet && engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL)
-			 delete hImage;
+		{
+			delete hImage;
+		}
 
 		return true;
 	}
@@ -639,6 +677,7 @@ class CocoImage
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function resizeToOptimalTextureSize()
 	{
+		/*
 		if(engine.__RESIZE_IMAGES_AT_RUNTIME && !binpack && textureCellWidth>=engine.device.screenWidth && !isSpriteSheet && scaleX > 0.0 && scaleY > 0.0 && scaleX!=1.0 && scaleY!=1.0)
 		{
 			var pot:Boolean = engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL;
@@ -647,7 +686,7 @@ class CocoImage
 			var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, pot);
 			var c2d:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
 
-			trace("Scaling texture to " + String(w) + "x" + String(h) + " (x" + String(scaleX / pixelRatio) + ", x" + String(scaleY / pixelRatio) + ", @" + String(pixelRatio) + "): " + symbolName);
+			//trace("Scaling texture to " + String(w) + "x" + String(h) + " (x" + String(scaleX / pixelRatio) + ", x" + String(scaleY / pixelRatio) + ", @" + String(pixelRatio) + "): " + symbolName);
 
 			if(!hImage.__imageData || engine.device.isHTML5Browser)
 			{
@@ -676,150 +715,7 @@ class CocoImage
 			}
 			delete canvas;
 		}
+		*/
 	}
 
-	// ==================================================================================================================================
-	//	    __                                      ____                                  ___
-	//	   / /   ____ _____  _________  ____  _____/ __ \___  _________ _____ ___  ____  / (_)___  ____ _
-	//	  / /   / __ `/ __ \/ ___/_  / / __ \/ ___/ /_/ / _ \/ ___/ __ `/ __ `__ \/ __ \/ / / __ \/ __ `/
-	//	 / /___/ /_/ / / / / /__  / /_/ /_/ (__  ) _, _/  __(__  ) /_/ / / / / / / /_/ / / / / / / /_/ /
-	//	/_____/\__,_/_/ /_/\___/ /___/\____/____/_/ |_|\___/____/\__,_/_/ /_/ /_/ .___/_/_/_/ /_/\__, /
-	//	                                                                       /_/              /____/
-	// ==================================================================================================================================
-
-	// Credit: http://blog.yoz.sk/2010/11/lanczos-resampling-with-actionscript/
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static var CACHE:Array<Float> = null;
-    public static const CACHE_PRECISION:Integer = 100;
-    public static const FILTER_SIZE:Integer = 1;
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static function kernel(filterSize:Integer, x:Float):Float
-    {
-        if(x >= filterSize || x <= -filterSize)
-            return 0;
-
-        if(x == 0)
-            return 1;
-
-        var xpi:Float = x * M_PI;
-
-        return filterSize * Math.sin(xpi) * Math.sin(xpi / filterSize) / (xpi * xpi);
-    }
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static function createCache(cachePrecision:Integer, filterSize:Integer):Array<Float>
-    {
-        var cache:Array<Float> = new Array<Float>;
-        var max:Integer = filterSize * filterSize * cachePrecision;
-        var iPrecision:Float = 1 / cachePrecision;
-        var v:Float;
-
-        for(var cacheKey:Integer = 0; cacheKey < max; cacheKey++)
-        {
-            v = kernel(filterSize, Math.sqrt(cacheKey * iPrecision));
-            cache.push(v < 0 ? 0 : v);
-        }
-
-        return cache;
-    }
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static function LanczosResize(source:ImageData, srcWidth:Integer, srcHeight:Integer, dstWidth:Integer, dstHeight:Integer):ImageData
-    {
-        var total:Float, distanceY:Float, cacheValue:Float, v:Float, a:Float, r:Float, g:Float, b:Float, y1et:Float, x1et:Float, cx:Float, cy:Float, sourcePixelX:Float, sourcePixelY:Float;
-        var i:Integer, idx:Integer, x:Integer, x1:Integer, x1b:Integer, x1e:Integer, y:Integer, y1:Integer, y1b:Integer, y1e:Integer, y2:Integer, y3:Integer;
-        var values:Array<Float> = new Array<Float>;
-        var sx:Float = dstWidth / srcWidth;
-        var sy:Float = dstHeight / srcHeight;
-        var sw1:Integer = source.width - 1;
-        var sh1:Integer = source.height - 1;
-        var isx:Float = 1.0 / sx;
-        var isy:Float = 1.0 / sy;
-        var cw:Float = 1.0 / dstWidth;
-        var ch:Float = 1.0 / dstHeight;
-        var csx:Float = Math.min(1, sx) * Math.min(1, sx);
-        var csy:Float = Math.min(1, sy) * Math.min(1, sy);
-        var sourcePixels:Uint8Array = source.data;
-        var output:ImageData = new ImageData(String(dstWidth), String(dstHeight));
-        var outputPixels:Uint8Array = output.data;
-        var cache:Array<Float> = CACHE;
-        var cachePrecision:Integer = CACHE_PRECISION;
-        var filterSize:Integer = FILTER_SIZE;
-
-        CACHE = cache = (!CACHE || !CACHE.size() ? createCache(cachePrecision, filterSize) : CACHE);
-        y = dstHeight;
-
-        while(y--)
-        {
-            sourcePixelY = (y + 0.5) * isy;
-
-            y1b = sourcePixelY - filterSize;
-            if(y1b < 0) y1b = 0;
-
-            y1e = y1et = sourcePixelY + filterSize;
-            if(y1e != y1et) y1e = y1et + 1;
-            if(y1e > sh1) y1e = sh1;
-
-            cy = y * ch - sourcePixelY;
-            y3 = y * dstWidth;
-
-            x = dstWidth;
-            while(x--)
-            {
-                sourcePixelX = (x + 0.5) * isx;
-                x1b = sourcePixelX - filterSize;
-                if(x1b < 0) x1b = 0;
-                x1e = sourcePixelX + filterSize;
-                x1et = sourcePixelX + filterSize;
-                if(x1e != x1et) x1e = x1et + 1;
-                if(x1e > sw1) x1e = sw1;
-                cx = x * cw - sourcePixelX;
-
-				values.clear();
-                i = total = 0;
-                for(y1 = y1b; y1 <= y1e; y1++)
-                {
-                    distanceY = (y1 + cy) * (y1 + cy) * csy;
-                    for(x1 = x1b; x1 <= x1e; x1++)
-                    {
-                    	idx = ((x1 + cx) * (x1 + cx) * csx + distanceY) * cachePrecision;
-                    	cacheValue = 0;
-                    	if(idx>=0 && idx<cache.size())
-                    		cacheValue = cache[idx];
-                    	values.push(cacheValue);
-                        total += cacheValue;
-                        i++;
-                    }
-                }
-
-                total = 1 / total;
-
-                i = a = r = g = b = 0;
-                for(y1 = y1b; y1 <= y1e; y1++)
-                {
-                    y2 = y1 * source.width;
-                    for(x1 = x1b; x1 <= x1e; x1++)
-                    {
-                        v = values[i] * total;
-                        i++;
-                        idx = Math.floor(y2 + x1) * 4;
-                        r += sourcePixels[idx + 0] * v;
-                        g += sourcePixels[idx + 1] * v;
-                        b += sourcePixels[idx + 2] * v;
-                        a += sourcePixels[idx + 3] * v;
-                    }
-                }
-
-				idx = Math.floor(x + y3) * 4;
-                outputPixels[idx + 0] = r;
-                outputPixels[idx + 1] = g;
-                outputPixels[idx + 2] = b;
-                outputPixels[idx + 3] = a;
-            }
-        }
-
-        return output;
-    }
 }

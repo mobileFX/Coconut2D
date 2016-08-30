@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 #pragma export_web;
-#pragma export_native;
 
 #pragma export_nodejs;
 #module org.coconut2d.sdk.common;
@@ -698,6 +697,12 @@ export class CocoDataField
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function setNull()
+	{
+		value = dataset.stringForNull;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public property value
 	{
 		function get():String
@@ -713,6 +718,9 @@ export class CocoDataField
 
 		function set(v:String)
 		{
+			// Nasty hack to support untyped code
+			v = v + "";
+
 			if(dataset.__recordIndex>=0 && dataset.__recordIndex<dataset.DATA.size() && ORDINAL>=0 && ORDINAL<dataset.METADATA.size())
 			{
 				if(v==dataset.stringForNull) v = NULL_DATA_VALUE;
@@ -858,6 +866,7 @@ export class CocoDataRow
 
 export class CocoDataset
 {
+	public var name:String;
 	public var fileName:String;
 	public var SQL:String;
 	public var METADATA:Array<CocoDataField>;
@@ -874,6 +883,7 @@ export class CocoDataset
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Constructor()
 	{
+		name			= "";
 		fileName		= "";
 		SQL				= "";
 		METADATA 		= new Array<CocoDataField>;
@@ -1010,6 +1020,27 @@ export class CocoDataset
 		return ret;
 	}
 
+	#endif
+
+	#if (TARGET_EXPORT!="nodejs")
+	public function open(connectionString:String, SQL:String):Boolean
+	{
+		var ret:Boolean = false;
+		close();
+		var buff:ArrayBuffer = __Dataset_SQLite_SELECT(connectionString, SQL);
+		if(buff)
+		{
+			var ds:CocoDataStream = new CocoDataStream();
+			if(ds.openFromArrayBuffer(buff))
+			{
+				ret = openFromDataStream(ds);
+			}
+			delete ds;
+			delete buff;
+		}
+		moved();
+		return ret;
+	}
 	#endif
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1603,3 +1634,4 @@ export class CocoDataset
 		return s;
 	}
 }
+

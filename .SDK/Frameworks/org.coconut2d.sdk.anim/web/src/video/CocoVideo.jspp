@@ -32,7 +32,7 @@ class CocoVideo : CocoSelfTexturedClip
 	private var video:HTMLVideoElement;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	public function Constructor(scene:CocoScene, name:String) : CocoSelfTexturedClip(scene, name)
 	{
 		video = null;
 	}
@@ -67,8 +67,10 @@ class CocoVideo : CocoSelfTexturedClip
 	{
 		if(video)
 		{
-			if(video.width != __width) video.width = __width;
-			if(video.height != __height) video.height = __height;
+			var w:Integer = AbsoluteX(__width);
+			var h:Integer = AbsoluteX(__height);
+			if(video.width != w) video.width = w;
+			if(video.height != h) video.height = h;
 			__image = ctx.prepareVideoFrame(__image, video);
 		}
 		super.paint;

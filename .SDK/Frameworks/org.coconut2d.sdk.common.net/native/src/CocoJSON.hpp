@@ -1,4 +1,4 @@
-﻿#ifndef __COCOJSON_HPP__
+#ifndef __COCOJSON_HPP__
 #define __COCOJSON_HPP__
 
 #include "Coconut2D.hpp"

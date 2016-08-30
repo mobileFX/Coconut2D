@@ -1,6 +1,6 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,9 +30,7 @@ class CocoDeviceOpenGLContext;
 
 #include "Coconut2D.hpp"
 #include "HTMLWindow.hpp"
-#include "CocoAssetFile.h"
-#include "Fonts/CocoFontsCache.h"
-#include "Audio/CocoAudioStream.h"
+#include "Audio/CocoAudioSystem.h"
 #include "CocoDeviceOpenGLContext.h"
 #include "WebGLRenderingContext.hpp"
 #include "GameEngine.hpp"

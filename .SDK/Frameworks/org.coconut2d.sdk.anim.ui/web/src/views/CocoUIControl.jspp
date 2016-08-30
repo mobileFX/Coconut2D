@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +36,10 @@
 
 #include "CocoUIView.jspp"
 
+var SWIPE_SENSITIVITY_PIXELS:Integer = 10;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class CocoUIControl : CocoUIView
+class CocoUIControl : CocoUIDataControl
 {
 	// We add Layers to compose the control in its different states
 	// CocoUIControl layers have two keframes: 0 Normal, 1:Selected
@@ -47,6 +49,7 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public event OnGlyphClick();
 	public event OnChevronClick();
+	public event OnSwipe(dx:Integer, dy:Integer);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Selection (pressed)
@@ -60,51 +63,38 @@ class CocoUIControl : CocoUIView
 	public property Selected
 	{
 		function get():Boolean { return __selectable && __selected; }
-		function set(v:Boolean) { __selected = (__selectable ? v : false); __selectionWaitTickCycles=0; }
+		function set(v:Boolean) { __selected = (__selectable ? v : false); __selectionWaitTickCycles = 0; if(__form && __selected) { __form.ActiveControl = this; }  }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Margins
+	// Focusable
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	protected var __marginLeft:Integer;
-	protected var __marginRight:Integer;
-	protected var __marginTop:Integer;
-	protected var __marginBottom:Integer;
 
-	published property MarginLeft		{ function get():Integer { return __marginLeft; 	} function set(v:Integer) 	{ __marginLeft=v; invalidate(); 	} }
-	published property MarginRight		{ function get():Integer { return __marginRight;	} function set(v:Integer) 	{ __marginRight=v; invalidate(); 	} }
-	published property MarginTop		{ function get():Integer { return __marginTop;		} function set(v:Integer)	{ __marginTop=v; invalidate(); 		} }
-	published property MarginBottom 	{ function get():Integer { return __marginBottom; 	} function set(v:Integer)	{ __marginBottom=v; invalidate(); 	} }
+	protected var __focusable:Boolean;
+	published property Focusable { function get():Boolean { return __focusable; } }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Paddings
+	// AutoSize: control calcs its own size on RefreshLayout()
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	protected var __paddingLeft:Integer;
-	protected var __paddingRight:Integer;
-	protected var __paddingTop:Integer;
-	protected var __paddingBottom:Integer;
+	protected var __autoSize:Boolean;
 
-	published property PaddingLeft		{ function get():Integer { return __paddingLeft; 	} function set(v:Integer) 	{ __paddingLeft=v; invalidate(); 	} }
-	published property PaddingRight		{ function get():Integer { return __paddingRight;	} function set(v:Integer) 	{ __paddingRight=v; invalidate(); 	} }
-	published property PaddingTop		{ function get():Integer { return __paddingTop;		} function set(v:Integer)	{ __paddingTop=v; invalidate(); 	} }
-	published property PaddingBottom 	{ function get():Integer { return __paddingBottom; 	} function set(v:Integer)	{ __paddingBottom=v; invalidate(); 	} }
-
-	public property PaddingWidth 		{ function get():Integer { return Width-PaddingLeft-PaddingRight; } }
-	public property PaddingHeight 		{ function get():Integer { return Height-PaddingTop-PaddingBottom; } }
+	published property AutoSize			{ function get():Boolean { return __autoSize; 	} function set(v:Boolean) 	{ __autoSize=v; invalidate(); 	} }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Borders
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	protected var __borderStyle:COCO_CONTROL_BORDER_STYLE_ENUM;
-	protected var __borderRadius:Integer;
+	public var __borderRadius:Float;
 	protected var __borderColor:Color;
 	protected var __borderColorSel:Color;
+	protected var __borderWidth:Integer;
 
 	published property BorderStyle		{ function get():COCO_CONTROL_BORDER_STYLE_ENUM { return __borderStyle; }	function set(v:COCO_CONTROL_BORDER_STYLE_ENUM) { __borderStyle = v; invalidate(); }	}
 
-	published property BorderRadius		{ function get():Integer { return __borderRadius; 	}	function set(v:Integer)	{ __borderRadius = v; invalidate(); }}
-	published property BorderColor		{ function get():Color { return __borderColor; 		}	function set(v:Color)	{ __borderColor = v; invalidate(); } }
-	published property BorderColorSel	{ function get():Color { return __borderColorSel; 	}	function set(v:Color)	{ __borderColorSel = v; invalidate(); } }
+	published property BorderWidth		{ function get():Integer 	{ return __borderWidth; 				}	function set(v:Integer)		{ __borderWidth = v; invalidate(); }}
+	published property BorderRadius		{ function get():CartesianY { return AbsoluteY(__borderRadius); 	}	function set(v:CartesianY)	{ __borderRadius = RelativeY(v); invalidate(); }}
+	published property BorderColor		{ function get():Color 		{ return __borderColor; 				}	function set(v:Color)		{ __borderColor = v; invalidate(); } }
+	published property BorderColorSel	{ function get():Color 		{ return __borderColorSel; 				}	function set(v:Color)		{ __borderColorSel = v; invalidate(); } }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Background Gradient
@@ -114,6 +104,17 @@ class CocoUIControl : CocoUIView
 
 	published property BackgroundGradient		{ function get():Gradient { return __backgroundGradient;	} 	function set(v:Gradient) 	{ __backgroundGradient = v; invalidate(); 	}}
 	published property BackgroundGradientSel	{ function get():Gradient { return __backgroundGradientSel; }	function set(v:Gradient) 	{ __backgroundGradientSel = v; invalidate(); }}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Background Gradient
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __backgroundImage:String;
+	protected var __backgroundImageSel:String;
+
+	published property BackgroundImage		{ function get():String { return __backgroundImage;	} 		function set(v:String) 	{ __backgroundImage = v; invalidate(); 	}}
+	published property BackgroundImageSel	{ function get():String { return __backgroundImageSel; }	function set(v:String) 	{ __backgroundImageSel = v; invalidate(); }}
+
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Skin Image
@@ -138,41 +139,41 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	protected var __glyphImage:String;
 	protected var __glyphImageSel:String;
-	protected var __glyphLeft:Integer;
-	protected var __glyphTop:Integer;
+	public var __glyphLeft:Float;
+	public var __glyphTop:Float;
 	protected var __glyphEvents:Boolean;
 
 	private var __glyphClip:CocoUIView;
 	private var __glyphSelClip:CocoUIView;
 
-	published property GlyphImage		{ function get():String 	{ return __glyphImage;	 	}	function set(v:String) 	{ __glyphImage = v; invalidate(); 		}}
-	published property GlyphImageSel	{ function get():String 	{ return __glyphImageSel; 	}	function set(v:String) 	{ __glyphImageSel = v; invalidate();	}}
-	published property GlyphLeft		{ function get():Integer 	{ return __glyphLeft; 		}	function set(v:Integer) { __glyphLeft = v; invalidate();		}}
-	published property GlyphTop			{ function get():Integer 	{ return __glyphTop; 		}	function set(v:Integer) { __glyphTop = v; invalidate();			}}
-	published property GlyphEvents		{ function get():Boolean	{ return __glyphEvents;		}	function set(v:Boolean)	{ __glyphEvents = v; 					}}
+	published property GlyphImage		{ function get():String 	{ return __glyphImage;	 			}	function set(v:String) 		{ __glyphImage = v; invalidate(); 				}}
+	published property GlyphImageSel	{ function get():String 	{ return __glyphImageSel; 			}	function set(v:String) 		{ __glyphImageSel = v; invalidate();			}}
+	published property GlyphLeft		{ function get():CartesianX { return AbsoluteX(__glyphLeft);	}	function set(v:CartesianX) 	{ __glyphLeft = RelativeX(v); invalidate();		}}
+	published property GlyphTop			{ function get():CartesianY	{ return AbsoluteY(__glyphTop); 	}	function set(v:CartesianY) 	{ __glyphTop = RelativeY(v); invalidate();		}}
+	published property GlyphEvents		{ function get():Boolean	{ return __glyphEvents;				}	function set(v:Boolean)		{ __glyphEvents = v; 							}}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Chevron
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	protected var __chevronImage:String;
 	protected var __chevronImageSel:String;
-	protected var __chevronLeft:Integer;
-	protected var __chevronTop:Integer;
+	public var __chevronLeft:Float;
+	public var __chevronTop:Float;
 	protected var __chevronEvents:Boolean;
 
 	private var __chevronClip:CocoUIView;
 	private var __chevronSelClip:CocoUIView;
 
-	published property ChevronImage		{ function get():String 	{ return __chevronImage;	}	function set(v:String) 	{ __chevronImage = v; invalidate(); 	}}
-	published property ChevronImageSel	{ function get():String 	{ return __chevronImageSel;	}	function set(v:String) 	{ __chevronImageSel = v; invalidate();	}}
-	published property ChevronLeft		{ function get():Integer 	{ return __chevronLeft; 	}	function set(v:Integer) { __chevronLeft = v; invalidate();		}}
-	published property ChevronTop		{ function get():Integer 	{ return __chevronTop; 		}	function set(v:Integer) { __chevronTop = v; invalidate();		}}
-	published property ChevronEvents	{ function get():Boolean	{ return __chevronEvents;	}	function set(v:Boolean)	{ __chevronEvents = v; 					}}
+	published property ChevronImage		{ function get():String 	{ return __chevronImage;			}	function set(v:String) 		{ __chevronImage = v; invalidate(); 				}}
+	published property ChevronImageSel	{ function get():String 	{ return __chevronImageSel;			}	function set(v:String) 		{ __chevronImageSel = v; invalidate();				}}
+	published property ChevronLeft		{ function get():CartesianX { return AbsoluteX(__chevronLeft); 	}	function set(v:CartesianX) 	{ __chevronLeft = RelativeX(v); invalidate();		}}
+	published property ChevronTop		{ function get():CartesianY	{ return AbsoluteY(__chevronTop);	}	function set(v:CartesianY) 	{ __chevronTop = RelativeY(v); invalidate();		}}
+	published property ChevronEvents	{ function get():Boolean	{ return __chevronEvents;			}	function set(v:Boolean)		{ __chevronEvents = v; 								}}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Texts
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	protected var __texts:Array<CocoTextBlock>;
+	protected var __texts:Array<CocoUITextBlock>;
 
 	// ==================================================================================================================================
 	//	    ____       ____            ____     _____ _       _
@@ -186,13 +187,34 @@ class CocoUIControl : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function RefreshLayout(parent:CocoUIView)
 	{
-		super.RefreshLayout;
-		Height = CalcHeight();
+		// Link Form and Scene with Parent contianer
+		if (parent)
+		{
+			__scene = parent.__scene;
+			__form = parent.Form;
+		}
+
+		// Post calculate control size if AutoSize flag is set
+		if (__autoSize)
+			Height = CalcHeight();
+
+		// Anchor the control to its parent
+		anchor();
+
+		// Cause the children to RefreshLayout too
+		for(var i:Integer = __children.size()-1; i>=0; i--)
+		{
+			var child:CocoUIView = CocoUIView(__children[i]);
+			child.RefreshLayout(this);
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function CalcHeight() :Integer
+	public virtual function CalcHeight(): Integer
 	{
+		if(!__scene || !Width)
+			return 0;
+
 		var h:Integer = 0;
 
 		if(__skinImage) 		h = Math.max(h, __scene.getImageSymbolHeight(__skinImage));
@@ -206,7 +228,8 @@ class CocoUIControl : CocoUIView
 		{
 			if(__texts[i].multiline)
 			{
-				__texts[i].toImage(false, __scene.__view_scale); // Force text to wrap and calc height
+				// Force text to wrap and calc height
+				__texts[i].toImage(false, __scene.ViewScale);
 				h = Math.max(h, __texts[i].Height + PaddingTop + PaddingBottom);
 			}
 			else
@@ -216,26 +239,6 @@ class CocoUIControl : CocoUIView
 		}
 
 		return h;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function SetMargins(left:Integer, right:Integer, top:Integer, bottom:Integer)
-	{
-		MarginLeft = left;
-		MarginRight = right;
-		MarginTop = top;
-		MarginBottom = bottom;
-		invalidate();
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function SetPaddings(left:Integer, right:Integer, top:Integer, bottom:Integer)
-	{
-		PaddingLeft = left;
-		PaddingRight = right;
-		PaddingTop = top;
-		PaddingBottom = bottom;
-		invalidate();
 	}
 
 	// ==================================================================================================================================
@@ -248,31 +251,28 @@ class CocoUIControl : CocoUIView
 	// ==================================================================================================================================
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(name:String)
+	public function Constructor(scene:CocoScene, name:String) : CocoUIDataControl(scene, name)
 	{
+		if(name)
 		__instanceName 				= name;
 
 		__selectable				= true;
+		__focusable					= true;
+		__autoSize					= false;
 		__selected					= false;
 		__selectionWaitTickCycles	= 0;
-
-		__marginLeft 				= 0;
-		__marginRight 				= 0;
-		__marginTop 				= 4;
-		__marginBottom 				= 4;
-
-		__paddingLeft 				= 0;
-		__paddingRight 				= 0;
-		__paddingTop 				= 0;
-		__paddingBottom 			= 0;
 
 		__borderStyle				= COCO_CONTROL_BORDER_STYLE_ENUM.BORDER_NONE;
 		__borderRadius				= 0;
 		__borderColor				= 0x00000000;
 		__borderColorSel			= 0x00000000;
+		__borderWidth				= 1;
 
 		__backgroundGradient		= "";
 		__backgroundGradientSel 	= "";
+
+		__backgroundImage			= "";
+		__backgroundImageSel		= "";
 
 		__skinImage					= "";
 		__skinImageSel				= "";
@@ -293,8 +293,10 @@ class CocoUIControl : CocoUIView
 		__chevronClip				= null;
 		__chevronSelClip			= null;
 
+		__touch_x					= 0;
+		__touch_y					= 0;
 
-		__texts = new Array<CocoTextBlock>;
+		__texts = new Array<CocoUITextBlock>;
 
 		// Controls by default are clickable, so keyframe has handleEvnets = ture
 		__timeline.clear();
@@ -306,6 +308,21 @@ class CocoUIControl : CocoUIView
 			addEventListener(this.OnTouchStart, __CocoUIControl_OnTouchStart);
 	 		addEventListener(this.OnTouchEnd, __CocoUIControl_OnTouchEnd);
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Clone():CocoUIControl
+	{
+		var ctl:CocoUIControl = new CocoUIControl(__scene, __instanceName);
+		__cloneTo(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __cloneTo(ctl:CocoUIControl)
+	{
+		__copy__(this, ctl, COPY_MEMBERS_ALL);
+		super.__cloneTo(ctl);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -324,6 +341,14 @@ class CocoUIControl : CocoUIView
 		delete __chevronSelClip;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Defaults()
+	{
+		if(!__scene) return;
+		Width = __scene.ViewWidth * __scene.ViewPixelRatio;
+		Height = COCO_DEFAULT_CONTROL_HEIGHT * __scene.ViewPixelRatio;
+	}
+
 	// ==================================================================================================================================
 	//	   _____      __          __  _                __  __                _____
 	//	  / ___/___  / /__  _____/ /_(_)___  ____     / / / /___ _____  ____/ / (_)___  ____ _
@@ -333,18 +358,40 @@ class CocoUIControl : CocoUIView
 	//	                                                                             /____/
 	// ==================================================================================================================================
 
+	private var __touch_x:Integer;
+	private var __touch_y:Integer;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////
  	public function __CocoUIControl_OnTouchStart(sender:CocoEventSource, e:CocoEvent, x:Integer, y:Integer) :Boolean
 	{
+		__touch_x = x;
+		__touch_y = y;
+
+		if(__selectable && __focusable && __form)
+			__form.ActiveControl = this;
+
 		if(__selectable && __selectionWaitTickCycles==0)
 			__selectionWaitTickCycles = 5;
+
 		return false;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function __CocoUIControl_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Integer, y:Integer) :Boolean
 	{
-		__selectionWaitTickCycles=0;
+		if(Selected)
+		{
+			var dx:Integer = x - __touch_x;
+			var dy:Integer = y - __touch_y;
+
+			// Detect swipe gesture
+			if((Math.abs(dx) > SWIPE_SENSITIVITY_PIXELS) || (Math.abs(dy) > SWIPE_SENSITIVITY_PIXELS))
+			{
+				dispatchEvent(this.OnSwipe, dx, dy);
+			}
+		}
+
+		__selectionWaitTickCycles = 0;
 		Selected = false;
 		return false;
 	}
@@ -355,14 +402,25 @@ class CocoUIControl : CocoUIView
 		if(sender==__glyphClip || sender == __glyphSelClip)
 		{
 			dispatchEvent(this.OnGlyphClick);
+			__onGlyphClick();
 		}
 		if(sender==__chevronClip || sender == __chevronSelClip)
 		{
 			dispatchEvent(this.OnChevronClick);
+			__onChevronClick();
 		}
 		return false;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __onChevronClick()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __onGlyphClick()
+	{
+	}
 
 	// ==================================================================================================================================
 	//	    ____        _       __        __   ______                                 _ __  _
@@ -384,7 +442,7 @@ class CocoUIControl : CocoUIView
 		// It control is invlid, recompose it.
 		if(__invalidated)
 		{
-			ComposeControl();
+			ComposeView();
 			__invalidated = false;
 		}
 
@@ -393,15 +451,23 @@ class CocoUIControl : CocoUIView
 		{
 			__selectionWaitTickCycles--;
 			if(__selectionWaitTickCycles==0)
-				__selected = true;
+			{
+				Selected = true;
+			}
 		}
 		gotoFrameByIndex( __selected ? 1 : 0, true);
+
+		// Enabler/Disable Event Handling
+		for(var i:Integer = __timeline.__keyFrames.size()-1; i>=0; i--)
+		{
+			__timeline.keyFrame(i).handleEvents = __selectable;
+		}
 
 		super.paint;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function ComposeControl()
+	public virtual function ComposeView(optional ctx:CanvasRenderingContext2D)
 	{
 		if(__width==0 || __height==0 || !__invalidated)
 			return;
@@ -412,90 +478,108 @@ class CocoUIControl : CocoUIView
 		if(__chevronClip) __chevronClip.removeEventListener(__chevronClip.OnClick, __CocoUIControl_Graphic_OnClick);
 		if(__chevronSelClip) __chevronSelClip.removeEventListener(__chevronSelClip.OnClick, __CocoUIControl_Graphic_OnClick);
 
+		// Dispose unused textures
+		dispose();
+
 		// Clear children clips
 		clear();
 
+		// Sanity check: we need a scene
+		if(!__scene) return;
+
+		// Add Background Layer
+		if(__backgroundImage)
+			NewLayerFromImage(ctx, "__Background_Image", 0, __scene.getImageSymbol(__backgroundImage), 0, 0, false);
+
+		// Add Background Layer
+		if(__backgroundGradient)
+			NewLayerFromImage(ctx, "__Background_Grad", 0, CocoGraphics.CreateGradient(0, 0, Width, Height, __backgroundGradient, __borderColor, __borderStyle, BorderRadius, __borderWidth, __scene.ViewPixelRatio), 0, 0, false);
+
 		// Add Skin Layer
 		if(__skinImage)
-			NewLayerFromImage(0, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(__skinImage), Width, Height), 0, 0, false);
+			NewLayerFromImage(ctx, "__Background_Skin", 0, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(__skinImage), Width, Height), 0, 0, false);
 
 		// Add Glyph Layer
-		if(__glyphImage)
-		{
-			__glyphClip = NewLayerFromImage(0, __scene.getImageSymbol(__glyphImage), __glyphLeft, __glyphTop, __glyphEvents);
-			__glyphClip.addEventListener(__glyphClip.OnClick, __CocoUIControl_Graphic_OnClick);
-		}
+		__addGlyph(ctx, __glyphImage, "__Glyph", false);
 
 		// Add chevron Layer
-		if(__chevronImage)
-		{
-			__chevronClip = NewLayerFromImage(0, __scene.getImageSymbol(__chevronImage), __chevronLeft, __chevronTop, __chevronEvents);
-			__chevronClip.addEventListener(__chevronClip.OnClick, __CocoUIControl_Graphic_OnClick);
-		}
+		__addChevron(ctx, __chevronImage, "__Chevron", false);
 
 		// Add text Layers
 		for(var i:Integer = __texts.size()-1; i>=0; i--)
 		{
 			__texts[i].parent = this;
-			NewLayerFromImage(0, __texts[i].toImage(false, __scene.__view_scale * engine.device.pixelRatio), __texts[i].Left, __texts[i].Top, false);
+			__texts[i].SetTextRect( PaddingLeft, PaddingTop, PaddingWidth, PaddingHeight);
+			NewLayerFromImage(ctx, "__Text" + String(i), 0, __texts[i].toImage(false, __scene.ViewPixelScale), __texts[i].Left, __texts[i].Top, false);
 		}
 
 		// SELECTED STATE //
-		if(__selectable)
+		if(__selectable && !ctx)
 		{
+			// Add Background Layer
+			if(__backgroundImageSel)
+				NewLayerFromImage(ctx, "__Background_Image_Sel", 0, __scene.getImageSymbol(__backgroundImageSel), 0, 0, false);
+
+			// Add Background Layer
+			if(__backgroundGradientSel)
+				NewLayerFromImage(ctx, "__Background_Grad_Sel", 1, CocoGraphics.CreateGradient(0, 0, Width, Height, __backgroundGradientSel, __borderColorSel, __borderStyle, BorderRadius, __borderWidth, __scene.ViewPixelRatio), 0, 0, false);
+
 			// Add Skin Layer
 			if(SkinImageSel)
-				NewLayerFromImage(1, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(SkinImageSel), Width, Height), 0, 0, false);
+				NewLayerFromImage(ctx, "__Background_Skin_Sel", 1, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(SkinImageSel), Width, Height), 0, 0, false);
 
 			// Add Glyph Layer
-			if(GlyphImageSel)
-				NewLayerFromImage(1, __scene.getImageSymbol(GlyphImageSel), __glyphLeft, __glyphTop, false);
+			__addGlyph(ctx, GlyphImageSel, "__Glyph_Sel", true);
 
 			// Add chevron Layer
-			if(__chevronImage)
-				NewLayerFromImage(1, __scene.getImageSymbol(ChevronImageSel), __chevronLeft, __chevronTop, false);
+			__addChevron(ctx, ChevronImageSel, "__Chevron_Sel", true);
 
 			// Add text Layers
 			for(var i:Integer = __texts.size()-1; i>=0; i--)
 			{
 				__texts[i].parent = this;
-				NewLayerFromImage(1, __texts[i].toImage(true, __scene.__view_scale * engine.device.pixelRatio), __texts[i].Left, __texts[i].Top, false);
+				NewLayerFromImage(ctx, "__Text" + String(i), 1, __texts[i].toImage(true, __scene.ViewPixelScale), __texts[i].Left, __texts[i].Top, false);
 			}
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __addGlyph(ctx:CanvasRenderingContext2D, image:String, id:String, selected:Boolean)
+	{
+		if(!__glyphImage) return;
+
+		var img:CocoImage = __scene.getImageSymbol(__glyphImage);
+		if(!img) return;
+
+		var x:Integer = __glyphLeft;
+		var y:Integer = (Height - img.textureViewHeight)/2 + __glyphTop;
+
+		var view:CocoUIView = NewLayerFromImage(ctx, id, selected ? 1 : 0, img, x, y, __glyphEvents);
+
+		if(!selected && view)
+		{
+			__glyphClip = view;
+			__glyphClip.addEventListener(__glyphClip.OnClick, __CocoUIControl_Graphic_OnClick);
+		}
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function NewLayerFromImage(frameIndex:Integer, image:CocoImage, x:Integer, y:Integer, handleEvents:Boolean) :CocoUIView
+	private function __addChevron(ctx:CanvasRenderingContext2D, image:String, id:String, selected:Boolean)
 	{
-		// Composition Layers (skin, texts, glyph, chevron, etc.) are placed
-		// with origin the top-left corner of the control. When we finally
-		// compose the control by adding child-clips for those layers we need
-		// to translate the top-left coordinates to parent coordinates fast.
-		//
-		// So,
-		//
-		// 1. Parent's origin is at center
-		// 2. Child's origin is also at center
-		// 3. (x,y) origin is the top-left corner of the parent.
-		//
-		// Therefore we need to transform as follows:
-		//
-		// 1. We move origin to top-left by subtracting 1/2 of width and height
-		// 2. We add (x,y)
-		// 3. We move origin to clild's center by adding 1/2 of child's width and height
+		if(!__chevronImage) return;
 
-		if(!image) return null;
+		var img:CocoImage = __scene.getImageSymbol(__chevronImage);
+		if(!img) return;
 
- 		x = -Width / 2 + x + image.textureCellWidth / 2 / (image.pixelRatio / __scene.__view_pixel_ratio);
- 		y = -Height / 2 + y + image.textureCellHeight / 2 / (image.pixelRatio / __scene.__view_pixel_ratio);
+		var x:Integer = Width - img.textureViewWidth + __chevronLeft;
+		var y:Integer = (Height - img.textureViewHeight)/2 + __chevronTop;
 
-		var view:CocoUIView = new CocoUIView;
-		view.__image = image;
-		view.__instanceName = __instanceName + "Layer" + String(__children.size());
-		addChild(view);
-		view.__timeline.clear();
-		view.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, handleEvents, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
-		return view;
+		var view:CocoUIView = NewLayerFromImage(ctx, id, selected ? 1 : 0, img, x, y, __chevronEvents);
+
+		if(!selected && view)
+		{
+			__chevronClip = view;
+			__chevronClip.addEventListener(__chevronClip.OnClick, __CocoUIControl_Graphic_OnClick);
+		}
 	}
 }

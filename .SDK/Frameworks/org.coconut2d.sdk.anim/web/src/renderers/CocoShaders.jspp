@@ -127,9 +127,7 @@ class CocoShaderBoundingBox : CocoShader
 		uProjMat = gl.getUniformLocation(program, "uProjMat");
 		vbo = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-		var data:Float32Array = new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
-		gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
-		delete data;
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);
 	}
 
 	public function initialize(gl:WebGLRenderingContext, projectionMatrix:CocoMatrix)
@@ -236,8 +234,6 @@ class CocoShaderCommon : CocoShader
 		uSprFlip = gl.getUniformLocation(program, "uSprFlip");
 		uSampler = gl.getUniformLocation(program, "uSampler");
 
-		//gl.enableVertexAttribArray(iVecCoords);
-		//gl.enableVertexAttribArray(iTexCoords);
 		gl.uniform1i(uSampler, 0);
 	}
 
@@ -250,21 +246,46 @@ class CocoShaderCommon : CocoShader
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame) {}
+	public virtual function updateValues(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
+	{
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	public function drawFrame(gl:WebGLRenderingContext, scene:CocoScene, image:CocoImage, frame:Integer, KF:CocoKeyFrame)
 	{
 		var data:CocoImageRenderDataGL = CocoImageRenderDataGL(image.renderData);
+
+		// Image coords inside POT texture: array of [tx/pot_w, ty/pot_h, tw/pot_w, th/pot_h]
 		gl.uniform4fv(uSprSize, image.texSize);
-		gl.uniform2f(uSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]);
+
+		// Sequence R,C inside above image
+		gl.uniform2f(uSprFrame, image.textureGrid[frame * 2 + 1], image.textureGrid[frame * 2]); // Pass R,C of sequence frame
+
+		// Image flip array [horiz flip, vert flip]
 		gl.uniform2f(uSprFlip, (KF.flipH ? -1.0 : 1.0), (KF.flipV ? -1.0 : 1.0));
+
+		// Bind texture data and geometry
 		gl.bindBuffer(gl.ARRAY_BUFFER, data.buffer);
+
+		// Instruct OpenGL that iTexCoords should be read from the buffer avove.
+		// iTextCoords is an array of 4 floats and we read them from the buffer above starting at offset 0 and stride is 24 bytes
+		// (FLOAT BYTES (4) * 6 (4 for TexCoords + 2 for Vertex Positions)
 		gl.vertexAttribPointer(iTexCoords, 4, gl.FLOAT, false, 24, 0);
+
+		// Instruct OpenGL that iVecCoords should be read from the buffer avove.
+		// iVecCoords is an array of 2 floats and we read them from the buffer above starting at offset 16 and stride is 24 bytes
 		gl.vertexAttribPointer(iVecCoords, 2, gl.FLOAT, false, 24, 16);
+
+		// Bind the texture
 		gl.bindTexture(gl.TEXTURE_2D, data.texture);
+
+		// Load shader values from Coconut2D Clip, TweenFrame, etc.
 		updateValues(gl, scene, image, frame, KF);
+
+		// Finally draw!!
 		gl.drawArrays(data.drawType, 0, data.vertexCount);
+
+		// Unbind buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	}
 
@@ -458,4 +479,3 @@ class CocoShaderParallaxHor : CocoShaderCommon
 		gl.uniform4f(uTextureSize, image.tileWidth ? image.tileWidth : image.textureCellWidth, image.tileHeight ? image.tileHeight : image.textureCellHeight, image.textureCellWidth, image.textureCellHeight);
 	}
 }
-

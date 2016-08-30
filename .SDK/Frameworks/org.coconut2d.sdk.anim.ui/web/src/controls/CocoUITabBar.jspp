@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,15 +38,62 @@
 
 control class CocoUITabBar : CocoUIControl
 {
- 	public function Constructor(name:String) :CocoUIControl(name)
- 	{
- 	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoUIControl(scene, name)
+	{
+		__anchor = VIEW_ANCHOR_FOOTER;
 
- 	public function Composer()
- 	{
- 	}
+		// Initial Button size
+		__selectable = false;
+		Width = engine.device.screenWidth;
+		Height = COCO_DEFAULT_CONTROL_HEIGHT;
+		SetMargins(0,0,0,0);
+		SetPaddings(0,0,0,0);
 
- 	public function Destructor()
- 	{
- 	}
+		// Control Background Gradient
+		__backgroundGradient = "0,0xffe2e2e2,0.5,0xffdbdbdb,0.51,0xffd1d1d1,1,0xfffefefe";
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Defaults()
+	{
+		if(!__scene) return;
+		Width = __scene.ViewWidth * __scene.ViewPixelRatio;
+		Height = COCO_DEFAULT_CONTROL_HEIGHT * __scene.ViewPixelRatio;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function RefreshLayout(parent:CocoUIView)
+	{
+		super.RefreshLayout;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Clone():CocoUITabBar
+	{
+		var ctl:CocoUITabBar = new CocoUITabBar(__scene, __instanceName);
+		__cloneTo(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __cloneTo(ctl:CocoUITabBar)
+	{
+		__copy__(this, ctl, COPY_MEMBERS_ALL);
+		super.__cloneTo(ctl);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer)
+	{
+		if(__invalidated && !__form)
+			anchor();
+
+		super.paint;
+	}
 }

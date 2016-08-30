@@ -1078,6 +1078,8 @@ export class ASPProcessor : CocoTimer
 	private var global_asa:Function;
 	private var debug:Boolean;
 
+	public var has_asynchronous_code:Boolean;
+
 	private const APPLICATION_ONSTART:Integer = 0;
 	private const APPLICATION_ONEND:Integer = 1;
 	private const SESSION_ONSTART:Integer = 2;
@@ -1095,6 +1097,7 @@ export class ASPProcessor : CocoTimer
 		Sessions = new Array<ASPSession>;
 		ASP_DEBUG_TABLE = null;
 		debug = true;
+		has_asynchronous_code = false;
 
 		// If we run on iisnode we need to disable debugging
 		__javascript
@@ -1194,6 +1197,12 @@ export class ASPProcessor : CocoTimer
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function async()
+	{
+		has_asynchronous_code = true;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function run(AspFilePath:String, Request:NodeJS_Request, Response:NodeJS_Response)
 	{
 		try
@@ -1224,9 +1233,12 @@ export class ASPProcessor : CocoTimer
 				var req:ASPRequest 		= new ASPRequest(Request);
 				var res:ASPResponse 	= new ASPResponse(ses, Response);
 
+				// Assume no async code execution in ASP
+				has_asynchronous_code = false;
+
 				// ** IMPORTANT **
 				//  You can step-in to debug the generated JavaScript ASP code.
-				var f:Function = new Function('Application', 'Server', 'Session', 'Request', 'Response', '__node_req', '__node_res', '__asp_filename__', 'Coconut2D', 'require', jsCode);
+				var f:Function = new Function('Application', 'Server', 'Session', 'Request', 'Response', '__node_req', '__node_res', '__asp_filename__', 'Coconut2D', 'require', 'async', jsCode);
 
 				// Set node.js breakpoints on the compiled code:
 				// ==================================================
@@ -1266,10 +1278,13 @@ export class ASPProcessor : CocoTimer
 				}
 
 				// Execute asp file generated code
-				f.call(this, app, srv, ses, req, res, Request, Response, curr_asp_file, Coconut2D, require);
+				f.call(this, app, srv, ses, req, res, Request, Response, curr_asp_file, Coconut2D, require, this.async);
 
-				// Send the response
-				res.End();
+				// Send the response now
+				if(!has_asynchronous_code)
+				{
+					res.End();
+				}
 			}
 			else
 			{

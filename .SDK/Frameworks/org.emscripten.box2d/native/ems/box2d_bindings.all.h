@@ -1,4 +1,4 @@
-﻿//// box2d.clean.h
+//// box2d.clean.h
 #line 1 "root.h"
 #line 1 "root.h"
 #line 1 "<built-in>"

@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,9 +40,30 @@ CocoDeviceWrapper::~CocoDeviceWrapper(void)
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
+CocoDeviceWrapper::CocoDeviceWrapper(int width, int height, String command)
 {
-	// Initialise common controls.
+	HWND ParentWindow = NULL;
+	int top = CW_USEDEFAULT;
+	int left = CW_USEDEFAULT;
+	DWORD style = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW;
+
+	if (command)
+	{
+		Array<String>* vArgs = command.split("=");
+		for (auto i = 0; i < vArgs->size(); i++)
+		{
+			if ((*vArgs)[i] == "-ds")
+			{
+				String hw = (*vArgs)[i + 1];
+				ParentWindow = (HWND) parseInt(hw);
+				if(ParentWindow)
+					style = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			}
+		}
+		delete vArgs;
+	}
+
+	// Initialize common controls.
 	INITCOMMONCONTROLSEX icc;
 	icc.dwSize = sizeof(icc);
 	icc.dwICC = ICC_WIN95_CLASSES;
@@ -51,15 +72,18 @@ CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
 	// Create a window rect and expand it by border size.
 	RECT rc;
 	SetRect(&rc, 0, 0, width, height);
-	AdjustWindowRectEx(&rc, WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW, FALSE, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
-	LONG dx = GetSystemMetrics(SM_CXSCREEN) - (rc.right - rc.left);
-	LONG dy = GetSystemMetrics(SM_CYSCREEN) - (rc.bottom - rc.top);
+	if (ParentWindow)
+	{
+		GetWindowRect(ParentWindow, &rc);
+		width = rc.right - rc.left;
+		height = rc.bottom - rc.top;
+	}
 
 	// Get Module
 	m_hInstance = GetModuleHandle(NULL);
 
 	// Class for our main window.
-	LPCTSTR MainWndClass = L"Win32 Test application";
+	LPCTSTR MainWndClass = L"Win32 Coconut2D Application";
 	WNDCLASSEX wc;
 	wc.cbSize       	= sizeof(wc);
 	wc.style 			= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -78,7 +102,11 @@ CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
 	RegisterClassEx(&wc);
 
 	// Create instance of main window.
-	m_glHWND = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, MainWndClass, L"$(PROJECT_NAME)", WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, m_hInstance, NULL);
+	m_glHWND = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, MainWndClass,  L"$(PROJECT_NAME)", style, left, top, width, height, NULL, NULL, m_hInstance, NULL);
+
+	// Resize the window to fit the desired client area
+	AdjustWindowRectEx(&rc, GetWindowStyle(m_glHWND), GetMenu(m_glHWND) != NULL, GetWindowExStyle(m_glHWND));
+	SetWindowPos(m_glHWND, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_NOZORDER);
 
 	// Get Window hDC, show window and force a paint.
 	m_glHDC = GetDC(m_glHWND);
@@ -155,10 +183,23 @@ CocoDeviceWrapper::CocoDeviceWrapper(int width, int height)
 		currentTime = (double(m_TCurrent.QuadPart) - double(m_TFirst.QuadPart)) / m_Freq;
 		ellapsedTime = (double(m_TCurrent.QuadPart) - double(m_TLast.QuadPart)) / m_Freq;
 
-		// Update Window Size
-		GetClientRect(m_glHWND, &rc);
-		screen.width = rc.right-rc.left+1;
-		screen.height = rc.bottom-rc.top+1;
+		if (ParentWindow)
+		{
+			GetWindowRect(ParentWindow, &rc);
+			width = rc.right - rc.left;
+			height = rc.bottom - rc.top;
+			SetWindowPos(m_glHWND, HWND_TOPMOST, rc.left, rc.top, width, height, SWP_ASYNCWINDOWPOS);
+		}
+		else
+		{
+			GetClientRect(m_glHWND, &rc);
+			width = rc.right - rc.left;
+			height = rc.bottom - rc.top;
+		}
+
+		// Update Window Size (stick to parent window)
+		screen.width = width;
+		screen.height = height;
 		window->innerWidth = screen.width;
 		window->innerHeight = screen.height;
 
@@ -184,6 +225,8 @@ void CocoDeviceWrapper::tick()
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::tick();
 	#endif
+
+	CocoAudioSystem::tick();
 
 	engine->run(16);
 	SwapBuffers(m_glHDC);
@@ -253,3 +296,4 @@ LRESULT CALLBACK CocoDeviceWrapper::MainWndProc(HWND hWnd, UINT msg, WPARAM wPar
 
 	return lResult;
 }
+

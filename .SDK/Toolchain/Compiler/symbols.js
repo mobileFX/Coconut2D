@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -111,7 +111,7 @@ function CompilerSymbolsPlugin(compiler)
 		{
 			var cls = _this.classes[item];
 			if(!cls.ast.__VARIABLES.export_native) continue;
-			if(cls.enum || cls.namespace) continue;
+			if(cls.enum || cls.namespace || cls.callback) continue;
 
 			// We only process classes and structs
 

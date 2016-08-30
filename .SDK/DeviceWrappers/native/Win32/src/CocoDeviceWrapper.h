@@ -1,6 +1,6 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,9 +29,7 @@ class CocoDeviceWrapper;
 
 #include "Coconut2D.hpp"
 #include "HTMLWindow.hpp"
-#include "CocoAssetFile.h"
-#include "Fonts/CocoFontsCache.h"
-#include "Audio/CocoAudioStream.h"
+#include "Audio/CocoAudioSystem.h"
 #include "WebGLRenderingContext.hpp"
 #include "GameEngine.hpp"
 
@@ -47,7 +45,7 @@ public:
 	HGLRC m_OpenGLContext;
 	MSG msg;
 
-	CocoDeviceWrapper(int width, int height);
+	CocoDeviceWrapper(int width, int height, String command);
 	~CocoDeviceWrapper();
 
 	void HandleDeviceEvents();

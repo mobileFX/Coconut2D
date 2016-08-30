@@ -1,6 +1,6 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,57 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+#ifndef __HTMLAUDIOELEMENT_HPP__
+#define __HTMLAUDIOELEMENT_HPP__
+
+#include "Coconut2D.hpp"
+#include "Audio/CocoAudioSystem.h"
+
+// ==================================================================================================================================
+//	    __  __________  _____    __  ___         ___       ________                          __
+//	   / / / /_  __/  |/  / /   /  |/  /__  ____/ (_)___ _/ ____/ /__  ____ ___  ___  ____  / /_
+//	  / /_/ / / / / /|_/ / /   / /|_/ / _ \/ __  / / __ `/ __/ / / _ \/ __ `__ \/ _ \/ __ \/ __/
+//	 / __  / / / / /  / / /___/ /  / /  __/ /_/ / / /_/ / /___/ /  __/ / / / / /  __/ / / / /_
+//	/_/ /_/ /_/ /_/  /_/_____/_/  /_/\___/\__,_/_/\__,_/_____/_/\___/_/ /_/ /_/\___/_/ /_/\__/
+//
+// ==================================================================================================================================
+
+/*
+class HTMLMediaElement
+{
+public:
+
+	String src;
+	float duration;
+	bool paused;
+	bool ended;
+	bool autoplay;
+	bool loop;
+
+	float __currentTime;
+
+	HTMLMediaElement(String url)
+	{
+		duration = 0;
+		paused = true;
+		ended = true;
+		autoplay = false;
+		loop = false;
+
+		src = CocoAssetFile::filesPath + url.substr(2);
+	}
+
+	virtual ~HTMLMediaElement(){}
+
+	virtual void play(){}
+	virtual void pause(){}
+
+	virtual float __get_currentTime(){return 0;}
+	virtual void __set_currentTime(float time){}
+	virtual int32_t __get_readyState(){return 0;}
+};
+*/
+
 // ==================================================================================================================================
 //	    __  __________  _____    ___             ___       ________                          __
 //	   / / / /_  __/  |/  / /   /   | __  ______/ (_)___  / ____/ /__  ____ ___  ___  ____  / /_
@@ -31,30 +82,31 @@
 //
 // ==================================================================================================================================
 
-#ifndef __HTMLAUDIOELEMENT_HPP__
-#define __HTMLAUDIOELEMENT_HPP__
-
-#include "Audio/CocoAudioStream.h"
-
 class Audio
 {
 public:
-	CocoAudioStream* stream;
-	float __currentTime;
+
+	String src;
 	float duration;
 	bool paused;
 	bool ended;
 	bool autoplay;
 	bool loop;
-	String src;
+	float __currentTime;
+	CocoAudioSource* source;
+
 	Audio(String url);
-	~Audio();
-	void tick();
+	virtual ~Audio();
 	void play();
 	void pause();
+	bool __get_ended();
+	float __get_duration();
+	bool __get_paused();
 	float __get_currentTime();
-	void __set_currentTime(float time);
 	int32_t __get_readyState();
+	void __set_autoplay(bool v);
+	void __set_loop(bool v);
+	void __set_currentTime(float time);
 };
 
 #endif /* __HTMLAUDIOELEMENT_HPP__ */

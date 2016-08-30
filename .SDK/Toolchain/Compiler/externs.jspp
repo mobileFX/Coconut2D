@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,7 +10,7 @@
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * all copies or substantcial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,18 +31,14 @@
 //	                                                                                                                /____/
 // ==================================================================================================================================
 
+function __copy__(src:Object, dst:Object, members:COCO_OBJECT_COPY_MEMBERS_ENUM) {}
+
+function read(src:String):String {}
+function write(src:String, buff:String) {}
+
 function __registerManager(manager:HTMLWindow, cb:HTMLWindowDispatchEvent) {}
 function __registerCallback(uid:Integer, type:String) {}
 function __unRegisterCallback(uid:Integer, type:String) {}
-function __ImageData_loadImage(data:Object):ImageDataBuffer {}
-
-function __Audio_load(url:String,obj:Audio) :Integer {}
-function __Audio_get_position(id:Integer):Float  {}
-function __Audio_set_position(id:Integer,time:Time)  {}
-function __Audio_play(id:Integer) {}
-function __Audio_pause(id:Integer) {}
-function __Audio_stop(id:Integer) {}
-function __Audio_delete(id:Integer) {}
 
 function __Video_load(url:String,obj:HTMLVideoElement) :Integer {}
 function __Video_get_position(id:Integer):Float  {}
@@ -62,15 +58,29 @@ function __Twitter_Share(URL:String) {}
 
 function __close_window() {}
 function fixTouch(touch:Touch) {}
+
 function require(module:String):Object {}
+
 function md5(str:String):String {}
 function GUID():String {}
+
 function atob(str:String):String {}
 function btoa(str:String):String {}
+
+function __Dataset_SQLite_SELECT(dbFileName:String, SQL:String):ArrayBuffer {}
+function __Dataset_SQLite_UPDATE(ab:ArrayBuffer):ArrayBuffer {}
+function __Dataset_SQLite_EXEC(dbFileName:String, SQL:String):String {}
+
 function QRCodeEncode(data:String, optional size:Integer, optional margin:Integer=1):String {}
 function QRCodeDecode(b64:String):String {}
+
 function setInterval(Callback:Function, Interval:Integer):Integer {}
 function clearInterval(Handle:Integer) {}
+
+function __cococlip_debugger_tick(p:String) {}
+function __cococlip_debugger_paint(p:String) {}
+function __cococlip_debugger_interpolation(p:String) {}
+function __cococlip_debugger_keyframe(p:String, f:Float) {}
 
 function __Canvas2DRenderingContext_flush(uid:Integer, length:Integer, width:Integer, height:Integer) {}
 
@@ -258,7 +268,6 @@ class Array
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Dictionary : Object
 {
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -354,6 +363,9 @@ class uint16_t : Integer {}
 class uint32_t : Integer {}
 class uint64_t : Integer {}
 
+class CartesianX : Float {}
+class CartesianY : Float {}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class Boolean
 {
@@ -439,13 +451,6 @@ class Math
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-class ECMARegExpMatches : Array<String>
-{
-	public var index:Integer;
-}
-*/
-
 class RegExp
 {
 	public function Constructor(optional pattern:String, optional flags:String) {}
@@ -454,7 +459,6 @@ class RegExp
 	public var ignoreCase:Boolean;
 	public var multiline:Boolean;
 	public var lastIndex:Integer;
-	//public function exec(string:String):ECMARegExpMatches {}
 	public function exec(string:String):Array<String> {}
 	public function test(string:String):Boolean {}
 }
@@ -521,15 +525,7 @@ class TypeError :Error {}
 class JSON
 {
 	public static function parse(json:String):Dictionary { return null; };
-	public static function stringify(obj:Dictionary):String { return null; };
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-class ImageDataBuffer
-{
-	public var buffer:ArrayBuffer;
-	public var width:Float;
-	public var height:Float;
+	public static function stringify(obj:Dictionary, optional fn:Function, optional tabs:Integer):String { return null; };
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -557,6 +553,15 @@ class DataView : ArrayBufferView
     public function setFloat32(byteOffset:Integer, value:Float, optional littleEndian:Boolean) {}
     public function setFloat64(byteOffset:Integer, value:Float, optional littleEndian:Boolean) {}
 }
+
+// ==================================================================================================================================
+//	    __  __________  _____    ______
+//	   / / / /_  __/  |/  / /   / ____/
+//	  / /_/ / / / / /|_/ / /   /___ \
+//	 / __  / / / / /  / / /_______/ /
+//	/_/ /_/ /_/ /_/  /_/_____/_____/
+//
+// ==================================================================================================================================
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //callback XMLHttpRequestOnTimeout(code:Integer):Integer;
@@ -598,6 +603,157 @@ class Console
 	public function trace() {}
 }
 
+#if (COCONUT2D_HTML5)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CanvasGradient
+{
+	public function Constructor(x0:Integer, y0:Integer, x1:Integer, y1:Integer){}
+	public function Destructor(){}
+	public function addColorStop(offset:Float, scolor:String){}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLTextMetrics
+{
+	public var width:Integer;
+	public function Constructor(){}
+	public function Destructor(){}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class ImageData
+{
+	public var data:Uint8Array;
+	public var src:String;
+	public var width:Integer;
+	public var height:Integer;
+	public function Constructor(a0:String, optional a1:String){}
+	public function Destructor(){}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CanvasRenderingContext2D
+{
+	public var canvas:HTMLCanvasElement;
+
+ 	public var imageSmoothingEnabled:Boolean;
+ 	public var webkitImageSmoothingEnabled:Boolean;
+ 	public var oImageSmoothingEnabled:Boolean;
+ 	public var mozImageSmoothingEnabled:Boolean;
+
+	public property fillStyle						{ function get():Object { return null; } function set(v:Object) {} }
+	public property strokeStyle						{ function get():Object { return null; } function set(v:Object) {}	}
+	public property font							{ function get():String { return ""; } function set(v:String) {}	}
+	public property globalCompositeOperation		{ function get():String { return ""; } function set(v:String) {}	}
+	public property textBaseline					{ function get():String { return ""; } function set(v:String) {}	}
+	public property textAlign						{ function get():String { return ""; } function set(v:String) {}	}
+	public property lineCap							{ function get():String { return ""; } function set(v:String) {}	}
+	public property lineJoin						{ function get():Float { return 0; } function set(v:Float) {} }
+	public property shadowColor						{ function get():Float { return 0; } function set(v:Float) {} }
+	public property globalAlpha						{ function get():Float { return 0; } function set(v:Float) {} }
+	public property lineDashOffset					{ function get():Float { return 0; } function set(v:Float) {} }
+	public property miterLimit						{ function get():Float { return 0; } function set(v:Float) {} }
+	public property lineWidth						{ function get():Float { return 0; } function set(v:Float) {} }
+	public property shadowBlur						{ function get():Float { return 0; } function set(v:Float) {} }
+	public property shadowOffsetX					{ function get():Integer { return 0; } function set(v:Integer) {} }
+	public property shadowOffsetY					{ function get():Integer { return 0; } function set(v:Integer) {} }
+
+	public function __toDataURL(mime:String):String {}
+	public function __BitBltToHDC(ptr:Integer){}
+
+	public function createPattern(image:Image, repetition:String):HTMLCanvasPattern																				{ return null; }
+	public function isPointInPath(x:Float, y:Float):Boolean																										{ return false; }
+	public function isPointInStroke(x:Float, y:Float):Boolean																									{ return false; }
+	public function createRadialGradient(x0:Float, y0:Float, r0:Float, x1:Float, y1:Float, r1:Float):CanvasGradient												{ return null; }
+	public function createLinearGradient(x0:Integer, y0:Integer, x1:Integer, y1:Integer):CanvasGradient															{ return null; }
+
+	public function Constructor(canvas:HTMLCanvasElement)																										{}
+	public function Destructor()																																{}
+	public function clip()                                                                                                  									{}
+	public function closePath()                                                                                             									{}
+	public function drawCustomFocusRing(element:HTMLElement)																									{}
+	public function drawSystemFocusRing(element:HTMLElement)																									{}
+	public function getLineDash()																																{}
+	public function scrollPathIntoView()                                                                                    									{}
+	public function setLineDash(segments:Array<Integer>)                                                                    									{}
+	public function strokeRect(x:Float, y:Float, w:Float, h:Float)                                                          									{}
+	public function strokeText(text:String, x:Float, y:Float, optional maxWidth:Float)                                      									{}
+	public function restore()                                                                                               									{}
+	public function save()                                                                                                  									{}
+	public function scale(x:Float, y:Float)                                                                                 									{}
+	public function translate(x:Float, y:Float)                                                                             									{}
+	public function rotate(angle:Float)                                                                                     									{}
+	public function bezierCurveTo(cp1x:Float, cp1y:Float, cp2x:Float, cp2y:Float, x:Float, y:Float)                         									{}
+	public function quadraticCurveTo(cpx:Float, cpy:Float, x:Float, y:Float)                                                									{}
+	public function rect(x:Float, y:Float, width:Float, height:Float)                                                       									{}
+	public function fill()                                                     																					{}
+	public function setTransform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)																{}
+	public function transform(m11:Float, m12:Float, m21:Float, m22:Float, dx:Float, dy:Float)                               									{}
+	public function beginPath()                                                                                             									{}
+	public function moveTo(x:Float, y:Float)                                                                                									{}
+	public function lineTo(x:Float, y:Float)                                                                                									{}
+	public function arcTo(x1:Float, y1:Float, x2:Float, y2:Float, radius:Float)                                             									{}
+	public function arc(cx:Float, cy:Float, radius:Float, startAngle:Float, endAngle:Float, optional anticlockwise:Boolean) 									{}
+	public function stroke()                                                                                                									{}
+	public function fillText(text:String, x:Integer, y:Integer)                                                             									{}
+	public function fillRect(x:Integer, y:Integer, width:Integer, height:Integer)                                                                               {}
+	public function clearRect(x:Integer, y:Integer, width:Integer, height:Integer)                                                                              {}
+	public function measureText(text:String):HTMLTextMetrics                                                                                                    {}
+	public function drawImage(image:Image, sx:Integer, sy:Integer, sw:Integer, sh:Integer, dx:Integer, dy:Integer, dw:Integer, dh:Integer)                      {}
+	public function drawImage(image:Image, dx:Integer, dy:Integer)                                                                                              {}
+	public function drawImage(image:Image, dx:Integer, dy:Integer, dw:Integer, dh:Integer)                                                                      {}
+	public function drawImage(image:HTMLCanvasElement, dx:Integer, dy:Integer, dw:Integer, dh:Integer)                                                          {}
+	//public function createImageData(sw:Integer, sh:Integer):ImageData                                                                                           {}
+	//public function createImageData(imagedata:ImageData):ImageData                                                                                              {}
+	//public function getImageData(sx:Integer, sy:Integer, sw:Integer, sh:Integer):ImageData                                                                      {}
+	//public function putImageData(imagedata:ImageData, dx:Integer, dy:Integer)                                                                                   {}
+	//public function putImageData(imagedata:ImageData, dx:Integer, dy:Integer, dirtyX:Integer, dirtyY:Integer, dirtyWidth:Integer, dirtyHeight:Integer)          {}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class Image : HTMLElement
+{
+	public var __imageData:ImageData;
+	public var __BGRA:Boolean;
+	public var src:String;
+	public var width:Integer;
+	public var height:Integer;
+	public var naturalWidth:Integer;
+	public var naturalHeight:Integer;
+	public var crossOrigin:String;
+	public var complete:Boolean;
+
+	public function Constructor(){}
+	public function Destructor(){}
+	public function load(url:String, optional cocoimage:CocoImage) {}
+	public function cloneNode(deep:Boolean):Image{};
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class Audio
+{
+	public function Constructor(url:String){}
+	public function Destructor(){}
+
+	public function play(){}
+	public function pause(){}
+
+	public property src								{ function get():String { return 0; } function set(v:String) {} }
+
+	public property currentTime						{ function get():Float { return 0; } function set(v:Float) {} }
+	public property duration						{ function get():Float { return 0; } function set(v:Float) {} }
+
+	public property paused							{ function get():Boolean { return false; } function set(v:Boolean) {} }
+	public property ended							{ function get():Boolean { return false; } function set(v:Boolean) {} }
+	public property autoplay						{ function get():Boolean { return false; } function set(v:Boolean) {} }
+	public property loop							{ function get():Boolean { return false; } function set(v:Boolean) {} }
+
+	public property readyState						{ function get():Integer { return 0; } function set(v:Integer) {} }
+}
+
+#endif
+
 // ==================================================================================================================================
 //	   ______                             __     _   __      __  _
 //	  / ____/___  _________  ____  __  __/ /_   / | / /___ _/ /_(_)   _____
@@ -608,14 +764,6 @@ class Console
 // ==================================================================================================================================
 
 callback CocoAction();
-
-class CocoFont
-{
-	public var height:Float;
-	public function Constructor(FontName:String, FontSize:Integer, Bold:Boolean, Italic:Boolean){}
-	public function fillText(imageDataBuffer:ArrayBuffer, width:Integer, text:String, x:Integer, y:Integer, R:Float, G:Float, B:Float, A:Float){}
-	public function measureText(text:String):Integer {}
-}
 
 // ==================================================================================================================================
 //	   __  __                  ____      __            ____
@@ -645,6 +793,7 @@ var location:HTMLLocation;
 var graphics:CocoGraphics;
 var console:Console;
 var __dirname:String;
+var ____debugger_current_scene:CocoScene;
 
 // ==================================================================================================================================
 //	    _   __          __          _______
@@ -2156,3 +2305,4 @@ emscripten class b2ContactEdge
 // END EMSCRIPTEN EXTERNS FOR EMS_BOX2D //
 
 #endif
+

@@ -1,6 +1,6 @@
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,8 @@ import android.view.*;
 import android.content.*;
 import android.content.res.*;
 import android.content.pm.*;
+import android.app.ActionBar;
+
 
 public class MainActivity extends NativeActivity
 {
@@ -70,8 +72,23 @@ public class MainActivity extends NativeActivity
 
     	try
     	{
+			View decorView = getWindow().getDecorView();
+
+			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+			| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_IMMERSIVE;
+
+			decorView.setSystemUiVisibility(uiOptions);
+
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
     		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+			ActionBar actionBar = getActionBar();
+			actionBar.hide();
+
 			DisplayMetrics metrics = new DisplayMetrics();
 			getWindowManager().getDefaultDisplay().getMetrics(metrics);
 			mWidth = metrics.widthPixels;

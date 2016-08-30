@@ -1,4 +1,4 @@
-﻿extern "C" {
+extern "C" {
 
 b2ContactFilter * __attribute__((used, noinline)) emscripten_bind_b2ContactManager__get_m_contactFilter_p0(b2ContactManager * self) {
   return self->m_contactFilter;

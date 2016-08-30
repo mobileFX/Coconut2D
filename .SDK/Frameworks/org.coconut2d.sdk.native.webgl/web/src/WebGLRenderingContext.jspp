@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -213,7 +213,10 @@ class WebGLRenderingContext
 	public const RGB:Integer = 0x1907;
 	public const RGB5_A1:Integer = 0x8057;
 	public const RGB565:Integer = 0x8D62;
+
 	public const RGBA:Integer = 0x1908;
+	public const BGRA:Integer = 0x80E1;
+
 	public const RGBA4:Integer = 0x8056;
 	public const SAMPLE_ALPHA_TO_COVERAGE:Integer = 0x809E;
 	public const SAMPLE_BUFFERS:Integer = 0x80A8;
@@ -345,7 +348,7 @@ class WebGLRenderingContext
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function activeTexture(texture:Integer)
+	public function activeTexture(texture:Integer) // UNUSED
 	{
 		__WebGLRenderingContext_activeTexture(__uid, texture);
 	}
@@ -357,7 +360,7 @@ class WebGLRenderingContext
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function bindAttribLocation(program:WebGLProgram, index:Integer, name:String)
+	public function bindAttribLocation(program:WebGLProgram, index:Integer, name:String) // UNUSED
 	{
 		__WebGLRenderingContext_bindAttribLocation(__uid, program.__uid, index, name);
 	}
@@ -1192,9 +1195,4 @@ class WebGLRenderingContext
 		__WebGLRenderingContext_viewport(__uid, x, y, width, height);
 	}
 }
-
-
-
-
-
 

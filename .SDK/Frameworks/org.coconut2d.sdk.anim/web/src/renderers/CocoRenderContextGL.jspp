@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -170,6 +170,7 @@ class CocoRenderContextGL implements ICocoRenderContext
 	///////////////////////////////////////////////////////////////////////////////////////////////
  	public function flush()
  	{
+ 		gl.flush();
  	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,7 +313,6 @@ class CocoRenderContextGL implements ICocoRenderContext
 		var ty:Float = (img.textureCellHeight / img.hImage.naturalHeight);
 		var texData:Float32Array = null;
 
-		// Create a WebGL Texture and bind it.
 		if(img.binpack)
 		{
 			data.texture = img.binpack.renderData.castRenderDataGL().texture;
@@ -323,17 +323,18 @@ class CocoRenderContextGL implements ICocoRenderContext
 			gl.bindTexture(gl.TEXTURE_2D, data.texture);
 
 			// Create Texture from HTML Image
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img.hImage);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.BGRA, gl.UNSIGNED_BYTE, img.hImage);
 			if(gl.getError()!=0) trace("ERROR: CocoRenderContextGL::prepareImage() gl.texImage2D failed for image " + img.symbolName);
 
 			// Instruct WebGL how to wrap the texture.
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 
 			// Generate Texture FROM iMAGE
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 			gl.generateMipmap(gl.TEXTURE_2D);
+
 			if(gl.getError()!=0) trace("ERROR: CocoRenderContextGL::prepareImage() gl.generateMipmap failed for image " + img.symbolName);
 
 			// Unbind Texture
@@ -380,7 +381,30 @@ class CocoRenderContextGL implements ICocoRenderContext
 		else
 		{
 			img.texSize = new Float32Array([ox, oy, tx, ty]);
-			texData = new Float32Array([0.0, 0.0, 0.0, 0.0, -w2, -h2, 0.0, 0.0, 0.0, 1.0, -w2, h2, 0.0, 0.0, 1.0, 0.0, w2, -h2, 0.0, 0.0, 1.0, 1.0, w2, h2]);
+
+			// The fist square is the Texture and the second is the geomerty
+			// Typically in Coconut2D geomerty is defined by an image.
+			// This can be either a simple image texture, a sprite atlas texture or a tilemap image.
+			// (see code above)
+			//
+			// TexData is:
+			// 2 float values for Tilemap Compression texture cell coordinates
+			// 2 float values for Texture Coordinates and
+			// 2 float values for vertex position
+			//
+			//     (0,0)           (1,0)           (-W2,-H2)      (W2,-H2)
+			//       +-------------+                    +-------------+
+			//       |             |                    |             |
+			//       |      T      |                    |      G      |
+			//       |             |                    |             |
+			//       +-------------+                    +-------------+
+			//     (0,1)            (1,1)          (-W2,H2)        (W2,H2)
+			//
+			// Initial 0.0, 0.0 is reduntant
+			// Triangles: V1,V2,V3 and V2,V3,V4 due to GL_TRIANGLE_STRIP
+
+			texData = new Float32Array([0.0, 0.0, 0.0, 0.0, -w2, -h2,  0.0, 0.0, 0.0, 1.0, -w2, h2,  0.0, 0.0, 1.0, 0.0, w2, -h2,  0.0, 0.0, 1.0, 1.0, w2, h2]);
+
 			data.drawType = gl.TRIANGLE_STRIP;
 			data.vertexCount = 4;
 		}

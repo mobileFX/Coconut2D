@@ -148,10 +148,10 @@ require('http').createServer( function(request, response)
         server.handle(request, response);
     });
 
-}).listen(80, '192.168.1.170');
+}).listen(80, '192.168.1.132');
 
 // Use this to run over iisnode on IIS7
 //.listen(process.env.PORT);
 
-console.log('Server running on http://192.168.1.170:80/');
+console.log('Server running on http://192.168.1.132:80/');
 

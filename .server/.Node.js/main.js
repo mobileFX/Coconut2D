@@ -12,6 +12,8 @@ http.Server(function(req, res)
 
 */
 
+/*
+
 var Fiber = require('fibers');
 
 function SomethingAsync()
@@ -46,6 +48,10 @@ Fiber(function()
 
 console.log('done');
 
+*/
+
+var rgs = require("iRGS");
+debugger;
 
 
 

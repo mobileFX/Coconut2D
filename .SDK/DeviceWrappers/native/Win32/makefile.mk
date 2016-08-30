@@ -3,34 +3,48 @@
 #==============================================================================
 
 # Link Libraries Binary Paths
-LDFLAGS = $(APP_LDFLAGS)
+LIB_BIN_PATHS = \
+$(APP_LDLIBPATHS)
 
-# Compiler options and Include Paths (Libraries, Frameworkds, Sources)
-CFLAGS = $(APP_CFLAGS)
+# Include Paths (Libraries, Frameworkds, Sources)
+INCLUDE_PATHS = \
+$(LOCAL_C_INCLUDES)
 
 # Source files to compile
 SRC = src/resource.h \
-$(NATIVE_CPP_SOURCES)
+$(LOCAL_SRC_FILES)
 
 # Resources to embed
-RES = $(NATIVE_RESOURCES)
+RES = \
+$(NATIVE_RESOURCES)
 
 #==============================================================================
-CC 			= $(PATH_3RD_PARTY_MINGW)/bin/g++.exe
+COMPILER	= $(PATH_3RD_PARTY_MINGW)/bin/gcc.exe
+LINKER		= $(PATH_3RD_PARTY_MINGW)/bin/g++.exe
 RC 			= $(PATH_3RD_PARTY_MINGW)/bin/windres.exe
 OBJ			= obj
 OBJS		= $(addsuffix .obj, $(basename $(SRC)))
 OBJ_OBJ		= $(addprefix $(OBJ)/, $(addsuffix .obj, $(basename $(notdir $(SRC)))))
 OUT			= $(PROJECT_NAME).exe
 
-CFLAGS		+= -m32 -std=gnu++11 -fpermissive
-CFLAGS		+= -D _WIN32_IE=0x0500 -D WINVER=0x500 -D WIN32 -D _WINDOWS -D WIN32_APPLICATION -D WIN32_LEAN_AND_MEAN
-CFLAGS		+= -D UNICODE -D _UNICODE
-CFLAGS		+= -D _CRT_SECURE_NO_DEPRECATE -D _CRT_NONSTDC_NO_DEPRECATE -D GLEW_STATIC -D CURL_STATICLIB
-CFLAGS		+= -D GC_THREADS -D WIN32_THREADS -D THREAD_LOCAL_ALLOC -D PARALLEL_MARK
-CFLAGS		+= -Wno-return-type -Wno-switch -Wno-unused-but-set-variable -Wno-sign-compare -Wno-delete-non-virtual-dtor -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wempty-body -Wuninitialized -Wmaybe-uninitialized -Wno-comment
-LDFLAGS 	+= -mwindows -static -static-libgcc -static-libstdc++ -Wl,--subsystem,windows
-LDLIBS 		+= -lpthread -lglew32 -lopengl32 -lcomdlg32 -lcomctl32 -luuid -loleaut32 -lole32 -lgdi32 -lws2_32 $(APP_LDLIBS)
+CPPFLAGS	+= -std=gnu++11 -fexceptions -fpermissive -D__GXX_EXPERIMENTAL_CXX0X__
+CPPFLAGS	+= $(APP_CPPFLAGS)
+
+CFLAGS		+= -std=gnu++11 -fexceptions -fpermissive -D__GXX_EXPERIMENTAL_CXX0X__
+CFLAGS		+= -m32 -finput-charset=UTF-8 -fexec-charset=UTF-8 -DUNICODE -D_UNICODE
+CFLAGS		+= -DWINVER=0x500 -DWIN32 -D_WINDOWS -DWIN32_APPLICATION -DWIN32_LEAN_AND_MEAN -D_WIN32_IE=0x0500
+CFLAGS		+= -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -DGLEW_STATIC -DCURL_STATICLIB
+CFLAGS		+= -DGC_THREADS -DWIN32_THREADS -DHAVE_PTHREADS -DTHREAD_LOCAL_ALLOC -DPARALLEL_MARK
+CFLAGS		+= -Wno-return-type -Wno-switch -Wno-unused-but-set-variable -Wno-sign-compare -Wno-delete-non-virtual-dtor -Wno-unused-function -Wno-comment
+CFLAGS		+= -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wempty-body -Wuninitialized -Wmaybe-uninitialized -Wno-write-strings
+CFLAGS		+= $(APP_CFLAGS)
+CFLAGS		+= $(INCLUDE_PATHS)
+
+LDFLAGS 	+= -Wl,--subsystem,windows -mwindows -static -static-libgcc -static-libstdc++
+LDFLAGS 	+= $(APP_LDFLAGS) $(LIB_BIN_PATHS)
+
+LDLIBS 		+= -lcomdlg32 -lcomctl32 -luuid -loleaut32 -lole32 -lgdi32 -lws2_32 -lpthread
+LDLIBS 		+= $(APP_LDLIBS)
 
 $(foreach o,$(SRC),$(eval $(addprefix $(OBJ)/, $(addsuffix .obj, $(basename $(notdir $o)))) = $o))
 
@@ -54,7 +68,7 @@ clean:
 #==============================================================================
 %.obj:
 	@echo  + Compiling $($@) ...
-	@$(CC) $(CFLAGS) -c $($@) -o $@
+	@$(COMPILER) $(CFLAGS) -c $($@) -o $@
 
 #==============================================================================
 # Compile Resources
@@ -66,5 +80,5 @@ $(OBJ)/resource.obj: res/resource.rc res/Application.manifest res/Application.ic
 # Link
 #==============================================================================
 $(OUT): $(OBJ_OBJ)
-	$(CC) $(LDFLAGS) -g -o $@ $(OBJ_OBJ) $(LDLIBS)
+	$(LINKER) $(LDFLAGS) -g -o $@ $(OBJ_OBJ) $(LDLIBS)
 

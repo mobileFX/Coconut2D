@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -135,7 +135,6 @@ function CompilerNodejsPlugin(compiler)
 			var FILE = _this.FILES[file];
 
 			var file_root = makefile.Vars.SOURCES.SourceFiles[file].Path;
-			debugger;
 
 			if(search_path.indexOf(file_root)!=-1) continue;
 			search_path.push(file_root);

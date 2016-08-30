@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -67,12 +67,26 @@ function CocoMake(command , params)
 {
 	var _this = this;
 	__global.__coco_make = this;
+
+	// Ensure Debug or Release configuration
+	if(makefile.Vars.CONFIGURATION.toLowerCase()!="release")
+		makefile.Vars.CONFIGURATION="Debug";
+
+	// Setup TARGET
 	var TARGET = makefile.Config.TARGETS[makefile.Vars['TARGET']];
 	TARGET.NAME = makefile.Vars['TARGET'];
+	TARGET.CONFIGURATION = makefile.Vars.CONFIGURATION;
+	TARGET.DEBUG_CONFIGURATION = (TARGET.CONFIGURATION.toLowerCase()=="debug");
+	TARGET.RELEASE_CONFIGURATION = !TARGET.DEBUG_CONFIGURATION;
+
+	// Store TARGET to global
 	__global.TARGET = TARGET;
 	__global.TARGET_NAME = TARGET.NAME;
-	makefile.Vars["UCONFIGURATION"] = makefile.Vars.CONFIGURATION.toUpperCase();
-	makefile.Vars["DEBUGGABLE"] = makefile.Vars.CONFIGURATION.toLowerCase()=="debug" ? "true" : "false";
+
+	// Target Configuration
+	makefile.Vars["UCONFIGURATION"] = TARGET.CONFIGURATION.toUpperCase();
+	makefile.Vars["LCONFIGURATION"] = TARGET.CONFIGURATION.toLowerCase();
+	makefile.Vars["DEBUGGABLE"] = TARGET.DEBUG_CONFIGURATION ? "true" : "false";
 
 	params = JSON.parse(params);
 
@@ -348,6 +362,30 @@ function CocoMake(command , params)
   		}
   	};
 
+    // =====================================================================
+    // Build for Digital Signage
+    // =====================================================================
+  	/*@@ DigiSign @@*/
+  	_this.Build_DigiSign = function(params)
+  	{
+  		if(params && params.mode=="generate")
+  		{
+	  		_this.generate_cpp();
+  		}
+  		else if(params && params.mode=="compile")
+  		{
+  			_this.compile_x86();
+  		}
+  		else
+  		{
+	  		_this.apply_device_wrapper();
+	  		_this.generate_icons();
+	  		_this.copy_assets();
+	  		_this.generate_cpp();
+	  		_this.compile_x86(true);
+  		}
+  	};
+
 	// ==================================================================================================================================
 	//	   ______                      _ __
 	//	  / ____/___  ____ ___  ____  (_) /__  __________
@@ -377,6 +415,7 @@ function CocoMake(command , params)
 		trace("\nCompiling JavaScript Classes to JavaScript ...");
 		var compiler = new Compiler(ast);
 		compiler.compile(exportSymbols,false);
+
 		trace("+ Done.");
 	};
 
@@ -466,7 +505,7 @@ function CocoMake(command , params)
     // =====================================================================
 	_this.closure = function()
 	{
-		if(makefile.Config.CONFIGURATION.toLowerCase()=="release")
+		if(TARGET.RELEASE_CONFIGURATION)
 		{
 			trace("\nMinimizing JavaScript ...");
 
@@ -492,7 +531,18 @@ function CocoMake(command , params)
   		trace("\nCompiling Android JNI Static Library ...");
 
   		var JNI_FOLDER = TARGET.TARGET_JNI || TARGET.TARGET_ROOT + "/jni";
+  		var APP_ABI = TARGET.APP_SETTINGS.APP_ABI || 'armeabi armeabi-v7a x86';
 
+  		// Setup compilation variables
+		var params = [];
+		params.push('NDK_DEBUG=1');
+		params.push('NDK_LOG=true');
+		params.push('NDK_HOST_32BIT=1');
+		params.push('SHELL=cmd');
+		params.push('NDK_TOOLCHAIN_VERSION="' +	(TARGET.APP_SETTINGS.NDK_TOOLCHAIN_VERSION||'4.9')+'"');
+		params.push('-B');
+
+		// Delete OBJs and LIBs
   		_this.DeleteFolder(TARGET.TARGET_OBJ);
   		_this.DeleteFolder(TARGET.TARGET_LIBS || TARGET.TARGET_ROOT+"/libs");
 
@@ -500,6 +550,7 @@ function CocoMake(command , params)
   		_this.collectSources(JNI_FOLDER,
 							 [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
 							 TARGET.TARGET_NATIVE_MASK,
+							 TARGET.TARGET_NATIVE_SOURCES_MASK,
 							 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
 							 "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
@@ -511,7 +562,7 @@ function CocoMake(command , params)
 		trace("\nCreating Android.mk makefile ...");
 		trace("+ makefile: " + file);
         trace("+ replacing variables ...");
-		var buff = makefile.Vars.SOURCES.CREATE_MAKEFILE(file, JNI_FOLDER, null, ["CLEAR_VARS", "TARGET_ARCH_ABI", "PREBUILT_STATIC_LIBRARY", "BUILD_SHARED_LIBRARY"]);
+		var buff = makefile.Vars.SOURCES.CREATE_MAKEFILE(file, JNI_FOLDER);
         _this.module(file, buff);
 
         // Create Application.mk
@@ -519,8 +570,7 @@ function CocoMake(command , params)
 		trace("\nCreating Application.mk makefile ...");
 		trace("+ makefile: " + file);
         trace("+ replacing variables ...");
-		var buff = read(file);
-		buff = _this.replaceVars(buff, true);
+		var buff = makefile.Vars.SOURCES.CREATE_MAKEFILE(file, JNI_FOLDER);
         _this.module(file, buff);
 
         // Create a custom make_lib.bat (offers better control than relying on environment variables)
@@ -533,47 +583,41 @@ function CocoMake(command , params)
 		buff.push('SET ANDROID_NDK_HOME=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_NDK));
 		buff.push('SET NDK_BUILD_CMD=' + _this.winPath(makefile.Vars.PATH_3RD_PARTY_ANDROID_NDK) + '/ndk-build');
 		buff.push('SET NDK_PROJECT_PATH=$(TARGET_ROOT)');
+		buff.push('SET SYSROOT=%NDK_ROOT%/platforms/android-19/arch-arm');
         buff.push('call "%NDK_ROOT%find-win-host.cmd" NDK_WIN_HOST');
         buff.push('if ERRORLEVEL 1 (exit /b 1)');
         buff.push('SET NDK_MAKE=%NDK_ROOT%prebuilt/%NDK_WIN_HOST%/bin/make.exe');
 		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" SHELL=cmd clean');
-
-		var params = [];
-		params.push('NDK_LOG=true');
-		params.push('SHELL=cmd');
-		params.push('APP_PLATFORM="' + 			(TARGET.APP_SETTINGS.ANDROID_PLATFORM||'android-10')+'"');
-		params.push('NDK_TOOLCHAIN_VERSION="' +	(TARGET.APP_SETTINGS.NDK_TOOLCHAIN_VERSION||'4.9')+'"');
-		params.push('APP_ABI="' + 				(TARGET.APP_SETTINGS.APP_ABI||'armeabi armeabi-v7a x86')+'"');
-
-		// Release or Debug compilation
-		if(makefile.Config.CONFIGURATION.toLowerCase()=="release")
-		{
-			params.push('APP_OPTIM=release');
-			params.push('APP_CFLAGS=-O3');
-		}
-		else
-		{
-			params.push('APP_OPTIM=debug');
-			params.push('NDK_DEBUG=1');
-			params.push('APP_CFLAGS="-O0 -g -ggdb3 -DNDEBUG"');
-		}
-
 		buff.push('"%NDK_MAKE%" -f "%NDK_ROOT%build/core/build-local.mk" ' + params.join(" ") + ' -j %*');
 		buff = _this.replaceVars(buff.join("\n"));
         _this.module(make_lib_cmd, buff);
 
-        // Build the static libraries for arm and x86
+		// Create API list
+		APP_ABI = APP_ABI.split(" ");
+
+       	// Edit debugger-config.gdb (architecture variables will remain)
+       	buff = read(makefile.Vars.FILE_PATH_SDK_DEVICE_WRAPPER_ANDROID_DEBUG_SCRIPT);
+       	var out = "dir " + Object.keys(makefile.Vars.SOURCES.SourcePaths).join("\ndir ");
+       	for(var i=0; i<APP_ABI.length; i++)
+       	{
+	       	var arch_file = TARGET.TARGET_ROOT + "/debugger-config-" + APP_ABI[i] + ".gdb";
+			var gdb_buff = buff;
+			gdb_buff = gdb_buff.replace(/\$\(ABI_ARCH\)/g, APP_ABI[i]);
+			gdb_buff = gdb_buff.replace("$(PATH_SDK_INCLUDES)", out);
+			gdb_buff = _this.replaceVars(gdb_buff, true);
+	       	_this.module(arch_file, gdb_buff, false);
+       	}
+       	_this.DeleteFile(TARGET.TARGET_ROOT + "/debugger-config.gdb");
+
+        // Build the static libraries
         trace("\nCalling make ...");
         _this.shell(make_lib_cmd, JNI_FOLDER, "cc1plus.exe|arm-linux-androideabi-g++.exe|i686-linux-android-g++.exe");
-        _this.DeleteFile(make_lib_cmd);
+        //_this.DeleteFile(make_lib_cmd);
 
-        // Sanity check
-        if(!fileExists(TARGET.TARGET_ROOT+"/libs/armeabi/libCoconut2D.so") ||
-           !fileExists(TARGET.TARGET_ROOT+"/libs/armeabi-v7a/libCoconut2D.so") ||
-           !fileExists(TARGET.TARGET_ROOT+"/libs/x86/libCoconut2D.so"))
-        {
-        	throw new Error("ERROR: Failed to compile Android static library");
-        }
+        // Sanity check (any architecture)
+        for(var i=0; i<APP_ABI.length; i++)
+        	if(!fileExists(TARGET.TARGET_ROOT+"/libs/"+APP_ABI[i]+"/libCoconut2D.so"))
+        		throw new Error("ERROR: Failed to compile Android static library");
   	};
 
     // =====================================================================
@@ -590,7 +634,7 @@ function CocoMake(command , params)
   		buff.push(_this.winPath('SET ANDROID_SDK_HOME=' + makefile.Vars.PATH_3RD_PARTY_ANDROID_SDK+"\\"));
   		buff.push(_this.winPath('SET PATH=%ANT_HOME%;%ANT_HOME%/bin;%JAVA_HOME%;%JAVA_HOME%/bin;%PATH%'));
 
-  		var configuration = makefile.Config.CONFIGURATION.toLowerCase();
+  		var configuration = TARGET.CONFIGURATION.toLowerCase();
   		var keystore = TARGET.TARGET_ROOT + "/" + configuration + ".keystore";
 
   		// Create debug/release keystores
@@ -631,7 +675,13 @@ function CocoMake(command , params)
         	_this.DeleteFolder(TARGET.TARGET_ROOT+"/assets");
         	copyFile(root_apk, final_apk);
         	deleteFile(root_apk);
-        	copyFile(TARGET.TARGET_ROOT +"/debugger-config.gdb", TARGET.TARGET_ROOT+"/libs/armeabi-v7a/gdb.setup");
+
+        	var APP_ABI = TARGET.APP_SETTINGS.APP_ABI || 'armeabi armeabi-v7a x86';
+	        APP_ABI = APP_ABI.split(" ");
+	        for(var i=0; i<APP_ABI.length; i++)
+	        {
+	        	copyFile(TARGET.TARGET_ROOT +"/debugger-config.gdb", TARGET.TARGET_ROOT+"/libs/"+APP_ABI[i]+"/gdb.setup");
+	        }
         }
   	};
 
@@ -646,6 +696,7 @@ function CocoMake(command , params)
   		_this.collectSources(  TARGET.TARGET_ROOT,
 							   [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
 							   TARGET.TARGET_NATIVE_MASK,
+							   TARGET.TARGET_NATIVE_SOURCES_MASK,
 							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
 							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
@@ -712,19 +763,33 @@ function CocoMake(command , params)
   	};
 
     // =====================================================================
-    // Compile x86 Windows Application
+    // Compile MinGW i386/x64 Windows Application
     // =====================================================================
-  	_this.compile_x86 = function()
+
+    // =====================================================================
+  	_this.compile_x86 = function(digisign)
   	{
-  		trace("\nCompiling Windows x86 Application ...");
+  		_this.compile_mingw("i386", digisign);
+  	};
+
+    // =====================================================================
+  	_this.compile_x64 = function()
+  	{
+  		_this.compile_mingw("x64");
+  	};
+
+    // =====================================================================
+  	_this.compile_mingw = function(arch, digisign)
+  	{
+  		trace("\nCompiling Windows " + arch + " Application ...");
 
 		// Collect all C++ sources
   		_this.collectSources(  TARGET.TARGET_ROOT,
 							   [ makefile.Config.PROJECT_PATHS.NATIVE_COMMON, TARGET.TARGET_ADDITIONAL_NATIVE_SOURCES ].join(";"),
 							   TARGET.TARGET_NATIVE_MASK,
+							   TARGET.TARGET_NATIVE_SOURCES_MASK,
 							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
 							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
-
 
 		// Collect resources
 		trace("\n Collecting Resources ...");
@@ -737,28 +802,17 @@ function CocoMake(command , params)
 		// Patch main.cpp to load Fonts
 		_this.loadFonts(TARGET.TARGET_ROOT + "/src/main.cpp", TARGET.TARGET_ASSETS);
 
-		// Release or Debug compilation
-		var CFLAGS = [];
-		if(makefile.Config.CONFIGURATION.toLowerCase()=="release")
-		{
-			CFLAGS.push('-O3');
-		}
-		else
-		{
-			CFLAGS.push('-O0 -g -ggdb3');// -gdwarf-2 -gstrict-dwarf
-		}
-
         // Create Makefile
 		var file = TARGET.TARGET_ROOT+"/Makefile.mk";
-		trace("\nCreating Windows x86 makefile ...");
+		trace("\nCreating Windows " + arch + " makefile ...");
 		trace("+ makefile: " + file);
         trace("+ replacing variables ...");
-		var buff = makefile.Vars.SOURCES.CREATE_MAKEFILE(file, TARGET.TARGET_ROOT, CFLAGS.join(" "));
+		var buff = makefile.Vars.SOURCES.CREATE_MAKEFILE(file, TARGET.TARGET_ROOT);
         _this.module(file, buff);
 
         // Create a custom make_x86.bat
         var buff = [];
-        var make_cmd = TARGET.TARGET_ROOT + "/make_x86.bat";
+        var make_cmd = TARGET.TARGET_ROOT + "/make_" + arch + ".bat";
         buff.push('@echo off');
         buff.push('SET SHELL=cmd.exe');
         buff.push('SET LANG=en_US.UTF-8');
@@ -766,20 +820,38 @@ function CocoMake(command , params)
         buff.push('SET LC_ALL=en_US.UTF-8');
         buff.push('SET PROJECT_PATH=$(TARGET_ROOT)');
 		buff.push('SET MAKEFILE=%PROJECT_PATH%/Makefile.mk');
-		buff.push('SET MINGW=$(PATH_3RD_PARTY_MINGW)');
-		buff.push('SET PATH=%MINGW%;%MINGW%/bin;');
-		buff.push('"%MINGW%/bin/mingw32-make" --directory="%PROJECT_PATH%" --jobs --makefile="%MAKEFILE%"');
+
+		if(arch=="i386")
+		{
+			buff.push('SET MINGW=$(PATH_3RD_PARTY_MINGW)');
+			buff.push('SET PATH=%MINGW%;%MINGW%/bin;');
+			buff.push('"%MINGW%/bin/mingw32-make" --directory="%PROJECT_PATH%" --jobs --makefile="%MAKEFILE%"');
+		}
+		else
+		{
+			buff.push('SET MINGW=$(PATH_3RD_PARTY_MINGW64)');
+			buff.push('SET PATH=%MINGW%;%MINGW%/bin;');
+			buff.push('"%MINGW%/bin/mingw32-make" --directory="%PROJECT_PATH%" --jobs --makefile="%MAKEFILE%"');
+		}
+
 		buff = _this.replaceVars(_this.winPath(buff.join("\n")));
         _this.module(make_cmd, buff);
 
-        // Build the static libraries for arm and x86
-        trace("\nCalling Windows x86 make ...");
+        // Build Windows Application
+        trace("\nCalling Windows " + arch + " make ...");
         _this.shell(make_cmd, TARGET.TARGET_ROOT, "g++.exe");
         //_this.DeleteFile(make_cmd);
 
         // Sanity check
         if(!fileExists(TARGET.TARGET_OUTPUT))
-       		throw new Error("ERROR: Failed to compile Windows x86 Application");
+       	{
+       		throw new Error("ERROR: Failed to compile Windows " + arch + " Application");
+       	}
+       	else if(digisign)
+       	{
+       		IDECallback("pack_digisign", TARGET.TARGET_OUTPUT);
+       	}
+
   	};
 
 // ==================================================================================================================================
@@ -790,6 +862,7 @@ function CocoMake(command , params)
 //	/_____/_/|_/ .___/\____/_/   \__/   \____//_/   /_/     /____/\____/\__,_/_/   \___/\___/____/
 //	          /_/
 // ==================================================================================================================================
+	/*@@ [Export C++] @@*/
 
   	_this.EXPORT_CPP = function(template_folder, destination_folder)
   	{
@@ -803,7 +876,7 @@ function CocoMake(command , params)
      		return;
      	}
 
-		// Purge previous XCode project and recreate the folders
+		// Purge previous export and recreate the folders
 		deleteFolder(destination_folder);
 		buildPath(destination_folder);
 		copyFolder(template_folder, destination_folder);
@@ -824,20 +897,25 @@ function CocoMake(command , params)
 
 		// Collect all C++ sources
   		_this.collectSources(  destination_folder,
-							   makefile.Config.PROJECT_PATHS.NATIVE_COMMON + ";" +
-							   makefile.Vars.PATH_SDK_COMMON + ";" +
-							   TARGET.DEVICE_WRAPPER.PATH + "/src",
+							   makefile.Config.PROJECT_PATHS.NATIVE_COMMON + ";" + makefile.Vars.PATH_SDK_COMMON + ";" + TARGET.DEVICE_WRAPPER.PATH + "/src",
 							   TARGET.TARGET_NATIVE_MASK,
+							   TARGET.TARGET_NATIVE_SOURCES_MASK,
 							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_GEN);" +
 							   "/$(PATH_SDK_FRAMEWORKS_NATIVE)/$(PATH_SDK_FRAMEWORKS_SRC)");
 
   		buildPath(destination_folder + "/lib/bin");
   		buildPath(destination_folder + "/lib/include");
 
-  		// Copy libraries
+  		// Copy library binaries
   		for(var i=0; i<makefile.Vars.SOURCES.LIB_BIN_PATHS.length; i++)
   		{
   			copyFolder(makefile.Vars.SOURCES.LIB_BIN_PATHS[i], destination_folder + "/lib/bin");
+  		}
+
+  		// Copy library includes
+  		for(var i=0; i<makefile.Vars.SOURCES.LIB_INC_PATHS.length; i++)
+  		{
+  			copyFolder(makefile.Vars.SOURCES.LIB_INC_PATHS[i], destination_folder + "/lib/include");
   		}
 
  		// Copy C++ files to /src
@@ -871,10 +949,12 @@ function CocoMake(command , params)
 			File.rel_parent = File.rel_path.substr(0, File.rel_path.lastIndexOf("/"));
 			File.ext = File.FileName.substr(File.FileName.indexOf(".")).toLowerCase();
 
-			buildPath(File.dst_path);
-
-			var buff = read(file);
-			_this.module("UNIX:" + File.dst_file, buff);
+			if(File.Compile)
+			{
+				buildPath(File.dst_path);
+				var buff = read(file);
+				_this.module("UNIX:" + File.dst_file, buff);
+			}
 		}
 
 		// Process Template Files
@@ -887,7 +967,8 @@ function CocoMake(command , params)
   			{
 				var buff = read(files[i]);
 				buff = _this.replaceVars(buff, true, excludeVars);
-				write(files[i], buff);
+				_this.module("UNIX:" + files[i], buff);
+				//write(files[i], buff);
   			}
         }
   	};
@@ -945,9 +1026,8 @@ function CocoMake(command , params)
 		_this.loadFonts(destination_folder + "/src/.SDK/.device/main.cpp", makefile.Config.PROJECT_PATHS.APP_ASSETS);
 
      	// ==========================================================================================================
-     	// Now we process the files and generate the XCode project file
+     	// Now we process the files and generate the MSVC 2013 project file
      	// ==========================================================================================================
-
 		for(var key in makefile.Vars.SOURCES.SourceFiles)
 		{
 			// Get file descriptor
@@ -958,6 +1038,8 @@ function CocoMake(command , params)
 			{
 				 FILE_REFS.IncludePaths.push("$(ProjectDir)/"+File.rel_parent);
 			}
+
+			if(!File.Compile) continue;
 
 			// ==============================================
 			// Record filters by splitting a file path
@@ -1024,7 +1106,11 @@ function CocoMake(command , params)
 			switch(File.ext)
 			{
 			case ".c":
-				FILE_REFS.VCXPROJ_Files.push("\t<ClCompile Include=\"" + File.rel_path + "\" />");
+				FILE_REFS.VCXPROJ_Files.push("\t<ClCompile Include=\"" + File.rel_path + "\">");
+				FILE_REFS.VCXPROJ_Files.push("<PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">NotUsing</PrecompiledHeader>");
+				FILE_REFS.VCXPROJ_Files.push("<PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">NotUsing</PrecompiledHeader>");
+				FILE_REFS.VCXPROJ_Files.push("</ClCompile>");
+
 				FILE_REFS.VCXPROJ_FilterFiles.push("\t<ItemGroup><ClCompile Include=\"" + FILE.path + "\"><Filter>" + FILTER.path + "</Filter></ClCompile></ItemGroup>");
 				buff = read(File.dst_file);
 				_this.module("UNIX:" + File.dst_file, buff);
@@ -1052,6 +1138,7 @@ function CocoMake(command , params)
         var project_file = destination_folder + "/CocoProject.vcxproj";
         var buff = read(project_file);
 		buff = buff.replace("$(ClInclude)", FILE_REFS.VCXPROJ_Files.join("\n"));
+		buff = buff.replace(/\$\(APP_CFLAGS\)/g, makefile.Vars.SOURCES.PRECOMPILER_VARS(";"));
 		buff = buff.replace(/\$\(SourcePath\)/g, FILE_REFS.IncludePaths.join(";") + ";$(SourcePath)");
 		buff = buff.replace(/\$\(IncludePath\)/g, FILE_REFS.IncludePaths.join(";") + ";$(IncludePath)");
 		write(project_file, buff);
@@ -1062,6 +1149,9 @@ function CocoMake(command , params)
 		buff = buff.replace("$(FILTERS)", FILE_REFS.VCXPROJ_Filters.join("\n"));
 		buff = buff.replace("$(FILTER_ITEMS)", FILE_REFS.VCXPROJ_FilterFiles.join("\n"));
 		write(filters_file, buff);
+
+		// Change encoding of StdAfx.cpp
+		_this.module("UNIX:" + destination_folder + "/stdafx.cpp", read(destination_folder + "/stdafx.cpp"));
 
 		trace("Microsoft Visual Studio Project created in " + destination_folder);
   	}
@@ -1161,6 +1251,7 @@ function CocoMake(command , params)
 		{
 			// Get file descriptor
 			var File = makefile.Vars.SOURCES.SourceFiles[key];
+			if(!File.Compile) continue;
 
 			// ==============================================
 			// Record groups by splitting a file path
@@ -1294,12 +1385,27 @@ function CocoMake(command , params)
         var project_template = destination_folder + "/project.pbxproj";
 
         var pbxproj = read(project_template);
+
+		if(!FILE_REFS.lib_REF)
+		{
+			// No library sources to compile
+			pbxproj = pbxproj.replace("$(FILE_REFS.lib_REF) /* lib */,", "");
+		}
+		else
+		{
+			// Project has library sources (eg. SQLite)
+			pbxproj = pbxproj.replace("$(PBXLibraries)", FILE_REFS.PBXLibraries.join("\n"));
+		}
+
 		pbxproj = pbxproj.replace("$(FILE_REFS.src_REF)", FILE_REFS.src_REF);
 		pbxproj = pbxproj.replace("$(FILE_REFS.lib_REF)", FILE_REFS.lib_REF);
 		pbxproj = pbxproj.replace("$(PBXBuildFile)", FILE_REFS.PBXBuildFile.join("\n"));
+
+		pbxproj = pbxproj.replace(/\$\(LIBRARY_VARS\)/g, "");
+		pbxproj = pbxproj.replace(/\$\(LIBRARY_PATHS\)/g, ["lib/include", "lib/include/AL", "lib/include/curl", "lib/include/freetype2", "lib/include/ogg", "lib/include/tremor"].join(",\n\t\t\t\t\t") + ",\n");
+
 		pbxproj = pbxproj.replace("$(PBXFileReference)", FILE_REFS.PBXFileReference.join("\n"));
 		pbxproj = pbxproj.replace("$(PBXGroups)", FILE_REFS.PBXGroups.join("\n"));
-		pbxproj = pbxproj.replace("$(PBXLibraries)", FILE_REFS.PBXLibraries.join("\n"));
 		pbxproj = pbxproj.replace("$(PBXFrameworksBuildPhase)", FILE_REFS.PBXFrameworksBuildPhase.join("\n"));
 		pbxproj = pbxproj.replace("$(PBXSourcesBuildPhase)", FILE_REFS.PBXSourcesBuildPhase.join("\n"));
 		pbxproj = pbxproj.replace(/\$\(PROJECT_NAME\)/g, makefile.Vars.PROJECT_NAME);
@@ -1604,11 +1710,12 @@ function CocoMake(command , params)
 
 		var target_root				= TARGET.TARGET_ROOT;																// absolute path of target root folder
   		var src_paths	 			= TARGET.TARGET_INPUT_SOURCES || makefile.Config.PROJECT_PATHS.APP_SOURCES;			// semicolon separated list of paths
-		var src_file_mask 			= TARGET.TARGET_SOURCES_MASK;														// semicolon separated file masks
+		var src_file_mask 			= TARGET.TARGET_SOURCES_MASK;														// semicolon separated file masks to collect
+		var compile_mask			= TARGET.TARGET_NATIVE_SOURCES_MASK;												// semicolon separated file masks to compile
 		var framework_src_prefix	= "/$(PATH_SDK_FRAMEWORKS_WEB)/$(PATH_SDK_FRAMEWORKS_SRC)";							// path suffix for src files within a framework
 
   		// Collect sources from src paths and framrworks
-		var files = _this.collectSources(target_root, src_paths, src_file_mask, framework_src_prefix);
+		var files = _this.collectSources(target_root, src_paths, src_file_mask, compile_mask, framework_src_prefix);
   		if(files.length==0) return;
 
   		// Calculate source code dependencies
@@ -1762,51 +1869,50 @@ function CocoMake(command , params)
 	    {
 	    	if(!vFrameworks[i]) continue;
 	    	var framework = makefile.Components.Frameworks[vFrameworks[i]];
-	    	if(framework)
+	    	if(!framework) continue;
+
+	    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
 	    	{
-		    	for(j=0;j<vFrameworksSrcSubPaths.length;j++)
-		    	{
-		        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
+	        	// Copy Framework Library Files
+	        	var path = _this.replaceVars(framework.Path + vFrameworksSrcSubPaths[j]);
+	        	if(folderExists(path))
+	        	{
+		    		trace("  + " + vFrameworks[i] + " -> " + path);
+		        	var Files = _this.FindFiles(path, FileMasks, true);
+			        for(var j=0;j<Files.length;j++)
+			        {
+			        	var file = Files[j];
+			        	var fileName = _this.fileName(file);
+			     		copyFile(file, TARGET.TARGET_OBJ + "/" + fileName);
+			        }
+	        	}
+
+	        	// Native node_modules?
+	        	if(TARGET.NAME == "node.js" || TARGET.NAME == "CocoNode")
+	        	{
+		        	path = _this.replaceVars(framework.Path + "/native/node_modules");
 		        	if(folderExists(path))
 		        	{
-			    		trace("  + " + vFrameworks[i] + " -> " + path);
-			        	var Files = _this.FindFiles(path, FileMasks, true);
-				        for(var j=0;j<Files.length;j++)
-				        {
-				        	var file = Files[j];
-				        	var fileName = _this.fileName(file);
-				     		copyFile(file, TARGET.TARGET_OBJ + "/" + fileName);
-				        }
+			    		var addins = folderItems(path, ".*", false);
+			    		for(k=0; k<addins.length; k++)
+			    		{
+			    			var bin = _this.FindFiles(addins[i] + "/gyp/build/Release", "*.node", false);
+			    			if(!bin.length) continue;
+		    				bin = bin[0];
+
+		    				var addin_file = _this.fileName(bin);
+		    				var addin_name = addin_file.replace(".node", "");
+		    				var destination_folder = TARGET.TARGET_ROOT + "/node_modules/" + addin_name;
+
+							// Copy node.js addon
+							buildPath(destination_folder);
+			    			copyFile(bin, destination_folder + "/bin/" + addin_file);
+
+			    			// Copy package
+			    			copyFile(addins[i] + "/gyp/package.json", destination_folder + "/package.json");
+			    		}
 		        	}
-
-		        	// Native node_modules?
-		        	if(TARGET.NAME == "node.js" || TARGET.NAME == "CocoNode")
-		        	{
-			        	path = _this.replaceVars(framework.Path + "/native/node_modules");
-			        	if(folderExists(path))
-			        	{
-				    		var addins = folderItems(path, ".*", false);
-				    		for(k=0; k<addins.length; k++)
-				    		{
-				    			var bin = _this.FindFiles(addins[i] + "/gyp/build/Release", "*.node", false);
-				    			if(!bin.length) continue;
-			    				bin = bin[0];
-
-			    				var addin_file = _this.fileName(bin);
-			    				var addin_name = addin_file.replace(".node", "");
-			    				var destination_folder = TARGET.TARGET_ROOT + "/node_modules/" + addin_name;
-
-								// Copy node.js addon
-								buildPath(destination_folder);
-				    			copyFile(bin, destination_folder + "/bin/" + addin_file);
-
-				    			// Copy package
-				    			copyFile(addins[i] + "/gyp/package.json", destination_folder + "/package.json");
-				    		}
-			        	}
-		        	}
-
-		    	}
+	        	}
 	    	}
 	    }
 	};
@@ -1817,9 +1923,7 @@ function CocoMake(command , params)
 	_this.npm = function()
 	{
 		var modules_root = TARGET.TARGET_ROOT + "/node_modules";
-		var conf = makefile.Config.CONFIGURATION;
-		if(conf.toLowerCase()!="release") conf="Debug";
-		var packages = TARGET.SERVER[conf].npm;
+		var packages = TARGET.SERVER[TARGET.CONFIGURATION].npm;
 		if(!packages) return;
 
 		trace("\nDownloading npm packages, please wait ...");
@@ -1856,7 +1960,7 @@ function CocoMake(command , params)
 	    scripts = _this.calculateDependencies(scripts, true);
 
 	    // === RELEASE MODE ===
-	    if(makefile.Config.CONFIGURATION.toLowerCase()=="release")
+	    if(TARGET.RELEASE_CONFIGURATION)
 	    {
 		    for(var i=0; i<scripts.length; i++)
 		    {
@@ -1982,6 +2086,7 @@ function CocoMake(command , params)
 		this.TargetRoot             = null;
 		this.TargetSources          = null;
 		this.TargetFileMask         = null;
+		this.TargetSourcesMask		= null;
 		this.Frameworks             = null;
 		this.FRAMEWORKS             = [];
 		this.FrameworkSubPaths      = null;
@@ -1993,15 +2098,42 @@ function CocoMake(command , params)
 		this.SourcePaths            = {};
 		this.SourceFiles		    = {};
 		this.INCLUDE_PATHS          = [];
+		this.IncludePaths           = {};
 		this.FILES                  = [];
 		this.HPP                  	= [];
 		this.CPP					= [];
 	}
 
 	// =====================================================================
-	TARGET_SOURCES.prototype.CREATE_MAKEFILE = function(template, _ROOT, _CFLAGS, _ExcludeVars)
+	TARGET_SOURCES.prototype.PRECOMPILER_VARS = function(suffix)
 	{
-		var $ = this;
+		var prefix = "";
+		if(!suffix)
+		{
+			prefix = "-D";
+			suffix = " ";
+		}
+		var vars = [];
+		var i, L = makefile.Vars.SOURCES.FRAMEWORKS.length;
+
+		for(var i=0; i<L; i++)
+		{
+			vars.push(prefix+makefile.Vars.SOURCES.FRAMEWORKS[i].PrecompilerVarName);
+		}
+
+		L = makefile.Vars.SOURCES.LIBRARIES.length;
+		for(var i=0; i<L; i++)
+		{
+			vars.push(prefix+makefile.Vars.SOURCES.LIBRARIES[i].Precompiler);
+		}
+
+		return vars.join(suffix);
+	};
+
+	// =====================================================================
+	TARGET_SOURCES.prototype.CREATE_MAKEFILE = function(template, _ROOT)
+	{
+	var $ = this;
 		var SEPARATOR = " \\\n";
 		var isAndroid = makefile.Vars.TARGET=="Android";
 		var I_PREFIX = isAndroid ? "" : "-I";
@@ -2015,12 +2147,31 @@ function CocoMake(command , params)
 			return out;
 		};
 
-		var CFLAGS = function()
+		var LOCAL_C_INCLUDES = function()
 		{
 			var include_paths = make_relative($.INCLUDE_PATHS);
 			include_paths = I_PREFIX + include_paths.join(SEPARATOR + I_PREFIX);
 			include_paths = _this.winPath(include_paths);
-			return _CFLAGS + SEPARATOR + include_paths;
+			return include_paths;
+		};
+
+		var CFLAGS = function()
+		{
+			var cflags = TARGET.APP_SETTINGS && TARGET.APP_SETTINGS[TARGET.CONFIGURATION] && TARGET.APP_SETTINGS[TARGET.CONFIGURATION].CFLAGS ? TARGET.APP_SETTINGS[TARGET.CONFIGURATION].CFLAGS : (TARGET.RELEASE_CONFIGURATION ? "-O3" : "-g -O0" );
+			cflags +=  " " + makefile.Vars.SOURCES.PRECOMPILER_VARS();
+			return cflags;
+		};
+
+		var CPPFLAGS = function()
+		{
+			var cflags = TARGET.APP_SETTINGS && TARGET.APP_SETTINGS[TARGET.CONFIGURATION] && TARGET.APP_SETTINGS[TARGET.CONFIGURATION].CPPFLAGS ? TARGET.APP_SETTINGS[TARGET.CONFIGURATION].CPPFLAGS : (TARGET.RELEASE_CONFIGURATION ? "-O3" : "-g -O0" );
+			cflags +=  " " + makefile.Vars.SOURCES.PRECOMPILER_VARS();
+			return cflags;
+		};
+
+		var LDFLAGS = function()
+		{
+			return TARGET.APP_SETTINGS && TARGET.APP_SETTINGS[TARGET.CONFIGURATION] && TARGET.APP_SETTINGS[TARGET.CONFIGURATION].LDFLAGS ? TARGET.APP_SETTINGS[TARGET.CONFIGURATION].LDFLAGS : (TARGET.RELEASE_CONFIGURATION ? "-O3" : "-g -O0" );
 		};
 
 		var LDLIBS = function()
@@ -2028,7 +2179,7 @@ function CocoMake(command , params)
 			return $.LINK_LIBS.join(" ");
 		};
 
-		var LDFLAGS = function()
+		var LDLIBPATHS = function()
 		{
 			var lib_bin_paths = make_relative($.LIB_BIN_PATHS);
 			lib_bin_paths = L_PREFIX + lib_bin_paths.join(SEPARATOR + L_PREFIX);
@@ -2036,18 +2187,22 @@ function CocoMake(command , params)
 			return lib_bin_paths;
 		};
 
-		var NATIVE_CPP_SOURCES = function()
+		var LOCAL_SRC_FILES = function()
 		{
 			var HPPmap = {};
 			var files = [].concat($.FILES);
 			var root = $.TargetRoot;
+			var pattern = _this.toRegExpPattern($.TargetSourcesMask ? $.TargetSourcesMask: this.TargetFileMask); // /\.(cpp|m|c)$/i
+			var rx = new RegExp(pattern, "i");
 
 			for(i=0; i<files.length; i++)
 			{
+				var fileName = _this.fileName(files[i]);
+
 				// File relative to target root (if any)
 				files[i] = root ? relativePath(root, files[i]) : files[i];
 
-				if(/\.(cpp|m)$/i.test(files[i]))
+				if(rx.test(fileName))
 				{
 					if(files[i].indexOf("./")==0)
 						files[i] = files[i].substr(2);
@@ -2081,7 +2236,7 @@ function CocoMake(command , params)
 			{
 				var android_mk = ["LOCAL_PATH := $(call my-dir)\n"];
 				var lib_bin_path = $.LIB_BIN_PATHS[j];
-				var afiles = _this.FindFiles(lib_bin_path + "/x86", "*.a", false);
+				var afiles = _this.FindFiles(lib_bin_path + "/armeabi-v7a", "*.a", false);
 				for(var i=0; i<afiles.length; i++)
 				{
 					var afile = _this.fileName(afiles[i]);
@@ -2109,15 +2264,17 @@ function CocoMake(command , params)
 		var buff = read(template);
 
 		// Substitute variables
-		buff = buff.replace('$(APP_LDLIBS)', 				LDLIBS() 						);
-		buff = buff.replace('$(APP_LDFLAGS)', 				LDFLAGS() 						);
 		buff = buff.replace('$(APP_CFLAGS)', 				CFLAGS()						);
-		buff = buff.replace('$(NATIVE_CPP_SOURCES)', 		NATIVE_CPP_SOURCES() 			);
+		buff = buff.replace('$(APP_CPPFLAGS)', 				CPPFLAGS()						);
+		buff = buff.replace('$(APP_LDFLAGS)', 				LDFLAGS() 						);
+		buff = buff.replace('$(APP_LDLIBS)', 				LDLIBS() 						);
+		buff = buff.replace('$(APP_LDLIBPATHS)', 			LDLIBPATHS() 					);
+		buff = buff.replace('$(LOCAL_C_INCLUDES)', 			LOCAL_C_INCLUDES()				);
+		buff = buff.replace('$(LOCAL_SRC_FILES)', 			LOCAL_SRC_FILES() 				);
 		buff = buff.replace('$(ANDROID_STATIC_LIBRARIES)', 	ANDROID_STATIC_LIBRARIES()		);
 
 		// Substitute variables
 		var excludeVars = TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS ? TARGET.DEVICE_WRAPPER.TEMPLATE_EXCLUDE_VARS.split(";") : [];
-		if(_ExcludeVars) excludeVars = excludeVars.concat(_ExcludeVars);
 		buff = _this.replaceVars(buff, true, excludeVars);
 
 		return buff;
@@ -2126,22 +2283,42 @@ function CocoMake(command , params)
 	// =====================================================================
     TARGET_SOURCES.prototype.AddSources = function(root, path, add_files, framework, library)
     {
-    	this.INCLUDE_PATHS.push(path);
-
-    	if(add_files)
+    	if(!this.IncludePaths[path])
     	{
-	    	var files = this.SourcePaths[path] = _this.FindFiles(path, this.TargetFileMask, true);
-	        for(var i=0; i<files.length; i++)
-	        {
-	        	var file = files[i];
-	        	var fileName = _this.fileName(file);
-	        	var filepath = file.substr(0, file.lastIndexOf("/"));
-	        	var rel = file.replace((framework ? path : root), '');
-	        	if(rel=="") rel = "/";
-	        	this.SourceFiles[file] = { "FileName":fileName, "File":file, "Root":root, "Path":path, "Rel":rel, "Framework":framework, "Library":library };
-	        	this.FILES.push(file);
-	        }
+    		this.INCLUDE_PATHS.push(path);
+    		this.IncludePaths[path] = true;
     	}
+
+		// Get all files in this path and its sub folders
+    	var files = this.SourcePaths[path] = _this.FindFiles(path, this.TargetFileMask, true);
+
+        for(var i=0; i<files.length; i++)
+        {
+        	var file = files[i];
+        	var fileName = _this.fileName(file);
+        	var filepath = file.substr(0, file.lastIndexOf("/"));
+        	var rel = file.replace((framework ? path : root), '');
+        	if(rel=="") rel = "/";
+
+    		// The library has sources to be compiled (eg. SQLite)
+    		this.SourceFiles[file] = { "FileName":fileName, "File":file, "Root":root, "Path":path, "Rel":rel, "Framework":framework, "Library":library, "Compile":add_files };
+
+    		if(add_files)
+    			this.FILES.push(file);
+
+    		// Sub-folder?
+    		var sub_path = file.substr(path.length);
+    		sub_path = sub_path.substr(0, sub_path.lastIndexOf("/"));
+    		if(sub_path)
+    		{
+    			sub_path = path + sub_path;
+    			if(!this.IncludePaths[sub_path])
+    			{
+		    		this.INCLUDE_PATHS.push(sub_path);
+		    		this.IncludePaths[sub_path] = true;
+    			}
+    		}
+        }
     };
 
   	// =====================================================================
@@ -2149,7 +2326,7 @@ function CocoMake(command , params)
     // =====================================================================
     /*@@ collectSources @@*/
 
-  	_this.collectSources = function(target_root, src_paths, src_file_mask, framework_src_prefix)
+  	_this.collectSources = function(target_root, src_paths, src_file_mask, compile_mask, framework_src_prefix)
   	{
 	    trace("\nCollecting Sources ...\n+ pattern: " + src_file_mask);
 
@@ -2159,6 +2336,7 @@ function CocoMake(command , params)
 		SOURCES.TargetRoot			= target_root;
 		SOURCES.TargetSources		= src_paths.split(";");
 		SOURCES.TargetFileMask		= src_file_mask;
+		SOURCES.TargetSourcesMask	= compile_mask;
 		SOURCES.Frameworks			= _this.TARGET_FRAMEWORKS();
 		SOURCES.FrameworkSubPaths	= _this.replaceVars(framework_src_prefix, false);
 
@@ -2166,7 +2344,7 @@ function CocoMake(command , params)
 	    // A. Collect sources from Libraries
 	   	// ==========================================================================
 		var libs_path = makefile.Vars.PATH_SDK_LIBRARIES;
-		var libs = read(libs_path + "/libs.json");
+		var libs = read(makefile.Vars.FILE_PATH_SDK_LIBRARIES_REGISTRY);
 		libs = JSON.parse(libs)
 		libs = libs.Libraries;
 	    trace("+ libraries: " + Object.keys(libs).join(";"));
@@ -2183,7 +2361,6 @@ function CocoMake(command , params)
 			var lib = libs[lib_name];
 			var library_targets = [];
 			for(var t in lib.Targets) { library_targets.push(t); }
-			library_targets = library_targets.join(";");
 			if(library_targets.indexOf(TARGET.NAME)==-1) continue;
 
 			lib.id = lib_name;
@@ -2442,11 +2619,14 @@ function CocoMake(command , params)
 		var files = findFiles(path, ".*?", recursive);
 		var out=[];
 		var pattern = _this.toRegExpPattern(mask);
+		var rx = new RegExp(pattern, "i");
 		for(var i=0;i<files.length;i++)
 		{
 			var fileName = _this.fileName(files[i]);
-			if((new RegExp(pattern, "i")).test(fileName))
+			if(rx.test(fileName))
+			{
 				out.push(files[i]);
+			}
 		}
 		return out;
 	};
@@ -2512,6 +2692,15 @@ function CocoMake(command , params)
 	_this.fileName = function(path)
 	{
 		return path.substr(path.lastIndexOf('/')+1);
+	};
+
+    // =====================================================================
+    // File node name from path
+    // =====================================================================
+	_this.fileNodeName = function(path)
+	{
+		var name = _this.fileName(path);
+		return name.substr(0, name.lastIndexOf('.'));
 	};
 
     // =====================================================================
@@ -2990,20 +3179,10 @@ function formatCPP(buff)
 	buff = RxReplace(buff, "Dictionary \\< (\\w+) \\> ", "mg", "Dictionary<$1> ");
 	buff = RxReplace(buff, "\\s*//<<(.*)>>//", "mg", "$1");
 
-	buff = RxReplace(buff, "\\bFloat\\b", "mg", "float");
-	buff = RxReplace(buff, "\\bInteger\\b", "mg", "int32_t");
-	buff = RxReplace(buff, "\\bBoolean\\b", "mg", "bool");
-	buff = RxReplace(buff, "\\bTime\\b", "mg", "float");
-	buff = RxReplace(buff, "\\bNumber\\b", "mg", "float");
-	buff = RxReplace(buff, "\\bFunction\\b", "mg", "void");
-	buff = RxReplace(buff, "\\bObject\\b", "mg", "void");
-
 	buff = RxReplace(buff, "\\bMath::(\\w+)\\(", "mg", 		"math_$1(");
 
-	//buff = RxReplace(buff, "\\btrace\\s*\\((.*)\\)\\s*;\\s*$", "mg", "trace(($1).c_str());");
 	buff = RxReplace(buff, "([\\x22\\x27])\\x2e\\x2fassets\\x2f", "mg", "$1./");
 	buff = RxReplace(buff, "_ENUM\\.(\\w+)", "mg", "_ENUM::$1");
-	buff = RxReplace(buff, "__currentFrame\\->action\\.call\\(scene\\);", "mg", "(scene->*__currentFrame->action)();");
 	return buff;
 }
 

@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,30 +50,29 @@ class CocoUIScrollView : CocoUIView
 	private var __scrollSpringTension:Float;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
- 	public function Constructor(name:String, scene:CocoScene)
+ 	public function Constructor(scene:CocoScene, name:String) : CocoUIView(scene, name)
  	{
-		__instanceName = name;
- 		__scene = scene;
-		__scrollSpeedY = 0.0;
-		__minY = 0;
-		__maxY = 0;
-		__bounceY = false;
-		__scrollDeceleration = 0.95;
-		__scrollSpringTension = 16.0;
-		__scrollLastTime = 0;
-		__scrollFirstPointY = 0.0;
-		__scrollLastPointY = 0.0;
+		__instanceName 			= name;
+		__scrollSpeedY 			= 0.0;
+		__minY 					= 0;
+		__maxY 					= 0;
+		__bounceY 				= false;
+		__scrollDeceleration 	= 0.95;
+		__scrollSpringTension 	= 16.0;
+		__scrollLastTime 		= 0;
+		__scrollFirstPointY 	= 0.0;
+		__scrollLastPointY 		= 0.0;
+		__scrollContainer 		= null;
 
 		// Add a container clip to place all children so that
 		// during scrolling we only scroll this container.
- 		__scrollContainer = new CocoUIView;
- 		__scrollContainer.__instanceName = "__scrollContainer";
+ 		__scrollContainer = new CocoUIView(scene, "__scrollContainer");
  		__scrollContainer.__timeline.clear();
 		__scrollContainer.__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
  		super.addChild(__scrollContainer);
 
  		// We need to be able to handle events
- 		this.__timeline.keyFrame(0).handleEvents=true;
+ 		__timeline.keyFrame(0).handleEvents = true;
 		addEventListener(this.OnTouchStart, __CocoUIScrollView_OnTouchStart);
  		addEventListener(this.OnTouchMove, __CocoUIScrollView_OnTouchMove);
  		addEventListener(this.OnTouchEnd, __CocoUIScrollView_OnTouchEnd);
@@ -89,7 +88,13 @@ class CocoUIScrollView : CocoUIView
  		delete __scrollContainer;
  	}
 
- 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function stackedChildren():Array<CocoClip>
+ 	{
+ 		return __scrollContainer.__children;
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
  	published property ScrollDeceleration
  	{
  		function get():Float { return __scrollDeceleration; }
@@ -114,14 +119,17 @@ class CocoUIScrollView : CocoUIView
 	{
 		var h:Integer = 0;
 		var ctl:CocoUIControl;
-		for(var i:Integer=__scrollContainer.__children.size();i--;)
+		var L:Integer = __scrollContainer.__children.size();
+		for(var i:Integer=L;i--;)
 		{
 			ctl = CocoUIControl(__scrollContainer.__children[i]);
-			h+= ctl.MarginTop + ctl.Height + ctl.MarginBottom;
+			if(!ctl.Visible) continue;
+			if(i<L-1 && CocoUIControl(__scrollContainer.__children[i+1]).__stacked!=STACKED_SIBLING)
+				h += ctl.MarginTop + ctl.Height + ctl.MarginBottom;
 		}
 		__maxY = Math.min(__minY, Height - h);
-		__scrollContainer.__height = h;
-		__scrollContainer.__width = __width;
+		__scrollContainer.Height = h;
+		__scrollContainer.Width = Width;
 		return h;
 	}
 
@@ -139,7 +147,6 @@ class CocoUIScrollView : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function addChild(ctl:CocoUIControl) :CocoUIControl
 	{
-		ctl.__scene = __scene;
 		__scrollContainer.addChild(ctl);
 		ctl.Width = Width - ctl.MarginLeft - ctl.MarginRight;
 		ctl.RefreshLayout(this);
@@ -156,25 +163,39 @@ class CocoUIScrollView : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function RefreshLayout(parent:CocoUIView)
 	{
-		var h:Float = 0;
-		var ctl:CocoUIControl;
-
-		for(var i:Integer=0; i<__scrollContainer.__children.size(); i++)
+		if(parent)
 		{
-			ctl = CocoUIControl(__scrollContainer.__children[i]);
-
-			// Set control width
-			ctl.Width = Width - ctl.MarginLeft - ctl.MarginRight;
-			ctl.RefreshLayout(this);
-
-			// Translate control's position from top-left origin to parent's center.
-			ctl.__timeline.translateTo( -Width/2 + ctl.MarginLeft + ctl.Width/2, -Height/2 + (h+ctl.MarginTop) + ctl.Height/2);
-			h += ctl.MarginTop + ctl.Height + ctl.MarginBottom;
+			__scene = parent.__scene;
+			__form = CocoUIFormView(parent);
 		}
 
-		inlineHeight();
+		if(__scene)
+		{
+			var h:Float = 0;
+			var ctl:CocoUIControl;
+			var L:Integer = __scrollContainer.__children.size();
 
-		__timeline.translateTo(-parent.Width/2 + __x + Width/2, -parent.Height/2 + __y + Height/2);
+			for(var i:Integer=0; i<L; i++)
+			{
+				ctl = CocoUIControl(__scrollContainer.__children[i]);
+
+				// Set control width
+				ctl.Width = Width - ctl.MarginLeft - ctl.MarginRight;
+				ctl.RefreshLayout(this);
+
+				// Translate control's position from top-left origin to parent's center.
+				ctl.__timeline.translateTo( -Width/2 + ctl.MarginLeft + ctl.Width/2, -Height/2 + (h+ctl.MarginTop) + ctl.Height/2);
+
+				if(i<L-1 &&  CocoUIControl(__scrollContainer.__children[i+1]).__stacked != STACKED_SIBLING)
+				{
+					if(ctl.Visible)
+						h += ctl.MarginTop + ctl.Height + ctl.MarginBottom;
+				}
+			}
+
+			inlineHeight();
+		}
+
 		__invalidated = false;
 	}
 
@@ -238,7 +259,7 @@ class CocoUIScrollView : CocoUIView
 	{
 		var KF:CocoKeyFrame = getKeyFrame();
 
-		var dY:Float = (y - __scrollLastPointY) / __scene.__view_scale;
+		var dY:Float = (y - __scrollLastPointY) / __scene.ViewScale;
 		var sY:Float = 1.0;
  		var springY:Float = __minY - KF.y;
  		if(springY < 0.0)
@@ -267,7 +288,7 @@ class CocoUIScrollView : CocoUIView
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function __CocoUIScrollView_OnTouchEnd(sender:CocoEventSource, e:CocoEvent, x:Float, y:Float) :Boolean
 	{
-		var dY:Float = (y - __scrollLastPointY) / __scene.__view_scale;
+		var dY:Float = (y - __scrollLastPointY) / __scene.ViewScale;
 		__scrollSpeedY = dY;
 		__bounceY = true;
 		resetSelection();

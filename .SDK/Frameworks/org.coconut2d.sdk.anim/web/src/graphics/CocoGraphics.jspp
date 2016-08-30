@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,7 +50,7 @@ struct CocoRect
 	bottom:Float;
 }
 
-struct CocoSkinCacheItem
+struct CocoImageCacheItem
 {
 	symbolName:String;
 	width:Integer;
@@ -75,7 +75,8 @@ struct CocoHVAlign
 
 class CocoGraphics
 {
-	public static var skinsCache:Array<CocoSkinCacheItem>;
+	public static var skinsCache:Array<CocoImageCacheItem>;
+	public static var gradientsCache:Array<CocoImageCacheItem>;
 
  	public function Constructor()
  	{
@@ -89,6 +90,13 @@ class CocoGraphics
  	public static function POT(n:Integer):Integer
  	{
  		return Math.pow(2, Math.ceil(Math.log(n)/Math.log(2)));
+ 	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+ 	public static function CLAMPTOBYTE(n:Integer):Integer
+ 	{
+ 		n &= (n >= 0 ? -1 : 0);
+    	return n | ((255 - n) >> 31);
  	}
 
 	// ==================================================================================================================================
@@ -110,6 +118,31 @@ class CocoGraphics
 		return canvas;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Integer, textureHeight:Integer, optional mime:String = "image/png") :CocoImage
+	{
+        var img:CocoImage = new CocoImage();
+        img.hImage = new Image();
+
+        img.textureCellWidth = textureWidth;
+        img.textureCellHeight = textureHeight;
+		img.textureViewWidth = textureWidth;
+		img.textureViewHeight = textureHeight;
+        img.textureGrid = new Float32Array([0,0]);
+
+        try
+        {
+        	var data:String = canvas.toDataURL(mime);
+        	img.hImage.load(data);
+        }
+        catch(e:Error)
+        {
+        	var empty:String = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC";
+        	img.hImage.load(empty);
+        }
+        return img;
+	}
+
 	// ==================================================================================================================================
 	//	   ______      __              ______                 __  _
 	//	  / ____/___  / /___  _____   / ____/_  ______  _____/ /_(_)___  ____  _____
@@ -123,17 +156,41 @@ class CocoGraphics
 	{
 		try
 		{
-			var A:Integer = ((c >> 24) & 0xFF);
-			var R:Integer = ((c >> 16) & 0xFF);
-			var G:Integer = ((c >>  8) & 0xFF);
-			var B:Integer = ((c)       & 0xFF);
+			var A:uint8_t = ((c >> 24) & 0xFF);
+			var R:uint8_t = ((c >> 16) & 0xFF);
+			var G:uint8_t = ((c >>  8) & 0xFF);
+			var B:uint8_t = ((c)       & 0xFF);
 
-			return "rgba(" + String(R) + "," + String(G) + "," + String(B) + "," + String(A/255.0) + ")";
+			return "rgba(" + String(R) + "," + String(G) + "," + String(B) + "," + String( Float(A) / 255.0) + ")";
 		}
 		catch(e:Error)
 		{
 			return "rgba(0,0,0,0)";
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function HtmlRGBAtoColor(s:String) :Color
+	{
+		var rx:RegExp = new RegExp("^rgba\\((\\d+),(\\d+),(\\d+),(\\d+(?:\\.\\d+)?)\\)$", "ig");
+		var matches:Array<String> = rx.exec(s);
+
+		var red:Integer   = parseInt(matches[1]);
+		var green:Integer = parseInt(matches[2]);
+		var blue:Integer  = parseInt(matches[3]);
+		var alpha:Integer = 255.0 * parseFloat(matches[4]);
+
+		delete matches;
+		delete rx;
+
+		var r:uint8_t = red   & 0xFF;
+		var g:uint8_t = green & 0xFF;
+		var b:uint8_t = blue  & 0xFF;
+		var a:uint8_t = alpha & 0xFF;
+
+		var c:Color = (a << 24) + (r << 16) + (g << 8) + (b);
+
+		return c;
 	}
 
 	// ==================================================================================================================================
@@ -155,7 +212,7 @@ class CocoGraphics
 		case SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_hdpi:	return 1.50;
 		case SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_xhdpi:	return 2.00;
 		default:
-			return SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_nodpi;
+			return 0; //SCREEN_RESOLUTION_DPI_ENUM.RESOLUTION_nodpi;
 		}
 	}
 
@@ -175,14 +232,18 @@ class CocoGraphics
 
 		// Initialize skin cache array
 		if(!skinsCache)
-			skinsCache = new Array<CocoSkinCacheItem>;
+			skinsCache = new Array<CocoImageCacheItem>;
 
 		// Search cache for skin
 		for(var i:Integer = skinsCache.size()-1; i>=0; i--)
 		{
-			var img:CocoSkinCacheItem = skinsCache[i];
-			if(img.symbolName==skinImage.symbolName && img.width==width && img.height==height)
-				return img.image;
+			var item:CocoImageCacheItem = skinsCache[i];
+			if(item.symbolName==skinImage.symbolName && item.width==width && item.height==height)
+			{
+				//trace("   Reusing skin: " + item.image.hImage.id);
+				item.image.addRef();
+				return item.image;
+			}
 		}
 
 		// Create a skin image
@@ -194,39 +255,22 @@ class CocoGraphics
 		ctx = null;
 		var image:CocoImage = CocoImageFromHTMLCanvas(canvas, w, h);
 		image.pixelRatio = skinImage.pixelRatio;
+		image.addRef();
 		delete canvas;
 
 		// Save skin in cache
-		var item:CocoSkinCacheItem = new CocoSkinCacheItem();
+		var item:CocoImageCacheItem = new CocoImageCacheItem();
 		item.symbolName = skinImage.symbolName;
 		item.width = width;
 		item.height = height;
 		item.image = image;
 		skinsCache.push(item);
 
-		return image;
-	}
+		// Give skin image an id for debugging
+		item.image.hImage.id = "__cached_skin_" + String(skinsCache.size());
+		//trace("   New skin: " + item.image.hImage.id);
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Integer, textureHeight:Integer, optional mime:String = "image/png") :CocoImage
-	{
-        var img:CocoImage = new CocoImage();
-        img.hImage = new Image();
-        img.textureCellWidth = textureWidth;
-        img.textureCellHeight = textureHeight;
-        img.textureGrid = new Float32Array([0,0]);
-        if(mime=="") mime = "image/png";
-        try
-        {
-        	var data:String = canvas.toDataURL(mime);
-        	img.hImage.load(data);
-        }
-        catch(e:Error)
-        {
-        	var empty:String = "data:image/png;base64,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";
-        	img.hImage.load(empty);
-        }
-        return img;
+		return image;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -371,6 +415,138 @@ class CocoGraphics
 			return;
 
 		ctx.drawImage(image.hImage, sx+image.binpackX, sy+image.binpackY, sw, sh, dx, dy, dw, dh);
+	}
+
+	// ==================================================================================================================================
+	//	   ______               ___      __
+	//	  / ____/________ _____/ (_)__  / /_____  _____
+	//	 / / __/ ___/ __ `/ __  / / _ \/ __/ __ \/ ___/
+	//	/ /_/ / /  / /_/ / /_/ / /  __/ /_/ / / (__  )
+	//	\____/_/   \__,_/\__,_/_/\___/\__/_/ /_/____/
+	//
+	// ==================================================================================================================================
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	public static function CreateGradient(x:Integer, y:Integer, width:Integer, height:Integer, gradient:String,
+										  border_color:Color, border_style:COCO_CONTROL_BORDER_STYLE_ENUM, border_radius:Integer, border_width:Integer,
+										  pixel_ratio:Float):CocoImage
+	{
+		if(!gradient || width==0 || height==0)
+			return null;
+
+		var i:Integer;
+		var CacheKey:String = "__cached_grad_" + gradient + "_" + String(border_color) + "_" + String(border_style) + "_" + String(border_radius) + "_" + String(border_width) + "_" + String(pixel_ratio) + "_" + String(width) + "x" + String(height);
+
+		// Initialize skin cache array
+		if(!gradientsCache)
+			gradientsCache = new Array<CocoImageCacheItem>;
+
+		// Search cache for skin
+		for(i = gradientsCache.size()-1; i>=0; i--)
+		{
+			var item:CocoImageCacheItem = gradientsCache[i];
+			if(item.symbolName==CacheKey)
+			{
+				//trace("   Reusing gradient: " + item.image.hImage.id);
+				item.image.addRef();
+				return item.image;
+			}
+		}
+
+		// Create a skin image
+		var canvas:HTMLCanvasElement = NewCanvas(width, height, true);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+		var grad:CanvasGradient = ctx.createLinearGradient(x, y, 0, height-y);
+
+		var v:Array<String> = gradient.split(",");
+		var L:Integer = v.size();
+		if((L % 2)==0)
+		{
+			for(i = 0; i<L; i+=2)
+			{
+				grad.addColorStop(parseFloat(v[i]), ColorToHtmlRGBA(parseInt(v[i+1])));
+			}
+		}
+		delete v;
+
+		var segments:Array<Integer> = null;
+
+		// Fill
+		ctx.save();
+		ctx.fillStyle = grad;
+
+		if(border_radius)
+		{
+			ctx.beginPath();
+			ctx.moveTo(x+border_radius-1, y);
+			ctx.lineTo(x+width-border_radius-1, y);
+			ctx.quadraticCurveTo(x+width-1, y, x+width-1, y+border_radius-1);
+			ctx.lineTo(x+width-1, y+height-border_radius-1);
+			ctx.quadraticCurveTo(x+width-1, y+height-1, x+width-border_radius-1, y+height-1);
+			ctx.lineTo(x+border_radius-1, y+height-1);
+			ctx.quadraticCurveTo(x, y+height-1, x, y+height-border_radius-1);
+			ctx.lineTo(x, y+border_radius-1);
+			ctx.quadraticCurveTo(x, y, x+border_radius-1, y);
+			ctx.closePath();
+			ctx.clip();
+		}
+
+		ctx.fillRect(x, y, width, height);
+		ctx.restore();
+
+		// Border
+		if(border_style==BORDER_DOTTED || border_style==BORDER_SOLID)
+		{
+			ctx.save();
+			ctx.lineWidth = Float(border_width) * engine.device.pixelRatio + 1;
+
+			if(border_style==BORDER_DOTTED)
+			{
+				segments = new Array<Integer>;
+				segments.push(2);
+				segments.push(2);
+				ctx.setLineDash(segments);
+			}
+
+			ctx.strokeStyle = ColorToHtmlRGBA(border_color);
+
+			ctx.beginPath();
+			ctx.moveTo(x+border_radius-1, y);
+			ctx.lineTo(x+width-border_radius-1, y);
+			ctx.quadraticCurveTo(x+width-1, y, x+width-1, y+border_radius-1);
+			ctx.lineTo(x+width-1, y+height-border_radius-1);
+			ctx.quadraticCurveTo(x+width-1, y+height-1, x+width-border_radius-1, y+height-1);
+			ctx.lineTo(x+border_radius-1, y+height-1);
+			ctx.quadraticCurveTo(x, y+height-1, x, y+height-border_radius-1);
+			ctx.lineTo(x, y+border_radius-1);
+			ctx.quadraticCurveTo(x, y, x+border_radius-1, y);
+			ctx.closePath();
+			ctx.clip();
+
+			ctx.stroke();
+			ctx.restore();
+		}
+
+		// Create image from canvas
+		var image:CocoImage = CocoImageFromHTMLCanvas(canvas, width, height);
+		image.pixelRatio = pixel_ratio;
+		image.addRef();
+		delete canvas;
+		delete segments;
+
+		// Save skin in cache
+		var item:CocoImageCacheItem = new CocoImageCacheItem();
+		item.symbolName = CacheKey;
+		item.width = width;
+		item.height = height;
+		item.image = image;
+		gradientsCache.push(item);
+
+		// Give gradient image an id for debugging
+		item.image.hImage.id = "__cached_gradient_" + String(gradientsCache.size());
+		//trace("   New gradient: " + item.image.hImage.id);
+
+		return image;
 	}
 
 	// ==================================================================================================================================

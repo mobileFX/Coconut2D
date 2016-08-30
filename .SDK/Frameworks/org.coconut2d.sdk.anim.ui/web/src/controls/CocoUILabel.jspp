@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,26 +42,26 @@ control class CocoUILabel : CocoUIControl
 	// Caption
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public var __caption:CocoTextBlock;
+	public var __caption:CocoUITextBlock;
+	public property __captionFontSize				{ function get():Float	 					{ return __caption.fontSize; 					} 	function set(v:CartesianY)	 				{ __caption.fontSize = v; invalidate(); 			}}
 
-	published property Caption						{ function get():String  { return __caption.text; 						} 	function set(v:String) 		{ __caption.text = v; invalidate(); 					}}
-	published property CaptionAlign					{ function get():COCO_CONTROL_ANCHOR_ENUM { return __caption.anchor; 	}	function set(v:COCO_CONTROL_ANCHOR_ENUM) { __caption.anchor = v; invalidate(); 		}}
-	published property CaptionMultiline				{ function get():Boolean { return __caption.multiline; 					}	function set(v:Boolean) 	{ __caption.multiline = v; invalidate(); 				}}
-	published property CaptionFontName				{ function get():String  { return __caption.fontName; 					} 	function set(v:String) 		{ __caption.fontName = v; invalidate(); 				}}
-	published property CaptionFontSize				{ function get():Integer { return __caption.fontSize; 					} 	function set(v:Integer)	 	{ __caption.fontSize = v; invalidate(); 				}}
-	published property CaptionFontBold				{ function get():Boolean { return __caption.fontBold; 					} 	function set(v:Boolean) 	{ __caption.fontBold = v; invalidate(); 				}}
-	published property CaptionFontItalic			{ function get():Boolean { return __caption.fontItalic; 				} 	function set(v:Boolean) 	{ __caption.fontItalic = v; invalidate(); 				}}
-	published property CaptionFontUnderline			{ function get():Boolean { return __caption.fontUnderline; 				} 	function set(v:Boolean) 	{ __caption.fontUnderline = v; invalidate(); 			}}
-	published property CaptionFontShadowX			{ function get():Integer { return __caption.fontShadowX;				} 	function set(v:Integer) 	{ __caption.fontShadowX = v; invalidate(); 				}}
-	published property CaptionFontShadowY			{ function get():Integer { return __caption.fontShadowY;				} 	function set(v:Integer) 	{ __caption.fontShadowY = v; invalidate(); 				}}
-	published property CaptionFontBlur				{ function get():Integer { return __caption.fontBlur;					} 	function set(v:Integer) 	{ __caption.fontBlur = v; invalidate(); 				}}
-	published property CaptionFontColorSel			{ function get():Color   { return __caption.fontColorSel; 				} 	function set(v:Color) 		{ __caption.fontColorSel = v; invalidate(); 			}}
-	published property CaptionFontShadowColorSel 	{ function get():Color	 { return __caption.fontShadowColorSel;			} 	function set(v:Color) 		{ __caption.fontShadowColorSel = v; invalidate(); 		}}
-	published property CaptionFontColor				{ function get():Color   { return __caption.fontColor;					} 	function set(v:Color) 		{ __caption.fontColor = v; invalidate(); 				}}
-	published property CaptionFontShadowColor 		{ function get():Color	 { return __caption.fontColorSel;				}	function set(v:Color) 		{ __caption.fontShadowColor = v; invalidate(); 			}}
+	published property Caption						{ function get():String  					{ return __caption.text; 						} 	function set(v:String) 						{ __caption.text = v; invalidate(); 				}}
+	published property CaptionAlign					{ function get():COCO_CONTROL_ANCHOR_ENUM 	{ return __caption.anchor; 						}	function set(v:COCO_CONTROL_ANCHOR_ENUM) 	{ __caption.anchor = v; invalidate(); 				}}
+	published property CaptionFontName				{ function get():String 					{ return __caption.fontName; 					} 	function set(v:String) 						{ __caption.fontName = v; invalidate(); 			}}
+	published property CaptionFontSize				{ function get():CartesianY	 				{ return AbsoluteY(__caption.fontSize); 		} 	function set(v:CartesianY)	 				{ __caption.fontSize = RelativeY(v); invalidate(); 	}}
+	published property CaptionFontBold				{ function get():Boolean 					{ return __caption.fontBold; 					} 	function set(v:Boolean) 					{ __caption.fontBold = v; invalidate(); 			}}
+	published property CaptionFontItalic			{ function get():Boolean 					{ return __caption.fontItalic; 					} 	function set(v:Boolean) 					{ __caption.fontItalic = v; invalidate(); 			}}
+	published property CaptionFontUnderline			{ function get():Boolean 					{ return __caption.fontUnderline; 				} 	function set(v:Boolean) 					{ __caption.fontUnderline = v; invalidate(); 		}}
+	published property CaptionFontShadowX			{ function get():Integer 					{ return __caption.fontShadowX;					} 	function set(v:Integer) 					{ __caption.fontShadowX = v; invalidate(); 			}}
+	published property CaptionFontShadowY			{ function get():Integer 					{ return __caption.fontShadowY;					} 	function set(v:Integer) 					{ __caption.fontShadowY = v; invalidate(); 			}}
+	published property CaptionFontBlur				{ function get():Integer 					{ return __caption.fontBlur;					} 	function set(v:Integer) 					{ __caption.fontBlur = v; invalidate(); 			}}
+	published property CaptionFontColorSel			{ function get():Color   					{ return __caption.fontColorSel; 				} 	function set(v:Color) 						{ __caption.fontColorSel = v; invalidate(); 		}}
+	published property CaptionFontShadowColorSel 	{ function get():Color	 					{ return __caption.fontShadowColorSel;			} 	function set(v:Color) 						{ __caption.fontShadowColorSel = v; invalidate(); 	}}
+	published property CaptionFontColor				{ function get():Color   					{ return __caption.fontColor;					} 	function set(v:Color) 						{ __caption.fontColor = v; invalidate(); 			}}
+	published property CaptionFontShadowColor 		{ function get():Color	 					{ return __caption.fontColorSel;				}	function set(v:Color) 						{ __caption.fontShadowColor = v; invalidate(); 		}}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(name:String) : CocoUIControl(name)
+	public function Constructor(scene:CocoScene, name:String) : CocoUIControl(scene, name)
 	{
 		// Labels are not handling events
 		__timeline.clear();
@@ -77,7 +77,7 @@ control class CocoUILabel : CocoUIControl
 		SetPaddings(5,5,0,0);
 
 		// Set default text block
-		__caption = new CocoTextBlock(Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
+		__caption = new CocoUITextBlock(this, Name, COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT);
 		__caption.fontColor = 0xff000000;
 		__caption.fontBold = false;
 		__caption.multiline = false;
@@ -86,10 +86,35 @@ control class CocoUILabel : CocoUIControl
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Defaults()
+	{
+		if(!__scene) return;
+		Width = __scene.ViewWidth * __scene.ViewPixelRatio;
+		Height = COCO_DEFAULT_CONTROL_HEIGHT * __scene.ViewPixelRatio;
+		__caption.fontSize = RelativeY(COCO_DEFAULT_FONT_SIZE + 2);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function RefreshLayout(parent:CocoUIView)
 	{
 		super.RefreshLayout;
 		__caption.SetTextRect(PaddingLeft,PaddingTop,PaddingWidth,PaddingHeight);
+		__caption.fontSize = RelativeY(COCO_DEFAULT_FONT_SIZE);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Clone():CocoUILabel
+	{
+		var ctl:CocoUILabel = new CocoUILabel(__scene, __instanceName);
+		__cloneTo(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __cloneTo(ctl:CocoUILabel)
+	{
+		__copy__(this, ctl, COPY_MEMBERS_ALL);
+		super.__cloneTo(ctl);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

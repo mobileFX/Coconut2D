@@ -1,6 +1,6 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -460,11 +460,34 @@ void WebGLRenderingContext::texImage2D(GLenum target, GLint level, GLenum intern
 	ASSERT_GL();
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void WebGLRenderingContext::texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, GLenum type, Image* image)
 {
 	assert(image);
-	glTexImage2D(target, level, (GLint) internalformat, (GLsizei) image->naturalWidth, (GLsizei) image->naturalHeight, 0, format, type, image->__imageData->data->buffer->data);
+
+	unsigned char* pixels = (unsigned char*) image->data();
+	size_t len = image->bytesLen();
+
+	// For OpenGL ES2 swap BGRA to ARGB.
+
+	#if ANDROID_APPLICATION || IOS_APPLICATION
+
+	    for(size_t i=0;i<len;i+=4)
+	    {
+	        unsigned char t = pixels[i];
+	        pixels[i] = pixels[i+2];
+	        pixels[i+2] = t;
+	    }
+
+		glTexImage2D(target, level, (GLint) internalformat, (GLsizei) image->naturalWidth, (GLsizei) image->naturalHeight, 0, RGBA, type, pixels);
+
+	#elif WIN32_APPLICATION
+
+		glTexImage2D(target, level, (GLint) internalformat, (GLsizei) image->naturalWidth, (GLsizei) image->naturalHeight, 0, format, type, pixels);
+
+	#endif
+
 	ASSERT_GL();
 }
 
@@ -697,67 +720,49 @@ void WebGLRenderingContext::vertexAttribPointer(int32_t index, int32_t size, GLe
 	ASSERT_GL();
 }
 
-
-/*
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-WebGLProgram* makeProgram(WebGLRenderingContext* gl, std::string vs, std::string fs)
-{
-	WebGLShader* vshader = gl->createShader(gl->VERTEX_SHADER);
-	WebGLShader* fshader = gl->createShader(gl->FRAGMENT_SHADER);
-
-	gl->shaderSource(vshader, vs);
-	gl->shaderSource(fshader, fs);
-
-	gl->compileShader(vshader);
-	gl->compileShader(fshader);
-
-	assert(gl->getShaderParameter(vshader, gl->COMPILE_STATUS).valBool);
-	assert(gl->getShaderParameter(fshader, gl->COMPILE_STATUS).valBool);
-
-	WebGLProgram* program = gl->createProgram();
-	gl->attachShader(program, vshader);
-	gl->attachShader(program, fshader);
-	gl->linkProgram(program);
-
-	return program;
-}*/
-
 void WebGLRenderingContext::colorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
 	glColorMask(red, green, blue, alpha);
 	ASSERT_GL();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void WebGLRenderingContext::stencilMask(GLuint mask)
 {
 	glStencilMask(mask);
 	ASSERT_GL();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void WebGLRenderingContext::stencilFunc(GLenum func, GLint ref, GLuint mask)
 {
 	glStencilFunc(func,ref,mask);
 	ASSERT_GL();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void WebGLRenderingContext::stencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 {
 	glStencilOp(fail,zfail,zpass);
 	ASSERT_GL();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void WebGLRenderingContext::scissor(GLfloat x, GLfloat y, GLfloat w, GLfloat h)
 {
 	glScissor((GLsizei)x, (GLsizei)y, (GLsizei)w, (GLsizei)h);
 	ASSERT_GL();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void WebGLRenderingContext::viewport(GLfloat x, GLfloat y, GLfloat w, GLfloat h)
 {
 	glViewport((GLsizei)x, (GLsizei)y, (GLsizei)w, (GLsizei)h);
 	ASSERT_GL();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void WebGLRenderingContext::blendEquationSeparate(GLenum a, GLenum b)
 {
 	glBlendEquationSeparate(a,b);

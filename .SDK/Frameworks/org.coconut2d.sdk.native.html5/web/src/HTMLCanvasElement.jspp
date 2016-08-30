@@ -1,8 +1,6 @@
-﻿#pragma export_native;
-
-/* ***** BEGIN LICENSE BLOCK *****
+﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +22,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+struct ContextArguments
+{
+	stencil:Boolean;
+}
 
 // ==================================================================================================================================
 //	    __  __________  _____    ______                            ________                          __
@@ -34,16 +36,10 @@
 //
 // ==================================================================================================================================
 
-struct ContextArguments
-{
-	stencil:Boolean;
-}
-
 class HTMLCanvasElement : HTMLElement
 {
 	public var width:Integer;
 	public var height:Integer;
-	public var __imageData:ImageData;
 
 	private var c2d:CanvasRenderingContext2D;
 	private var gl:WebGLRenderingContext;
@@ -53,7 +49,6 @@ class HTMLCanvasElement : HTMLElement
 	{
 		width = 0;
 		height = 0;
-		__imageData = null;
 		gl = null;
 		c2d = null;
 	}
@@ -63,7 +58,6 @@ class HTMLCanvasElement : HTMLElement
 	{
 		delete c2d;
 		delete gl;
-		delete __imageData;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,17 +78,12 @@ class HTMLCanvasElement : HTMLElement
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function toDataURL(mime:String):String
 	{
-	    var header:String = "data:image/png;base64,";
-	    var data:String = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC";
+	    var data:String = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVRYR+3QQREAAAABQfqXFsNnFTizzXk99+MAAQIECBAgQIAAAQIECBAgMBo/ACHo7lH9AAAAAElFTkSuQmCC";
 
-	    if(__imageData)
-	    {
-	        var buff:ArrayBuffer = __imageData.data.buffer.encodeAsPNG(__imageData.width, __imageData.height);
-	        data = buff.encodeAsBase64();
-	        delete buff;
-	    }
+		if(c2d)
+			data = c2d.__toDataURL(mime);
 
-	    return header + data;
+		return data;
 	}
 }
 

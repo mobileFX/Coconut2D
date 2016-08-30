@@ -185,6 +185,18 @@ class CocoDevice
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property pixelsWidth
+	{
+		function get():Integer { return window.innerWidth*window.devicePixelRatio; }
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property pixelsHeight
+	{
+		function get():Integer { return window.innerHeight*window.devicePixelRatio; }
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public property screenOrientation
 	{
 		function get():COCO_SCREEN_ORIENTATION
@@ -287,6 +299,19 @@ class CocoDevice
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property DeviceMobileBrowserName
+	{
+		function get():String
+		{
+			if(this.isChrome)					return "BROWSER_CHROME";
+			else if(this.isDesktopSafari)		return "BROWSER_SAFARI";
+			else if(this.isFirefox)				return "BROWSER_FIREFOX";
+			return "BROWSER_UNKNOWN";
+
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public property dpi
 	{
 		function get():COCO_DEVICE
@@ -315,6 +340,15 @@ class CocoDevice
 		function get():String
 		{
 			return "";//isAndroid ? navigator.userAgent.match(/Android (\d+\.\d+\.\d+)/)[1] : 0;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property DeviceSDKVersion
+	{
+		function get():String
+		{
+			return "Device SDK " + iOSVersion + AndroidSDKVersion;
 		}
 	}
 }

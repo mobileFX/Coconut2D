@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#include "CocoAssetFile.h"
-#include "Fonts/CocoFontsCache.h"
-#include "Audio/CocoAudioStream.h"
+#include "Audio/CocoAudioSystem.h"
 #include "CocoDeviceWrapper.h"
 
 #include <sys/socket.h>
@@ -38,10 +36,6 @@
 #include <unistd.h>
 #include <errno.h>
 
-extern AAssetManager* CocoAssetFile::manager;
-extern char* CocoAssetFile::assetPath;
-extern char* CocoAssetFile::filesPath;
-
 #define CONFIGURATION_$(UCONFIGURATION)
 #define DEBUG_HOST_IP "$(DEBUG_HOST_IP)"
 #define DEBUG_HOST_PORT $(DEBUG_HOST_PORT)
@@ -52,15 +46,16 @@ void android_main(android_app* app)
 
 	std::setlocale(LC_ALL, "en_US.UTF-8");
 
-	curl_global_init(CURL_GLOBAL_ALL);
 	CocoAssetFile::init(app->activity->assetManager, "/data/data/com.mobilefx.cocoengine/files/");
 
-	CocoFontsCache::init();
+	/*
 	$(FONTS_LIST)
+	*/
 
-	CocoAudioStream::init();
+	CocoAudioSystem::init();
 
 	#ifdef __XMLHTTPREQUEST_HPP__
+	curl_global_init(CURL_GLOBAL_ALL);
 	XMLHttpRequest::init();
 	#endif
 
@@ -68,10 +63,10 @@ void android_main(android_app* app)
 
 	#ifdef __XMLHTTPREQUEST_HPP__
 	XMLHttpRequest::quit();
+	curl_global_cleanup();
 	#endif
 
-	CocoAudioStream::quit();
-	CocoFontsCache::quit();
+	CocoAudioSystem::quit();
+
 	CocoAssetFile::quit();
-	curl_global_cleanup();
 }

@@ -6,6 +6,8 @@ var global = this;
 var engine = null;
 var gl = null;
 
+var ____debugger_current_scene = null;
+
 global.__native = false;
 global.__touchEvents = false;
 global.__iOS = false;
@@ -17,11 +19,25 @@ if (!global.window)
 }
 if (!global.document) global.document = window.document;
 
+if(!window.hasOwnProperty("deviceRotation"))
+{
+	window.deviceRotation = 0;
+}
+
+if (!global.__cococlip_debugger_paint) global.__cococlip_debugger_paint = function(p){}
+if (!global.__cococlip_debugger_tick) global.__cococlip_debugger_tick = function(p){}
+if (!global.__cococlip_debugger_interpolation) global.__cococlip_debugger_interpolation = function(p){}
+if (!global.__cococlip_debugger_keyframe) global.__cococlip_debugger_keyframe = function(p,f){}
+
+if(WebGLRenderingContext && !WebGLRenderingContext.BGRA)
+	WebGLRenderingContext.prototype.BGRA = WebGLRenderingContext.RGBA;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 if (!global.trace) global.trace = function (msg)
 {
 	console.log(msg);
-/*
+
+	/*
 	try
 	{
 		var xhttp = new XMLHttpRequest();
@@ -77,6 +93,18 @@ function State()
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+function COCO_SET_BY_NAME(obj, propName, value)
+{
+	obj[propName] = value;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function COCO_GET_BY_NAME(obj, propName)
+{
+	return obj[propName];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function parseTime(s)
 {
 	return parseFloat(s);
@@ -116,14 +144,23 @@ function fixTouch(touch)
 function __delete__(o,a)
 {
 	if(!o) return;
+
 	if(a)
 	{
 		for(var i=o.length;i--;)
 		{
-			o[i] && ((o[i].hasOwnProperty('Destructor') && o[i].Destructor()) || !o[i].hasOwnProperty('Destructor')) && (delete o[i]);o[i]=null;
+			o[i] = __delete__(o[i]);
 		}
 	}
-	((o.hasOwnProperty('Destructor') && o.Destructor()) || !o.hasOwnProperty('Destructor')) && (delete o); o=null;
+
+	if(o.hasOwnProperty('Destructor') || ('Destructor' in o))
+	{
+		o.Destructor();
+	}
+
+	delete o;
+	o=null;
+
 	return null;
 }
 
@@ -195,6 +232,17 @@ Object.defineProperty(HTMLCanvasElement.prototype, "getImage", {
 		return img;
 	}
 });
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+if(global['CanvasRenderingContext2D'])
+{
+	Object.defineProperty(CanvasRenderingContext2D.prototype, "setFillStyleGradient", {
+		value: function(grad)
+		{
+			this.fillStyle = grad;
+		}
+	});
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 WebGLRenderingContext.prototype.getShaderParameter_enum = function (shader, pname)

@@ -1,0 +1,152 @@
+{
+	"Libraries":
+	{
+		"boost":
+		{
+			"Targets":
+			{
+				"xAndroid": "boost",
+				"xiOS": "-lboost",
+				"xWin32": "-lboost",
+				"xDigiSign": "-lboost"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_BOOST",
+			"Description": "Boost provides free peer-reviewed portable C++ source libraries.",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		},
+		"cairo":
+		{
+			"Targets":
+			{
+				"Android": "cairo pixman cpufeatures",
+				"iOS": "-lcairo",
+				"Win32": "-lcairo -lpixman-1",
+				"DigiSign": "-lcairo -lpixman-1"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_CAIRO",
+			"Description": "Cairo is a well known library supporting Graphics",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		},
+		"curl":
+		{
+			"Targets":
+			{
+				"Android": "curl",
+				"iOS": "-lcurl",
+				"Win32": "-lcurldll",
+				"DigiSign": "-lcurldll"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_CURL",
+			"Description": "libcurl is a well known library supporting URLs (networking, web protocols)",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		},
+		"freetype":
+		{
+			"Targets":
+			{
+				"Android": "freetype2",
+				"iOS": "-lfreetype",
+				"Win32": "-lfreetype",
+				"DigiSign": "-lfreetype"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_FREETYPE",
+			"Description": "libfreetype is a standard library supporting TrueType fonts",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		},
+		"glew":
+		{
+			"Targets":
+			{
+				"Win32": "-lopengl32 -lglew32.dll",
+				"DigiSign": "-lopengl32 -lglew32.dll"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_GLEW",
+			"Description": "glew is an OpenGL C/C++ extension loading library",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		},
+		"jpeg":
+		{
+			"Targets":
+			{
+				"Android": "jpeg",
+				"iOS": "-ljpeg",
+				"Win32": "-ljpeg",
+				"DigiSign": "-ljpeg"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_JPEG",
+			"Description": "libjpeg is a popular library supporting the JPEG image compression",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		},
+		"openal":
+		{
+			"Targets":
+			{
+				"Android": "openal tremor ogg",
+				"iOS": "-lTremolo",
+				"Win32": "-lOpenAL32 -lvorbisidec -logg",
+				"DigiSign": "-lOpenAL32 -lvorbisidec -logg"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_OPENAL",
+			"Description": "OpenAL is a cross-platform audio application programming interface (API)",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		},
+		"png":
+		{
+			"Targets":
+			{
+				"Android": "png",
+				"iOS": "-lpng",
+				"Win32": "-lpng",
+				"DigiSign": "-lpng"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_PNG",
+			"Description": "libpng is a popular library supporting the PNG image compression",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		},
+		"z":
+		{
+			"Targets":
+			{
+				"iOS": "-lz",
+				"Win32": "-lz",
+				"DigiSign": "-lz"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_LIBZ",
+			"Description": "libz is a popular library implementing the compression algorithm used by gzip and zip",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		},
+		"zxing":
+		{
+			"Targets":
+			{
+				"xAndroid": "zxing",
+				"xiOS": "-lzxing",
+				"xWin32": "-lzxing",
+				"xDigiSign": "-lzxing"
+			},
+			"AddSources": false,
+			"Precompiler": "ENABLE_ZXING",
+			"Description": "ZXing is an open-source, multi-format 1D/2D barcode image processing library",
+			"Include": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/include/$(DEVICE_WRAPPER)",
+			"Lib": "$(PATH_SDK_LIBRARIES)/$(LIBRARY_NAME)/prebuilt/$(DEVICE_WRAPPER)"
+		}
+	}
+}

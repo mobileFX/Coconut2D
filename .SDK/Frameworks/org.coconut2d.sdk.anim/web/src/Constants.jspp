@@ -12,7 +12,7 @@
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,15 +39,26 @@
 
 const BOX2D_SCALE:Float 					= 100.0;
 
-const COCO_STOP_ON_CURRENT_FRAME:Integer 	= -1;
-const COCO_DEFAULT_CONTROL_HEIGHT:Integer 	= 64;
-const COCO_DEFAULT_FONT_SIZE:Integer		= 14;
-const COCO_CONTROL_MOVE_SNAP_PIXELS:Integer	= 20;
+const COCO_STOP_ON_CURRENT_FRAME:Integer 		= -1;
+const COCO_DEFAULT_CONTROL_HEIGHT:Integer 		= 48; // pixels
+const COCO_DEFAULT_EDIT_CONTROL_HEIGHT:Integer	= 38; // pixels
+const COCO_DEFAULT_FONT_SIZE:Integer			= 16; // pixels
+const COCO_CONTROL_MOVE_SNAP_PIXELS:Integer		= 20; // pixels
 
 const M_PI:Float		=  3.1415926535;
 const M_PI_2:Float 		=  1.5707963267;
 const RADIANS:Float 	=  0.0174532925;
 const DEGREES:Float 	= 57.2957795130;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for Object Field Members Cloning
+enum COCO_OBJECT_COPY_MEMBERS_ENUM
+{
+	COPY_MEMBERS_PUBLIC 		= 1,
+	COPY_MEMBERS_PUBLISHED 		= 2,
+	COPY_MEMBERS_PROTECTED 		= 4,
+	COPY_MEMBERS_ALL 			= COPY_MEMBERS_PUBLIC|COPY_MEMBERS_PUBLISHED|COPY_MEMBERS_PROTECTED
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enum for screen resolution dpi.
@@ -143,4 +154,49 @@ enum COCO_SKIN_TILE_ENUM
 	TILE_REPEAT_X								= 2,
 	TILE_REPEAT_Y								= 3,
 	TILE_REPEAT_XY								= 4
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_UI_STACK_ENUM
+{
+	STACKED_NONE 								= 0,
+	STACKED_NORMAL 								= 1,
+	STACKED_SIBLING 							= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_RENDERING_HINT
+{
+    COCO_RENDER_FOR_WEB 				= 0x800000,
+    COCO_RENDER_FOR_NATIVE 				= 0x1000000,
+
+    COCO_RENDER_FOR_PLATFORM_DESKTOP 	= 0x1,
+    COCO_RENDER_FOR_PLATFORM_MOBILE 	= 0x2,
+    COCO_RENDER_FOR_PLATFORM_TABLET 	= 0x4,
+    COCO_RENDER_FOR_PLATFORM_VLT 		= 0x8,
+    COCO_RENDER_FOR_PLATFORM_DS 		= 0x10,
+    COCO_RENDER_FOR_PLATFORM_TV 		= 0x20,
+
+    COCO_RENDER_FOR_DEVICE_IPHONE 		= 0x40,
+    COCO_RENDER_FOR_DEVICE_IPAD 		= 0x80,
+    COCO_RENDER_FOR_DEVICE_ANDROID 		= 0x100,
+
+    COCO_RENDER_FOR_DPI_LDPI 			= 0x200,
+    COCO_RENDER_FOR_DPI_MDPI 			= 0x400,
+    COCO_RENDER_FOR_DPI_TVDPI 			= 0x800,
+    COCO_RENDER_FOR_DPI_HDPI 			= 0x1000,
+    COCO_RENDER_FOR_DPI_XHDPI 			= 0x2000,
+    COCO_RENDER_FOR_DPI_XXDPI 			= 0x4000,
+
+    COCO_RENDER_FOR_RENDERER_CANVAS 	= 0x8000,
+    COCO_RENDER_FOR_RENDERER_WEBGL 		= 0x10000,
+    COCO_RENDER_FOR_RENDERER_CSS3 		= 0x20000,
+
+    COCO_RENDER_FOR_FEATURE_1 			= 0x40000,
+    COCO_RENDER_FOR_FEATURE_2 			= 0x80000,
+    COCO_RENDER_FOR_FEATURE_3 			= 0x100000,
+    COCO_RENDER_FOR_FEATURE_4 			= 0x200000,
+    COCO_RENDER_FOR_FEATURE_5 			= 0x400000,
+
+    COCO_RENDER_FOR_ALL 				= 0x1FFFFFF
 };

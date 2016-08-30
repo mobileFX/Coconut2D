@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -247,6 +247,10 @@ function Compiler(ast)
 	_this.ADD_EVENT = "addEventListener";
 	_this.REMOVE_EVENT = "removeEventListener";
 	_this.DISPATCH_EVENT = "dispatchEvent";
+	_this.COPY_MEMBERS_PUBLIC 		= 1;
+	_this.COPY_MEMBERS_PUBLISHED  	= 2;
+	_this.COPY_MEMBERS_PROTECTED 	= 4;
+	_this.COPY_MEMBERS_ALL 			= _this.COPY_MEMBERS_PUBLIC|_this.COPY_MEMBERS_PUBLISHED|_this.COPY_MEMBERS_PROTECTED;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Extend the compiler with plugins
@@ -462,12 +466,16 @@ function Compiler(ast)
 	_this.NewError = function (e, ast)
 	{
 		if(ast && ast.DISABLE_ERRORS) return;
-		if(!ast.__errors) ast.__errors = {};
-		if(!ast.__errors[e]) ast.__errors[e] = 0;
-		ast.__errors[e]++;
-		if(ast.__errors[e]>1) return;
+		if(ast.__error) return;
+
+		//if(!ast.__errors) ast.__errors = {};
+		//if(!ast.__errors[e]) ast.__errors[e] = 0;
+		//ast.__errors[e]++;
+		//if(ast.__errors[e]>1) return;
+
 		trace(" !ERROR: " + e + "\n " + ast.path + " : line " + ast.line_start + "\n");
 		IDECallback("error", ast.path, ast.line_start, 0, e);
+		ast.__error = true;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -603,6 +611,8 @@ function Compiler(ast)
 	//	/_/   /_/   \___/ .___/_/   \____/\___/\___/____/____/
 	//	               /_/
 	// ==================================================================================================================================
+
+	// TODO: should be much faster to do this in parser
 
 	_this.preprocess = function()
 	{
@@ -1094,9 +1104,6 @@ function Compiler(ast)
 		case jsdef.FUNCTION:
 			break;
 
-		case jsdef.DOT:
-			debugger;
-
 		default:
 			return null;
 		}
@@ -1143,6 +1150,14 @@ function Compiler(ast)
 			default:
 				symbol = _this.getClass(identifier) || __doLookupSymbol(scope, identifier, ast);
 				break;
+		}
+
+		// Make sure we have the right function overload
+		if(_this.secondPass && ast && symbol && symbol.overloads)
+		{
+			ast.symbol = symbol;
+			if(_this.LookupOverload(ast))
+				symbol = ast.symbol;
 		}
 
 		if(!noWarning && _this.secondPass && !symbol)
@@ -1248,6 +1263,87 @@ function Compiler(ast)
 		// Identifier not found in current scope, move to parent scope.
 		if(deep && scope.parentScope)
 			return  _this.LookupScopeChain(identifier, scope.parentScope, deep);
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.LookupOverload = function(ast)
+	{
+		if(!ast || !ast.symbol || !ast.symbol.overloads)
+			return false;
+
+		var astCALL=null;
+
+		// Function pointer inside a call.
+		// We need a static overload.
+
+		if(ast.parent.type==jsdef.LIST)
+		{
+			for(var i=ast.symbol.overloads.length-1;i>=0;i--)
+			{
+				if(ast.symbol.overloads[i].symbol.static)
+				{
+					ast.symbol = ast.symbol.overloads[i].symbol;
+					ast.value = ast.symbol.name;
+					break;
+				}
+			}
+			if(!ast.symbol.static)
+				_this.NewError("Overloaded function pointer must be static.", ast);
+		}
+
+		// A jsdef.CALL to an overload function.
+		// Determine overload from args.
+
+		else if(astCALL=_this.isInside(ast, jsdef.CALL))
+		{
+			var overload_matched = false;
+
+			// Test every overloaded function
+			for(var i=ast.symbol.overloads.length-1;i>=0;i--)
+			{
+				if(ast.symbol.overloads[i].paramsList.length==astCALL[1].length)
+				{
+					// Test every argument
+					var maching_args = true;
+					for(var j=0;j<astCALL[1].length;j++)
+					{
+						var type1 = ast.symbol.overloads[i].paramsList[j].vartype;
+						var type2 = _this.getTypeName(astCALL[1][j]);
+						if(!_this.typeCheck(ast, type1, type2, null, true))
+						{
+							maching_args=false;
+							break;
+						}
+					}
+					if(maching_args)
+					{
+						// Found the proper overloaded function!!
+
+						// *** Special Case ***
+						// If the overloaded function belongs to a delegated object we
+						// need to aquire the proper function symbol from the host class
+						// that has the proper runtime information.
+
+						if(ast.symbol.delegated)
+						{
+							ast.symbol = ast.symbol.scope.parentScope.methods[ast.symbol.overloads[i].symbol.name];
+						}
+
+						// otherwise we simply swap to the overloaded function symbol
+						else
+						{
+							ast.symbol = ast.symbol.overloads[i].symbol;
+						}
+
+						ast.value = ast.symbol.name;
+						overload_matched = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return overload_matched;
 	};
 
 	// ==================================================================================================================================
@@ -1424,6 +1520,7 @@ function Compiler(ast)
 	{
 		switch(ast.type)
 		{
+			case jsdef.THIS:
 			case jsdef.LIST:
 			case jsdef.ASSIGN:
 			case jsdef.CALL:
@@ -1432,7 +1529,16 @@ function Compiler(ast)
 			case jsdef.NUMBER:
 			case jsdef.STRING:
 			case jsdef.NEW_WITH_ARGS:
+			case jsdef.DOT:
 				break;
+
+			/*
+			case jsdef.DOT:
+
+				// Only Enum DOT is allowed ( ENUM.Value )
+				if(ast.identifier_first.symbol.enum)
+					break;
+			*/
 
 			default:
 				debugger;
@@ -1458,7 +1564,9 @@ function Compiler(ast)
 		var id = __getCallIdentifier(ast);
 
 		if(id && !id.symbol)
+		{
 			id.symbol = _this.LookupIdentifier(_this.getCurrentScope(), id.value, id, true);
+		}
 
 		return id;
 	};
@@ -1572,7 +1680,11 @@ function Compiler(ast)
 		var v = false;
 		try
 		{
-			if(expr.indexOf("=")==-1)
+			if(/\(\w+\)/.test(expr))
+			{
+				v = makefile.Vars[/\((\w+)\)/.exec(expr)[1]];
+			}
+			else if(expr.indexOf("=")==-1)
 			{
 				v = makefile.Vars[expr];
 			}
@@ -1590,8 +1702,7 @@ function Compiler(ast)
 		}
 
 		_this.CONDITIONS_CACHE[expr] = v;
-
-		//trace(expr + " = " + v);
+		trace(" + condition: " + expr + " = " + v);
 
 		return v;
 	};
@@ -1762,11 +1873,19 @@ function Compiler(ast)
 					if(!param.initializer)
 						break;
 
-					rest.push(param.initializer ? generate(param.initializer) : (_this.types[param.vartype] ? _this.types[param.vartype].default : "null"));
+					rest.push(param.initializer ? generate(param.initializer) : (_this.DEFAULT_VALUES[param.vartype] ? _this.DEFAULT_VALUES[param.vartype].default : "null"));
 				}
 			}
 
-			var gen = generate(ast[1]) + (rest.length ? ", " + rest.join(", ") : "");
+			var gen = generate(ast[1]);
+			if(rest.length)
+			{
+				if(gen)
+					gen += ", " + rest.join(", ");
+				else
+					gen = rest.join(", ");
+			}
+
 			return gen;
 		};
 
@@ -2328,7 +2447,9 @@ function Compiler(ast)
 						if(member.static)
 							staticMembers[member.nodeId] = generate(member);
 						else
+						{
 							out_vars.push(generate(member));
+						}
 					}
 					break;
 
@@ -2696,8 +2817,6 @@ function Compiler(ast)
 								break;
 
 							case jsdef.IDENTIFIER: // of jsdef.VAR
-								//staticMembers[member.ast.nodeId] = generate(member.ast.parent);
-								//YiamiYo Edit
 								staticMembers[member.ast.nodeId] = "Object.defineProperty(" + ast.name + (member.private ? ".__PRIVATE__" : (member.protected ? ".__PROTECTED__" : "")) + ", '" + member.name + "', { get: function() { return " + base.name + (member.private ? ".__PRIVATE__." : (member.protected ? ".__PROTECTED__." : ".")) + member.name + "; }, set: function(v) { " + base.name + (member.private ? ".__PRIVATE__." : (member.protected ? ".__PROTECTED__." : ".")) + member.name + " = v; } });";
 								break;
 						}
@@ -2717,6 +2836,34 @@ function Compiler(ast)
 			for(item in staticMembers)
 			{
 				out.push( staticMembers[item] );
+			}
+
+			/////////////////////////////////////////////////////////////////////////////////
+			// Generate Published Members RTTI
+			/////////////////////////////////////////////////////////////////////////////////
+			if(_this.secondPass)
+			{
+				var has_published = false;
+				var out_published = {};
+				var cls = classSymbol;
+				while(cls)
+				{
+					for(item in cls.vars)
+					{
+						var v = cls.vars[item];
+						if(v.published)
+						{
+							var key = cls.name + "." + v.name;
+							out_published[key] = v.vartype;
+							has_published = true;
+						}
+					}
+					cls = cls.baseSymbol;
+				}
+				if(has_published)
+				{
+					out.push(ast.name + ".__PUBLISHED__ = '" + Object.keys(out_published).sort().join(",") + "';");
+				}
 			}
 
 			/////////////////////////////////////////////////////////////////////////////////
@@ -2924,11 +3071,13 @@ function Compiler(ast)
 						var list = _this.getCallList(event_ast);
 
 						// Dispatch must not be in a DOT
+						/*
 						if(event_ast.inDot)
 						{
 							_this.NewError(_this.DISPATCH_EVENT + " can not be in a Dot", event_ast);
 							continue;
 						}
+						*/
 
 						// No event class?
 						if(!eventClassSymbol)
@@ -3060,12 +3209,12 @@ function Compiler(ast)
 			var classId = classScope ? classScope.ast.symbol.classId : null;
 			var isGlobal = !classScope && parentScope.isGlobal;
 			var isAnonymous = (ast.lambda || ast.name==null || ast.name.length==0);
-			var fnName = (ast.name ? ast.name : "");
+			var fnName = (ast.name ? ast.name : "" );
 			var baseMethodSymbol = null;
 
-			if(!isGlobal && isAnonymous)
+			if(!isGlobal && isAnonymous && _this.secondPass)
 			{
-				//fnName = classSymbol.name + "__lambda__" + (++_this.anonymous);
+				fnName = "__lambda_" + classSymbol.name + "_" + (++_this.anonymous) + "__";
 			}
 
 			// Add an XML comment to indicate function section in debug symbols XML
@@ -3073,7 +3222,7 @@ function Compiler(ast)
 				_this.debugSymbolsTable.push("<!-- " + className + " :: " + fnName + " -->\n");
 
             // Check for function overloading
-			if(!isAnonymous && __exists(parentScope.methods, fnName))
+			if(classSymbol && !isAnonymous && __exists(parentScope.methods, fnName))
 			{
 				var fn_ast = parentScope.methods[fnName].ast;
 				if(!_this.secondPass)
@@ -3374,8 +3523,8 @@ function Compiler(ast)
 			if(!ast.isConstructor && !ast.isDestructor)
 			{
 				var vartype = _this.getVarType(ast.returntype);
-				if(_this.types.hasOwnProperty(vartype))
-					ast.generated_code += "\nreturn " + _this.types[vartype].default + ";";
+				if(_this.DEFAULT_VALUES.hasOwnProperty(vartype))
+					ast.generated_code += "\nreturn " + _this.DEFAULT_VALUES[vartype].default + ";";
 			}
 
 			// Function end closure
@@ -3385,6 +3534,16 @@ function Compiler(ast)
 				ast.generated_code += ("\/\/@line " + ast.line_end + "\n");
 				_this.line_start = ast.line_end;
 			}
+
+        	// Compiler Hack: inject GLSL
+        	if(ast.isConstructor && classSymbol && (classSymbol.VertexShader || classSymbol.FragmentShader))
+        	{
+        		if(classSymbol.VertexShader)
+        			ast.generated_code += '__CLASS__COCOSHADER__.vertex_shader = "' + classSymbol.VertexShader.replace(/[\n\r]+/g,"\\n") + '";';
+
+        		if(classSymbol.FragmentShader)
+        			ast.generated_code += '__CLASS__COCOSHADER__.fragment_shader = "' + classSymbol.FragmentShader.replace(/[\n\r]+/g,"\\n") + '";';
+        	}
 
 			ast.generated_code += "\n}";
 
@@ -3409,6 +3568,22 @@ function Compiler(ast)
 
 	        else if(isAnonymous)
 	        {
+				functionSymbol.__typedParamsList = typedParamsList;
+				functionSymbol.__untypedParamsList = paramsList;
+
+				functionSymbol.__cnSignature = (functionSymbol.public 		? "public " : "") +
+											   (functionSymbol.private 		? "private " : "") +
+											   (functionSymbol.protected 	? "protected " : "") +
+											   (functionSymbol.static 		? "static " : "") +
+											   (functionSymbol.abstract 	? "abstract " : "") +
+											   (functionSymbol.virtual 		? "virtual " : "") +
+											   (classSymbol 				? classSymbol.name+"::" : "") +
+											   fnName + typedParamsList +
+											   (functionSymbol.vartype 		? " :" +  functionSymbol.vartype : "");
+
+				functionSymbol.__signature = fnName + typedParamsList +
+										     (functionSymbol.vartype ? " :" +  functionSymbol.vartype : "");
+
 	  			out.push("function " + fnName + paramsList);
 				out.push(ast.generated_code);
 	        }
@@ -3637,7 +3812,7 @@ function Compiler(ast)
 					if(!ast.isConstructor && baseMethodSymbol && !baseMethodSymbol.virtual)
 						_this.NewError("Base class method is not virtual: " + fnName, ast);
 
-					if(ast.returntype && ast.returnPaths.length==0)
+					if(!ast.abstract && ast.returntype && ast.returnPaths.length==0)
 						_this.NewError("Function must return a value: " + fnName, ast);
 
 					if(ast.returntype && !_this.getClass(ast.returntype))
@@ -3788,6 +3963,8 @@ function Compiler(ast)
 					else if(classId && ast.private)		varSymbol.runtime = classId + ".__PRIVATE__." + vitem.name;
 					else if(classId && ast.protected)	varSymbol.runtime = classId + ".__PROTECTED__." + vitem.name;
 					else								varSymbol.runtime = vitem.name;
+
+					_this.addDebugSymbol(vitem, varSymbol.runtime);
 				}
 
 				// Update vartype from extern
@@ -3848,9 +4025,9 @@ function Compiler(ast)
 					else
 					{
 						var vartype = _this.getVarType(vitem.vartype);
-						if(_this.types.hasOwnProperty(vartype))
+						if(_this.DEFAULT_VALUES.hasOwnProperty(vartype))
 						{
-							vitem.generated_code = _this.types[vartype].default;
+							vitem.generated_code = _this.DEFAULT_VALUES[vartype].default;
 						}
 						else if(ast.scope.isClass || ast.scope.isState)
 						{
@@ -3978,6 +4155,9 @@ function Compiler(ast)
 				classSymbol.methods	 				= scope.methods;
 				classSymbol.runtime					= ast.name;
 				classSymbol.icon					= _this.CODE_SYMBOLS_ENUM.SYMBOL_PUBLIC_FUNCTION;
+
+				classSymbol.arguments				= {};
+				classSymbol.returntype				= ast.returntype;
 			}
 
 			// Create callback signature and save it in the class
@@ -3985,9 +4165,11 @@ function Compiler(ast)
 			for(item in ast.paramsList)
 			{
 				if(!isFinite(item)) break;
-				var arg = ast.paramsList[item];
-				sig.push(arg.value + ":" + arg.vartype);
+				var param = ast.paramsList[item];
+				sig.push(param.value + ":" + param.vartype);
 			}
+
+			classSymbol.paramsList = ast.paramsList;
 			classSymbol.__typedParamsList = "("+sig.join(", ")+")";
 
 			// Save symbol
@@ -4323,6 +4505,22 @@ function Compiler(ast)
 			{
 				if(!isFinite(item)) break;
 
+				_this.skipLineNumbers++;
+				var value = _this.generate(ast[item].expression);
+				_this.skipLineNumbers--;
+
+				if(parseInt(value)!=value)
+				{
+					for(var i=0; i<ast.length;i++)
+					{
+						var rx = new RegExp("\\b(?:" + ast.name + "\\.)?" + ast[i].name + "\\b", "g");
+						value = value.replace(rx, ast[i].value);
+					}
+					try { value=eval(value); } catch(e){}
+				}
+
+				ast[item].value = value;
+
 				// Enum Item Symbol
 				var varSymbol = new VarSymbol();
 				{
@@ -4373,6 +4571,9 @@ function Compiler(ast)
 						varSymbol.runtime = ast.name + "." + varSymbol.name;
 					}
 				}
+
+				if(!_this.secondPass && classSymbol.vars[varSymbol.name])
+					_this.NewError("Redeclaration of enum item " + varSymbol.name, ast[item]);
 
 				classSymbol.vars[varSymbol.name] = varSymbol;
 				currScope.vars[varSymbol.name] = varSymbol;
@@ -4906,7 +5107,7 @@ function Compiler(ast)
 			//==================================================================================
 			/*@@ (overloads) @@*/
 
-			if(ast.symbol.ast.overloads && ast.symbol.ast.overloads!=ast.symbol.overloads)
+			if(ast.symbol.ast.overloads && ast.symbol.ast.overloads!=ast.symbol.overloads && ast.file!=ast.symbol.file) // Changed 20 Apr 2016
 			{
 				// Overloads are not synced between ast and symbol, this means that a class
 				// with overloaded functions is being used by some other class before it had
@@ -4943,53 +5144,7 @@ function Compiler(ast)
 
 				else if(astCALL=_this.isInside(ast, jsdef.CALL))
 				{
-					var overload_matched = false;
-
-					// Test every overloaded function
-					for(var i=ast.symbol.overloads.length-1;i>=0;i--)
-					{
-						if(ast.symbol.overloads[i].paramsList.length==astCALL[1].length)
-						{
-							// Test every argument
-							var maching_args = true;
-							for(var j=0;j<astCALL[1].length;j++)
-							{
-								var type1 = ast.symbol.overloads[i].paramsList[j].vartype;
-								var type2 = _this.getTypeName(astCALL[1][j]);
-								if(!_this.typeCheck(ast, type1, type2, null, true))
-								{
-									maching_args=false;
-									break;
-								}
-							}
-							if(maching_args)
-							{
-								// Found the proper overloaded function!!
-
-								// *** Special Case ***
-								// If the overloaded function belongs to a delegated object we
-								// need to aquire the proper function symbol from the host class
-								// that has the proper runtime information.
-
-								if(ast.symbol.delegated)
-								{
-									ast.symbol = ast.symbol.scope.parentScope.methods[ast.symbol.overloads[i].symbol.name];
-								}
-
-								// otherwise we simply swap to the overloaded function symbol
-								else
-								{
-									ast.symbol = ast.symbol.overloads[i].symbol;
-								}
-
-								ast.value = ast.symbol.name;
-								overload_matched = true;
-								break;
-							}
-						}
-					}
-
-					if(!overload_matched)
+					if(!_this.LookupOverload(ast))
 					{
 						_this.NewError("Invalid call to overloaded method.", ast);
 					}
@@ -5377,6 +5532,58 @@ function Compiler(ast)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CALL:
 
+			if(ast[0].value=="__copy__")
+			{
+				if(!_this.secondPass) break;
+
+				// Get calling method ast
+				var callIdentifier = _this.getCallIdentifier(ast);
+				var src_idf = _this.generate(ast[1][0]);
+				var dst_idf = _this.generate(ast[1][1]);
+				var props = _this.generate(ast[1][2]);
+				var members = _this.getClass('COCO_OBJECT_COPY_MEMBERS_ENUM').vars[ast[1][2].value].value;
+
+				var src_type = _this.getTypeName(ast[1][0]);
+				var dst_type = _this.getTypeName(ast[1][1]);
+
+				if(src_type!=dst_type)
+					_this.NewError("Cannot copy between different types, from " + src_type + " to " + dst_type, ast);
+
+				var cls = _this.getClass(src_type);
+
+				var dot = ".";
+
+				for(var item in cls.vars)
+				{
+					switch(item)
+					{
+						case "__className":
+							continue;
+					}
+
+					var mbr = cls.vars[item];
+
+					// Do not copy objects
+					if(_this.isPointer(mbr.vartype)) continue;
+
+					if(mbr.public && (members & _this.COPY_MEMBERS_PUBLIC)==_this.COPY_MEMBERS_PUBLIC)
+					{
+						out.push(dst_idf + dot + mbr.runtime + " = " + src_idf + dot + mbr.runtime + ";");
+					}
+					else if(mbr.published && (members & _this.COPY_MEMBERS_PUBLISHED)==_this.COPY_MEMBERS_PUBLISHED)
+					{
+						out.push(dst_idf + dot + mbr.runtime + " = " + src_idf + dot + mbr.runtime + ";");
+					}
+					else if(mbr.protected && (members & _this.COPY_MEMBERS_PROTECTED)==_this.COPY_MEMBERS_PROTECTED)
+					{
+						out.push(dst_idf + dot + mbr.runtime + " = " + src_idf + dot + mbr.runtime + ";");
+					}
+				}
+
+				break;
+			}
+
+			var is_event = false;
 			var gen_lhs = generate(ast[0]);
 
 			// Hack toJSON()
@@ -5398,14 +5605,17 @@ function Compiler(ast)
 			// Get calling method ast
 			var callIdentifier = _this.getCallIdentifier(ast);
 
+			if(!callIdentifier)
+			{
+				_this.NewError("Invalid call identifier", ast);
+				break;
+			}
+
 			// Detect explicity type cast
 			var isExplicitTypeCast = _this.getClass(gen_lhs);
 
 			// Get call identifier function symbol (if any)
-			var fnCall = callIdentifier.symbol && callIdentifier.symbol.type==jsdef.FUNCTION ? callIdentifier.symbol : null;
-
-			// Detect Callback call
-			var callbackCall = ast[0].symbol && ast[0].symbol instanceof VarSymbol && ast[0].symbol.file != "externs.jspp";
+			var fnCall = callIdentifier && callIdentifier.symbol && callIdentifier.symbol.type==jsdef.FUNCTION ? callIdentifier.symbol : null;
 
 			//------------------------------------------------------------------------------------------------
 			// Function Call with implicit typecast
@@ -5427,9 +5637,11 @@ function Compiler(ast)
 			// EVENT HACK: dispatchEvent loads values to event prior to firing
 			if(callIdentifier.__event && callIdentifier.value==_this.DISPATCH_EVENT)
 			{
+				is_event = true;
 				var list = _this.getCallList(ast);
 				var evCls = _this.getClass(_this.getTypeName(list[0]));
 				var evObj = generate(list[0]);
+				out.push("{");
 				out.push(evObj+".reset();");
 				var index = 1;
 				for(item in evCls.vars)
@@ -5449,22 +5661,20 @@ function Compiler(ast)
 				out.push(_this.typeCast(ast[1][0], gen_rhs));
 			}
 			//------------------------------------------------------------------------------------------------
-			// Callback or any
+			// Any
 			//------------------------------------------------------------------------------------------------
 			else
 			{
 				out.push(gen_lhs);
-
-				if(callbackCall)
-					out.push(".call(global" + (gen_rhs.trim() ? "," : ""));
-				else
-					out.push("(");
-
+				out.push("(");
 				out.push(gen_rhs);
 				out.push(")");
 
 				_this.checkFunctionCall(ast);
 			}
+
+			if(is_event)
+				out.push("}");
 
 			ast.runtime = out.join("");
 			_this.addDebugSymbol(ast, ast.runtime);
@@ -5971,7 +6181,7 @@ function Compiler(ast)
 						}
 						else
 						{
-							def = (_this.types[vartype] ? _this.types[vartype].default : "null");
+							def = (_this.DEFAULT_VALUES[vartype] ? _this.DEFAULT_VALUES[vartype].default : "null");
 						}
 						items.push('"'+symbol.vars[item].name + '":' + def);
 					}
@@ -6079,8 +6289,18 @@ function Compiler(ast)
 			out.push(ast.code);
 			break;
 
+		case jsdef.BLOCK_GLSL:
+
+        	// Compiler Hack: set GLSL to CocoShader derivative
+
+        	if(ast.inFunction && (ast.inFunction.name=="VertexShader" || ast.inFunction.name=="FragmentShader") && ast.inClass && _this.isDerivativeOf(ast.inClass.name, "CocoShader"))
+        	{
+        		ast.inClass.symbol[ast.inFunction.name] = ast.code;
+        	}
+			break;
+
 		case jsdef.REGEXP:
-			_this.NewError("Invalid JavaScript Reqular Expressio, use __javascript { }__end closure or RegEx object.", ast);
+			_this.NewError("Invalid JavaScript Reqular Expression, use __javascript { }__end closure or RegEx object.", ast);
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

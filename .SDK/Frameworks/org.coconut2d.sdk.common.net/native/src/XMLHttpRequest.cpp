@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -191,25 +191,21 @@ void XMLHttpRequest::send()
 	send("");
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 void XMLHttpRequest::send(String data)
 {
 	if(curl)
 	{
-		/*
 		UINT cb = data.size();
 		if(cb>0)
 		{
-			BSTR s = STR_to_BSTR(data);
-			cb = SysStringByteLen(s);
+			// TODO: convert string to UTF8
 			requestDataBuffer.clear();
-			requestDataBuffer.resize(cb+1);
-			memcpy(requestDataBuffer.data(), s, cb);
-			*(requestDataBuffer.data()+cb) = 0;
-			SysFreeString(s);
+			requestDataBuffer.resize(cb + 1);
+			memcpy(requestDataBuffer.data(), data.c_str(), cb);
+			*(requestDataBuffer.data() + cb) = 0;
 		}
-		*/
+
 		curl_send();
 		readyState=LOADING;
 		tick();

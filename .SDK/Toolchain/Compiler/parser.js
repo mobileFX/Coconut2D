@@ -1613,32 +1613,8 @@ function __init_narcissus(GLOBAL)
 	function CallbackDefinition(t,x)
 	{
 		//callback CocoEventHandler(Sender:CocoEventSource, Event:CocoEvent) :Boolean;
-		f = new Node(t,jsdef.CALLBACK);
-		t.mustMatch(jsdef.IDENTIFIER);
-		f.name = t.token().value;
-		t.mustMatch(jsdef.LEFT_PAREN);
-		f.params=[];
-		f.paramsList=[];
-		while(t.peek()==jsdef.IDENTIFIER)
-		{
-			t.mustMatch(jsdef.IDENTIFIER);
-			n2 = new Node(t);
-			n2.value = t.token().value;
-			t.mustMatch(jsdef.COLON);
-			t.mustMatch(jsdef.IDENTIFIER);
-			n2.vartype = t.token().value;
-			f.params.push(n2.value);
-			f.paramsList.push(n2);
-			if(t.peek()!=jsdef.COMMA) break;
-			t.mustMatch(jsdef.COMMA);
-		}
-		t.mustMatch(jsdef.RIGHT_PAREN);
-		if(t.peek()==jsdef.COLON)
-		{
-			t.mustMatch(jsdef.COLON);
-			matchVartype(t, f, "returntype");
-		}
-		t.mustMatch(jsdef.SEMICOLON);
+		f = FunctionDefinition(t, x, true, DECLARED_FORM, {type:jsdef.INTERFACE});
+		f.type = jsdef.CALLBACK;
 		return f;
 	}
 
@@ -1712,14 +1688,13 @@ function __init_narcissus(GLOBAL)
 			var f = new Node(t, jsdef.ENUM_ITEM);
 			f.name = t.token().value;
 			f.vartype = n.name;
+
             t.mustMatch(jsdef.ASSIGN);
-            var m = false;
-            if(t.match(jsdef.UNARY_MINUS))
-            	m = true;
-            t.mustMatch(jsdef.NUMBER);
-            f.value = (m ? "-" : "") + t.token().value;
+
+            f.expression = Expression(t, x, jsdef.COMMA, jsdef.RIGHT_CURLY);
             n.push(f);
-            if(!t.match(jsdef.COMMA))
+
+        	if(!t.match(jsdef.COMMA))
             	break;
 		}
 		t.mustMatch(jsdef.RIGHT_CURLY);
@@ -2616,7 +2591,7 @@ function __init_narcissus(GLOBAL)
 	for(var i in opArity)
 		if(jsdef[i]) opArity[jsdef[i]] = opArity[i];
 
-	function Expression(t, x, stop)
+	function Expression(t, x, stop, stop2)
 	{
 		var n, id, tt, operators = [],
 			operands = [];
@@ -2658,7 +2633,7 @@ function __init_narcissus(GLOBAL)
 		}
 		loop: while((tt = t.get()) != jsdef.END)
 		{
-			if(tt == stop &&
+			if((tt == stop || tt==stop2) &&
 				x.bracketLevel == bl && x.curlyLevel == cl && x.parenLevel == pl &&
 				x.hookLevel == hl)
 			{

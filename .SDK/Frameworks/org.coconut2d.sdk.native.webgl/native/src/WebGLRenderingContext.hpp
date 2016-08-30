@@ -1,6 +1,6 @@
-﻿/* ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,30 +27,24 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "Coconut2D.hpp"
-#include <string>
-#include "HTMLCanvasElement.hpp"
-#include "HTMLImageElement.hpp"
+#include "CanvasRenderingContext2D.hpp"
 #include "HTMLVideoElement.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define	ASSERT_GL()
-/*
-#ifdef NGLDEBUG
-	#define	ASSERT_GL()	((void)0)
-#else
-	#define ASSERT_GL() \
-	{\
-		GLenum ret = glGetError();\
-		if(ret)\
-		{\
-			fprintf(stderr, "glError(0x%04X)\n", ret);\
-			fflush(stderr);\
-			assert(false);\
-		}\
+#ifdef GLDEBUG
+	#define ASSERT_GL() 										\
+	{                                                           \
+		GLenum errpr = 0;                                       \
+ 		while ((error = glGetError()) != GL_NO_ERROR)           \
+ 		{                                                       \
+			fprintf(stderr, "glError(0x%04X)\n", error);        \
+			fflush(stderr);    			                        \
+		}                                                       \
 	}
+#else
+	#define	ASSERT_GL()
 #endif
-*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 struct GLany
@@ -323,6 +317,7 @@ public:
 	const GLenum ALPHA = 0x1906;
 	const GLenum RGB = 0x1907;
 	const GLenum RGBA = 0x1908;
+	const GLenum BGRA = 0x80E1;
 	const GLenum LUMINANCE = 0x1909;
 	const GLenum LUMINANCE_ALPHA = 0x190A;
 	const GLenum UNSIGNED_SHORT_4_4_4_4 = 0x8033;

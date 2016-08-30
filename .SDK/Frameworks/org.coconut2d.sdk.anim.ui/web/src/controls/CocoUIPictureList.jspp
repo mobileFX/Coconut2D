@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,13 +34,28 @@
 //
 // ==================================================================================================================================
 
-#include "CocoUIControl.jspp"
+#include "CocoUIButton.jspp"
 
 control class CocoUIPictureList : CocoUIButton
 {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor(Name:String) : CocoUIButton(Name)
+	public function Constructor(scene:CocoScene, name:String) : CocoUIButton(scene, name)
 	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Clone():CocoUIPictureList
+	{
+		var ctl:CocoUIPictureList = new CocoUIPictureList(__scene, __instanceName);
+		__cloneTo(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __cloneTo(ctl:CocoUIPictureList)
+	{
+		__copy__(this, ctl, COPY_MEMBERS_ALL);
+		super.__cloneTo(ctl);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////

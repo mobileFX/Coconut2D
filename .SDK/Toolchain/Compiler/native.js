@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -115,7 +115,7 @@ function CompilerCppPlugin(compiler)
 			{
 				if(!isFinite(item)) break;
 				var field =  ast[item];
-				items.push("\t" + _this.VTCPP(field.vartype) + field.name + ";");
+				items.push("\t" + _this.VTCPP(field.vartype) + " " + field.name + ";");
 				var value = field.symbol.value;
 				if(value==null) value = "nullptr";
 				if(value=='""') value = 'String("")';
@@ -249,7 +249,7 @@ function CompilerCppPlugin(compiler)
 						for(var i=0; i<delegatorFunctionSymbol.paramsList.length; i++)
 						{
 							var p = delegatorFunctionSymbol.paramsList[i];
-							args.push((p.optional ? "const " : "") + _this.VTCPP(p.vartype) + p.name + (p.optional ? " = " + _this.getDefaultVartypeValue(p.vartype) : ""));
+							args.push((p.optional ? "const " : "") + _this.VTCPP(p.vartype) + " " + p.name + (p.optional ? " = " + _this.getDefaultVartypeValue(p.vartype) : ""));
 						}
 
 						// Create the delegation HPP wrapper
@@ -259,7 +259,7 @@ function CompilerCppPlugin(compiler)
 						for(var i=0; i<delegatorFunctionSymbol.paramsList.length; i++)
 						{
 							var p = delegatorFunctionSymbol.paramsList[i];
-							args.push(_this.VTCPP(p.vartype) + p.name);
+							args.push(_this.VTCPP(p.vartype) + " " + p.name);
 						}
 
 						// Create the delegation CPP wrapper
@@ -414,6 +414,37 @@ function CompilerCppPlugin(compiler)
 			break;
 
 		// ==================================================================================================================================
+		//	   ______      ______               __      ____       _____       _ __  _
+		//	  / ____/___ _/ / / /_  ____ ______/ /__   / __ \___  / __(_)___  (_) /_(_)___  ____
+		//	 / /   / __ `/ / / __ \/ __ `/ ___/ //_/  / / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
+		//	/ /___/ /_/ / / / /_/ / /_/ / /__/ ,<    / /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
+		//	\____/\__,_/_/_/_.___/\__,_/\___/_/|_|  /_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
+		//
+		// ==================================================================================================================================
+		/*@@ CALLBACK @@*/
+
+		case jsdef.CALLBACK:
+
+			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
+
+			var name = ast.name;
+			var param, ParamList = "(";
+
+			for(var i=0; i < ast.paramsList.length; i++)
+			{
+				param = ast.paramsList[i];
+				ParamList += _this.VTCPP(param.vartype);
+				if(i!=ast.paramsList.length-1)
+					ParamList +=", ";
+			}
+			ParamList += ")";
+
+			var fn = "typedef " + _this.VTCPP(ast.returntype) + " (" + name + ")" + ParamList + ";";
+			var native_file = _this.native_files['Constants.jspp'];
+			native_file.hpp.body.push(fn);
+			return _this.NULL_GEN;
+
+		// ==================================================================================================================================
 		//	    ______                 __  _
 		//	   / ____/_  ______  _____/ /_(_)___  ____
 		//	  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \
@@ -425,8 +456,11 @@ function CompilerCppPlugin(compiler)
 
 		case jsdef.FUNCTION:
 
-			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
-			if(!_this.currClassName) return _this.NULL_GEN;
+			if(ast.type!=jsdef.CALLBACK)
+			{
+				if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
+				if(!_this.currClassName) return _this.NULL_GEN;
+			}
 
 			_this.currFunction = ast;
 
@@ -436,12 +470,18 @@ function CompilerCppPlugin(compiler)
 			for(var i=0; i<ast.paramsList.length; i++)
 			{
 				param = ast.paramsList[i];
-				var cpp_param = _this.VTCPP(param.vartype) + param.name;
+
+				var vt = _this.VTCPP(param.vartype);
+				var cpp_param = vt + " " + param.name;
 
 				var def = "nullptr";
 				if(param.optional)
 				{
-					if(_this.cpp_types.hasOwnProperty(param.vartype))
+					if(param.initializer)
+					{
+						def = generate_cpp(param.initializer).CPP;
+					}
+					else if(_this.cpp_types.hasOwnProperty(param.vartype))
 					{
 						def = _this.cpp_types[param.vartype].default;
 					}
@@ -473,33 +513,76 @@ function CompilerCppPlugin(compiler)
 			cppParamsList += ")";
 			hppParamList += ")";
 
-			var fn = (ast.static ? "static " :"") + (ast.symbol.virtual ? "virtual " : "") + (ast.isConstructor || ast.isDestructor ? "" : _this.VTCPP(ast.returntype)) + name + hppParamList + (ast.symbol.abstract ? "=0":"") +";";
-			HPP.push(fn);
+			var fn = "";
+			var return_type = null;
+
+			if(ast.lambda)
+			{
+				return_type = _this.VTCPP(ast.returntype);
+
+				fn = "[]" + hppParamList + (return_type ?  "->" + return_type : "");
+			}
+			else if(ast.type==jsdef.CALLBACK)
+			{
+				return_type = _this.VTCPP(ast.returntype);
+
+				fn = (return_type ? return_type + " " : "") +
+				     name +
+				     hppParamList +
+				     ";";
+			}
+			else
+			{
+				return_type = _this.VTCPP(ast.returntype);
+				if(ast.isConstructor || ast.isDestructor) return_type = null;
+
+				fn = (ast.static ? "static " :"") +
+				     (ast.symbol.virtual ? "virtual " : "") +
+				     (return_type ? return_type + " " : "") +
+				     name +
+				     hppParamList +
+				     (ast.symbol.abstract ? "=0":"") +";";
+
+				HPP.push(fn);
+			}
 
 			if(!ast.symbol.abstract && ast.inClass && !ast.inClass.symbol.interface)
 			{
-		        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-				CPP.push( (ast.isConstructor || ast.isDestructor ? "" : _this.VTCPP(ast.returntype)) + _this.currClassName+"::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + cppParamsList);
+		        if(!ast.lambda)
+		        {
+		        	CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 
-				if(ast.isConstructor && ast.inClass.base_init)
-				{
-					var baseConstructorArguments = [];
-					for(var item in ast.inClass.base_init[1])
+					CPP.push(  (return_type ? return_type + " " : "") +
+							   _this.currClassName+"::" +
+							   (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") +
+							   name +
+							   cppParamsList);
+
+					if(ast.isConstructor && ast.inClass.base_init)
 					{
-						if(!isFinite(item)) break;
-						var arg = ast.inClass.base_init[1][item];
-						if(arg.type==jsdef.IDENTIFIER)
+						var baseConstructorArguments = [];
+						for(var item in ast.inClass.base_init[1])
 						{
-							baseConstructorArguments.push(arg.value);
+							if(!isFinite(item)) break;
+							var arg = ast.inClass.base_init[1][item];
+							if(arg.type==jsdef.IDENTIFIER)
+							{
+								baseConstructorArguments.push(arg.value);
+							}
+							else
+							{
+								var gen = _this.generate_cpp(arg);
+								baseConstructorArguments.push(gen.CPP);
+							}
 						}
-						else
-						{
-							var gen = _this.generate_cpp(arg);
-							baseConstructorArguments.push(gen.CPP);
-						}
+						CPP.push(" : " + ast.inClass.extends + "(" + formatCPP(baseConstructorArguments.join(",")) + ")");
 					}
-					CPP.push(" : " + ast.inClass.extends + "(" + formatCPP(baseConstructorArguments.join(",")) + ")");
-				}
+		        }
+		        else
+		        {
+		        	CPP.push(fn);
+		        }
+
 
 		        CPP.push("\n{\n");
 
@@ -527,7 +610,7 @@ function CompilerCppPlugin(compiler)
 		        if(ast.symbol.restArguments)
 		        {
 		        	var param = ast.paramsList[0];
-		        	var vt = _this.VTCPP(ast.symbol.restArgumentsVartype).trim();
+		        	var vt = _this.VTCPP(ast.symbol.restArgumentsVartype);
 		        	if(vt=="String") vt = "char*";
 		   			CPP.push("Array<" + vt + "> __arguments;");
 		   			CPP.push("Array<" + vt + ">* arguments = &__arguments;");
@@ -545,6 +628,13 @@ function CompilerCppPlugin(compiler)
 			}
 
 			_this.currFunction = null;
+
+			if(ast.type==jsdef.CALLBACK)
+			{
+				var native_file = _this.native_files['Constants.jspp'];
+				native_file.hpp.body.push(fn);
+				return _this.NULL_GEN;
+			}
 
 			break;
 
@@ -573,21 +663,21 @@ function CompilerCppPlugin(compiler)
 
 					if(isConst && !ast.static)
 					{
-						val = "const " + _this.VTCPP(ast[i].vartype) + ast[i].name + initializer(ast[i]) + ";";
+						val = "const " + _this.VTCPP(ast[i].vartype) + " " + ast[i].name + initializer(ast[i]) + ";";
 						HPP.push(val);
 					}
 					else if(ast.static)
 					{
 						// static var needs to be defined in .cpp as well
-						val = _this.VTCPP(ast[i].vartype) + _this.currClassName + "::" + ast[i].name + ";";
+						val = _this.VTCPP(ast[i].vartype) + " " + _this.currClassName + "::" + ast[i].name + ";";
 						CPP.push(val);
 
-						val = "static " + (isConst ? "constexpr " : "") + _this.VTCPP(ast[i].vartype) + ast[i].name + (!isConst ? "" : initializer(ast[i])) + ";";
+						val = "static " + (isConst ? "constexpr " : "") + _this.VTCPP(ast[i].vartype) + " " + ast[i].name + (!isConst ? "" : initializer(ast[i])) + ";";
 						HPP.push(val);
 					}
 					else
 					{
-						val = _this.VTCPP(ast[i].vartype) + ast[i].name + ";";
+						val = _this.VTCPP(ast[i].vartype) + " " + ast[i].name + ";";
 						HPP.push(val);
 					}
 				}
@@ -596,7 +686,7 @@ function CompilerCppPlugin(compiler)
 			// Var in for(;;)
 			else if(_this.__inFor)
 			{
-				CPP.push(_this.VTCPP(ast[0].vartype));
+				CPP.push(_this.VTCPP(ast[0].vartype) + " ");
 				for(i=0;i<ast.length;i++)
 				{
 					val = ast[i].name + initializer(ast[i]) + (i<ast.length-1 ? ", " : "");
@@ -609,7 +699,7 @@ function CompilerCppPlugin(compiler)
 			{
 				for(i=0;i<ast.length;i++)
 				{
-					val = _this.VTCPP(ast[i].vartype) + ast[i].name + initializer(ast[i]) + ";";
+					val = _this.VTCPP(ast[i].vartype) + " " + ast[i].name + initializer(ast[i]) + ";";
 					HPP.push(val);
 				}
 			}
@@ -619,7 +709,7 @@ function CompilerCppPlugin(compiler)
 			{
 				for(i=0;i<ast.length;i++)
 				{
-					val = _this.VTCPP(ast[i].vartype) + ast[i].name + initializer(ast[i]) + ";";
+					val = _this.VTCPP(ast[i].vartype) + " " + ast[i].name + initializer(ast[i]) + ";";
 					CPP.push(val);
 				}
 			}
@@ -667,21 +757,6 @@ function CompilerCppPlugin(compiler)
 			break;
 
 		// ==================================================================================================================================
-		//	   ______      ______               __      ____       _____       _ __  _
-		//	  / ____/___ _/ / / /_  ____ ______/ /__   / __ \___  / __(_)___  (_) /_(_)___  ____
-		//	 / /   / __ `/ / / __ \/ __ `/ ___/ //_/  / / / / _ \/ /_/ / __ \/ / __/ / __ \/ __ \
-		//	/ /___/ /_/ / / / /_/ / /_/ / /__/ ,<    / /_/ /  __/ __/ / / / / / /_/ / /_/ / / / /
-		//	\____/\__,_/_/_/_.___/\__,_/\___/_/|_|  /_____/\___/_/ /_/_/ /_/_/\__/_/\____/_/ /_/
-		//
-		// ==================================================================================================================================
-		/*@@ CALLBACK @@*/
-
-		case jsdef.CALLBACK:
-
-			if(!ast.__VARIABLES.export_native) return _this.NULL_GEN;
-			break;
-
-		// ==================================================================================================================================
 		//	    ______                 __
 		//	   / ____/   _____  ____  / /______
 		//	  / __/ | | / / _ \/ __ \/ __/ ___/
@@ -703,7 +778,7 @@ function CompilerCppPlugin(compiler)
 			for(item in ast.event_class_symbol.vars)
 			{
 				var field = ast.event_class_symbol.vars[item].ast;
-				HPP.push("\n\t"+ _this.VTCPP(field.vartype) + field.name +";");
+				HPP.push("\n\t"+ _this.VTCPP(field.vartype) + " " + field.name +";");
 			}
 
 			// Event constructor and initialization of params
@@ -711,7 +786,16 @@ function CompilerCppPlugin(compiler)
 			for(item in ast.event_class_symbol.vars)
 			{
 				var field = ast.event_class_symbol.vars[item].ast;
-				HPP.push(field.name + " = " + (_this.cpp_types.hasOwnProperty(_this.getVarType(field.vartype)) ? _this.cpp_types[field.vartype].default : "nullptr") + ";");
+				var def = "nullptr";
+				var vt = _this.getVarType(field.vartype);
+
+				if(_this.cpp_types.hasOwnProperty(vt))
+					def = _this.cpp_types[vt].default;
+
+				else if(_this.isEnum(vt))
+					def = _this.enumDefault(vt, true);
+
+				HPP.push(field.name + " = " + def + ";");
 			}
 			HPP.push("\n}");
 
@@ -752,7 +836,7 @@ function CompilerCppPlugin(compiler)
 			HPP.push("\n};\n");
 
 			// Push code into native file node
-			var native_file = _this.native_files[ast.symbol.file];
+			var native_file = _this.native_files['Constants.jspp'];//_this.native_files[ast.symbol.file];
 			native_file.hpp.body.push(formatCPP(HPP.join("")));
 			native_file.cpp.body.push(formatCPP(CPP.join("")));
 			break;
@@ -776,9 +860,9 @@ function CompilerCppPlugin(compiler)
 	    	{
 				var name = "__get_" + ast.name;
 				var ret = _this.VTCPP(ast.getter.returntype);
-				HPP.push((ast.symbol.virtual ? "virtual " : "") + ret + name + "();");
+				HPP.push((ast.symbol.virtual ? "virtual " : "") + ret + " " + name + "();");
 		        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
-				CPP.push( ret + _this.currClassName + "::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + "()");
+				CPP.push( ret + " " + _this.currClassName + "::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + "()");
 		        CPP.push("\n{\n");
 				CPP.push(generate_cpp(ast.getter.body).CPP);
 				CPP.push("}\n");
@@ -786,7 +870,7 @@ function CompilerCppPlugin(compiler)
 	    	if(ast.setter)
 	    	{
 				var name = "__set_" + ast.name;
-				var param = "(" + _this.VTCPP(ast.vartype) + ast.setter.paramsList[0].name + ")";
+				var param = "(" + _this.VTCPP(ast.vartype) + " " + ast.setter.paramsList[0].name + ")";
 				HPP.push((ast.symbol.virtual ? "virtual " : "") + ("void ") + name + param + ";");
 		        CPP.push("\n////////////////////////////////////////////////////////////////////////////////////////////////////\n");
 				CPP.push( "void " + _this.currClassName + "::" + (_this.in_state ? ast.symbol.scope.parentScope.ast.name + "::" : "") + name + param);
@@ -889,15 +973,30 @@ function CompilerCppPlugin(compiler)
 			var isProp = false;
 			var name = ast.value.replace(/\$\d+/,'');
 
+			if(!ast.symbol)
+			{
+				CPP.push(ast.value);
+				debugger;
+				break;
+			}
+
 			if(ast.symbol.delegated)
 				CPP.push(ast.symbol.scope.ast.name + "->");
 
-			if(ast.symbol && ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST)
+			if(ast.symbol.type==jsdef.FUNCTION && ast.parent.type==jsdef.LIST)
 			{
-				CPP.push("&" + ast.symbol.ast.scope.className + "::" + name);
+				if(ast.__typecast=="CocoAction")
+				{
+					CPP.push("[this](){ " + ast.value + "(); }");
+				}
+				else
+				{
+					CPP.push("&" + ast.symbol.ast.scope.className + "::" + name);
+				}
+
 				break;
 			}
-			else if(ast.symbol && ast.symbol.type == jsdef.PROPERTY)
+			else if(ast.symbol.type == jsdef.PROPERTY)
 			{
 				CPP.push(_this.in_setter ? "__set_" : "__get_");
 				isProp = true;
@@ -948,28 +1047,60 @@ function CompilerCppPlugin(compiler)
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case jsdef.CALLBACK:
-
-			var name = ast.name;
-			var param, ParamList = "(";
-
-			for(var i=0; i < ast.paramsList.length; i++)
-			{
-				param = ast.paramsList[i];
-				ParamList += _this.VTCPP(param.vartype);
-				if(i!=ast.paramsList.length-1)
-					ParamList +=", ";
-			}
-			ParamList += ")";
-
-			var fn = "typedef " + _this.VTCPP(ast.returntype) + "(" + name + ")" + ParamList + ";";
-			HPP.push(fn);
-
-			break;
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.CALL:
 
+			if(ast[0].value=="__copy__")
+			{
+				if(!_this.secondPass) break;
+
+				// Get calling method ast
+				var callIdentifier = _this.getCallIdentifier(ast);
+				var src_idf = _this.generate_cpp(ast[1][0]).CPP;
+				var dst_idf = _this.generate_cpp(ast[1][1]).CPP;
+				var props = _this.generate_cpp(ast[1][2]).CPP;
+				var members = _this.getClass('COCO_OBJECT_COPY_MEMBERS_ENUM').vars[ast[1][2].value].value;
+
+				var src_type = _this.getTypeName(ast[1][0]);
+				var dst_type = _this.getTypeName(ast[1][1]);
+
+				if(src_type!=dst_type)
+					_this.NewError("Cannot copy between different types, from " + src_type + " to " + dst_type, ast);
+
+				var cls = _this.getClass(src_type);
+
+				var dot = "->";
+
+				for(var item in cls.vars)
+				{
+					switch(item)
+					{
+						case "__className":
+							continue;
+					}
+
+					var mbr = cls.vars[item];
+
+					// Do not copy objects
+					if(_this.isPointer(mbr.vartype)) continue;
+
+					var clone = ((mbr.public && (members & _this.COPY_MEMBERS_PUBLIC)==_this.COPY_MEMBERS_PUBLIC) ||	(mbr.published && (members & _this.COPY_MEMBERS_PUBLISHED)==_this.COPY_MEMBERS_PUBLISHED) || (mbr.protected && (members & _this.COPY_MEMBERS_PROTECTED)==_this.COPY_MEMBERS_PROTECTED));
+					if(!clone) continue;
+
+					if(mbr.type == jsdef.PROPERTY)
+					{
+						if(mbr.ast.setter && mbr.ast.getter)
+							CPP.push(dst_idf + dot + "__set_" + mbr.name + "(" + src_idf + dot + "__get_" + mbr.name + "());");
+					}
+					else
+					{
+						CPP.push(dst_idf + dot + mbr.name + " = " + src_idf + dot + mbr.name + ";");
+					}
+				}
+
+				break;
+			}
+
+			var is_event = false;
 			var call0 = generate_cpp(ast[0]).CPP;
 			var scope_this = false;
 
@@ -1010,22 +1141,37 @@ function CompilerCppPlugin(compiler)
 				// If we are dispatching an event we need to set event parameters
 				if(_this.in_event_call && _this.in_event_call.value==_this.DISPATCH_EVENT)
 				{
+					is_event = true;
+
+					CPP.push("{");
+
 					var list = _this.getCallList(_this.in_event_call);
 					var event_symbol = _this.in_event_call.__event_descriptor.event_symbol;
-					CPP.push((_this.in_state ? "self" : "this") + "->" + event_symbol.runtime + "->reset();");
+					var evObj = generate_cpp(list[0]).CPP; //(_this.in_state ? "self" : "this")
+
+					CPP.push(evObj + "->reset();");
 					var i=1;
 					for(item in event_symbol.vars)
 					{
-						CPP.push((_this.in_state ? "self" : "this") + "->" + event_symbol.runtime + "->" + item + " = " + generate_cpp(list[i]).CPP + ";\n");
+						CPP.push(evObj + "->" + item + " = " + generate_cpp(list[i]).CPP + ";\n");
 						i++;
 					}
 				}
 
 				CPP.push(call0);
 				CPP.push("(");
-				if(scope_this) CPP.push((_this.in_state ? "self" : "this") + ",");
+
+				if(scope_this)
+					CPP.push((_this.in_state ? "self" : "this") + ",");
+
 				CPP.push(generate_cpp(ast[1]).CPP);
 				CPP.push(")");
+
+				if(is_event)
+				{
+					CPP.push(";");
+					CPP.push("}");
+				}
 
 				_this.in_event_call = null;
 			}
@@ -1073,7 +1219,8 @@ function CompilerCppPlugin(compiler)
 				if(!isFinite(item)) break;
 				if(!firstItem) CPP.push(", ");
 
-				var gen = _this.typeCastCPP(ast[item], generate_cpp(ast[item]).CPP);
+				var gen = generate_cpp(ast[item]).CPP;
+				gen = _this.typeCastCPP(ast[item], gen);
 				CPP.push(gen);
 
 				firstItem = false;
@@ -1103,8 +1250,6 @@ function CompilerCppPlugin(compiler)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.ARRAY_INIT:
-
-			if(ast.nodeId==63480) debugger;
 
 			// We need to detect array subtype and type cast items to it
 
@@ -1146,19 +1291,30 @@ function CompilerCppPlugin(compiler)
 				switch(ast.parent.parent.type)
 				{
 				case jsdef.NEW_WITH_ARGS:
-					// new Float32Array([...])
+
 					vartype = ast.parent.parent.vartype;
-					subtype = _this.getSubType(vartype);
-					break;
+
+					if(_this.isTypedArray(vartype))
+					{
+						// new Float32Array([...])
+						subtype = _this.getSubType(vartype);
+						break;
+					}
+					else
+					{
+						// Constructor parameter as array eg. new CocoSequence([...])
+						// Fall down to jsdef.CALL ...
+					}
 
 				case jsdef.CALL:
 
-					_this.NewWarning("Memory Leak from illegal array initialization within function call: " + ast.parent.parent.source, ast);
+					_this.NewWarning("Possible memory leak from array initialization within function call: " + ast.parent.parent.source, ast);
 
 					// foo([...])
 					var fn = _this.getCallIdentifier(ast.parent);
 					var paramIndex = _this.getCallListParamIndex(ast);
-					vartype = fn.symbol.paramsList[paramIndex].vartype;
+					var paramsList = fn.symbol.paramsList ? fn.symbol.paramsList : fn.symbol.methods.Constructor.paramsList;
+					vartype = paramsList[paramIndex].vartype;
 					subtype = _this.getSubType(vartype);
 					break;
 				}
@@ -1242,23 +1398,31 @@ function CompilerCppPlugin(compiler)
 			// Function Pointer
 
 			var type1 = _this.getTypeName(ast[0]);
-			var type2 = _this.getTypeName(ast[1]);
-
-			if(type2!="CocoAction" && _this.isDerivativeOf(type2, "Function"))
+			var cls = _this.getClass(type1);
+			if(cls.callback)
 			{
-				if(ast[1].type==jsdef.FUNCTION)
+				// LHS is callback, therefore we must decide if RHS will be wrapped inside a Lambda
+
+				var type2 = _this.getTypeName(ast[1]);
+				if(type2=="Null")
 				{
-					// Lamda Function
+					CPP.push("nullptr");
+					break;
 				}
-				CPP.push( "nullptr" );
-				break;
-			}
 
-			if(type1=="CocoAction" && type2!="Null" && type2!="CocoAction")
-			{
-				var idf = ast[1].type==jsdef.DOT ? ast[1].identifier_last : ast[1];
-				CPP.push("&" + idf.symbol.scope.className + "::" + idf.symbol.name);
-				break;
+				var cls2 = _this.getClass(type2);
+
+				//trace(ast.source + " -> " + (cls2 && cls2.callback ? "CALLBACK" : "" ));
+
+				if(cls2 && cls2.callback)
+				{
+				}
+				else
+				{
+					var lambda = "[this](){" + generate_cpp(ast[1]).CPP + "();" + "}";
+					CPP.push(lambda);
+					break;
+				}
 			}
 
 			//-----------------------------------------------------------
@@ -1512,7 +1676,7 @@ function CompilerCppPlugin(compiler)
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case jsdef.NEW:
 			if(!ast[0].vartype)	ast[0].vartype = ast[0].value;
-			CPP.push("new " + _this.VTCPP(ast[0].vartype, true).trim());
+			CPP.push("new " + _this.VTCPP(ast[0].vartype, true));
 			break;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1635,14 +1799,14 @@ function CompilerCppPlugin(compiler)
 		case jsdef.BITWISE_OR:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("|"); CPP.push(generate_cpp(ast[1]).CPP); break;
 		case jsdef.BITWISE_XOR:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("^"); CPP.push(generate_cpp(ast[1]).CPP); break;
 
-		case jsdef.EQ: 					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("==");	 CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.GE:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push(">=");  CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.GT:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push(">");   CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.LE:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("<=");  CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.LT:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("<");   CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.NE:					CPP.push(generate_cpp(ast[0]).CPP); CPP.push("!=");	 CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.STRICT_EQ:			CPP.push(generate_cpp(ast[0]).CPP); CPP.push("=="); CPP.push(generate_cpp(ast[1]).CPP); break;
-		case jsdef.STRICT_NE:			CPP.push(generate_cpp(ast[0]).CPP);	CPP.push("!="); CPP.push(generate_cpp(ast[1]).CPP); break;
+		case jsdef.EQ: 					_this.generate_op(ast, CPP, "=="); break;
+		case jsdef.GE:					_this.generate_op(ast, CPP, ">="); break;
+		case jsdef.GT:					_this.generate_op(ast, CPP, ">");  break;
+		case jsdef.LE:					_this.generate_op(ast, CPP, "<="); break;
+		case jsdef.LT:					_this.generate_op(ast, CPP, "<");  break;
+		case jsdef.NE:					_this.generate_op(ast, CPP, "!="); break;
+		case jsdef.STRICT_EQ:			_this.generate_op(ast, CPP, "=="); break;
+		case jsdef.STRICT_NE:			_this.generate_op(ast, CPP, "!="); break;
 
 		case jsdef.TRUE:				CPP.push("true"); break;
 		case jsdef.FALSE:				CPP.push("false"); break;
@@ -1688,6 +1852,35 @@ function CompilerCppPlugin(compiler)
 			break;
 
 		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		_this.generate_op = function(ast, CPP, operator)
+		{
+			var type1 = _this.getTypeName(ast[0]);
+			var type2 = _this.getTypeName(ast[1]);
+
+			if(type1!=type2)
+			{
+				var typecast = _this.typeCheck(ast, type1, type2, null, true, true, "DIV");
+
+				//#TYPECAST
+				ast[0].__typecast = typecast;
+				ast[1].__typecast = typecast;
+				var lhs = _this.typeCastCPP(ast[0], generate_cpp(ast[0]).CPP);
+				var rhs = _this.typeCastCPP(ast[1], generate_cpp(ast[1]).CPP);
+
+				CPP.push(lhs);
+				CPP.push(operator);
+				CPP.push(rhs);
+			}
+			else
+			{
+				CPP.push(generate_cpp(ast[0]).CPP);
+				CPP.push(operator);
+				CPP.push(generate_cpp(ast[1]).CPP);
+			}
+		};
+
 
 		// Done!
 		return { CPP:CPP.join(""), HPP:HPP.join("") };

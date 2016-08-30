@@ -1,4 +1,4 @@
-﻿#line 1 "root.h"
+#line 1 "root.h"
 #line 1 "root.h"
 #line 1 "<built-in>"
 #line 1 "<built-in>"

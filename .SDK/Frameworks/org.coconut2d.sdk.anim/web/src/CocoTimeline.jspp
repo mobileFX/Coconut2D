@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -62,6 +62,8 @@ struct CocoKeyFrame
 	spriteSequenceFPS:Float;
 	__isCloned:Boolean;
 	__Preserve:Boolean;
+	__isExact:Boolean;
+	__time:Time;
 }
 
 // ==================================================================================================================================
@@ -140,6 +142,8 @@ class CocoTimeline
 		kf.spriteSequenceFPS	= 0;
 		kf.__isCloned			= false;
 		kf.__Preserve			= false;
+		kf.__isExact 			= false;
+		kf.__time				= 0;
 		return kf;
 	}
 
@@ -153,7 +157,9 @@ class CocoTimeline
 			c.nextState	= null;
 			c.audio		= null;
 		}
+		c.__isExact = exact;
 		c.__isCloned = true;
+		c.__time = engine.__clock;
 		return c;
 	}
 
@@ -346,6 +352,11 @@ class CocoTimeline
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function translateTo(x:Float , y:Float)
 	{
+		if(!__keyFrames.size())
+		{
+			addKeyFrame(CocoTimeline.NewKeyFrame());
+		}
+
 		for (var i:Integer = __keyFrames.size() - 1; i >= 0; i--)
 		{
 			__keyFrames[i].x = x;
@@ -445,7 +456,10 @@ class CocoTimeline
 	    }
 	    else
 	    {
-	    	var exact:Boolean = !__paused && ((__currentFrameIndex == -1) || (__currentFrameIndex != F1.frameIndex));
+	    	// 07 June 2016: bug fix
+	    	//var exact:Boolean = !__paused && ((__currentFrameIndex == -1) || (__currentFrameIndex != F1.frameIndex));
+
+	    	var exact:Boolean = !__paused && F1.frameIndex==iFrameIndex;
 	    	__currentFrameIndex = F1.frameIndex;
 
 	    	if(F1.frameIndex==iFrameIndex)
@@ -454,6 +468,8 @@ class CocoTimeline
 	    		F1.__frameIndex = frameIndex;
 	    		return F1;
 	    	}
+
+	    	__currentFrameIndex = iFrameIndex;
 
 	        switch(F1.frameInterpolation)
 	        {
@@ -517,5 +533,58 @@ class CocoTimeline
 	    F.rotation = F1.rotation + s * (F2.rotation - F1.rotation);
 	    F.pivotX = F1.pivotX + s * (F2.pivotX - F1.pivotX);
 	    F.pivotY = F1.pivotY + s * (F2.pivotY - F1.pivotY);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function debug(head:Integer, max_frames:Integer, current:Boolean) : String
+	{
+		var s:String;
+		var t:Integer = 0;
+		var i:Integer = 0;
+		var f:Integer = 0;
+		var F:CocoKeyFrame;
+
+		if(current)
+		{
+			for(i=0; i<=max_frames; i++)
+			{
+				s += head==i ? "^" : " ";
+			}
+			return s;
+		}
+
+		for(f=0; f<__keyFrames.size(); f++)
+		{
+			F = __keyFrames[f];
+
+			for(i=t; i<F.frameIndex; i++)
+				s += ".";
+
+			switch(F.frameInterpolation)
+			{
+			case KEYFRAME_INTERPOLATION_NONE:
+				s += "N";
+				break;
+
+			case KEYFRAME_INTERPOLATION_MOTION_TWEEN:
+				s += "M";
+				break;
+
+			case KEYFRAME_INTERPOLATION_ECHO:
+				s += "E";
+				break;
+
+			case KEYFRAME_INTERPOLATION_PHYSICS:
+				s += "P";
+				break;
+			}
+
+			t = F.frameIndex + 1;
+		}
+		for(i=t; i<=max_frames; i++)
+		{
+			s += ".";
+		}
+		return s;
 	}
 }

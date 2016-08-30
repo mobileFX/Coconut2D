@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,19 @@
 
 #include "CocoClip.jspp"
 
+enum COCO_UIVIEW_ANCHOR_ENUM
+{
+	VIEW_ANCHOR_NONE		= 0,
+	VIEW_ANCHOR_LEFT		= 1,
+	VIEW_ANCHOR_RIGHT		= 2,
+	VIEW_ANCHOR_TOP			= 4,
+	VIEW_ANCHOR_BOTTOM		= 8,
+	VIEW_ANCHOR_HEADER		= VIEW_ANCHOR_TOP | VIEW_ANCHOR_LEFT | VIEW_ANCHOR_RIGHT,
+	VIEW_ANCHOR_FOOTER		= VIEW_ANCHOR_BOTTOM | VIEW_ANCHOR_LEFT | VIEW_ANCHOR_RIGHT,
+	VIEW_ANCHOR_ALL			= VIEW_ANCHOR_LEFT | VIEW_ANCHOR_RIGHT | VIEW_ANCHOR_TOP | VIEW_ANCHOR_BOTTOM
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 class CocoUIView : CocoClip
 {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,26 +62,138 @@ class CocoUIView : CocoClip
 	protected var __invalidated:Boolean;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function Constructor()
+	// Anchor
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __anchor:COCO_UIVIEW_ANCHOR_ENUM;
+
+	published property Anchor
 	{
-		__form = null;
-		__enabled = true;
-		__visible = true;
-		__invalidated = false;
-		__x = 0;
-		__y = 0;
-		__width = 0;
-		__height = 0;
+		function get():COCO_UIVIEW_ANCHOR_ENUM 	{ return __anchor; 	}
+		function set(v:COCO_UIVIEW_ANCHOR_ENUM)	{ __anchor=v; invalidate(); }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Stacked: control is stacked in a Form
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public var __stacked:COCO_UI_STACK_ENUM;
+	published property Stacked			{ function get():COCO_UI_STACK_ENUM { return __stacked;	} function set(v:COCO_UI_STACK_ENUM) { if(__stacked != v) { __stacked = v; invalidate(); }} }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Margins
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var __marginLeft:Float;
+	public var __marginRight:Float;
+	public var __marginTop:Float;
+	public var __marginBottom:Float;
+
+	published property MarginLeft		{ function get():CartesianX { return AbsoluteX(__marginLeft);	} function set(v:CartesianX) { var m:Float = RelativeX(v); if(m!=__marginLeft	) { __marginLeft	= m; invalidate(); }} }
+	published property MarginRight		{ function get():CartesianX { return AbsoluteX(__marginRight);	} function set(v:CartesianX) { var m:Float = RelativeX(v); if(m!=__marginRight	) { __marginRight	= m; invalidate(); }} }
+	published property MarginTop		{ function get():CartesianY { return AbsoluteY(__marginTop);	} function set(v:CartesianY) { var m:Float = RelativeY(v); if(m!=__marginTop	) { __marginTop		= m; invalidate(); }} }
+	published property MarginBottom 	{ function get():CartesianY { return AbsoluteY(__marginBottom);	} function set(v:CartesianY) { var m:Float = RelativeY(v); if(m!=__marginBottom ) { __marginBottom 	= m; invalidate(); }} }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Paddings
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var __paddingLeft:Float;
+	public var __paddingRight:Float;
+	public var __paddingTop:Float;
+	public var __paddingBottom:Float;
+
+	published property PaddingLeft		{ function get():CartesianX { return AbsoluteX(__paddingLeft);	 } function set(v:CartesianX) { var p:Float = RelativeX(v); if(p!=__paddingLeft	  ) { __paddingLeft	  = p; invalidate(); }} }
+	published property PaddingRight		{ function get():CartesianX { return AbsoluteX(__paddingRight);	 } function set(v:CartesianX) { var p:Float = RelativeX(v); if(p!=__paddingRight  ) { __paddingRight  = p; invalidate(); }} }
+	published property PaddingTop		{ function get():CartesianY { return AbsoluteY(__paddingTop);	 } function set(v:CartesianY) { var p:Float = RelativeY(v); if(p!=__paddingTop    ) { __paddingTop    = p; invalidate(); }} }
+	published property PaddingBottom 	{ function get():CartesianY { return AbsoluteY(__paddingBottom); } function set(v:CartesianY) { var p:Float = RelativeY(v); if(p!=__paddingBottom ) { __paddingBottom = p; invalidate(); }} }
+
+	public property PaddingWidth 		{ function get():CartesianX { return Width-PaddingLeft-PaddingRight; } }
+	public property PaddingHeight 		{ function get():CartesianY { return Height-PaddingTop-PaddingBottom; } }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function SetMargins(left:Integer, right:Integer, top:Integer, bottom:Integer)
+	{
+		MarginLeft = left;
+		MarginRight = right;
+		MarginTop = top;
+		MarginBottom = bottom;
+		invalidate();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function SetPaddings(left:Integer, right:Integer, top:Integer, bottom:Integer)
+	{
+		PaddingLeft = left;
+		PaddingRight = right;
+		PaddingTop = top;
+		PaddingBottom = bottom;
+		invalidate();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoClip(scene, name)
+	{
+		__form 						= null;
+		__enabled 					= true;
+		__visible 					= true;
+		__invalidated 				= false;
+		__selfTextured				= true;
+
+		__x 						= 0;
+		__y 						= 0;
+		__width 					= 0;
+		__height 					= 0;
+
+		__anchor					= ANCHOR_NONE;
+		__stacked					= COCO_UI_STACK_ENUM.STACKED_NONE;
+
+		__marginLeft 				= 0;
+		__marginRight 				= 0;
+		__marginTop 				= 0;
+		__marginBottom 				= 0;
+
+		__paddingLeft 				= 0;
+		__paddingRight 				= 0;
+		__paddingTop 				= 0;
+		__paddingBottom 			= 0;
+
 
 		__timeline.clear();
 		__timeline.addKeyFrameEx(null, null, 0, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_ECHO, false, true, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
+	}
 
-		move(0,0,engine.device.screenWidth,engine.device.screenHeight);
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Clone():CocoUIView
+	{
+		var ctl:CocoUIView = new CocoUIView(__scene, __instanceName);
+		__cloneTo(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __cloneTo(ctl:CocoUIView)
+	{
+		__copy__(this, ctl, COPY_MEMBERS_ALL);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function Destructor()
 	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Defaults()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Parent
+	{
+		function get():CocoUIView { return CocoUIView(__parent); }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Scene
+	{
+		function get():CocoScene { return __scene; }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,32 +217,31 @@ class CocoUIView : CocoClip
 		function set(v:Boolean) { __visible = v; }
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
 	published property Width
 	{
-		function get():Integer { return __width; }
-		function set(v:Integer) { move(__x, __y, v, __height); }
+		function get():CartesianX { return AbsoluteX(__width); }
+		function set(v:CartesianX) { var w:Float = RelativeX(v); if(__width!=w) { __width = w; invalidate(); } }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	published property Height
 	{
-		function get():Integer { return __height; }
-		function set(v:Integer) { move(__x, __y, __width, v); }
+		function get():CartesianY { return AbsoluteY(__height); }
+		function set(v:CartesianY) { var h:Float = RelativeY(v); if(__height!=h) { __height =h; invalidate(); } }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	published property Left
 	{
-		function get():Integer { return __x; }
-		function set(v:Integer) { move(v, __y, __width, __height); }
+		function get():CartesianX { return AbsoluteX(__x); }
+		function set(v:CartesianX) { __x = RelativeX(v); }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	published property Top
 	{
-		function get():Integer { return __y; }
-		function set(v:Integer) { move(__x, v, __width, __height); }
+		function get():CartesianY { return AbsoluteY(__y); }
+		function set(v:CartesianY) { __y = RelativeY(v); }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,77 +250,249 @@ class CocoUIView : CocoClip
 		function get():CocoRect
 		{
 			var r:CocoRect = new CocoRect();
-			r.left = __x;
-			r.top = __y;
-			r.right = __x + __width - 1;
-			r.bottom = __y + __height - 1;
+			r.left = Left;
+			r.top = Top;
+			r.right = Left + Width - 1;
+			r.bottom = Top + Height - 1;
 			return r;
 		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function move(x:Float, y:Float, width:Float, height:Float)
+	public virtual function move(abs_x:Float, abs_y:Float, abs_width:Float, abs_height:Float)
 	{
-		__x = x;
-		__y = y;
+		__x = RelativeX(abs_x);
+		__y = RelativeY(abs_y);
 
-		if(__width != width)
+		var rel_width:Float = RelativeX(abs_width);
+		var rel_height:Float = RelativeY(abs_height);
+
+		if(__width != rel_width)
 		{
-			__width = width;
+			__width = rel_width;
 			invalidate();
 		}
 
-		if(__height != height)
+		if(__height != rel_height)
 		{
-			__height = height;
+			__height = rel_height;
 			invalidate();
 		}
+
+		// Make sure move() affects the keyframes of our timeline
+		__timeline.translateTo(-__scene.ViewWidth/2 + Width/2 + abs_x, -__scene.ViewHeight/2 + Height/2 + abs_y);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function move(x:Float, y:Float)
+	public virtual function anchor()
 	{
-		move(x,y,__width,__height);
+		if(!__parent || __anchor==VIEW_ANCHOR_NONE)
+			return;
+
+		var SizeChanged:Boolean = false;
+
+		// Anchor each KeyFrame
+		for(var i:Integer = __timeline.__keyFrames.size()-1; i>=0; i--)
+		{
+			SizeChanged |= anchorKeyFrame(__timeline.__keyFrames[i]);
+		}
+
+		// If control size changed due to anchoring, invalidate the control
+		// to cause the textures to be re-created on next paint.
+
+		if(SizeChanged)
+			invalidate();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	public virtual function size(width:Float, height:Float)
+	public virtual function anchorKeyFrame(kf:CocoKeyFrame) :Boolean
 	{
-		move(__x,__y,width,height);
+		if(!__scene)
+			return false;
+
+	    var SizeChanged:Boolean = false;
+	    var PW:Integer = Parent.Width;
+	    var PH:Integer = Parent.Height;
+	    var PL:Integer = 0;
+	    var PR:Integer = 0;
+	    var x:Float = 0;
+	    var y:Float = 0;
+	    var W:Float = 0;
+	    var H:Float = 0;
+
+	    if(!PW) PW = __scene.ViewWidth;
+	    if(!PH) PH = __scene.ViewHeight;
+
+	    if(__stacked != STACKED_NONE)
+	    {
+	        PL = Parent.PaddingLeft;
+	        PR = Parent.PaddingRight;
+	    }
+
+	    if (((Anchor & VIEW_ANCHOR_LEFT) == VIEW_ANCHOR_LEFT) && ((Anchor & VIEW_ANCHOR_RIGHT) == VIEW_ANCHOR_RIGHT))
+	    {
+	        W = PW - MarginLeft - MarginRight - PL - PR;
+	        if (SizeChanged|=(Width != W))
+	            Width = W;
+	    }
+
+	    if (((Anchor & VIEW_ANCHOR_TOP) == VIEW_ANCHOR_TOP) && ((Anchor & VIEW_ANCHOR_BOTTOM) == VIEW_ANCHOR_BOTTOM))
+	    {
+	        H = PH - MarginTop - MarginBottom;
+	        if (SizeChanged|=(Height != H))
+	            Height = H;
+	    }
+
+	    if ((Anchor & VIEW_ANCHOR_LEFT) == VIEW_ANCHOR_LEFT)
+	    {
+	        x = -(PW - Width) / 2 + MarginLeft + PL;
+	        if (SizeChanged|=(kf.x != x))
+	            kf.x = x;
+	    }
+
+	    if ((Anchor & VIEW_ANCHOR_RIGHT) == VIEW_ANCHOR_RIGHT)
+	    {
+	        x = -(PW - Width) / 2 + MarginLeft + PL;
+	        if (SizeChanged|=(kf.x != x))
+	            kf.x = x;
+	    }
+
+	    if ((Anchor & VIEW_ANCHOR_TOP) == VIEW_ANCHOR_TOP)
+	    {
+	        y = -PH / 2 + Height / 2 + MarginTop;
+	        if (SizeChanged|=(kf.y != y))
+	            kf.y = y;
+	    }
+
+	    if ((Anchor & VIEW_ANCHOR_BOTTOM) == VIEW_ANCHOR_BOTTOM)
+	    {
+	        y = PH / 2 - Height / 2 - MarginBottom;
+	        if (SizeChanged|=(kf.y != y))
+	            kf.y = y;
+		}
+
+	    return SizeChanged;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function bringToFront()
 	{
 		if(__parent)
-			__parent.moveChild(this, 0);
+			__parent.moveChild(this, __children.size()-1);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function sendToBack()
 	{
 		if(__parent)
-			__parent.moveChild(this, __children.size()-1);
+			__parent.moveChild(this, 0);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function RefreshLayout(parent:CocoUIView)
 	{
-		invalidate();
+		__form = parent.Form;
+
+		// Purpose of RefreshLayout is to reposition the control and its children.
+		// Often, RefreshLayout() does not perform any changes to the control and
+		// its children and therefore you must be very careful not to cause control
+		// invalidation because it will cause the textures to be re-created on next
+		// paint and it is a time-costly task.
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function invalidate()
 	{
+		// Explicitly cause the control to invalidate and therefore re-create the textures on next paint.
 		__invalidated = true;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	public virtual function addChild(ctl:CocoUIView) :CocoUIView
 	{
+		ctl.__scene = this.__scene;
 		ctl.__form = this.__form;
 		super.addChild(ctl);
 		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function ComposeView(optional ctx:CanvasRenderingContext2D)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function NewLayerFromImage(ctx:CanvasRenderingContext2D, id:String, frameIndex:Integer, image:CocoImage, x:Integer, y:Integer, handleEvents:Boolean) :CocoUIView
+	{
+		// Composition Layers (skin, texts, glyph, chevron, etc.) are placed
+		// with origin the top-left corner of the control. When we finally
+		// compose the control by adding child-clips for those layers we need
+		// to translate the top-left coordinates to parent coordinates fast.
+		//
+		// So,
+		//
+		// 1. Parent's origin is at center
+		// 2. Child's origin is also at center
+		// 3. (x,y) origin is the top-left corner of the parent.
+		//
+		// Therefore we need to transform as follows:
+		//
+		// 1. We move origin to top-left by subtracting 1/2 of width and height
+		// 2. We add (x,y)
+		// 3. We move origin to clild's center by adding 1/2 of child's width and height
+
+		if(!image) return null;
+
+		var s:Float = engine.device.pixelRatio / image.pixelRatio;
+		var c:Float = image.pixelRatio / __scene.ViewPixelRatio;
+
+ 		if(ctx)
+ 		{
+ 			ctx.drawImage(image.hImage, 0, 0, image.textureCellWidth, image.textureCellHeight, x*c*s, y*c*s, image.textureCellWidth * s, image.textureCellHeight * s);
+ 			return null;
+ 		}
+ 		else
+ 		{
+	 		x = -Width / 2 + x + image.textureCellWidth / 2 / c;
+	 		y = -Height / 2 + y + image.textureCellHeight / 2 / c;
+
+	 		if(!image.hImage.id)
+	 			image.hImage.id = id;
+
+	 		//var name:String = __instanceName + "_Layer_" + String(__children.size());
+			var view:CocoUIView = new CocoUIView(__scene, id);
+			view.__image = image;
+			addChild(view);
+			view.__timeline.clear();
+			view.__timeline.addKeyFrameEx(null, null, frameIndex, COCO_KEYFRAME_INTERPOLATION_ENUM.KEYFRAME_INTERPOLATION_NONE, handleEvents, true, x, y, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, null, false, false, '', 0);
+			return view;
+ 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function toImageData():String
+	{
+		var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(Width * engine.device.pixelRatio, Height * engine.device.pixelRatio, true);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+		invalidate();
+		ComposeView(ctx);
+		var data:String = canvas.toDataURL("image/png");
+		delete canvas;
+		return data;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __IDE_Compose(ctx:CanvasRenderingContext2D, hDC:Integer)
+	{
+		invalidate();
+		ComposeView(ctx);
+		ctx.__BitBltToHDC(hDC);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+		super.tick;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -205,20 +501,29 @@ class CocoUIView : CocoClip
 		if(!__visible || !parentClip || !scene)
 			return;
 
-		// Render if within screen region
-		/**
-		if(__form)
-		{
-			var KF:CocoKeyFrame = __form.getKeyFrame();
-			var myKF:CocoKeyFrame = __timeline.keyFrame(0);
-			if(KF.y + myKF.y + __height / 2 < __form.__y - __form.__height / 2 || KF.y + myKF.y - __height / 2 > __form.__y + __form.__height / 2)
-				return;
-		}
-		*/
-
+		// Paint the UIView
 		super.paint;
 
-		// We assume after paint the control is no more invlid
-		__invalidated = false;
+		// We assume after paint the control is no more invalid
+		if(__invalidated)
+			__invalidated = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function KeyDown(KeyCode:Integer) :Boolean
+	{
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function KeyUp(KeyCode:Integer) : Boolean
+	{
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function KeyPress(KeyCode:Integer) : Boolean
+	{
+		return false;
 	}
 }

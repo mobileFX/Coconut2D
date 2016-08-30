@@ -161,7 +161,7 @@ export class CocoTokenizer
 
 		currState = new COCO_PARSER_STATE;
 		states = new Array<COCO_PARSER_STATE>;
-		states.push(currState);
+		//states.push(currState);
 
 		// Define token regognizers precedence.
 		tokenRulesPrecedence = new Array<TOKEN_KIND_ENUM>;
@@ -573,32 +573,32 @@ export class CocoJSONParser : CocoTokenizer
 		var tt:String = get();
 		if(tt=="STRING")
 		{
-			p.nodeValue = token().value;
+			p.__nodeValue = token().value;
 			p.setAttribute("vt", "string");
 		}
 		else if(tt=="TRUE")
 		{
-			p.nodeValue = "true";
+			p.__nodeValue = "true";
 			p.setAttribute("vt", "boolean");
 		}
 		else if(tt=="FALSE")
 		{
-			p.nodeValue = "false";
+			p.__nodeValue = "false";
 			p.setAttribute("vt", "boolean");
 		}
 		else if(tt=="FLOAT")
 		{
-			p.nodeValue = token().value;
+			p.__nodeValue = token().value;
 			p.setAttribute("vt", "float");
 		}
 		else if(tt=="NUMBER")
 		{
-			p.nodeValue = token().value;
+			p.__nodeValue = token().value;
 			p.setAttribute("vt", "number");
 		}
 		else if(tt=="NULL")
 		{
-			p.nodeValue = "null";
+			p.__nodeValue = "null";
 			p.setAttribute("vt", "null");
 		}
 		else if(tt=="LEFT_CURLY")
@@ -713,7 +713,7 @@ export class CocoXMLParser : CocoTokenizer
 			mustMatch("OPEN_CDATA");
 			var i:Integer = token().end;
 			while(get()!="CLOSE_CDATA");
-			n.nodeValue = source.substr(i, currState.cursor-i);
+			n.__nodeValue = source.substr(i, currState.cursor-i);
 		}
 
 		// Is it a closing tag?
@@ -736,7 +736,7 @@ export class CocoXMLParser : CocoTokenizer
 		{
 			while(input().charAt(0)!="<")
 				currState.cursor++;
-			n.nodeValue = source.substr(tag_end, currState.cursor-tag_end);
+			n.__nodeValue = source.substr(tag_end, currState.cursor-tag_end);
 			currState.tokenIndex=0;
 			currState.lookahead=0;
 		}
@@ -768,7 +768,7 @@ export class CocoXMLParser : CocoTokenizer
 
 export class CocoXPathParser : CocoTokenizer
 {
-	private reference var xDOM:CocoDOMDocument;
+	private reference var root:CocoDOMNode;
 	private reference var result:Array<CocoDOMNode>;
 
 
@@ -796,13 +796,13 @@ export class CocoXPathParser : CocoTokenizer
 	}
 
 	/////////////////////////////////////////////////////////////////////
-	public virtual function select(xPath:String, xDOM:CocoDOMDocument):Array<CocoDOMNode>
+	public virtual function select(xPath:String, root:CocoDOMNode):Array<CocoDOMNode>
 	{
 		delete result;
-		this.xDOM = xDOM;
+		this.root = root;
 		super.parse(xPath);
 		result = new Array<CocoDOMNode>;
-		visit_node(xDOM.root);
+		visit_node(root);
 		return result;
 	}
 
@@ -823,7 +823,7 @@ export class CocoXPathParser : CocoTokenizer
 		if(tt=="ROOT")
 		{
 			mustMatch("ROOT");
-			var all:Array<CocoDOMNode> = this.xDOM.all();
+			var all:Array<CocoDOMNode> = root.all();
 			var L:Integer = all.size();
 			for(var i:Integer = 0; i<L; i++)
 			{
@@ -1011,17 +1011,23 @@ export class CocoDOMNode
 {
 	public reference var parent:CocoDOMNode;
 	public var nodeName:String;
-	public var nodeValue:String;
 	public var children:Array<CocoDOMNode>;
 	public var attributes:Array<CocoDOMAttribute>;
+
+	public var __json_value_hack:Boolean;
+	public var __nodeValue:String;
+
+	protected var out:Array<String>;
 
 	/////////////////////////////////////////////////////////////////////
 	public function Constructor(name:String)
 	{
+		__json_value_hack = true;
+		__nodeValue = "null";
 		nodeName = name;
-		nodeValue = "null";
 		children = new Array<CocoDOMNode>;
 		attributes = new Array<CocoDOMAttribute>;
+		out = null;
 	}
 
 	/////////////////////////////////////////////////////////////////////
@@ -1029,6 +1035,7 @@ export class CocoDOMNode
 	{
 		delete[] children;
 		delete[] attributes;
+		delete out;
 	}
 
 	/////////////////////////////////////////////////////////////////////
@@ -1094,6 +1101,162 @@ export class CocoDOMNode
 		}
 		return "";
 	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function all():Array<CocoDOMNode>
+	{
+		var arr:Array<CocoDOMNode> = new Array<CocoDOMNode>;
+		node_all(this, arr);
+		return arr;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	protected virtual function node_all(n:CocoDOMNode, arr:Array<CocoDOMNode>)
+	{
+		if(!n || !n.children) return;
+		arr.push(n);
+		var L:Integer = n.children.size();
+		for(var i:Integer = 0; i<L; i++)
+			node_all(n.children[i], arr);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function selectSingleNode(xPath:String):CocoDOMNode
+	{
+		var n:CocoDOMNode = null;
+		var xp:CocoXPathParser = new CocoXPathParser();
+		var sel:Array<CocoDOMNode> = xp.select(xPath, this);
+		if(sel && sel.size()>0)
+		{
+			n = sel[0];
+			sel.splice(0,1);
+
+			// Delete the array but not its items
+			delete sel;
+		}
+		delete xp;
+		return n;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function selectNodes(xPath:String):Array<CocoDOMNode>
+	{
+		var xp:CocoXPathParser = new CocoXPathParser();
+		var sel:Array<CocoDOMNode> = xp.select(xPath, this);
+		delete xp;
+		return sel;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public property nodeValue
+	{
+		function get():String
+		{
+			if(!__json_value_hack)
+				return __nodeValue;
+
+			if(children.size()==0)
+			{
+				return __nodeValue;
+			}
+			else
+			{
+				return toJSON();
+			}
+		}
+
+		function set(v:String)
+		{
+			if(!__json_value_hack)
+			{
+				__nodeValue = v;
+				return;
+			}
+
+			// Detect arbitrary JSON object in node value
+			if(v.charAt(0)=="{" && v.charAt(v.size()-1)=="}")
+			{
+				// Parse JSON
+				var parser:CocoJSONParser = new CocoJSONParser;
+				var dom:CocoDOMDocument = parser.parse(v);
+
+				// Appedn document fragment to this node
+				delete[] children;
+				children = dom.children;
+				dom.children = null;
+
+				// Dispose parser and document fragment
+				delete dom;
+				delete parser;
+			}
+			else
+			{
+				__nodeValue = v;
+			}
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function toJSON():String
+	{
+		out = new Array<String>;
+		nodeJSON(this, true, true, 0);
+		var buff:String = out.join("\n");
+		delete out;
+		return buff;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	protected virtual function nodeJSON(n:CocoDOMNode, list_final:Boolean, array_item:Boolean, tabs:Integer)
+	{
+		var A:Integer = n.attributes.size();
+		var L:Integer = n.children.size();
+		var i:Integer;
+		var t:String = "";
+		var attrs:String = "";
+		var json:String = "";
+		var Q:String = "\"";
+		var V:String = "";
+
+		if(n.nodeName == "CData" && !n.__nodeValue)
+			n.__nodeValue = "null";
+
+		for(i=0; i<tabs; i++) { t += "\t"; }
+
+		if(L==0)
+		{
+			V = n.__nodeValue == "null" ? "null" : Q + n.__nodeValue + Q;
+
+			if(array_item)
+				out.push(t + V + (list_final ? "" : ","));
+			else
+				out.push(t + Q + n.nodeName + Q + ":" + V + (list_final ? "" : ","));
+		}
+		else
+		{
+			if(!array_item)
+				out.push(t + Q + n.nodeName + Q + ":");
+
+			if(isFinite(n.children[0].nodeName))
+			{
+				out.push(t + "[");
+				for(i=0; i<L; i++)
+				{
+					nodeJSON(n.children[i], i==L-1, true, tabs+1);
+				}
+				out.push(t + "]" + (list_final ? "" : ","));
+			}
+			else
+			{
+				out.push(t + "{");
+				for(i=0; i<L; i++)
+				{
+					nodeJSON(n.children[i], i==L-1, false, tabs+1);
+				}
+				out.push(t + "}" + (list_final ? "" : ","));
+			}
+		}
+	}
 }
 
 // ==================================================================================================================================
@@ -1109,13 +1272,11 @@ export class CocoDOMDocument : CocoDOMNode
 {
 	public var root:CocoDOMNode;
 
-	private var out:Array<String>;
-
 	/////////////////////////////////////////////////////////////////////
 	public function Constructor() : CocoDOMNode("document")
 	{
 		out = null;
-		root = null;
+		root = this;
 	}
 
 	/////////////////////////////////////////////////////////////////////
@@ -1128,15 +1289,15 @@ export class CocoDOMDocument : CocoDOMNode
 	}
 
 	/////////////////////////////////////////////////////////////////////
-	public function all():Array<CocoDOMNode>
+	public virtual function all():Array<CocoDOMNode>
 	{
 		var arr:Array<CocoDOMNode> = new Array<CocoDOMNode>;
-		node_all(root,arr);
+		node_all(root, arr);
 		return arr;
 	}
 
 	/////////////////////////////////////////////////////////////////////
-	private function node_all(n:CocoDOMNode, arr:Array<CocoDOMNode>)
+	protected virtual function node_all(n:CocoDOMNode, arr:Array<CocoDOMNode>)
 	{
 		if(!n || !n.children) return;
 		arr.push(n);
@@ -1146,15 +1307,17 @@ export class CocoDOMDocument : CocoDOMNode
 	}
 
 	/////////////////////////////////////////////////////////////////////
-	public function selectSingleNode(xPath:String):CocoDOMNode
+	public virtual function selectSingleNode(xPath:String):CocoDOMNode
 	{
 		var n:CocoDOMNode = null;
 		var xp:CocoXPathParser = new CocoXPathParser();
-		var sel:Array<CocoDOMNode> = xp.select(xPath, this);
+		var sel:Array<CocoDOMNode> = xp.select(xPath, root);
 		if(sel && sel.size()>0)
 		{
 			n = sel[0];
 			sel.splice(0,1);
+
+			// Delete the array but not its items
 			delete sel;
 		}
 		delete xp;
@@ -1162,12 +1325,22 @@ export class CocoDOMDocument : CocoDOMNode
 	}
 
 	/////////////////////////////////////////////////////////////////////
-	public function selectNodes(xPath:String):Array<CocoDOMNode>
+	public virtual function selectNodes(xPath:String):Array<CocoDOMNode>
 	{
 		var xp:CocoXPathParser = new CocoXPathParser();
-		var sel:Array<CocoDOMNode> = xp.select(xPath, this);
+		var sel:Array<CocoDOMNode> = xp.select(xPath, root);
 		delete xp;
 		return sel;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function toJSON():String
+	{
+		out = new Array<String>;
+		nodeJSON(root, true, true, 0);
+		var buff:String = out.join("\n");
+		delete out;
+		return buff;
 	}
 
 	/////////////////////////////////////////////////////////////////////
@@ -1208,9 +1381,9 @@ export class CocoDOMDocument : CocoDOMNode
 				nodeXML(n.children[i], tabs+1);
 			out.push(t+"</"+nodeName+">\n");
 		}
-		else if(n.nodeValue!="")
+		else if(n.__nodeValue!="")
 		{
-			out.push(t+"<"+nodeName+attrs+">" + n.nodeValue + "</"+nodeName+">\n");
+			out.push(t+"<"+nodeName+attrs+">" + n.__nodeValue + "</"+nodeName+">\n");
 		}
 		else
 		{

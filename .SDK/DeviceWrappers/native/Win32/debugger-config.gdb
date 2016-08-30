@@ -2,6 +2,14 @@
 #  GDB preload initialization commands
 # =====================================
 
+# Load Coconut2D IDE Python Pretty Printers
+#python
+#import sys
+#sys.path.insert(0, '$(PATH_SDK)/Toolchain/Debugger')
+#from Coconut2D.printers import register_printer_gen
+#register_printer_gen(None)
+#end
+
 # Set Unicode Charset
 #set target-charset UCS-2
 #set host-charset UCS-2
@@ -12,7 +20,13 @@
 set target-charset UTF-8
 set host-charset UTF-8
 set charset UTF-8
-set target-wide-charset UTF-8
+set target-wide-charset UTF-16
+
+# Get Charset
+show charset
+show host-charset
+show target-charset
+show target-wide-charset
 
 # Request async target mode
 set target-async 1
@@ -57,6 +71,7 @@ set print static-members on
 set print vtbl off
 set print demangle on
 set demangle-style gnu-v3
+set unwindonsignal on
 
 # Print full eight-bit characters, required for integration with IDE
 set print sevenbit-strings off

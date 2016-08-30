@@ -1,7 +1,16 @@
 ﻿#pragma export_native;
 #pragma export_web;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// ==================================================================================================================================
+//	   ______               ______          __  _____ __        __
+//	  / ____/___  _________/_  __/__  _  __/ /_/ ___// /___  __/ /__
+//	 / /   / __ \/ ___/ __ \/ / / _ \| |/_/ __/\__ \/ __/ / / / / _ \
+//	/ /___/ /_/ / /__/ /_/ / / /  __/>  </ /_ ___/ / /_/ /_/ / /  __/
+//	\____/\____/\___/\____/_/  \___/_/|_|\__//____/\__/\__, /_/\___/
+//	                                                  /____/
+// ==================================================================================================================================
+
 class CocoTextStyle
 {
 	public var fontFamily:String;
@@ -38,11 +47,82 @@ class CocoTextStyle
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ==================================================================================================================================
+//	   ______               ______          __
+//	  / ____/___  _________/_  __/__  _  __/ /_
+//	 / /   / __ \/ ___/ __ \/ / / _ \| |/_/ __/
+//	/ /___/ /_/ / /__/ /_/ / / /  __/>  </ /_
+//	\____/\____/\___/\____/_/  \___/_/|_|\__/
+//
+// ==================================================================================================================================
+
 class CocoText
 {
 	public static var ctx:CanvasRenderingContext2D;
 
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function npo2(i:Integer): Integer
+	{
+		--i;
+		i |= i >> 1;
+		i |= i >> 2;
+		i |= i >> 4;
+		i |= i >> 8;
+		i |= i >> 16;
+		return ++i;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function getFontSize(fontStyle:String):Integer
+	{
+		var fontSize:Integer;
+		var spl:Array<String> = fontStyle.split(" ");
+		for(var r:Integer = spl.size(); r--;)
+		{
+			var t:Integer = parseInt(spl[r]);
+			if(t)
+			{
+				fontSize = t;
+				break;
+			}
+		}
+		delete spl;
+		return fontSize;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static function init(width:Integer, height:Integer)
+    {
+    	var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
+    	canvas.width = Math.max(1, Math.floor(npo2(width)));
+    	canvas.height = Math.max(1, Math.floor(npo2(height)));
+    	ctx = CanvasRenderingContext2D(canvas.getContext("2d"));
+    }
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static function drawSimpleText(ctx:CanvasRenderingContext2D, text:String,
+    									  FontName:String, FontSizePx:Integer, FontBold:Boolean, FontItalic:Boolean, FontUnderline:Boolean, FontColor:Color,
+    									  x:Integer, y:Integer, width:Integer, height:Integer,
+    									  halign:Float, valign:Float,
+    									  FontShadowX:Integer, FontShadowY:Integer, FontBlur:Integer, FontShadowColor:Color)
+    {
+		var R:Integer = (FontColor >> 16) & 0xFF;
+		var G:Integer = (FontColor >> 8) & 0xFF;
+		var B:Integer = FontColor & 0xFF;
+		var A:Integer = (FontColor >> 24) & 0xFF;
+		var color:String = "rgba(" + String(R) + ", " + String(G) + ", " + String(B) + ", " + String(A) + ")";
+    	var fontStyle:String = (FontItalic ? "italic" : "normal") + " normal " + (FontBold ? "bold " : "normal ") + String(FontSizePx) + "px " + FontName;
+
+    	var f:CocoText = new CocoText();
+    	f.str = text;
+    	f.indices.push(0);
+    	f.mappings.push(0);
+    	f.wrapSimple(width, fontStyle);
+    	f.drawSimple(ctx, fontStyle, FontUnderline, color, x, y, width, height, halign, valign);
+    	delete f;
+    }
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public var str:String;
 	public var styles:Array<CocoTextStyle>;
 	public var indices:Array<Integer>;
@@ -80,112 +160,9 @@ class CocoText
     }
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public static function npo2(i:Integer): Integer
-	{
-		--i;
-		i |= i >> 1;
-		i |= i >> 2;
-		i |= i >> 4;
-		i |= i >> 8;
-		i |= i >> 16;
-		return ++i;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static function init(width:Integer, height:Integer)
-    {
-    	var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
-    	canvas.width = Math.max(1, Math.floor(npo2(width)));
-    	canvas.height = Math.max(1, Math.floor(npo2(height)));
-    	ctx = CanvasRenderingContext2D(canvas.getContext("2d"));
-    }
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static function drawSimpleText(ctx:CanvasRenderingContext2D, text:String,
-    									  FontName:String, FontSizePx:Integer, FontBold:Boolean, FontItalic:Boolean, FontUnderline:Boolean, FontColor:Color,
-    									  x:Integer, y:Integer, width:Integer, height:Integer,
-    									  halign:Float, valign:Float,
-    									  FontShadowX:Integer, FontShadowY:Integer, FontBlur:Integer, FontShadowColor:Color)
-    {
-    	try
-    	{
-			var R:Integer = (FontColor >> 16) & 0xFF;
-			var G:Integer = (FontColor >> 8) & 0xFF;
-			var B:Integer = FontColor & 0xFF;
-			var A:Integer = (FontColor >> 24) & 0xFF;
-			var color:String = "rgba(" + String(R) + ", " + String(G) + ", " + String(B) + ", " + String(A) + ")";
-	    	var fontStyle:String = (FontItalic ? "italic" : "normal") + " normal " + (FontBold ? "bold " : "normal ") + String(FontSizePx) + "px " + FontName;
-
-	    	var f:CocoText = new CocoText();
-	    	f.str = text;
-	    	f.indices.push(0);
-	    	f.mappings.push(0);
-	    	f.wrapSimple(width, fontStyle);
-	    	f.drawSimple(ctx, fontStyle, FontUnderline, color, x, y, width, height, halign, valign);
-	    	delete f;
-    	}
-    	catch(e:Error)
-    	{
-    		trace("ERROR: CocoText::drawSimpleText");
-    	}
-    }
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function wrap(width:Integer)
-	{
-		lineBreaks.clear();
-		lineWidths.clear();
-		lineHeights.clear();
-		totalHeight = 0;
-		var lineWidth:Float = 0;
-		var lineHeight:Float = 0;
-		var L:Integer = indices.size();
-		for(var i:Integer = 0; i<L; i++)
-		{
-			var style:CocoTextStyle = styles[mappings[i]];
-			lineHeight = Math.max(lineHeight, style.fontSizePixels);
-			ctx.font = style.fontStyle + " normal " + style.fontWeight + " " + String(style.fontSizePixels) + "px " + style.fontFamily;
-			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
-			for(var r:Integer = indices[i]; r < to; r++)
-			{
-	            var tm:HTMLTextMetrics = ctx.measureText(str.substr(r, 1));
-				var charWidth:Float = tm.width;
-	            delete tm;
-
-				if(lineWidth + charWidth > width)
-				{
-					if(lineWidth === 0) throw "Too small width!";
-					lineBreaks.push(r);
-					lineWidths.push(lineWidth);
-					lineHeights.push(lineHeight);
-					totalHeight += lineHeight * lineSpacing;
-					lineWidth = charWidth;
-					lineHeight = style.fontSizePixels;
-				}
-				else lineWidth += charWidth;
-			}
-		}
-		lineWidths.push(lineWidth);
-		lineHeights.push(lineHeight);
-		totalHeight += lineHeight * lineSpacing;
-	}
-
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function wrapSimple(width:Integer, fontStyle:String)
 	{
-		var fontSize:Integer;
-		var spl:Array<String> = fontStyle.split(" ");
-		for(var r:Integer = spl.size(); r--;)
-		{
-			var t:Integer = parseInt(spl[r]);
-			if(t)
-			{
-				fontSize = t;
-				break;
-			}
-		}
-		delete spl;
+		var fontSize:Integer = getFontSize(fontStyle);
 		ctx.font = fontStyle;
 		lineBreaks.clear();
 		lineWidths.clear();
@@ -216,7 +193,7 @@ class CocoText
 				}
 				if(lineWidth + lastSpaceWidth + charWidth > width)
 				{
-					if(lineWidth === 0) throw "Too small width!";
+					if(lineWidth === 0) return;
 					lineBreaks.push(lastSpace);
 					lineWidths.push(lineWidth);
 					lineHeights.push(lineHeight);
@@ -238,28 +215,21 @@ class CocoText
 		try
 		{
 			if(width > ctx.canvas.width || height > ctx.canvas.height) return;
+
 			ctx.font = fontStyle;
 			ctx.fillStyle = color;
 			ctx.strokeStyle = color;
-			var fontSize:Integer;
-			var spl:Array<String> = fontStyle.split(" ");
-			for(var r:Integer = spl.size(); r--;)
-			{
-				var t:Integer = parseInt(spl[r]);
-				if(t)
-				{
-					fontSize = t;
-					break;
-				}
-			}
-			delete spl;
+
+			var fontSize:Integer = getFontSize(fontStyle);
 			if(totalHeight==0) totalHeight = fontSize;
+
 			var cx:Float = x;
 			var cy:Float = y;
 			var currentLine:Integer = 0;
 			var prevStop:Integer = 0;
 			var firstChar:Boolean = true;
 			var L:Integer = indices.size();
+
 			for(var i:Integer = 0; i<L; i++)
 			{
 				var stop:Integer;
@@ -302,6 +272,47 @@ class CocoText
 		{
 			trace("ERROR: CocoText::drawSimple");
 		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/*
+	public function wrap(width:Integer)
+	{
+		lineBreaks.clear();
+		lineWidths.clear();
+		lineHeights.clear();
+		totalHeight = 0;
+		var lineWidth:Float = 0;
+		var lineHeight:Float = 0;
+		var L:Integer = indices.size();
+		for(var i:Integer = 0; i<L; i++)
+		{
+			var style:CocoTextStyle = styles[mappings[i]];
+			lineHeight = Math.max(lineHeight, style.fontSizePixels);
+			ctx.font = style.fontStyle + " normal " + style.fontWeight + " " + String(style.fontSizePixels) + "px " + style.fontFamily;
+			var to:Integer = i + 1 < indices.size() ? indices[i + 1] : str.size();
+			for(var r:Integer = indices[i]; r < to; r++)
+			{
+	            var tm:HTMLTextMetrics = ctx.measureText(str.substr(r, 1));
+				var charWidth:Float = tm.width;
+	            delete tm;
+
+				if(lineWidth + charWidth > width)
+				{
+					if(lineWidth === 0) throw "Too small width!";
+					lineBreaks.push(r);
+					lineWidths.push(lineWidth);
+					lineHeights.push(lineHeight);
+					totalHeight += lineHeight * lineSpacing;
+					lineWidth = charWidth;
+					lineHeight = style.fontSizePixels;
+				}
+				else lineWidth += charWidth;
+			}
+		}
+		lineWidths.push(lineWidth);
+		lineHeights.push(lineHeight);
+		totalHeight += lineHeight * lineSpacing;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -362,4 +373,5 @@ class CocoText
 		}
 		return ctx.canvas.toDataURL("image/png");
 	}
+	*/
 }

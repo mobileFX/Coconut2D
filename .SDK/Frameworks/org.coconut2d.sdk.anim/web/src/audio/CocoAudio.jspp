@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,9 +73,12 @@ class CocoAudio
 	public function reset()
 	{
 		if(!audio) return;
-		audio.pause();
-		audio.ended = false;
-		audio.paused = true;
+
+		if(!audio.ended)
+		{
+			audio.pause();
+		}
+
 		setCurrentTime(0);
 		__loopCount = 0;
 		__firstPlayed = false;
@@ -105,9 +108,6 @@ class CocoAudio
 	public function play()
 	{
 		if(!audio || CocoAudio.__muted) return;
-		audio.ended = false;
-		audio.paused = false;
-		setCurrentTime(0);
 		audio.play();
 	}
 
@@ -116,8 +116,6 @@ class CocoAudio
 	{
 		if(!audio) return;
 		audio.pause();
-		audio.ended = false;
-		audio.paused = true;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,8 +123,6 @@ class CocoAudio
 	{
 		if(!audio) return;
 		audio.pause();
-		audio.ended = false;
-		audio.paused = true;
 		__loopCount = 0;
 		__firstPlayed = true;
 		setCurrentTime(0);

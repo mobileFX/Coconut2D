@@ -1,6 +1,6 @@
 ﻿/* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright (C) 2013-2014 www.coconut2D.org
+ * Copyright (C) 2013-2016 www.mobilefx.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,49 @@ function CompilerTypeSystemPlugin(compiler)
 	_this.RX_NUMERIC_LITERAL = /^(?:0[xX][0-9a-fA-F]+)|(?:\d+(?:\.\d+){0,1}[fd]{0,1})$/;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.types =
+	_this.ECMA_TYPES = ["Object", "Global", "Array", "Function", "String", "Boolean", "Number", "Date", "Math", "RegExp", "Error", "EvalError", "RangeError", "ReferenceError", "SyntaxError", "TypeError", "ArrayBuffer", "ArrayBufferView", "DataView", "Int8Array", "Int16Array", "Int32Array", "Int64Array", "Uint8Array", "Uint16Array", "Uint32Array", "Uint64Array", "Float32Array", "Float64Array"];
+	_this.TYPED_ARRAYS = ["ArrayBuffer", "ArrayBufferView", "Int8Array", "Int16Array", "Int32Array", "Int64Array", "Uint8Array", "Uint16Array", "Uint32Array", "Uint64Array", "Float32Array", "Float64Array"];
+	_this.NUMERIC_TYPES = ["Number","Float","Integer"];
+	_this.SCALAR_TYPES = ["Class","Boolean","Number","String","Integer","Float","void","undefined","null", "CocoAction"];
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.TYPEDEFS =
+	{
+		"int8_t"		: "Integer",
+		"int16_t"   	: "Integer",
+		"int32_t"   	: "Integer",
+		"int64_t"   	: "Integer",
+		"uint8_t"   	: "Integer",
+		"uint16_t"  	: "Integer",
+		"uint32_t"  	: "Integer",
+		"uint64_t"  	: "Integer",
+		"Color"			: "Integer",
+		"Time"			: "Float",
+		"CartesianX"	: "Integer",
+		"CartesianY"	: "Integer",
+		"Gradient"		: "String"
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.TYPEDARRAY_SUBTYPES =
+	{
+		"Array":			"Object",
+		"ArrayBuffer":		"Number",
+		"ArrayBufferView":	"Number",
+		"Int8Array":		"int8_t",
+		"Int16Array":		"int16_t",
+		"Int32Array":		"Integer",
+		"Int64Array":		"int64_t",
+		"Uint8Array":		"uint8_t",
+		"Uint16Array":		"uint16_t",
+		"Uint32Array":		"uint32_t",
+		"Uint64Array":		"uint64_t",
+		"Float32Array":		"Float",
+		"Float64Array":		"Float"
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.DEFAULT_VALUES =
 	{
 		"Array"		: { "default": "null" },
 		"Boolean"	: { "default": "false" },
@@ -53,27 +95,26 @@ function CompilerTypeSystemPlugin(compiler)
 		"Function"	: {	"default": "null" },
 		"Null"		: { "default": "null" },
 		"Number"	: {	"default": "0" },
-		"Float"		: { "default": "0.0" },
-		"Time"		: { "default": "0.0" },
 		"Integer"	: { "default": "0" },
+		"Float"		: { "default": "0.0" },
 		"Object"	: { "default": "null" },
 		"RegExp"	: { "default": "null" },
 		"String"	: { "default": '""' }
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typerules =
+	_this.TYPECAST_RULES =
 	{
 		explicit:
 		{
-			"__UNARY__"		: ["Boolean", "Number", "String", "Integer", "Float", "Time"],
+			"__UNARY__"		: ["Boolean", "Number", "String", "Integer", "Float"],
 			"Array"			: [],
 			"Boolean"		: ["Number", "String"],
 			"Date"			: ["Number", "String"],
 			"Function"		: ["String"],
 			"null"			: [],
 			"Number"		: ["Boolean", "String"],
-			"Integer"		: ["Boolean", "Integer", "Float", "Time", "Color" ],
+			"Integer"		: ["Boolean", "Integer", "Float" ],
 			"Float"			: ["Number", "Integer" ],
 			"Object"		: [],
 			"RegExp"		: ["Boolean", "Date", "Number", "String"],
@@ -82,221 +123,165 @@ function CompilerTypeSystemPlugin(compiler)
 
 		implicit:
 		{
+			/*
+			==========================================================================
+			        A    =      B        =>  C
+		    ==========================================================================
+		     */
 			ASSIGN:
 			{
 				"Integer":
 						{
 							"Number"	: "Integer",
 							"Integer"	: "Integer",
-							"Float"		: "Integer",
-							"Time"		: "Integer",
-							"Color"		: "Integer"
+							"Float"		: "Integer"
 						},
 				"Float":
 						{
 							"Number"	: "Float",
 							"Integer"	: "Float",
-							"Float"		: "Float",
-							"Time"		: "Float",
-							"Color"		: "Float"
-						},
-				"Time":
-						{
-							"Number"	: "Time",
-							"Integer"	: "Time",
-							"Float"		: "Time",
-							"Time"		: "Time",
-						},
-				"Color":
-						{
-							"Number"	: "Color",
-							"Integer"	: "Color",
-							"Color"		: "Color",
-							"Float"		: "Color"
+							"Float"		: "Float"
 						},
 				"String":
 						{
 							"String"	: "String",
 							"Integer"	: "String",
-							"Float"		: "String",
-							"Color"		: "String",
-							"Time"		: "String"
+							"Float"		: "String"
 						}
 			},
+			/*
+			==========================================================================
+			   C = A    +      B        =>  C
+		    ==========================================================================
+		     */
 			PLUS:
 			{
 				"Number":
 						{
 							"Number"	: "Number",
 							"Integer"	: "Integer",
-							"Float"		: "Float",
-							"Time"		: "Time",
-							"Color"		: "Color"
+							"Float"		: "Float"
 
 						},
 				"Integer":
 						{
 							"Number"	: "Integer",
 							"Integer"	: "Integer",
-							"Float"		: "Float",
-							"Time"		: "Time",
-							"Color"		: "Color"
+							"Float"		: "Float"
 						},
 				"Float":
 						{
 							"Number"	: "Float",
 							"Integer"	: "Float",
-							"Float"		: "Float",
-							"Time"		: "Float",
-							"Color"		: "Float"
-						},
-				"Time":
-						{
-							"Number"	: "Time",
-							"Integer"	: "Time",
-							"Float"		: "Time",
-							"Time"		: "Time",
-						},
-
-				"Color":
-						{
-							"Number"	: "Color",
-							"Integer"	: "Color",
-							"Color"		: "Color"
-						},
-				"String":
-						{
-							"String"	: "String"
+							"Float"		: "Float"
 						}
 			},
-
+			/*
+			==========================================================================
+			   C = A    -      B        =>  C
+		    ==========================================================================
+		     */
 			MINUS:
 			{
 				"Number":
 						{
 							"Number"	: "Number",
 							"Integer"	: "Integer",
-							"Float"		: "Float",
-							"Time"		: "Time",
-							"Color"		: "Color"
-
+							"Float"		: "Float"
 						},
 				"Integer":
 						{
 							"Number"	: "Integer",
 							"Integer"	: "Integer",
-							"Float"		: "Float",
-							"Time"		: "Time",
-							"Color"		: "Color"
+							"Float"		: "Float"
 						},
 				"Float":
 						{
 							"Number"	: "Float",
 							"Integer"	: "Float",
-							"Float"		: "Float",
-							"Time"		: "Float",
-							"Color"		: "Float"
-						},
-				"Time":
-						{
-							"Number"	: "Time",
-							"Integer"	: "Time",
-							"Float"		: "Time",
-							"Time"		: "Time",
-						},
-
-				"Color":
-						{
-							"Number"	: "Color",
-							"Integer"	: "Color",
-							"Color"		: "Color"
-						},
-				"String":
-						{
-							"String"	: "String"
+							"Float"		: "Float"
 						}
 			},
-
+			/*
+			==========================================================================
+			   C = A    *      B        =>  C
+		    ==========================================================================
+		     */
 			MUL:
 			{
 				"Number":
 						{
 							"Number"	: "Number",
 							"Integer"	: "Integer",
-							"Float"		: "Float",
-							"Time"		: "Time",
-							"Color"		: "Color"
-
+							"Float"		: "Float"
 						},
 				"Integer":
 						{
 							"Number"	: "Integer",
 							"Integer"	: "Integer",
-							"Float"		: "Float",
-							"Time"		: "Time",
-							"Color"		: "Color"
+							"Float"		: "Float"
 						},
 				"Float":
 						{
 							"Number"	: "Float",
 							"Integer"	: "Float",
-							"Float"		: "Float",
-							"Time"		: "Float",
-							"Color"		: "Float"
-						},
-				"Time":
-						{
-							"Number"	: "Time",
-							"Integer"	: "Time",
-							"Float"		: "Time",
-							"Time"		: "Time",
-						},
-
-				"Color":
-						{
-							"Number"	: "Color",
-							"Integer"	: "Color",
-							"Color"		: "Color"
-						},
-				"String":
-						{
-							"String"	: "String"
+							"Float"		: "Float"
 						}
 			},
-
+			/*
+			==========================================================================
+			   C = A    /      B        =>  C
+		    ==========================================================================
+		     */
 			DIV:
 			{
 				"Number":
 						{
-							"Number"	: "Number",
-							"Integer"	: "Integer",
-							"Float"		: "Float",
-							"Time"		: "Time"
+							"Number"	: "Float",
+							"Integer"	: "Float",
+							"Float"		: "Float"
 						},
 				"Integer":
 						{
-							"Number"	: "Integer",
-							"Integer"	: "Integer",
-							"Float"		: "Float",
-							"Time"		: "Time"
+							"Number"	: "Float",
+							"Integer"	: "Float",
+							"Float"		: "Float"
 						},
 				"Float":
 						{
 							"Number"	: "Float",
 							"Integer"	: "Float",
-							"Float"		: "Float",
-							"Time"		: "Float"
-						},
-				"Time":
+							"Float"		: "Float"
+						}
+			},
+			/*
+			==========================================================================
+			   C = A    ^      B        =>  C
+		    ==========================================================================
+		     */
+			MOD:
+			{
+				"Number":
 						{
-							"Number"	: "Time",
-							"Integer"	: "Time",
-							"Float"		: "Time",
-							"Time"		: "Time"
+							"Number"	: "Integer",
+							"Integer"	: "Integer",
+							"Float"		: "Integer"
+						},
+				"Integer":
+						{
+							"Number"	: "Integer",
+							"Integer"	: "Integer",
+							"Float"		: "Integer"
+						},
+				"Float":
+						{
+							"Number"	: "Integer",
+							"Integer"	: "Integer",
+							"Float"		: "Integer"
 						}
 			},
 
-			MOD: {},
+			/* ======================================================================= */
 			BIT:
 			{
 				"Boolean":
@@ -314,6 +299,247 @@ function CompilerTypeSystemPlugin(compiler)
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.typeDef = function(vartype)
+	{
+		if(!vartype) return null;
+		vartype = _this.getVarType(vartype.trim());
+		vartype = _this.TYPEDEFS[vartype] || vartype;
+		return vartype;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isScalar = function (vartype)
+	{
+		vartype = _this.typeDef(vartype);
+		return _this.SCALAR_TYPES.indexOf(vartype)!=-1;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isPointer = function (vartype)
+	{
+		return !(_this.isScalar(vartype) || _this.isEnum(vartype));
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isECMA = function(vartype)
+	{
+		vartype = _this.typeDef(vartype);
+		return vartype && _this.ECMA_TYPES.indexOf(vartype)!=-1;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isTypedArray = function(vartype)
+	{
+		vartype = _this.typeDef(vartype);
+		return vartype && _this.TYPED_ARRAYS.indexOf(vartype)!=-1;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isEnum  = function(vartype)
+	{
+		var cls = _this.classes[vartype];
+		return cls && cls.enum ? true : false;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.enumDefault = function(vatype, cpp)
+	{
+		var cls = _this.classes[vatype];
+		if(!cls || !cls.enum) return;
+		var item;
+		for(item in cls.vars) break;
+		return cls.name + (cpp ? "::" : ".") + item;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isNumber = function(vartype)
+	{
+		vartype = _this.typeDef(vartype);
+		return vartype && (_this.NUMERIC_TYPES.indexOf(vartype)!=-1 || _this.isEnum(vartype));
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.isVector = function(vartype)
+	{
+		if(!vartype) return false;
+		if(vartype.indexOf("<")!=-1) return true;
+
+		if(_this.isDerivativeOf(vartype, "Array"))
+			return true;
+
+		return false;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getVarType = function(vartype)
+	{
+		if(!vartype) return null;
+		if(vartype.charAt(vartype.length-1)!='>') return vartype;
+		vartype = vartype.substr(0, vartype.indexOf('<'));
+		return vartype;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getSubType = function(vartype)
+	{
+		if(!vartype) return null;
+		var subtype = _this.TYPEDARRAY_SUBTYPES[vartype];
+		if(subtype) return subtype;
+		if(vartype.charAt(vartype.length-1)!='>') return null;
+		var subtype = /<(\w+)(?:\*)*>/.exec(vartype)[1];
+		return subtype;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.typeOf = function(value)
+	{
+		if(Array.isArray(value)) return "Array";
+		switch(typeof(value))
+		{
+		case "string": return "String";
+		case "number": return "Number";
+		case "boolean": return "Boolean";
+		default:
+			return "Object";
+		}
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getDefaultVartypeValue = function(vartype)
+	{
+		if(!vartype) return null;
+
+		vartype = _this.typeDef(vartype);
+
+		if(__exists(_this.DEFAULT_VALUES, vartype) && __exists(_this.DEFAULT_VALUES[vartype], "default"))
+			return _this.DEFAULT_VALUES[vartype].default;
+
+		var cls = _this.getClass(vartype);
+		if(!cls) return null;
+
+		if(cls.enum)
+		{
+			for(item in cls.vars)
+			{
+				return cls.vars[item].value;
+			}
+		}
+
+		return null;
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.getDefaultVartypeValueCPP = function(vartype)
+	{
+		if(_this.isEnum(vartype))
+		{
+			var cls = _this.getClass(vartype);
+			return vartype + "(0)";
+		}
+
+		var v = _this.getDefaultVartypeValue(vartype);
+		if(v==null || v=="null") return "nullptr";
+		return v;
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.VTCPP = function(vartype, jsdef_NEW)
+	{
+		if(!vartype || vartype=="void")
+			return "void";
+
+		if(_this.isTypedArray(vartype))
+			return vartype+(jsdef_NEW?"":"*");
+
+		var v = _this.getVarType(vartype);
+		var s = _this.getSubType(vartype);
+
+		if(s && _this.isPointer(s))
+			s += "*";
+
+		v = v + (s ? "<"+s+">" : "");
+
+		if(!jsdef_NEW)
+			v += (_this.isPointer(v) || s!=null ? "*" : "");
+
+		return v;
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	_this.VALUECPP = function(v, subtype)
+	{
+		if(subtype=="Float" && !isNaN(parseFloat(v)) && v.indexOf('.')==-1)
+			return v + ".0f";
+
+		return v;
+	};
+
+	// ==================================================================================================================================
+	//	    ____           __          __             _    __           __
+	//	   /  _/___  _____/ /_  ______/ /__  _____   | |  / /___ ______/ /___  ______  ___
+	//	   / // __ \/ ___/ / / / / __  / _ \/ ___/   | | / / __ `/ ___/ __/ / / / __ \/ _ \
+	//	 _/ // / / / /__/ / /_/ / /_/ /  __(__  )    | |/ / /_/ / /  / /_/ /_/ / /_/ /  __/
+	//	/___/_/ /_/\___/_/\__,_/\__,_/\___/____/     |___/\__,_/_/   \__/\__, / .___/\___/
+	//	                                                                /____/_/
+	// ==================================================================================================================================
+
+	_this.searchIncludesForVartype = function(className, vt)
+	{
+		var already_searched = {};
+
+		function __searchIncludesForVartype(className, vt)
+		{
+			// ECMA or extern datatype?
+			var vcls = _this.getClass(vt);
+			if(!vcls) return false;
+			if(vcls.file=="externs.jspp") return true;
+			if(vcls.enum) return true;
+
+			// Get class from include name
+			var cls = _this.getClass(className);
+			if(!cls) return false;
+			if(cls.file=="externs.jspp") return true;
+
+			// Relaxed check of cyclic references
+			if(already_searched[className]) return false;
+			already_searched[className] = true;
+
+			// Process class includes for vt
+			var found = false;
+			var includes = cls.ast.includes;
+			if(!includes) return false;
+			for(i=0;i<includes.length;i++)
+			{
+				var include = /\x22\#include\s+([^\x22]+)\.\w+?\x22/g.exec(includes[i])[1];
+				if(include==vt)
+				{
+					found=true;
+					break;
+				}
+			}
+
+		    // Deep search of includes
+		    if(!found)
+		    {
+					for(i=0;i<includes.length;i++)
+					{
+						var include = /\x22\#include\s+([^\x22]+)\.\w+?\x22/g.exec(includes[i])[1];
+						if(__searchIncludesForVartype(include, vt))
+						{
+							found=true;
+							break;
+						}
+					}
+		    }
+
+			// Reference to vt not found in includes chain
+			return found;
+		}
+
+		return __searchIncludesForVartype(className, vt);
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.record_vartype_use = function(ast, symbol, parentScope, include)
 	{
 		if(!_this.secondPass || !symbol || !parentScope)
@@ -341,281 +567,15 @@ function CompilerTypeSystemPlugin(compiler)
 			parentScope.vartypes[vartype] |= include;
 	};
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.isPointer = function (vartype)
-	{
-		if(!vartype)
-			return false;
+	// ==================================================================================================================================
+	//	    ___   ___________   _    __           __
+	//	   /   | / ___/_  __/  | |  / /___ ______/ /___  ______  ___
+	//	  / /| | \__ \ / /     | | / / __ `/ ___/ __/ / / / __ \/ _ \
+	//	 / ___ |___/ // /      | |/ / /_/ / /  / /_/ /_/ / /_/ /  __/
+	//	/_/  |_/____//_/       |___/\__,_/_/   \__/\__, / .___/\___/
+	//	                                          /____/_/
+	// ==================================================================================================================================
 
-		vartype = _this.getVarType(vartype.trim());
-
-		switch(vartype)
-		{
-		case "Class":
-		case "Boolean":
-		case "Number":
-		case "String":
-		case "Integer":
-		case "Float":
-		case "Time":
-		case "Color":
-		case "Gradient":
-		case "void":
-		case "undefined":
-		case "null":
-		case "CocoAction":
-		case "int8_t":
-		case "int16_t":
-		case "int32_t":
-		case "int64_t":
-		case "uint8_t":
-		case "uint16_t":
-		case "uint32_t":
-		case "uint64_t":
-
-			return false;
-
-		default:
-			return !_this.isEnum(vartype);
-		}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.isEnum  = function(vartype)
-	{
-		var cls = _this.classes[vartype];
-		return cls && cls.enum ? true : false;
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.isECMA = function(vartype)
-	{
-		if(!vartype) return false;
-
-		switch(vartype)
-		{
-		case "Object":
-		case "Global":
-		case "Array":
-		case "Function":
-
-		case "String":
-		case "Boolean":
-		case "Number":
-		case "Date":
-		case "Math":
-		case "RegExp":
-
-		case "Error":
-		case "EvalError":
-		case "RangeError":
-		case "ReferenceError":
-		case "SyntaxError":
-		case "TypeError":
-
-		//case "XMLHttpRequest": We exclude XMLHttpRequest because it is implemented inside a Framework and not in Common
-
-		case "ArrayBuffer":
-		case "ArrayBufferView":
-		case "DataView":
-		case "Int8Array":
-		case "Int16Array":
-		case "Int32Array":
-		case "Int64Array":
-		case "Uint8Array":
-		case "Uint16Array":
-		case "Uint32Array":
-		case "Uint64Array":
-		case "Float32Array":
-		case "Float64Array":
-
-			return true;
-		}
-
-		return false;
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.isTypedArray = function(vartype)
-	{
-		if(!vartype)
-			return false;
-
-		switch(vartype)
-		{
-		case "ArrayBuffer":
-		case "ArrayBufferView":
-		case "Int8Array":
-		case "Int16Array":
-		case "Int32Array":
-		case "Int64Array":
-		case "Uint8Array":
-		case "Uint16Array":
-		case "Uint32Array":
-		case "Uint64Array":
-		case "Float32Array":
-		case "Float64Array":
-			return true;
-		}
-		return false;
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.isVector = function(vartype)
-	{
-		if(!vartype) return false;
-		if(vartype.indexOf("<")!=-1) return true;
-
-		if(_this.isDerivativeOf(vartype, "Array"))
-			return true;
-
-		return false;
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.isNumber = function(vartype)
-	{
-		switch(vartype)
-		{
-		case 'Number':
-		case 'Float':
-		case 'Integer':
-		case 'Color':
-		case 'Time':
-		case 'int8_t':
-		case 'int16_t':
-		case 'int32_t':
-		case 'int64_t':
-		case 'uint8_t':
-		case 'uint16_t':
-		case 'uint32_t':
-		case 'uint64_t':
-			return true;
-		}
-
-		if(_this.isEnum(vartype))
-			return true;
-
-		return false;
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.getVarType = function(vartype)
-	{
-		if(!vartype) return null;
-		if(vartype.charAt(vartype.length-1)!='>') return vartype;
-		vartype = vartype.substr(0, vartype.indexOf('<'));
-		return vartype;
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typeOf = function(value)
-	{
-		if(Array.isArray(value)) return "Array";
-		switch(typeof(value))
-		{
-		case "string": return "String";
-		case "number": return "Number";
-		case "boolean": return "Boolean";
-		default:
-			return "Object";
-		}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.getDefaultVartypeValue = function(vartype)
-	{
-		if(!vartype) return null;
-		if(vartype=="Time") return "0";
-		if(__exists(_this.types, vartype) && __exists(_this.types[vartype], "default"))
-			return _this.types[vartype].default;
-		var cls = _this.getClass(vartype);
-		if(!cls) return null;
-		if(cls.enum)
-		{
-			for(item in cls.vars)
-			{
-				return cls.vars[item].value;
-			}
-		}
-		return null;
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.getDefaultVartypeValueCPP = function(vartype)
-	{
-		if(_this.isEnum(vartype))
-		{
-			var cls = _this.getClass(vartype);
-			return vartype + "(0)";
-		}
-
-		var v = _this.getDefaultVartypeValue(vartype);
-		if(v==null || v=="null") return "nullptr";
-		return v;
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// For typed arrays (eg. Array<Integer>, Array<String>, Array<MyClass> return subtype.
-	_this.getSubType = function(vartype)
-	{
-		if(!vartype) return null;
-
-		switch(vartype)
-		{
-		case "Array":			return "Object";
-		case "ArrayBuffer":		return "Number";
-		case "ArrayBufferView":	return "Number";
-
-		case "Int8Array":		return "int8_t";
-		case "Int16Array":		return "int16_t";
-		case "Int32Array":		return "Integer";
-		case "Int64Array":		return "int64_t";
-		case "Uint8Array":		return "uint8_t";
-		case "Uint16Array":		return "uint16_t";
-		case "Uint32Array":		return "uint32_t";
-		case "Uint64Array":		return "uint64_t";
-		case "Float32Array":	return "Float";
-		case "Float64Array":	return "Float";
-		}
-
-		if(vartype.charAt(vartype.length-1)!='>') return null;
-		var subtype = /<(\w+)(?:\*)*>/.exec(vartype)[1];
-		return subtype;
-	};
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.VTCPP = function(vartype, jsdef_NEW)
-	{
-		if(!vartype) return "void ";
-
-		if(_this.isTypedArray(vartype))
-			return vartype+(jsdef_NEW?"":"*");
-
-		var v = _this.getVarType(vartype);
-		var s = _this.getSubType(vartype);
-
-		if(s && _this.isPointer(s))
-			s += "*";
-
-		v = v + (s ? "<"+s+">" : "");
-
-		if(!jsdef_NEW)
-			v += (_this.isPointer(v) || s!=null ? "* " :" ");
-
-		return v;
-	};
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.VALUECPP = function(v, subtype)
-	{
-		if(subtype=="Float" && !isNaN(parseFloat(v)) && v.indexOf('.')==-1)
-			return v + ".0f";
-
-		return v;
-	};
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	_this.jsdef_to_type = function(ast)
 	{
 		     if (ast.type == jsdef.PLUS) 			return "PLUS";
@@ -637,7 +597,6 @@ function CompilerTypeSystemPlugin(compiler)
 	_this.getTypeName = function(ast)
 	{
 		if(!_this.secondPass || !ast) return;
-		//if(!_this.secondPass || !_this.currClassName || !ast) return;
 		return (ast.vartype ? ast.vartype : (ast.vartype = _this.getTypeNameResolver(ast)));
 	};
 
@@ -649,34 +608,46 @@ function CompilerTypeSystemPlugin(compiler)
 		{
 		//=============================================================================================================================
 		case jsdef.ARRAY_INIT:		return "Array";
-		case jsdef.ASSIGN:   		return _this.getTypeName(ast[0]);
-		case jsdef.BITWISE_NOT:		return "Number";
 		case jsdef.COMMA: 			return _this.getTypeName(ast[+ast.length-1]);
 		case jsdef.DELETE:          return "Boolean";
-		case jsdef.EQ:              return "Boolean";
-		case jsdef.FALSE:           return "Boolean";
-		case jsdef.GE:              return "Boolean";
 		case jsdef.GROUP: 			return _this.getTypeName(ast[0]);
-		case jsdef.GT:              return "Boolean";
 		case jsdef.IN:              return "Boolean";
 		case jsdef.INSIDE:          return "Boolean";
 		case jsdef.INSTANCEOF:      return "Boolean";
-		case jsdef.LE:              return "Boolean";
+		case jsdef.OBJECT_INIT:		return "Object";
+		case jsdef.TYPEOF:			return "String";
+
+		//=============================================================================================================================
+		case jsdef.FALSE:           return "Boolean";
+		case jsdef.TRUE:			return "Boolean";
+
+		//=============================================================================================================================
+
+		case jsdef.ASSIGN:   		return _this.getTypeName(ast[0]);
+		case jsdef.BITWISE_NOT:		return "Integer";
+
+		//=============================================================================================================================
+		case jsdef.EQ:              return "Boolean";
+		case jsdef.GT:              return "Boolean";
+		case jsdef.GE:              return "Boolean";
 		case jsdef.LT:              return "Boolean";
+		case jsdef.LE:              return "Boolean";
 		case jsdef.NE:              return "Boolean";
 		case jsdef.NOT:             return "Boolean";
-		case jsdef.NULL:			return "Null";
-		case jsdef.OBJECT_INIT:		return "Object";
-		case jsdef.REGEXP:			return "RegExp";
-		case jsdef.STATE:			return "State";
+
 		case jsdef.STRICT_EQ:       return "Boolean";
 		case jsdef.STRICT_NE:       return "Boolean";
-		case jsdef.STRING:			return "String";
+
+		//=============================================================================================================================
 		case jsdef.SUPER:			return ast.symbol.vartype;
 		case jsdef.THIS:			return _this.currClassName || "Function";
-		case jsdef.TRUE:			return "Boolean";
-		case jsdef.TYPEOF:			return "String";
+
+		//=============================================================================================================================
+		case jsdef.NULL:			return "Null";
 		case jsdef.VOID:			return _this.UNTYPED;
+		case jsdef.STRING:			return "String";
+		case jsdef.REGEXP:			return "RegExp";
+		case jsdef.STATE:			return "State";
 
 		case jsdef.NUMBER:
 
@@ -712,7 +683,7 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.MOD:
 
 			var op = _this.jsdef_to_type(ast);
-			var operation = this.typerules.implicit[op];
+			var operation = _this.TYPECAST_RULES.implicit[op];
 			var type1 = _this.getTypeName(ast[0]);
 			var type2 = _this.getTypeName(ast[1]);
 
@@ -721,7 +692,7 @@ function CompilerTypeSystemPlugin(compiler)
 				if(operation[type1].hasOwnProperty(type2))
 					return operation[type1][type2];
 				else
-					return _this.typeCheck(ast, type1, type2);
+					return _this.typeCheck(ast, type1, type2, null, false, false, op);
 			}
 
 			return _this.typeCheck(ast, type1, type2, "Illegal operation " + op + " on: " + type1 + " and " + type2);
@@ -733,7 +704,7 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.UNARY_MINUS:
 
 			var type = _this.getTypeName(ast[0]);
-			if (~this.typerules.explicit.__UNARY__.indexOf(type))
+			if (~_this.TYPECAST_RULES.explicit.__UNARY__.indexOf(type))
 			{
 				return type;
 			}
@@ -758,7 +729,7 @@ function CompilerTypeSystemPlugin(compiler)
 		case jsdef.URSH:
 
 			var op = _this.jsdef_to_type(ast);
-			var operation = this.typerules.implicit.BIT;
+			var operation = _this.TYPECAST_RULES.implicit.BIT;
 			var type1 = _this.getTypeName(ast[0]);
 			var type2 = _this.getTypeName(ast[1]);
 
@@ -801,10 +772,19 @@ function CompilerTypeSystemPlugin(compiler)
 
 		//=============================================================================================================================
 		case jsdef.CALL:
+
 			// Typecasting?
 			if(_this.getClass(ast[0].value)) return ast[0].value;
-			return _this.getTypeName(ast[0]);
 
+			var type = _this.getTypeName(ast[0]);
+
+			// Callback?
+			var cls = _this.getClass(type);
+			if(cls && cls.callback) return cls.returntype;
+
+			return type;
+
+		//=============================================================================================================================
 		case jsdef.LIST:
 			return _this.getTypeName(ast[0]);
 
@@ -825,10 +805,22 @@ function CompilerTypeSystemPlugin(compiler)
 				return null;
 			}
 			return symbol.vartype;
+
+		default:
+			break;
+
 		}
 	};
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ==================================================================================================================================
+	//	    ______                 __  _                ______                 ________              __
+	//	   / ____/_  ______  _____/ /_(_)___  ____     /_  __/_  ______  ___  / ____/ /_  ___  _____/ /__
+	//	  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \     / / / / / / __ \/ _ \/ /   / __ \/ _ \/ ___/ //_/
+	//	 / __/ / /_/ / / / / /__/ /_/ / /_/ / / / /    / / / /_/ / /_/ /  __/ /___/ / / /  __/ /__/ ,<
+	//	/_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/    /_/  \__, / .___/\___/\____/_/ /_/\___/\___/_/|_|
+	//	                                                  /____/_/
+	// ==================================================================================================================================
+
 	_this.checkFunctionCall = function(ast)
 	{
 		if(!_this.secondPass || !_this.currClassName) return;
@@ -926,256 +918,108 @@ function CompilerTypeSystemPlugin(compiler)
 		return true;
 	};
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.searchIncludesForVartype = function(className, vt)
-	{
-		var already_searched = {};
-
-		function __searchIncludesForVartype(className, vt)
-		{
-			// ECMA or extern datatype?
-			var vcls = _this.getClass(vt);
-			if(!vcls) return false;
-			if(vcls.file=="externs.jspp") return true;
-			if(vcls.enum) return true;
-
-			// Get class from include name
-			var cls = _this.getClass(className);
-			if(!cls) return false;
-			if(cls.file=="externs.jspp") return true;
-
-			// Relaxed check of cyclic references
-			if(already_searched[className]) return false;
-			already_searched[className] = true;
-
-			// Process class includes for vt
-			var found = false;
-			var includes = cls.ast.includes;
-			if(!includes) return false;
-			for(i=0;i<includes.length;i++)
-			{
-				var include = /\x22\#include\s+([^\x22]+)\.\w+?\x22/g.exec(includes[i])[1];
-				if(include==vt)
-				{
-					found=true;
-					break;
-				}
-			}
-
-		    // Deep search of includes
-		    if(!found)
-		    {
-					for(i=0;i<includes.length;i++)
-					{
-						var include = /\x22\#include\s+([^\x22]+)\.\w+?\x22/g.exec(includes[i])[1];
-						if(__searchIncludesForVartype(include, vt))
-						{
-							found=true;
-							break;
-						}
-					}
-		    }
-
-			// Reference to vt not found in includes chain
-			return found;
-		}
-
-		return __searchIncludesForVartype(className, vt);
-	};
+	// ==================================================================================================================================
+	//	  ______                    ________              __
+	//	 /_  __/_  ______  ___     / ____/ /_  ___  _____/ /__
+	//	  / / / / / / __ \/ _ \   / /   / __ \/ _ \/ ___/ //_/
+	//	 / / / /_/ / /_/ /  __/  / /___/ / / /  __/ /__/ ,<
+	//	/_/  \__, / .___/\___/   \____/_/ /_/\___/\___/_/|_|
+	//	    /____/_/
+	// ==================================================================================================================================
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typeCheckItems = function(ast, ast0, ast1, strictNumbers)
+	_this.typeCheckItems = function(ast, ast0, ast1, strictNumbers, operator)
 	{
 		if(strictNumbers==null)
 			strictNumbers = true;
 
 		var type1 = _this.getTypeName(ast0);
 		var type2 = _this.getTypeName(ast1);
-		_this.typeCheck(ast, type1, type2, null, null, strictNumbers);
+		_this.typeCheck(ast, type1, type2, null, null, strictNumbers, operator);
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	_this.typeCheck = function(ast, _type1, _type2, customError, checkOnly, strictNumbers)
+	_this.typeCheck = function(ast, _type1, _type2, customError, checkOnly, strictNumbers, operator)
 	{
-		//** Need to rewrite using Roger's convertion tables
-
 		var _this = this;
-		if(!_this.currClassName || !_this.secondPass) return;
+		if(!_this.currClassName || !_this.secondPass) return _type1;
 
 		// Fast type checking
 		if(_type1==_type2) return _type1;
 
-		// Resolve vartype and subtypes
+		// Casting to Object is wildcard
+		if(_type1=="Object" || _type2=="Object") return _type1;
+
+		// Extract Vartype and Subtype
 		var type1  = _this.getVarType(_type1);
 		var type2  = _this.getVarType(_type2);
 		var stype1 = _this.getSubType(_type1);
 		var stype2 = _this.getSubType(_type2);
+		if(type1==type2 && stype1==stype2) return _type1;
 
-		// Direct match?
-		if(type1==type2 && stype1==stype2)
-			return type1;
-
-		// Arrays?
-		if(type1==type2 && stype1!=stype2)
+		// Array type check
+		if(type1=="Array" && type2=="Array")
 		{
-			if(!_this.isDerivativeOf(type1, "Array"))
-				_this.NewError("Class is not an Array derivative: " + _type1, ast);
+			if(stype1==stype2) return _type1;
+			if(stype2=="Object") return _type1;
+			if(stype1=="Object") return _type2; // Nasty hack for arrays used by ECMA objects
 
-			if(!_this.isDerivativeOf(type2, "Array"))
-				_this.NewError("Class is not an Array derivative: " + _type2, ast);
+			// Subtypes with inheritance relation
+ 			if(_this.isDerivativeOf(stype1, stype2))
+				return _type1;
 
-			// Nasty hack for arrays used by ECMA objects
-			if(stype1=="Object")
-				return type2;
+			if(checkOnly) return false;
+			_this.NewError(customError || "Cannot convert " + _type2 + " to " + _type1 + ": " + (ast[0] ? ast[0] : ast).source, ast);
+			return _type1;
+		}
 
- 			if(stype2=="Object")
- 				return type1;
+		// Resolve typeDefs
+		type1 = _this.typeDef(type1);
+		type2 = _this.typeDef(type2);
+		if(_type1==_type2) return _type1;
 
-			// Subtypes must have inheritance relation
- 			if(!_this.isDerivativeOf(stype1, stype2))
-				_this.NewError(customError || "Cannot convert " + _type2 + " to " + _type1 + ": " + (ast[0] ? ast[0] : ast).source, ast);
+		// Implicit Convertion Table for Scalars
+		var operation = _this.TYPECAST_RULES.implicit[operator||"ASSIGN"];
+		if(operation[type1] && operation[type1].hasOwnProperty(type2))
+		{
+			// Implicit Convertion Allowed
+			return operation[type1][type2];
+		}
+
+		// Eums
+		if(_this.isEnum(type1) && _this.isNumber(type2)) return _type1;
+		if(_this.isNumber(type1) && _this.isEnum(type2)) return _type1;
+
+		// Null
+		if(_this.isPointer(type1) && type2=="Null") return _type1;
+
+		// Inheritance and Interfaces
+		var cls1 = _this.getClass(type1);
+		if(!cls1) { _this.NewError(customError || "Class not found: " + type1, ast); return _type1; }
+
+		if(cls1.callback)
+		{
+			if(type2=="Null") return _type1;
+
+			if(type1!=type2)
+			{
+				if(!_this.compareMethodSignatures(ast.symbol, cls1, true))
+					_this.NewError(customError || "Invalid callback function: " + type2, ast);
+
+				return _type1;
+			}
 
 			return _type1;
 		}
 
-		// Invalid left/right type
-		if(!type1 || type1=="null" || type1==this.UNTYPED)
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid left type: " + (ast[0] ? ast[0] : ast).source, ast);
-			return type1;
-		}
-
-		if(!type2 || type2=="null" || type2==_this.UNTYPED)
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid right type: " + (ast[1] ? ast[1] : ast).source, ast);
-			return type2;
-		}
-
-        // Null
-		if((_this.isPointer(type1) || type1 == "CocoAction") && type2=="Null") return type1;
-		if(type1 == "CocoAction" && type2 == "Function") return type1;
-
-  		// Object
-		if(type1=="Object") return type1;
-
-		if(type1!="Object" && type2=="Object")
-		{
-			//_this.NewError("Please type-cast to " + type1 + ": " + ast.source, ast);
-			return type1;
-		}
-
-		if(!strictNumbers && _this.isNumber(type1) && _this.isNumber(type2))
-			return type1;
-
-		// Number
-		if(type1=="Number" && type2=="Integer") return type1;
-		if(type1=="Number" && type2=="Float") return type1;
-		if(type1=="Number" && type2=="Time") return type1;
-		if(type1=="Number" && type2=="Color") return type1;
-		if(type1=="Number" && type2=="Object")
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid Object to Number convertion: " + ast.source, ast);
-			return type1;
-		}
-
-		// Integer
-		if(type1=="Integer" && type2=="Number") return type1;
-		if(type1=="Integer" && type2=="Color") return type1;
-		if(type1=="Integer")
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid "+type2+" to Integer convertion: " + ast.source, ast);
-			return type1;
-		}
-
-		// Float
-		if(type1=="Float" && type2=="Number") return type1;
-        if(type1=="Float")
-        {
-        	if(checkOnly) return false;
-        	_this.NewError(customError || "Invalid "+type2+" to Float convertion: " + ast.source, ast);
-        	return type1;
-        }
-
-		// Time
-		if(type1=="Time" && type2=="Number") return type1;
-		if(type1=="Time")
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid "+type2+" to Time convertion: " + ast.source, ast);
-			return type1;
-		}
-
-		// Color
-		if(type1=="Color" && type2=="Number") return type1;
-		if(type1=="Color" && type2=="Integer") return type1;
-		if(type1=="Color")
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid "+type2+" to Color convertion: " + ast.source, ast);
-			return type1;
-		}
-		// Date
-		if(type1=="Date" && type2=="Null") return type1;
-
-        // String
-		if(type1=="String" && type2=="Null")
-		{
-			if(ast.type==jsdef.NEW_WITH_ARGS) return type1;
-			_this.NewWarning(customError || "String set to null, set to empty string instead", ast); return type1;
-		}
-
-    	// Boolean
-		if(type1=="Boolean" && type2=="Number")
-		{
-			if(checkOnly) return false;
-			_this.NewError(customError || "Invalid Number to Boolean convertion: " + ast.source, ast); return type1;
-		}
-
-		// State
-		if(type1=="State" && type2=="Null") return type1;
-
-        // UDT
-		var cls1 = _this.getClass(type1);
-		if(!cls1)
-		{
-			_this.NewError(customError || "Class not found: " + type1, ast);
-			return type1;
-		}
-
 		var cls2 = _this.getClass(type2);
-		if(!cls2)
-		{
-			_this.NewError(customError || "Class not found: " + type2, ast);
-			return type1;
-		}
+		if(!cls2) { _this.NewError(customError || "Class not found: " + type2, ast); return _type1; }
 
-		// JSON support: typecast from Dictionary or Object to a Struct
-		if(cls1.struct && (cls2.name=="Dictionary" || cls2.name=="Object"))
-		{
-			return type1;
-		}
-		if(cls2.struct && (cls1.name=="Dictionary" || cls1.name=="Object"))
-		{
-			return type1;
-		}
-
-		// Callbacks (need to check better)
-		if(cls1.callback && cls2.vartype=="Function")
-		{
-			return type1;
-		}
-
-		// Inheritance and Interfaces
 		if(_this.classTypeCheck(cls1, cls2, ast))
-			return type1;
+			return _type1;
 
 		if(checkOnly) return false;
-		_this.NewError(customError || "Type mismatch " + type1 + " and " + type2 + ": " + ast.source, ast);
-		return type1;
+		_this.NewError(customError || "Cannot convert " + _type2 + " to " + _type1 + ": " + (ast[0] ? ast[0] : ast).source, ast);
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1334,6 +1178,9 @@ function CompilerTypeSystemPlugin(compiler)
 		//===============================================================================
 		function __cast()
 		{
+			// Do not typecast for typedef-ed types
+			if(_this.typeDef(ast.__typecast)==_this.typeDef(vartype)) return;
+
 			if(_this.isDerivativeOf(ast.__typecast, "Integer")) 	return __cast_to_integer();
 			if(_this.isDerivativeOf(ast.__typecast, "Float"))		return __cast_to_float();
 			if(_this.isDerivativeOf(ast.__typecast, "String"))		return __cast_to_string();
@@ -1342,7 +1189,7 @@ function CompilerTypeSystemPlugin(compiler)
 		//===============================================================================
 		if(ast.__typecast_explicit) // Explicit Type Cast Call
 		{
-			if(vartype==ast.__typecast)
+			if(vartype==ast.__typecast && ast.parent && ast.parent.parent)
 				_this.NewWarning("Unnecessary explicit typecast: " + ast.parent.parent.source, ast);
 
 			if(_this.warn_explicit_typecast && gen.indexOf("arguments[")!=0 && ast.__typecast!="String" && !_this.isPointer(ast.__typecast) && !_this.isEnum(ast.__typecast) && !_this.isEnum(vartype))
@@ -1443,12 +1290,11 @@ function CompilerTypeSystemPlugin(compiler)
 		if(!typecast)
 		{
 			var id = _this.getCallIdentifier(ast);
-			if(id && id.symbol.struct)
+			if(id && id.symbol && id.symbol.struct)
 			{
 				// Struct copy constructor
 				return gen;
 			}
-			debugger;
 			return gen;
 		}
 
@@ -1521,7 +1367,8 @@ function CompilerTypeSystemPlugin(compiler)
 			// Casting untyped array to typed array
 			if(ast.type==jsdef.ARRAY_INIT)
 			{
-				gen = "new " + typecast + "(" + gen + ")";
+				var no_pointer = cpp_typecast.substr(0, cpp_typecast.indexOf(">")+1);
+				gen = "new " + no_pointer + "(" + gen + ")";
 				return;
 			}
 
@@ -1547,11 +1394,6 @@ function CompilerTypeSystemPlugin(compiler)
 		//===============================================================================
 		function __cast()
 		{
-			if(cpp_typecast=="CocoAction")
-			{
-				return;
-			}
-
 			// Handle Number type
 			if(vartype=="Number" && _this.RX_NUMERIC_LITERAL.test(gen) && !isNaN(gen))
 			{
@@ -1559,6 +1401,16 @@ function CompilerTypeSystemPlugin(compiler)
 					vartype = "Float";
 				else
 					vartype = "Integer";
+			}
+
+			// Do not typecast for typedef-ed types
+			if(_this.typeDef(cpp_typecast)==_this.typeDef(cpp_vartype)) return;
+
+			// Function Pointer (Callback / Lambda)
+			var cls = _this.getClass(typecast);
+			if(cls && cls.callback)
+			{
+				return;
 			}
 
 			if(_this.isDerivativeOf(cpp_typecast, "Integer")) 	return __cast_to_integer();
