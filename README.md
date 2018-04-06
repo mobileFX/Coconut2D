@@ -1,6 +1,6 @@
 ![Coconut2D_CrossPlatformRuntime](Documentation/Introduction/Coconut2D_CrossPlatformRuntime.jpg)
 
-[<img src=".SDK/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
+[<img src="/Documentation/Introduction/donate.png">](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LARX2LEJ4LM6Q)
 
 1. The Coconut 2D Project idea
 ==============================
