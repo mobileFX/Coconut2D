@@ -1,0 +1,637 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	   ______               _    __          __
+//	  / ____/___  _________| |  / /__  _____/ /_____  _____
+//	 / /   / __ \/ ___/ __ \ | / / _ \/ ___/ __/ __ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ / |/ /  __/ /__/ /_/ /_/ / /
+//	\____/\____/\___/\____/|___/\___/\___/\__/\____/_/
+//
+// ==================================================================================================================================
+
+class CocoVector
+{
+	public var X: Float;
+	public var Y: Float;
+	public var Z: Float;
+	public var W: Float;
+
+	public function Constructor()
+	{
+		X = 0.0;
+		Y = 0.0;
+		Z = 0.0;
+		W = 1.0;
+	}
+
+	public function Destructor()
+	{
+	}
+
+	public function reset(optional x:Float = 0.0, optional y:Float = 0.0, optional z:Float = 0.0, optional w:Float = 1.0)
+	{
+		X = x;
+		Y = y;
+		Z = z;
+		W = w;
+	}
+
+	public function read(v:CocoVector)
+	{
+		X = v.X;
+		Y = v.Y;
+		Z = v.Z;
+		W = v.W;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 __  ___      __       _
+//	  / ____/___  _________  /  |/  /___ _/ /______(_)  __
+//	 / /   / __ \/ ___/ __ \/ /|_/ / __ `/ __/ ___/ / |/_/
+//	/ /___/ /_/ / /__/ /_/ / /  / / /_/ / /_/ /  / />  <
+//	\____/\____/\___/\____/_/  /_/\__,_/\__/_/  /_/_/|_|
+//
+// ==================================================================================================================================
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+struct CocoMatrixData
+{
+	rc11:Float;
+	rc12:Float;
+	rc13:Float;
+	rc14:Float;
+	rc21:Float;
+	rc22:Float;
+	rc23:Float;
+	rc24:Float;
+	rc31:Float;
+	rc32:Float;
+	rc33:Float;
+	rc34:Float;
+	rc41:Float;
+	rc42:Float;
+	rc43:Float;
+	rc44:Float;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoMatrix
+{
+	public var __m:CocoMatrixData;
+
+	public var __stack:Array<CocoMatrixData>;
+	public var __data:Float32Array;
+	public var __dirty:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(optional M:CocoMatrix)
+	{
+		__m = new CocoMatrixData();
+
+		if(M)
+		{
+			__m.rc11 = M.__m.rc11;
+			__m.rc12 = M.__m.rc12;
+			__m.rc13 = M.__m.rc13;
+			__m.rc14 = M.__m.rc14;
+			__m.rc21 = M.__m.rc21;
+			__m.rc22 = M.__m.rc22;
+			__m.rc23 = M.__m.rc23;
+			__m.rc24 = M.__m.rc24;
+			__m.rc31 = M.__m.rc31;
+			__m.rc32 = M.__m.rc32;
+			__m.rc33 = M.__m.rc33;
+			__m.rc34 = M.__m.rc34;
+			__m.rc41 = M.__m.rc41;
+			__m.rc42 = M.__m.rc42;
+			__m.rc43 = M.__m.rc43;
+			__m.rc44 = M.__m.rc44;
+		}
+		else
+			identity();
+
+		__data = new Float32Array([__m.rc11, __m.rc12, __m.rc13, __m.rc14, __m.rc21, __m.rc22, __m.rc23, __m.rc24, __m.rc31, __m.rc32, __m.rc33, __m.rc34, __m.rc41, __m.rc42, __m.rc43, __m.rc44]);
+		__stack = new Array<CocoMatrixData>;
+		__dirty = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete __m;
+		delete __stack;
+		delete __data;
+	}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function Unproject(x:Float, y:Float, mv:CocoMatrix, pm:CocoMatrix, viewOriginX:Float, viewOriginY:Float, viewWidth:Float, viewHeight:Float) :CocoVector
+	{
+        var finalMatrix:CocoMatrix = mv.multiplyByMatrix(pm);
+        finalMatrix.invert();
+
+        var inp:CocoVector = new CocoVector();
+        inp.X = x;
+        inp.Y = y;
+        inp.Z = 0;
+        inp.W = 1.0;
+        inp.X = (inp.X - viewOriginX) / viewWidth;
+        inp.Y = (inp.Y - viewOriginY) / viewHeight;
+        inp.X =inp.X * 2 - 1;
+        inp.Y = inp.Y * 2 - 1;
+        inp.Z = inp.Z * 2 - 1;
+
+		var out:CocoVector = finalMatrix.multiplyByVector(inp);
+		delete finalMatrix;
+		delete inp;
+
+        if(out.W != 0.0)
+        {
+	        out.X /= out.W;
+	        out.Y /= out.W;
+	        out.Z /= out.W;
+        	return out;
+        }
+
+        delete out;
+        return null;
+	}
+
+	// ==================================================================================================================================
+	//	    __  ___      __       _         ____                        __  _
+	//	   /  |/  /___ _/ /______(_)  __   / __ \____  ___  _________ _/ /_(_)___  ____  _____
+	//	  / /|_/ / __ `/ __/ ___/ / |/_/  / / / / __ \/ _ \/ ___/ __ `/ __/ / __ \/ __ \/ ___/
+	//	 / /  / / /_/ / /_/ /  / />  <   / /_/ / /_/ /  __/ /  / /_/ / /_/ / /_/ / / / (__  )
+	//	/_/  /_/\__,_/\__/_/  /_/_/|_|   \____/ .___/\___/_/   \__,_/\__/_/\____/_/ /_/____/
+	//	                                     /_/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function copyFrom(m:CocoMatrixData)
+	{
+		__m.rc11 = m.rc11;
+		__m.rc12 = m.rc12;
+		__m.rc13 = m.rc13;
+		__m.rc14 = m.rc14;
+		__m.rc21 = m.rc21;
+		__m.rc22 = m.rc22;
+		__m.rc23 = m.rc23;
+		__m.rc24 = m.rc24;
+		__m.rc31 = m.rc31;
+		__m.rc32 = m.rc32;
+		__m.rc33 = m.rc33;
+		__m.rc34 = m.rc34;
+		__m.rc41 = m.rc41;
+		__m.rc42 = m.rc42;
+		__m.rc43 = m.rc43;
+		__m.rc44 = m.rc44;
+
+		__dirty = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function identity()
+	{
+	    __m.rc11 = 1; __m.rc12 = 0; __m.rc13 = 0; __m.rc14 = 0;
+	    __m.rc21 = 0; __m.rc22 = 1; __m.rc23 = 0; __m.rc24 = 0;
+	    __m.rc31 = 0; __m.rc32 = 0; __m.rc33 = 1; __m.rc34 = 0;
+	    __m.rc41 = 0; __m.rc42 = 0; __m.rc43 = 0; __m.rc44 = 1;
+	    __dirty = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function ortho(Left:Float, Right:Float, Bottom:Float, Top:Float, Near:Float, Far:Float)
+	{
+		__m.rc11 = 2 / (Right - Left);
+		__m.rc12 = 0.0;
+		__m.rc13 = 0.0;
+		__m.rc14 = 0.0;
+		__m.rc21 = 0.0;
+		__m.rc22 = 2 / (Top - Bottom);
+		__m.rc23 = 0.0;
+		__m.rc24 = 0.0;
+		__m.rc31 = 0.0;
+		__m.rc32 = 0.0;
+		__m.rc33 = -2 / (Far - Near);
+		__m.rc34 = 0.0;
+		__m.rc41 = -(Right + Left) / (Right - Left);
+		__m.rc42 = -(Top + Bottom) / (Top - Bottom);
+		__m.rc43 = -(Far + Near) / (Far - Near);
+		__m.rc44 = 1.0;
+
+		__dirty = true;
+	}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function transpose()
+	{
+	    var t:Float;
+	    t = __m.rc12; __m.rc12 = __m.rc21; __m.rc21 = t;
+	    t = __m.rc13; __m.rc13 = __m.rc31; __m.rc31 = t;
+	    t = __m.rc14; __m.rc14 = __m.rc41; __m.rc41 = t;
+	    t = __m.rc21; __m.rc21 = __m.rc12; __m.rc12 = t;
+	    t = __m.rc23; __m.rc23 = __m.rc32; __m.rc32 = t;
+	    t = __m.rc24; __m.rc24 = __m.rc42; __m.rc42 = t;
+	    t = __m.rc31; __m.rc31 = __m.rc13; __m.rc13 = t;
+	    t = __m.rc32; __m.rc32 = __m.rc23; __m.rc23 = t;
+	    t = __m.rc34; __m.rc34 = __m.rc43; __m.rc43 = t;
+	    t = __m.rc41; __m.rc41 = __m.rc14; __m.rc14 = t;
+	    t = __m.rc42; __m.rc42 = __m.rc24; __m.rc24 = t;
+	    t = __m.rc43; __m.rc43 = __m.rc34; __m.rc34 = t;
+	    __dirty = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function determinant() :Float
+	{
+	    var D:Float = 	(__m.rc14 * __m.rc23 * __m.rc32 * __m.rc41) - (__m.rc13 * __m.rc24 * __m.rc32 * __m.rc41) - (__m.rc14 * __m.rc22 * __m.rc33 * __m.rc41) + (__m.rc12 * __m.rc24 * __m.rc33 * __m.rc41) +
+				        (__m.rc13 * __m.rc22 * __m.rc34 * __m.rc41) - (__m.rc12 * __m.rc23 * __m.rc34 * __m.rc41) - (__m.rc14 * __m.rc23 * __m.rc31 * __m.rc42) + (__m.rc13 * __m.rc24 * __m.rc31 * __m.rc42) +
+				        (__m.rc14 * __m.rc21 * __m.rc33 * __m.rc42) - (__m.rc11 * __m.rc24 * __m.rc33 * __m.rc42) - (__m.rc13 * __m.rc21 * __m.rc34 * __m.rc42) + (__m.rc11 * __m.rc23 * __m.rc34 * __m.rc42) +
+				        (__m.rc14 * __m.rc22 * __m.rc31 * __m.rc43) - (__m.rc12 * __m.rc24 * __m.rc31 * __m.rc43) - (__m.rc14 * __m.rc21 * __m.rc32 * __m.rc43) + (__m.rc11 * __m.rc24 * __m.rc32 * __m.rc43) +
+				        (__m.rc12 * __m.rc21 * __m.rc34 * __m.rc43) - (__m.rc11 * __m.rc22 * __m.rc34 * __m.rc43) - (__m.rc13 * __m.rc22 * __m.rc31 * __m.rc44) + (__m.rc12 * __m.rc23 * __m.rc31 * __m.rc44) +
+				        (__m.rc13 * __m.rc21 * __m.rc32 * __m.rc44) - (__m.rc11 * __m.rc23 * __m.rc32 * __m.rc44) - (__m.rc12 * __m.rc21 * __m.rc33 * __m.rc44) + (__m.rc11 * __m.rc22 * __m.rc33 * __m.rc44);
+		return D;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function invert()
+	{
+	    var D:Float = determinant();
+	    if(D == 0) return;
+
+	    var invRC11:Float = (__m.rc23 * __m.rc34 * __m.rc42) - (__m.rc24 * __m.rc33 * __m.rc42) + (__m.rc24 * __m.rc32 * __m.rc43) - (__m.rc22 * __m.rc34 * __m.rc43) - (__m.rc23 * __m.rc32 * __m.rc44) + (__m.rc22 * __m.rc33 * __m.rc44);
+	    var invRC12:Float = (__m.rc14 * __m.rc33 * __m.rc42) - (__m.rc13 * __m.rc34 * __m.rc42) - (__m.rc14 * __m.rc32 * __m.rc43) + (__m.rc12 * __m.rc34 * __m.rc43) + (__m.rc13 * __m.rc32 * __m.rc44) - (__m.rc12 * __m.rc33 * __m.rc44);
+	    var invRC13:Float = (__m.rc13 * __m.rc24 * __m.rc42) - (__m.rc14 * __m.rc23 * __m.rc42) + (__m.rc14 * __m.rc22 * __m.rc43) - (__m.rc12 * __m.rc24 * __m.rc43) - (__m.rc13 * __m.rc22 * __m.rc44) + (__m.rc12 * __m.rc23 * __m.rc44);
+	    var invRC14:Float = (__m.rc14 * __m.rc23 * __m.rc32) - (__m.rc13 * __m.rc24 * __m.rc32) - (__m.rc14 * __m.rc22 * __m.rc33) + (__m.rc12 * __m.rc24 * __m.rc33) + (__m.rc13 * __m.rc22 * __m.rc34) - (__m.rc12 * __m.rc23 * __m.rc34);
+
+	    var invRC21:Float = (__m.rc24 * __m.rc33 * __m.rc41) - (__m.rc23 * __m.rc34 * __m.rc41) - (__m.rc24 * __m.rc31 * __m.rc43) + (__m.rc21 * __m.rc34 * __m.rc43) + (__m.rc23 * __m.rc31 * __m.rc44) - (__m.rc21 * __m.rc33 * __m.rc44);
+	    var invRC22:Float = (__m.rc13 * __m.rc34 * __m.rc41) - (__m.rc14 * __m.rc33 * __m.rc41) + (__m.rc14 * __m.rc31 * __m.rc43) - (__m.rc11 * __m.rc34 * __m.rc43) - (__m.rc13 * __m.rc31 * __m.rc44) + (__m.rc11 * __m.rc33 * __m.rc44);
+	    var invRC23:Float = (__m.rc14 * __m.rc23 * __m.rc41) - (__m.rc13 * __m.rc24 * __m.rc41) - (__m.rc14 * __m.rc21 * __m.rc43) + (__m.rc11 * __m.rc24 * __m.rc43) + (__m.rc13 * __m.rc21 * __m.rc44) - (__m.rc11 * __m.rc23 * __m.rc44);
+	    var invRC24:Float = (__m.rc13 * __m.rc24 * __m.rc31) - (__m.rc14 * __m.rc23 * __m.rc31) + (__m.rc14 * __m.rc21 * __m.rc33) - (__m.rc11 * __m.rc24 * __m.rc33) - (__m.rc13 * __m.rc21 * __m.rc34) + (__m.rc11 * __m.rc23 * __m.rc34);
+
+	    var invRC31:Float = (__m.rc22 * __m.rc34 * __m.rc41) - (__m.rc24 * __m.rc32 * __m.rc41) + (__m.rc24 * __m.rc31 * __m.rc42) - (__m.rc21 * __m.rc34 * __m.rc42) - (__m.rc22 * __m.rc31 * __m.rc44) + (__m.rc21 * __m.rc32 * __m.rc44);
+	    var invRC32:Float = (__m.rc14 * __m.rc32 * __m.rc41) - (__m.rc12 * __m.rc34 * __m.rc41) - (__m.rc14 * __m.rc31 * __m.rc42) + (__m.rc11 * __m.rc34 * __m.rc42) + (__m.rc12 * __m.rc31 * __m.rc44) - (__m.rc11 * __m.rc32 * __m.rc44);
+	    var invRC33:Float = (__m.rc12 * __m.rc24 * __m.rc41) - (__m.rc14 * __m.rc22 * __m.rc41) + (__m.rc14 * __m.rc21 * __m.rc42) - (__m.rc11 * __m.rc24 * __m.rc42) - (__m.rc12 * __m.rc21 * __m.rc44) + (__m.rc11 * __m.rc22 * __m.rc44);
+	    var invRC34:Float = (__m.rc14 * __m.rc22 * __m.rc31) - (__m.rc12 * __m.rc24 * __m.rc31) - (__m.rc14 * __m.rc21 * __m.rc32) + (__m.rc11 * __m.rc24 * __m.rc32) + (__m.rc12 * __m.rc21 * __m.rc34) - (__m.rc11 * __m.rc22 * __m.rc34);
+
+	    var invRC41:Float = (__m.rc23 * __m.rc32 * __m.rc41) - (__m.rc22 * __m.rc33 * __m.rc41) - (__m.rc23 * __m.rc31 * __m.rc42) + (__m.rc21 * __m.rc33 * __m.rc42) + (__m.rc22 * __m.rc31 * __m.rc43) - (__m.rc21 * __m.rc32 * __m.rc43);
+	    var invRC42:Float = (__m.rc12 * __m.rc33 * __m.rc41) - (__m.rc13 * __m.rc32 * __m.rc41) + (__m.rc13 * __m.rc31 * __m.rc42) - (__m.rc11 * __m.rc33 * __m.rc42) - (__m.rc12 * __m.rc31 * __m.rc43) + (__m.rc11 * __m.rc32 * __m.rc43);
+	    var invRC43:Float = (__m.rc13 * __m.rc22 * __m.rc41) - (__m.rc12 * __m.rc23 * __m.rc41) - (__m.rc13 * __m.rc21 * __m.rc42) + (__m.rc11 * __m.rc23 * __m.rc42) + (__m.rc12 * __m.rc21 * __m.rc43) - (__m.rc11 * __m.rc22 * __m.rc43);
+	    var invRC44:Float = (__m.rc12 * __m.rc23 * __m.rc31) - (__m.rc13 * __m.rc22 * __m.rc31) + (__m.rc13 * __m.rc21 * __m.rc32) - (__m.rc11 * __m.rc23 * __m.rc32) - (__m.rc12 * __m.rc21 * __m.rc33) + (__m.rc11 * __m.rc22 * __m.rc33);
+
+	    __m.rc11 = invRC11 / D;
+	    __m.rc12 = invRC12 / D;
+	    __m.rc13 = invRC13 / D;
+	    __m.rc14 = invRC14 / D;
+
+	    __m.rc21 = invRC21 / D;
+	    __m.rc22 = invRC22 / D;
+	    __m.rc23 = invRC23 / D;
+	    __m.rc24 = invRC24 / D;
+
+	    __m.rc31 = invRC31 / D;
+	    __m.rc32 = invRC32 / D;
+	    __m.rc33 = invRC33 / D;
+	    __m.rc34 = invRC34 / D;
+
+	    __m.rc41 = invRC41 / D;
+	    __m.rc42 = invRC42 / D;
+	    __m.rc43 = invRC43 / D;
+	    __m.rc44 = invRC44 / D;
+
+	    __dirty = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function multiplyByVector(v:CocoVector) :CocoVector
+	{
+	    var out:CocoVector = new CocoVector();
+        out.X = (v.X * __m.rc11) + (v.Y * __m.rc21) + (v.Z * __m.rc31) + (v.W * __m.rc41);
+        out.Y = (v.X * __m.rc12) + (v.Y * __m.rc22) + (v.Z * __m.rc32) + (v.W * __m.rc42);
+        out.Z = (v.X * __m.rc13) + (v.Y * __m.rc23) + (v.Z * __m.rc33) + (v.W * __m.rc43);
+        out.W = (v.X * __m.rc14) + (v.Y * __m.rc24) + (v.Z * __m.rc34) + (v.W * __m.rc44);
+        return out;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function vectorMultiply(v:CocoVector, out:CocoVector)
+	{
+		out.reset();
+        out.X = (v.X * __m.rc11) + (v.Y * __m.rc21) + (v.Z * __m.rc31) + (v.W * __m.rc41);
+        out.Y = (v.X * __m.rc12) + (v.Y * __m.rc22) + (v.Z * __m.rc32) + (v.W * __m.rc42);
+        out.Z = (v.X * __m.rc13) + (v.Y * __m.rc23) + (v.Z * __m.rc33) + (v.W * __m.rc43);
+        out.W = (v.X * __m.rc14) + (v.Y * __m.rc24) + (v.Z * __m.rc34) + (v.W * __m.rc44);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function matrixMultiplyBy(v:CocoMatrix, out:CocoMatrix)
+	{
+		out.__m.rc11 = (__m.rc11 * v.__m.rc11) + (__m.rc21 * v.__m.rc12) + (__m.rc31 * v.__m.rc13) + (__m.rc41 * v.__m.rc14);
+		out.__m.rc12 = (__m.rc12 * v.__m.rc11) + (__m.rc22 * v.__m.rc12) + (__m.rc32 * v.__m.rc13) + (__m.rc42 * v.__m.rc14);
+		out.__m.rc13 = (__m.rc13 * v.__m.rc11) + (__m.rc23 * v.__m.rc12) + (__m.rc33 * v.__m.rc13) + (__m.rc43 * v.__m.rc14);
+		out.__m.rc14 = (__m.rc14 * v.__m.rc11) + (__m.rc24 * v.__m.rc12) + (__m.rc34 * v.__m.rc13) + (__m.rc44 * v.__m.rc14);
+
+		out.__m.rc21 = (__m.rc11 * v.__m.rc21) + (__m.rc21 * v.__m.rc22) + (__m.rc31 * v.__m.rc23) + (__m.rc41 * v.__m.rc24);
+		out.__m.rc22 = (__m.rc12 * v.__m.rc21) + (__m.rc22 * v.__m.rc22) + (__m.rc32 * v.__m.rc23) + (__m.rc42 * v.__m.rc24);
+		out.__m.rc23 = (__m.rc13 * v.__m.rc21) + (__m.rc23 * v.__m.rc22) + (__m.rc33 * v.__m.rc23) + (__m.rc43 * v.__m.rc24);
+		out.__m.rc24 = (__m.rc14 * v.__m.rc21) + (__m.rc24 * v.__m.rc22) + (__m.rc34 * v.__m.rc23) + (__m.rc44 * v.__m.rc24);
+
+		out.__m.rc31 = (__m.rc11 * v.__m.rc31) + (__m.rc21 * v.__m.rc32) + (__m.rc31 * v.__m.rc33) + (__m.rc41 * v.__m.rc34);
+		out.__m.rc32 = (__m.rc12 * v.__m.rc31) + (__m.rc22 * v.__m.rc32) + (__m.rc32 * v.__m.rc33) + (__m.rc42 * v.__m.rc34);
+		out.__m.rc33 = (__m.rc13 * v.__m.rc31) + (__m.rc23 * v.__m.rc32) + (__m.rc33 * v.__m.rc33) + (__m.rc43 * v.__m.rc34);
+		out.__m.rc34 = (__m.rc14 * v.__m.rc31) + (__m.rc24 * v.__m.rc32) + (__m.rc34 * v.__m.rc33) + (__m.rc44 * v.__m.rc34);
+
+		out.__m.rc41 = (__m.rc11 * v.__m.rc41) + (__m.rc21 * v.__m.rc42) + (__m.rc31 * v.__m.rc43) + (__m.rc41 * v.__m.rc44);
+		out.__m.rc42 = (__m.rc12 * v.__m.rc41) + (__m.rc22 * v.__m.rc42) + (__m.rc32 * v.__m.rc43) + (__m.rc42 * v.__m.rc44);
+		out.__m.rc43 = (__m.rc13 * v.__m.rc41) + (__m.rc23 * v.__m.rc42) + (__m.rc33 * v.__m.rc43) + (__m.rc43 * v.__m.rc44);
+		out.__m.rc44 = (__m.rc14 * v.__m.rc41) + (__m.rc24 * v.__m.rc42) + (__m.rc34 * v.__m.rc43) + (__m.rc44 * v.__m.rc44);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function multiplyByMatrix(v:CocoMatrix, optional setMatrix:Boolean, optional swap:Boolean) :CocoMatrix
+	{
+		var __mm:CocoMatrixData = new CocoMatrixData();
+
+		if(swap)
+		{
+			__mm.rc11 = (v.__m.rc11 * __m.rc11) + (v.__m.rc21 * __m.rc12) + (v.__m.rc31 * __m.rc13) + (v.__m.rc41 * __m.rc14);
+			__mm.rc12 = (v.__m.rc12 * __m.rc11) + (v.__m.rc22 * __m.rc12) + (v.__m.rc32 * __m.rc13) + (v.__m.rc42 * __m.rc14);
+			__mm.rc13 = (v.__m.rc13 * __m.rc11) + (v.__m.rc23 * __m.rc12) + (v.__m.rc33 * __m.rc13) + (v.__m.rc43 * __m.rc14);
+			__mm.rc14 = (v.__m.rc14 * __m.rc11) + (v.__m.rc24 * __m.rc12) + (v.__m.rc34 * __m.rc13) + (v.__m.rc44 * __m.rc14);
+
+			__mm.rc21 = (v.__m.rc11 * __m.rc21) + (v.__m.rc21 * __m.rc22) + (v.__m.rc31 * __m.rc23) + (v.__m.rc41 * __m.rc24);
+			__mm.rc22 = (v.__m.rc12 * __m.rc21) + (v.__m.rc22 * __m.rc22) + (v.__m.rc32 * __m.rc23) + (v.__m.rc42 * __m.rc24);
+			__mm.rc23 = (v.__m.rc13 * __m.rc21) + (v.__m.rc23 * __m.rc22) + (v.__m.rc33 * __m.rc23) + (v.__m.rc43 * __m.rc24);
+			__mm.rc24 = (v.__m.rc14 * __m.rc21) + (v.__m.rc24 * __m.rc22) + (v.__m.rc34 * __m.rc23) + (v.__m.rc44 * __m.rc24);
+
+			__mm.rc31 = (v.__m.rc11 * __m.rc31) + (v.__m.rc21 * __m.rc32) + (v.__m.rc31 * __m.rc33) + (v.__m.rc41 * __m.rc34);
+			__mm.rc32 = (v.__m.rc12 * __m.rc31) + (v.__m.rc22 * __m.rc32) + (v.__m.rc32 * __m.rc33) + (v.__m.rc42 * __m.rc34);
+			__mm.rc33 = (v.__m.rc13 * __m.rc31) + (v.__m.rc23 * __m.rc32) + (v.__m.rc33 * __m.rc33) + (v.__m.rc43 * __m.rc34);
+			__mm.rc34 = (v.__m.rc14 * __m.rc31) + (v.__m.rc24 * __m.rc32) + (v.__m.rc34 * __m.rc33) + (v.__m.rc44 * __m.rc34);
+
+			__mm.rc41 = (v.__m.rc11 * __m.rc41) + (v.__m.rc21 * __m.rc42) + (v.__m.rc31 * __m.rc43) + (v.__m.rc41 * __m.rc44);
+			__mm.rc42 = (v.__m.rc12 * __m.rc41) + (v.__m.rc22 * __m.rc42) + (v.__m.rc32 * __m.rc43) + (v.__m.rc42 * __m.rc44);
+			__mm.rc43 = (v.__m.rc13 * __m.rc41) + (v.__m.rc23 * __m.rc42) + (v.__m.rc33 * __m.rc43) + (v.__m.rc43 * __m.rc44);
+			__mm.rc44 = (v.__m.rc14 * __m.rc41) + (v.__m.rc24 * __m.rc42) + (v.__m.rc34 * __m.rc43) + (v.__m.rc44 * __m.rc44);
+		}
+		else
+		{
+			__mm.rc11 = (__m.rc11 * v.__m.rc11) + (__m.rc21 * v.__m.rc12) + (__m.rc31 * v.__m.rc13) + (__m.rc41 * v.__m.rc14);
+			__mm.rc12 = (__m.rc12 * v.__m.rc11) + (__m.rc22 * v.__m.rc12) + (__m.rc32 * v.__m.rc13) + (__m.rc42 * v.__m.rc14);
+			__mm.rc13 = (__m.rc13 * v.__m.rc11) + (__m.rc23 * v.__m.rc12) + (__m.rc33 * v.__m.rc13) + (__m.rc43 * v.__m.rc14);
+			__mm.rc14 = (__m.rc14 * v.__m.rc11) + (__m.rc24 * v.__m.rc12) + (__m.rc34 * v.__m.rc13) + (__m.rc44 * v.__m.rc14);
+
+			__mm.rc21 = (__m.rc11 * v.__m.rc21) + (__m.rc21 * v.__m.rc22) + (__m.rc31 * v.__m.rc23) + (__m.rc41 * v.__m.rc24);
+			__mm.rc22 = (__m.rc12 * v.__m.rc21) + (__m.rc22 * v.__m.rc22) + (__m.rc32 * v.__m.rc23) + (__m.rc42 * v.__m.rc24);
+			__mm.rc23 = (__m.rc13 * v.__m.rc21) + (__m.rc23 * v.__m.rc22) + (__m.rc33 * v.__m.rc23) + (__m.rc43 * v.__m.rc24);
+			__mm.rc24 = (__m.rc14 * v.__m.rc21) + (__m.rc24 * v.__m.rc22) + (__m.rc34 * v.__m.rc23) + (__m.rc44 * v.__m.rc24);
+
+			__mm.rc31 = (__m.rc11 * v.__m.rc31) + (__m.rc21 * v.__m.rc32) + (__m.rc31 * v.__m.rc33) + (__m.rc41 * v.__m.rc34);
+			__mm.rc32 = (__m.rc12 * v.__m.rc31) + (__m.rc22 * v.__m.rc32) + (__m.rc32 * v.__m.rc33) + (__m.rc42 * v.__m.rc34);
+			__mm.rc33 = (__m.rc13 * v.__m.rc31) + (__m.rc23 * v.__m.rc32) + (__m.rc33 * v.__m.rc33) + (__m.rc43 * v.__m.rc34);
+			__mm.rc34 = (__m.rc14 * v.__m.rc31) + (__m.rc24 * v.__m.rc32) + (__m.rc34 * v.__m.rc33) + (__m.rc44 * v.__m.rc34);
+
+			__mm.rc41 = (__m.rc11 * v.__m.rc41) + (__m.rc21 * v.__m.rc42) + (__m.rc31 * v.__m.rc43) + (__m.rc41 * v.__m.rc44);
+			__mm.rc42 = (__m.rc12 * v.__m.rc41) + (__m.rc22 * v.__m.rc42) + (__m.rc32 * v.__m.rc43) + (__m.rc42 * v.__m.rc44);
+			__mm.rc43 = (__m.rc13 * v.__m.rc41) + (__m.rc23 * v.__m.rc42) + (__m.rc33 * v.__m.rc43) + (__m.rc43 * v.__m.rc44);
+			__mm.rc44 = (__m.rc14 * v.__m.rc41) + (__m.rc24 * v.__m.rc42) + (__m.rc34 * v.__m.rc43) + (__m.rc44 * v.__m.rc44);
+		}
+
+		if(setMatrix)
+		{
+			copyFrom(__mm);
+			delete __mm;
+			return null;
+		}
+
+		var out:CocoMatrix = new CocoMatrix();
+		out.copyFrom(__mm);
+		delete __mm;
+		return out;
+	}
+
+	// ==================================================================================================================================
+	//	  ______                      ____                           __  _
+	//	 /_  __/________ _____  _____/ __/___  _________ ___  ____ _/ /_(_)___  ____  _____
+	//	  / / / ___/ __ `/ __ \/ ___/ /_/ __ \/ ___/ __ `__ \/ __ `/ __/ / __ \/ __ \/ ___/
+	//	 / / / /  / /_/ / / / (__  ) __/ /_/ / /  / / / / / / /_/ / /_/ / /_/ / / / (__  )
+	//	/_/ /_/   \__,_/_/ /_/____/_/  \____/_/  /_/ /_/ /_/\__,_/\__/_/\____/_/ /_/____/
+	//
+	// ==================================================================================================================================
+
+	public function translate(tx:Float, ty:Float)
+	{
+		if(tx==0 && ty==0) return;
+		translate3d(tx, ty, 0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function translate3d(tx:Float, ty:Float, tz:Float)
+ 	{
+ 		if(tx==0 && ty==0 && tz==0) return;
+
+        __m.rc41 += (tx * __m.rc11) + (ty * __m.rc21) + (tz * __m.rc31);
+        __m.rc42 += (tx * __m.rc12) + (ty * __m.rc22) + (tz * __m.rc32);
+        __m.rc43 += (tx * __m.rc13) + (ty * __m.rc23) + (tz * __m.rc33);
+        __m.rc44 = 1;
+
+        __dirty = true;
+  	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function setZ(z:Float):Float
+ 	{
+ 		if(!engine.__ENABLE_RENDERING_OPTIMIZATIONS)
+ 			return z;
+
+        __m.rc43 = z;
+        __dirty = true;
+        return __m.rc43;
+  	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function scale(sx:Float, sy:Float)
+	{
+		if(sx==1 && sy==1) return;
+
+		__m.rc11 *= sx;
+		__m.rc21 *= sy;
+		__m.rc12 *= sx;
+		__m.rc22 *= sy;
+		__m.rc13 *= sx;
+		__m.rc23 *= sy;
+		__m.rc14 *= sx;
+		__m.rc24 *= sy;
+
+		__dirty = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function rotateZ(rz:Float)
+	{
+		if(rz==0) return;
+
+		// counter-clockwise rotation around Z-axis (perpendicular to the screen)
+		var c:Float = Math.cos(rz);
+		var s:Float = Math.sin(rz);
+		var t0:Float, t1:Float;
+
+		t0 = __m.rc11;
+		t1 = __m.rc21;
+		__m.rc11 =  t0 * c + t1 * s;
+		__m.rc21 = -t0 * s + t1 * c;
+
+		t0 = __m.rc12;
+		t1 = __m.rc22;
+		__m.rc12 =  t0 * c + t1 * s;
+		__m.rc22 = -t0 * s + t1 * c;
+
+		t0 = __m.rc13;
+		t1 = __m.rc23;
+		__m.rc13 =  t0 * c + t1 * s;
+		__m.rc23 = -t0 * s + t1 * c;
+
+		t0 = __m.rc14;
+		t1 = __m.rc24;
+		__m.rc14 =  t0 * c + t1 * s;
+		__m.rc24 = -t0 * s + t1 * c;
+
+		__dirty = true;
+	}
+
+	// ==================================================================================================================================
+	//	   ____                   ________
+	//	  / __ \____  ___  ____  / ____/ /
+	//	 / / / / __ \/ _ \/ __ \/ / __/ /
+	//	/ /_/ / /_/ /  __/ / / / /_/ / /___
+	//	\____/ .___/\___/_/ /_/\____/_____/
+	//	    /_/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function refresh()
+	{
+		__data[0]  = __m.rc11;
+		__data[1]  = __m.rc12;
+		__data[2]  = __m.rc13;
+		__data[3]  = __m.rc14;
+		__data[4]  = __m.rc21;
+		__data[5]  = __m.rc22;
+		__data[6]  = __m.rc23;
+		__data[7]  = __m.rc24;
+		__data[8]  = __m.rc31;
+		__data[9]  = __m.rc32;
+		__data[10] = __m.rc33;
+		__data[11] = __m.rc34;
+		__data[12] = __m.rc41;
+		__data[13] = __m.rc42;
+		__data[14] = __m.rc43;
+		__data[15] = __m.rc44;
+		__dirty = false;
+	}
+
+	// ==================================================================================================================================
+	//	   _____ __             __
+	//	  / ___// /_____ ______/ /__
+	//	  \__ \/ __/ __ `/ ___/ //_/
+	//	 ___/ / /_/ /_/ / /__/ ,<
+	//	/____/\__/\__,_/\___/_/|_|
+	//
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function push()
+	{
+		__stack.push(new CocoMatrixData(__m));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function pop()
+	{
+		if(__stack.size())
+		{
+			var mm:CocoMatrixData = __stack.pop();
+			__m.rc11 = mm.rc11;
+			__m.rc12 = mm.rc12;
+			__m.rc13 = mm.rc13;
+			__m.rc14 = mm.rc14;
+			__m.rc21 = mm.rc21;
+			__m.rc22 = mm.rc22;
+			__m.rc23 = mm.rc23;
+			__m.rc24 = mm.rc24;
+			__m.rc31 = mm.rc31;
+			__m.rc32 = mm.rc32;
+			__m.rc33 = mm.rc33;
+			__m.rc34 = mm.rc34;
+			__m.rc41 = mm.rc41;
+			__m.rc42 = mm.rc42;
+			__m.rc43 = mm.rc43;
+			__m.rc44 = mm.rc44;
+			__dirty = true;
+			delete mm;
+		}
+	}
+
+	public function getRotateX():Float
+	{
+		return Math.acos(__m.rc11) * DEGREES * (__m.rc13 > 0 ? -1 : 1);
+	}
+
+	public function getRotateY():Float
+	{
+		return Math.asin(__m.rc22) * DEGREES;
+	}
+
+	public function getTranslateX():Float
+	{
+		return __m.rc41;
+	}
+
+	public function getTranslateY():Float
+	{
+		return __m.rc42;
+	}
+
+	public function getTranslateZ():Float
+	{
+		return __m.rc43;
+	}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toCSS3D(optional identity:Boolean):String
+	{
+		return (identity ? "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1) " : "") + "matrix3d("+String(__m.rc11)+","+String(__m.rc12)+","+String(__m.rc13)+","+String(__m.rc14)+","+String(__m.rc21)+","+String(__m.rc22)+","+String(__m.rc23)+","+String(__m.rc24)+","+String(__m.rc31)+","+String(__m.rc32)+","+String(__m.rc33)+","+String(__m.rc34)+","+String(Math.ceil(__m.rc41))+","+String(Math.ceil(__m.rc42))+","+String(Math.ceil(__m.rc43))+","+String(__m.rc44)+")";
+	}
+
+ 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toCSS2D(optional identity:Boolean):String
+	{
+		return (identity ? "matrix(1,0,0,1,0,0) " : "") + "matrix("+String(__m.rc11)+","+String(__m.rc12)+","+String(__m.rc21)+","+String(__m.rc22)+","+String(__m.rc41)+","+String(__m.rc42)+")";
+	}
+}
+

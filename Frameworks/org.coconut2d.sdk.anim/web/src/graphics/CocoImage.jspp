@@ -1,0 +1,943 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "CanvasRenderingContext2D.jspp"
+
+enum COCOIMAGE_TEXTURE_MAG_FILTER_ENUM
+{
+	MAG_NEAREST		= 0x2600,
+	MAG_LINEAR		= 0x2601
+};
+
+enum COCOIMAGE_TEXTURE_MIN_FILTER_ENUM
+{
+	MIN_NEAREST						= 0x2600,
+	MIN_LINEAR						= 0x2601,
+	MIN_NEAREST_MIPMAP_NEAREST		= 0x2700,
+	MIN_LINEAR_MIPMAP_NEAREST		= 0x2701,
+	MIN_NEAREST_MIPMAP_LINEAR		= 0x2702,
+	MIN_LINEAR_MIPMAP_LINEAR		= 0x2703
+};
+
+enum COCOIMAGE_TEXTURE_WRAP_ENUM
+{
+	WRAP_CLAMP_TO_EDGE		= 0x2900,
+	WRAP_REPEAT				= 0x2901
+};
+
+// ==================================================================================================================================
+//	   ______                _____
+//	  / ____/___  _________ / ___/___  ____ ___  _____  ____  ________
+//	 / /   / __ \/ ___/ __ \\__ \/ _ \/ __ `/ / / / _ \/ __ \/ ___/ _ \
+//	/ /___/ /_/ / /__/ /_/ /__/ /  __/ /_/ / /_/ /  __/ / / / /__/  __/
+//	\____/\____/\___/\____/____/\___/\__, /\__,_/\___/_/ /_/\___/\___/
+//	                                   /_/
+// ==================================================================================================================================
+
+class CocoSequence
+{
+	public var name:String;
+	public var frames:Array<Integer>;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(name:String, framesArray:Array<Integer>)
+	{
+		this.name = name;
+		this.frames = framesArray;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete frames;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____                           ____                  __      __  _
+//	  / ____/___  _________  /  _/___ ___  ____ _____ ____  / __ \___  _________  / /_  __/ /_(_)___  ____
+//	 / /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \/ /_/ / _ \/ ___/ __ \/ / / / / __/ / __ \/ __ \
+//	/ /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/ _, _/  __(__  ) /_/ / / /_/ / /_/ / /_/ / / / /
+//	\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/_/ |_|\___/____/\____/_/\__,_/\__/_/\____/_/ /_/
+//	                                          /____/
+// ==================================================================================================================================
+
+class CocoImageResolution
+{
+	// Image Data
+	public var url:String;
+	public var multiplier:Float;
+
+	// Texture Data
+	public var textureCellWidth:Float;
+	public var textureCellHeight:Float;
+	public var textureGrid:Float32Array;
+	public var textureMagFilter:COCOIMAGE_TEXTURE_MAG_FILTER_ENUM;
+	public var textureMinFilter:COCOIMAGE_TEXTURE_MIN_FILTER_ENUM;
+	public var textureWrapS:COCOIMAGE_TEXTURE_WRAP_ENUM;
+	public var textureWrapT:COCOIMAGE_TEXTURE_WRAP_ENUM;
+	public var texturePreservePixels:Boolean;
+
+	// Skin Data
+	public var skin:Float32Array;  // W1, W2, W3, H1, H2, H3
+
+	// Compressed Tiled Layer Data
+	public var textureTileMap:Float32Array;
+	public var tileWidth:Float;
+	public var tileHeight:Float;
+	public var tileMap:Int32Array;
+
+	// Sequences
+	public var sequences:Array<CocoSequence>;
+
+	// BinPacked Altas
+	public reference var atlas:CocoImage;	// Reference to an Atlas when the image is Packed
+
+	public function Constructor(url:String, multiplier:Float, textureWidth:Float, textureHeight:Float, textureMagFilter:Integer, textureMinFilter:Integer, textureWrapS:Integer, textureWrapT:Integer, texturePreservePixels:Boolean)
+	{
+		this.url						= url;
+
+		this.multiplier					= multiplier;
+
+		this.textureCellWidth			= textureWidth;
+		this.textureCellHeight			= textureHeight;
+		this.textureMagFilter			= textureMagFilter;
+		this.textureMinFilter			= textureMinFilter;
+		this.textureWrapS				= textureWrapS;
+		this.textureWrapT				= textureWrapT;
+		this.texturePreservePixels		= texturePreservePixels;
+
+		skin							= null;
+
+		tileWidth						= 0;
+		tileHeight						= 0;
+		tileMap							= null;
+
+		textureGrid						= null;
+		textureTileMap					= null;
+		sequences						= new Array<CocoSequence>;
+
+		atlas							= null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete[] sequences;
+		delete tileMap;
+		delete textureGrid;
+		delete textureTileMap;
+		delete skin;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addSequence(sequence:CocoSequence) :CocoSequence
+	{
+		if(!sequence) return null;
+		sequences.push(sequence);
+		return sequence;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property frames
+	{
+		function get():Integer { return textureGrid.length / 2; }
+	}
+}
+
+// ==================================================================================================================================
+//	    __________                 ____                           ____                 __          ____        __
+//	   /  _/ ____/___  _________  /  _/___ ___  ____ _____ ____  / __ \___  ____  ____/ /__  _____/ __ \____ _/ /_____ _
+//	   / // /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ / / / __ `/ __/ __ `/
+//	 _/ // /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/ _, _/  __/ / / / /_/ /  __/ /  / /_/ / /_/ / /_/ /_/ /
+//	/___/\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/_/ |_|\___/_/ /_/\__,_/\___/_/  /_____/\__,_/\__/\__,_/
+//	                                               /____/
+// ==================================================================================================================================
+
+interface ICocoImageRenderData
+{
+	public function castRenderDataGL():CocoImageRenderDataGL;
+	public function castRenderData2D():CocoImageRenderData2D;
+}
+
+// ==================================================================================================================================
+//	   ______                 ____                           ____                 __          ____        __       ___   ____
+//	  / ____/___  _________  /  _/___ ___  ____ _____ ____  / __ \___  ____  ____/ /__  _____/ __ \____ _/ /_____ |__ \ / __ \
+//	 / /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ / / / __ `/ __/ __ `/_/ // / / /
+//	/ /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/ _, _/  __/ / / / /_/ /  __/ /  / /_/ / /_/ / /_/ /_/ / __// /_/ /
+//	\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/_/ |_|\___/_/ /_/\__,_/\___/_/  /_____/\__,_/\__/\__,_/____/_____/
+//	                                          /____/
+// ==================================================================================================================================
+
+class CocoImageRenderData2D implements ICocoImageRenderData
+{
+	public var imageData:ImageData;
+
+	public function Constructor()
+	{
+		imageData = null;
+	}
+
+	public function Destructor()
+	{
+		delete imageData;
+	}
+
+	public function castRenderDataGL():CocoImageRenderDataGL
+	{
+		return null;
+	}
+
+	public function castRenderData2D():CocoImageRenderData2D
+	{
+		return this;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____                           ____                 __          ____        __        ________
+//	  / ____/___  _________  /  _/___ ___  ____ _____ ____  / __ \___  ____  ____/ /__  _____/ __ \____ _/ /_____ _/ ____/ /
+//	 / /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ / / / __ `/ __/ __ `/ / __/ /
+//	/ /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/ _, _/  __/ / / / /_/ /  __/ /  / /_/ / /_/ / /_/ /_/ / /_/ / /___
+//	\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/_/ |_|\___/_/ /_/\__,_/\___/_/  /_____/\__,_/\__/\__,_/\____/_____/
+//	                                          /____/
+// ==================================================================================================================================
+
+class CocoImageRenderDataGL implements ICocoImageRenderData
+{
+	public reference var gl:WebGLRenderingContext;
+
+	public var texData:Float32Array;
+	public var texture: WebGLTexture;
+	public var buffer: WebGLBuffer;
+	public var drawType:Integer;
+	public var vertexCount:Integer;
+
+	public function Constructor()
+	{
+		drawType = 0;
+		vertexCount = 0;
+		texture = null;
+		buffer = null;
+		texData = null;
+	}
+
+	public function Destructor()
+	{
+		if(gl)
+		{
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+			CocoShader.last_texture = null;
+
+			if(texture)
+				gl.deleteTexture(texture);
+
+			if(buffer)
+				gl.deleteBuffer(buffer);
+		}
+
+		delete texData;
+		delete texture;
+		delete buffer;
+
+		gl=null;
+	}
+
+	public function castRenderDataGL():CocoImageRenderDataGL
+	{
+		return this;
+	}
+
+	public function castRenderData2D():CocoImageRenderData2D
+	{
+		return null;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____                                ___   __  __           ______
+//	  / ____/___  _________  /  _/___ ___  ____ _____ ____  _____/   | / /_/ /___ ______/ ____/________  __  ______
+//	 / /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \/ ___/ /| |/ __/ / __ `/ ___/ / __/ ___/ __ \/ / / / __ \
+//	/ /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __(__  ) ___ / /_/ / /_/ (__  ) /_/ / /  / /_/ / /_/ / /_/ /
+//	\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/____/_/  |_\__/_/\__,_/____/\____/_/   \____/\__,_/ .___/
+//	                                          /____/                                                       /_/
+// ==================================================================================================================================
+
+struct BIN_RECT
+{
+	atlas:CocoImage;
+	symbol:String;
+	frameIndex:Integer;
+	multiplier:Float;
+	binX:Integer;
+	binY:Integer;
+	binWidth:Integer;
+	binHeight:Integer;
+	rotated:Boolean;
+	texture:WebGLTexture;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoImagesAtlasGroup
+{
+	public var multiplier:Float;
+	public var bins:Array<CocoImage>;
+	public var frames:Array<BIN_RECT>;
+	public reference var currAtlas:CocoImage;
+
+	private var prepared:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		multiplier = 0;
+		bins = new Array<CocoImage>;
+		frames = new Array<BIN_RECT>;
+		prepared = false;
+		currAtlas = null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete bins;
+		delete frames;
+		currAtlas = null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function load():CocoImage
+	{
+		var i:Integer;
+		var L:Integer = bins.size();
+		var atlas:CocoImage;
+
+		for(i=0; i<L; i++)
+		{
+			atlas = bins[i];
+
+			// If the atlas is not loaded, try loading it
+			if(!atlas.hImage)
+			{
+				//trace("Loading BinPacked Atlas: " + atlas.baseUrl);
+
+				// Load the atlas
+				atlas.loadImage(atlas.baseUrl);
+			}
+		}
+
+		return bins[0];
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepare()
+	{
+		var i:Integer;
+		var L:Integer = bins.size();
+		var atlas:CocoImage;
+		var done:Boolean = true;
+
+		for(i=0; i<L; i++)
+		{
+			atlas = bins[i];
+
+			if(!atlas.renderData && atlas.hImage && atlas.hImage.complete)
+			{
+				// Atlas hImage is complete, save its POT size
+				atlas.naturalWidth = atlas.hImage.naturalWidth;
+				atlas.naturalHeight = atlas.hImage.naturalHeight;
+
+				// Ask the rendering engine to prepare the Atlas
+				atlas.renderData = engine.__ctx.prepareImage(atlas);
+			}
+
+			if(!atlas.renderData)
+				done = false;
+		}
+
+		prepared = done;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function loaded():Boolean
+	{
+		return prepared;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____
+//	  / ____/___  _________  /  _/___ ___  ____ _____ ____
+//	 / /   / __ \/ ___/ __ \ / // __ `__ \/ __ `/ __ `/ _ \
+//	/ /___/ /_/ / /__/ /_/ // // / / / / / /_/ / /_/ /  __/
+//	\____/\____/\___/\____/___/_/ /_/ /_/\__,_/\__, /\___/
+//	                                          /____/
+// ==================================================================================================================================
+
+class CocoImage
+{
+	public var symbolName:String;
+
+	// HTML Image
+	public var hImage:Image;
+	public var naturalWidth:Integer;
+	public var naturalHeight:Integer;
+
+	// Reference to scene holding this image
+	public reference var scene:CocoScene;
+
+	// BinPacked
+	public var atlasGroup:CocoImagesAtlasGroup;
+	public var isAtlas:Boolean;
+	public var locale:String;
+
+	// Texture
+	public var textureCellWidth:Float;
+	public var textureCellHeight:Float;
+	public var textureMagFilter:COCOIMAGE_TEXTURE_MAG_FILTER_ENUM;
+	public var textureMinFilter:COCOIMAGE_TEXTURE_MIN_FILTER_ENUM;
+	public var textureWrapS:COCOIMAGE_TEXTURE_WRAP_ENUM;
+	public var textureWrapT:COCOIMAGE_TEXTURE_WRAP_ENUM;
+	public var texturePreservePixels:Boolean;
+	public reference var textureGrid:Float32Array;
+	public reference var textureTileMap:Float32Array;
+
+	public var color:Float32Array;
+	public var texSize:Float32Array;
+	public var isSpriteSheet:Boolean;
+
+	// Sprite
+	public reference var sequences:Array<CocoSequence>;
+
+	// Skin
+	public reference var skin:Float32Array;  // W1, W2, W3, H1, H2, H3
+
+	// Tiled Layer
+	public var tileWidth:Integer;
+	public var tileHeight:Integer;
+	public var tileMap:Int32Array;
+
+	// Render
+	public var renderData:ICocoImageRenderData;
+
+	// Resolution Siblings
+	public var baseUrl:String;
+	public var textureViewWidth:Float;
+	public var textureViewHeight:Float;
+	public var textureViewScaleX:Float;
+	public var textureViewScaleY:Float;
+	public var viewSiblings:Array<CocoImageResolution>;
+	public var multiplier:Float;
+	public var scaleX:Float;
+	public var scaleY:Float;
+
+	// Atlas
+	public var rects:Array<BIN_RECT>;	// Rectangles of Images when the image is Atlas
+
+	// Shared Image
+	public var shared:Boolean;
+	public var refCount:Integer;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function createFromURL(url:String, optional resizeWidth:Integer, optional resizeHeight:Integer):CocoImage
+	{
+		var img:CocoImage = new CocoImage();
+		img.textureCellWidth = 0;
+		img.textureCellHeight = 0;
+		img.multiplier = 1;
+		img.tileWidth = 0;
+		img.tileHeight = 0;
+		img.tileMap = null;
+		img.hImage = new Image();
+		img.hImage.load(url, img);
+		return img;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		scene						= null;
+		renderData					= null;
+		baseUrl						= "";
+		color						= null;
+		hImage						= null;
+		isSpriteSheet				= false;
+		multiplier					= 1.0;
+		scaleX						= 0.0;
+		scaleY						= 0.0;
+		sequences					= null;
+		skin						= null;
+		tileWidth					= 0;
+		tileHeight					= 0;
+		tileMap						= null;
+		symbolName					= "";
+		texSize						= null;
+		textureCellHeight			= 0;
+		textureCellWidth			= 0;
+		textureGrid					= null;
+		textureTileMap				= null;
+		viewSiblings				= new Array<CocoImageResolution>;
+		atlasGroup					= null;
+		textureViewWidth			= 0;
+		textureViewHeight			= 0;
+		textureViewScaleX			= 1;
+		textureViewScaleY			= 1;
+		refCount					= 0;
+		shared						= false;
+		isAtlas						= false;
+		rects						= null;
+		locale						= "";
+		textureMagFilter			= COCOIMAGE_TEXTURE_MAG_FILTER_ENUM.MAG_LINEAR;
+		textureMinFilter			= COCOIMAGE_TEXTURE_MIN_FILTER_ENUM.MIN_LINEAR_MIPMAP_LINEAR;
+		textureWrapS				= COCOIMAGE_TEXTURE_WRAP_ENUM.WRAP_CLAMP_TO_EDGE;
+		textureWrapT				= COCOIMAGE_TEXTURE_WRAP_ENUM.WRAP_CLAMP_TO_EDGE;
+		texturePreservePixels		= false;
+		naturalWidth				= 0;
+		naturalHeight				= 0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		if(!atlasGroup && hImage && hImage.parentElement)
+		{
+        	window.document.body.removeChild(hImage);
+		}
+
+		delete[] viewSiblings;
+		delete[] rects;
+
+		delete color;
+		delete texSize;
+		delete renderData;
+		delete tileMap;
+
+		if(!atlasGroup && hImage)
+		{
+			dispose_himage();
+
+			// suppress compiler error
+			delete hImage;
+		}
+
+		skin = null;
+		scene = null;
+
+		if(atlasGroup)
+			delete atlasGroup;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addRef():Integer
+	{
+		shared = true;
+		refCount++;
+		return refCount;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function release():Integer
+	{
+		if(shared && refCount>0)
+			refCount--;
+		return refCount;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function dispose()
+	{
+		//trace("Dispose texture: " + hImage.id);
+
+		if(renderData)
+			delete renderData;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __error(hImage:Image):Boolean
+	{
+		return true; // Retry
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createFromCanvas(canvas:HTMLCanvasElement, width:Integer, height:Integer)
+	{
+		createFromBase64(canvas.toDataURL("image/png"));
+
+		textureCellWidth		= width;
+		textureCellHeight		= height;
+		textureViewWidth		= width;
+		textureViewHeight		= height;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createFromBase64(url:String, optional width:Integer, optional height:Integer)
+	{
+		dispose_himage();
+        hImage = new Image();
+        hImage.load(url, this);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __loaded(hImage:Image)
+	{
+		if(!textureCellWidth || !textureCellHeight)
+		{
+			textureCellWidth		= hImage.naturalWidth;
+			textureCellHeight		= hImage.naturalHeight;
+			textureViewWidth		= textureCellWidth;
+			textureViewHeight		= textureCellHeight;
+			multiplier				= 1.0;
+		}
+
+		if(!textureGrid)
+			textureGrid = new Float32Array([0,0]);
+
+		loaded();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addResolution(sibling:CocoImageResolution) :CocoImageResolution
+	{
+		viewSiblings.push(sibling);
+		return sibling;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addSequence(sequence:CocoSequence) :CocoSequence
+	{
+		if(!sequence) return null;
+		if(getSequence(sequence.name)) throw "Sequence " + sequence.name + " already exists.";
+		sequences.push(sequence);
+		isSpriteSheet = true;
+		return sequence;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getSequence(name:String) :CocoSequence
+	{
+		if(!sequences) return null;
+
+		var item:CocoSequence;
+
+		for (var i:Integer = sequences.size() - 1; i >= 0; i--)
+		{
+			item = sequences[i];
+			if(item.name == name)
+				return item;
+		}
+
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function load(scene:CocoScene)
+	{
+		// Find the best resolution sibling for this image
+		// If BinPacking is used, then we search for siblings with multiplier >= scene.ScreenMultiplier
+		// If no BinPacking is used, then we search for siblings bsed on timeline image scale analysis
+		// (note:) if the image is a class image, then timeline image scale analysis is defaults to scene.ScreenMultiplier
+
+		var use_timeline_analysis:Boolean = (scene.__atlases.size()==0);
+
+		var sibling:CocoImageResolution = findBestResolutionSibling(use_timeline_analysis);
+
+		if(use_timeline_analysis && !sibling)
+			return;
+
+		// Find the atlas packing the resolution sibling
+		atlasGroup = (!sibling ? null : scene.findBestResolutionAtlasGroup(symbolName, sibling));
+
+		if(atlasGroup)
+		{
+			// Make sure all bins of this atlas group are loaded
+			atlasGroup.currAtlas = atlasGroup.load();
+
+			// We have arbitrary selected the first atlas bin and hImage
+			// (this will change by rendering context depending on sequence frame)
+			hImage = atlasGroup.currAtlas.hImage;
+
+			// If the source images have incorect multipliers then the binpacked
+			// atlas loaded might have smaller or larger sibling image from the
+			// one we are looking for. In that case we need to locate the proper
+			// sibling otherwise the image wont render properly.
+
+			if(sibling.multiplier != atlasGroup.multiplier)
+			{
+				//trace("WARNING: Changing sibling for " + symbolName);
+
+				// We have the wrong sibling
+				sibling = findExactResolutionSiblingForMultiplier(atlasGroup.multiplier);
+
+				if(!sibling)
+				{
+					trace("ERROR: No best-resolution found for " + symbolName);
+					delete atlasGroup;
+					return;
+				}
+
+				// Changed sibling, we need a new atlas.
+				delete atlasGroup;
+				atlasGroup = scene.findBestResolutionAtlasGroup(symbolName, sibling);
+
+				// Make sure all bins of this atlas group are loaded
+				atlasGroup.currAtlas = atlasGroup.load();
+
+				// We have arbitrary selected the first atlas bin and hImage
+				// (this will change by rendering context depending on sequence frame)
+				hImage = atlasGroup.currAtlas.hImage;
+			}
+		}
+		else
+		{
+			// Make sure the image is not linked to an atlas
+			delete atlasGroup;
+
+			// No best-resolution found, re-try to get best sibling
+			if(!use_timeline_analysis)
+			{
+				sibling = findBestResolutionSibling(false);
+
+				if(!sibling)
+				{
+					trace("ERROR: No best-resolution found for " + symbolName);
+					return;
+				}
+			}
+
+			// Load image
+			loadImage(baseUrl + sibling.url);
+		}
+
+		// Transfer sibling metadata to image symbol
+		setImageMetadataFromSibling(sibling);
+
+		// Check if image has loaded
+		loaded();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function findBestResolutionSibling(use_timeline_analysis:Boolean):CocoImageResolution
+	{
+		var sw:Integer;
+		var sh:Integer;
+		var sibling:CocoImageResolution;
+
+		// Simulator only: sets device zoom.
+		// This forces image loading to assume physical device.
+		var z:Float = (1.0/engine.device.zoom);
+
+		// If it is a Class Image then it propably has not been timeline analyzed
+		if(!use_timeline_analysis || (scaleX==0 && scaleY==0))
+		{
+			scaleX = engine.device.ScreenMultiplier;
+			scaleY = scaleX;
+		}
+
+        // Calculate the optimal (desired) image size
+        sw = Math.floor(textureViewWidth * scaleX * z);
+        sh = Math.floor(textureViewHeight * scaleY * z);
+
+		// Scan all image siblings for an image of desired size - dont care about dpi
+		var L:Integer = viewSiblings.size();
+        for(var i:Integer=0; i<L; i++)
+        {
+            sibling = viewSiblings[i];
+
+            if(sibling.textureCellWidth >= sw && sibling.textureCellHeight >= sh)
+                break;
+
+			// Limit image multiplier
+			if(engine.__MAX_IMAGE_MULTIPLIER!=0 && sibling.multiplier>=engine.__MAX_IMAGE_MULTIPLIER)
+			{
+				//trace("Forcing max image multiplier: " + String(sibling.multiplier));
+				break;
+			}
+
+			// Limit image multiplier for mobile browsers
+			if(engine.device.isMobileHTML5Browser && engine.__MAX_MOBILE_IMAGE_MULTIPLIER!=0 && sibling.multiplier>=engine.__MAX_MOBILE_IMAGE_MULTIPLIER)
+			{
+				//trace("Forcing max image multiplier: " + String(sibling.multiplier));
+				break;
+			}
+        }
+
+        // We either found a proper sibling or ended up with the highest resolution
+
+        if(!sibling)
+			trace("ERROR: Loading image: " + symbolName + ", base: " + String(textureViewWidth) + " x " + String(textureViewHeight) + ", scale: [" + String(scaleX) + ", " + String(scaleY) + "] -> looking for: " + String(sw) + " x " + String(sh) + " => NOT FOUND");
+        else
+        {
+			//trace("Loading image: " + symbolName + ", base: " + String(textureViewWidth) + " x " + String(textureViewHeight) + ", scale: [" + String(scaleX) + ", " + String(scaleY) + "] -> looking for: " + String(sw) + " x " + String(sh) + " => found: " + sibling.url + ", " + String(sibling.textureCellWidth) + " x " + String(sibling.textureCellHeight));
+        }
+
+        return sibling;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function findExactResolutionSiblingForMultiplier(multiplier:Float):CocoImageResolution
+	{
+		var sibling:CocoImageResolution;
+		var L:Integer = viewSiblings.size();
+        for(var i:Integer=0; i<L; i++)
+        {
+            sibling = viewSiblings[i];
+            if(sibling.multiplier==multiplier)
+            {
+                return sibling;
+            }
+        }
+        return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function loadImage(url:String):Image
+	{
+		hImage = new Image();
+
+		url += "?nocache=" + engine.CLIENT_VERSION;
+
+		if(engine.device.isIE10Plus || (engine.device.isMobileHTML5Browser && scene.__atlases.size()>0))
+		{
+			// Hack to prevent caching on IE and force reload images
+			hImage.load(url + "?nocache=" + String(Math.random()*10e10) );
+		}
+		else
+		{
+			hImage.load(url);
+		}
+
+		return hImage;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function setImageMetadataFromSibling(sibling:CocoImageResolution)
+	{
+		// Texture
+		multiplier					= sibling.multiplier;
+		textureCellWidth			= sibling.textureCellWidth;
+		textureCellHeight			= sibling.textureCellHeight;
+		textureGrid					= sibling.textureGrid;
+		textureMagFilter			= sibling.textureMagFilter;
+		textureMinFilter			= sibling.textureMinFilter;
+		textureWrapS				= sibling.textureWrapS;
+		textureWrapT				= sibling.textureWrapT;
+		texturePreservePixels		= sibling.texturePreservePixels;
+
+		// Sprite
+		isSpriteSheet				= sibling!=null && sibling.sequences.size()>0;
+		sequences					= sibling.sequences;
+
+		// Skin
+		skin						= sibling.skin;
+
+		// Tiled Layer
+		tileWidth					= sibling.tileWidth;
+		tileHeight					= sibling.tileHeight;
+		tileMap						= sibling.tileMap;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function loaded():Boolean
+	{
+		// Pass image to Renderer to preparing it for rendering.
+		// For CSS3 and Canvas rendering engines this is pass-through.
+		// For WebGL rendering engine this generates a Texture.
+
+		// If image has render data then quick return true
+		if(renderData) return true;
+
+		// If the image is still loading return false
+		if(hImage && !hImage.complete) return false;
+
+		// Prepare the BinPacked atlas rendering data if not available
+		if(atlasGroup && !atlasGroup.loaded())
+		{
+			atlasGroup.prepare();
+			if(!atlasGroup.loaded()) return false;
+
+			naturalWidth = atlasGroup.currAtlas.naturalWidth;
+			naturalHeight = atlasGroup.currAtlas.naturalHeight;
+		}
+		else if(hImage)
+		{
+			naturalWidth = hImage.naturalWidth;
+			naturalHeight = hImage.naturalHeight;
+		}
+
+		// Prepare sibling rendering data
+		renderData = engine.__ctx.prepareImage(this);
+		if(!renderData) return false;
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function unload()
+	{
+		if(!atlasGroup && !texturePreservePixels)
+			dispose_himage();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function dispose_himage()
+	{
+		if(!hImage)
+			return;
+
+		if(hImage.parentElement)
+		{
+        	window.document.body.removeChild(hImage);
+		}
+
+		hImage.src = "";
+
+		delete hImage;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addBinRect(ImageSymbol:String, FrameIndex:Integer, Multiplier:Float, BinX:Integer, BinY:Integer, BinWidth:Integer, BinHeight:Integer, BinRotated:Boolean)
+	{
+		if(!rects)
+			rects = new Array<BIN_RECT>;
+
+		var rect:BIN_RECT = new BIN_RECT;
+
+		rect.symbol			= ImageSymbol;
+		rect.frameIndex		= FrameIndex;
+		rect.multiplier		= Multiplier;
+		rect.binX			= BinX;
+		rect.binY			= BinY;
+		rect.binWidth		= BinWidth;
+		rect.binHeight		= BinHeight;
+		rect.rotated		= BinRotated;
+
+		rects.push(rect);
+	}
+
+}

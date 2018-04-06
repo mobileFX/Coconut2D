@@ -1,0 +1,2191 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "CocoAudioSource.jspp"
+
+// ==================================================================================================================================
+//	   ______				  _________
+//	  / ____/___  _________  / ____/ (_)___
+//	 / /   / __ \/ ___/ __ \/ /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ / /___/ / / /_/ /
+//	\____/\____/\___/\____/\____/_/_/ .___/
+//								   /_/
+// ==================================================================================================================================
+
+/**
+ * CocoClip encapsulates reusable pieces of animation and are the basic animation mechanism in Coconut2D.
+ * CocoClips have their own multiframe timeline that can contain interactive controls, sounds, and even
+ * other CocoClip instances. At runtime a CocoClip can be either a container of other CocoClips refered
+ * as "container clip" or it can animate a single image, refered as "primitive clip".
+ *
+ * The functionality of a CocoClip is rather straight forward. Each CocoClip receives as input a "transformation
+ * matrix" from its parent clip and combines it (multiplies it) with its current timeline interpolation frame.
+ * The resulting transformation matrix is used to either paint the image (if it is a primitive) or its children
+ * clips (if it is a container).
+ *
+ * When a CocoClip needs to calculate the current timeline frame it uses time-interpolation; it simply finds
+ * the previous and next KeyFrames for a given time and performs linear interpolation in order to calculate
+ * the key transformation values (translation, rotation, scale, alpha, etc.).
+ *
+ * A CocoClip can be set to calculate its bounding rectanble or bounding box. That is the rectangle used to
+ * fully encapsulate either its image (if it is a primitive) or its children (if it is a container). Bounding
+ * boxes are used for hit-tests so that we can detect when a user clicks/touches a CocoClip. Bounding box
+ * calculation is somewhat expensive because it involves multiplication of matrixes and vectors, so we only
+ * do it when the animation engine requests it on the current cycle so that it is available on the next.
+ * This actually means that there is a 16ms delay from the time a user places his finger on the screen
+ * before we are able to respond to it.
+ *
+ * CocoClips can also animate "Sprite Animation Sequences" if they detect that the primitive image has
+ * spritesheet information associated with it.
+ *
+ * Last but not least, CocoClip API offers several animation control functions such as gotoFrameByName
+ * and gotoFrameByIndex that jump the animation to a specific keyframe or time label. This feature is
+ * used for programmatically controlling your animations and games.
+ *
+ * @module CocoClip.jspp
+ * @version 0.1
+ * @author Elias Politakis <epolitakis@mobilefx.com>
+ * @copyright www.coconut2D.org 2013-2014
+ * @tutorial
+ * @summary CocoClips encapsulate reusable pieces of animation
+ * @description CocoClips encapsulate reusable pieces of animation
+ */
+
+#include "CocoTimeline.jspp"
+
+class CocoClip : CocoEventSource implements IEventListener, IEventTarget
+{
+	public static var __zIndexCounter:Float = 0;
+
+	public var __uniqueID:String;
+	public var __instanceName:String;
+	public var __clipPath:String;
+	public var __symbolLoop:COCO_CLIP_SYMBOL_LOOP_ENUM;
+	public var __children:Array<CocoClip>;
+	public var __timeline:CocoTimeline;
+	public var __selfTextured:Boolean;
+	public var __calcBoundingBox:Boolean;
+	public var __level:Integer;
+	public var __renderingHint:COCO_RENDERING_HINT;
+	public var __zIndex:Float;
+	public var __isActions:Boolean;
+	public var __painted:Boolean;
+
+	public var __tick_children:Boolean;
+	public var __paint_children:Boolean;
+
+	// References to objects we do not own (do not delete in destructor)
+
+	public reference var __scene:CocoScene;
+	public reference var __image:CocoImage;
+	public reference var __parent:CocoClip;
+	public reference var __currentFrame:CocoKeyFrame;
+	public reference var __childWithMaxTimelineDuration:CocoClip;
+	public reference var __currentSequence:CocoSequence;
+	public reference var __currentAudio:CocoAudioSource;
+
+	public reference var __mv:CocoMatrix;	// Model View Matrix available on Pint
+	public var __MV:CocoMatrix;				// Copy of Model View Matrix available on Tick
+
+	// HTML5 Element
+	public var __ANCHOR:HTMLElement;
+
+	// Animation Control Variables
+	public var __currentTime:Time;
+	public var __loopTime:Time;
+	public var __loops:Integer;
+	public var __currentSequenceStartTime:Time;
+	public var __currentSequenceTime:Time;
+	public var __currentSequenceFrameIndex:Integer;
+	public var __currentSequenceFPS:Float;
+	public var __pauseTicks:Integer;
+	public var __visible:Boolean;
+
+	// Explicit positioning and size (eg. CocoUIView)
+	public var __x:Float;
+	public var __y:Float;
+	public var __width:Float;
+	public var __height:Float;
+	public var __scaleX:Float; // Max Timeline Scale
+	public var __scaleY:Float; // Max Timeline Scale
+
+	// Bounding Box & Hit Test
+	public var __hasBoundingBox:Boolean;
+	public var __vABS_TOP_LEFT:CocoVector;
+	public var __vABS_TOP_RIGHT:CocoVector;
+	public var __vABS_BOTTOM_LEFT:CocoVector;
+	public var __vABS_BOTTOM_RIGHT:CocoVector;
+	public var __vREL_TOP_LEFT:CocoVector;
+	public var __vREL_TOP_RIGHT:CocoVector;
+	public var __vREL_BOTTOM_LEFT:CocoVector;
+	public var __vREL_BOTTOM_RIGHT:CocoVector;
+	public var __vBBoxVrtx:CocoVector;
+	public var __mBBox:CocoMatrix;
+	private var __vTmp1:CocoVector;
+	private var __vTmp2:CocoVector;
+
+	// Touch Control Variables
+	public var __touch_start_time:Time;
+	public var __touch_start_point: CocoPoint;
+	public var __touch_moved:Boolean;
+	public var __click_x:Float;
+	public var __click_y:Float;
+
+	// Define CocoClip events
+	public event OnClick(x:Float, y:Float);
+	public event OnTouchStart(x:Float, y:Float);
+	public event OnTouchMove(x:Float, y:Float);
+	public event OnTouchEnd(x:Float, y:Float);
+	public event OnAnimationSequenceBegin(sequence:CocoSequence);
+	public event OnAnimationSequenceEnd(sequence:CocoSequence);
+
+	public static var __uniqueIDCounter:Integer = 0;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String, optional image:CocoImage)
+	{
+		__uniqueID = "__Clip" + String(++__uniqueIDCounter);
+
+		__scene                        = scene;
+		__instanceName                 = name;
+		__symbolLoop                   = COCO_CLIP_SYMBOL_LOOP_ENUM.CLIP_SYMBOL_LOOP_CONTINUOUS;
+		__timeline                     = new CocoTimeline();
+		__children                     = new Array<CocoClip>;
+		__parent                       = null;
+		__currentTime                  = 0.0;
+		__currentSequenceStartTime     = 0.0;
+		__currentSequenceTime          = 0.0;
+		__currentSequenceFrameIndex    = 0;
+		__currentSequenceFPS		   = 0;
+		__currentFrame                 = null;
+		__hasBoundingBox               = false;
+		__vABS_TOP_LEFT                = new CocoVector();
+		__vABS_TOP_RIGHT               = new CocoVector();
+		__vABS_BOTTOM_LEFT             = new CocoVector();
+		__vABS_BOTTOM_RIGHT            = new CocoVector();
+		__vREL_TOP_LEFT                = new CocoVector();
+		__vREL_TOP_RIGHT               = new CocoVector();
+		__vREL_BOTTOM_LEFT             = new CocoVector();
+		__vREL_BOTTOM_RIGHT            = new CocoVector();
+		__vBBoxVrtx                    = new CocoVector();
+		__vTmp1                        = new CocoVector();
+		__vTmp2                        = new CocoVector();
+		__mBBox                        = new CocoMatrix();
+		__MV                           = new CocoMatrix();
+		__touch_start_point            = new CocoPoint;
+		__childWithMaxTimelineDuration = null;
+		__currentSequence              = null;
+		__currentAudio                 = null;
+		__clipPath                     = "";
+		__loopTime                     = 0;
+		__loops                        = 0;
+		__touch_start_time             = 0;
+		__touch_moved                  = false;
+		__image                        = image;
+		__pauseTicks                   = 0;
+		__visible                      = true;
+		__ANCHOR                       = null;
+		__renderingHint                = COCO_RENDER_FOR_ALL;
+		__click_x                      = 0;
+		__click_y                      = 0;
+
+		__x                            = 0.0;
+		__y                            = 0.0;
+		__width                        = 0.0;
+		__height                       = 0.0;
+		__scaleX                       = 0.0;
+		__scaleY                       = 0.0;
+
+		__selfTextured                 = false;
+		__calcBoundingBox              = false;
+		__level                        = 0;
+
+		__tick_children                = true;
+		__paint_children               = true;
+
+		__zIndex                       = 0;
+		__isActions                    = false;
+		__painted                      = false;
+
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete[] __children;
+		delete __timeline;
+		delete __vABS_TOP_LEFT;
+		delete __vABS_TOP_RIGHT;
+		delete __vABS_BOTTOM_LEFT;
+		delete __vABS_BOTTOM_RIGHT;
+		delete __vREL_TOP_LEFT;
+		delete __vREL_TOP_RIGHT;
+		delete __vREL_BOTTOM_LEFT;
+		delete __vREL_BOTTOM_RIGHT;
+		delete __vBBoxVrtx;
+		delete __mBBox;
+		delete __touch_start_point;
+		delete __ANCHOR;
+		delete __currentFrame;
+		delete __vTmp1;
+		delete __vTmp2;
+		delete __MV;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function dispose()
+	{
+		// Explicitly dispose textures that are not shared with other clips.
+		// Disposing a texture does not delete the image data (pixels) and
+		// the engine can re-create the texture when needed. This tries to
+		// save some memory from the GPU and it is intented for UI Apps.
+		// You should always call addRef() to temporary images such as
+		// UIView texts, gradients, backgrounds and skins.
+
+		if(__image && __image.shared && __image.release()==0)
+		{
+			__image.dispose();
+		}
+
+		for(var i:Integer = __children.size()-1; i>=0; i--)
+		{
+			__children[i].dispose();
+		}
+	}
+
+
+	// ==================================================================================================================================
+	//	   ______                     ___             __               ______                      ____                           __  _
+	//	  / ____/___  ____  _________/ (_)___  ____ _/ /____  _____   /_  __/________ _____  _____/ __/___  _________ ___  ____ _/ /_(_)___  ____
+	//	 / /   / __ \/ __ \/ ___/ __  / / __ \/ __ `/ __/ _ \/ ___/    / / / ___/ __ `/ __ \/ ___/ /_/ __ \/ ___/ __ `__ \/ __ `/ __/ / __ \/ __ \
+	//	/ /___/ /_/ / /_/ / /  / /_/ / / / / / /_/ / /_/  __(__  )    / / / /  / /_/ / / / (__  ) __/ /_/ / /  / / / / / / /_/ / /_/ / /_/ / / / /
+	//	\____/\____/\____/_/   \__,_/_/_/ /_/\__,_/\__/\___/____/    /_/ /_/   \__,_/_/ /_/____/_/  \____/_/  /_/ /_/ /_/\__,_/\__/_/\____/_/ /_/
+	//
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function AbsoluteX(v:Float):Integer
+	{
+		return (Integer(v==0.0 || !__scene ? 0.0 : v * __scene.ViewWidth));
+	}
+
+	public function AbsoluteY(v:Float):Integer
+	{
+		return (Integer(v==0.0 || !__scene ? 0.0 : v * __scene.ViewHeight));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function RelativeX(v:Float):Float
+	{
+		return (v==0.0 || !__scene ? 0.0 : (v <= 1.0 ? v : v / __scene.ViewWidth));
+	}
+
+	public function RelativeY(v:Float):Float
+	{
+		return (v==0.0 || !__scene ? 0.0: (v <= 1.0 ? v : v / __scene.ViewHeight));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function ClipWidth():Float
+	{
+		return __width ? __width : (__image ? __image.textureCellWidth / __image.multiplier : 0);
+	}
+
+	public function ClipHeight():Float
+	{
+		return __height ? __height : (__image ? __image.textureCellHeight / __image.multiplier : 0);
+	}
+
+	// ==================================================================================================================================
+	//	   _________          __  ___     __  __              __
+	//	  / ____/ (_)___     /  |/  /__  / /_/ /_  ____  ____/ /____
+	//	 / /   / / / __ \   / /|_/ / _ \/ __/ __ \/ __ \/ __  / ___/
+	//	/ /___/ / / /_/ /  / /  / /  __/ /_/ / / / /_/ / /_/ (__  )
+	//	\____/_/_/ .___/  /_/  /_/\___/\__/_/ /_/\____/\__,_/____/
+	//	        /_/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, reset:Boolean)
+	{
+		ctx.prepareClip(this);
+		__timeline.prepare(scene, this);
+
+		var L:Integer = __children.size();
+		var clip:CocoClip;
+		for(var i:Integer = 0; i<L; i++)
+		{
+			clip = __children[i];
+			clip.__parent = this;
+			clip.prepare(ctx,scene, reset);
+		}
+
+		normalize();
+
+		if(this==scene.__root)
+		{
+			__clipPath = __instanceName;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function setImage(newImage:CocoImage)
+	{
+		if(__image && __image.shared && __image.release()==0)
+		{
+			__image.dispose();
+		}
+
+		__image = newImage;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function bringToFront()
+	{
+		if(__parent)
+			__parent.moveChild(this, __children.size()-1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function sendToBack()
+	{
+		if(__parent)
+			__parent.moveChild(this, 0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function bringForward()
+	{
+		if(__parent)
+			__parent.moveChild(this, __parent.getChildIndex(this)+1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function sendBackward()
+	{
+		if(__parent)
+			__parent.moveChild(this, __parent.getChildIndex(this)-1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function changeIndex(index:Integer)
+	{
+		if(__parent)
+			__parent.moveChild(this, index);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function analyze(sx:Float, sy:Float)
+	{
+		// Get Timeline max scale X,Y
+		var maxSX:Float = 0.0;
+		var maxSY:Float = 0.0;
+		var i:Integer;
+		var kf:CocoKeyFrame;
+
+		if(__timeline.__keyFrames.size())
+		{
+			for(i = __timeline.__keyFrames.size(); i--;)
+			{
+				kf = __timeline.__keyFrames[i];
+				if(kf.scaleX > maxSX) maxSX = kf.scaleX;
+				if(kf.scaleY > maxSY) maxSY = kf.scaleY;
+			}
+		}
+		else
+		{
+			maxSX = 1.0;
+			maxSY = 1.0;
+		}
+
+		// Multiply it with parent's scale
+		sx *= maxSX;
+		sy *= maxSY;
+
+		// Clip max scale
+		if(__scaleX < sx) __scaleX = sx;
+		if(__scaleY < sy) __scaleY = sy;
+
+		// Image max scale (from all clips that use it)
+		if(__image)
+		{
+			if(__image.scaleX < sx) __image.scaleX = sx;
+			if(__image.scaleY < sy) __image.scaleY = sy;
+		}
+
+		// Process children
+		for(i = __children.size(); i--;)
+			__children[i].analyze(sx, sy);
+
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function reset()
+	{
+		if(__currentFrame)
+			delete __currentFrame;
+
+		__currentFrame = null;
+		__currentTime = 0.0;
+		__timeline.reset();
+
+		for(var i:Integer = __children.size()-1; i>=0; i--)
+		{
+			__children[i].reset();
+		}
+
+		if(__currentAudio)
+			__currentAudio.reset();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function clear()
+	{
+		for(var i:Integer = __children.size()-1; i>=0; i--)
+		{
+			delete __children[i];
+		}
+		__children.clear();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function getNextChildName():String
+	{
+		var name:String;
+		var i:Integer = 0;
+		for(;;)
+		{
+			name = "Clip" + String(++i);
+			if(!getChildByName(name))
+			{
+				return name;
+			}
+		}
+		return __instanceName;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function addChild(clipInstance:CocoClip) :CocoClip
+	{
+		if(!clipInstance) return null;
+
+		// If child has no name, give it one
+		if(!clipInstance.__instanceName)
+			 clipInstance.__instanceName = getNextChildName();
+
+		// Check for duplicate child names
+		var duplicate:Boolean = getChildByName(clipInstance.__instanceName)!=null;
+		if(duplicate)
+			clipInstance.__instanceName = getNextChildName();
+
+		// Add child
+		__children.push(clipInstance);
+		clipInstance.__parent = this;
+		if(__scene) clipInstance.__scene = __scene;
+
+		// Normalize children
+		normalize();
+
+		// Set clip path
+		clipInstance.__clipPath = (__clipPath ? __clipPath : __instanceName) + "/" + clipInstance.__instanceName;
+		clipInstance.__isActions = (__instanceName == "Actions");
+
+		if(clipInstance.__children.size()>0)
+		{
+			resetChildrenClipPath();
+		}
+
+		// Done
+		return clipInstance;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected function resetChildrenClipPath()
+	{
+		var clip:CocoClip;
+		for(var i:Integer=__children.size()-1; i>=0; i--)
+		{
+			clip = __children[i];
+			clip.__clipPath = (__clipPath ? __clipPath : __instanceName) + "/" + clip.__instanceName;
+			clip.resetChildrenClipPath();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function removeChild(clipInstance:CocoClip) :CocoClip
+	{
+		if(!clipInstance) return null;
+		var index:Integer = getChildIndex(clipInstance);
+		clipInstance.__parent = null;
+		if(index==-1) return null;
+		__children.splice(index, 1);
+		normalize();
+		return clipInstance;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function moveChild(child:CocoClip, zIndex:Integer)
+	{
+		var L:Integer = __children.size();
+
+		if(zIndex<0 || zIndex>=L) return;
+
+		var children:Array<CocoClip> = new Array<CocoClip>;
+		var i:Integer;
+		var clip:CocoClip;
+
+		for(i=0;i<zIndex;i++)
+		{
+			clip=__children[i];
+			if(child==clip)
+				zIndex++;
+			else
+				children.push(clip);
+		}
+
+		children.push(child);
+
+		for(i=zIndex;i<L;i++)
+		{
+			clip = __children[i];
+			if(child!=clip)
+				children.push(clip);
+		}
+
+		delete __children;
+		__children = children;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getChildByName(instanceName:String) :CocoClip
+	{
+		var clip:CocoClip;
+		for(var i:Integer =__children.size()-1; i>=0; i--)
+		{
+			clip = __children[i];
+			if(clip.__instanceName==instanceName)
+			{
+				return clip;
+			}
+		}
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getChildIndex(child:CocoClip) :Integer
+	{
+		if(child)
+		{
+			for(var i:Integer =__children.size()-1; i>=0; i--)
+			{
+				if(__children[i]==child)
+				{
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getChildrenByClassName(className:String) :Array<CocoClip>
+	{
+		var arr:Array<CocoClip> = new Array<CocoClip>;
+
+		var clip:CocoClip;
+
+		for(var i:Integer =__children.size()-1; i>=0; i--)
+		{
+			clip = __children[i];
+
+			if(clip.__className==className)
+			{
+				arr.push(clip);
+			}
+			arr = arr.concat(clip.getChildrenByClassName(className));
+		}
+		return arr;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Append keyframes from current position to new position
+	public function moveTo(x:Float, y:Float, frames:Integer, optional pauseOnStart:Boolean = false, optional pauseOnEnd:Boolean = true):CocoKeyFrame
+	{
+		var frameIndex:Integer = __timeline.__lastKeyFrameIndex+1;
+
+		// Add "from" keyframe
+		var kf:CocoKeyFrame = CocoTimeline.NewKeyFrame();
+		kf.frameIndex = frameIndex;
+		kf.x = __currentFrame ? __currentFrame.x : 0;
+		kf.y = __currentFrame ? __currentFrame.y : 0;
+		__timeline.addKeyFrame(kf);
+
+		// Add "to" keyframe
+		kf = CocoTimeline.NewKeyFrame();
+		kf.frameIndex = frameIndex+frames;
+		kf.x = x;
+		kf.y = y;
+		kf.frameInterpolation = KEYFRAME_INTERPOLATION_ECHO;
+		if(pauseOnEnd)
+		{
+			kf.action = __scene.stop;
+		}
+		__timeline.addKeyFrame(kf);
+
+		// Update time durations
+		__parent.normalize();
+
+		// Go!
+		__parent.gotoFrameByIndex(frameIndex, pauseOnStart);
+
+		return kf;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function addKeyFrame(kf:CocoKeyFrame)
+	{
+		__timeline.addKeyFrame(kf);
+		if(__parent)
+			__parent.normalize();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function normalize()
+	{
+		// Find clip with max timeline duration.
+
+		__childWithMaxTimelineDuration = null;
+
+		var clip:CocoClip;
+
+		for(var i:Integer =__children.size()-1; i>=0; i--)
+		{
+			clip = __children[i];
+
+			if(!__childWithMaxTimelineDuration)
+			{
+				__childWithMaxTimelineDuration = clip;
+				continue;
+			}
+			if(clip.__timeline.__durationInTime > __childWithMaxTimelineDuration.__timeline.__durationInTime)
+			{
+				__childWithMaxTimelineDuration = clip;
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function gotoFrameByName(LabelName:String, optional pause:Boolean) :Boolean
+	{
+		var Label:CocoTimeLabel = __timeline.findLabelByName(LabelName);
+		if(!Label) return false;
+		return gotoFrameByIndex(Label.frameIndex, pause);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function gotoFrameByIndex(FrameIndex:Integer, optional pause:Boolean) :Boolean
+	{
+		var clip:CocoClip;
+		var frameIndex:Integer = FrameIndex;
+		var time:Time;
+
+		// Force interpolation on next paint cycle
+		__timeline.__invalidated = true;
+
+		for (var i:Integer = __children.size() - 1; i >= 0; i--)
+		{
+			clip = __children[i];
+
+			if(FrameIndex==COCO_STOP_ON_CURRENT_FRAME)
+				frameIndex = (clip.__currentFrame && clip.__currentFrame.frameIndex > 0 ? clip.__currentFrame.frameIndex : 0);
+
+			time = frameIndex * clip.__timeline.__singleFrameDurationTime;
+
+			clip.__pauseTicks						= 0;
+			clip.__timeline.__paused				= pause;
+			clip.__timeline.__pausedFromGoto		= pause && FrameIndex!=COCO_STOP_ON_CURRENT_FRAME;
+			clip.__timeline.__currentFrameIndex		= -1;
+			clip.__currentTime						= time;
+
+			// Since we have moved timeline head of this clip, we must
+			// prevent its old currentFrame from performing any actions
+
+			if(clip.__currentFrame)
+			{
+				clip.__timeline.__invalidated = true;
+				clip.__currentFrame.action = null;
+				clip.__currentFrame.nextState = null;
+				//clip.__currentFrame.audio = null;
+			}
+		}
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function paused():Boolean
+	{
+		return __timeline.__paused;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function childrenPaused():Boolean
+	{
+		for(var i:Integer = __children.size() - 1; i >= 0; i--)
+			if(!__children[i].__timeline.__paused)
+				return false;
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function frameIndex():Integer
+	{
+		var clip:CocoClip;
+
+		for(var i:Integer = __children.size() - 1; i >= 0; i--)
+		{
+			clip = __children[i];
+
+			if(clip.__currentFrame)
+				return clip.__currentFrame.frameIndex;
+		}
+
+		return -1;
+	}
+
+	// ==================================================================================================================================
+	//	   ______                 _________          _______      __
+	//	  / ____/___  _________  / ____/ (_)___     /_  __(_)____/ /__
+	//	 / /   / __ \/ ___/ __ \/ /   / / / __ \     / / / / ___/ //_/
+	//	/ /___/ /_/ / /__/ /_/ / /___/ / / /_/ /    / / / / /__/ ,<
+	//	\____/\____/\___/\____/\____/_/_/ .___/    /_/ /_/\___/_/|_|
+	//	                               /_/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/*@@ Tick @@*/
+	public virtual function tick(time:Time)
+	{
+        #if (makefile.Vars.TARGET=="CocoPlayer")
+        __cococlip_debugger_tick(__clipPath);
+        #endif
+
+        __painted = false;
+
+		// =============================================================================================================
+		// Hit Test (Event Handling
+		// =============================================================================================================
+		if(__currentFrame && __currentFrame.handleEvents && engine.__hasTouchDeviceMessage() && this!=__scene.__root)
+		{
+			// Calculate clip's bounding box
+			__tick_calc_bounding_box(engine.__ctx);
+
+			// Event Handler
+			__tick_handle_events(engine.__ctx);
+		}
+
+        // =============================================================================================================
+		// Execute KeyFrame
+        // =============================================================================================================
+		if(__currentFrame && (__currentFrame.__isExact || !__timeline.__paused))
+		{
+			if(__currentFrame && __currentFrame.nextState && engine.getCurrentState() !=__currentFrame.nextState)
+			{
+				engine.setNextState(__currentFrame.nextState);
+			}
+
+			if(__currentFrame.action)
+			{
+				// =============
+				// :::WARNING:::
+				// =============
+
+				// When you set a 'stop' action on a child clip, at its execution it calls
+				// the parent clip's gotoFrameByIndex() which resets the timeline of all
+				// children clips.
+
+				// Keyframe actions such as 'stop' should be on a separate 'Actions' clip.
+				// If you have an action in a normal clip that affects timeline execution
+				// then it is almost certain that timeline commands such as gotoFrameByIndex()
+				// will cause the timeline of this clip's siblings to reset to a time point
+				// without having the chance to render the current time point.
+
+				// gotoFrameByIndex() detects this problem and fixes it but it might have
+				// impact on your animation design and execution and might cause frame skipping.
+
+				// To make sure you never have problems with actions being executed make sure
+				// you add an 'Actions' clip at the top of the Aniamtion Stack and place your
+				// action keyframes there.
+
+				__currentFrame.action();
+			}
+
+	        // =============================================================================================================
+			// Audio Management
+	        // =============================================================================================================
+			if(__currentFrame && __currentFrame.audio)
+			{
+				if(__currentFrame.audio == CocoAudioManager.NO_AUDIO)
+				{// Stop current audio
+
+					if(__currentAudio)
+					{
+						__currentAudio.stop();
+						__currentAudio = null;
+					}
+				}
+				if(__currentFrame.audio == CocoAudioManager.FADE_AUDIO)
+				{// Fade current audio
+
+					if(__currentAudio)
+					{
+						__currentAudio.fade(__currentFrame.audioFadeRamp, __currentFrame.audioFadeMillis, __currentFrame.audioFadeValue);
+					}
+				}
+				else
+				{
+					if(!__currentAudio)
+					{
+						__currentAudio = __currentFrame.audio;
+					}
+					else
+					{ // We are already playing an audio...
+
+						if(__currentAudio.id != __currentFrame.audio.id)
+						{
+							// Change audio
+							__currentAudio.stop();
+							__currentAudio = __currentFrame.audio;
+							__currentAudio.play();
+						}
+						else
+						{// Current audio is the same with KeyFrame audio
+
+							if(__currentFrame.audio.type==SOUND)
+							{
+								// Sound Audio - replay it
+								__currentAudio.reset();
+								__currentAudio.play();
+							}
+							else
+							{
+								// Music Audio
+								if(__currentAudio.loops!=0)
+								{
+									// Reset music audio if not loop
+									__currentAudio.reset();
+									__currentAudio.play();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+        // =============================================================================================================
+		// Tick audio
+        // =============================================================================================================
+		if(__currentAudio)
+		{
+			__currentAudio.tick();
+
+			if(__currentAudio.ended())
+			{
+				__currentAudio.reset();
+				__currentAudio = null;
+			}
+		}
+
+		// =============================================================================================================
+		// Tick Children
+		// =============================================================================================================
+		if(this==__scene.__root || (__tick_children && __children && __visible && __currentFrame && __currentFrame.visible && __currentFrame.alpha!=0))
+		{
+			// Push this clip in level parents
+			__scene.__levelParents.push(this);
+
+			var child:CocoClip;
+			var childrenCount:Integer = __children.size();
+			var actionClip:CocoClip = null;
+
+			for (var i:Integer = childrenCount-1; i>=0; i--)
+			{
+				// Get child clip
+				child = __children[i];
+
+				// If clip is not visible then do not render it
+				if(!child.__visible) continue;
+
+				// Actions are ticked last
+				if(child.__isActions)
+				{
+					actionClip = child;
+					continue;
+				}
+
+				// Tick the clip
+				child.tick(time);
+			}
+
+			// Tick action clip last
+			if(actionClip)
+			{
+				actionClip.tick(time);
+			}
+
+			// Pop this clip from level parents
+			__scene.__levelParents.pop();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __tick_calc_bounding_box(ctx:ICocoRenderContext)
+	{
+		// Calculate bounding box from explicit width x height (eg. skin, CocoUIView, etc.)
+		if(__width > 0 || __height > 0)
+			__tick_init_bounding_box_from_rect(__MV, AbsoluteX(__width)/2, AbsoluteY(__height)/2);
+
+		// Calculate bounding box vertices from image
+		else if(__image)
+		{
+			var s:Float = (__scene.__view_pixel_ratio/__image.multiplier)/2.0;
+			__tick_init_bounding_box_from_rect(__MV, __image.textureCellWidth*s, __image.textureCellHeight*s);
+		}
+
+		// Calculate bounding box from children
+		else if(__children.size()>0)
+			__tick_init_bounding_box_from_children(ctx, __MV);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __tick_init_bounding_box_from_rect(mv:CocoMatrix, W2:Float, H2:Float)
+	{
+		__mBBox.identity();
+
+		engine.__ctx.apply(this, __currentFrame, __mBBox);
+
+		__vBBoxVrtx.reset(-W2, -H2, 0, 1);
+		__mBBox.vectorMultiply(__vBBoxVrtx, __vREL_TOP_LEFT);
+		mv.vectorMultiply(__vBBoxVrtx, __vABS_TOP_LEFT);
+
+		__vBBoxVrtx.reset(W2, -H2, 0, 1);
+		__mBBox.vectorMultiply(__vBBoxVrtx, __vREL_TOP_RIGHT);
+		mv.vectorMultiply(__vBBoxVrtx, __vABS_TOP_RIGHT);
+
+		__vBBoxVrtx.reset(-W2, H2, 0, 1);
+		__mBBox.vectorMultiply(__vBBoxVrtx, __vREL_BOTTOM_LEFT);
+		mv.vectorMultiply(__vBBoxVrtx, __vABS_BOTTOM_LEFT);
+
+		__vBBoxVrtx.reset(W2, H2, 0, 1);
+		__mBBox.vectorMultiply(__vBBoxVrtx, __vREL_BOTTOM_RIGHT);
+		mv.vectorMultiply(__vBBoxVrtx, __vABS_BOTTOM_RIGHT);
+
+	    __hasBoundingBox = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __tick_init_bounding_box_from_children(ctx:ICocoRenderContext, mv:CocoMatrix)
+	{
+	    // This function calculates the bounding box of all our children.
+
+	    __hasBoundingBox = false;
+
+	    if(__children.size()==0)
+	    	return;
+
+	    __vREL_TOP_LEFT.X    = 100000;
+	    __vREL_TOP_RIGHT.X   = -100000;
+	    __vREL_TOP_LEFT.Y    = 100000;
+	    __vREL_BOTTOM_LEFT.Y = -100000;
+
+        var Child :CocoClip;
+        var L:Integer = __children.size();
+        for (var i:Integer = 0; i < L; i++)
+	    {
+            Child = __children[i];
+            if(Child.__hasBoundingBox)
+            {
+				if(Child.__vREL_TOP_LEFT.X < __vREL_TOP_LEFT.X) __vREL_TOP_LEFT.X = Child.__vREL_TOP_LEFT.X;
+				if(Child.__vREL_TOP_LEFT.X > __vREL_TOP_RIGHT.X) __vREL_TOP_RIGHT.X = Child.__vREL_TOP_LEFT.X;
+				if(Child.__vREL_TOP_LEFT.Y < __vREL_TOP_LEFT.Y) __vREL_TOP_LEFT.Y = Child.__vREL_TOP_LEFT.Y;
+				if(Child.__vREL_TOP_LEFT.Y > __vREL_BOTTOM_LEFT.Y) __vREL_BOTTOM_LEFT.Y = Child.__vREL_TOP_LEFT.Y;
+
+				if(Child.__vREL_TOP_RIGHT.X < __vREL_TOP_LEFT.X) __vREL_TOP_LEFT.X = Child.__vREL_TOP_RIGHT.X;
+				if(Child.__vREL_TOP_RIGHT.X > __vREL_TOP_RIGHT.X) __vREL_TOP_RIGHT.X = Child.__vREL_TOP_RIGHT.X;
+				if(Child.__vREL_TOP_RIGHT.Y < __vREL_TOP_LEFT.Y) __vREL_TOP_LEFT.Y = Child.__vREL_TOP_RIGHT.Y;
+				if(Child.__vREL_TOP_RIGHT.Y > __vREL_BOTTOM_LEFT.Y) __vREL_BOTTOM_LEFT.Y = Child.__vREL_TOP_RIGHT.Y;
+
+				if(Child.__vREL_BOTTOM_LEFT.X < __vREL_TOP_LEFT.X) __vREL_TOP_LEFT.X = Child.__vREL_BOTTOM_LEFT.X;
+				if(Child.__vREL_BOTTOM_LEFT.X > __vREL_TOP_RIGHT.X) __vREL_TOP_RIGHT.X = Child.__vREL_BOTTOM_LEFT.X;
+				if(Child.__vREL_BOTTOM_LEFT.Y < __vREL_TOP_LEFT.Y) __vREL_TOP_LEFT.Y = Child.__vREL_BOTTOM_LEFT.Y;
+				if(Child.__vREL_BOTTOM_LEFT.Y > __vREL_BOTTOM_LEFT.Y) __vREL_BOTTOM_LEFT.Y = Child.__vREL_BOTTOM_LEFT.Y;
+
+				if(Child.__vREL_BOTTOM_RIGHT.X < __vREL_TOP_LEFT.X) __vREL_TOP_LEFT.X = Child.__vREL_BOTTOM_RIGHT.X;
+				if(Child.__vREL_BOTTOM_RIGHT.X > __vREL_TOP_RIGHT.X) __vREL_TOP_RIGHT.X = Child.__vREL_BOTTOM_RIGHT.X;
+				if(Child.__vREL_BOTTOM_RIGHT.Y < __vREL_TOP_LEFT.Y) __vREL_TOP_LEFT.Y = Child.__vREL_BOTTOM_RIGHT.Y;
+				if(Child.__vREL_BOTTOM_RIGHT.Y > __vREL_BOTTOM_LEFT.Y) __vREL_BOTTOM_LEFT.Y = Child.__vREL_BOTTOM_RIGHT.Y;
+            }
+	    }
+
+	    __vREL_TOP_RIGHT.Y = __vREL_TOP_LEFT.Y;
+	    __vREL_BOTTOM_LEFT.X = __vREL_TOP_LEFT.X;
+	    __vREL_BOTTOM_RIGHT.X = __vREL_TOP_RIGHT.X;
+	    __vREL_BOTTOM_RIGHT.Y = __vREL_BOTTOM_LEFT.Y;
+
+	    mv.vectorMultiply(__vREL_TOP_LEFT, __vABS_TOP_LEFT);
+	    mv.vectorMultiply(__vREL_TOP_RIGHT, __vABS_TOP_RIGHT);
+	    mv.vectorMultiply(__vREL_BOTTOM_LEFT, __vABS_BOTTOM_LEFT);
+	    mv.vectorMultiply(__vREL_BOTTOM_RIGHT, __vABS_BOTTOM_RIGHT);
+
+		__mBBox.identity();
+
+		ctx.apply(this, __currentFrame, __mBBox);
+
+	    __mBBox.vectorMultiply(__vREL_TOP_LEFT, __vTmp1);
+	    __vREL_TOP_LEFT.read(__vTmp1);
+
+	    __mBBox.vectorMultiply(__vREL_TOP_RIGHT, __vTmp1);
+	    __vREL_TOP_RIGHT.read(__vTmp1);
+
+	    __mBBox.vectorMultiply(__vREL_BOTTOM_LEFT, __vTmp1);
+	    __vREL_BOTTOM_LEFT.read(__vTmp1);
+
+	    __mBBox.vectorMultiply(__vREL_BOTTOM_RIGHT, __vTmp1);
+	    __vREL_BOTTOM_RIGHT.read(__vTmp1);
+
+	    __hasBoundingBox = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __tick_handle_events(ctx:ICocoRenderContext):DEVICE_MESSAGE
+	{
+		var deviceMessage:DEVICE_MESSAGE = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_NONE, DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK);
+
+		// If message is already handled, exit.
+		if(!deviceMessage)
+			return null;
+
+		// If touch is outside quad, exit.
+		if(hitTest(deviceMessage.wx, deviceMessage.wy)==-1)
+			return null;
+
+    	switch(deviceMessage.type)
+    	{
+		case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START:
+
+			__touch_start_time = engine.__clock;
+			__touch_start_point.x = deviceMessage.wx;
+			__touch_start_point.y = deviceMessage.wy;
+
+			dispatchEvent(this.OnTouchStart, deviceMessage.wx, deviceMessage.wy);
+
+			if(this.OnTouchStart.stopPropagation)
+			{
+				deviceMessage.handled = true;
+			}
+			break;
+
+		case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE:
+
+			dispatchEvent(this.OnTouchMove, deviceMessage.wx, deviceMessage.wy);
+
+			if(this.OnTouchMove.stopPropagation)
+			{
+				deviceMessage.handled = true;
+			}
+			break;
+
+		default:
+			break;
+        }
+
+		// Detect Click
+        if(__touch_start_time!=0)
+        {
+	        switch(deviceMessage.type)
+	        {
+			case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END:
+
+				dispatchEvent(this.OnTouchEnd, deviceMessage.wx, deviceMessage.wy);
+
+				if(this.OnTouchEnd.stopPropagation)
+				{
+					deviceMessage.handled = true;
+				}
+				else if(Math.abs(__touch_start_point.x-deviceMessage.wx) < COCO_CONTROL_MOVE_SNAP_PIXELS && Math.abs(__touch_start_point.y-deviceMessage.wy) < COCO_CONTROL_MOVE_SNAP_PIXELS)
+				{
+					//If the clip hasn't moved significantly, then it is a click
+					dispatchEvent(this.OnClick, deviceMessage.wx, deviceMessage.wy);
+					engine.__pushClicked(this, deviceMessage.wx, deviceMessage.wy);
+				}
+				__touch_start_time = 0;
+				break;
+
+			default:
+				break;
+	        }
+        }
+
+        return deviceMessage;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function hitTest(wx:Float, wy:Float) : Integer
+	{
+		var hit:Boolean = ((((wx - __vABS_TOP_LEFT.X) * (__vABS_TOP_RIGHT.Y - __vABS_TOP_LEFT.Y) - (__vABS_TOP_RIGHT.X - __vABS_TOP_LEFT.X) * (wy - __vABS_TOP_LEFT.Y)) * ((wx - __vABS_BOTTOM_RIGHT.X) * (__vABS_BOTTOM_LEFT.Y - __vABS_BOTTOM_RIGHT.Y) - (__vABS_BOTTOM_LEFT.X - __vABS_BOTTOM_RIGHT.X) * (wy - __vABS_BOTTOM_RIGHT.Y))) > 0
+				       && (((wx - __vABS_TOP_RIGHT.X) * (__vABS_BOTTOM_RIGHT.Y - __vABS_TOP_RIGHT.Y) - (__vABS_BOTTOM_RIGHT.X - __vABS_TOP_RIGHT.X) * (wy - __vABS_TOP_RIGHT.Y)) * ((wx - __vABS_BOTTOM_LEFT.X) * (__vABS_TOP_LEFT.Y - __vABS_BOTTOM_LEFT.Y) - (__vABS_TOP_LEFT.X - __vABS_BOTTOM_LEFT.X) * (wy - __vABS_BOTTOM_LEFT.Y))) > 0);
+
+		return (hit ? 0 : -1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function hitTest(Rows:Integer, Cols:Integer, wx:Float, wy:Float) : Integer
+	{
+		var Width:Float				= ClipWidth();
+		var Height:Float			= ClipHeight();
+		var Width2:Float			= Width/2;
+		var Height2:Float			= Height/2;
+		var CellWidth:Float			= Width/Cols;
+		var CellHeight:Float		= Height/Rows;
+		var CellWidth2:Float		= CellWidth/2;
+		var CellHeight2:Float		= CellHeight/2;
+		var dx:Integer				= 0;
+		var dy:Integer				= 0;
+		var index:Integer;
+
+		// Perform math-based Hit Test on a Grid of Rows x Cols
+		for(var R:Integer=0; R<Rows; R++)
+		{
+			for(var C:Integer=0; C<Cols; C++)
+			{
+				// Translate MV matrix from clip center to first cell center, and add R,C disposition
+
+				dx = -Width2 + CellWidth2 + C*CellWidth;
+				dy = -Height2 + CellHeight2 + R*CellHeight;
+
+				__MV.translate(dx, dy);
+
+				// Init a bounding box for R,C cell
+				__tick_init_bounding_box_from_rect(__MV, CellWidth2, CellHeight2);
+
+				// Perform hit test with R,C cell
+				index = hitTest(wx, wy);
+
+				// Restore
+				__MV.translate(-dx, -dy);
+
+				if(index==0)
+				{
+					// Return cell index
+					return R*Cols + C;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	// ==================================================================================================================================
+	//	   ______                 _________          ____        _       __
+	//	  / ____/___  _________  / ____/ (_)___     / __ \____ _(_)___  / /_
+	//	 / /   / __ \/ ___/ __ \/ /   / / / __ \   / /_/ / __ `/ / __ \/ __/
+	//	/ /___/ /_/ / /__/ /_/ / /___/ / / /_/ /  / ____/ /_/ / / / / / /_
+	//	\____/\____/\___/\____/\____/_/_/ .___/  /_/    \__,_/_/_/ /_/\__/
+	//	                               /_/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/*@@ Paint @@*/
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer, index:Integer)
+	{
+		#if (makefile.Vars.TARGET=="CocoPlayer")
+		__cococlip_debugger_paint(__clipPath);
+		#endif
+
+		__scene = scene;
+		__parent = parentClip;
+		__calcBoundingBox = calcBoundingBox;
+		__level = level;
+		__mv = ctx.getModelViewMatrix();
+
+		__zIndex = __mv.setZ(++CocoClip.__zIndexCounter);
+
+		if(__paint_interpolate(ctx, calcBoundingBox))
+		{
+			if(!__isActions)
+			{
+				#if (makefile.Vars.TARGET=="CocoPlayer")
+				scene.__paintedClips.push(__clipPath);
+				#endif
+
+				if(__image)
+					__paint_renderImage(ctx);
+
+				if(__children.size())
+					__paint_renderChildren(ctx);
+			}
+		}
+
+		// Save a snapshot of Model View matrix
+		// This is normally used by tick on next cycle
+		__MV.copyFrom(__mv.__m);
+
+		// Indicate the clip has painted
+		__painted = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __advanceTime(currentFrameIndex:Integer, loopTime:Time)
+	{
+		__pauseTicks++;
+
+		if(__timeline.__paused)
+			return;
+
+		__currentTime += engine.TICK_TIME;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __paint_interpolate(ctx:ICocoRenderContext, calcBoundingBox:Boolean):Boolean
+	{
+		#if (makefile.Vars.TARGET=="CocoPlayer")
+		__cococlip_debugger_interpolation(__clipPath);
+		#endif
+
+		if(!__parent) return true;
+
+		var frameIndex:Float = 0;
+
+		// Calculate the parent timeline duration in time from its children (which are siblings to this clip)
+		var parentClipsDuration:Time = __parent.__childWithMaxTimelineDuration.__timeline.__durationInTime;
+
+		// Calculate this clip's LoopTime which is the projection of this clip's timeline to its parent's timeline.
+		__loops = Math.floor(__currentTime / parentClipsDuration);
+		__loopTime = __currentTime - (__loops * parentClipsDuration);
+
+		// Calculate frameIndex from time.
+		frameIndex = __loopTime / __timeline.__singleFrameDurationTime;
+
+		#if (makefile.Vars.TARGET=="CocoPlayer")
+		__cococlip_debugger_keyframe(__clipPath, frameIndex);
+		#endif
+
+		// Interpolate
+		if(__currentFrame && __currentFrame.__Preserve)
+		{
+			// Skip frame interpolation this time
+			__currentFrame.__Preserve = false;
+		}
+		else
+		{
+			// Reset paused timeline if it was paused from goto/AndPlay/Stop
+			if(__timeline.__paused && __timeline.__pausedFromGoto)
+				__timeline.__paused = false;
+
+			// Create a __currentFrame object to use in interpolations
+			if(!__currentFrame)
+				__currentFrame = CocoTimeline.NewKeyFrame();
+
+			// if parent has alpha set, we need to reset our keyframe to force interpolation
+			else if(__parent && __parent.__currentFrame && __parent.__currentFrame.alpha!=1)
+				CocoTimeline.ResetKeyFrame(__currentFrame);
+
+			// interpolate if not on same frameIndex or timeline is invalidated
+			if(__currentFrame.__frameIndex!=frameIndex || __timeline.__invalidated)
+				__timeline.interpolate(frameIndex, __currentFrame);
+
+			// pause if timeline head was changed from goto/AndPlay/Stop
+			if(__timeline.__pausedFromGoto)
+			{
+				__timeline.__pausedFromGoto = false;
+				__timeline.__paused = true;
+			}
+		}
+
+		// If interpolation didn't return a frame, do not advance time and exit.
+		if(!__currentFrame) return false;
+
+		if(!__visible) __currentFrame.visible = false;
+
+		// Combine parent clip currentframe values with this clip's interpolated frame values.
+	 	CocoTimeline.combine(__currentFrame, __parent.__currentFrame);
+
+		// If current frame is not visible then we skip processing children.
+		if(__currentFrame.alpha == 0 || !__currentFrame.visible)
+		{
+			// Propagate clip's timeline.
+			ctx.apply(this, __currentFrame, __mv);
+			__advanceTime(__currentFrame.frameIndex, __loopTime);
+			return false;
+		}
+
+		// If we need to handle an event or if our parent has asked us to
+		// calc our bounding box then we set calcBoundingBox to true.
+		__calcBoundingBox = (__currentFrame.handleEvents || calcBoundingBox);
+
+		// Apply current frame to model view matrix
+		ctx.apply(this, __currentFrame, __mv);
+		__advanceTime(__currentFrame.frameIndex, __loopTime);
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __paint_setClipRegion(ctx:ICocoRenderContext)
+	{
+		// Best practice: call __paint_clip() after __paint_interpolate()
+
+		if(!__currentFrame) return;
+
+		var W:Float = ctx.getFrameBufferWidth();
+		var H:Float = ctx.getFrameBufferHeight();
+		var s:Float = ctx.getFrameBufferViewScale();
+
+		__vTmp1.reset(__mv.__m.rc41, __mv.__m.rc42, 0, 1);
+		ctx.getProjectionMatrix().vectorMultiply(__vTmp1, __vTmp2);
+
+		var x:Float = (1.0 + __vTmp2.X) * W * 0.5;
+		var y:Float = H - (1.0 - __vTmp2.Y) * H * 0.5;
+		var w:Float = AbsoluteX(__width) * __mv.__m.rc11 * s;
+		var h:Float = AbsoluteY(__height) * __mv.__m.rc22 * s;
+
+		x = x-w/2;
+		y = y-h/2;
+
+		ctx.clip(x,y,w,h);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __paint_renderImage(ctx:ICocoRenderContext)
+	{
+		if(!__image.renderData && __image.hImage && __image.hImage.complete)
+		{
+			__image.renderData = ctx.prepareImage(__image);
+		}
+
+		// Failed to create image render data or image is not ready yet.
+		if(!__image.renderData)
+			return;
+
+		// Get sequence name, first from current clip and if not found from parent clip
+		var sequenceName:String = __currentFrame.spriteSequenceName;
+		var sequenceFPS:Float = __currentFrame.spriteSequenceFPS;
+
+		if(!sequenceName && __parent && __parent.__currentFrame)
+		{
+			sequenceName = __parent.__currentFrame.spriteSequenceName;
+			sequenceFPS = __parent.__currentFrame.spriteSequenceFPS;
+		}
+
+		// Check if we should change sprite animation sequence
+		if(!sequenceName)
+		{
+			__currentSequence = null;
+			__currentSequenceFrameIndex = -1;
+			__currentSequenceFPS = 0;
+		}
+		else if(!__currentSequence || __currentSequence.name!=sequenceName)
+		{
+			__currentSequence = __image.getSequence(sequenceName);
+
+			// Animation sequence has its own clock because it can animate
+			// even with paused timeline (spriteSequencePlayWhenPaused).
+			// Also, animation sequences use the RTC clock. This allows
+			// tampering with animation seqences and FPS throttling.
+
+			__currentSequenceFPS = (__scene.__animation_sequeceses_fps > 0 ? __scene.__animation_sequeceses_fps : (sequenceFPS > 0 ? sequenceFPS : __scene.__fps));
+			__currentSequenceTime = engine.__rtc_clock;
+			__currentSequenceStartTime = engine.__rtc_clock;
+			__currentSequenceFrameIndex = -1;
+
+			dispatchEvent(this.OnAnimationSequenceBegin, __currentSequence);
+		}
+
+		if(__image.isSpriteSheet && __currentSequence)
+		{
+			// Render animation sequence.
+			var frames:Float = __currentSequence.frames.size();
+			var sequence_playing_time:Time = __currentSequenceTime - __currentSequenceStartTime;
+			var sequenceFrameIndex:Integer = __timeline.__paused && !__currentFrame.spriteSequencePlayWhenPaused ? 0 : Math.floor((sequence_playing_time * __currentSequenceFPS) / 1000.0) % frames;
+
+			if(sequenceFrameIndex<0 || sequenceFrameIndex>=frames)
+			{
+				sequenceFrameIndex = 0;
+			}
+
+			__currentFrame.spriteSequenceFrameIndex = __currentSequence.frames[sequenceFrameIndex];
+
+			// Render a frame of a sprite
+			ctx.drawFrame(__scene, this);
+
+			if(__currentSequenceFrameIndex!=-1 && sequenceFrameIndex<__currentSequenceFrameIndex)
+			{
+				dispatchEvent(this.OnAnimationSequenceEnd, __currentSequence);
+			}
+
+			// Save animation sequence frame index
+			__currentSequenceFrameIndex = sequenceFrameIndex;
+
+			// Advance animation sequence timer
+			if(!__timeline.__paused || (__timeline.__paused && __currentFrame.spriteSequencePlayWhenPaused))
+				__currentSequenceTime += engine.RTC_TICK_TIME;
+		}
+		else
+		{
+			// Render a standard image
+			__currentFrame.spriteSequenceFrameIndex = 0;
+			ctx.drawFrame(__scene, this);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __paint_renderChildren(ctx:ICocoRenderContext)
+	{
+		if(!__paint_children) return;
+
+		var childrenCount:Integer = __children.size();
+		if(childrenCount==0) return;
+
+		// Decide if we need to calculate the bounding box of our children clips
+		var calcBoundingBoxChildren:Boolean = (__calcBoundingBox && __width==0 && __height==0);
+
+		// Push this clip in level parents
+		__scene.__levelParents.push(this);
+
+		var child:CocoClip;
+		for (var i:Integer = 0; i < childrenCount; i++)
+		{
+			// Get child clip
+			child = __children[i];
+
+			// If clip is not visible then do not render it
+			if(!child.__visible) continue;
+
+			#if (makefile.Vars.TARGET=="CocoPlayer")
+			____debugger_current_clip.push(child);
+			#endif
+
+			// Save model view matrix
+			__mv.push();
+
+			// Render the clip
+			child.paint(ctx, __scene, this, calcBoundingBoxChildren, __level+1, i);
+
+			// Restore model view matrix
+			__mv.pop();
+
+			#if (makefile.Vars.TARGET=="CocoPlayer")
+			____debugger_current_clip.pop();
+			#endif
+		}
+
+		// Pop this clip from level parents
+		__scene.__levelParents.pop();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function createInplaceHTML(optional update:Boolean, optional tag:String, optional href:String) :HTMLElement
+	{
+		if(engine.device.isNative) return null;
+
+		var ANCHOR:HTMLElement = document.getElementById(__uniqueID);
+
+		if(!ANCHOR || update)
+		{
+			if(ANCHOR) ANCHOR.parentNode.removeChild(ANCHOR);
+
+			if(tag=="") tag = "DIV";
+
+			ANCHOR = document.createElement(tag);
+			ANCHOR.id = __uniqueID;
+			ANCHOR.setAttribute("instanceName", __instanceName);
+
+			ANCHOR.style.display				= "block";
+			ANCHOR.style.position				= "absolute";
+			ANCHOR.style.top					= "0px";
+			ANCHOR.style.left					= "0px";
+			ANCHOR.style.width					= String(__image.textureCellWidth/__image.multiplier) + "px";
+			ANCHOR.style.height					= String(__image.textureCellHeight/__image.multiplier) + "px";
+			ANCHOR.style.opacity				= 0;
+			ANCHOR.style.margin					= "0px";
+			ANCHOR.style.padding				= "0px";
+			ANCHOR.style.visibility				= "visible";
+			ANCHOR.style.backfaceVisibility		= "hidden";
+			ANCHOR.style.overflow				= "hidden";
+			ANCHOR.style.backgroundColor		= "transparent";
+			ANCHOR.style.transformStyle			= "preserve-3d";
+			ANCHOR.style.webkitTransformStyle	= "preserve-3d";
+			ANCHOR.style.transformOrigin		= "0% 0% 0px";
+			ANCHOR.style.webkitTransformOrigin	= "0% 0% 0px";
+			ANCHOR.style.transform				= "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
+			ANCHOR.style.webkitTransformStyle	= "matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)";
+			ANCHOR.style.borderSpacing			= 0;
+			ANCHOR.style.borderWidth			= 0;
+
+			// Set ANCHOR background image
+			ANCHOR.style.backgroundPosition		= "0px 0px";
+			ANCHOR.style.backgroundRepeat		= "no-repeat";
+			ANCHOR.style.backgroundSize			= String(Math.floor(__image.hImage.naturalWidth/__image.multiplier)) + "px " + String(Math.floor(__image.hImage.naturalHeight/__image.multiplier)) + "px";
+			ANCHOR.style.backgroundBlendMode	= "normal";
+			ANCHOR.style.backgroundClip			= "border-box";
+			ANCHOR.style.backgroundOrigin		= "border-box";
+
+			if(href!="" && href.indexOf("http")!=-1)
+			{
+				ANCHOR.setAttribute("href", href);
+				ANCHOR.setAttribute("target", "_blank");
+			}
+
+			if(engine.__ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_CSS3)
+			{
+				ANCHOR = engine.__ctx.getHtmlElement().appendChild(ANCHOR);
+			}
+			else
+			{
+				ANCHOR = document.body.appendChild(ANCHOR);
+				ANCHOR.setAttribute("ready", "true");
+			}
+
+			__ANCHOR = ANCHOR;
+
+			//if(__scene && __scene.__root)
+			//	__scene.__root.reindex_z();
+		}
+
+		return ANCHOR;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function destroyInplaceHTML()
+	{
+		if(engine.device.isNative) return;
+
+		if(__ANCHOR && __ANCHOR.parentNode) __ANCHOR.parentNode.removeChild(__ANCHOR);
+		else if(__ANCHOR && __ANCHOR.parentElement) __ANCHOR.parentElement.removeChild(__ANCHOR);
+		__ANCHOR=null;
+
+		//if(__scene && __scene.__root)
+		//	__scene.__root.reindex_z();
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                _____      ____________          __                      ___________
+//	  / ____/___  _________ / ___/___  / / __/_  __/__  _  __/ /___  __________  ____/ / ____/ (_)___
+//	 / /   / __ \/ ___/ __ \\__ \/ _ \/ / /_  / / / _ \| |/_/ __/ / / / ___/ _ \/ __  / /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ /__/ /  __/ / __/ / / /  __/>  </ /_/ /_/ / /  /  __/ /_/ / /___/ / / /_/ /
+//	\____/\____/\___/\____/____/\___/_/_/   /_/  \___/_/|_|\__/\__,_/_/   \___/\__,_/\____/_/_/ .___/
+//	                                                                                         /_/
+// ==================================================================================================================================
+
+class CocoSelfTexturedClip : CocoClip
+{
+	// IMPORTANT //
+
+	// Self-textured Clips have the ability to self-generate a texture.
+	// You must ALWAYS assume that the generated image will take some
+	// time to load either from the internet or from base64 data, so
+	// we need to use double-buffering.
+
+	public var InvalidTexture:Boolean;
+	protected var buffer:CocoImage;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoClip(scene, name)
+	{
+		buffer = null;
+		InvalidTexture = true;
+		__selfTextured = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete buffer;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, reset:Boolean)
+	{
+		InvalidTexture = false;
+		super.prepare;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function setImage(newImage:CocoImage)
+	{
+		delete buffer;
+		buffer = newImage;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function swapBuffers(ctx:ICocoRenderContext)
+	{
+		// If there is a worker buffer image available we will try to swap it with clip's __image.
+		if(buffer)
+		{
+			// First chech if the worker buffer has render data.
+			// That means that it has a valid texture.
+			if(buffer.renderData)
+			{
+				// Delete the old image (to release texture from GPU)
+				delete __image;
+
+				// Swap images
+				__image = buffer;
+
+				// Make sure the worker buffer is null.
+				buffer = null;
+			}
+
+			// The worker buffer does not have render data.
+			// Check if the buffer's HTML Image has completed loading.
+			else if(buffer.hImage && buffer.hImage.complete)
+			{
+				// OK, the HTML image is loaded. Now we need
+				// to create the Texture and render data for it.
+				buffer.renderData = ctx.prepareImage(buffer);
+
+				// Failed to generate texture?
+				if(!buffer.renderData)
+					return;
+
+				if(ctx.getType()==COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL)
+				{
+					// Since the image is texturized and its copy exists
+					// on the GPU, we can safely delete the HTML image
+					buffer.dispose_himage();
+				}
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer, index:Integer)
+	{
+		// If the self-textured object is invalid, we call prepare() to regenerate the texture.
+		if(InvalidTexture)
+		{
+			prepare(ctx, scene, false);
+		}
+
+		swapBuffers(ctx);
+
+		super.paint;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______               ______          __  _________
+//	  / ____/___  _________/_  __/__  _  __/ /_/ ____/ (_)___
+//	 / /   / __ \/ ___/ __ \/ / / _ \| |/_/ __/ /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ / / /  __/>  </ /_/ /___/ / / /_/ /
+//	\____/\____/\___/\____/_/  \___/_/|_|\__/\____/_/_/ .___/
+//	                                                 /_/
+// ==================================================================================================================================
+
+class CocoTextClip : CocoSelfTexturedClip
+{
+	private var m_Text:String;
+	private var m_FontFamily:String;
+	/**********FALLBACK FONT**********/
+	private var m_Fallback:Boolean;
+	/**********FALLBACK FONT**********/
+	private var m_FontBold:Boolean;
+	private var m_FontItalic:Boolean;
+	private var m_FontUnderline:Boolean;
+	private var m_FontColor:Color;
+	private var m_TextHorizAlign:COCO_TEXT_ALIGN_ENUM;
+	private var m_TextVertAlign:COCO_TEXT_ALIGN_ENUM;
+	private var m_Multiline:Boolean;
+	private var m_Stroked:Boolean;
+	private var m_PaddingLeft:Integer;
+	private var m_PaddingRight:Integer;
+	private var m_PaddingTop:Integer;
+	private var m_PaddingBottom:Integer;
+	private var m_ResizeToFit:Boolean;
+
+	/**********FALLBACK FONT**********/
+	private var FallbackFontFamily:String;
+	/**********FALLBACK FONT**********/
+
+	public var __fontSizePixels:Float;
+
+	published property Text
+	{
+		function get():String 		{ return m_Text; }
+		function set(v:String)		{ if(m_Text!=v) { m_Text = v; InvalidTexture = true; } }
+	}
+
+	published property Multiline
+	{
+		function get():Boolean 		{ return m_Multiline; }
+		function set(v:Boolean)		{ if(m_Multiline!=v) { m_Multiline = v; InvalidTexture = true; } }
+	}
+
+	published property FontFamily
+	{
+		function get():String 		{ return m_FontFamily; }
+		function set(v:String)		{ if(m_FontFamily!=v) { m_FontFamily = v; InvalidTexture = true; } }
+	}
+
+	/**********FALLBACK FONT**********/
+	published property FontFallback
+	{
+		function get():Boolean 		{ return m_Fallback; }
+		function set(v:Boolean)		{ if(m_Fallback!=v) { m_Fallback = v; InvalidTexture = true; } }
+	}
+	/**********FALLBACK FONT**********/
+
+	published property FontSizePixels
+	{
+		function get():CartesianY	{ return AbsoluteY(__fontSizePixels); }
+		function set(v:CartesianY)	{ __fontSizePixels = RelativeY(v); InvalidTexture = true; }}
+
+
+	published property FontBold
+	{
+		function get():Boolean		{ return m_FontBold; }
+		function set(v:Boolean)		{ if(m_FontBold!=v) { m_FontBold = v; InvalidTexture = true; } }
+	}
+
+	published property FontItalic
+	{
+		function get():Boolean		{ return m_FontItalic; }
+		function set(v:Boolean)		{ if(m_FontItalic!=v) { m_FontItalic = v; InvalidTexture = true; } }
+	}
+
+	published property FontUnderline
+	{
+		function get():Boolean		{ return m_FontUnderline; }
+		function set(v:Boolean)		{ if(m_FontUnderline!=v) { m_FontUnderline = v; InvalidTexture = true; } }
+	}
+
+	published property FontColor
+	{
+		function get():Color		{ return m_FontColor; }
+		function set(v:Color)		{ if(m_FontColor!=v) { m_FontColor = v; InvalidTexture = true; } }
+	}
+
+	published property Stroked
+	{
+		function get():Boolean		{ return m_Stroked; }
+		function set(v:Boolean)		{ if(m_Stroked!=v) { m_Stroked = v; InvalidTexture = true; } }
+	}
+
+	published property ResizeToFit
+	{
+		function get():Boolean		{ return m_ResizeToFit; }
+		function set(v:Boolean)		{ if(m_ResizeToFit!=v) { m_ResizeToFit = v; InvalidTexture = true; } }
+	}
+
+	published property TextHorizAlign
+	{
+		function get():COCO_TEXT_ALIGN_ENUM		{ return m_TextHorizAlign; }
+		function set(v:COCO_TEXT_ALIGN_ENUM)	{ if(m_TextHorizAlign!=v) { m_TextHorizAlign = v; InvalidTexture = true; } }
+	}
+
+	published property TextVertAlign
+	{
+		function get():COCO_TEXT_ALIGN_ENUM		{ return m_TextVertAlign; }
+		function set(v:COCO_TEXT_ALIGN_ENUM)	{ if(m_TextVertAlign!=v) { m_TextVertAlign = v; InvalidTexture = true; } }
+	}
+
+	published property PaddingLeft
+	{
+		function get():Integer		{ return m_PaddingLeft; }
+		function set(v:Integer)		{ if(m_PaddingLeft!=v) { m_PaddingLeft = v; InvalidTexture = true; } }
+	}
+
+	published property PaddingRight
+	{
+		function get():Integer		{ return m_PaddingRight; }
+		function set(v:Integer)		{ if(m_PaddingRight!=v) { m_PaddingRight = v; InvalidTexture = true; } }
+	}
+
+	published property PaddingTop
+	{
+		function get():Integer		{ return m_PaddingTop; }
+		function set(v:Integer)		{ if(m_PaddingTop!=v) { m_PaddingTop = v; InvalidTexture = true; } }
+	}
+
+	published property PaddingBottom
+	{
+		function get():Integer		{ return m_PaddingBottom; }
+		function set(v:Integer)		{ if(m_PaddingBottom!=v) { m_PaddingBottom = v; InvalidTexture = true; } }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoSelfTexturedClip(scene, name)
+	{
+		m_Text				= "";
+		m_FontFamily		= "Arial";
+		/**********FALLBACK FONT**********/
+		m_Fallback			 = false;
+		/**********FALLBACK FONT**********/
+		__fontSizePixels	= 0.5;
+		m_FontBold			= false;
+		m_FontItalic		= false;
+		m_FontUnderline		= false;
+		m_Stroked			= false;
+		m_FontColor			= 0xff000000;
+		m_TextHorizAlign	= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
+		m_TextVertAlign		= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
+		m_Multiline			= false;
+		m_PaddingLeft		= 0;
+		m_PaddingRight		= 0;
+		m_PaddingTop		= 0;
+		m_PaddingBottom		= 0;
+		m_ResizeToFit		= false;
+
+		/**********FALLBACK FONT**********/
+		FallbackFontFamily = engine.FontToUse;
+		/**********FALLBACK FONT**********/
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, reset:Boolean)
+	{
+		delete buffer;
+
+		/**********FALLBACK FONT**********/
+		// If this control's text uses a font that does not support all of the game's languages, then FontFallback's value will be true (set in that control's Properties).
+		// If the above case is true, then if the font set initially in FontFamily is not the appropriate one it will be replaced by that.
+		if(FontFallback &&  FallbackFontFamily != "")
+			FontFamily = FallbackFontFamily;
+		/**********FALLBACK FONT**********/
+
+		var out:CocoImageCacheItem = CocoGraphics.CocoImageFromText( AbsoluteX(__width), AbsoluteY(__height), Text, FontFamily, FontSizePixels, FontColor, Multiline, FontBold, FontItalic, FontUnderline, TextHorizAlign, TextVertAlign, Stroked, PaddingLeft, PaddingRight, PaddingTop, PaddingBottom, ResizeToFit);
+
+		if(out)
+		{
+			buffer = out.image;
+			delete out;
+		}
+
+		super.prepare;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 __  ___           __   _________
+//	  / ____/___  _________  /  |/  /___ ______/ /__/ ____/ (_)___
+//	 / /   / __ \/ ___/ __ \/ /|_/ / __ `/ ___/ //_/ /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ / /  / / /_/ (__  ) ,< / /___/ / / /_/ /
+//	\____/\____/\___/\____/_/  /_/\__,_/____/_/|_|\____/_/_/ .___/
+//	                                                      /_/
+// ==================================================================================================================================
+
+enum COCO_MASK_TYPE
+{
+	MASK_SHAPE = 0,
+	MASK_IMAGE = 1
+};
+
+class CocoMaskClip : CocoSelfTexturedClip
+{
+	published var MaskType:COCO_MASK_TYPE;
+	published var FillColor:Color;
+	published var Invert:Boolean;
+
+	public var Rectangles:Float32Array;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoSelfTexturedClip(scene, name)
+	{
+		MaskType = COCO_MASK_TYPE.MASK_SHAPE;
+		Invert = false;
+		FillColor = 0xff000000;
+		Rectangles = null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Rectangles;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, reset:Boolean)
+	{
+		var l:Float;
+		var t:Float;
+		var r:Float;
+		var b:Float;
+		var i:Integer;
+		var L:Integer 		= Rectangles.length;
+		var color:String 	= CocoGraphics.ColorToHtmlRGBA(FillColor);
+		var w:Float 		= Rectangles[0];									// Region Width
+		var h:Float 		= Rectangles[1];									// Region Height
+		var cw:Integer 		= AbsoluteX(__width);								// Clip Width
+		var ch:Integer 		= AbsoluteY(__height);								// Clip Height
+
+		// Create an image from region rectangles
+    	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, true);
+		var c2d:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+		for(i=2; i<L; i+=4)
+		{
+			l = Rectangles[i];
+			t = Rectangles[i+1];
+			r = Rectangles[i+2];
+			b = Rectangles[i+3];
+
+			c2d.rect(l,t,r-l,b-t);
+			c2d.fillStyle = color;
+			c2d.fill();
+		}
+
+		// Export region mask from canvas
+		buffer = CocoGraphics.CocoImageFromHTMLCanvas(canvas, w, h);
+		buffer.textureCellWidth = w;
+		buffer.textureCellHeight = h;
+		buffer.multiplier = w/cw;
+
+		delete canvas;
+		super.prepare;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer, index:Integer)
+	{
+		ctx.drawMaskBegin();
+		super.paint;
+		ctx.drawMaskEnd(Invert);
+	}
+}
+
+// ==================================================================================================================================
+//	    ___          _                 __  _                ______                 __  _
+//	   /   |  ____  (_)___ ___  ____ _/ /_(_)___  ____     / ____/_  ______  _____/ /_(_)___  ____  _____
+//	  / /| | / __ \/ / __ `__ \/ __ `/ __/ / __ \/ __ \   / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+//	 / ___ |/ / / / / / / / / / /_/ / /_/ / /_/ / / / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+//	/_/  |_/_/ /_/_/_/ /_/ /_/\__,_/\__/_/\____/_/ /_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+//
+// ==================================================================================================================================
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum ANIMATION_FUNCTIONS
+{
+	FN_LINEAR			= 0,
+	FN_EASE				= 1,
+	FN_EASE_IN			= 2,
+	FN_EASE_OUT			= 3,
+	FN_EASE_IN_OUT		= 4,
+	FN_CUSTOM			= 5
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoBezier
+{
+	public const NEWTON_ITERATIONS:Float			= 4;
+	public const NEWTON_MIN_SLOPE:Float				= 0.001;
+	public const SUBDIVISION_PRECISION:Float		= 0.0000001;
+	public const SUBDIVISION_MAX_ITERATIONS:Float	= 10;
+
+	private var kSplineTableSize:Integer;
+	private var kSampleStepSize:Float;
+
+	public var mX1:Float;
+	public var mY1:Float;
+	public var mX2:Float;
+	public var mY2:Float;
+
+	private var mSampleValues:Float32Array;
+	private var _precomputed:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(m:Float32Array)
+	{
+		this.mX1         = m[0];
+		this.mY1         = m[1];
+		this.mX2         = m[2];
+		this.mY2         = m[3];
+		kSplineTableSize = 11;
+		kSampleStepSize  = 1.0 / (kSplineTableSize - 1.0);
+		mSampleValues    = new Float32Array(kSplineTableSize);
+		_precomputed     = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete mSampleValues;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function DefaultMatrix(fn:ANIMATION_FUNCTIONS):Float32Array
+	{
+		switch(fn)
+		{
+		case ANIMATION_FUNCTIONS.FN_EASE:				return new Float32Array([0.25, 0.10, 0.25, 1.00]);
+		case ANIMATION_FUNCTIONS.FN_EASE_IN:			return new Float32Array([0.42, 0.00, 1.00, 1.00]);
+		case ANIMATION_FUNCTIONS.FN_EASE_OUT:			return new Float32Array([0.00, 0.00, 0.58, 1.00]);
+		case ANIMATION_FUNCTIONS.FN_EASE_IN_OUT:		return new Float32Array([0.42, 0.00, 0.58, 1.00]);
+		default:
+		}
+
+		return new Float32Array([0.00, 0.00, 1.00, 1.00]);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function A (aA1:Float, aA2:Float):Float { return 1.0 - 3.0 * aA2 + 3.0 * aA1; }
+	private function B (aA1:Float, aA2:Float):Float { return 3.0 * aA2 - 6.0 * aA1; }
+	private function C (aA1:Float):Float      		{ return 3.0 * aA1; }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
+	private function calcBezier(aT:Float, aA1:Float, aA2:Float):Float
+	{
+		return ((A(aA1, aA2)*aT + B(aA1, aA2))*aT + C(aA1))*aT;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Returns dx/dt given t, x1, and x2, or dy/dt given t, y1, and y2.
+	private function getSlope(aT:Float, aA1:Float, aA2:Float):Float
+	{
+		return 3.0 * A(aA1, aA2)*aT*aT + 2.0 * B(aA1, aA2) * aT + C(aA1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function binarySubdivide(aX:Float, aA:Float, aB:Float):Float
+	{
+		var currentX:Float;
+		var currentT:Float;
+		var i:Float = 0;
+		do
+		{
+			currentT = aA + (aB - aA) / 2.0;
+			currentX = calcBezier(currentT, mX1, mX2) - aX;
+			if (currentX > 0.0)
+			{
+				aB = currentT;
+			}
+			else
+			{
+				aA = currentT;
+			}
+		} while (Math.abs(currentX) > SUBDIVISION_PRECISION && ++i < SUBDIVISION_MAX_ITERATIONS);
+
+		return currentT;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function newtonRaphsonIterate(aX:Float, aGuessT:Float):Float
+	{
+		var currentSlope:Float;
+		var currentX:Float;
+
+		for(var i:Integer=0; i<NEWTON_ITERATIONS; ++i)
+		{
+			currentSlope = getSlope(aGuessT, mX1, mX2);
+			if(currentSlope == 0.0) return aGuessT;
+			currentX = calcBezier(aGuessT, mX1, mX2) - aX;
+			aGuessT -= currentX / currentSlope;
+		}
+		return aGuessT;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function calcSampleValues ()
+	{
+		for(var i:Integer=0; i<kSplineTableSize; ++i)
+		{
+			mSampleValues[i] = calcBezier(i * kSampleStepSize, mX1, mX2);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function getTForX(aX:Float):Float
+	{
+		var intervalStart:Float = 0.0;
+		var currentSample:Integer = 1;
+		var lastSample:Float = kSplineTableSize - 1;
+
+		for(; currentSample != lastSample && mSampleValues[currentSample] <= aX; ++currentSample)
+		{
+			intervalStart += kSampleStepSize;
+		}
+		--currentSample;
+
+		// Interpolate to provide an initial guess for t
+		var dist:Float = (aX - mSampleValues[currentSample]) / (mSampleValues[currentSample+1] - mSampleValues[currentSample]);
+		var guessForT:Float = intervalStart + dist * kSampleStepSize;
+
+		var initialSlope:Float = getSlope(guessForT, mX1, mX2);
+		if (initialSlope >= NEWTON_MIN_SLOPE)
+		{
+			return newtonRaphsonIterate(aX, guessForT);
+		}
+		else if (initialSlope === 0.0)
+		{
+			return guessForT;
+		}
+
+		return binarySubdivide(aX, intervalStart, intervalStart + kSampleStepSize);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function precompute()
+	{
+		_precomputed = true;
+		if (mX1 != mY1 || mX2 != mY2)
+			calcSampleValues();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function interpolate(x:Float):Float
+	{
+		if (!_precomputed) precompute();
+		if (mX1 === mY1 && mX2 === mY2) return x; // linear
+
+		// Because JavaScript number are imprecise,
+		// we should guarantee the extremes are right.
+		if (x === 0) return 0;
+		if (x === 1) return 1;
+
+		return calcBezier(getTForX(x), mY1, mY2);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getControlPoints():Float32Array
+	{
+		return new Float32Array([mX1, mY1, mX2, mY2]);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toCSS3():String
+	{
+		return "cubic-bezier(" + String(mX1) + "," + String(mY1) + "," + String(mX2) + "," + String(mY2) + ")";
+	}
+}
+
+

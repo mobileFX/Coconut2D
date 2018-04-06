@@ -1,0 +1,971 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "CanvasRenderingContext2D.jspp"
+
+// ==================================================================================================================================
+//	   ______                 ____            __
+//	  / ____/___  _________  / __ \___  _____/ /_
+//	 / /   / __ \/ ___/ __ \/ /_/ / _ \/ ___/ __/
+//	/ /___/ /_/ / /__/ /_/ / _, _/  __/ /__/ /_
+//	\____/\____/\___/\____/_/ |_|\___/\___/\__/
+//
+// ==================================================================================================================================
+
+struct CocoPoint
+{
+	x:Float;
+	y:Float;
+}
+
+struct CocoRect
+{
+	left:Float;
+	top:Float;
+	right:Float;
+	bottom:Float;
+}
+
+struct CocoImageCacheItem
+{
+	symbolName:String;
+	width:Integer;
+	height:Integer;
+	image:CocoImage;
+
+	fontSizePixels:Integer;
+	lineHeightPixels:Integer;
+	lines:Integer;
+}
+
+struct CocoHVAlign
+{
+	horiz:Float;
+	vert:Float;
+}
+
+// ==================================================================================================================================
+//	   ______                 ______                 __    _
+//	  / ____/___  _________  / ____/________ _____  / /_  (_)_________
+//	 / /   / __ \/ ___/ __ \/ / __/ ___/ __ `/ __ \/ __ \/ / ___/ ___/
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /  / /_/ / /_/ / / / / / /__(__  )
+//	\____/\____/\___/\____/\____/_/   \__,_/ .___/_/ /_/_/\___/____/
+//	                                      /_/
+// ==================================================================================================================================
+
+class CocoGraphics
+{
+	public static var skinsCache:Array<CocoImageCacheItem>;
+	public static var gradientsCache:Array<CocoImageCacheItem>;
+
+ 	public function Constructor()
+ 	{
+ 	}
+
+ 	public function Destructor()
+ 	{
+ 	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+ 	/*
+ 	public static function isPOT(x:Integer)
+	{
+	  	return ((x != 0) && !(x & (x - 1)));
+	}
+	*/
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	public static function POT(i:Integer): Integer
+	{
+		//return Math.pow(2, Math.ceil(Math.log(n)/Math.log(2)));
+
+		--i;
+		i |= i >> 1;
+		i |= i >> 2;
+		i |= i >> 4;
+		i |= i >> 8;
+		i |= i >> 16;
+		return ++i;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	public static function RoundedMultiplier(m:Float):Integer
+	{
+	    if(m - Math.floor(m) >= 0.9)
+	        return Math.ceil(m);
+
+		return Math.floor(m);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+ 	public static function CLAMPTOBYTE(n:Integer):Integer
+ 	{
+ 		n &= (n >= 0 ? -1 : 0);
+    	return n | ((255 - n) >> 31);
+ 	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+ 	public static function str(n:Integer, c:String):String
+ 	{
+ 		var s:String;
+ 		for(var i:Integer=0; i<n; i++)
+ 		{
+ 			s += c;
+ 		}
+ 		return s;
+ 	}
+
+	// ==================================================================================================================================
+	//	   ______                               ______                 __  _
+	//	  / ____/___ _____ _   ______ ______   / ____/_  ______  _____/ /_(_)___  ____  _____
+	//	 / /   / __ `/ __ \ | / / __ `/ ___/  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+	//	/ /___/ /_/ / / / / |/ / /_/ (__  )  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+	//	\____/\__,_/_/ /_/|___/\__,_/____/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+	//
+	// ==================================================================================================================================
+
+	public static function NewCanvas(width:Integer, height:Integer, pot:Boolean) :HTMLCanvasElement
+	{
+    	var canvas:HTMLCanvasElement = HTMLCanvasElement(document.createElement("canvas"));
+    	width = Math.max(1, width);
+    	height = Math.max(1, height);
+		canvas.width = Math.max(1, (pot ? POT(width) : width));
+		canvas.height = Math.max(1, (pot ? POT(height) : height));
+		return canvas;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function CocoImageFromHTMLCanvas(canvas:HTMLCanvasElement, textureWidth:Integer, textureHeight:Integer, optional mime:String = "image/png") :CocoImage
+	{
+        var img:CocoImage = new CocoImage();
+        img.hImage = new Image();
+
+		img.multiplier				= 1;
+		img.textureCellWidth		= textureWidth;
+		img.textureCellHeight		= textureHeight;
+		img.textureViewWidth		= textureWidth;
+		img.textureViewHeight		= textureHeight;
+
+		img.textureMagFilter		= MAG_NEAREST;
+		img.textureMinFilter		= MIN_NEAREST;
+		img.textureWrapS			= WRAP_CLAMP_TO_EDGE;
+		img.textureWrapT			= WRAP_CLAMP_TO_EDGE;
+
+		img.textureGrid				= new Float32Array([0,0]);
+
+       	var data:String = canvas.toDataURL(mime);
+       	img.hImage.load(data);
+
+        return img;
+	}
+
+	// ==================================================================================================================================
+	//	   ______      __              ______                 __  _
+	//	  / ____/___  / /___  _____   / ____/_  ______  _____/ /_(_)___  ____  _____
+	//	 / /   / __ \/ / __ \/ ___/  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+	//	/ /___/ /_/ / / /_/ / /     / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+	//	\____/\____/_/\____/_/     /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+	//
+	// ==================================================================================================================================
+
+	public static function ColorToHtmlRGBA(c:Color) :String
+	{
+		var A:uint8_t = ((c >> 24) & 0xFF);
+		var R:uint8_t = ((c >> 16) & 0xFF);
+		var G:uint8_t = ((c >>  8) & 0xFF);
+		var B:uint8_t = ((c)       & 0xFF);
+
+		return "rgba(" + String(R) + "," + String(G) + "," + String(B) + "," + String( Float(A) / 255.0) + ")";
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function HtmlRGBAtoColor(s:String) :Color
+	{
+		var rx:RegExp = new RegExp("^rgba\\((\\d+),(\\d+),(\\d+),(\\d+(?:\\.\\d+)?)\\)$", "ig");
+		var matches:Array<String> = rx.exec(s);
+
+		var red:Integer   = parseInt(matches[1]);
+		var green:Integer = parseInt(matches[2]);
+		var blue:Integer  = parseInt(matches[3]);
+		var alpha:Integer = 255.0 * parseFloat(matches[4]);
+
+		delete matches;
+		delete rx;
+
+		var r:uint8_t = red   & 0xFF;
+		var g:uint8_t = green & 0xFF;
+		var b:uint8_t = blue  & 0xFF;
+		var a:uint8_t = alpha & 0xFF;
+
+		var c:Color = (a << 24) + (r << 16) + (g << 8) + (b);
+
+		return c;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function Fit(SrcW:Float, SrcH:Float, DstW:Float, DstH:Float):COCO_SCREEN_FIT_ENUM
+	{
+	    if(DstW / DstH == SrcW / SrcH)
+	        return COCO_SCREEN_FIT_BOTH;
+
+	    else if(DstW / SrcW > DstH / SrcH)
+	        return COCO_SCREEN_FIT_HEIGHT;
+
+	    return COCO_SCREEN_FIT_WIDTH;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function Scale(SrcW:Float, SrcH:Float, DstW:Float, DstH:Float):Float
+	{
+		return Math.min(DstW / SrcW, DstH / SrcH);
+	}
+
+	// ==================================================================================================================================
+	//	    ______            __     ______                 __  _
+	//	   / ____/___  ____  / /_   / ____/_  ______  _____/ /_(_)___  ____  _____
+	//	  / /_  / __ \/ __ \/ __/  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+	//	 / __/ / /_/ / / / / /_   / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+	//	/_/    \____/_/ /_/\__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+	//
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function CocoImageFromText(ImageWidth:Integer, ImageHeight:Integer, Text:String, TextFontFamily:String, TextFontSizePixels:Integer, TextFontColor:Color, TextMultiline:Boolean, TextFontBold:Boolean, optional TextFontItalic:Boolean, optional TextFontUnderline:Boolean, optional TextHorizAlign:COCO_TEXT_ALIGN_ENUM=TEXT_ALIGN_CENTER, optional TextVertAlign:COCO_TEXT_ALIGN_ENUM=TEXT_ALIGN_CENTER, optional Stroke:Boolean=false, optional PaddingLeft:Integer=0, optional PaddingRight:Integer=0, optional PaddingTop:Integer=0, optional PaddingBottom:Integer=0, optional ResizeToFit:Boolean=false): CocoImageCacheItem
+	{
+		if(ImageWidth<=0 || ImageHeight<=0 || TextFontSizePixels<=0 || PaddingLeft<0 || PaddingRight<0 || PaddingTop<0 || PaddingBottom<0 || PaddingLeft>=ImageWidth || PaddingRight>=ImageWidth || PaddingTop>=ImageHeight || PaddingBottom>=ImageHeight)
+		{
+			return null;
+		}
+
+    	// Adjust canvas size by screen multiplier
+		var m:Float	= engine.device.ScreenMultiplier;
+		var w:Integer		= Math.max(1.0, Math.floor(ImageWidth * m));
+		var h:Integer		= Math.max(1.0, Math.floor(ImageHeight * m));
+		var f:Integer		= Math.floor(TextFontSizePixels*m);
+		var PL:Integer		= Math.floor(PaddingLeft*m);
+		var PR:Integer		= Math.floor(PaddingRight*m);
+		var PT:Integer		= Math.floor(PaddingTop*m);
+		var PB:Integer		= Math.floor(PaddingBottom*m);
+
+		// Parse font styles
+		var align:CocoHVAlign = CocoGraphics.AlignToCocoHVAlign(TextHorizAlign, TextVertAlign);
+		var color:String = CocoGraphics.ColorToHtmlRGBA(TextFontColor);
+
+    	// Create canvas if not exists
+		var textCanvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, true);
+		var textCanvas2d:CanvasRenderingContext2D = CanvasRenderingContext2D(textCanvas.getContext("2d"));
+
+    	// Set Font Style
+    	textCanvas2d.fillStyle = color;
+    	textCanvas2d.strokeStyle = color;
+
+    	// Wrap Text
+   		var out:CocoImageCacheItem = drawText(textCanvas2d, Text, TextFontFamily, f, 0, TextFontBold, TextFontItalic, PL, PT, w-PL-PR, h-PT-PB, align.horiz, align.vert, TextMultiline, false, TextFontUnderline, Stroke, ResizeToFit);
+
+		// Export Image from canvas
+		var img:CocoImage = CocoGraphics.CocoImageFromHTMLCanvas(textCanvas, w, h);
+		img.multiplier = m;
+		img.textureMinFilter = img.textureMagFilter = (engine.device.isDesktop ? MAG_LINEAR : MAG_NEAREST);
+		img.textureWrapT = img.textureWrapS = WRAP_CLAMP_TO_EDGE;
+
+		// Add image in DOM
+		if(!engine.device.isCoconut2DPlayer && !engine.device.isNative)
+		{
+			img.hImage.style.display = "none";
+       		window.document.body.appendChild(img.hImage);
+		}
+
+		delete textCanvas2d;
+		delete align;
+
+		out.image = img;
+		out.fontSizePixels /= m;
+
+		return out;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function drawText(ctx:CanvasRenderingContext2D,
+									text:String,
+									FontFamily:String, fontSizePixels:Integer, lineHeightPixels:Integer, FontBold:Boolean, FontItalic:Boolean,
+									x:Integer, y:Integer, width:Integer, height:Integer,
+									optional halign:Float = 0.5,
+									optional valign:Float = 0.5,
+									optional multiline:Boolean = true,
+									optional measureOnly:Boolean = false,
+									optional underline:Boolean = false,
+									optional stroke:Boolean = false,
+									optional resize:Boolean):CocoImageCacheItem
+	{
+	    var lineSpacing:Float = 1.125;
+	    var line:String;
+	    var i:Integer;
+	    var L:Integer;
+	    var word:String;
+	    var metrics:HTMLTextMetrics;
+	    var lines:Array<String> = new Array<String>;
+	    var word_length:Integer;
+	    var line_length:Integer = 0;
+	    var space_length:Integer;
+	    var line_widths:Array<Integer> = new Array<Integer>;
+	    var total_height:Float = 0;
+	    var cx:Float;
+	    var cy:Float;
+
+	    if(lineHeightPixels==0)
+	    	lineHeightPixels = fontSizePixels * lineSpacing;
+
+		var out_metrics:CocoImageCacheItem = new CocoImageCacheItem;
+		out_metrics.fontSizePixels = fontSizePixels;
+		out_metrics.lineHeightPixels = Math.floor(lineHeightPixels * lineSpacing);
+
+		if(!text)
+		{
+			out_metrics.height = 0;
+			out_metrics.lines = 0;
+
+		    delete lines;
+		    delete line_widths;
+
+		    return out_metrics;
+		}
+
+		ctx.font = CocoGraphics.HtmlFontStyle(FontFamily, out_metrics.fontSizePixels, out_metrics.lineHeightPixels, FontBold, FontItalic);
+
+	    // =================================================================================================
+	    // Wrap Text into Lines and Measure Text
+	    // =================================================================================================
+
+		ctx.textAlign = "left";
+		ctx.textBaseline = "top";
+
+	    // Get space character size
+		metrics = ctx.measureText(" ");
+		space_length = metrics.width;
+		delete metrics;
+
+		if(multiline)
+		{
+		    var words:Array<String> = text.split(' ');
+		    L = words.size();
+		    for(i=0; i<L; i++)
+		    {
+		    	// Get a word
+				word = words[i];
+
+				// Measure word
+				metrics = ctx.measureText(word);
+				word_length = metrics.width;
+				delete metrics;
+
+		        // If word pixels is grater than canvas width, then truncate word until it fits the width
+		        if(word_length>width)
+		        {
+		        	// Truncate word one character at a time
+			        while(word_length>width)
+			        {
+			            word = word.substring(0, word.size() - 1);
+			            metrics = ctx.measureText(word);
+						word_length = metrics.width;
+						delete metrics;
+			        }
+
+			        // Add word-split in words array
+		            words.splice(i+1, 0, word.substr(word.size()));
+		            words[i] = word;
+		        }
+
+		        // If (current line pixels + current word pixels) are grater than canvas width
+		        // we need to push the current line (without the current word) to lines array.
+		        if(line_length + space_length + word_length > width)
+		        {
+		        	// Push line text and width
+		        	lines.push(line);
+		        	line_widths.push(line_length);
+
+		        	// Calc total height
+		        	total_height += out_metrics.lineHeightPixels;
+
+		        	// Check if total height exceeds canvas height
+		        	if(total_height>height)
+		        		break;
+
+		        	// Reset & New Line
+		            line = word;
+		            line_length = word_length;
+		        }
+		        else
+		        {
+		        	if(line_length==0)
+		        	{
+			            line = word;
+			            line_length = word_length;
+		        	}
+		        	else
+		        	{
+			            line += " " + word;
+			            line_length += (space_length + word_length);
+		        	}
+		        }
+		    }
+
+		    // Add the remaining line
+		    if(line_length>0)
+		    {
+	        	// Push line text and width
+	        	lines.push(line);
+	        	line_widths.push(line_length);
+
+	        	// Calc total height
+	        	total_height += out_metrics.lineHeightPixels;
+		    }
+
+		   	delete words;
+		}
+		else
+		{
+			metrics = ctx.measureText(text);
+
+			if(resize && metrics.width > width)
+			{
+				while(metrics.width > width)
+				{
+					delete metrics;
+					out_metrics.fontSizePixels--;
+					out_metrics.lineHeightPixels = Math.floor(out_metrics.fontSizePixels * lineSpacing);
+					ctx.font = CocoGraphics.HtmlFontStyle(FontFamily, out_metrics.fontSizePixels, out_metrics.lineHeightPixels, FontBold, FontItalic);
+					metrics = ctx.measureText(text);
+				}
+
+				trace("Changed font size from " + String(fontSizePixels) + " to " + String(out_metrics.fontSizePixels) + " to fit text [" + text + "] in (" + String(width) + "x" + String(height));
+			}
+
+			line_length = metrics.width;
+			out_metrics.width = line_length;
+			delete metrics;
+
+        	// Push line text and width
+        	lines.push(text);
+        	line_widths.push(line_length);
+
+        	// Calc total height
+        	total_height += out_metrics.lineHeightPixels;
+		}
+
+	    // =================================================================================================
+	    // Draw Lines
+	    // =================================================================================================
+
+	    // Loop on lines and draw them aligned
+	    if(!measureOnly && out_metrics.fontSizePixels>0)
+	    {
+		    L = lines.size();
+
+		    if(L>1)
+		    {
+		    	total_height -= (out_metrics.lineHeightPixels - out_metrics.fontSizePixels);
+		    	y += (height - total_height) * valign;
+		    }
+
+		    for(i=0; i<L; i++)
+		    {
+		    	// Get a line
+		    	line = lines[i];
+		    	line_length = line_widths[i];
+
+	        	// Align Line Horizontally
+				cx = x + (width - line_length) * halign;
+
+				// Align Line Vertically
+				if(L==1)
+				{
+					cy = y + (height - out_metrics.fontSizePixels) * valign;
+				}
+				else
+				{
+					cy = y + out_metrics.lineHeightPixels * i;
+				}
+
+				// Draw Line
+				if(stroke)
+					ctx.strokeText(line, cx, cy);
+				else
+					ctx.fillText(line, cx, cy);
+
+				// Draw Underline
+				if(underline)
+				{
+					cy += ctx.lineWidth * 1.5;
+					ctx.lineWidth = out_metrics.fontSizePixels / 12.0;
+					ctx.beginPath();
+					ctx.moveTo(cx, cy );
+					ctx.lineTo(cx + line_length, cy);
+					ctx.stroke();
+				}
+		    }
+	    }
+
+		out_metrics.height = total_height;
+		out_metrics.lines = lines.size();
+
+	    delete lines;
+	    delete line_widths;
+
+	    return out_metrics;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function HtmlFontStyle(FontFamily:String, FontSizePixels:Integer, LineSizePixels:Integer, FontBold:Boolean, FontItalic:Boolean):String
+	{
+		return (FontItalic ? "italic" : "normal") + " normal " + (FontBold ? "bold " : "normal ") + String(FontSizePixels) + "px " + FontFamily;
+	}
+
+	// ==================================================================================================================================
+	//	   _____ __   _          ______                 __  _
+	//	  / ___// /__(_)___     / ____/_  ______  _____/ /_(_)___  ____  _____
+	//	  \__ \/ //_/ / __ \   / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+	//	 ___/ / ,< / / / / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+	//	/____/_/|_/_/_/ /_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+	//
+	// ==================================================================================================================================
+
+	public static function GetSkinFromCache(skinImage:CocoImage, width:Integer, height:Integer) :CocoImage
+	{
+		if(!skinImage || width==0 || height==0)
+			return null;
+
+		var item:CocoImageCacheItem;
+
+		// Initialize skin cache array
+		if(!skinsCache)
+			skinsCache = new Array<CocoImageCacheItem>;
+
+		// Search cache for skin
+		for(var i:Integer = skinsCache.size()-1; i>=0; i--)
+		{
+			item = skinsCache[i];
+			if(item.symbolName==skinImage.symbolName && item.width==width && item.height==height)
+			{
+				item.image.addRef();
+				return item.image;
+			}
+		}
+
+		// Create a skin image
+		var w:Integer = Math.floor(width*skinImage.multiplier);
+		var h:Integer = Math.floor(height*skinImage.multiplier);
+		var canvas:HTMLCanvasElement = NewCanvas(w, h, true);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+		CocoGraphics.DrawSkin(ctx, skinImage, 0, 0, w, h);
+		ctx = null;
+		var image:CocoImage = CocoImageFromHTMLCanvas(canvas, w, h);
+		image.multiplier = skinImage.multiplier;
+		image.addRef();
+		delete canvas;
+
+		// Save skin in cache
+		item = new CocoImageCacheItem();
+		item.symbolName = skinImage.symbolName;
+		item.width = width;
+		item.height = height;
+		item.image = image;
+		skinsCache.push(item);
+
+		return image;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function DrawSkin(ctx:CanvasRenderingContext2D, skinImage:CocoImage, x:Integer, y:Integer, width:Integer, height:Integer)
+	{
+		if(!skinImage)
+			return;
+
+		var W1:Integer				  = skinImage.skin[0];
+		var W2:Integer				  = skinImage.skin[1];
+		var W3:Integer				  = skinImage.skin[2];
+		var H1:Integer				  = skinImage.skin[3];
+		var H2:Integer				  = skinImage.skin[4];
+		var H3:Integer				  = skinImage.skin[5];
+
+		var RW1H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+		var RW2H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
+		var RW3H1:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+		var RW1H2:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y;
+		var RW2H2:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_XY;
+		var RW3H2:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y;
+		var RW1H3:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+		var RW2H3:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_X;
+		var RW3H3:COCO_SKIN_TILE_ENUM = COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE;
+
+		var	F:Integer;
+		var	RmW:Integer;
+		var	RmH:Integer;
+		var	R:Array<Integer> = [0,0,0];
+		var	C:Array<Integer> = [0,0,0];
+
+	    // Find slices with fixed width or height
+	    if(__fixedH([RW1H1, RW2H1, RW3H1], true)) R[0] = H1;
+	    if(__fixedH([RW1H2, RW2H2, RW3H2], true)) R[1] = H2;
+	    if(__fixedH([RW1H3, RW2H3, RW3H3], true)) R[2] = H3;
+	    if(__fixedW([RW1H1, RW1H2, RW1H3], true)) C[0] = W1;
+	    if(__fixedW([RW2H1, RW2H2, RW2H3], true)) C[1] = W2;
+	    if(__fixedW([RW3H1, RW3H2, RW3H3], true)) C[2] = W3;
+
+		// Count how many cells have fixed height and divide the remaining height to the others
+		F = __countFixed([H1, H2, H3], true) - __countFixed(R);
+		RmH = Math.max(0, height - R[0] - R[1] - R[2]);
+		if(F && H1!=0 && R[0]==0) R[0] =(RmH / F);
+		if(F && H2!=0 && R[1]==0) R[1] =(RmH / F);
+		if(F && H3!=0 && R[2]==0) R[2] =(RmH / F);
+
+		// Count how many cells have fixed width and divide the remaining width to the others
+		F = __countFixed([W1, W2, W3], true) - __countFixed(C);
+		RmW = Math.max(0, width - C[0] - C[1] - C[2]);
+		if(F && W1!=0 && C[0]==0) C[0] = (RmW / F);
+		if(F && W2!=0 && C[1]==0) C[1] = (RmW / F);
+		if(F && W3!=0 && C[2]==0) C[2] = (RmW / F);
+
+	    // Draw slices
+
+	    ctx.save();
+	    ctx.setTransform(1,0,0,1,0,0);
+
+	    __drawSlice ( ctx, skinImage, 	x, 					y, 				 	C[0],	R[0], 	0, 			0,			W1, 	H1, 	RW1H1);
+	    __drawSlice ( ctx, skinImage, 	x + C[0], 			y, 				 	C[1],	R[0], 	W1, 		0,			W2, 	H1, 	RW2H1);
+	    __drawSlice ( ctx, skinImage, 	x + C[0] + C[1], 	y, 				 	C[2],	R[0], 	W1 + W2, 	0,			W3, 	H1, 	RW3H1);
+	    __drawSlice ( ctx, skinImage, 	x, 					y + R[0], 		 	C[0],	R[1], 	0, 			H1,			W1, 	H2, 	RW1H2);
+	    __drawSlice ( ctx, skinImage, 	x + C[0], 			y + R[0], 		 	C[1],	R[1], 	W1, 		H1,			W2, 	H2, 	RW2H2);
+	    __drawSlice ( ctx, skinImage, 	x + C[0] + C[1], 	y + R[0], 		 	C[2],	R[1], 	W1 + W2, 	H1,			W3, 	H2, 	RW3H2);
+	    __drawSlice ( ctx, skinImage, 	x, 					y + R[0] + R[1], 	C[0],	R[2], 	0, 			H1 + H2, 	W1, 	H3, 	RW1H3);
+	    __drawSlice ( ctx, skinImage, 	x + C[0], 			y + R[0] + R[1], 	C[1],	R[2], 	W1, 		H1 + H2, 	W2, 	H3, 	RW2H3);
+	    __drawSlice ( ctx, skinImage, 	x + C[0] + C[1], 	y + R[0] + R[1], 	C[2],	R[2], 	W1 + W2, 	H1 + H2, 	W3, 	H3, 	RW3H3);
+
+		ctx.restore();
+
+		delete R;
+		delete C;
+	};
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	private static function __drawSlice(ctx:CanvasRenderingContext2D, skin:CocoImage, cx:Integer, cy:Integer, cw:Integer, ch:Integer, sx:Integer, sy:Integer, sw:Integer, sh:Integer, r:COCO_SKIN_TILE_ENUM)
+	{
+	    if(cw==0 || ch==0 || sw==0 || sh==0) return;
+	    if(r == COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE)
+	        __drawRegion(ctx, skin, sx, sy, sw, sh, cx, cy, cw, ch);
+	    else
+	    	__tileSkin(ctx, skin, sx, sy, sw, sh, cx, cy, cw, ch);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	private static function __countFixed(v:Array<Integer>, optional dispose:Boolean) :Integer
+	{
+	    var c:Integer = 0;
+	    var L:Integer = v.size();
+	    for(var i:Integer=0; i<L; i++)
+	    	if(v[i]!=0) c++;
+	    if(dispose) delete v;
+	    return c;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	private static function __fixedW(v:Array<COCO_SKIN_TILE_ENUM>, optional dispose:Boolean) :Boolean
+	{
+		var R:Boolean = false;
+		var L:Integer = v.size();
+		var t:COCO_SKIN_TILE_ENUM;
+
+	    for(var i:Integer=0; i<L; i++)
+	    {
+	    	t = v[i];
+	        R |= ((t==COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (t==COCO_SKIN_TILE_ENUM.TILE_REPEAT_Y));
+	    }
+	    if(dispose) delete v;
+	    return R;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	private static function __fixedH(v:Array<COCO_SKIN_TILE_ENUM>, optional dispose:Boolean) :Boolean
+	{
+		var R:Boolean = false;
+		var L:Integer = v.size();
+		var t:COCO_SKIN_TILE_ENUM;
+
+	    for(var i:Integer=0; i<L; i++)
+	    {
+	    	t = v[i];
+	        R |= ((t==COCO_SKIN_TILE_ENUM.TILE_REPEAT_NONE) || (t==COCO_SKIN_TILE_ENUM.TILE_REPEAT_X));
+	    }
+	    if(dispose) delete v;
+	    return R;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	private static function __tileSkin(ctx:CanvasRenderingContext2D, image:CocoImage, cellX:Integer, cellY:Integer, cellWidth:Integer, cellHeight:Integer, x:Integer, y:Integer, width:Integer, height:Integer)
+	{
+		if(cellWidth==0 || cellHeight==0)
+			return;
+
+		var ix:Integer, iy:Integer, cw:Integer, ch:Integer;
+
+		for(iy=y; iy<=y+height; iy+=cellHeight)
+		{
+			for(ix=x; ix<=x+width; ix+=cellWidth)
+			{
+				cw = (ix+cellWidth<=x+width ? cellWidth : x+width-ix);
+				ch = (iy+cellHeight<=y+height ? cellHeight : y+height-iy);
+				if(cw>0 && ch>0)
+					__drawRegion(ctx, image, cellX, cellY, cw, ch, ix, iy, cw, ch);
+			}
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	private static function __drawRegion(ctx:CanvasRenderingContext2D, image:CocoImage, sx:Integer, sy:Integer, sw:Integer, sh:Integer, dx:Integer, dy:Integer, dw:Integer, dh:Integer)
+	{
+		if(!ctx || !image || sw==0 || sh==0 || dw==0 || dh==0)
+			return;
+
+		//ctx.drawImage(image.hImage, sx+image.binpackX, sy+image.binpackY, sw, sh, dx, dy, dw, dh);
+
+		ctx.drawImage(image.hImage, sx, sy, sw, sh, dx, dy, dw, dh);
+	}
+
+	// ==================================================================================================================================
+	//	   ______               ___      __
+	//	  / ____/________ _____/ (_)__  / /_____  _____
+	//	 / / __/ ___/ __ `/ __  / / _ \/ __/ __ \/ ___/
+	//	/ /_/ / /  / /_/ / /_/ / /  __/ /_/ / / (__  )
+	//	\____/_/   \__,_/\__,_/_/\___/\__/_/ /_/____/
+	//
+	// ==================================================================================================================================
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	public static function CreateGradient(x:Integer, y:Integer, width:Integer, height:Integer, gradient:String,
+										  border_color:Color, border_style:COCO_CONTROL_BORDER_STYLE_ENUM, border_radius:Integer, border_width:Integer,
+										  pixel_ratio:Float):CocoImage
+	{
+		if(!gradient || width==0 || height==0)
+			return null;
+
+		var i:Integer;
+		var CacheKey:String = "__cached_grad_" + gradient + "_" + String(border_color) + "_" + String(border_style) + "_" + String(border_radius) + "_" + String(border_width) + "_" + String(pixel_ratio) + "_" + String(width) + "x" + String(height);
+
+		// Initialize skin cache array
+		if(!gradientsCache)
+			gradientsCache = new Array<CocoImageCacheItem>;
+
+		// Search cache for skin
+		for(i = gradientsCache.size()-1; i>=0; i--)
+		{
+			var item:CocoImageCacheItem = gradientsCache[i];
+			if(item.symbolName==CacheKey)
+			{
+				item.image.addRef();
+				return item.image;
+			}
+		}
+
+		// Create a skin image
+		var canvas:HTMLCanvasElement = NewCanvas(width, height, true);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+		var grad:CanvasGradient = ctx.createLinearGradient(x, y, 0, height-y);
+
+		var v:Array<String> = gradient.split(",");
+		var L:Integer = v.size();
+		if((L % 2)==0)
+		{
+			for(i = 0; i<L; i+=2)
+			{
+				grad.addColorStop(parseFloat(v[i]), ColorToHtmlRGBA(parseInt(v[i+1])));
+			}
+		}
+		delete v;
+
+		var segments:Array<Integer> = null;
+
+		// Fill
+		ctx.save();
+		ctx.fillStyle = grad;
+
+		if(border_radius)
+		{
+			ctx.beginPath();
+			ctx.moveTo(x+border_radius-1, y);
+			ctx.lineTo(x+width-border_radius-1, y);
+			ctx.quadraticCurveTo(x+width-1, y, x+width-1, y+border_radius-1);
+			ctx.lineTo(x+width-1, y+height-border_radius-1);
+			ctx.quadraticCurveTo(x+width-1, y+height-1, x+width-border_radius-1, y+height-1);
+			ctx.lineTo(x+border_radius-1, y+height-1);
+			ctx.quadraticCurveTo(x, y+height-1, x, y+height-border_radius-1);
+			ctx.lineTo(x, y+border_radius-1);
+			ctx.quadraticCurveTo(x, y, x+border_radius-1, y);
+			ctx.closePath();
+			ctx.clip();
+		}
+
+		ctx.fillRect(x, y, width, height);
+		ctx.restore();
+
+		// Border
+		if(border_style==BORDER_DOTTED || border_style==BORDER_SOLID)
+		{
+			ctx.save();
+			ctx.lineWidth = Float(border_width) * engine.PixelRatio + 1.0;
+
+			if(border_style==BORDER_DOTTED)
+			{
+				segments = new Array<Integer>;
+				segments.push(2);
+				segments.push(2);
+				ctx.setLineDash(segments);
+			}
+
+			ctx.strokeStyle = ColorToHtmlRGBA(border_color);
+
+			ctx.beginPath();
+			ctx.moveTo(x+border_radius-1, y);
+			ctx.lineTo(x+width-border_radius-1, y);
+			ctx.quadraticCurveTo(x+width-1, y, x+width-1, y+border_radius-1);
+			ctx.lineTo(x+width-1, y+height-border_radius-1);
+			ctx.quadraticCurveTo(x+width-1, y+height-1, x+width-border_radius-1, y+height-1);
+			ctx.lineTo(x+border_radius-1, y+height-1);
+			ctx.quadraticCurveTo(x, y+height-1, x, y+height-border_radius-1);
+			ctx.lineTo(x, y+border_radius-1);
+			ctx.quadraticCurveTo(x, y, x+border_radius-1, y);
+			ctx.closePath();
+			ctx.clip();
+
+			ctx.stroke();
+			ctx.restore();
+		}
+
+		// Create image from canvas
+		var image:CocoImage = CocoImageFromHTMLCanvas(canvas, width, height);
+		image.multiplier = pixel_ratio;
+		image.addRef();
+		delete canvas;
+		delete segments;
+
+		// Save skin in cache
+		var item:CocoImageCacheItem = new CocoImageCacheItem();
+		item.symbolName = CacheKey;
+		item.width = width;
+		item.height = height;
+		item.image = image;
+		gradientsCache.push(item);
+
+		return image;
+	}
+
+	// ==================================================================================================================================
+	//	    ____                        __                        __   ___               __               _
+	//	   / __ )____  __  ______  ____/ /____   ____ _____  ____/ /  /   |  ____  _____/ /_  ____  _____(_)___  ____ _
+	//	  / __  / __ \/ / / / __ \/ __  / ___/  / __ `/ __ \/ __  /  / /| | / __ \/ ___/ __ \/ __ \/ ___/ / __ \/ __ `/
+	//	 / /_/ / /_/ / /_/ / / / / /_/ (__  )  / /_/ / / / / /_/ /  / ___ |/ / / / /__/ / / / /_/ / /  / / / / / /_/ /
+	//	/_____/\____/\__,_/_/ /_/\__,_/____/   \__,_/_/ /_/\__,_/  /_/  |_/_/ /_/\___/_/ /_/\____/_/  /_/_/ /_/\__, /
+	//	                                                                                                      /____/
+	// ==================================================================================================================================
+
+	public static function AlignToCocoHVAlign(h:COCO_TEXT_ALIGN_ENUM, v:COCO_TEXT_ALIGN_ENUM) :CocoHVAlign
+	{
+		var align:CocoHVAlign = new CocoHVAlign();
+
+		switch(h)
+		{
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_NEAR:		align.horiz = 0; break;
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER:	align.horiz = 0.5; break;
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_FAR:		align.horiz = 1; break;
+			default:break;
+		}
+
+		switch(v)
+		{
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_NEAR:		align.vert = 0; break;
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER:	align.vert = 0.5; break;
+			case COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_FAR:		align.vert = 1; break;
+			default:break;
+		}
+
+		return align;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	public static function AnchorToCocoHVAlign(anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoHVAlign
+	{
+		var align:CocoHVAlign = new CocoHVAlign();
+
+		align.horiz = 0.5;
+		align.vert = 0.5;
+
+    	switch(anchor)
+    	{
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_LEFT:
+			align.vert = 0.0;
+			align.horiz = 0.0;
+			break;
+
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_MIDDLE:
+			align.vert = 0.0;
+			align.horiz = 0.5;
+			break;
+
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_TOP_RIGHT:
+			align.vert = 0.0;
+			align.horiz = 1.0;
+			break;
+
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_LEFT:
+			align.vert = 0.5;
+			align.horiz = 0.0;
+			break;
+
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_MIDDLE_RIGHT:
+			align.vert = 0.5;
+			align.horiz = 1.0;
+			break;
+
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_LEFT:
+			align.vert = 1.0;
+			align.horiz = 0.0;
+			break;
+
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_MIDDLE:
+			align.vert = 1.0;
+			align.horiz = 0.5;
+			break;
+
+		case COCO_CONTROL_ANCHOR_ENUM.ANCHOR_BOTTOM_RIGHT:
+			align.vert = 1.0;
+			align.horiz = 1.0;
+			break;
+
+		default:break;
+    	}
+
+    	return align;
+	}
+}

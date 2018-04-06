@@ -1,0 +1,696 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	   ______                _____
+//	  / ____/___  _________ / ___/________  ____  ___
+//	 / /   / __ \/ ___/ __ \\__ \/ ___/ _ \/ __ \/ _ \
+//	/ /___/ /_/ / /__/ /_/ /__/ / /__/  __/ / / /  __/
+//	\____/\____/\___/\____/____/\___/\___/_/ /_/\___/
+//
+// ==================================================================================================================================
+
+enum COCO_SCREEN_FIT_ENUM
+{
+	COCO_SCREEN_FIT_BOTH	= 0,
+	COCO_SCREEN_FIT_HEIGHT  = 1,
+	COCO_SCREEN_FIT_WIDTH	= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoScene
+{
+	// Resources
+	public var __sceneName:String;
+	public var __imageSymbols:Array<CocoImage>;
+	public var __atlases:Array<CocoImage>;
+	public var __used_atlases:Array<CocoImage>;
+
+	// Fixed View Port
+	public var __fps:Float;
+	public var __view_width:Integer;
+	public var __view_height:Integer;
+	public var __view_pixel_ratio:Float;
+	public var __view_scale:Float;
+	public var __view_clip:Boolean;
+
+	// Overwrites
+	public var __animation_sequeceses_fps:Float;
+
+	// Rendering
+	public var __root:CocoClip;
+	public var __levelParents:Array<CocoClip>;
+
+	#if (makefile.Vars.TARGET=="CocoPlayer")
+	public var __paintedClips:Array<String>;
+	#endif
+
+	public var __ready:Boolean;
+	public var __loaded_assets:Integer;
+	public var __finished:Boolean;
+
+	// Application
+	#if (COCONUT2D_APPLICATION)
+	private reference var __appView:CocoUIAppView;
+	#endif
+
+	private reference var m_ctx:ICocoRenderContext;
+	private var m_width:Float; 	// Used for detecting size change only
+	private var m_height:Float; // Used for detecting size change only
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		m_width                    = 0;
+		m_height                   = 0;
+
+		__fps                      = 0;
+		__animation_sequeceses_fps = 0;
+		__sceneName                = "";
+		__view_width               = 0;
+		__view_height              = 0;
+		__view_pixel_ratio         = 0;
+		__view_scale               = 1;
+		__view_clip                = false;
+		__root                     = null;
+		__ready                    = false;
+		__finished                 = false;
+		__imageSymbols             = new Array<CocoImage>;
+		__atlases                  = new Array<CocoImage>;
+		__used_atlases             = new Array<CocoImage>;
+		__loaded_assets            = 0;
+		__levelParents             = new Array<CocoClip>;
+
+		#if (makefile.Vars.TARGET=="CocoPlayer")
+		__paintedClips			= new Array<String>;
+		#endif
+
+		#if (COCONUT2D_APPLICATION)
+		__appView				= null;
+		#endif
+
+		engine.__scene = this;
+		____debugger_current_scene = this;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		if(engine.__scene == this)
+			engine.__scene = null;
+
+		delete __levelParents;
+		delete __root;
+		delete[] __imageSymbols;
+		delete[] __atlases;
+		delete __used_atlases;
+
+		#if (makefile.Vars.TARGET=="CocoPlayer")
+		delete __paintedClips;
+		#endif
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property ViewWidth
+	{
+		function get():Integer
+		{
+			return __view_width ? __view_width : engine.device.LogicalPixelsWidth;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property ViewHeight
+	{
+		function get():Integer
+		{
+			return __view_height ? __view_height : engine.device.LogicalPixelsHeight;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property ViewScale
+	{
+		function get():Float
+		{
+			return __view_scale ? __view_scale : 1.0;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property ViewPixelRatio
+	{
+		function get():Float
+		{
+			return __view_pixel_ratio ? __view_pixel_ratio : 1.0;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property ViewPixelScale
+	{
+		function get():Float
+		{
+			return ViewScale * engine.PixelRatio;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	#if (COCONUT2D_APPLICATION)
+	public property App
+	{
+		function get():CocoUIAppView
+		{
+			if(!__appView)
+			{
+				var arr:Array<CocoClip> = getClipsByClassName("CocoUIAppView");
+				if(arr.size())
+				{
+					// Upcast CocoClip to CocoUIAppView
+					__appView = CocoUIAppView(arr[0]);
+				}
+				delete arr;
+			}
+			return __appView;
+		}
+	}
+	#endif
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getClipByPath(ClipPath:String) :CocoClip
+	{
+		var vPath:Array<String> = ClipPath.split('/');
+		var i:Integer;
+		var L:Integer = vPath.size();
+		var clip:CocoClip = __root;
+		for(i=1; i<L; i++)
+		{
+			clip = clip.getChildByName(vPath[i]);
+			if(!clip)
+			{
+				delete vPath;
+				return null;
+			}
+		}
+		delete vPath;
+		return clip;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function newResourceImage(symbolName:String, baseUrl:String) :CocoImage
+	{
+		if(getImageSymbol(symbolName)) throw "Resource image " + symbolName + " already exists.";
+
+		var img:CocoImage = new CocoImage();
+
+		img.symbolName		= symbolName;
+		img.baseUrl			= baseUrl;
+		img.scene			= this;
+
+		__imageSymbols.push(img);
+
+		return img;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getImageSymbol(symbolName:String):CocoImage
+	{
+		var img:CocoImage;
+
+		for(var i:Integer = __imageSymbols.size() - 1; i >= 0; i--)
+		{
+			img = __imageSymbols[i];
+
+			if(img.symbolName == symbolName)
+				return img;
+		}
+
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getImageSymbolHeight(symbolName:String):Float
+	{
+		var img:CocoImage = getImageSymbol(symbolName);
+		return !img ? 0 : img.textureCellHeight / (img.multiplier / __view_pixel_ratio);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getClipsByClassName(className:String) :Array<CocoClip>
+	{
+		var arr:Array<CocoClip> = new Array<CocoClip>;
+		arr = arr.concat(__root.getChildrenByClassName(className));
+		return arr;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function newAtlasImage(symbolName:String, url:String, multiplier:Integer, locale:String) :CocoImage
+	{
+		var img:CocoImage = new CocoImage();
+
+		img.symbolName		= symbolName;
+		img.baseUrl			= url;
+		img.scene			= this;
+		img.isAtlas			= true;
+		img.multiplier 		= multiplier;
+		img.locale			= locale;
+
+		__atlases.push(img);
+
+		return img;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function findBestResolutionAtlasGroup(symbolName:String, sibling:CocoImageResolution):CocoImagesAtlasGroup
+	{
+		// Search for an image sibling in loaded atlases first.
+
+		var i:Integer;
+		var r:Integer;
+		var L:Integer;
+		var Locale:String = engine.getLocale();
+		var frameIndex:Integer;
+		var framesCount:Integer = sibling.frames;
+		var rect:BIN_RECT;
+		var atlas:CocoImage;
+		var found:Boolean = false;
+
+		// Prepare an atlas group
+		var group:CocoImagesAtlasGroup = new CocoImagesAtlasGroup;
+
+		// An image may consist of frames that may be spread across several atlases.
+		// We need to locate all atlases and all bin rects.
+
+		for(frameIndex=0; frameIndex<framesCount; frameIndex++)
+		{
+			// First search the loaded atlases for the image symbol
+			L =  __used_atlases.size();
+			for(i=0; i<L; i++)
+			{
+				// Get an atlas
+				atlas = __used_atlases[i];
+
+				// Check atlas locale
+				if(atlas.locale!="" && atlas.locale!=Locale)
+					continue;
+
+				found = false;
+
+				// Check atlas image sibling
+				for(r = atlas.rects.size()-1; r>=0 ; r--)
+				{
+					rect = atlas.rects[r];
+					if(rect.symbol != symbolName || rect.frameIndex != frameIndex+1) continue;
+
+					// Set group multiplier from rect
+					group.multiplier = rect.multiplier;
+
+					// Cyclic reference between atlas and rects
+					rect.atlas = atlas;
+
+					// Keep frame
+					group.frames.push(rect);
+
+					found = true;
+					break;
+				}
+
+				if(found)
+				{
+					// Keep reference to atlas
+					if(group.bins.indexOf(atlas)==-1)
+						group.bins.push(atlas);
+
+					// Keep loaded atlas
+					if(__used_atlases.indexOf(atlas)==-1)
+						__used_atlases.push(atlas);
+
+					break;
+				}
+			}
+
+			if(!found)
+			{
+				L =  __atlases.size();
+				for(i=0; i<L; i++)
+				{
+					// Get an atlas
+					atlas = __atlases[i];
+
+					// Check atlas locale
+					if(atlas.locale!="" && atlas.locale!=Locale)
+						continue;
+
+					found = false;
+
+					// Check atlas image sibling
+					for(r=atlas.rects.size()-1; r>=0 ; r--)
+					{
+						rect = atlas.rects[r];
+
+						// Check rect symbol
+						if(rect.symbol != symbolName) continue;
+
+						// Check rect multiplier, skip smaller resolutions
+						if(group.multiplier && rect.multiplier!=group.multiplier) continue;
+						else if(rect.multiplier < sibling.multiplier) continue;
+
+						// Set group multiplier from rect
+						group.multiplier = rect.multiplier;
+
+						// Check rect frameIndex
+						if(rect.frameIndex!=frameIndex+1) continue;
+
+						// Cyclic reference between atlas and rects
+						rect.atlas = atlas;
+
+						// Keep frame
+						group.frames.push(rect);
+
+						found = true;
+						break;
+					}
+
+					if(found)
+					{
+						// Keep reference to atlas
+						if(group.bins.indexOf(atlas)==-1)
+							group.bins.push(atlas);
+
+						// Keep loaded atlas
+						if(__used_atlases.indexOf(atlas)==-1)
+							__used_atlases.push(atlas);
+
+						break;
+					}
+				}
+			}
+		}
+
+		if(group.bins.size()==0 || group.frames.size()==0)
+		{
+			delete group;
+		}
+		else if(group.frames.size()!=framesCount)
+		{
+			trace("ERROR: Image symbol " + symbolName + " has invalid BinPacked Atlases");
+		}
+
+		return group;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(ctx:ICocoRenderContext, optional reset:Boolean)
+	{
+		m_ctx = ctx;
+		m_width = engine.device.LogicalPixelsWidth;
+		m_height = engine.device.LogicalPixelsHeight;
+
+		// Forced Animation Sequence FPS
+		__animation_sequeceses_fps = parseFloat(engine.device.argv("AnimationSequencesFPS", "0"));
+
+		if(__view_width > 0 && __view_height > 0)
+		{
+			// View Scale is screen's logical pixels / safe area view port pixels
+			// eg. for iPhone 6 Plus it is min(w:736/480, h:414/320) = 1.29
+			// It denotes how much our safe area must grow in orer to fit either
+			// horizontally or vertically the screen of the device in logical pixels.
+
+			__view_scale = Math.min( m_width / __view_width, m_height / __view_height);
+
+		}
+		else
+		{
+			// If Scene View Port is not defined, we automatically define our own.
+			__view_pixel_ratio = 1.0;
+			__view_width = engine.device.LogicalPixelsWidth;
+			__view_height = engine.device.LogicalPixelsHeight;
+			__view_scale = 1.0;
+		}
+
+		if(!__ready)
+		{
+			var i:Integer;
+			var L:Integer;
+			var scale:Float = engine.device.ScreenMultiplier;
+
+			// ======================================================================================
+			// Analyze clips and their keyframes in order to decide which image to load.
+			// This is done by setting ScaleX and ScaleY to clip.__image.
+			// ======================================================================================
+
+			if(__root)
+			{
+				scale = __view_scale * engine.PixelRatio / __view_pixel_ratio;
+				__root.analyze(scale, scale);
+			}
+
+			// ======================================================================================
+			// Load image symbols
+			// ======================================================================================
+
+			L = __imageSymbols.size();
+			for(i = 0; i < L ; i++)
+		    {
+		    	__imageSymbols[i].load(this);
+		    }
+		}
+
+		// Prepare CocoClip and their timelines
+		if(__root)
+			__root.prepare(ctx, this, reset);
+
+		// Prepare the Rendering Context
+	    ctx.prepare(__view_scale);
+
+		// Apply Clipping
+	    if(__view_clip)
+	    	ctx.clip(m_width/2.0 - (__view_width/2.0) * __view_scale, (m_height/2.0) - (__view_height/2.0) * __view_scale, __view_width*__view_scale, __view_height*__view_scale);
+
+	    // Context is prepared.
+	    engine.__reset_ctx = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function resourcesLoaded(ctx:ICocoRenderContext) :Boolean
+	{
+		if(!__ready)
+		{
+			var i:Integer;
+			var img:CocoImage;
+
+			__loaded_assets = 0;
+
+			for (i=0; i<__used_atlases.size(); i++)
+			{
+				img = __used_atlases[i];
+				if(img.loaded())
+					__loaded_assets++;
+			}
+
+			for (i=0; i<__imageSymbols.size(); i++)
+			{
+				img = __imageSymbols[i];
+				if(img.loaded())
+					__loaded_assets++;
+			}
+
+			__loaded_assets += CocoShadersManager.loadedShaders() + CocoAudioManager.loadedBuffers();
+
+			// Resources loaded?
+			if(loadingProgress()!=100)
+				return false;
+
+			// Dispose pixels
+			disposePixels();
+
+			__loaded_assets = size();
+		}
+
+		__ready = true;
+
+		return __ready;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function size():Integer
+	{
+		return __used_atlases.size() + __imageSymbols.size() + CocoAudioManager.size() + CocoShadersManager.size();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function loadingProgress():Float
+	{
+		var assets:Float = size();
+		var p:Float = (Math.min(__loaded_assets, assets) / assets) * 100.0;
+		if(p<0.0) p = 0.0;
+		if(p>100.0) p = 100.0;
+		return p;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function disposePixels()
+	{
+		if(engine.__ctx.getType()!=COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL)
+			return;
+
+		var i:Integer;
+		var img:CocoImage;
+
+		for (i=__imageSymbols.size()-1; i>=0; i--)
+		{
+			img = __imageSymbols[i];
+			if(img.loaded() && !img.texturePreservePixels && !img.atlasGroup)
+			{
+				img.dispose_himage();
+			}
+		}
+
+		for (i=__used_atlases.size()-1; i>=0; i--)
+		{
+			img = __used_atlases[i];
+			if(img.loaded())
+			{
+				img.dispose_himage();
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+		if(!__ready)
+			return;
+
+		if(__root)
+		{
+			__levelParents.push(__root);
+			__root.tick(time);
+			__levelParents.clear();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, time:Time)
+	{
+		if(!resourcesLoaded(ctx))
+			return;
+
+		// Orientation change or resize results in change of the drawing surface.
+		// Therefore we need to detect such changes and re-initialize the rendering context.
+
+		if(engine.__reset_ctx || m_width != engine.device.LogicalPixelsWidth || m_height != engine.device.LogicalPixelsHeight)
+		{
+			prepare(ctx, true);
+		}
+
+		// Paint!
+	    if(__root)
+	    {
+	    	CocoClip.__zIndexCounter = 0;
+
+	    	__levelParents.push(__root);
+
+	    	#if (makefile.Vars.TARGET=="CocoPlayer")
+	    	__paintedClips.clear();
+	    	____debugger_current_clip = [];
+	    	#endif
+
+			__root.paint(ctx, this, null, false, 0, 0);
+			__levelParents.clear();
+
+			#if (makefile.Vars.TARGET=="CocoPlayer")
+			if(____debugger_current_clip.size())
+				trace("ERROR: missmatch clip rendering sequence");
+			#endif
+
+			var max:CocoClip = __root.__childWithMaxTimelineDuration;
+			if(max && max.__currentFrame && max.__currentFrame.frameIndex == max.__timeline.lastKeyFrame().frameIndex)
+			{
+				__finished=true;
+			}
+	    }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function gotoAndPlayByName(LabelName:String)
+	{
+		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
+		scope.gotoFrameByName(LabelName, false);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function gotoAndStopByName(LabelName:String)
+	{
+		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
+		scope.gotoFrameByName(LabelName, true);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function gotoAndPlayByIndex(FrameIndex:Integer)
+	{
+		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
+		scope.gotoFrameByIndex(FrameIndex, false);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function gotoAndStopyByIndex(FrameIndex:Integer)
+	{
+		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
+		scope.gotoFrameByIndex(FrameIndex, true);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function stop()
+	{
+		var scope:CocoClip = __levelParents.size()==0 ? __root : __levelParents[__levelParents.size() - 1];
+		scope.gotoFrameByIndex(COCO_STOP_ON_CURRENT_FRAME, true);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function translate(msg:DEVICE_MESSAGE):DEVICE_MESSAGE
+	{
+		if(!msg)
+			return null;
+
+		var sw:Float = m_ctx.getCanvasLogicalWidth();
+		var sh:Float = m_ctx.getCanvasLogicalHeight();
+		var sw2:Float = sw / 2.0;
+		var sh2:Float = sh / 2.0;
+
+		// Convert Screen coordinates to World-Base-View coordinates (0,0) at center of screen.
+		msg.wx = Math.round( (msg.x0 - sw2) / __view_scale );
+		msg.wy = Math.round( (msg.y0 - sh2) / __view_scale );
+
+		// Convert World coordinates to Screen-Base-View coordinates (0,0) at top-left corner of screen.
+		msg.vx = Math.round( msg.wx + (sw2 / __view_scale) - ( ( (sw/__view_scale) - __view_width)  / 2.0 ) );
+		msg.vy = Math.round( msg.wy + (sh2 / __view_scale) - ( ( (sh/__view_scale) - __view_height) / 2.0 ) );
+
+		return msg;
+	}
+
+}

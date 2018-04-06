@@ -1,0 +1,113 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	   ______                 __  ______________              __   ____
+//	  / ____/___  _________  / / / /  _/ ____/ /_  ___  _____/ /__/ __ )____  _  __
+//	 / /   / __ \/ ___/ __ \/ / / // // /   / __ \/ _ \/ ___/ //_/ __  / __ \| |/_/
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // /___/ / / /  __/ /__/ ,< / /_/ / /_/ />  <
+//	\____/\____/\___/\____/\____/___/\____/_/ /_/\___/\___/_/|_/_____/\____/_/|_|
+//
+// ==================================================================================================================================
+
+#include "CocoUIButton.jspp"
+
+control class CocoUICheckBox : CocoUIButton
+{
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var __checked:Boolean;
+
+	published property Checked
+	{
+		function get():Boolean { return __checked; }
+
+		function set(v:Boolean)
+		{
+			__checked = v;
+			__chevronImage = __checked ? "ImageSymbol_iPhone_SwitchON" : "ImageSymbol_iPhone_SwitchOFF";
+			invalidate();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __onChevronClick()
+	{
+		Checked = !Checked;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoUIButton(scene, name)
+	{
+		__selectable = false;
+		__checked = false;
+		__chevronEvents = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Clone():CocoUICheckBox
+	{
+		var ctl:CocoUICheckBox = new CocoUICheckBox(__scene, __instanceName);
+		__cloneTo(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __cloneTo(ctl:CocoUICheckBox)
+	{
+		__copy__(this, ctl, COPY_MEMBERS_ALL);
+		super.__cloneTo(ctl);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Defaults()
+	{
+		if(!__scene) return;
+
+		super.Defaults;
+
+		// Control Background Gradient
+		__backgroundGradient = "0,0xffffffff,0.47,0xfff6f6f6,1,0xffededed";
+		__backgroundGradientSel = "0,0xffffd65e,1,0xfffebf04";
+
+		// Check chevron
+		__chevronImage = "ImageSymbol_iPhone_SwitchOFF";
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer, index:Integer)
+	{
+		super.paint;
+	}
+
+}
+

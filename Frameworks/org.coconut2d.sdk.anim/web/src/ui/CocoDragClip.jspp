@@ -1,0 +1,141 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "CocoClip.jspp"
+
+// ==================================================================================================================================
+//	   ______                 ____                   _________
+//	  / ____/___  _________  / __ \_________ _____ _/ ____/ (_)___
+//	 / /   / __ \/ ___/ __ \/ / / / ___/ __ `/ __ `/ /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /  / /_/ / /_/ / /___/ / / /_/ /
+//	\____/\____/\___/\____/_____/_/   \__,_/\__, /\____/_/_/ .___/
+//	                                       /____/         /_/
+// ==================================================================================================================================
+
+class CocoDragClip : CocoClip
+{
+	published var DragMinX:Float;
+	published var DragMinY:Float;
+	published var DragMaxX:Float;
+	published var DragMaxY:Float;
+
+	private var m_dragging:Boolean;
+
+	public event OnDrag(x:Float, y:Float);
+	public event OnSlide(x:Integer, y:Integer);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String, optional image:CocoImage) : CocoClip(scene, name, image)
+	{
+		DragMinX = 0;
+		DragMinY = 0;
+		DragMaxX = 0;
+		DragMaxY = 0;
+
+		m_dragging = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function setDragging(dragging:Boolean)
+	{
+		m_dragging = dragging;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __tick_handle_events(ctx:ICocoRenderContext):DEVICE_MESSAGE
+	{
+		var deviceMessage:DEVICE_MESSAGE = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_NONE, DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK);
+
+		if(!deviceMessage)
+			return null;
+
+		if(!m_dragging && hitTest(deviceMessage.wx, deviceMessage.wy)==-1)
+			return deviceMessage;
+
+    	switch(deviceMessage.type)
+    	{
+		case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START:
+			m_dragging = true;
+			break;
+
+		case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE:
+			if(m_dragging)
+			{
+				moveClipTo(deviceMessage.wx, deviceMessage.wy);
+			}
+			break;
+
+		case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END:
+			if(m_dragging)
+			{
+				moveClipTo(deviceMessage.wx, deviceMessage.wy);
+				m_dragging = false;
+			}
+			break;
+    	}
+
+    	deviceMessage.handled = true;
+    	deviceMessage.handledBy = this;
+
+    	return deviceMessage;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function moveClipTo(wx:Float, wy:Float)
+	{
+		if(wx < DragMinX) wx = DragMinX;
+		if(wx > DragMaxX) wx = DragMaxX;
+
+		if(wy < DragMinY) wy = DragMinY;
+		if(wy > DragMaxY) wy = DragMaxY;
+
+		var KF:CocoKeyFrame = __timeline.firstKeyFrame();
+
+		if(KF.x != wx || KF.y != wy)
+		{
+			KF.x = wx;
+			KF.y = wy;
+
+			dispatchEvent(this.OnDrag, wx, wy);
+
+			var dx:Float = Math.abs(Math.floor(DragMaxX - DragMinX));
+			var tx:Float = Math.abs(Math.floor(wx - DragMinX));
+			var vx:Float = Math.floor(100 * tx / dx);
+
+			var dy:Float = Math.abs(Math.floor(DragMaxY - DragMinY));
+			var ty:Float = Math.abs(Math.floor(wy - DragMinY));
+			var vy:Float = Math.floor(100 * ty / dy);
+
+			dispatchEvent(this.OnSlide, vx, vy);
+		}
+	}
+}

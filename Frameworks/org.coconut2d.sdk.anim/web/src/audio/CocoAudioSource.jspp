@@ -1,0 +1,470 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	    ___       __                                __   ___             ___          ____  __               ____
+//	   /   | ____/ /   ______ _____  ________  ____/ /  /   | __  ______/ (_)___     / __ \/ /___ ___  __   / __ \____ __________ _____ ___  _____
+//	  / /| |/ __  / | / / __ `/ __ \/ ___/ _ \/ __  /  / /| |/ / / / __  / / __ \   / /_/ / / __ `/ / / /  / /_/ / __ `/ ___/ __ `/ __ `__ \/ ___/
+//	 / ___ / /_/ /| |/ / /_/ / / / / /__/  __/ /_/ /  / ___ / /_/ / /_/ / / /_/ /  / ____/ / /_/ / /_/ /  / ____/ /_/ / /  / /_/ / / / / / (__  )
+//	/_/  |_\__,_/ |___/\__,_/_/ /_/\___/\___/\__,_/  /_/  |_\__,_/\__,_/_/\____/  /_/   /_/\__,_/\__, /  /_/    \__,_/_/   \__,_/_/ /_/ /_/____/
+//	                                                                                            /____/
+// ==================================================================================================================================
+
+class COCO_AUDIO_PLAYBACK_PARAMS
+{
+	// Purpose of this object is to enable playing an audio sound
+	// by fading-out the music gain temporarily for as long as the
+	// sound audio is playing, and fading-in the music gain after
+	// the sound audio has finished.
+
+	// The following parameters affect auido play start and end times
+
+	public var SoundStartTime:Time;							// Start time of audio in millis
+	public var SoundEndTime:Time;							// End time of audio in millis, -1 = play until the end of audio
+	public var SoundLoop:Boolean;
+
+	// The following parameters define the audio fade-in behavior
+
+	public var SoundFadeIn:COCO_AUDIO_RAMP_ENUM;			// The fade-in ramp type of the audio
+	public var SoundFadeInDuration:Time;					// The fade-in ramp duration of the audio in millis
+	public var SoundFadeInStartValue:Float;					// The fade-in start gain value, default 0.0
+	public var SoundFadeInEndValue:Float;					// The fade-in end gain value, default 1.0
+
+	// The following parameters define the background music
+	// fade-out behavior when this audio begins to play.
+
+	public var MusicFadeOut:COCO_AUDIO_RAMP_ENUM;			// Background Music fade-out ramp
+	public var MusicFadeOutDuration:Time;					// Background Music fade-out duration in millis
+	public var MusicFadeOutEndValue:Float;					// Background Music fade-out end gain value, default is 0.0
+
+	// The following parameters define the audio fade-out behavior
+
+	public var SoundFadeOut:COCO_AUDIO_RAMP_ENUM;			// The fade-out ramp type of the audio
+	public var SoundFadeOutDuration:Time;                   // The fade-out ramp duration of the audio in millis
+	public var SoundFadeOutEndValue:Float;                  // The fade-out end gain value, default 0.0
+
+	// The following parameters define the background music
+	// fade-in (restoration) behavior when this audio ends
+
+	public var MusicFadeIn:COCO_AUDIO_RAMP_ENUM;			// Background Music fade-in ramp
+	public var MusicFadeInDuration:Time;					// Background Music fade-in duration in millis
+	public var MusicFadeInEndValue:Float;					// Background Music fade-in end gain value, default is 1.0
+
+	public function Constructor()
+	{
+		SoundStartTime				= 0;
+		SoundEndTime				= -1;
+		SoundLoop					= false;
+
+		SoundFadeIn					= COCO_AUDIO_RAMP_ENUM.FADE_EXPONENTIAL;
+		SoundFadeInDuration			= 0;
+		SoundFadeInStartValue		= 0.0;
+		SoundFadeInEndValue			= 1.0;
+
+		MusicFadeOut				= COCO_AUDIO_RAMP_ENUM.FADE_EXPONENTIAL;
+		MusicFadeOutDuration		= 0;
+		MusicFadeOutEndValue		= 0.0;
+
+		SoundFadeOut				= COCO_AUDIO_RAMP_ENUM.FADE_EXPONENTIAL;
+		SoundFadeOutDuration		= 0;
+		SoundFadeOutEndValue		= 0.0;
+
+		MusicFadeIn					= COCO_AUDIO_RAMP_ENUM.FADE_EXPONENTIAL;
+		MusicFadeInDuration			= 0;
+		MusicFadeInEndValue			= 1.0;
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ___             ___      _____
+//	  / ____/___  _________  /   | __  ______/ (_)___ / ___/____  __  _______________
+//	 / /   / __ \/ ___/ __ \/ /| |/ / / / __  / / __ \\__ \/ __ \/ / / / ___/ ___/ _ \
+//	/ /___/ /_/ / /__/ /_/ / ___ / /_/ / /_/ / / /_/ /__/ / /_/ / /_/ / /  / /__/  __/
+//	\____/\____/\___/\____/_/  |_\__,_/\__,_/_/\____/____/\____/\__,_/_/   \___/\___/
+//
+// ==================================================================================================================================
+
+class CocoAudioSource
+{
+	public reference var buffer:CocoAudioBuffer;
+	public reference var playback:COCO_AUDIO_PLAYBACK_PARAMS;
+
+	public var legacy_source:Audio;
+
+	public var web_audio_source:AudioBufferSourceNode;
+	public var web_audio_gain:GainNode;
+
+	public var id:String;
+	public var loops: Integer;
+	public var type:COCO_AUDIO_HINT_ENUM;
+
+	private var __firstPlayed: Boolean;
+	private var __loopCount: Integer;
+	private var __ended:Boolean;
+	private var __playing:Boolean;
+	private var __timeStart:Time;
+	private var __legacy_replay_on_next_tick:Boolean;
+
+	private var __offset:Time;			// Position of first audio sample in a Sound Atlas
+	private var __duration:Time;		// Durtaion of audio in a Sound Atlas
+	private var __start_offset:Time;	// WebAudio start offset
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(optional id:String, optional type:COCO_AUDIO_HINT_ENUM=SOUND, optional loops:Integer=1, optional offset:Time=-1, optional duration:Time=-1)
+	{
+		this.id							= id;
+		this.type						= type;
+		this.loops						= loops;
+
+		this.__offset					= offset;		// Sound Atlas support
+		this.__duration					= duration;		// Sound Atlas support
+
+		__firstPlayed					= false;
+		__loopCount						= 0;
+		__legacy_replay_on_next_tick	= false;
+		__timeStart						= 0.0;
+		__start_offset					= 0.0;
+		__ended							= false;
+		__playing						= false;
+
+		web_audio_source				= null;
+		web_audio_gain					= null;
+		legacy_source					= null;
+		buffer							= null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		dispose();
+
+		delete web_audio_source;
+		delete web_audio_gain;
+		delete legacy_source;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function dispose()
+	{
+		//trace("Audio Dispose: " + id);
+
+		if(web_audio_source)
+		{
+			// Disable event handlers
+			web_audio_source.onended = null;
+
+			// Disconnect nodes
+			web_audio_gain.disconnect();
+			web_audio_source.disconnect();
+
+			// Dispose WebAudio source
+			delete web_audio_source;
+
+			// Dispose fade gain
+			delete web_audio_gain;
+		}
+
+		else if(legacy_source)
+		{
+			// Disable event handlers
+			legacy_source.onended = null;
+			legacy_source.onplay = null;
+
+			CocoAudioManager.__legacy_dispose(this);
+		}
+
+		__timeStart = 0.0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Purpose of this method is to reset the adio animation properties
+	public function reset()
+	{
+		// Make sure the audio is stopped
+		CocoAudioManager.stop(this);
+
+		// Reset Animation Audio Properties
+		__loopCount = 0;
+		__firstPlayed = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Tick is called only for audio sources that are controlled by KeyFrames
+	public function tick()
+	{
+		// If this is the first tick for this Audio, start it.
+		if(!__firstPlayed)
+		{
+			__firstPlayed = true;
+			play();
+			return;
+		}
+
+		// If the Audio has ended but the KeyFrame still interpolates and the audio has loops enabled, re-play the audio.
+		if(loops >= 0 && ended())
+		{
+			__loopCount++;
+
+			if(loops == 0 || (loops > 0 && __loopCount < loops))
+			{
+				play();
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function play()
+	{
+		var params:COCO_AUDIO_PLAYBACK_PARAMS = new COCO_AUDIO_PLAYBACK_PARAMS;
+		play(params, null);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function play(loop:Boolean)
+	{
+		var params:COCO_AUDIO_PLAYBACK_PARAMS = new COCO_AUDIO_PLAYBACK_PARAMS;
+		params.SoundLoop = loop;
+		play(params, null);
+	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function play(params:COCO_AUDIO_PLAYBACK_PARAMS, FadeSound:CocoAudioSource)
+	{
+		// THIS METHOD CREATES THE web_audio_source OR legacy_source
+
+		//==========================================================
+		// 1. Stop previous playback (if nessesary)
+		//==========================================================
+
+		if(playing())
+		{
+			if(type==SOUND)
+			{
+				// If a sound is already playing, dispose before re-playing it
+				// because it will not have the chance to callback onended.
+				dispose();
+			}
+			else
+			{
+				stop();
+			}
+		}
+
+		__ended = false;
+		__playing = false;
+		__firstPlayed = true;
+
+		if(web_audio_source)
+		{
+			web_audio_source.onended = null;
+		}
+		else if(legacy_source)
+		{
+			legacy_source.onplay = null;
+			legacy_source.onended = null;
+		}
+
+		//==========================================================
+		// 2. Preserve playback params
+		//==========================================================
+
+		this.playback = params;
+
+		//==========================================================
+		// 3. Create new HTML5 Audio or WebAudio Nodes
+		//==========================================================
+
+		CocoAudioManager.realize(this);
+
+		//==========================================================
+		// 4. Setup audio source event handlers
+		//==========================================================
+
+		if(web_audio_source)
+		{
+			web_audio_source.onended = function()
+			{
+				if(!playback.SoundLoop)
+				{
+					CocoAudioManager.stop(this);
+					// If a previously p;aying sound/music has been faded-out when the current sound started playing, fade it in here.
+					if(FadeSound != null)
+						FadeSound.fade(params.MusicFadeIn, params.MusicFadeInDuration, params.MusicFadeInEndValue);
+					__setEnded();
+				}
+			};
+		}
+
+		if(legacy_source)
+		{
+			legacy_source.onplay = function()
+			{
+				__setPlaying();
+			};
+
+			legacy_source.onended = function()
+			{
+				if(!playback.SoundLoop)
+				{
+					CocoAudioManager.stop(this);
+					// If a previously p;aying sound/music has been faded-out when the current sound started playing, fade it in here.
+					if(FadeSound != null)
+						FadeSound.fade(params.MusicFadeIn, params.MusicFadeInDuration, params.MusicFadeInEndValue);
+				}
+				__setEnded();
+			};
+		}
+
+		//==========================================================
+		// 5. Previous sound/music fade-out (if necessary)
+		//==========================================================
+
+		if(FadeSound != null)
+  			FadeSound.fade(params.MusicFadeOut, params.MusicFadeOutDuration, params.MusicFadeOutEndValue);
+
+		//==========================================================
+		// 6. Play audio
+		//==========================================================
+
+		CocoAudioManager.play(this);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __setPlaying()
+	{
+		__ended = false;
+		__playing = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __setEnded()
+	{
+		__ended = true;
+		__playing = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function stop()
+	{
+		//trace("Audio Stop: " + id);
+
+		if(!playing())
+			return;
+
+		// Stop and dispose audio source resources
+		CocoAudioManager.stop(this);
+
+		// Reset the playing flag (but not the __ended)
+		__playing = false;
+
+		// Explicit stop resets audio animation properties
+		__loopCount			= 0;
+		__firstPlayed		= true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function fade(ramp:COCO_AUDIO_RAMP_ENUM, millis:Time, value:Float)
+	{
+		CocoAudioManager.fade(this, ramp, millis, value);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function ended(): Boolean
+	{
+		return __ended;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function playing(): Boolean
+	{
+		return __playing;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function duration(): Time
+	{
+		return __duration>=0 ? __duration : buffer.duration;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function offset(): Time
+	{
+		return (__offset>=0 ? __offset : 0.0) + __start_offset;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function end(): Time
+	{
+		return  offset() + duration();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function current(): Time
+	{
+		if(web_audio_source)
+		{
+			var t:Time = CocoAudioManager.getContext().currentTime;
+			return __timeStart && (t - __timeStart > 0) ? (t - __timeStart) : 0.0;
+		}
+		else if(legacy_source)
+		{
+			return CocoAudioManager.__legacy_ready(legacy_source) ? legacy_source.currentTime : 0.0;
+		}
+
+		return 0.0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property timeStart
+	{
+		function get():Time
+		{
+			return __timeStart;
+		}
+		function set(v:Time)
+		{
+			if(v>=0)
+				__timeStart = v;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property legacy_replay_on_next_tick
+	{
+		function get():Boolean
+		{
+			return __legacy_replay_on_next_tick;
+		}
+		function set(v:Boolean)
+		{
+			__legacy_replay_on_next_tick = v;
+		}
+	}
+}

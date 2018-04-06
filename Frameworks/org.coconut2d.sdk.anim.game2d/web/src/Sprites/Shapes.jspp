@@ -1,0 +1,128 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "CocoClip.jspp"
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class Shapes : Array<Shape>
+{
+	///////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	public function toBody(world:b2World, BodyType:b2BodyType, x:Float, y:Float, Density:Float, Restitution:Float, Friction:Float) :b2Body
+	{
+		// Create a new Box2D Body and set initial position
+		var bodyDef:b2BodyDef = new b2BodyDef();
+		bodyDef.set_type(BodyType);
+		var position:b2Vec2 = new b2Vec2(x,y);
+		bodyDef.set_position(position);
+		var body:b2Body = b2Body(world.CreateBody(bodyDef));
+
+		// Attach polygon shapes using fixture definition
+		for(var i:Integer=0; i<size();i++)
+		{
+			var shape:Shape = this[i];
+			var bshape:b2PolygonShape = shape.toB2PolygonShape();
+
+			var fixture:b2FixtureDef = new b2FixtureDef();
+			fixture.set_shape(bshape);
+			fixture.set_density(Density);
+			fixture.set_restitution(Friction);
+			fixture.set_friction(Friction);
+
+			body.CreateFixture(fixture);
+		}
+
+		return body;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class Shape
+{
+	public var Vertices:Array<CocoVector>;
+
+	///////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		Vertices = new Array<CocoVector>;
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Vertices;
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	public function toFloat32Array() :Float32Array
+	{
+		var arr:Array<Float> = new Array<Float>;
+		for(var i:Integer=0;i<Vertices.size();i++)
+		{
+			var v:CocoVector = Vertices[i];
+			arr.push(v.X);
+			arr.push(v.Y);
+		}
+		return new Float32Array(arr);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	public function toB2PolygonShape() :b2PolygonShape
+	{
+		return null;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class Polygon : Shape
+{
+	public function Constructor(v:Float32Array)
+	{
+		if(v!=null)
+		{
+			for(var i:Integer=0;i<v.length;i++)
+			{
+
+			}
+		}
+	}
+
+	public function Destructor()
+	{
+	}
+}
+

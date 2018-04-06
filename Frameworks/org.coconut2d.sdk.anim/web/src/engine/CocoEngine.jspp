@@ -1,0 +1,1241 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	   ______                 ______            _
+//	  / ____/___  _________  / ____/___  ____ _(_)___  ___
+//	 / /   / __ \/ ___/ __ \/ __/ / __ \/ __ `/ / __ \/ _ \
+//	/ /___/ /_/ / /__/ /_/ / /___/ / / / /_/ / / / / /  __/
+//	\____/\____/\___/\____/_____/_/ /_/\__, /_/_/ /_/\___/
+//	                                  /____/
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+interface ITickable
+{
+ 	public function tick(source:ITickable, time:Time);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+state class CocoEngine
+{
+	// To avoid frame skipping and to enable time-debugging
+	// we need to enforce a fixed tick time interval. The
+	// constant we choose is for 60 frames per second but
+	// we must use division in order to set the float properly.
+
+	public var TICK_TIME:Time;
+	public var RTC_TICK_TIME:Time;
+
+	public var CLIENT_VERSION:String;
+
+	public var device:CocoDevice;
+	public reference var __scene:CocoScene;
+
+	private var __states:Array<State>;
+	private reference var __currentState:State;
+	private reference var __nextState:State;
+	private var __tickables:Array<ITickable>;
+
+	public var __clock:Time;
+	public var __rtc_clock:Time;
+	public var __prev_clock:Time;
+	public var __ctx:ICocoRenderContext;
+	public var __reset_ctx:Boolean;
+	public var __active:Boolean;
+	public var __orientation_changed:Boolean;
+	public var __painting_progress:Boolean;
+
+	// Behavioral Control Variables
+	public var __FPS_THROTTLING:Float;
+	public var __FPS_AUTO_ENABLE_THROTTLING:Float;
+	public var __FPS_AUTO_DISABLE_THROTTLING:Boolean;
+	public var __ENABLE_PHYSICAL_FRAME_BUFFER:Boolean;
+	public var __MAX_IMAGE_MULTIPLIER:Float;
+	public var __MAX_MOBILE_IMAGE_MULTIPLIER:Float;
+	public var __ENABLE_RENDERING_OPTIMIZATIONS:Boolean;
+	public var __RUN_IN_BACKGROUND:Boolean;
+	public var __ENFORCE_ORIENTATION:COCO_SCREEN_ORIENTATION;
+	public var __ENABLE_MOUSE_AND_TOUCH_MOVE:Boolean;
+	public var __ENABLE_RENDERING_ON_FRAME_BUFFER:Boolean;
+	public var __FRAME_BUFFER_TEXTURE_MAX_MULTIPLIER:Float;
+
+	// Device Messages Queue and Buffer
+	private var __deviceMessageQueue:Array<DEVICE_MESSAGE>;
+	private var __deviceMessageQueueBuffer:Array<DEVICE_MESSAGE>;
+
+	// Stack of clicked clips.
+	private var __clicked:Array<CocoClip>;
+	private var __dblclicked:Array<CocoClip>;
+	private var __touch_start:Array<CocoClip>;
+	private var __touch_end:Array<CocoClip>;
+
+	// Sequential events control variables
+	private var __touch_event_initiated:Boolean;
+
+	// Hacks
+	private var __reload_shaders_signal:Boolean;
+	private var __orientation_image:CocoImage;
+	private var __progrsss_image:CocoImage;
+
+	/**********FALLBACK FONT**********/
+	// Font to be used according to a game's locale.
+	public var FontToUse:String;
+	/**********FALLBACK FONT**********/
+
+	// Time and FPS control
+	private var __now:Time;
+	private var __then:Time;
+	private var __elapsed:Time;
+	private var __FPS_THROTTLING_CYCLE:Time;
+
+	// FPS Counter
+	private var __fps_lastLoop:Time;
+	private var __fps_count:Integer;
+	private var __fps_times:Array<Time>;
+	private var __fps_low_iterations:Integer;
+	private var __fps_high_iterations:Integer;
+	private var __fps_perormance_monitor:Boolean;
+
+  	public var FPS:Time;
+  	public var AVG_FPS:Time;
+  	public var LOW_FPS:Boolean;
+
+	public var __FPS_SAMPLING_SECONDS:Integer;
+	public var __LOW_FPS_THRESSHOLD:Integer;
+	public var __LOW_FPS_ITERATIONS:Integer;
+	public var __HIGH_FPS_THRESSHOLD:Integer;
+	public var __HIGH_FPS_ITERATIONS:Integer;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		CLIENT_VERSION = "$(PROJECT_BUILD_VERSION)";
+		CLIENT_VERSION = CLIENT_VERSION.trim();
+
+		TICK_TIME                             	= (1000.0/60.0);
+		RTC_TICK_TIME                         	= 0;
+
+		FPS									  	= 0;
+  		AVG_FPS								  	= 0;
+  		LOW_FPS								  	= false;
+
+		__now                                 	= 0;
+		__elapsed                             	= 0;
+		__then                                	= 0;
+
+		__fps_lastLoop						  	= 0;
+		__fps_count							  	= 0;
+		__fps_times							  	= new Array<Time>;
+		__fps_low_iterations				  	= 0;
+		__fps_high_iterations				  	= 0;
+		__fps_perormance_monitor			  	= false;
+
+		__ctx                                 	= null;
+		__clock                               	= 0;
+		__rtc_clock                           	= 0;
+		__prev_clock                          	= 0;
+		__currentState                        	= null;
+		__nextState                           	= null;
+		__tickables                           	= new Array<ITickable>;
+		__deviceMessageQueue                  	= null;
+		__deviceMessageQueueBuffer            	= null;
+		__clicked                             	= new Array<CocoClip>;
+		__dblclicked                          	= new Array<CocoClip>;
+		__touch_start                         	= new Array<CocoClip>;
+		__touch_end                           	= new Array<CocoClip>;
+		__touch_event_initiated               	= false;
+		__reload_shaders_signal               	= false;
+		__states                              	= new Array<State>;
+		__active                              	= true;
+		__orientation_image                   	= null;
+		__progrsss_image                      	= null;
+		__reset_ctx                           	= false;
+		__orientation_changed                 	= false;
+		__painting_progress                   	= false;
+		__scene                               	= null;
+
+		engine                                	= this;
+		device                                	= new CocoDevice();
+
+		FontToUse                             	= "";
+
+		__ENFORCE_ORIENTATION                 	= SCREEN_ORIENTATION_ANY;
+		__FPS_THROTTLING_CYCLE				  	= 0;
+
+		__FPS_THROTTLING                      	= parseFloat(device.argv("EnableFpsThrottling", "0"));
+		__FPS_AUTO_ENABLE_THROTTLING			= parseFloat(device.argv("AutoEnableFpsThrottling", "30"));
+		__FPS_AUTO_DISABLE_THROTTLING			= device.argv("AutoDisableFpsThrottling", "true")=="true";
+		__FPS_SAMPLING_SECONDS                	= parseInt(device.argv("FPS_SamplingSeconds", "3"));
+		__LOW_FPS_THRESSHOLD                  	= parseInt(device.argv("FPS_LowThresshold", "44"));
+		__LOW_FPS_ITERATIONS                  	= parseInt(device.argv("FPS_LowIterations", "3"));
+		__HIGH_FPS_THRESSHOLD                 	= parseInt(device.argv("FPS_HighThresshold", "50"));
+		__HIGH_FPS_ITERATIONS                 	= parseInt(device.argv("FPS_HighIterations", "3"));
+		__ENABLE_MOUSE_AND_TOUCH_MOVE         	= device.argv("EnableTouchMove", "false")=="true";
+		__RUN_IN_BACKGROUND                   	= device.argv("RunInBackground", "false")=="true";
+		__ENABLE_RENDERING_OPTIMIZATIONS      	= device.argv("WebGL_EnableRenderingOptimizations", "true")=="true";
+		__ENABLE_PHYSICAL_FRAME_BUFFER        	= device.argv("WebGL_EnablePhysicalPixelFrameBuffer", "true")=="true";
+		__ENABLE_RENDERING_ON_FRAME_BUFFER    	= device.argv("WebGL_RenderingFrameBuffer", "false") == "true";
+		__MAX_IMAGE_MULTIPLIER                	= parseFloat(device.argv("WebGL_MaxImageMultiplier", "2.0"));
+		__MAX_MOBILE_IMAGE_MULTIPLIER         	= parseFloat(device.argv("WebGL_MaxMobileImageMultiplier", "2.0"));
+		__FRAME_BUFFER_TEXTURE_MAX_MULTIPLIER 	= parseFloat(device.argv("WebGL_FrameBufferMaxMultiplier", "3.0"));
+
+		EnableFpsThrottling(__FPS_THROTTLING);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		__dettachDevices();
+
+		delete __fps_times;
+		delete __clicked;
+		delete __dblclicked;
+		delete __touch_start;
+		delete __touch_end;
+		delete __tickables;
+		delete[] __deviceMessageQueue;
+		delete[] __deviceMessageQueueBuffer;
+		delete device;
+		delete __orientation_image;
+		delete __progrsss_image;
+		delete __states;
+		delete __ctx;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function createRenderingContext()
+	{
+		if(device.isCoconut2DPlayer)
+		{
+			__ENABLE_RENDERING_ON_FRAME_BUFFER = false;
+		}
+
+		__ctx = CocoRenderContext.createContext();
+		__attachDevices();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public property PixelRatio
+	{
+		function get():Float
+		{
+			return __ENABLE_PHYSICAL_FRAME_BUFFER ? engine.device.pixelRatio : 1.0;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function getLocale():String
+	{
+		var s:String = "$(DEFAULT_LOCALE)";
+		return s.trim();
+	}
+
+
+	// ==================================================================================================================================
+	//	    ____            ____                                              __  ___            _ __
+	//	   / __ \___  _____/ __/___  _________ ___  ____ _____  ________     /  |/  /___  ____  (_) /_____  _____
+	//	  / /_/ / _ \/ ___/ /_/ __ \/ ___/ __ `__ \/ __ `/ __ \/ ___/ _ \   / /|_/ / __ \/ __ \/ / __/ __ \/ ___/
+	//	 / ____/  __/ /  / __/ /_/ / /  / / / / / / /_/ / / / / /__/  __/  / /  / / /_/ / / / / / /_/ /_/ / /
+	//	/_/    \___/_/  /_/  \____/_/  /_/ /_/ /_/\__,_/_/ /_/\___/\___/  /_/  /_/\____/_/ /_/_/\__/\____/_/
+	//
+	// ==================================================================================================================================
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function EnablePerormanceMonitoring(enable:Boolean)
+	{
+		__fps_perormance_monitor = enable;
+
+		if(__fps_perormance_monitor)
+			trace("Warning: Enabling Performance Monitoring");
+		else
+		{
+			trace("Warning: Disabling Performance Monitoring");
+			__fps_low_iterations = 0;
+			__fps_high_iterations = 0;
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function EnableFpsThrottling(Throttle:Float)
+	{
+		if(__FPS_THROTTLING != Throttle)
+		{
+			// Set new fps throttle
+			__FPS_THROTTLING = Throttle;
+
+			// If fps throttling is enabled, calculate tick cycle
+			if(__FPS_THROTTLING>0 && __FPS_THROTTLING<=60)
+			{
+				trace("Warning: Enabling FPS Throttling.");
+				__FPS_THROTTLING_CYCLE = 1000.0 / __FPS_THROTTLING;
+			}
+			else
+			{
+				__FPS_THROTTLING = 0;
+				__FPS_THROTTLING_CYCLE = 0;
+				trace("Warning: Disabling FPS Throttling.");
+			}
+		}
+
+		// Set RTC tick cycle
+		RTC_TICK_TIME = __FPS_THROTTLING_CYCLE ? __FPS_THROTTLING_CYCLE : TICK_TIME;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function PerformanceMonitor()
+	{
+		var currentLoop:Time = Date.now() % 1000;
+
+		if (__fps_lastLoop > currentLoop)
+		{
+			FPS = __fps_count;
+			__fps_count = 1;
+
+			// Keep fps of this second in samples array
+			__fps_times.push(FPS);
+
+			// If samples have reached sampling size, get FPS average
+			if(__fps_times.size() == __FPS_SAMPLING_SECONDS)
+			{
+				// Average FPS from a sample of n seconds
+				AVG_FPS = __fps_times.sum() / __fps_times.size();
+				__fps_times.clear();
+
+				// ============================== PERFORMANCE MONITORING ============================== //
+				if(__fps_perormance_monitor)
+				{
+					// If avg FPS is below low thresshold for
+					// prolonged time, signal slowing down.
+					if(!LOW_FPS && __LOW_FPS_THRESSHOLD>0)
+					{
+						if(AVG_FPS < __LOW_FPS_THRESSHOLD)
+						{
+							if(++__fps_low_iterations > __LOW_FPS_ITERATIONS)
+							{
+								// Slow Down
+								LOW_FPS = true;
+								__fps_high_iterations=0;
+								EnginePerformanceChanged(true);
+							}
+						}
+						else
+						{
+							__fps_low_iterations = 0;
+						}
+					}
+
+					// If avg FPS is above high thresshold for
+					// prolonged time, speed up.
+					if(LOW_FPS && __HIGH_FPS_THRESSHOLD>0)
+					{
+						if(AVG_FPS > __HIGH_FPS_THRESSHOLD)
+						{
+							if(++__fps_high_iterations > __HIGH_FPS_ITERATIONS)
+							{
+								// Speed Up
+								LOW_FPS = false;
+								__fps_low_iterations=0;
+								EnginePerformanceChanged(false);
+							}
+						}
+						else
+						{
+							__fps_high_iterations = 0;
+						}
+					}
+				}
+				// ============================== PERFORMANCE MONITORING ============================== //
+			}
+		}
+		else
+		{
+			__fps_count += 1;
+		}
+
+		__fps_lastLoop = currentLoop;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function EnginePerformanceChanged(slowDown:Boolean)
+	{
+		if(slowDown)
+		{
+			if(__FPS_AUTO_ENABLE_THROTTLING>0)
+				EnableFpsThrottling(__FPS_AUTO_ENABLE_THROTTLING);
+		}
+		else
+		{
+			if(__FPS_AUTO_DISABLE_THROTTLING)
+				EnableFpsThrottling(0);
+		}
+	}
+
+	// ==================================================================================================================================
+	//	    ______            _               _____ __        __          __  __                _____
+	//	   / ____/___  ____ _(_)___  ___     / ___// /_____ _/ /____     / / / /___ _____  ____/ / (_)___  ____ _
+	//	  / __/ / __ \/ __ `/ / __ \/ _ \    \__ \/ __/ __ `/ __/ _ \   / /_/ / __ `/ __ \/ __  / / / __ \/ __ `/
+	//	 / /___/ / / / /_/ / / / / /  __/   ___/ / /_/ /_/ / /_/  __/  / __  / /_/ / / / / /_/ / / / / / / /_/ /
+	//	/_____/_/ /_/\__, /_/_/ /_/\___/   /____/\__/\__,_/\__/\___/  /_/ /_/\__,_/_/ /_/\__,_/_/_/_/ /_/\__, /
+	//	            /____/                                                                              /____/
+	// ==================================================================================================================================
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function EngineStateChanged(active:Boolean)
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function setNextState(s:State)
+	{
+		__nextState = s;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getCurrentState():State
+	{
+		return __currentState;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getNextState():State
+	{
+		return __nextState;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getStateByName(name:String):State
+	{
+		var s:State;
+
+		for(var i:Integer = __states.size()-1; i>=0; i--)
+		{
+			s = __states[i];
+			if(s.__name==name)
+				return s;
+		}
+		return null;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function run(time:Time)
+	{
+		PerformanceMonitor();
+
+	    // Keep RTC clock
+	    __rtc_clock = time;
+    	__now = window.now();
+    	__elapsed = __now - __then;
+
+	    // FPS Throttling
+	    if(__FPS_THROTTLING_CYCLE)
+	    {
+	  		if (__elapsed < __FPS_THROTTLING_CYCLE) return;
+
+			// Just '__then = __now' is not enough.
+			// Lets say we set fps at 10 which means each frame must take 100ms.
+			// requestAnimationFrame executes every 16ms (60 fps) so the cycle runs
+			// 7 times (16 x 7 = 112ms) until __elapsed < __CYCLE.
+			// Eventually this lowers down fps as 112 x 10 = 1120ms (NOT 1000ms).
+			// So we have to get rid of that extra 12ms by subtracting
+			// __elapsed (112) % __CYCLE (100).
+			__then = __now - (__elapsed % __FPS_THROTTLING_CYCLE);
+	    }
+
+		// Paused?
+		if(!__active)
+			return;
+
+		// Wait Shaders to download
+		if(!CocoShadersManager.ready())
+			return;
+
+		if(!__currentState && !__nextState) return;
+
+		// Recompile shaders
+		__tick_reload_shaders();
+
+		// Tick sub-systems
+		CocoAudioManager.tick();
+
+		// Check orientation
+		if(!device.isDesktop && !__tick_check_orientation())
+			return;
+
+		// Orientation restored?
+		if(__orientation_changed)
+		{
+			CocoAudioManager.Mute(CocoAudioManager.OLD_MUTE);
+			__orientation_changed = false;
+		}
+
+		// Change current state
+		if(__nextState!=null)
+		{
+			if(__currentState)
+				__currentState.exit();
+
+			__currentState = __nextState;
+			__nextState = null;
+
+			#if (DEBUG)
+			trace("\n@@STATE " + __currentState.__name);
+			#endif
+
+			__clicked.clear();
+			__dblclicked.clear();
+			__touch_start.clear();
+			__touch_end.clear();
+
+			if(__currentState)
+				__currentState.enter();
+		}
+
+		// Tick current Engine state
+		if(__currentState)
+			__currentState.tick(__clock);
+
+		// Tick ITickable objects
+		__tick(__clock);
+
+		// Paint
+		if(__ctx && __currentState!=null)
+		{
+			__ctx.cls();
+			__currentState.paint(__ctx, __clock);
+			__ctx.flush();
+		}
+
+		// Clear Clicked clips
+		__clicked.clear();
+		__dblclicked.clear();
+		__touch_start.clear();
+		__touch_end.clear();
+
+		// Swap message queue and buffer
+		__swapMessageQueue();
+
+		// To avoid frame skipping we enfore a fixed time interval of 16.66~ ms.
+		__clock += TICK_TIME;
+	}
+
+	// ==================================================================================================================================
+	//	    ____            _              __  ___                                   __  __                _____
+	//	   / __ \___ _   __(_)_______     /  |/  /__  ______________ _____ ____     / / / /___ _____  ____/ / (_)___  ____ _
+	//	  / / / / _ \ | / / / ___/ _ \   / /|_/ / _ \/ ___/ ___/ __ `/ __ `/ _ \   / /_/ / __ `/ __ \/ __  / / / __ \/ __ `/
+	//	 / /_/ /  __/ |/ / / /__/  __/  / /  / /  __(__  |__  ) /_/ / /_/ /  __/  / __  / /_/ / / / / /_/ / / / / / / /_/ /
+	//	/_____/\___/|___/_/\___/\___/  /_/  /_/\___/____/____/\__,_/\__, /\___/  /_/ /_/\__,_/_/ /_/\__,_/_/_/_/ /_/\__, /
+	//	                                                           /____/                                          /____/
+	// ==================================================================================================================================
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __attachDevices()
+	{
+		delete[] __deviceMessageQueue;
+		delete[] __deviceMessageQueueBuffer;
+
+		__deviceMessageQueue = new Array<DEVICE_MESSAGE>;
+		__deviceMessageQueueBuffer = new Array<DEVICE_MESSAGE>;
+		__clicked = new Array<CocoClip>;
+		__dblclicked = new Array<CocoClip>;
+		__touch_start = new Array<CocoClip>;
+		__touch_end = new Array<CocoClip>;
+
+		if(global.__native || global.__touchEvents)
+		{
+			window.addEventListener("touchstart", __translateDeviceMessage);
+			window.addEventListener("touchmove", __translateDeviceMessage);
+			window.addEventListener("touchend", __translateDeviceMessage);
+		}
+		else
+		{
+			window.addEventListener("mousedown", __translateDeviceMessage);
+			window.addEventListener("mousemove", __translateDeviceMessage);
+			window.addEventListener("mouseup", __translateDeviceMessage);
+		}
+
+		window.addEventListener("keydown", __translateDeviceMessage);
+		window.addEventListener("keyup", __translateDeviceMessage);
+
+		window.addEventListener("dblclick", __translateDeviceMessage);
+
+		__setFocusListeners();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	protected function __setFocusListeners()
+	{
+		if(!__RUN_IN_BACKGROUND)
+		{
+			window.addEventListener("focus", __visibilityChange);
+			window.addEventListener("blur", __visibilityChange);
+			window.addEventListener("pageshow", __visibilityChange);
+	    	window.document.addEventListener("visibilitychange", __visibilityChange);
+	    	window.document.addEventListener("onfocusin", __visibilityChange);
+	    	window.document.addEventListener("onfocusout", __visibilityChange);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __dettachDevices()
+	{
+		if(global.__native || global.__touchEvents)
+		{
+			window.removeEventListener("touchstart", __translateDeviceMessage);
+			window.removeEventListener("touchmove", __translateDeviceMessage);
+			window.removeEventListener("touchend", __translateDeviceMessage);
+		}
+		else
+		{
+			window.removeEventListener("mousedown", __translateDeviceMessage);
+			window.removeEventListener("mousemove", __translateDeviceMessage);
+			window.removeEventListener("mouseup", __translateDeviceMessage);
+		}
+
+		window.removeEventListener("keydown", __translateDeviceMessage);
+		window.removeEventListener("keyup", __translateDeviceMessage);
+
+		window.removeEventListener("dblclick", __translateDeviceMessage);
+
+		__removeFocusListeners();
+
+		delete[] __deviceMessageQueue;
+		delete[] __deviceMessageQueueBuffer;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	protected function __removeFocusListeners()
+	{
+		if(!__RUN_IN_BACKGROUND)
+		{
+			window.removeEventListener("focus", __visibilityChange);
+			window.removeEventListener("blur", __visibilityChange);
+			window.removeEventListener("pageshow", __visibilityChange);
+	    	window.document.removeEventListener("visibilitychange", __visibilityChange);
+	    	window.document.removeEventListener("onfocusin", __visibilityChange);
+	    	window.document.removeEventListener("onfocusout", __visibilityChange);
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __visibilityChange(e:HTMLEvent)
+	{
+		// If the orientation has changed we are not ticking anyways, so exit.
+		if(__orientation_changed)
+			return;
+
+		var p:String;
+		var active:Boolean;
+
+		if(e.type=="focus" || e.type=="focusin" || e.type=="pageshow")
+		{
+			active = true;
+		}
+		else if(e.type=="blur")
+		{
+			active = false;
+		}
+		else
+		{
+			active = (document.visibilityState=="visible");
+		}
+
+		SetActive(active);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function SetActive(active:Boolean)
+	{
+		if(__RUN_IN_BACKGROUND) return;
+
+		if(__active==active)
+			return;
+
+		__active = active;
+
+		if(!__active)
+		{
+			CocoAudioManager.OLD_MUTE = CocoAudioManager.MUTE;
+			CocoAudioManager.Mute(true);
+		}
+		else
+		{
+			CocoAudioManager.Mute(CocoAudioManager.OLD_MUTE);
+		}
+
+		EngineStateChanged(__active);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __translateDeviceMessage(e:HTMLEvent)
+	{
+		try
+		{
+			__translateDeviceMessageImpl(e);
+		}
+		catch(e:Error)
+		{
+			trace("ERROR: CocoEngine::__translateDeviceMessage");
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __translateDeviceMessageImpl(e:HTMLEvent)
+	{
+		// Convert an HTMLEvent to a DEVICE_MESSAGE structure. DEVICE_MESSAGE is a unified
+		// structure for handling asynchronous device events from HTMLWindow object.
+		// HTMLWindow is our "device" and in native ports such as iOS, Android, desktop and
+		// other pors, HTMLWindow exposes the device capabilities and receives the device
+		// events that wraps then isnide an HTMLEvent object.
+
+		var MSG:DEVICE_MESSAGE = null;
+
+		switch(e.type)
+		{
+
+		//=============================================================================
+		// We need to latch the mouse down/move/up
+
+		case "mousedown":
+			if(__ENABLE_MOUSE_AND_TOUCH_MOVE || !__touch_event_initiated)
+			{
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
+				MSG.x0 = e.clientX;
+				MSG.y0 = e.clientY;
+				__touch_event_initiated = true;
+			}
+			break;
+
+		case "mousemove":
+			if((__ENABLE_MOUSE_AND_TOUCH_MOVE || __touch_event_initiated) && __canRegisterMove(e.clientX, e.clientY))
+			{
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
+				MSG.x0 = e.clientX;
+				MSG.y0 = e.clientY;
+			}
+			break;
+
+		case "mouseup":
+			if(__ENABLE_MOUSE_AND_TOUCH_MOVE || __touch_event_initiated)
+			{
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
+				MSG.x0 = e.clientX;
+				MSG.y0 = e.clientY;
+				__touch_event_initiated = false;
+			}
+			break;
+
+		case "dblclick":
+			MSG = new DEVICE_MESSAGE();
+			MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_DBLCLICK;
+			MSG.x0 = e.clientX;
+			MSG.y0 = e.clientY;
+			break;
+
+		//=============================================================================
+		// We need to latch the touch down/move/up
+
+		case "touchstart":
+			if(__ENABLE_MOUSE_AND_TOUCH_MOVE || !__touch_event_initiated)
+			{
+				var touch:Touch = e.touches[0];
+				if(global.__touchEvents) fixTouch(touch);
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START;
+				MSG.x0 = touch.clientX;
+				MSG.y0 = touch.clientY;
+				__touch_event_initiated = true;
+			}
+			break;
+
+		case "touchmove":
+			if(__ENABLE_MOUSE_AND_TOUCH_MOVE || __touch_event_initiated)
+			{
+				e.preventDefault();
+				var touch:Touch = e.touches[0];
+				if(global.__touchEvents) fixTouch(touch);
+				if(__canRegisterMove(touch.clientX, touch.clientY))
+				{
+					MSG = new DEVICE_MESSAGE();
+					MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE;
+					MSG.x0 = touch.clientX;
+					MSG.y0 = touch.clientY;
+				}
+			}
+			break;
+
+		case "touchend":
+			if(__ENABLE_MOUSE_AND_TOUCH_MOVE || __touch_event_initiated)
+			{
+				var touch:Touch = e.changedTouches[0];
+				if(global.__touchEvents) fixTouch(touch);
+				MSG = new DEVICE_MESSAGE();
+				MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END;
+				MSG.x0 = touch.clientX;
+				MSG.y0 = touch.clientY;
+				__touch_event_initiated = false;
+			}
+			break;
+
+		//=============================================================================
+		case "keydown":
+
+			device.fixKeyboardEvent(e);
+			MSG = new DEVICE_MESSAGE();
+			MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_DOWN;
+			MSG.keyCode = e.keyCode;
+			MSG.ctrlKey = e.ctrlKey;
+			MSG.altKey = e.altKey;
+			MSG.shiftKey = e.shiftKey;
+			MSG.character = e.character;
+			MSG.special = e.special;
+			break;
+
+		case "keyup":
+
+			device.fixKeyboardEvent(e);
+			MSG = new DEVICE_MESSAGE();
+			MSG.type = DEVICE_MESSAGE_ENUM.MESSAGE_KEY_UP;
+			MSG.keyCode = e.keyCode;
+			MSG.ctrlKey = e.ctrlKey;
+			MSG.altKey = e.altKey;
+			MSG.shiftKey = e.shiftKey;
+			MSG.character = e.character;
+			MSG.special = e.special;
+			break;
+		}
+
+		//=============================================================================
+		// Add device message in device messages queue so that ITickable objects
+		// can peek and handle those messages during the next tick cycle.
+
+		if(MSG)
+		{
+			MSG.name = e.type;
+			MSG.handled = false;
+			MSG.timestamp = __clock;
+
+			if(__scene)
+				__scene.translate(MSG);
+
+			__deviceMessageQueueBuffer.push(MSG);
+
+			//trace("NEW MESSAGE " + String(__clock) + " : " + MSG.name + "  mouse=(" + String(MSG.x0) + " , " + String(MSG.y0) + ") word=(" + String(MSG.wx) + " , " + String(MSG.wy) + ") view=(" + String(MSG.vx) + " , " + String(MSG.vy) +")" );
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __swapMessageQueue()
+	{
+		if(__deviceMessageQueue)
+		{
+			var msg:DEVICE_MESSAGE;
+
+			__deviceMessageQueueBuffer.reverse();
+
+			for(var i:Integer = __deviceMessageQueue.size()-1; i>=0; i--)
+			{
+				msg = __deviceMessageQueue[i];
+
+				if(msg.cycle==0 && !msg.handled && (msg.type==MESSAGE_TOUCH_START || msg.type==MESSAGE_TOUCH_END || msg.type==MESSAGE_TOUCH_DBLCLICK))
+				{
+					// Found a touch-end message in the current queue
+					// that was not handled in current tick cycle.
+					// Move it on top of message queue buffer.
+
+					__deviceMessageQueue.splice(i, 1);
+					__deviceMessageQueueBuffer.push(msg);
+					msg.cycle++;
+				}
+			}
+
+			__deviceMessageQueueBuffer.reverse();
+
+			delete[] __deviceMessageQueue;
+		}
+
+		// Swap device message queue with its buffer
+		__deviceMessageQueue = __deviceMessageQueueBuffer;
+		__deviceMessageQueueBuffer = new Array<DEVICE_MESSAGE>;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __preventEventPropagation()
+	{
+		for(var i:Integer=__deviceMessageQueue.size();i--;)
+			__deviceMessageQueue[i].cycle = 3;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __hasMessage():Boolean
+	{
+		for(var i:Integer=__deviceMessageQueue.size();i--;)
+			if(!__deviceMessageQueue[i].handled)
+				return true;
+
+		return false;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __hasTouchDeviceMessage():Boolean
+	{
+		var msg:DEVICE_MESSAGE;
+
+		for(var i:Integer=__deviceMessageQueue.size();i--;)
+		{
+			msg = __deviceMessageQueue[i];
+
+			if((!msg.handled && (msg.type & DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK)!=0))
+				return true;
+		}
+		return false;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __removeTouchMessages()
+	{
+		var msg:DEVICE_MESSAGE;
+
+		for(var i:Integer=__deviceMessageQueue.size();i--;)
+		{
+			msg = __deviceMessageQueue[i];
+
+			if((msg.type & DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK)!=0)
+			{
+				delete msg;
+				__deviceMessageQueue.splice(i,1);
+			}
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __peekDeviceMessage(type:DEVICE_MESSAGE_ENUM, mask:DEVICE_MESSAGE_ENUM) :DEVICE_MESSAGE
+	{
+		// Purpose of the queue is to collect 1 message per category.
+		// Here we use a mask to filter and return that message.
+		// If more than 1 messages per category are placed in the queue
+		// this will result to unpredictable behaviour because the
+		// queue is cleared on every cycle.
+
+		var L:Integer = __deviceMessageQueue.size();
+		var process:Boolean = false;
+		var msg:DEVICE_MESSAGE;
+
+		for(var i:Integer=0; i<L; i++)
+		{
+			msg = __deviceMessageQueue[i];
+			process = (type!=DEVICE_MESSAGE_ENUM.MESSAGE_NONE && msg.type==type) || (mask!=DEVICE_MESSAGE_ENUM.MESSAGE_NONE && (msg.type & mask)!=0);
+			if(process)
+			{
+				if(msg.handled)
+				{
+					return null;
+				}
+				return msg;
+			}
+		}
+		return null;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __canRegisterMove(x:Float, y:Float) :Boolean
+	{
+		var L:Integer = __deviceMessageQueue.size();
+		var msg:DEVICE_MESSAGE;
+
+		for(var i:Integer=L-1; i>=0; i--)
+		{
+			msg = __deviceMessageQueue[i];
+			if(msg.type == DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE && msg.x0==x && msg.y0==y)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __pushClicked(clip:CocoClip, ClickX:Float, ClickY:Float)
+	{
+		clip.__click_x = ClickX;
+		clip.__click_y = ClickY;
+		__clicked.push(clip);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __pushDblClicked(clip:CocoClip, ClickX:Float, ClickY:Float)
+	{
+		clip.__click_x = ClickX;
+		clip.__click_y = ClickY;
+		__dblclicked.push(clip);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __pushTouchStart(clip:CocoClip)
+	{
+		__touch_start.push(clip);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __pushTouchEnd(clip:CocoClip)
+	{
+		__touch_end.push(clip);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __clip_in_array(buff:Array<CocoClip>, check:Array<CocoClip>, optional preserveArray:Boolean):Integer
+	{
+		for(var i:Integer = buff.size(); i--;)
+		{
+			for(var r:Integer = check.size(); r--;)
+			{
+				if(check[r] == buff[i])
+				{
+					if(!preserveArray)
+						delete check;
+					return r;
+				}
+			}
+		}
+
+		if(!preserveArray)
+			delete check;
+
+		return -1;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function isClicked(check:Array<CocoClip>, optional preserveArray:Boolean):Integer
+	{
+		return __clip_in_array(__clicked, check, preserveArray);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function isDoubleClicked(check:Array<CocoClip>, optional preserveArray:Boolean):Integer
+	{
+		return __clip_in_array(__dblclicked, check, preserveArray);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function onTouchStart(check:Array<CocoClip>, optional preserveArray:Boolean):Integer
+	{
+		return __clip_in_array(__touch_start, check, preserveArray);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function onTouchEnd(check:Array<CocoClip>, optional preserveArray:Boolean):Integer
+	{
+		return __clip_in_array(__touch_end, check, preserveArray);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function isKeyDown(check:Int32Array):Integer
+	{
+		var L:Integer = __deviceMessageQueue.size();
+		var msg:DEVICE_MESSAGE;
+		var c:Integer;
+
+		for(var i:Integer=0; i<L; i++)
+		{
+			msg = __deviceMessageQueue[i];
+			if(msg.type==DEVICE_MESSAGE_ENUM.MESSAGE_KEY_DOWN)
+			{
+				for(var j:Integer=check.length-1; j>=0; j--)
+				{
+					c = check[j];
+					if(c==msg.keyCode)
+						return c;
+				}
+			}
+		}
+		return -1;
+	}
+
+	// ==================================================================================================================================
+	//	    ___________      __         __    __        __  __                _____
+	//	   /  _/_  __(_)____/ /______ _/ /_  / /__     / / / /___ _____  ____/ / (_)___  ____ _
+	//	   / /  / / / / ___/ //_/ __ `/ __ \/ / _ \   / /_/ / __ `/ __ \/ __  / / / __ \/ __ `/
+	//	 _/ /  / / / / /__/ ,< / /_/ / /_/ / /  __/  / __  / /_/ / / / / /_/ / / / / / / /_/ /
+	//	/___/ /_/ /_/\___/_/|_|\__,_/_.___/_/\___/  /_/ /_/\__,_/_/ /_/\__,_/_/_/_/ /_/\__, /
+	//	                                                                              /____/
+	// ==================================================================================================================================
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function addTickListener(tickable:ITickable)
+	{
+		__tickables.push(tickable);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function removeTickListener(tickable:ITickable)
+	{
+		var index:Integer = __tickables.indexOf(tickable);
+		if(index!=-1)
+			__tickables.splice(index,1);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __tick(time:Time)
+	{
+		var t:ITickable;
+		for(var i:Integer=__tickables.size();i--;)
+		{
+			t = __tickables[i];
+			t.tick(t, time);
+		}
+	}
+
+	// ==================================================================================================================================
+	//	    __  __           __
+	//	   / / / /___ ______/ /_______
+	//	  / /_/ / __ `/ ___/ //_/ ___/
+	//	 / __  / /_/ / /__/ ,< (__  )
+	//	/_/ /_/\__,_/\___/_/|_/____/
+	//
+	// ==================================================================================================================================
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __reload_shaders()
+	{
+		__reload_shaders_signal = true;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function __tick_reload_shaders()
+	{
+		if(__reload_shaders_signal)
+		{
+			__reload_shaders_signal = false;
+			CocoShadersManager.reload_shaders();
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function __tick_check_orientation():Boolean
+	{
+		// Check if orientation is acceptable...
+
+		if(__ENFORCE_ORIENTATION==SCREEN_ORIENTATION_ANY)
+			return true;
+
+		if((__ENFORCE_ORIENTATION==SCREEN_ORIENTATION_LANDSCAPE_CLOCKWISE || __ENFORCE_ORIENTATION==SCREEN_ORIENTATION_LANDSCAPE_COUNTER_CLOCKWISE) && (device.screenOrientation==SCREEN_ORIENTATION_LANDSCAPE_CLOCKWISE || device.screenOrientation==SCREEN_ORIENTATION_LANDSCAPE_COUNTER_CLOCKWISE))
+			return true;
+
+		if((__ENFORCE_ORIENTATION==SCREEN_ORIENTATION_PORTRAIT || __ENFORCE_ORIENTATION==SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN) && (device.screenOrientation==SCREEN_ORIENTATION_PORTRAIT || device.screenOrientation==SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN))
+			return true;
+
+		// If the user opens the game in portrait mode on a mobile device, __ctx will be null because the rendering context hasn't been created yet (createRenderingContext() is called inside STATE_CHECK_COMPATIBILITY).
+		// In that case, if the code that follows was to execute, the game would crash. For that reason, we do not allow its execution to proceed until a rendering context has been created.
+		if(!device.isDesktop && __ctx == null)
+			return true;
+
+		// Check if orientation changed to non-acceptable just now
+		if(!__orientation_changed)
+		{
+			__ctx.prepare(1.0);
+			CocoAudioManager.OLD_MUTE = CocoAudioManager.MUTE;
+			CocoAudioManager.Mute(true);
+
+			// Set the orientation changeg flag.
+			// It is used to restore audio when the user changes the orientation back to acceptable.
+			__orientation_changed = true;
+		}
+
+		// Create the rotate image for the first time
+		if(!__orientation_image)
+		{
+			__orientation_image = new CocoImage;
+			__orientation_image.createFromBase64("data:image/png;base64,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");
+		}
+		if(__orientation_image.hImage && __orientation_image.hImage.complete && !__orientation_image.renderData)
+		{
+			__orientation_image.textureCellWidth = 209;
+			__orientation_image.textureCellHeight = 210;
+			__orientation_image.renderData = __ctx.prepareImage(__orientation_image);
+		}
+
+		// Display only the orientation image
+		if(__orientation_image.renderData)
+		{
+			__ctx.cls();
+			__ctx.drawImage(__orientation_image);
+			__ctx.flush();
+		}
+
+		// Indicate that the rendering context needs re-preparation after the orientations is switched back
+		__reset_ctx = true;
+
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function T(TokenID:String, optional S1:String, optional S2:String, optional S3:String):String
+	{
+		return TokenID;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	/*
+	private function __paint_progress(percent:Float):Boolean
+	{
+		if(!__painting_progress)
+		{
+			__ctx.prepare(1.0);
+			CocoAudioManager.OLD_MUTE = CocoAudioManager.MUTE;
+			CocoAudioManager.Mute(true);
+			__painting_progress = true;
+		}
+
+		if(!__progrsss_image)
+		{
+			__progrsss_image = new CocoImage;
+			__progrsss_image.createFromBase64("data:image/png;base64,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");
+		}
+
+		if(__progrsss_image.hImage && __progrsss_image.hImage.complete && !__progrsss_image.renderData)
+		{
+			__progrsss_image.textureCellWidth = 209;
+			__progrsss_image.textureCellHeight = 210;
+			__progrsss_image.renderData = __ctx.prepareImage(__progrsss_image);
+		}
+
+		if(__progrsss_image.renderData)
+		{
+			__ctx.cls();
+			__ctx.drawImage(__progrsss_image);
+			__ctx.flush();
+		}
+
+		__reset_ctx = true;
+
+		return false;
+	}
+	*/
+}

@@ -1,0 +1,195 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	   ______                 __  ____________          __  ____  __           __
+//	  / ____/___  _________  / / / /  _/_  __/__  _  __/ /_/ __ )/ /___  _____/ /__
+//	 / /   / __ \/ ___/ __ \/ / / // /  / / / _ \| |/_/ __/ __  / / __ \/ ___/ //_/
+//	/ /___/ /_/ / /__/ /_/ / /_/ // /  / / /  __/>  </ /_/ /_/ / / /_/ / /__/ ,<
+//	\____/\____/\___/\____/\____/___/ /_/  \___/_/|_|\__/_____/_/\____/\___/_/|_|
+//
+// ==================================================================================================================================
+
+class CocoUITextBlock
+{
+	public var text:String;
+	public var password:Boolean;
+	public var multiline:Boolean;
+	public reference var parent:CocoClip;
+
+	// Image Buffers
+	private var img_normal:CocoImage;
+	private var img_selected:CocoImage;
+
+	// Rectanble to anchor text
+	public var Left:Integer;
+	public var Top:Integer;
+	public var Width:Integer;
+	public var Height:Integer;
+	public var anchor:COCO_CONTROL_ANCHOR_ENUM;
+
+	// Font Style
+	public var fontColor:Color;
+	public var fontColorSel:Color;
+	public var fontName:String;
+	public var fontSize:Float;
+	public var fontBold:Boolean;
+	public var fontItalic:Boolean;
+	public var fontUnderline:Boolean;
+	public var fontShadowX:Integer;
+	public var fontShadowY:Integer;
+	public var fontBlur:Integer;
+	public var fontShadowColor:Color;
+	public var fontShadowColorSel:Color;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(Parent:CocoClip, Text:String, align:COCO_CONTROL_ANCHOR_ENUM)
+	{
+		parent				= Parent;
+
+		Left				= 0;
+		Top					= 0;
+		Width				= 0;
+		Height				= 0;
+
+		parent				= null;
+		text				= Text;
+		password			= false;
+		anchor				= align;
+		multiline			= false;
+
+		fontColor			= 0xff000000;
+		fontColorSel		= 0xffffffff;
+
+		fontName			= "Arial";
+		fontSize			= 0.0;
+		fontBold			= false;
+		fontItalic			= false;
+		fontUnderline		= false;
+
+		fontShadowX			= 0;
+		fontShadowY			= 0;
+		fontBlur			= 0;
+		fontShadowColor		= 0xff000000;
+		fontShadowColorSel	= 0xff000000;
+
+		img_normal			= null;
+		img_selected 		= null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete img_normal;
+		delete img_selected;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function SetTextRect(left:Integer, top:Integer, width:Integer, height:Integer)
+	{
+		Left = left;
+		Top = top;
+		Width = width;
+		Height = height;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function toImage(selected:Boolean, scale:Float):CocoImage
+	{
+		var font_size:Integer = Math.floor(fontSize * parent.__scene.ViewHeight * scale);
+
+		if(selected && img_selected) delete img_selected;
+		if(!selected && img_normal) delete img_normal;
+
+		var align:CocoHVAlign;
+		if(multiline)
+		{
+			align = new CocoHVAlign();
+			align.vert = 0.0;
+			align.horiz = 0.0;
+		}
+		else
+		{
+			align = CocoGraphics.AnchorToCocoHVAlign(anchor);
+		}
+
+		var color:String = CocoGraphics.ColorToHtmlRGBA(selected ? fontColorSel : fontColor);
+    	var fontStyle:String = (fontItalic ? "italic" : "normal") + " normal " + (fontBold ? "bold " : "normal ") + String(font_size) + "px " + fontName;
+
+    	var f:CocoText = new CocoText();
+
+    	if(password)
+    	{
+    		var s:String;
+    		for(var i:Integer = text.size()-1; i>=0; i--) s += "\u25cf";
+    		f.str = s;
+    	}
+    	else
+    	{
+    		f.str = text;
+    	}
+
+    	f.indices.push(0);
+    	f.mappings.push(0);
+
+    	var w:Integer = Width * scale;
+    	var h:Integer = Height * scale;
+
+    	/*
+    	if(multiline)
+    	{
+    		f.wrapSimple(ctx, w, fontStyle);
+    		if(Height!=f.totalHeight)
+    		{
+	    		Height = f.totalHeight / scale;
+	    		h = Height * scale;
+    		}
+    	}
+    	*/
+
+     	var canvas:HTMLCanvasElement = CocoGraphics.NewCanvas(w, h, true);
+		var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+    	f.drawSimple(ctx, fontStyle, fontUnderline, color, 0, 0, w, h, align.horiz, align.vert);
+
+		var image:CocoImage = CocoGraphics.CocoImageFromHTMLCanvas(canvas, w, h);
+		image.pixelRatio = scale;
+		image.hImage.id = "__text_of_" + parent.__clipPath;
+		image.addRef();
+
+		if(selected)
+			img_selected = image;
+		else
+			img_normal = image;
+
+		delete f;
+		delete canvas;
+		delete align;
+
+		return image;
+	}
+}
+

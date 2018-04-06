@@ -1,0 +1,708 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "CocoAudioSource.jspp"
+
+// ==================================================================================================================================
+//	   ______                 ___             ___       __  ___
+//	  / ____/___  _________  /   | __  ______/ (_)___  /  |/  /___ _____  ____ _____ ____  _____
+//	 / /   / __ \/ ___/ __ \/ /| |/ / / / __  / / __ \/ /|_/ / __ `/ __ \/ __ `/ __ `/ _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ / ___ / /_/ / /_/ / / /_/ / /  / / /_/ / / / / /_/ / /_/ /  __/ /
+//	\____/\____/\___/\____/_/  |_\__,_/\__,_/_/\____/_/  /_/\__,_/_/ /_/\__,_/\__, /\___/_/
+//	                                                                         /____/
+// ==================================================================================================================================
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_AUDIO_HINT_ENUM
+{
+    SOUND = 0,
+    MUSIC = 1
+};
+
+enum COCO_AUDIO_RAMP_ENUM
+{
+	FADE_LINEAR 		= 0,
+	FADE_EXPONENTIAL 	= 1
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_MEDIA_ERROR_ENUM
+{
+	MEDIA_ERR_ABORTED				= 1,	// fetching process aborted by user
+	MEDIA_ERR_NETWORK				= 2,	// error occurred when downloading
+	MEDIA_ERR_DECODE				= 3,	// error occurred when decoding
+	MEDIA_ERR_SRC_NOT_SUPPORTED		= 4		// audio/video not supported
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoAudioManager
+{
+	public static var START_NOW:Time = 0;
+	public static var STOP_NOW:Time = 0;
+	public static var LEGACY_AUDIO_READY_STATE:Integer = 1;
+
+	// Pseudo-Instances
+	public static var NO_AUDIO:CocoAudioSource = null;
+	public static var FADE_AUDIO:CocoAudioSource = null;
+
+	// Audio Buffers Cache
+	private static var __buffers:Array<CocoAudioBuffer> = new Array<CocoAudioBuffer>;
+
+	// Audio Players Cache
+	private static var __sources:Array<CocoAudioSource> = new Array<CocoAudioSource>;
+
+	// Channel and Mute control
+	public static var OLD_MUTE:Boolean = false;
+	public static var MUTE:Boolean = false;
+	public static var PLAY_SOUNDS:Boolean = true;
+	public static var PLAY_MUSIC:Boolean = true;
+
+	// Internals
+	private static var __ready:Boolean = false;
+
+	// Web Audio Graph
+	private static var __ctx:AudioContext = null;
+	private static var __masterBus:GainNode;
+	private static var __ambienceBus:GainNode;				// Ambience Bus, Music + Ambience, particiapates in fade
+	private static var __sfxBus:GainNode;					// Side Chaining + Non fading participating audio
+	private static var __sideChainingBus:GainNode;			// Anticiaption + Win Event, participates in fade
+	private static var __sideChainingCompressor:GainNode;	// Op Amp (Transistor)
+
+
+	// Legacy Audio
+	private static var __musicInstances:Array<Audio>;
+	private static var __soundInstances:Array<Audio>;
+	private static var __disposables:Array<Audio>;
+
+	private static var __volume:Float;
+	private static var __userActionOK:Boolean;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function mediaPlaybackRequiresUserAction()
+	{
+		if(__userActionOK)
+			return;
+
+		console.log("Enabling Audio from user gesture.");
+
+		var src:CocoAudioSource;
+		for(var i:Integer = __sources.size()-1; i>=0; i--)
+		{
+			src = __sources[i];
+			var b:Boolean = src.playing();
+			src.play();
+			if(!b)
+				src.stop();
+		}
+
+		__userActionOK = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function getContext():AudioContext
+	{
+		if(!__ctx && engine.device.HasWebAudio)
+		{
+			__ctx = new AudioContext;
+		}
+		return __ctx;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function reset()
+	{
+		delete[] __sources;
+		delete[] __buffers;
+		delete[] __musicInstances;
+		delete[] __soundInstances;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function initialize()
+	{
+		if(engine.device.HasWebAudio)
+		{
+			if(!__ctx)
+				__ctx = new AudioContext;
+
+			if(!__masterBus && !__ambienceBus && !__sfxBus)
+			{
+				__masterBus = __ctx.createGain();
+				__ambienceBus = __ctx.createGain();
+				__sfxBus = __ctx.createGain();
+
+				__ambienceBus.connect(__masterBus);
+				__sfxBus.connect(__masterBus);
+				__masterBus.connect(__ctx.destination);
+
+				__masterBus.gain.value = 1.0;
+				__ambienceBus.gain.value = 1.0;
+				__sfxBus.gain.value = 1.0;
+			}
+		}
+		else if(!__musicInstances && !__soundInstances)
+		{
+			__musicInstances = new Array<Audio>;
+			__soundInstances = new Array<Audio>;
+			__disposables = new Array<Audio>;
+
+			__volume = 1.0;
+
+			NO_AUDIO = new CocoAudioSource;
+			FADE_AUDIO = new CocoAudioSource;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function tick()
+	{
+		if(!isReady())
+			return;
+
+		if(!engine.device.HasWebAudio && __musicInstances && __soundInstances)
+		{
+			__legacy_tick();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function preload(id:String, url:String)
+	{
+		if(!id || !url) return;
+
+		// Make sure AudioManager is initialized
+		initialize();
+
+		// Load mp3 on IE10+
+		if(engine.device.isIE10Plus || engine.device.isIOS)
+		{
+			url = url.replace(".ogg", ".mp3");
+		}
+
+		// By-pass caching for current version
+		url += "?nocache=" + engine.CLIENT_VERSION;
+
+		// Create a new audio buffer
+		var audio:CocoAudioBuffer = new CocoAudioBuffer(id, url);
+
+		// Save audio buffer in cache
+		__buffers.push(audio);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function isReady():Boolean
+	{
+		if(__ready)
+			return true;
+
+		for(var i:Integer = __buffers.size()-1; i>=0; i--)
+			if(!__buffers[i].loaded())
+				return false;
+
+		__ready = true;
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function loadedBuffers():Integer
+	{
+		var c:Integer = 0;
+
+		for(var i:Integer = __buffers.size()-1; i>=0; i--)
+			if(__buffers[i].loaded())
+				c++;
+
+		return c;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function size():Integer
+	{
+		return __buffers.size();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function instance(id:String, optional type:COCO_AUDIO_HINT_ENUM = COCO_AUDIO_HINT_ENUM.SOUND, optional loops:Integer = 0):CocoAudioSource
+	{
+		if(!id) return null;
+		var audio:CocoAudioSource = new CocoAudioSource(id, type, loops);
+		__sources.push(audio);
+		return audio;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private static function getBuffer(id:String):CocoAudioBuffer
+	{
+		if(!id) return null;
+
+		var buffer:CocoAudioBuffer;
+
+		for(var i:Integer = __buffers.size()-1; i>=0; i--)
+		{
+			buffer = __buffers[i];
+			if(buffer.id == id)
+				return buffer;
+		}
+
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function realize(source:CocoAudioSource):Boolean
+	{
+		if(!source)
+			return false;
+
+		// Check if audio is realized
+		if(source.buffer && (source.web_audio_source||source.legacy_source))
+			return true;
+
+		// Get AudioBuffer
+		source.buffer = getBuffer(source.id);
+
+		if(!source.buffer)
+			return false;
+
+		if(engine.device.HasWebAudio)
+		{
+			// Create an AudioBufferSourceNode
+			source.web_audio_source = __ctx.createBufferSource();
+
+			// Connect AudioBufferSourceNode with AudioBuffer
+			source.web_audio_source.buffer = source.buffer.web_audio_buffer;
+
+			// Set loop
+			source.web_audio_source.loop = source.playback ? source.playback.SoundLoop : false;
+
+			// Create a Gain Node and connect source to it
+			source.web_audio_gain = __ctx.createGain();
+			source.web_audio_gain.gain.value = 1.0;
+			source.web_audio_source.connect(source.web_audio_gain);
+
+			switch(source.type)
+			{
+			case COCO_AUDIO_HINT_ENUM.MUSIC:	source.web_audio_gain.connect(__ambienceBus); break;
+			case COCO_AUDIO_HINT_ENUM.SOUND:	source.web_audio_gain.connect(__sfxBus); break;
+			}
+
+			// Return new audio source stopped
+			if(source.timeStart)
+				source.web_audio_source.stop(STOP_NOW);
+		}
+		else
+		{
+			// Clone audio from buffer
+			__legacy_clone_buffer(source, source.playback ? source.playback.SoundLoop : false);
+		}
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function fade(source:CocoAudioSource, ramp:COCO_AUDIO_RAMP_ENUM, millis:Time, value:Float)
+	{
+		var seconds:Float = Math.min(millis/1000.0, source.duration()-source.current());
+		if(seconds<0) seconds = 0;
+
+		if(source.web_audio_source)
+		{
+			var endTime:Float = millis==-1 ? source.duration() : __ctx.currentTime + seconds;
+
+			if(ramp==FADE_LINEAR)
+				source.web_audio_gain.gain.linearRampToValueAtTime(value, endTime);
+			else
+				source.web_audio_gain.gain.exponentialRampToValueAtTime(value, endTime);
+		}
+		else if(source.legacy_source)
+		{
+			__legacy_fade_buffer(source, ramp, millis, value);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function play(source:CocoAudioSource)
+	{
+		if(!source || source.playing())
+			return;
+
+		if(source.web_audio_source)
+		{
+			// Mark time started (used for stopping and pausing)
+			source.timeStart = __ctx.currentTime;
+
+			// Support Sprite Atlas
+			if(source.web_audio_source.loop)
+			{
+				source.web_audio_source.loopStart = source.offset();
+				source.web_audio_source.loopEnd = source.end();
+				source.web_audio_source.start(START_NOW);
+			}
+			else
+			{
+				source.web_audio_source.start(START_NOW, source.offset(), source.duration());
+			}
+
+			source.__setPlaying();
+		}
+		else if(source.legacy_source)
+		{
+			__legacy_play(source);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function stop(source:CocoAudioSource)
+	{
+		if(!source)
+			return;
+
+		if(source.playing())
+		{
+			if(source.web_audio_source)
+			{
+				// Stop WebAudio source
+				source.web_audio_source.stop(STOP_NOW);
+
+				// Dispose intenral source
+				source.dispose();
+			}
+
+			else if(source.legacy_source)
+			{
+				CocoAudioManager.__legacy_stop(source);
+
+				// Dispose intenral source
+				if(source.type==SOUND)
+					source.dispose();
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function ToggleMute()
+	{
+		MUTE = !MUTE;
+		FilterAudio();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function Mute(enable:Boolean)
+	{
+		if(!isReady())
+			return;
+
+		MUTE = enable;
+		FilterAudio();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function FilterAudio()
+	{
+		if(!isReady())
+			return;
+
+		if(getContext())
+		{
+			if(__masterBus) 	__masterBus.gain.value = MUTE ? 0.0 : 1.0;
+			if(__ambienceBus) 	__ambienceBus.gain.value = PLAY_MUSIC ? 1.0 : 0.0;
+			if(__sfxBus) 	__sfxBus.gain.value = PLAY_SOUNDS ? 1.0 : 0.0;
+		}
+		else
+		{
+			__legacy_gain();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function SetVolume(volume:Float)
+	{
+		if(!isReady())
+			return;
+
+		if(getContext())
+		{
+			if(__masterBus) 	__masterBus.gain.value = MUTE ? 0.0 : volume;
+			if(__ambienceBus) 	__ambienceBus.gain.value = PLAY_MUSIC ? volume : 0.0;
+			if(__sfxBus) 	__sfxBus.gain.value = PLAY_SOUNDS ? volume : 0.0;
+		}
+		else
+		{
+			// If the browser does not support WebAudio and has to resort to legacy audio, as is the case with Internet Explorer, we need to use __volume in order to set the game's volume.
+			__volume = volume;
+			__legacy_gain();
+		}
+	}
+
+	// ==================================================================================================================================
+	//	    __                                   ___             ___
+	//	   / /   ___  ____ _____ ________  __   /   | __  ______/ (_)___
+	//	  / /   / _ \/ __ `/ __ `/ ___/ / / /  / /| |/ / / / __  / / __ \
+	//	 / /___/  __/ /_/ / /_/ / /__/ /_/ /  / ___ / /_/ / /_/ / / /_/ /
+	//	/_____/\___/\__, /\__,_/\___/\__, /  /_/  |_\__,_/\__,_/_/\____/
+	//	           /____/           /____/
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function __legacy_ready(audio:Audio):Boolean
+	{
+		return audio!=null && audio.readyState >= CocoAudioManager.LEGACY_AUDIO_READY_STATE && !isNaN(audio.duration) && audio.duration>0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private static function __legacy_tick()
+	{
+		var i:Integer;
+		var j:Integer;
+		var audio:Audio;
+		var source:CocoAudioSource;
+		var currTime:Time;
+
+		// Dispose HTML Audio elements we don't need any mode
+		for(i = __disposables.size()-1; i>=0; i--)
+		{
+			delete __disposables[i];
+		}
+		__disposables.clear();
+
+		// Make sure all HTML Audio elements have the desired mute state
+		__legacy_gain();
+
+		// Loop on HTML Audio elements to detect erros, start/re-start them
+		for(i = __sources.size()-1; i>=0; i--)
+		{
+			source = __sources[i];
+
+			if(source.legacy_source && source.legacy_source.error && source.legacy_source.error.code==2)
+			{
+				trace("ERROR: Instance MediaError for [" + source.id + "]. Restoring media from cache.");
+
+				// Dispose failed audio
+				__legacy_dispose(source);
+
+				// Create a new audio buffer
+				__legacy_clone_buffer(source);
+
+				// Indicate replay on next tick
+				source.legacy_replay_on_next_tick = true;
+			}
+			else if(source.legacy_replay_on_next_tick && source.legacy_source.error==null)
+			{
+				if(source.legacy_source && __legacy_ready(source.legacy_source))
+				{
+					source.legacy_replay_on_next_tick = false;
+
+					// Make sure volume is properly set (replaced 1.0 with __volume).
+					__legacy_setVolume(source, __volume);
+
+					// If audio failed to play and was reloaded from cache,
+					// then we can move the currentTime to the position it
+					// should be now, as if no error has occured.
+
+					if(source.timeStart>0)
+					{
+						// Convert millis to seconds
+						currTime = (engine.__rtc_clock - source.timeStart) / 1000.0;
+
+						// Set current time in seconds
+						source.legacy_source.currentTime = currTime;
+
+						#if (DEBUG)
+						trace("Replaying media " + source.legacy_source.id + " from " + String(currTime));
+						#endif
+					}
+
+					// Play audio
+					source.legacy_source.play();
+
+					// Mark the time we requested audio to play
+					source.timeStart = engine.__rtc_clock;
+				}
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private static function __legacy_clone_buffer(source:CocoAudioSource, optional loop:Boolean)
+	{
+		// Clone audio from buffer
+		source.legacy_source = source.buffer.legacy_buffer.cloneNode(true); // <-- New Audio
+
+		// Make sure audio is stopped
+		source.legacy_source.pause();
+
+		// Set loop
+		source.legacy_source.loop = loop;
+
+		// Force audio to load completely
+		if(source.legacy_source.preload=="metadata" || source.legacy_source.preload=="none")
+		{
+			source.legacy_source.preload = "none";
+			source.legacy_source.load();
+		}
+
+		// Save buffer in appropriate channel array (simulates gain, used for muting and volume)
+		switch(source.type)
+		{
+		case COCO_AUDIO_HINT_ENUM.MUSIC:	__musicInstances.push(source.legacy_source); break;	// <-- Saved here
+		case COCO_AUDIO_HINT_ENUM.SOUND:	__soundInstances.push(source.legacy_source); break;	// <-- Saved here
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function __legacy_dispose(source:CocoAudioSource)
+	{
+		if(!source.legacy_source)
+			return;
+
+		var index:Integer;
+
+		index = __musicInstances.indexOf(source.legacy_source);
+
+		if(index!=-1)
+		{
+			__musicInstances.splice(index, 1);
+		}
+		else
+		{
+			index = __soundInstances.indexOf(source.legacy_source);
+
+			if(index!=-1)
+				__soundInstances.splice(index, 1);
+		}
+
+		// Dispose audio instance
+		// ======================
+		// V8 does not like it disposing object while in an event (onend) fired by the object we are trying to dispose.
+		// Therefore we will add the object in an array and dispose it on next tick cycle of the CocoAudioManager.
+
+		__disposables.push(source.legacy_source);
+		source.legacy_source = null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function __legacy_play(source:CocoAudioSource):Boolean
+	{
+		var audio:Audio = source.legacy_source;
+		if(!audio) return false;
+
+		audio.pause();
+		audio.volume = 0;
+
+		if(__legacy_ready(source.legacy_source))
+		{
+			audio.currentTime = 0;
+		}
+
+		// Legacy audio will not start immediately,
+		// we will start it on the next cycle.
+		// This way we have time to simulate channels
+		// and check for media errors.
+
+		source.timeStart = 0;
+		source.legacy_replay_on_next_tick = true;
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function __legacy_stop(source:CocoAudioSource):Boolean
+	{
+		var audio:Audio = source.legacy_source;
+		if(!audio) return false;
+
+		if(__legacy_ready(source.legacy_source) && (!audio.paused || audio.currentTime!=0))
+		{
+			// Stop and rewind audio.
+			audio.pause();
+			audio.currentTime = 0;
+
+			// Reset volume (replaced 1.0 with __volume).
+			__legacy_setVolume(source, __volume);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function __legacy_gain()
+	{
+		var source:CocoAudioSource;
+
+		for(var i:Integer = __sources.size()-1; i>=0; i--)
+		{
+			source = __sources[i];
+
+			// Set the game's volume according to the value entered by the user.
+			__legacy_setVolume(source, __volume);
+
+			if(!source.legacy_source) continue;
+
+			if(MUTE)
+			{
+				source.legacy_source.muted = true;
+				continue;
+			}
+
+			if(source.type==MUSIC)
+				source.legacy_source.muted = !PLAY_MUSIC;
+
+			else if(source.type==SOUND)
+				source.legacy_source.muted = !PLAY_SOUNDS;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function __legacy_setVolume(source:CocoAudioSource, gain:Float)
+	{
+		if(gain<0.0) gain = 0.0;
+		if(gain>1.0) gain = 1.0;
+
+		gain = Float(Math.round(gain*100.0)) / 100.0;
+
+		if(__legacy_ready(source.legacy_source))
+		{
+			source.legacy_source.volume = gain;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function __legacy_fade_buffer(source:CocoAudioSource, ramp:COCO_AUDIO_RAMP_ENUM, millis:Time, value:Float)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+}

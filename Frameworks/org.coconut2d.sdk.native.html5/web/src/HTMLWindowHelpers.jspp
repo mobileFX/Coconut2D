@@ -1,0 +1,104 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLLocation
+{
+	private var __href:String;
+
+	public property href
+	{
+		function get():String	{ return __href; }
+		function set(v:String) 	{ if(v==__href) return; __href = v; }
+	}
+
+	public property search
+	{
+		function get():String
+		{
+			var p:Integer = __href.indexOf("?");
+			return p==-1 ? "" : __href.substr(p);
+		}
+	}
+
+	public function Constructor()
+	{
+		__href="";
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLScreen
+{
+	public var width:Integer;
+	public var height:Integer;
+	public var availWidth:Integer;
+	public var availHeight:Integer;
+
+	public function Constructor()
+	{
+		width = 0;
+		height = 0;
+		availWidth = 0;
+		availHeight = 0;
+	}
+
+	public property orientation
+	{
+		function get():String
+		{
+			if(width>height)
+				return "portrait-primary";
+
+			return "landscape-primary";
+		}
+	}
+
+	public function Destructor()
+	{
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class HTMLNavigator
+{
+	public var userAgent:String;
+	public var vendor:String;
+
+	public function Constructor()
+	{
+		userAgent="Coconut2D";
+		vendor="";
+	}
+
+	public function Destructor()
+	{
+	}
+}

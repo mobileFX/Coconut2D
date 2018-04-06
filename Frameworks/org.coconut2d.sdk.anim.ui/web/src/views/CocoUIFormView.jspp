@@ -1,0 +1,335 @@
+﻿
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	   ______                 __  ____________                   _    ___
+//	  / ____/___  _________  / / / /  _/ ____/___  _________ ___| |  / (_)__ _      __
+//	 / /   / __ \/ ___/ __ \/ / / // // /_  / __ \/ ___/ __ `__ \ | / / / _ \ | /| / /
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // __/ / /_/ / /  / / / / / / |/ / /  __/ |/ |/ /
+//	\____/\____/\___/\____/\____/___/_/    \____/_/  /_/ /_/ /_/|___/_/\___/|__/|__/
+//
+// ==================================================================================================================================
+
+#include "CocoUIView.jspp"
+
+enum COCO_UI_DATA_BINDING_INIT_ENUM
+{
+	BINDING_INIT_NONE		= 0,	// Do not automatically init data binding
+	BINDING_INIT_METADATA 	= 1,	// Automatically init data binding with metadata
+	BINDING_INIT_DATA 		= 2		// Automatically init data binding with data
+};
+
+enum COCO_UI_DATA_BINDINGING_ERROR_ENUM
+{
+	BINDINGING_OK							= 0,
+	BINDINGING_INIT_ERROR					= 1
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+control class CocoUIFormView : CocoUIView
+{
+	// Form Events
+	public event OnShow(Form:CocoUIFormView);
+	public event OnHide(Form:CocoUIFormView);
+	public event OnDataOpen(Form:CocoUIFormView, Params:Array<CocoDataParm>);
+	public event OnDataError(Form:CocoUIFormView, ErrCode:COCO_UI_DATA_BINDINGING_ERROR_ENUM, ErrDescr:String);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Active Control
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	private reference var __activeControl:CocoUIView;
+
+	public property ActiveControl
+	{
+		function get():CocoUIView { return __activeControl; }
+		function set(ctl:CocoUIView) { __activeControl = ctl; }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function stackedChildren():Array<CocoClip>
+ 	{
+ 		return __scrollView.stackedChildren();
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Scroll View for stacked elements
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// The inner scroll view for stacked elements
+	public var __scrollView:CocoUIScrollView;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Data Binding
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public var Bindings:CocoDataBinders;
+
+	protected var __dataBindingsInit:COCO_UI_DATA_BINDING_INIT_ENUM;
+	published property DataBindingsInit { function get():COCO_UI_DATA_BINDING_INIT_ENUM { return __dataBindingsInit; } function set(v:COCO_UI_DATA_BINDING_INIT_ENUM) { __dataBindingsInit = v; } }
+
+	protected var __dataBindingsReleaseOnHide:Boolean;
+	published property DataBindingsReleaseOnHide { function get():Boolean { return __dataBindingsReleaseOnHide; } function set(v:Boolean) { __dataBindingsReleaseOnHide = v; } }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Assets Managemet
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __disposeTextures:Boolean;
+	published property DisposeTextures			{ function get():Boolean { return __disposeTextures;		} 	function set(v:Boolean) 	{ __disposeTextures = v; 					}}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Background Gradient
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __backgroundGradient:Gradient;
+	published property BackgroundGradient		{ function get():Gradient { return __backgroundGradient;	} 	function set(v:Gradient) 	{ __backgroundGradient = v; invalidate(); 	}}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Skin Image
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	protected var __skinImage:String;
+	published property SkinImage
+	{
+		function get():String 	{ return __skinImage; }
+		function set(v:String) 	{ __skinImage = v; invalidate(); }
+	}
+
+	// ==================================================================================================================================
+	//	   ______                 __                  __
+	//	  / ____/___  ____  _____/ /________  _______/ /_____  _____
+	//	 / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
+	//	/ /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
+	//	\____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
+	//
+	// ==================================================================================================================================
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoUIView(scene, name)
+	{
+		__form 						= this;
+
+		__instanceName				= name;
+
+		__width 					= 1.0;
+		__height 					= 1.0;
+ 		__invalidated 				= true;
+
+		__marginLeft 				= 0;
+		__marginRight 				= 0;
+		__marginTop 				= 0;
+		__marginBottom 				= 0;
+
+		__paddingLeft 				= 0;
+		__paddingRight 				= 0;
+		__paddingTop 				= 0;
+		__paddingBottom 			= 0;
+
+		__backgroundGradient		= "";
+
+		__skinImage					= "";
+
+		__anchor					= VIEW_ANCHOR_ALL;
+		__disposeTextures			= true;
+
+		Bindings 					= new  CocoDataBinders(this);
+
+		__dataBindingsInit			= COCO_UI_DATA_BINDING_INIT_ENUM.BINDING_INIT_NONE;
+		__dataBindingsReleaseOnHide	= true;
+
+		__activeControl				= null;
+
+		gradient			 		= null;
+		skin			 			= null;
+
+		__scrollView = new CocoUIScrollView(scene, __instanceName + "_ScrollView");
+		addChild(__scrollView);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		if(__scene && __scene.__root)
+			__scene.__root.removeChild(this);
+
+		delete __scrollView;
+		delete Bindings;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function Defaults()
+	{
+		__disposeTextures = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function addChild(ctl:CocoUIView) :CocoUIView
+	{
+		ctl.__form = this;
+		super.addChild(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addInlineControl(ctl:CocoUIControl, stack:COCO_UI_STACK_ENUM) :CocoUIControl
+	{
+		ctl.__form = this;
+		ctl.__stacked =  stack;
+		__scrollView.addChild(ctl);
+		invalidate();
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addFloatingControl(ctl:CocoUIControl, anchor:COCO_CONTROL_ANCHOR_ENUM) :CocoUIControl
+	{
+		ctl.__form = this;
+		ctl.RefreshLayout(this);
+		addChild(ctl);
+		return ctl;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getControlByName(id:String) :CocoUIControl
+	{
+		var ctl:CocoUIControl = __scrollView.getControlByName(id);
+		if(ctl) return ctl;
+		return CocoUIControl(getChildByName(id));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private reference var gradient:CocoUIView;
+	private reference var skin:CocoUIView;
+
+	public virtual function ComposeView(optional ctx:CanvasRenderingContext2D)
+	{
+		// Sanity check: we need a scene
+		if(!__scene) return;
+
+		// Reset active control
+		ActiveControl = null;
+
+		// Forms expand to scene view size
+		__width = 1.0;
+		__height = 1.0;
+
+		// Sanity checks
+		if(__width==0 || __height==0 || !__invalidated)
+			return;
+
+		// Dispose old clips
+
+		if(gradient)
+		{
+			removeChild(gradient);
+			delete gradient;
+			gradient = null;
+		}
+
+		if(skin)
+		{
+			removeChild(skin);
+			delete skin;
+			skin = null;
+		}
+
+		// Add Background Layer
+		if(__backgroundGradient)
+		{
+			gradient = NewLayerFromImage(ctx, "__Background_Grad", 0, CocoGraphics.CreateGradient(0, 0, Width, Height, __backgroundGradient, 0x00000000, COCO_CONTROL_BORDER_STYLE_ENUM.BORDER_NONE,0, 0, __scene.ViewPixelRatio), 0, 0, false);
+		}
+
+		// Add Skin Layer
+		if(__skinImage)
+		{
+			skin = NewLayerFromImage(ctx, "__Background_Skin", 0, CocoGraphics.GetSkinFromCache(__scene.getImageSymbol(__skinImage), Width, Height), 0, 0, false);
+		}
+
+		// Refresh ScrollView and Children
+		RefreshLayout(this);
+
+		// Place for background clips in order
+		__scrollView.sendToBack();
+		if(skin) skin.sendToBack();
+		if(gradient) gradient.sendToBack();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function RefreshLayout(parent:CocoUIView)
+	{
+		// Make sure we know our parent form
+		__form = this;
+
+		// Move ScrollView in proper position
+		__scrollView.move(PaddingLeft, PaddingTop, Width - PaddingLeft - PaddingRight, Height - PaddingTop - PaddingBottom);
+		__scrollView.RefreshLayout(this);
+
+		// NOTE: a Form can only have CocoUIView children
+		for(var i:Integer = __children.size()-1; i>=0; i--)
+		{
+			if(__children[i]==__scrollView) continue;
+			var view:CocoUIView = CocoUIView(__children[i]);
+			view.RefreshLayout(this);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+		// Handle Keys
+		if(ActiveControl)
+		{
+			var deviceMessage:DEVICE_MESSAGE = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_KEY_DOWN, DEVICE_MESSAGE_ENUM.MESSAGE_NONE);
+			if(deviceMessage)
+			{
+				deviceMessage.handled = ActiveControl.KeyDown(deviceMessage);
+			}
+		}
+
+		super.tick;
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer, index:Integer)
+	{
+		if(!__visible || !parentClip || !scene)
+			return;
+
+		// If form is invalidated, then re-compose it
+		if(__invalidated)
+		{
+			ComposeView();
+		}
+
+		// Paint Form and its controls
+		super.paint;
+
+		// Form is no longer invalid
+		__invalidated = false;
+	}
+
+}
+

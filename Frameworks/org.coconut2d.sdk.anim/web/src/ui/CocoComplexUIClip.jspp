@@ -1,0 +1,1481 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "CocoAudioSource.jspp"
+
+enum COCO_COMPLEX_UI_STATE_ENUM
+{
+	COCO_COMPLEX_UI_INACTIVE	= 0,
+	COCO_COMPLEX_UI_ACTIVE		= 1,
+	COCO_COMPLEX_UI_PRESSED		= 2,
+	COCO_COMPLEX_UI_HOVER		= 3,
+	COCO_COMPLEX_UI_FOCUSED		= 4
+};
+
+enum COCO_COMPLEX_UI_CONTROL_ENUM
+{
+	COCO_COMPLEX_UI_CONTROL_BUTTON		= 0,
+	COCO_COMPLEX_UI_CONTROL_TEXTBOX		= 1,
+	COCO_COMPLEX_UI_CONTROL_CHECKBOX	= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+callback CocoComplexUIControlOnClick(ctl:CocoComplexUIControl, msg:DEVICE_MESSAGE);			// Fired when clicking on a Dialog
+
+callback CocoComplexUIClipOnCloseDialog(ctl:CocoComplexUIClip, msg:DEVICE_MESSAGE);			// Fired when clicking outside a Dialog (used for closing it)
+callback CocoComplexUIClipOnClick(ctl:CocoComplexUIClip, msg:DEVICE_MESSAGE);				// Fired when clicking on a control of a Complex Clip (dialog or not)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class CocoComplexUIControl : CocoSelfTexturedClip
+{
+	public var ClickReset:Integer;
+
+	public reference var onClick:CocoComplexUIControlOnClick;
+
+	published var ControlType:COCO_COMPLEX_UI_CONTROL_ENUM;
+	published var RenderState:Boolean;
+	published var FillColor:Color;
+	published var ReadOnly:Boolean;
+	published var SkipFocus:Boolean;
+
+	// NumPad Buddy
+	published var NumPadShow:Boolean;
+	published var NumPadButtonA:COCO_NUMPAD_BUTTON;
+	published var NumPadButtonB:COCO_NUMPAD_BUTTON;
+
+	// Overlay image
+	public reference var OverlayImage:CocoImage;
+	published var OverlaySprite:String;
+	published var OverlayOffsetX:Integer;
+	published var OverlayOffsetY:Integer;
+	public var OverlaySequenceIndex:Integer;
+	public var OverlaySequenceFrameIndex:Integer;
+
+	// Checkbox Properties
+	public reference var CheckboxImage:CocoImage;
+	published var CheckboxSprite:String;
+	published var CheckboxValue:Boolean;
+	public var IsCheckboxInactive:Boolean;
+
+	// Textbox Properties
+	private var m_Text:String;
+	private var m_FontFamily:String;
+	/**********FALLBACK FONT**********/
+	private var m_Fallback:Boolean;
+	/**********FALLBACK FONT**********/
+	private var m_FontBold:Boolean;
+	private var m_FontItalic:Boolean;
+	private var m_FontUnderline:Boolean;
+	private var m_FontColor:Color;
+	private var m_TextHorizAlign:COCO_TEXT_ALIGN_ENUM;
+	private var m_TextVertAlign:COCO_TEXT_ALIGN_ENUM;
+	private var m_Multiline:Boolean;
+
+	public var __textFontSizePixels:Float;
+	public var __textPaddingLeft:Float;
+	public var __textPaddingRight:Float;
+	public var __textPaddingTop:Float;
+	public var __textPaddingBottom:Float;
+
+	/**********FALLBACK FONT**********/
+	private var TextFallbackFontFamily:String;
+	/**********FALLBACK FONT**********/
+
+	public var LocalizedCurrencySymbol:String;
+	public var IsValid:Boolean;
+
+	published var TextValidationRegEx:String;
+	published var TextDefault:String;
+	published var TextLength:Integer;
+
+	published var TextFontColorSel:Color;
+	published var TextFontColorHover:Color;
+	published var TextFontColorInactive:Color;
+
+	public reference var AudioTouchStart:CocoAudioSource;
+	public reference var AudioTouchEnd:CocoAudioSource;
+	public reference var AudioClick:CocoAudioSource;
+	public reference var AudioHover:CocoAudioSource;
+
+	published var AudioTouchStartSound:String;
+	published var AudioTouchEndSound:String;
+	published var AudioClickSound:String;
+	published var AudioHoverSound:String;
+
+	published property Text
+	{
+		function get():String
+		{
+			return m_Text;
+		}
+
+		function set(v:String)
+		{
+			if(m_Text!=v)
+			{
+				m_Text = v;
+				InvalidTexture = true;
+			}
+		}
+	}
+
+	published var TextStroked:Boolean;
+
+	published property TextPaddingLeft
+	{
+		function get():CartesianX	{ return AbsoluteY(__textPaddingLeft); }
+		function set(v:CartesianX)	{ __textPaddingLeft = RelativeY(v); InvalidTexture = true; }
+	}
+
+	published property TextPaddingRight
+	{
+		function get():CartesianX	{ return AbsoluteY(__textPaddingRight); }
+		function set(v:CartesianX)	{ __textPaddingRight = RelativeY(v); InvalidTexture = true; }
+	}
+
+	published property TextPaddingTop
+	{
+		function get():CartesianY	{ return AbsoluteY(__textPaddingTop); }
+		function set(v:CartesianY)	{ __textPaddingTop = RelativeY(v); InvalidTexture = true; }
+	}
+
+	published property TextPaddingBottom
+	{
+		function get():CartesianY	{ return AbsoluteY(__textPaddingBottom); }
+		function set(v:CartesianY)	{ __textPaddingBottom = RelativeY(v); InvalidTexture = true; }
+	}
+
+	private var m_ControlState:COCO_COMPLEX_UI_STATE_ENUM;
+
+	published property ControlState
+	{
+		function get():COCO_COMPLEX_UI_STATE_ENUM 	{ return m_ControlState; }
+		function set(v:COCO_COMPLEX_UI_STATE_ENUM)	{ if(m_ControlState!=v)	{ m_ControlState = v; InvalidTexture = true; } }
+	}
+
+	published property TextMultiline
+	{
+		function get():Boolean 		{ return m_Multiline; }
+		function set(v:Boolean)		{ if(m_Multiline!=v) { m_Multiline = v; InvalidTexture = true; } }
+	}
+
+	published property TextFontFamily
+	{
+		function get():String 		{ return m_FontFamily; }
+		function set(v:String)		{ if(m_FontFamily!=v) { m_FontFamily = v; InvalidTexture = true; } }
+	}
+
+	/**********FALLBACK FONT**********/
+	published property TextFontFallback
+	{
+		function get():Boolean 		{ return m_Fallback; }
+		function set(v:Boolean)		{ if(m_Fallback!=v) { m_Fallback = v; InvalidTexture = true; } }
+	}
+	/**********FALLBACK FONT**********/
+
+	published property TextFontSizePixels
+	{
+		function get():CartesianY
+		{
+			return AbsoluteY(__textFontSizePixels);
+		}
+
+		function set(v:CartesianY)	 { __textFontSizePixels = RelativeY(v); InvalidTexture = true; }
+	}
+
+	published property TextFontBold
+	{
+		function get():Boolean		{ return m_FontBold; }
+		function set(v:Boolean)		{ if(m_FontBold!=v) { m_FontBold = v; InvalidTexture = true; } }
+	}
+
+	published property TextFontItalic
+	{
+		function get():Boolean		{ return m_FontItalic; }
+		function set(v:Boolean)		{ if(m_FontItalic!=v) { m_FontItalic = v; InvalidTexture = true; } }
+	}
+
+	published property TextFontUnderline
+	{
+		function get():Boolean		{ return m_FontUnderline; }
+		function set(v:Boolean)		{ if(m_FontUnderline!=v) { m_FontUnderline = v; InvalidTexture = true; } }
+	}
+
+	published property TextFontColor
+	{
+		function get():Color		{ return m_FontColor; }
+		function set(v:Color)		{ if(m_FontColor!=v) { m_FontColor = v; InvalidTexture = true; } }
+	}
+
+	published property TextHorizAlign
+	{
+		function get():COCO_TEXT_ALIGN_ENUM		{ return m_TextHorizAlign; }
+		function set(v:COCO_TEXT_ALIGN_ENUM)	{ if(m_TextHorizAlign!=v) { m_TextHorizAlign = v; InvalidTexture = true; } }
+	}
+
+	published property TextVertAlign
+	{
+		function get():COCO_TEXT_ALIGN_ENUM		{ return m_TextVertAlign; }
+		function set(v:COCO_TEXT_ALIGN_ENUM)	{ if(m_TextVertAlign!=v) { m_TextVertAlign = v; InvalidTexture = true; } }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoSelfTexturedClip(scene, name)
+	{
+		m_ControlState					= COCO_COMPLEX_UI_STATE_ENUM.COCO_COMPLEX_UI_ACTIVE;
+		ControlType						= COCO_COMPLEX_UI_CONTROL_ENUM.COCO_COMPLEX_UI_CONTROL_BUTTON;
+		RenderState						= false;
+
+		FillColor						= 0xff000000;
+
+		ReadOnly						= false;
+
+		CheckboxValue					= false;
+		CheckboxSprite					= "";
+		CheckboxImage					= null;
+		IsCheckboxInactive				= false;
+
+		OverlaySprite					= "";
+		OverlayImage					= null;
+		OverlayOffsetX					= 0;
+		OverlayOffsetY					= 0;
+		OverlaySequenceIndex			= 0;
+		OverlaySequenceFrameIndex		= 0;
+
+
+
+		m_Text							= "";
+		m_FontFamily					= "Arial";
+		/**********FALLBACK FONT**********/
+		m_Fallback						= false;
+		/**********FALLBACK FONT**********/
+		__textFontSizePixels			= 0.5;
+
+		__textPaddingLeft				= 0.0;
+		__textPaddingRight				= 0.0;
+		__textPaddingTop				= 0.0;
+		__textPaddingBottom				= 0.0;
+
+		m_FontBold						= false;
+		m_FontItalic					= false;
+		m_FontUnderline					= false;
+		m_FontColor						= 0xff000000;
+		TextFontColorSel				= 0xff000000;
+		TextFontColorHover				= 0xff000000;
+		TextFontColorInactive			= 0xffffffff;
+		m_TextHorizAlign				= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
+		m_TextVertAlign					= COCO_TEXT_ALIGN_ENUM.TEXT_ALIGN_CENTER;
+		m_Multiline						= false;
+		TextValidationRegEx				= "";
+		TextDefault						= "";
+		TextLength						= 0;
+
+		/**********FALLBACK FONT**********/
+		TextFallbackFontFamily			= engine.FontToUse;
+		/**********FALLBACK FONT**********/
+
+		TextStroked						= false;
+		TextPaddingLeft					= 0;
+		TextPaddingRight				= 0;
+		TextPaddingTop					= 0;
+		TextPaddingBottom				= 0;
+
+		LocalizedCurrencySymbol			= "";
+		IsValid							= true;
+
+		AudioTouchStartSound			= "";
+		AudioTouchEndSound				= "";
+		AudioClickSound					= "";
+		AudioHoverSound					= "";
+
+		AudioTouchStart					= null;
+		AudioTouchEnd					= null;
+		AudioClick						= null;
+		AudioHover						= null;
+
+		__tick_children					= false;
+		__paint_children				= false;
+
+		NumPadShow						= false;
+		NumPadButtonA					= COCO_NUMPAD_BACKSPACE;
+		NumPadButtonB					= COCO_NUMPAD_DOT;
+
+		SkipFocus						= false;
+
+		onClick							= null;
+		ClickReset						= 0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, reset:Boolean)
+	{
+		delete buffer;
+
+		/**********FALLBACK FONT**********/
+		// If this control's text uses a font that does not support all of the game's languages, then TextFontFallback's value will be true (set in that control's Properties).
+		// If the above case is true, then if the font set initially in TextFontFamily is not the appropriate one it will be replaced by that.
+		if(TextFontFallback &&  TextFallbackFontFamily != "")
+			TextFontFamily = TextFallbackFontFamily;
+		/**********FALLBACK FONT**********/
+
+		var textColor:Color = TextFontColor;
+
+		switch(ControlState)
+		{
+			case COCO_COMPLEX_UI_ACTIVE:	textColor = TextFontColor; break;
+			case COCO_COMPLEX_UI_INACTIVE: 	textColor = TextFontColorInactive; break;
+			case COCO_COMPLEX_UI_HOVER: 	textColor = TextFontColorHover; break;
+			case COCO_COMPLEX_UI_PRESSED: 	textColor = TextFontColorSel; break;
+		}
+
+		switch(ControlType)
+		{
+		case COCO_COMPLEX_UI_CONTROL_BUTTON:
+
+			var out:CocoImageCacheItem = CocoGraphics.CocoImageFromText(AbsoluteX(__width), AbsoluteY(__height), Text, TextFontFamily, TextFontSizePixels, textColor, TextMultiline, TextFontBold, TextFontItalic, TextFontUnderline, TextHorizAlign, TextVertAlign, TextStroked, TextPaddingLeft, TextPaddingRight, TextPaddingTop, TextPaddingBottom, false);
+			if(out)
+			{
+				buffer = out.image;
+				delete out;
+			}
+			else
+			{
+				delete __image;
+			}
+			break;
+
+		case COCO_COMPLEX_UI_CONTROL_TEXTBOX:
+
+			var out:CocoImageCacheItem = CocoGraphics.CocoImageFromText(AbsoluteX(__width), AbsoluteY(__height), Text, TextFontFamily, TextFontSizePixels, textColor, TextMultiline, TextFontBold, TextFontItalic, TextFontUnderline, TextHorizAlign, TextVertAlign, TextStroked, TextPaddingLeft, TextPaddingRight, TextPaddingTop, TextPaddingBottom, true);
+			if(out)
+			{
+				buffer = out.image;
+				delete out;
+			}
+			else
+			{
+				delete __image;
+			}
+			break;
+
+		case COCO_COMPLEX_UI_CONTROL_CHECKBOX:
+			break;
+		}
+
+		if(buffer)
+		{
+			__timeline.firstKeyFrame().shader = CocoShadersManager.DEFAULT_TEXT;
+		}
+
+		// Load additional images
+		if(OverlaySprite && !OverlayImage)
+		{
+			OverlayImage = __scene.getImageSymbol(OverlaySprite);
+		}
+
+		if(CheckboxSprite && !CheckboxImage)
+		{
+			CheckboxImage = __scene.getImageSymbol(CheckboxSprite);
+		}
+
+		if(AudioTouchStartSound && !AudioTouchStart)
+			AudioTouchStart = CocoAudioManager.instance(AudioTouchStartSound);
+
+		if(AudioTouchEndSound && !AudioTouchEnd)
+			AudioTouchEnd = CocoAudioManager.instance(AudioTouchEndSound);
+
+		if(AudioClickSound && !AudioClick)
+			AudioClick = CocoAudioManager.instance(AudioClickSound);
+
+		if(AudioHoverSound && !AudioHover)
+			AudioHover = CocoAudioManager.instance(AudioHoverSound);
+
+		super.prepare;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property Caption
+	{
+		function get():String { return m_Text; }
+
+		function set(v:String)
+		{
+			if(OverlayImage)
+			{
+				SetOverlaySequence((v ? v.toUpperCase() + "_" : "") + ControlStateName());
+			}
+			else
+			{
+				Text = v;
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function SetOverlaySequence(SequenceName:String)
+	{
+		if(!OverlayImage || !OverlayImage.sequences) return;
+
+		var item:CocoSequence;
+		var sequences:Array<CocoSequence> = OverlayImage.sequences;
+
+		for(var i:Integer = sequences.size()-1; i>=0; i--)
+		{
+			item = sequences[i];
+
+			if(item.name == SequenceName)
+			{
+				OverlaySequenceIndex = i;
+				OverlaySequenceFrameIndex = item.frames[0];
+				break;
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function ControlStateName():String
+	{
+		switch(ControlState)
+		{
+			case COCO_COMPLEX_UI_ACTIVE: return "ACTIVE";
+			case COCO_COMPLEX_UI_INACTIVE: return "INACTIVE";
+			case COCO_COMPLEX_UI_HOVER: return "HOVER";
+			case COCO_COMPLEX_UI_PRESSED: return "PRESSED";
+		}
+		return "";
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function SetFocus():Boolean
+	{
+		if(ControlType!=COCO_COMPLEX_UI_CONTROL_TEXTBOX)
+			return true;
+
+		//if(ReadOnly)
+		//	return true;
+
+		if(!SkipFocus)
+		{
+			if(CocoComplexUIClip.ActiveTextBox && CocoComplexUIClip.ActiveTextBox!=this)
+			{
+				if(!CocoComplexUIClip.ActiveTextBox.LostFocus())
+				{
+					return false;
+				}
+			}
+
+			CocoComplexUIClip.ActiveTextBox = this;
+		}
+
+		// Show Buddy
+		if(NumPadShow)
+		{
+			var pad:CocoNumPadClip = CocoNumPadClip(__scene.getClipByPath("Root/Num Pad/Numpad"));
+			pad.ButtonA = NumPadButtonA;
+			pad.ButtonB = NumPadButtonB;
+			pad.Buddy = this;
+			pad.prepare(engine.__ctx, __scene, false);
+			__scene.getClipByPath("Root/Num Pad").gotoFrameByName("ShowNumPad", false);
+		}
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function LostFocus():Boolean
+	{
+		if(ControlType!=COCO_COMPLEX_UI_CONTROL_TEXTBOX)
+			return true;
+
+		//if(ReadOnly)
+		//	return true;
+
+		var result:Boolean = true;
+
+		if(TextValidationRegEx)
+		{
+			var rx:RegExp = new RegExp(TextValidationRegEx, "g");
+			result = rx.test(m_Text);
+			delete rx;
+		}
+
+		if(TextLength>0 && m_Text.size()>TextLength)
+		{
+			result = false;
+		}
+
+		if(!result)
+		{
+			// If the text entered is invalid, revert to the default text...
+			Default();
+			// ... and signal the associated checkbox, if any, to revert to its default value as well.
+			IsValid = false;
+			result = true;
+		}
+		else
+		{
+			// Otherwise, keep the text entered and allow the associated checkbox, if any, to remain checked, if it has already been checked by the user.
+			IsValid = true;
+		}
+
+		// At the beginning of the game we have set the game's localized currency symbol and the default currency values using this symbol.
+		// If the first character of the default value matches the currency symbol, then this means we are dealing with a currency value.
+		if(TextDefault.charAt(0) == LocalizedCurrencySymbol)
+		{
+			// If after performing the validation the currency value doesn't already have the currency value, then add it.
+			if(Text.charAt(0) != LocalizedCurrencySymbol)
+			{
+				Text = LocalizedCurrencySymbol + Text;
+			}
+		}
+
+		ControlState = COCO_COMPLEX_UI_ACTIVE;
+
+		return result;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Default()
+	{
+		switch(ControlType)
+		{
+		case COCO_COMPLEX_UI_CONTROL_BUTTON:
+			break;
+
+		case COCO_COMPLEX_UI_CONTROL_CHECKBOX:
+			CheckboxValue = false;
+			break;
+
+		case COCO_COMPLEX_UI_CONTROL_TEXTBOX:
+			Text = TextDefault;
+			break;
+
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function KeyDown(msg:DEVICE_MESSAGE) : Boolean
+	{
+		if(ReadOnly || ControlState==COCO_COMPLEX_UI_INACTIVE)
+			return true;
+
+		var TextOrigSize:Integer = Text.size();
+
+		switch(msg.special)
+		{
+		case DEVICE_KEYS_ENUM.DEVICE_KEY_BACKSPACE:
+			if(Text)
+				Text = Text.substr(0, Text.size()-1);
+			break;
+
+		case DEVICE_KEYS_ENUM.DEVICE_KEY_ESCAPE:
+			Default();
+			break;
+
+		case DEVICE_KEYS_ENUM.DEVICE_KEY_DECIMAL:
+			if(Text)
+				Text += msg.character;
+			break;
+
+		default:
+			if(msg.special==DEVICE_KEY_NONE)
+			{
+				if(Text)
+					Text += msg.character;
+				else
+					Text = msg.character;
+			}
+		}
+
+		// Set text after making sure that the user hasn't exceeded the maximum allowed number of characters.
+		Text = (TextLength > 0 && Text.size() > TextLength) ? Text.substr(0, TextOrigSize) : Text;
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+		// Disable tick, it is controlled by parent Complex UI Clip
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function paint(ctx:ICocoRenderContext, scene:CocoScene, parentClip:CocoClip, calcBoundingBox:Boolean, level:Integer, index:Integer)
+	{
+		// Disable paint, it is controlled by parent Complex UI Clip
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ______                      __          __  _______________
+//	  / ____/___  _________  / ____/___  ____ ___  ____  / /__  _  __/ / / /  _/ ____/ (_)___
+//	 / /   / __ \/ ___/ __ \/ /   / __ \/ __ `__ \/ __ \/ / _ \| |/_/ / / // // /   / / / __ \
+//	/ /___/ /_/ / /__/ /_/ / /___/ /_/ / / / / / / /_/ / /  __/>  </ /_/ // // /___/ / / /_/ /
+//	\____/\____/\___/\____/\____/\____/_/ /_/ /_/ .___/_/\___/_/|_|\____/___/\____/_/_/ .___/
+//	                                           /_/                                   /_/
+// ==================================================================================================================================
+
+class CocoComplexUIClip : CocoClip
+{
+	public static reference var ClickedControl:CocoComplexUIControl;
+	public static reference var ActiveTextBox:CocoComplexUIControl;
+	public static reference var HoverControl:CocoComplexUIControl;
+
+	public reference var onClick:CocoComplexUIClipOnClick;
+	public reference var onClose:CocoComplexUIClipOnCloseDialog;
+
+	published var ActiveSequence:String;
+	published var InactiveSequence:String;
+	published var HoverSequence:String;
+	published var PressedSequence:String;
+	published var FocusedSequence:String;
+
+	published var IsDialogue:Boolean;
+
+	published var ControlState:COCO_COMPLEX_UI_STATE_ENUM;
+
+	public var Rectangles:Float32Array;
+
+	private var m_MVP:CocoMatrix;
+	private var v_in:CocoVector;
+	private var v_out:CocoVector;
+
+	private reference var m_MouseCapturedButton:CocoComplexUIControl;
+
+	private var m_ActiveFrame:Integer;
+	private var m_InactiveFrame:Integer;
+	private var m_HoverFrame:Integer;
+	private var m_PressedFrame:Integer;
+	private var m_FocusedFrame:Integer;
+
+	private var m_Current_Control_Index:Integer;
+
+	private reference var m_ControlsShader:CocoShaderComplexUI;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String, optional image:CocoImage) : CocoClip(scene, name, image)
+	{
+		__tick_children				= false;
+		__paint_children			= false;
+
+		Rectangles					= null;
+		m_MouseCapturedButton		= null;
+
+		ControlState				= COCO_COMPLEX_UI_STATE_ENUM.COCO_COMPLEX_UI_ACTIVE;
+
+		ActiveSequence				= "";
+		InactiveSequence			= "";
+		HoverSequence				= "";
+		PressedSequence				= "";
+		FocusedSequence				= "";
+
+		IsDialogue					= false;
+
+		m_ActiveFrame				= 0;
+		m_InactiveFrame				= 0;
+		m_HoverFrame				= 0;
+		m_PressedFrame				= 0;
+		m_FocusedFrame				= 0;
+
+		m_MVP						= new CocoMatrix;
+		v_in						= new CocoVector;
+		v_out						= new CocoVector;
+
+		onClick						= null;
+
+		m_Current_Control_Index		= -1;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete Rectangles;
+		delete m_MVP;
+		delete v_in;
+		delete v_out;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getControl(Index:Integer):CocoComplexUIControl
+	{
+		if(Index<0 || Index>__children.size()-1) return null;
+		return CocoComplexUIControl(__children[Index]);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getControlByName(ControlName:String):CocoComplexUIControl
+	{
+		return  CocoComplexUIControl(getChildByName(ControlName));
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function setControlState(Index:Integer, ControlState:COCO_COMPLEX_UI_STATE_ENUM)
+	{
+		if(Index==-1)
+		{
+			for(var i:Integer = __children.size()-1; i>=0; i--)
+			{
+				getControl(i).ControlState = ControlState;
+			}
+		}
+		else
+		{
+			getControl(Index).ControlState = ControlState;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function setControlStateByName(ControlName:String, ControlState:COCO_COMPLEX_UI_STATE_ENUM)
+	{
+		getControlByName(ControlName).ControlState = ControlState;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getControlState(Index:Integer):COCO_COMPLEX_UI_STATE_ENUM
+	{
+		return getControl(Index).ControlState;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function getControlStateByName(ControlName:String):COCO_COMPLEX_UI_STATE_ENUM
+	{
+		return getControlByName(ControlName).ControlState;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, reset:Boolean)
+	{
+		if(!__image || !__image.sequences) return;
+
+		var i:Integer;
+		var L:Integer = __image.sequences.size();
+		var item:CocoSequence;
+
+		for(i=0;i<L;i++)
+		{
+			item = __image.sequences[i];
+
+			if(item.name==ActiveSequence)
+				m_ActiveFrame = i;
+
+			if(item.name==InactiveSequence)
+				m_InactiveFrame = i;
+
+			if(item.name==HoverSequence)
+				m_HoverFrame = i;
+
+			if(item.name==PressedSequence)
+				m_PressedFrame = i;
+
+			if(item.name==FocusedSequence)
+				m_FocusedFrame = i;
+		}
+
+		super.prepare;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function tick(time:Time)
+	{
+        #if (makefile.Vars.TARGET=="CocoPlayer")
+        __cococlip_debugger_tick(__clipPath);
+        #endif
+
+		// Reset clicked control state
+		if(CocoComplexUIClip.ClickedControl)
+		{
+			if(--CocoComplexUIClip.ClickedControl.ClickReset<=0)
+			{
+				__resetPressedControl(CocoComplexUIClip.ClickedControl);
+				CocoComplexUIClip.ClickedControl = null;
+			}
+		}
+
+		// Handle Keys
+		if(CocoComplexUIClip.ActiveTextBox)
+		{
+			var deviceMessage:DEVICE_MESSAGE = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_KEY_DOWN, DEVICE_MESSAGE_ENUM.MESSAGE_NONE);
+			if(deviceMessage)
+			{
+				deviceMessage.handled = CocoComplexUIClip.ActiveTextBox.KeyDown(deviceMessage);
+			}
+		}
+
+		super.tick;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __paint_renderChildren(ctx:ICocoRenderContext)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __paint_renderImage(ctx:ICocoRenderContext)
+	{
+		// Make sure the rendering context has prepared the image
+
+		if(!__image.renderData && __image.hImage && __image.hImage.complete)
+			__image.renderData = ctx.prepareImage(__image);
+
+		if(!__image.renderData)
+			return;
+
+		var i:Integer;
+		var L:Integer = __children.size();
+		var ctl:CocoComplexUIControl;
+		var clipped:Boolean = false;
+		var x:Float;
+		var y:Float;
+		var z:Float;
+		var w:Float;
+		var h:Float;
+		var W:Float = ctx.getFrameBufferWidth();
+		var H:Float = ctx.getFrameBufferHeight();
+		var s:Float = ctx.getFrameBufferViewScale();
+
+		// Calc Model x View x Projection matrix (also used in hit test)
+		ctx.getProjectionMatrix().matrixMultiplyBy(__mv, m_MVP);
+
+		//========================================================================
+		// Draw entire UI area in defualt state
+		//========================================================================
+
+		switch(ControlState)
+		{
+		case COCO_COMPLEX_UI_ACTIVE:
+			__currentFrame.spriteSequenceFrameIndex = m_ActiveFrame;
+			break;
+
+		case COCO_COMPLEX_UI_INACTIVE:
+			__currentFrame.spriteSequenceFrameIndex = m_InactiveFrame;
+			break;
+
+		case COCO_COMPLEX_UI_HOVER:
+			__currentFrame.spriteSequenceFrameIndex = m_HoverFrame;
+			break;
+
+		case COCO_COMPLEX_UI_PRESSED:
+			__currentFrame.spriteSequenceFrameIndex = m_PressedFrame;
+			break;
+
+		case COCO_COMPLEX_UI_FOCUSED:
+			__currentFrame.spriteSequenceFrameIndex = m_FocusedFrame;
+			break;
+		}
+
+		__zIndex = __mv.setZ(++CocoClip.__zIndexCounter);
+		ctx.drawFrame(__scene, this);
+
+		//========================================================================
+		// Draw each UI control on top of the area with explicit state
+		//========================================================================
+
+		if(!m_ControlsShader)
+			m_ControlsShader = CocoShaderComplexUI(CocoShadersManager.shader("Default ComplexUI"));
+
+		//__currentFrame.shader = m_ControlsShader;
+
+		var spriteSequenceFrameIndex:Integer = __currentFrame.spriteSequenceFrameIndex;
+
+		for(i=0; i<L; i++)
+		{
+			__currentFrame.spriteSequenceFrameIndex = spriteSequenceFrameIndex;
+
+			ctl = getControl(i);
+
+			#if (makefile.Vars.TARGET=="CocoPlayer")
+			__cococlip_debugger_paint(ctl.__clipPath);
+			#endif
+
+			// Prepare control texture
+			if(ctl.InvalidTexture)
+				ctl.prepare(ctx, __scene, false);
+
+			// Load control texture
+			ctl.swapBuffers(ctx);
+
+			// Update control z-Index
+			ctl.__zIndex = __mv.setZ(++CocoClip.__zIndexCounter);
+
+			//========================================================================
+			// Determine control rendering state
+			//========================================================================
+
+			if(ctl.RenderState)
+			{
+				switch(ctl.ControlState)
+				{
+				case COCO_COMPLEX_UI_ACTIVE:
+					__currentFrame.spriteSequenceFrameIndex = m_ActiveFrame;
+					break;
+
+				case COCO_COMPLEX_UI_INACTIVE:
+					__currentFrame.spriteSequenceFrameIndex = m_InactiveFrame;
+					break;
+
+				case COCO_COMPLEX_UI_HOVER:
+					__currentFrame.spriteSequenceFrameIndex = m_HoverFrame;
+					break;
+
+				case COCO_COMPLEX_UI_PRESSED:
+					__currentFrame.spriteSequenceFrameIndex = m_PressedFrame;
+					break;
+
+				case COCO_COMPLEX_UI_FOCUSED:
+					__currentFrame.spriteSequenceFrameIndex = m_FocusedFrame;
+					break;
+				}
+			}
+			else
+			{
+				switch(ctl.ControlType)
+				{
+				case COCO_COMPLEX_UI_CONTROL_TEXTBOX:
+
+					if(CocoComplexUIClip.ActiveTextBox==ctl && !ctl.ReadOnly)
+					{
+						__currentFrame.spriteSequenceFrameIndex = m_FocusedFrame;
+					}
+					break;
+				}
+			}
+
+			//========================================================================
+			// Calculate control rectangle
+			//========================================================================
+			if(spriteSequenceFrameIndex != __currentFrame.spriteSequenceFrameIndex)
+			{
+				// Get button mask coords and size
+				x = Rectangles[4*i];
+				y = Rectangles[4*i+1];
+				w = Rectangles[4*i+2];
+				h = Rectangles[4*i+3];
+
+				// Project to ortho, it will return x and y in range [0..1]
+				v_in.reset(x, y, 0, 1);
+				m_MVP.vectorMultiply(v_in, v_out);
+
+				// Convert ortho coordinates to pixels
+				x = (1.0 + v_out.X) * W / 2.0;
+				y = H - (1.0 - v_out.Y) / 2.0 * H;
+
+				// Adjust width and height by model view scale x view scale
+				w *= __mv.__m.rc11 * s;
+				h *= __mv.__m.rc22 * s;
+
+				// Clip
+				ctx.clip(x-w/2,y-h/2,w,h);
+				clipped = true;
+
+				// Draw Frame
+				ctx.drawFrame(__scene, this);
+			}
+			else if(clipped)
+			{
+				// Disable previous clipping
+				ctx.clipDisable();
+				clipped = false;
+			}
+
+			//========================================================================
+			// Draw UI control custom sprites
+			//========================================================================
+
+			// Normally used for baked static text
+			if(ctl.OverlayImage)
+				__paint_control_overlay_image(ctx, ctl, ctl.OverlayImage);
+
+			// Normally used for baked dynamic text
+			if(ctl.__image)
+				__paint_control_overlay_image(ctx, ctl, ctl.__image);
+
+			if(ctl.CheckboxImage)
+				__paint_control_overlay_image(ctx, ctl, ctl.CheckboxImage);
+		}
+
+		//__currentFrame.shader = CocoShadersManager.DEFAULT;
+
+		// Disable clipping
+		if(clipped)
+			ctx.clipDisable();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __paint_control_overlay_image(ctx:ICocoRenderContext, ctl:CocoComplexUIControl, sprite:CocoImage)
+	{
+		if(!sprite.renderData)
+		{
+			ctx.prepareImage(sprite);
+			return;
+		}
+
+		var old_keyframe:CocoKeyFrame;
+		var old_image:CocoImage;
+
+		// Swap image with control image
+		old_image = __image;
+		__image = sprite;
+
+		// We will need a Keyframe
+		old_keyframe = __currentFrame;
+		__currentFrame = ctl.__timeline.firstKeyFrame();
+		__currentFrame.spriteSequenceFrameIndex = 0;
+
+		// Buttons without renderState and overlay image, treat image as state sprite
+		if(ctl.ControlType==COCO_COMPLEX_UI_CONTROL_BUTTON && !ctl.RenderState)
+		{
+			ctl.SetOverlaySequence(ctl.ControlStateName());
+		}
+
+		// Image may be a Sprite, decide sequence
+		if(sprite==ctl.OverlayImage)
+		{
+			__currentFrame.spriteSequenceFrameIndex = ctl.OverlaySequenceFrameIndex;
+		}
+		else if(sprite==ctl.CheckboxImage)
+		{
+			// If the feature controlled by the checkbox is deactivated, then use the INACTIVE sequence (2) of the image.
+			// Otherwise, use either the ACTIVE (0) or PRESSED (1) sequences depending on the player's selection.
+			if(!ctl.IsCheckboxInactive)
+				__currentFrame.spriteSequenceFrameIndex = ctl.CheckboxValue ? 1 : 0;
+			else
+				__currentFrame.spriteSequenceFrameIndex = 2;
+		}
+
+		// Render overlay image
+		var dx:Float = __currentFrame.x + ctl.OverlayOffsetX;
+		var dy:Float = __currentFrame.y + ctl.OverlayOffsetY;
+
+		__mv.translate3d(dx, dy, 1);
+		ctx.drawFrame(__scene, this);
+		__mv.translate3d(-dx, -dy, -1);
+
+		// Restore image and keyframe
+		__image = old_image;
+		__currentFrame = old_keyframe;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function DoClick(ControlIndex:Integer)
+	{
+		CocoComplexUIClip.ClickedControl = getControl(ControlIndex);
+
+		if(!CocoComplexUIClip.ClickedControl)
+			return;
+
+		if(CocoComplexUIClip.ClickedControl.ControlState==COCO_COMPLEX_UI_ACTIVE)
+		{
+			CocoComplexUIClip.ClickedControl.ControlState = COCO_COMPLEX_UI_PRESSED;
+			CocoComplexUIClip.ClickedControl.ClickReset = 2;
+
+			if(CocoComplexUIClip.ClickedControl.AudioClick)
+			{
+				CocoComplexUIClip.ClickedControl.AudioClick.play();
+			}
+
+			engine.__pushClicked(CocoComplexUIClip.ClickedControl, 0, 0);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/*@@ __tick_handle_events @@*/
+	public virtual function __tick_handle_events(ctx:ICocoRenderContext):DEVICE_MESSAGE
+	{
+		return __tick_handle_events__(ctx, false);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __tick_handle_events__(ctx:ICocoRenderContext, KeyPad:Boolean):DEVICE_MESSAGE
+	{
+		// Get a device message from engine
+		var deviceMessage:DEVICE_MESSAGE = engine.__peekDeviceMessage(DEVICE_MESSAGE_ENUM.MESSAGE_NONE, DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MASK);
+
+		// If not message, restore hovered control state and exit
+		if(!deviceMessage)
+		{
+			// Is this complex control parent of the hovered control?
+			if(CocoComplexUIClip.HoverControl && __children.indexOf(CocoComplexUIClip.HoverControl)!=-1)
+			{
+				__resetHoverControl();
+			}
+			return null;
+		}
+
+		// Perform hit test to find button index under (x,y)
+		var control_index:Integer = hitTest(deviceMessage.wx, deviceMessage.wy);
+
+		//================================================================================================================================================================================
+		// No Control is hit. Handle Complex Clip Click and exit.
+		//================================================================================================================================================================================
+
+		if(control_index==-1 || control_index==Number.MAX_VALUE)
+		{
+			// Reset m_Current_Control_Index so the next time the user hovers over a Control it will be different than control_index.
+			m_Current_Control_Index = -1;
+
+			// Reset mouse captured button to active
+			if(m_MouseCapturedButton)
+			{
+				__resetPressedControl(m_MouseCapturedButton);
+			}
+
+			// Reset hovered button to active
+			if(CocoComplexUIClip.HoverControl && __children.indexOf(CocoComplexUIClip.HoverControl)!=-1)
+			{
+				__resetHoverControl();
+			}
+
+			// Check if we clicked on a Dialogue Panel
+			if(IsDialogue)
+			{
+		    	switch(deviceMessage.type)
+		    	{
+				case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START:
+
+					__tick_calc_bounding_box(ctx);
+					if(super.hitTest(deviceMessage.wx, deviceMessage.wy)==0)
+					{
+						__touch_start_time = engine.__clock;
+						__touch_start_point.x = deviceMessage.wx;
+						__touch_start_point.y = deviceMessage.wy;
+						deviceMessage.handled = true;
+					}
+					break;
+
+				case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END:
+
+					if(__touch_start_time!=0)
+					{
+						__tick_calc_bounding_box(ctx);
+						if(super.hitTest(deviceMessage.wx, deviceMessage.wy)==0)
+						{
+							engine.__pushClicked(this, deviceMessage.wx, deviceMessage.wy);
+							if(onClick)
+								onClick(this, deviceMessage);
+							deviceMessage.handled = true;
+						}
+					}
+					else
+					{
+						// Clicked outside dialog
+						if(onClose)
+							onClose(this, deviceMessage);
+					}
+					break;
+
+				default:
+					break;
+		    	}
+			}
+
+			// Reset mouse captured button
+			if(deviceMessage.type==DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END)
+			{
+				__touch_start_time = 0;
+
+				if(m_MouseCapturedButton)
+				{
+					m_MouseCapturedButton = null;
+					deviceMessage.cycle = 3;
+				}
+			}
+
+			return null;
+		}
+
+		//================================================================================================================================================================================
+		// Control hit
+		//================================================================================================================================================================================
+
+		var ctl:CocoComplexUIControl = getControl(control_index);
+		if(!ctl) return deviceMessage;
+
+		// Prevent other clips on the same z-Axis to handle this message
+		deviceMessage.handled = true;
+		deviceMessage.handledBy = ctl;
+
+		// We wont bother with inactive buttons
+		#if (makefile.Vars.PROJECT_LAYOUT=="DESKTOP" || makefile.Vars.PROJECT_LAYOUT=="DESKTOP2")
+		if(ctl.ControlState==COCO_COMPLEX_UI_INACTIVE && (ctl.ControlType==COCO_COMPLEX_UI_CONTROL_TEXTBOX && ctl.ReadOnly))
+		{
+			// Reset m_Current_Control_Index so the next time the user hovers over a Control it will be different than control_index.
+			m_Current_Control_Index = -1;
+			return deviceMessage;
+		}
+		#endif
+
+		if(ctl.ControlState==COCO_COMPLEX_UI_INACTIVE)
+		{
+			return deviceMessage;
+		}
+
+    	switch(deviceMessage.type)
+    	{
+		case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_START:
+
+			// Reset mouse captured control
+			m_MouseCapturedButton = null;
+
+			// Reset previous hovered control
+			if(CocoComplexUIClip.HoverControl)
+			{
+				__resetHoverControl();
+			}
+
+			// If button, capture mouse
+			if(ctl.ControlType==COCO_COMPLEX_UI_CONTROL_BUTTON)
+			{
+				m_MouseCapturedButton = ctl;
+			}
+
+			// Set control to pessed state
+			if(ctl.ControlType!=COCO_COMPLEX_UI_CONTROL_TEXTBOX || (ctl.ControlType==COCO_COMPLEX_UI_CONTROL_TEXTBOX && !ctl.SkipFocus))
+			{
+				__setPressedControl(ctl);
+			}
+
+			// Keep click control variables
+			__touch_start_time = engine.__clock;
+			__touch_start_point.x = deviceMessage.vx;
+			__touch_start_point.y = deviceMessage.vy;
+
+			break;
+
+		case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_MOVE:
+
+			// Reset/Restore mouse captured control state
+			if(m_MouseCapturedButton)
+			{
+				if(m_MouseCapturedButton == ctl)
+				{
+					__setPressedControl(ctl);
+				}
+				else
+				{
+					__resetPressedControl(ctl);
+				}
+			}
+
+			// Play control hover sound only the first time the user hovers on a Control.
+			if(ctl.AudioHover && m_Current_Control_Index != control_index)
+			{
+				ctl.AudioHover.play();
+
+				// If the user has hovered over a different control than the previous one, then assign to m_Current_Control_Index the index of that control.
+				// That way if the user keeps hovering over the same control the sound won't keep playing repeatedly.
+				if(m_Current_Control_Index != control_index)
+					m_Current_Control_Index = control_index;
+			}
+
+			// Reset previous hovered control
+			if(CocoComplexUIClip.HoverControl && CocoComplexUIClip.HoverControl!=ctl)
+			{
+				__resetHoverControl();
+			}
+
+			// Set new hovered control
+			if(!m_MouseCapturedButton && ctl.ControlType==COCO_COMPLEX_UI_CONTROL_BUTTON)
+			{
+				__setHoverControl(ctl);
+			}
+
+			break;
+
+		case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_END:
+
+			// Reset click control variables
+			__touch_start_time = 0;
+			m_MouseCapturedButton = null;
+
+			// If text box, attempt to set focus
+			if(ctl.ControlType==COCO_COMPLEX_UI_CONTROL_TEXTBOX)
+			{
+				if(!ctl.SkipFocus && ctl!=CocoComplexUIClip.ActiveTextBox)
+				{
+					if(!ctl.SetFocus())
+					{
+						return deviceMessage;
+					}
+					else
+					{
+						ctl.ControlState = COCO_COMPLEX_UI_FOCUSED;
+					}
+				}
+			}
+			else
+			{
+				if(!KeyPad)
+				{
+					if(CocoComplexUIClip.ActiveTextBox)
+					{
+						if(!CocoComplexUIClip.ActiveTextBox.LostFocus())
+						{
+							return deviceMessage;
+						}
+					}
+
+					// No more active text box
+					CocoComplexUIClip.ActiveTextBox = null;
+				}
+			}
+
+			// Toggle Checkbox
+			if(ctl.ControlType==COCO_COMPLEX_UI_CONTROL_CHECKBOX)
+			{
+				ctl.CheckboxValue = !ctl.CheckboxValue;
+			}
+
+			// For any other control than textbox, set active control
+			// It will render as pressed for 2 cycles and then it will
+			// rest its state to active.
+			if(ctl.ControlType!=COCO_COMPLEX_UI_CONTROL_TEXTBOX)
+			{
+				CocoComplexUIClip.ClickedControl = ctl;
+				CocoComplexUIClip.ClickedControl.ControlState = COCO_COMPLEX_UI_PRESSED;
+				CocoComplexUIClip.ClickedControl.ClickReset = 2;
+
+				__setPressedControl(ctl);
+			}
+
+			// Push control in engine's clicked list
+			engine.__pushClicked(ctl, deviceMessage.vx, deviceMessage.vy);
+
+			// Play control click sound
+			if(ctl.AudioClick)
+			{
+				ctl.AudioClick.play();
+			}
+
+			// Run click handlers
+			if(ctl.onClick)
+			{
+				ctl.onClick(ctl, deviceMessage);
+			}
+
+			break;
+
+		case DEVICE_MESSAGE_ENUM.MESSAGE_TOUCH_DBLCLICK:
+
+			engine.__pushDblClicked(ctl, deviceMessage.vx, deviceMessage.vy);
+			break;
+
+		default:
+			break;
+    	}
+
+	   	return deviceMessage;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __setPressedControl(ctl:CocoComplexUIControl)
+	{
+		if(ctl.ControlState==COCO_COMPLEX_UI_PRESSED)
+			return;
+
+		ctl.ControlState = COCO_COMPLEX_UI_PRESSED;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __resetPressedControl(ctl:CocoComplexUIControl)
+	{
+		if(ctl.ControlState==COCO_COMPLEX_UI_ACTIVE || ctl.ControlState==COCO_COMPLEX_UI_INACTIVE)
+			return;
+
+		ctl.ControlState = COCO_COMPLEX_UI_ACTIVE;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __setHoverControl(ctl:CocoComplexUIControl)
+	{
+		if(ctl.ControlState!=COCO_COMPLEX_UI_INACTIVE)
+		{
+			CocoComplexUIClip.HoverControl = ctl;
+			ctl.ControlState = COCO_COMPLEX_UI_HOVER;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __resetHoverControl()
+	{
+		if(CocoComplexUIClip.HoverControl)
+		{
+			__resetPressedControl(CocoComplexUIClip.HoverControl);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function hitTest(wx:Float, wy:Float) : Integer
+	{
+		var i:Integer;
+		var L:Integer = __children.size();
+		var x:Float;
+		var y:Float;
+		var w:Float;
+		var h:Float;
+
+		for(i=0; i<L; i++)
+		{
+			if(getControlState(i)==COCO_COMPLEX_UI_INACTIVE) continue;
+
+			x = Rectangles[4*i];
+			y = Rectangles[4*i+1];
+			w = Rectangles[4*i+2];
+			h = Rectangles[4*i+3];
+
+			v_in.reset(x, y, 0, 1);
+			__MV.vectorMultiply(v_in, v_out);
+
+			w = __MV.__m.rc11 * w;
+			h = __MV.__m.rc22 * h;
+
+			if(w==0 || h==0) continue;
+
+			__vABS_TOP_LEFT.reset(v_out.X-w/2, v_out.Y-h/2);
+			__vABS_TOP_RIGHT.reset(v_out.X+w/2, v_out.Y-h/2);
+			__vABS_BOTTOM_LEFT.reset(v_out.X-w/2, v_out.Y+h/2);
+			__vABS_BOTTOM_RIGHT.reset(v_out.X+w/2, v_out.Y+h/2);
+
+			if ((((wx - __vABS_TOP_LEFT.X) * (__vABS_TOP_RIGHT.Y - __vABS_TOP_LEFT.Y) - (__vABS_TOP_RIGHT.X - __vABS_TOP_LEFT.X) * (wy - __vABS_TOP_LEFT.Y)) * ((wx - __vABS_BOTTOM_RIGHT.X) * (__vABS_BOTTOM_LEFT.Y - __vABS_BOTTOM_RIGHT.Y) - (__vABS_BOTTOM_LEFT.X - __vABS_BOTTOM_RIGHT.X) * (wy - __vABS_BOTTOM_RIGHT.Y))) > 0
+		    && (((wx - __vABS_TOP_RIGHT.X) * (__vABS_BOTTOM_RIGHT.Y - __vABS_TOP_RIGHT.Y) - (__vABS_BOTTOM_RIGHT.X - __vABS_TOP_RIGHT.X) * (wy - __vABS_TOP_RIGHT.Y)) * ((wx - __vABS_BOTTOM_LEFT.X) * (__vABS_TOP_LEFT.Y - __vABS_BOTTOM_LEFT.Y) - (__vABS_TOP_LEFT.X - __vABS_BOTTOM_LEFT.X) * (wy - __vABS_BOTTOM_LEFT.Y))) > 0)
+			{
+				return i;
+			}
+		}
+
+		// Return -2 if clickin of the panel
+		__tick_calc_bounding_box(engine.__ctx);
+		if(super.hitTest(wx, wy)==0)
+			return Number.MAX_VALUE;
+
+		return -1;
+	}
+}

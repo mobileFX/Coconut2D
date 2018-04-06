@@ -1,0 +1,284 @@
+
+grammar JavaScript<MATCHCASE>
+{
+    // STARTING SYMBOL ===================================================================================
+
+	Statements ::= [ { Statement } ];
+
+    // WHITESPACE ========================================================================================
+
+	space_symbol <HIDDEN> ::= { WHITESPACE | COMMENT | MULTILINE_COMMENT };
+
+	WHITESPACE 			<WHITESPACE> 			::= '[\s\n\r]+';
+	COMMENT 			<COMMENT> 				::= '//[^\n\r]*$';
+	MULTILINE_COMMENT 	<MULTILINE_COMMENT> 	::= '/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/';
+
+	// STATEMENTS ========================================================================================
+
+	Statement   ::=
+				(	Block
+				|	EmptyStatement
+				|	FunctionDeclaration
+				|	VariableStatement
+				|	LabelledStatement
+				|	IfStatement
+				|	IterationStatement
+				|	ContinueStatement
+				|	BreakStatement
+				|	ReturnStatement
+				|	WithStatement
+				|	SwitchStatement
+				|	ThrowStatement
+				|	TryStatement
+				|	ExpressionStatement
+				|	SelfCallingFunction
+				);
+
+	//------------------------------------------------------------
+
+	Block<SCOPEBLOCK> ::= "{" [ Statements ] "}";
+
+	//------------------------------------------------------------
+
+	EmptyStatement<STATEMENT> ::= ";";
+
+	//------------------------------------------------------------
+
+	VariableStatement<STATEMENT> 	::= "var" VariableDeclarationList [ ";" ];
+
+		VariableDeclarationList 	::= VariableDeclaration [ "," VariableDeclaration ];
+
+		VariableDeclarationListNoIn ::= VariableDeclarationNoIn [ "," VariableDeclarationNoIn ];
+
+		VariableDeclaration 		::= Identifier [ Initialiser ];
+
+		VariableDeclarationNoIn 	::= Identifier [ InitialiserNoIn ];
+
+		Initialiser 				::= "=" AssignmentExpression;
+
+		InitialiserNoIn 			::= "=" AssignmentExpressionNoIn;
+
+	//------------------------------------------------------------
+
+	IfStatement<STATEMENT> ::= "if" "(" Expression ")" Statement [ "else" Statement ];
+
+	//------------------------------------------------------------
+
+	IterationStatement<STATEMENT>  					::= DoStatement
+								   					|   WhileStatement
+								   					|   ForStatement
+								   					|   ForInStatement
+								   					|   ForLeftHandSideExprStatement;
+
+		DoStatement<STATEMENT> 						::= "do" Statement "while" "(" Expression ")" [ ";" ];
+
+		WhileStatement<STATEMENT> 					::= "while" "(" Expression ")" Statement;
+
+		ForStatement<STATEMENT> 					::= "for" "(" ["var"] [ ExpressionNoIn ] ";" [ Expression ] ";" [ Expression ] ")" Statement;
+
+		ForInStatement<STATEMENT> 					::= "for" "(" ["var"] VariableDeclarationNoIn "in" Expression ")" Statement;
+
+		ForLeftHandSideExprStatement<STATEMENT> 	::= "for" "(" LeftHandSideExpressionForIn "in" Expression ")" Statement;
+
+		ContinueStatement<STATEMENT> 				::= "continue" [ Identifier ] [ ";" ];
+
+		BreakStatement<STATEMENT> 					::= "break" [ Identifier ] [ ";" ];
+
+		ReturnStatement<STATEMENT> 					::= "return" [ Expression ] [ ";" ];
+
+	//------------------------------------------------------------
+
+	SwitchStatement<STATEMENT> 			::= "switch" "(" Expression ")" CaseBlock;
+
+		CaseBlock			 			::= "{" [ CaseClauses ] ( "}" | ( DefaultClause [ CaseClauses ] "}" ) );
+
+		CaseClauses 					::= { CaseClause };
+
+		CaseClause 						::= ( ( "case" Expression ":" ) ) [ Statements ];
+
+		DefaultClause 					::= ( ( "default" ":" ) ) [ Statements ];
+
+		LabelledStatement<STATEMENT>	::= Identifier ":" Statement;
+
+	//------------------------------------------------------------
+
+	ThrowStatement<STATEMENT> 		::= "throw" Expression [ ";" ];
+
+	TryStatement<STATEMENT> 		::= "try" Block ( Finally | ( Catch [ Finally ] ) );
+
+		Catch 						::= "catch" "(" Identifier ")" Block;
+
+		Finally 					::= "finally" Block;
+
+	//------------------------------------------------------------
+
+	FunctionDeclaration 			::= "function" Identifier ( "(" [ FormalParameterList ] ")" ) FunctionBody;
+
+	FunctionExpression 				::= "function" [ Identifier ] ( "(" [ FormalParameterList ] ")" ) FunctionBody;
+
+	SelfCallingFunction 			::= "(" FunctionExpression Arguments ")" [ ";" ];
+
+		FormalParameterList 		::= Identifier [ "," Identifier ];
+
+		FunctionBody 				::= Block;
+
+	//------------------------------------------------------------
+
+	WithStatement<STATEMENT> 		::= "with" "(" Expression ")" Statement;
+
+
+    // EXPRESSIONS =======================================================================================
+
+	ExpressionStatement<STATEMENT> 	::= Expression [ ";" ];
+
+	Expression						::= AssignmentExpression [ "," AssignmentExpression ];
+
+	AssignmentExpression			::= ( ( LeftHandSideExpression AssignmentOperator AssignmentExpression ) | ConditionalExpression );
+	AssignmentExpressionNoIn 		::= ( ( LeftHandSideExpression AssignmentOperator AssignmentExpressionNoIn ) | ConditionalExpressionNoIn );
+	ConditionalExpression 			::= LogicalORExpression [ "?" AssignmentExpression ":" AssignmentExpression ];
+	ConditionalExpressionNoIn 		::= LogicalORExpressionNoIn [ "?" AssignmentExpression ":" AssignmentExpressionNoIn ];
+
+	BitwiseANDExpression 			::= EqualityExpression [ BitwiseANDOperator EqualityExpression ];
+	BitwiseANDExpressionNoIn 		::= EqualityExpressionNoIn [ BitwiseANDOperator EqualityExpressionNoIn ];
+	BitwiseORExpression 			::= BitwiseXORExpression [ BitwiseOROperator BitwiseXORExpression ];
+	BitwiseORExpressionNoIn 		::= BitwiseXORExpressionNoIn [ BitwiseOROperator BitwiseXORExpressionNoIn ];
+	BitwiseXORExpression 			::= BitwiseANDExpression [ BitwiseXOROperator BitwiseANDExpression ];
+	BitwiseXORExpressionNoIn 		::= BitwiseANDExpressionNoIn [ BitwiseXOROperator BitwiseANDExpressionNoIn ];
+
+	AdditiveExpression 				::= MultiplicativeExpression [ AdditiveOperator MultiplicativeExpression ];
+	EqualityExpression 				::= RelationalExpression [ EqualityOperator RelationalExpression ];
+	EqualityExpressionNoIn 			::= RelationalExpressionNoIn [ EqualityOperator RelationalExpressionNoIn ];
+	ExpressionNoIn 					::= AssignmentExpressionNoIn [ "," AssignmentExpressionNoIn ];
+	LogicalANDExpression 			::= BitwiseORExpression [ LogicalANDOperator BitwiseORExpression ];
+	LogicalANDExpressionNoIn 		::= BitwiseORExpressionNoIn [ LogicalANDOperator BitwiseORExpressionNoIn ];
+	LogicalORExpression 			::= LogicalANDExpression [ LogicalOROperator LogicalANDExpression ];
+	LogicalORExpressionNoIn 		::= LogicalANDExpressionNoIn [ LogicalOROperator LogicalANDExpressionNoIn ];
+	MultiplicativeExpression 		::= UnaryExpression [ MultiplicativeOperator UnaryExpression ];
+	PostfixExpression 				::= LeftHandSideExpression [ PostfixOperator ];
+	RelationalExpression 			::= ShiftExpression [ RelationalOperator ShiftExpression ];
+	RelationalExpressionNoIn 		::= ShiftExpression [ RelationalNoInOperator ShiftExpression ];
+	ShiftExpression 				::= AdditiveExpression [ ShiftOperator AdditiveExpression ];
+	UnaryExpression 				::= ( PostfixExpression | { (UnaryOperator UnaryExpression) } );
+
+	LeftHandSideExpression 			::= CallExpression | MemberExpression;
+
+	//------------------------------------------------------------
+
+	CallExpression 				::= MemberExpression Arguments [ CallExpressionPart ];
+
+	MemberExpression 			::= ( ( FunctionExpression | PrimaryExpression ) [ MemberExpressionPart ] )
+								|	AllocationExpression;
+
+		PrimaryExpression 		::= "this" | ObjectLiteral | Identifier | ArrayLiteral | Literal | ( "(" ")" );
+
+		AllocationExpression	::= ( "new" MemberExpression ( [ Arguments [ MemberExpressionPart ] ] ) );
+
+		MemberExpressionPart	::= ( "[" Expression "]" )
+								|	( "." Identifier );
+
+	CallExpressionPart 	::= Arguments
+					   	|   ( "[" Expression "]" )
+					   	|   ( "." Identifier );
+
+		Arguments 	   	::= "(" [ ArgumentList ] ")";
+
+		ArgumentList   	::= AssignmentExpression [ "," AssignmentExpression ];
+
+	//------------------------------------------------------------
+
+	ObjectLiteral 					::= "{" [ PropertyNameAndValueList ] "}";
+
+		PropertyNameAndValueList 	::= PropertyNameAndValue [ ( "," PropertyNameAndValue ) | "," ];
+
+		PropertyNameAndValue 		::= PropertyName ":" AssignmentExpression;
+
+		PropertyName 				::= Identifier
+									|	STRING_LITERAL
+									|	DECIMAL_LITERAL;
+
+	//------------------------------------------------------------
+
+	ArrayLiteral 	::= "[" ( [ Elision ] | ( ElementList Elision ) | [ ElementList ] );
+
+		ElementList ::= [ Elision ] AssignmentExpression [ Elision AssignmentExpression ];
+
+		Elision 	::= { "," };
+
+	//------------------------------------------------------------
+
+	Literal ::= NUMERIC_LITERAL
+			|   STRING_LITERAL
+			|   BOOLEAN_LITERAL
+			|   NULL_LITERAL
+			|   REGULAR_EXPRESSION_LITERAL;
+
+	//------------------------------------------------------------
+
+	LeftHandSideExpressionForIn 	::= CallExpressionForIn | MemberExpressionForIn;
+	CallExpressionForIn 			::= MemberExpressionForIn Arguments [ CallExpressionPart ];
+	MemberExpressionForIn 			::= ( ( FunctionExpression | PrimaryExpression ) [ MemberExpressionPart ] );
+
+
+    // OPERATORS =========================================================================================
+
+	AdditiveOperator<OPERATOR> 			::= ( "+" | "-" );
+	AssignmentOperator<OPERATOR>		::= ( "=" | "*=" | SLASHASSIGN | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|=" );
+	BitwiseANDOperator<OPERATOR>		::= "&";
+	BitwiseOROperator<OPERATOR>			::= "|";
+	BitwiseXOROperator<OPERATOR>		::= "^";
+	EqualityOperator<OPERATOR>			::= ( "==" | "!=" | "===" | "!==" );
+	LogicalANDOperator<OPERATOR>		::= "&&";
+	LogicalOROperator<OPERATOR>			::= "||";
+	MultiplicativeOperator<OPERATOR>	::= ( "*" | SLASH | "%" );
+	PostfixOperator<OPERATOR>			::= ( "++" | "--" );
+	RelationalNoInOperator<OPERATOR>	::= ( "<" | ">" | "<=" | ">=" | "instanceof" );
+	RelationalOperator<OPERATOR>		::= ( "<" | ">" | "<=" | ">=" | "instanceof" | "in" );
+	ShiftOperator<OPERATOR>				::= ( "<<" | ">>" | ">>>" );
+	UnaryOperator<OPERATOR>				::= ( "delete" | "void" | "typeof" | "++" | "--" | "+" | "-" | "~" | "!" );
+
+	// IDENTIFIERS & LITERALS ==========================================================================================
+
+	Identifier<TERMINAL>							::= IDENTIFIER_NAME;
+	HEX_INTEGER_LITERAL<TERMINAL>					::= NUMERIC_LITERAL;
+	BOOLEAN_LITERAL<TERMINAL>						::= ( "true" | "false" );
+	NULL_LITERAL<TERMINAL>							::= "null";
+	REGULAR_EXPRESSION_LITERAL<REGEXP, TERMINAL> 	::= '/[^/*]{1}[^/\n\s]*/(?:[img]{0,3})';
+	IDENTIFIER_NAME									::= ^keyword identifier;
+	STRING_LITERAL<STRING, TERMINAL> 				::= '\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27';
+	DECIMAL_LITERAL <TERMINAL> 						::= '(?:\d+e(?:\+|\-)?\d+)|(?:0[xX][0-9a-fA-F]+)|(?:\d+(?:\.\d+){0,1}[fd]{0,1})';
+	NUMERIC_LITERAL<TERMINAL>						::= '(?:0[xX][0-9a-fA-F]+)|(?:[0-9]+(?:\.[0-9]+){0,1})|(?:\.[0-9]+e(\+|\-){0,1}[0-9]+)';
+	SLASH											::= "\";
+	SLASHASSIGN										::= "\=";
+	identifier 										::= '[a-zA-Z_\$][a-zA-Z0-9_\$]*';
+
+	// KEYWORDS ==========================================================================================
+
+	keyword ::= "break"
+	          | "continue"
+	          | "delete"
+	          | "do"
+	          | "while"
+	          | "for"
+	          | "in"
+	          | "while"
+	          | "default"
+	          | "return"
+	          | "switch"
+	          | "case"
+	          | "var"
+	          | "if"
+	          | "with"
+	          | "function"
+	          | "else"
+	          | "new"
+	          | "throw"
+	          | "try"
+	          | "catch"
+	          | "finally"
+	          | "void"
+	          | "trhe"
+	          | "false"
+	          | "null"
+	          | "var"
+		      ;
+};

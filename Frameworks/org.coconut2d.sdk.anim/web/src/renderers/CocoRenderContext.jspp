@@ -1,0 +1,212 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	    __________                 ____                 __          ______            __            __
+//	   /  _/ ____/___  _________  / __ \___  ____  ____/ /__  _____/ ____/___  ____  / /____  _  __/ /_
+//	   / // /   / __ \/ ___/ __ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ /   / __ \/ __ \/ __/ _ \| |/_/ __/
+//	 _/ // /___/ /_/ / /__/ /_/ / _, _/  __/ / / / /_/ /  __/ /  / /___/ /_/ / / / / /_/  __/>  </ /_
+//	/___/\____/\____/\___/\____/_/ |_|\___/_/ /_/\__,_/\___/_/   \____/\____/_/ /_/\__/\___/_/|_|\__/
+//
+// ==================================================================================================================================
+
+enum COCO_RENDERING_CONTEXT_ENUM
+{
+	COCO_RENDERING_CONTEXT_WEBGL		= 1,
+	COCO_RENDERING_CONTEXT_2D_CANVAS	= 2,
+	COCO_RENDERING_CONTEXT_CSS3			= 3
+};
+
+interface ICocoRenderContext
+{
+	public function getName():String;
+	public function getType():COCO_RENDERING_CONTEXT_ENUM;
+
+	public function getModelViewMatrix():CocoMatrix;
+	public function getProjectionMatrix():CocoMatrix;
+
+	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix);
+
+	public function getCanvasLogicalWidth():Integer;
+	public function getCanvasLogicalHeight():Integer;
+
+	public function getScreenBufferWidth():Integer;
+	public function getScreenBufferHeight():Integer;
+
+	public function getFrameBufferWidth():Integer;
+	public function getFrameBufferHeight():Integer;
+	public function getFrameBufferViewScale():Float;
+
+	public function cls();
+	public function clip(x:Float, y:Float, w:Float, h:Float);
+	public function clipDisable();
+	public function flush();
+	public function finish();
+	public function ready():Boolean;
+	public function prepare(viewScale:Float);
+	public function prepareClip(clip:CocoClip);
+	public function prepareVideoFrame(img:CocoImage, video:HTMLVideoElement):CocoImage;
+	public function prepareImage(img:CocoImage):ICocoImageRenderData;
+	public function drawFrame(scene:CocoScene, clip:CocoClip);
+	public function drawImage(image:CocoImage, optional tx:Float, optional ty:Float, optional flipH:Boolean, optional flipV:Boolean);
+	public function drawMaskBegin();
+	public function drawMaskEnd(invert:Boolean);
+	public function drawBoundingBox(clip:CocoClip);
+	public function hide();
+	public function show();
+	public function getHtmlElement():HTMLElement;
+	public function swapBinAtlasRenderData(clip:CocoClip):Boolean;
+}
+
+// ==================================================================================================================================
+//	   ______                 ____                 __          ______            __            __
+//	  / ____/___  _________  / __ \___  ____  ____/ /__  _____/ ____/___  ____  / /____  _  __/ /_
+//	 / /   / __ \/ ___/ __ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ /   / __ \/ __ \/ __/ _ \| |/_/ __/
+//	/ /___/ /_/ / /__/ /_/ / _, _/  __/ / / / /_/ /  __/ /  / /___/ /_/ / / / / /_/  __/>  </ /_
+//	\____/\____/\___/\____/_/ |_|\___/_/ /_/\__,_/\___/_/   \____/\____/_/ /_/\__/\___/_/|_|\__/
+//
+// ==================================================================================================================================
+
+class CocoRenderContext
+{
+	public function Constructor()
+	{
+	}
+
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function createContext():ICocoRenderContext
+	{
+		// ==========================================
+		// Try to get a WebGL Rendering Context
+		// ==========================================
+		if(!engine.device.Force2D && !engine.device.ForceCSS3)// && !engine.device.isIPad2)
+		{
+			var canvas:HTMLCanvasElement = HTMLCanvasElement(document.body.appendChild(document.createElement("canvas")));
+			canvas.id = "__coconut2d_canvas";
+
+			var args:ContextArguments = new ContextArguments();
+
+			args.alpha								= engine.device.argv("WebGL_Alpha", "true")=="true";
+			args.antialias							= engine.device.argv("WebGL_Antialias", "true")=="true";
+			args.depth								= engine.device.argv("WebGL_Depth", "true")=="true";
+			args.failIfMajorPerformanceCaveat		= engine.device.argv("WebGL_FailIfMajorPerformanceCaveat", "false")=="true";
+			args.premultipliedAlpha					= engine.device.argv("WebGL_PremultipliedAlpha", "false")=="true";
+			args.preserveDrawingBuffer				= engine.device.argv("WebGL_PreserveDrawingBuffer", "false")=="true";
+			args.stencil							= engine.device.argv("WebGL_Stencil", "false")=="true";
+
+			var implementation:Array<String> = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+			var imp:String;
+			var gl:WebGLRenderingContext;
+			for(var i:Integer=0; i<implementation.size(); i++)
+			{
+				imp = implementation[i];
+
+				gl = WebGLRenderingContext(canvas.getContext(imp, args));
+				if(gl)
+				{
+					trace("Rendering with HTML5 WebGL Canvas API (" + imp + ")");
+					delete implementation;
+
+					document.body.appendChild(canvas);
+					EnableMedia(canvas);
+					return new CocoRenderContextGL(gl);
+				}
+			}
+		}
+
+		// ==========================================
+		// Fallback to CSS3 Context
+		// ==========================================
+		var css3:Boolean = !engine.device.Force2D && (engine.device.isDesktopSafari || engine.device.ForceCSS3 || engine.device.isIPad1 || engine.device.isIPad2);
+		if(css3)
+		{
+			var DIV:HTMLDivElement = HTMLDivElement(document.body.appendChild(document.createElement("DIV")));
+			DIV.id = "__coconut2d_canvas";
+			EnableMedia(DIV);
+			return new CocoRenderContextCSS3(DIV);
+		}
+
+		// ==========================================
+		// Fallback to CanvasRenderingContext2D
+		// ==========================================
+		{
+			var canvas:HTMLCanvasElement = HTMLCanvasElement(document.body.appendChild(document.createElement("canvas")));
+			canvas.id = "__coconut2d_canvas";
+			EnableMedia(canvas);
+
+			// set the display size of the canvas
+			canvas.style.width 		= String(engine.device.LogicalPixelsWidth) + "px";
+			canvas.style.height 	= String(engine.device.LogicalPixelsHeight) + "px";
+
+			// set the size of the drawingBuffer
+			canvas.width 			= Math.ceil(engine.device.LogicalPixelsWidth);
+			canvas.height 			= Math.ceil(engine.device.LogicalPixelsHeight);
+
+			var ctx:CanvasRenderingContext2D = CanvasRenderingContext2D(canvas.getContext("2d"));
+			return new CocoRenderContext2D(ctx);
+		}
+
+		throw "Invalid rendering device.";
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private static function EnableMedia(el:HTMLElement)
+	{
+		if(engine.device.isMobileHTML5Browser)
+		{
+			document.body.onclick = function(e:HTMLEvent)
+			{
+				CocoAudioManager.mediaPlaybackRequiresUserAction();
+				__requestFullScreen();
+			};
+		}
+
+		el.ondragstart = function(e:HTMLEvent):Boolean
+		{
+		    if(e)
+		    {
+		    	e.preventDefault();
+		    	e.stopPropagation();
+		    }
+		    return false;
+		};
+
+		el.onselectstart = function(e:HTMLEvent):Boolean
+		{
+		    if(e)
+		    {
+		    	e.preventDefault();
+		    	e.stopPropagation();
+		    }
+		    return false;
+		};
+	}
+}

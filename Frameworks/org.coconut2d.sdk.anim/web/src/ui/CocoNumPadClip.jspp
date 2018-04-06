@@ -1,0 +1,206 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "CocoClip.jspp"
+
+enum COCO_NUMPAD_BUTTON
+{
+	COCO_NUMPAD_NONE		= 0,
+	COCO_NUMPAD_BACKSPACE	= 1,
+	COCO_NUMPAD_DOT			= 2,
+	COCO_NUMPAD_COMMA		= 3,
+	COCO_NUMPAD_COLON		= 4,
+	COCO_NUMPAD_FW_SLASH	= 5,
+	COCO_NUMPAD_BK_SLASH	= 6,
+	COCO_NUMPAD_DASH		= 7
+}
+
+enum COCO_NUMPAD_BUTTONS
+{
+	COCO_NUMPAD_CLOSE		= 0,
+	COCO_NUMPAD_9			= 1,
+	COCO_NUMPAD_8			= 2,
+	COCO_NUMPAD_7			= 3,
+	COCO_NUMPAD_6			= 4,
+	COCO_NUMPAD_5			= 5,
+	COCO_NUMPAD_4			= 6,
+	COCO_NUMPAD_3			= 7,
+	COCO_NUMPAD_2			= 8,
+	COCO_NUMPAD_1			= 9,
+	COCO_NUMPAD_B			= 10,
+	COCO_NUMPAD_0			= 11,
+	COCO_NUMPAD_A			= 12
+}
+
+class CocoNumPadClip : CocoComplexUIClip
+{
+	public reference var Buddy:CocoComplexUIControl;
+
+	published var ButtonA: COCO_NUMPAD_BUTTON;
+	published var ButtonB: COCO_NUMPAD_BUTTON;
+
+	private static var TouchTime:Time;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String, optional image:CocoImage) : CocoComplexUIClip(scene, name, image)
+	{
+		ButtonA = COCO_NUMPAD_BACKSPACE;
+		ButtonB = COCO_NUMPAD_DOT;
+		Buddy = null;
+		TouchTime = -1;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		Buddy = null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function prepare(ctx:ICocoRenderContext, scene:CocoScene, reset:Boolean)
+	{
+		super.prepare;
+
+		var A:CocoComplexUIControl = CocoComplexUIControl(__scene.getClipByPath("Root/Num Pad/Numpad/A"));
+		var B:CocoComplexUIControl = CocoComplexUIControl(__scene.getClipByPath("Root/Num Pad/Numpad/B"));
+
+		switch(ButtonA)
+		{
+		case COCO_NUMPAD_BACKSPACE:
+		case COCO_NUMPAD_DOT:		 A.Text = "."; 	break;
+		case COCO_NUMPAD_COMMA:      A.Text = ","; 	break;
+		case COCO_NUMPAD_COLON:      A.Text = ":"; 	break;
+		case COCO_NUMPAD_FW_SLASH:   A.Text = "/"; 	break;
+		case COCO_NUMPAD_BK_SLASH:   A.Text = "\\"; break;
+		case COCO_NUMPAD_DASH:       A.Text = "-";	break;
+		case COCO_NUMPAD_NONE:       A.Text = "";	break;
+		}
+
+		switch(ButtonB)
+		{
+		case COCO_NUMPAD_BACKSPACE:
+		case COCO_NUMPAD_DOT:		 B.Text = "."; 	break;
+		case COCO_NUMPAD_COMMA:      B.Text = ","; 	break;
+		case COCO_NUMPAD_COLON:      B.Text = ":"; 	break;
+		case COCO_NUMPAD_FW_SLASH:   B.Text = "/"; 	break;
+		case COCO_NUMPAD_BK_SLASH:   B.Text = "\\"; break;
+		case COCO_NUMPAD_DASH:       B.Text = "-";	break;
+		case COCO_NUMPAD_NONE:       B.Text = "";	break;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function __tick_handle_events(ctx:ICocoRenderContext):DEVICE_MESSAGE
+	{
+		// Handle events in super class and get the device message (if any) that hit-tests on this clip
+		var deviceMessage:DEVICE_MESSAGE = __tick_handle_events__(ctx, true);
+
+		// We handle only touch-end
+		if(!deviceMessage) return null;
+
+		// Indicate that this class handled the device message so that it does not bubble
+		deviceMessage.handled = true;
+
+		if(deviceMessage.type==MESSAGE_TOUCH_START)
+		{
+			TouchTime = Date.now();
+			return null;
+		}
+
+		if(deviceMessage.type!=MESSAGE_TOUCH_END)
+			return null;
+
+		// Check if there is a buddy control
+		if(!Buddy)
+			return null;
+
+		// Get buddy text
+		var txt:String = Buddy.Text;
+		var txtOrigSize:Integer = txt.size();
+		var index:Integer = getChildIndex(CocoComplexUIClip.ClickedControl);
+
+		switch(index)
+		{
+		case COCO_NUMPAD_CLOSE:
+			TouchTime = -1;
+			__scene.getClipByPath("Root/Num Pad").gotoFrameByName("HideNumPad", false);
+			CocoComplexUIClip.ActiveTextBox = null;
+			Buddy.LostFocus();
+			return null;
+
+		case COCO_NUMPAD_7: txt += "7"; break;
+		case COCO_NUMPAD_8: txt += "8"; break;
+		case COCO_NUMPAD_9: txt += "9"; break;
+		case COCO_NUMPAD_4: txt += "4"; break;
+		case COCO_NUMPAD_5: txt += "5"; break;
+		case COCO_NUMPAD_6: txt += "6"; break;
+		case COCO_NUMPAD_1: txt += "1"; break;
+		case COCO_NUMPAD_2: txt += "2"; break;
+		case COCO_NUMPAD_3: txt += "3"; break;
+		case COCO_NUMPAD_0: txt += "0"; break;
+
+		case COCO_NUMPAD_A: txt = handle_special_button(txt, ButtonA); break;
+		case COCO_NUMPAD_B: txt = handle_special_button(txt, ButtonB); break;
+		}
+
+		// Set buddy text after making sure that the user hasn't exceeded the maximum allowed number of characters.
+		Buddy.Text = (Buddy.TextLength > 0 && txt.size() > Buddy.TextLength) ? txt.substr(0, txtOrigSize) : txt;
+
+		// Make Buddy Active Control
+		Buddy.ControlState = COCO_COMPLEX_UI_FOCUSED;
+
+		// Reset prolonged touch timer
+		TouchTime = -1;
+
+		return deviceMessage;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function handle_special_button(txt:String, btn:COCO_NUMPAD_BUTTON):String
+	{
+		switch(btn)
+		{
+		case COCO_NUMPAD_BACKSPACE:
+
+			if(TouchTime>0 && Date.now() - TouchTime>1000)
+				txt = "";
+			else
+				txt = txt.slice(0, -1);
+
+			break;
+
+		case COCO_NUMPAD_DOT:		 txt += "."; 	break;
+		case COCO_NUMPAD_COMMA:      txt += ","; 	break;
+		case COCO_NUMPAD_COLON:      txt += ":"; 	break;
+		case COCO_NUMPAD_FW_SLASH:   txt += "/"; 	break;
+		case COCO_NUMPAD_BK_SLASH:   txt += "\\"; 	break;
+		case COCO_NUMPAD_DASH:       txt += "-";	break;
+		}
+
+		return txt;
+	}
+}

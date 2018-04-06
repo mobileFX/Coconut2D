@@ -1,0 +1,485 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "CocoDataset.jspp"
+
+// ==================================================================================================================================
+//	   ______                 __  __________        __        ______            __             __
+//	  / ____/___  _________  / / / /  _/ __ \____ _/ /_____ _/ ____/___  ____  / /__________  / /
+//	 / /   / __ \/ ___/ __ \/ / / // // / / / __ `/ __/ __ `/ /   / __ \/ __ \/ __/ ___/ __ \/ /
+//	/ /___/ /_/ / /__/ /_/ / /_/ // // /_/ / /_/ / /_/ /_/ / /___/ /_/ / / / / /_/ /  / /_/ / /
+//	\____/\____/\___/\____/\____/___/_____/\__,_/\__/\__,_/\____/\____/_/ /_/\__/_/   \____/_/
+//
+// ==================================================================================================================================
+
+class CocoUIDataControl : CocoUIView
+{
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene, name:String) : CocoUIView(scene, name)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+}
+
+// ==================================================================================================================================
+//	    ____        __           _____
+//	   / __ \____ _/ /_____ _   / ___/____  __  _______________
+//	  / / / / __ `/ __/ __ `/   \__ \/ __ \/ / / / ___/ ___/ _ \
+//	 / /_/ / /_/ / /_/ /_/ /   ___/ / /_/ / /_/ / /  / /__/  __/
+//	/_____/\__,_/\__/\__,_/   /____/\____/\__,_/_/   \___/\___/
+//
+// ==================================================================================================================================
+
+struct COCO_SQL_STMT
+{
+	ID:String;
+	SQL:String;
+}
+
+class CocoDataSource
+{
+	public reference var scene:CocoScene;
+
+	public var ID:String;
+	public var Mode:String;
+
+	public var LocalDatabase:String;
+	public var LocalSync:Boolean;
+	public var LocalSyncPolicy:Integer;
+
+    public var RemoteIP:String;
+    public var RemotePort:Integer;
+    public var RemoteUser:String;
+    public var RemotePassword:String;
+    public var RemoteDatabase:String;
+
+	public var __SQL:Array<COCO_SQL_STMT>;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(scene:CocoScene)
+	{
+		this.scene = scene;
+
+		ID="";
+		Mode="client";
+
+		LocalDatabase="";
+		LocalSync=false;
+		LocalSyncPolicy=0;
+
+        RemoteIP = "";
+        RemotePort = 0;
+        RemoteUser = "";
+        RemotePassword = "";
+        RemoteDatabase = "";
+
+		__SQL = new Array<COCO_SQL_STMT>;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete __SQL;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function connectionString():String
+	{
+		return LocalDatabase;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function addSQL(ID:String, SQL:String)
+	{
+		var stmt:COCO_SQL_STMT = new COCO_SQL_STMT;
+		stmt.ID = ID;
+		stmt.SQL = SQL;
+		__SQL.push(stmt);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function buildWhereClause(ID:String, optional params:Array<CocoDataParm> = null):String
+	{
+		var SQL:String;
+
+		for(var i:Integer = __SQL.size()-1; i>=0; i--)
+		{
+			if(__SQL[i].ID == ID)
+			{
+				SQL = __SQL[i].SQL;
+				break;
+			}
+		}
+		if(SQL)
+		{
+			var where:String = "";
+			if(params.size()>0)
+			{
+				for(i=0; i<params.size(); i++)
+				{
+					where += (i>0 ? " AND " : "WHERE ") + params[i].FieldName+params[i].Operator+params[i].FieldValue;
+				}
+			}
+
+			SQL = SQL.replace("WHERE [WHERE]", where);
+		}
+
+		return SQL;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function openDataMember(ID:String, optional params:Array<CocoDataParm> = null):CocoDataset
+	{
+		var ds:CocoDataset = new CocoDataset;
+		ds.name = ID;
+		if(!ds.open(connectionString(), buildWhereClause(ID, params)))
+		{
+			delete ds;
+			ds = null;
+		}
+		return ds;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____        __        ____  _           ___
+//	  / ____/___  _________  / __ \____ _/ /_____ _/ __ )(_)___  ____/ (_)___  ____ _
+//	 / /   / __ \/ ___/ __ \/ / / / __ `/ __/ __ `/ __  / / __ \/ __  / / __ \/ __ `/
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /_/ /_/ / /_/ / / / / / /_/ / / / / / /_/ /
+//	\____/\____/\___/\____/_____/\__,_/\__/\__,_/_____/_/_/ /_/\__,_/_/_/ /_/\__, /
+//	                                                                        /____/
+// ==================================================================================================================================
+
+enum COCO_UI_DATA_CONSUMER_ENUM
+{
+    DATA_CONSUMER_SIMPLE_VALUE	= 0,
+    DATA_CONSUMER_SIMPLE_LABEL	= 1,
+    DATA_CONSUMER_LOOKUP		= 2,
+    DATA_CONSUMER_REPEATER		= 3,
+    DATA_CONSUMER_COMPLEX		= 4
+};
+
+struct CocoDataBinder
+{
+	BoundControl:CocoUIControl;
+	BoundControlProprtyName:String;
+	DataSetter:CocoDataBindSetter;
+	DataGetter:CocoDataBindGetter;
+	DataSource:CocoDataSource;
+	DataMember:String;
+	DataField:String;
+	DataConsumer:COCO_UI_DATA_CONSUMER_ENUM;
+	DataConsumerPageSize:Integer;
+	DataSet:CocoDataset;
+	RepeaterControls:Array<CocoUIControl>;
+}
+
+struct CocoDataParm
+{
+	FieldName:String;
+	Operator:String;
+	FieldValue:String;
+}
+
+// ==================================================================================================================================
+//	    ____  _           ___                     ______      ____          __  _
+//	   / __ )(_)___  ____/ (_)___  ____ ______   / ____/___  / / /__  _____/ /_(_)___  ____
+//	  / __  / / __ \/ __  / / __ \/ __ `/ ___/  / /   / __ \/ / / _ \/ ___/ __/ / __ \/ __ \
+//	 / /_/ / / / / / /_/ / / / / / /_/ (__  )  / /___/ /_/ / / /  __/ /__/ /_/ / /_/ / / / /
+//	/_____/_/_/ /_/\__,_/_/_/ /_/\__, /____/   \____/\____/_/_/\___/\___/\__/_/\____/_/ /_/
+//	                            /____/
+// ==================================================================================================================================
+
+callback CocoDataBindSetter(ctl:CocoUIDataControl,value:String);
+callback CocoDataBindGetter(ctl:CocoUIDataControl):String;
+
+class CocoDataBinders
+{
+	private reference var Form:CocoUIFormView;
+	private var __bindings:Array<CocoDataBinder>;
+	private var __datamembers:Array<CocoDataset>;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public property HasBindings
+	{
+		function get():Boolean { return __bindings.size()>0; }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Add(BoundControl:CocoUIControl, BoundControlProprtyName:String, DataSetterFn:CocoDataBindSetter, DataGetterFn:CocoDataBindGetter, DataSource:CocoDataSource, DataMember:String, DataField:String, DataConsumer:COCO_UI_DATA_CONSUMER_ENUM, DataConsumerPageSize:Integer)
+	{
+		// 	Add new data binding
+		var bind:CocoDataBinder = new CocoDataBinder;
+		bind.BoundControl = BoundControl;
+		bind.BoundControlProprtyName = BoundControlProprtyName;
+		bind.DataSetter = DataSetterFn;
+		bind.DataGetter = DataGetterFn;
+		bind.DataSource = DataSource;
+		bind.DataMember = DataMember;
+		bind.DataField = DataField;
+		bind.DataConsumer = DataConsumer;
+		bind.DataConsumerPageSize = DataConsumerPageSize;
+		bind.RepeaterControls = null;
+		__bindings.push(bind);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Close()
+	{
+		delete[] __datamembers;
+		__datamembers = new Array<CocoDataset>;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Open(params:Array<CocoDataParm>):Boolean
+	{
+		var result:Boolean = true;
+
+ 		switch(Form.DataBindingsInit)
+ 		{
+			case COCO_UI_DATA_BINDING_INIT_ENUM.BINDING_INIT_METADATA:
+				result = __metadata();
+				break;
+
+			case COCO_UI_DATA_BINDING_INIT_ENUM.BINDING_INIT_DATA:
+				result = __browse(params);
+				break;
+ 		}
+
+ 		return result;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function __datamember(name:String):CocoDataset
+	{
+		for(var i:Integer = __datamembers.size()-1; i>=0; i--)
+			if(__datamembers[i].name == name)
+				return __datamembers[i];
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __metadata():Boolean
+	{
+		var params:Array<CocoDataParm> = new Array<CocoDataParm>;
+		var p:CocoDataParm = new CocoDataParm;
+		p.FieldName = "1";
+		p.Operator = "=";
+		p.FieldValue = "0";
+		params.push(p);
+		return __browse(params);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function __browse(params:Array<CocoDataParm>):Boolean
+	{
+		for(var i:Integer = __bindings.size()-1; i>=0; i--)
+		{
+			// Assume data member has a dataset
+			__bindings[i].DataSet = __datamember(__bindings[i].DataMember);
+
+			// Skip Data Member if already initialized
+			if(__bindings[i].DataSet) continue;
+
+			// Ask Data Source to initialize and return the Data Member
+			__bindings[i].DataSet = __bindings[i].DataSource.openDataMember(__bindings[i].DataMember, params);
+
+			// Sanity Check
+			if(!__bindings[i].DataSet)
+			{
+				// Close Bindings
+				Close();
+
+				// Dispatch Error Event
+				//Form.dispatchEvent(Form.OnDataError, COCO_UI_DATA_BINDINGING_ERROR_ENUM.BINDINGING_INIT_ERROR, "Failed to initialize datamember " + __bindings[i].DataSource.ID + "." + __bindings[i].DataMember);
+
+				// Stop processing bindings
+				return false;
+			}
+
+			#if (DEBUG)
+			trace("Data Member " + __bindings[i].DataMember + " initialized");
+			#endif
+
+			// Store Data Member
+			__datamembers.push(__bindings[i].DataSet);
+		}
+
+		// Done!
+		return RefreshBindings();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function RefreshBindings():Boolean
+	{
+		var L:Integer = __bindings.size();
+		var bind:CocoDataBinder;
+
+		for(var i:Integer = 0; i<L; i++)
+		{
+			// Get a binding
+			bind = __bindings[i];
+			if(!bind.DataSetter) continue;
+
+			switch(bind.DataConsumer)
+			{
+				case COCO_UI_DATA_CONSUMER_ENUM.DATA_CONSUMER_SIMPLE_VALUE:
+
+					// Refresh simple value-bound control
+					bind.DataSetter(bind.BoundControl, bind.DataSet.fieldByName(bind.DataField).value);
+					break;
+
+				case COCO_UI_DATA_CONSUMER_ENUM.DATA_CONSUMER_SIMPLE_LABEL:
+
+					// Refresh simple label-bound control
+					bind.DataSetter(bind.BoundControl, bind.DataField);
+					break;
+
+				case COCO_UI_DATA_CONSUMER_ENUM.DATA_CONSUMER_REPEATER:
+
+					// Refresh complex bound control
+					var bookmark:String = bind.DataSet.getBookmark();
+					CreateRepeater(bind);
+					bind.DataSet.setBookmark(bookmark);
+					break;
+
+				case COCO_UI_DATA_CONSUMER_ENUM.DATA_CONSUMER_COMPLEX:
+
+					// Refresh complex bound control
+					var bookmark:String = bind.DataSet.getBookmark();
+					bind.DataSet.setBookmark(bookmark);
+					break;
+			}
+		}
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function ReadFormData():Boolean
+	{
+		var L:Integer = __bindings.size();
+		var bind:CocoDataBinder;
+
+		for(var i:Integer = 0; i<L; i++)
+		{
+			// Get a binding
+			bind = __bindings[i];
+			if(!bind.DataGetter) continue;
+
+			switch(bind.DataConsumer)
+			{
+				case COCO_UI_DATA_CONSUMER_ENUM.DATA_CONSUMER_SIMPLE_VALUE:
+
+					// Refresh simple bound control
+					bind.DataSet.fieldByName(bind.DataField).value = bind.DataGetter(bind.BoundControl);
+					break;
+
+				case COCO_UI_DATA_CONSUMER_ENUM.DATA_CONSUMER_COMPLEX:
+
+					// Refresh complex bound control
+					var bookmark:String = bind.DataSet.getBookmark();
+					bind.DataSet.setBookmark(bookmark);
+					break;
+			}
+		}
+
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function CreateRepeater(bind:CocoDataBinder)
+	{
+		// Remove repeater controls
+		if(bind.RepeaterControls)
+		{
+			for(var i:Integer = bind.RepeaterControls.size()-1; i>=0; i--)
+			{
+				bind.RepeaterControls[i].Parent.removeChild(bind.RepeaterControls[i]);
+			}
+			bind.RepeaterControls.clear();
+		}
+		else
+		{
+			bind.RepeaterControls = new Array<CocoUIControl>;
+		}
+
+		var RC:Integer = bind.DataSet.recordCount();
+		var MaxRecords:Integer = bind.DataConsumerPageSize == 0 ? RC : Math.max(25, RC);
+		var zIndex:Integer = bind.BoundControl.Parent.getChildIndex(bind.BoundControl);
+		var Form:CocoUIFormView = bind.BoundControl.Form;
+
+		bind.DataSet.moveFirst();
+		for(var i:Integer = 0; i<MaxRecords; i++)
+		{
+			// Clone the control
+			var c:CocoUIControl = bind.BoundControl.Clone();
+
+			// Explicitly make it visible
+			c.Visible = true;
+
+			// Set value
+			bind.DataSetter(c, bind.DataSet.fieldByName(bind.DataField).value);
+
+			// Add new control to parent Form
+			Form.addInlineControl(c, c.Stacked);
+
+			// Move child to proper z-Index
+			c.Parent.moveChild(c, zIndex+i+1);
+
+			// Keep reference to repeated control so that it can be deleted
+			bind.RepeaterControls.push(c);
+
+			// Next record
+			bind.DataSet.moveNext();
+		}
+
+		// Make sure the template control is hidden
+		bind.BoundControl.Visible = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(parent:CocoUIFormView)
+	{
+		Form = parent;
+		__bindings = new Array<CocoDataBinder>;
+		__datamembers = new Array<CocoDataset>;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		Close();
+		delete __bindings;
+		delete[] __datamembers;
+	}
+
+}

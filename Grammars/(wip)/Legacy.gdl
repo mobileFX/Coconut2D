@@ -1,0 +1,256 @@
+
+grammar JavaScript
+<
+	MATCHCASE,
+	FILE_EXT_LIST=".js"
+>
+{
+    // STARTING SYMBOL ===================================================================================
+
+	STATEMENTS ::= { STATEMENT };
+
+	BLOCK<SCOPE>::= ("{" "}") | ("{" STATEMENTS "}");
+
+    // WHITESPACE ========================================================================================
+
+	WHITESPACE 			<WHITESPACE> 			::= '[\s\n\r]+';
+	COMMENT 			<COMMENT> 				::= '//[^\n\r]*$';
+	MULTILINE_COMMENT 	<MULTILINE_COMMENT> 	::= '/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/';
+
+	// STATEMENTS ========================================================================================
+
+	STATEMENT ::=
+	            ( BLOCK
+	            | break
+	            | continue
+	            | delete
+	            | do
+	            | for
+	            | for_in
+	            | function
+	            | if_else
+	            | return
+	            | switch
+	            | var
+	            | while
+	            | with
+	            | try
+	            | throw
+	            | label
+	            | EXPRESSION )
+	            ;
+
+	//------------------------------------------------------------
+	EXPRESSION <STATEMENT, ERROR="Invalid EXPRESSION"> ::=
+	    expression ";";
+
+	//------------------------------------------------------------
+	try <STATEMENT, FRIENDLYNAME="try statement"> ::=
+	    "try"
+	        STATEMENT
+	    [ catch ]
+	    [ finally ];
+
+	catch ::=
+	    "catch" "(" ident ")"
+	    STATEMENT;
+
+	finally ::=
+	    "finally"
+	    STATEMENT;
+
+	//------------------------------------------------------------
+	throw <STATEMENT, FRIENDLYNAME="throw statement"> ::=
+	    "throw" expression ";";
+
+	//------------------------------------------------------------
+	break <STATEMENT, FRIENDLYNAME="break statement"> ::=
+	    "break" [ident] ";";
+
+	//------------------------------------------------------------
+	continue <STATEMENT, FRIENDLYNAME="continue statement"> ::=
+	    "continue" [ident] ";";
+
+	//------------------------------------------------------------
+	delete <STATEMENT, FRIENDLYNAME="delete statement"> ::=
+	    "delete" reference_expr [";"];
+
+	//------------------------------------------------------------
+	for <STATEMENT, FRIENDLYNAME="for statement">	::=
+	    "for" "(" ["var"] [expression_list] ";"
+	              [expression] ";"
+	              [expression_list] ")"
+	              STATEMENT;
+
+	//------------------------------------------------------------
+	for_in <STATEMENT, FRIENDLYNAME="for in statement"> ::=
+	    "for" "(" ["var"] ident "in" expression ")" STATEMENT;
+
+	//------------------------------------------------------------
+	function <STATEMENT, FRIENDLYNAME="function declaration statement"> ::=
+	    function_declarations;
+
+	lambda_function <STATEMENT, FRIENDLYNAME="lambda function statement"> ::=
+	    function_declarations;
+
+	//----------------------------------------------------------------------
+	// FUNCTION
+	//----------------------------------------------------------------------
+
+	function_declarations <METHOD,SCOPE,STATEMENT> ::= function_lamda_declaration;
+
+	function_lamda_declaration				  	   ::= function_declaration | lamda_declaration;
+	function_declaration						   ::= "function" function_name "(" [parameter_list] ")"
+														BLOCK;
+	lamda_declaration						       ::= "function" "(" [parameter_list] ")" BLOCK;
+
+	function_name <TERMINAL,METHOD_NAME> 		::= ident;
+
+	parameter_list 								::= { parameter, ","} ;
+	parameter <METHOD_ARG> 						::= param_name [ "=" expression ];
+	param_name <TERMINAL,METHOD_ARG_NAME> 		::= ident;
+
+
+	//------------------------------------------------------------
+	if_else <STATEMENT, FRIENDLYNAME="if...else statement"> ::=
+	    "if" "(" expression ")"
+	        STATEMENT
+	    [
+	     "else"
+	        STATEMENT
+	    ];
+
+	//------------------------------------------------------------
+	label <STATEMENT, FRIENDLYNAME="labeled statement"> ::=
+	    ident ":" STATEMENT ;
+
+	//------------------------------------------------------------
+	return <STATEMENT, FRIENDLYNAME="return statement"> ::=
+	    "return" [expression] ";";
+
+	//------------------------------------------------------------
+	switch <STATEMENT, FRIENDLYNAME="switch statement"> ::=
+	    "switch" "(" expression ")"
+	    "{"
+	        [{ case }]
+	        [default]
+	    "}";
+
+	case <STATEMENT> ::=
+	    "case" ( expression ) ":"
+	        [STATEMENTS];
+
+	default <STATEMENT> ::=
+	    "default" ":"
+	        [STATEMENTS];
+
+	//------------------------------------------------------------
+	var <STATEMENT, VAR, FRIENDLYNAME="variable declaration statement"> ::=
+		"var" variable_declarators ";";
+
+		variable_declarators 		 ::= { variable_declarator , "," };
+		variable_declarator 		 ::= var_name ["=" expression];
+		var_name <VAR_NAME> 		 ::= ident;
+
+	//------------------------------------------------------------
+	do <STATEMENT, FRIENDLYNAME="do-while loop statement"> ::=
+	    "do"
+	        STATEMENT
+	    "while" "(" expression ")" ";";
+
+	//------------------------------------------------------------
+	while <STATEMENT, FRIENDLYNAME="while loop statement"> ::=
+	    "while" "(" expression ")"
+	        STATEMENT;
+
+	//------------------------------------------------------------
+	with <STATEMENT, FRIENDLYNAME="with statement"> ::=
+	    "with" "(" expression ")"
+	        STATEMENT;
+
+    // OPERATORS =========================================================================================
+
+	OPERATOR <OPERATOR> ::= "="    | "*="  | "/="  | "%="
+		                  | "+="   | "-="  | "<<=" | ">>="
+		                  | ">>>=" | "&="  | "^="  | "|="
+		                  | "||"   | "&&"  | "|"   | "^"
+		                  | "&"    | "=="  | "!="  | "<"
+		                  | ">"    | ">="  | "<="  | "==="
+		                  | "!=="  | ">>>" | ">>"  | "<<"
+		                  | "+"    | "-"   | "/"   | "*"
+		                  | "%"    | "~"   | "instanceof"
+		                  ;
+
+	UNARY_OP  <OPERATOR> ::= "-" | "~" | "+";
+	PREFIX_OP <OPERATOR> ::= "++" | "--" | "typeof";
+
+    // EXPRESSIONS =======================================================================================
+
+	STRING_LITERAL <STRING, TERMINAL> 	::= '\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27';
+	REGEXP_LITERAL <REGEXP, TERMINAL> 	::= '/[^/*]{1}[^/\n\s]*/(?:[img]{0,3})';
+	NUMERIC_LITERAL <TERMINAL>			::= '(?:0[xX][0-9a-fA-F]+)|(?:[0-9]+(?:\.[0-9]+){0,1})|(?:\.[0-9]+e(\+|\-){0,1}[0-9]+)';
+
+	expression<SHOWDELIMITERS> ::= { ternary_expr, OPERATOR };
+
+	ternary_expr ::= { factor_expr, "." }
+					 [ "?" expression ":" expression ]
+					 [ ( "(" [expression_list] ")" ) ];
+
+	factor_expr ::=	  ("true" | "false" | "undefined" | "null" )
+					| ("!" expression )
+					| ( "(" expression ")" )
+					| ( UNARY_OP expression )
+					| ( new_array_expr | new_object_expr )
+					| new_expr
+					| ( STRING_LITERAL | NUMERIC_LITERAL | REGEXP_LITERAL)
+					| ( [ PREFIX_OP ] reference_expr [ PREFIX_OP ] )
+					| ( [ PREFIX_OP ] "(" reference_expr ")" [ PREFIX_OP ] )
+					| ( "(" lambda_function ")" )
+					| function
+					;
+
+	new_expr 						::= "new" expression;
+	new_array_expr 					::= "[" [ expression_list ] "]";
+	new_object_expr 				::= "{" [ { ( ( ident | STRING_LITERAL) ":" expression), ","} ] "}";
+	expression_list 				::= { expression, ","};
+
+	// reference term must not begin with keyword but may end with keyword (eg. a.default)
+	reference_expr <DOT>     		::= reference_term [ "." { reference_term_kwrd, "." } ];
+	reference_term 					::= ident [ { ( subscript_expr ) | ( call_expr ) } ];
+	reference_term_kwrd 			::= identifier [ { ( "[" expression "]" ) | ( "(" [ expression_list ] ")" ) } ];
+
+	call_expr <CALL>				::= "(" [ expression_list ] ")";
+	subscript_expr <SUBSCRIPT>		::= "[" expression "]";
+
+	ident<TERMINAL,IDENTIFIER> 		::= ^keyword identifier;
+	identifier 						::= '[a-zA-Z_\$][a-zA-Z0-9_\$]*';
+
+	// KEYWORDS ==========================================================================================
+
+	keyword <KEYWORDS> ::= "break"
+	         			 | "continue"
+	         			 | "delete"
+	         			 | "do"
+	         			 | "while"
+	         			 | "for"
+	         			 | "in"
+	         			 | "while"
+	         			 | "default"
+	         			 | "return"
+	         			 | "switch"
+	         			 | "case"
+	         			 | "var"
+	         			 | "if"
+	         			 | "with"
+	         			 | "function"
+	         			 | "else"
+	         			 | "new"
+	         			 | "throw"
+	         			 | "try"
+	         			 | "catch"
+	         			 | "finally"
+	         			 | "void"
+	         			 | "instanceof"
+	         			 | "typeof"
+		     			 ;
+};

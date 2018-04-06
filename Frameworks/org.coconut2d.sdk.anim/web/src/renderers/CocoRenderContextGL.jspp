@@ -1,0 +1,1058 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+#include "WebGLRenderingContext.jspp"
+
+// ==================================================================================================================================
+//	   ______                 ____                 __          ______            __            __  ________
+//	  / ____/___  _________  / __ \___  ____  ____/ /__  _____/ ____/___  ____  / /____  _  __/ /_/ ____/ /
+//	 / /   / __ \/ ___/ __ \/ /_/ / _ \/ __ \/ __  / _ \/ ___/ /   / __ \/ __ \/ __/ _ \| |/_/ __/ / __/ /
+//	/ /___/ /_/ / /__/ /_/ / _, _/  __/ / / / /_/ /  __/ /  / /___/ /_/ / / / / /_/  __/>  </ /_/ /_/ / /___
+//	\____/\____/\___/\____/_/ |_|\___/_/ /_/\__,_/\___/_/   \____/\____/_/ /_/\__/\___/_/|_|\__/\____/_____/
+//
+// ==================================================================================================================================
+
+class CocoRenderContextGL implements ICocoRenderContext
+{
+	// WebGL Context
+	public reference var gl:WebGLRenderingContext;
+
+	// Matrix
+	public var __modelViewMatrix:CocoMatrix;
+	public var __projectionMatrix:CocoMatrix;
+
+	private var maskDraw:Boolean;
+
+	// Textures
+	private var textures:Array<WebGLTexture>;
+	private var buffers:Array<WebGLBuffer>;
+
+	// Frame Buffer
+	private var FRAME_BUFFER:WebGLFramebuffer;
+	private var RENDER_BUFFER:WebGLRenderbuffer;
+	private var FRAME_TEXTURE:WebGLTexture;
+	private var FRAME_BUFFER_MULTIPLIER:Float;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Constructor(ctx:WebGLRenderingContext)
+ 	{
+ 		gl = ctx;
+
+ 		setCanvasSize();
+
+		// Create MVP
+		__modelViewMatrix = new CocoMatrix();
+		__projectionMatrix = new CocoMatrix();
+
+		// Control flag for masks
+		maskDraw = false;
+
+		// Textures and Buffers lists
+		textures = new Array<WebGLTexture>;
+		buffers = new Array<WebGLBuffer>;
+
+		// Frame & Render Buffers
+		FRAME_BUFFER = null;
+		RENDER_BUFFER = null;
+		FRAME_TEXTURE = null;
+		FRAME_BUFFER_MULTIPLIER = 0;
+
+		// Create Shaders
+		CocoShadersManager.create_shaders(this);
+ 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Destructor()
+ 	{
+		delete __modelViewMatrix;
+		delete __projectionMatrix;
+
+		delete FRAME_BUFFER;
+		delete RENDER_BUFFER;
+		delete FRAME_TEXTURE;
+
+		delete[] textures;
+		delete[] buffers;
+ 	}
+
+ 	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function getName():String						{ return "WebGL"; };
+ 	public function getType():COCO_RENDERING_CONTEXT_ENUM	{ return COCO_RENDERING_CONTEXT_ENUM.COCO_RENDERING_CONTEXT_WEBGL; }
+	public function getModelViewMatrix():CocoMatrix			{ return __modelViewMatrix; }
+	public function getProjectionMatrix():CocoMatrix		{ return __projectionMatrix; }
+	public function hide()									{ gl.canvas.style.visibility="hidden"; }
+	public function show()									{ gl.canvas.style.visibility="visible"; }
+	public function ready():Boolean							{ return true; }
+	public function getHtmlElement():HTMLElement			{ return gl.canvas; }
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function getCanvasLogicalWidth():Integer			{ return gl.canvas.offsetWidth; }
+	public function getCanvasLogicalHeight():Integer		{ return gl.canvas.offsetHeight; }
+
+	public function getScreenBufferWidth():Integer			{ return gl.drawingBufferWidth; }
+	public function getScreenBufferHeight():Integer			{ return gl.drawingBufferHeight; }
+	public function getScreenBufferViewScale():Float		{ return engine.__ENABLE_PHYSICAL_FRAME_BUFFER ? engine.device.PhysicalViewScale : engine.device.LogicalViewScale; }
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+
+	public function getFrameBufferWidth():Integer
+	{
+		if(FRAME_BUFFER)
+			return FRAME_BUFFER.width;
+
+		return getCanvasLogicalWidth();
+	}
+
+	public function getFrameBufferHeight():Integer
+	{
+		if(FRAME_BUFFER)
+			return FRAME_BUFFER.height;
+
+		return getCanvasLogicalHeight();
+	}
+
+	public function getFrameBufferMultiplier():Float
+	{
+		if(!FRAME_BUFFER_MULTIPLIER)
+		{
+			if(engine.device.ScreenMultiplier >= engine.__FRAME_BUFFER_TEXTURE_MAX_MULTIPLIER)
+				FRAME_BUFFER_MULTIPLIER = engine.__FRAME_BUFFER_TEXTURE_MAX_MULTIPLIER;
+			else
+				FRAME_BUFFER_MULTIPLIER = engine.device.ScreenMultiplier;
+		}
+		return FRAME_BUFFER_MULTIPLIER;
+	}
+
+	public function getFrameBufferViewScale():Float
+	{
+		if(FRAME_BUFFER)
+			return getFrameBufferMultiplier();
+
+		return engine.device.LogicalViewScale;
+	}
+
+	public function getFrameBufferToScreenBufferScale():Float
+	{
+		return getFrameBufferViewScale()/getScreenBufferViewScale();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function glErrors(img:CocoImage)
+	{
+		var code:Integer;
+		for(;;)
+		{
+			code = gl.getError();
+			if(code==0) return;
+			trace("ERROR: glError " + String(code) + (img ? " for image " + img.symbolName : ""));
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	private function setCanvasSize()
+ 	{
+		// The canvas's intrinsic dimensions [CANVAS] equal the size of its coordinate space,
+		// with the numbers interpreted in CSS pixels, and CSS pixels are resolution-independent [CSS].
+		// A WebGL application can achieve a 1:1 ratio between drawing buffer pixels and on-screen pixels
+		// on high-definition displays by examining properties like window.devicePixelRatio, scaling the
+		// canvas's width and height by that factor, and setting its CSS width and height to the original
+		// width and height. An application can simulate the effect of running on a higher-resolution
+		// display simply by scaling up the canvas's width and height properties.
+
+		gl.canvas.style.zIndex 	= 0;
+
+		// Set the display size (CSS-resolution-independent size) of the canvas.
+		gl.canvas.offsetWidth = engine.device.LogicalPixelsWidth;
+		gl.canvas.offsetHeight = engine.device.LogicalPixelsHeight;
+		gl.canvas.style.width = String(engine.device.LogicalPixelsWidth) + "px";
+		gl.canvas.style.height = String(engine.device.LogicalPixelsHeight) + "px";
+
+		// Set the size of the drawingBuffer
+		if(engine.__ENABLE_PHYSICAL_FRAME_BUFFER)
+		{
+			gl.canvas.width	 = Math.ceil(engine.device.PhysicalPixelsWidth);
+			gl.canvas.height = Math.ceil(engine.device.PhysicalPixelsHeight);
+		}
+		else
+		{
+			gl.canvas.width	 = Math.ceil(engine.device.LogicalPixelsWidth);
+			gl.canvas.height = Math.ceil(engine.device.LogicalPixelsHeight);
+		}
+ 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepare(viewScale:Float)
+	{
+		// =============================================================================================
+		// Create a CANVAS HTML5 element either with 1:1 or 1:pixel_ratio Frame Buffer
+		// =============================================================================================
+
+		setCanvasSize();
+
+		// =============================================================================================
+		// Frame Buffer
+		// =============================================================================================
+
+		if(!FRAME_BUFFER && engine.__ENABLE_RENDERING_ON_FRAME_BUFFER)
+		{
+			var s:Float = getFrameBufferMultiplier();
+			var a:Float;
+			var w:Integer;
+			var h:Integer;
+
+			switch(engine.device.ScreenFit)
+			{
+			case COCO_SCREEN_FIT_WIDTH:
+				a = getScreenBufferHeight()/getScreenBufferWidth();
+				w = Math.floor(engine.device.__BASE_WIDTH * s);
+				h = Math.floor(engine.device.__BASE_WIDTH * a * s);
+				break;
+
+			case COCO_SCREEN_FIT_HEIGHT:
+				a = getScreenBufferWidth()/getScreenBufferHeight();
+				w = Math.floor(engine.device.__BASE_HEIGHT * a * s);
+				h = Math.floor(engine.device.__BASE_HEIGHT * s);
+				break;
+
+			case COCO_SCREEN_FIT_BOTH:
+				w = Math.floor(engine.device.__BASE_WIDTH * s);
+				h = Math.floor(engine.device.__BASE_HEIGHT * s);
+				break;
+			}
+
+			FRAME_BUFFER = gl.createFramebuffer();
+			gl.bindFramebuffer(gl.FRAMEBUFFER, FRAME_BUFFER);
+			FRAME_BUFFER.width = w;
+			FRAME_BUFFER.height = h;
+
+			RENDER_BUFFER = gl.createRenderbuffer();
+			gl.bindRenderbuffer(gl.RENDERBUFFER, RENDER_BUFFER);
+			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
+			gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, RENDER_BUFFER);
+
+			FRAME_TEXTURE = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, FRAME_TEXTURE);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, FRAME_TEXTURE, 0);
+
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		}
+
+		// =============================================================================================
+		// Reset Program, Texture and Buffers
+		// =============================================================================================
+
+		gl.useProgram(null);
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+		// =============================================================================================
+		// Disable Dithering
+		// =============================================================================================
+
+		gl.disable(gl.DITHER);
+
+		// =============================================================================================
+		// Disable Clipping
+		// =============================================================================================
+
+		gl.disable(gl.SCISSOR_TEST);
+
+		// =============================================================================================
+		// Stencil
+		// =============================================================================================
+
+		gl.clearStencil(-1);
+		gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+		gl.stencilFunc(gl.ALWAYS, 0, 0xFFFFFFFF);
+		gl.stencilMask(0xFFFFFFFF);
+
+		// =============================================================================================
+		// Counter-click-wise Polygons
+		// =============================================================================================
+
+		gl.frontFace(gl.CCW);
+
+		// =============================================================================================
+		// Specify implementation-specific hints
+		// =============================================================================================
+
+		// Adjust the quality of filtering when generating mipmap images.
+		// gl.FASTEST: The most efficient behavior should be used.
+		// gl.NICEST: The most correct or the highest quality option should be used.
+		// gl.DONT_CARE: There is no preference for this behavior.
+
+		gl.hint(gl.GENERATE_MIPMAP_HINT, gl.DONT_CARE);
+
+		// =============================================================================================
+		// Specify the width of rasterized lines
+		// =============================================================================================
+
+		gl.lineWidth(1);
+
+		// =============================================================================================
+		// Disable multisample coverage
+		// =============================================================================================
+
+		// Multisampling samples a pixel multiple times at various implementation-dependent subpixel locations
+		// to generate antialiasing effects. Multisampling transparently antialiases points, lines, polygons,
+		// and images if it is enabled. If an implementation does not have any multisample buffers available,
+		// or multisampling is disabled, rasterization occurs with only a single sample computing a pixel's
+		// final RGB color. Provided an implementation supports multisample buffers, and multisampling is enabled,
+		// then a pixel's final color is generated by combining several samples per pixel. Each sample contains
+		// color, depth, and stencil information, allowing those operations to be performed on each sample.
+
+		//gl.disable(gl.SAMPLE_COVERAGE);
+		//gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+		//gl.sampleCoverage(1.0, false);
+
+		// =============================================================================================
+		// Depth Test and Culling
+		// =============================================================================================
+
+		if(engine.__ENABLE_RENDERING_OPTIMIZATIONS)
+		{
+			// Depth
+			gl.enable(gl.DEPTH_TEST);
+			gl.depthFunc(gl.LESS);
+			gl.depthMask(true);
+			gl.clearDepth(1);
+			gl.depthRange(0, 1);
+
+			// Set the scale and units used to calculate depth values
+			gl.polygonOffset(0, 0);
+
+			// Culling
+			gl.enable(gl.CULL_FACE);
+			gl.cullFace(gl.BACK);
+		}
+		else
+		{
+			// Depth
+			gl.disable(gl.DEPTH_TEST);
+			gl.depthFunc(gl.LESS);
+			gl.depthMask(false);
+
+			// Culling
+			gl.disable(gl.CULL_FACE);
+		}
+
+		// =============================================================================================
+		// Pack/Unpack pixel data from memory to/from GPU (RGBA=4, use 1 if textures have problems)
+		// =============================================================================================
+
+		gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+		gl.pixelStorei(gl.PACK_ALIGNMENT, 4);
+
+		// Multiply the alpha channel into the other color channels
+		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
+
+		// Flips the source data along its vertical axis
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+
+		// At the recent Khronos F2F the WebGL working group resolved to add a
+		// new pixel storage parameter UNPACK_COLORSPACE_CONVERSION_WEBGL,
+		// applying to texImage2D and texSubImage2D uploads. The default value is
+		// BROWSER_DEFAULT_WEBGL, and it can be set to NONE to disable all
+		// colorspace conversion by the browser (if applicable to the file type
+		// being uploaded -- in particular, PNG).
+		//
+		// The rationale is that there are certain situations in which the four
+		// channels of RGBA textures may contain non-color information, and an
+		// upload path preserving the original values in the texture is needed.
+
+		if(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL)
+			gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.BROWSER_DEFAULT_WEBGL);
+
+		// =============================================================================================
+		// Default Alpha Blending Mode (some Coconut2D Shaders change this)
+		// =============================================================================================
+
+		gl.enable(gl.BLEND);
+		gl.blendColor(0, 0, 0, 0);
+
+		// Using separate blending for RGB and Alpha
+		gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+		gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+		// Or uncomment for using the same
+		//gl.blendEquation(gl.FUNC_ADD);
+		//gl.blendFunc(gl.ONE, gl.ZERO);
+
+		// =============================================================================================
+		// Setup Orthographic Projection
+		// =============================================================================================
+
+		setView(getScreenBufferWidth(), getScreenBufferHeight(), getScreenBufferViewScale());
+
+		// =============================================================================================
+		// Finally get ready for rendering
+		// =============================================================================================
+
+		cls();
+
+		// =============================================================================================
+		// Initialize Model View Matrix
+		// =============================================================================================
+
+		__modelViewMatrix.identity();
+
+		// =============================================================================================
+		// Print out a device report
+		// =============================================================================================
+
+		engine.device.report(this);
+
+		// =============================================================================================
+		// Reset shaders
+		// =============================================================================================
+
+		CocoShadersManager.reset_shaders(this);
+	}
+
+ 	///////////////////////////////////////////////////////////////////////////////////////////////
+	private function setView(w:Float, h:Float, s:Float)
+	{
+		var _near:Float = -1000;
+		var _far:Float = 1000;
+
+		__projectionMatrix.identity();
+
+		// Prepare orthographic projection matrix
+		if(window.deviceRotation!=0)
+		{
+			var c:Float = Math.cos(window.deviceRotation);
+			var s:Float = Math.sin(window.deviceRotation);
+			var orthoWidth:Float = Math.abs(c * w + s * h);
+			var orthoHeight:Float = Math.abs(-s * w + c * h);
+
+			gl.viewport(0, 0, orthoWidth, orthoHeight);
+			__projectionMatrix.ortho(-orthoWidth / 2.0, orthoWidth / 2.0, orthoHeight / 2.0,  -orthoHeight / 2.0, _near, _far);
+			__projectionMatrix.rotateZ(-window.deviceRotation);
+		}
+		else
+		{
+			gl.viewport(0, 0, w, h);
+			__projectionMatrix.ortho(-w/2.0, w/2.0, h/2.0, -h/2.0, _near, _far);
+		}
+
+		__projectionMatrix.scale(s, s);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function cls()
+	{
+		// Reset model-view matrix
+		__modelViewMatrix.identity();
+
+		if(FRAME_BUFFER)
+		{
+			// Bind off-screen frame buffer
+			gl.bindFramebuffer(gl.FRAMEBUFFER, FRAME_BUFFER);
+
+			// Set frame buffer view and scale
+			setView(getFrameBufferWidth(), getFrameBufferHeight(), getFrameBufferMultiplier());
+		}
+
+		// Reset off-screen frame buffer
+		gl.colorMask(true, true, true, true);
+		gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function flush()
+ 	{
+ 		if(FRAME_BUFFER)
+ 		{
+ 			// If using a frame buffer we must render it on screen
+ 			// but first we need to do some math in order to calc
+ 			// how frame buffer will scale maintaining aspect ratio.
+
+			var vw:Float;
+			var vh:Float;
+			var a:Float;
+
+	 		// Unbind the off-screen frame buffer
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+			// Set screen view
+			var sw:Float = getScreenBufferWidth();
+			var sh:Float = getScreenBufferHeight();
+			setView(sw, sh, 1.0);
+
+			// Reset screen buffer
+			gl.clearColor(0.0, 0.0, 0.0, 1.0);
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+
+			// Reset model-view matrix
+			__modelViewMatrix.identity();
+
+			// Calculate scaling of frame buffer in order to fit into the screen buffer
+			var fw:Float = getFrameBufferWidth();
+			var fh:Float = getFrameBufferHeight();
+			var s:Float = CocoGraphics.Scale(fw, fh, sw, sh);
+
+			// Calculate how frame buffer fits on screen buffer,
+			// leaving letterboxes (fit height), levaling pillarboxes (fit width) or none.
+			var fit:COCO_SCREEN_FIT_ENUM = CocoGraphics.Fit(fw, fh, sw, sh);
+
+			// Calculate frame buffer aspect ratio and use it to caluclate that
+			// scaled frame buffer must occupy in screen buffer rect.
+			switch(fit)
+			{
+			case COCO_SCREEN_FIT_WIDTH:
+				a = fh/fw;
+				vw = Math.floor(fw * s);
+				vh = Math.floor(fw * a * s);
+				break;
+
+			case COCO_SCREEN_FIT_HEIGHT:
+				a = fw/fh;
+				vw = Math.floor(fh * a * s);
+				vh = Math.floor(fh * s);
+				break;
+
+			case COCO_SCREEN_FIT_BOTH:
+				vw = Math.floor(fw * s);
+				vh = Math.floor(fh * s);
+				break;
+			}
+
+			// Render using simple shader
+			if(CocoShadersManager.setShader(CocoShadersManager.DEFAULT))
+			{
+				CocoShadersManager.activeShader.updateFrame(null, null, false);
+				CocoShadersManager.activeShader.drawFrameBuffer(FRAME_BUFFER, FRAME_TEXTURE, vw, vh);
+			}
+ 		}
+
+		// Done
+ 		gl.flush();
+ 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function finish()
+ 	{
+ 		gl.finish();
+ 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Clip against physical pixels
+	public function clip(x:Float, y:Float, w:Float, h:Float)
+	{
+		gl.enable(gl.SCISSOR_TEST);
+
+		if(window.deviceRotation)
+		{
+			var c:Float = Math.cos(window.deviceRotation);
+			var s:Float = Math.sin(window.deviceRotation);
+			var xx:Float = Math.abs(c*x + s*y);
+			var yy:Float = Math.abs(-s*x + c*y);
+			var ww:Float = Math.abs(c*w + s*h);
+			var hh:Float = Math.abs(-s*w + c*h);
+			x = xx;
+			y = yy;
+			w = ww;
+			h = hh;
+		}
+
+		if(!FRAME_BUFFER)
+		{
+			// Clip applies to physical window, we need to take pixel ratio into account
+			var p:Float = engine.PixelRatio;
+			x *= p;
+			y *= p;
+			w *= p;
+			h *= p;
+		}
+
+		gl.scissor(x, y, w, h);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function clipDisable()
+	{
+		gl.disable(gl.SCISSOR_TEST);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function apply(clip:CocoClip, F:CocoKeyFrame, matrix:CocoMatrix)
+	{
+	 	if(!clip || !F || !matrix) return;
+
+	 	if(F.x!=0 || F.y!=0) 			matrix.translate3d(F.x, F.y, 0);
+	 	if(F.scaleX!=1 ||F.scaleY!=1) 	matrix.scale(F.scaleX, F.scaleY);
+	 	if(F.rotation!=0) 				matrix.rotateZ(F.rotation * RADIANS);
+	 	if(F.pivotX!=0 || F.pivotY!=0) 	matrix.translate3d(-F.pivotX, -F.pivotY, 0);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepareVideoFrame(image:CocoImage, video:HTMLVideoElement):CocoImage
+	{
+		if(!video) return null;
+		if(!image) image = new CocoImage();
+		if(!image.renderData)
+		{
+			var data:CocoImageRenderDataGL = new CocoImageRenderDataGL();
+			data.gl = gl;
+
+			var w2:Float = video.width / 2.0;
+			var h2:Float = video.height / 2.0;
+			var pw:Integer = CocoGraphics.POT(video.width);
+			var ph:Integer = CocoGraphics.POT(video.height);
+			var tw:Float = video.width / pw;
+			var th:Float = video.height / ph;
+
+			image.texSize = new Float32Array([0.0, 0.0, tw, th]);
+
+			data.texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, data.texture);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, pw, ph, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+			data.drawType = gl.TRIANGLE_STRIP;
+			data.vertexCount = 4;
+
+			data.buffer = gl.createBuffer();
+			buffers.push(data.buffer);
+			gl.bindBuffer(gl.ARRAY_BUFFER, data.buffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, -w2, -h2, 0.0, 0.0, 0.0, 1.0, -w2, h2, 0.0, 0.0, 1.0, 0.0, w2, -h2, 0.0, 0.0, 1.0, 1.0, w2, h2]), gl.STATIC_DRAW);
+			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+			image.renderData = data;
+		}
+		var data:CocoImageRenderDataGL = CocoImageRenderDataGL(image.renderData);
+		gl.bindTexture(gl.TEXTURE_2D, data.texture);
+		gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video);
+
+		return image;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepareImage(img:CocoImage):ICocoImageRenderData
+	{
+		if(!img || img.renderData)
+			return null;
+
+		var tw:Float = 0;
+		var th:Float = 0;
+
+		// =================================================================================================
+		// Check if HTML image is fully loaded
+		// =================================================================================================
+
+		if(img.hImage)
+		{
+			// Get texture width/height as fraction of image's POT with/height
+			tw = (img.textureCellWidth / img.hImage.naturalWidth);
+			th = (img.textureCellHeight / img.hImage.naturalHeight);
+
+			// IE10 BUG
+			if(isNaN(tw) || isNaN(th))
+			{
+				trace("WARNING: Invalid image " + String(img.hImage.complete));
+				return null;
+			}
+		}
+
+		// Adjust image size to design-time viewport and take into account texture scaling.
+		var w2:Float = (img.textureCellWidth / 2.0) / img.multiplier;
+		var h2:Float = (img.textureCellHeight / 2.0) / img.multiplier;
+
+		// Create an Image Rendering Data structure.
+		var data:CocoImageRenderDataGL = new CocoImageRenderDataGL();
+
+		// Keep WebGLRenderingContext on Image Rendering Data for deleting the texture
+		data.gl = gl;
+
+		// =================================================================================================
+		// Create Texture
+		// =================================================================================================
+
+		if(img.atlasGroup)
+		{
+			// Using BinPacked Atlas
+			data.texture = img.atlasGroup.bins[0].renderData.castRenderDataGL().texture;
+		}
+		else
+		{
+			data.texture = gl.createTexture();
+			textures.push(data.texture);
+			gl.bindTexture(gl.TEXTURE_2D, data.texture);
+
+			// Create Texture from HTML Image
+			if(engine.device.isIOS)
+			{
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img.hImage);
+			}
+			else
+			{
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.BGRA, gl.UNSIGNED_BYTE, img.hImage);
+			}
+
+			// Instruct WebGL how to wrap the texture.
+
+			switch(img.textureWrapS)
+			{
+			case WRAP_REPEAT:	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); break;
+			default:			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); break;
+			}
+
+			switch(img.textureWrapT)
+			{
+			case WRAP_REPEAT:	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT); break;
+			default:			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); break;
+			}
+
+			// Instruct WebGL how to interpolate the texture
+
+			if(!engine.__ENABLE_PHYSICAL_FRAME_BUFFER)
+			{
+				if(engine.device.isMobileHTML5Browser)
+				{
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				}
+				else
+				{
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				}
+			}
+			else
+			{
+				if(engine.device.isMobileHTML5Browser)
+				{
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				}
+				else
+				{
+					switch(img.textureMagFilter)
+					{
+					case MAG_LINEAR:	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); break;
+					default:			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST); break;
+					}
+
+					switch(img.textureMinFilter)
+					{
+					case MIN_LINEAR:					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); break;
+					case MIN_NEAREST_MIPMAP_NEAREST:	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST); break;
+					case MIN_LINEAR_MIPMAP_NEAREST:		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST); break;
+					case MIN_NEAREST_MIPMAP_LINEAR:		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR); break;
+					case MIN_LINEAR_MIPMAP_LINEAR:		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); break;
+					default:							gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); break;
+					}
+				}
+			}
+
+			// Generate Texture from HTML image
+			gl.generateMipmap(gl.TEXTURE_2D);
+
+			// Restore last active texture
+			gl.bindTexture(gl.TEXTURE_2D, CocoShader.last_texture);
+		}
+
+		// No need to create VBO for Atlas
+		if(img.isAtlas)
+			return data;
+
+		// =================================================================================================
+		// Create VBO
+		// =================================================================================================
+
+		if(img.tileMap)
+		{
+			// Decode Compressed TiledLayer data
+
+			img.texSize = new Float32Array([0, 0, img.tileWidth / img.hImage.naturalWidth, img.tileHeight / img.hImage.naturalHeight]);
+			var d:Array<Float> = new Array<Float>();
+			var tileCountX:Integer = img.tileMap[0];
+			var tileMapCols:Integer = img.tileMap[1];
+			var tileMapRows:Integer = img.tileMap[2];
+			var vCount:Integer = Math.min(tileMapCols, Math.floor(img.textureCellWidth / img.tileWidth));
+			var hCount:Integer = Math.min(tileMapRows, Math.floor(img.textureCellHeight / img.tileHeight));
+			var tileCount:Integer = 0;
+			var paddingSize:Float = img.multiplier;
+			var idx:Integer;
+			var texX:Float;
+			var texY:Float;
+
+			for(var y:Integer = hCount; y--;)
+			{
+				for(var x:Integer = vCount; x--;)
+				{
+					idx = img.tileMap[3 + y * tileMapCols + x];
+					if(idx == -1) continue;
+					texX = idx % tileCountX;
+					texY = Math.floor(idx / tileCountX);
+					texX += (2.0 * texX + 1.0) * paddingSize / img.tileWidth;
+					texY += (2.0 * texY + 1.0) * paddingSize / img.tileHeight;
+					d.push(texX); d.push(texY); d.push(0.0); d.push(0.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(0.0); d.push(1.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(1.0); d.push(1.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(0.0); d.push(0.0); d.push((x + 0) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(1.0); d.push(1.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 1) * img.tileHeight - h2);
+					d.push(texX); d.push(texY); d.push(1.0); d.push(0.0); d.push((x + 1) * img.tileWidth - w2); d.push((y + 0) * img.tileHeight - h2);
+					++tileCount;
+				}
+			}
+			data.texData = new Float32Array(d);
+			data.drawType = gl.TRIANGLES;
+			data.vertexCount = tileCount * 6;
+		}
+		else
+		{
+			// The fist square is the Texture and the second is the geomerty
+			// Typically in Coconut2D geomerty is defined by an image.
+			// This can be either a simple image texture, a sprite atlas texture or a tilemap image.
+			// (see code above)
+			//
+			// TexData is:
+			// 2 float values for Tilemap Compression texture cell coordinates
+			// 2 float values for Texture Coordinates and
+			// 2 float values for vertex position
+			//
+			//     (0,0)           (1,0)           (-W2,-H2)      (W2,-H2)
+			//       +-------------+                    +-------------+
+			//       |             |                    |             |
+			//       |      T      |                    |      G      |
+			//       |             |                    |             |
+			//       +-------------+                    +-------------+
+			//     (0,1)            (1,1)          (-W2,H2)        (W2,H2)
+			//
+			// Initial 0.0, 0.0 is reduntant - it applies to TimeMaps
+			// Triangles: V1,V2,V3 and V2,V3,V4 due to GL_TRIANGLE_STRIP
+
+			img.texSize = new Float32Array([0, 0, tw, th]);
+			data.texData = new Float32Array([0.0,0.0,-w2,-h2,  0.0,1.0,-w2,h2,  1.0,0.0,w2,-h2,  1.0,1.0,w2,h2]);
+			data.drawType = gl.TRIANGLE_STRIP;
+			data.vertexCount = 4;
+		}
+
+		// Set texture map to a WebGL Buffer
+		data.buffer = gl.createBuffer();
+		buffers.push(data.buffer);
+
+		// If the image is binpacked on multiple bins, we need dynamic draw
+		gl.bindBuffer(gl.ARRAY_BUFFER, data.buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, data.texData, img.atlasGroup && img.atlasGroup.bins.size() > 1 ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+
+		// Return Rendering Data to CocoImage
+		return data;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function swapBinAtlasRenderData(clip:CocoClip):Boolean
+	{
+		if(!clip || !clip.__currentFrame || !clip.__image)
+			return false;
+
+		var __image:CocoImage = clip.__image;
+		var frameIndex:Integer = clip.__currentFrame.spriteSequenceFrameIndex;
+		var currAtlas:CocoImage = __image.atlasGroup.currAtlas;
+
+		var rect:BIN_RECT = __image.atlasGroup.frames[frameIndex];
+		if(!rect)
+		{
+			trace("ERROR: Texture binpacked rect " + String(frameIndex) + " not found for " + clip.__clipPath);
+			return false;
+		}
+
+		var frame_atlas:CocoImage = rect.atlas;
+		if(!frame_atlas)
+		{
+			trace("ERROR: Texture binpacked atlas not found for " + clip.__clipPath);
+			return false;
+		}
+
+		if(currAtlas!=frame_atlas)
+		{
+			// Detect atlas size change
+			var deep:Boolean = currAtlas.naturalWidth!=frame_atlas.naturalWidth || currAtlas.naturalHeight!=frame_atlas.naturalHeight;
+
+			// Set current atlas
+			__image.atlasGroup.currAtlas = frame_atlas;
+
+			// Set atlas Image to clip (if pixels are retained, otherwise should be null)
+			__image.hImage = frame_atlas.hImage;
+
+			// Get rendering data
+			var imgData:CocoImageRenderDataGL = __image.renderData.castRenderDataGL();
+			var atlasData:CocoImageRenderDataGL = frame_atlas.renderData.castRenderDataGL();
+
+			// Swap atlas texture
+			imgData.texture = atlasData.texture;
+
+			// If the new atlas has different size from the previous, we need to adjust VBO
+			if(deep)
+			{
+				var tw:Float = (__image.textureCellWidth / frame_atlas.naturalWidth);
+				var th:Float = (__image.textureCellHeight / frame_atlas.naturalHeight);
+				var w2:Float = (__image.textureCellWidth / 2.0) / __image.multiplier;
+				var h2:Float = (__image.textureCellHeight / 2.0) / __image.multiplier;
+
+				__image.texSize[2]		= tw;
+				__image.texSize[3]		= th;
+
+				imgData.texData[2]		= -w2;
+				imgData.texData[3]		= -h2;
+				imgData.texData[6]		= -w2;
+				imgData.texData[7]		= h2;
+				imgData.texData[10]		= w2;
+				imgData.texData[11]		= -h2;
+				imgData.texData[14]		= w2;
+				imgData.texData[15]		= h2;
+
+				// Bind reel VBO and reset its data
+				gl.bindBuffer(gl.ARRAY_BUFFER, imgData.buffer);
+				gl.bufferData(gl.ARRAY_BUFFER, imgData.texData, gl.DYNAMIC_DRAW);
+				gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			}
+		}
+
+		return (__image.renderData!=null);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function prepareClip(clip:CocoClip)
+	{
+	}
+
+	// ==================================================================================================================================
+	//	   _____ __              __
+	//	  / ___// /_  ____ _____/ /__  __________
+	//	  \__ \/ __ \/ __ `/ __  / _ \/ ___/ ___/
+	//	 ___/ / / / / /_/ / /_/ /  __/ /  (__  )
+	//	/____/_/ /_/\__,_/\__,_/\___/_/  /____/
+	//
+	// ==================================================================================================================================
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawFrame(scene:CocoScene, clip:CocoClip)
+	{
+		if(!clip.__image || !clip.__image.renderData)
+			return;
+
+		// Sanity Check
+		if(!clip.__currentFrame.shader)
+		{
+			if(!CocoShadersManager.DEFAULT)
+				return;
+
+			clip.__currentFrame.shader = CocoShadersManager.DEFAULT;
+		}
+
+		// NASTY HACK: if keyframe opacity is not 1
+		// then force shader DEFAULT_WITH_ALPHA and
+		// use alpha in uniforms.
+		if(clip.__currentFrame.alpha!=1)
+		{
+			clip.__currentFrame.shader = CocoShadersManager.DEFAULT_WITH_ALPHA;
+
+			// Make sure previous uniforms do not leak
+			delete clip.__currentFrame.uniforms;
+
+			// Create uniforms on the fly for DEFAULT_WITH_ALPHA shader
+			clip.__currentFrame.uniforms = new Float32Array([clip.__currentFrame.alpha,0,0,0]);
+		}
+
+		// Select shader
+		CocoShadersManager.setShader(clip.__currentFrame.shader);
+
+		// Swap BinPack Atlas
+		if(clip.__image.atlasGroup && !swapBinAtlasRenderData(clip))
+			return;
+
+		// Load values to shader
+		CocoShadersManager.activeShader.updateFrame(scene, clip, maskDraw);
+
+		// Draw frame
+		CocoShadersManager.activeShader.drawFrame(scene, clip, maskDraw);
+	}
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawMaskBegin()
+	{
+		if(maskDraw) return;
+		maskDraw = true;
+		//gl.enable(gl.STENCIL_TEST);
+		//gl.colorMask(false, false, false, false);
+		//gl.depthMask(false);
+		//gl.stencilFunc(gl.EQUAL, 1, 0xFF);
+		//gl.stencilOp(gl.REPLACE, gl.KEEP, gl.KEEP);
+		//gl.stencilMask(0xFF);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawMaskEnd(invert:Boolean)
+	{
+		if(!maskDraw) return;
+		maskDraw = false;
+		//gl.colorMask(true, true, true, true);
+		//gl.stencilMask(0x00);
+		//gl.depthMask(true);
+		//gl.stencilFunc(gl.EQUAL, invert ? 0 : 1, 0xFF);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawBoundingBox(clip:CocoClip)
+	{
+		if(!clip.__hasBoundingBox) return;
+
+		CocoShadersManager.shaderBoundingBox.activate();
+		CocoShadersManager.shaderBoundingBox.drawBoundingBox(new Float32Array([clip.__vABS_TOP_LEFT.X, clip.__vABS_TOP_LEFT.Y, clip.__vABS_TOP_RIGHT.X, clip.__vABS_TOP_RIGHT.Y, clip.__vABS_BOTTOM_RIGHT.X, clip.__vABS_BOTTOM_RIGHT.Y, clip.__vABS_BOTTOM_LEFT.X, clip.__vABS_BOTTOM_LEFT.Y]));
+		CocoShadersManager.shaderBoundingBox.deactivate();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawImage(image:CocoImage, optional tx:Float, optional ty:Float, optional flipH:Boolean, optional flipV:Boolean)
+	{
+		// Select shader
+		CocoShadersManager.setShader(CocoShadersManager.DEFAULT);
+
+		// Load values to shader
+		CocoShadersManager.activeShader.updateFrame(null, null, false);
+
+		// Draw image
+		CocoShadersManager.DEFAULT.drawImage(image);
+	}
+
+}

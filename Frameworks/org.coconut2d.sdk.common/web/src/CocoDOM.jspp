@@ -1,0 +1,1547 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+#pragma export_nodejs;
+
+#module org.coconut2d.sdk.common;
+
+// ==================================================================================================================================
+//	   ______               ______      __              _
+//	  / ____/___  _________/_  __/___  / /_____  ____  (_)___  ___  _____
+//	 / /   / __ \/ ___/ __ \/ / / __ \/ //_/ _ \/ __ \/ /_  / / _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ / / / /_/ / ,< /  __/ / / / / / /_/  __/ /
+//	\____/\____/\___/\____/_/  \____/_/|_|\___/_/ /_/_/ /___/\___/_/
+//
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export enum TOKEN_KIND_ENUM
+{
+	TOKEN_EOF			= 1,
+	TOKEN_WHITESPACE	= 2,
+	TOKEN_COMMENT		= 3,
+	TOKEN_OPERATOR		= 4,
+	TOKEN_NUMBER		= 5,
+	TOKEN_STRING		= 6,
+	TOKEN_KEYWORD		= 7,
+	TOKEN_IDENTIFIER	= 8,
+	TOKEN_TEXT			= 9
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export enum TOKEN_RULE_ENUM
+{
+	RULE_EOF				= 0,
+	RULE_WHITESPACE			= 1,
+	RULE_NEW_LINE			= 2,
+	RULE_CRLF				= 3,
+	RULE_COMMENT			= 4,
+	RULE_FLOAT				= 5,
+	RULE_NUMBER				= 6,
+	RULE_STRING				= 7,
+	RULE_IDENTIFIER			= 8,
+
+	RULE_COLON				= 100,
+	RULE_COMMA				= 101,
+	RULE_LEFT_BRACKET		= 102,
+	RULE_LEFT_CURLY			= 103,
+	RULE_RIGHT_BRACKET		= 104,
+	RULE_RIGHT_CURLY		= 105,
+	RULE_NULL				= 106,
+	RULE_TRUE				= 107,
+	RULE_FALSE				= 108,
+
+	RULE_OPEN_CDATA			= 200,
+	RULE_CLOSE_CDATA		= 201,
+	RULE_CLOSING_TAG		= 202,
+	RULE_PI_OPEN			= 203,
+	RULE_PI_CLOSE			= 204,
+	RULE_TAG_OPEN			= 205,
+	RULE_TAG_CLOSE			= 206,
+	RULE_EQ					= 207,
+
+	RULE_ROOT				= 300,
+	RULE_SLASH				= 301,
+	RULE_ATTRIBUTE			= 302,
+	RULE_PARENT_PATH		= 303,
+	RULE_CURR_PATH			= 304,
+	RULE_ANY				= 305,
+	RULE_AND				= 306
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export struct TOKEN_RULE
+{
+	id:TOKEN_RULE_ENUM;
+	pattern:String;
+	kind:TOKEN_KIND_ENUM;
+	rx:RegExp;
+	chars:Uint8Array;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export struct TOKEN
+{
+	type:TOKEN_RULE_ENUM;
+	value:String;
+	start:Integer;
+	end:Integer;
+	line_start:Integer;
+	line_end:Integer;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct COCO_PARSER_STATE
+{
+	cursor:Integer;
+	tokenIndex:Integer;
+	lookahead:Integer;
+	scanNewlines:Boolean;
+	line_start:Integer;
+	scopeId:Integer;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export class CocoTokenizer
+{
+	public var HAS_COMMENTS_RULE:Boolean;
+	public var tokenRules:Array<TOKEN_RULE>;
+	public var tokenRulesPrecedence:Array<TOKEN_KIND_ENUM>;
+
+	public var source:String;
+	public var currState:COCO_PARSER_STATE;
+	public var states:Array<COCO_PARSER_STATE>;
+	public var tokens:Array<TOKEN>;
+
+	private reference var rxCOMMENT:RegExp;
+	private reference var rxFLOAT:RegExp;
+	private reference var rxNUMBER:RegExp;
+	private reference var rxIDENTIFIER:RegExp;
+	private reference var rxSTRING:RegExp;
+	private reference var rxNewLines:RegExp;
+
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		HAS_COMMENTS_RULE = true;
+
+		source = "";
+		tokens = new Array<TOKEN>;
+		tokenRules = new Array<TOKEN_RULE>;
+
+		currState = new COCO_PARSER_STATE;
+		states = new Array<COCO_PARSER_STATE>;
+		//states.push(currState);
+
+		// Define token regognizers precedence.
+		tokenRulesPrecedence = new Array<TOKEN_KIND_ENUM>;
+		tokenRulesPrecedence.push(TOKEN_OPERATOR);
+		tokenRulesPrecedence.push(TOKEN_NUMBER);
+		tokenRulesPrecedence.push(TOKEN_STRING);
+		tokenRulesPrecedence.push(TOKEN_KEYWORD);
+		tokenRulesPrecedence.push(TOKEN_IDENTIFIER);
+		tokenRulesPrecedence.push(TOKEN_TEXT);
+
+		// Define common token rules.
+		// Typically a parser inherits from CocoTokenizer
+		// and adds language-specific token rules.
+		// See JSON Parser for more information.
+
+		AddTokenRule(RULE_EOF, 			TOKEN_EOF,			"", 		false, true);
+		AddTokenRule(RULE_WHITESPACE, 	TOKEN_WHITESPACE,	" \t\r\n", 	false, true);
+		AddTokenRule(RULE_NEW_LINE,		TOKEN_WHITESPACE,	"\n", 		false, true);
+		AddTokenRule(RULE_CRLF,			TOKEN_WHITESPACE,	"\n\r", 	false, true);
+
+		AddTokenRule(RULE_COMMENT,		TOKEN_COMMENT,		"^\\/(?:\\*(?:[\\S\\s])*?\\*\\/|\\/.*)");
+		AddTokenRule(RULE_FLOAT,		TOKEN_NUMBER, 		"^\\d+\\.(?!\\.)\\d*(?:[eE][-+]?\\d+)?|^\\d+(?:\\.\\d*)?[eE][-+]?\\d+|^\\.\\d+(?:[eE][-+]?\\d+)?");
+		AddTokenRule(RULE_NUMBER,		TOKEN_NUMBER,		"^0[xX][\\da-fA-F]+|^0[0-7]*|^\\d+");
+
+		AddTokenRule(RULE_STRING,		TOKEN_STRING,		"^\\x22(?!\\x22)(?:\\\\.|[^\\x22])*\\x22|^\\x27(?!\\x27)(?:\\\\.|[^\\x27])*\\x27|(?:^\\x22\\x22)|(?:^\\x27\\x27)");
+
+		// String RX in C++11 on XCode throws "invalid back reference in regular expression" when adding ^([\\x27\\x22]{3})((?:(?!\\1)[\\s\\S])*)\\1|
+		// This RX would match strings withing strings eg. """test""".
+
+		AddTokenRule(RULE_IDENTIFIER,	TOKEN_IDENTIFIER,	"^[a-zA-Z_$][\\w_$]*");
+
+		// We cache some frequently used regular expressions for speed.
+
+		rxCOMMENT       	= getTokenRule(RULE_COMMENT).rx;
+		rxFLOAT         	= getTokenRule(RULE_FLOAT).rx;
+		rxNUMBER        	= getTokenRule(RULE_NUMBER).rx;
+		rxIDENTIFIER    	= getTokenRule(RULE_IDENTIFIER).rx;
+		rxSTRING        	= getTokenRule(RULE_STRING).rx;
+
+		rxNewLines 			= new RegExp("\\n", "g");
+
+		for(var i:Integer=0; i<4; i++)
+			tokens.push(new TOKEN());
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		for(var i:Integer=tokenRules.size()-1; i>=0; i--)
+			delete tokenRules[i].rx;
+
+		delete tokenRulesPrecedence;
+		delete tokens;
+		delete tokenRules;
+		delete currState;
+		delete[] states;
+		delete rxNewLines;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function reset()
+	{
+		currState.tokenIndex = 0;
+		currState.cursor = 0;
+
+		if(states.size())
+		{
+			delete[] states;
+			states = new Array<COCO_PARSER_STATE>;
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function AddTokenRule(id:TOKEN_RULE_ENUM, kind:TOKEN_KIND_ENUM, pattern:String, optional is_regular_expression:Boolean = true, optional is_char_list:Boolean)
+	{
+		var rule:TOKEN_RULE = new TOKEN_RULE;
+
+		rule.id 		= id;
+		rule.kind		= kind;
+		rule.pattern 	= pattern;
+
+		if(pattern)
+		{
+			if(is_regular_expression)
+			{
+				// All regular expressions in token rules must start with ^
+				if(pattern.size()>0 && pattern.charAt(0)!="^")
+					pattern = "^" + pattern;
+
+				rule.rx = new RegExp(pattern);
+			}
+			else if(is_char_list)
+			{
+				var i:Integer;
+				var c:Integer;
+				var L:Integer = pattern.size();
+				rule.chars = new Uint8Array(L);
+				for(i=0; i<L; i++)
+				{
+					c = pattern.charCodeAt(i, true);
+					rule.chars[i] = c;
+				}
+			}
+		}
+
+		tokenRules.push(rule);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function getTokenRule(id:TOKEN_RULE_ENUM):TOKEN_RULE
+	{
+		var rule:TOKEN_RULE;
+		for(var i:Integer=0; i<tokenRules.size(); i++)
+		{
+			rule = tokenRules[i];
+			if(rule.id == id)
+				return rule;
+		}
+		return null;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function save()
+	{
+		states.push(currState);
+		currState = new COCO_PARSER_STATE(currState);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function restore()
+	{
+		delete currState;
+		currState = states.pop();
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function get():TOKEN_RULE_ENUM
+	{
+		var match:Array<String> = null;
+		var inp:String = input();
+		var token:TOKEN;
+		var token_group_index:Integer;
+		var token_rule_index:Integer;
+		var token_rule_char_index:Integer;
+		var remaining_input_length:Integer;
+		var token_rules_length:Integer;
+		var input_character_index:Integer;
+		var input_character:Integer;
+		var matched:Boolean = false;
+		var tokendef_groups:Integer = tokenRulesPrecedence.size();
+		var tokendef_rules:Integer = tokenRules.size();
+		var filter:TOKEN_KIND_ENUM;
+		var token_rule:TOKEN_RULE;
+		var spaces:String;
+		var offset:Integer = 0;
+		var comment:String;
+		var item:String;
+
+		// ==================================================================
+		// Perform token look-ahead
+		// ==================================================================
+
+		while(currState.lookahead)
+		{
+			--currState.lookahead;
+			currState.tokenIndex = (currState.tokenIndex + 1) & 3;
+			token = tokens[currState.tokenIndex];
+			if((token.type != RULE_NEW_LINE) || currState.scanNewlines)
+				return token.type;
+		}
+
+		// ==================================================================
+		// Ignore whitespace and comments
+		// ==================================================================
+
+		for(;;)
+		{
+			inp = input();
+			remaining_input_length = inp.size();
+
+			for(input_character_index=0; input_character_index<remaining_input_length; input_character_index++)
+			{
+				input_character = inp.charCodeAt(input_character_index, true);
+
+				if(input_character==32 || input_character==9) continue;
+				if(!currState.scanNewlines && (input_character==10 || input_character==13)) continue;
+
+				if(input_character_index>0)
+				{
+					offset = input_character_index;
+					currState.cursor += input_character_index;
+					if(!currState.scanNewlines)
+					{
+						spaces = inp.substr(0, input_character_index);
+						currState.line_start += countLines(spaces);
+					}
+					inp = input();
+				}
+				break;
+			}
+
+			if(HAS_COMMENTS_RULE)
+			{
+				if(!(match = rxCOMMENT.exec(inp)))
+					break;
+
+				comment = match[0];
+				currState.cursor += comment.size();
+				currState.line_start += countLines(comment);
+				delete match;
+			}
+			else
+				break;
+		}
+
+		// ==================================================================
+		// Get cached token or create a new one
+		// ==================================================================
+
+		currState.tokenIndex = (currState.tokenIndex + 1) & 3;
+		token = tokens[currState.tokenIndex];
+
+		// If we run out of input then end.
+		if(!inp)
+		{
+			return token.type = RULE_EOF;
+		}
+
+		// ==================================================================
+		// Use token definition precedence and process token rule groups.
+		// ==================================================================
+
+		matched = false;
+
+		for(token_group_index=0; !matched && token_group_index<tokendef_groups; token_group_index++)
+		{
+			filter = tokenRulesPrecedence[token_group_index];
+
+			for(token_rule_index=0; token_rule_index<tokendef_rules; token_rule_index++)
+			{
+				token_rule = tokenRules[token_rule_index];
+				if(token_rule.kind!=filter)continue;
+
+				// Process token definition rule against current input.
+
+				if(token_rule.rx)
+				{
+					// REGULAR EXPRESSION TOKEN RULE
+
+					match = token_rule.rx.exec(inp);
+					if(match)
+					{
+						token.type = token_rule.id;
+						item = match[0];
+
+						if(token.type==RULE_STRING)
+							token.value = item.substr(1, item.size()-2);
+						else
+							token.value = item;
+
+						offset = item.size();
+						matched = true;
+
+						delete match;
+						break;
+					}
+				}
+				else if(token_rule.chars)
+				{
+					// ONE-OF-CHARACTERS TOKEN RULE
+
+					token_rules_length = token_rule.chars.length;
+					input_character = inp.charCodeAt(0, true);
+					for(token_rule_char_index=0; token_rule_char_index<token_rules_length; token_rule_char_index++)
+					{
+						if(token_rule.chars[token_rule_char_index]==input_character)
+						{
+							offset = 1;
+							token.type = token_rule.id;
+							token.value = String.fromCharCode(input_character);
+							matched = true;
+							break;
+						}
+					}
+
+					if(matched)
+						break;
+				}
+				else
+				{
+					// KEYWORD TOKEN RULE
+					token_rules_length = token_rule.pattern.size();
+					if(inp.substr(0, token_rules_length) == token_rule.pattern)
+					{
+						offset = token_rules_length;
+						token.type = token_rule.id;
+						token.value = token_rule.pattern;
+						matched = true;
+						break;
+					}
+				}
+
+
+			} // token_rule_index
+
+			if(matched)
+				break;
+
+		} // token_group_index
+
+		if(!matched)
+		{
+			offset = 0;
+
+			if(currState.scanNewlines)
+			{
+				input_character = inp.charCodeAt(0, true);
+				if(input_character==10 || input_character==13)
+				{
+					offset = 1;
+					token.type = RULE_NEW_LINE;
+				}
+				else
+				{
+					throw "Illegal token";
+				}
+			}
+			else
+			{
+				throw "Illegal token";
+			}
+		}
+
+		token.start = currState.cursor;
+		currState.cursor += offset;
+		token.end = currState.cursor;
+		token.line_start = currState.line_start;
+		token.line_end = currState.line_start;
+
+		return token.type;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function countLines(buff:String):Integer
+	{
+		var lines:Array<String> = rxNewLines.exec(buff);
+		var n:Integer = lines ? lines.size() : 0;
+		if(lines) delete lines;
+		return n;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function parse(source:String):CocoDOMDocument
+	{
+		this.source = source;
+		return null;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function NewScopeId():Integer
+	{
+		return (++currState.scopeId);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function ScopeId():Integer
+	{
+		return (currState.scopeId);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function input():String
+	{
+		return source.substring(currState.cursor);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function done():Boolean
+	{
+		return peek() == RULE_EOF;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function token():TOKEN
+	{
+		return tokens[currState.tokenIndex];
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function match(tt:TOKEN_RULE_ENUM):Boolean
+	{
+		if(get()==tt) return true;
+		unget();
+		return false;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function mustMatch(tt:TOKEN_RULE_ENUM):TOKEN
+	{
+		if(!match(tt))
+			throw "Missing " + String(tt);
+		return token();
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function peek():TOKEN_RULE_ENUM
+	{
+		var tt:TOKEN_RULE_ENUM;
+		var next:TOKEN;
+		if(currState.lookahead)
+		{
+			next = tokens[(currState.tokenIndex + currState.lookahead) & 3];
+			if(currState.scanNewlines && next.line_start != currState.line_start)
+				tt = RULE_NEW_LINE;
+			else
+				tt = next.type;
+		}
+		else
+		{
+			tt = get();
+			unget();
+		}
+		return tt;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function peekOnSameLine():TOKEN_RULE_ENUM
+	{
+		currState.scanNewlines = true;
+		var tt:TOKEN_RULE_ENUM = peek();
+		currState.scanNewlines = false;
+		return tt;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function unget()
+	{
+		if(++currState.lookahead == 4) throw "PANIC: too much lookahead!";
+		currState.tokenIndex = (currState.tokenIndex - 1) & 3;
+	}
+};
+
+// ==================================================================================================================================
+//	   ______                     _______ ____  _   ______
+//	  / ____/___  _________      / / ___// __ \/ | / / __ \____ ______________  _____
+//	 / /   / __ \/ ___/ __ \__  / /\__ \/ / / /  |/ / /_/ / __ `/ ___/ ___/ _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ / /_/ /___/ / /_/ / /|  / ____/ /_/ / /  (__  )  __/ /
+//	\____/\____/\___/\____/\____//____/\____/_/ |_/_/    \__,_/_/  /____/\___/_/
+//
+// ==================================================================================================================================
+
+export class CocoJSONParser : CocoTokenizer
+{
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		// JSON needs the additional token rules:
+
+		HAS_COMMENTS_RULE = false;
+
+		AddTokenRule(RULE_COLON,			TOKEN_OPERATOR,		":", 		false, true);
+		AddTokenRule(RULE_COMMA,			TOKEN_OPERATOR,		",",		false, true);
+		AddTokenRule(RULE_LEFT_BRACKET,		TOKEN_OPERATOR,		"[", 		false, true);
+		AddTokenRule(RULE_LEFT_CURLY,		TOKEN_OPERATOR,		"{", 		false, true);
+		AddTokenRule(RULE_RIGHT_BRACKET,	TOKEN_OPERATOR,		"]", 		false, true);
+		AddTokenRule(RULE_RIGHT_CURLY,		TOKEN_OPERATOR,		"}", 		false, true);
+
+		AddTokenRule(RULE_NULL,				TOKEN_KEYWORD,		"null", 	false, false);
+		AddTokenRule(RULE_TRUE,				TOKEN_KEYWORD,		"true", 	false, false);
+		AddTokenRule(RULE_FALSE,			TOKEN_KEYWORD,		"false", 	false, false);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function parse(source:String):CocoDOMDocument
+	{
+		super.parse;
+		var doc:CocoDOMDocument = new CocoDOMDocument();
+		doc.root = CocoDOMNode(doc);
+		parse_object(doc.root);
+		return doc;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function parse_object(p:CocoDOMNode)
+	{
+		p.setAttribute("vt", "object");
+		mustMatch(RULE_LEFT_CURLY);
+		for(;;)
+		{
+			var tt:TOKEN_RULE_ENUM = peek();
+			if(tt==RULE_RIGHT_CURLY) break;
+
+			mustMatch(RULE_STRING);
+			var nodeName:String = token().value;
+			var n:CocoDOMNode = new CocoDOMNode(nodeName);
+
+			mustMatch(RULE_COLON);
+
+			parse_value(n);
+			p.appendChild(n);
+
+			if(peek()!=RULE_COMMA)	break;
+			mustMatch(RULE_COMMA);
+		}
+		mustMatch(RULE_RIGHT_CURLY);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function parse_array(p:CocoDOMNode)
+	{
+		p.setAttribute("vt", "array");
+		mustMatch(RULE_LEFT_BRACKET);
+		for(var i:Integer;;i++)
+		{
+			var tt:TOKEN_RULE_ENUM = peek();
+			if(tt==RULE_RIGHT_BRACKET) break;
+
+			var n:CocoDOMNode = new CocoDOMNode(String(i));
+			parse_value(n);
+			p.appendChild(n);
+
+			if(peek()!=RULE_COMMA)	break;
+			mustMatch(RULE_COMMA);
+		}
+		mustMatch(RULE_RIGHT_BRACKET);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function parse_value(p:CocoDOMNode)
+	{
+		var tt:TOKEN_RULE_ENUM = get();
+		switch(tt)
+		{
+		case RULE_STRING:
+			p.__nodeValue = token().value;
+			p.setAttribute("vt", "string");
+			break;
+
+		case RULE_TRUE:
+			p.__nodeValue = "true";
+			p.setAttribute("vt", "boolean");
+			break;
+
+		case RULE_FALSE:
+			p.__nodeValue = "false";
+			p.setAttribute("vt", "boolean");
+			break;
+
+		case RULE_FLOAT:
+			p.__nodeValue = token().value;
+			p.setAttribute("vt", "float");
+			break;
+
+		case RULE_NUMBER:
+			p.__nodeValue = token().value;
+			p.setAttribute("vt", "number");
+			break;
+
+		case RULE_NULL:
+			p.__nodeValue = "null";
+			p.setAttribute("vt", "null");
+			break;
+
+		case RULE_LEFT_CURLY:
+			unget();
+			parse_object(p);
+			break;
+
+		case RULE_LEFT_BRACKET:
+			unget();
+			parse_array(p);
+			break;
+		}
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                _  __ __  _____    ____
+//	  / ____/___  _________ | |/ //  |/  / /   / __ \____ ______________  _____
+//	 / /   / __ \/ ___/ __ \|   // /|_/ / /   / /_/ / __ `/ ___/ ___/ _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ /   |/ /  / / /___/ ____/ /_/ / /  (__  )  __/ /
+//	\____/\____/\___/\____/_/|_/_/  /_/_____/_/    \__,_/_/  /____/\___/_/
+//
+// ==================================================================================================================================
+
+export class CocoXMLParser : CocoTokenizer
+{
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		AddTokenRule(RULE_OPEN_CDATA,		TOKEN_OPERATOR,		"<![CDATA[", 	false, false);
+		AddTokenRule(RULE_CLOSE_CDATA,		TOKEN_OPERATOR,		"]]>",			false, false);
+		AddTokenRule(RULE_CLOSING_TAG,		TOKEN_OPERATOR,		"</", 			false, false);
+		AddTokenRule(RULE_PI_OPEN,			TOKEN_OPERATOR,		"<?xml",		false, false);
+		AddTokenRule(RULE_PI_CLOSE,			TOKEN_OPERATOR,		"?>",			false, false);
+
+		AddTokenRule(RULE_TAG_OPEN,			TOKEN_OPERATOR,		"<", 			false, true);
+		AddTokenRule(RULE_TAG_CLOSE,		TOKEN_OPERATOR,		">", 			false, true);
+		AddTokenRule(RULE_EQ,				TOKEN_OPERATOR,		"=", 			false, true);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function parse(source:String):CocoDOMDocument
+	{
+		super.parse;
+		var doc:CocoDOMDocument = new CocoDOMDocument();
+		doc.root = parse_tag(null);
+		return doc;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function parse_tag(p:CocoDOMNode):CocoDOMNode
+	{
+		var n:CocoDOMNode = null;
+		var tt:TOKEN_RULE_ENUM = peek();
+
+		// Match a processing instruction
+		// =======================================================
+
+		if(tt==RULE_PI_OPEN)
+		{
+			mustMatch(RULE_PI_OPEN);
+			n = new CocoDOMNode("?");
+			tt = peek();
+			while(tt==RULE_IDENTIFIER)
+			{
+				mustMatch(RULE_IDENTIFIER);
+				var attrName:String = token().value;
+				mustMatch(RULE_EQ);
+				mustMatch(RULE_STRING);
+				var attrValue:String = token().value;
+				n.setAttribute(attrName, attrValue);
+				tt = peek();
+			}
+			mustMatch(RULE_PI_CLOSE);
+			delete n;
+		}
+
+
+		// Match a tag and attributes, eg. <DIV style="color:red">
+		// =======================================================
+
+		mustMatch(RULE_TAG_OPEN);
+		mustMatch(RULE_IDENTIFIER);
+		var tagName:String= token().value;
+		n = new CocoDOMNode(tagName);
+		tt = peek();
+		while(tt==RULE_IDENTIFIER)
+		{
+			mustMatch(RULE_IDENTIFIER);
+			var attrName:String = token().value;
+			mustMatch(RULE_EQ);
+			mustMatch(RULE_STRING);
+			var attrValue:String = token().value;
+			n.setAttribute(attrName, attrValue);
+			tt = peek();
+		}
+		mustMatch(RULE_TAG_CLOSE);
+		var tag_end:Integer = token().end;
+
+		// Match tag body
+		// =======================================================
+
+		tt = peek();
+
+		// Is it a <![CDATA[]]> section?
+		if(tt==RULE_OPEN_CDATA)
+		{
+			mustMatch(RULE_OPEN_CDATA);
+			var i:Integer = token().end;
+			while(get()!=RULE_CLOSE_CDATA);
+			n.__nodeValue = source.substr(i, currState.cursor-i);
+		}
+
+		// Is it a closing tag?
+		else if(tt==RULE_CLOSING_TAG)
+		{
+		}
+
+		// Is it an inner node?
+		else if(tt==RULE_TAG_OPEN)
+		{
+			while(tt==RULE_TAG_OPEN)
+			{
+				parse_tag(n);
+				tt = peek();
+			}
+		}
+
+		// Capture inner text
+		else
+		{
+			while(input().charAt(0)!="<")
+				currState.cursor++;
+			n.__nodeValue = source.substr(tag_end, currState.cursor-tag_end);
+			currState.tokenIndex=0;
+			currState.lookahead=0;
+		}
+
+		// Closing tag
+		mustMatch(RULE_CLOSING_TAG);
+		mustMatch(RULE_IDENTIFIER);
+
+		if(token().value!=tagName)
+			throw "Invalid XML syntax";
+
+		mustMatch(RULE_TAG_CLOSE);
+
+		if(p)
+			p.appendChild(n);
+
+		return n;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                _  __ ____        __  __    ____
+//	  / ____/___  _________ | |/ // __ \____ _/ /_/ /_  / __ \____ ______________  _____
+//	 / /   / __ \/ ___/ __ \|   // /_/ / __ `/ __/ __ \/ /_/ / __ `/ ___/ ___/ _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ /   |/ ____/ /_/ / /_/ / / / ____/ /_/ / /  (__  )  __/ /
+//	\____/\____/\___/\____/_/|_/_/    \__,_/\__/_/ /_/_/    \__,_/_/  /____/\___/_/
+//
+// ==================================================================================================================================
+
+export class CocoXPathParser : CocoTokenizer
+{
+	/////////////////////////////////////////////////////////////////////
+	private static var __singlenton:CocoXPathParser = null;
+
+	public static property singlenton
+	{
+		function get():CocoXPathParser
+		{
+			if(!__singlenton)
+				__singlenton = new CocoXPathParser;
+			else
+				__singlenton.reset();
+
+			return __singlenton;
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////
+
+	private reference var root:CocoDOMNode;
+	private reference var result:Array<CocoDOMNode>;
+
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		HAS_COMMENTS_RULE = false;
+		result = null;
+
+		AddTokenRule(RULE_SLASH,				TOKEN_OPERATOR,		"/", 	false, true);
+		AddTokenRule(RULE_LEFT_BRACKET,			TOKEN_OPERATOR,		"[", 	false, true);
+		AddTokenRule(RULE_RIGHT_BRACKET,		TOKEN_OPERATOR,		"]", 	false, true);
+		AddTokenRule(RULE_ATTRIBUTE,			TOKEN_OPERATOR,		"@", 	false, true);
+		AddTokenRule(RULE_CURR_PATH,			TOKEN_OPERATOR,		".", 	false, true);
+		AddTokenRule(RULE_ANY,					TOKEN_OPERATOR,		"*", 	false, true);
+
+		AddTokenRule(RULE_ROOT,					TOKEN_OPERATOR,		"//",	false, false);
+		AddTokenRule(RULE_EQ,					TOKEN_OPERATOR,		"==",	false, false);
+		AddTokenRule(RULE_PARENT_PATH,			TOKEN_OPERATOR,		"..",	false, false);
+		AddTokenRule(RULE_AND,					TOKEN_OPERATOR,		"and",	false, false);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function select(xPath:String, root:CocoDOMNode):Array<CocoDOMNode>
+	{
+		var local_result:Array<CocoDOMNode> = new Array<CocoDOMNode>;
+		result = local_result;
+		this.root = root;
+		super.parse(xPath);
+		visit_node(root);
+		result = null;
+		return local_result;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function reset()
+	{
+		super.reset;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	/*
+		Node Selection Token Rules:
+		===================================
+		//			Selects nodes in the document from the current node that match the selection no matter where they are
+		/			Selects from the root node
+		.			Selects the current node
+		..			Selects the parent of the current node
+		nodename	Selects all nodes with the name "nodename"
+		*			Matches any element node
+	*/
+	private function visit_node(ctx:CocoDOMNode)
+	{
+		var tt:TOKEN_RULE_ENUM = peek();
+
+		switch(tt)
+		{
+		case RULE_ROOT:
+			{
+				mustMatch(RULE_ROOT);
+				var all:Array<CocoDOMNode> = root.all();
+				var L:Integer = all.size();
+				for(var i:Integer = 0; i<L; i++)
+				{
+					save();
+					visit_node(all[i]);
+					restore();
+				}
+			}
+			break;
+
+		case RULE_PARENT_PATH:
+			mustMatch(RULE_PARENT_PATH);
+			visit_node(ctx.parent);
+			break;
+
+		case RULE_CURR_PATH:
+			mustMatch(RULE_CURR_PATH);
+			visit_node(ctx);
+			break;
+
+		case RULE_SLASH:
+			mustMatch(RULE_SLASH);
+			visit_children(ctx);
+			break;
+
+		case RULE_IDENTIFIER:
+			mustMatch(RULE_IDENTIFIER);
+			if(token().value==ctx.nodeName)
+				visit_node(ctx);
+			break;
+
+		case RULE_LEFT_BRACKET:
+			save();
+			visit_attribute(ctx);
+			restore();
+			break;
+
+		case RULE_EOF:
+			push_node(ctx);
+			break;
+
+		default:
+			throw "Invalid";
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function visit_children(ctx:CocoDOMNode)
+	{
+		// We expect a nodename or an attribute filter
+		var tt:TOKEN_RULE_ENUM = peek();
+		if(tt==RULE_IDENTIFIER || tt==RULE_ANY)
+		{
+			mustMatch(tt);
+			var anyNode:Boolean = tt==RULE_ANY;
+			var nodeName:String = token().value;
+			var child:CocoDOMNode;
+			var L:Integer = ctx.children.size();
+			for(var i:Integer=0; i<L; i++)
+			{
+				child = ctx.children[i];
+				if(anyNode || (child.nodeName==nodeName))
+				{
+					save();
+					visit_node(child);
+					restore();
+				}
+			}
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	/*
+		// Attribute Selection Token Roles:
+		===================================
+		@attribute	Selects attributes
+		@*			Matches any attribute node
+
+		This is a very simple attribute expression evaluator.
+		It only supports [@x=v and @y=t and ...] expressions.
+		At some point we need to port parser.js Expression()
+		function to CocoScript.
+
+	*/
+	private function visit_attribute(ctx:CocoDOMNode)
+	{
+		mustMatch(RULE_LEFT_BRACKET);
+		var tt:TOKEN_RULE_ENUM = peek();
+
+		while(tt!=RULE_RIGHT_BRACKET)
+		{
+			mustMatch(RULE_ATTRIBUTE);
+
+			var anyAttr:Boolean = false;
+			var attrName:String = "*";
+
+			tt = peek();
+			if(tt==RULE_ANY)
+			{
+				mustMatch(RULE_ANY);
+				anyAttr = true;
+			}
+			else if(tt==RULE_IDENTIFIER)
+			{
+				mustMatch(RULE_IDENTIFIER);
+				attrName = token().value;
+			}
+			else
+			{
+				throw "Invalid xPath: " + input();
+			}
+
+			mustMatch(RULE_EQ);
+			mustMatch(RULE_STRING);
+
+			var attrValue:String = token().value;
+			var L:Integer = ctx.attributes.size();
+			var attr:CocoDOMAttribute;
+			var attrMatch:Boolean = false;
+
+			for(var i:Integer = 0; i<L; i++)
+			{
+				attr = ctx.attributes[i];
+				if(anyAttr || (attr.name==attrName))
+				{
+					if(attr.value == attrValue)
+					{
+						attrMatch = true;
+						break;
+					}
+				}
+			}
+
+			if(!attrMatch)
+			{
+				// If attribute does not match immediately return
+				return;
+			}
+
+			tt = peek();
+
+			if(tt==RULE_AND)
+			{
+				mustMatch(RULE_AND);
+				tt = peek();
+			}
+		}
+
+		mustMatch(RULE_RIGHT_BRACKET);
+
+		if(peek()==RULE_EOF)
+			push_node(ctx);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function push_node(n:CocoDOMNode)
+	{
+		if(result && result.indexOf(n)==-1)
+			result.push(n);
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____  ____  __  ____   __          __
+//	  / ____/___  _________  / __ \/ __ \/  |/  / | / /___  ____/ /__
+//	 / /   / __ \/ ___/ __ \/ / / / / / / /|_/ /  |/ / __ \/ __  / _ \
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /  / / /|  / /_/ / /_/ /  __/
+//	\____/\____/\___/\____/_____/\____/_/  /_/_/ |_/\____/\__,_/\___/
+//
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export struct CocoDOMAttribute
+{
+	name:String;
+	value:String;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export class CocoDOMNode
+{
+	public reference var parent:CocoDOMNode;
+	public var nodeName:String;
+	public var children:Array<CocoDOMNode>;
+	public var attributes:Array<CocoDOMAttribute>;
+
+	public var __json_value_hack:Boolean;
+	public var __nodeValue:String;
+
+	protected var out:Array<String>;
+
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor(name:String)
+	{
+		__json_value_hack = true;
+		__nodeValue = "null";
+		nodeName = name;
+		children = new Array<CocoDOMNode>;
+		attributes = new Array<CocoDOMAttribute>;
+		out = null;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete[] children;
+		delete[] attributes;
+		delete out;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function appendChild(node:CocoDOMNode):CocoDOMNode
+	{
+		var L:Integer = children.size();
+		for(var i:Integer = 0; i<L; i++)
+		{
+			if(children[i] == node)
+			{
+				return node;
+			}
+		}
+		node.parent = this;
+		children.push(node);
+		return node;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function removeChild(node:CocoDOMNode):CocoDOMNode
+	{
+		var L:Integer = children.size();
+		for(var i:Integer = 0; i<L; i++)
+		{
+			if(children[i] == node)
+			{
+				children.splice(i,1);
+				node.parent = null;
+				return node;
+			}
+		}
+		return null;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function setAttribute(name:String, value:String)
+	{
+		var L:Integer = attributes.size();
+		var att:CocoDOMAttribute;
+
+		for(var i:Integer = 0; i<L; i++)
+		{
+			att = attributes[i];
+			if(att.name == name)
+			{
+				att.value = value;
+				return;
+			}
+		}
+		var attr:CocoDOMAttribute = new CocoDOMAttribute();
+		attr.name = name;
+		attr.value = value;
+		attributes.push(attr);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function getAttribute(name:String):String
+	{
+		var L:Integer = attributes.size();
+		var att:CocoDOMAttribute;
+
+		for(var i:Integer = 0; i<L; i++)
+		{
+			att = attributes[i];
+			if(att.name == name)
+				return att.value;
+		}
+		return "";
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function value(nodeName:String):String
+	{
+		var n:CocoDOMNode = selectSingleNode("./"+nodeName);
+		return n ? n.nodeValue : "";
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function all():Array<CocoDOMNode>
+	{
+		var arr:Array<CocoDOMNode> = new Array<CocoDOMNode>;
+		node_all(this, arr);
+		return arr;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	protected virtual function node_all(n:CocoDOMNode, arr:Array<CocoDOMNode>)
+	{
+		if(!n || !n.children) return;
+		arr.push(n);
+		var L:Integer = n.children.size();
+		for(var i:Integer = 0; i<L; i++)
+			node_all(n.children[i], arr);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function selectSingleNode(xPath:String):CocoDOMNode
+	{
+		var n:CocoDOMNode = null;
+		var parser:CocoXPathParser = CocoXPathParser.singlenton;
+		var sel:Array<CocoDOMNode> = parser.select(xPath, this);
+		if(sel && sel.size()>0)
+		{
+			n = sel[0];
+			sel.splice(0,1);
+
+			// Delete the array but not its items
+			delete sel;
+		}
+		return n;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function selectNodes(xPath:String):Array<CocoDOMNode>
+	{
+		var sel:Array<CocoDOMNode> = CocoXPathParser.singlenton.select(xPath, this);
+		return sel;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public property nodeValue
+	{
+		function get():String
+		{
+			if(!__json_value_hack)
+				return __nodeValue;
+
+			if(children.size()==0)
+			{
+				return __nodeValue;
+			}
+
+			return toJSON();
+		}
+
+		function set(v:String)
+		{
+			if(!__json_value_hack)
+			{
+				__nodeValue = v;
+				return;
+			}
+
+			// Detect arbitrary JSON object in node value
+			if(v.charAt(0)=="{" && v.charAt(v.size()-1)=="}")
+			{
+				// Parse JSON
+				var parser:CocoJSONParser = new CocoJSONParser;
+				var dom:CocoDOMDocument = parser.parse(v);
+
+				// Appedn document fragment to this node
+				delete[] children;
+				children = dom.children;
+				dom.children = null;
+
+				// Dispose parser and document fragment
+				delete dom;
+				delete parser;
+			}
+			else
+			{
+				__nodeValue = v;
+			}
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function toJSON():String
+	{
+		out = new Array<String>;
+		nodeJSON(this, true, true, 0);
+		var buff:String = out.join("\n");
+		delete out;
+		return buff;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	protected virtual function nodeJSON(n:CocoDOMNode, list_final:Boolean, array_item:Boolean, tabs:Integer)
+	{
+		var A:Integer = n.attributes.size();
+		var L:Integer = n.children.size();
+		var i:Integer;
+		var t:String = "";
+		var attrs:String = "";
+		var json:String = "";
+		var Q:String = "\"";
+		var V:String = "";
+
+		if(n.nodeName == "CData" && !n.__nodeValue)
+			n.__nodeValue = "null";
+
+		for(i=0; i<tabs; i++) { t += "\t"; }
+
+		if(L==0)
+		{
+			V = n.__nodeValue == "null" ? "null" : Q + n.__nodeValue + Q;
+
+			if(array_item)
+				out.push(t + V + (list_final ? "" : ","));
+			else
+				out.push(t + Q + n.nodeName + Q + ":" + V + (list_final ? "" : ","));
+		}
+		else
+		{
+			if(!array_item)
+				out.push(t + Q + n.nodeName + Q + ":");
+
+			if(isFinite(n.children[0].nodeName))
+			{
+				out.push(t + "[");
+				for(i=0; i<L; i++)
+				{
+					nodeJSON(n.children[i], i==L-1, true, tabs+1);
+				}
+				out.push(t + "]" + (list_final ? "" : ","));
+			}
+			else
+			{
+				out.push(t + "{");
+				for(i=0; i<L; i++)
+				{
+					nodeJSON(n.children[i], i==L-1, false, tabs+1);
+				}
+				out.push(t + "}" + (list_final ? "" : ","));
+			}
+		}
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                 ____  ____  __  _______                                        __
+//	  / ____/___  _________  / __ \/ __ \/  |/  / __ \____  _______  ______ ___  ___  ____  / /_
+//	 / /   / __ \/ ___/ __ \/ / / / / / / /|_/ / / / / __ \/ ___/ / / / __ `__ \/ _ \/ __ \/ __/
+//	/ /___/ /_/ / /__/ /_/ / /_/ / /_/ / /  / / /_/ / /_/ / /__/ /_/ / / / / / /  __/ / / / /_
+//	\____/\____/\___/\____/_____/\____/_/  /_/_____/\____/\___/\__,_/_/ /_/ /_/\___/_/ /_/\__/
+//
+// ==================================================================================================================================
+
+export class CocoDOMDocument : CocoDOMNode
+{
+	public var root:CocoDOMNode;
+
+	/////////////////////////////////////////////////////////////////////
+	public function Constructor() : CocoDOMNode("document")
+	{
+		out = null;
+		root = this;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		if(CocoDOMNode(this)!=root)
+			delete root;
+
+		delete out;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function all():Array<CocoDOMNode>
+	{
+		var arr:Array<CocoDOMNode> = new Array<CocoDOMNode>;
+		node_all(root, arr);
+		return arr;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	protected virtual function node_all(n:CocoDOMNode, arr:Array<CocoDOMNode>)
+	{
+		if(!n || !n.children) return;
+		arr.push(n);
+		var L:Integer = n.children.size();
+		for(var i:Integer = 0; i<L; i++)
+			node_all(n.children[i], arr);
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function selectSingleNode(xPath:String):CocoDOMNode
+	{
+		var n:CocoDOMNode = null;
+		var parser:CocoXPathParser = CocoXPathParser.singlenton;
+		var sel:Array<CocoDOMNode> = parser.select(xPath, root);
+		if(sel && sel.size()>0)
+		{
+			n = sel[0];
+			sel.splice(0,1);
+
+			// Delete the array but not its items
+			delete sel;
+		}
+		return n;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function selectNodes(xPath:String):Array<CocoDOMNode>
+	{
+		var sel:Array<CocoDOMNode> = CocoXPathParser.singlenton.select(xPath, root);
+		return sel;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public virtual function toJSON():String
+	{
+		out = new Array<String>;
+		nodeJSON(root, true, true, 0);
+		var buff:String = out.join("\n");
+		delete out;
+		return buff;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	public function toXML():String
+	{
+		out = new Array<String>;
+		out.push("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+		nodeXML(root, 0);
+		var buff:String = out.join("");
+		delete out;
+		return buff;
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	private function nodeXML(n:CocoDOMNode, tabs:Integer)
+	{
+		var nodeName:String = n.nodeName;
+		if(isFinite(nodeName))
+		{
+			n.setAttribute("id", nodeName);
+			nodeName = "item";
+		}
+
+		var A:Integer = n.attributes.size();
+		var L:Integer = n.children.size();
+		var i:Integer;
+		var t:String = "";
+		var attrs:String = "";
+		var att:CocoDOMAttribute;
+
+		for(i=0;i<A;i++)
+		{
+			att = n.attributes[i];
+			attrs += " " + att.name + "=\"" + att.value + "\"";
+		}
+
+		for(i=0; i<tabs; i++) { t += "\t"; }
+		if(L>0)
+		{
+			out.push(t+"<"+nodeName+attrs+">\n");
+			for(var i:Integer = 0; i<L; i++)
+				nodeXML(n.children[i], tabs+1);
+			out.push(t+"</"+nodeName+">\n");
+		}
+		else if(n.__nodeValue!="")
+		{
+			out.push(t+"<"+nodeName+attrs+">" + n.__nodeValue + "</"+nodeName+">\n");
+		}
+		else
+		{
+			out.push(t+"<"+nodeName+attrs+"/>\n");
+		}
+	}
+}

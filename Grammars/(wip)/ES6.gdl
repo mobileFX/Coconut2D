@@ -1,0 +1,585 @@
+// ***** BEGIN LICENSE BLOCK *****
+//
+// Copyright (C) 2013-2018 www.mobilefx.com
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+// ***** END LICENSE BLOCK ***** */
+
+
+//http://es6-features.org/#DefaultParameterValues
+
+grammar JavaScript_ES6
+<
+	MATCHCASE,
+	FILE_EXT_LIST=".js",
+	REPARSE_PATTERN="\b(var)\s+.*?;"
+>
+{
+	//----------------------------------------------------------------------
+	// Compilation Unit
+	//----------------------------------------------------------------------
+
+	compilation_unit ::= [ { code_unit } ];
+
+	code_unit ::= STATEMENTS;
+
+	//----------------------------------------------------------------------
+	// Whitespace & Comments
+	//----------------------------------------------------------------------
+
+	whitespace <WHITESPACE> ::= '[\s\n\r]+';
+	comment <COMMENT> ::= '//+[^\n\r]*$';
+	multiline_comment <MULTILINE_COMMENT> ::= '/+\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/+';
+
+	//----------------------------------------------------------------------
+	// CLASS ECMAScript 2015
+	//----------------------------------------------------------------------
+
+	class_declaration <CLASS,SCOPE,STATEMENT> ::= 	"class" class_name
+													[ "extends" class_base ]
+													"{"
+														[ class_field_declarations ]
+													"}";
+
+	class_name <TERMINAL,CLASS_NAME> 			::= ident;
+	class_base <TERMINAL,CLASS_BASE> 			::= qualified_name | typed_array | dictionary | ARRAY;
+
+	class_field_declarations ::= { class_field_declaration };
+
+	class_field_declaration ::=   constructor_declaration
+								| variable_declaration
+								| const_declaration
+								//| property_declaration
+								| class_method_declaration
+								| class_declaration
+								| ";" ;
+
+	constructor_declaration <STATEMENT,METHOD,CONSTRUCTOR> 	::= "constructor"
+															    "(" [parameter_list] ")"
+															    STATEMENTS;
+
+	//----------------------------------------------------------------------
+	// Unamed class
+	//----------------------------------------------------------------------
+
+	lambda_class_declaration <CLASS,SCOPE,STATEMENT> ::= 	"class" [ class_name ]
+															[ "extends" class_base ]
+															"{"
+																[ class_field_declarations ]
+															"}";
+
+
+	//----------------------------------------------------------------------
+	// Class Method
+	//----------------------------------------------------------------------
+
+	class_method_declaration <METHOD,SCOPE,STATEMENT> 	::=	["static"] method_name
+															"(" [parameter_list] ")"
+															[ STATEMENTS ];
+
+	//----------------------------------------------------------------------
+	// FUNCTION
+	//----------------------------------------------------------------------
+
+	method_declaration <METHOD,SCOPE,STATEMENT> 		::=	"function" method_name
+															"(" [parameter_list] ")"
+															[ STATEMENTS ];
+
+	method_name <TERMINAL,METHOD_NAME> 					::= ident;
+	parameter_list 										::= { parameter, ","} ;
+	parameter <METHOD_ARG> 								::= param_name;
+	param_name <TERMINAL,METHOD_ARG_NAME> 				::= ident;
+
+	//----------------------------------------------------------------------
+	// LAMBDA
+	//----------------------------------------------------------------------
+
+	lambda_declaration <METHOD,SCOPE,STATEMENT> 		::=	"function" [method_name]
+															"(" [parameter_list] ")"
+															[ STATEMENTS ];
+
+	//----------------------------------------------------------------------
+	// VAR
+	//----------------------------------------------------------------------
+
+	variable_declaration <STATEMENT,VAR> 				::= ("var"|"let") variable_declarators ";";
+	const_declaration <STATEMENT,VAR,CONST>				::= "const" variable_declarators ";";
+
+	variable_declarators 								::= { variable_declarator, var_separator } ;
+	variable_declarator 								::= var_name [ "=" var_init ];
+
+	var_name <VAR_NAME> 								::= ident;
+	var_init <VAR_INITIALIZER>							::= expression;
+	var_separator <VAR_NEXT>							::= ",";
+
+	context_var <VAR>									::= var_name;
+
+	//============================================================================================================================
+	//
+	// Statements
+	//
+	//============================================================================================================================
+
+	STATEMENTS ::= EMPTY_BLOCK | STATEMENTS_BLOCK | statement;
+
+	STATEMENTS_BLOCK<SCOPE> 	::= "{" { STATEMENT } "}";
+
+	STATEMENT ::=
+			  STATEMENTS
+			| statement
+		    ;
+
+	statement ::=
+			  break
+			| continue
+			| delete
+			| do
+			| for
+			| for_in
+			| if_else
+			| return
+			| switch
+			| while
+			| try
+			| throw
+			| label
+			| variable_declaration
+			| method_declaration
+			| class_declaration
+			| const_declaration
+			| self_calling_function
+			| debugger
+			| EXPRESSION;
+			;
+
+	debugger ::= "debugger" ";";
+
+	//------------------------------------------------------------
+	EXPRESSION <STATEMENT,ERROR="Invalid Expression"> ::= expression ";";
+
+	//------------------------------------------------------------
+	try <STATEMENT,SCOPE,FRIENDLYNAME="try statement"> ::=
+	    "try"
+		STATEMENT
+	    [ catch ]
+	    [ finally ];
+
+	catch <SCOPE> ::=
+	    "catch" "(" context_var ")"
+	    STATEMENT;
+
+	finally <SCOPE> ::=
+	    "finally"
+	    STATEMENT;
+
+	//------------------------------------------------------------
+	throw <STATEMENT,FRIENDLYNAME="throw statement"> ::=
+	    "throw" expression ";";
+
+	//------------------------------------------------------------
+	break <STATEMENT, FRIENDLYNAME="break statement"> ::=
+	    "break" [ident] ";";
+
+	//------------------------------------------------------------
+	continue <STATEMENT, FRIENDLYNAME="continue statement"> ::=
+	    "continue" [ident] ";";
+
+	//------------------------------------------------------------
+	delete <STATEMENT, FRIENDLYNAME="delete statement"> ::=
+	    delete_expr ";";
+
+	delete_expr ::=
+	    "delete" reference;
+
+	//------------------------------------------------------------
+	for <STATEMENT, FRIENDLYNAME="for statement">	::=
+	    "for" "(" [for_init] ";" [expression] ";" [expression_list] ")"
+			STATEMENT;
+
+	for_init ::= for_var | expression_list;
+
+	for_var <STATEMENT,VAR> ::= ["var"] variable_declarators;
+
+	//------------------------------------------------------------
+	for_in <STATEMENT, SCOPE, FRIENDLYNAME="for in statement"> ::=
+	    "for" "(" for_var "in" expression ")"
+		STATEMENT;
+
+	//------------------------------------------------------------
+	if_else <STATEMENT, FRIENDLYNAME="if statement"> ::=
+	    "if" "(" expression ")"
+		STATEMENT
+	    [
+	     "else"
+		STATEMENT
+	    ];
+
+	//------------------------------------------------------------
+	label <STATEMENT, FRIENDLYNAME="label statement"> ::=
+	    ident ":" STATEMENT ;
+
+	//------------------------------------------------------------
+	return <STATEMENT, FRIENDLYNAME="return statement"> ::=
+	    "return" [expression] ";";
+
+	//------------------------------------------------------------
+	switch <STATEMENT, FRIENDLYNAME="switch statement"> ::=
+	    "switch" "(" expression ")"
+	    "{"
+		[{ case }]
+		[default]
+	    "}";
+
+	case <STATEMENT,SCOPE> ::=
+	    "case" expression  ":"
+		[ { STATEMENT } ];
+
+	default <STATEMENT,SCOPE> ::=
+	    "default"  ":"
+		[ { STATEMENT } ];
+
+	//------------------------------------------------------------
+	do <STATEMENT, FRIENDLYNAME="do-while loop statement"> ::=
+	    "do"
+		STATEMENT
+	    "while" "(" expression ")" ";";
+
+	//------------------------------------------------------------
+	while <STATEMENT, FRIENDLYNAME="while loop statement"> ::=
+	    "while" "(" expression ")"
+		[ STATEMENT ] [";"];
+
+	self_calling_function<STATEMENT, FRIENDLYNAME="self calling function"> ::= self_calling_function_expr ";";
+
+
+	self_calling_function_expr ::= (call_inside_paren | call_outside_paren);
+	call_inside_paren ::= "(" lambda_declaration call_expr ")";
+	call_outside_paren ::= "(" (lambda_declaration | expression) ")" call_expr;
+
+	typeof_expr ::= "typeof" "(" expression ")";
+
+
+	//============================================================================================================================
+	//
+	// Expressions
+	//
+	//============================================================================================================================
+
+	//----------------------------------------------------------------------
+	// Operators
+	//----------------------------------------------------------------------
+
+	OPERATOR <OPERATOR> ::= "="    | "*="  | "/="  | "%="
+		                  | "+="   | "-="  | "<<=" | ">>="
+		                  | ">>>=" | "&="  | "^="  | "|="
+		                  | "||"   | "&&"  | "|"   | "^"
+		                  | "&"    | "=="  | "!="  | "<"
+		                  | ">"    | ">="  | "<="  | "==="
+		                  | "!=="  | ">>>" | ">>"  | "<<"
+		                  | "+"    | "-"   | "/"   | "*"
+		                  | "%"    | "~"   | "in"  | "instanceof"
+		                  ;
+
+	unary_op  	<OPERATOR> ::= "-" | "~" | "+";
+	prefix_op 	<OPERATOR> ::= "++" | "--" | "typeof";
+	postfix_op	<OPERATOR> ::= "++" | "--";
+
+	expression<SHOWDELIMITERS> ::= { ternary_expr, OPERATOR };
+
+	ternary_expr ::= { factor, "." } [ "?" expression ":" expression ];
+
+	//----------------------------------------------------------------------
+	// Expression Factors
+	//----------------------------------------------------------------------
+
+	factor ::=	  TRUE
+				| FALSE
+				| UNDEFINED
+				| NULL
+				| NUMERIC_LITERAL
+				| STRING_LITERAL
+				| REGULAR_EXPRESSION_LITERAL
+				| new_array_expr
+				| new_expr
+				| ("!" expression)
+				| expression_group
+				| (unary_op expression)
+				| ([prefix_op] reference [postfix_op])
+				| self_calling_function_expr
+				| lambda_declaration
+				| lambda_class_declaration
+				| delete_expr
+				| typeof_expr
+				| JSON
+				;
+
+	expression_group				::= "(" expression ")" [ ("." reference) ] [ { (subscript_expr | call_expr) } ];
+	expression_list 				::= { expression, ","};
+	EMPTY_CALL						::= "(" ")";	// Optimize for parsing speed by using empty call
+	EMPTY_SUBSCRIPT					::= "[" "]";	// Optimize for parsing speed by using empty array
+	EMPTY_BLOCK						::= "{" "}";	// Optimize for parsing speed by using empty block
+
+	//----------------------------------------------------------------------
+	// Reference (DOT, CALL, SUBSCRIPT)
+	//----------------------------------------------------------------------
+
+	// reference term must NOT begin with keyword but may end with keyword (eg. a.default)
+
+	reference		<DOT>  			::= reference_term [ "." { reference_term_kwrd, "." } ];
+	reference_term 					::= ident 		[ { (subscript_expr | call_expr) } ];
+	reference_term_kwrd 			::= ident_kwrd 	[ { (subscript_expr | call_expr) } ];
+
+	call_expr 		<CALL>			::= EMPTY_CALL | ( "(" expression_list ")" );
+	subscript_expr 	<SUBSCRIPT>		::= "[" expression "]";
+
+	//----------------------------------------------------------------------
+	// "new"
+	//----------------------------------------------------------------------
+
+	// Creating expression must push existing DOT eg. a.b( new C() )
+
+	new_expr 		<SCOPE>			::= "new" (typed_array | dictionary | expression) [expression];
+	new_array_expr 					::= EMPTY_SUBSCRIPT | ( "[" expression_list "]" );
+
+	//============================================================================================================================
+	// JSON (Allowed only with #pragma json)
+	//============================================================================================================================
+
+	JSON 			::= [ JSON_OBJECT ];
+	JSON_OBJECT 	::= "{" [ { (JSON_GETTER | JSON_MEMBER) , "," } ] "}";
+	JSON_ARRAY 		::= "[" { JSON_VALUE, "," } "]";
+	JSON_MEMBER 	::= (STRING_LITERAL | NUMERIC_LITERAL | ident) ":" JSON_VALUE;
+	JSON_VALUE 		::= JSON_ARRAY | expression;
+	JSON_GETTER		::= "get" ident "(" ")" [ STATEMENTS ];
+
+
+	//============================================================================================================================
+	//
+	// Terminals
+	//
+	//============================================================================================================================
+
+	ident 				<TERMINAL, IDENTIFIER> 	::= ^keyword identifier;
+	ident_kwrd			<TERMINAL, IDENTIFIER> 	::= identifier;
+	uncaptured_ident 	<TERMINAL> 				::= ^keyword identifier;
+
+	type 				<TERMINAL> 				::= typed_array | dictionary | ident;
+
+	typed_array 		<TERMINAL> 				::= ARRAY "<" type ">";
+	dictionary 			<TERMINAL> 				::= DICTIONARY "<" type "," type ">";
+
+	qualified_name 		<TERMINAL> 				::= ^ARRAY ^DICTIONARY { ident, "." };
+
+	//============================================================================================================================
+	//
+	// Literals
+	//
+	//============================================================================================================================
+
+	NUMERIC_LITERAL <TERMINAL> 						::= '(?:\d+e(?:\+|\-)?\d+)|(?:0[xX][0-9a-fA-F]+)|(?:\d+(?:\.\d+){0,1}[fd]{0,1})';
+	STRING_LITERAL 	<TERMINAL,STRING> 				::= '\x22(?!\x22)(?:\\.|[^\x22])*\x22|\x27(?!\x27)(?:\\.|[^\x27])*\x27|([\x27\x22]{3})((?:(?!\1)[\s\S])*)\1|\x22\x22|\x27\x27';
+	REGULAR_EXPRESSION_LITERAL<TERMINAL, REGEXP> 	::= '/[^/*]{1}[^\n\r]*?(?:(\x5c\x2f)+[^\n\r]*?)*?/[img]{0,3}';
+
+	identifier 										::= '[a-zA-Z_\$][a-zA-Z0-9_\$]*';
+
+	GLOBAL 		<TERMINAL, CLASS_GLOBAL>			::= "Global";			// The name of the Global Scope or Global Class
+	VOID 		<TERMINAL, CLASS_VOID>				::= "void";				// The name of the void VarType
+	EVENT_BASE 	<TERMINAL, CLASS_EVENT_BASE>		::= "CocoEvent";		// The name of Events base Class
+
+	ARRAY 		<TERMINAL, CLASS_ARRAY> 			::= "Array";			// The name of the typed array / vector Class Template
+	DICTIONARY 	<TERMINAL, CLASS_DICTIONARY>		::= "Dictionary";		// The name of the typed dictionary / map Class Template
+
+	THIS 		<TERMINAL, IDENTIFIER_THIS>			::= "this";				// The "this" identifier
+	SUPER 		<TERMINAL, IDENTIFIER_SUPER>		::= "super";			// The "supper" identifier
+	ARGUMENTS	<TERMINAL, IDENTIFIER_ARGUMENTS>	::= "arguments";		// The "arguments" identifier
+	UNDEFINED 	<TERMINAL, IDENTIFIER_VOID>			::= "undefined";		// The "undefined" identifier
+	NULL 		<TERMINAL, IDENTIFIER_NULL>			::= "null";				// The "null" identifier
+
+	BOOLEAN		<TERMINAL, CLASS_BOOLEAN>			::= "Boolean";			// The name of the Boolean Class
+	TRUE 		<TERMINAL, IDENTIFIER_TRUE>			::= "true";				// The "true" identifier
+	FALSE 		<TERMINAL, IDENTIFIER_FALSE>		::= "false";			// The "false" identifier
+
+	COMMIT_REPARSE	<COMMIT_STATEMENT>				::= ";";				// Commit statement punctuation
+
+	//============================================================================================================================
+	// MemberList Directives
+	//============================================================================================================================
+
+	COLON <MEMBERLIST_VARTYPES>
+		::= ":";
+
+	NEW	<MEMBERLIST_VARTYPES="MODULE NAMESPACE PACKAGE CLASS STRUCT">
+		::= "new";
+
+	DELETE <MEMBERLIST_SCOPE="VAR">
+		::= "delete";
+
+	//============================================================================================================================
+	//
+	// VarTypes
+	//
+	//============================================================================================================================
+
+	// NOTE: keep string literals in the following productions because
+	//       disjunctions of string literals are optimized for speed.
+
+	// Scalars
+
+	scalar_type <SCALARS> ::= "Boolean"
+							| "Color"
+							| "Date"
+							| "Float"
+							| "Integer"
+							| "Number"
+							| "String"
+							| "Time"
+							;
+
+	// Classes (internally defined)
+
+	vartypes <VARTYPES>	::=   "Array"
+							| "Dictionary"
+
+							| "Boolean"
+							| "Date"
+							| "String"
+
+							| "Number"
+							| "Float"
+							| "Integer"
+							| "Color"
+							| "Time"
+
+							| "Class"
+							| "Object"
+							| "Function"
+							| "Null"
+
+							| "Global"
+							| "RegExp"
+							| "CocoAction"
+							| "DataView"
+							| "Gradient"
+							| "Math"
+
+							| "Error"
+							| "EvalError"
+							| "TypeError"
+							| "SyntaxError"
+							| "RangeError"
+							| "ReferenceError"
+
+							| "ArrayBuffer"
+							| "ArrayBufferView"
+
+							| "Float32Array"
+							| "Float64Array"
+
+							| "Uint8Array"
+							| "Uint16Array"
+							| "Uint32Array"
+							| "Uint64Array"
+
+							| "Int8Array"
+							| "Int16Array"
+							| "Int32Array"
+							| "Int64Array"
+							;
+
+	// VarTypes with SubTypes
+
+	FLOAT	<SUBTYPE, VARTYPE="Float">		::= "ArrayBuffer" | "ArrayBufferView" | "Float32Array" | "Float64Array";
+	INTEGER	<SUBTYPE, VARTYPE="Integer">	::= "Int8Array" | "Int16Array" | "Int32Array" | "Int64Array" | "Uint8Array" | "Uint16Array" | "Uint32Array" | "Uint64Array";
+	OBJECT	<SUBTYPE, VARTYPE="Object">		::= "Dictionary";
+
+	//============================================================================================================================
+	//
+	// Keywords
+	//
+	//============================================================================================================================
+
+	keyword <KEYWORDS> ::= 	  "abstract"
+							//| "arguments"
+							| "await"
+							| "boolean"
+							| "break"
+							| "byte"
+							| "case"
+							| "catch"
+							| "char"
+							| "class"
+							| "const"
+							| "continue"
+							| "debugger"
+							| "default"
+							| "delete"
+							| "do"
+							| "double"
+							| "else"
+							| "enum"
+							//| "eval"
+							| "export"
+							| "extends"
+							| "false"
+							| "final"
+							| "finally"
+							| "float"
+							| "for"
+							| "function"
+							| "goto"
+							| "if"
+							| "implements"
+							| "import"
+							| "in"
+							| "instanceof"
+							| "int"
+							| "interface"
+							| "let"
+							| "long"
+							| "native"
+							| "new"
+							| "null"
+							//| "package"
+							| "private"
+							| "protected"
+							| "public"
+							| "return"
+							| "short"
+							| "static"
+							//| "super"
+							| "switch"
+							| "synchronized"
+							//| "this"
+							| "throw"
+							| "throws"
+							| "transient"
+							| "true"
+							| "try"
+							| "typeof"
+							| "var"
+							| "void"
+							| "volatile"
+							| "while"
+							| "with"
+							| "yield"
+							;
+
+};
+

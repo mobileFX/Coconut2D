@@ -1,0 +1,288 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	   ______                 ___                ______            __             ____
+//	  / ____/___  _________  /   |  ____  ____  / ____/___  ____  / /__________  / / /__  _____
+//	 / /   / __ \/ ___/ __ \/ /| | / __ \/ __ \/ /   / __ \/ __ \/ __/ ___/ __ \/ / / _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ / ___ |/ /_/ / /_/ / /___/ /_/ / / / / /_/ /  / /_/ / / /  __/ /
+//	\____/\____/\___/\____/_/  |_/ .___/ .___/\____/\____/_/ /_/\__/_/   \____/_/_/\___/_/
+//	                            /_/   /_/
+// ==================================================================================================================================
+
+#include "CocoClip.jspp"
+#include "CocoUIView.jspp"
+
+enum COCO_UIFORM_ANIMATION
+{
+	SHOW_NORMAL		= 1,
+	SHOW_NEXT		= 2,
+	SHOW_PREVIOUS 	= 3
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+control class CocoUIAppView : CocoUIView
+{
+ 	public reference var ActiveForm:CocoUIFormView;
+ 	public var Forms:Array<CocoUIFormView>;
+ 	public var DataSources:Array<CocoDataSource>;
+
+ 	public const ANIMATION_FRAMES:Integer = 10;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Constructor(scene:CocoScene, name:String) : CocoUIView(scene, name)
+ 	{
+		__width = 1.0;
+		__height = 1.0;
+		__anchor = VIEW_ANCHOR_ALL;
+ 		ActiveForm = null;
+ 		Forms = new Array<CocoUIFormView>;
+ 		DataSources = new Array<CocoDataSource>;
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function Destructor()
+ 	{
+ 		delete[] Forms;
+ 		delete[] DataSources;
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function addDataSource(DataSource:CocoDataSource)
+ 	{
+ 		DataSources.push(DataSource);
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function getDatasource(ID:String): CocoDataSource
+ 	{
+ 		for(var i:Integer = DataSources.size()-1; i>=0; i--)
+ 			if(DataSources[i].ID == ID)
+ 				return DataSources[i];
+ 		return null;
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function addForm(Form:CocoUIFormView) :CocoUIFormView
+ 	{
+ 		// Disable form anchoring
+ 		Form.Anchor = VIEW_ANCHOR_NONE;
+
+ 		// Resize form to screen width and height
+ 		Form.move(0, 0 , __scene.__view_width, __scene.__view_height);
+
+ 		// Add form as child clip
+ 		addChild(Form);
+
+ 		// Add form in Forms collection
+ 		Forms.push(Form);
+
+ 		// Make form invisiable (does not render)
+ 		Form.Visible = false;
+
+ 		// Make sure the form has 2 sliding animation key frames
+ 		var KF:CocoKeyFrame = CocoTimeline.NewKeyFrame();
+ 		KF.frameIndex = 1;
+ 		KF.frameInterpolation = KEYFRAME_INTERPOLATION_MOTION_TWEEN;
+ 		Form.addKeyFrame(KF);
+ 		KF = CocoTimeline.NewKeyFrame();
+ 		KF.frameIndex = ANIMATION_FRAMES+1;
+ 		KF.frameInterpolation = KEYFRAME_INTERPOLATION_NONE;
+ 		Form.addKeyFrame(KF);
+
+ 		return Form;
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function getForm(Name:String) :CocoUIFormView
+ 	{
+ 		for(var i:Integer = Forms.size()-1; i>=0; i--)
+ 			if(Forms[i].__instanceName == Name)
+ 				return Forms[i];
+ 		return null;
+ 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function showForm(Form:CocoUIFormView, animation:COCO_UIFORM_ANIMATION)
+ 	{
+		var F1:CocoUIFormView = ActiveForm;
+		var F2:CocoUIFormView = Form;
+		var KF:CocoKeyFrame = null;
+
+		if(ActiveForm)
+		{
+			// Dispatch OnHide Event
+			ActiveForm.dispatchEvent(ActiveForm.OnHide, ActiveForm);
+
+			// Release Data Bindings
+			if(ActiveForm.DataBindingsReleaseOnHide)
+				ActiveForm.Bindings.Close();
+		}
+
+		// Make sure all forms are hidden
+ 		for(var i:Integer = Forms.size()-1; i>=0; i--)
+ 			Forms[i].Visible = false;
+
+		// Refresh App Layout (floating controls)
+ 		RefreshLayout(this);
+
+ 		if(!Form) return;
+
+ 		// Show new Form with Animation
+
+ 		switch(animation)
+ 		{
+ 		case COCO_UIFORM_ANIMATION.SHOW_NORMAL:
+
+	 		ActiveForm = Form;
+	 		ActiveForm.Visible = true;
+	 		ActiveForm.move(0, 0 , __scene.__view_width, __scene.__view_height);
+	 		ActiveForm.RefreshLayout(this);
+	 		initForm();
+			break;
+
+ 		case COCO_UIFORM_ANIMATION.SHOW_PREVIOUS:
+
+			// Current Form
+ 			F1.Visible = true;
+ 			KF = F1.__timeline.keyFrame(1);
+ 			KF.x = 0;
+ 			KF.y = 0;
+ 			KF = F1.__timeline.lastKeyFrame();
+ 			KF.x = __scene.ViewWidth;
+ 			KF.y = 0;
+ 			KF.action = null;
+
+ 			// New Form
+ 			F2.Visible = true;
+ 			KF = F2.__timeline.keyFrame(1);
+ 			KF.x = -__scene.__view_width;
+ 			KF.y = 0;
+ 			KF = F2.__timeline.lastKeyFrame();
+ 			KF.x = 0;
+ 			KF.y = 0;
+ 			KF.action = initForm;
+
+			// Reposition children
+ 			F2.RefreshLayout(this);
+
+			// Set active form
+ 			ActiveForm = F2;
+			normalize();
+			gotoFrameByIndex(1, false);
+
+ 			break;
+
+ 		case COCO_UIFORM_ANIMATION.SHOW_NEXT:
+
+			// Current Form
+ 			F1.Visible = true;
+ 			KF = F1.__timeline.keyFrame(1);
+ 			KF.x = 0;
+ 			KF.y = 0;
+ 			KF = F1.__timeline.lastKeyFrame();
+ 			KF.x = -__scene.ViewWidth;
+ 			KF.y = 0;
+ 			KF.action = null;
+
+ 			// New Form
+ 			F2.Visible = true;
+ 			KF = F2.__timeline.keyFrame(1);
+ 			KF.x = __scene.__view_width;
+ 			KF.y = 0;
+ 			KF = F2.__timeline.lastKeyFrame();
+ 			KF.x = 0;
+ 			KF.y = 0;
+ 			KF.action = initForm;
+
+			// Reposition children
+ 			F2.RefreshLayout(this);
+
+			// Set active form
+ 			ActiveForm = F2;
+			normalize();
+			gotoFrameByIndex(1, false);
+
+ 			break;
+ 		}
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+ 	public function initForm()
+ 	{
+ 		// Make sure all forms are hidden
+ 		for(var i:Integer = Forms.size()-1; i>=0; i--)
+ 		{
+ 			if(Forms[i]==ActiveForm) continue;
+
+ 			// Hide innactive form
+ 			Forms[i].Visible = false;
+
+ 			// Dispose shared textures of innactive form
+ 			if(Forms[i].DisposeTextures)
+ 				Forms[i].dispose();
+ 		}
+
+		// Show only the active form
+ 		ActiveForm.Visible = true;
+
+		// Make sure the activeform timeline is on zero (idle) keyframe
+ 		var KF:CocoKeyFrame = ActiveForm.__timeline.firstKeyFrame();
+ 		KF.x = 0;
+ 		KF.y = 0;
+ 		KF.action = null;
+
+ 		// Move animation head to zero keyframe
+ 		gotoFrameByIndex(0, true);
+
+ 		// Initialize Form Data
+ 		if(ActiveForm.Bindings.HasBindings)
+ 		{
+	 		// Fire event to collect Data Source params
+	 		var params:Array<CocoDataParm> = new Array<CocoDataParm>;
+	 		ActiveForm.dispatchEvent(ActiveForm.OnDataOpen, ActiveForm, params);
+
+	 		// Open Data Sources
+	 		ActiveForm.Bindings.Open(params);
+ 		}
+
+ 		// Form is stable, show it
+ 		ActiveForm.dispatchEvent(ActiveForm.OnShow, ActiveForm);
+ 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function RefreshLayout(parent:CocoUIView)
+	{
+		// Re-layout the floating controls
+		for(var i:Integer = __children.size()-1; i>=0; i--)
+		{
+			if(!__children[i].__visible || __children[i].__className=="CocoClip") continue;
+			var view:CocoUIView = CocoUIView(__children[i]);
+			view.RefreshLayout(this);
+		}
+	}
+}

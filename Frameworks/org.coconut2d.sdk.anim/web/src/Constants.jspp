@@ -1,0 +1,192 @@
+﻿
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+//* THIS FILE MUST NOT CHANGE PLACE - IT IS USED BY THE COMPILERS *//
+
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+const BOX2D_SCALE:Float 					= 100.0;
+
+const COCO_STOP_ON_CURRENT_FRAME:Integer 		= -1;
+const COCO_DEFAULT_CONTROL_HEIGHT:Integer 		= 48; // pixels
+const COCO_DEFAULT_EDIT_CONTROL_HEIGHT:Integer	= 38; // pixels
+const COCO_DEFAULT_FONT_SIZE:Integer			= 16; // pixels
+const COCO_CONTROL_MOVE_SNAP_PIXELS:Integer		= 20; // pixels
+
+const M_PI:Float		=  3.1415926535;
+const M_PI_2:Float 		=  1.5707963267;
+const RADIANS:Float 	=  0.0174532925;
+const DEGREES:Float 	= 57.2957795130;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for Object Field Members Cloning
+enum COCO_OBJECT_COPY_MEMBERS_ENUM
+{
+	COPY_MEMBERS_PUBLIC 		= 1,
+	COPY_MEMBERS_PUBLISHED 		= 2,
+	COPY_MEMBERS_PROTECTED 		= 4,
+	COPY_MEMBERS_ALL 			= COPY_MEMBERS_PUBLIC|COPY_MEMBERS_PUBLISHED|COPY_MEMBERS_PROTECTED
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for screen resolution dpi.
+enum SCREEN_RESOLUTION_DPI_ENUM
+{
+    RESOLUTION_nodpi							= 0,
+    RESOLUTION_DefaultDpi						= 0,
+    RESOLUTION_ldpi								= 1,
+    RESOLUTION_mdpi								= 2,
+    RESOLUTION_tvdpi							= 3,
+    RESOLUTION_hdpi								= 4,
+    RESOLUTION_xhdpi							= 5,
+    RESOLUTION_xxhdpi							= 6,
+    RESOLUTION_MIN_DPI							= 1,
+    RESOLUTION_MAX_DPI							= 6
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for clip symbol loop synchronization.
+enum COCO_CLIP_SYMBOL_LOOP_ENUM
+{
+    CLIP_SYMBOL_LOOP_CONTINUOUS					= 0,
+    CLIP_SYMBOL_LOOP_SYNCHRONIZED_WITH_PARENT	= 1,
+    CLIP_SYMBOL_LOOP_ONCE						= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enum for keyframe interpolation calculation.
+enum COCO_KEYFRAME_INTERPOLATION_ENUM
+{
+    KEYFRAME_INTERPOLATION_NONE					= 0,
+    KEYFRAME_INTERPOLATION_MOTION_TWEEN			= 1,
+    KEYFRAME_INTERPOLATION_ECHO					= 2,
+    KEYFRAME_INTERPOLATION_PHYSICS				= 3
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_TEXT_ALIGN_ENUM
+{
+	TEXT_ALIGN_NEAR								= 0,
+	TEXT_ALIGN_CENTER							= 1,
+	TEXT_ALIGN_FAR								= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_TEXT_TRIMMING_ENUM
+{
+    StringTrimmingNone							= 0,
+    StringTrimmingCharacter						= 1,
+    StringTrimmingWord							= 2,
+    StringTrimmingEllipsisCharacter				= 3,
+    StringTrimmingEllipsisWord					= 4,
+    StringTrimmingEllipsisPath					= 5
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_CONTROL_BORDER_STYLE_ENUM
+{
+	BORDER_NONE 								= 0,
+	BORDER_SOLID 								= 1,
+	BORDER_DOTTED 								= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_CONTROL_ANCHOR_ENUM
+{
+	ANCHOR_NONE									= 0,
+	ANCHOR_TOP_LEFT								= 1,
+	ANCHOR_TOP_MIDDLE       					= 2,
+	ANCHOR_TOP_RIGHT        					= 3,
+	ANCHOR_MIDDLE_LEFT      					= 4,
+	ANCHOR_CENTER           					= 5,
+	ANCHOR_MIDDLE_RIGHT     					= 6,
+	ANCHOR_BOTTOM_LEFT      					= 7,
+	ANCHOR_BOTTOM_MIDDLE    					= 8,
+	ANCHOR_BOTTOM_RIGHT     					= 9
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_SKIN_TILE_ENUM
+{
+	TILE_REPEAT_NONE							= 1,
+	TILE_REPEAT_X								= 2,
+	TILE_REPEAT_Y								= 3,
+	TILE_REPEAT_XY								= 4
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_UI_STACK_ENUM
+{
+	STACKED_NONE 								= 0,
+	STACKED_NORMAL 								= 1,
+	STACKED_SIBLING 							= 2
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_RENDERING_HINT
+{
+    COCO_RENDER_FOR_WEB 				= 0x800000,
+    COCO_RENDER_FOR_NATIVE 				= 0x1000000,
+
+    COCO_RENDER_FOR_PLATFORM_DESKTOP 	= 0x1,
+    COCO_RENDER_FOR_PLATFORM_MOBILE 	= 0x2,
+    COCO_RENDER_FOR_PLATFORM_TABLET 	= 0x4,
+    COCO_RENDER_FOR_PLATFORM_VLT 		= 0x8,
+    COCO_RENDER_FOR_PLATFORM_DS 		= 0x10,
+    COCO_RENDER_FOR_PLATFORM_TV 		= 0x20,
+
+    COCO_RENDER_FOR_DEVICE_IPHONE 		= 0x40,
+    COCO_RENDER_FOR_DEVICE_IPAD 		= 0x80,
+    COCO_RENDER_FOR_DEVICE_ANDROID 		= 0x100,
+
+    COCO_RENDER_FOR_DPI_LDPI 			= 0x200,
+    COCO_RENDER_FOR_DPI_MDPI 			= 0x400,
+    COCO_RENDER_FOR_DPI_TVDPI 			= 0x800,
+    COCO_RENDER_FOR_DPI_HDPI 			= 0x1000,
+    COCO_RENDER_FOR_DPI_XHDPI 			= 0x2000,
+    COCO_RENDER_FOR_DPI_XXDPI 			= 0x4000,
+
+    COCO_RENDER_FOR_RENDERER_CANVAS 	= 0x8000,
+    COCO_RENDER_FOR_RENDERER_WEBGL 		= 0x10000,
+    COCO_RENDER_FOR_RENDERER_CSS3 		= 0x20000,
+
+    COCO_RENDER_FOR_FEATURE_1 			= 0x40000,
+    COCO_RENDER_FOR_FEATURE_2 			= 0x80000,
+    COCO_RENDER_FOR_FEATURE_3 			= 0x100000,
+    COCO_RENDER_FOR_FEATURE_4 			= 0x200000,
+    COCO_RENDER_FOR_FEATURE_5 			= 0x400000,
+
+    COCO_RENDER_FOR_ALL 				= 0x1FFFFFF
+};

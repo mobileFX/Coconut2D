@@ -1,0 +1,179 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+// ==================================================================================================================================
+//	  ______                 __
+//	 /_  __/___  __  _______/ /_
+//	  / / / __ \/ / / / ___/ __ \
+//	 / / / /_/ / /_/ / /__/ / / /
+//	/_/  \____/\__,_/\___/_/ /_/
+//
+// ==================================================================================================================================
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+class Touch
+{
+    public var identifier:Integer;
+    public var screenX:Float;
+    public var screenY:Float;
+    public var clientX:Float;
+    public var clientY:Float;
+    public var pageX:Float;
+    public var pageY:Float;
+    public reference var target:IEventTarget;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		identifier	= 0;
+		target		= null;
+		screenX		= 0;
+		screenY		= 0;
+		clientX		= 0;
+		clientY		= 0;
+		pageX		= 0;
+		pageY		= 0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function initTouch(identifier:Integer, target:IEventTarget, screenX:Float, screenY:Float, clientX:Float, clientY:Float, pageX:Float, pageY:Float)
+	{
+		this.identifier	= identifier;
+		this.target		= target;
+		this.screenX	= screenX;
+		this.screenY	= screenY;
+		this.clientX	= clientX;
+		this.clientY	= clientY;
+		this.pageX		= pageX;
+		this.pageY		= pageY;
+	}
+}
+
+// ==================================================================================================================================
+//	  ______                 __    __    _      __
+//	 /_  __/___  __  _______/ /_  / /   (_)____/ /_
+//	  / / / __ \/ / / / ___/ __ \/ /   / / ___/ __/
+//	 / / / /_/ / /_/ / /__/ / / / /___/ (__  ) /_
+//	/_/  \____/\__,_/\___/_/ /_/_____/_/____/\__/
+//
+// ==================================================================================================================================
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+class TouchList : Array<Touch>
+{
+	public var length:Integer;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+		for(var i:Integer=0; i<=5; i++)
+		{
+			var touch:Touch = new Touch();
+			touch.initTouch(i, null, 0, 0, 0, 0, 0, 0);
+			push(touch);
+		}
+
+		length=5;
+	}
+
+	public function Destructor()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public function item(index:Integer) : Touch
+	{
+		return this[index];
+	}
+}
+
+// ==================================================================================================================================
+//	    __  __________  _____    ______                 __
+//	   / / / /_  __/  |/  / /   / ____/   _____  ____  / /_
+//	  / /_/ / / / / /|_/ / /   / __/ | | / / _ \/ __ \/ __/
+//	 / __  / / / / /  / / /___/ /___ | |/ /  __/ / / / /_
+//	/_/ /_/ /_/ /_/  /_/_____/_____/ |___/\___/_/ /_/\__/
+//
+// ==================================================================================================================================
+
+// Pseudo-implementation of an HTMLEvent wrapper class for catch-all events.
+
+class HTMLEvent
+{
+	public var type:String;
+	public var timestamp:Time;
+	public var clientX:Float;
+	public var clientY:Float;
+	public var touches:TouchList;
+	public var changedTouches:TouchList;
+	public var keyCode:Integer;
+	public var ctrlKey:Boolean;
+	public var altKey:Boolean;
+	public var shiftKey:Boolean;
+	public var which:Integer;
+	public var special:DEVICE_KEYS_ENUM;
+	public var character:String;
+	public var key:String;
+
+	public function Constructor()
+	{
+		type = "";
+		timestamp = 0;
+		keyCode = 0;
+		which = 0;
+		special = DEVICE_KEY_NONE;
+		character = "";
+		key = "";
+		ctrlKey = false;
+		altKey = false;
+		shiftKey = false;
+		clientX = 0.0;
+		clientY = 0.0;
+		touches = new TouchList();
+		changedTouches = new TouchList();
+	}
+
+	public function Destructor()
+	{
+		delete touches;
+		delete changedTouches;
+	}
+
+	public function preventDefault()
+	{
+	}
+
+	public function stopPropagation()
+	{
+	}
+}
+

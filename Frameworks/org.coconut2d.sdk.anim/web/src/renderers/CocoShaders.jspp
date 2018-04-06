@@ -1,0 +1,1273 @@
+﻿/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Copyright (C) 2013-2017 www.mobilefx.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#pragma export_native;
+#pragma export_web;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+enum COCO_SHADER_UNIFORM_TYPE
+{
+	COCO_SHADER_UNIFORM_TYPE_1f	= 0,
+	COCO_SHADER_UNIFORM_TYPE_2f	= 1,
+	COCO_SHADER_UNIFORM_TYPE_3f	= 2,
+	COCO_SHADER_UNIFORM_TYPE_4f	= 3,
+	COCO_SHADER_UNIFORM_TYPE_1i	= 4,
+	COCO_SHADER_UNIFORM_TYPE_2i	= 5,
+	COCO_SHADER_UNIFORM_TYPE_3i	= 6,
+	COCO_SHADER_UNIFORM_TYPE_4i	= 7
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+struct COCO_SHADER_UNIFORM
+{
+	id:String;
+	type:COCO_SHADER_UNIFORM_TYPE;
+	length:Integer;
+	interpolates:Boolean;
+	uniform:WebGLUniformLocation;
+}
+
+// ==================================================================================================================================
+//	   ______                _____ __              __               __  ___
+//	  / ____/___  _________ / ___// /_  ____ _____/ /__  __________/  |/  /___ _____  ____ _____ ____  _____
+//	 / /   / __ \/ ___/ __ \\__ \/ __ \/ __ `/ __  / _ \/ ___/ ___/ /|_/ / __ `/ __ \/ __ `/ __ `/ _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ /__/ / / / / /_/ / /_/ /  __/ /  (__  ) /  / / /_/ / / / / /_/ / /_/ /  __/ /
+//	\____/\____/\___/\____/____/_/ /_/\__,_/\__,_/\___/_/  /____/_/  /_/\__,_/_/ /_/\__,_/\__, /\___/_/
+//	                                                                                     /____/
+// ==================================================================================================================================
+
+class CocoShadersManager
+{
+	public static var shaders:Array<CocoShader> = null;
+	public static reference var activeShader:CocoShader = null;
+	public static reference var DEFAULT:CocoShader = null;
+	public static reference var DEFAULT_WITH_ALPHA:CocoShader = null;
+	public static reference var DEFAULT_TEXT:CocoShader = null;
+	public static reference var shaderBoundingBox:CocoShaderBoundingBox = null;
+	public static reference var __ctx:CocoRenderContextGL = null;
+	public static var __count:Integer = 0;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function dispose()
+	{
+		delete[] shaders;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function size():Integer
+	{
+		return !__ctx ? 0 : __count;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function loadedShaders():Integer
+	{
+		if(!__ctx)
+			return 0;
+
+		var L:Integer = shaders.size();
+
+		if(!__count || !L)
+			return 0;
+
+		var c:Integer = 0;
+		for(var i:Integer = L-1; i>=0; i--)
+			if(shaders[i].ready())
+				c++;
+
+		return c;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function ready():Boolean
+	{
+		if(!__ctx)
+			return true;
+
+		var L:Integer = shaders.size();
+
+		if(!__count || !L || L!=__count)
+			return false;
+
+		for(var i:Integer = L-1; i>=0; i--)
+			if(!shaders[i].ready())
+				return false;
+
+		return true;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function addShader(shader:CocoShader)
+	{
+		trace("Shader " + shader.name + " initialized");
+
+		// Push shader in cache
+		if(shaders.indexOf(shader)==-1)
+		{
+			shaders.push(shader);
+		}
+
+		// Compiling a shader will replace the old program. Reactivate it.
+		if(activeShader)
+			activeShader.activate();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function create_shaders(ctx:CocoRenderContextGL)
+	{
+		__ctx = ctx;
+		__count = -1;
+
+		var shader:CocoShader;
+
+		// Deallocate existing shades
+		activeShader = null;
+
+		if(!shaders)
+		{
+			// Create shaders array
+			shaders = new Array<CocoShader>;
+
+			// Load shaders registry
+			var url:String = "./assets/res/shaders.json?nocache=" + engine.CLIENT_VERSION;
+
+		    var request:XMLHttpRequest = new XMLHttpRequest();
+		    request.open('GET', url, true);
+		    request.onload = function()
+		    {
+		        var json:String = request.responseText;
+		        parse(json);
+		        delete request;
+		    };
+		    request.send();
+		}
+		else
+		{
+			var i:Integer = 0;
+			var L:Integer = shaders.size();
+			for(i=0; i<L; i++)
+			{
+				shaders[i].initialize(ctx);
+			}
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function reset_shaders(ctx:CocoRenderContextGL)
+	{
+		activeShader = null;
+
+		for(var i:Integer = shaders.size()-1; i>=0; i--)
+		{
+			shaders[i].reset();
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function parse(json:String)
+	{
+		var parser:CocoJSONParser = new CocoJSONParser();
+		var dom:CocoDOMDocument = parser.parse(json);
+		var list:Array<CocoDOMNode> = dom.selectNodes("/Shaders/*");
+		var url:String;
+		var shader:CocoShader;
+		var n:CocoDOMNode;
+		var n_class:CocoDOMNode;
+		var n_custom_uniforms:CocoDOMNode;
+		var shader_base_class:String;
+		var custom_uniforms:Boolean;
+		var shader_name:String;
+
+		__count = list.size();
+
+		for(var i:Integer = 0; i<__count; i++)
+		{
+			n = list[i];
+			n_class = n.selectSingleNode("./class");
+			n_custom_uniforms = n.selectSingleNode("./custom_uniforms");
+
+			shader_name = n.nodeName;
+			shader_base_class = n_class ? n_class.nodeValue : "CocoShader";
+			custom_uniforms = n_custom_uniforms ? n_custom_uniforms.nodeValue=="true" : false;
+
+			// Create the Shader from appropriate base class
+
+			if(shader_base_class=="CocoShader")
+			{
+				shader = new CocoShader(__ctx);
+			}
+			else if(shader_base_class=="CocoShaderDefault")
+			{
+				shader = new CocoShaderDefault(__ctx);
+			}
+			else if(shader_base_class=="CocoShaderRepeat")
+			{
+				shader = new CocoShaderRepeat(__ctx);
+			}
+			else if(shader_base_class=="CocoSlotsShader")
+			{
+				#if (CASINO_SLOTS)
+				shader = new CocoSlotsShader(__ctx);
+				#endif
+			}
+			else if(shader_base_class=="CocoShaderPremultipliedAlpha")
+			{
+				shader = new CocoShaderPremultipliedAlpha(__ctx);
+			}
+			else if(shader_base_class=="CocoShaderComplexUI")
+			{
+				shader = new CocoShaderComplexUI(__ctx);
+			}
+			else if(shader_base_class=="CocoShaderBoundingBox")
+			{
+				shader = new CocoShaderBoundingBox(__ctx);
+				if(!shaderBoundingBox)
+					shaderBoundingBox = CocoShaderBoundingBox(shader);
+			}
+
+			// Setup shader identity
+			shader.name = shader_name;
+
+			if(shader.name=="Default")
+				DEFAULT = shader;
+
+			if(shader.name=="Default Premultiplied Alpha")
+				DEFAULT_TEXT = shader;
+
+			if(shader.name=="Default with Alpha")
+				DEFAULT_WITH_ALPHA = shader;
+
+			// Load the shader
+			shader.load("./assets/res/glsl/" + shader_name + "/" + shader_name + ".json");
+		}
+
+		delete parser;
+		delete dom;
+		delete list;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	public static function reload_shaders()
+	{
+		var i:Integer;
+		for(i=0; i<shaders.size(); i++)
+		{
+			shaders[i].reload();
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function shader(name:String):CocoShader
+	{
+		var shader:CocoShader = null;
+		for(var i:Integer = shaders.size()-1; i>=0; i--)
+		{
+			shader = shaders[i];
+			if(shader.name==name)
+				return shader;
+		}
+		return null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public static function setShader(shader:CocoShader):Boolean
+	{
+		if(engine.__ENABLE_RENDERING_OPTIMIZATIONS && activeShader && activeShader==shader)
+			return true;
+
+		if(activeShader)
+		{
+			activeShader.deactivate();
+		}
+
+		activeShader = shader;
+
+		if(activeShader)
+		{
+			activeShader.activate();
+			return true;
+		}
+
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                _____ __              __
+//	  / ____/___  _________ / ___// /_  ____ _____/ /__  _____
+//	 / /   / __ \/ ___/ __ \\__ \/ __ \/ __ `/ __  / _ \/ ___/
+//	/ /___/ /_/ / /__/ /_/ /__/ / / / / /_/ / /_/ /  __/ /
+//	\____/\____/\___/\____/____/_/ /_/\__,_/\__,_/\___/_/
+//
+// ==================================================================================================================================
+
+class CocoShader
+{
+	public static var last_program:WebGLProgram = null;
+	public static var last_texture:WebGLTexture = null;
+
+	private static var culling:Boolean;
+
+	protected reference var ctx:CocoRenderContextGL;
+	protected reference var gl:WebGLRenderingContext;
+
+	public var name:String;
+	public var url:String;
+
+	public var vertex_shader:String;
+	public var fragment_shader:String;
+
+	public var vshader:WebGLShader;
+	public var fshader:WebGLShader;
+	public var program:WebGLProgram;
+	private var __ready:Boolean;
+	private var __reset:Boolean;
+
+	public var uniforms:Array<COCO_SHADER_UNIFORM>;
+	public var uProj:WebGLUniformLocation;
+	public var uMV:WebGLUniformLocation;
+	public var uClock:WebGLUniformLocation;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(ctx:CocoRenderContextGL)
+	{
+		this.ctx			= ctx;
+		this.gl				= ctx.gl;
+
+		culling				= gl.isEnabled(gl.CULL_FACE);
+
+		name				= "";
+		vertex_shader		= "";
+		fragment_shader		= "";
+		url					= "";
+
+		vshader				= null;
+		fshader				= null;
+		program				= null;
+
+		uProj				= null;
+		uMV					= null;
+
+		uClock				= null;
+		__ready				= false;
+		__reset				= false;
+
+		uniforms			= new Array<COCO_SHADER_UNIFORM>;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		if(gl)
+		{
+			gl.useProgram(null);
+
+			if(program)
+				gl.deleteProgram(program);
+
+			if(vshader)
+				gl.deleteShader(vshader);
+
+			if(fshader)
+				gl.deleteShader(fshader);
+		}
+
+		delete program;
+		delete vshader;
+		delete fshader;
+		delete uProj;
+		delete uMV;
+		delete uClock;
+		delete[] uniforms;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function reset()
+	{
+		last_program = null;
+		last_texture = null;
+		__reset = true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function load(url:String)
+	{
+		this.url = url;
+
+		// Download Shader Configuration
+		url += "?nocache=" + engine.CLIENT_VERSION;
+	    var request:XMLHttpRequest = new XMLHttpRequest();
+	    request.open('GET', url, true);
+	    request.onload = function()
+	    {
+	        var json:String = request.responseText;
+	        parse(json);
+	        delete request;
+	    };
+	    request.send();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function reload():Boolean
+	{
+		if(url)
+		{
+			load(url);
+			return true;
+		}
+		return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function parse(json:String)
+	{
+		// Load a shader from JSON declaration
+		var parser:CocoJSONParser = new CocoJSONParser();
+		var dom:CocoDOMDocument = parser.parse(json);
+		var base_url:String = url.substr(0, url.lastIndexOf("/")+1);
+		var vertex_url:String = base_url + name + ".vert?nocache=" + engine.CLIENT_VERSION;
+		var fragment_url:String = base_url + name + ".frag?nocache=" + engine.CLIENT_VERSION;
+		delete parser;
+
+		// Download Fragment Shader GLSL
+	    var request:XMLHttpRequest = new XMLHttpRequest();
+	    request.open('GET', fragment_url, true);
+	    request.onload = function()
+	    {
+	        fragment_shader = request.responseText;
+	        delete request;
+	        request = null;
+
+			// Download Vertex Shader GLSL
+			request = new XMLHttpRequest();
+		    request.open('GET', vertex_url, true);
+		    request.onload = function()
+		    {
+		        vertex_shader = request.responseText;
+
+		        // Load shader uniforms
+		        var u:COCO_SHADER_UNIFORM;
+		        var nu:CocoDOMNode;
+				var list_uniforms:Array<CocoDOMNode> = dom.selectNodes("./uniforms/*");
+				for(var i:Integer=0; i<list_uniforms.size(); i++)
+				{
+					nu = list_uniforms[i];
+					u = new COCO_SHADER_UNIFORM;
+					u.id = nu.nodeName;
+					u.interpolates = nu.value("interpolates")=="true";
+					u.type = uniformTypeEnum(nu.value("glslType"), nu.value("vartype"));
+					switch(u.type)
+					{
+					case COCO_SHADER_UNIFORM_TYPE_1f: u.length = 1; break;
+					case COCO_SHADER_UNIFORM_TYPE_2f: u.length = 2; break;
+					case COCO_SHADER_UNIFORM_TYPE_3f: u.length = 3; break;
+					case COCO_SHADER_UNIFORM_TYPE_4f: u.length = 4; break;
+					case COCO_SHADER_UNIFORM_TYPE_1i: u.length = 1; break;
+					case COCO_SHADER_UNIFORM_TYPE_2i: u.length = 2; break;
+					case COCO_SHADER_UNIFORM_TYPE_3i: u.length = 3; break;
+					case COCO_SHADER_UNIFORM_TYPE_4i: u.length = 4; break;
+					}
+					uniforms.push(u);
+				}
+
+		       	// Finally Initialize the Shader
+		        initialize(CocoShadersManager.__ctx);
+
+		        // Dispose
+				delete list_uniforms;
+				delete dom;
+	        	delete request;
+		    };
+		    request.send();
+	    };
+	    request.send();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function uniformTypeEnum(glslType:String, vartype:String):COCO_SHADER_UNIFORM_TYPE
+	{
+		if(glslType=="int")
+		{
+			return COCO_SHADER_UNIFORM_TYPE_1i;
+		}
+		else if(glslType=="vec2")
+		{
+			return vartype=="Float" ? COCO_SHADER_UNIFORM_TYPE_2f : COCO_SHADER_UNIFORM_TYPE_2i;
+		}
+		else if(glslType=="vec3")
+		{
+			return vartype=="Float" ? COCO_SHADER_UNIFORM_TYPE_3f : COCO_SHADER_UNIFORM_TYPE_3i;
+		}
+		else if(glslType=="vec4")
+		{
+			return vartype=="Float" ? COCO_SHADER_UNIFORM_TYPE_4f : COCO_SHADER_UNIFORM_TYPE_4i;
+		}
+
+		return COCO_SHADER_UNIFORM_TYPE_1f;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function initialize(ctx:CocoRenderContextGL)
+	{
+		this.ctx = ctx;
+		this.gl = ctx.gl;
+		compile();
+		bindShaderVariables();
+
+		// Register the shader to the context
+		CocoShadersManager.addShader(this);
+
+		gl.useProgram(null);
+		last_program = null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function ready():Boolean
+	{
+		return __ready;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function compile()
+	{
+		if(!gl || !ctx || !vertex_shader || !fragment_shader) return;
+
+		var errors:Boolean = false;
+
+		// Disable active shader
+		if(CocoShadersManager.activeShader)
+		{
+			CocoShadersManager.activeShader.deactivate();
+			CocoShadersManager.activeShader = null;
+		}
+
+		var shader_error:Integer = 0;
+
+		// Compile vertex shader
+		vshader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vshader, vertex_shader);
+		gl.compileShader(vshader);
+
+		while(shader_error=gl.getError())
+		{
+			trace("ERROR: Vertex Shader Error in " + name + ": " + gl.getShaderInfoLog(vshader));
+			errors = true;
+		}
+
+		if(!errors)
+		{
+
+			// Compile fragment shader
+			fshader = gl.createShader(gl.FRAGMENT_SHADER);
+			gl.shaderSource(fshader, fragment_shader);
+			gl.compileShader(fshader);
+
+			while(shader_error=gl.getError())
+			{
+				trace("ERROR: Fragment Shader Error in " + name + ": " + gl.getShaderInfoLog(fshader));
+				errors = true;
+			}
+
+			if(!errors)
+			{
+
+				// Link shaders to OpenGL program
+				program = gl.createProgram();
+				gl.attachShader(program, vshader);
+				gl.attachShader(program, fshader);
+				gl.linkProgram(program);
+				gl.useProgram(program);
+
+				while(shader_error=gl.getError())
+				{
+					trace("ERROR: WebGL Error compiling program in Shader " + name + ": " + gl.getProgramInfoLog(program));
+					errors = true;
+				}
+			}
+		}
+
+		if(errors)
+		{
+			gl.useProgram(null);
+
+			if(program)
+				gl.deleteProgram(program);
+
+			if(vshader)
+				gl.deleteShader(vshader);
+
+			if(fshader)
+				gl.deleteShader(fshader);
+
+			delete program;
+			delete vshader;
+			delete fshader;
+
+			trace("ERROR: Failed to compile shader " + name);
+
+			#if (DEBUG)
+			__ready = true;
+			#endif
+
+		}
+		else
+		{
+			__ready = true;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Bind CocoShader variables with WebGL Shader variables
+	public virtual function bindShaderVariables()
+	{
+		if(!program) return;
+
+		// Make sure matrices have OpenGL data structures populated
+		ctx.__projectionMatrix.refresh();
+		ctx.__modelViewMatrix.refresh();
+
+		// Bind Projection Matrix data with uniform
+		uProj = gl.getUniformLocation(program, "uProj");
+		gl.uniformMatrix4fv(uProj, false, ctx.__projectionMatrix.__data);
+
+		// Bind Model View Matrix data with uniform
+		uMV = gl.getUniformLocation(program, "uMV");
+		gl.uniformMatrix4fv(uMV, false, ctx.__modelViewMatrix.__data);
+
+		// Bind clock with uniform
+		uClock = gl.getUniformLocation(program, "uClock");
+
+		// Bind user-defined shader variables
+		for(var i:Integer = uniforms.size()-1; i>=0; i--)
+		{
+			uniforms[i].uniform = gl.getUniformLocation(program, uniforms[i].id);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Select Shader
+	public virtual function activate()
+	{
+		if(!program)
+		{
+			gl.useProgram(null);
+			last_program = null;
+			return;
+		}
+
+		if(!engine.__ENABLE_RENDERING_OPTIMIZATIONS || program!=last_program)
+		{
+			gl.useProgram(program);
+			last_program = program;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Interpolate uniforms
+	public virtual function interpolate(F:CocoKeyFrame, F1:CocoKeyFrame, F2:CocoKeyFrame, s:Float)
+	{
+		// Interpolation allowed only between same shaders
+		if(!F1.shader || !F2.shader || F1.shader != F2.shader)
+			return;
+
+		var uniform_index:Integer;
+		var value_index:Integer;
+		var offset:Integer;
+		var L:Integer = uniforms.size();
+		var u:COCO_SHADER_UNIFORM;
+
+		// Interpolate uniforms
+		for(uniform_index=0; uniform_index<L; uniform_index++)
+		{
+			// Check if this uniform interpolates
+			u = uniforms[uniform_index];
+			if(!u.interpolates) continue;
+
+			// Uniforms in KeyFrame are stored in a Float32Array.
+			// Each uniforms occupies up to 4 float values (x,y,z,w).
+
+			for(value_index=0; value_index < u.length; value_index++)
+			{
+				offset = 4 * uniform_index + value_index;
+				F.uniforms[offset] = F1.uniforms[offset] + s * (F2.uniforms[offset] - F1.uniforms[offset]);
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function combine(F1:CocoKeyFrame, F2:CocoKeyFrame)
+	{
+		//F1.red     = F1.red * F2.red;
+		//F1.green   = F1.green * F2.green;
+		//F1.blue    = F1.blue * F2.blue;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Update WebGL Shader values from animation elements
+	public virtual function updateFrame(scene:CocoScene, clip:CocoClip, maskDraw:Boolean)
+	{
+		if(!program) return;
+
+		// Update shader projection matrix data (if changed)
+		if(__reset || ctx.__projectionMatrix.__dirty)
+		{
+			ctx.__projectionMatrix.refresh();
+			gl.uniformMatrix4fv(uProj, false, ctx.__projectionMatrix.__data);
+		}
+
+		// Update shader model view matrix data (if changed)
+		if(__reset || ctx.__modelViewMatrix.__dirty)
+		{
+			ctx.__modelViewMatrix.refresh();
+			gl.uniformMatrix4fv(uMV, false, ctx.__modelViewMatrix.__data);
+		}
+
+		// Update shader real time clock
+		gl.uniform1f(uClock, engine.__rtc_clock);
+
+		// Update user-defined shader values
+		var u:COCO_SHADER_UNIFORM;
+		var uf:Float32Array;
+		var ux:Float;
+		var uy:Float;
+		var uz:Float;
+		var uw:Float;
+
+		for(var i:Integer = uniforms.size()-1; i>=0; i--)
+		{
+			// Get uniform
+			u = uniforms[i];
+
+			// Uniform value from current frame
+			uf = clip.__currentFrame.uniforms;
+			ux = uf[4*i + 0];
+			uy = uf[4*i + 1];
+			uz = uf[4*i + 2];
+			uw = uf[4*i + 3];
+
+			// Load uniform data from vector
+			switch(u.type)
+			{
+			case COCO_SHADER_UNIFORM_TYPE_1f:
+				gl.uniform1f(u.uniform, ux);
+				break;
+
+			case COCO_SHADER_UNIFORM_TYPE_2f:
+				gl.uniform2f(u.uniform, ux, uy);
+				break;
+
+			case COCO_SHADER_UNIFORM_TYPE_3f:
+				gl.uniform3f(u.uniform, ux, uy, uz);
+				break;
+
+			case COCO_SHADER_UNIFORM_TYPE_4f:
+				gl.uniform4f(u.uniform, ux, uy, uz, uw);
+				break;
+
+			case COCO_SHADER_UNIFORM_TYPE_1i:
+				gl.uniform1i(u.uniform, Integer(ux));
+				break;
+
+			case COCO_SHADER_UNIFORM_TYPE_2i:
+				gl.uniform2i(u.uniform, Integer(ux), Integer(uy));
+				break;
+
+			case COCO_SHADER_UNIFORM_TYPE_3i:
+				gl.uniform3i(u.uniform, Integer(ux), Integer(uy), Integer(uz));
+				break;
+
+			case COCO_SHADER_UNIFORM_TYPE_4i:
+				gl.uniform4i(u.uniform, Integer(ux), Integer(uy), Integer(uz), Integer(uw));
+				break;
+			}
+		}
+
+		// Faster rendering if culling is disabled
+		if(engine.__ENABLE_RENDERING_OPTIMIZATIONS && clip && clip.__currentFrame)
+		{
+			var keyframe:CocoKeyFrame = clip.__currentFrame;
+			if(keyframe.flipH || keyframe.flipV)
+			{
+				if(culling)
+				{
+					gl.disable(gl.CULL_FACE);
+					culling = false;
+				}
+			}
+			else
+			{
+				if(!culling)
+				{
+					gl.enable(gl.CULL_FACE);
+					culling = true;
+				}
+			}
+		}
+
+		__reset = false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Draw Texture
+	protected virtual function bindTexture(texture:WebGLTexture)
+	{
+		if(!program) return;
+
+		// Bind the texture
+		if(!engine.__ENABLE_RENDERING_OPTIMIZATIONS || texture!=last_texture)
+		{
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			last_texture = texture;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function drawFrame(scene:CocoScene, clip:CocoClip, maskDraw:Boolean)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function drawImage(image:CocoImage, optional tx:Float, optional ty:Float, optional flipH:Boolean, optional flipV:Boolean)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function drawFrameBuffer(frameBuffer:WebGLFramebuffer, texture:WebGLTexture, width:Integer, height:Integer)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// De-select Shader
+	public virtual function deactivate()
+	{
+		if(!engine.__ENABLE_RENDERING_OPTIMIZATIONS)
+		{
+			gl.useProgram(null);
+			last_program = null;
+		}
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                _____ __              __          ______
+//	  / ____/___  _________ / ___// /_  ____ _____/ /__  _____/ ____/___  ____ ___  ____ ___  ____  ____
+//	 / /   / __ \/ ___/ __ \\__ \/ __ \/ __ `/ __  / _ \/ ___/ /   / __ \/ __ `__ \/ __ `__ \/ __ \/ __ \
+//	/ /___/ /_/ / /__/ /_/ /__/ / / / / /_/ / /_/ /  __/ /  / /___/ /_/ / / / / / / / / / / / /_/ / / / /
+//	\____/\____/\___/\____/____/_/ /_/\__,_/\__,_/\___/_/   \____/\____/_/ /_/ /_/_/ /_/ /_/\____/_/ /_/
+//
+// ==================================================================================================================================
+
+class CocoShaderDefault : CocoShader
+{
+	public var iTex:Integer;
+	public var iVert:Integer;
+
+	public var uSqFrame:WebGLUniformLocation;
+	public var uTexSize:WebGLUniformLocation;
+	public var uFlip:WebGLUniformLocation;
+
+	public var uSampler:WebGLUniformLocation;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(ctx:CocoRenderContextGL) : CocoShader(ctx)
+	{
+		 iTex = 0;
+		 iVert = 0;
+
+		 uSqFrame = null;
+		 uTexSize = null;
+		 uFlip = null;
+
+		 uSampler = null;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		delete uSqFrame;
+		delete uTexSize;
+		delete uFlip;
+		delete uSampler;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function bindShaderVariables()
+	{
+		if(!program) return;
+
+		// Bind base class shader variables
+
+		super.bindShaderVariables;
+
+		// Bind additional shader variables
+
+		iTex		= gl.getAttribLocation(program, "iTex");
+		iVert		= gl.getAttribLocation(program, "iVert");
+
+		uTexSize	= gl.getUniformLocation(program, "uTexSize");
+		uSqFrame	= gl.getUniformLocation(program, "uSqFrame");
+		uFlip		= gl.getUniformLocation(program, "uFlip");
+
+		// Bind texture sampler
+
+		uSampler = gl.getUniformLocation(program, "uSampler");
+		gl.uniform1i(uSampler, 0);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function activate()
+	{
+		super.activate;
+		if(!program) return;
+
+		gl.enableVertexAttribArray(iVert);
+		gl.enableVertexAttribArray(iTex);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function drawFrame(scene:CocoScene, clip:CocoClip, maskDraw:Boolean)
+	{
+		if(!program) return;
+
+		var image:CocoImage = clip.__image;
+		var keyframe:CocoKeyFrame = clip.__currentFrame;
+		var tx:Float = image.textureGrid[keyframe.spriteSequenceFrameIndex * 2];
+		var ty:Float = image.textureGrid[keyframe.spriteSequenceFrameIndex * 2 + 1];
+
+		drawImage(clip.__image, tx, ty, keyframe.flipH, keyframe.flipV);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function drawImage(image:CocoImage, optional tx:Float, optional ty:Float, optional flipH:Boolean, optional flipV:Boolean)
+	{
+		if(!program) return;
+
+		var imageData:CocoImageRenderDataGL = image.renderData.castRenderDataGL();
+
+		// Image coords inside POT texture: array of [tx/pot_w, ty/pot_h, tw/pot_w, th/pot_h]
+		gl.uniform4fv(uTexSize, image.texSize);
+
+		// Sequence Frame tx,ty
+		gl.uniform2f(uSqFrame, tx, ty);
+
+		// Image flip array [horiz flip, vert flip]
+		gl.uniform2f(uFlip, (flipH ? -1.0 : 1.0), (flipV ? -1.0 : 1.0));
+
+		// Bind texture data and geometry
+		gl.bindBuffer(gl.ARRAY_BUFFER, imageData.buffer);
+
+		// Instruct OpenGL that iTex should be read from the buffer avove. Float = 4 bytes
+		// iTex is an array of 2 floats and we read them from the buffer above starting at offset 0 and stride is 24 bytes
+		gl.vertexAttribPointer(iTex, 2, gl.FLOAT, false, 16, 0);
+
+		// Instruct OpenGL that iVert should be read from the buffer avove. Float = 4 bytes
+		// iVert is an array of 2 floats and we read them from the buffer above starting at offset 16 and stride is 24 bytes
+		gl.vertexAttribPointer(iVert, 2, gl.FLOAT, false, 16, 8);
+
+		// Bind Texture
+		bindTexture(imageData.texture);
+
+		// Finally draw!!
+		if(imageData.texture)
+			gl.drawArrays(imageData.drawType, 0, imageData.vertexCount);
+
+		// Unbind buffer
+		if(!engine.__ENABLE_RENDERING_OPTIMIZATIONS)
+		{
+			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			bindTexture(null);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function drawFrameBuffer(frameBuffer:WebGLFramebuffer, texture:WebGLTexture, width:Integer, height:Integer)
+	{
+		if(!program) return;
+
+		//var w2:Float = gl.drawingBufferWidth / 2.0;
+		//var h2:Float = gl.drawingBufferHeight / 2.0;
+
+		var w2:Float = width / 2.0;
+		var h2:Float = height / 2.0;
+
+		// Image coords inside POT texture: array of [tx/pot_w, ty/pot_h, tw/pot_w, th/pot_h]
+		var texSize:Float32Array = new Float32Array([0, 0, 1 ,1]);
+		gl.uniform4fv(uTexSize, texSize);
+
+		// Sequence Frame tx,ty
+		gl.uniform2f(uSqFrame, 0, 0);
+
+		// Image flip array [horiz flip, vert flip]
+		gl.uniform2f(uFlip, 1.0, 1.0);
+
+		// Create a compatible VBO
+		var texData:Float32Array = new Float32Array([1.0,0.0,w2,h2,  1.0,1.0,w2,-h2,  0.0,0.0,-w2,h2,  0.0,1.0,-w2,-h2]);
+
+		var VBO:WebGLBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, VBO);
+		gl.bufferData(gl.ARRAY_BUFFER, texData, gl.STATIC_DRAW);
+
+		// Instruct OpenGL that iTex should be read from the buffer avove. Float = 4 bytes
+		// iTex is an array of 2 floats and we read them from the buffer above starting at offset 0 and stride is 24 bytes
+		gl.vertexAttribPointer(iTex, 2, gl.FLOAT, false, 16, 0);
+
+		// Instruct OpenGL that iVert should be read from the buffer avove. Float = 4 bytes
+		// iVert is an array of 2 floats and we read them from the buffer above starting at offset 16 and stride is 24 bytes
+		gl.vertexAttribPointer(iVert, 2, gl.FLOAT, false, 16, 8);
+
+		// Bind Texture
+		bindTexture(texture);
+
+		// Finally draw!!
+		if(texture)
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+		// Unbind buffer
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		bindTexture(null);
+
+		// Delete VBO
+		gl.deleteBuffer(VBO);
+		delete VBO;
+		delete texSize;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function deactivate()
+	{
+		gl.disableVertexAttribArray(iTex);
+		gl.disableVertexAttribArray(iVert);
+		super.deactivate;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                _____ __              __          ____                        __
+//	  / ____/___  _________ / ___// /_  ____ _____/ /__  _____/ __ \___  ____  ___  ____ _/ /_
+//	 / /   / __ \/ ___/ __ \\__ \/ __ \/ __ `/ __  / _ \/ ___/ /_/ / _ \/ __ \/ _ \/ __ `/ __/
+//	/ /___/ /_/ / /__/ /_/ /__/ / / / / /_/ / /_/ /  __/ /  / _, _/  __/ /_/ /  __/ /_/ / /_
+//	\____/\____/\___/\____/____/_/ /_/\__,_/\__,_/\___/_/  /_/ |_|\___/ .___/\___/\__,_/\__/
+//	                                                                 /_/
+// ==================================================================================================================================
+
+class CocoShaderRepeat : CocoShaderDefault
+{
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(ctx:CocoRenderContextGL) : CocoShaderDefault(ctx)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function activate()
+	{
+		super.activate;
+		if(!program) return;
+		gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function deactivate()
+	{
+		gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+		super.deactivate;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function updateFrame(scene:CocoScene, clip:CocoClip, maskDraw:Boolean)
+	{
+		if(!program) return;
+		super.updateFrame;
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                _____ __              __          ____                            ____  _       ___          _____    __      __
+//	  / ____/___  _________ / ___// /_  ____ _____/ /__  _____/ __ \________  ____ ___  __  __/ / /_(_)___  / (_)__  ____/ /   |  / /___  / /_  ____ _
+//	 / /   / __ \/ ___/ __ \\__ \/ __ \/ __ `/ __  / _ \/ ___/ /_/ / ___/ _ \/ __ `__ \/ / / / / __/ / __ \/ / / _ \/ __  / /| | / / __ \/ __ \/ __ `/
+//	/ /___/ /_/ / /__/ /_/ /__/ / / / / /_/ / /_/ /  __/ /  / ____/ /  /  __/ / / / / / /_/ / / /_/ / /_/ / / /  __/ /_/ / ___ |/ / /_/ / / / / /_/ /
+//	\____/\____/\___/\____/____/_/ /_/\__,_/\__,_/\___/_/  /_/   /_/   \___/_/ /_/ /_/\__,_/_/\__/_/ .___/_/_/\___/\__,_/_/  |_/_/ .___/_/ /_/\__,_/
+//	                                                                                              /_/                           /_/
+// ==================================================================================================================================
+
+class CocoShaderPremultipliedAlpha : CocoShaderDefault
+{
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(ctx:CocoRenderContextGL) : CocoShaderDefault(ctx)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function activate()
+	{
+		super.activate;
+		if(!program) return;
+		gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function deactivate()
+	{
+		gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+		super.deactivate;
+	}
+}
+
+// ==================================================================================================================================
+//	   ______                _____ __              __          ______                      __          __  ______
+//	  / ____/___  _________ / ___// /_  ____ _____/ /__  _____/ ____/___  ____ ___  ____  / /__  _  __/ / / /  _/
+//	 / /   / __ \/ ___/ __ \\__ \/ __ \/ __ `/ __  / _ \/ ___/ /   / __ \/ __ `__ \/ __ \/ / _ \| |/_/ / / // /
+//	/ /___/ /_/ / /__/ /_/ /__/ / / / / /_/ / /_/ /  __/ /  / /___/ /_/ / / / / / / /_/ / /  __/>  </ /_/ // /
+//	\____/\____/\___/\____/____/_/ /_/\__,_/\__,_/\___/_/   \____/\____/_/ /_/ /_/ .___/_/\___/_/|_|\____/___/
+//	                                                                            /_/
+// ==================================================================================================================================
+
+class CocoShaderComplexUI : CocoShaderDefault
+{
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(ctx:CocoRenderContextGL) : CocoShaderDefault(ctx)
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function activate()
+	{
+		super.activate;
+		if(!program) return;
+		gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function deactivate()
+	{
+		gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+		super.deactivate;
+	}
+}
+
+
+// ==================================================================================================================================
+//	   ______                _____ __              __          ____                        ___             ____
+//	  / ____/___  _________ / ___// /_  ____ _____/ /__  _____/ __ )____  __  ______  ____/ (_)___  ____ _/ __ )____  _  __
+//	 / /   / __ \/ ___/ __ \\__ \/ __ \/ __ `/ __  / _ \/ ___/ __  / __ \/ / / / __ \/ __  / / __ \/ __ `/ __  / __ \| |/_/
+//	/ /___/ /_/ / /__/ /_/ /__/ / / / / /_/ / /_/ /  __/ /  / /_/ / /_/ / /_/ / / / / /_/ / / / / / /_/ / /_/ / /_/ />  <
+//	\____/\____/\___/\____/____/_/ /_/\__,_/\__,_/\___/_/  /_____/\____/\__,_/_/ /_/\__,_/_/_/ /_/\__, /_____/\____/_/|_|
+//	                                                                                             /____/
+// ==================================================================================================================================
+
+class CocoShaderBoundingBox : CocoShader
+{
+	public var vbo:WebGLBuffer;
+
+	public var iVert:Integer;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Constructor(ctx:CocoRenderContextGL) : CocoShader(ctx)
+	{
+		vbo = null;
+		iVert = 0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function Destructor()
+	{
+		if(vbo)
+		{
+			gl.deleteBuffer(vbo);
+			vbo = null;
+		}
+
+		delete vbo;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function bindShaderVariables()
+	{
+		if(!program) return;
+
+		// Bind base class shader variables
+		super.bindShaderVariables;
+
+		// Bind additional shader variables
+		iVert = gl.getAttribLocation(program, "iVert");
+
+		vbo = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), gl.DYNAMIC_DRAW);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function activate()
+	{
+		super.activate;
+		if(!program) return;
+
+		gl.enableVertexAttribArray(iVert);
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public function drawBoundingBox(data:Float32Array)
+	{
+		if(!program) return;
+
+		gl.bufferSubData(gl.ARRAY_BUFFER, 0, data);
+		gl.vertexAttribPointer(iVert, 2, gl.FLOAT, false, 0, 0);
+		gl.drawArrays(gl.LINE_LOOP, 0, 4);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	public virtual function deactivate()
+	{
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.disableVertexAttribArray(iVert);
+		super.deactivate;
+	}
+}
+
